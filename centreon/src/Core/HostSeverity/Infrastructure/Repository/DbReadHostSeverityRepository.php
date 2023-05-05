@@ -245,7 +245,7 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
          *     hc_alias: string,
          *     hc_activate: '0'|'1',
          *     level: int,
-         *     icon_id: positive-int,
+         *     icon_id: int,
          *     hc_comment: string|null
          * } $result
          */
@@ -293,7 +293,7 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
              *     hc_alias: string,
              *     hc_activate: '0'|'1',
              *     level: int,
-             *     icon_id: positive-int,
+             *     icon_id: int,
              *     hc_comment: string|null
              * } $result */
             $hostSeverities[] = $this->createHostSeverityFromArray($result);
@@ -309,7 +309,7 @@ class DbReadHostSeverityRepository extends AbstractRepositoryRDB implements Read
      *     hc_alias: string,
      *     hc_activate: '0'|'1',
      *     level: int,
-     *     icon_id: positive-int,
+     *     icon_id: int,
      *     hc_comment: string|null
      * } $result
      *

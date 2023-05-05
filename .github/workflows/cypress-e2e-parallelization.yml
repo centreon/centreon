@@ -13,6 +13,15 @@ on:
       features_path:
         required: true
         type: string
+      major_version:
+        required: true
+        type: string
+      package_cache_key:
+        required: false
+        type: string
+      package_directory:
+        required: false
+        type: string
     secrets:
       registry_username:
         required: true
@@ -20,11 +29,6 @@ on:
         required: true
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
-    with:
-      version_file: centreon/www/install/insertBaseConf.sql
-
   cypress-e2e-test-list:
     runs-on: ubuntu-22.04
     outputs:
@@ -41,10 +45,10 @@ jobs:
           echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
-    needs: [cypress-e2e-test-list, get-version]
+    needs: [cypress-e2e-test-list]
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         feature: ${{ fromJson(needs.cypress-e2e-test-list.outputs.features) }}
     name: ${{ matrix.feature }}
@@ -52,6 +56,21 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
+
+      - name: Restore packages
+        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-update') }}"
+        uses: actions/cache@v3
+        with:
+          path: ./*.rpm
+          key: ${{ inputs.package_cache_key }}
+          fail-on-cache-miss: true
+
+      - name: Move packages
+        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-update') }}"
+        run: |
+          mkdir -p ${{ inputs.package_directory }}
+          mv ./*.rpm ${{ inputs.package_directory }}
+        shell: bash
 
       - name: Login to Registry
         uses: docker/login-action@v2
@@ -64,18 +83,33 @@ jobs:
         uses: ./.github/actions/cypress-e2e-testing
         with:
           name: ${{ inputs.name }}
-          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-alma9
-          image_openid_version: ${{ needs.get-version.outputs.major_version }}
-          image_version: ${{ github.head_ref || github.ref_name }}
+          web_image_version: ${{ github.head_ref || github.ref_name }}
+          openid_image_version: ${{ inputs.major_version }}
           module: centreon
           feature_file_path: ${{matrix.feature}}
 
-      - name: Upload e2e tests Results
+      - name: Upload test logs
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-test-logs
+          path: ${{ inputs.module_name }}/tests/e2e/cypress/results/logs/*
+          retention-days: 1
+
+      - name: Upload videos
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-test-logs
+          path: ${{ inputs.module_name }}/tests/e2e/cypress/results/videos/
+          retention-days: 1
+
+      - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
-          path: centreon/tests/e2e/cypress/results/reports/*.json
+          path: ${{ inputs.module_name }}/tests/e2e/cypress/results/reports/*.json
           retention-days: 1
 
   cypress-e2e-test-report:

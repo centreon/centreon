@@ -229,12 +229,8 @@ final class AddHostGroup
             $request->notes,
             $request->notesUrl,
             $request->actionUrl,
-            null === $request->iconId || $request->iconId < 1
-                ? null
-                : $request->iconId,
-            null === $request->iconMapId || $request->iconMapId < 1
-                ? null
-                : $request->iconMapId,
+            $request->iconId,
+            $request->iconMapId,
             $request->rrdRetention,
             match ($request->geoCoords) {
                 null, '' => null,

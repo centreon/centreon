@@ -2,8 +2,7 @@ import { MouseEvent, useEffect, useRef, useState } from 'react';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { equals, flatten, isEmpty, isNil, length } from 'ramda';
-import { useAtom } from 'jotai';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import List from '@mui/material/List';
@@ -59,6 +58,9 @@ const NavigationMenu = ({
     number | undefined
   >(undefined);
   const [isDoubleClickedFromRoot, setIsDoubleClickedFromRoot] = useState(false);
+
+  const [isOverMenu, setIsOverMenu] = useState(false);
+
   const timeoutRef = useRef<null | NodeJS.Timeout>(null);
   const menuRef = useRef<HTMLUListElement>(null);
   const [selectedNavigationItems, setSelectedNavigationItems] = useAtom(
@@ -69,7 +71,7 @@ const NavigationMenu = ({
   );
   const user = useAtomValue(userAtom);
 
-  const setHoveredNavigationItemsDerived = useUpdateAtom(
+  const setHoveredNavigationItemsDerived = useSetAtom(
     setHoveredNavigationItemsDerivedAtom
   );
 
@@ -240,12 +242,18 @@ const NavigationMenu = ({
     });
   };
 
-  const closeMenu = (event): void => {
+  const moveMouse = (event): void => {
     const mouseOver = menuRef?.current?.contains(event.target);
-    if (!mouseOver) {
-      handleLeave();
-    }
+    setIsOverMenu(Boolean(mouseOver));
   };
+
+  useEffect(() => {
+    if (isOverMenu) {
+      return;
+    }
+
+    handleLeave();
+  }, [isOverMenu]);
 
   const visibilitychange = (): void => {
     if (equals(document.visibilityState, 'visible')) {
@@ -271,11 +279,11 @@ const NavigationMenu = ({
       iframe.addEventListener('load', () => {
         iframe.contentWindow?.document?.addEventListener(
           'mousemove',
-          closeMenu
+          moveMouse
         );
       });
     } else {
-      window.addEventListener('mousemove', closeMenu);
+      window.addEventListener('mousemove', moveMouse);
     }
   }, [pathname, search]);
 

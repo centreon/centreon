@@ -14,6 +14,7 @@ Depends:
   centreon-common (>= ${centreon:version}~),
   centreon-common (<< ${centreon:versionThreshold}~),
   libdatetime-perl,
+  libtime-parsedate-perl,
   libtry-tiny-perl,
   libxml-simple-perl,
   libxml-libxml-simple-perl,

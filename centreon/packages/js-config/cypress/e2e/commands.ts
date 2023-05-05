@@ -1,8 +1,23 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
-const apiBase = `${Cypress.config().baseUrl}/centreon/api`;
+const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
+
+Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
+  return cy
+    .exec(
+      `bash -c "grep version ../../www/install/insertBaseConf.sql | cut -d \\' -f 4 | awk 'NR==2'"`
+    )
+    .then(({ stdout }) => {
+      const found = stdout.match(/(\d+\.\d+)\.(\d+)/);
+      if (found) {
+        return cy.wrap({ major_version: found[1], minor_version: found[2] });
+      }
+
+      throw new Error('Current web version cannot be parsed.');
+    });
+});
 
 Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
   return cy
@@ -15,7 +30,10 @@ Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
 Cypress.Commands.add(
   'hoverRootMenuItem',
   (rootItemNumber: number): Cypress.Chainable => {
-    return cy.get('li').eq(rootItemNumber).trigger('mouseover');
+    return cy
+      .get('div[data-testid="sidebar"] li')
+      .eq(rootItemNumber)
+      .trigger('mouseover');
   }
 );
 
@@ -63,29 +81,43 @@ Cypress.Commands.add(
   }
 );
 
-interface CopyOntoContainerProps {
-  destPath: string;
-  srcPath: string;
+interface CopyFromContainerProps {
+  destination: string;
+  source: string;
 }
 
 Cypress.Commands.add(
-  'copyOntoContainer',
-  ({ srcPath, destPath }: CopyOntoContainerProps) => {
+  'copyFromContainer',
+  ({ source, destination }: CopyFromContainerProps) => {
     return cy.exec(
-      `docker cp ${srcPath} ${Cypress.env('dockerName')}:${destPath}`
+      `docker cp ${Cypress.env('dockerName')}:${source} "${destination}"`
+    );
+  }
+);
+
+interface CopyToContainerProps {
+  destination: string;
+  source: string;
+}
+
+Cypress.Commands.add(
+  'copyToContainer',
+  ({ source, destination }: CopyToContainerProps) => {
+    return cy.exec(
+      `docker cp ${source} ${Cypress.env('dockerName')}:${destination}`
     );
   }
 );
 
 interface LoginByTypeOfUserProps {
   jsonName?: string;
-  preserveToken?: boolean;
+  loginViaApi?: boolean;
 }
 
 Cypress.Commands.add(
   'loginByTypeOfUser',
-  ({ jsonName, preserveToken }): Cypress.Chainable => {
-    if (preserveToken) {
+  ({ jsonName, loginViaApi }): Cypress.Chainable => {
+    if (loginViaApi) {
       return cy
         .fixture(`users/${jsonName}.json`)
         .then((user) => {
@@ -98,14 +130,8 @@ Cypress.Commands.add(
             url: apiLoginV2
           });
         })
-        .then(() => {
-          Cypress.Cookies.defaults({
-            preserve: 'PHPSESSID'
-          });
-        })
-        .then(() => {
-          cy.visit(`${Cypress.config().baseUrl}`);
-        });
+        .visit(`${Cypress.config().baseUrl}`)
+        .wait('@getNavigationList');
     }
     cy.visit(`${Cypress.config().baseUrl}`)
       .fixture(`users/${jsonName}.json`)
@@ -126,6 +152,17 @@ Cypress.Commands.add(
         }
       });
   }
+);
+
+Cypress.Commands.add(
+  'visitEmptyPage',
+  (): Cypress.Chainable =>
+    cy
+      .intercept('/waiting-page', {
+        headers: { 'content-type': 'text/html' },
+        statusCode: 200
+      })
+      .visit('/waiting-page')
 );
 
 interface ActionClapi {
@@ -172,19 +209,155 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('waitForContainerAndSetToken', (): Cypress.Chainable => {
+  return cy.setUserTokenApiV1();
+});
+
+interface ExecInContainerProps {
+  command: string;
+  name: string;
+}
+
+Cypress.Commands.add(
+  'execInContainer',
+  ({ command, name }: ExecInContainerProps): Cypress.Chainable => {
+    return cy.exec(`docker exec -i ${name} ${command}`);
+  }
+);
+
+interface PortBinding {
+  destination: number;
+  source: number;
+}
+
+interface StartContainerProps {
+  image: string;
+  name: string;
+  portBindings: Array<PortBinding>;
+}
+
+Cypress.Commands.add(
+  'startContainer',
+  ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
+    return cy
+      .exec(`docker image inspect ${image} || docker pull ${image}`)
+      .task('startContainer', { image, name, portBindings });
+  }
+);
+
+interface StartWebContainerProps {
+  name?: string;
+  os?: string;
+  useSlim?: boolean;
+  version?: string;
+}
+
+Cypress.Commands.add(
+  'startWebContainer',
+  ({
+    name = Cypress.env('dockerName'),
+    os = 'alma9',
+    useSlim = true,
+    version = Cypress.env('WEB_IMAGE_VERSION')
+  }: StartWebContainerProps = {}): Cypress.Chainable => {
+    const slimSuffix = useSlim ? '-slim' : '';
+
+    const image = `docker.centreon.com/centreon/centreon-web${slimSuffix}-${os}:${version}`;
+
+    return cy
+      .startContainer({
+        image,
+        name,
+        portBindings: [{ destination: 4000, source: 80 }]
+      })
+      .then(() => {
+        const baseUrl = 'http://0.0.0.0:4000';
+
+        Cypress.config('baseUrl', baseUrl);
+
+        return cy.exec(
+          `npx wait-on ${baseUrl}/centreon/api/latest/platform/installation/status`
+        );
+      })
+      .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
+      .setUserTokenApiV1();
+  }
+);
+
+interface StopWebContainerProps {
+  name?: string;
+}
+
+Cypress.Commands.add(
+  'stopWebContainer',
+  ({
+    name = Cypress.env('dockerName')
+  }: StopWebContainerProps = {}): Cypress.Chainable => {
+    const logDirectory = `cypress/results/logs/${
+      Cypress.spec.name
+    }/${Cypress.currentTest.title.replace(/,|\s|\//g, '_')}`;
+
+    return cy
+      .visitEmptyPage()
+      .exec(`mkdir -p "${logDirectory}"`)
+      .copyFromContainer({
+        destination: `${logDirectory}/broker`,
+        source: '/var/log/centreon-broker'
+      })
+      .copyFromContainer({
+        destination: `${logDirectory}/engine`,
+        source: '/var/log/centreon-engine'
+      })
+      .copyFromContainer({
+        destination: `${logDirectory}/centreon`,
+        source: '/var/log/centreon'
+      })
+      .stopContainer({ name });
+  }
+);
+
+interface StopContainerProps {
+  name: string;
+}
+
+Cypress.Commands.add(
+  'stopContainer',
+  ({ name }: StopContainerProps): Cypress.Chainable => {
+    cy.exec(`docker logs ${name}`).then(({ stdout }) => {
+      cy.writeFile(
+        `cypress/results/logs/${
+          Cypress.spec.name
+        }/${Cypress.currentTest.title.replace(
+          /,|\s|\//g,
+          '_'
+        )}/container-${name}.log`,
+        stdout
+      );
+    });
+
+    return cy.task('stopContainer', { name });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
-      copyOntoContainer: (props: CopyOntoContainerProps) => Cypress.Chainable;
+      copyFromContainer: (props: CopyFromContainerProps) => Cypress.Chainable;
+      copyToContainer: (props: CopyToContainerProps) => Cypress.Chainable;
+      execInContainer: ({
+        command,
+        name
+      }: ExecInContainerProps) => Cypress.Chainable;
       executeActionViaClapi: (
         props: ExecuteActionViaClapiProps
       ) => Cypress.Chainable;
       executeCommandsViaClapi: (fixtureFile: string) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
+      getWebVersion: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       loginByTypeOfUser: ({
         jsonName = 'admin',
-        preserveToken = false
+        loginViaApi = false
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
       moveSortableElement: (direction: string) => Cypress.Chainable;
       navigateTo: ({
@@ -192,6 +365,22 @@ declare global {
         rootItemNumber,
         subMenu
       }: NavigateToProps) => Cypress.Chainable;
+      startContainer: ({
+        name,
+        image
+      }: StartContainerProps) => Cypress.Chainable;
+      startWebContainer: ({
+        name,
+        os,
+        useSlim,
+        version
+      }?: StartWebContainerProps) => Cypress.Chainable;
+      stopContainer: ({ name }: StopContainerProps) => Cypress.Chainable;
+      stopWebContainer: ({ name }?: StopWebContainerProps) => Cypress.Chainable;
+      visitEmptyPage: () => Cypress.Chainable;
+      waitForContainerAndSetToken: () => Cypress.Chainable;
     }
   }
 }
+
+export {};

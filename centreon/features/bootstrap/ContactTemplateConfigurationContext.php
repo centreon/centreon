@@ -98,32 +98,9 @@ class ContactTemplateConfigurationContext extends CentreonContext
      */
     public function thePropertiesAreUpdated()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new ContactTemplateConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->updatedProperties['alias']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->updatedProperties as $key => $value) {
-                        if ($value != $object[$key]) {
-                            if (is_array($value)) {
-                                $value = implode(' ', $value);
-                            }
-                            if ($value != $object[$key]) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new ContactTemplateConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->updatedProperties['alias']);
+        $this->comparePageProperties($this->currentPage, $this->updatedProperties);
     }
 
     /**
@@ -144,35 +121,12 @@ class ContactTemplateConfigurationContext extends CentreonContext
      */
     public function theNewServiceTemplateHasTheSameProperties()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new ContactTemplateConfigurationListingPage($this);
-                    $this->currentPage = $this->currentPage->inspect($this->initialProperties['alias'] . '_1');
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->initialProperties as $key => $value) {
-                        if ($key != 'name' && $key != 'alias' && $value != $object[$key]) {
-                            if (is_array($value)) {
-                                $value = implode(' ', $value);
-                            }
-                            if ($value != $object[$key]) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                        if (($key == 'name' || $key == 'alias') && $value . '_1' != $object[$key]) {
-                            $this->tableau[] = $key;
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new ContactTemplateConfigurationListingPage($this);
+        $this->currentPage = $this->currentPage->inspect($this->initialProperties['alias'] . '_1');
+        $newProperties = $this->initialProperties;
+        $newProperties['name'] = $this->initialProperties['name'] . '_1';
+        $newProperties['alias'] = $this->initialProperties['alias'] . '_1';
+        $this->comparePageProperties($this->currentPage, $newProperties);
     }
 
     /**

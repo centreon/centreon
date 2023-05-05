@@ -32,7 +32,7 @@ class ServiceSeverity extends NewServiceSeverity
      * @param string $name
      * @param string $alias
      * @param int $level
-     * @param positive-int $iconId
+     * @param int $iconId
      *
      * @throws AssertionFailedException
      */

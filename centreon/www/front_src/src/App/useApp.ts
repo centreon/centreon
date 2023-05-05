@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 
 import { useSetAtom } from 'jotai';
-import { useUpdateAtom } from 'jotai/utils';
 import { equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -66,11 +65,11 @@ const useApp = (): UseAppState => {
       request: getData
     });
 
-  const setDowntime = useUpdateAtom(downtimeAtom);
-  const setRefreshInterval = useUpdateAtom(refreshIntervalAtom);
-  const setAcl = useUpdateAtom(aclAtom);
-  const setAcknowledgement = useUpdateAtom(acknowledgementAtom);
-  const setAreUserParametersLoaded = useUpdateAtom(areUserParametersLoadedAtom);
+  const setDowntime = useSetAtom(downtimeAtom);
+  const setRefreshInterval = useSetAtom(refreshIntervalAtom);
+  const setAcl = useSetAtom(aclAtom);
+  const setAcknowledgement = useSetAtom(acknowledgementAtom);
+  const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
 
   const setPlaformName = useSetAtom(platformNameAtom);
 
