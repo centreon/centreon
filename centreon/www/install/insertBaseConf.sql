@@ -1490,5 +1490,5 @@ INSERT INTO provider_configuration (`type`, `name`, `custom_configuration`, `is_
 VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate":"","user_id_attribute":"","logout_from":false,"logout_from_url":null,"auto_import":false,"contact_template_id":null,"email_bind_attribute":null,"fullname_bind_attribute":null,"authentication_conditions":{"is_enabled":false,"attribute_path":"","authorized_values":[]},"roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":""},"groups_mapping":{"is_enabled":false,"attribute_path":""}}', 0, 0);
 
 -- Add base widgets to the database
-INSERT INTO `widget_models` (`title`,`version`,`description`,`url`,`directory`,`author`) VALUES ('Centreon Text Widget','23.10.0','This is a sample widget with text','http://centreon.com','centreon-widget-text','Centreon');
-INSERT INTO `widget_models` (`title`,`version`,`description`,`url`,`directory`,`author`) VALUES ('Centreon Text2 Widget','23.10.0','This is a sample widget with text','http://centreon.com','centreon-widget-text2','Centreon');
+INSERT INTO `widget_models` (`title`,`version`,`description`,`url`,`directory`,`author`) VALUES ('centreon-widget-text','23.10.0','This is a sample widget with text','http://centreon.com','centreon-widget-text','Centreon');
+INSERT INTO `widget_models` (`title`,`version`,`description`,`url`,`directory`,`author`) VALUES ('centreon-widget-text2','23.10.0','This is a sample widget with text','http://centreon.com','centreon-widget-text2','Centreon');
