@@ -4,7 +4,7 @@ info:
   description: |
     # New features
     + Added host severities endpoints (GET, PUT)
-    + Added host categories endpoint (GET)
+    + Added host categories endpoint (GET, PUT)
     + Added host group endpoints (GET, PUT)
     +
     # Updated features
