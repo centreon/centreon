@@ -2,19 +2,21 @@ import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
+import { useAtomValue } from 'jotai';
+import { isEmpty, map } from 'ramda';
 
 import { Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 
 import { IconButton } from '@centreon/ui';
 
-import DeleteDialog from '../../Listing/Dialogs/DeleteDialog';
-import { labelDelete } from '../../translatedLabels';
+import { selectedRowsAtom } from '../../../atom';
+import DeleteDialog from '../../Dialogs/DeleteDialog';
+import { labelDelete } from '../../../translatedLabels';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
-    color: theme.palette.text.secondary,
-    fontSize: theme.spacing(2.75)
+    color: theme.palette.text.secondary
   }
 }));
 
@@ -23,30 +25,35 @@ const DeleteAction = (): JSX.Element => {
 
   const { t } = useTranslation();
 
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const selected = useAtomValue(selectedRowsAtom);
 
-  const onDeleteActionClick = (): void => setOpenDeleteDialog(true);
+  const onDeleteActionClick = (): void => {
+    setDialogOpen(true);
+    console.log('selected : ', map(({ id }) => id)(selected));
+  };
 
   const onDeleteActionCancel = (): void => {
-    setOpenDeleteDialog(false);
+    setDialogOpen(false);
   };
 
   const onDeleteActionConfirm = (): void => {
-    setOpenDeleteDialog(false);
+    setDialogOpen(false);
   };
 
   return (
     <Box>
       <IconButton
         ariaLabel={t(labelDelete)}
-        disabled={false}
+        className={classes.icon}
+        disabled={isEmpty(selected)}
         title={t(labelDelete)}
         onClick={onDeleteActionClick}
       >
-        <DeleteIcon className={classes.icon} />
+        <DeleteIcon />
       </IconButton>
       <DeleteDialog
-        open={openDeleteDialog}
+        open={dialogOpen}
         onCancel={onDeleteActionCancel}
         onConfirm={onDeleteActionConfirm}
       />

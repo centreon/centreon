@@ -54,7 +54,6 @@ const formatResource = ({ resources, resourceType }): object => {
 };
 
 export const getInitialValues = ({
-  id,
   name,
   isActivated,
   users,
@@ -67,7 +66,6 @@ export const getInitialValues = ({
   //   resources
   // }),
   hostGroups: formatResource({ resourceType: ResourcesTypeEnum.HG, resources }),
-  id,
   isActivated,
   messages: formatMessages(messages[0]),
   name,

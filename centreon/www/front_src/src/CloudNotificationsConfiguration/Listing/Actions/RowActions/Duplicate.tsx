@@ -9,8 +9,8 @@ import { Box } from '@mui/material';
 import { IconButton } from '@centreon/ui';
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import DuplicateDialog from '../Dialogs/DuplicateDialog';
-import { labelDuplicate } from '../../translatedLabels';
+import DuplicateDialog from '../../Dialogs/DuplicateDialog';
+import { labelDuplicate } from '../../../translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
   icon: {

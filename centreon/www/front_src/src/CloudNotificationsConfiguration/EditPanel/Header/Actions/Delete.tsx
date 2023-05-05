@@ -2,21 +2,19 @@ import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-import { useAtomValue } from 'jotai';
-import { isEmpty } from 'ramda';
 
 import { Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 
 import { IconButton } from '@centreon/ui';
 
-import { selectedRowsAtom } from '../atom';
-import DeleteDialog from '../Listing/Dialogs/DeleteDialog';
-import { labelDelete } from '../translatedLabels';
+import DeleteDialog from '../../../Listing/Dialogs/DeleteDialog';
+import { labelDelete } from '../../../translatedLabels';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
-    color: theme.palette.text.secondary
+    color: theme.palette.text.secondary,
+    fontSize: theme.spacing(2.75)
   }
 }));
 
@@ -25,32 +23,30 @@ const DeleteAction = (): JSX.Element => {
 
   const { t } = useTranslation();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const selected = useAtomValue(selectedRowsAtom);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
-  const onDeleteActionClick = (): void => setDialogOpen(true);
+  const onDeleteActionClick = (): void => setOpenDeleteDialog(true);
 
   const onDeleteActionCancel = (): void => {
-    setDialogOpen(false);
+    setOpenDeleteDialog(false);
   };
 
   const onDeleteActionConfirm = (): void => {
-    setDialogOpen(false);
+    setOpenDeleteDialog(false);
   };
 
   return (
     <Box>
       <IconButton
         ariaLabel={t(labelDelete)}
-        className={classes.icon}
-        disabled={isEmpty(selected)}
+        disabled={false}
         title={t(labelDelete)}
         onClick={onDeleteActionClick}
       >
-        <DeleteIcon />
+        <DeleteIcon className={classes.icon} />
       </IconButton>
       <DeleteDialog
-        open={dialogOpen}
+        open={openDeleteDialog}
         onCancel={onDeleteActionCancel}
         onConfirm={onDeleteActionConfirm}
       />

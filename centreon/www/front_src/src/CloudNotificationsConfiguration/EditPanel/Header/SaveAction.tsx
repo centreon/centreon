@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 import { FormikValues, useFormikContext } from 'formik';
 import { equals } from 'ramda';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { Box } from '@mui/material';
 import SaveIcon from '@mui/icons-material/SaveOutlined';
@@ -16,7 +16,7 @@ import {
   Method
 } from '@centreon/ui';
 
-import { panelModeAtom } from '../atom';
+import { EditedNotificationIdAtom, panelModeAtom } from '../atom';
 import { isPanelOpenAtom } from '../../atom';
 import DeleteDialog from '../../Listing/Dialogs/DeleteDialog';
 import { labelSave } from '../../translatedLabels';
@@ -33,14 +33,14 @@ const useStyle = makeStyles()((theme) => ({
 const SaveAction = (): JSX.Element => {
   const { t } = useTranslation();
   const [openSaveDialog, setOpenSaveDialog] = useState(false);
-  const [panelMode] = useAtom(panelModeAtom);
+  const panelMode = useAtomValue(panelModeAtom);
+  const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
   const setPanelOpen = useSetAtom(isPanelOpenAtom);
-
   const { isError, isMutating, mutate, mutateAsync } = useMutationQuery({
     getEndpoint: () =>
       equals(panelMode, PanelMode.Create)
         ? notificationtEndpoint({})
-        : notificationtEndpoint({ id: 1 }),
+        : notificationtEndpoint({ id: editedNotificationId }),
     method: equals(panelMode, PanelMode.Create) ? Method.POST : Method.PUT
     // decoder,
     // defaultFailureMessage,

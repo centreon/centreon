@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
+
 import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
-import { equals, gt } from 'ramda';
+import { useAtom, useAtomValue } from 'jotai';
+import { equals, gt, isNil } from 'ramda';
 
 import { Box, Button } from '@mui/material';
 
@@ -18,7 +20,7 @@ import { emptyInitialValues, getInitialValues } from './initialValues';
 import { submit } from './submit';
 import { validationSchema } from './validationSchema';
 import Header from './Header';
-import { panelModeAtom } from './atom';
+import { EditedNotificationIdAtom, panelModeAtom } from './atom';
 import { PanelMode } from './models';
 import { notificationtEndpoint } from './api/endpoints';
 import { notificationdecoder } from './api/decoders';
@@ -56,18 +58,34 @@ const ReducePanel = (): JSX.Element => {
 
 const Form = (): JSX.Element => {
   const { classes } = useStyles();
-  const [panelMode] = useAtom(panelModeAtom);
-  const [panelWidth] = useAtom(panelWidthStorageAtom);
 
-  const { data, isLoading } = useFetchQuery({
+  const [formInitialValues, setFormInitialValues] =
+    useState(emptyInitialValues);
+  const panelMode = useAtomValue(panelModeAtom);
+  const panelWidth = useAtomValue(panelWidthStorageAtom);
+  const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
+
+  const { data, isLoading, fetchQuery } = useFetchQuery({
     decoder: notificationdecoder,
-    getEndpoint: () => notificationtEndpoint({ id: 1 }),
-    getQueryKey: () => ['notification']
+    getEndpoint: () => notificationtEndpoint({ id: editedNotificationId }),
+    getQueryKey: () => ['notification', editedNotificationId],
+    queryOptions: {
+      // enabled: false,
+      // refetchOnMount: false,
+      suspense: false
+    }
   });
 
-  const formInitialValues = equals(panelMode, PanelMode.Create)
-    ? emptyInitialValues
-    : getInitialValues(data);
+  useEffect(() => {
+    fetchQuery().then(() => {
+      if (equals(panelMode, PanelMode.Edit)) {
+        setFormInitialValues(getInitialValues(data));
+      }
+    });
+  }, [editedNotificationId]);
+  // const formInitialValues = equals(panelMode, PanelMode.Create)
+  //   ? emptyInitialValues
+  //   : getInitialValues(data);
 
   // console.log(notificationdecoder.decode(dumyData));
   // console.log(getInitialValues(data));

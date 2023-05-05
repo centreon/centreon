@@ -12,7 +12,7 @@ import {
 
 import { FormatChannels, formatResourcesForListing } from './utils';
 import Actions from './Actions';
-import ActionActivate from './Actions/ActivateAction';
+import ActionActivate from './Actions/RowActions/Activate';
 
 export const fillNotifications = (numberOfRows: number): unknown => {
   return Array.from(Array(numberOfRows).keys()).map((index) => ({

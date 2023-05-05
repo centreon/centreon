@@ -7,7 +7,7 @@ import { baseEndpoint } from '../../../api/endpoint';
 export const notificationListingEndpoint = `http://localhost:3000/api/latest/notifications`;
 
 interface Props {
-  id?: number;
+  id?: number | null;
 }
 export const notificationtEndpoint = ({ id }: Props): string => {
   if (isNil(id)) {

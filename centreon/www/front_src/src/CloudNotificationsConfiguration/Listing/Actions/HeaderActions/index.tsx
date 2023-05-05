@@ -2,9 +2,9 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Box } from '@mui/material';
 
-import ActionAdd from '../Actions/AddAction';
-import ActionDelete from '../Actions/DeleteAction';
-import ActionDuplicate from '../Actions/DuplicateAction';
+import Add from './Add';
+import Delete from './Delete';
+import Duplicate from './Duplicate';
 
 const useStyle = makeStyles()((theme) => ({
   actions: {
@@ -23,10 +23,10 @@ const Actions = (): JSX.Element => {
 
   return (
     <Box className={classes.actions}>
-      <ActionAdd />
+      <Add />
       <Box className={classes.icons}>
-        <ActionDelete />
-        <ActionDuplicate />
+        <Delete />
+        <Duplicate />
       </Box>
     </Box>
   );

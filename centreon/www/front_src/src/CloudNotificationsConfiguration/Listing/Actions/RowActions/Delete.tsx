@@ -8,8 +8,8 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { IconButton } from '@centreon/ui';
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import DeleteDialog from '../Dialogs/DeleteDialog';
-import { labelDelete } from '../../translatedLabels';
+import DeleteDialog from '../../Dialogs/DeleteDialog';
+import { labelDelete } from '../../../translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
   icon: {

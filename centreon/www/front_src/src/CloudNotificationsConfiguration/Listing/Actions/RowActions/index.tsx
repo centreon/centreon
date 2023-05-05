@@ -4,8 +4,8 @@ import { Box } from '@mui/material';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import ActionDelete from './DeleteAction';
-import ActionDuplicate from './DuplicateAction';
+import Delete from './Delete';
+import Duplicate from './Duplicate';
 
 const useStyles = makeStyles()((theme) => ({
   actions: {
@@ -19,8 +19,8 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
 
   return (
     <Box className={classes.actions}>
-      <ActionDelete row={row} />
-      <ActionDuplicate row={row} />
+      <Delete row={row} />
+      <Duplicate row={row} />
     </Box>
   );
 };
