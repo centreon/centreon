@@ -1,14 +1,10 @@
 import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
-import dayjs from 'dayjs';
-import { gte } from 'ramda';
 
-import useLocaleDateTimeFormat, {
-  dateFormat,
-  timeFormat
-} from '../../utils/useLocaleDateTimeFormat';
-import { GraphParameters } from '../models';
+import useLocaleDateTimeFormat from '../../utils/useLocaleDateTimeFormat';
 import { getUnits } from '../timeSeries';
+import { getXAxisTickFormat } from '../helpers';
+import { GraphParameters } from '../models';
 
 import UnitLabel from './UnitLabel';
 import { Data } from './models';
@@ -16,9 +12,9 @@ import useAxisY from './useAxisY';
 
 interface Props {
   data: Data;
+  graphInterval: GraphParameters;
   height: number;
   leftScale: ScaleLinear<number, number>;
-  queryParameters?: GraphParameters;
   rightScale: ScaleLinear<number, number>;
   width: number;
   xScale: ScaleLinear<number, number>;
@@ -31,7 +27,7 @@ const Axes = ({
   rightScale,
   leftScale,
   xScale,
-  queryParameters
+  graphInterval
 }: Props): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
   const { lines } = data;
@@ -42,20 +38,8 @@ const Axes = ({
 
   const xTickCount = Math.ceil(width / 82);
 
-  const getXAxisTickFormat = (): string => {
-    const parameters = queryParameters;
-    if (!parameters) {
-      return timeFormat;
-    }
-
-    const numberDays = dayjs
-      .duration(dayjs(parameters.end).diff(dayjs(parameters.start)))
-      .asDays();
-
-    return gte(numberDays, 2) ? dateFormat : timeFormat;
-  };
-
-  const tickFormat = data?.axisX?.xAxisTickFormat || getXAxisTickFormat();
+  const tickFormat =
+    data?.axisX?.xAxisTickFormat ?? getXAxisTickFormat(graphInterval);
 
   const formatAxisTick = (tick): string =>
     format({ date: new Date(tick), formatString: tickFormat });

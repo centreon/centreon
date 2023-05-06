@@ -5,8 +5,8 @@ import { ScaleTime } from 'd3-scale';
 import { ZoomPreview } from '../../models';
 
 export interface ZoomBoundaries {
-  end: string;
-  start: string;
+  end: Date;
+  start: Date;
 }
 
 export interface ZoomPreviewData extends ZoomPreview {

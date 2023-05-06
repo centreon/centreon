@@ -19,13 +19,14 @@ import useRegularLines from './Lines/RegularLines/useRegularLines';
 import useStackedLines from './Lines/StackedLines/useStackedLines';
 import LoadingProgress from './LoadingProgress';
 import { margin } from './common';
-import { Data, GlobalAreaLines, GraphProps } from './models';
+import { Data, GlobalAreaLines, GraphParameters, GraphProps } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
 
 interface Props extends GraphProps {
   graphData: Data;
+  graphInterval: GraphParameters;
   loading: boolean;
-  shapeLines: GlobalAreaLines;
+  shapeLines?: GlobalAreaLines;
 }
 
 const Graph = ({
@@ -36,14 +37,15 @@ const Graph = ({
   axis,
   anchorPoint,
   loading,
-  zoomPreview
+  zoomPreview,
+  graphInterval
 }: Props): JSX.Element => {
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
 
-  const { title, timeSeries, lines, baseAxis, queryParameters } = graphData;
+  const { title, timeSeries, lines, baseAxis } = graphData;
 
   const xScale = useMemo(
     () =>
@@ -198,9 +200,9 @@ const Graph = ({
               timeSeries,
               ...axis
             }}
+            graphInterval={graphInterval}
             height={graphHeight}
             leftScale={leftScale}
-            queryParameters={queryParameters}
             rightScale={rightScale}
             width={graphWidth}
             xScale={xScale}

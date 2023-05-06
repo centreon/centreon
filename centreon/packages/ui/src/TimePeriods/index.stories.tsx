@@ -67,7 +67,7 @@ const argTypes = {
   }
 };
 
-export const Playground: Story = {
+export const TimePeriod: Story = {
   ...Template,
   argTypes,
   args

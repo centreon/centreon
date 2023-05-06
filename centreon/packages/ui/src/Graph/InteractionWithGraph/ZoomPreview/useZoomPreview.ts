@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { equals, gte, isNil, lt } from 'ramda';
 
 import { margin } from '../../common';
@@ -12,6 +12,7 @@ import {
   eventMouseUpAtom
 } from '../interactionWithGraphAtoms';
 
+import { ZoomBoundaries } from './models';
 import { zoomParametersAtom } from './zoomPreviewAtoms';
 
 interface Boundaries {
@@ -21,6 +22,7 @@ interface Boundaries {
 interface ZoomPreview {
   zoomBarWidth: number;
   zoomBoundaries: Boundaries | null;
+  zoomParameters: ZoomBoundaries | null;
 }
 
 interface Props {
@@ -35,11 +37,10 @@ const useZoomPreview = ({
   graphWidth
 }: Props): ZoomPreview => {
   const [zoomBoundaries, setZoomBoundaries] = useState<Boundaries | null>(null);
+  const [zoomParameters, setZoomParameters] = useAtom(zoomParametersAtom);
   const eventMouseMoving = useAtomValue(eventMouseMovingAtom);
   const eventMouseDown = useAtomValue(eventMouseDownAtom);
   const eventMouseUp = useAtomValue(eventMouseUpAtom);
-
-  const setZoomParameters = useSetAtom(zoomParametersAtom);
 
   const mousePointDown = eventMouseDown
     ? Event.localPoint(eventMouseDown)
@@ -63,8 +64,8 @@ const useZoomPreview = ({
     }
 
     setZoomParameters({
-      end: xScale?.invert(zoomBoundaries?.end || graphWidth)?.toISOString(),
-      start: xScale?.invert(zoomBoundaries?.start || 0)?.toISOString()
+      end: xScale?.invert(zoomBoundaries?.end || graphWidth),
+      start: xScale?.invert(zoomBoundaries?.start || 0)
     });
   };
 
@@ -95,7 +96,7 @@ const useZoomPreview = ({
     (zoomBoundaries?.end || 0) - (zoomBoundaries?.start || 0)
   );
 
-  return { zoomBarWidth, zoomBoundaries };
+  return { zoomBarWidth, zoomBoundaries, zoomParameters };
 };
 
 export default useZoomPreview;

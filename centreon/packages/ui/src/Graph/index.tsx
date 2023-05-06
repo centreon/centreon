@@ -9,22 +9,22 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 
 import Graph from './Graph';
-import { GlobalAreaLines, GraphProps } from './models';
+import { GlobalAreaLines, GraphData, GraphProps } from './models';
 import useGraphData from './useGraphData';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 
-interface Props extends GraphProps {
-  baseUrl: string;
+interface Props extends Partial<GraphProps> {
+  data: GraphData;
   end: string;
-  shapeLines: GlobalAreaLines;
+  loading: boolean;
+  shapeLines?: GlobalAreaLines;
   start: string;
 }
 
 const WrapperGraph = ({
-  baseUrl,
   end,
   start,
   height,
@@ -32,11 +32,13 @@ const WrapperGraph = ({
   shapeLines,
   axis,
   anchorPoint,
-  zoomPreview
+  zoomPreview,
+  data,
+  loading
 }: Props): JSX.Element | null => {
-  const { data, loading } = useGraphData({ baseUrl, end, start });
+  const { adjustedData } = useGraphData({ data, end, start });
 
-  if (!data) {
+  if (!adjustedData) {
     return null;
   }
 
@@ -50,7 +52,8 @@ const WrapperGraph = ({
           <Graph
             anchorPoint={anchorPoint}
             axis={axis}
-            graphData={data}
+            graphData={adjustedData}
+            graphInterval={{ end, start }}
             height={height ?? responsiveHeight}
             loading={loading}
             shapeLines={shapeLines}

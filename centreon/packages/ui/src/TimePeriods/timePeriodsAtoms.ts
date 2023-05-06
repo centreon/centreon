@@ -7,6 +7,7 @@ import {
   getTimePeriodFromNow
 } from './helpers';
 import {
+  CustomTimePeriod,
   GraphQueryParametersProps,
   TimePeriod,
   TimePeriodById
@@ -82,6 +83,14 @@ export const graphQueryParametersDerivedAtom = atom(
 
       return `?start=${startDate?.toISOString()}&end=${endDate?.toISOString()}`;
     }
+);
+
+export const adjustTimePeriodDerivedAtom = atom(
+  null,
+  (_, set, adjustTimePeriodProps: CustomTimePeriod) => {
+    set(customTimePeriodAtom, adjustTimePeriodProps);
+    set(selectedTimePeriodAtom, null);
+  }
 );
 
 // a deplacer le timelinelimit vers le graph

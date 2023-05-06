@@ -1,30 +1,112 @@
+import { useEffect, useState } from 'react';
+
 import { Meta, StoryObj } from '@storybook/react';
 
 import AwesomeTimePeriod from '../TimePeriods';
 
-import { argTypes, args as argumentsData } from './helpers/doc';
+import { ZoomBoundaries } from './InteractionWithGraph/ZoomPreview/models';
+import {
+  argTypes,
+  args as argumentsData,
+  defaultEnd,
+  defaultLast7days,
+  defaultLastMonth,
+  defaultStart,
+  zoomPreviewDate
+} from './helpers/doc';
+import dataLastDay from './mockedData/lastDay.json';
+import dataLastMonth from './mockedData/lastMonth.json';
+import dataLastWeek from './mockedData/lastWeek.json';
+import dataZoomPreview from './mockedData/zoomPreview.json';
+import { GraphData } from './models';
 
-import Graph from './index';
+import WraperGraph from './index';
 
-const meta: Meta<typeof Graph> = {
-  component: Graph,
+const meta: Meta<typeof WraperGraph> = {
+  component: WraperGraph,
   tags: ['autodocs']
 };
 export default meta;
 
-type Story = StoryObj<typeof Graph>;
+type Story = StoryObj<typeof WraperGraph>;
 
 const Template: Story = {
-  render: (args) => (
-    <>
-      <AwesomeTimePeriod />
-      <Graph {...args} />
-    </>
-  )
+  render: (args) => <WraperGraph {...args} data={dataLastDay} />
 };
 
-export const Playground: Story = {
+export const Graph: Story = {
   ...Template,
   argTypes,
   args: argumentsData
+};
+
+const GraphAndTimePeriod = (args): JSX.Element => {
+  const [currentData, setCurrentData] = useState<GraphData>();
+  const [start, setStart] = useState();
+  const [end, setEnd] = useState();
+  const [zoomInterval, setZoomInterval] = useState<ZoomBoundaries>();
+
+  const getParameters = (interval): void => {
+    setStart(interval.start);
+    setEnd(interval.end);
+  };
+
+  useEffect(() => {
+    if (!start || !end) {
+      return;
+    }
+
+    if (start.includes(`${defaultStart.split('T')[0]}`)) {
+      setCurrentData(dataLastDay);
+
+      return;
+    }
+    if (start.includes(defaultLast7days.split('T')[0])) {
+      setCurrentData(dataLastWeek);
+
+      return;
+    }
+    if (start.includes(defaultLastMonth.split('T')[0])) {
+      setCurrentData(dataLastMonth);
+
+      return;
+    }
+    if (start.includes(zoomPreviewDate)) {
+      setCurrentData(dataZoomPreview);
+    }
+  }, [start, end, zoomInterval]);
+
+  const getZoomInterval = (interval: ZoomBoundaries): void => {
+    setZoomInterval(interval);
+  };
+
+  return (
+    <>
+      <AwesomeTimePeriod
+        adjustTimePeriodData={zoomInterval}
+        getStartEndParameters={getParameters}
+      />
+      <WraperGraph
+        data={currentData}
+        {...args}
+        end={end}
+        loading={false}
+        start={start}
+        zoomPreview={{ getZoomInterval }}
+      />
+    </>
+  );
+};
+
+const WithTimePeriod = {
+  render: (args): JSX.Element => <GraphAndTimePeriod {...args} />
+};
+
+export const GraphWithTimePeriod: Story = {
+  ...WithTimePeriod,
+  args: {
+    end: defaultEnd,
+    height: 500,
+    start: defaultStart
+  }
 };

@@ -29,6 +29,24 @@ interface Description {
   sections: Array<Section>;
 }
 
+export const defaultBaseUrl =
+  'http://localhost:3000/centreon/api/latest/monitoring/hosts/151/services/1160/metrics/performance';
+
+export const defaultStart = new Date(
+  dayjs(Date.now()).subtract(24, 'hour').toDate().getTime()
+).toISOString();
+
+export const defaultEnd = new Date(Date.now()).toISOString();
+export const defaultLast7days = new Date(
+  dayjs(Date.now()).subtract(7, 'day').toDate().getTime()
+).toISOString();
+
+export const defaultLastMonth = new Date(
+  dayjs(Date.now()).subtract(31, 'day').toDate().getTime()
+).toISOString();
+
+export const zoomPreviewDate = '2023-04-22';
+
 export const getCustomText = (text: string): string =>
   `<span style="color:#1EA7FD;fontSize:12px">(${text})</span>`;
 
@@ -91,14 +109,6 @@ export const propsAxisY = [
     }
   }
 ];
-
-const defaultBaseUrl =
-  'http://localhost:3000/centreon/api/latest/monitoring/hosts/151/services/1160/metrics/performance';
-const defaultStart = new Date(
-  dayjs(Date.now()).subtract(24, 'hour').toDate().getTime()
-).toISOString();
-
-const defaultEnd = new Date(Date.now()).toISOString();
 
 export const argTypes = {
   anchorPoint: {
@@ -301,7 +311,7 @@ export const args = {
     }
   },
   axis: {
-    axisX: { xAxisTickFormat: 'LT' },
+    // axisX: { xAxisTickFormat: undefined },
     axisYLeft: { displayUnit: true },
     axisYRight: { display: true, displayUnit: true }
   },

@@ -6,19 +6,24 @@ import dayjs from 'dayjs';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import duration from 'dayjs/plugin/duration';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { Paper } from '@mui/material';
 
 import { useStyles } from './timePeriods.styles';
 import CustomTimePeriod from './CustomTimePeriod';
 import SelectedTimePeriod from './SelectedTimePeriod';
-import { EndStartInterval, TimePeriod } from './models';
+import {
+  CustomTimePeriod as CustomTimePeriodModel,
+  EndStartInterval,
+  TimePeriod
+} from './models';
 import {
   customTimePeriodAtom,
   getDatesDerivedAtom,
   selectedTimePeriodAtom,
-  errorTimePeriodAtom
+  errorTimePeriodAtom,
+  adjustTimePeriodDerivedAtom
 } from './timePeriodsAtoms';
 
 dayjs.extend(isSameOrAfter);
@@ -27,6 +32,7 @@ dayjs.extend(timezonePlugin);
 dayjs.extend(duration);
 
 interface Props {
+  adjustTimePeriodData?: CustomTimePeriodModel;
   disabled?: boolean;
   extraTimePeriods?: Array<TimePeriod>;
   getIsError?: (value: boolean) => void;
@@ -37,7 +43,8 @@ const AwesomeTimePeriod = ({
   extraTimePeriods,
   disabled = false,
   getStartEndParameters,
-  getIsError
+  getIsError,
+  adjustTimePeriodData
 }: Props): JSX.Element => {
   const { classes } = useStyles({ disabled });
 
@@ -45,6 +52,15 @@ const AwesomeTimePeriod = ({
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
   const getCurrentEndStartInterval = useAtomValue(getDatesDerivedAtom);
   const errorTimePeriod = useAtomValue(errorTimePeriodAtom);
+  const adjustTimeTimePeriod = useSetAtom(adjustTimePeriodDerivedAtom);
+
+  useEffect(() => {
+    if (!adjustTimePeriodData) {
+      return;
+    }
+
+    adjustTimeTimePeriod(adjustTimePeriodData);
+  }, [adjustTimePeriodData?.start, adjustTimePeriodData?.end]);
 
   useEffect(() => {
     const [start, end] = getCurrentEndStartInterval(selectedTimePeriod);

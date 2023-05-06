@@ -1,55 +1,40 @@
 import { useEffect, useState } from 'react';
 
-import { useAtom } from 'jotai';
 import { find, propEq } from 'ramda';
 
-import { getData, useRequest } from '@centreon/ui';
-
-import { zoomParametersAtom } from './InteractionWithGraph/ZoomPreview/zoomPreviewAtoms';
 import { adjustGraphData } from './helpers';
-import { Data, GraphData, GraphParameters } from './models';
-
-interface QueryParameter {
-  endTime: string;
-  startTime: string;
-}
+import { Data, GraphData } from './models';
 
 interface GraphDataResult {
-  data?: Data;
-  loading: boolean;
-}
-interface Props extends GraphParameters {
-  baseUrl: string;
+  adjustedData?: Data;
 }
 
-const useGraphData = ({ baseUrl, start, end }: Props): GraphDataResult => {
-  const [data, setData] = useState<Data>();
+interface Props {
+  data: GraphData;
+  end?: string;
+  start?: string;
+}
 
-  const { sendRequest: sendGetGraphDataRequest, sending: loading } =
-    useRequest<GraphData>({
-      request: getData
-    });
+const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
+  const [adjustedData, setAdjustedData] = useState<Data>();
 
-  const [zoomParameters, setZoomParameters] = useAtom(zoomParametersAtom);
+  const prepareData = (dataToAdjust: GraphData): void => {
+    const { timeSeries } = adjustGraphData(dataToAdjust);
+    const baseAxis = dataToAdjust.global.base;
+    const { title } = dataToAdjust.global;
 
-  const prepareData = ({ response, queryParameters }): void => {
-    const { timeSeries } = adjustGraphData(response);
-    const baseAxis = response.global.base;
-    const { title } = response.global;
+    const newLineData = adjustGraphData(dataToAdjust).lines;
 
-    const newLineData = adjustGraphData(response).lines;
-
-    if (response?.lines) {
+    if (dataToAdjust?.lines) {
       const newLines = newLineData.map((line) => ({
         ...line,
         display:
-          find(propEq('name', line.name), response.lines)?.display ?? true
+          find(propEq('name', line.name), dataToAdjust.lines)?.display ?? true
       }));
 
-      setData({
+      setAdjustedData({
         baseAxis,
         lines: newLines,
-        queryParameters,
         timeSeries,
         title
       });
@@ -57,61 +42,22 @@ const useGraphData = ({ baseUrl, start, end }: Props): GraphDataResult => {
       return;
     }
 
-    setData({
+    setAdjustedData({
       baseAxis,
       lines: newLineData,
-      queryParameters,
       timeSeries,
       title
     });
   };
 
-  const getQueryParameters = ({ startTime, endTime }: QueryParameter): string =>
-    `?start=${startTime}&end=${endTime}`;
-
-  const getParameters = (): GraphParameters => {
-    const beginning = zoomParameters ? zoomParameters.start : start;
-    const ending = zoomParameters ? zoomParameters.end : end;
-
-    return { end: ending, start: beginning };
-  };
-
-  const queryParameters = zoomParameters
-    ? getQueryParameters({
-        endTime: zoomParameters.end,
-        startTime: zoomParameters.start
-      })
-    : getQueryParameters({ endTime: end, startTime: start });
   useEffect(() => {
-    if (!end || !start || !baseUrl) {
+    if (!data) {
       return;
     }
+    prepareData(data);
+  }, [end, start, data]);
 
-    const endpoint = `${baseUrl}${queryParameters}`;
-
-    sendGetGraphDataRequest({
-      endpoint
-    }).then((response) => {
-      prepareData({ queryParameters: getParameters(), response });
-    });
-  }, [baseUrl, start, end]);
-
-  useEffect(() => {
-    if (!zoomParameters) {
-      return;
-    }
-
-    const endpoint = `${baseUrl}${queryParameters}`;
-
-    sendGetGraphDataRequest({
-      endpoint
-    }).then((response) => {
-      prepareData({ queryParameters: getParameters(), response });
-      setZoomParameters(null);
-    });
-  }, [zoomParameters]);
-
-  return { data, loading };
+  return { adjustedData };
 };
 
 export default useGraphData;

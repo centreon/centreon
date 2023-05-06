@@ -1,6 +1,7 @@
 import { Line, Metric, TimeValue } from './timeSeries/models';
 import { AxisX, Axis as AxisYLeft, AxisYRight } from './Axes/models';
 import { AreaRegularLines, AreaStackedLines } from './Lines/models';
+import { ZoomBoundaries } from './InteractionWithGraph/ZoomPreview/models';
 
 export interface GraphData {
   global;
@@ -15,14 +16,13 @@ export interface GraphEndpoint {
 export interface Data {
   baseAxis: number;
   lines: Array<Line>;
-  queryParameters: GraphParameters;
   timeSeries: Array<TimeValue>;
   title: string;
 }
 
 export interface GraphParameters {
-  end: string;
-  start: string;
+  end?: string;
+  start?: string;
 }
 
 export interface AnchorPoint {
@@ -48,6 +48,7 @@ export interface Axis {
 export interface ZoomPreview {
   [x: string]: unknown;
   display?: boolean;
+  getZoomInterval?: (data: ZoomBoundaries) => void;
 }
 
 export interface GraphProps {
