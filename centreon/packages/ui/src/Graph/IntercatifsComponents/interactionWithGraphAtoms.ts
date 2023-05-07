@@ -3,6 +3,15 @@ import { not, isNil } from 'ramda';
 
 import { TimeValue } from '../timeSeries/models';
 
+export const eventMouseMovingAtom = atom<null | MouseEvent>(null);
+
+export const eventMouseDownAtom = atom<null | MouseEvent>(null);
+
+export const eventMouseUpAtom = atom<null | MouseEvent>(null);
+
+export const timeValueAtom = atom<TimeValue | null>(null);
+export const mousePositionAtom = atom<MousePosition>(null);
+export const isListingGraphOpenAtom = atom(false);
 export type MousePosition = [number, number] | null;
 
 interface PositionTimeValue {
@@ -14,11 +23,6 @@ interface NewTimeValueInViewportState {
   isInViewport?: boolean;
   newTimeValue: TimeValue | null;
 }
-
-export const timeValueAtom = atom<TimeValue | null>(null);
-export const mousePositionAtom = atom<MousePosition>(null);
-export const isListingGraphOpenAtom = atom(false);
-
 export const changeTimeValueDerivedAtom = atom(
   null,
   (

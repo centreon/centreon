@@ -2,7 +2,7 @@ import { gte, isNil, prop, propEq, reject, sortBy } from 'ramda';
 import dayjs from 'dayjs';
 
 import { getLineData, getTimeSeries } from '../timeSeries';
-import { LinesData } from '../Lines/models';
+import { LinesData } from '../BasicComponents/Lines/models';
 import { GraphData, GraphInterval } from '../models';
 import { dateFormat, timeFormat } from '../common';
 

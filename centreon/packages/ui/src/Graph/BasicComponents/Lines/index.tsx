@@ -2,12 +2,12 @@ import { ReactNode } from 'react';
 
 import { isEmpty, isNil } from 'ramda';
 
-import { getStackedYScale, getUnits, getYScale } from '../timeSeries';
-import { Line } from '../timeSeries/models';
+import { getStackedYScale, getUnits, getYScale } from '../../timeSeries';
+import { Line } from '../../timeSeries/models';
 import {
   RegularLinesAnchorPoint,
   StackedAnchorPoint
-} from '../InteractionWithGraph/AnchorPoint/models';
+} from '../../IntercatifsComponents/AnchorPoint/models';
 
 import RegularLine from './RegularLines';
 import StackedLines from './StackedLines';

@@ -1,6 +1,6 @@
 import { ScaleLinear } from 'd3-scale';
 
-import { Line, TimeValue } from '../timeSeries/models';
+import { Line, TimeValue } from '../../timeSeries/models';
 
 export interface ShapeGraphData {
   [x: string]: unknown;

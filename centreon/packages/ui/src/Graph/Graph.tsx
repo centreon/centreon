@@ -2,21 +2,21 @@ import { useMemo, useRef } from 'react';
 
 import { Group } from '@visx/visx';
 
-import Axes from './Axes';
-import Grids from './Grids';
+import Axes from './BasicComponents/Axes';
+import Grids from './BasicComponents/Grids';
 import Header from './Header';
-import InteractionWithGraph from './InteractionWithGraph';
-import RegularAnchorPoint from './InteractionWithGraph/AnchorPoint/RegularAnchorPoint';
-import StackedAnchorPoint from './InteractionWithGraph/AnchorPoint/StackedAnchorPoint';
+import InteractionWithGraph from './IntercatifsComponents';
+import RegularAnchorPoint from './IntercatifsComponents/AnchorPoint/RegularAnchorPoint';
+import StackedAnchorPoint from './IntercatifsComponents/AnchorPoint/StackedAnchorPoint';
 import {
   RegularLinesAnchorPoint,
   StackValue,
   StackedAnchorPoint as StackedAnchorPointModel
-} from './InteractionWithGraph/AnchorPoint/models';
-import useAnchorPoint from './InteractionWithGraph/AnchorPoint/useAnchorPoint';
-import Lines from './Lines';
-import useRegularLines from './Lines/RegularLines/useRegularLines';
-import useStackedLines from './Lines/StackedLines/useStackedLines';
+} from './IntercatifsComponents/AnchorPoint/models';
+import useAnchorPoint from './IntercatifsComponents/AnchorPoint/useAnchorPoint';
+import Lines from './BasicComponents/Lines';
+import useRegularLines from './BasicComponents/Lines/RegularLines/useRegularLines';
+import useStackedLines from './BasicComponents/Lines/StackedLines/useStackedLines';
 import LoadingProgress from './LoadingProgress';
 import { margin } from './common';
 import { Data, GlobalAreaLines, GraphInterval, GraphProps } from './models';

@@ -1,10 +1,10 @@
 import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
 
-import useLocaleDateTimeFormat from '../../utils/useLocaleDateTimeFormat';
-import { getUnits } from '../timeSeries';
-import { getXAxisTickFormat } from '../helpers';
-import { GraphInterval } from '../models';
+import useLocaleDateTimeFormat from '../../../utils/useLocaleDateTimeFormat';
+import { getUnits } from '../../timeSeries';
+import { getXAxisTickFormat } from '../../helpers';
+import { GraphInterval } from '../../models';
 
 import UnitLabel from './UnitLabel';
 import { Data } from './models';

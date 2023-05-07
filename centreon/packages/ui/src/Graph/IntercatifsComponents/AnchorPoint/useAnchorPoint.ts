@@ -12,9 +12,7 @@ import {
   MousePosition,
   changeMousePositionAndTimeValueDerivedAtom,
   mousePositionAtom,
-  timeValueAtom
-} from '../mouseTimeValueAtoms';
-import {
+  timeValueAtom,
   eventMouseDownAtom,
   eventMouseMovingAtom
 } from '../interactionWithGraphAtoms';
