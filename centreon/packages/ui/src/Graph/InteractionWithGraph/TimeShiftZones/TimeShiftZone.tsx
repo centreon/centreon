@@ -35,8 +35,8 @@ const TimeShiftZone = ({
   directionHovered,
   graphHeight,
   graphWidth,
-  getInterval,
-  graphInterval
+  graphInterval,
+  getInterval
 }: Props): JSX.Element => {
   const theme = useTheme();
   const { classes } = useStyles();

@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { equals, isEmpty, isNil } from 'ramda';
+import { equals, isEmpty, isNil, add } from 'ramda';
 
 interface InitialValue {
   section: string;
@@ -46,6 +46,7 @@ export const defaultLastMonth = new Date(
 ).toISOString();
 
 export const zoomPreviewDate = '2023-04-22';
+export const lastDayForwardDate = '2023-05-17T23';
 
 export const getCustomText = (text: string): string =>
   `<span style="color:#1EA7FD;fontSize:12px">(${text})</span>`;

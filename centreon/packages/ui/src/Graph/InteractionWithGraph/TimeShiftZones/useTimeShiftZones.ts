@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { add, equals, negate, prop } from 'ramda';
 
-import { GraphInterval, GraphIntervalProperty } from '../../models';
+import { GraphInterval, GraphIntervalProperty, Interval } from '../../models';
 
 import { GetShiftDate, TimeShiftDirection } from './models';
 
@@ -11,11 +11,11 @@ interface Props {
   graphInterval: GraphInterval;
 }
 
-const useTimeShiftZones = ({ graphInterval, direction }: Props): any => {
+const useTimeShiftZones = ({ graphInterval, direction }: Props): Interval => {
   const shiftRatio = 2;
 
-  const [start, setStart] = useState<Date | null>(null);
-  const [end, setEnd] = useState<Date | null>(null);
+  const [start, setStart] = useState<Date>();
+  const [end, setEnd] = useState<Date>();
 
   const getShiftedDate = ({
     property,
@@ -31,6 +31,7 @@ const useTimeShiftZones = ({ graphInterval, direction }: Props): any => {
       shiftRatio;
 
     const date = prop(property, timePeriod);
+
     if (!date) {
       return null;
     }
@@ -65,7 +66,7 @@ const useTimeShiftZones = ({ graphInterval, direction }: Props): any => {
     setEnd(endInterval);
   }, [graphInterval.end, graphInterval.start, direction]);
 
-  return { end, start };
+  return { end, start } as Interval;
 };
 
 export default useTimeShiftZones;

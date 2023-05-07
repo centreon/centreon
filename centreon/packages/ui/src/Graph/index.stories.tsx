@@ -4,7 +4,6 @@ import { Meta, StoryObj } from '@storybook/react';
 
 import AwesomeTimePeriod from '../TimePeriods';
 
-import { Interval } from './InteractionWithGraph/ZoomPreview/models';
 import {
   argTypes,
   args as argumentsData,
@@ -12,13 +11,15 @@ import {
   defaultLast7days,
   defaultLastMonth,
   defaultStart,
+  lastDayForwardDate,
   zoomPreviewDate
 } from './helpers/doc';
 import dataLastDay from './mockedData/lastDay.json';
+import dataLastDayForword from './mockedData/lastDayForward.json';
 import dataLastMonth from './mockedData/lastMonth.json';
 import dataLastWeek from './mockedData/lastWeek.json';
 import dataZoomPreview from './mockedData/zoomPreview.json';
-import { GraphData } from './models';
+import { GraphData, Interval } from './models';
 
 import WraperGraph from './index';
 
@@ -56,6 +57,11 @@ const GraphAndTimePeriod = (args): JSX.Element => {
     if (!start || !end) {
       return;
     }
+    if (start.includes(lastDayForwardDate)) {
+      setCurrentData(dataLastDayForword);
+
+      return;
+    }
 
     if (start.includes(`${defaultStart.split('T')[0]}`)) {
       setCurrentData(dataLastDay);
@@ -77,7 +83,6 @@ const GraphAndTimePeriod = (args): JSX.Element => {
     }
   }, [start, end, adjustedTimePeriodInterval]);
 
-  // a changer le nom
   const getZoomInterval = (interval: Interval): void => {
     setAdjustedTimePeriodInterval(interval);
   };

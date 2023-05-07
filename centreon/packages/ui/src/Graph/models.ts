@@ -1,7 +1,6 @@
 import { Line, Metric, TimeValue } from './timeSeries/models';
 import { AxisX, Axis as AxisYLeft, AxisYRight } from './Axes/models';
 import { AreaRegularLines, AreaStackedLines } from './Lines/models';
-import { Interval } from './InteractionWithGraph/ZoomPreview/models';
 
 export interface GraphData {
   global;
@@ -23,6 +22,11 @@ export interface Data {
 export enum GraphIntervalProperty {
   end = 'end',
   start = 'start'
+}
+
+export interface Interval {
+  end: Date;
+  start: Date;
 }
 
 export interface GraphInterval {

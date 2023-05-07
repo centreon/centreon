@@ -5,6 +5,7 @@ import { ScaleTime } from 'd3-scale';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, gte, isNil, lt } from 'ramda';
 
+import { Interval } from '../../models';
 import { margin } from '../../common';
 import {
   eventMouseDownAtom,
@@ -12,7 +13,6 @@ import {
   eventMouseUpAtom
 } from '../interactionWithGraphAtoms';
 
-import { Interval } from './models';
 import { zoomParametersAtom } from './zoomPreviewAtoms';
 
 interface Boundaries {
