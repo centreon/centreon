@@ -1,19 +1,19 @@
 import { MutableRefObject } from 'react';
 
+import { ScaleTime } from 'd3-scale';
 import { useSetAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
-import { ScaleTime } from 'd3-scale';
 
 import { ZoomPreview as ZoomPreviewModel } from '../models';
 
 import Bar from './Bar';
+import TimeShiftZones from './TimeShiftZones';
 import ZoomPreview from './ZoomPreview';
 import {
   eventMouseDownAtom,
   eventMouseMovingAtom,
   eventMouseUpAtom
 } from './interactionWithGraphAtoms';
-import TimeShiftZones from './TimeShiftZones';
 
 const useStyles = makeStyles()(() => ({
   overlay: {
