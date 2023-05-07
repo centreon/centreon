@@ -41,7 +41,8 @@ const Graph = ({
   loading,
   zoomPreview,
   graphInterval,
-  timeShiftZones
+  timeShiftZones,
+  tooltip
 }: Props): JSX.Element => {
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -237,7 +238,12 @@ const Graph = ({
             />
           </Group.Group>
         </svg>
-        <GraphTooltip graphWidth={graphWidth} />
+        <GraphTooltip
+          graphWidth={graphWidth}
+          {...tooltip}
+          timeSeries={timeSeries}
+          xScale={xScale}
+        />
       </div>
     </>
   );

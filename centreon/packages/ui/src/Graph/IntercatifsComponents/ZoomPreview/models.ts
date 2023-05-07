@@ -2,9 +2,9 @@ import { MutableRefObject } from 'react';
 
 import { ScaleTime } from 'd3-scale';
 
-import { ZoomPreview } from '../../models';
+import { InteractedZone } from '../../models';
 
-export interface ZoomPreviewData extends ZoomPreview {
+export interface ZoomPreviewData extends InteractedZone {
   graphHeight: number;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;

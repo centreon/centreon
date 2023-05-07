@@ -1,22 +1,54 @@
 import { useEffect } from 'react';
 
+import { ScaleLinear } from 'd3-scale';
 import { Event, Tooltip } from '@visx/visx';
 import { useAtomValue } from 'jotai';
 
+import { getTimeValue } from '../../timeSeries';
 import { eventMouseUpAtom } from '../interactionWithGraphAtoms';
-import { zoomParametersAtom } from '../ZoomPreview/zoomPreviewAtoms';
+import { TimeValue } from '../../timeSeries/models';
+
+interface GraphTooltip {
+  hideTooltip: () => void;
+  tooltipData: Date;
+  tooltipLeft: number;
+  tooltipOpen: boolean;
+  tooltipTop: number;
+}
 
 interface Props {
   graphWidth: number;
+  timeSeries: Array<TimeValue>;
   tooltipWidth: number;
+  xScale: ScaleLinear<number, number>;
 }
 
-const useGraphTooltip = ({ graphWidth, tooltipWidth }: Props): any => {
-  const { tooltipLeft, tooltipTop, tooltipOpen, showTooltip, hideTooltip } =
-    Tooltip.useTooltip();
+const useGraphTooltip = ({
+  graphWidth,
+  tooltipWidth,
+  timeSeries,
+  xScale
+}: Props): GraphTooltip => {
+  const {
+    tooltipLeft,
+    tooltipTop,
+    tooltipOpen,
+    showTooltip,
+    hideTooltip,
+    tooltipData
+  } = Tooltip.useTooltip();
 
   const mouseUpEvent = useAtomValue(eventMouseUpAtom);
-  const zoomParameters = useAtomValue(zoomParametersAtom);
+
+  const getDate = (positionX): Date => {
+    const { timeTick } = getTimeValue({
+      timeSeries,
+      x: positionX,
+      xScale
+    });
+
+    return new Date(timeTick);
+  };
 
   useEffect(() => {
     if (!mouseUpEvent) {
@@ -31,12 +63,19 @@ const useGraphTooltip = ({ graphWidth, tooltipWidth }: Props): any => {
     const displayLeft = graphWidth - x < tooltipWidth;
 
     showTooltip({
+      tooltipData: getDate(x),
       tooltipLeft: displayLeft ? x - tooltipWidth : x,
       tooltipTop: y
     });
-  }, [mouseUpEvent, zoomParameters]);
+  }, [mouseUpEvent]);
 
-  return { hideTooltip, tooltipLeft, tooltipOpen, tooltipTop };
+  return {
+    hideTooltip,
+    tooltipData,
+    tooltipLeft,
+    tooltipOpen,
+    tooltipTop
+  } as GraphTooltip;
 };
 
 export default useGraphTooltip;

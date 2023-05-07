@@ -13,7 +13,7 @@ import TimeShiftZone from './TimeShiftZone';
 import { TimeShiftDirection } from './models';
 
 interface Props {
-  getInterval: (args: Interval) => void;
+  getInterval?: (args: Interval) => void;
   graphHeight: number;
   graphInterval: GraphInterval;
   graphWidth: number;

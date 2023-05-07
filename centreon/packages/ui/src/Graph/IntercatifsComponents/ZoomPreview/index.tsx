@@ -12,14 +12,8 @@ import { ZoomPreviewData } from './models';
 const ZoomPreview = (data: ZoomPreviewData): JSX.Element => {
   const theme = useTheme();
 
-  const {
-    graphHeight,
-    xScale,
-    graphWidth,
-    graphSvgRef,
-    getZoomInterval,
-    ...rest
-  } = data;
+  const { graphHeight, xScale, graphWidth, graphSvgRef, getInterval, ...rest } =
+    data;
 
   const { zoomBarWidth, zoomBoundaries, zoomParameters } = useZoomPreview({
     graphSvgRef,
@@ -32,7 +26,7 @@ const ZoomPreview = (data: ZoomPreviewData): JSX.Element => {
       return;
     }
 
-    getZoomInterval?.(zoomParameters);
+    getInterval?.(zoomParameters);
   }, [zoomParameters?.start, zoomParameters?.end]);
 
   const restData = omit(['display'], { ...rest });

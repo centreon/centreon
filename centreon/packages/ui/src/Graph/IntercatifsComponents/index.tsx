@@ -4,7 +4,11 @@ import { ScaleTime } from 'd3-scale';
 import { useSetAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
-import { ZoomPreview as ZoomPreviewModel } from '../models';
+import {
+  GraphInterval,
+  InteractedZone,
+  InteractedZone as ZoomPreviewModel
+} from '../models';
 
 import Bar from './Bar';
 import TimeShiftZones from './TimeShiftZones';
@@ -30,10 +34,14 @@ interface CommonData {
 interface ZoomData extends ZoomPreviewModel {
   xScale: ScaleTime<number, number>;
 }
+interface TimeShiftZonesData extends InteractedZone {
+  graphInterval: GraphInterval;
+  loading: boolean;
+}
 
 interface Props {
   commonData: CommonData;
-  timeShiftZonesData: any;
+  timeShiftZonesData: TimeShiftZonesData;
   zoomData: ZoomData;
 }
 
@@ -50,7 +58,7 @@ const InteractionWithGraph = ({
 
   const { graphHeight, graphWidth, graphSvgRef } = commonData;
 
-  const displayZoomPreview = zoomData?.display ?? true;
+  const displayZoomPreview = zoomData?.enable ?? true;
 
   const mouseLeave = (): void => {
     setEventMouseMoving(null);

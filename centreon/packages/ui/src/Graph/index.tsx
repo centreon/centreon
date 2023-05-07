@@ -35,7 +35,8 @@ const WrapperGraph = ({
   zoomPreview,
   data,
   loading,
-  timeShiftZones
+  timeShiftZones,
+  tooltip
 }: Props): JSX.Element | null => {
   const { adjustedData } = useGraphData({ data, end, start });
 
@@ -59,6 +60,7 @@ const WrapperGraph = ({
             loading={loading}
             shapeLines={shapeLines}
             timeShiftZones={timeShiftZones}
+            tooltip={tooltip}
             width={width ?? responsiveWidth}
             zoomPreview={zoomPreview}
           />

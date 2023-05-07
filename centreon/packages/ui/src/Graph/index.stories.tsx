@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
 
+import { useLocaleDateTimeFormat } from '@centreon/ui';
+
 import AwesomeTimePeriod from '../TimePeriods';
 
 import {
@@ -19,7 +21,8 @@ import dataLastDayForword from './mockedData/lastDayForward.json';
 import dataLastMonth from './mockedData/lastMonth.json';
 import dataLastWeek from './mockedData/lastWeek.json';
 import dataZoomPreview from './mockedData/zoomPreview.json';
-import { GraphData, Interval } from './models';
+import { GraphData, Interval, TooltipData } from './models';
+import { dateTimeFormat } from './common';
 
 import WraperGraph from './index';
 
@@ -39,6 +42,28 @@ export const Graph: Story = {
   ...Template,
   argTypes,
   args: argumentsData
+};
+
+const ExternalComponent = (tooltipData): JSX.Element => {
+  const { hideTooltip, data } = tooltipData;
+  const { format } = useLocaleDateTimeFormat();
+
+  return (
+    <>
+      hola soy la mas guapiiisima tooltip
+      <br />
+      <br />
+      {format({
+        date: new Date(data),
+        formatString: dateTimeFormat
+      })}
+      <br />
+      <br />
+      <button type="button" onClick={(): void => hideTooltip()}>
+        hide tooltip
+      </button>
+    </>
+  );
 };
 
 const GraphAndTimePeriod = (args): JSX.Element => {
@@ -83,10 +108,6 @@ const GraphAndTimePeriod = (args): JSX.Element => {
     }
   }, [start, end, adjustedTimePeriodInterval]);
 
-  const getZoomInterval = (interval: Interval): void => {
-    setAdjustedTimePeriodInterval(interval);
-  };
-
   const getInterval = (interval: Interval): void => {
     setAdjustedTimePeriodInterval(interval);
   };
@@ -104,7 +125,21 @@ const GraphAndTimePeriod = (args): JSX.Element => {
         loading={false}
         start={start}
         timeShiftZones={{ enable: true, getInterval }}
-        zoomPreview={{ getZoomInterval }}
+        tooltip={{
+          enable: true,
+          renderComponent: ({
+            data,
+            tooltipOpen,
+            hideTooltip
+          }: TooltipData): JSX.Element => (
+            <ExternalComponent
+              data={data}
+              hideTooltip={hideTooltip}
+              openTooltip={tooltipOpen}
+            />
+          )
+        }}
+        zoomPreview={{ enable: true, getInterval }}
       />
     </>
   );

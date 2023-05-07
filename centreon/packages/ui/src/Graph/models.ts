@@ -1,6 +1,15 @@
+import { ReactNode } from 'react';
+
 import { Line, Metric, TimeValue } from './timeSeries/models';
-import { AxisX, Axis as AxisYLeft, AxisYRight } from './BasicComponents/Axes/models';
-import { AreaRegularLines, AreaStackedLines } from './BasicComponents/Lines/models';
+import {
+  AxisX,
+  Axis as AxisYLeft,
+  AxisYRight
+} from './BasicComponents/Axes/models';
+import {
+  AreaRegularLines,
+  AreaStackedLines
+} from './BasicComponents/Lines/models';
 
 export interface GraphData {
   global;
@@ -54,14 +63,19 @@ export interface Axis {
   axisYRight?: AxisYRight;
 }
 
-export interface ZoomPreview {
-  display?: boolean;
-  getZoomInterval?: (data: Interval) => void;
-}
-
 export interface InteractedZone {
   enable?: boolean;
-  getInterval?: (data: GraphInterval) => void;
+  getInterval?: (data: Interval) => void;
+}
+
+export interface TooltipData {
+  data: Date;
+  hideTooltip: () => void;
+  tooltipOpen: boolean;
+}
+export interface Tooltip {
+  enable?: boolean;
+  renderComponent?: (args: TooltipData) => ReactNode;
 }
 
 export interface GraphProps {
@@ -69,8 +83,9 @@ export interface GraphProps {
   axis?: Axis;
   height: number;
   timeShiftZones?: InteractedZone;
+  tooltip?: Tooltip;
   width: number;
-  zoomPreview?: ZoomPreview;
+  zoomPreview?: InteractedZone;
 }
 
 export interface Area {

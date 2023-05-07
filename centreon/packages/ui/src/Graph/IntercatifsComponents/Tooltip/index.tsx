@@ -1,21 +1,35 @@
 import { useEffect } from 'react';
 
+import { ScaleLinear } from 'd3-scale';
+import { equals } from 'ramda';
+
 import { Paper } from '@mui/material';
+
+import { Tooltip } from '../../models';
+import { TimeValue } from '../../timeSeries/models';
 
 import useGraphTooltip from './useGraphTooltip';
 
 const tooltipWidth = 165;
-interface Props {
+
+interface Props extends Tooltip {
   graphWidth: number;
+  timeSeries: Array<TimeValue>;
+  xScale: ScaleLinear<number, number>;
 }
 
-const GraphTooltip = ({ graphWidth }: Props): JSX.Element | null => {
-  const { hideTooltip, tooltipLeft, tooltipOpen, tooltipTop } = useGraphTooltip(
-    { graphWidth, tooltipWidth }
-  );
+const GraphTooltip = ({
+  graphWidth,
+  xScale,
+  timeSeries,
+  enable = true,
+  renderComponent
+}: Props): JSX.Element | null => {
+  const { hideTooltip, tooltipLeft, tooltipOpen, tooltipTop, tooltipData } =
+    useGraphTooltip({ graphWidth, timeSeries, tooltipWidth, xScale });
 
   const hideTooltipOnEspcapePress = (event: globalThis.KeyboardEvent): void => {
-    if (event.key === 'Escape') {
+    if (equals(event.key, 'Escape')) {
       hideTooltip();
     }
   };
@@ -27,6 +41,10 @@ const GraphTooltip = ({ graphWidth }: Props): JSX.Element | null => {
       document.removeEventListener('keydown', hideTooltipOnEspcapePress, false);
     };
   }, []);
+
+  if (!enable) {
+    return null;
+  }
 
   if (!tooltipOpen) {
     return null;
@@ -41,7 +59,11 @@ const GraphTooltip = ({ graphWidth }: Props): JSX.Element | null => {
         width: tooltipWidth
       }}
     >
-      hola soy el tooltip
+      {renderComponent?.({
+        data: tooltipData,
+        hideTooltip,
+        tooltipOpen
+      })}
     </Paper>
   );
 };

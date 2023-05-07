@@ -6,7 +6,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { alpha, useTheme } from '@mui/material';
 
-import { GraphInterval } from '../../models';
+import { GraphInterval, Interval } from '../../models';
 
 import { TimeShiftDirection } from './models';
 import useTimeShiftZones from './useTimeShiftZones';
@@ -22,7 +22,7 @@ const useStyles = makeStyles()({
 interface Props {
   direction: TimeShiftDirection;
   directionHovered: TimeShiftDirection | null;
-  getInterval: (args) => void;
+  getInterval?: (args: Interval) => void;
   graphHeight: number;
   graphInterval: GraphInterval;
   graphWidth: number;
