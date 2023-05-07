@@ -1,7 +1,7 @@
 import { Line, Metric, TimeValue } from './timeSeries/models';
 import { AxisX, Axis as AxisYLeft, AxisYRight } from './Axes/models';
 import { AreaRegularLines, AreaStackedLines } from './Lines/models';
-import { ZoomBoundaries } from './InteractionWithGraph/ZoomPreview/models';
+import { Interval } from './InteractionWithGraph/ZoomPreview/models';
 
 export interface GraphData {
   global;
@@ -11,7 +11,7 @@ export interface GraphData {
 
 export interface GraphEndpoint {
   baseUrl: string;
-  queryParameters: GraphParameters;
+  queryParameters: GraphInterval;
 }
 export interface Data {
   baseAxis: number;
@@ -20,7 +20,12 @@ export interface Data {
   title: string;
 }
 
-export interface GraphParameters {
+export enum GraphIntervalProperty {
+  end = 'end',
+  start = 'start'
+}
+
+export interface GraphInterval {
   end?: string;
   start?: string;
 }
@@ -46,15 +51,20 @@ export interface Axis {
 }
 
 export interface ZoomPreview {
-  [x: string]: unknown;
   display?: boolean;
-  getZoomInterval?: (data: ZoomBoundaries) => void;
+  getZoomInterval?: (data: Interval) => void;
+}
+
+export interface InteractedZone {
+  enable?: boolean;
+  getInterval?: (data: GraphInterval) => void;
 }
 
 export interface GraphProps {
   anchorPoint?: AreaAnchorPoint;
   axis?: Axis;
   height: number;
+  timeShiftZones?: InteractedZone;
   width: number;
   zoomPreview?: ZoomPreview;
 }

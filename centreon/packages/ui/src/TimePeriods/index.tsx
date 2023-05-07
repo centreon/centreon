@@ -65,7 +65,7 @@ const AwesomeTimePeriod = ({
   useEffect(() => {
     const [start, end] = getCurrentEndStartInterval(selectedTimePeriod);
     getStartEndParameters?.({ end, start });
-  }, [customTimePeriod, selectedTimePeriod]);
+  }, [customTimePeriod.start, customTimePeriod.end, selectedTimePeriod]);
 
   useEffect(() => {
     getIsError?.(errorTimePeriod);

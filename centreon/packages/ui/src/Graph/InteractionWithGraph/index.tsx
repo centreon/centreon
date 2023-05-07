@@ -13,6 +13,7 @@ import {
   eventMouseMovingAtom,
   eventMouseUpAtom
 } from './interactionWithGraphAtoms';
+import TimeShiftZones from './TimeShiftZones';
 
 const useStyles = makeStyles()(() => ({
   overlay: {
@@ -32,10 +33,15 @@ interface ZoomData extends ZoomPreviewModel {
 
 interface Props {
   commonData: CommonData;
+  timeShiftZonesData: any;
   zoomData: ZoomData;
 }
 
-const InteractionWithGraph = ({ zoomData, commonData }: Props): JSX.Element => {
+const InteractionWithGraph = ({
+  zoomData,
+  commonData,
+  timeShiftZonesData
+}: Props): JSX.Element => {
   const { classes } = useStyles();
 
   const setEventMouseMoving = useSetAtom(eventMouseMovingAtom);
@@ -74,6 +80,11 @@ const InteractionWithGraph = ({ zoomData, commonData }: Props): JSX.Element => {
           graphWidth={graphWidth}
         />
       )}
+      <TimeShiftZones
+        graphHeight={graphHeight}
+        graphWidth={graphWidth}
+        {...timeShiftZonesData}
+      />
       <Bar
         className={classes.overlay}
         fill="transparent"

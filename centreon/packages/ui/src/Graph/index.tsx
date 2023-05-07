@@ -34,7 +34,8 @@ const WrapperGraph = ({
   anchorPoint,
   zoomPreview,
   data,
-  loading
+  loading,
+  timeShiftZones
 }: Props): JSX.Element | null => {
   const { adjustedData } = useGraphData({ data, end, start });
 
@@ -57,6 +58,7 @@ const WrapperGraph = ({
             height={height ?? responsiveHeight}
             loading={loading}
             shapeLines={shapeLines}
+            timeShiftZones={timeShiftZones}
             width={width ?? responsiveWidth}
             zoomPreview={zoomPreview}
           />

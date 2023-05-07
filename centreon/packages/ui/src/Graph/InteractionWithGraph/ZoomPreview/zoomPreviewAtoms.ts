@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
 
-import { ZoomBoundaries } from './models';
+import { Interval } from './models';
 
-export const zoomParametersAtom = atom<ZoomBoundaries | null>(null);
+export const zoomParametersAtom = atom<Interval | null>(null);

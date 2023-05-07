@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 
 import { getLineData, getTimeSeries } from '../timeSeries';
 import { LinesData } from '../Lines/models';
-import { GraphData, GraphParameters } from '../models';
+import { GraphData, GraphInterval } from '../models';
 import { dateFormat, timeFormat } from '../common';
 
 export const adjustGraphData = (graphData: GraphData): LinesData => {
@@ -16,7 +16,7 @@ export const adjustGraphData = (graphData: GraphData): LinesData => {
   return { lines: displayedLines, timeSeries };
 };
 
-export const getXAxisTickFormat = (graphInterval: GraphParameters): string => {
+export const getXAxisTickFormat = (graphInterval: GraphInterval): string => {
   if (
     isNil(graphInterval) ||
     isNil(graphInterval?.start) ||

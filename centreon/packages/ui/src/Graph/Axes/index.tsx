@@ -4,7 +4,7 @@ import { ScaleLinear } from 'd3-scale';
 import useLocaleDateTimeFormat from '../../utils/useLocaleDateTimeFormat';
 import { getUnits } from '../timeSeries';
 import { getXAxisTickFormat } from '../helpers';
-import { GraphParameters } from '../models';
+import { GraphInterval } from '../models';
 
 import UnitLabel from './UnitLabel';
 import { Data } from './models';
@@ -12,7 +12,7 @@ import useAxisY from './useAxisY';
 
 interface Props {
   data: Data;
-  graphInterval: GraphParameters;
+  graphInterval: GraphInterval;
   height: number;
   leftScale: ScaleLinear<number, number>;
   rightScale: ScaleLinear<number, number>;

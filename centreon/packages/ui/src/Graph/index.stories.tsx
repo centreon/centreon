@@ -4,7 +4,7 @@ import { Meta, StoryObj } from '@storybook/react';
 
 import AwesomeTimePeriod from '../TimePeriods';
 
-import { ZoomBoundaries } from './InteractionWithGraph/ZoomPreview/models';
+import { Interval } from './InteractionWithGraph/ZoomPreview/models';
 import {
   argTypes,
   args as argumentsData,
@@ -44,7 +44,8 @@ const GraphAndTimePeriod = (args): JSX.Element => {
   const [currentData, setCurrentData] = useState<GraphData>();
   const [start, setStart] = useState();
   const [end, setEnd] = useState();
-  const [zoomInterval, setZoomInterval] = useState<ZoomBoundaries>();
+  const [adjustedTimePeriodInterval, setAdjustedTimePeriodInterval] =
+    useState<Interval>();
 
   const getParameters = (interval): void => {
     setStart(interval.start);
@@ -74,16 +75,21 @@ const GraphAndTimePeriod = (args): JSX.Element => {
     if (start.includes(zoomPreviewDate)) {
       setCurrentData(dataZoomPreview);
     }
-  }, [start, end, zoomInterval]);
+  }, [start, end, adjustedTimePeriodInterval]);
 
-  const getZoomInterval = (interval: ZoomBoundaries): void => {
-    setZoomInterval(interval);
+  // a changer le nom
+  const getZoomInterval = (interval: Interval): void => {
+    setAdjustedTimePeriodInterval(interval);
+  };
+
+  const getInterval = (interval: Interval): void => {
+    setAdjustedTimePeriodInterval(interval);
   };
 
   return (
     <>
       <AwesomeTimePeriod
-        adjustTimePeriodData={zoomInterval}
+        adjustTimePeriodData={adjustedTimePeriodInterval}
         getStartEndParameters={getParameters}
       />
       <WraperGraph
@@ -92,6 +98,7 @@ const GraphAndTimePeriod = (args): JSX.Element => {
         end={end}
         loading={false}
         start={start}
+        timeShiftZones={{ enable: true, getInterval }}
         zoomPreview={{ getZoomInterval }}
       />
     </>

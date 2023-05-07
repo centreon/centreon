@@ -4,7 +4,7 @@ import { ScaleTime } from 'd3-scale';
 
 import { ZoomPreview } from '../../models';
 
-export interface ZoomBoundaries {
+export interface Interval {
   end: Date;
   start: Date;
 }

@@ -12,7 +12,7 @@ import {
   eventMouseUpAtom
 } from '../interactionWithGraphAtoms';
 
-import { ZoomBoundaries } from './models';
+import { Interval } from './models';
 import { zoomParametersAtom } from './zoomPreviewAtoms';
 
 interface Boundaries {
@@ -22,7 +22,7 @@ interface Boundaries {
 interface ZoomPreview {
   zoomBarWidth: number;
   zoomBoundaries: Boundaries | null;
-  zoomParameters: ZoomBoundaries | null;
+  zoomParameters: Interval | null;
 }
 
 interface Props {

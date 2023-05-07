@@ -19,12 +19,12 @@ import useRegularLines from './Lines/RegularLines/useRegularLines';
 import useStackedLines from './Lines/StackedLines/useStackedLines';
 import LoadingProgress from './LoadingProgress';
 import { margin } from './common';
-import { Data, GlobalAreaLines, GraphParameters, GraphProps } from './models';
+import { Data, GlobalAreaLines, GraphInterval, GraphProps } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
 
 interface Props extends GraphProps {
   graphData: Data;
-  graphInterval: GraphParameters;
+  graphInterval: GraphInterval;
   loading: boolean;
   shapeLines?: GlobalAreaLines;
 }
@@ -38,7 +38,8 @@ const Graph = ({
   anchorPoint,
   loading,
   zoomPreview,
-  graphInterval
+  graphInterval,
+  timeShiftZones
 }: Props): JSX.Element => {
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -219,6 +220,11 @@ const Graph = ({
 
           <InteractionWithGraph
             commonData={{ graphHeight, graphSvgRef, graphWidth }}
+            timeShiftZonesData={{
+              ...timeShiftZones,
+              graphInterval,
+              loading
+            }}
             zoomData={{
               xScale,
               ...zoomPreview
