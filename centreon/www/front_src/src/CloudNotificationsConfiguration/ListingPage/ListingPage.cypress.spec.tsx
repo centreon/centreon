@@ -29,7 +29,6 @@ describe('Notifications Listing', () => {
 
   it('displays the first page of the notifications listing', () => {
     cy.waitForRequest('@defaultRequest');
-
     cy.matchImageSnapshot();
   });
 });
