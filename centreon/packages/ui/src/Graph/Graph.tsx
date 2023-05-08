@@ -2,6 +2,8 @@ import { useMemo, useRef } from 'react';
 
 import { Group } from '@visx/visx';
 
+import { ClickAwayListener } from '@mui/material';
+
 import Axes from './BasicComponents/Axes';
 import Grids from './BasicComponents/Grids';
 import Lines from './BasicComponents/Lines';
@@ -21,6 +23,7 @@ import RegularAnchorPoint from './IntercatifsComponents/AnchorPoint/RegularAncho
 import StackedAnchorPoint from './IntercatifsComponents/AnchorPoint/StackedAnchorPoint';
 import useAnchorPoint from './IntercatifsComponents/AnchorPoint/useAnchorPoint';
 import GraphTooltip from './IntercatifsComponents/Tooltip';
+import useGraphTooltip from './IntercatifsComponents/Tooltip/useGraphTooltip';
 import { Data, GlobalAreaLines, GraphInterval, GraphProps } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
 
@@ -94,6 +97,12 @@ const Graph = ({
   });
 
   const { regularLines } = useRegularLines({ lines });
+
+  const graphTooltipData = useGraphTooltip({
+    graphWidth,
+    timeSeries,
+    xScale
+  });
 
   const commonLinesProps = {
     display: true,
@@ -189,62 +198,58 @@ const Graph = ({
         timeTick={timeTick}
         title={title}
       />
-      <div className={classes.container}>
-        <LoadingProgress display={loading} height={height} width={width} />
-        <svg height={height} ref={graphSvgRef} width="100%">
-          <Group.Group left={margin.left} top={margin.top}>
-            <Grids
-              height={graphHeight}
-              leftScale={leftScale}
-              width={graphWidth}
-              xScale={xScale}
-            />
+      <ClickAwayListener onClickAway={graphTooltipData?.hideTooltip}>
+        <div className={classes.container}>
+          <LoadingProgress display={loading} height={height} width={width} />
+          <svg height={height} ref={graphSvgRef} width="100%">
+            <Group.Group left={margin.left} top={margin.top}>
+              <Grids
+                height={graphHeight}
+                leftScale={leftScale}
+                width={graphWidth}
+                xScale={xScale}
+              />
+              <Axes
+                data={{
+                  baseAxis,
+                  lines,
+                  timeSeries,
+                  ...axis
+                }}
+                graphInterval={graphInterval}
+                height={graphHeight}
+                leftScale={leftScale}
+                rightScale={rightScale}
+                width={graphWidth}
+                xScale={xScale}
+              />
 
-            <Axes
-              data={{
-                baseAxis,
-                lines,
-                timeSeries,
-                ...axis
-              }}
-              graphInterval={graphInterval}
-              height={graphHeight}
-              leftScale={leftScale}
-              rightScale={rightScale}
-              width={graphWidth}
-              xScale={xScale}
-            />
+              <Lines
+                anchorPoint={{
+                  renderRegularLinesAnchorPoint,
+                  renderStackedAnchorPoint
+                }}
+                height={graphHeight}
+                shape={{ areaRegularLines, areaStackedLines }}
+              />
 
-            <Lines
-              anchorPoint={{
-                renderRegularLinesAnchorPoint,
-                renderStackedAnchorPoint
-              }}
-              height={graphHeight}
-              shape={{ areaRegularLines, areaStackedLines }}
-            />
-
-            <InteractionWithGraph
-              commonData={{ graphHeight, graphSvgRef, graphWidth }}
-              timeShiftZonesData={{
-                ...timeShiftZones,
-                graphInterval,
-                loading
-              }}
-              zoomData={{
-                xScale,
-                ...zoomPreview
-              }}
-            />
-          </Group.Group>
-        </svg>
-        <GraphTooltip
-          graphWidth={graphWidth}
-          {...tooltip}
-          timeSeries={timeSeries}
-          xScale={xScale}
-        />
-      </div>
+              <InteractionWithGraph
+                commonData={{ graphHeight, graphSvgRef, graphWidth }}
+                timeShiftZonesData={{
+                  ...timeShiftZones,
+                  graphInterval,
+                  loading
+                }}
+                zoomData={{
+                  xScale,
+                  ...zoomPreview
+                }}
+              />
+            </Group.Group>
+          </svg>
+          <GraphTooltip {...tooltip} {...graphTooltipData} />
+        </div>
+      </ClickAwayListener>
     </>
   );
 };

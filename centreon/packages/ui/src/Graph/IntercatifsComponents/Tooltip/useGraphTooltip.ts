@@ -8,24 +8,18 @@ import { getTimeValue } from '../../timeSeries';
 import { eventMouseUpAtom } from '../interactionWithGraphAtoms';
 import { TimeValue } from '../../timeSeries/models';
 
-interface GraphTooltip {
-  hideTooltip: () => void;
-  tooltipData: Date;
-  tooltipLeft: number;
-  tooltipOpen: boolean;
-  tooltipTop: number;
-}
+import { GraphTooltip, width } from './models';
 
 interface Props {
   graphWidth: number;
   timeSeries: Array<TimeValue>;
-  tooltipWidth: number;
+  tooltipWidth?: number;
   xScale: ScaleLinear<number, number>;
 }
 
 const useGraphTooltip = ({
   graphWidth,
-  tooltipWidth,
+  tooltipWidth = width,
   timeSeries,
   xScale
 }: Props): GraphTooltip => {
