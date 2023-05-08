@@ -1,12 +1,14 @@
 import initStoryshots from '@storybook/addon-storyshots';
 import { imageSnapshot } from '@storybook/addon-storyshots-puppeteer';
+import path from 'path';
 
 jest.unmock('axios');
 
 const getMatchOptions = () => {
   return {
     failureThreshold: 0.2,
-    failureThresholdType: 'percent'
+    failureThresholdType: 'percent',
+    customSnapshotsDir: path.join(__dirname, '..', 'src', '__image_snapshots__'),
   };
 };
 
@@ -30,6 +32,8 @@ const beforeScreenshot = async (page) => {
     height: 1000,
     width: 1000
   });
+
+  await page.evaluateHandle("document.fonts.ready");
 };
 
 const getStoryKindRegex = () => {
@@ -47,6 +51,7 @@ initStoryshots({
   test: imageSnapshot({
     beforeScreenshot,
     getMatchOptions,
+    // configPath: path.join(__dirname, '/.storybook'),
     storybookUrl: `file://${__dirname}/../.out`
   })
 });

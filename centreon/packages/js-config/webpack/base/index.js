@@ -50,6 +50,13 @@ const getBaseConfiguration = ({
             }
           }
         ]
+      },
+      {
+        generator: {
+          filename: '[name][ext]'
+        },
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource'
       }
     ]
   },

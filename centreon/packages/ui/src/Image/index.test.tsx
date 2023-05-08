@@ -1,7 +1,7 @@
 import { RenderResult, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'jotai';
 
-import { render } from '../testRenderer';
+import { render } from '../../test/testRenderer';
 import CentreonLogoLight from '../@assets/brand/centreon-logo-one-line-light.svg';
 
 import Image from './Image';
