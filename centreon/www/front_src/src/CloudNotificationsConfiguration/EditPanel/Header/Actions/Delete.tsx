@@ -23,16 +23,16 @@ const DeleteAction = (): JSX.Element => {
 
   const { t } = useTranslation();
 
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const onDeleteActionClick = (): void => setOpenDeleteDialog(true);
+  const onClick = (): void => setDialogOpen(true);
 
-  const onDeleteActionCancel = (): void => {
-    setOpenDeleteDialog(false);
+  const onCancel = (): void => {
+    setDialogOpen(false);
   };
 
-  const onDeleteActionConfirm = (): void => {
-    setOpenDeleteDialog(false);
+  const onConfirm = (): void => {
+    setDialogOpen(false);
   };
 
   return (
@@ -41,14 +41,14 @@ const DeleteAction = (): JSX.Element => {
         ariaLabel={t(labelDelete)}
         disabled={false}
         title={t(labelDelete)}
-        onClick={onDeleteActionClick}
+        onClick={onClick}
       >
         <DeleteIcon className={classes.icon} />
       </IconButton>
       <DeleteDialog
-        open={openDeleteDialog}
-        onCancel={onDeleteActionCancel}
-        onConfirm={onDeleteActionConfirm}
+        open={dialogOpen}
+        onCancel={onCancel}
+        onConfirm={onConfirm}
       />
     </Box>
   );

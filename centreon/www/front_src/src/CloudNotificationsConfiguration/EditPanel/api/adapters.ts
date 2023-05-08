@@ -1,7 +1,5 @@
 import { map } from 'ramda';
 
-// import { NotificationType } from '../models';
-
 export const adaptNotifications = ({
   // businessViews,
   hostGroups,
@@ -10,7 +8,7 @@ export const adaptNotifications = ({
   name,
   serviceGroups,
   users
-}: any): any => ({
+}): object => ({
   isActivated,
   messages: {
     channel: messages.channel?.label,

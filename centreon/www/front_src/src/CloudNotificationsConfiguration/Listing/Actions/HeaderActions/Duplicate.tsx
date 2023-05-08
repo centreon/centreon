@@ -28,13 +28,13 @@ const DuplicateAction = (): JSX.Element => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selected] = useAtom(selectedRowsAtom);
 
-  const onDuplicateActionClick = (): void => setDialogOpen(true);
+  const onClick = (): void => setDialogOpen(true);
 
-  const onDuplicateActionCancel = (): void => {
+  const onCancel = (): void => {
     setDialogOpen(false);
   };
 
-  const onDuplicateActionConfirm = (): void => {
+  const onConfirm = (): void => {
     setDialogOpen(false);
   };
 
@@ -45,14 +45,14 @@ const DuplicateAction = (): JSX.Element => {
         className={classes.icon}
         disabled={isEmpty(selected)}
         title={t(labelDuplicate)}
-        onClick={onDuplicateActionClick}
+        onClick={onClick}
       >
         <DuplicateIcon />
       </IconButton>
       <DuplicateDialog
         open={dialogOpen}
-        onCancel={onDuplicateActionCancel}
-        onConfirm={onDuplicateActionConfirm}
+        onCancel={onCancel}
+        onConfirm={onConfirm}
       />
     </Box>
   );

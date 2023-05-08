@@ -11,11 +11,13 @@ import { IconButton, TextField } from '@centreon/ui';
 
 import { notificationNameAtom } from '../atom';
 
-import DeleteAction from './Actions/Delete';
-import DuplicateAction from './Actions/Duplicate';
-import ActivateAction from './Actions/Activate';
-import ClosePanelAction from './Actions/ClosePanel';
-import SaveAction from './SaveAction';
+import {
+  DeleteAction,
+  DuplicateAction,
+  ActivateAction,
+  ClosePanelAction,
+  SaveAction
+} from './Actions';
 
 const useStyle = makeStyles()((theme) => ({
   actions: {

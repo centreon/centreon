@@ -11,7 +11,7 @@ import {
 } from '../translatedLabels';
 
 import { FormatChannels, formatResourcesForListing } from './utils';
-import Actions from './Actions';
+import Actions from './Actions/RowActions';
 import ActionActivate from './Actions/RowActions/Activate';
 
 export const fillNotifications = (numberOfRows: number): unknown => {

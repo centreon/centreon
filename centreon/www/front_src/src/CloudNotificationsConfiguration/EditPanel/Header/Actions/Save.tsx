@@ -18,7 +18,6 @@ import {
 
 import { EditedNotificationIdAtom, panelModeAtom } from '../atom';
 import { isPanelOpenAtom } from '../../atom';
-import DeleteDialog from '../../Listing/Dialogs/DeleteDialog';
 import { labelSave } from '../../translatedLabels';
 import { notificationtEndpoint } from '../api/endpoints';
 import { PanelMode } from '../models';
@@ -31,39 +30,35 @@ const useStyle = makeStyles()((theme) => ({
 }));
 
 const SaveAction = (): JSX.Element => {
+  const { classes } = useStyle();
   const { t } = useTranslation();
-  const [openSaveDialog, setOpenSaveDialog] = useState(false);
+
+  const [dialogOpen, setDialogOpen] = useState(false);
   const panelMode = useAtomValue(panelModeAtom);
   const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
   const setPanelOpen = useSetAtom(isPanelOpenAtom);
-  const { isError, isMutating, mutate, mutateAsync } = useMutationQuery({
+
+  const { values } = useFormikContext<FormikValues>();
+
+  const { mutateAsync } = useMutationQuery({
     getEndpoint: () =>
       equals(panelMode, PanelMode.Create)
         ? notificationtEndpoint({})
         : notificationtEndpoint({ id: editedNotificationId }),
     method: equals(panelMode, PanelMode.Create) ? Method.POST : Method.PUT
-    // decoder,
-    // defaultFailureMessage,
-    // fetchHeaders ,
-    // httpCodesBypassErrorSnackbar,
   });
 
-  const { classes } = useStyle();
-
-  const { values } = useFormikContext<FormikValues>();
-
-  const onSaveActionClick = (): void => {
-    setOpenSaveDialog(true);
+  const onClick = (): void => {
+    setDialogOpen(true);
   };
 
-  const onSaveActionCancel = (): void => {
-    setOpenSaveDialog(false);
+  const onCancel = (): void => {
+    setDialogOpen(false);
   };
 
-  const onSaveActionConfirm = (): void => {
-    console.log('adapter :', adaptNotifications(values));
+  const onConfirm = (): void => {
     mutateAsync(adaptNotifications(values)).then(() => {
-      setOpenSaveDialog(false);
+      setDialogOpen(false);
       setPanelOpen(false);
     });
   };
@@ -74,14 +69,14 @@ const SaveAction = (): JSX.Element => {
         ariaLabel={t(labelSave)}
         disabled={false}
         title={t(labelSave)}
-        onClick={onSaveActionClick}
+        onClick={onClick}
       >
         <SaveIcon className={classes.icon} color="primary" />
       </IconButton>
       <ConfirmDialog
-        open={openSaveDialog}
-        onCancel={onSaveActionCancel}
-        onConfirm={onSaveActionConfirm}
+        open={dialogOpen}
+        onCancel={onCancel}
+        onConfirm={onConfirm}
       />
     </Box>
   );

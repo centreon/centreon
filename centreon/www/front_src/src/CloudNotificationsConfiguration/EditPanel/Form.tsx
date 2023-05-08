@@ -1,9 +1,7 @@
-import { useEffect, useState } from 'react';
-
 import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
 import { useAtom, useAtomValue } from 'jotai';
-import { equals, gt, isNil } from 'ramda';
+import { equals, gt } from 'ramda';
 
 import { Box, Button } from '@mui/material';
 
@@ -59,36 +57,24 @@ const ReducePanel = (): JSX.Element => {
 const Form = (): JSX.Element => {
   const { classes } = useStyles();
 
-  const [formInitialValues, setFormInitialValues] =
-    useState(emptyInitialValues);
   const panelMode = useAtomValue(panelModeAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
 
-  const { data, isLoading, fetchQuery } = useFetchQuery({
+  const { data, isLoading } = useFetchQuery({
     decoder: notificationdecoder,
     getEndpoint: () => notificationtEndpoint({ id: editedNotificationId }),
     getQueryKey: () => ['notification', editedNotificationId],
     queryOptions: {
-      // enabled: false,
-      // refetchOnMount: false,
+      enabled: equals(panelMode, PanelMode.Edit),
       suspense: false
     }
   });
 
-  useEffect(() => {
-    fetchQuery().then(() => {
-      if (equals(panelMode, PanelMode.Edit)) {
-        setFormInitialValues(getInitialValues(data));
-      }
-    });
-  }, [editedNotificationId]);
-  // const formInitialValues = equals(panelMode, PanelMode.Create)
-  //   ? emptyInitialValues
-  //   : getInitialValues(data);
-
-  // console.log(notificationdecoder.decode(dumyData));
-  // console.log(getInitialValues(data));
+  const initialValues =
+    equals(panelMode, PanelMode.Edit) && data
+      ? getInitialValues(data)
+      : emptyInitialValues;
 
   return (
     <Box>
@@ -96,14 +82,16 @@ const Form = (): JSX.Element => {
         Buttons={Box}
         className={classes.form}
         groups={basicFormGroups}
-        initialValues={formInitialValues}
+        initialValues={initialValues}
         inputs={getInputs({ panelWidth })}
-        isLoading={isLoading}
+        isLoading={equals(panelMode, PanelMode.Edit) ? isLoading : false}
         submit={submit}
         validationSchema={validationSchema}
       >
-        <Header />
-        <ReducePanel />
+        <>
+          <Header />
+          <ReducePanel />
+        </>
       </FormComponent>
     </Box>
   );

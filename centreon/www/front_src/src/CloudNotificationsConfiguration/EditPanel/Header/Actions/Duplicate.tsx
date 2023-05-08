@@ -23,16 +23,16 @@ const DuplicateAction = (): JSX.Element => {
 
   const { t } = useTranslation();
 
-  const [openDuplicateDialog, setOpenDuplicateDialog] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const onDuplicateActionClick = (): void => setOpenDuplicateDialog(true);
+  const onClick = (): void => setDialogOpen(true);
 
-  const onDuplicateActionCancel = (): void => {
-    setOpenDuplicateDialog(false);
+  const onCancel = (): void => {
+    setDialogOpen(false);
   };
 
-  const onDuplicateActionConfirm = (): void => {
-    setOpenDuplicateDialog(false);
+  const onConfirm = (): void => {
+    setDialogOpen(false);
   };
 
   return (
@@ -41,14 +41,14 @@ const DuplicateAction = (): JSX.Element => {
         ariaLabel={t(labelDuplicate)}
         disabled={false}
         title={t(labelDuplicate)}
-        onClick={onDuplicateActionClick}
+        onClick={onClick}
       >
         <DuplicateIcon className={classes.icon} />
       </IconButton>
       <DuplicateDialog
-        open={openDuplicateDialog}
-        onCancel={onDuplicateActionCancel}
-        onConfirm={onDuplicateActionConfirm}
+        open={dialogOpen}
+        onCancel={onCancel}
+        onConfirm={onConfirm}
       />
     </Box>
   );

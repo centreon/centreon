@@ -19,5 +19,5 @@ export const notificationtEndpoint = ({ id }: Props): string => {
 
 export const hostsGroupsEndpoint = `${baseEndpoint}/configuration/hosts/groups`;
 export const serviceGroupsEndpoint = `${baseEndpoint}/configuration/services/groups`;
-// export const businessViewsEndpoint = `${baseEndpoint}/bam/configuration/business-views`;
+export const businessViewsEndpoint = `${baseEndpoint}/bam/configuration/business-views`;
 export const usersEndpoint = `${baseEndpoint}/configuration/users`;

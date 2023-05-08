@@ -5,7 +5,6 @@ import { Group, InputProps, InputType } from '@centreon/ui';
 import {
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
-  businessViewsEndpoint,
   usersEndpoint
 } from './api/endpoints';
 import EmailBody from './Channel/EmailBody';

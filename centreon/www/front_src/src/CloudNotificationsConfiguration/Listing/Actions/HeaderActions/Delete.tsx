@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 import { useAtomValue } from 'jotai';
-import { isEmpty, map } from 'ramda';
+import { isEmpty } from 'ramda';
 
 import { Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
@@ -28,16 +28,16 @@ const DeleteAction = (): JSX.Element => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const selected = useAtomValue(selectedRowsAtom);
 
-  const onDeleteActionClick = (): void => {
+  const onClick = (): void => {
     setDialogOpen(true);
-    console.log('selected : ', map(({ id }) => id)(selected));
+    // console.log('selected : ', map(({ id }) => id)(selected));
   };
 
-  const onDeleteActionCancel = (): void => {
+  const onCancel = (): void => {
     setDialogOpen(false);
   };
 
-  const onDeleteActionConfirm = (): void => {
+  const onConfirm = (): void => {
     setDialogOpen(false);
   };
 
@@ -48,14 +48,14 @@ const DeleteAction = (): JSX.Element => {
         className={classes.icon}
         disabled={isEmpty(selected)}
         title={t(labelDelete)}
-        onClick={onDeleteActionClick}
+        onClick={onClick}
       >
         <DeleteIcon />
       </IconButton>
       <DeleteDialog
         open={dialogOpen}
-        onCancel={onDeleteActionCancel}
-        onConfirm={onDeleteActionConfirm}
+        onCancel={onCancel}
+        onConfirm={onConfirm}
       />
     </Box>
   );

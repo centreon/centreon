@@ -60,7 +60,7 @@ export const getInitialValues = ({
   timeperiod,
   messages,
   resources
-}: NotificationType): unknown => ({
+}: NotificationType): object => ({
   // businessViews: formatResource({
   //   resourceType: ResourcesTypeEnum.BV,
   //   resources
