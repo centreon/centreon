@@ -101,7 +101,7 @@ export const emptyInitialValues = {
     message: emptyEmail,
     subject: ''
   },
-  name: '',
+  name: 'Notification #1',
   serviceGroups: {
     events: [],
     ids: [],

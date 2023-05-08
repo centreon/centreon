@@ -14,11 +14,7 @@ import {
   panelWidthStorageAtom,
   selectedRowsAtom
 } from '../atom';
-import {
-  notificationNameAtom,
-  EditedNotificationIdAtom,
-  panelModeAtom
-} from '../EditPanel/atom';
+import { EditedNotificationIdAtom, panelModeAtom } from '../EditPanel/atom';
 import { PanelMode } from '../EditPanel/models';
 
 import Actions from './Actions/HeaderActions';
@@ -43,7 +39,6 @@ const NotificationsListing = (): JSX.Element => {
   const [isPannelOpen, setIsPannelOpen] = useAtom(isPanelOpenAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const setLimit = useSetAtom(limitAtom);
-  const setNotificationName = useSetAtom(notificationNameAtom);
   const setEditedNotificationId = useSetAtom(EditedNotificationIdAtom);
   const setPanelMode = useSetAtom(panelModeAtom);
 
@@ -59,7 +54,6 @@ const NotificationsListing = (): JSX.Element => {
   };
 
   const onRowClick = (row): void => {
-    setNotificationName(row.name);
     setEditedNotificationId(row.id);
     setPanelMode(PanelMode.Edit);
     setIsPannelOpen(true);

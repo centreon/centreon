@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { FormikValues, useFormikContext } from 'formik';
-import { equals } from 'ramda';
+import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Typography, Box } from '@mui/material';
@@ -11,9 +11,9 @@ import EditIcon from '@mui/icons-material/Edit';
 
 import { IconButton, TextField } from '@centreon/ui';
 
-import { notificationNameAtom, panelModeAtom } from '../atom';
+import { panelModeAtom } from '../atom';
 import { PanelMode } from '../models';
-import { labelChangeName } from '../../translatedLabels';
+import { labelChangeName, labelNotificationName } from '../../translatedLabels';
 
 import {
   DeleteAction,
@@ -59,34 +59,49 @@ const Header = (): JSX.Element => {
   const { classes } = useStyle();
 
   const [nameChange, setNameChange] = useState(false);
-  const [notificationName, setNotificationName] = useAtom(notificationNameAtom);
   const panelMode = useAtomValue(panelModeAtom);
 
   const handleNameChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ): void => {
     const { value } = event.target;
-    setNotificationName(value);
     setFieldValue('name', value);
   };
 
-  const { setFieldValue, isValid } = useFormikContext<FormikValues>();
+  const {
+    setFieldValue,
+    isValid,
+    errors,
+    values: { name: notificationName }
+  } = useFormikContext<FormikValues>();
+
+  const error = isEmpty(notificationName) ? errors?.name : undefined;
 
   return (
     <Box className={classes.panelHeader}>
       <Box className={classes.title}>
-        <IconButton
-          title={t(labelChangeName)}
-          onClick={(): void => setNameChange(true)}
-        >
-          <EditIcon />
-        </IconButton>
         {nameChange ? (
-          <TextField value={notificationName} onChange={handleNameChange} />
+          <TextField
+            required
+            dataTestId=""
+            error={error as string | undefined}
+            name="name"
+            placeholder={t(labelNotificationName) as string}
+            value={notificationName}
+            onChange={handleNameChange}
+          />
         ) : (
-          <Typography className={classes.name} variant="h6">
-            {notificationName}
-          </Typography>
+          <>
+            <IconButton
+              title={t(labelChangeName) as string}
+              onClick={(): void => setNameChange(true)}
+            >
+              <EditIcon />
+            </IconButton>
+            <Typography className={classes.name} variant="h6">
+              {notificationName}
+            </Typography>
+          </>
         )}
       </Box>
       <Box className={classes.rightHeader}>
