@@ -1,20 +1,23 @@
 /* eslint-disable class-methods-use-this */
 import { useCallback } from 'react';
 
-import DayjsAdapter from '@date-io/dayjs';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
-import { equals, isNil, not, pipe } from 'ramda';
+import { equals, isNil, not } from 'ramda';
+
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
+interface GetDestinationAndConfiguredTimezoneOffsetProps {
+  endTimezone?: string;
+  startTimezone?: string;
+}
+
 interface UseDateTimePickerAdapterProps {
   Adapter;
-  formatKeyboardValue: (value?: string) => string | undefined;
-  getDestinationAndConfiguredTimezoneOffset: (
-    destinationTimezone?: string
-  ) => number;
+  desktopPickerMediaQuery: string;
 }
 
 enum DSTState {
@@ -28,13 +31,17 @@ interface ToTimezonedDateProps {
   timeZone?: string;
 }
 
-const isSummerDate = equals(DSTState.SUMMER);
+interface GetDSTStateProps {
+  date: dayjs.Dayjs;
+  timezoneToUse?: string;
+}
 
-const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
+export const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
   const { timezone, locale } = useAtomValue(userAtom);
   const { format } = useLocaleDateTimeFormat();
 
-  const normalizedLocale = locale.substring(0, 2);
+  const desktopPickerMediaQuery =
+    '@media (pointer: fine) or (min-width: 1024px)';
 
   const toTimezonedDate = ({
     date,
@@ -47,17 +54,18 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     return new Date(date.toLocaleString('en-US', { timeZone }));
   };
 
-  const getDestinationAndConfiguredTimezoneOffset = (
-    destinationTimezone?: string
-  ): number => {
+  const getDestinationAndConfiguredTimezoneOffset = ({
+    startTimezone = undefined,
+    endTimezone = timezone
+  }: GetDestinationAndConfiguredTimezoneOffsetProps): number => {
     const now = new Date();
     const currentTimezoneDate = toTimezonedDate({
       date: now,
-      timeZone: destinationTimezone
+      timeZone: startTimezone
     });
     const destinationTimezoneDate = toTimezonedDate({
       date: now,
-      timeZone: timezone
+      timeZone: endTimezone
     });
 
     return Math.floor(
@@ -69,59 +77,46 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
   };
 
   const getDSTState = useCallback(
-    (date: dayjs.Dayjs): DSTState => {
+    ({ date, timezoneToUse }: GetDSTStateProps): DSTState => {
+      const hasNoTimezone = isNil(timezoneToUse);
       const currentYear = toTimezonedDate({
         date: new Date(),
-        timeZone: timezone
+        timeZone: timezoneToUse
       }).getFullYear();
 
-      const january = dayjs(new Date(currentYear, 0, 1))
-        .tz(timezone)
-        .utcOffset();
-      const july = dayjs(new Date(currentYear, 6, 1)).tz(timezone).utcOffset();
+      const january = hasNoTimezone
+        ? dayjs(new Date(currentYear, 0, 1)).utcOffset()
+        : dayjs(new Date(currentYear, 0, 1)).tz(timezoneToUse).utcOffset();
+      const july = hasNoTimezone
+        ? dayjs(new Date(currentYear, 6, 1)).utcOffset()
+        : dayjs(new Date(currentYear, 6, 1)).tz(timezoneToUse).utcOffset();
 
       if (equals(january, july)) {
         return DSTState.NODST;
       }
 
-      return july === date.utcOffset() ? DSTState.SUMMER : DSTState.WINTER;
+      return july === date.tz().utcOffset() ? DSTState.SUMMER : DSTState.WINTER;
     },
     [timezone]
   );
 
-  const formatKeyboardValue = (value?: string): string | undefined => {
-    if (equals(normalizedLocale, 'en') || isNil(value)) {
-      return value;
-    }
-    const month = value.substring(0, 2);
-    const day = value.substring(3, 5);
-
-    const newValue = `${day}/${month}/${value.substring(6, 16)}`;
-
-    return newValue;
-  };
+  const getDSTStateForCurrentTimezone = useCallback(
+    (date: dayjs.Dayjs): DSTState => {
+      return getDSTState({ date });
+    },
+    []
+  );
 
   interface Chunk {
     array: Array<unknown>;
     size: number;
   }
-  class Adapter extends DayjsAdapter {
+  class Adapter extends AdapterDayjs {
     public formatByString = (value, formatKey: string): string => {
       return format({
-        date: value.tz(timezone),
+        date: value.tz(timezone).toDate(),
         formatString: formatKey
       });
-    };
-
-    public isEqual = (value, comparing): boolean => {
-      if (value === null && comparing === null) {
-        return true;
-      }
-
-      return equals(
-        format({ date: value, formatString: 'LT' }),
-        format({ date: comparing, formatString: 'LT' })
-      );
     };
 
     public format = (date: dayjs.Dayjs, formatKey: string): string => {
@@ -139,33 +134,12 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
       return date.tz(timezone).startOf('week');
     };
 
-    public getHours = (date): number => {
-      return date.tz(timezone).get('hour');
+    public setMinutes = (date: dayjs.Dayjs, count: number): dayjs.Dayjs => {
+      return date.minute(count);
     };
 
     public setHours = (date: dayjs.Dayjs, count: number): dayjs.Dayjs => {
-      const dateDSTState = getDSTState(date.tz(timezone));
-
-      const isNotASummerDate = pipe(isSummerDate, not)(dateDSTState);
-      const isInUTC = equals(
-        getDestinationAndConfiguredTimezoneOffset('UTC'),
-        0
-      );
-
-      if ((isInUTC && isNotASummerDate) || equals('UTC', timezone)) {
-        return date
-          .tz(timezone)
-          .set('hour', count - getDestinationAndConfiguredTimezoneOffset());
-      }
-
-      return date.tz(timezone).set('hour', count);
-    };
-
-    public isSameHour = (
-      date: dayjs.Dayjs,
-      comparing: dayjs.Dayjs
-    ): boolean => {
-      return date.tz(timezone).isSame(comparing.tz(timezone), 'hour');
+      return date.hour(count);
     };
 
     public isSameDay = (date: dayjs.Dayjs, comparing: dayjs.Dayjs): boolean => {
@@ -196,7 +170,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public endOfMonth = (date: dayjs.Dayjs): dayjs.Dayjs => {
-      return date.endOf('month') as dayjs.Dayjs;
+      return date.tz(timezone).endOf('month') as dayjs.Dayjs;
     };
 
     public isSameMonth = (
@@ -207,7 +181,7 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     };
 
     public getMonth = (date: dayjs.Dayjs): number => {
-      return date.month();
+      return date.tz(timezone).month();
     };
 
     public isAfter = (date: dayjs.Dayjs, value: dayjs.Dayjs): boolean => {
@@ -242,32 +216,25 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
     public getWeekArray = (date: dayjs.Dayjs): Array<Array<dayjs.Dayjs>> => {
       const isMorning = equals(dayjs().tz(timezone).format('a'), 'am');
-
-      const startOfWeek = date.startOf('month').startOf('week');
-      const endOfWeek = date.endOf('month').endOf('week');
-
-      const start = startOfWeek.endOf('day');
-
+      const startOfWeek = date.tz(timezone).startOf('month').startOf('week');
+      const endOfWeek = date.tz(timezone).endOf('month').endOf('week');
+      const start = startOfWeek.startOf('day');
       const end = endOfWeek.endOf('day');
       const customStart = isMorning
         ? startOfWeek.startOf('day')
-        : startOfWeek.endOf('day');
-
+        : startOfWeek.startOf('day');
       const customEnd = isMorning
         ? endOfWeek.startOf('day')
-        : endOfWeek.endOf('day');
-
+        : endOfWeek.startOf('day');
       const currentStart = start.isUTC()
         ? start.tz(timezone, true)
         : customStart;
       const currentEnd = end.isUTC() ? end.tz(timezone, true) : customEnd;
-
       const numberOfDaysInCurrentMonth = currentEnd.diff(
         currentStart,
         'd',
         true
       );
-
       const daysOfMonthWithTimezone = [
         ...Array(Math.round(numberOfDaysInCurrentMonth)).keys()
       ].reduce(
@@ -280,14 +247,12 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
             return [...acc, newCurrent];
           }
-
           const newCurrent = acc[currentIndex].add(1, 'day');
 
           return [...acc, newCurrent];
         },
         [currentStart]
       );
-
       const weeksArray = this.getChunkFromArray({
         array: daysOfMonthWithTimezone,
         size: 7
@@ -302,8 +267,26 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
     ): dayjs.Dayjs => {
       const dateWithTimezone = date.tz(timezone).startOf('day');
       const timeWithTimezone = time.tz(timezone);
+      const dateDSTState = getDSTState({
+        date: dateWithTimezone,
+        timezoneToUse: timezone
+      });
+      const dateDSTStateWithCurrentTimezone =
+        getDSTStateForCurrentTimezone(date);
 
-      const dateDSTState = getDSTState(dateWithTimezone);
+      if (equals(dateDSTStateWithCurrentTimezone, DSTState.WINTER)) {
+        return dateWithTimezone
+          .add(
+            timeWithTimezone.hour() -
+              getDestinationAndConfiguredTimezoneOffset({
+                endTimezone: 'UTC',
+                startTimezone: dayjs.tz.guess()
+              }),
+            'hour'
+          )
+          .add(timeWithTimezone.minute(), 'minute')
+          .add(timeWithTimezone.second(), 'second');
+      }
 
       if (not(equals(dateDSTState, DSTState.SUMMER))) {
         return dateWithTimezone
@@ -321,9 +304,6 @@ const useDateTimePickerAdapter = (): UseDateTimePickerAdapterProps => {
 
   return {
     Adapter,
-    formatKeyboardValue,
-    getDestinationAndConfiguredTimezoneOffset
+    desktopPickerMediaQuery
   };
 };
-
-export default useDateTimePickerAdapter;
