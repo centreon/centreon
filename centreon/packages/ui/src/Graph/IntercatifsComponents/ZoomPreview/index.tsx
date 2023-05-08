@@ -1,13 +1,11 @@
-import { useEffect } from 'react';
-
 import { omit } from 'ramda';
 
 import { alpha, useTheme } from '@mui/system';
 
 import Bar from '../Bar';
 
-import useZoomPreview from './useZoomPreview';
 import { ZoomPreviewData } from './models';
+import useZoomPreview from './useZoomPreview';
 
 const ZoomPreview = (data: ZoomPreviewData): JSX.Element => {
   const theme = useTheme();
@@ -15,21 +13,14 @@ const ZoomPreview = (data: ZoomPreviewData): JSX.Element => {
   const { graphHeight, xScale, graphWidth, graphSvgRef, getInterval, ...rest } =
     data;
 
-  const { zoomBarWidth, zoomBoundaries, zoomParameters } = useZoomPreview({
+  const { zoomBarWidth, zoomBoundaries } = useZoomPreview({
+    getInterval,
     graphSvgRef,
     graphWidth,
     xScale
   });
 
-  useEffect(() => {
-    if (!zoomParameters) {
-      return;
-    }
-
-    getInterval?.(zoomParameters);
-  }, [zoomParameters?.start, zoomParameters?.end]);
-
-  const restData = omit(['display'], { ...rest });
+  const restData = omit(['enable'], { ...rest });
 
   return (
     <g>

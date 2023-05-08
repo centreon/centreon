@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { equals, gte, isNil, lt } from 'ramda';
 
 import { Interval } from '../../models';
@@ -13,8 +13,6 @@ import {
   eventMouseUpAtom
 } from '../interactionWithGraphAtoms';
 
-import { zoomParametersAtom } from './zoomPreviewAtoms';
-
 interface Boundaries {
   end: number;
   start: number;
@@ -22,10 +20,10 @@ interface Boundaries {
 interface ZoomPreview {
   zoomBarWidth: number;
   zoomBoundaries: Boundaries | null;
-  zoomParameters: Interval | null;
 }
 
 interface Props {
+  getInterval?: (args: Interval) => void;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;
   xScale: ScaleTime<number, number>;
@@ -34,10 +32,10 @@ interface Props {
 const useZoomPreview = ({
   graphSvgRef,
   xScale,
-  graphWidth
+  graphWidth,
+  getInterval
 }: Props): ZoomPreview => {
   const [zoomBoundaries, setZoomBoundaries] = useState<Boundaries | null>(null);
-  const [zoomParameters, setZoomParameters] = useAtom(zoomParametersAtom);
   const eventMouseMoving = useAtomValue(eventMouseMovingAtom);
   const eventMouseDown = useAtomValue(eventMouseDownAtom);
   const eventMouseUp = useAtomValue(eventMouseUpAtom);
@@ -63,7 +61,7 @@ const useZoomPreview = ({
       return;
     }
 
-    setZoomParameters({
+    getInterval?.({
       end: xScale?.invert(zoomBoundaries?.end || graphWidth),
       start: xScale?.invert(zoomBoundaries?.start || 0)
     });
@@ -96,7 +94,7 @@ const useZoomPreview = ({
     (zoomBoundaries?.end || 0) - (zoomBoundaries?.start || 0)
   );
 
-  return { zoomBarWidth, zoomBoundaries, zoomParameters };
+  return { zoomBarWidth, zoomBoundaries };
 };
 
 export default useZoomPreview;
