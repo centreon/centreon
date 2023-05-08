@@ -70,10 +70,10 @@ export interface CustomTimePeriod {
 
 export interface DateTimePickerInputModel {
   changeDate: (props) => void;
-  date: Date | dayjs.Dayjs | null;
+  date: Date | null;
   disabled?: boolean;
-  maxDate?: Date | dayjs.Dayjs;
-  minDate?: Date | dayjs.Dayjs;
+  maxDate?: Date;
+  minDate?: Date;
   property: CustomTimePeriodProperty;
 }
 

@@ -58,10 +58,8 @@ const PickerDateWithLabel = ({
   maxDate,
   minDate,
   property,
-  onClosePicker,
   disabled,
   date,
-  setDate,
   direction = PickersStartEndDateDirection.column
 }: PropsPickersDateWithLabel): JSX.Element => {
   const { classes, cx } = useStyles();
@@ -77,8 +75,6 @@ const PickerDateWithLabel = ({
         maxDate={maxDate}
         minDate={minDate}
         property={property}
-        setDate={setDate}
-        onClosePicker={onClosePicker}
       />
     </div>
   );
@@ -110,9 +106,6 @@ const PickersStartEndDate = ({
   const { locale } = useAtomValue(userAtom);
   const error = useAtomValue(errorTimePeriodAtom);
 
-  const { start, setStart } = startDate;
-  const { end, setEnd } = endDate;
-
   const maxStart = rangeStartDate?.max;
   const minStart = rangeStartDate?.min;
   const maxEnd = rangeEndDate?.max;
@@ -135,25 +128,23 @@ const PickersStartEndDate = ({
       <div className={styleContainer}>
         <PickerDateWithLabel
           changeDate={changeDate}
-          date={start}
+          date={startDate}
           direction={direction}
           disabled={disabled?.isDisabledStartPicker}
           label="From"
           maxDate={maxStart}
           minDate={minStart}
           property={CustomTimePeriodProperty.start}
-          setDate={setStart}
         />
         <PickerDateWithLabel
           changeDate={changeDate}
-          date={end}
+          date={endDate}
           direction={direction}
           disabled={disabled?.isDisabledEndPicker}
           label="To"
           maxDate={maxEnd}
           minDate={minEnd}
           property={CustomTimePeriodProperty.end}
-          setDate={setEnd}
         />
       </div>
 

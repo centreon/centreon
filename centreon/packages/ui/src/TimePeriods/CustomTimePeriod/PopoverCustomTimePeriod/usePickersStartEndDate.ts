@@ -1,27 +1,18 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import dayjs from 'dayjs';
-import { and, cond, equals, isNil } from 'ramda';
 import { useSetAtom } from 'jotai';
+import { and, cond, equals, isNil } from 'ramda';
 
-import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
 import { CustomTimePeriod, CustomTimePeriodProperty } from '../../models';
+import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
 
 import { AcceptDateProps } from './models';
 
-interface StartDate {
-  setStart: Dispatch<SetStateAction<Date | null>>;
-  start: Date | null;
-}
-interface EndDate {
-  end: Date | null;
-  setEnd: Dispatch<SetStateAction<Date | null>>;
-}
-
 export interface PickersStartEndDateModel {
   changeDate: (props: AcceptDateProps) => void;
-  endDate: EndDate;
-  startDate: StartDate;
+  endDate: Date | null;
+  startDate: Date | null;
 }
 interface Props {
   acceptDate: (props: AcceptDateProps) => void;
@@ -83,8 +74,8 @@ const usePickersStartEndDate = ({
 
   return {
     changeDate,
-    endDate: { end, setEnd },
-    startDate: { setStart, start }
+    endDate: end,
+    startDate: start
   };
 };
 

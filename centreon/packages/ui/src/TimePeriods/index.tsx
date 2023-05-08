@@ -1,16 +1,12 @@
-import { useEffect } from 'react';
-
 import { Responsive } from '@visx/visx';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-import duration from 'dayjs/plugin/duration';
-import { useAtomValue, useSetAtom } from 'jotai';
 
 import { Paper } from '@mui/material';
 
-import { useStyles } from './timePeriods.styles';
 import CustomTimePeriod from './CustomTimePeriod';
 import SelectedTimePeriod from './SelectedTimePeriod';
 import {
@@ -18,20 +14,15 @@ import {
   EndStartInterval,
   TimePeriod
 } from './models';
-import {
-  customTimePeriodAtom,
-  getDatesDerivedAtom,
-  selectedTimePeriodAtom,
-  errorTimePeriodAtom,
-  adjustTimePeriodDerivedAtom
-} from './timePeriodsAtoms';
+import { useStyles } from './timePeriods.styles';
+import useAwesomeTimePeriod from './useAwesomeTimePeriod';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 dayjs.extend(duration);
 
-interface Props {
+export interface Props {
   adjustTimePeriodData?: CustomTimePeriodModel;
   disabled?: boolean;
   extraTimePeriods?: Array<TimePeriod>;
@@ -48,28 +39,11 @@ const AwesomeTimePeriod = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles({ disabled });
 
-  const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
-  const customTimePeriod = useAtomValue(customTimePeriodAtom);
-  const getCurrentEndStartInterval = useAtomValue(getDatesDerivedAtom);
-  const errorTimePeriod = useAtomValue(errorTimePeriodAtom);
-  const adjustTimeTimePeriod = useSetAtom(adjustTimePeriodDerivedAtom);
-
-  useEffect(() => {
-    if (!adjustTimePeriodData) {
-      return;
-    }
-
-    adjustTimeTimePeriod(adjustTimePeriodData);
-  }, [adjustTimePeriodData?.start, adjustTimePeriodData?.end]);
-
-  useEffect(() => {
-    const [start, end] = getCurrentEndStartInterval(selectedTimePeriod);
-    getStartEndParameters?.({ end, start });
-  }, [customTimePeriod.start, customTimePeriod.end, selectedTimePeriod]);
-
-  useEffect(() => {
-    getIsError?.(errorTimePeriod);
-  }, [errorTimePeriod]);
+  useAwesomeTimePeriod({
+    adjustTimePeriodData,
+    getIsError,
+    getStartEndParameters
+  });
 
   return (
     <div>

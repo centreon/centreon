@@ -8,11 +8,11 @@ import { CustomTimePeriodProperty } from './models';
 
 interface Props {
   changeDate: (props) => void;
-  date: Date | dayjs.Dayjs | null;
+  date: Date | null;
   desktopMediaQuery?: string;
   disabled?: boolean;
-  maxDate?: Date | dayjs.Dayjs;
-  minDate?: Date | dayjs.Dayjs;
+  maxDate?: Date;
+  minDate?: Date;
   property: CustomTimePeriodProperty;
 }
 
