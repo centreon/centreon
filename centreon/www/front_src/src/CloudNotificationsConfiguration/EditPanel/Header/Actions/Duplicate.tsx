@@ -38,8 +38,8 @@ const DuplicateAction = (): JSX.Element => {
   return (
     <Box>
       <IconButton
+        disabled
         ariaLabel={t(labelDuplicate)}
-        disabled={false}
         title={t(labelDuplicate)}
         onClick={onClick}
       >

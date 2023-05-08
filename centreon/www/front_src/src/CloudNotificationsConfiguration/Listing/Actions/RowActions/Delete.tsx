@@ -45,8 +45,8 @@ const DeleteAction = ({ row }: ComponentColumnProps): JSX.Element => {
         <DeleteOutlineIcon className={classes.icon} />
       </IconButton>
       <DeleteDialog
+        notificationName={row.name}
         open={dialogOpen}
-        row={row}
         onCancel={onCancel}
         onConfirm={onConfirm}
       />

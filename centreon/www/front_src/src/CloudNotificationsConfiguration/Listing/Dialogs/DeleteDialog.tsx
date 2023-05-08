@@ -26,12 +26,19 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
+interface Props {
+  notificationName: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+  open: boolean;
+}
+
 const DeleteDialog = ({
-  row,
+  notificationName,
   open,
   onCancel,
   onConfirm
-}: ComponentColumnProps & { open: boolean }): JSX.Element => {
+}: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -41,7 +48,7 @@ const DeleteDialog = ({
       dialogPaperClassName={classes.paper}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDelete)}
-      labelMessage={`${t(labelDelete)} < ${row?.name} >`}
+      labelMessage={`${t(labelDelete)} < ${notificationName} >`}
       labelSecondMessage={t(labelDeleteNotificationWarning)}
       labelTitle={t(labelDeleteNotification)}
       open={open}

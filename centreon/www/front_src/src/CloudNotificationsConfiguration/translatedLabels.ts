@@ -31,3 +31,8 @@ export const labelExpandInformationPanel = 'Expand information panel';
 
 export const labelTypeYourTextHere = 'Type your text here';
 export const labelPreviewZone = 'Preview Zone';
+
+export const labelActiveOrInactive = 'Active / Inactive';
+export const labelChangeName = 'Change the name';
+
+export const labelRequired = 'Required';

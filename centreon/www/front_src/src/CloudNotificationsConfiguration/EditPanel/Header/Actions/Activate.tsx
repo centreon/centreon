@@ -1,8 +1,13 @@
 import { FormikValues, useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 
-import { Switch } from '@mui/material';
+import { Switch, Tooltip } from '@mui/material';
+
+import { labelActiveOrInactive } from '../../../translatedLabels';
 
 const ActivateAction = (): JSX.Element => {
+  const { t } = useTranslation();
+
   const { setFieldValue, values } = useFormikContext<FormikValues>();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -11,14 +16,16 @@ const ActivateAction = (): JSX.Element => {
   };
 
   return (
-    <Switch
-      checked={values?.isActivated}
-      color="success"
-      inputProps={{ 'aria-label': 'controlled' }}
-      name="isActivated"
-      size="small"
-      onChange={handleChange}
-    />
+    <Tooltip title={t(labelActiveOrInactive)}>
+      <Switch
+        checked={values?.isActivated}
+        color="success"
+        inputProps={{ 'aria-label': 'controlled' }}
+        name="isActivated"
+        size="small"
+        onChange={handleChange}
+      />
+    </Tooltip>
   );
 };
 

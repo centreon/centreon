@@ -2,6 +2,8 @@ import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
+import { useSetAtom } from 'jotai';
+import { FormikValues, useFormikContext } from 'formik';
 
 import { Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
@@ -10,6 +12,7 @@ import { IconButton } from '@centreon/ui';
 
 import DeleteDialog from '../../../Listing/Dialogs/DeleteDialog';
 import { labelDelete } from '../../../translatedLabels';
+import { isPanelOpenAtom } from '../../../atom';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
@@ -24,6 +27,11 @@ const DeleteAction = (): JSX.Element => {
   const { t } = useTranslation();
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const setPanelOpen = useSetAtom(isPanelOpenAtom);
+
+  const {
+    values: { name }
+  } = useFormikContext<FormikValues>();
 
   const onClick = (): void => setDialogOpen(true);
 
@@ -33,6 +41,7 @@ const DeleteAction = (): JSX.Element => {
 
   const onConfirm = (): void => {
     setDialogOpen(false);
+    setPanelOpen(false);
   };
 
   return (
@@ -46,6 +55,7 @@ const DeleteAction = (): JSX.Element => {
         <DeleteIcon className={classes.icon} />
       </IconButton>
       <DeleteDialog
+        notificationName={name}
         open={dialogOpen}
         onCancel={onCancel}
         onConfirm={onConfirm}

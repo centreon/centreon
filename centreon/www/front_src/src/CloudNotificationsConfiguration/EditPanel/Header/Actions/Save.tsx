@@ -29,7 +29,7 @@ const useStyle = makeStyles()((theme) => ({
   }
 }));
 
-const SaveAction = (): JSX.Element => {
+const SaveAction = ({ isValid }: { isValid: boolean }): JSX.Element => {
   const { classes } = useStyle();
   const { t } = useTranslation();
 
@@ -67,11 +67,14 @@ const SaveAction = (): JSX.Element => {
     <Box>
       <IconButton
         ariaLabel={t(labelSave)}
-        disabled={false}
+        disabled={!isValid}
         title={t(labelSave)}
         onClick={onClick}
       >
-        <SaveIcon className={classes.icon} color="primary" />
+        <SaveIcon
+          className={classes.icon}
+          color={isValid ? 'primary' : 'disabled'}
+        />
       </IconButton>
       <ConfirmDialog
         open={dialogOpen}

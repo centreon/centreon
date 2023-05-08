@@ -1,15 +1,19 @@
 import { useState } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { FormikValues, useFormikContext } from 'formik';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Typography, Box } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 import { IconButton, TextField } from '@centreon/ui';
 
-import { notificationNameAtom } from '../atom';
+import { notificationNameAtom, panelModeAtom } from '../atom';
+import { PanelMode } from '../models';
+import { labelChangeName } from '../../translatedLabels';
 
 import {
   DeleteAction,
@@ -50,9 +54,13 @@ const useStyle = makeStyles()((theme) => ({
 }));
 
 const Header = (): JSX.Element => {
+  const { t } = useTranslation();
+
   const { classes } = useStyle();
+
   const [nameChange, setNameChange] = useState(false);
   const [notificationName, setNotificationName] = useAtom(notificationNameAtom);
+  const panelMode = useAtomValue(panelModeAtom);
 
   const handleNameChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -62,13 +70,13 @@ const Header = (): JSX.Element => {
     setFieldValue('name', value);
   };
 
-  const { setFieldValue } = useFormikContext<FormikValues>();
+  const { setFieldValue, isValid } = useFormikContext<FormikValues>();
 
   return (
     <Box className={classes.panelHeader}>
       <Box className={classes.title}>
         <IconButton
-          title="Change the name"
+          title={t(labelChangeName)}
           onClick={(): void => setNameChange(true)}
         >
           <EditIcon />
@@ -84,9 +92,9 @@ const Header = (): JSX.Element => {
       <Box className={classes.rightHeader}>
         <Box className={classes.actions}>
           <ActivateAction />
-          <DuplicateAction />
-          <SaveAction />
-          <DeleteAction />
+          {equals(panelMode, PanelMode.Edit) && <DuplicateAction />}
+          <SaveAction isValid={isValid} />
+          {equals(panelMode, PanelMode.Edit) && <DeleteAction />}
         </Box>
         <ClosePanelAction />
       </Box>
