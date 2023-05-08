@@ -9,6 +9,7 @@ import { CustomTimePeriodProperty } from './models';
 interface Props {
   changeDate: (props) => void;
   date: Date | dayjs.Dayjs | null;
+  desktopMediaQuery?: string;
   disabled?: boolean;
   maxDate?: Date | dayjs.Dayjs;
   minDate?: Date | dayjs.Dayjs;
@@ -21,7 +22,8 @@ const DateTimePickerInput = ({
   minDate,
   property,
   changeDate,
-  disabled = false
+  disabled = false,
+  desktopMediaQuery
 }: Props): JSX.Element => {
   const { desktopPickerMediaQuery } = useDateTimePickerAdapter();
 
@@ -34,7 +36,7 @@ const DateTimePickerInput = ({
       dayOfWeekFormatter={(day: string): string =>
         day.substring(0, 2).toUpperCase()
       }
-      desktopModeMediaQuery={desktopPickerMediaQuery}
+      desktopModeMediaQuery={desktopMediaQuery ?? desktopPickerMediaQuery}
       disabled={disabled}
       maxDate={maxDate && dayjs(maxDate)}
       minDate={minDate && dayjs(minDate)}

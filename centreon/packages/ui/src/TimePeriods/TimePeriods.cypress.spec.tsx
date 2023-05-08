@@ -295,6 +295,8 @@ const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
 testData.forEach((item) =>
   describe(`DateTimePicker ${item.button}`, () => {
     beforeEach(() => {
+      cy.viewport('macbook-13');
+
       const { result } = renderHook(() => useDateTimePickerAdapter());
 
       const { Adapter } = result.current;
@@ -306,8 +308,6 @@ testData.forEach((item) =>
         timezone: item.timezone
       });
 
-      cy.viewport('macbook-13');
-
       cy.mount({
         Component: (
           <Provider store={store}>
@@ -315,8 +315,8 @@ testData.forEach((item) =>
               <DateTimePickerInput
                 changeDate={cy.stub()}
                 date={new Date(item.initialDate)}
+                desktopMediaQuery="@media (min-width: 1024px)"
                 property={CustomTimePeriodProperty.start}
-                setDate={cy.stub()}
               />
             </LocalizationProvider>
           </Provider>
