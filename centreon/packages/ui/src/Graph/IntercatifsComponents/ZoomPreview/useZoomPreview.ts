@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, gte, isNil, lt } from 'ramda';
 
 import { Interval } from '../../models';
@@ -12,6 +12,8 @@ import {
   eventMouseMovingAtom,
   eventMouseUpAtom
 } from '../interactionWithGraphAtoms';
+
+import { applyingZoomAtomAtom } from './zoomPreviewAtoms';
 
 interface Boundaries {
   end: number;
@@ -39,6 +41,7 @@ const useZoomPreview = ({
   const eventMouseMoving = useAtomValue(eventMouseMovingAtom);
   const eventMouseDown = useAtomValue(eventMouseDownAtom);
   const eventMouseUp = useAtomValue(eventMouseUpAtom);
+  const setApplyingZoom = useSetAtom(applyingZoomAtomAtom);
 
   const mousePointDown = eventMouseDown
     ? Event.localPoint(eventMouseDown)
@@ -57,10 +60,6 @@ const useZoomPreview = ({
     : null;
 
   const applyZoom = (): void => {
-    if (equals(zoomBoundaries?.start, zoomBoundaries?.end)) {
-      return;
-    }
-
     getInterval?.({
       end: xScale?.invert(zoomBoundaries?.end || graphWidth),
       start: xScale?.invert(zoomBoundaries?.start || 0)
@@ -86,9 +85,23 @@ const useZoomPreview = ({
     if (isNil(eventMouseUp) || isNil(zoomBoundaries)) {
       return;
     }
+    if (equals(zoomBoundaries.start, zoomBoundaries.end)) {
+      return;
+    }
     applyZoom();
+    setApplyingZoom(false);
     setZoomBoundaries(null);
   }, [eventMouseUp]);
+
+  useEffect(() => {
+    if (isNil(zoomBoundaries)) {
+      return;
+    }
+    if (equals(zoomBoundaries.start, zoomBoundaries.end)) {
+      return;
+    }
+    setApplyingZoom(true);
+  }, [zoomBoundaries]);
 
   const zoomBarWidth = Math.abs(
     (zoomBoundaries?.end || 0) - (zoomBoundaries?.start || 0)

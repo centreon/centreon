@@ -7,6 +7,7 @@ import { useAtomValue } from 'jotai';
 import { getTimeValue } from '../../timeSeries';
 import { eventMouseUpAtom } from '../interactionWithGraphAtoms';
 import { TimeValue } from '../../timeSeries/models';
+import { applyingZoomAtomAtom } from '../ZoomPreview/zoomPreviewAtoms';
 
 import { GraphTooltip, width } from './models';
 
@@ -33,6 +34,7 @@ const useGraphTooltip = ({
   } = Tooltip.useTooltip();
 
   const mouseUpEvent = useAtomValue(eventMouseUpAtom);
+  const isZoomApplied = useAtomValue(applyingZoomAtomAtom);
 
   const getDate = (positionX): Date => {
     const { timeTick } = getTimeValue({
@@ -45,7 +47,7 @@ const useGraphTooltip = ({
   };
 
   useEffect(() => {
-    if (!mouseUpEvent) {
+    if (!mouseUpEvent || isZoomApplied) {
       return;
     }
 

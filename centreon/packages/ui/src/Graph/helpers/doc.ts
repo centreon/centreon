@@ -46,7 +46,7 @@ export const defaultLastMonth = new Date(
 ).toISOString();
 
 export const zoomPreviewDate = '2023-04-22';
-export const lastDayForwardDate = '2023-05-17T23';
+export const lastDayForwardDate = '2023-05-21T22';
 
 export const getCustomText = (text: string): string =>
   `<span style="color:#1EA7FD;fontSize:12px">(${text})</span>`;
@@ -329,6 +329,6 @@ export const args = {
   },
   start: defaultStart,
   zoomPreview: {
-    display: true
+    enable: true
   }
 };
