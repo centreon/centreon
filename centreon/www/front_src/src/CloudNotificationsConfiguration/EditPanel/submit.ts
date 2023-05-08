@@ -1,3 +1,3 @@
-export const submit = (formikValues): void => {
-  console.log('submit : ', formikValues);
+export const submit = (): void => {
+  // console.log('submit : ', formikValues);
 };

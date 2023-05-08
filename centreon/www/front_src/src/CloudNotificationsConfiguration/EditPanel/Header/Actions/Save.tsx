@@ -16,12 +16,12 @@ import {
   Method
 } from '@centreon/ui';
 
-import { EditedNotificationIdAtom, panelModeAtom } from '../atom';
-import { isPanelOpenAtom } from '../../atom';
-import { labelSave } from '../../translatedLabels';
-import { notificationtEndpoint } from '../api/endpoints';
-import { PanelMode } from '../models';
-import { adaptNotifications } from '../api/adapters';
+import { EditedNotificationIdAtom, panelModeAtom } from '../../atom';
+import { isPanelOpenAtom } from '../../../atom';
+import { labelSave } from '../../../translatedLabels';
+import { notificationtEndpoint } from '../../api/endpoints';
+import { PanelMode } from '../../models';
+import { adaptNotifications } from '../../api/adapters';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {

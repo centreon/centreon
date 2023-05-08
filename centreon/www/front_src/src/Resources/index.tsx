@@ -1,72 +1,75 @@
-import { lazy, useEffect, Suspense } from 'react';
+import NotificationPage from '../CloudNotificationsConfiguration';
 
-import { isNil } from 'ramda';
-import { useAtomValue, useSetAtom } from 'jotai';
+export default NotificationPage;
+// import { lazy, useEffect, Suspense } from 'react';
 
-import {
-  ListingPage,
-  LoadingSkeleton,
-  useMemoComponent,
-  WithPanel
-} from '@centreon/ui';
+// import { isNil } from 'ramda';
+// import { useAtomValue, useSetAtom } from 'jotai';
 
-import Details from './Details';
-import {
-  selectedResourcesDetailsAtom,
-  clearSelectedResourceDerivedAtom
-} from './Details/detailsAtoms';
-import useDetails from './Details/useDetails';
-import { editPanelOpenAtom } from './Filter/filterAtoms';
-import useFilter from './Filter/useFilter';
+// import {
+//   ListingPage,
+//   LoadingSkeleton,
+//   useMemoComponent,
+//   WithPanel
+// } from '@centreon/ui';
 
-const EditFiltersPanel = lazy(() => import('./Filter/Edit'));
+// import Details from './Details';
+// import {
+//   selectedResourcesDetailsAtom,
+//   clearSelectedResourceDerivedAtom
+// } from './Details/detailsAtoms';
+// import useDetails from './Details/useDetails';
+// import { editPanelOpenAtom } from './Filter/filterAtoms';
+// import useFilter from './Filter/useFilter';
 
-const Filter = lazy(() => import('./Filter'));
-const Listing = lazy(() => import('./Listing'));
+// const EditFiltersPanel = lazy(() => import('./Filter/Edit'));
 
-const ResourcesPage = (): JSX.Element => {
-  const selectedResource = useAtomValue(selectedResourcesDetailsAtom);
-  const editPanelOpen = useAtomValue(editPanelOpenAtom);
-  const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
+// const Filter = lazy(() => import('./Filter'));
+// const Listing = lazy(() => import('./Listing'));
 
-  useEffect(() => {
-    window.addEventListener('beforeunload', clearSelectedResource);
+// const ResourcesPage = (): JSX.Element => {
+//   const selectedResource = useAtomValue(selectedResourcesDetailsAtom);
+//   const editPanelOpen = useAtomValue(editPanelOpenAtom);
+//   const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
 
-    return () => {
-      window.removeEventListener('beforeunload', clearSelectedResource);
-      clearSelectedResource();
-    };
-  }, []);
+//   useEffect(() => {
+//     window.addEventListener('beforeunload', clearSelectedResource);
 
-  return useMemoComponent({
-    Component: (
-      <WithPanel
-        open={editPanelOpen}
-        panel={
-          editPanelOpen ? (
-            <Suspense fallback={<LoadingSkeleton height="100%" width={550} />}>
-              <EditFiltersPanel />
-            </Suspense>
-          ) : undefined
-        }
-      >
-        <ListingPage
-          filter={<Filter />}
-          listing={<Listing />}
-          panel={<Details />}
-          panelOpen={!isNil(selectedResource?.resourceId)}
-        />
-      </WithPanel>
-    ),
-    memoProps: [selectedResource?.resourceId, editPanelOpen]
-  });
-};
+//     return () => {
+//       window.removeEventListener('beforeunload', clearSelectedResource);
+//       clearSelectedResource();
+//     };
+//   }, []);
 
-const Resources = (): JSX.Element => {
-  useDetails();
-  useFilter();
+//   return useMemoComponent({
+//     Component: (
+//       <WithPanel
+//         open={editPanelOpen}
+//         panel={
+//           editPanelOpen ? (
+//             <Suspense fallback={<LoadingSkeleton height="100%" width={550} />}>
+//               <EditFiltersPanel />
+//             </Suspense>
+//           ) : undefined
+//         }
+//       >
+//         <ListingPage
+//           filter={<Filter />}
+//           listing={<Listing />}
+//           panel={<Details />}
+//           panelOpen={!isNil(selectedResource?.resourceId)}
+//         />
+//       </WithPanel>
+//     ),
+//     memoProps: [selectedResource?.resourceId, editPanelOpen]
+//   });
+// };
 
-  return <ResourcesPage />;
-};
+// const Resources = (): JSX.Element => {
+//   useDetails();
+//   useFilter();
 
-export default Resources;
+//   return <ResourcesPage />;
+// };
+
+// export default Resources;
