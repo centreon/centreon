@@ -3,7 +3,7 @@ import { ChangeEvent } from 'react';
 import { FormikValues, useFormikContext } from 'formik';
 import { equals, includes, path, split } from 'ramda';
 
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import { MultiCheckbox as MultiCheckboxComponent } from '../../Checkbox';
 import { useMemoComponent } from '../..';
