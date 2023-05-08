@@ -1,12 +1,10 @@
-import React from 'react';
-
-import { renderHook } from '@testing-library/react-hooks/dom';
 import dayjs from 'dayjs';
 import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
+import { Provider, createStore } from 'jotai';
+import { equals, inc } from 'ramda';
+import { renderHook } from '@testing-library/react';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
@@ -14,14 +12,25 @@ import {
   useLocaleDateTimeFormat,
   useDateTimePickerAdapter
 } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { ListingVariant, userAtom } from '@centreon/ui-context';
 
-import DateTimePickerInput from './DateTimePickerInput';
 import { CustomTimePeriodProperty } from './models';
+import DateTimePickerInput from './DateTimePickerInput';
 
 dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
 dayjs.extend(localizedFormatPlugin);
+
+const retrievedUser = {
+  alias: 'Admin alias',
+  default_page: '/monitoring/resources',
+  is_export_button_enabled: true,
+  isExportButtonEnabled: true,
+  locale: 'fr_FR.UTF8',
+  name: 'Admin',
+  use_deprecated_pages: false,
+  user_interface_density: ListingVariant.compact
+};
 
 const numberDaysInWeek = 7;
 
@@ -279,36 +288,38 @@ const getPreviousMonth = ({
   return cy.get(`[aria-label="${labelButton}"]`).click();
 };
 
-const changeDate = (): void => undefined;
-
-const setStart = undefined;
 const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
   return new Set(arr).size !== arr.length;
 };
 
 testData.forEach((item) =>
   describe(`DateTimePicker ${item.button}`, () => {
-    before(() => {
-      const userData = renderHook(() => useAtomValue(userAtom));
-
-      userData.result.current.timezone = item.timezone;
-      userData.result.current.locale = 'en_US';
-    });
-
     beforeEach(() => {
       const { result } = renderHook(() => useDateTimePickerAdapter());
 
       const { Adapter } = result.current;
+
+      const store = createStore();
+      store.set(userAtom, {
+        ...retrievedUser,
+        locale: 'en_US',
+        timezone: item.timezone
+      });
+
+      cy.viewport('macbook-13');
+
       cy.mount({
         Component: (
-          <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
-            <DateTimePickerInput
-              changeDate={changeDate}
-              date={new Date(item.initialDate)}
-              property={CustomTimePeriodProperty.start}
-              setDate={setStart}
-            />
-          </LocalizationProvider>
+          <Provider store={store}>
+            <LocalizationProvider adapterLocale="en" dateAdapter={Adapter}>
+              <DateTimePickerInput
+                changeDate={cy.stub()}
+                date={new Date(item.initialDate)}
+                property={CustomTimePeriodProperty.start}
+                setDate={cy.stub()}
+              />
+            </LocalizationProvider>
+          </Provider>
         )
       });
     });
@@ -378,7 +389,7 @@ testData.forEach((item) =>
 
         cy.get('[role="rowgroup"]').children().as('listWeeks');
 
-        cy.get('@listWeeks').should('have.length', numberWeeks);
+        cy.get('@listWeeks').should('have.length', inc(numberWeeks));
         cy.get('@listWeeks').eq(0).as('firstWeek');
         cy.get('@firstWeek').children().as('listDaysInFirstWeek');
 
@@ -405,7 +416,7 @@ testData.forEach((item) =>
 
         cy.get('[role="rowgroup"]').children().as('listWeeks');
 
-        cy.get('@listWeeks').should('have.length', numberWeeks);
+        cy.get('@listWeeks').should('have.length', inc(numberWeeks));
 
         cy.get('@listWeeks')
           .eq(numberWeeks - 1)
@@ -464,7 +475,7 @@ testData.forEach((item) =>
         const daysArray = [0, 1, 2, 3, 4, 5, 6].map((diff) =>
           format({
             date: firstDay.add(diff, 'day'),
-            formatString: 'dd'
+            formatString: 'd'
           })
         );
         daysArray.forEach((day) => cy.contains(day.toUpperCase()));
