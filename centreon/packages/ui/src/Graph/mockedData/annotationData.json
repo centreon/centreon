@@ -1,0 +1,189 @@
+{
+    "result": [
+        {
+            "id": 78245926,
+            "type": "comment",
+            "date": "2023-05-23T11:15:43+02:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "Shared pool hit ratio = 83.056% (memory used)",
+            "contact": null,
+            "status": {
+                "code": 1,
+                "name": "WARNING",
+                "severity_code": 2
+            },
+            "tries": 1
+        },
+        {
+            "id": 78245734,
+            "type": "comment",
+            "date": "2023-05-23T11:05:43+02:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "Shared pool hit ratio = 86.009% (memory used)",
+            "contact": null,
+            "status": {
+                "code": 0,
+                "name": "OK",
+                "severity_code": 5
+            },
+            "tries": 1
+        },
+        {
+            "id": 78243340,
+            "type": "downtime",
+            "date": "2023-05-23T09:10:43+02:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "Shared pool hit ratio = 83.510% (memory used)",
+            "contact": null,
+            "status": {
+                "code": 1,
+                "name": "WARNING",
+                "severity_code": 2
+            },
+            "tries": 1
+        },
+        {
+            "id": 78242610,
+            "type": "downtime",
+            "date": "2023-05-23T08:30:43+02:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "Shared pool hit ratio = 86.139% (memory used)",
+            "contact": null,
+            "status": {
+                "code": 0,
+                "name": "OK",
+                "severity_code": 5
+            },
+            "tries": 1
+        },
+        {
+            "id": 78235704,
+            "type": "acknowledgement",
+            "date": "2023-05-23T00:55:43+02:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "Shared pool hit ratio = 84.864% (memory used)",
+            "contact": null,
+            "status": {
+                "code": 1,
+                "name": "WARNING",
+                "severity_code": 2
+            },
+            "tries": 1
+        },
+        {
+            "id": 78235655,
+            "type": "acknowledgement",
+            "date": "2023-05-23T00:50:43+02:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "Shared pool hit ratio = 85.127% (memory used)",
+            "contact": null,
+            "status": {
+                "code": 0,
+                "name": "OK",
+                "severity_code": 5
+            },
+            "tries": 1
+        },
+        {
+            "id": 78235013,
+            "type": "event",
+            "date": "2023-05-23T00:05:43+02:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "Shared pool hit ratio = 84.827% (memory used)",
+            "contact": null,
+            "status": {
+                "code": 1,
+                "name": "WARNING",
+                "severity_code": 2
+            },
+            "tries": 1
+        },
+        {
+            "id": 78228133,
+            "type": "event",
+            "date": "2023-05-22T17:05:43+02:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "Shared pool hit ratio = 86.014% (memory used)",
+            "contact": null,
+            "status": {
+                "code": 0,
+                "name": "OK",
+                "severity_code": 5
+            },
+            "tries": 1
+        },
+        {
+            "id": 78227005,
+            "type": "event",
+            "date": "2023-05-22T16:10:43+02:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "Shared pool hit ratio = 84.927% (memory used)",
+            "contact": null,
+            "status": {
+                "code": 1,
+                "name": "WARNING",
+                "severity_code": 2
+            },
+            "tries": 1
+        },
+        {
+            "id": 78222840,
+            "type": "event",
+            "date": "2023-05-22T12:55:43+02:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "Shared pool hit ratio = 85.813% (memory used)",
+            "contact": null,
+            "status": {
+                "code": 0,
+                "name": "OK",
+                "severity_code": 5
+            },
+            "tries": 1
+        },
+        {
+            "id": 78222731,
+            "type": "event",
+            "date": "2023-05-22T12:50:43+02:00",
+            "start_date": null,
+            "end_date": null,
+            "content": "Shared pool hit ratio = 84.807% (memory used)",
+            "contact": null,
+            "status": {
+                "code": 1,
+                "name": "WARNING",
+                "severity_code": 2
+            },
+            "tries": 1
+        }
+    ],
+    "meta": {
+        "page": 1,
+        "limit": 20,
+        "search": {
+            "$and": [
+                {
+                    "date": {
+                        "$gt": "2023-05-22T10:31:19.035Z"
+                    }
+                },
+                {
+                    "date": {
+                        "$lt": "2023-05-23T10:31:19.035Z"
+                    }
+                }
+            ]
+        },
+        "sort_by": {},
+        "total": 11
+    }
+}

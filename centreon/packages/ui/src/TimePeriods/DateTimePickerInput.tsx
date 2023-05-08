@@ -5,10 +5,9 @@ import dayjs from 'dayjs';
 import { TextFieldProps } from '@mui/material';
 import { DesktopDateTimePicker } from '@mui/x-date-pickers';
 
-import { TextField } from '@centreon/ui';
+import { TextField, useDateTimePickerAdapter } from '@centreon/ui';
 
 import { DateTimePickerInputModel } from './models';
-import useDateTimePickerAdapter from './useDateTimePickerAdapter';
 
 const renderDateTimePickerTextField =
   (blur: () => void) =>

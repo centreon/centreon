@@ -10,11 +10,13 @@ import { equals } from 'ramda';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
-import { useLocaleDateTimeFormat } from '@centreon/ui';
+import {
+  useLocaleDateTimeFormat,
+  useDateTimePickerAdapter
+} from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import DateTimePickerInput from './DateTimePickerInput';
-import useDateTimePickerAdapter from './useDateTimePickerAdapter';
 import { CustomTimePeriodProperty } from './models';
 
 dayjs.extend(timezonePlugin);

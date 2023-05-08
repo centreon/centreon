@@ -4,10 +4,9 @@ import { not, isNil } from 'ramda';
 import { TimeValue } from '../timeSeries/models';
 
 export const eventMouseMovingAtom = atom<null | MouseEvent>(null);
-
 export const eventMouseDownAtom = atom<null | MouseEvent>(null);
-
 export const eventMouseUpAtom = atom<null | MouseEvent>(null);
+export const eventMouseLeaveAtom = atom<null | MouseEvent>(null);
 
 export const timeValueAtom = atom<TimeValue | null>(null);
 export const mousePositionAtom = atom<MousePosition>(null);

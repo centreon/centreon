@@ -36,7 +36,8 @@ const WrapperGraph = ({
   data,
   loading,
   timeShiftZones,
-  tooltip
+  tooltip,
+  annotationEvent
 }: Props): JSX.Element | null => {
   const { adjustedData } = useGraphData({ data, end, start });
 
@@ -53,6 +54,7 @@ const WrapperGraph = ({
         }): JSX.Element => (
           <Graph
             anchorPoint={anchorPoint}
+            annotationEvent={annotationEvent}
             axis={axis}
             graphData={adjustedData}
             graphInterval={{ end, start }}

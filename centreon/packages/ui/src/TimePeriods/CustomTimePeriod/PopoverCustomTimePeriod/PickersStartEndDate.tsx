@@ -6,13 +6,13 @@ import { Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
 import { userAtom } from '@centreon/ui-context';
+import { useDateTimePickerAdapter } from '@centreon/ui';
 
 import DateTimePickerInput from '../../DateTimePickerInput';
 import {
   CustomTimePeriodProperty,
   DateTimePickerInputModel
 } from '../../models';
-import useDateTimePickerAdapter from '../../useDateTimePickerAdapter';
 import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
 
 import ErrorText from './ErrorText';
@@ -128,7 +128,10 @@ const PickersStartEndDate = ({
   );
 
   return (
-    <LocalizationProvider dateAdapter={Adapter} locale={locale.substring(0, 2)}>
+    <LocalizationProvider
+      adapterLocale={locale.substring(0, 2)}
+      dateAdapter={Adapter}
+    >
       <div className={styleContainer}>
         <PickerDateWithLabel
           changeDate={changeDate}

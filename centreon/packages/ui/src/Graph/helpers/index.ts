@@ -1,4 +1,4 @@
-import { gte, isNil, prop, propEq, reject, sortBy } from 'ramda';
+import { gte, isNil, prop, propEq, reject, sortBy, gt } from 'ramda';
 import dayjs from 'dayjs';
 
 import { getLineData, getTimeSeries } from '../timeSeries';
@@ -29,3 +29,19 @@ export const getXAxisTickFormat = (graphInterval: GraphInterval): string => {
 
   return gte(numberDays, 2) ? dateFormat : timeFormat;
 };
+
+export const truncate = (content?: string): string => {
+  const maxLength = 180;
+
+  if (isNil(content)) {
+    return '';
+  }
+
+  if (gt(content.length, maxLength)) {
+    return `${content.substring(0, maxLength)}...`;
+  }
+
+  return content;
+};
+
+export default truncate;

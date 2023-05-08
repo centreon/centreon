@@ -10,6 +10,7 @@ import {
   AreaRegularLines,
   AreaStackedLines
 } from './BasicComponents/Lines/models';
+import { TimelineEvent } from './IntercatifsComponents/Annotations/models';
 
 export interface GraphData {
   global;
@@ -78,8 +79,13 @@ export interface Tooltip {
   renderComponent?: (args: TooltipData) => ReactNode;
 }
 
+export interface AnnotationEvent {
+  data?: Array<TimelineEvent>;
+}
+
 export interface GraphProps {
   anchorPoint?: AreaAnchorPoint;
+  annotationEvent?: AnnotationEvent;
   axis?: Axis;
   height: number;
   timeShiftZones?: InteractedZone;

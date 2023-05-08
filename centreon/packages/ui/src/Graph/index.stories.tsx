@@ -21,6 +21,7 @@ import dataLastDayForword from './mockedData/lastDayForward.json';
 import dataLastMonth from './mockedData/lastMonth.json';
 import dataLastWeek from './mockedData/lastWeek.json';
 import dataZoomPreview from './mockedData/zoomPreview.json';
+import annotationData from './mockedData/annotationData.json';
 import { GraphData, Interval, TooltipData } from './models';
 import { dateTimeFormat } from './common';
 
@@ -121,6 +122,7 @@ const GraphAndTimePeriod = (args): JSX.Element => {
       <WraperGraph
         data={currentData}
         {...args}
+        annotationEvent={{ data: annotationData.result }}
         end={end}
         loading={false}
         start={start}

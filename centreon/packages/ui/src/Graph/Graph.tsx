@@ -45,6 +45,7 @@ const Graph = ({
   zoomPreview,
   graphInterval,
   timeShiftZones,
+  annotationEvent,
   tooltip
 }: Props): JSX.Element => {
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
@@ -234,16 +235,14 @@ const Graph = ({
               />
 
               <InteractionWithGraph
-                commonData={{ graphHeight, graphSvgRef, graphWidth }}
+                annotationData={{ ...annotationEvent }}
+                commonData={{ graphHeight, graphSvgRef, graphWidth, xScale }}
                 timeShiftZonesData={{
                   ...timeShiftZones,
                   graphInterval,
                   loading
                 }}
-                zoomData={{
-                  xScale,
-                  ...zoomPreview
-                }}
+                zoomData={{ ...zoomPreview }}
               />
             </Group.Group>
           </svg>

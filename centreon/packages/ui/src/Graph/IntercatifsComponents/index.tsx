@@ -3,8 +3,10 @@ import { MutableRefObject } from 'react';
 import { ScaleTime } from 'd3-scale';
 import { useSetAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
+import { isEmpty, isNil } from 'ramda';
 
 import {
+  AnnotationEvent,
   GraphInterval,
   InteractedZone,
   InteractedZone as ZoomPreviewModel
@@ -16,8 +18,11 @@ import ZoomPreview from './ZoomPreview';
 import {
   eventMouseDownAtom,
   eventMouseMovingAtom,
-  eventMouseUpAtom
+  eventMouseUpAtom,
+  eventMouseLeaveAtom
 } from './interactionWithGraphAtoms';
+import Annotations from './Annotations';
+import { TimelineEvent } from './Annotations/models';
 
 const useStyles = makeStyles()(() => ({
   overlay: {
@@ -29,25 +34,28 @@ interface CommonData {
   graphHeight: number;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;
-}
-
-interface ZoomData extends ZoomPreviewModel {
   xScale: ScaleTime<number, number>;
 }
+
+// interface ZoomData extends ZoomPreviewModel {
+//   xScale: ScaleTime<number, number>;
+// }
 interface TimeShiftZonesData extends InteractedZone {
   graphInterval: GraphInterval;
   loading: boolean;
 }
 
 interface Props {
+  annotationData?: AnnotationEvent;
   commonData: CommonData;
   timeShiftZonesData: TimeShiftZonesData;
-  zoomData: ZoomData;
+  zoomData: ZoomPreviewModel;
 }
 
 const InteractionWithGraph = ({
   zoomData,
   commonData,
+  annotationData,
   timeShiftZonesData
 }: Props): JSX.Element => {
   const { classes } = useStyles();
@@ -55,12 +63,16 @@ const InteractionWithGraph = ({
   const setEventMouseMoving = useSetAtom(eventMouseMovingAtom);
   const setEventMouseDown = useSetAtom(eventMouseDownAtom);
   const setEventMouseUp = useSetAtom(eventMouseUpAtom);
+  const setEventMouseLeave = useSetAtom(eventMouseLeaveAtom);
 
-  const { graphHeight, graphWidth, graphSvgRef } = commonData;
+  const { graphHeight, graphWidth, graphSvgRef, xScale } = commonData;
 
   const displayZoomPreview = zoomData?.enable ?? true;
+  const displayEventAnnotations =
+    !isNil(annotationData?.data) && !isEmpty(annotationData?.data);
 
-  const mouseLeave = (): void => {
+  const mouseLeave = (event): void => {
+    setEventMouseLeave(event);
     setEventMouseMoving(null);
     setEventMouseDown(null);
   };
@@ -86,6 +98,16 @@ const InteractionWithGraph = ({
           graphHeight={graphHeight}
           graphSvgRef={graphSvgRef}
           graphWidth={graphWidth}
+          xScale={xScale}
+        />
+      )}
+      {displayEventAnnotations && (
+        <Annotations
+          data={annotationData?.data as Array<TimelineEvent>}
+          graphHeight={graphHeight}
+          graphSvgRef={graphSvgRef}
+          graphWidth={graphWidth}
+          xScale={xScale}
         />
       )}
       <TimeShiftZones
