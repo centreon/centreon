@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { equals, isEmpty, isNil, add } from 'ramda';
+import { equals, isEmpty, isNil } from 'ramda';
 
 interface InitialValue {
   section: string;
