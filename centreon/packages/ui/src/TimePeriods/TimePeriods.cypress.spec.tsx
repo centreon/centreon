@@ -475,7 +475,7 @@ testData.forEach((item) =>
         const daysArray = [0, 1, 2, 3, 4, 5, 6].map((diff) =>
           format({
             date: firstDay.add(diff, 'day'),
-            formatString: 'd'
+            formatString: 'dd'
           })
         );
         daysArray.forEach((day) => cy.contains(day.toUpperCase()));
