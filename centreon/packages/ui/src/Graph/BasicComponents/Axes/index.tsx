@@ -1,7 +1,8 @@
 import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
 
-import useLocaleDateTimeFormat from '../../../utils/useLocaleDateTimeFormat';
+import { useLocaleDateTimeFormat } from '@centreon/ui';
+
 import { getUnits } from '../../timeSeries';
 import { getXAxisTickFormat } from '../../helpers';
 import { GraphInterval } from '../../models';

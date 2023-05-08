@@ -2,7 +2,7 @@ import { isNil } from 'ramda';
 
 import Typography from '@mui/material/Typography';
 
-import useLocaleDateTimeFormat from '../../utils/useLocaleDateTimeFormat';
+import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 interface Props {
   displayTimeTick?: boolean;
