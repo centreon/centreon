@@ -27,14 +27,15 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\HostType;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
-use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Domain\Model\SnmpVersion;
+use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\HostTemplate\Domain\Model\HostTemplate;
 use Utility\SqlConcatenator;
 
 class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements ReadHostTemplateRepositoryInterface
@@ -262,9 +263,9 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             $result['host_max_check_attemps'],
             $result['host_check_interval'],
             $result['host_retry_check_interval'],
-            YesNoDefault::from($result['host_active_checks_enabled'] ?? YesNoDefault::Default->value),
-            YesNoDefault::from($result['host_passive_checks_enabled'] ?? YesNoDefault::Default->value),
-            YesNoDefault::from($result['host_notifications_enabled'] ?? YesNoDefault::Default->value),
+            YesNoDefaultConverter::fromScalar($result['host_active_checks_enabled'] ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
+            YesNoDefaultConverter::fromScalar($result['host_passive_checks_enabled'] ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
+            YesNoDefaultConverter::fromScalar($result['host_notifications_enabled'] ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
             match ($result['host_notification_options']) {
                 null => [],
                 default => HostEventConverter::fromString($result['host_notification_options']),
@@ -276,12 +277,12 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             $result['host_first_notification_delay'],
             $result['host_recovery_notification_delay'],
             $result['host_acknowledgement_timeout'],
-            YesNoDefault::from($result['host_check_freshness'] ?? YesNoDefault::Default->value),
+            YesNoDefaultConverter::fromScalar($result['host_check_freshness'] ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
             $result['host_freshness_threshold'],
-            YesNoDefault::from($result['host_flap_detection_enabled'] ?? YesNoDefault::Default->value),
+            YesNoDefaultConverter::fromScalar($result['host_flap_detection_enabled'] ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
             $result['host_low_flap_threshold'],
             $result['host_high_flap_threshold'],
-            YesNoDefault::from($result['host_event_handler_enabled'] ?? YesNoDefault::Default->value),
+            YesNoDefaultConverter::fromScalar($result['host_event_handler_enabled'] ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
             $result['command_command_id2'],
             (string) $result['command_command_id_arg2'],
             (string) $result['ehi_notes_url'],
