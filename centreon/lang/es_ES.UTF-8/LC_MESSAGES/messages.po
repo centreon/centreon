@@ -15393,6 +15393,9 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgid "Error while searching for host groups"
 #  msgstr ""
 
+# msgid "Error while retrieving a host group"
+# msgstr ""
+
 #  msgid "You are not allowed to access host groups"
 #  msgstr ""
 
@@ -15406,6 +15409,9 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgstr ""
 
 #  msgid "Error while adding a host group"
+#  msgstr ""
+
+#  msgid "Error while updating a host group"
 #  msgstr ""
 
 #  msgid "The host group name '%s' already exists"
@@ -15441,10 +15447,10 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgid "Error while creating host severity"
 #  msgstr ""
 
-#  msgid "You are not allowed to create host severities"
+#  msgid "You are not allowed to create/modify a host severity"
 #  msgstr ""
 
-#  msgid "Error while retrieving recently created host severity"
+#  msgid "Error while retrieving host severity"
 #  msgstr ""
 
 #  msgid "Host severity name already exists"
@@ -15690,3 +15696,15 @@ msgstr ""
 
 # msgid "Groups mapping"
 # msgstr ""
+
+# msgid "Error while updating host severity"
+# msgstr ""
+
+# msgid "Error when searching for the host severity #%d"
+# msgstr ""
+
+#  msgid "Error when searching for the host category #%d"
+#  msgstr ""
+
+#  msgid "Error while retrieving a host category"
+#  msgstr ""

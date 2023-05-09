@@ -56,7 +56,7 @@ it('should throw an exception when host severity name is empty', function (): vo
     new NewHostSeverity('', $this->severityAlias, $this->level, $this->iconId);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmpty('NewHostSeverity::name')
+    AssertionException::notEmptyString('NewHostSeverity::name')
         ->getMessage()
 );
 
@@ -81,7 +81,7 @@ it('should throw an exception when host severity alias is empty', function (): v
     new NewHostSeverity($this->severityName, '', $this->level, $this->iconId);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmpty('NewHostSeverity::alias')
+    AssertionException::notEmptyString('NewHostSeverity::alias')
         ->getMessage()
 );
 

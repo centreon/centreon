@@ -44,6 +44,17 @@ class HostSeverityException extends \Exception
     }
 
     /**
+     * @param \Throwable $ex
+     * @param int $hostSeverityId
+     *
+     * @return self
+     */
+    public static function findHostSeverity(\Throwable $ex, int $hostSeverityId): self
+    {
+        return new self(sprintf(_('Error when searching for the host severity #%d'), $hostSeverityId), 0, $ex);
+    }
+
+    /**
      * @return self
      */
     public static function deleteNotAllowed(): self
@@ -74,17 +85,27 @@ class HostSeverityException extends \Exception
     /**
      * @return self
      */
-    public static function addNotAllowed(): self
+    public static function writeActionsNotAllowed(): self
     {
-        return new self(_('You are not allowed to create host severities'));
+        return new self(_('You are not allowed to create/modify a host severity'));
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function updateHostSeverity(\Throwable $ex): self
+    {
+        return new self(_('Error while updating host severity'), 0, $ex);
     }
 
     /**
      * @return self
      */
-    public static function errorWhileRetrievingJustCreated(): self
+    public static function errorWhileRetrievingObject(): self
     {
-        return new self(_('Error while retrieving recently created host severity'));
+        return new self(_('Error while retrieving host severity'));
     }
 
     /**

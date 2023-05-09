@@ -17273,11 +17273,17 @@ msgstr "Erreur durant la suppression d'un groupe d'hôtes"
 msgid "Error while adding a host group"
 msgstr "Erreur durant l'ajout d'un groupe d'hôtes"
 
+msgid "Error while updating a host group"
+msgstr "Erreur lors de la mise à jour d'un groupe d'hôtes"
+
 msgid "The host group name '%s' already exists"
 msgstr "Le groupe d'hôtes '%s' existe déjà"
 
 msgid "Error while retrieving newly created host group"
 msgstr "Erreur durant la récupération d'un groupe d'hôtes venant d'être créé"
+
+msgid "Error while retrieving a host group"
+msgstr "Erreur durant la récupération d'un groupe d'hôtes"
 
 msgid "The host group icon '%s' with id '%d' does not exist"
 msgstr "L'icône '%s' avec l'identifiant '%d' n'existe pas"
@@ -17290,9 +17296,6 @@ msgstr "Ce nom de catégorie d'hôtes existe déjà"
 
 msgid "Error while creating host category"
 msgstr "Erreur lors de la création d'une catégorie d'hôtes"
-
-msgid "Error while retrieving recently created host category"
-msgstr "Error lors de la récupération de la catégorie d'hôtes nouvellement créée"
 
 msgid "You are not allowed to access host severities"
 msgstr "Vous n'êtes pas autorisé à accéder aux sévérités d'hôtes"
@@ -17309,11 +17312,11 @@ msgstr "Erreur durant la suppression d'une sévérité d'hôtes"
 msgid "Error while creating host severity"
 msgstr "Erreur lors de la création d'une sévérité d'hôtes"
 
-msgid "You are not allowed to create host severities"
-msgstr "Vous n'êtes pas autorisé à créer des sévérités d'hôtes"
+msgid "You are not allowed to create/modify a host severity"
+msgstr "Vous n'êtes pas autorisé à créer/modifier des sévérités d'hôtes"
 
-msgid "Error while retrieving recently created host severity"
-msgstr "Error lors de la récupération de la sévérité d'hôtes nouvellement créée"
+msgid "Error while retrieving host severity"
+msgstr "Error lors de la récupération d'une sévérité d'hôtes"
 
 msgid "Host severity name already exists"
 msgstr "Ce nom de sévérité d'hôtes existe déjà"
@@ -17546,3 +17549,15 @@ msgstr "Association des rôles"
 
 msgid "Groups mapping"
 msgstr "Association des groupes"
+
+msgid "Error while updating host severity"
+msgstr "Erreur lors de la mise à jour de la sévérité d'hôtes"
+
+msgid "Error when searching for the host severity #%d"
+msgstr "Erreur lors de la recherche de la sévérité d'hôtes #%d"
+
+msgid "Error when searching for the host category #%d"
+msgstr "Erreur lors de la recherche de la catégorie d'hôtes #%d"
+
+msgid "Error while retrieving a host category"
+msgstr "Erreur lors de la récupération de la catégorie d'hôtes"

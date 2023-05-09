@@ -28,6 +28,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostSeverity\Application\Repository\WriteHostSeverityRepositoryInterface;
+use Core\HostSeverity\Domain\Model\HostSeverity;
 use Core\HostSeverity\Domain\Model\NewHostSeverity;
 
 class DbWriteHostSeverityRepository extends AbstractRepositoryRDB implements WriteHostSeverityRepositoryInterface
@@ -87,5 +88,42 @@ class DbWriteHostSeverityRepository extends AbstractRepositoryRDB implements Wri
         $statement->execute();
 
         return (int) $this->db->lastInsertId();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(HostSeverity $hostSeverity): void
+    {
+        $this->debug('Update host severity', ['hostSeverity' => $hostSeverity]);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.hostcategories
+                SET hc_name = :name,
+                    hc_alias = :alias,
+                    hc_comment = :comment,
+                    level = :level,
+                    icon_id = :iconId,
+                    hc_activate = :isActivated
+                WHERE hc_id = :id
+                    AND level IS NOT NULL
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':id', $hostSeverity->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(':name', $hostSeverity->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':alias', $hostSeverity->getAlias(), \PDO::PARAM_STR);
+        $statement->bindValue(':comment', $hostSeverity->getComment(), \PDO::PARAM_STR);
+        $statement->bindValue(':level', $hostSeverity->getLevel(), \PDO::PARAM_INT);
+        $statement->bindValue(':iconId', $hostSeverity->getIconId(), \PDO::PARAM_INT);
+        $statement->bindValue(
+            ':isActivated',
+            (new BoolToEnumNormalizer())->normalize($hostSeverity->isActivated()),
+            \PDO::PARAM_STR
+        );
+
+        $statement->execute();
     }
 }

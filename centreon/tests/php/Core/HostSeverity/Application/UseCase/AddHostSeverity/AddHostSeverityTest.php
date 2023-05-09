@@ -97,7 +97,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe(HostSeverityException::addNotAllowed()->getMessage());
+        ->toBe(HostSeverityException::writeActionsNotAllowed()->getMessage());
 });
 
 it('should present a ConflictResponse when name is already used', function (): void {
@@ -195,7 +195,7 @@ it('should present an ErrorResponse if the newly created host severity cannot be
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe(HostSeverityException::errorWhileRetrievingJustCreated(new \Exception())->getMessage());
+        ->toBe(HostSeverityException::errorWhileRetrievingObject()->getMessage());
 });
 
 it('should return created object on success', function (): void {
