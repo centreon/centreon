@@ -6,8 +6,9 @@
     "required": [
         "name",
         "timeperiod",
-        "resources",
-        "users"
+        "users",
+        "messages",
+        "resources"
     ],
     "properties": {
         "name": {
@@ -28,7 +29,8 @@
             ],
             "properties": {
                 "channel": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": ["Email", "Sms", "Slack"]
                 },
                 "subject": {
                     "type": "string"

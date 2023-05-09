@@ -23,10 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Notification\Domain\Model;
 
-use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Common\Domain\NotificationHostEvent;
-use Core\Common\Domain\NotificationServiceEvent;
 
 class NotificationResource
 {
@@ -100,7 +97,7 @@ class NotificationResource
         if ($event instanceof $this->eventEnum) {
             $this->events[] = $event;
         } else {
-            /** @var \BackedEnum $event */
+            /** @var \Enum $event */
             throw new \ValueError("\"{$event->value}\" is not a valid backing value for enum {$this->eventEnum}");
         }
     }
