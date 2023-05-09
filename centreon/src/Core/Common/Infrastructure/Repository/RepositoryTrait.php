@@ -42,4 +42,19 @@ trait RepositoryTrait
     {
         return '' === $string ? null : $string;
     }
+
+    /**
+     * Transform a timestamp integer into a valid \DateTimeImmutable.
+     *
+     * @param int $timestamp
+     *
+     * @throws \ValueError
+     *
+     * @return \DateTimeImmutable
+     */
+    public function timestampToDateTimeImmutable(int $timestamp): \DateTimeImmutable
+    {
+        return \DateTimeImmutable::createFromFormat('U', (string) $timestamp)
+            ?: throw new \ValueError('Unable to create a DateTimeImmutable from an integer.');
+    }
 }
