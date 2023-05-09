@@ -27,7 +27,7 @@ import {
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Box, LinearProgress, Table, TableBody, useTheme } from '@mui/material';
+import { Box, LinearProgress, Table, TableBody } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
@@ -39,7 +39,6 @@ import Cell from './Cell';
 import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
 import getCumulativeOffset from './getCumulativeOffset';
-import ListingHeader from './Header/index';
 import {
   Column,
   ColumnConfiguration,
@@ -55,6 +54,7 @@ import useStyleTable from './useStyleTable';
 import { loadingIndicatorHeight, useStyles } from './Listing.styles';
 import { EmptyResult } from './EmptyResult/EmptyResult';
 import { SkeletonLoader } from './Row/SkeletonLoaderRows';
+import { ListingHeader } from './Header';
 
 const getVisibleColumns = ({
   columnConfiguration,
@@ -107,7 +107,7 @@ export interface Props<TRow> {
   onRowClick?: (row: TRow) => void;
   onSelectColumns?: (selectedColumnIds: Array<string>) => void;
   onSelectRows?: (rows: Array<TRow>) => void;
-  onSort?: (sortParams) => void;
+  onSort?: (sortParams: { sortField: string; sortOrder: SortOrder }) => void;
   paginated?: boolean;
   predefinedRowsSelection?: Array<PredefinedRowSelection>;
   rowColorConditions?: Array<RowColorCondition>;
@@ -173,7 +173,7 @@ const Listing = <TRow extends { id: RowId }>({
     viewMode
   });
 
-  const { classes } = useStyles({
+  const { classes, theme } = useStyles({
     dataStyle,
     getGridTemplateColumn,
     limit,
@@ -192,8 +192,6 @@ const Listing = <TRow extends { id: RowId }>({
   >(null);
   const containerRef = React.useRef<HTMLDivElement>();
   const actionBarRef = React.useRef<HTMLDivElement>();
-
-  const theme = useTheme();
 
   useResizeObserver({
     onResize: () => {
@@ -556,7 +554,6 @@ const Listing = <TRow extends { id: RowId }>({
 
                     {visibleColumns.map((column) => (
                       <DataCell
-                        areColumnsEditable={areColumnsEditable}
                         column={column}
                         disableRowCondition={disableRowCondition}
                         getHighlightRowCondition={getHighlightRowCondition}
