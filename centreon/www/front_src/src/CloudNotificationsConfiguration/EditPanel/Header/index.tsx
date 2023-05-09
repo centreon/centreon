@@ -40,7 +40,10 @@ const useStyle = makeStyles()((theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     padding: theme.spacing(1.5, 0),
-    paddingLeft: theme.spacing(2)
+    paddingLeft: theme.spacing(2),
+    position: 'sticky',
+    top: 0,
+    zIndex: theme.zIndex.tooltip
   },
   rightHeader: {
     alignItems: 'center',
