@@ -1,6 +1,10 @@
 import { ReactNode } from 'react';
 
 import { Responsive } from '@visx/visx';
+import 'dayjs/locale/en';
+import 'dayjs/locale/pt';
+import 'dayjs/locale/fr';
+import 'dayjs/locale/es';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
