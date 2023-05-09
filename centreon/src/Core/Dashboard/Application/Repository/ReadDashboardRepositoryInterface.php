@@ -54,4 +54,27 @@ interface ReadDashboardRepositoryInterface
         array $accessGroups,
         ?RequestParametersInterface $requestParameters
     ): array;
+
+    /**
+     * Find one dashboard without acl.
+     *
+     * @param int $dashboardId
+     *
+     * @throws \Throwable
+     *
+     * @return Dashboard|null
+     */
+    public function findOne(int $dashboardId): ?Dashboard;
+
+    /**
+     * Find one dashboard with access groups.
+     *
+     * @param int $dashboardId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return Dashboard|null
+     */
+    public function findOneByAccessGroups(int $dashboardId, array $accessGroups): ?Dashboard;
 }

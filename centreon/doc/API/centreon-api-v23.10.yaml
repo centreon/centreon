@@ -1749,6 +1749,59 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Dashboard
+      summary: "Add a dashboard"
+      description: |
+        Add a new dashboard configuration.
+
+        Mandatory body properties are:
+
+        * name
+
+        `Since Centreon web 23.10`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration.Dashboard.Add'
+      responses:
+        "201":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Dashboard'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/dashboards/{dashboardId}:
+    get:
+      tags:
+        - Dashboard
+      summary: "Get a dashboard"
+      description: |
+        Return one dashboard configuration.
+
+        `Since Centreon web 23.10`
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Dashboard'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /configuration/access-groups:
     get:
       tags:
@@ -5218,6 +5271,15 @@ components:
       in: path
       name: hostgroup_id
       description: "ID of the host group"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 5
+    DashboardId:
+      in: path
+      name: dashboard_id
+      description: "ID of the dashboard"
       required: true
       schema:
         type: integer
