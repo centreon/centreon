@@ -41,7 +41,7 @@ Feature:
     }
     """
 
-  Scenario: Host group add with minimal payload as an Administrator
+  Scenario: Host group add with update with minimal payload as an Administrator
     Given I am logged in
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
@@ -61,10 +61,22 @@ Feature:
         "is_activated": true
     }
     """
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
+    """
+    { "name": "test-update" }
+    """
+    Then the response code should be "204"
 
-  Scenario: Host group add with an invalid payload as an Administrator
+  Scenario: Host group add with update with an invalid payload as an Administrator
     Given I am logged in
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
+    """
+    {
+        "not_existing": "Hello World"
+    }
+    """
+    Then the response code should be "400"
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
     """
     {
         "not_existing": "Hello World"
@@ -96,6 +108,9 @@ Feature:
         "is_activated": true
     }
     """
+    And I store response values in:
+      | name         | path    |
+      | hostGroupId1 | id      |
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
     {
@@ -118,13 +133,41 @@ Feature:
         "is_activated": true
     }
     """
+    And I store response values in:
+      | name         | path    |
+      | hostGroupId2 | id      |
+    When I send a GET request to '/api/latest/configuration/hosts/groups/<hostGroupId2>'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+        "id": 63,
+        "name": "test-add2",
+        "alias": null,
+        "icon_id": 1,
+        "geo_coords": null,
+        "is_activated": true
+    }
+    """
+    When I send a GET request to '/api/latest/configuration/hosts/groups/666666'
+    Then the response code should be "404"
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/666666' with body:
+    """
+    { "name": "test-not-existing" }
+    """
+    Then the response code should be "404"
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
     {"name": "test-add2"}
     """
     Then the response code should be "409"
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/<hostGroupId1>' with body:
+    """
+    {"name": "test-add2"}
+    """
+    Then the response code should be "409"
 
-  Scenario: Host group add with unknown fields for the cloud platform
+  Scenario: Host group add with unknown fields for the Cloud platform
     Given I am logged in
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
@@ -170,6 +213,57 @@ Feature:
     """
     {
         "name": "test-add",
+        "comment": "test-comment"
+    }
+    """
+    Then the response code should be "400"
+
+  Scenario: Host group update with unknown fields for the Cloud platform
+    Given I am logged in
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
+    """
+    {
+        "name": "test-update",
+        "notes": "test-notes"
+    }
+    """
+    Then the response code should be "400"
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
+    """
+    {
+        "name": "test-update",
+        "notes_url": "test-notes_url"
+    }
+    """
+    Then the response code should be "400"
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
+    """
+    {
+        "name": "test-update",
+        "action_url": "test-action_url"
+    }
+    """
+    Then the response code should be "400"
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
+    """
+    {
+        "name": "test-update",
+        "icon_map_id": 1
+    }
+    """
+    Then the response code should be "400"
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
+    """
+    {
+        "name": "test-update",
+        "rrd": 88
+    }
+    """
+    Then the response code should be "400"
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
+    """
+    {
+        "name": "test-update",
         "comment": "test-comment"
     }
     """

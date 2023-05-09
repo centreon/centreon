@@ -9,12 +9,10 @@ import { TableRowProps, TableRow, useTheme } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import { useViewportIntersection } from '../utils/useViewportIntersection';
-import LoadingSkeleton from '../LoadingSkeleton';
-
-import { Column, ColumnConfiguration, RowColorCondition } from './models';
-
-import { performanceRowsLimit } from '.';
+import { useViewportIntersection } from '../../utils/useViewportIntersection';
+import LoadingSkeleton from '../../LoadingSkeleton';
+import { Column, ColumnConfiguration, RowColorCondition } from '../models';
+import { performanceRowsLimit } from '../index';
 
 const useStyles = makeStyles()((theme) => {
   return {

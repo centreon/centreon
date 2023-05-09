@@ -38,7 +38,7 @@ Feature:
     }
     """
 
- Scenario: Host categories listing as non-admin with ACL filter
+  Scenario: Host categories listing as non-admin with ACL filter
     Given the following CLAPI import data:
     """
     HC;ADD;host-cat1;host-cat1-alias
@@ -127,6 +127,102 @@ Feature:
         }
     }
     """
+
+  Scenario: Get one host category as admin
+    Given I am logged in
+    And the following CLAPI import data:
+      """
+      HC;ADD;host-cat1;host-cat1-alias
+      """
+
+    When I send a GET request to '/api/latest/configuration/hosts/categories/1'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 1,
+        "name": "host-cat1",
+        "alias": "host-cat1-alias",
+        "is_activated": true,
+        "comment": null
+      }
+      """
+
+  Scenario: Get one host category as non-admin with ACL filter
+    Given the following CLAPI import data:
+      """
+      HC;ADD;host-cat1;host-cat1-alias
+      HC;ADD;host-cat2;host-cat2-alias
+      CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
+      CONTACT;setparam;ala;reach_api;1
+      ACLMENU;add;ACL Menu test;my alias
+      ACLMENU;grantro;ACL Menu test;1;Configuration;Hosts;Categories
+      ACLRESOURCE;add;ACL Resource test;my alias
+      ACLRESOURCE;addfilter_hostcategory;ACL Resource test;host-cat2
+      ACLGROUP;add;ACL Group test;my alias
+      ACLGROUP;addmenu;ACL Group test;ACL Menu test
+      ACLGROUP;addresource;ACL Group test;ACL Resource test
+      ACLGROUP;addcontact;ACL Group test;ala
+      """
+    And I am logged in with "ala"/"Centreon@2022"
+
+    When I send a GET request to '/api/latest/configuration/hosts/categories/1'
+    Then the response code should be "404"
+
+    When I send a GET request to '/api/latest/configuration/hosts/categories/2'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+      """
+      {
+      "id": 2,
+      "name": "host-cat2",
+      "alias": "host-cat2-alias",
+      "is_activated": true,
+      "comment": null
+      }
+      """
+
+  Scenario: Get one host category as non-admin without ACL filter
+    Given the following CLAPI import data:
+      """
+      HC;ADD;host-cat1;host-cat1-alias
+      HC;ADD;host-cat2;host-cat2-alias
+      CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
+      CONTACT;setparam;ala;reach_api;1
+      ACLMENU;add;ACL Menu test;my alias
+      ACLMENU;grantro;ACL Menu test;1;Configuration;Hosts;Categories
+      ACLRESOURCE;add;ACL Resource test;my alias
+      ACLGROUP;add;ACL Group test;my alias
+      ACLGROUP;addmenu;ACL Group test;ACL Menu test
+      ACLGROUP;addresource;ACL Group test;ACL Resource test
+      ACLGROUP;addcontact;ACL Group test;ala
+      """
+    And I am logged in with "ala"/"Centreon@2022"
+
+    When I send a GET request to '/api/latest/configuration/hosts/categories/1'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 1,
+        "name": "host-cat1",
+        "alias": "host-cat1-alias",
+        "is_activated": true,
+        "comment": null
+      }
+      """
+    When I send a GET request to '/api/latest/configuration/hosts/categories/2'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 2,
+        "name": "host-cat2",
+        "alias": "host-cat2-alias",
+        "is_activated": true,
+        "comment": null
+      }
+      """
 
   Scenario: Delete a host category as admin user
     Given I am logged in
