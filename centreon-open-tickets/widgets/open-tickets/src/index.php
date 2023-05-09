@@ -350,7 +350,7 @@ if (! empty($preferences['poller'])) {
             'type' => PDO::PARAM_INT
         ];
     }
-    $instanceIdCondition = ' i.instance_id IN (' . $queryPoller . ')';
+    $instanceIdCondition = ' h.instance_id IN (' . $queryPoller . ')';
     $query = CentreonUtils::conditionBuilder($query, $instanceIdCondition);
 }
 
