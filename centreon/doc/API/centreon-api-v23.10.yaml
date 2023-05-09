@@ -6550,22 +6550,27 @@ components:
           type: integer
           description: "Timezone ID"
           example: 1
+          nullable: true
         severity_id:
           type: integer
           description: "Severity ID"
           example: 1
+          nullable: true
         check_command_id:
           type: integer
           description: "Check command ID"
           example: 1
+          nullable: true
         check_command_args:
           type: string
           description: "Check command arguments"
           example: "!0!OK"
+          nullable: true
         check_timeperiod_id:
           type: integer
           description: "Check command timeperiod ID"
           example: 1
+          nullable: true
         max_check_attemps:
           type: integer
           nullable: true
@@ -6639,6 +6644,7 @@ components:
           type: integer
           description: "Notification tiemperiod ID"
           example: 1
+          nullable: true
         add_inherited_contact_group:
           type: boolean
           description: |
@@ -6709,10 +6715,12 @@ components:
           type: integer
           description: "Event handler command ID"
           example: 1
+          nullable: true
         event_handler_command_args:
           type: string
           description: "Event handler command arguments"
           example: "!0!OK"
+          nullable: true
         note_url:
           type: string
           nullable: true

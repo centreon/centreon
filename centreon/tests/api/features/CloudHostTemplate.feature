@@ -19,31 +19,35 @@ Feature:
     And the JSON should be equal to:
     """
     {
-        "result": [
-            {
-              "id": 15,
-              "name": "htpl-alias-1",
-              "alias": "htpl-alias-1",
-              "snmp_version": null,
-              "snmp_community": null,
-              "timezone_id": null,
-              "severity_id": null,
-              "check_timeperiod_id": null,
-              "note_url": null,
-              "note": null,
-              "action_url": null,
-              "is_activated": true,
-              "is_locked": false
-            }
-        ],
-        "meta": {
-            "page": 1,
-            "limit": 10,
-            "search": {
-              "$and": {"name": {"$lk": "htpl-%"}}
-            },
-            "sort_by": {},
-            "total": 1
+      "result": [
+        {
+          "id": 15,
+          "name": "htpl-name-1",
+          "alias": "htpl-alias-1",
+          "snmp_version": null,
+          "snmp_community": null,
+          "timezone_id": null,
+          "severity_id": null,
+          "check_timeperiod_id": null,
+          "note_url": null,
+          "note": null,
+          "action_url": null,
+          "is_activated": true,
+          "is_locked": false
         }
+      ],
+      "meta": {
+        "page": 1,
+        "limit": 10,
+        "search": {
+          "$and": {
+            "name": {
+            "$lk": "htpl-%"
+            }
+          }
+        },
+        "sort_by": {},
+        "total": 1
+      }
     }
     """
