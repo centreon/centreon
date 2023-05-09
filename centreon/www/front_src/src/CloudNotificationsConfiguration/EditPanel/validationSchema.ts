@@ -1,6 +1,22 @@
+import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 
-export const validationSchema = Yup.object().shape({
-  // active: Yup.boolean().required('Active is required'),
-  // name: Yup.string().required('Name is required')
-});
+import { labelRequired } from '../translatedLabels';
+
+const useValidationSchema = (): object => {
+  const { t } = useTranslation();
+
+  const messagesSchema = Yup.object({
+    message: Yup.string().required(t(labelRequired) as string),
+    subject: Yup.string().required(t(labelRequired) as string)
+  });
+
+  const validationSchema = Yup.object().shape({
+    messages: messagesSchema,
+    name: Yup.string().required(t(labelRequired) as string)
+  });
+
+  return { validationSchema };
+};
+
+export default useValidationSchema;

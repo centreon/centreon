@@ -7,7 +7,7 @@ import { Box, Typography } from '@mui/material';
 
 import { RichTextEditor } from '@centreon/ui';
 
-import { labelPreviewZone } from '../../translatedLabels';
+import { labelPreviewZone, labelPreviewEmail } from '../../translatedLabels';
 import { emptyEmail } from '../initialValues';
 
 const useStyles = makeStyles()((theme) => ({
@@ -19,23 +19,25 @@ const useStyles = makeStyles()((theme) => ({
   },
   preview: {
     background: theme.palette.background.paper,
-    height: '90%',
+    height: '100%',
     padding: theme.spacing(4, 1)
   },
   title: {
     background: theme.palette.background.paper,
+    marginBottom: theme.spacing(1),
     padding: theme.spacing(1, 2)
   }
 }));
 
 const EmailPreview = (): JSX.Element => {
-  const { values } = useFormikContext<FormikValues>();
   const { classes } = useStyles();
   const { t } = useTranslation();
 
+  const { values } = useFormikContext<FormikValues>();
+
   return (
     <Box className={classes.container}>
-      <Typography className={classes.title}>Preview Email</Typography>
+      <Typography className={classes.title}>{t(labelPreviewEmail)}</Typography>
       <Box className={classes.preview}>
         {equals(values?.messages.message, emptyEmail) ? (
           <Typography>{t(labelPreviewZone)}</Typography>

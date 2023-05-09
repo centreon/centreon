@@ -4,7 +4,6 @@ import { makeStyles } from 'tss-react/mui';
 import { alpha } from '@mui/material';
 
 import { ConfirmDialog } from '@centreon/ui';
-import type { ComponentColumnProps } from '@centreon/ui';
 
 import {
   labelCancel,

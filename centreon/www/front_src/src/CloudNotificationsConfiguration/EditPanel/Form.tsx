@@ -16,7 +16,7 @@ import { panelWidthStorageAtom } from '../atom';
 import { basicFormGroups, getInputs } from './inputs';
 import { emptyInitialValues, getInitialValues } from './initialValues';
 import { submit } from './submit';
-import { validationSchema } from './validationSchema';
+import useValidationSchema from './validationSchema';
 import Header from './Header';
 import { EditedNotificationIdAtom, panelModeAtom } from './atom';
 import { PanelMode } from './models';
@@ -60,6 +60,8 @@ const Form = (): JSX.Element => {
   const panelMode = useAtomValue(panelModeAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
+
+  const { validationSchema } = useValidationSchema();
 
   const { data, isLoading } = useFetchQuery({
     decoder: notificationdecoder,

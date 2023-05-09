@@ -36,3 +36,4 @@ export const labelActiveOrInactive = 'Active / Inactive';
 export const labelChangeName = 'Change the name';
 export const labelNotificationName = 'Notification name';
 export const labelRequired = 'Required';
+export const labelPreviewEmail = 'Preview Email';

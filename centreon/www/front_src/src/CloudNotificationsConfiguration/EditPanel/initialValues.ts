@@ -95,7 +95,7 @@ export const emptyInitialValues = {
     ids: [],
     type: 'Host groups'
   },
-  isActivated: false,
+  isActivated: true,
   messages: {
     channel: { Icon: MailIcon, checked: false, label: ChannelsEnum.Mail },
     message: emptyEmail,
