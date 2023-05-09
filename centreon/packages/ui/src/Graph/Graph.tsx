@@ -26,6 +26,7 @@ import GraphTooltip from './IntercatifsComponents/Tooltip';
 import useGraphTooltip from './IntercatifsComponents/Tooltip/useGraphTooltip';
 import { Data, GlobalAreaLines, GraphInterval, GraphProps } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
+import Legend from './Legend';
 
 interface Props extends GraphProps {
   graphData: Data;
@@ -247,6 +248,7 @@ const Graph = ({
             </Group.Group>
           </svg>
           <GraphTooltip {...tooltip} {...graphTooltipData} />
+          <Legend base={baseAxis} lines={lines} timeSeries={timeSeries} />
         </div>
       </ClickAwayListener>
     </>
