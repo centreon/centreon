@@ -30,7 +30,6 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
-
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
@@ -103,9 +102,9 @@ final class FindHostTemplates
                 'maxCheckAttempts' => $hostTemplate->getMaxCheckAttempts(),
                 'normalCheckInterval' => $hostTemplate->getNormalCheckInterval(),
                 'retryCheckInterval' => $hostTemplate->getretryCheckInterval(),
-                'isActiveCheckEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getActiveCheckEnabled()),
-                'isPassiveCheckEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getPassiveCheckEnabled()),
-                'isNotificationEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getNotificationEnabled()),
+                'activeCheckEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getActiveCheckEnabled()),
+                'passiveCheckEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getPassiveCheckEnabled()),
+                'notificationEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getNotificationEnabled()),
                 'notificationOptions' => HostEventConverter::toBitmask($hostTemplate->getNotificationOptions()),
                 'notificationInterval' => $hostTemplate->getNotificationInterval(),
                 'notificationTimeperiodId' => $hostTemplate->getNotificationTimeperiodId(),
@@ -114,12 +113,12 @@ final class FindHostTemplates
                 'firstNotificationDelay' => $hostTemplate->getfirstNotificationDelay(),
                 'recoveryNotificationDelay' => $hostTemplate->getrecoveryNotificationDelay(),
                 'acknowledgementTimeout' => $hostTemplate->getAcknowledgementTimeout(),
-                'isFreshnessChecked' => YesNoDefaultConverter::toInt($hostTemplate->getFreshnessChecked()),
+                'freshnessChecked' => YesNoDefaultConverter::toInt($hostTemplate->getFreshnessChecked()),
                 'freshnessThreshold' => $hostTemplate->getfreshnessThreshold(),
-                'isFlapDetectionEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getFlapDetectionEnabled()),
+                'flapDetectionEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getFlapDetectionEnabled()),
                 'lowFlapThreshold' => $hostTemplate->getLowFlapThreshold(),
                 'highFlapThreshold' => $hostTemplate->getHighFlapThreshold(),
-                'isEventHandlerEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getEventHandlerEnabled()),
+                'eventHandlerEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getEventHandlerEnabled()),
                 'eventHandlerCommandId' => $hostTemplate->getEventHandlerCommandId(),
                 'eventHandlerCommandArgs' => $hostTemplate->getEventHandlerCommandArgs(),
                 'noteUrl' => $hostTemplate->getNoteUrl(),
