@@ -1,6 +1,6 @@
 import { List, ListItem, ListItemText } from '@mui/material';
 
-import { PredefinedRowSelection } from '../models';
+import { PredefinedRowSelection } from '../../models';
 
 interface Props {
   close: () => void;
