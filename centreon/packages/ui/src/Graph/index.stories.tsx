@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
 
+import Switch from '@mui/material/Switch';
+
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 import AwesomeTimePeriod from '../TimePeriods';
@@ -67,10 +69,37 @@ const ExternalComponent = (tooltipData): JSX.Element => {
   );
 };
 
+interface TimePeriodSwitchProps {
+  getDataSwitch: (value: boolean) => void;
+}
+
+const TimePeriodSwitch = ({
+  getDataSwitch
+}: TimePeriodSwitchProps): JSX.Element => {
+  const [checked, setChecked] = useState(false);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    setChecked(event.target.checked);
+  };
+
+  useEffect(() => {
+    getDataSwitch?.(checked);
+  }, [checked]);
+
+  return (
+    <Switch
+      checked={checked}
+      inputProps={{ 'aria-label': 'controlled' }}
+      onChange={handleChange}
+    />
+  );
+};
+
 const GraphAndTimePeriod = (args): JSX.Element => {
   const [currentData, setCurrentData] = useState<GraphData>();
   const [start, setStart] = useState();
   const [end, setEnd] = useState();
+  const [displayAnnotation, setDisplayAnnotation] = useState();
   const [adjustedTimePeriodInterval, setAdjustedTimePeriodInterval] =
     useState<Interval>();
 
@@ -113,16 +142,27 @@ const GraphAndTimePeriod = (args): JSX.Element => {
     setAdjustedTimePeriodInterval(interval);
   };
 
+  const getDataSwitch = (value): void => {
+    setDisplayAnnotation(value);
+  };
+
+  const annotationEventData = displayAnnotation && {
+    data: annotationData.result
+  };
+
   return (
     <>
       <AwesomeTimePeriod
         adjustTimePeriodData={adjustedTimePeriodInterval}
         getStartEndParameters={getParameters}
+        renderExternalComponent={
+          <TimePeriodSwitch getDataSwitch={getDataSwitch} />
+        }
       />
       <WraperGraph
         data={currentData}
         {...args}
-        annotationEvent={{ data: annotationData.result }}
+        annotationEvent={annotationEventData}
         end={end}
         loading={false}
         start={start}
