@@ -154,7 +154,7 @@ const GraphAndTimePeriod = (args): JSX.Element => {
     <>
       <AwesomeTimePeriod
         adjustTimePeriodData={adjustedTimePeriodInterval}
-        getStartEndParameters={getParameters}
+        getParameters={getParameters}
         renderExternalComponent={
           <TimePeriodSwitch getDataSwitch={getDataSwitch} />
         }

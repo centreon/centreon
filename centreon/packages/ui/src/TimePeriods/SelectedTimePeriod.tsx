@@ -24,7 +24,7 @@ const useStyles = makeStyles()((theme) => ({
 
 interface Props {
   disabled?: boolean;
-  extraTimePeriods?: Array<TimePeriod>;
+  extraTimePeriods?: Array<Omit<TimePeriod, 'timelineEventsLimit'>>;
   width: number;
 }
 
@@ -45,7 +45,7 @@ const SelectedTimePeriod = ({
   const currentTimePeriods = useSortTimePeriods([
     ...timePeriods,
     ...extraTimePeriods
-  ]);
+  ] as Array<TimePeriod>);
 
   const timePeriodOptions = map(
     pick(['id', 'name', 'largeName']),

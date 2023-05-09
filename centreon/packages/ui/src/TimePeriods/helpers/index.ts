@@ -14,7 +14,8 @@ export const getTimePeriodFromNow = (
 ): CustomTimePeriod => {
   return {
     end: new Date(Date.now()),
-    start: new Date(timePeriod?.getStart() || 0)
+    start: new Date(timePeriod?.getStart() || 0),
+    timelineEventsLimit: timePeriod?.timelineEventsLimit as number
   };
 };
 

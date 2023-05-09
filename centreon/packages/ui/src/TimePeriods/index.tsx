@@ -1,11 +1,11 @@
 import { ReactNode } from 'react';
 
 import { Responsive } from '@visx/visx';
-import 'dayjs/locale/en';
-import 'dayjs/locale/pt';
-import 'dayjs/locale/fr';
-import 'dayjs/locale/es';
 import dayjs from 'dayjs';
+import 'dayjs/locale/en';
+import 'dayjs/locale/es';
+import 'dayjs/locale/fr';
+import 'dayjs/locale/pt';
 import duration from 'dayjs/plugin/duration';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import timezonePlugin from 'dayjs/plugin/timezone';
@@ -15,32 +15,34 @@ import { Paper } from '@mui/material';
 
 import CustomTimePeriod from './CustomTimePeriod';
 import SelectedTimePeriod from './SelectedTimePeriod';
+import { useStyles } from './TimePeriods.styles';
 import {
   CustomTimePeriod as CustomTimePeriodModel,
   EndStartInterval,
   TimePeriod
 } from './models';
-import { useStyles } from './TimePeriods.styles';
 import useAwesomeTimePeriod from './useAwesomeTimePeriod';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 dayjs.extend(duration);
-
+interface Parameters extends EndStartInterval {
+  timelineEventsLimit: number;
+}
 export interface Props {
-  adjustTimePeriodData?: CustomTimePeriodModel;
+  adjustTimePeriodData?: Omit<CustomTimePeriodModel, 'timelineEventsLimit'>;
   disabled?: boolean;
-  extraTimePeriods?: Array<TimePeriod>;
+  extraTimePeriods?: Array<Omit<TimePeriod, 'timelineEventsLimit'>>;
   getIsError?: (value: boolean) => void;
-  getStartEndParameters?: ({ start, end }: EndStartInterval) => void;
+  getParameters?: ({ start, end, timelineEventsLimit }: Parameters) => void;
   renderExternalComponent?: ReactNode;
 }
 
 const AwesomeTimePeriod = ({
   extraTimePeriods,
   disabled = false,
-  getStartEndParameters,
+  getParameters,
   getIsError,
   adjustTimePeriodData,
   renderExternalComponent
@@ -50,7 +52,7 @@ const AwesomeTimePeriod = ({
   useAwesomeTimePeriod({
     adjustTimePeriodData,
     getIsError,
-    getStartEndParameters
+    getParameters
   });
 
   return (

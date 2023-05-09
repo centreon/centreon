@@ -13,7 +13,7 @@ import {
 import { Props } from '.';
 
 const useAwesomeTimePeriod = ({
-  getStartEndParameters,
+  getParameters,
   getIsError,
   adjustTimePeriodData
 }: Omit<Props, 'extraTimePeriods' | 'disabled'>): void => {
@@ -32,9 +32,10 @@ const useAwesomeTimePeriod = ({
   }, [adjustTimePeriodData?.start, adjustTimePeriodData?.end]);
 
   useEffect(() => {
-    const [start, end] = getCurrentEndStartInterval(selectedTimePeriod);
+    const [start, end, timelineEventsLimit] =
+      getCurrentEndStartInterval(selectedTimePeriod);
 
-    getStartEndParameters?.({ end, start });
+    getParameters?.({ end, start, timelineEventsLimit });
   }, [customTimePeriod.start, customTimePeriod.end, selectedTimePeriod]);
 
   useEffect(() => {

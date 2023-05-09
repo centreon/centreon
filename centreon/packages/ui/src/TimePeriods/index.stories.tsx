@@ -70,6 +70,13 @@ const args = {
       id: 'last_29_days',
       largeName: 'last 29 days',
       name: '29 days'
+    },
+    {
+      dateTimeFormat: dateFormat,
+      getStart: (): Date => dayjs(Date.now()).subtract(5, 'day').toDate(),
+      id: 'last_5_days',
+      largeName: 'last 5 days',
+      name: '5 days'
     }
   ]
 };

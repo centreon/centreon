@@ -15,7 +15,7 @@ export interface TimePeriod {
   id: string;
   largeName: string;
   name: string;
-  // timelineEventsLimit: number;
+  timelineEventsLimit: number;
 }
 
 export const label1Day = '1 day';
@@ -30,8 +30,8 @@ export const lastDayPeriod: TimePeriod = {
   getStart: (): Date => dayjs(Date.now()).subtract(24, 'hour').toDate(),
   id: 'last_24_h',
   largeName: labelLastDay,
-  name: label1Day
-  // timelineEventsLimit: 20
+  name: label1Day,
+  timelineEventsLimit: 20
 };
 
 export const last7Days: TimePeriod = {
@@ -39,8 +39,8 @@ export const last7Days: TimePeriod = {
   getStart: (): Date => dayjs(Date.now()).subtract(7, 'day').toDate(),
   id: 'last_7_days',
   largeName: labelLast7Days,
-  name: label7Days
-  // timelineEventsLimit: 100
+  name: label7Days,
+  timelineEventsLimit: 100
 };
 
 export const last31Days: TimePeriod = {
@@ -48,8 +48,8 @@ export const last31Days: TimePeriod = {
   getStart: (): Date => dayjs(Date.now()).subtract(31, 'day').toDate(),
   id: 'last_31_days',
   largeName: labelLast31Days,
-  name: label31Days
-  // timelineEventsLimit: 500
+  name: label31Days,
+  timelineEventsLimit: 500
 };
 
 export const timePeriods: Array<TimePeriod> = [
@@ -66,6 +66,7 @@ export interface TimePeriodById {
 export interface CustomTimePeriod {
   end: Date;
   start: Date;
+  timelineEventsLimit: number;
 }
 
 export interface DateTimePickerInputModel {
@@ -75,11 +76,6 @@ export interface DateTimePickerInputModel {
   maxDate?: Date;
   minDate?: Date;
   property: CustomTimePeriodProperty;
-}
-
-export interface GetNewCustomTimePeriodProps {
-  end: Date;
-  start: Date;
 }
 
 export interface TimeLineAxisTickFormat extends CustomTimePeriod {
