@@ -29,20 +29,15 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
-use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Domain\Common\GeoCoords;
-use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\NewHostGroup;
-use Core\HostGroup\Infrastructure\API\AddHostGroup\AddHostGroupPresenterOnPrem;
-use Core\HostGroup\Infrastructure\API\AddHostGroup\AddHostGroupPresenterSaas;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
@@ -64,33 +59,33 @@ final class AddHostGroup
 
     /**
      * @param AddHostGroupRequest $request
-     * @param AddHostGroupPresenterOnPrem|AddHostGroupPresenterSaas $presenter
+     * @param AddHostGroupPresenterInterface $presenter
      */
     public function __invoke(
         AddHostGroupRequest $request,
-        PresenterInterface $presenter
+        AddHostGroupPresenterInterface $presenter
     ): void {
         try {
             if ($this->contact->isAdmin()) {
-                $presenter->present($this->addHostGroupAsAdmin($request));
+                $presenter->presentResponse($this->addHostGroupAsAdmin($request));
                 $this->info('Add host group', ['request' => $request]);
             } elseif ($this->contactCanPerformWriteOperations()) {
-                $presenter->present($this->addHostGroupAsContact($request));
+                $presenter->presentResponse($this->addHostGroupAsContact($request));
                 $this->info('Add host group', ['request' => $request]);
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to add host groups",
                     ['user_id' => $this->contact->getId()]
                 );
-                $presenter->setResponseStatus(
+                $presenter->presentResponse(
                     new ForbiddenResponse(HostGroupException::accessNotAllowedForWriting())
                 );
             }
-        } catch (AssertionFailedException|InvalidGeoCoordException $ex) {
-            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+        } catch (AssertionFailedException $ex) {
+            $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (HostGroupException $ex) {
-            $presenter->setResponseStatus(
+            $presenter->presentResponse(
                 match ($ex->getCode()) {
                     HostGroupException::CODE_CONFLICT => new ConflictResponse($ex),
                     default => new ErrorResponse($ex),
@@ -98,7 +93,7 @@ final class AddHostGroup
             );
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse(HostGroupException::errorWhileAdding()));
+            $presenter->presentResponse(new ErrorResponse(HostGroupException::errorWhileAdding()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
     }
@@ -106,12 +101,12 @@ final class AddHostGroup
     /**
      * @param AddHostGroupRequest $request
      *
-     * @throws HostGroupException
      * @throws \Throwable
+     * @throws HostGroupException
      *
-     * @return CreatedResponse<AddHostGroupResponse>
+     * @return AddHostGroupResponse
      */
-    private function addHostGroupAsAdmin(AddHostGroupRequest $request): CreatedResponse
+    private function addHostGroupAsAdmin(AddHostGroupRequest $request): AddHostGroupResponse
     {
         $this->assertNameDoesNotAlreadyExists($request);
         $this->assertNotNullIconsExist($request);
@@ -127,12 +122,12 @@ final class AddHostGroup
     /**
      * @param AddHostGroupRequest $request
      *
-     * @throws HostGroupException
      * @throws \Throwable
+     * @throws HostGroupException
      *
-     * @return CreatedResponse<AddHostGroupResponse>
+     * @return AddHostGroupResponse
      */
-    private function addHostGroupAsContact(AddHostGroupRequest $request): CreatedResponse
+    private function addHostGroupAsContact(AddHostGroupRequest $request): AddHostGroupResponse
     {
         $this->assertNameDoesNotAlreadyExists($request);
         $this->assertNotNullIconsExist($request);
@@ -216,8 +211,8 @@ final class AddHostGroup
     /**
      * @param AddHostGroupRequest $request
      *
-     * @throws \Core\Domain\Exception\InvalidGeoCoordException
      * @throws \Assert\AssertionFailedException
+     * @throws \Core\Domain\Exception\InvalidGeoCoordException
      *
      * @return NewHostGroup
      */
@@ -244,9 +239,9 @@ final class AddHostGroup
     /**
      * @param HostGroup $hostGroup
      *
-     * @return CreatedResponse<AddHostGroupResponse>
+     * @return AddHostGroupResponse
      */
-    private function createResponse(HostGroup $hostGroup): CreatedResponse
+    private function createResponse(HostGroup $hostGroup): AddHostGroupResponse
     {
         $response = new AddHostGroupResponse();
 
@@ -263,6 +258,6 @@ final class AddHostGroup
         $response->comment = $hostGroup->getComment();
         $response->isActivated = $hostGroup->isActivated();
 
-        return new CreatedResponse($response->id, $response);
+        return $response;
     }
 }

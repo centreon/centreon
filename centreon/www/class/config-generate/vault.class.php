@@ -33,7 +33,7 @@ class Vault extends AbstractObjectJSON
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
         $uuidGenerator = $kernel->getContainer()->get(Utility\Interfaces\UUIDGeneratorInterface::class);
-        $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\LegacyLogger::class);
+        $logger = $kernel->getContainer()->get(\Centreon\Domain\Log\Logger::class);
         $this->vaultConfiguration = $readVaultConfigurationRepository->findDefaultVaultConfiguration();
     }
 

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Application\Security\UseCase\LogoutSession;
+namespace Tests\Core\Security\Authentication\Application\UseCase\LogoutSession;
 
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,52 +24,64 @@ declare(strict_types=1);
 namespace Core\HostGroup\Infrastructure\API\AddHostGroup;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupPresenterInterface;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupResponse;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Infrastructure\Common\Api\Router;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
-class AddHostGroupPresenterSaas extends AbstractPresenter
+class AddHostGroupPresenterSaas extends DefaultPresenter implements AddHostGroupPresenterInterface
 {
     use PresenterTrait;
     use LoggerTrait;
+    private const ROUTE_NAME = 'FindHostGroup';
 
     /**
-     * {@inheritDoc}
+     * @param PresenterFormatterInterface $presenterFormatter
+     * @param Router $router
      */
-    public function present(mixed $data): void
-    {
-        if (
-            $data instanceof CreatedResponse
-            && ($payload = $data->getPayload()) instanceof AddHostGroupResponse
-        ) {
-            $this->presentCreatedPayload($data, $payload);
-        }
-
-        parent::present($data);
+    public function __construct(
+        PresenterFormatterInterface $presenterFormatter,
+        readonly private Router $router
+    ) {
+        $this->presenterFormatter = $presenterFormatter;
+        parent::__construct($presenterFormatter);
     }
 
-    /**
-     * @param CreatedResponse<AddHostGroupResponse> $createdResponse
-     * @param AddHostGroupResponse $addHostGroupResponse
-     */
-    private function presentCreatedPayload(
-        CreatedResponse $createdResponse,
-        AddHostGroupResponse $addHostGroupResponse
-    ): void {
-        $createdResponse->setPayload(
-            [
-                'id' => $addHostGroupResponse->id,
-                'name' => $addHostGroupResponse->name,
-                'alias' => $this->emptyStringAsNull($addHostGroupResponse->alias),
-                'icon_id' => $addHostGroupResponse->iconId,
-                'geo_coords' => $addHostGroupResponse->geoCoords,
-                'is_activated' => $addHostGroupResponse->isActivated,
-            ]
-        );
+    public function presentResponse(ResponseStatusInterface|AddHostGroupResponse $data): void
+    {
+        if ($data instanceof ResponseStatusInterface) {
+            $this->setResponseStatus($data);
+        } else {
+            $this->present(
+                new CreatedResponse(
+                    $data->id,
+                    [
+                        'id' => $data->id,
+                        'name' => $data->name,
+                        'alias' => $this->emptyStringAsNull($data->alias),
+                        'icon_id' => $data->iconId,
+                        'geo_coords' => $data->geoCoords,
+                        'is_activated' => $data->isActivated,
+                    ]
+                )
+            );
 
-        // 👉️ We SHOULD send a valid header 'Location: <url>'.
-        // But the GET api is not available at the time this UseCase was written.
-        // This is nonsense to send something not usable.
+            try {
+                $this->setResponseHeaders([
+                    'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $data->id]),
+                ]);
+            } catch (\Throwable $ex) {
+                $this->error('Impossible to generate the location header', [
+                    'message' => $ex->getMessage(),
+                    'trace' => $ex->getTraceAsString(),
+                    'route' => self::ROUTE_NAME,
+                    'payload' => $data,
+                ]);
+            }
+        }
     }
 }

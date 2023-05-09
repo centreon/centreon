@@ -58,7 +58,7 @@ it('should throw an exception when host severity name is empty', function (): vo
     new HostSeverity(1, '', $this->severityAlias, $this->level, $this->iconId);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmpty('HostSeverity::name')
+    AssertionException::notEmptyString('HostSeverity::name')
         ->getMessage()
 );
 
@@ -78,7 +78,7 @@ it('should throw an exception when host severity alias is empty', function (): v
     new HostSeverity(1, $this->severityName, '', $this->level, $this->iconId);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmpty('HostSeverity::alias')
+    AssertionException::notEmptyString('HostSeverity::alias')
         ->getMessage()
 );
 
@@ -135,3 +135,100 @@ it('should throw an exception when host severity level is too low', function ():
         ->getMessage()
 );
 
+it('should throw an exception when host severity name is set empty', function () {
+    $hostSeverity = new HostSeverity(
+        1,
+        $this->severityName,
+        $this->severityAlias,
+        $this->level,
+        $this->iconId
+    );
+    $hostSeverity->setName('');
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::notEmptyString('HostSeverity::name')
+        ->getMessage()
+);
+
+it('should throw an exception when host severity name is set too long', function () {
+    $hostSeverity = new HostSeverity(
+        1,
+        $this->severityName,
+        $this->severityAlias,
+        $this->level,
+        $this->iconId
+    );
+    $hostSeverity->setName(str_repeat('a', HostSeverity::MAX_NAME_LENGTH + 1));
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::maxLength(
+        str_repeat('a', HostSeverity::MAX_NAME_LENGTH + 1),
+        HostSeverity::MAX_NAME_LENGTH + 1,
+        HostSeverity::MAX_NAME_LENGTH,
+        'HostSeverity::name'
+    )->getMessage()
+);
+
+it('should throw an exception when host severity alias is set empty', function () {
+    $hostSeverity = new HostSeverity(
+        1,
+        $this->severityName,
+        $this->severityAlias,
+        $this->level,
+        $this->iconId
+    );
+    $hostSeverity->setAlias('');
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::notEmptyString('HostSeverity::alias')
+        ->getMessage()
+);
+
+it('should throw an exception when host severity alias is set too long', function () {
+    $hostSeverity = new HostSeverity(
+        1,
+        $this->severityName,
+        $this->severityAlias,
+        $this->level,
+        $this->iconId
+    );
+    $hostSeverity->setAlias(str_repeat('a', HostSeverity::MAX_ALIAS_LENGTH + 1));
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::maxLength(
+        str_repeat('a', HostSeverity::MAX_ALIAS_LENGTH + 1),
+        HostSeverity::MAX_ALIAS_LENGTH + 1,
+        HostSeverity::MAX_ALIAS_LENGTH,
+        'HostSeverity::alias'
+    )->getMessage()
+);
+
+it('should throw an exception when host severity level is set too high', function () {
+    $hostSeverity = new HostSeverity(
+        1,
+        $this->severityName,
+        $this->severityAlias,
+        $this->level,
+        $this->iconId
+    );
+    $hostSeverity->setLevel(HostSeverity::MAX_LEVEL_VALUE + 1);
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::max(HostSeverity::MAX_LEVEL_VALUE + 1, HostSeverity::MAX_LEVEL_VALUE, 'HostSeverity::level')
+        ->getMessage()
+);
+
+it('should throw an exception when host severity level is set too low', function () {
+    $hostSeverity = new HostSeverity(
+        1,
+        $this->severityName,
+        $this->severityAlias,
+        $this->level,
+        $this->iconId
+    );
+    $hostSeverity->setLevel(HostSeverity::MIN_LEVEL_VALUE - 1);
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::min(HostSeverity::MIN_LEVEL_VALUE - 1, HostSeverity::MIN_LEVEL_VALUE, 'HostSeverity::level')
+        ->getMessage()
+);

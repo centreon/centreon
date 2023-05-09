@@ -689,8 +689,12 @@ class Automatic
         $rv = ['code' => 0, 'message' => 'no ticket found for host: ' . $host['name']];
 
         if ($ticketId) {
+            $closeTicketData = [
+                $ticketId => []
+            ];
+
             try {
-                $providerClass->closeTicket([$ticketId]);
+                $providerClass->closeTicket($closeTicketData);
                 $this->changeMacroHost($macroName, $host);
                 $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
             } catch (Exception $e) {
@@ -717,11 +721,15 @@ class Automatic
         $ticketId = $this->getServiceTicket($params, $macroName);
 
         $rv = ['code' => 0, 'message' => 'no ticket found for service: '
-               . $service['host_name'] . " " . $service['description']];
+            . $service['host_name'] . " " . $service['description']];
 
         if ($ticketId) {
+            $closeTicketData = [
+                $ticketId => []
+            ];
+
             try {
-                $providerClass->closeTicket([$ticketId]);
+                $providerClass->closeTicket($closeTicketData);
                 $this->changeMacroService($macroName, $service);
                 $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
             } catch (Exception $e) {

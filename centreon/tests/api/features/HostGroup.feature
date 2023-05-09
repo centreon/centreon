@@ -294,13 +294,11 @@ Feature:
     Then the response code should be "200"
     And the json node "result" should have 0 elements
 
-  Scenario: Host group add with minimal payload as an Administrator
+  Scenario: Host group add with update with minimal payload as an Administrator
     Given I am logged in
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
-    {
-        "name": "test-add"
-    }
+    { "name": "test-add" }
     """
     Then the response code should be "201"
     And the JSON should be equal to:
@@ -320,18 +318,40 @@ Feature:
         "is_activated": true
     }
     """
+    And I store response values in:
+      | name        | path    |
+      | hostGroupId | id      |
 
-  Scenario: Host group add with an invalid payload as an Administrator
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/<hostGroupId>' with body:
+    """
+    { "name": "test-add2" }
+    """
+    Then the response code should be "204"
+
+  Scenario: Host group add with update with an invalid payload as an Administrator
     Given I am logged in
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
-    {
-        "not_existing": "Hello World"
-    }
+    { "not_existing": "Hello World" }
     """
     Then the response code should be "400"
 
-  Scenario: Host group add with full payload as an Administrator
+    When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
+    """
+    { "name": "test-add" }
+    """
+    Then the response code should be "201"
+    And I store response values in:
+      | name        | path    |
+      | hostGroupId | id      |
+
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/<hostGroupId>' with body:
+    """
+    { "not_existing": "Hello World" }
+    """
+    Then the response code should be "400"
+
+  Scenario: Host group add with update with full payload as an Administrator
     Given I am logged in
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
@@ -367,6 +387,9 @@ Feature:
         "is_activated": true
     }
     """
+    And I store response values in:
+      | name         | path    |
+      | hostGroupId1 | id      |
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
     {
@@ -401,13 +424,52 @@ Feature:
         "is_activated": true
     }
     """
+    And I store response values in:
+      | name         | path    |
+      | hostGroupId2 | id      |
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/<hostGroupId2>' with body:
+    """
+    { "name": "test-add2", "alias": "test-add2-alias" }
+    """
+    Then the response code should be "204"
+    When I send a GET request to '/api/latest/configuration/hosts/groups/<hostGroupId2>'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+        "id": 63,
+        "name": "test-add2",
+        "alias": "test-add2-alias",
+        "notes": null,
+        "notes_url": null,
+        "action_url": null,
+        "icon_id": null,
+        "icon_map_id": null,
+        "rrd": null,
+        "geo_coords": null,
+        "comment": null,
+        "is_activated": true
+    }
+    """
+    When I send a GET request to '/api/latest/configuration/hosts/groups/666666'
+    Then the response code should be "404"
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/666666' with body:
+    """
+    { "name": "test-not-existing" }
+    """
+    Then the response code should be "404"
     When I send a POST request to '/api/latest/configuration/hosts/groups' with body:
     """
     {"name": "test-add2"}
     """
     Then the response code should be "409"
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/<hostGroupId1>' with body:
+    """
+    {"name": "test-add2"}
+    """
+    Then the response code should be "409"
 
-  Scenario: Host group add with a READ user is forbidden
+  Scenario: Host group add with update with a READ user is forbidden
     Given the following CLAPI import data:
     """
     CONTACT;ADD;abu;abu;abu@centreon.test;Centreon@2022;0;1;en_US;local
@@ -433,7 +495,13 @@ Feature:
     """
     Then the response code should be "403"
 
-  Scenario: Host group add with a READ_WRITE user is allowed
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/666666' with body:
+    """
+    { "name": "test-add" }
+    """
+    Then the response code should be "403"
+
+  Scenario: Host group add with update with a READ_WRITE user is allowed
     Given the following CLAPI import data:
     """
     CONTACT;ADD;abu;abu;abu@centreon.test;Centreon@2022;0;1;en_US;local
@@ -459,6 +527,15 @@ Feature:
     """
     Then the response code should be "201"
     And the json node "name" should be equal to the string "test-add"
+    And I store response values in:
+      | name        | path    |
+      | hostGroupId | id      |
+
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/<hostGroupId>' with body:
+    """
+    { "name": "test-add2" }
+    """
+    Then the response code should be "204"
 
     When I send a GET request to '/api/latest/configuration/hosts/groups'
     Then the response code should be "200"

@@ -29,7 +29,6 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\HostCategory\Application\UseCase\AddHostCategory\AddHostCategory;
 use Core\HostCategory\Application\UseCase\AddHostCategory\AddHostCategoryRequest;
-use Core\HostCategory\Infrastructure\API\AddHostCategory\AddHostCategoryPresenter;
 use Symfony\Component\HttpFoundation\Request;
 
 final class AddHostCategoryController extends AbstractController
@@ -70,7 +69,7 @@ final class AddHostCategoryController extends AbstractController
     }
 
     /**
-     * @param array{name:string,alias:string,is_activated?:bool,comment:string|null} $data
+     * @param array{name:string,alias:string,is_activated?:bool,comment?:string|null} $data
      *
      * @return AddHostCategoryRequest
      */
