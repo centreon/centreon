@@ -178,7 +178,7 @@ foreach (
 ) {
     it(
         "should throw an exception when host template {$field} is an empty string",
-        fn() => ($this->createHostTemplate)([$field => ''])
+        fn() => ($this->createHostTemplate)([$field => '    '])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::notEmptyString("NewHostTemplate::{$field}")->getMessage()
