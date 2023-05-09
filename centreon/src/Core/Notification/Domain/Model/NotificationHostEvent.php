@@ -21,32 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Domain;
+namespace Core\Notification\Domain\Model;
 
-enum HostEvent: string
+enum NotificationHostEvent
 {
-    use LegacyEventEnumTrait, BitmaskEnumTrait;
-
-    case Down = 'd';
-    case Unreachable = 'u';
-    case Recovery = 'r';
-    case Flapping = 'f';
-    case DowntimeScheduled = 's';
-    case None = 'n';
-
-    public function toBit(): int
-    {
-        return match ($this) {
-            self::None => 0b00000,
-            self::Down => 0b00001,
-            self::Unreachable => 0b00010,
-            self::Recovery => 0b00100,
-            self::Flapping => 0b01000,
-            self::DowntimeScheduled => 0b10000,
-        };
-    }
-
-    public static function getMaxBitmask(): int {
-        return 0b11111;
-    }
+    case Up;
+    case Down;
+    case Unreachable;
 }

@@ -21,11 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Domain;
+namespace Core\Notification\Domain\Model;
 
-enum SnmpVersion: string
+enum NotificationServiceEvent
 {
-    case One = '1';
-    case Two = '2c';
-    case Three = '3';
+    case Ok;
+    case Warning;
+    case Critical;
+    case Unknown;
 }

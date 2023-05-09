@@ -21,28 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Domain;
+namespace Core\Host\Domain\Model;
 
-enum NotificationServiceEvent
+enum SnmpVersion: string
 {
-    use BitmaskEnumTrait;
-
-    case Ok;
-    case Warning;
-    case Critical;
-    case Unknown;
-
-    public function toBit(): int
-    {
-        return match ($this) {
-            self::Ok => 0b0001,
-            self::Warning => 0b0010,
-            self::Critical => 0b0100,
-            self::Unknown => 0b1000,
-        };
-    }
-
-    public static function getMaxBitmask(): int {
-        return 0b111;
-    }
+    case One = '1';
+    case Two = '2c';
+    case Three = '3';
 }
