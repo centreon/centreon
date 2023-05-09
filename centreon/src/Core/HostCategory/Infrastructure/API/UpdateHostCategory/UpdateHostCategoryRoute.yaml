@@ -4,4 +4,4 @@ UpdateHostCategory:
   requirements:
     hostCategoryId: '\d+'
   controller: 'Core\HostCategory\Infrastructure\API\UpdateHostCategory\UpdateHostCategoryController'
-  condition: "request.attributes.get('version') >= 23.04"
+  condition: "request.attributes.get('version') >= 23.10"
