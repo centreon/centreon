@@ -140,23 +140,23 @@ class NewHostTemplate
         $this->iconAlternative = trim($iconAlternative);
         $this->comment = trim($comment);
 
-        Assertion::notEmptyString($name, "{$shortName}::name");
-        Assertion::notEmptyString($alias, "{$shortName}::alias");
+        Assertion::notEmptyString($this->name, "{$shortName}::name");
+        Assertion::notEmptyString($this->alias, "{$shortName}::alias");
 
-        Assertion::maxLength($name, self::MAX_NAME_LENGTH, "{$shortName}::name");
-        Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, "{$shortName}::alias");
-        Assertion::maxLength($snmpCommunity, self::MAX_SNMP_COMMUNITY_LENGTH, "{$shortName}::snmpCommunity");
-        Assertion::maxLength($checkCommandArgs, self::MAX_CHECK_COMMAND_ARGS_LENGTH, "{$shortName}::checkCommandArgs");
+        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
+        Assertion::maxLength($this->alias, self::MAX_ALIAS_LENGTH, "{$shortName}::alias");
+        Assertion::maxLength($this->snmpCommunity, self::MAX_SNMP_COMMUNITY_LENGTH, "{$shortName}::snmpCommunity");
+        Assertion::maxLength($this->checkCommandArgs, self::MAX_CHECK_COMMAND_ARGS_LENGTH, "{$shortName}::checkCommandArgs");
         Assertion::maxLength(
-            $eventHandlerCommandArgs,
+            $this->eventHandlerCommandArgs,
             self::MAX_EVENT_HANDLER_COMMAND_ARGS_LENGTH,
             "{$shortName}::eventHandlerCommandArgs"
         );
-        Assertion::maxLength($noteUrl, self::MAX_NOTE_URL_LENGTH, "{$shortName}::noteUrl");
-        Assertion::maxLength($note, self::MAX_NOTE_LENGTH, "{$shortName}::note");
-        Assertion::maxLength($actionUrl, self::MAX_ACTION_URL_LENGTH, "{$shortName}::actionUrl");
-        Assertion::maxLength($iconAlternative, self::MAX_ICON_ALT_LENGTH, "{$shortName}::iconAlternative");
-        Assertion::maxLength($comment, self::MAX_COMMENT_LENGTH, "{$shortName}::comment");
+        Assertion::maxLength($this->noteUrl, self::MAX_NOTE_URL_LENGTH, "{$shortName}::noteUrl");
+        Assertion::maxLength($this->note, self::MAX_NOTE_LENGTH, "{$shortName}::note");
+        Assertion::maxLength($this->actionUrl, self::MAX_ACTION_URL_LENGTH, "{$shortName}::actionUrl");
+        Assertion::maxLength($this->iconAlternative, self::MAX_ICON_ALT_LENGTH, "{$shortName}::iconAlternative");
+        Assertion::maxLength($this->comment, self::MAX_COMMENT_LENGTH, "{$shortName}::comment");
 
         // Assertions on ForeignKeys
         $foreignKeys = [
