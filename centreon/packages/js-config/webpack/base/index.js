@@ -128,7 +128,10 @@ const getBaseConfiguration = ({
   ].filter(Boolean),
   resolve: {
     alias: {
-      react: path.resolve('./node_modules/react')
+      react: path.resolve('./node_modules/react'),
+      '@centreon/ui/fonts': path.resolve(
+        './node_modules/@centreon/ui/public/fonts'
+      )
     },
     extensions: ['.js', '.jsx', '.ts', '.tsx']
   }
