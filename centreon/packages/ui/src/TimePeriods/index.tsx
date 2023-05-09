@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import { Responsive } from '@visx/visx';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
@@ -14,7 +16,7 @@ import {
   EndStartInterval,
   TimePeriod
 } from './models';
-import { useStyles } from './timePeriods.styles';
+import { useStyles } from './TimePeriods.styles';
 import useAwesomeTimePeriod from './useAwesomeTimePeriod';
 
 dayjs.extend(isSameOrAfter);
@@ -28,6 +30,7 @@ export interface Props {
   extraTimePeriods?: Array<TimePeriod>;
   getIsError?: (value: boolean) => void;
   getStartEndParameters?: ({ start, end }: EndStartInterval) => void;
+  renderExternalComponent?: ReactNode;
 }
 
 const AwesomeTimePeriod = ({
@@ -35,7 +38,8 @@ const AwesomeTimePeriod = ({
   disabled = false,
   getStartEndParameters,
   getIsError,
-  adjustTimePeriodData
+  adjustTimePeriodData,
+  renderExternalComponent
 }: Props): JSX.Element => {
   const { classes } = useStyles({ disabled });
 
@@ -56,7 +60,8 @@ const AwesomeTimePeriod = ({
                 extraTimePeriods={extraTimePeriods}
                 width={width}
               />
-              <CustomTimePeriod disabled={disabled} width={width} />
+              <CustomTimePeriod disabled={disabled} />
+              <div>{renderExternalComponent}</div>
             </Paper>
           );
         }}

@@ -6,15 +6,17 @@ interface StylesProps {
 
 export const useStyles = makeStyles<StylesProps>()((theme, { disabled }) => ({
   header: {
-    alignItems: 'center',
+    [theme.breakpoints.down('sm')]: {
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      rowGap: theme.spacing(1)
+    },
     backgroundColor: disabled ? 'transparent' : 'undefined',
     border: disabled ? 'unset' : 'undefined',
     boxShadow: disabled ? 'unset' : 'undefined',
     columnGap: theme.spacing(2),
-    display: 'grid',
-    gridTemplateColumns: `repeat(4, auto)`,
+    display: 'flex',
     gridTemplateRows: '1fr',
-    justifyContent: 'center',
-    padding: theme.spacing(1, 0.5)
+    justifyContent: 'center'
   }
 }));

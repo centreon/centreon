@@ -14,10 +14,9 @@ import PopoverCustomTimePeriod from './PopoverCustomTimePeriod';
 
 interface Props {
   disabled?: boolean;
-  width: number;
 }
 
-const CustomTimePeriod = ({ width, disabled = false }: Props): JSX.Element => {
+const CustomTimePeriod = ({ disabled = false }: Props): JSX.Element => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
 
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
@@ -43,7 +42,6 @@ const CustomTimePeriod = ({ width, disabled = false }: Props): JSX.Element => {
     <>
       <CompactCustomTimePeriod
         disabled={disabled}
-        width={width}
         onClick={onClickCompactCustomTimePeriod}
       />
       <PopoverCustomTimePeriod

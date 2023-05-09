@@ -1,6 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
 
+import Switch from '@mui/material/Switch';
+
 import { dateFormat } from './models';
 
 import AwesomeTimePeriod from '.';
@@ -18,16 +20,10 @@ const Template: Story = {
   render: (args) => <AwesomeTimePeriod {...args} />
 };
 
-const args = {
-  extraTimePeriods: [
-    {
-      dateTimeFormat: dateFormat,
-      getStart: (): Date => dayjs(Date.now()).subtract(29, 'day').toDate(),
-      id: 'last_29_days',
-      largeName: 'last 29 days',
-      name: '29 days'
-    }
-  ]
+const TemplateWithExternalComponent: Story = {
+  render: (args) => (
+    <AwesomeTimePeriod {...args} renderExternalComponent={<Switch />} />
+  )
 };
 
 const argTypes = {
@@ -66,9 +62,30 @@ const argTypes = {
     }
   }
 };
+const args = {
+  extraTimePeriods: [
+    {
+      dateTimeFormat: dateFormat,
+      getStart: (): Date => dayjs(Date.now()).subtract(29, 'day').toDate(),
+      id: 'last_29_days',
+      largeName: 'last 29 days',
+      name: '29 days'
+    }
+  ]
+};
 
 export const TimePeriod: Story = {
   ...Template,
+  argTypes
+};
+
+export const WithExtraTimePeriods: Story = {
+  ...Template,
   argTypes,
   args
+};
+
+export const WithExternalComponent: Story = {
+  ...TemplateWithExternalComponent,
+  argTypes
 };

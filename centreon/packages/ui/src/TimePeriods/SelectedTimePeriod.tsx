@@ -53,46 +53,42 @@ const SelectedTimePeriod = ({
   );
 
   return (
-    <div>
-      <ButtonGroup
-        className={classes.buttonGroup}
-        color="primary"
-        component="span"
-        disabled={disabled}
-        size="small"
-      >
-        {map(
-          ({ id, name, largeName }) => (
-            <Tooltip key={name} placement="top" title={largeName}>
-              <Button
-                className={classes.button}
-                component="span"
-                data-testid={id}
-                variant={
-                  equals(selectedTimePeriodData?.id, id)
-                    ? 'contained'
-                    : 'outlined'
-                }
-                onClick={(): void =>
-                  changeSelectedTimePeriod({
-                    id,
-                    timePeriods: currentTimePeriods
-                  })
-                }
-              >
-                {
-                  cond<number, string>([
-                    [lte(theme.breakpoints.values.md), always(largeName)],
-                    [T, always(name)]
-                  ])(width) as string
-                }
-              </Button>
-            </Tooltip>
-          ),
-          timePeriodOptions
-        )}
-      </ButtonGroup>
-    </div>
+    <ButtonGroup
+      className={classes.buttonGroup}
+      color="primary"
+      disabled={disabled}
+      size="small"
+    >
+      {map(
+        ({ id, name, largeName }) => (
+          <Tooltip key={name} placement="top" title={largeName}>
+            <Button
+              className={classes.button}
+              data-testid={id}
+              variant={
+                equals(selectedTimePeriodData?.id, id)
+                  ? 'contained'
+                  : 'outlined'
+              }
+              onClick={(): void =>
+                changeSelectedTimePeriod({
+                  id,
+                  timePeriods: currentTimePeriods
+                })
+              }
+            >
+              {
+                cond<number, string>([
+                  [lte(theme.breakpoints.values.md), always(largeName)],
+                  [T, always(name)]
+                ])(width) as string
+              }
+            </Button>
+          </Tooltip>
+        ),
+        timePeriodOptions
+      )}
+    </ButtonGroup>
   );
 };
 
