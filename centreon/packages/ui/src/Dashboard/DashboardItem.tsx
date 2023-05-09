@@ -6,7 +6,7 @@ import { Card } from '@mui/material';
 
 import useMemoComponent from '../utils/useMemoComponent';
 
-import { useDashboardItemStyles } from './useDashboardStyles';
+import { useDashboardItemStyles } from './Dashboard.styles';
 
 interface DashboardItemProps {
   children: JSX.Element;

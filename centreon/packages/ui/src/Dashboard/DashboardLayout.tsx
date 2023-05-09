@@ -6,7 +6,7 @@ import 'react-grid-layout/css/styles.css';
 
 import { Responsive as ResponsiveHeight, useMemoComponent } from '..';
 
-import { useDashboardLayoutStyles } from './useDashboardStyles';
+import { useDashboardLayoutStyles } from './Dashboard.styles';
 import { getColumnsFromScreenSize, getLayout } from './utils';
 import DashboardGrid from './DashboardGrid';
 
