@@ -25,7 +25,6 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginTop: theme.spacing(2)
   }
 }));
 

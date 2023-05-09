@@ -9,7 +9,7 @@ import {
   CustomButton
 } from './storiesData';
 
-import Form, { GroupDirection } from '.';
+import { Form, GroupDirection } from './Form';
 
 export default { title: 'Form' };
 
