@@ -449,9 +449,9 @@ export default (): void =>
           initialize();
           openSubMenu('Pollers');
 
-          cy.get(`[data-testid="${labelExportConfiguration}"]`)
-            .findByRole('button', { name: labelExportConfiguration })
-            .as('exportbutton');
+          cy.get(`[data-testid="${labelExportConfiguration}"]`).as(
+            'exportbutton'
+          );
 
           cy.get('@exportbutton').click();
 
@@ -498,8 +498,11 @@ export default (): void =>
           getElements();
           openSubMenu('Pollers');
           cy.findByTestId('poller-menu');
-          cy.contains(labelInstallCommand).click();
-          cy.contains(labelSuccessfulCopyPollerCommand);
+          cy.contains(labelInstallCommand)
+            .click()
+            .then(() => {
+              cy.contains(labelSuccessfulCopyPollerCommand);
+            });
 
           cy.matchImageSnapshot();
         });
