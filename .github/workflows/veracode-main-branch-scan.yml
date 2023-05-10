@@ -58,6 +58,9 @@ jobs:
       - name: DEBUG - Github ref Name
         run: echo ${{ github.ref_name }}
 
+      - name: DEBUG - Github base ref
+        run: echo ${{ github.base_ref }}
+
       - name: Veracode upload and run a Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
         id: upload_and_scan
