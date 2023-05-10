@@ -13,7 +13,6 @@ env:
   MODULE_NAME: centreon-web
   REPORT_FILENAME: "result.json"
   #ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
-  ZIP_NAME: "centreon_${{ env.BRANCH_NAME }}"
 
 jobs:
   build:
@@ -49,6 +48,12 @@ jobs:
 
       - name: DEBUG - Check location
         run: ls -la
+
+      - name: DEBUG - Github head ref
+        run: echo ${{ github.head_ref }}
+
+      - name: DEBUG - Github ref Name
+        run: echo ${{ github.ref_name }}
 
       - name: Veracode upload and run a Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
