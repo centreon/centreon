@@ -14,3 +14,11 @@ export const Default: Story = {
     description: 'List item description',
   }
 }
+
+export const WithActions: Story = {
+  args: {
+    ...Default.args,
+    hasCardAction: true,
+    hasActions: true,
+  }
+}

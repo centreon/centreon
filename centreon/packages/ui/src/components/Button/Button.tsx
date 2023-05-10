@@ -13,9 +13,9 @@ type ButtonProps = {
   children: ReactNode;
   variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'small' | 'medium' | 'large';
-  iconVariant?: 'none' | 'start' | 'end' | 'icon-only'; // TODO 'icon-only' support
+  iconVariant?: 'none' | 'start' | 'end';
   icon?: string | ReactNode; // TODO IconProps['name']
-  disabled?: boolean; // TODO style
+  disabled?: boolean;
   type?: 'button' | 'submit' | 'reset';
   onClick?: (e) => void;
 };
@@ -38,7 +38,6 @@ const Button: React.FC<ButtonProps> = ({
       data-variant={variant}
       data-size={size}
       data-icon-variant={iconVariant}
-      data-icon={icon}
       type={type}
       disabled={disabled}
       onClick={e => onClick?.(e)}

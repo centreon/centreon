@@ -34,12 +34,19 @@ const meta: Meta = {
 export default meta;
 
 
-const dialogStateAtom = atom<{ open: boolean, variant: DashboardFormProps['variant'] }>({
+type dashboardItem = {
+  id: number;
+  name: string;
+  description: string;
+}
+
+const dialogStateAtom = atom<{ open: boolean, variant: DashboardFormProps['variant'], item: dashboardItem | null }>({
   open: false,
-  variant: 'create'
+  variant: 'create',
+  item: null
 });
 
-const dataDashboardsAtom = atom<Array<{id: number, name: string, description: string}>>([]);
+const dataDashboardsAtom = atom<Array<dashboardItem>>([]);
 
 const DefaultView = (args) => {
 
@@ -51,18 +58,19 @@ const DefaultView = (args) => {
   }, [args.data.dashboards]);
 
   const createDashboard = (data) => {
+    data.id = dataDashboards.length ? Math.max(...dataDashboards.map((dashboard) => dashboard.id)) + 1 : 0;
     setDataDashboards((prev) => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
-    setDialogState({open: false, variant: 'create'});
-  }
+    setDialogState({open: false, variant: 'create', item: null});
+  };
 
   const updateDashboard = (data) => {
-    setDataDashboards((prev) => prev.map((dashboard) => dashboard.id === data.id ? data : dashboard));
-    setDialogState({open: false, variant: 'update'});
-  }
+    setDataDashboards((prev) => (prev.map((dashboard) => dashboard.id === data.id ? data : dashboard)).sort((a, b) => a.name.localeCompare(b.name)));
+    setDialogState({open: false, variant: 'update', item: null});
+  };
 
   const deleteDashboard = (id) => {
     setDataDashboards((prev) => prev.filter((dashboard) => dashboard.id !== id));
-  }
+  };
 
   return (
     <div>
@@ -76,7 +84,7 @@ const DefaultView = (args) => {
               variant="primary"
               iconVariant="start"
               icon={<AddIcon/>}
-              onClick={() => setDialogState({open: true, variant: 'create'})}
+              onClick={() => setDialogState({open: true, variant: 'create', item: null})}
             >
               {args.actions.create.label}
             </Button>
@@ -88,21 +96,26 @@ const DefaultView = (args) => {
                   key={dashboard.id}
                   title={dashboard.name}
                   description={dashboard.description}
+                  hasCardAction={true}
+                  hasActions={true}
+                  onEdit={() => setDialogState({open: true, variant: 'update', item: dashboard})}
+                  onDelete={() => deleteDashboard(dashboard.id)}
                 />
               ))}
             </List>
           </div>
           <Dialog
             open={dialogState.open}
-            onClose={() => setDialogState({open: false, variant: 'create'})}
+            onClose={() => setDialogState({open: false, variant: 'create', item: null})}
           >
             <DashboardForm
               variant={dialogState.variant}
               labels={DashboardFormDefaultStory!.args!.labels!}
+              resource={dialogState.item}
               onSubmit={(values) => {
                 dialogState.variant === 'create' ? createDashboard(values) : updateDashboard(values);
               }}
-              onCancel={() => setDialogState({open: false, variant: 'create'})}
+              onCancel={() => setDialogState({open: false, variant: dialogState.variant, item: null})}
             />
           </Dialog>
         </div>

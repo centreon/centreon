@@ -18,6 +18,7 @@ export const Default: Story = {
 export const WithIcon: Story = {
   args: {
     ...Default.args,
+    iconVariant: 'start',
     icon: <AddIcon />, // TODO Icon component
   }
 }

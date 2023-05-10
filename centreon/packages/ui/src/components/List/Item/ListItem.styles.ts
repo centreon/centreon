@@ -5,13 +5,33 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
 
-    border: `1px solid ${theme.palette.text.disabled}`,
     borderRadius: '8px',
 
     minWidth: '280px',
     width: '320px',
     height: '210px',
-    padding: '12px',
+
+
+    '& .MuiCardActionArea-root': {
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+
+    },
+
+    '& .MuiCardActions-root': {
+      display: 'flex',
+      flexDirection: 'row-reverse',
+      gap: theme.spacing(1),
+
+      opacity: 0,
+    },
+    '&:hover .MuiCardActions-root': {
+      opacity: 1,
+    },
+
 
     h3: {
       font: 'normal normal 600 20px/28px Roboto',
