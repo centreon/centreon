@@ -7,8 +7,7 @@ import {
   UserType,
   ResourceIdsType,
   ResourceExtraType,
-  MessageType,
-  EventsType
+  MessageType
 } from '../models';
 
 const timeperiod = JsonDecoder.object<TimeperiodType>(
@@ -29,10 +28,7 @@ const ResourceId = JsonDecoder.object<ResourceIdsType>(
 
 const resourceExtraType = JsonDecoder.object<ResourceExtraType>(
   {
-    eventsServices: JsonDecoder.array(
-      JsonDecoder.enumeration(EventsType, 'Type'),
-      'Events services'
-    )
+    eventsServices: JsonDecoder.number
   },
   'Resource Extra Type',
   {
@@ -42,10 +38,7 @@ const resourceExtraType = JsonDecoder.object<ResourceExtraType>(
 
 const resource = JsonDecoder.object<ResourceType>(
   {
-    events: JsonDecoder.array(
-      JsonDecoder.enumeration(EventsType, 'Type'),
-      'Events'
-    ),
+    events: JsonDecoder.number,
     extra: JsonDecoder.optional(resourceExtraType),
     ids: JsonDecoder.array(ResourceId, 'Ids'),
     type: JsonDecoder.enumeration(ResourcesTypeEnum, 'Type')

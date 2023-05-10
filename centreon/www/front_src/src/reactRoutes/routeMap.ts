@@ -1,8 +1,8 @@
 const routeMap = {
-  cloudNotificationConfiguration: '/configuration/notifications',
   about: '/administration/about',
   authentication: '/administration/authentication',
   authenticationDenied: '/authentication-denied',
+  cloudNotificationConfiguration: '/configuration/notifications',
   extensionsManagerPage: '/administration/extensions/manager',
   install: '/install/install.php',
   login: '/login',

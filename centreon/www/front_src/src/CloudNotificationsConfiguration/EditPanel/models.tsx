@@ -16,7 +16,7 @@ export interface MultiIconCheckBoxProps {
 }
 
 export enum EventsType {
-  critical = 'crtitical',
+  critical = 'critical',
   down = 'down',
   ok = 'ok',
   unkown = 'unkown',
@@ -42,11 +42,11 @@ export interface ResourceIdsType {
 }
 
 export interface ResourceExtraType {
-  eventsServices: Array<EventsType>;
+  eventsServices: number;
 }
 
 export interface ResourceType {
-  events: Array<EventsType>;
+  events: number;
   extra?: ResourceExtraType; // traité plus tard
   ids: Array<ResourceIdsType>;
   type: ResourcesTypeEnum;

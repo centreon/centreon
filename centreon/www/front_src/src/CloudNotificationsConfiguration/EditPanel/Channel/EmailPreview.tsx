@@ -8,7 +8,7 @@ import { Box, Typography } from '@mui/material';
 import { RichTextEditor } from '@centreon/ui';
 
 import { labelPreviewZone, labelPreviewEmail } from '../../translatedLabels';
-import { emptyEmail } from '../initialValues';
+import { emptyEmail } from '../utils';
 
 const useStyles = makeStyles()((theme) => ({
   container: {

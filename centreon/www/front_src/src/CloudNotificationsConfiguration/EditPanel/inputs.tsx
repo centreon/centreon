@@ -9,10 +9,7 @@ import {
 } from './api/endpoints';
 import EmailBody from './Channel/EmailBody';
 import EmailPreview from './Channel/EmailPreview';
-
-const hostGroupEvents = ['up', 'down', 'unreachable'];
-
-const servicesEvents = ['ok', 'warning', 'crtitical', 'unkown'];
+import { hostEvents, serviceEvents } from './utils';
 
 const handleGridTemplate = cond([
   [gt(650), always('auto')],
@@ -44,7 +41,7 @@ export const getInputs = ({
           {
             checkbox: {
               labelPlacement: 'top',
-              options: hostGroupEvents,
+              options: hostEvents,
               row: true
             },
             fieldName: 'hostGroups.events',
@@ -59,7 +56,7 @@ export const getInputs = ({
           {
             checkbox: {
               labelPlacement: 'top',
-              options: servicesEvents,
+              options: serviceEvents,
               row: true
             },
             fieldName: 'hostGroups.extra.eventsServices',
@@ -91,7 +88,7 @@ export const getInputs = ({
           {
             checkbox: {
               labelPlacement: 'top',
-              options: servicesEvents,
+              options: serviceEvents,
               row: true
             },
             fieldName: 'serviceGroups.events',
@@ -123,7 +120,7 @@ export const getInputs = ({
     //       {
     //         checkbox: {
     //           labelPlacement: 'top',
-    //           options: servicesEvents,
+    //           options: ,
     //           row: true
     //         },
     //         fieldName: 'businessViews.events',

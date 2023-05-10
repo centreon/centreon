@@ -15,7 +15,6 @@ import { panelWidthStorageAtom } from '../atom';
 
 import { basicFormGroups, getInputs } from './inputs';
 import { emptyInitialValues, getInitialValues } from './initialValues';
-import { submit } from './submit';
 import useValidationSchema from './validationSchema';
 import Header from './Header';
 import { EditedNotificationIdAtom, panelModeAtom } from './atom';
@@ -87,7 +86,6 @@ const Form = (): JSX.Element => {
         initialValues={initialValues}
         inputs={getInputs({ panelWidth })}
         isLoading={equals(panelMode, PanelMode.Edit) ? isLoading : false}
-        submit={submit}
         validationSchema={validationSchema}
       >
         <>

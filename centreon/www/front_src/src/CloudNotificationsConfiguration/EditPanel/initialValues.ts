@@ -1,57 +1,14 @@
-import { equals, isNil } from 'ramda';
-
 import MailIcon from '@mui/icons-material/LocalPostOfficeOutlined';
 
-import { ChannelsEnum, ResourcesTypeEnum, TimeperiodType } from '../models';
+import { ChannelsEnum, ResourcesTypeEnum } from '../models';
 
-import { MessageType, NotificationType } from './models';
-
-export const emptyEmail =
-  '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}';
-
-export const formatEntityNamed = ({
-  name
-}: TimeperiodType): { checked: boolean; label: string } => {
-  return {
-    checked: true,
-    label: name
-  };
-};
-
-const formatMessages = ({
-  channel,
-  message,
-  subject
-}: MessageType): unknown => {
-  return {
-    channel: {
-      Icon: MailIcon,
-      checked: !!equals(ChannelsEnum.Mail, channel),
-      label: ChannelsEnum.Mail
-    },
-    message,
-    subject
-  };
-};
-
-const formatResource = ({ resources, resourceType }): object => {
-  const resource = resources.find((elm) => equals(elm.type, resourceType));
-
-  if (!isNil(resource?.extra)) {
-    return {
-      ...resource,
-      extra: {
-        ...resource.extra,
-        includeServices: {
-          checked: false,
-          label: 'Include servives for this host'
-        }
-      }
-    };
-  }
-
-  return resource;
-};
+import { NotificationType } from './models';
+import {
+  emptyEmail,
+  formatEntityNamed,
+  formatMessages,
+  formatResource
+} from './utils';
 
 export const getInitialValues = ({
   name,
@@ -89,7 +46,7 @@ export const emptyInitialValues = {
       eventsServices: [],
       includeServices: {
         checked: false,
-        label: 'Include servives for this host'
+        label: 'Include services for these hosts'
       }
     },
     ids: [],
@@ -97,7 +54,7 @@ export const emptyInitialValues = {
   },
   isActivated: true,
   messages: {
-    channel: { Icon: MailIcon, checked: false, label: ChannelsEnum.Mail },
+    channel: { Icon: MailIcon, checked: false, label: ChannelsEnum.Email },
     message: emptyEmail,
     subject: ''
   },
