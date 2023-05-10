@@ -68,8 +68,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     {
         $this->debug('Add notification messages', ['notification_id' => $notificationId, 'messages' => $messages]);
 
-        if ($messages === [])
-        {
+        if ($messages === []) {
             return;
         }
 
@@ -104,8 +103,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     {
         $this->debug('Add users to notification', ['notification_id' => $notificationId, 'users' => $users]);
 
-        if ($users === [])
-        {
+        if ($users === []) {
             return;
         }
 

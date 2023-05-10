@@ -63,7 +63,7 @@ class NotificationHostEventConverter
      * Convert a string to an array of NotificationHostEvent.
      * ex: 'd,u' => [NotificationHostEvent::Down, NotificationHostEvent::Unreachable]
      *
-     * @param string $events
+     * @param string $legacyStr
      *
      * @return NotificationHostEvent[]
      */
@@ -133,8 +133,7 @@ class NotificationHostEventConverter
 
     /**
      * Convert an array of NotificationHostEvent into a bitmask
-     * If the array contains NotificationHostEvent::None, an empty bitmask will be returned
-     * If the array is empty, a full bitmask will be returned.
+     * If the array contains NotificationHostEvent::None or is empty, an empty bitmask will be returned
      *
      * @param NotificationHostEvent[] $enums
      *
@@ -143,7 +142,7 @@ class NotificationHostEventConverter
     public static function toBitmask(array $enums): int
     {
         if ($enums === []) {
-            return self::MAX_BITMASK;
+            return 0;
         }
 
         $bitmask = 0;
@@ -157,5 +156,4 @@ class NotificationHostEventConverter
 
         return $bitmask;
     }
-
 }

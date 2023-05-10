@@ -27,6 +27,9 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 
 class NotificationResource
 {
+    public const HOSTGROUP_RESOURCE_TYPE = 'hostgroup';
+    public const SERVICEGROUP_RESOURCE_TYPE = 'servicegroup';
+
     /**
      * @param string $type
      * @param class-string<NotificationHostEvent|NotificationServiceEvent> $eventEnum
@@ -98,7 +101,7 @@ class NotificationResource
             $this->events[] = $event;
         } else {
             /** @var \Enum $event */
-            throw new \ValueError("\"{$event->value}\" is not a valid backing value for enum {$this->eventEnum}");
+            throw new \ValueError("\"{$event}\" is not a valid backing value for enum {$this->eventEnum}");
         }
     }
 

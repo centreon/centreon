@@ -61,7 +61,6 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
 
         $result = $statement->fetch(\PDO::FETCH_ASSOC);
         if ($result === false) {
-
             return null;
         }
 
@@ -140,7 +139,8 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     /**
      * {@inheritDoc}
      */
-    public function exists(int $notificationId): bool {
+    public function exists(int $notificationId): bool
+    {
         $this->info('Check existence of notification configuration with id #' . $notificationId);
 
         $request = $this->translateDbName('SELECT 1 FROM `:db`.notification WHERE id = :notificationId');
@@ -154,7 +154,8 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     /**
      * {@inheritDoc}
      */
-    public function existsByName(TrimmedString $notificationName): bool {
+    public function existsByName(TrimmedString $notificationName): bool
+    {
         $this->info('Check existence of notification configuration with name ' . $notificationName);
 
         $request = $this->translateDbName('SELECT 1 FROM `:db`.notification WHERE name = :notificationName');

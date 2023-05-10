@@ -26,18 +26,15 @@ namespace Core\Notification\Infrastructure\API\AddNotification;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
-use Core\Infrastructure\Common\Api\Router;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\UseCase\AddNotification\AddNotificationResponse;
 
 class AddNotificationPresenter extends AbstractPresenter
 {
     use LoggerTrait;
-    // private const ROUTE_NAME = 'FindNotification';
 
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
-        // readonly private Router $router
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -61,19 +58,6 @@ class AddNotificationPresenter extends AbstractPresenter
                 'messages' => $payload->messages,
                 'is_activated' => $payload->isActivated,
             ]);
-
-            // try {
-            //     $this->setResponseHeaders([
-            //         'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $payload->id]),
-            //     ]);
-            // } catch (\Throwable $ex) {
-            //     $this->error('Impossible to generate the location header', [
-            //         'message' => $ex->getMessage(),
-            //         'trace' => $ex->getTraceAsString(),
-            //         'route' => self::ROUTE_NAME,
-            //         'payload' => $payload,
-            //     ]);
-            // }
         }
         parent::present($data);
     }

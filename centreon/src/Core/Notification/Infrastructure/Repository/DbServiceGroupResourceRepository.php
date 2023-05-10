@@ -25,19 +25,22 @@ namespace Core\Notification\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
-use Core\Common\Domain\NotificationServiceEvent;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Domain\Model\NotificationGenericObject;
 use Core\Notification\Domain\Model\NotificationResource;
+use Core\Notification\Domain\Model\NotificationServiceEvent;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
 class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements NotificationResourceRepositoryInterface
 {
     use LoggerTrait;
+
     private const RESOURCE_TYPE = 'servicegroup';
     private const EVENT_ENUM = NotificationServiceEvent::class;
+    private const EVENT_ENUM_CONVERTER = NotificationServiceEventConverter::class;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -58,6 +61,14 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
     public function eventEnum(): string
     {
         return self::EVENT_ENUM;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function eventEnumConverter(): string
+    {
+        return self::EVENT_ENUM_CONVERTER;
     }
 
     /**
@@ -170,7 +181,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
             self::RESOURCE_TYPE,
             self::EVENT_ENUM,
             $resources,
-            (self::EVENT_ENUM)::fromBitmask($eventResults),
+            (self::EVENT_ENUM_CONVERTER)::fromBitmask($eventResults),
         );
     }
 
@@ -180,8 +191,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
     public function findByNotificationIdAndAccessGroups(
         int $notificationId,
         array $accessGroups
-    ): ?NotificationResource
-    {
+    ): ?NotificationResource {
         if ([] === $accessGroups) {
             return null;
         }
@@ -224,7 +234,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
             self::RESOURCE_TYPE,
             self::EVENT_ENUM,
             $resources,
-            (self::EVENT_ENUM)::fromBitmask($eventResults),
+            (self::EVENT_ENUM_CONVERTER)::fromBitmask($eventResults),
         );
     }
 

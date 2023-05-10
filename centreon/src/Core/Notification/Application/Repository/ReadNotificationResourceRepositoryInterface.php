@@ -74,5 +74,8 @@ interface ReadNotificationResourceRepositoryInterface
      *
      * @return null|NotificationResource
      */
-    public function findByNotificationIdAndAccessGroups(int $notificationId, array $accessGroups): ?NotificationResource;
+    public function findByNotificationIdAndAccessGroups(
+        int $notificationId,
+        array $accessGroups
+    ): ?NotificationResource;
 }

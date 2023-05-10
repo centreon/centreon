@@ -35,8 +35,8 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
-use Core\Common\Domain\NotificationServiceEvent;
 use Core\Common\Domain\TrimmedString;
+use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
@@ -50,7 +50,7 @@ use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\TimePeriod\Domain\Model\TimePeriod;
+use Utility\Difference\BasicDifference;
 
 final class AddNotification
 {
@@ -77,10 +77,7 @@ final class AddNotification
         PresenterInterface $presenter
     ): void {
         try {
-            // TODO topology role created in front code,
-            // TODO how to handle feature flag in role const definition ?
-            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_NOTIFICATION_READ_WRITE))
-            {
+            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE)) {
                 $this->error(
                     "User doesn't have sufficient rights to add notifications",
                     ['user_id' => $this->user->getId()]
@@ -125,8 +122,7 @@ final class AddNotification
             $resources = $this->findResourcesByNotificationId($newNotificationId);
 
             $presenter->present($this->createResponse($notification, $users, $resources, $messages));
-
-        } catch (AssertionFailedException|\ValueError $ex) {
+        } catch (AssertionFailedException | \ValueError $ex) {
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (NotificationException $ex) {
@@ -189,9 +185,9 @@ final class AddNotification
             throw NotificationException::emptyArrayNotAllowed('user');
         }
 
-        // TODO change for BasicDifference (MON-18366) when merged
         $existingUsers = $this->contactRepository->exist($request->users);
-        $missingUsers = array_diff($request->users, $existingUsers);
+        $difference = new BasicDifference($request->users, $existingUsers);
+        $missingUsers = $difference->getRemoved();
 
         if ([] !== $missingUsers) {
             $this->error(
@@ -292,8 +288,8 @@ final class AddNotification
                 $existingResources = $repository->existByAccessGroups($resourceIds, $accessGroups);
             }
 
-            // TODO change for BasicDifference (MON-18366) when merged
-            $missingResources = array_diff($resourceIds, $existingResources);
+            $difference = new BasicDifference($resourceIds, $existingResources);
+            $missingResources = $difference->getRemoved();
             if ([] !== $missingResources) {
                 $this->error(
                     'Invalid ID(s) provided',
@@ -308,9 +304,9 @@ final class AddNotification
                 $repository->resourceType(),
                 $repository->eventEnum(),
                 array_map((fn($resourceId) => new NotificationGenericObject($resourceId, '')), $resourceIds),
-                ($repository->eventEnum())::fromBitmask($resourceData['events']),
+                ($repository->eventEnumConverter())::fromBitmask($resourceData['events']),
                 $resourceData['includeServiceEvents']
-                    ? NotificationServiceEvent::fromBitmask($resourceData['includeServiceEvents'])
+                    ? NotificationServiceEventConverter::fromBitmask($resourceData['includeServiceEvents'])
                     : []
             );
         }
@@ -376,8 +372,7 @@ final class AddNotification
         array $users,
         array $resources,
         array $messages,
-    ): CreatedResponse
-    {
+    ): CreatedResponse {
         $response = new AddNotificationResponse();
 
         $response->id = $notification->getId();
@@ -403,19 +398,22 @@ final class AddNotification
         );
 
         foreach ($resources as $resource) {
-            $eventEnum = $this->resourceRepositoryProvider->getRepository($resource->getType())->eventEnum();
+            $eventEnumConverter = $this->resourceRepositoryProvider->getRepository($resource->getType())
+                ->eventEnumConverter();
             $responseResource = [
                 'type' => $resource->getType(),
-                'events' => $eventEnum::toBitmask($resource->getEvents()),
+                'events' => $eventEnumConverter::toBitmask($resource->getEvents()),
                 'ids' => array_map(
                     (fn($resource) => ['id' => $resource->getId(), 'name' => $resource->getName()]),
                     $resource->getResources()
                 ),
             ];
-            if ($resource->getServiceEvents() !== 0)
-            {
+            if (
+                $resource->getType() === NotificationResource::HOSTGROUP_RESOURCE_TYPE
+                && $resource->getServiceEvents() !== 0
+            ) {
                 $responseResource['extra'] = [
-                    'event_services' => NotificationServiceEvent::toBitmask($resource->getServiceEvents())
+                    'event_services' => NotificationServiceEventConverter::toBitmask($resource->getServiceEvents())
                 ];
             }
             $response->resources[] = $responseResource;

@@ -23,11 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\Repository;
 
-use Core\Common\Domain\NotificationHostEvent;
-use Core\Common\Domain\NotificationServiceEvent;
+use Core\Notification\Domain\Model\NotificationHostEvent;
+use Core\Notification\Domain\Model\NotificationServiceEvent;
+use Core\Notification\Application\Converter\NotificationHostEventConverter;
+use Core\Notification\Application\Converter\NotificationServiceEventConverter;
+use Core\Notification\Application\Repository\ReadNotificationResourceRepositoryInterface as ReadRepositoryInterface;
+use Core\Notification\Application\Repository\WriteNotificationResourceRepositoryInterface as WriteRepositoryInterface;
 
-
-interface NotificationResourceRepositoryInterface extends ReadNotificationResourceRepositoryInterface, WriteNotificationResourceRepositoryInterface
+interface NotificationResourceRepositoryInterface extends ReadRepositoryInterface, WriteRepositoryInterface
 {
     /**
      * Indicate wether the repository is valid for the provided resource type.
@@ -44,6 +47,13 @@ interface NotificationResourceRepositoryInterface extends ReadNotificationResour
      * @return class-string<NotificationHostEvent|NotificationServiceEvent>
      */
     public function eventEnum(): string;
+
+    /**
+     * Get associated Event enum converter class.
+     *
+     * @return class-string<NotificationHostEventConverter|NotificationServiceEventConverter>
+     */
+    public function eventEnumConverter(): string;
 
     /**
      * Get associated resource type.

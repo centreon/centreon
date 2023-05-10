@@ -25,11 +25,12 @@ namespace Core\Notification\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
-use Core\Common\Domain\NotificationHostEvent;
-use Core\Common\Domain\NotificationServiceEvent;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Notification\Application\Converter\NotificationHostEventConverter;
+use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Domain\Model\NotificationGenericObject;
+use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
@@ -37,8 +38,10 @@ use Utility\SqlConcatenator;
 class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements NotificationResourceRepositoryInterface
 {
     use LoggerTrait;
+
     private const RESOURCE_TYPE = 'hostgroup';
     private const EVENT_ENUM = NotificationHostEvent::class;
+    private const EVENT_ENUM_CONVERTER = NotificationHostEventConverter::class;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -59,6 +62,14 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
     public function eventEnum(): string
     {
         return self::EVENT_ENUM;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function eventEnumConverter(): string
+    {
+        return self::EVENT_ENUM_CONVERTER;
     }
 
     /**
@@ -168,8 +179,8 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
             self::RESOURCE_TYPE,
             self::EVENT_ENUM,
             $resources,
-            (self::EVENT_ENUM)::fromBitmask($hostgroupEvents),
-            NotificationServiceEvent::fromBitmask($includedServiceEvents),
+            NotificationHostEventConverter::fromBitmask($hostgroupEvents),
+            NotificationServiceEventConverter::fromBitmask($includedServiceEvents),
         );
     }
 
@@ -179,8 +190,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
     public function findByNotificationIdAndAccessGroups(
         int $notificationId,
         array $accessGroups
-    ): ?NotificationResource
-    {
+    ): ?NotificationResource {
         if ([] === $accessGroups) {
             return null;
         }
@@ -220,8 +230,8 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
             self::RESOURCE_TYPE,
             self::EVENT_ENUM,
             $resources,
-            (self::EVENT_ENUM)::fromBitmask($hostgroupEvents),
-            NotificationServiceEvent::fromBitmask($includedServiceEvents),
+            NotificationHostEventConverter::fromBitmask($hostgroupEvents),
+            NotificationServiceEventConverter::fromBitmask($includedServiceEvents),
         );
     }
 
@@ -252,12 +262,16 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
                 WHERE id = :notificationId
                 SQL
         ));
-        $statement->bindValue(':events', (self::EVENT_ENUM)::toBitmask($resource->getEvents()), \PDO::PARAM_INT);
+        $statement->bindValue(
+            ':events',
+            NotificationHostEventConverter::toBitmask($resource->getEvents()),
+            \PDO::PARAM_INT
+        );
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $statement->bindValue(
             ':serviceEvents',
             method_exists($resource, 'getServiceEvents')
-                ? NotificationServiceEvent::toBitmask($resource->getServiceEvents())
+                ? NotificationServiceEventConverter::toBitmask($resource->getServiceEvents())
                 : 0,
             \PDO::PARAM_INT
         );
