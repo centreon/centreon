@@ -14,9 +14,6 @@ export const useStyles = makeStyles()((theme) => ({
         : theme.palette.primary.main
     }
   },
-  hidden: {
-    display: 'none'
-  },
   text: {
     paddingLeft: theme.spacing(0.5)
   }
