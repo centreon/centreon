@@ -8,44 +8,44 @@ on:
       - "test-99.09.x"
 
 env:
+  TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
+  MODULE_DIRECTORY: centreon
+  MODULE_NAME: centreon-web
   REPORT_FILENAME: "result.json"
-  BRANCH_NAME: "develop"
   #ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
   ZIP_NAME: "centreon_${{ env.BRANCH_NAME }}"
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    needs: [get-version]
     steps:
       - uses: actions/checkout@v3
 
-      #      - name: exclude unconsistent files
-      #        run: echo "TODO - create a list of paths and files to delete before creating zip file"
-
-      - name: Create zip file
-        run: zip -r ${{ env.ZIP_NAME }} *
+      - name: Generate binary file
+        uses: ./.git hub/actions/veracode-generate-archive/action.yml
+        with:
+          module_directory: ${{ env.MODULE_DIRECTORY }}
+          module_name: ${{ env.MODULE_NAME }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          branch_name: ${{ env.TARGET_BRANCH }}
+          compile_mvn: False
+          exclusion_file: "test TODO"
 
       - name: DEBUG - Check location
         run: ls -la
 
-      - name: Move zip file
-        run: mv ${{ env.ZIP_NAME }}.zip /tmp
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.ZIP_NAME }}.zip
-          path: /tmp/${{ env.ZIP_NAME }}.zip
-
   sandbox-scan:
     runs-on: [self-hosted, veracode]
-    needs: build
+    needs: [get-version, build]
     steps:
       - uses: actions/checkout@v3
 
       - name: get archive
         uses: actions/download-artifact@v3
         with:
-          name: ${{ env.ZIP_NAME }}.zip
+          name: "${{ env.MODULE_NAME }}-${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
 
       - name: DEBUG - Check location
         run: ls -la
@@ -57,60 +57,58 @@ jobs:
           appname: "centreon/centreon-web_GHA"
           createprofile: true
           createsandbox: true
-          sandboxname: "23.04.0"
+          sandboxname: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
           scanallnonfataltoplevelmodules: true
           includenewmodules: true
-          version: "23.04.0"
-          filepath: ${{ env.ZIP_NAME }}.zip
+          version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
+          filepath: "${{ env.MODULE_NAME }}-${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}.zip"
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
           scantimeout: 60
           #deleteincompletescan: 1
           continue-on-error: True
 
-      - name: DEBUG - Check location
-        run: ls -la
-
-      - name: set baseline
-        run: |
-          aws s3 cp "${{ env.REPORT_FILENAME }}" "s3://centreon-veracode-reports/${{ env.BRANCH_NAME }}/${{ env.REPORT_FILENAME }}"
-      - name: "Push report"
-        run: aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}${{ env.VERSION }}/index.html" --acl public-read --region eu-west-1
-        shell: bash
-
-
-
-  commit-baseline-file:
-    needs: pipeline-scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: get scan results
-        uses: actions/download-artifact@v3
-        with:
-          name: result.zip
-
-      - name: get filtered scan results
-        uses: actions/download-artifact@v3
-        with:
-          name: filtered_result.zip
-
-      - name: DEBUG - Check location
-        run: ls -la
-
-      - name: commit baseline file to feature branche
-        run: |
-          git config user.email "technique-ci@centreon.com"
-          git config user.name "technique-ci"
-          git add "result.zip" "filtered_result.zip"
-          git stash
-          git pull origin ${{ env.BRANCH_NAME }} || echo "Couldn't find remote branch"
-          git checkout stash -- .
-          git commit -m "Veracode develop's Baseline File push from pipeline"
-          git push origin HEAD:${{ env.BRANCH_NAME }} --force-with-lease
-
+#      - name: DEBUG - Check location
+#        run: ls -la
+#
+#      - name: set baseline
+#        run: |
+#          aws s3 cp "${{ env.REPORT_FILENAME }}" "s3://centreon-veracode-reports/${{ env.BRANCH_NAME }}/${{ env.REPORT_FILENAME }}"
+#      - name: "Push report"
+#        run: aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}${{ env.VERSION }}/index.html" --acl public-read --region eu-west-1
+#        shell: bash
+#
+#  commit-baseline-file:
+#    needs: pipeline-scan
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#
+#      - name: get scan results
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: result.zip
+#
+#      - name: get filtered scan results
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: filtered_result.zip
+#
+#      - name: DEBUG - Check location
+#        run: ls -la
+#
+#      - name: commit baseline file to feature branch
+#        run: |
+#          git config user.email "technique-ci@centreon.com"
+#          git config user.name "technique-ci"
+#          git add "result.zip" "filtered_result.zip"
+#          git stash
+#          git pull origin ${{ env.BRANCH_NAME }} || echo "Couldn't find remote branch"
+#          git checkout stash -- .
+#          git commit -m "Veracode develop's Baseline File push from pipeline"
+#          git push origin HEAD:${{ env.BRANCH_NAME }} --force-with-lease
+#
 #  veracode-sandbox-task:
 #    needs: build
 #    name: Promote a scan from sandbox
