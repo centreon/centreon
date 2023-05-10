@@ -67,18 +67,17 @@ jobs:
         with:
           appname: "centreon/centreon-web_GHA"
           createprofile: true
-          createsandbox: true
-          sandboxname: "${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MAJOR_VERSION }}"
-          scanallnonfataltoplevelmodules: true
-          includenewmodules: true
-          version: "${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
-#          version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
           filepath: "${{ env.MODULE_NAME }}-${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}.zip"
+          version: "${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
+          #version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
+          createsandbox: true
+          sandboxname: "${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MAJOR_VERSION }}"
           scantimeout: 60
+          includenewmodules: true
+          scanallnonfataltoplevelmodules: true
           #deleteincompletescan: 1
-          continue-on-error: True
 
       - name: DEBUG - Check location
         run: ls -la
