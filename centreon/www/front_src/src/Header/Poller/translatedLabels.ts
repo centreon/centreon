@@ -28,3 +28,8 @@ export const labelPollerRunning = 'Everything is OK';
 export const labelConfigurePollers = 'Configure pollers';
 export const labelAllPollers = 'All pollers:';
 export const labelPollers = 'Pollers';
+export const labelInstallCommand = 'Install command';
+export const labelSuccessfulCopyPollerCommand =
+  'Poller installation command has been copied';
+export const labelFailureCopyPollerCommand =
+  'Poller installation command has not been copied';

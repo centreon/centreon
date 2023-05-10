@@ -4,6 +4,7 @@ import { isEmpty } from 'ramda';
 import { Typography, Button, List, ListItem } from '@mui/material';
 
 import ExportConfiguration from './ExportConfiguration';
+import InstallCommand from './InstallCommand';
 
 const useStyles = makeStyles()((theme) => ({
   link: {
@@ -99,6 +100,7 @@ export const PollerSubMenu = ({
           <ExportConfiguration closeSubMenu={closeSubMenu} />
         </ListItem>
       )}
+      <InstallCommand />
     </List>
   );
 };
