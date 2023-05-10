@@ -47,7 +47,7 @@ jobs:
       - name: get archive
         uses: actions/download-artifact@v3
         with:
-          name: "${{ env.MODULE_NAME }}-${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MAJOR_VERSION }}"
+          name: "${{ env.MODULE_NAME }}-${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
 
       - name: DEBUG - Check location
         run: ls -la
