@@ -42,7 +42,7 @@ jobs:
     runs-on: [self-hosted, veracode]
     needs: [build]
     steps:
-      - uses: actions/checkout@v3
+#      - uses: actions/checkout@v3
 
       - name: get archive
         uses: actions/download-artifact@v3
@@ -79,6 +79,9 @@ jobs:
           scantimeout: 60
           #deleteincompletescan: 1
           continue-on-error: True
+
+      - name: DEBUG - Check location
+        run: ls -la
 
 #      - name: DEBUG - Check location
 #        run: ls -la
