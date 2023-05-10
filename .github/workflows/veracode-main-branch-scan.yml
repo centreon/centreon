@@ -1,4 +1,4 @@
-name: Launch Veracode scan on develop
+name: Veracode policy scan on develop branch
 
 on:
   push:
@@ -8,9 +8,10 @@ on:
       - "test-99.09.x"
 
 env:
-  ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
-  BRANCH_NAME: "baseline-develop"
   REPORT_FILENAME: "result.json"
+  BRANCH_NAME: "develop"
+  #ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
+  ZIP_NAME: "centreon_${{ env.BRANCH_NAME }}"
 
 jobs:
   build:
@@ -18,23 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: DEBUG - Check location
-        run: ls -la
-
-      - name: DEBUG - Check PR base repo name
-        run: echo "${{ github.event.pull_request.base.repo.name }}"
-
-      - name: DEBUG - Check head ref
-        run: echo "${{ github.head_ref }}"
-
-      - name: DEBUG - Check ref name
-        run: echo "${{ github.ref_name }}"
-
-      - name: DEBUG - Check run id
-        run: echo "${{ github.run_id }}"
-
-      - name: DEBUG - Zip name
-        run: echo "${{ env.ZIP_NAME }}"
+      #      - name: exclude unconsistent files
+      #        run: echo "TODO - create a list of paths and files to delete before creating zip file"
 
       - name: Create zip file
         run: zip -r ${{ env.ZIP_NAME }} *
@@ -50,79 +36,49 @@ jobs:
           name: ${{ env.ZIP_NAME }}.zip
           path: /tmp/${{ env.ZIP_NAME }}.zip
 
-  policy-scan:
-    runs-on: ubuntu-latest
+  sandbox-scan:
+    runs-on: [self-hosted, veracode]
     needs: build
     steps:
       - uses: actions/checkout@v3
+
       - name: get archive
         uses: actions/download-artifact@v3
         with:
           name: ${{ env.ZIP_NAME }}.zip
-
-      - name: Veracode Upload and Scan Action Step
-        uses: veracode/veracode-uploadandscan-action@master
-        id: upload_and_scan
-        with:
-          appname: "centreon/centreon-web"
-          createprofile: true
-          #version: ${{ github.ref_name }}
-          version: "23.04.0"
-          filepath: ${{ env.ZIP_NAME }}.zip
-          vid: ${{ secrets.VERACODE_API_ID }}
-          vkey: ${{ secrets.VERACODE_API_KEY }}
-          scantimeout: 45
-          #deleteincompletescan: true
-        continue-on-error: True
-
-  pipeline-scan:
-    #needs: policy-scan
-    needs: build
-    runs-on: ubuntu-latest
-    container:
-      image: veracode/pipeline-scan:latest
-      options: --user root
-    steps:
-      - name: get archive
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.ZIP_NAME }}.zip
-          path: /tmp
-
-      - name: pipeline-scan
-        run: |
-          java -jar /opt/veracode/pipeline-scan.jar \
-            -vid "${{secrets.VERACODE_API_ID}}" \
-            -vkey "${{secrets.VERACODE_API_KEY}}" \
-            --fail_on_severity="Very High, High" \
-            --file /tmp/${{ env.ZIP_NAME }}.zip \
-            -jf result.json \
-            -fjf filtered_result.json
-        continue-on-error: true
 
       - name: DEBUG - Check location
         run: ls -la
 
-      - name: DEBUG - Check location tmp
-        run: ls -la /tmp
+      - name: Veracode upload and run a Sandbox scan
+        uses: veracode/veracode-uploadandscan-action@master
+        id: upload_and_scan
+        with:
+          appname: "centreon/centreon-web_GHA"
+          createprofile: true
+          createsandbox: true
+          sandboxname: "23.04.0"
+          scanallnonfataltoplevelmodules: true
+          includenewmodules: true
+          version: "23.04.0"
+          filepath: ${{ env.ZIP_NAME }}.zip
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          scantimeout: 60
+          #deleteincompletescan: 1
+          continue-on-error: True
 
-      - name: Compress reports
+      - name: DEBUG - Check location
+        run: ls -la
+
+      - name: set baseline
         run: |
-          zip -P "${{ secrets.UNZIP_PWD }} result.zip result.json
-          zip -P "${{ secrets.UNZIP_PWD }} filtered_result.zip filtered_result.json
+          aws s3 cp "${{ env.REPORT_FILENAME }}" "s3://centreon-veracode-reports/${{ env.BRANCH_NAME }}/${{ env.REPORT_FILENAME }}"
+      - name: "Push report"
+        run: aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}${{ env.VERSION }}/index.html" --acl public-read --region eu-west-1
         shell: bash
 
-      - name: save standard results
-        uses: actions/upload-artifact@v3
-        with:
-          name: result.zip
-          path: result.zip
 
-      - name: save filtered results
-        uses: actions/upload-artifact@v3
-        with:
-          name: filtered_result.zip
-          path: filtered_result.zip
 
   commit-baseline-file:
     needs: pipeline-scan
