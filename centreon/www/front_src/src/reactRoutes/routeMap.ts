@@ -1,5 +1,5 @@
 const routeMap = {
-  CloudNotificationConfiguration: '/configuration/notifications',
+  cloudNotificationConfiguration: '/configuration/notifications',
   about: '/administration/about',
   authentication: '/administration/authentication',
   authenticationDenied: '/authentication-denied',
