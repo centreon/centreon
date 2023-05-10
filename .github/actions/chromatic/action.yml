@@ -38,3 +38,4 @@ runs:
           onlyChanged: true
           workingDir: ${{ inputs.frontend_directory }}
           github: ${{ inputs.pat }}
+          buildScriptName: build:storybook
