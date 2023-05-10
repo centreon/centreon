@@ -19,6 +19,9 @@ runs:
         with:
           version: 7
           run_install: false
+      
+      - uses: 8BitJonny/gh-get-current-pr@2.2.0
+        id: PR
 
       - uses: actions/setup-node@v3
         with:
@@ -32,6 +35,7 @@ runs:
         shell: bash
 
       - name: Publish to Chromatic
+        if: steps.PR.outputs.pr_found == 'true'
         uses: chromaui/action@v1
         with:
           projectToken: ${{ inputs.project_token }}
