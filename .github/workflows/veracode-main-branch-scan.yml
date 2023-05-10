@@ -32,7 +32,7 @@ jobs:
           major_version: ${{ env.HARD_MAJOR_VERSION }}
           minor_version: ${{ env.HARD_MINOR_VERSION }}
           branch_name: ${{ env.TARGET_BRANCH }}
-          compile_mvn: False
+          compile_mvn: "no"
           exclusion_file: "test TODO"
 
       - name: DEBUG - Check location
