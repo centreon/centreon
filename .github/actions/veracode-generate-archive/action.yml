@@ -38,12 +38,12 @@ runs:
       shell: bash
 
     - name: Create JAR files
-      if: ${{ inputs.compile_mvn == "true" }}
+      if: "${{ inputs.compile_mvn == 'yes' }}"
       run: echo "TODO - compile mvn files"
       shell: bash
 
     - name: Create zip file
-#      if: ${{ inputs.compile_mvn != "true" }}
+#      if: "${{ inputs.compile_mvn != 'yes' }}"
       run: zip -r "${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}" *
       shell: bash
 
