@@ -17561,3 +17561,9 @@ msgstr "Erreur lors de la recherche de la catégorie d'hôtes #%d"
 
 msgid "Error while retrieving a host category"
 msgstr "Erreur lors de la récupération de la catégorie d'hôtes"
+
+msgid "You are not allowed to access dashboards"
+msgstr "Vous n'êtes pas autorisé à accéder aux tableaux de bord"
+
+msgid "Error while searching for dashboards"
+msgstr "Erreur lors de la recherche de tableaux de bord"
