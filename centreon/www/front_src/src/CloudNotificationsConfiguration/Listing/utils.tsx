@@ -15,7 +15,7 @@ interface FormatChannelProps {
 const formatSingleResource = cond([
   [equals(ResourcesTypeEnum.SG), always('SG')],
   [equals(ResourcesTypeEnum.HG), always('HG')],
-  [equals(ResourcesTypeEnum.BV), always('BV')],
+  [equals(ResourcesTypeEnum.BA), always('BA')],
   [T, always('N/A')]
 ]);
 
@@ -33,7 +33,7 @@ export const formatResourcesForListing = (
 
 export const FormatChannel = ({ channel }: FormatChannelProps): JSX.Element => {
   switch (channel) {
-    case ChannelsEnum.Mail:
+    case ChannelsEnum.Email:
       return <MailIcon fontSize="small" />;
     case ChannelsEnum.Sms:
       return <SMSIcon fontSize="small" />;

@@ -1,11 +1,12 @@
 export enum ResourcesTypeEnum {
-  BV = 'businessview',
+  BA = 'ba',
   HG = 'hostgroup',
   SG = 'servicegroup'
 }
 export enum ChannelsEnum {
-  Mail = 'mail',
-  Sms = 'sms'
+  Email = 'Email',
+  Slack = 'Slack',
+  Sms = 'Sms'
 }
 
 export interface TimeperiodType {
