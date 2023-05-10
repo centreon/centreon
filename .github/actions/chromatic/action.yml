@@ -37,5 +37,5 @@ runs:
           projectToken: ${{ inputs.project_token }}
           onlyChanged: true
           workingDir: ${{ inputs.frontend_directory }}
-          github: ${{ inputs.pat }}
+          token: ${{ inputs.pat }}
           buildScriptName: build:storybook

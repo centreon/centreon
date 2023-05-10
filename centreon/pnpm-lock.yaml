@@ -359,6 +359,7 @@ importers:
       ulog: ^2.0.0-beta.19
       vite: ^4.3.5
       vite-plugin-svgr: ^3.2.0
+      vite-plugin-turbosnap: ^1.0.2
     dependencies:
       '@lexical/link': 0.8.0_lexical@0.8.0
       '@lexical/react': 0.8.0_357kkfofljlcc7u7anuomc7bnm
@@ -411,6 +412,7 @@ importers:
       storybook-dark-mode: 3.0.0_biqbaboplfbrettd7655fr4n2y
       vite: 4.3.5_sass@1.62.1
       vite-plugin-svgr: 3.2.0_vite@4.3.5
+      vite-plugin-turbosnap: 1.0.2
 
   packages/ui-context:
     specifiers: {}
@@ -19348,6 +19350,10 @@ packages:
     transitivePeerDependencies:
       - rollup
       - supports-color
+    dev: true
+
+  /vite-plugin-turbosnap/1.0.2:
+    resolution: {integrity: sha512-irjKcKXRn7v5bPAg4mAbsS6DgibpP1VUFL9tlgxU6lloK6V9yw9qCZkS+s2PtbkZpWNzr3TN3zVJAc6J7gJZmA==}
     dev: true
 
   /vite/4.3.5_sass@1.62.1:
