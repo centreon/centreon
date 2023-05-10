@@ -333,8 +333,7 @@ export default (): void =>
           }
         ];
 
-        cy.findByTestId('poller-menu')
-          .findAllByRole('listitem')
+        cy.get('[data-testid="pollerIssues"]')
           .as('items')
           .should('have.length', expectedItems.length);
 
@@ -392,10 +391,7 @@ export default (): void =>
           });
           openSubMenu('Pollers');
 
-          cy.findByTestId('poller-menu')
-            .findAllByRole('listitem')
-            .last()
-            .findByRole('button', { name: labelConfigurePollers })
+          cy.get(`[data-testid="${labelConfigurePollers}"]`)
             .should('be.visible')
             .click();
 
@@ -411,10 +407,7 @@ export default (): void =>
           initialize();
           openSubMenu('Pollers');
 
-          cy.findByTestId('poller-menu')
-            .findAllByRole('listitem')
-            .last()
-            .findByRole('button', { name: labelExportConfiguration })
+          cy.get(`[data-testid="${labelExportConfiguration}"]`)
             .as('exportbutton')
             .should('be.visible');
           cy.matchImageSnapshot();
@@ -425,11 +418,9 @@ export default (): void =>
           initialize();
           openSubMenu('Pollers');
 
-          cy.findByTestId('poller-menu')
-            .findAllByRole('listitem')
-            .last()
-            .findByRole('button', { name: labelExportConfiguration })
-            .as('exportbutton');
+          cy.get(`[data-testid="${labelExportConfiguration}"]`).as(
+            'exportbutton'
+          );
 
           cy.get('@exportbutton').click();
 
@@ -458,9 +449,7 @@ export default (): void =>
           initialize();
           openSubMenu('Pollers');
 
-          cy.findByTestId('poller-menu')
-            .findAllByRole('listitem')
-            .last()
+          cy.get(`[data-testid="${labelExportConfiguration}"]`)
             .findByRole('button', { name: labelExportConfiguration })
             .as('exportbutton');
 

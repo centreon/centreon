@@ -67,6 +67,7 @@ export const PollerSubMenu = ({
           return (
             <ListItem
               className={cx(classes.listItem, classes.pollerDetailRow)}
+              data-testid="pollerIssues"
               key={key}
             >
               <Typography className={classes.pollerDetailTitle} variant="body2">
