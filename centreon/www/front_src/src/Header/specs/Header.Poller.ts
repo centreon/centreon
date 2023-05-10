@@ -18,7 +18,9 @@ import {
   labelCancel,
   labelExportAndReload,
   labelExportingAndReloadingTheConfiguration,
-  labelConfigurationExportedAndReloaded
+  labelConfigurationExportedAndReloaded,
+  labelInstallCommand,
+  labelSuccessfulCopyPollerCommand
 } from '../Poller/translatedLabels';
 import { pollerConfigurationPageNumber } from '../Poller/getPollerPropsAdapter';
 import useNavigation from '../../Navigation/useNavigation';
@@ -487,6 +489,30 @@ export default (): void =>
 
           cy.get('@exportDialog').should('not.exist');
           submenuShouldBeClosed('Pollers');
+        });
+      });
+
+      describe('install command', () => {
+        it('displays the command installation of pollers when the menu is opened', () => {
+          initialize();
+          getElements();
+          openSubMenu('Pollers');
+          cy.findByTestId('poller-menu');
+          cy.contains(labelInstallCommand);
+          cy.get('[data-testid="clipboardIcon"]');
+
+          cy.matchImageSnapshot();
+        });
+
+        it('displays the successful message when the installation command is clicked', () => {
+          initialize();
+          getElements();
+          openSubMenu('Pollers');
+          cy.findByTestId('poller-menu');
+          cy.contains(labelInstallCommand).click();
+          cy.contains(labelSuccessfulCopyPollerCommand);
+
+          cy.matchImageSnapshot();
         });
       });
     });

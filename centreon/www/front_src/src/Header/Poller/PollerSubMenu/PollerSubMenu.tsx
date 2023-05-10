@@ -100,7 +100,9 @@ export const PollerSubMenu = ({
           <ExportConfiguration closeSubMenu={closeSubMenu} />
         </ListItem>
       )}
-      <InstallCommand />
+      <ListItem className={classes.listItem}>
+        <InstallCommand />
+      </ListItem>
     </List>
   );
 };

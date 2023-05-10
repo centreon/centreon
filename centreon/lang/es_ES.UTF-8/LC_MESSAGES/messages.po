@@ -15795,3 +15795,9 @@ msgstr ""
 
 #  msgid "Host template #%d is locked (edition and deletion not allowed)"
 #  msgstr ""
+
+msgid "Poller installation command could not be copied"
+msgstr "No se pudo copiar el comando de instalación del colector"
+
+msgid "Poller installation command copied to the clipboard"
+msgstr "Comando de instalación del colector copiado al portapapeles"

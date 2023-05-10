@@ -182,11 +182,19 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): void => {
     'generateConfigAndReload'
   );
 
+  cy.interceptRequest(
+    Method.GET,
+    'api/latest/configuration/monitoring-servers/install-poller-command',
+    (_, res, ctx) =>
+      res(ctx.json({ command: 'yum install pcs corosync-qnetd' })),
+    'commandInstallation'
+  );
+
   cy.clock(new Date(2022, 3, 28, 16, 20, 0), ['Date']);
 
   cy.mount({
     Component: (
-      <SnackbarProvider maxSnackbars={2}>
+      <SnackbarProvider maxSnackbars={3}>
         <TestQueryProvider>
           <Router>
             <Header />

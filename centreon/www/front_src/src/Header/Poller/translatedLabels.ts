@@ -30,6 +30,6 @@ export const labelAllPollers = 'All pollers:';
 export const labelPollers = 'Pollers';
 export const labelInstallCommand = 'Install command';
 export const labelSuccessfulCopyPollerCommand =
-  'Poller installation command has been copied';
+  'Poller installation command copied to the clipboard';
 export const labelFailureCopyPollerCommand =
-  'Poller installation command has not been copied';
+  'Poller installation command could not be copied';

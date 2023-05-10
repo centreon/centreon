@@ -1,18 +1,16 @@
-import { RefObject, useRef } from 'react';
-
 import { useTranslation } from 'react-i18next';
 
-import { ListItemButton, ListItemText } from '@mui/material';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
+import { ListItemButton, ListItemText, Typography } from '@mui/material';
 
-import { useFetchQuery, useSnackbar } from '@centreon/ui';
+import { useFetchQuery, useCopyToClipboard } from '@centreon/ui';
 
-import {
-  labelInstallCommand,
-  labelSuccessfulCopyPollerCommand,
-  labelFailureCopyPollerCommand
-} from '../../translatedLabels';
 import { installCommandEndpoint } from '../../../api/endpoints';
+import {
+  labelFailureCopyPollerCommand,
+  labelInstallCommand,
+  labelSuccessfulCopyPollerCommand
+} from '../../translatedLabels';
 
 import { useStyles } from './InstallCommand.styles';
 import { installCommandDecoder } from './decoder';
@@ -20,7 +18,10 @@ import { installCommandDecoder } from './decoder';
 const InstallCommand = (): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const { showSuccessMessage, showErrorMessage } = useSnackbar();
+  const successMessage = t(labelSuccessfulCopyPollerCommand);
+  const errorMessage = t(labelFailureCopyPollerCommand);
+
+  const { copy } = useCopyToClipboard({ errorMessage, successMessage });
 
   const { data, error } = useFetchQuery({
     decoder: installCommandDecoder,
@@ -28,41 +29,29 @@ const InstallCommand = (): JSX.Element | null => {
     getQueryKey: () => ['installCommandPollers']
   });
 
-  const installCommandRef = useRef<HTMLTextAreaElement>();
-
-  const onCopy = (): void => {
-    if (!installCommandRef || !installCommandRef?.current) {
-      return;
-    }
-
-    const value = installCommandRef.current?.value;
-    navigator.clipboard.writeText(value).then(
-      () => {
-        showSuccessMessage(t(labelSuccessfulCopyPollerCommand));
-      },
-      () => {
-        showErrorMessage(t(labelFailureCopyPollerCommand));
-      }
-    );
-  };
-
   if (!data || error) {
     return null;
   }
+  const copyCommandInstall = (): Promise<void> => {
+    return copy(data.command);
+  };
 
   return (
-    <>
-      <ListItemButton onClick={onCopy}>
-        <FileCopyIcon component="div" fontSize="small" />
-        <ListItemText>{t(labelInstallCommand)}</ListItemText>
-      </ListItemButton>
-      <textarea
-        readOnly
-        className={classes.hidden}
-        ref={installCommandRef as RefObject<HTMLTextAreaElement>}
-        value={data.command}
+    <ListItemButton
+      disableGutters
+      className={classes.button}
+      data-testid="clipboard"
+      onClick={copyCommandInstall}
+    >
+      <FileCopyIcon data-testid="clipboardIcon" fontSize="small" />
+      <ListItemText
+        primary={
+          <Typography className={classes.text} variant="body2">
+            {t(labelInstallCommand)}
+          </Typography>
+        }
       />
-    </>
+    </ListItemButton>
   );
 };
 

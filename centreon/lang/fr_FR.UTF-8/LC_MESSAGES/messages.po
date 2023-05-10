@@ -17648,3 +17648,9 @@ msgstr "Error lors de la récupération d'un modèle d'hôtes"
 
 msgid "Host template #%d is locked (edition and deletion not allowed)"
 msgstr "Le modèle d'hôte #%d est verrouillé (édition et suppression interdites)"
+
+msgid "Poller installation command could not be copied"
+msgstr "La commande d'installation du poller n'a pas pu être copiée"
+
+msgid "Poller installation command copied to the clipboard"
+msgstr "Commande d'installation du poller copiée dans le presse-papiers"
