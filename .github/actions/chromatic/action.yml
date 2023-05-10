@@ -34,7 +34,7 @@ runs:
       - name: Publish to Chromatic
         uses: chromaui/action@v1
         with:
-          projectToken: ${{ input.project_token }}
+          projectToken: ${{ inputs.project_token }}
           onlyChanged: true
           workingDir: ${{ inputs.frontend_directory }}
           github: ${{ inputs.pat }}
