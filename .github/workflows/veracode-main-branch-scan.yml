@@ -21,8 +21,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: DEBUG - Check location
+        run: |
+        ls -la
+        ls -la .github/actions/veracode-generate-archive
+
       - name: Generate binary file
-        uses: ./.github/actions/veracode-generate-archive/action.yml
+        uses: ./.github/actions/veracode-generate-archive
         with:
           module_directory: ${{ env.MODULE_DIRECTORY }}
           module_name: ${{ env.MODULE_NAME }}
