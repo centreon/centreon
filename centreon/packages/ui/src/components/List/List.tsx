@@ -1,12 +1,12 @@
 import React, { ReactNode } from 'react';
+
 import { useStyles } from './List.styles';
 
-
-type ListProps = {
+interface ListProps {
   children: ReactNode;
-  variant?: 'grid';
   isEmpty?: boolean;
-};
+  variant?: 'grid';
+}
 
 const List: React.FC<ListProps> = ({
   children,
@@ -18,8 +18,8 @@ const List: React.FC<ListProps> = ({
   return (
     <div
       className={classes.list}
-      data-variant={variant}
       data-is-empty={isEmpty}
+      data-variant={variant}
     >
       {children}
     </div>

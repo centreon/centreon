@@ -1,10 +1,14 @@
-import { Formik, FormikHelpers, FormikSharedConfig, FormikValues } from 'formik';
+import {
+  Formik,
+  FormikHelpers,
+  FormikSharedConfig,
+  FormikValues
+} from 'formik';
 import * as Yup from 'yup';
 
 import FormButtons from './FormButtons';
 import Inputs from './Inputs';
 import { Group, InputProps } from './Inputs/models';
-
 import { useStyles } from './Form.styles';
 
 export enum GroupDirection {

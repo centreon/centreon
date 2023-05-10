@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
+
 import { DashboardForm } from './DashboardForm';
 
 const meta: Meta<typeof DashboardForm> = {
@@ -6,25 +7,25 @@ const meta: Meta<typeof DashboardForm> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof DashboardForm>
+type Story = StoryObj<typeof DashboardForm>;
 
 export const Default: Story = {
   args: {
     labels: {
-      title: {
-        create: 'Create dashboard',
-        update: 'Update dashboard'
-      },
-      entity: {
-        name: 'Name',
-        description: 'Description'
-      },
       actions: {
+        cancel: 'Cancel',
         submit: {
           create: 'Create',
           update: 'Update'
-        },
-        cancel: 'Cancel'
+        }
+      },
+      entity: {
+        description: 'Description',
+        name: 'Name'
+      },
+      title: {
+        create: 'Create dashboard',
+        update: 'Update dashboard'
       }
     }
   }
@@ -33,11 +34,11 @@ export const Default: Story = {
 export const AsUpdateVariant: Story = {
   args: {
     ...Default.args,
-    variant: 'update',
     resource: {
+      description: 'Description 1',
       id: '1',
-      name: 'Dashboard 1',
-      description: 'Description 1'
-    }
+      name: 'Dashboard 1'
+    },
+    variant: 'update'
   }
 };

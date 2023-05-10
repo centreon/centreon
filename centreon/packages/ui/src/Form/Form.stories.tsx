@@ -8,7 +8,6 @@ import {
   basicFormValidationSchema,
   CustomButton
 } from './storiesData';
-
 import { Form, GroupDirection } from './Form';
 
 export default { title: 'Form' };

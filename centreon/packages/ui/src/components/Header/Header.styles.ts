@@ -2,28 +2,27 @@ import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
+    alignItems: 'baseline',
+    borderBottom: `1px solid ${theme.palette.primary.main}`,
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-
-    padding: '0 0 12px 0',
-    marginBottom: '20px',
-    borderBottom: `1px solid ${theme.palette.primary.main}`,
 
     h1: {
       font: 'normal normal 600 24px/24px Roboto',
       letterSpacing: '0.18px',
       margin: '0 0 12px 0'
     },
+    justifyContent: 'space-between',
+    marginBottom: '20px',
 
     nav: {
       display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '20px'
-    }
-  }
+      gap: '20px',
+      justifyContent: 'flex-end'
+    },
 
+    padding: '0 0 12px 0'
+  }
 }));
 
 export { useStyles };

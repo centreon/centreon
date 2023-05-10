@@ -1,35 +1,35 @@
 import React from 'react';
-import { useStyles } from './ListEmptyState.styles';
-import { Button } from '../../Button';
+
 import { Add as AddIcon } from '@mui/icons-material';
 
+import { Button } from '../../Button';
 
-type ListEmptyStateProps = {
+import { useStyles } from './ListEmptyState.styles';
+
+interface ListEmptyStateProps {
   labels: {
-    title: string;
     actions: {
       create: string;
-    }
-  }
+    };
+    title: string;
+  };
   onCreate?: () => void;
-};
+}
 
 const ListEmptyState: React.FC<ListEmptyStateProps> = ({
   labels,
   onCreate
 }): JSX.Element => {
-  const {classes} = useStyles();
+  const { classes } = useStyles();
 
   return (
-    <div
-      className={classes.listEmptyState}
-    >
+    <div className={classes.listEmptyState}>
       <h2>{labels.title}</h2>
       <div className={classes.actions}>
         <Button
-          variant="primary"
+          icon={<AddIcon />}
           iconVariant="start"
-          icon={<AddIcon/>}
+          variant="primary"
           onClick={() => onCreate?.()}
         >
           {labels.actions.create}

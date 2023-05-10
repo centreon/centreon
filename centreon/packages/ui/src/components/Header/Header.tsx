@@ -1,17 +1,14 @@
 import React, { ReactNode } from 'react';
+
 import { useStyles } from './Header.styles';
 
-
-type HeaderProps = {
-  title: String;
+interface HeaderProps {
   nav?: ReactNode;
-};
+  title: string;
+}
 
-const Header: React.FC<HeaderProps> = ({
-  title,
-  nav
-}): JSX.Element => {
-  const {classes} = useStyles();
+const Header: React.FC<HeaderProps> = ({ title, nav }): JSX.Element => {
+  const { classes } = useStyles();
 
   return (
     <header className={classes.header}>

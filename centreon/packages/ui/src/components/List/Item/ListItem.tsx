@@ -1,24 +1,26 @@
+import React, { useMemo } from 'react';
+
 import {
   Card as MuiCard,
   CardActionArea as MuiCardActionArea,
   CardActions as MuiCardActions,
   CardContent as MuiCardContent
 } from '@mui/material';
-import React, { useMemo } from 'react';
-import { useStyles } from './ListItem.styles';
-import { IconButton } from '../../Button';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 
+import { IconButton } from '../../Button';
 
-export type ListItemProps = {
-  title: string;
+import { useStyles } from './ListItem.styles';
+
+export interface ListItemProps {
   description: string;
-  hasCardAction?: boolean;
   hasActions?: boolean;
+  hasCardAction?: boolean;
   onClick?: (e: any) => void;
-  onEdit?: (e: any) => void;
   onDelete?: (e: any) => void;
-};
+  onEdit?: (e: any) => void;
+  title: string;
+}
 
 const ListItem: React.FC<ListItemProps> = ({
   title,
@@ -28,22 +30,17 @@ const ListItem: React.FC<ListItemProps> = ({
   onClick,
   onEdit,
   onDelete
-
 }): JSX.Element => {
-  const {classes} = useStyles();
+  const { classes } = useStyles();
 
   const ActionArea = useMemo(
-    () => hasCardAction ? MuiCardActionArea : React.Fragment,
-    [hasCardAction]);
+    () => (hasCardAction ? MuiCardActionArea : React.Fragment),
+    [hasCardAction]
+  );
 
   return (
-    <MuiCard
-      className={classes.listItem}
-      variant="outlined"
-    >
-      <ActionArea
-        onClick={e => onClick?.(e)}
-      >
+    <MuiCard className={classes.listItem} variant="outlined">
+      <ActionArea onClick={(e) => onClick?.(e)}>
         <MuiCardContent>
           <h3>{title}</h3>
           <p>{description}</p>
@@ -52,16 +49,16 @@ const ListItem: React.FC<ListItemProps> = ({
       {hasActions && (
         <MuiCardActions>
           <IconButton
-            icon={<EditIcon/>}
-            variant="primary"
+            icon={<EditIcon />}
             size="small"
-            onClick={e => onEdit?.(e)}
+            variant="primary"
+            onClick={(e) => onEdit?.(e)}
           />
           <IconButton
-            icon={<DeleteIcon/>}
-            variant="ghost"
+            icon={<DeleteIcon />}
             size="small"
-            onClick={e => onDelete?.(e)}
+            variant="ghost"
+            onClick={(e) => onDelete?.(e)}
           />
         </MuiCardActions>
       )}

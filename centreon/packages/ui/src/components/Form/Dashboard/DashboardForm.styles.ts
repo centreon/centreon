@@ -1,29 +1,27 @@
 import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
+  actions: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(2),
+    justifyContent: 'flex-end'
+  },
   dashboardForm: {
     display: 'flex',
     flexDirection: 'column',
 
-    width: '100%',
-    maxWidth: '480px',
-
     h2: {
+      color: theme.palette.primary.main,
       font: 'normal normal 600 24px/24px Roboto',
       letterSpacing: '0.18px',
-      margin: '0 0 12px 0',
 
-      color: theme.palette.primary.main,
+      margin: '0 0 12px 0'
     },
+    maxWidth: '480px',
 
-  },
-  actions: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: theme.spacing(2),
+    width: '100%'
   }
-
 }));
 
 export { useStyles };

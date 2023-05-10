@@ -1,47 +1,49 @@
 import React, { useCallback, useMemo } from 'react';
-import { useStyles } from './DashboardForm.styles';
-import { InputType } from '../../../Form/Inputs/models';
-import { Form, FormProps } from '../../../Form';
+
 import * as Yup from 'yup';
-import { Button } from '../../Button';
 import { useFormikContext } from 'formik';
 
+import { InputType } from '../../../Form/Inputs/models';
+import { Form, FormProps } from '../../../Form';
+import { Button } from '../../Button';
 
-export type DashboardFormProps = {
-  variant?: 'create' | 'update';
+import { useStyles } from './DashboardForm.styles';
+
+export interface DashboardFormProps {
+  isSubmitting?: boolean;
 
   labels: DashboardFormLabels;
 
-  resource?: any; // TODO type
+  onCancel?: () => void; // TODO type
 
   onSubmit?: FormProps<DashboardFormDataShape>['submit'];
-  onCancel?: () => void;
+  resource?: any;
 
-  isSubmitting?: boolean;
+  variant?: 'create' | 'update';
 }
 
-type DashboardFormLabels = {
-  title: {
-    create: string;
-    update: string;
-  },
-  description?: {},
-  entity: {
-    name: string;
-    description: string;
-  },
+interface DashboardFormLabels {
   actions: {
+    cancel: string;
     submit: {
       create: string;
       update: string;
-    },
-    cancel: string;
-  }
+    };
+  };
+  description?: {};
+  entity: {
+    description: string;
+    name: string;
+  };
+  title: {
+    create: string;
+    update: string;
+  };
 }
 
-type DashboardFormDataShape = {
-  name: string;
+interface DashboardFormDataShape {
   description?: string;
+  name: string;
 }
 
 const DashboardForm: React.FC<DashboardFormProps> = ({
@@ -52,65 +54,65 @@ const DashboardForm: React.FC<DashboardFormProps> = ({
   onCancel,
   isSubmitting = false
 }: DashboardFormProps): JSX.Element => {
-  const {classes} = useStyles();
+  const { classes } = useStyles();
 
-  const formProps = useMemo<FormProps<DashboardFormDataShape>>(() => ({
-    initialValues: resource ?? {},
-    inputs: [
-      {
-        fieldName: 'name',
-        label: labels?.entity?.name,
-        type: InputType.Text,
-        required: true,
-        group: 'main'
-      },
-      {
-        fieldName: 'description',
-        label: labels?.entity?.description,
-        type: InputType.Text,
-        text: {
-          multilineRows: 3
+  const formProps = useMemo<FormProps<DashboardFormDataShape>>(
+    () => ({
+      initialValues: resource ?? {},
+      inputs: [
+        {
+          fieldName: 'name',
+          group: 'main',
+          label: labels?.entity?.name,
+          required: true,
+          type: InputType.Text
         },
-        group: 'main'
-      }
-    ],
-    validationSchema: Yup.object().shape({
-      name: Yup.string()
-      .label(labels?.entity?.name)
-      .min(3, p => `${p.label} must be at least ${p.min} characters`)
-      .max(50, p => `${p.label} must be at most ${p.max} characters`)
-      .required(p => `${p.label} is required`),
-      description: Yup.string()
-      .label(labels?.entity?.description)
-      .max(180, p => `${p.label} must be at most ${p.max} characters`)
-      .optional()
+        {
+          fieldName: 'description',
+          group: 'main',
+          label: labels?.entity?.description,
+          text: {
+            multilineRows: 3
+          },
+          type: InputType.Text
+        }
+      ],
+      submit: (values, bag) => onSubmit?.(values, bag),
+      validationSchema: Yup.object().shape({
+        description: Yup.string()
+          .label(labels?.entity?.description)
+          .max(180, (p) => `${p.label} must be at most ${p.max} characters`)
+          .optional(),
+        name: Yup.string()
+          .label(labels?.entity?.name)
+          .min(3, (p) => `${p.label} must be at least ${p.min} characters`)
+          .max(50, (p) => `${p.label} must be at most ${p.max} characters`)
+          .required((p) => `${p.label} is required`)
+      })
     }),
-    submit: (values, bag) => onSubmit?.(values, bag)
-
-  }), [resource, labels, onSubmit]);
-
+    [resource, labels, onSubmit]
+  );
 
   const FormActions = useCallback((): JSX.Element => {
-    const {isSubmitting, dirty, isValid, submitForm} =
+    const { isSubmitting, dirty, isValid, submitForm } =
       useFormikContext<DashboardFormDataShape>();
-
 
     return (
       <div className={classes.actions}>
         <Button
-          variant="secondary"
-          size="small"
-          onClick={() => onCancel?.()}
           disabled={isSubmitting}
+          size="small"
+          variant="secondary"
+          onClick={() => onCancel?.()}
         >
           {labels.actions?.cancel}
         </Button>
         <Button
-          variant="primary"
+          disabled={isSubmitting || !dirty || !isValid}
           size="small"
           type="submit"
-          disabled={isSubmitting || !dirty || !isValid}
-          onClick={e => submitForm()}
+          variant="primary"
+          onClick={(e) => submitForm()}
         >
           {labels.actions?.submit[variant]}
         </Button>
@@ -118,14 +120,10 @@ const DashboardForm: React.FC<DashboardFormProps> = ({
     );
   }, [classes, onCancel, labels, variant]);
 
-
   return (
     <div className={classes.dashboardForm}>
       <h2>{labels?.title[variant]}</h2>
-      <Form<DashboardFormDataShape>
-        {...formProps}
-        Buttons={FormActions}
-      />
+      <Form<DashboardFormDataShape> {...formProps} Buttons={FormActions} />
     </div>
   );
 };

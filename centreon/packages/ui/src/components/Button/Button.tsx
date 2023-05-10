@@ -1,24 +1,29 @@
 import React, { ReactNode } from 'react';
-import { useStyles } from './Button.styles';
+
 import { Button as MuiButton } from '@mui/material';
 
+import { useStyles } from './Button.styles';
 
-const muiVariantMap: Record<Required<ButtonProps>['variant'], 'text' | 'outlined' | 'contained'> = {
+const muiVariantMap: Record<
+  Required<ButtonProps>['variant'],
+  'text' | 'outlined' | 'contained'
+> = {
+  ghost: 'text',
   primary: 'contained',
-  secondary: 'outlined',
-  ghost: 'text'
+  secondary: 'outlined'
 };
 
-type ButtonProps = {
+interface ButtonProps {
   children: ReactNode;
-  variant?: 'primary' | 'secondary' | 'ghost';
-  size?: 'small' | 'medium' | 'large';
-  iconVariant?: 'none' | 'start' | 'end';
-  icon?: string | ReactNode; // TODO IconProps['name']
+  // TODO IconProps['name']
   disabled?: boolean;
-  type?: 'button' | 'submit' | 'reset';
+  icon?: string | ReactNode;
+  iconVariant?: 'none' | 'start' | 'end';
   onClick?: (e) => void;
-};
+  size?: 'small' | 'medium' | 'large';
+  type?: 'button' | 'submit' | 'reset';
+  variant?: 'primary' | 'secondary' | 'ghost';
+}
 
 const Button: React.FC<ButtonProps> = ({
   children,
@@ -30,23 +35,23 @@ const Button: React.FC<ButtonProps> = ({
   disabled = false,
   onClick
 }): JSX.Element => {
-  const {classes} = useStyles();
+  const { classes } = useStyles();
 
   return (
     <MuiButton
       className={classes.button}
-      data-variant={variant}
-      data-size={size}
       data-icon-variant={iconVariant}
-      type={type}
+      data-size={size}
+      data-variant={variant}
       disabled={disabled}
+      size={size}
+      type={type}
+      variant={muiVariantMap[variant]}
       onClick={e => onClick?.(e)}
       // Mui overrides
       color="primary"
-      variant={muiVariantMap[variant]}
-      size={size}
-      {...(iconVariant === 'start' && {startIcon: icon})}
-      {...(iconVariant === 'end' && {endIcon: icon})}
+      {...(iconVariant === 'start' && { startIcon: icon })}
+      {...(iconVariant === 'end' && { endIcon: icon })}
     >
       {children}
     </MuiButton>
