@@ -7,7 +7,7 @@ import { Button } from '../../Button';
 import { useFormikContext } from 'formik';
 
 
-type DashboardFormProps = {
+export type DashboardFormProps = {
   variant?: 'create' | 'update';
 
   labels: DashboardFormLabels;

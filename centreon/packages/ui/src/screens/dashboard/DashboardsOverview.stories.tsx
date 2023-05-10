@@ -3,6 +3,11 @@ import { Header } from '../../components/Header';
 import { Button } from '../../components/Button';
 import { List } from '../../components/List';
 import { Add as AddIcon } from '@mui/icons-material';
+import { atom, useAtom } from 'jotai';
+import { DashboardForm, DashboardFormProps } from '../../components/Form/Dashboard';
+import { Default as DashboardFormDefaultStory } from '../../components/Form/Dashboard/DashboardForm.stories';
+import { Dialog } from '../../components/Dialog';
+import { useEffect } from 'react';
 
 
 const meta: Meta = {
@@ -29,8 +34,37 @@ const meta: Meta = {
 export default meta;
 
 
-export const Default = {
-  render: (args) => (
+const dialogStateAtom = atom<{ open: boolean, variant: DashboardFormProps['variant'] }>({
+  open: false,
+  variant: 'create'
+});
+
+const dataDashboardsAtom = atom<Array<{id: number, name: string, description: string}>>([]);
+
+const DefaultView = (args) => {
+
+  const [dialogState, setDialogState] = useAtom(dialogStateAtom);
+  const [dataDashboards, setDataDashboards] = useAtom(dataDashboardsAtom);
+
+  useEffect(() => {
+    setDataDashboards(args.data.dashboards);
+  }, [args.data.dashboards]);
+
+  const createDashboard = (data) => {
+    setDataDashboards((prev) => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+    setDialogState({open: false, variant: 'create'});
+  }
+
+  const updateDashboard = (data) => {
+    setDataDashboards((prev) => prev.map((dashboard) => dashboard.id === data.id ? data : dashboard));
+    setDialogState({open: false, variant: 'update'});
+  }
+
+  const deleteDashboard = (id) => {
+    setDataDashboards((prev) => prev.filter((dashboard) => dashboard.id !== id));
+  }
+
+  return (
     <div>
       <Header
         title={args.title}
@@ -42,13 +76,14 @@ export const Default = {
               variant="primary"
               iconVariant="start"
               icon={<AddIcon/>}
+              onClick={() => setDialogState({open: true, variant: 'create'})}
             >
               {args.actions.create.label}
             </Button>
           </div>
           <div className="content" style={{paddingBottom: '20px'}}>  {/* TODO DashboardsList.Content */}
             <List>
-              {args.data.dashboards.map((dashboard) => (
+              {dataDashboards.map((dashboard) => (
                 <List.Item
                   key={dashboard.id}
                   title={dashboard.name}
@@ -57,8 +92,25 @@ export const Default = {
               ))}
             </List>
           </div>
+          <Dialog
+            open={dialogState.open}
+            onClose={() => setDialogState({open: false, variant: 'create'})}
+          >
+            <DashboardForm
+              variant={dialogState.variant}
+              labels={DashboardFormDefaultStory!.args!.labels!}
+              onSubmit={(values) => {
+                dialogState.variant === 'create' ? createDashboard(values) : updateDashboard(values);
+              }}
+              onCancel={() => setDialogState({open: false, variant: 'create'})}
+            />
+          </Dialog>
         </div>
       </div>
     </div>
-  )
+  );
+};
+
+export const Default = {
+  render: DefaultView
 };
