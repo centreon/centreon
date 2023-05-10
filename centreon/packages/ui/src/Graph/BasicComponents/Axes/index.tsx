@@ -1,11 +1,12 @@
 import { Axis } from '@visx/visx';
 import { ScaleLinear } from 'd3-scale';
+import { isNil } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
-import { getUnits } from '../../timeSeries';
 import { getXAxisTickFormat } from '../../helpers';
 import { GraphInterval } from '../../models';
+import { getUnits } from '../../timeSeries';
 
 import UnitLabel from './UnitLabel';
 import { Data } from './models';
@@ -35,7 +36,7 @@ const Axes = ({
 
   const { axisLeft, axisRight } = useAxisY({ data, graphHeight: height });
 
-  const [firstUnit, secondUnit] = getUnits(lines);
+  const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
 
   const xTickCount = Math.ceil(width / 82);
 
@@ -44,6 +45,9 @@ const Axes = ({
 
   const formatAxisTick = (tick): string =>
     format({ date: new Date(tick), formatString: tickFormat });
+
+  const hasMoreThanTwoUnits = !isNil(thirdUnit);
+  const displayAxisRight = !isNil(secondUnit) && !hasMoreThanTwoUnits;
 
   return (
     <g>
@@ -65,7 +69,7 @@ const Axes = ({
         tickLength={2}
       />
 
-      {axisRight.display && (
+      {displayAxisRight && (
         <Axis.AxisRight
           left={width}
           numTicks={axisRight.numTicks}

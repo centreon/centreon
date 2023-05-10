@@ -6,7 +6,7 @@ const commonTickLabelProps = {
   textAnchor: 'middle'
 };
 
-const margin = { bottom: 30, left: 45, right: 45, top: 30 };
+const margin = { bottom: 30, left: 55, right: 55, top: 30 };
 
 interface FillColor {
   areaColor: string;
@@ -22,6 +22,7 @@ const getFillColor = ({
 const dateFormat = 'L';
 const timeFormat = 'LT';
 const dateTimeFormat = `${dateFormat} ${timeFormat}`;
+const maxLinesDisplayedLegend = 11;
 
 export {
   commonTickLabelProps,
@@ -29,5 +30,6 @@ export {
   getFillColor,
   dateFormat,
   timeFormat,
-  dateTimeFormat
+  dateTimeFormat,
+  maxLinesDisplayedLegend
 };

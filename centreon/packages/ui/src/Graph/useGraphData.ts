@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { find, propEq } from 'ramda';
+import { useAtom } from 'jotai';
+import { prop, sortBy } from 'ramda';
 
+import { linesGraphAtom } from './graphAtoms';
 import { adjustGraphData } from './helpers';
 import { Data, GraphData } from './models';
 
@@ -17,6 +19,7 @@ interface Props {
 
 const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
   const [adjustedData, setAdjustedData] = useState<Data>();
+  const [linesGraph, setLinesGraph] = useAtom(linesGraphAtom);
 
   const prepareData = (dataToAdjust: GraphData): void => {
     const { timeSeries } = adjustGraphData(dataToAdjust);
@@ -24,30 +27,14 @@ const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
     const { title } = dataToAdjust.global;
 
     const newLineData = adjustGraphData(dataToAdjust).lines;
-
-    if (dataToAdjust?.lines) {
-      const newLines = newLineData.map((line) => ({
-        ...line,
-        display:
-          find(propEq('name', line.name), dataToAdjust.lines)?.display ?? true
-      }));
-
-      setAdjustedData({
-        baseAxis,
-        lines: newLines,
-        timeSeries,
-        title
-      });
-
-      return;
-    }
+    const sortedLines = sortBy(prop('name'), newLineData);
+    setLinesGraph(sortedLines);
 
     setAdjustedData({
       baseAxis,
-      lines: newLineData,
       timeSeries,
       title
-    });
+    } as Data);
   };
 
   useEffect(() => {

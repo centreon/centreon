@@ -1,13 +1,13 @@
 import { ReactNode } from 'react';
 
-import { map, nth, pipe, path, all, not, isNil, prop } from 'ramda';
-import { Shape, Curve } from '@visx/visx';
+import { Curve, Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
+import { all, isNil, map, not, nth, path, pipe, prop } from 'ramda';
 
-import { Line, TimeValue } from '../../../timeSeries/models';
-import { getTime } from '../../../timeSeries';
-import { getFillColor } from '../../../common';
 import { StackedAnchorPoint } from '../../../IntercatifsComponents/AnchorPoint/models';
+import { getFillColor } from '../../../common';
+import { getTime } from '../../../timeSeries';
+import { Line, TimeValue } from '../../../timeSeries/models';
 
 interface Props {
   lines: Array<Line>;
@@ -30,7 +30,7 @@ const StackLines = ({
       data={timeSeries}
       defined={(d): boolean => {
         return pipe(
-          map(prop('metric')) as (lines) => Array<string>,
+          map(prop('metric')) as (displayedLines) => Array<string>,
           all((metric) => pipe(path(['data', metric]), isNil, not)(d))
         )(lines);
       }}

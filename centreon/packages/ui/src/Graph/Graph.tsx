@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react';
 
 import { Group } from '@visx/visx';
+import { propEq, reject } from 'ramda';
 
 import { ClickAwayListener } from '@mui/material';
 
@@ -24,9 +25,9 @@ import StackedAnchorPoint from './IntercatifsComponents/AnchorPoint/StackedAncho
 import useAnchorPoint from './IntercatifsComponents/AnchorPoint/useAnchorPoint';
 import GraphTooltip from './IntercatifsComponents/Tooltip';
 import useGraphTooltip from './IntercatifsComponents/Tooltip/useGraphTooltip';
+import Legend from './Legend';
 import { Data, GlobalAreaLines, GraphInterval, GraphProps } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
-import Legend from './Legend';
 
 interface Props extends GraphProps {
   graphData: Data;
@@ -56,7 +57,8 @@ const Graph = ({
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
 
-  const { title, timeSeries, lines, baseAxis } = graphData;
+  const { title, timeSeries, baseAxis, lines } = graphData;
+  const displayedLines = reject(propEq('display', false), lines);
 
   const xScale = useMemo(
     () =>
@@ -70,21 +72,21 @@ const Graph = ({
   const leftScale = useMemo(
     () =>
       getLeftScale({
-        dataLines: lines,
+        dataLines: displayedLines,
         dataTimeSeries: timeSeries,
         valueGraphHeight: graphHeight
       }),
-    [lines, timeSeries, graphHeight]
+    [displayedLines, timeSeries, graphHeight]
   );
 
   const rightScale = useMemo(
     () =>
       getRightScale({
-        dataLines: lines,
+        dataLines: displayedLines,
         dataTimeSeries: timeSeries,
         valueGraphHeight: graphHeight
       }),
-    [timeSeries, lines, graphHeight]
+    [timeSeries, displayedLines, graphHeight]
   );
 
   const { timeTick, positionX, positionY } = useAnchorPoint({
@@ -94,11 +96,11 @@ const Graph = ({
   });
 
   const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
-    lines,
+    lines: displayedLines,
     timeSeries
   });
 
-  const { regularLines } = useRegularLines({ lines });
+  const { regularLines } = useRegularLines({ lines: displayedLines });
 
   const graphTooltipData = useGraphTooltip({
     graphWidth,
@@ -214,7 +216,7 @@ const Graph = ({
               <Axes
                 data={{
                   baseAxis,
-                  lines,
+                  lines: displayedLines,
                   timeSeries,
                   ...axis
                 }}

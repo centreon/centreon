@@ -1,32 +1,51 @@
-import { Box, useTheme, alpha } from '@mui/material';
+import { slice } from 'ramda';
 
+import { Box, alpha, useTheme } from '@mui/material';
+
+import { maxLinesDisplayedLegend } from '../common';
 import { formatMetricValue } from '../timeSeries';
-import { labelMin, labelMax, labelAvg } from '../translatedLabels';
-import { TimeValue, Line } from '../timeSeries/models';
+import { Line, TimeValue } from '../timeSeries/models';
+import { labelAvg, labelMax, labelMin } from '../translatedLabels';
 
-import { GetMetricValueProps } from './models';
-import LegendHeader from './LegendHeader';
-import LegendContent from './LegendContent';
-import LegendMarker from './Marker';
 import InteractiveValue from './InteractiveValue';
 import { useStyles } from './Legend.styles';
+import LegendContent from './LegendContent';
+import LegendHeader from './LegendHeader';
+import LegendMarker from './Marker';
+import { GetMetricValueProps } from './models';
 import useInteractiveValues from './useInteractiveValues';
+import useLegend from './useLegend';
 
 interface Props {
   base: number;
+  limitLegendRows?: boolean;
   lines: Array<Line>;
   timeSeries: Array<TimeValue>;
+  toggable?: boolean;
 }
 
-const Legend = ({ lines, timeSeries, base }: Props): JSX.Element => {
-  const { classes, cx } = useStyles({});
+const Legend = ({
+  lines,
+  timeSeries,
+  base,
+  toggable = true,
+  limitLegendRows = true
+}: Props): JSX.Element => {
+  const { classes, cx } = useStyles({ limitLegendRows });
   const theme = useTheme();
+
+  const { selectMetricLine, clearHighlight, highlightLine, toggleMetricLine } =
+    useLegend({ lines });
 
   const { getFormattedValue } = useInteractiveValues({
     base,
     lines,
     timeSeries
   });
+
+  const displayedLines = limitLegendRows
+    ? slice(0, maxLinesDisplayedLegend, lines)
+    : lines;
 
   const getMetricValue = ({ value, unit }: GetMetricValueProps): string =>
     formatMetricValue({
@@ -35,11 +54,25 @@ const Legend = ({ lines, timeSeries, base }: Props): JSX.Element => {
       value
     }) || 'N/A';
 
+  const selectMetric = ({ event, metric }): void => {
+    if (!toggable) {
+      return;
+    }
+
+    if (event.ctrlKey || event.metaKey) {
+      toggleMetricLine(metric);
+
+      return;
+    }
+
+    selectMetricLine(metric);
+  };
+
   return (
     <div className={classes.legend}>
       <div className={classes.items}>
-        {lines.map((line) => {
-          const { color, name, display, metric: metricLine, highlight } = line;
+        {displayedLines.map((line) => {
+          const { color, name, display, metric, highlight } = line;
 
           const markerColor = display
             ? color
@@ -63,7 +96,17 @@ const Legend = ({ lines, timeSeries, base }: Props): JSX.Element => {
           ];
 
           return (
-            <Box className={cx(classes.item)} key={name}>
+            <Box
+              className={cx(
+                classes.item,
+                highlight ? classes.highlight : classes.normal,
+                toggable && classes.toggable
+              )}
+              key={name}
+              onClick={(event): void => selectMetric({ event, metric })}
+              onMouseEnter={(): void => highlightLine(metric)}
+              onMouseLeave={(): void => clearHighlight()}
+            >
               <LegendMarker color={markerColor} disabled={!display} />
               <div className={classes.legendData}>
                 <LegendHeader line={line} />

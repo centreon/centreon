@@ -4,19 +4,10 @@ import { margin } from '../common';
 
 interface MakeStylesProps {
   limitLegendRows?: boolean;
-  panelWidth?: number;
 }
 
 export const useStyles = makeStyles<MakeStylesProps>()(
-  (theme, { panelWidth, limitLegendRows }) => ({
-    caption: {
-      lineHeight: 1.2,
-      marginRight: theme.spacing(0.5),
-      maxWidth: panelWidth && 0.85 * panelWidth,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    },
+  (theme, { limitLegendRows }) => ({
     highlight: {
       color: theme.typography.body1.color
     },
@@ -36,10 +27,10 @@ export const useStyles = makeStyles<MakeStylesProps>()(
     },
     legend: {
       marginLeft: margin.left,
+      marginRight: margin.right,
       maxHeight: theme.spacing(24),
       overflowX: 'hidden',
-      overflowY: 'auto',
-      width: '100%'
+      overflowY: 'auto'
     },
     legendData: {
       display: 'flex',

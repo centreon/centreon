@@ -37,7 +37,7 @@ const RegularLine = ({
   transparency,
   graphHeight
 }: Props): JSX.Element => {
-  const isHighlighted = highlight ? 2 : 0.8;
+  const isHighlighted = highlight ? 2 : 1;
 
   const props = {
     curve: Curve.curveLinear,
