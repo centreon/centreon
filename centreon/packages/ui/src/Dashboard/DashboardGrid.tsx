@@ -7,6 +7,8 @@ import { useTheme } from '@mui/material';
 
 import useMemoComponent from '../utils/useMemoComponent';
 
+import { maxColumns, rowHeight } from './utils';
+
 interface Props {
   columns: number;
   height: number;
@@ -19,13 +21,24 @@ const DashboardGrid: FC<Props> = ({ width, height, columns }) => {
   const xScale = useMemo(
     () =>
       scaleLinear({
-        domain: [0, 12],
+        domain: [0, maxColumns],
         range: [0, width]
       }),
     [width]
   );
 
-  const tick = 12 / columns;
+  const numberOfRows = Math.floor(height / (rowHeight + 16));
+
+  const yScale = useMemo(
+    () =>
+      scaleLinear({
+        domain: [0, numberOfRows],
+        range: [0, height]
+      }),
+    [height]
+  );
+
+  const tick = maxColumns / columns;
 
   const xTickValues = Array(columns)
     .fill(0)
@@ -39,6 +52,13 @@ const DashboardGrid: FC<Props> = ({ width, height, columns }) => {
           scale={xScale}
           stroke={theme.palette.divider}
           tickValues={xTickValues}
+          width={width}
+        />
+        <Grid.GridRows
+          height={height}
+          scale={yScale}
+          stroke={theme.palette.divider}
+          top={-10}
           width={width}
         />
       </svg>

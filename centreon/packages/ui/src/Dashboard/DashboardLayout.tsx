@@ -7,7 +7,7 @@ import 'react-grid-layout/css/styles.css';
 import { Responsive as ResponsiveHeight, useMemoComponent } from '..';
 
 import { useDashboardLayoutStyles } from './Dashboard.styles';
-import { getColumnsFromScreenSize, getLayout } from './utils';
+import { getColumnsFromScreenSize, getLayout, rowHeight } from './utils';
 import DashboardGrid from './DashboardGrid';
 
 const ReactGridLayout = WidthProvider(GridLayout);
@@ -60,7 +60,7 @@ const DashboardLayout = <T extends Layout>({
                 layout={getLayout(layout)}
                 margin={[20, 20]}
                 resizeHandles={['s', 'e', 'se']}
-                rowHeight={64}
+                rowHeight={rowHeight}
                 width={width}
                 onLayoutChange={changeLayout}
               >
