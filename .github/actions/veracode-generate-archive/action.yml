@@ -44,7 +44,7 @@ runs:
 
     - name: Create zip file
 #      if: "${{ inputs.compile_mvn != 'yes' }}"
-      run: zip -r "${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}" *
+      run: zip -rq "${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}" *
       shell: bash
 
     - name: DEBUG - Check location
