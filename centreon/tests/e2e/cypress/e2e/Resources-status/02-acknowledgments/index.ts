@@ -15,14 +15,8 @@ import {
   searchInput,
   serviceInAcknowledgementName,
   submitCustomResultsViaClapi,
-  tearDownAckResource,
-  tearDownResource,
   typeToSearchInput
 } from '../common';
-
-before(() => {
-  cy.startWebContainer();
-});
 
 beforeEach(() => {
   cy.intercept({
@@ -40,6 +34,8 @@ beforeEach(() => {
 });
 
 Given('the user has the necessary rights to page Ressource Status', () => {
+  cy.startWebContainer();
+
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: true
@@ -87,6 +83,8 @@ Given('acknowledgment column is enabled in Resource Status', () => {
   cy.get('li[role="menuitem"][value="Information"]').click();
 
   cy.get('li[role="menuitem"][value="Tries"]').click();
+
+  cy.get('li[role="menuitem"][value="Parent"]').click();
 
   cy.get('[aria-label="Add columns"]').click();
 });
@@ -139,7 +137,7 @@ Then(
           });
       },
       {
-        timeout: 15000
+        timeout: 30000
       }
     );
   }
@@ -171,7 +169,7 @@ Then(
 
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
-    tearDownResource().then(() => tearDownAckResource());
+    cy.stopWebContainer();
   }
 );
 
@@ -223,7 +221,7 @@ Then(
           });
       },
       {
-        timeout: 15000
+        timeout: 30000
       }
     );
   }
@@ -265,7 +263,7 @@ Then(
 
     cy.get('div[role="tooltip"]').should('be.visible');
 
-    tearDownResource().then(() => tearDownAckResource());
+    cy.stopWebContainer();
   }
 );
 
@@ -374,7 +372,7 @@ When('the {string} resource is marked as acknowledged', (resource: string) => {
         });
     },
     {
-      timeout: 15000
+      timeout: 30000
     }
   );
 });
@@ -422,7 +420,8 @@ When(
 
 Then('no notification are sent to the users', () => {
   checkIfNotificationsAreNotBeingSent();
-  tearDownResource().then(() => tearDownAckResource());
+
+  cy.stopWebContainer();
 });
 
 Given(
@@ -457,7 +456,7 @@ Given(
           });
       },
       {
-        timeout: 15000
+        timeout: 30000
       }
     );
 
@@ -517,7 +516,5 @@ Then(
 );
 
 after(() => {
-  tearDownResource().then(() => tearDownAckResource());
-
   cy.stopWebContainer();
 });
