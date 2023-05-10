@@ -7,9 +7,8 @@
     "eslint:fix": "pnpm eslint --fix",
     "storybook": "storybook dev -p 9001 -c .storybook",
     "build:storybook": "storybook build -c .storybook -o .out",
-    "test": "node test/testRunner.js",
-    "test:storyshot": "pnpm test test/storyshots.test.js",
-    "test:ci": "node test/testRunner.js --silent --reporter=jest-junit",
+    "test": "jest",
+    "test:ci": "jest --silent --reporter=jest-junit",
     "cypress:ui": "cypress open --component --browser=chrome",
     "cypress:cli:updateSnapshot": "pnpm cypress:cli --env updateSnapshots=true",
     "cypress:cli": "cypress run --component --browser=chrome"
@@ -23,7 +22,9 @@
     "centreon",
     "react"
   ],
-  "author": "centreon@centreon.com",
+  "author": {
+    "name": "centreon@centreon.com"
+  },
   "license": "GPL-2.0",
   "bugs": {
     "url": "https://github.com/centreon/centreon/issues"
@@ -44,8 +45,6 @@
     "@storybook/addon-docs": "^7.0.9",
     "@storybook/addon-essentials": "^7.0.9",
     "@storybook/addon-interactions": "^7.0.9",
-    "@storybook/addon-storyshots": "^7.0.9",
-    "@storybook/addon-storyshots-puppeteer": "^7.0.9",
     "@storybook/addon-styling": "^1.0.6",
     "@storybook/builder-vite": "^7.0.9",
     "@storybook/manager-api": "^7.0.9",
@@ -64,8 +63,8 @@
     "axios-mock-adapter": "^1.21.4",
     "cypress": "^12.8.0",
     "identity-obj-proxy": "^3.0.0",
-    "mochawesome": "^7.1.3",
     "jest-transform-stub": "^2.0.0",
+    "mochawesome": "^7.1.3",
     "puppeteer": "^13.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -116,5 +115,6 @@
   "jest-junit": {
     "suiteName": "jest tests",
     "output": "./junit.xml"
-  }
+  },
+  "_id": "@centreon/ui@23.10.2"
 }

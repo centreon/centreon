@@ -9,12 +9,11 @@ const config: StorybookConfig = {
       name: "@storybook/addon-docs",
       options: {
         configureJSX: true,
-        // FIXME jest issue : Cannot use import statement outside a module
-        // mdxPluginOptions: {
-        //   mdxCompileOptions: {
-        //     remarkPlugins: [remarkGfm],
-        //   },
-        // },
+        mdxPluginOptions: {
+          mdxCompileOptions: {
+            remarkPlugins: [remarkGfm],
+          },
+        },
       },
     },
     "@storybook/addon-styling",

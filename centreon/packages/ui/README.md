@@ -20,31 +20,6 @@ To start Storybook server, run:
 
 `pnpm storybook`
 
-# Tests
-
-We have two kind of tests:
- - Unit tests provided by Jest
- - End to End tests provided by Storyshot using Jest. Storyshot is an addon of Storybook that compares graphically our stories.
-
-To run Unit tests:
-
-`pnpm test`
-
-or
-
-`pnpm t`
-
-To run End to End tests:
-  - Build Storybook : `pnpm build:storybook`
-  - Run all Storyshot tests : `pnpm test:storyshot`
-
-You can also test one or more Components using the following syntax:
-
-```bash
-pnpm test:storyshot -- --story "Title" # Run Storyshot tests about Title component
-pnpm test:storyshot -- --story "Breadcrumb|Title" # Run Storyshot tests about Title and Breadcrumb components
-```
-
 
 # Add stories
 
@@ -80,40 +55,22 @@ pnpm test:storyshot -- --story "Breadcrumb|Title" # Run Storyshot tests about Ti
     basic.args = { propA: 'test', propB: 0 };
   ```
 
-# Run tests
+# Tests architecture
 
 There are two kinds of tests in Centreon UI.
-- Jest + RTL: Component testing
-- Storyshots: When running them, storybook will capture a snapshot for each and compares them with the older ones
+- Jest + RTL and Cypress: Component testing. We want to migrate from Jest to Cypress
+- Chromatic: Chromatic is a tool that snapshots our stories and better handle snapshots changes using a review process
 
 
-### Run all the test (Jest + Storyshots)
+### Run Jest tests
 
 ```bash
-pnpm build:storybook && pnpm t
+pnpm t
 ```
 
-### Run storyshots following one or more story title</Typography>
+### Run Cypress tests
 
 ```bash
-pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent"
-```
-_or_
-```bash
-pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent|MyOtherComponent"
-```
-   
-
-### Update snapshots
-
-```bash
-pnpm build:storybook && pnpm t -- -u
-```
-_or_
-```bash
-pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent" -u
-```
-_or_
-```bash
-pnpm build:storybook && pnpm test:storyshot -- --story "MyComponent|MyOtherComponent" -u
+pnpm cypress:ui # Opens the Cypress controlled browser to debug tests
+pnpm cypress:cli # Runs tests in the terminal
 ```

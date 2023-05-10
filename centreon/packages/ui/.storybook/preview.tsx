@@ -15,13 +15,6 @@ const withThemeProvider: Decorator = (story, context): JSX.Element => (
     {story()}
   </StoryBookThemeProvider>
 );
-// TODO switch to multi-theme provider, deprecate custom StoryBookThemeProvider
-// const withThemeProvider: Decorator = withThemeFromJSXProvider({
-//   themes: { light: getTheme(ThemeMode.light), dark: getTheme(ThemeMode.dark) },
-//   defaultTheme: "light",
-//   Provider: ThemeProvider,
-//   GlobalStyles: CssBaseline,
-// });
 
 const withQueryProvider: Decorator = (story, context): JSX.Element => (
   <QueryProvider>
