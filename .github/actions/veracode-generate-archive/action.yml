@@ -33,14 +33,6 @@ runs:
       run: ls -la
       shell: bash
 
-    - name: Move in project folder
-      run: cd ${{ inputs.module_directory }}
-      shell: bash
-
-    - name: DEBUG - Check location
-      run: ls -la
-      shell: bash
-
     - name: Create JAR files
       if: "${{ inputs.compile_mvn == 'yes' }}"
       run: echo "TODO - compile mvn files"
@@ -48,7 +40,10 @@ runs:
 
     - name: Create zip file
 #      if: "${{ inputs.compile_mvn != 'yes' }}"
-      run: zip -rq "${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}.zip" *
+      run: |
+        cd ${{ inputs.module_directory }}
+        ls -la
+        zip -rq "${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}.zip" *
       shell: bash
 
     - name: DEBUG - Check location
