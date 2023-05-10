@@ -1,25 +1,24 @@
 name: Launch Veracode pipeline scan
 
 on:
-#  pull_request:
-#    types:
-#      - synchronize
-#      - opened
-#      - reopened
+  #  pull_request:
+  #    types:
+  #      - synchronize
+  #      - opened
+  #      - reopened
 
   push:
     branches:
-      - "AT-94-pipeline-scan"
+      #      - "AT-94-pipeline-scan"
       - "test-99.09.x"
 
 env:
   ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
-  BRANCH_NAME: "baseline-develop"
   REPORT_FILENAME: "result.json"
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, veracode]
     steps:
       - uses: actions/checkout@v3
 
@@ -83,30 +82,59 @@ jobs:
       - name: DEBUG - Check rights
         run: ls -la ${{ env.ZIP_NAME }}.zip
 
-#      - name: Check if the report exist
-#        run: |
-#          if [ ! -f ${{ env.REPORT_FILENAME }} ]
-#          then
-#          echo "Creating file"
-#            touch ${{ env.REPORT_FILENAME }}
-#          else
-#            echo "File exists"
-#          fi
-#          ls -la
-
       - name: pipeline-scan action step
         id: pipeline-scan
         uses: veracode/Veracode-pipeline-scan-action@pipeline-scan-beta-v0.0.4
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
-          file: result.zip
-#          request_policy: "test POV"
+          file: result.json
+          #          request_policy: "test POV"
           fail_build: false
-          store_baseline_file: true
-#          store_baseline_file_branch: "${{ env.BRANCH_NAME }}"
           create_baseline_from: standard
           baseline_file: "${{ env.REPORT_FILENAME }}"
 
       - name: DEBUG - Check location
         run: ls -la
+
+  pipeline-scan2:
+    #needs: policy-scan
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: veracode/pipeline-scan:latest
+      options: --user root
+    steps:
+      - name: get archive
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ZIP_NAME }}.zip
+          path: /tmp
+
+      - name: pipeline-scan
+        run: |
+          java -jar /opt/veracode/pipeline-scan.jar \
+            -vid "${{secrets.VERACODE_API_ID}}" \
+            -vkey "${{secrets.VERACODE_API_KEY}}" \
+            --fail_on_severity="Very High, High" \
+            --file /tmp/${{ env.ZIP_NAME }}.zip \
+            -jf result.json \
+            -fjf filtered_result.json
+        continue-on-error: true
+
+      - name: DEBUG - Check location
+        run: ls -la
+
+      - name: DEBUG - Check location tmp
+        run: ls -la /tmp
+
+      - name: Check if the report exist
+        run: |
+          if [ ! -f ${{ env.REPORT_FILENAME }} ]
+          then
+          echo "Creating file"
+            touch ${{ env.REPORT_FILENAME }}
+          else
+            echo "File exists"
+          fi
+          ls -la
