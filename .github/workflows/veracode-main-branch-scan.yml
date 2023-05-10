@@ -86,7 +86,7 @@ jobs:
           scantimeout: 60
           includenewmodules: true
           scanallnonfataltoplevelmodules: true
-          #deleteincompletescan: 1
+          deleteincompletescan: 1
 
       - name: DEBUG - Check location
         run: ls -la
