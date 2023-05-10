@@ -87,6 +87,7 @@ jobs:
           includenewmodules: true
           scanallnonfataltoplevelmodules: true
           deleteincompletescan: 1
+          criticality: "VeryLow"
 
       - name: DEBUG - Check location
         run: ls -la
