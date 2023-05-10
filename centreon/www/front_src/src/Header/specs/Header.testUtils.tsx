@@ -6,6 +6,7 @@ import { mergeDeepRight } from 'ramda';
 
 import { SnackbarProvider, Method, TestQueryProvider } from '@centreon/ui';
 
+import installCommandData from '../../../../../cypress/fixtures/Header/installCommand.json';
 import Header from '../index';
 import type {
   HostStatusResponse,
@@ -185,8 +186,7 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): void => {
   cy.interceptRequest(
     Method.GET,
     'api/latest/configuration/monitoring-servers/install-poller-command',
-    (_, res, ctx) =>
-      res(ctx.json({ command: 'yum install pcs corosync-qnetd' })),
+    (_, res, ctx) => res(ctx.json(installCommandData)),
     'commandInstallation'
   );
 

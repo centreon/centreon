@@ -1,0 +1,3 @@
+{
+    "command":"yum install https://downloads.linux.hpe.com/SDR/repo/mcp/centos/7.0/x86_64/10.50/hp-health-10.50-1826.40.rhel7.x86_64.rpm"
+}

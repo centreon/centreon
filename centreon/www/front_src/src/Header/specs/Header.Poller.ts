@@ -3,6 +3,7 @@ import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
+import installCommandData from '../../../../../cypress/fixtures/Header/installCommand.json';
 import {
   labelPollers,
   labelNoLatencyDetected,
@@ -494,15 +495,20 @@ export default (): void =>
         });
 
         it('displays the successful message when the installation command is clicked', () => {
+          cy.window()
+            .its('navigator.clipboard')
+            .then((clipboard) =>
+              cy.stub(clipboard, 'writeText').resolves().as('writeText')
+            );
           initialize();
           getElements();
           openSubMenu('Pollers');
-          cy.findByTestId('poller-menu');
-          cy.contains(labelInstallCommand)
-            .click()
-            .then(() => {
-              cy.contains(labelSuccessfulCopyPollerCommand);
-            });
+          cy.contains(labelInstallCommand).click();
+          cy.get('@writeText')
+            .should('have.been.calledOnce')
+            .its('firstCall.args.0')
+            .should('equal', installCommandData.command);
+          cy.contains(labelSuccessfulCopyPollerCommand);
 
           cy.matchImageSnapshot();
         });
