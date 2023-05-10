@@ -21,3 +21,19 @@ export const Default: Story = {
     </>,
   }
 }
+
+export const AsEmptyState: Story = {
+  args: {
+    children: <>
+      <List.EmptyState
+        labels={{
+          title: 'No items found',
+          actions: {
+            create: 'Create item',
+          }
+        }}
+      />
+    </>,
+    isEmpty: true,
+  }
+}

@@ -19,14 +19,15 @@ const meta: Meta = {
         label: 'Create a dashboard'
       }
     },
-    data: {
-      dashboards: [
-        {id: 1, name: 'Dashboard 1', description: 'Dashboard 1 description'},
-        {id: 2, name: 'Dashboard 2', description: 'Dashboard 2 description'},
-        {id: 3, name: 'Dashboard 3', description: 'Dashboard 3 description'},
-        {id: 4, name: 'Dashboard 4', description: 'Dashboard 4 description'},
-        {id: 5, name: 'Dashboard 5', description: 'Dashboard 5 description'}
-      ]
+    list: {
+      emptyState: {
+        labels: {
+          title: 'No dashboards found',
+          actions: {
+            create: 'Create dashboard'
+          }
+        }
+      }
     }
   }
 };
@@ -80,29 +81,42 @@ const DefaultView = (args) => {
       <div className="dashboards-list"> {/* TODO DashboardsListLayout */}
         <div className="dashboard-list-header">  {/* TODO DashboardsList */}
           <div className="actions" style={{paddingBottom: '20px'}}>  {/* TODO DashboardsList.Actions */}
-            <Button
-              variant="primary"
-              iconVariant="start"
-              icon={<AddIcon/>}
-              onClick={() => setDialogState({open: true, variant: 'create', item: null})}
-            >
-              {args.actions.create.label}
-            </Button>
+            {dataDashboards.length !== 0 && (
+              <Button
+                variant="primary"
+                iconVariant="start"
+                icon={<AddIcon/>}
+                onClick={() => setDialogState({open: true, variant: 'create', item: null})}
+              >
+                {args.actions.create.label}
+              </Button>
+            )}
           </div>
+
+
           <div className="content" style={{paddingBottom: '20px'}}>  {/* TODO DashboardsList.Content */}
-            <List>
-              {dataDashboards.map((dashboard) => (
-                <List.Item
-                  key={dashboard.id}
-                  title={dashboard.name}
-                  description={dashboard.description}
-                  hasCardAction={true}
-                  hasActions={true}
-                  onEdit={() => setDialogState({open: true, variant: 'update', item: dashboard})}
-                  onDelete={() => deleteDashboard(dashboard.id)}
-                />
-              ))}
-            </List>
+
+            {dataDashboards.length === 0 ? (
+              <List.EmptyState
+                labels={args.list.emptyState.labels}
+                onCreate={() => setDialogState({open: true, variant: 'create', item: null})}
+              />
+            ) : (
+              <List>
+                {dataDashboards.map((dashboard) => (
+                  <List.Item
+                    key={dashboard.id}
+                    title={dashboard.name}
+                    description={dashboard.description}
+                    hasCardAction={true}
+                    hasActions={true}
+                    onEdit={() => setDialogState({open: true, variant: 'update', item: dashboard})}
+                    onDelete={() => deleteDashboard(dashboard.id)}
+                  />
+                ))}
+              </List>
+            )}
+
           </div>
           <Dialog
             open={dialogState.open}
@@ -125,5 +139,25 @@ const DefaultView = (args) => {
 };
 
 export const Default = {
-  render: DefaultView
+  render: DefaultView,
+  args: {
+    data: {
+      dashboards: [
+        {id: 1, name: 'Dashboard 1', description: 'Dashboard 1 description'},
+        {id: 2, name: 'Dashboard 2', description: 'Dashboard 2 description'},
+        {id: 3, name: 'Dashboard 3', description: 'Dashboard 3 description'},
+        {id: 4, name: 'Dashboard 4', description: 'Dashboard 4 description'},
+        {id: 5, name: 'Dashboard 5', description: 'Dashboard 5 description'}
+      ]
+    },
+  }
 };
+
+export const AsInitialState = {
+  render: DefaultView,
+  args: {
+    data: {
+      dashboards: []
+    }
+  }
+}

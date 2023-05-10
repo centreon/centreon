@@ -2,6 +2,7 @@ import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   list: {
+    display: 'flex',
 
     '&[data-variant="grid"]': {
       display: 'grid',
@@ -11,6 +12,13 @@ const useStyles = makeStyles()((theme) => ({
       '& > *': {
         width: 'auto'
       }
+    },
+
+    '&[data-is-empty="true"]': {
+      display: 'flex',
+      justifyContent: 'center',
+
+      width: '100%',
     }
   }
 
