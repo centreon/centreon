@@ -17654,3 +17654,6 @@ msgstr "La commande d'installation du poller n'a pas pu être copiée"
 
 msgid "Poller installation command copied to the clipboard"
 msgstr "Commande d'installation du poller copiée dans le presse-papiers"
+
+msgid "Copy install command"
+msgstr "Copier la commande d'installation"

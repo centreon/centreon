@@ -15801,3 +15801,6 @@ msgstr "No se pudo copiar el comando de instalación del colector"
 
 msgid "Poller installation command copied to the clipboard"
 msgstr "Comando de instalación del colector copiado al portapapeles"
+
+msgid "Copy install command"
+msgstr "Copiar comando de instalación"

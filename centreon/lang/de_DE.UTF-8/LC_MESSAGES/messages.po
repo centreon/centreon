@@ -15466,3 +15466,6 @@ msgstr "Der Poller-Installationsbefehl konnte nicht kopiert werden"
 
 msgid "Poller installation command copied to the clipboard"
 msgstr "Poller-Installationsbefehl in die Zwischenablage kopiert"
+
+msgid "Copy install command"
+msgstr "Installationsbefehl kopieren"

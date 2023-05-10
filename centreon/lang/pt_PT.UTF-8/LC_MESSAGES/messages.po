@@ -16255,3 +16255,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Poller installation command copied to the clipboard"
 # msgstr ""
+
+# msgid "Copy install command"
+# msgstr ""

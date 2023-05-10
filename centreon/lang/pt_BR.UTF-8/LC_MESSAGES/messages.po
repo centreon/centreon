@@ -16265,3 +16265,6 @@ msgstr ""
 
 # msgid "Poller installation command copied to the clipboard"
 # msgstr ""
+
+# msgid "Copy install command"
+# msgstr ""
