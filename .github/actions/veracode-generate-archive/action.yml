@@ -37,6 +37,10 @@ runs:
       run: cd ${{ inputs.module_directory }}
       shell: bash
 
+    - name: DEBUG - Check location
+      run: ls -la
+      shell: bash
+
     - name: Create JAR files
       if: "${{ inputs.compile_mvn == 'yes' }}"
       run: echo "TODO - compile mvn files"
