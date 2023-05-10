@@ -24,12 +24,14 @@ runs:
         id: PR
 
       - uses: actions/setup-node@v3
+        if: steps.PR.outputs.pr_found == 'true'
         with:
           node-version: 17
           cache: pnpm
           cache-dependency-path: ${{ inputs.frontend_directory }}
 
       - name: Install dependencies
+        if: steps.PR.outputs.pr_found == 'true'
         run: pnpm install --frozen-lockfile
         working-directory: ${{ inputs.frontend_directory }}
         shell: bash
