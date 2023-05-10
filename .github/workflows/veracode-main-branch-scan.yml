@@ -44,10 +44,18 @@ jobs:
     steps:
 #      - uses: actions/checkout@v3
 
+      - name: Get current time
+        id: date
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+
       - name: get archive
         uses: actions/download-artifact@v3
         with:
           name: "${{ env.MODULE_NAME }}-${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
+
+      - name: Get current time
+        id: date
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
       - name: DEBUG - Check location
         run: ls -la
@@ -60,6 +68,9 @@ jobs:
 
       - name: DEBUG - Github base ref
         run: echo ${{ github.base_ref }}
+
+      - name: DEBUG - Hello world
+        run: echo Hello world from $GITHUB_BASE_REF
 
       - name: Veracode upload and run a Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
@@ -81,6 +92,10 @@ jobs:
 
       - name: DEBUG - Check location
         run: ls -la
+
+      - name: Get current time
+        id: date
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
 #      - name: DEBUG - Check location
 #        run: ls -la
