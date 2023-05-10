@@ -1,0 +1,57 @@
+name: "generate-veracode-binary"
+description: "Prepare binary to be analyzed"
+inputs:
+  module_directory:
+    description: Path to the module
+    required: true
+  module_name:
+    description: Module name
+    required: true
+  major_version:
+    description: The major version
+    required: true
+  minor_version:
+    description: The minor version
+    required: true
+  branch_name:
+    description: The target maintenance branch
+    required: true
+  compile_mvn:
+    description: Java binary needs to be compiled
+  exclusion_file:
+    description: Name of the file listing files and folders to exclude
+
+runs:
+  using: "composite"
+  steps:
+    - name: Exclude unconsistent files
+      if: ${{ inputs.exclusion_file != '' }}
+      run: echo "TODO - create a list of paths and files to delete before creating zip file"
+      shell: bash
+
+    - name: DEBUG - Check location
+      run: ls -la
+      shell: bash
+
+    - name: Move in project folder
+      run: cd ${{ inputs.module_directory }}
+      shell: bash
+
+    - name: Create JAR files
+      if: ${{ inputs.compile_mvn == "true" }}
+      run: echo "TODO - compile mvn files"
+      shell: bash
+
+    - name: Create zip file
+#      if: ${{ inputs.compile_mvn != "true" }}
+      run: zip -r "${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}" *
+      shell: bash
+
+    - name: DEBUG - Check location
+      run: ls -la
+      shell: bash
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: "${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}"
+        path: "${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}.zip"
