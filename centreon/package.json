@@ -14,7 +14,8 @@
     "test:coverage": "jest --coverage",
     "cypress:cli": "./cypress/scripts/cypress-cli.sh",
     "cypress:cli:updateSnapshot": "./cypress/scripts/cypress-cli.sh --env updateSnapshots=true",
-    "cypress:ui": "cypress open --component --browser=chrome"
+    "cypress:ui": "cypress open --component --browser=chrome",
+    "cypress:run": "cypress run --component --browser=chrome" 
   },
   "devDependencies": {
     "@centreon/js-config": "workspace:*",
