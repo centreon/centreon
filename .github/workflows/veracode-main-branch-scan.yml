@@ -65,7 +65,7 @@ jobs:
         uses: veracode/veracode-uploadandscan-action@master
         id: upload_and_scan
         with:
-          appname: "centreon/centreon-web_GHA"
+          appname: "centreon/${{ env.MODULE_NAME }}_GHA"
           createprofile: true
           filepath: "${{ env.MODULE_NAME }}-${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}.zip"
           version: "${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
@@ -73,7 +73,7 @@ jobs:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
           createsandbox: true
-          sandboxname: "${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MAJOR_VERSION }}"
+          sandboxname: "${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
           scantimeout: 60
           includenewmodules: true
           scanallnonfataltoplevelmodules: true
