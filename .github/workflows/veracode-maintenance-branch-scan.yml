@@ -67,6 +67,9 @@ jobs:
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
+      - name: DEBUG - Check location
+        run: ls -la
+
       - name: Get baseline from bucket
         uses: ./.github/actions/veracode-get-cache
         with:
