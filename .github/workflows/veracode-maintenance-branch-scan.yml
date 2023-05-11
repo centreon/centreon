@@ -44,9 +44,9 @@ jobs:
 
       - name: Cache SET from bucket script
         uses: actions/upload-artifact@v3
-          with:
-            name: "veracode-set-cache"
-            path: "./.github/actions/veracode-set-cache"
+        with:
+          name: "veracode-set-cache"
+          path: "./.github/actions/veracode-set-cache"
 
       - name: DEBUG - Check location
         run: ls -la
