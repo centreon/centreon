@@ -14,3 +14,10 @@ Scenario: Set a downtime on resource with default settings
     And the user fill in the required fields on the start date now, and validate it
     Then the user must be notified of the sending of the order
     And I see the resource as downtime in the listing
+
+Scenario: Set a downtime more one resource with default settings
+    Given multiple resources selected
+    When the user click on the "Set downtime" action
+    And the user fill in the required fields on the start date now, and validate it
+    Then the user must be notified of the sending of the order
+    And the user should see the downtime resources appear in the listing after a refresh

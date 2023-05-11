@@ -1,11 +1,12 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { checkThatServicesExistInDatabase } from '../../../commons';
 import {
   actionBackgroundColors,
-  checkIfServicesExists,
   checkIfUserNotificationsAreEnabled,
   insertDtResources,
   searchInput,
+  secondServiceInDtName,
   serviceInDtName,
   tearDownResource
 } from '../common';
@@ -44,18 +45,20 @@ Given('the user have the necessary rights to set downtime', () => {
 Given('minimally one resource with and notifications enabled on user', () => {
   insertDtResources();
 
-  checkIfServicesExists();
+  checkThatServicesExistInDatabase({
+    serviceDesc: [serviceInDtName, secondServiceInDtName]
+  });
 
   checkIfUserNotificationsAreEnabled();
-});
 
-Given('resource selected', () => {
   cy.refreshListing();
 
   cy.getByLabel({ label: 'State filter' }).click();
 
   cy.get('[data-value="all"]').click();
+});
 
+Given('resource selected', () => {
   cy.contains(serviceInDtName)
     .parent()
     .parent()
@@ -97,7 +100,54 @@ Then('I see the resource as downtime in the listing', () => {
       timeout: 15000
     }
   );
+
+  tearDownResource();
 });
+
+Given('multiple resources selected', () => {
+  cy.contains(serviceInDtName)
+    .parent()
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .click();
+
+  cy.contains(secondServiceInDtName)
+    .parent()
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .click();
+});
+
+Then(
+  'the user should see the downtime resources appear in the listing after a refresh',
+  () => {
+    cy.waitUntil(
+      () => {
+        cy.refreshListing()
+          .then(() => cy.contains(serviceInDtName))
+          .parent()
+          .then((val) => {
+            return (
+              val.css('background-color') === actionBackgroundColors.inDowntime
+            );
+          });
+
+        return cy
+          .refreshListing()
+          .then(() => cy.contains(secondServiceInDtName))
+          .parent()
+          .then((val) => {
+            return (
+              val.css('background-color') === actionBackgroundColors.inDowntime
+            );
+          });
+      },
+      {
+        timeout: 15000
+      }
+    );
+  }
+);
 
 after(() => {
   tearDownResource();
