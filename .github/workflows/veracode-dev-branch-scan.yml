@@ -1,17 +1,18 @@
-name: Veracode scan on maintenance branches
+name: Veracode scan on development branches
 
 on:
   pull_request:
     branches:
-      - develop
-      - dev-[2-9][0-9].[0-9][0-9].x
-      - master
-      - "[2-9][0-9].[0-9][0-9].x"
-      - AT-94-pipeline-scan
+      - !develop
+      - !dev-[2-9][0-9].[0-9][0-9].x
+      - !master
+      - !"[2-9][0-9].[0-9][0-9].x"
+      - !AT-94-pipeline-scan
+      - "test-99.x"
 
 env:
   #TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
-  TARGET_BRANCH: develop
+  TARGET_BRANCH: dev-23.04.1
   MODULE_DIRECTORY: centreon-gorgone
   MODULE_NAME: centreon-gorgone
   REPORT_FILENAME: "result.json"
@@ -39,7 +40,7 @@ jobs:
       - name: DEBUG - Check location
         run: ls -la
 
-  policy-scan:
+  development-pipeline-scan:
     runs-on: [self-hosted, veracode]
     needs: [build]
     steps:
@@ -90,7 +91,7 @@ jobs:
           vkey: ${{ secrets.VERACODE_API_KEY }}
           filepath: "${{ env.MODULE_NAME }}-${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}.zip"
           fail_on_severity: ${{ env.CRITICALITY }}
-          baseline_file: ${{ REPORT_FILENAME }}
+          baseline_file: ${{ env.REPORT_FILENAME }}
           request_policy: "Centreon_Security"
           fail_build: true
           timeout: 60
@@ -110,20 +111,9 @@ jobs:
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
-      - name: Cache baseline
-        uses: ./.github/actions/veracode-set-cache
-        with:
-          module_name: ${{ env.MODULE_NAME }}
-          target_branch_name: ${{ env.TARGET_BRANCH }}
-          baseline_filename: ${{ env.REPORT_FILENAME }}
-
-#      - name: DEBUG - Check location
-#        run: ls -la
-#
-#      - name: cache baseline
-#        run: |
-#          aws s3 cp "${{ env.REPORT_FILENAME }}" "s3://centreon-veracode-reports/${{ env.BRANCH_NAME }}/${{ env.REPORT_FILENAME }}"
-#      - name: "Push report"
-#        run: aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}${{ env.VERSION }}/index.html" --acl public-read --region eu-west-1
-#        shell: bash
-#
+#      - name: Cache baseline
+#        uses: ./.github/actions/veracode-set-cache
+#        with:
+#          module_name: ${{ env.MODULE_NAME }}
+#          target_branch_name: ${{ env.TARGET_BRANCH }}
+#          baseline_filename: ${{ env.REPORT_FILENAME }}
