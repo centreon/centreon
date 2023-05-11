@@ -24,8 +24,8 @@ runs:
     - name: Get baseline file
       run: |
         TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/${{ inputs.baseline_filename }}"
-        aws s3 ls "$TARGET_S3"
-        if [[ $? -ne 0 ]]; then
+        aws s3 ls "$TARGET_S3" || RESULT=$( echo $? )
+        if [[ $RESULT -ne 0 ]]; then
           echo "[DEBUG] - File not found in the bucket"
           touch /tmp/${{ inputs.baseline_filename }}
         else
