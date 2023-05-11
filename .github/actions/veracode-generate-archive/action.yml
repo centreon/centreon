@@ -13,11 +13,8 @@ inputs:
   minor_version:
     description: The minor version
     required: true
-  branch_name:
-    description: The target maintenance branch
-    required: true
   compile_mvn:
-    description: Java binary needs to be compiled
+    description: If java binary needs to be compiled
   exclusion_file:
     description: Name of the file listing files and folders to exclude
 
