@@ -6,7 +6,7 @@ import {
   RenderResult,
   waitFor,
   screen
-} from '@centreon/ui/src/testRenderer';
+} from '@centreon/ui/test/testRenderer';
 
 import { labelThisPageCouldNotBeFound } from '../../FallbackPages/NotFoundPage/translatedLabels';
 import navigationAtom from '../../Navigation/navigationAtoms';

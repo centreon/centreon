@@ -51,6 +51,20 @@ jobs:
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
 
+  publish-snapshots:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/chromatic
+        with:
+          frontend_directory: ${{ env.directory }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          project_token: ${{ secrets.CHROMATIC_TOKEN }}
+
   publish-storybook:
     runs-on: ubuntu-22.04
     needs: [get-version]
