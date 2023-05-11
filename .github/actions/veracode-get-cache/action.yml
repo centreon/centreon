@@ -1,0 +1,51 @@
+name: "get-veracode-baseline-from-cache"
+description: "Get baseline by version for pipeline's diff usage"
+inputs:
+  module_name:
+    description: Module name
+    required: true
+  target_branch_name:
+    description: The target maintenance branch
+    required: true
+  baseline_filename:
+    description: Name of the baseline file
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup awscli
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        sudo unzip -q awscliv2.zip
+        sudo ./aws/install
+      shell: bash
+
+    - name: Get baseline file
+      run: |
+        TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/${{ inputs.baseline_filename }}"
+        aws s3 ls "$TARGET_S3"
+        if [[ $? -ne 0 ]]; then
+          echo "[DEBUG] - File not found in the bucket"
+          touch /tmp/${{ inputs.baseline_filename }}
+        else
+          aws s3 cp "$TARGET_S3" "/tmp/${{ inputs.baselone_filename }}"
+        fi
+      shell: bash
+
+    - name: DEBUG - Check location
+      run: ls -la
+      shell: bash
+
+    - name: DEBUG - Check tmp
+      run: ls -la /tmp
+      shell: bash
+
+    - name: DEBUG - test artifact name
+      run: echo "${{ inputs.module_name }}-${{ inputs.target_branch_name }}-${{ inputs.baseline_filename }}"
+      shell: bash
+
+#    - uses: actions/upload-artifact@v3
+#      with:
+#        name: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}-${{ inputs.baseline_filename }}"
+#        path: "/tmp/${{ inputs.baseline_filename }}"
