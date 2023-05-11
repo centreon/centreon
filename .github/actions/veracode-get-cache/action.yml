@@ -28,6 +28,7 @@ runs:
         if [[ $RESULT -ne 0 ]]; then
           echo "[DEBUG] - File not found in the bucket"
           touch /tmp/${{ inputs.baseline_filename }}
+          chmod 660  /tmp/${{ inputs.baseline_filename }}
         else
           aws s3 cp "$TARGET_S3" "/tmp/${{ inputs.baselone_filename }}"
         fi
