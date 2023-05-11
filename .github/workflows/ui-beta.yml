@@ -64,6 +64,7 @@ jobs:
           frontend_directory: ${{ env.directory }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           project_token: ${{ secrets.CHROMATIC_TOKEN }}
+          ignoreLastBuildOnBranch: true
 
   publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
