@@ -40,6 +40,7 @@ const MultiCheckbox = ({
       <Box>
         {additionalLabel && <Typography>{additionalLabel}</Typography>}
         <MultiCheckboxComponent
+          disabled={checkbox?.disabled || false}
           initialValues={checkbox?.options}
           labelPlacement={checkbox?.labelPlacement || 'end'}
           row={checkbox?.row || false}

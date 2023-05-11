@@ -5,6 +5,7 @@ import { FormGroup } from '@mui/material';
 import SingleCheckbox, { LabelPlacement } from '../Single';
 
 interface Props {
+  disabled?: boolean;
   initialValues: Array<string>;
   labelPlacement?: LabelPlacement;
   onChange?: () => void;
@@ -17,7 +18,8 @@ const MultiCheckbox = ({
   values,
   row = false,
   onChange,
-  labelPlacement = 'end'
+  labelPlacement = 'end',
+  disabled = false
 }: Props): JSX.Element => {
   return (
     <FormGroup row={row}>
@@ -25,6 +27,7 @@ const MultiCheckbox = ({
         return (
           <SingleCheckbox
             checked={includes(elm, values)}
+            disabled={disabled}
             key={elm}
             label={elm}
             labelPlacement={labelPlacement}

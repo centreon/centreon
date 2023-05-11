@@ -38,6 +38,7 @@ const Checkbox = ({
         <CheckboxComponent
           Icon={value?.Icon}
           checked={value?.checked}
+          disabled={checkbox?.disabled || false}
           label={value?.label}
           labelPlacement={checkbox?.labelPlacement || 'end'}
           onChange={handleChange}

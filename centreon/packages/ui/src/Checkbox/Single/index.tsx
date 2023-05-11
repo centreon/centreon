@@ -27,6 +27,7 @@ export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
 interface Props {
   Icon?: SvgIconComponent;
   checked: boolean;
+  disabled?: boolean;
   label: string;
   labelPlacement?: LabelPlacement;
   onChange?: () => void;
@@ -37,6 +38,7 @@ const SingleCheckbox = ({
   checked,
   label,
   onChange,
+  disabled = false,
   labelPlacement = 'end'
 }: Props): JSX.Element => {
   const { classes } = useStyles();
@@ -49,6 +51,7 @@ const SingleCheckbox = ({
           <MuiCheckbox
             checked={checked}
             color="primary"
+            disabled={disabled}
             id={label}
             size="small"
             onChange={onChange}
