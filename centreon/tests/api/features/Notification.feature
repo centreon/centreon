@@ -53,37 +53,61 @@ Feature:
     And the JSON should be equal to:
     """
     {
+      "id": 1,
       "name": "notification-name",
-      "timeperiod": {"id": 1, "name": "24x7"},
+      "timeperiod": {
+          "id": 1,
+          "name": "24x7"
+      },
+      "users": [
+          {
+              "id": 20,
+              "name": "user-name1"
+          },
+          {
+              "id": 21,
+              "name": "user-name2"
+          }
+      ],
       "resources": [
-        {
-          "type": "hostgroup",
-          "events": 5,
-          "ids": [
-            {"id":53, "name": "Linux-Servers"},
-            {"id":56, "name": "Printers"}
-          ],
-          "extra": {"event_services": 2}
-        },
-        {
-          "type": "servicegroup",
-          "events": 5,
-          "ids": [
-            {"id":1, "name": "service-grp1"},
-            {"id":2, "name": "service-grp2"}
-          ]
-        }
+          {
+              "type": "hostgroup",
+              "events": 5,
+              "ids": [
+                  {
+                      "id": 53,
+                      "name": "Linux-Servers"
+                  },
+                  {
+                      "id": 56,
+                      "name": "Printers"
+                  }
+              ],
+              "extra": {
+                  "event_services": 2
+              }
+          },
+          {
+              "type": "servicegroup",
+              "events": 5,
+              "ids": [
+                  {
+                      "id": 1,
+                      "name": "service-grp1"
+                  },
+                  {
+                      "id": 2,
+                      "name": "service-grp2"
+                  }
+              ]
+          }
       ],
       "messages": [
-        {
-          "channel": "Slack",
-          "subject": "Hello world !",
-          "message": "just a small message"
-        }
-      ],
-      "users": [
-        ["id":20, "name": "user-name1"],
-        ["id":21, "name": "user-name2"]
+          {
+              "channel": "Slack",
+              "subject": "Hello world !",
+              "message": "just a small message"
+          }
       ],
       "is_activated": true
     }
@@ -95,7 +119,7 @@ Feature:
     CONTACT;ADD;ala;ala;ala@localservice.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;ala;reach_api;1
     ACLMENU;add;ACL Menu test;my alias
-    ACLMENU;grantro;ACL Menu test;1;Configuration;Notifications;Notifications
+    ACLMENU;GRANTRW;ACL Menu test;1;Configuration;Notifications;
     ACLRESOURCE;add;ACL Resource test;my alias
     ACLRESOURCE;grant_hostgroup;ACL Resource test;Linux-Servers
     ACLRESOURCE;grant_hostgroup;ACL Resource test;Printers
@@ -106,11 +130,11 @@ Feature:
     SG;ADD;service-grp1;service-grp1-alias
     ACLRESOURCE;grant_servicegroup;ACL Resource test;service-grp1
     SG;ADD;service-grp2;service-grp2-alias
-    CONTACT;ADD;user-name1;user-alias1;user1@mail.com;;0;0;;local
-    CONTACT;ADD;user-name2;user-alias2;user2@mail.com;;0;0;;local
+    CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
+    CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
     """
     And I am logged in with "ala"/"Centreon@2022"
-
+    And a feature flag "notification" of bitmask 2
     When I send a POST request to '/api/latest/configuration/notifications' with body:
       """
       {
@@ -175,36 +199,57 @@ Feature:
     And the JSON should be equal to:
       """
       {
+        "id": 1,
         "name": "notification-name",
-        "timeperiod": ["id": 1, "name": "24x7"],
+        "timeperiod": {
+            "id": 1,
+            "name": "24x7"
+        },
+        "users": [
+            {
+                "id": 20,
+                "name": "ala"
+            },
+            {
+                "id": 21,
+                "name": "user-name1"
+            }
+        ],
         "resources": [
-          {
-            "type": "hostgroup",
-            "events": 5,
-            "ids": [
-              {"id":53, "name": "Linux-Servers"},
-              {"id":56, "name": "Printers"}
-            ],
-            "extra": {"event_services": 2}
-          },
-          {
-            "type": "servicegroup",
-            "events": 5,
-            "ids": [
-              {"id":1, "name": "service-grp1"}
-            ]
-          }
+            {
+                "type": "hostgroup",
+                "events": 5,
+                "ids": [
+                    {
+                        "id": 53,
+                        "name": "Linux-Servers"
+                    },
+                    {
+                        "id": 56,
+                        "name": "Printers"
+                    }
+                ],
+                "extra": {
+                    "event_services": 2
+                }
+            },
+            {
+                "type": "servicegroup",
+                "events": 5,
+                "ids": [
+                    {
+                        "id": 1,
+                        "name": "service-grp1"
+                    }
+                ]
+            }
         ],
         "messages": [
-          {
-            "channel": "Slack",
-            "subject": "Hello world !",
-            "message": "just a small message"
-          }
-        ],
-        "users": [
-          {"id":20, "name": "user-name1"},
-          {"id":21, "name": "user-name2"}
+            {
+                "channel": "Slack",
+                "subject": "Hello world !",
+                "message": "just a small message"
+            }
         ],
         "is_activated": true
       }
