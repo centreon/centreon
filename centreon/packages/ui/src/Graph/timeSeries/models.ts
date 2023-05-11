@@ -22,10 +22,11 @@ export interface Metric {
   unit: string;
 }
 
-export interface TimeValue {
-  [field: string]: string | number;
-  timeTick: string;
-}
+type TimeSeries = { timeTick: string };
+
+export type TimeValue = TimeSeries & {
+  [field: string]: number;
+};
 
 export interface Line {
   areaColor: string;

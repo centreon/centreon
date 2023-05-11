@@ -26,8 +26,12 @@ export interface AreaRegularLines extends ShapeGraphData {
   timeSeries: Array<TimeValue>;
 }
 
+export interface AreaThreshold extends AreaRegularLines {
+  variation?: number;
+}
+
 export interface Shape {
   areaRegularLines: AreaRegularLines;
   areaStackedLines: AreaStackedLines;
-  areaThreshold: AreaRegularLines;
+  areaThreshold: AreaThreshold;
 }

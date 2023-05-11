@@ -113,7 +113,6 @@ const Graph = ({
   });
 
   const commonLinesProps = {
-    display: true,
     leftScale,
     rightScale,
     xScale
@@ -122,21 +121,23 @@ const Graph = ({
   const areaThreshold = {
     lines: displayedLines,
     timeSeries,
-    ...commonLinesProps
+    ...commonLinesProps,
+    ...shapeLines?.areaThresholdLines,
+    display: shapeLines?.areaThresholdLines?.display ?? true
   };
 
   const areaRegularLines = {
+    display: shapeLines?.areaRegularLines?.display ?? true,
     lines: regularLines,
     timeSeries,
-    ...commonLinesProps,
-    ...shapeLines?.areaRegularLines
+    ...commonLinesProps
   };
 
   const areaStackedLines = {
+    display: shapeLines?.areaStackedLines?.display ?? true,
     invertedStackedLinesData,
     stackedLinesData,
-    ...commonLinesProps,
-    ...shapeLines?.areaStackedLines
+    ...commonLinesProps
   };
 
   const displayRegularLinesAnchorPoint =

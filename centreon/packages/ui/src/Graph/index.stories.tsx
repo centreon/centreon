@@ -165,7 +165,7 @@ const GraphAndTimePeriod = (args): JSX.Element => {
         annotationEvent={annotationEventData}
         end={end}
         loading={false}
-        shapeLines={{ areaThresholdLines: { display: true } }}
+        shapeLines={{ areaThresholdLines: { display: true, variation: 1.5 } }}
         start={start}
         timeShiftZones={{ enable: true, getInterval }}
         tooltip={{

@@ -98,8 +98,12 @@ export interface Area {
   display: boolean;
 }
 
+export interface ThresholdArea extends Area {
+  variation?: number;
+}
+
 export interface GlobalAreaLines {
   areaRegularLines: Area;
   areaStackedLines: Area;
-  areaThresholdLines: Area;
+  areaThresholdLines: ThresholdArea;
 }

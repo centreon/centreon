@@ -1,10 +1,9 @@
 import { ScaleLinear } from 'd3-scale';
 
-import { getStackedYScale } from '../../timeSeries';
-import { displayArea } from '../../helpers/index';
-import { Line, TimeValue } from '../../timeSeries/models';
-
-import { AreaStackedLines } from './models';
+import { getStackedYScale } from '../../../timeSeries';
+import { displayArea } from '../../../helpers/index';
+import { Line, TimeValue } from '../../../timeSeries/models';
+import { AreaStackedLines } from '../models';
 
 interface StackedLinesData {
   displayAreaInvertedStackedLines: boolean;

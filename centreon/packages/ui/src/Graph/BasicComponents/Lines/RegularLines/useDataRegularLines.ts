@@ -1,9 +1,8 @@
 import { ScaleLinear } from 'd3-scale';
 
-import { Line, TimeValue } from '../../timeSeries/models';
-import { displayArea } from '../../helpers/index';
-
-import { AreaRegularLines } from './models';
+import { Line, TimeValue } from '../../../timeSeries/models';
+import { displayArea } from '../../../helpers/index';
+import { AreaRegularLines } from '../models';
 
 interface RegularLinesData {
   display: boolean;

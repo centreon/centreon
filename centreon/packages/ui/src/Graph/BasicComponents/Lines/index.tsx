@@ -10,13 +10,14 @@ import { getUnits, getYScale } from '../../timeSeries';
 import { Line } from '../../timeSeries/models';
 
 import RegularLine from './RegularLines';
+import useDataRegularLines from './RegularLines/useDataRegularLines';
 import StackedLines from './StackedLines';
+import useDataStackedLines from './StackedLines/useDataStackLines';
 import ThresholdLines from './Threshold';
-import { Shape } from './models';
-import useDataRegularLines from './useDataRegularLines';
-import useDataStackedLines from './useDataStackLines';
-import useDataThreshold from './useDataThreshold';
+import AwesomeCircles from './Threshold/Circle';
 import { Data } from './Threshold/models';
+import useDataThreshold from './Threshold/useDataThreshold';
+import { Shape } from './models';
 
 interface AnchorPoint {
   renderRegularLinesAnchorPoint: (args: RegularLinesAnchorPoint) => ReactNode;
@@ -33,7 +34,8 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
   const { areaRegularLines, areaStackedLines, areaThreshold } = shape;
   const { renderRegularLinesAnchorPoint, renderStackedAnchorPoint } =
     anchorPoint;
-  const { lines, leftScale, rightScale, timeSeries, xScale } = areaThreshold;
+  const { lines, leftScale, rightScale, timeSeries, xScale, display } =
+    areaThreshold;
 
   const {
     displayAreaInvertedStackedLines,
@@ -55,7 +57,8 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
     lines: regularLines
   } = useDataRegularLines(areaRegularLines);
 
-  const { dataY0, dataY1, displayThreshold } = useDataThreshold({
+  const { dataY0, dataY1, dataYOrigin, displayThreshold } = useDataThreshold({
+    display,
     leftScale,
     lines,
     rightScale
@@ -83,13 +86,35 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
       )}
 
       {displayThreshold && (
-        <ThresholdLines
-          dataY0={dataY0 as Data}
-          dataY1={dataY1 as Data}
-          graphHeight={height}
-          timeSeries={timeSeries}
-          xScale={xScale}
-        />
+        <>
+          <ThresholdLines
+            dataY0={dataY0 as Data}
+            dataY1={dataY1 as Data}
+            graphHeight={height}
+            timeSeries={timeSeries}
+            xScale={xScale}
+          />
+          <ThresholdLines
+            dataY0={dataY0 as Data}
+            dataY1={dataY1 as Data}
+            graphHeight={height}
+            timeSeries={timeSeries}
+            variation={areaThreshold?.variation}
+            xScale={xScale}
+          />
+          {areaThreshold?.variation &&
+            timeSeries.map((timeValue) => (
+              <AwesomeCircles
+                dataY0={dataY0 as Data}
+                dataY1={dataY1 as Data}
+                dataYOrigin={dataYOrigin as Data}
+                key={timeValue.timeTick}
+                timeValue={timeValue}
+                variation={areaThreshold?.variation as number}
+                xScale={xScale}
+              />
+            ))}
+        </>
       )}
 
       {displayAreaRegularLines
