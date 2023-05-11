@@ -1,8 +1,9 @@
 name: Veracode scan on release and hotfix branches
 
 on:
-  branches:
-    - AT-94-pipeline-scan
+  push:
+    branches:
+      - AT-94-pipeline-scan
   pull_request:
     branches:
       - hotfix-*
