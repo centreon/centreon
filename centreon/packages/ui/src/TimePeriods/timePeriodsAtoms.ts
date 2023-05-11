@@ -1,18 +1,13 @@
-import { atom } from 'jotai';
-import { always, cond, gte, isNil, not, pipe, T } from 'ramda';
 import dayjs from 'dayjs';
+import { atom } from 'jotai';
+import { always, cond, gte, isNil, T } from 'ramda';
 
 import {
   defaultTimePeriod,
   getTimePeriodById,
   getTimePeriodFromNow
 } from './helpers';
-import {
-  CustomTimePeriod,
-  GraphQueryParametersProps,
-  TimePeriod,
-  TimePeriodById
-} from './models';
+import { CustomTimePeriod, TimePeriod, TimePeriodById } from './models';
 
 export const selectedTimePeriodAtom = atom<TimePeriod | null>(
   defaultTimePeriod
@@ -93,21 +88,6 @@ export const getDatesDerivedAtom = atom(
       ];
     }
 );
-
-// export const graphQueryParametersDerivedAtom = atom(
-//   (get) =>
-//     ({ timePeriod, startDate, endDate }: GraphQueryParametersProps): string => {
-//       const getDates = get(getDatesDerivedAtom);
-
-//       if (pipe(isNil, not)(timePeriod)) {
-//         const [start, end] = getDates(timePeriod);
-
-//         return `?start=${start}&end=${end}`;
-//       }
-
-//       return `?start=${startDate?.toISOString()}&end=${endDate?.toISOString()}`;
-//     }
-// );
 
 export const adjustTimePeriodDerivedAtom = atom(
   null,
