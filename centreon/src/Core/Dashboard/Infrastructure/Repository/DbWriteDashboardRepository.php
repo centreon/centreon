@@ -41,6 +41,25 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
         $this->db = $db;
     }
 
+    /**
+     * @param int $dashboardId
+     *
+     * @throws \PDOException
+     */
+    public function delete(int $dashboardId): void
+    {
+        $this->info('Delete dashboard', ['id' => $dashboardId]);
+
+        $query = <<<'SQL'
+            DELETE FROM `:db`.`dashboard`
+            WHERE id = :dashboard_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
     public function add(NewDashboard $newDashboard): int
     {
         $insert = <<<'SQL'
