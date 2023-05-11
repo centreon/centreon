@@ -18,5 +18,8 @@ module.exports = {
   transform: {
     ...baseConfig.transform,
     '^.+\\.mdx?$': '@storybook/addon-docs/jest-transform-mdx'
-  }
+  },
+  transformIgnorePatterns: [
+    '<rootDir>/../../node_modules/(?!d3-array|d3-scale|d3-interpolation|d3-interpolate)'
+  ]
 };

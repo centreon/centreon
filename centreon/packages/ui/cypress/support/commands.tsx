@@ -17,7 +17,7 @@ interface MountProps {
 declare global {
   namespace Cypress {
     interface Chainable {
-      mount: ({ Component, options: {} }: MountProps) => Cypress.Chainable;
+      mount: ({ Component, options }: MountProps) => Cypress.Chainable;
     }
   }
 }

@@ -12,6 +12,8 @@ Feature:
     And the following CLAPI import data:
     """
     STPL;ADD;service-name-1;service-alias-1;;;;
+    CONTACT;ADD;test;test;test@localhost.com;Centreon@2022;0;1;en_US;local
+    CONTACT;setparam;test;reach_api;1
     """
 
     When I send a GET request to '/api/latest/configuration/services/templates?search={"name": "service-name-1"}'
@@ -43,6 +45,34 @@ Feature:
             },
             "sort_by": {},
             "total": 1
+        }
+    }
+    """
+
+    Given I am logged in with "test"/"Centreon@2022"
+    When I send a DELETE request to '/api/v23.10/configuration/services/templates/27'
+    Then the response code should be "403"
+
+    When I am logged in
+    Then I send a DELETE request to '/api/v23.10/configuration/services/templates/27'
+    Then the response code should be "204"
+
+    When I send a GET request to '/api/v23.10/configuration/services/templates?search={"name": "service-name-1"}'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+        "result": [],
+        "meta": {
+            "page": 1,
+            "limit": 10,
+            "search": {
+                "$and": {
+                    "name": "service-name-1"
+                }
+            },
+            "sort_by": {},
+            "total": 0
         }
     }
     """
