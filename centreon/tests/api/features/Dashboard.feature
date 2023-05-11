@@ -7,6 +7,31 @@ Feature:
     Given a running instance of Centreon Web API
     And the endpoints are described in Centreon Web API documentation
 
+  Scenario: Dashboard endpoints do NOT found because of disabled feature
+    Given I am logged in
+    And a feature flag "dashboard" of bitmask 0
+
+    When I send a POST request to '/api/latest/configuration/dashboards' with body:
+    """
+    { "name": "my-dashboard" }
+    """
+    Then the response code should be "404"
+
+    When I send a PUT request to '/api/latest/configuration/dashboards/1' with body:
+    """
+    { "name": "my-dashboard" }
+    """
+    Then the response code should be "404"
+
+    When I send a GET request to '/api/latest/configuration/dashboards'
+    Then the response code should be "404"
+
+    When I send a GET request to '/api/latest/configuration/dashboards/1'
+    Then the response code should be "404"
+
+    When I send a DELETE request to '/api/latest/configuration/dashboards/1'
+    Then the response code should be "404"
+
   Scenario: Dashboard add + get with an Administrator
     Given I am logged in
     And a feature flag "dashboard" of bitmask 3
@@ -49,9 +74,6 @@ Feature:
     When I send a GET request to '/api/latest/configuration/dashboards/999'
     Then the response code should be "404"
 
-    When I send a GET request to '/api/latest/configuration/dashboards/not_an_integer'
-    Then the response code should be "404"
-
     When I send a POST request to '/api/latest/configuration/dashboards' with body:
     """
     { "name": "2nd-dashboard" }
@@ -67,3 +89,31 @@ Feature:
     { "unknown_field": "something" }
     """
     Then the response code should be "400"
+
+    When I send a DELETE request to '/api/latest/configuration/dashboards/999'
+    Then the response code should be "404"
+
+    When I send a DELETE request to '/api/latest/configuration/dashboards/2'
+    Then the response code should be "204"
+
+    When I send a PUT request to '/api/latest/configuration/dashboards/<dashboardId>' with body:
+    """
+    { "name": "modified-dashboard-name" }
+    """
+    Then the response code should be "204"
+
+    When I send a PUT request to '/api/latest/configuration/dashboards/<dashboardId>' with body:
+    """
+    { "unknown_field": "something" }
+    """
+    Then the response code should be "400"
+
+    When I send a GET request to '/api/latest/configuration/dashboards/<dashboardId>'
+    Then the response code should be "200"
+    And the JSON node "name" should be equal to '"modified-dashboard-name"'
+
+    When I send a PUT request to '/api/latest/configuration/dashboards/999' with body:
+    """
+    { "name": "modified-dashboard-name" }
+    """
+    Then the response code should be "404"
