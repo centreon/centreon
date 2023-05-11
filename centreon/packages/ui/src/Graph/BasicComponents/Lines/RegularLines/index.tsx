@@ -72,17 +72,13 @@ export default memo(RegularLine, (prevProps, nextProps) => {
     timeSeries: prevTimeSeries,
     graphHeight: prevGraphHeight,
     highlight: prevHighlight,
-    xScale: prevXScale,
-    shapeLinePath: prevShapeLinePath,
-    shapeAreaClosed: prevShapeAreaClosed
+    xScale: prevXScale
   } = prevProps;
   const {
     timeSeries: nextTimeSeries,
     graphHeight: nextGraphHeight,
     highlight: nextHighlight,
-    xScale: nextXScale,
-    shapeLinePath: nextShapeLinePath,
-    shapeAreaClosed: nextShapeAreaClosed
+    xScale: nextXScale
   } = nextProps;
 
   const prevXScaleRange = prevXScale.range();
@@ -92,8 +88,6 @@ export default memo(RegularLine, (prevProps, nextProps) => {
     equals(prevTimeSeries, nextTimeSeries) &&
     equals(prevGraphHeight, nextGraphHeight) &&
     equals(prevHighlight, nextHighlight) &&
-    equals(prevXScaleRange, nextXScaleRange) &&
-    equals(prevShapeAreaClosed, nextShapeAreaClosed) &&
-    equals(prevShapeLinePath, nextShapeLinePath)
+    equals(prevXScaleRange, nextXScaleRange)
   );
 });

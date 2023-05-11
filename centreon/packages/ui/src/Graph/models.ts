@@ -11,6 +11,7 @@ import {
   AreaStackedLines
 } from './BasicComponents/Lines/models';
 import { TimelineEvent } from './IntercatifsComponents/Annotations/models';
+import { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
 
 export interface GraphData {
   global;
@@ -99,11 +100,12 @@ export interface Area {
 }
 
 export interface ThresholdArea extends Area {
-  variation?: number;
+  factors?: FactorsVariation;
+  getCountDisplayedCircles?: (value: number) => void;
 }
 
 export interface GlobalAreaLines {
-  areaRegularLines: Area;
-  areaStackedLines: Area;
-  areaThresholdLines: ThresholdArea;
+  areaRegularLines?: Area;
+  areaStackedLines?: Area;
+  areaThresholdLines?: ThresholdArea;
 }

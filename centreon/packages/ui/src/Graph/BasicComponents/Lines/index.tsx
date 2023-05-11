@@ -15,6 +15,7 @@ import StackedLines from './StackedLines';
 import useDataStackedLines from './StackedLines/useDataStackLines';
 import ThresholdLines from './Threshold';
 import AwesomeCircles from './Threshold/Circle';
+import ThresholdWithVariation from './Threshold/ThresholdWithVariation';
 import { Data } from './Threshold/models';
 import useDataThreshold from './Threshold/useDataThreshold';
 import { Shape } from './models';
@@ -36,6 +37,16 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
     anchorPoint;
   const { lines, leftScale, rightScale, timeSeries, xScale, display } =
     areaThreshold;
+
+  const displayEnvelopeThreshold =
+    !isNil(areaThreshold?.factors?.currentFactorMultiplication) &&
+    !isNil(areaThreshold?.factors?.simulatedFactorMultiplication);
+
+  const currentFactorMultiplication = areaThreshold?.factors
+    ?.currentFactorMultiplication as number;
+  const simulatedFactorMultiplication = areaThreshold?.factors
+    ?.simulatedFactorMultiplication as number;
+  const getCountDisplayedCircles = areaThreshold?.getCountDisplayedCircles;
 
   const {
     displayAreaInvertedStackedLines,
@@ -94,26 +105,33 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
             timeSeries={timeSeries}
             xScale={xScale}
           />
-          <ThresholdLines
-            dataY0={dataY0 as Data}
-            dataY1={dataY1 as Data}
-            graphHeight={height}
-            timeSeries={timeSeries}
-            variation={areaThreshold?.variation}
-            xScale={xScale}
-          />
-          {areaThreshold?.variation &&
-            timeSeries.map((timeValue) => (
-              <AwesomeCircles
-                dataY0={dataY0 as Data}
-                dataY1={dataY1 as Data}
-                dataYOrigin={dataYOrigin as Data}
-                key={timeValue.timeTick}
-                timeValue={timeValue}
-                variation={areaThreshold?.variation as number}
-                xScale={xScale}
-              />
-            ))}
+          {displayEnvelopeThreshold && (
+            <ThresholdWithVariation
+              dataY0={dataY0 as Data}
+              dataY1={dataY1 as Data}
+              factors={{
+                currentFactorMultiplication,
+                simulatedFactorMultiplication
+              }}
+              graphHeight={height}
+              timeSeries={timeSeries}
+              xScale={xScale}
+            />
+          )}
+          {displayEnvelopeThreshold && (
+            <AwesomeCircles
+              dataY0={dataY0 as Data}
+              dataY1={dataY1 as Data}
+              dataYOrigin={dataYOrigin as Data}
+              factors={{
+                currentFactorMultiplication,
+                simulatedFactorMultiplication
+              }}
+              getCountDisplayedCircles={getCountDisplayedCircles}
+              timeSeries={timeSeries}
+              xScale={xScale}
+            />
+          )}
         </>
       )}
 

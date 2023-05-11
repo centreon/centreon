@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 
 import Switch from '@mui/material/Switch';
+import { Button } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
@@ -37,14 +39,50 @@ export default meta;
 
 type Story = StoryObj<typeof WraperGraph>;
 
-const Template: Story = {
-  render: (args) => <WraperGraph {...args} data={dataLastDay} />
-};
+interface Random {
+  max: number;
+  min: number;
+}
 
-export const Graph: Story = {
-  ...Template,
-  argTypes,
-  args: argumentsData
+const Threshold = (args): JSX.Element => {
+  const [currentFactorMultiplication, setCurrentFactorMultiplication] =
+    useState<number>();
+  const [countedCircles, setCountedCircles] = useState<number>();
+
+  const getRandomInt = ({ min, max }: Random): number => {
+    return Math.floor(Math.random() * (max - min) + min);
+  };
+
+  const handleClick = (): void => {
+    setCurrentFactorMultiplication(getRandomInt({ max: 5, min: 1 }));
+  };
+
+  const getCountDisplayedCircles = (value: number): void => {
+    setCountedCircles(value);
+  };
+
+  return (
+    <>
+      <Tooltip title={`number of displayed circles :${countedCircles}`}>
+        <Button onClick={handleClick}>change envelope size randomly</Button>
+      </Tooltip>
+
+      <WraperGraph
+        {...args}
+        data={dataLastDay}
+        shapeLines={{
+          areaThresholdLines: {
+            display: true,
+            factors: {
+              currentFactorMultiplication,
+              simulatedFactorMultiplication: 1.5
+            },
+            getCountDisplayedCircles
+          }
+        }}
+      />
+    </>
+  );
 };
 
 const ExternalComponent = (tooltipData): JSX.Element => {
@@ -165,7 +203,6 @@ const GraphAndTimePeriod = (args): JSX.Element => {
         annotationEvent={annotationEventData}
         end={end}
         loading={false}
-        shapeLines={{ areaThresholdLines: { display: true, variation: 1.5 } }}
         start={start}
         timeShiftZones={{ enable: true, getInterval }}
         tooltip={{
@@ -188,6 +225,16 @@ const GraphAndTimePeriod = (args): JSX.Element => {
   );
 };
 
+const Template: Story = {
+  render: (args) => <WrapperGraph {...args} data={dataLastDay} />
+};
+
+export const Graph: Story = {
+  ...Template,
+  argTypes,
+  args: argumentsData
+};
+
 const WithTimePeriod = {
   render: (args): JSX.Element => <GraphAndTimePeriod {...args} />
 };
@@ -197,6 +244,29 @@ export const GraphWithTimePeriod: Story = {
   args: {
     end: defaultEnd,
     height: 500,
+    shapeLines: {
+      areaThresholdLines: {
+        display: true
+      }
+    },
+    start: defaultStart
+  }
+};
+
+const GraphWithEnvelopVariation: Story = {
+  render: (args) => <Threshold {...args} />
+};
+
+export const WithEnvelopVariation: Story = {
+  ...GraphWithEnvelopVariation,
+  args: {
+    end: defaultEnd,
+    height: 500,
+    shapeLines: {
+      areaThresholdLines: {
+        display: true
+      }
+    },
     start: defaultStart
   }
 };

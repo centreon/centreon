@@ -187,19 +187,9 @@ export const argTypes = {
       type: { detail: 'control the axis of the graph', summary: 'object' }
     }
   },
-  baseUrl: {
-    control: {
-      type: 'text'
-    },
-    description: 'base url to get graph data',
-    name: 'baseUrl',
-    table: {
-      category: 'Graph data',
-      defaultValue: {
-        summary: defaultBaseUrl
-      },
-      type: { required: true, summary: 'string' }
-    }
+  data: {
+    control: 'object',
+    description: 'the data of the graph'
   },
   end: {
     control: 'text',
@@ -319,7 +309,6 @@ export const args = {
     axisYLeft: { displayUnit: true },
     axisYRight: { display: true, displayUnit: true }
   },
-  baseUrl: defaultBaseUrl,
   end: defaultEnd,
   height: 500,
   shapeLines: {
@@ -327,6 +316,9 @@ export const args = {
       display: true
     },
     areaStackedLines: {
+      display: true
+    },
+    areaThresholdLines: {
       display: true
     }
   },
