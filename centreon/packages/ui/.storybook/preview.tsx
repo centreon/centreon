@@ -6,7 +6,7 @@ import StoryBookThemeProvider from "../src/StoryBookThemeProvider";
 import QueryProvider from "../src/api/QueryProvider";
 import { Decorator, Preview } from "@storybook/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
+import isChromatic from 'chromatic/isChromatic';
 
 const withThemeProvider: Decorator = (story, context): JSX.Element => (
   <StoryBookThemeProvider
@@ -22,6 +22,10 @@ const withQueryProvider: Decorator = (story, context): JSX.Element => (
     {context.globals.reactquerydevtools && <ReactQueryDevtools />}
   </QueryProvider>
 );
+
+if (isChromatic()) {
+  AnimationLibrary.disable = true;
+}
 
 const preview: Preview = {
   decorators: [
@@ -52,7 +56,8 @@ const preview: Preview = {
         color: /(background|color)$/i,
         date: /Date$/,
       }
-    }
+    },
+    chromatic: { pauseAnimationAtEnd: true },
   }
 };
 
