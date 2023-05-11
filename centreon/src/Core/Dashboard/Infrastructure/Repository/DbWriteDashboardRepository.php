@@ -86,15 +86,36 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
         return (int) $this->db->lastInsertId();
     }
 
+    public function update(Dashboard $dashboard): void
+    {
+        $update = <<<'SQL'
+            UPDATE `:db`.`dashboard`
+            SET
+                `name` = :name,
+                `description` = :description,
+                `updated_at` = :updated_at
+            WHERE
+                `id` = :dashboard_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($update));
+        $statement->bindValue(':dashboard_id', $dashboard->getId(), \PDO::PARAM_INT);
+        $this->bindValueOfDashboard($statement, $dashboard);
+        $statement->execute();
+    }
+
     /**
      * @param \PDOStatement $statement
-     * @param Dashboard|NewDashboard $newDashboard
+     * @param Dashboard|NewDashboard $dashboard
      */
-    private function bindValueOfDashboard(\PDOStatement $statement, Dashboard|NewDashboard $newDashboard): void
+    private function bindValueOfDashboard(\PDOStatement $statement, Dashboard|NewDashboard $dashboard): void
     {
-        $statement->bindValue(':name', $newDashboard->getName());
-        $statement->bindValue(':description', $this->emptyStringAsNull($newDashboard->getDescription()));
-        $statement->bindValue(':created_at', $newDashboard->getCreatedAt()->getTimestamp());
-        $statement->bindValue(':updated_at', $newDashboard->getUpdatedAt()->getTimestamp());
+        $statement->bindValue(':name', $dashboard->getName());
+        $statement->bindValue(':description', $this->emptyStringAsNull($dashboard->getDescription()));
+        $statement->bindValue(':updated_at', $dashboard->getUpdatedAt()->getTimestamp());
+
+        if ($dashboard instanceof NewDashboard) {
+            $statement->bindValue(':created_at', $dashboard->getCreatedAt()->getTimestamp());
+        }
     }
 }

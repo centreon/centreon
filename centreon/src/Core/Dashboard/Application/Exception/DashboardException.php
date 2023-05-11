@@ -80,4 +80,12 @@ class DashboardException extends \Exception
     {
         return new self(_('Error while deleting a dashboard'));
     }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileUpdating(): self
+    {
+        return new self(_('Error while updating a dashboard'));
+    }
 }

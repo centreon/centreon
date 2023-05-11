@@ -1747,6 +1747,8 @@ paths:
                     $ref: '#/components/schemas/Meta'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
     post:
@@ -1778,11 +1780,13 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/dashboards/{dashboardId}:
+  /configuration/dashboards/{dashboard_id}:
     get:
       tags:
         - Dashboard
@@ -1791,6 +1795,8 @@ paths:
         Return one dashboard configuration.
 
         `Since Centreon web 23.10`
+      parameters:
+        - $ref: '#/components/parameters/DashboardId'
       responses:
         '200':
           description: "OK"
@@ -1812,6 +1818,8 @@ paths:
         Delete one dashboard configuration.
 
         `Since Centreon web 23.10`
+      parameters:
+        - $ref: '#/components/parameters/DashboardId'
       responses:
         '204':
           description: "OK"
@@ -1819,6 +1827,35 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Dashboard
+      summary: "Update a dashboard"
+      description: |
+        `Since Centreon web 23.10`
+
+        Update dashboard.
+      parameters:
+        - $ref: '#/components/parameters/DashboardId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration.Dashboard.Add'
+      responses:
+        '204':
+          description: "OK"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/access-groups:

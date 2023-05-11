@@ -27,13 +27,14 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Dashboard\Domain\Model\Dashboard;
 
 beforeEach(function (): void {
-    $this->createDashboard = static function (array $fields = []): Dashboard {
+    $this->testedUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00');
+    $this->createDashboard = function (array $fields = []): Dashboard {
         return new Dashboard(
             $fields['id'] ?? 1,
             $fields['name'] ?? 'dashboard-name',
             $fields['description'] ?? 'dashboard-description',
-            $fields['createdAt'] ?? new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
-            $fields['updatedAt'] ?? new \DateTimeImmutable('2023-05-09T16:00:00+00:00')
+            new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
+            $this->testedUpdatedAt
         );
     };
 });
@@ -74,6 +75,43 @@ foreach (
         }
     );
 }
+
+// updatedAt change
+
+$testUpdatedAtClosure = function (callable $setter) {
+    return function () use ($setter): void {
+        $dashboard = ($this->createDashboard)();
+
+        $timeBefore = time();
+        $updatedAtBefore = $this->testedUpdatedAt->getTimestamp();
+        $setter($dashboard);
+        $updatedAtAfter = $dashboard->getUpdatedAt()->getTimestamp();
+
+        expect($updatedAtAfter)->toBeGreaterThanOrEqual($timeBefore)
+            ->and($updatedAtAfter)->toBeGreaterThan($updatedAtBefore);
+    };
+};
+
+it(
+    'should NOT change the updatedAt field when we do not call any setter',
+    function (): void {
+        $updatedAtBefore = $this->testedUpdatedAt->getTimestamp();
+        $timeBefore = time();
+        $dashboard = ($this->createDashboard)();
+        $updatedAtAfter = $dashboard->getUpdatedAt()->getTimestamp();
+
+        expect($updatedAtAfter)->toBeLessThan($timeBefore)
+            ->and($updatedAtAfter)->toBe($updatedAtBefore);
+    }
+);
+it(
+    'should change the updatedAt field when we call setName()',
+    $testUpdatedAtClosure(fn(Dashboard $dashboard) => $dashboard->setName('changed'))
+);
+it(
+    'should change the updatedAt field when we call setDescription()',
+    $testUpdatedAtClosure(fn(Dashboard $dashboard) => $dashboard->setDescription('changed'))
+);
 
 // too long fields
 
