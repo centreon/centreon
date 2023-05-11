@@ -18,7 +18,7 @@ import {
   lastDayForwardDate,
   zoomPreviewDate
 } from './helpers/doc';
-import dataLastDay from './mockedData/lastDay.json';
+import dataLastDay from './mockedData/lastDayThreshold.json';
 import dataLastDayForword from './mockedData/lastDayForward.json';
 import dataLastMonth from './mockedData/lastMonth.json';
 import dataLastWeek from './mockedData/lastWeek.json';
@@ -165,6 +165,7 @@ const GraphAndTimePeriod = (args): JSX.Element => {
         annotationEvent={annotationEventData}
         end={end}
         loading={false}
+        shapeLines={{ areaThresholdLines: { display: true } }}
         start={start}
         timeShiftZones={{ enable: true, getInterval }}
         tooltip={{

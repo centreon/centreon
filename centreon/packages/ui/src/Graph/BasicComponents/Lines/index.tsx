@@ -1,17 +1,22 @@
 import { ReactNode } from 'react';
 
-import { isEmpty, isNil } from 'ramda';
+import { isNil } from 'ramda';
 
-import { getStackedYScale, getUnits, getYScale } from '../../timeSeries';
-import { Line } from '../../timeSeries/models';
 import {
   RegularLinesAnchorPoint,
   StackedAnchorPoint
 } from '../../IntercatifsComponents/AnchorPoint/models';
+import { getUnits, getYScale } from '../../timeSeries';
+import { Line } from '../../timeSeries/models';
 
 import RegularLine from './RegularLines';
 import StackedLines from './StackedLines';
+import ThresholdLines from './Threshold';
 import { Shape } from './models';
+import useDataRegularLines from './useDataRegularLines';
+import useDataStackedLines from './useDataStackLines';
+import useDataThreshold from './useDataThreshold';
+import { Data } from './Threshold/models';
 
 interface AnchorPoint {
   renderRegularLinesAnchorPoint: (args: RegularLinesAnchorPoint) => ReactNode;
@@ -25,54 +30,38 @@ interface Props {
 }
 
 const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
-  const { areaRegularLines, areaStackedLines } = shape;
-
+  const { areaRegularLines, areaStackedLines, areaThreshold } = shape;
   const { renderRegularLinesAnchorPoint, renderStackedAnchorPoint } =
     anchorPoint;
+  const { lines, leftScale, rightScale, timeSeries, xScale } = areaThreshold;
 
   const {
-    lines: regularLines,
+    displayAreaInvertedStackedLines,
+    displayAreaStackedLines,
+    invertedStackedLines,
+    invertedStackedLinesTimeSeries,
+    regularStackedLines,
+    regularStackedLinesTimeSeries,
+    xScaleStackedLines,
+    yScaleStackedLines
+  } = useDataStackedLines(areaStackedLines);
+
+  const {
+    display: displayAreaRegularLines,
+    leftScale: leftScaleRegularLines,
     timeSeries: regularLinesTimeSeries,
-    display: displayAreaRegular
-  } = areaRegularLines;
+    rightScale: rightScaleRegularLines,
+    xScale: xScaleRegularLines,
+    lines: regularLines
+  } = useDataRegularLines(areaRegularLines);
 
-  const { stackedLinesData, invertedStackedLinesData } = areaStackedLines;
-
-  const {
-    lines: regularStackedLines,
-    timeSeries: regularStackedLinesTimeSeries
-  } = stackedLinesData;
-
-  const {
-    lines: invertedStackedLines,
-    timeSeries: invertedStackedLinesTimeSeries
-  } = invertedStackedLinesData;
-
-  const displayArea = (data: unknown): boolean =>
-    !isEmpty(data) && !isNil(data);
-
-  const displayAreaStackedLines =
-    areaStackedLines.display && displayArea(regularStackedLines);
-
-  const displayAreaInvertedStackedLines =
-    areaStackedLines.display && displayArea(invertedStackedLines);
-
-  const displayAreaRegularLines =
-    displayAreaRegular && displayArea(regularLines);
-
-  const stackedYScale = getStackedYScale({
-    leftScale: areaStackedLines?.leftScale,
-    rightScale: areaStackedLines?.rightScale
+  const { dataY0, dataY1, displayThreshold } = useDataThreshold({
+    leftScale,
+    lines,
+    rightScale
   });
 
-  const leftScaleRegularLines = areaRegularLines?.leftScale;
-  const rightScaleRegularLines = areaRegularLines?.rightScale;
-  const xScaleRegularLines = areaRegularLines?.xScale;
-
-  const commonStackedLinesProps = {
-    xScale: areaStackedLines?.xScale,
-    yScale: stackedYScale
-  };
+  const commonStackedLinesProps = { xScaleStackedLines, yScaleStackedLines };
 
   return (
     <g>
@@ -90,6 +79,16 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
           renderStackedAnchorPoint={renderStackedAnchorPoint}
           timeSeries={invertedStackedLinesTimeSeries}
           {...commonStackedLinesProps}
+        />
+      )}
+
+      {displayThreshold && (
+        <ThresholdLines
+          dataY0={dataY0 as Data}
+          dataY1={dataY1 as Data}
+          graphHeight={height}
+          timeSeries={timeSeries}
+          xScale={xScale}
         />
       )}
 

@@ -1,7 +1,6 @@
 import { useMemo, useRef } from 'react';
 
 import { Group } from '@visx/visx';
-import { propEq, reject } from 'ramda';
 
 import { ClickAwayListener } from '@mui/material';
 
@@ -11,6 +10,7 @@ import Lines from './BasicComponents/Lines';
 import useRegularLines from './BasicComponents/Lines/RegularLines/useRegularLines';
 import useStackedLines from './BasicComponents/Lines/StackedLines/useStackedLines';
 import LoadingProgress from './BasicComponents/LoadingProgress';
+import useFilterLines from './BasicComponents/useFilterLines';
 import { margin } from './common';
 import { useStyles } from './Graph.styles';
 import Header from './Header';
@@ -58,7 +58,11 @@ const Graph = ({
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
 
   const { title, timeSeries, baseAxis, lines } = graphData;
-  const displayedLines = reject(propEq('display', false), lines);
+
+  const { displayedLines, newLines } = useFilterLines({
+    displayThreshold: shapeLines?.areaThresholdLines?.display,
+    lines
+  });
 
   const xScale = useMemo(
     () =>
@@ -113,6 +117,12 @@ const Graph = ({
     leftScale,
     rightScale,
     xScale
+  };
+
+  const areaThreshold = {
+    lines: displayedLines,
+    timeSeries,
+    ...commonLinesProps
   };
 
   const areaRegularLines = {
@@ -234,7 +244,7 @@ const Graph = ({
                   renderStackedAnchorPoint
                 }}
                 height={graphHeight}
-                shape={{ areaRegularLines, areaStackedLines }}
+                shape={{ areaRegularLines, areaStackedLines, areaThreshold }}
               />
 
               <InteractionWithGraph
@@ -250,7 +260,7 @@ const Graph = ({
             </Group.Group>
           </svg>
           <GraphTooltip {...tooltip} {...graphTooltipData} />
-          <Legend base={baseAxis} lines={lines} timeSeries={timeSeries} />
+          <Legend base={baseAxis} lines={newLines} timeSeries={timeSeries} />
         </div>
       </ClickAwayListener>
     </>

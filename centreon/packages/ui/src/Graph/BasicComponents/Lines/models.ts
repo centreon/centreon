@@ -29,4 +29,5 @@ export interface AreaRegularLines extends ShapeGraphData {
 export interface Shape {
   areaRegularLines: AreaRegularLines;
   areaStackedLines: AreaStackedLines;
+  areaThreshold: AreaRegularLines;
 }

@@ -1,4 +1,4 @@
-import { gte, isNil, prop, propEq, reject, sortBy, gt } from 'ramda';
+import { gte, isNil, prop, propEq, reject, sortBy, gt, isEmpty } from 'ramda';
 import dayjs from 'dayjs';
 
 import { getLineData, getTimeSeries } from '../timeSeries';
@@ -44,4 +44,8 @@ export const truncate = (content?: string): string => {
   return content;
 };
 
-export default truncate;
+export const displayArea = (data: unknown): boolean =>
+  !isEmpty(data) && !isNil(data);
+
+export const lowerLineName = 'Lower Threshold';
+export const upperLineName = 'Upper Threshold';

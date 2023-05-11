@@ -101,4 +101,5 @@ export interface Area {
 export interface GlobalAreaLines {
   areaRegularLines: Area;
   areaStackedLines: Area;
+  areaThresholdLines: Area;
 }

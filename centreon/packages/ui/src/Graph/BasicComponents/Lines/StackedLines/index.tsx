@@ -13,15 +13,15 @@ interface Props {
   lines: Array<Line>;
   renderStackedAnchorPoint: (args: StackedAnchorPoint) => ReactNode;
   timeSeries: Array<TimeValue>;
-  xScale: ScaleTime<number, number>;
-  yScale: ScaleLinear<number, number>;
+  xScaleStackedLines: ScaleTime<number, number>;
+  yScaleStackedLines: ScaleLinear<number, number>;
 }
 
 const StackLines = ({
   timeSeries,
   lines,
-  yScale,
-  xScale,
+  yScaleStackedLines,
+  xScaleStackedLines,
   renderStackedAnchorPoint
 }: Props): JSX.Element => {
   return (
@@ -30,14 +30,14 @@ const StackLines = ({
       data={timeSeries}
       defined={(d): boolean => {
         return pipe(
-          map(prop('metric')) as (displayedLines) => Array<string>,
+          map(prop('metric')) as unknown as (displayedLines) => Array<string>,
           all((metric) => pipe(path(['data', metric]), isNil, not)(d))
         )(lines);
       }}
       keys={map(prop('metric'), lines)}
-      x={(d): number => xScale(getTime(d.data)) ?? 0}
-      y0={(d): number => yScale(d[0]) ?? 0}
-      y1={(d): number => yScale(d[1]) ?? 0}
+      x={(d): number => xScaleStackedLines(getTime(d.data)) ?? 0}
+      y0={(d): number => yScaleStackedLines(d[0]) ?? 0}
+      y1={(d): number => yScaleStackedLines(d[1]) ?? 0}
     >
       {({ stacks, path: linePath }): Array<JSX.Element> => {
         return stacks.map((stack, index) => {
@@ -53,8 +53,8 @@ const StackLines = ({
                 lineColor,
                 stack,
                 transparency,
-                xScale,
-                yScale
+                xScale: xScaleStackedLines,
+                yScale: yScaleStackedLines
               })}
               <path
                 d={linePath(stack) || ''}

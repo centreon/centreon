@@ -309,6 +309,9 @@ export const args = {
     },
     areaStackedLinesAnchorPoint: {
       display: true
+    },
+    areaThresholdLines: {
+      display: true
     }
   },
   axis: {

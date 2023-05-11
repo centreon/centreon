@@ -4,7 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Tooltip, Paper, Typography } from '@mui/material';
 
-import truncate from '../../../helpers';
+import { truncate } from '../../../helpers';
 import { labelBy } from '../../../translatedLabels';
 import { TimelineEvent } from '../models';
 import { annotationHoveredAtom } from '../annotationsAtoms';

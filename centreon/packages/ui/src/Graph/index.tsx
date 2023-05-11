@@ -7,10 +7,8 @@ import 'dayjs/locale/pt';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
-import { useAtomValue } from 'jotai';
 
 import Graph from './Graph';
-import { linesGraphAtom } from './graphAtoms';
 import { GlobalAreaLines, GraphData, GraphProps } from './models';
 import useGraphData from './useGraphData';
 
@@ -42,9 +40,8 @@ const WrapperGraph = ({
   annotationEvent
 }: Props): JSX.Element | null => {
   const { adjustedData } = useGraphData({ data, end, start });
-  const lines = useAtomValue(linesGraphAtom);
 
-  if (!adjustedData || !lines) {
+  if (!adjustedData) {
     return null;
   }
 
@@ -59,7 +56,7 @@ const WrapperGraph = ({
             anchorPoint={anchorPoint}
             annotationEvent={annotationEvent}
             axis={axis}
-            graphData={{ ...adjustedData, lines }}
+            graphData={{ ...adjustedData }}
             graphInterval={{ end, start }}
             height={height ?? responsiveHeight}
             loading={loading}
