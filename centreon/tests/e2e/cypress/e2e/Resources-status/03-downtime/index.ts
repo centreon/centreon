@@ -27,6 +27,10 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/downtime'
   }).as('postSaveDowntime');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/include/common/userTimezone.php'
+  }).as('getTimeZone');
 });
 
 Given('the user have the necessary rights to page Resource Status', () => {
@@ -135,6 +139,134 @@ Then(
         return cy
           .refreshListing()
           .then(() => cy.contains(secondServiceInDtName))
+          .parent()
+          .then((val) => {
+            return (
+              val.css('background-color') === actionBackgroundColors.inDowntime
+            );
+          });
+      },
+      {
+        timeout: 15000
+      }
+    );
+
+    tearDownResource();
+  }
+);
+
+Given('a resource is on downtime', () => {
+  cy.contains(serviceInDtName)
+    .parent()
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .click();
+
+  cy.getByTestId({ testId: 'Multiple Set Downtime' }).last().click();
+
+  cy.getByLabel({ label: 'Set downtime' }).last().click();
+
+  cy.wait('@postSaveDowntime').then(() => {
+    cy.contains('Downtime command sent').should('have.length', 1);
+  });
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(serviceInDtName))
+        .parent()
+        .then((val) => {
+          return (
+            val.css('background-color') === actionBackgroundColors.inDowntime
+          );
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
+});
+
+Given('that you have to go to the downtime page', () => {
+  cy.visit('/centreon/main.php?p=21001');
+});
+
+When('I search for the resource currently "In Downtime" in the list', () => {
+  cy.wait('@getTimeZone').then(() => {
+    cy.getIframeBody().as('iframeBody');
+
+    cy.get('@iframeBody')
+      .find('form input[name="search_service"]')
+      .as('searchInput');
+
+    cy.get('@searchInput').clear();
+
+    cy.get('@searchInput').type(serviceInDtName);
+
+    cy.get('@searchInput').type('{enter}');
+  });
+});
+
+Then('the user selects the checkbox and clicks on the "Cancel" action', () => {
+  cy.get('@iframeBody')
+    .contains(serviceInDtName)
+    .parent()
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .as('serviceCheck');
+
+  cy.get('@serviceCheck').first().check();
+
+  cy.get('@serviceCheck').trigger('change');
+
+  cy.get('@serviceCheck').should('be.checked');
+
+  cy.get('@iframeBody').find('form input[name="submit2"]').as('@cancelButton');
+
+  cy.get('@cancelButton').click({ force: true });
+});
+
+Then('the user confirms the cancellation of the downtime', () => {
+  cy.on('window:confirm', (message) => {
+    expect(message).to.equal('Do you confirm the cancellation ?');
+
+    return true;
+  });
+});
+
+Then('the line disappears from the listing', () => {
+  cy.waitUntil(
+    () => {
+      return cy
+        .reload()
+        .then(() => cy.contains(serviceInDtName))
+        .parent()
+        .then((val) => {
+          return val.length === 0;
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
+});
+
+Then('the user goes to the Resource Status page', () => {
+  cy.navigateTo({
+    page: 'Resources Status',
+    rootItemNumber: 1
+  });
+});
+
+Then(
+  'looks for the resource that was in Downtime, it should not be there anymore',
+  () => {
+    cy.waitUntil(
+      () => {
+        return cy
+          .refreshListing()
+          .then(() => cy.contains(serviceInDtName))
           .parent()
           .then((val) => {
             return (
