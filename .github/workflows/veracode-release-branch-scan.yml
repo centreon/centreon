@@ -1,11 +1,12 @@
 name: Veracode scan on release and hotfix branches
 
 on:
+  branches:
+    - AT-94-pipeline-scan
   pull_request:
     branches:
       - hotfix-*
       - release-*
-      - AT-94-pipeline-scan
 
 env:
   MODULE_DIRECTORY: centreon-gorgone
