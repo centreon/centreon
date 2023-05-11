@@ -15,7 +15,7 @@ env:
   BRANCH_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
   HARD_MAJOR_VERSION: 23.04
   HARD_MINOR_VERSION: 1
-  CRITICALITY: "Very Low"
+  SEVERITY: "VeryLow"
 
 jobs:
   build:
@@ -81,7 +81,7 @@ jobs:
           includenewmodules: true
           scanallnonfataltoplevelmodules: true
           deleteincompletescan: 1
-          criticality: "${{ env.CRITICALITY }}"
+          criticality: "${{ env.SEVERITY }}"
 
       - name: DEBUG - Check location
         run: ls -la
