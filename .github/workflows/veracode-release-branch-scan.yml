@@ -1,19 +1,19 @@
-name: Veracode policy scan on develop branch
+name: Veracode scan on release and hotfix branches
 
 on:
-  push:
-    #branches: [ develop, master ]
+  pull-request:
     branches:
-      - "AT-94-pipeline-scan"
+      - hotfix-*
+      - release-*
+      - AT-94-pipeline-scan
 
 env:
-  TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
   MODULE_DIRECTORY: centreon-gorgone
   MODULE_NAME: centreon-gorgone
-  REPORT_FILENAME: "result.json"
-  #ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
+  BRANCH_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
   HARD_MAJOR_VERSION: 23.04
   HARD_MINOR_VERSION: 1
+  CRITICALITY: "Very Low"
 
 jobs:
   build:
@@ -21,36 +21,28 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: DEBUG - Check location
-        run: ls -la .github/actions/veracode-generate-archive
-
-      - name: Generate binary file
+      - name: Generate binary
         uses: ./.github/actions/veracode-generate-archive
         with:
           module_directory: ${{ env.MODULE_DIRECTORY }}
           module_name: ${{ env.MODULE_NAME }}
           major_version: ${{ env.HARD_MAJOR_VERSION }}
           minor_version: ${{ env.HARD_MINOR_VERSION }}
-          branch_name: ${{ env.TARGET_BRANCH }}
           compile_mvn: "no"
-          exclusion_file: "test TODO"
-
-      - name: DEBUG - Check location
-        run: ls -la
+          exclusion_file: "TODO"
 
   sandbox-scan:
     runs-on: [self-hosted, veracode]
     needs: [build]
     steps:
-#      - uses: actions/checkout@v3
-
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
-      - name: get archive
+      - name: get build binary
         uses: actions/download-artifact@v3
         with:
           name: "${{ env.MODULE_NAME }}-${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
+          # TODO: get target branch name to distinguish baseline from dev-xx.xx and xx.xx
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
@@ -82,12 +74,12 @@ jobs:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
           createsandbox: true
-          sandboxname: "${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
+          sandboxname: "${{ env.BRANCH_NAME }}"
           scantimeout: 60
           includenewmodules: true
           scanallnonfataltoplevelmodules: true
           deleteincompletescan: 1
-          criticality: "VeryLow"
+          criticality: "${{ env.CRITICALITY }}"
 
       - name: DEBUG - Check location
         run: ls -la
@@ -95,47 +87,7 @@ jobs:
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
-#      - name: DEBUG - Check location
-#        run: ls -la
-#
-#      - name: set baseline
-#        run: |
-#          aws s3 cp "${{ env.REPORT_FILENAME }}" "s3://centreon-veracode-reports/${{ env.BRANCH_NAME }}/${{ env.REPORT_FILENAME }}"
-#      - name: "Push report"
-#        run: aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}${{ env.VERSION }}/index.html" --acl public-read --region eu-west-1
-#        shell: bash
-#
-#  commit-baseline-file:
-#    needs: pipeline-scan
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#
-#      - name: get scan results
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: result.zip
-#
-#      - name: get filtered scan results
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: filtered_result.zip
-#
-#      - name: DEBUG - Check location
-#        run: ls -la
-#
-#      - name: commit baseline file to feature branch
-#        run: |
-#          git config user.email "technique-ci@centreon.com"
-#          git config user.name "technique-ci"
-#          git add "result.zip" "filtered_result.zip"
-#          git stash
-#          git pull origin ${{ env.BRANCH_NAME }} || echo "Couldn't find remote branch"
-#          git checkout stash -- .
-#          git commit -m "Veracode develop's Baseline File push from pipeline"
-#          git push origin HEAD:${{ env.BRANCH_NAME }} --force-with-lease
-#
+# TODO: to study : usefulness to promote a sandbox scan
 #  veracode-sandbox-task:
 #    needs: build
 #    name: Promote a scan from sandbox

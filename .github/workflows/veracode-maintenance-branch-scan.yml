@@ -1,0 +1,120 @@
+name: Veracode scan on maintenance branches
+
+on:
+  pull-request:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+      - AT-94-pipeline-scan
+
+env:
+  #TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
+  TARGET_BRANCH: develop
+  MODULE_DIRECTORY: centreon-gorgone
+  MODULE_NAME: centreon-gorgone
+  REPORT_FILENAME: "result.json"
+  #ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
+  HARD_MAJOR_VERSION: 23.04
+  HARD_MINOR_VERSION: 1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Generate binary file
+        uses: ./.github/actions/veracode-generate-archive
+        with:
+          module_directory: ${{ env.MODULE_DIRECTORY }}
+          module_name: ${{ env.MODULE_NAME }}
+          major_version: ${{ env.HARD_MAJOR_VERSION }}
+          minor_version: ${{ env.HARD_MINOR_VERSION }}
+          compile_mvn: "no"
+          exclusion_file: "TODO"
+
+      - name: DEBUG - Check location
+        run: ls -la
+
+  policy-scan:
+    runs-on: [self-hosted, veracode]
+    needs: [build]
+    steps:
+      - name: Get current time
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+
+      - name: DEBUG - Github head ref
+        run: echo ${{ github.head_ref }}
+
+      - name: DEBUG - Github ref Name
+        run: echo ${{ github.ref_name }}
+
+      - name: DEBUG - Github base ref
+        run: echo ${{ github.base_ref }}
+
+      - name: DEBUG - Hello world
+        run: echo "Hello world from $GITHUB_BASE_REF"
+
+      - name: Get build binary
+        uses: actions/download-artifact@v3
+        with:
+          name: "${{ env.MODULE_NAME }}-${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
+          # TODO: get target branch name to distinguish baseline from dev-xx.xx and xx.xx
+
+      - name: Get current time
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+
+      -name: Get baseline from bucket
+        uses: ./.github/actions/veracode-get-cache
+          with:
+            module_name: ${{ env.MODULE_NAME }}
+            target_branch_name: ${{ env.TARGET_BRANCH }}
+            baseline_filename: ${{ env.REPORT_FILENAME }}
+
+      - name: DEBUG - Check location
+        run: ls -la
+
+      - name: DEBUG - Check /tmp
+        run: ls -la /tmp
+
+      - name: Get current time
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+
+# TODO policy scan pipeline
+#      - name: Veracode upload and run a Sandbox scan
+#        uses: veracode/veracode-uploadandscan-action@master
+#        id: upload_and_scan
+#        with:
+#          appname: "centreon/${{ env.MODULE_NAME }}_GHA"
+#          createprofile: true
+#          filepath: "${{ env.MODULE_NAME }}-${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}.zip"
+#          version: "${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
+#          #version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
+#          vid: ${{ secrets.VERACODE_API_ID }}
+#          vkey: ${{ secrets.VERACODE_API_KEY }}
+#          createsandbox: true
+#          sandboxname: "${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
+#          scantimeout: 60
+#          includenewmodules: true
+#          scanallnonfataltoplevelmodules: true
+#          deleteincompletescan: 1
+#          criticality: "VeryLow"
+
+      - name: DEBUG - Check location
+        run: ls -la
+
+      - name: Get current time
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+
+#      - name: DEBUG - Check location
+#        run: ls -la
+#
+#      - name: cache baseline
+#        run: |
+#          aws s3 cp "${{ env.REPORT_FILENAME }}" "s3://centreon-veracode-reports/${{ env.BRANCH_NAME }}/${{ env.REPORT_FILENAME }}"
+#      - name: "Push report"
+#        run: aws s3 cp "${{ inputs.report_path }}" "${{ inputs.report_target }}${{ env.VERSION }}/index.html" --acl public-read --region eu-west-1
+#        shell: bash
+#
