@@ -3,7 +3,7 @@ Feature: Add a downtime on a resource
     I would like to be able to add a downtime on a resource
     So that the users of the platform do not receive any more notifications about this resource during downtime 
 
-Background
+Background:
     Given the user have the necessary rights to page Resource Status
     And the user have the necessary rights to set downtime
     And minimally one resource with and notifications enabled on user

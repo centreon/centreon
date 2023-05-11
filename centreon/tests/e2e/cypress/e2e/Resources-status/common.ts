@@ -24,6 +24,7 @@ interface Filter {
 }
 
 const serviceInAcknowledgementName = 'service_test_ack';
+const serviceInDtName = 'service_test_dt';
 const hostInAcknowledgementName = 'test_host';
 const hostChildInAcknowledgementName = 'test_host_ack';
 const stateFilterContainer = '[aria-label="State filter"]';
@@ -100,6 +101,16 @@ const insertResourceFixtures = (): Cypress.Chainable => {
         })
       );
   });
+};
+
+const insertDtResources = (): Cypress.Chainable => {
+  const dateBeforeLogin = new Date();
+
+  return cy
+    .setUserTokenApiV1()
+    .then(initializeResourceData)
+    .then(applyConfigurationViaClapi)
+    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }));
 };
 
 const insertAckResourceFixtures = (): Cypress.Chainable => {
@@ -251,6 +262,23 @@ const typeToSearchInput = (searchText: string): void => {
   cy.get('@searchInput').type('{esc}{enter}');
 };
 
+const checkIfServicesExists = (): void => {
+  const request = 'SELECT COUNT(*) FROM service';
+
+  cy.executeSqlRequestInContainer(request).then(
+    ({ stdout }): Cypress.Chainable<null> | null => {
+      const servicesCounter = parseInt(stdout.split('\n')[1], 10);
+      const servicesExists = servicesCounter > 0;
+
+      if (servicesExists) {
+        return null;
+      }
+
+      throw new Error(`No services has been found.`);
+    }
+  );
+};
+
 const actionBackgroundColors = {
   acknowledge: 'rgb(245, 241, 233)',
   inDowntime: 'rgb(240, 233, 248)',
@@ -273,6 +301,7 @@ export {
   serviceInAcknowledgementName,
   hostInAcknowledgementName,
   hostChildInAcknowledgementName,
+  serviceInDtName,
   insertResourceFixtures,
   setUserFilter,
   deleteUserFilter,
@@ -283,5 +312,7 @@ export {
   checkIfNotificationsAreNotBeingSent,
   clearCentengineLogs,
   tearDownAckResource,
-  typeToSearchInput
+  typeToSearchInput,
+  checkIfServicesExists,
+  insertDtResources
 };
