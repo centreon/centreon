@@ -430,7 +430,7 @@ services:
 
     monolog.debug.handler:
         class: Centreon\Domain\Log\DebugFileHandler
-        arguments: [ '@monolog.debug.formater', '%debug_log_file%', '%env(bool:APP_DEBUG)%', 664, '%debug_level%' ]
+        arguments: [ '@monolog.debug.formater', '%debug_log_file%', 664, '%debug_level%' ]
 
     Centreon\Domain\Log\ContactForDebug:
         class: Centreon\Domain\Log\ContactForDebug
