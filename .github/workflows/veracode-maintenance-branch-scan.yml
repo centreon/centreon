@@ -36,18 +36,6 @@ jobs:
           compile_mvn: "no"
           exclusion_file: "TODO"
 
-      - name: Cache GET from bucket script
-        uses: actions/upload-artifact@v3
-        with:
-          name: "veracode-get-cache"
-          path: "./.github/actions/veracode-get-cache"
-
-      - name: Cache SET from bucket script
-        uses: actions/upload-artifact@v3
-        with:
-          name: "veracode-set-cache"
-          path: "./.github/actions/veracode-set-cache"
-
       - name: DEBUG - Check location
         run: ls -la
 
@@ -55,6 +43,8 @@ jobs:
     runs-on: [self-hosted, veracode]
     needs: [build]
     steps:
+      - uses: actions/checkout@v3
+
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
@@ -79,21 +69,11 @@ jobs:
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
-      - name: Download GET from bucket script
-        uses: actions/download-artifact@v3
-        with:
-          name: "veracode-get-cache"
-
-      - name: Download SET from bucket script
-        uses: actions/download-artifact@v3
-        with:
-          name: "veracode-set-cache"
-
       - name: DEBUG - Check location
         run: ls -la
 
       - name: Get baseline from bucket
-        uses: ./veracode-get-cache
+        uses: ./.github/actions/veracode-get-cache
         with:
           module_name: ${{ env.MODULE_NAME }}
           target_branch_name: ${{ env.TARGET_BRANCH }}
@@ -136,7 +116,7 @@ jobs:
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
       - name: Cache baseline
-        uses: ./veracode-set-cache
+        uses: ./.github/actions/veracode-set-cache
         with:
           module_name: ${{ env.MODULE_NAME }}
           target_branch_name: ${{ env.TARGET_BRANCH }}
