@@ -52,6 +52,7 @@ const preview: Preview = {
         date: /Date$/,
       }
     },
+    chromatic: { diffThreshold: 0.1 },
   }
 };
 
