@@ -28,22 +28,23 @@ use Centreon\Domain\Common\Assertion\Assertion;
 class NotificationMessage
 {
     public const MAX_SUBJECT_LENGTH = 255,
-                MAX_MESSAGE_LENGTH = 65535;
+                 MAX_MESSAGE_LENGTH = 65535,
+                 MIN_SUBJECT_LENGTH = 1,
+                 MIN_MESSAGE_LENGTH = 1;
+
 
     public function __construct(
         protected NotificationChannel $channel,
         protected string $subject = '',
         protected string $message = ''
     ) {
-        /**
-         * TODO
-         *  do we accept empty string for subject / message ?
-         */
         $shortName = (new \ReflectionClass($this))->getShortName();
 
         $this->subject = trim($subject);
         $this->message = trim($message);
 
+        Assertion::minLength($this->subject, self::MIN_SUBJECT_LENGTH, "{$shortName}::subject");
+        Assertion::minLength($this->message, self::MIN_MESSAGE_LENGTH, "{$shortName}::message");
         Assertion::maxLength($this->subject, self::MAX_SUBJECT_LENGTH, "{$shortName}::subject");
         Assertion::maxLength($this->message, self::MAX_MESSAGE_LENGTH, "{$shortName}::message");
     }

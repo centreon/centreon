@@ -6303,13 +6303,13 @@ components:
         is_activated:
           type: boolean
         timeperiod:
+          type: integer
           description: Timeperiod during which the notification is send
-          $ref: "#/components/schemas/Configuration.Notification.GenericObject"
         users:
           description: Users to whom the notification is send
           type: array
           items:
-            $ref: "#/components/schemas/Configuration.Notification.GenericObject"
+            type: integer
         messages:
           type: array
           items:
@@ -6331,7 +6331,7 @@ components:
                 type: array
                 description: Resource that trigger a notification
                 items:
-                  $ref: "#/components/schemas/Configuration.Notification.GenericObject"
+                  type: integer
               extra:
                 type: object
                 properties:

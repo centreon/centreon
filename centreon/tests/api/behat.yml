@@ -149,4 +149,4 @@ default:
     notification:
       paths: [ "%paths.base%/features/Notification.feature" ]
       contexts:
-        - Centreon\Test\Behat\Api\Context\ApiContext
+        - Centreon\Test\Api\Context\CloudPlatformContext

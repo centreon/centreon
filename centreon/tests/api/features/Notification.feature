@@ -4,87 +4,90 @@ Feature:
   I want to manipulate notification using api
 
   Background:
-    Given a running instance of Centreon Web API
+    Given a running cloud platform instance of Centreon Web API
     And the endpoints are described in Centreon Web API documentation
 
   Scenario: Notification creation as admin
     Given I am logged in
+    And a feature flag "notification" of bitmask 2
     And the following CLAPI import data:
     """
     SG;ADD;service-grp1;service-grp1-alias
     SG;ADD;service-grp2;service-grp2-alias
-    CONTACT;ADD;user-name1;user-alias1;user1@mail.com;;0;0;;local
-    CONTACT;ADD;user-name2;user-alias2;user2@mail.com;;0;0;;local
+    CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
+    CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
     """
 
     When I send a POST request to '/api/latest/configuration/notifications' with body:
-      """
-      {
-        "name": "notification-name",
-        "timeperiod": 2,
-        "resources": [
-          {
-            "type": "hostgroup",
-            "events": 5,
-            "ids": [53,56],
-            "extra": {"event_services": 2}
-          },
-          {
-            "type": "servicegroup",
-            "events": 5,
-            "ids": [1,2]
+    """
+    {
+      "name": "notification-name",
+      "timeperiod": 2,
+      "resources": [
+        {
+          "type": "hostgroup",
+          "events": 5,
+          "ids": [53,56],
+          "extra": {
+            "event_services": 2
           }
-        ],
-        "messages": [
-          {
-            "channel": "Slack",
-            "subject": "Hello world !",
-            "message": "just a small message"
-          }
-        ],
-        "users": [20,21],
-        "is_activated": true
-      }
-      """
+        },
+        {
+          "type": "servicegroup",
+          "events": 5,
+          "ids": [1,2]
+        }
+      ],
+      "messages": [
+        {
+          "channel": "Slack",
+          "subject": "Hello world !",
+          "message": "just a small message"
+        }
+      ],
+      "users": [20,21],
+      "is_activated": true
+    }
+    """
     Then the response code should be "201"
     And the JSON should be equal to:
-      """
-      {
-        "name": "notification-name",
-        "timeperiod": ["id": 1, "name": "24x7"],
-        "resources": [
-          {
-            "type": "hostgroup",
-            "events": 5,
-            "ids": [
-              ["id":53, "name": "Linux-Servers"],
-              ["id":56, "name": "Printers"]
-            ],
-            "extra": {"event_services": 2}
-          },
-          {
-            "type": "servicegroup",
-            "events": 5,
-            "ids": [
-              ["id":1, "name": "service-grp1"],
-              ["id":2, "name": "service-grp2"]
-            ]
-          }
-        ],
-        "messages": [
-          {
-            "channel": "Slack",
-            "subject": "Hello world !",
-            "message": "just a small message"
-          }
-        ],
-        "users": [
-          ["id":20, "name": "user-name1"],
-          ["id":21, "name": "user-name2"]
-        ],
-        "is_activated": true
-      }
-      """
+    """
+    {
+      "name": "notification-name",
+      "timeperiod": {"id": 1, "name": "24x7"},
+      "resources": [
+        {
+          "type": "hostgroup",
+          "events": 5,
+          "ids": [
+            {"id":53, "name": "Linux-Servers"},
+            {"id":56, "name": "Printers"}
+          ],
+          "extra": {"event_services": 2}
+        },
+        {
+          "type": "servicegroup",
+          "events": 5,
+          "ids": [
+            {"id":1, "name": "service-grp1"},
+            {"id":2, "name": "service-grp2"}
+          ]
+        }
+      ],
+      "messages": [
+        {
+          "channel": "Slack",
+          "subject": "Hello world !",
+          "message": "just a small message"
+        }
+      ],
+      "users": [
+        ["id":20, "name": "user-name1"],
+        ["id":21, "name": "user-name2"]
+      ],
+      "is_activated": true
+    }
+    """
 
   Scenario: Notification creation as non-admin
     Given the following CLAPI import data:

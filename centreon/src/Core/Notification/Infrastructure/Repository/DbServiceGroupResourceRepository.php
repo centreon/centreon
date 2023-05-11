@@ -264,7 +264,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
                 WHERE id = :notificationId
                 SQL
         ));
-        $statement->bindValue(':events', (self::EVENT_ENUM)::toBitmask($resource->getEvents()), \PDO::PARAM_INT);
+        $statement->bindValue(':events', (self::EVENT_ENUM_CONVERTER)::toBitmask($resource->getEvents()), \PDO::PARAM_INT);
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $statement->execute();
 
