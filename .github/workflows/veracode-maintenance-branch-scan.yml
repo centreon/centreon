@@ -101,7 +101,7 @@ jobs:
           file: "${{ env.MODULE_NAME }}-${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}.zip"
           fail_on_severity: ${{ env.CRITICALITY }}
           baseline_file: ${{ env.REPORT_FILENAME }}
-          request_policy: "Centreon_Security"
+#          request_policy: "Centreon_Security"
           fail_build: true
           timeout: 60
 
