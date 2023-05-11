@@ -39,3 +39,5 @@ runs:
           workingDir: ${{ inputs.frontend_directory }}
           token: ${{ inputs.pat }}
           buildScriptName: build:storybook
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
