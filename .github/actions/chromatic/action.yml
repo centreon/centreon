@@ -10,6 +10,9 @@ inputs:
   pat:
     description: "The Github PAT"
     required: true
+  ignoreLastBuildOnBranch:
+    required: false
+    default: false
 
 runs:
   using: "composite"
@@ -19,25 +22,19 @@ runs:
         with:
           version: 7
           run_install: false
-      
-      - uses: 8BitJonny/gh-get-current-pr@2.2.0
-        id: PR
 
       - uses: actions/setup-node@v3
-        if: steps.PR.outputs.pr_found == 'true'
         with:
           node-version: 17
           cache: pnpm
           cache-dependency-path: ${{ inputs.frontend_directory }}
 
       - name: Install dependencies
-        if: steps.PR.outputs.pr_found == 'true'
         run: pnpm install --frozen-lockfile
         working-directory: ${{ inputs.frontend_directory }}
         shell: bash
 
       - name: Publish to Chromatic
-        if: steps.PR.outputs.pr_found == 'true'
         uses: chromaui/action@v1
         with:
           projectToken: ${{ inputs.project_token }}
@@ -45,5 +42,6 @@ runs:
           workingDir: ${{ inputs.frontend_directory }}
           token: ${{ inputs.pat }}
           buildScriptName: build:storybook
+          ignoreLastBuildOnBranch: ${{ inputs.ignoreLastBuildOnBranch }}
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"

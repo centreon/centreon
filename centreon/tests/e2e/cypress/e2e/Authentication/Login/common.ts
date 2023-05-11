@@ -1,4 +1,4 @@
-import { applyConfigurationViaClapi, insertFixture } from '../../commons';
+import { applyConfigurationViaClapi, insertFixture } from '../../../commons';
 
 const initializeContactData = (): Cypress.Chainable => {
   const files = ['resources/clapi/contact1/01-add.json'];

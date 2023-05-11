@@ -1,6 +1,6 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
-import { loginAsAdminViaApiV2 } from '../../../commons';
+import { loginAsAdminViaApiV2 } from '../../../../commons';
 import { insertContactFixture } from '../common';
 
 before(() => {

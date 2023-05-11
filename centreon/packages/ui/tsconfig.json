@@ -20,10 +20,6 @@
   "exclude": [
     "./node_modules",
     "./dist",
-//    "./src/**/*.test.ts",
-//    "./src/**/*.test.tsx",
-//    "./src/**/*.stories.tsx",
     "../../node_modules"
   ],
-//  "references": [{ "path": "./tsconfig.node.json" }]
 }

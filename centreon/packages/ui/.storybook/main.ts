@@ -35,6 +35,7 @@ const config: StorybookConfig = {
   docs: {
     autodocs: "tag",
   },
+  core: { builder: '@storybook/builder-vite' },
   async viteFinal(config, { configType }) {
     return mergeConfig(config, {
       plugins: configType === 'PRODUCTION' ? [turbosnap({ rootDir: config.root ?? process.cwd() })] : [],

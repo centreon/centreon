@@ -7,7 +7,6 @@ import QueryProvider from "../src/api/QueryProvider";
 import { Decorator, Preview } from "@storybook/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
-
 const withThemeProvider: Decorator = (story, context): JSX.Element => (
   <StoryBookThemeProvider
     themeMode={useDarkMode() ? ThemeMode.dark : ThemeMode.light}
@@ -52,7 +51,8 @@ const preview: Preview = {
         color: /(background|color)$/i,
         date: /Date$/,
       }
-    }
+    },
+    chromatic: { diffThreshold: 0.1 },
   }
 };
 

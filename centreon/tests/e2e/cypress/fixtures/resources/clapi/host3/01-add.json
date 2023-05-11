@@ -1,0 +1,5 @@
+{
+  "action": "ADD",
+  "object": "HOST",
+  "values": "test_host_ack;Test_host_ack;127.0.0.1;generic-host;Central;"
+}

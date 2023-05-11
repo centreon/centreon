@@ -1717,6 +1717,38 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/dashboards:
+    get:
+      tags:
+        - Dashboard
+      summary: "List all dashboards"
+      description: |
+        Return all dashboard configurations.
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+
+        `Since Centreon web 23.10`
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Configuration.Dashboard'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /configuration/access-groups:
     get:
       tags:
@@ -6675,6 +6707,37 @@ components:
           description: "Host template parent ids"
           items:
             type: integer
+    Configuration.Dashboard:
+      allOf:
+        - $ref: '#/components/schemas/Configuration.Dashboard.Add'
+        - properties:
+            id:
+              type: integer
+              description: "Dashboard ID"
+              example: 1
+    Configuration.Dashboard.Add:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          description: "Dashboard name"
+          example: "my dashboard"
+        comment:
+          type: string
+          nullable: true
+          maxLength: 65535
+          description: "Description about this dashboard"
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: "Creation date (ISO8601)"
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: "Last update date (ISO8601)"
     Configuration.Host.Group:
       allOf:
         - $ref: '#/components/schemas/Configuration.Host.Group.Add'
