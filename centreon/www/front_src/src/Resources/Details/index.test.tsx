@@ -17,7 +17,7 @@ import {
   RenderResult,
   act,
   screen
-} from '@centreon/ui/src/testRenderer';
+} from '@centreon/ui/test/testRenderer';
 import {
   ListingVariant,
   refreshIntervalAtom,

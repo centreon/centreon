@@ -16162,3 +16162,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Error while retrieving a host category"
 #  msgstr ""
+
+# msgid "You are not allowed to access dashboards"
+# msgstr ""
+
+# msgid "Error while searching for dashboards"
+# msgstr ""

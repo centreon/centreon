@@ -750,7 +750,8 @@ sub service_execute_commands {
                 my $command = gorgone::modules::centreon::autodiscovery::services::resources::substitute_service_discovery_command(
                     command_line => $self->{discovery}->{rules}->{$rule_id}->{command_line},
                     host => $host,
-                    poller => $self->{service_pollers}->{$poller_id}
+                    poller => $self->{service_pollers}->{$poller_id},
+                    vault_count => $options{vault_count}
                 );
 
                 $self->{logger}->writeLogInfo("[autodiscovery] -servicediscovery- $self->{uuid} [" .
@@ -846,6 +847,17 @@ sub launchdiscovery {
     }
     $self->{audit_user_id} = $user_id;
 
+    ##################
+    # get vault config
+    ##################
+    ($status, $message, my $vault_count) = gorgone::modules::centreon::autodiscovery::services::resources::get_vault_configured(
+        class_object_centreon => $self->{class_object_centreon}
+    );
+    if ($status < 0) {
+        $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
+        return -1;
+    }
+
     ################
     # get rules
     ################
@@ -874,7 +886,8 @@ sub launchdiscovery {
             class_object_centreon => $self->{class_object_centreon},
             with_macro => 1,
             host_lookup => $data->{content}->{filter_hosts},
-            poller_lookup => $data->{content}->{filter_pollers}
+            poller_lookup => $data->{content}->{filter_pollers},
+            vault_count => $vault_count
         );
         if ($status < 0) {
             $self->send_log_msg_error(token => $options{token}, subname => 'servicediscovery', number => $self->{uuid}, message => $message);
@@ -921,7 +934,7 @@ sub launchdiscovery {
         pollers_reload => {}
     };
 
-    $self->service_execute_commands();
+    $self->service_execute_commands(vault_count => $vault_count);
 
     return 0;
 }

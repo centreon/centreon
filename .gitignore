@@ -20,6 +20,7 @@ centreon/Crashpad
 centreon/**/.X*
 centreon/www/widgets/**/static
 centreon/.com.google.Chrome*
+**/build-storybook.log
 
 # Php-CS-Fixer cache + output file
 .php-cs-fixer.cache
