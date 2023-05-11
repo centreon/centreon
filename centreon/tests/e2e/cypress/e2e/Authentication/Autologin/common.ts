@@ -1,4 +1,4 @@
-import { applyConfigurationViaClapi } from '../../commons';
+import { applyConfigurationViaClapi } from '../../../commons';
 
 const initializeConfigACLAndGetLoginPage = (): Cypress.Chainable => {
   return cy
