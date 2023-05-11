@@ -81,13 +81,13 @@ jobs:
 
       - name: Download GET from bucket script
         uses: actions/download-artifact@v3
-          with:
-            name: "veracode-get-cache"
+        with:
+          name: "veracode-get-cache"
 
       - name: Download SET from bucket script
         uses: actions/download-artifact@v3
-          with:
-            name: "veracode-set-cache"
+        with:
+          name: "veracode-set-cache"
 
       - name: DEBUG - Check location
         run: ls -la
