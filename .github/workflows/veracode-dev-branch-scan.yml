@@ -45,6 +45,8 @@ jobs:
     runs-on: [self-hosted, veracode]
     needs: [build]
     steps:
+      - uses: actions/checkout@v3
+
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
