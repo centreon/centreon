@@ -52,7 +52,6 @@ const preview: Preview = {
         date: /Date$/,
       }
     },
-    chromatic: { pauseAnimationAtEnd: true },
   }
 };
 
