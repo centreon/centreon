@@ -7,7 +7,7 @@ import {
   RenderResult,
   waitFor,
   screen
-} from '@centreon/ui/src/testRenderer';
+} from '@centreon/ui/test/testRenderer';
 
 import {
   platformInstallationStatusEndpoint,
