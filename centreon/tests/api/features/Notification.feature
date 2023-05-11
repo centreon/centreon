@@ -27,7 +27,7 @@ Feature:
             "type": "hostgroup",
             "events": 5,
             "ids": [53,56],
-            "extra": ["event_services": 2]
+            "extra": {"event_services": 2}
           },
           {
             "type": "servicegroup",
@@ -60,7 +60,7 @@ Feature:
               ["id":53, "name": "Linux-Servers"],
               ["id":56, "name": "Printers"]
             ],
-            "extra": ["event_services": 2]
+            "extra": {"event_services": 2}
           },
           {
             "type": "servicegroup",
@@ -118,7 +118,7 @@ Feature:
             "type": "hostgroup",
             "events": 5,
             "ids": [53,56],
-            "extra": ["event_services": 2]
+            "extra": {"event_services": 2}
           },
           {
             "type": "servicegroup",
@@ -149,7 +149,7 @@ Feature:
             "type": "hostgroup",
             "events": 5,
             "ids": [53,56],
-            "extra": ["event_services": 2]
+            "extra": {"event_services": 2}
           },
           {
             "type": "servicegroup",
@@ -179,16 +179,16 @@ Feature:
             "type": "hostgroup",
             "events": 5,
             "ids": [
-              ["id":53, "name": "Linux-Servers"],
-              ["id":56, "name": "Printers"]
+              {"id":53, "name": "Linux-Servers"},
+              {"id":56, "name": "Printers"}
             ],
-            "extra": ["event_services": 2]
+            "extra": {"event_services": 2}
           },
           {
             "type": "servicegroup",
             "events": 5,
             "ids": [
-              ["id":1, "name": "service-grp1"]
+              {"id":1, "name": "service-grp1"}
             ]
           }
         ],
@@ -200,58 +200,9 @@ Feature:
           }
         ],
         "users": [
-          ["id":20, "name": "user-name1"],
-          ["id":21, "name": "user-name2"]
+          {"id":20, "name": "user-name1"},
+          {"id":21, "name": "user-name2"}
         ],
         "is_activated": true
       }
       """
-
-
-  Scenario: Create a service category
-    Given I am logged in
-
-    When I send a POST request to '/api/latest/configuration/services/categories' with body:
-        """
-        {
-        "name": "   service-cat-name   ",
-        "alias": "   service-cat-alias   "
-        }
-        """
-    Then the response code should be "201"
-    And the JSON should be equal to:
-        """
-        {
-        "id": 5,
-        "name": "service-cat-name",
-        "alias": "service-cat-alias",
-        "is_activated": true
-        }
-        """
-    When I send a POST request to '/api/latest/configuration/services/categories' with body:
-        """
-        {
-        "name": "service-cat-name",
-        "alias": "service-cat-alias"
-        }
-        """
-    Then the response code should be "409"
-
-  Scenario: Create service category with an invalid payload
-    Given I am logged in
-    When I send a POST request to '/api/latest/configuration/services/categories' with body:
-        """
-        {
-        "not_existing": "Hello World"
-        }
-        """
-    Then the response code should be "400"
-
-    When I send a POST request to '/api/latest/configuration/services/categories' with body:
-        """
-        {
-        "name": "",
-        "alias": "service-cat-alias"
-        }
-        """
-    Then the response code should be "400"
