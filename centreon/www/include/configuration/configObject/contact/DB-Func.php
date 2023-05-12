@@ -202,7 +202,7 @@ function disableContactInDB($contact_id = null, $contact_arr = array())
  *
  * @param int|array|null $contact Contact ID, array of contact IDs or null to unblock all contacts
  */
-function unblockContactInDB($contact = null)
+function unblockContactInDB(int|array|null $contact = null): void
 {
     global $pearDB, $centreon;
 
