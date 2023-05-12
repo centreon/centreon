@@ -21,33 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\Repository;
+namespace Core\Dashboard\Application\UseCase\UpdateDashboard;
 
-use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\NewDashboard;
-
-interface WriteDashboardRepositoryInterface
+final class UpdateDashboardRequest
 {
-    /**
-     * @param NewDashboard $newDashboard
-     *
-     * @throws \Throwable
-     *
-     * @return int
-     */
-    public function add(NewDashboard $newDashboard): int;
+    public string $name = '';
 
-    /**
-     * Delete a dashboard.
-     *
-     * @param int $dashboardId
-     */
-    public function delete(int $dashboardId): void;
-
-    /**
-     * @param Dashboard $dashboard
-     *
-     * @throws \Throwable
-     */
-    public function update(Dashboard $dashboard): void;
+    public string $description = '';
 }

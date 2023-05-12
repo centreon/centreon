@@ -21,33 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\Repository;
+namespace Core\Dashboard\Application\UseCase\DeleteDashboard;
 
-use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\NewDashboard;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface WriteDashboardRepositoryInterface
+interface DeleteDashboardPresenterInterface
 {
-    /**
-     * @param NewDashboard $newDashboard
-     *
-     * @throws \Throwable
-     *
-     * @return int
-     */
-    public function add(NewDashboard $newDashboard): int;
-
-    /**
-     * Delete a dashboard.
-     *
-     * @param int $dashboardId
-     */
-    public function delete(int $dashboardId): void;
-
-    /**
-     * @param Dashboard $dashboard
-     *
-     * @throws \Throwable
-     */
-    public function update(Dashboard $dashboard): void;
+    public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void;
 }
