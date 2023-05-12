@@ -1,13 +1,11 @@
 name: Veracode scan on release and hotfix branches
 
 on:
-  push:
-    branches:
-      - AT-94-pipeline-scan
   pull_request:
     branches:
       - hotfix-*
       - release-*
+      - AT-94-pipeline-scan
 
 env:
   #TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
