@@ -41,6 +41,8 @@ trait DashboardModelTrait
 
     protected \DateTimeImmutable $updatedAt;
 
+    protected bool $hasChanged = false;
+
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -48,12 +50,12 @@ trait DashboardModelTrait
 
     public function getUpdatedAt(): \DateTimeImmutable
     {
-        return $this->updatedAt;
-    }
+        if ($this->hasChanged) {
+            $this->hasChanged = false;
+            $this->updatedAt = new \DateTimeImmutable();
+        }
 
-    public function setUpdatedAt(\DateTimeImmutable $date): void
-    {
-        $this->updatedAt = $date;
+        return $this->updatedAt;
     }
 
     public function getName(): string
@@ -74,6 +76,7 @@ trait DashboardModelTrait
         Assertion::maxLength($name, Dashboard::MAX_NAME_LENGTH, $shortName . '::name');
         Assertion::notEmptyString($name, $shortName . '::name');
 
+        $this->hasChanged = true;
         $this->name = $name;
     }
 
@@ -94,6 +97,7 @@ trait DashboardModelTrait
         $shortName = (new \ReflectionClass($this))->getShortName();
         Assertion::maxLength($description, Dashboard::MAX_DESCRIPTION_LENGTH, $shortName . '::alias');
 
+        $this->hasChanged = true;
         $this->description = $description;
     }
 }

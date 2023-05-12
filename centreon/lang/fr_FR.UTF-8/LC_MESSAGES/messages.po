@@ -17567,3 +17567,21 @@ msgstr "Vous n'êtes pas autorisé à accéder aux tableaux de bord"
 
 msgid "Error while searching for dashboards"
 msgstr "Erreur lors de la recherche de tableaux de bord"
+
+msgid "Error while retrieving newly created dashboard"
+msgstr "Erreur durant la récupération d'un tableau de bord venant d'être créé"
+
+msgid "Error while adding a dashboard"
+msgstr "Erreur durant l'ajout d'un tableau de bord"
+
+msgid "You are not allowed to perform write operations on dashboards"
+msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les tableaux de bord"
+
+msgid "Error while retrieving a dashboard"
+msgstr "Erreur durant la récupération d'un tableau de bord"
+
+msgid "Error while deleting a dashboard"
+msgstr "Erreur durant la suppression d'un tableau de bord"
+
+msgid "Error while updating a dashboard"
+msgstr "Erreur lors de la mise à jour d'un tableau de bord"
