@@ -29,15 +29,15 @@ import annotationData from './mockedData/annotationData.json';
 import { GraphData, Interval, TooltipData } from './models';
 import { dateTimeFormat } from './common';
 
-import WraperGraph from './index';
+import WrapperGraph from './index';
 
-const meta: Meta<typeof WraperGraph> = {
-  component: WraperGraph,
+const meta: Meta<typeof WrapperGraph> = {
+  component: WrapperGraph,
   tags: ['autodocs']
 };
 export default meta;
 
-type Story = StoryObj<typeof WraperGraph>;
+type Story = StoryObj<typeof WrapperGraph>;
 
 interface Random {
   max: number;
@@ -67,7 +67,7 @@ const Threshold = (args): JSX.Element => {
         <Button onClick={handleClick}>change envelope size randomly</Button>
       </Tooltip>
 
-      <WraperGraph
+      <WrapperGraph
         {...args}
         data={dataLastDay}
         shapeLines={{
@@ -197,7 +197,7 @@ const GraphAndTimePeriod = (args): JSX.Element => {
           <TimePeriodSwitch getDataSwitch={getDataSwitch} />
         }
       />
-      <WraperGraph
+      <WrapperGraph
         data={currentData}
         {...args}
         annotationEvent={annotationEventData}
