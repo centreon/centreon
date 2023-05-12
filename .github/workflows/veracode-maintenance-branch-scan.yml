@@ -16,7 +16,6 @@ env:
   MODULE_NAME: centreon-gorgone
   #ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
   THRESHOLD: "High"
-  BASELINE_FOUND: "No"
 
 jobs:
   build:
@@ -84,6 +83,8 @@ jobs:
         run: |
           if [[ -f /tmp/results.json ]]; then
             echo "BASELINE_FOUND=Yes" >> $GITHUB_OUTPUT
+          else
+            echo "BASELINE_FOUND=No" >> $GITHUB_OUTPUT
           fi
 
       - name: DEBUG - Get BASELINE value
@@ -139,3 +140,6 @@ jobs:
         with:
           module_name: ${{ env.MODULE_NAME }}
           target_branch_name: ${{ env.TARGET_BRANCH }}
+
+      - name: Clean
+        run: rm -f filtered_results.json /tmp/results.json
