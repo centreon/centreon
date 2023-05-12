@@ -1,11 +1,16 @@
-import { FormProps } from 'src/Form';
+import { FormProps } from '../../../Form';
+
+export enum DashboardFormVariant {
+  Create = 'create',
+  Update = 'update'
+}
 
 export interface DashboardFormLabels {
   actions: {
     cancel: string;
     submit: {
-      create: string;
-      update: string;
+      [DashboardFormVariant.Create]: string;
+      [DashboardFormVariant.Update]: string;
     };
   };
   entity: {
@@ -13,8 +18,8 @@ export interface DashboardFormLabels {
     name: string;
   };
   title: {
-    create: string;
-    update: string;
+    [DashboardFormVariant.Create]: string;
+    [DashboardFormVariant.Update]: string;
   };
 }
 
@@ -28,5 +33,5 @@ export interface DashboardFormProps {
   onCancel?: () => void;
   onSubmit?: FormProps<DashboardFormDataShape>['submit'];
   resource?: DashboardFormDataShape;
-  variant?: 'create' | 'update';
+  variant?: DashboardFormVariant;
 }
