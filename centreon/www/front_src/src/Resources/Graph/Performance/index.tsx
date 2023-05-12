@@ -447,7 +447,7 @@ const PerformanceGraph = <T,>({
         </Responsive.ParentSize>
       </div>
 
-      {/* <Legend
+      <Legend
         base={base as number}
         displayCompleteGraph={displayCompleteGraph}
         displayTimeValues={displayTimeValues}
@@ -459,7 +459,7 @@ const PerformanceGraph = <T,>({
         onHighlight={highlightLine}
         onSelect={selectMetricLine}
         onToggle={toggleMetricLine}
-      /> */}
+      />
     </div>
   );
 };
