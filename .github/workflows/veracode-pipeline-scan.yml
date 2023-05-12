@@ -22,7 +22,8 @@ env:
   MODULE_NAME: centreon-gorgone
   THRESHOLD: "High"
   CACHE_KEY: ${{ github.sha }}-${{ github.run_id }}
-  TARGET_BRANCH: ${{ github.base_ref }} #Caution: required by veracode runner
+  #TARGET_BRANCH: ${{ github.base_ref || github.ref_name }} #Caution: required by veracode runner
+  TARGET_BRANCH: ${{ github.base_ref || develop }} #Forced to develop on push for testing purpose
   HEAD_REF: ${{ github.head_ref }} #Caution: required by veracode runner
 
 jobs:
