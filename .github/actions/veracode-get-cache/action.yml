@@ -25,9 +25,9 @@ runs:
         aws s3 ls "$TARGET_S3" || RESULT=$( echo $? )
         if [[ $RESULT -eq 0 ]]; then
           aws s3 cp "$TARGET_S3" "$BASELINE_FILE"
-          echo "BASELINE_FOUND=$BASELINE_FILE" >> $GITHUB_ENV
+          echo "BASELINE_FILE=$BASELINE_FILE" >> $GITHUB_ENV
         else
           echo "[DEBUG] - File not found in the bucket"
-          echo "BASELINE_FOUND=''" >> $GITHUB_ENV
+          echo "BASELINE_FILE=''" >> $GITHUB_ENV
         fi
       shell: bash
