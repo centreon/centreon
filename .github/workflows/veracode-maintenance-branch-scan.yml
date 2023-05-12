@@ -101,6 +101,7 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan with baseline
+        if: env.BASELINE_FOUND == 'Yes'
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
@@ -110,20 +111,19 @@ jobs:
           #request_policy: "Centreon_Security"
           fail_build: true
           timeout: 60
-        if: env.BASELINE_FOUND == 'Yes'
           baseline_file: /tmp/${{ env.REPORT_FILENAME }}
 
-#      - name: Pipeline scan with baseline
-#        if: ${{ env.BASELINE_FOUND != "Yes" }}
-#        uses: veracode/Veracode-pipeline-scan-action@v1.0.3
-#        with:
-#          vid: ${{ secrets.VERACODE_API_ID }}
-#          vkey: ${{ secrets.VERACODE_API_KEY }}
-#          file: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
-#          fail_on_severity: ${{ env.THRESHOLD }}
-#          #request_policy: "Centreon_Security"
-#          fail_build: true
-#          timeout: 60
+      - name: Pipeline scan without baseline
+        if: env.BASELINE_FOUND != 'Yes'
+        uses: veracode/Veracode-pipeline-scan-action@v1.0.3
+        with:
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          file: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
+          fail_on_severity: ${{ env.THRESHOLD }}
+          #request_policy: "Centreon_Security"
+          fail_build: true
+          timeout: 60
 
       - name: DEBUG - Check location
         run: ls -la
