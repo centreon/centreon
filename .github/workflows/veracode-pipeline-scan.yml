@@ -41,6 +41,18 @@ jobs:
           exclusion_file: "TODO"
           cache_key: ${{ env.CACHE_KEY }}
 
+      - name: DEBUG - Github head ref
+        run: echo ${{ github.head_ref }} #TODO: to remove
+
+      - name: DEBUG - Github ref Name
+        run: echo ${{ github.ref_name }} #TODO: to remove
+
+      - name: DEBUG - Github base ref
+        run: echo ${{ github.base_ref }} #TODO: to remove
+
+      - name: DEBUG - Hello world
+        run: echo Hello world from $GITHUB_BASE_REF #TODO: to remove
+
   pipeline-scan:
     runs-on: [self-hosted, veracode]
     needs: [build]
