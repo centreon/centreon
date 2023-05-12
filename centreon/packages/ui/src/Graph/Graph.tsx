@@ -1,8 +1,8 @@
-import { useMemo, useRef } from 'react';
+import { MutableRefObject, useMemo, useRef } from 'react';
 
 import { Group } from '@visx/visx';
 
-import { ClickAwayListener } from '@mui/material';
+import { ClickAwayListener, Skeleton } from '@mui/material';
 
 import Axes from './BasicComponents/Axes';
 import Grids from './BasicComponents/Grids';
@@ -34,10 +34,12 @@ import {
   LegendModel
 } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
+import { useIntersection } from './useGraphIntersection';
 
 interface Props extends GraphProps {
   graphData: Data;
   graphInterval: GraphInterval;
+  graphRef: MutableRefObject<HTMLDivElement | null>;
   legend?: LegendModel;
   loading: boolean;
   shapeLines?: GlobalAreaLines;
@@ -45,7 +47,7 @@ interface Props extends GraphProps {
 
 const Graph = ({
   graphData,
-  height,
+  height = 500,
   width,
   shapeLines,
   axis,
@@ -56,17 +58,18 @@ const Graph = ({
   timeShiftZones,
   annotationEvent,
   tooltip,
-  legend
+  legend,
+  graphRef
 }: Props): JSX.Element => {
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
   const { classes } = useStyles();
+  const { isInViewport } = useIntersection({ element: graphRef?.current });
 
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
 
   const { title, timeSeries, baseAxis, lines } = graphData;
-
   const { displayedLines, newLines } = useFilterLines({
     displayThreshold: shapeLines?.areaThresholdLines?.display,
     lines
@@ -131,7 +134,7 @@ const Graph = ({
     timeSeries,
     ...commonLinesProps,
     ...shapeLines?.areaThresholdLines,
-    display: shapeLines?.areaThresholdLines?.display ?? true
+    display: shapeLines?.areaThresholdLines?.display ?? false
   };
 
   const areaRegularLines = {
@@ -213,6 +216,16 @@ const Graph = ({
       )}
     </g>
   );
+
+  if (!isInViewport) {
+    return (
+      <Skeleton
+        height={graphSvgRef?.current?.clientHeight ?? graphHeight}
+        variant="rectangular"
+        width="100%"
+      />
+    );
+  }
 
   return (
     <>

@@ -88,7 +88,7 @@ export interface GraphProps {
   anchorPoint?: AreaAnchorPoint;
   annotationEvent?: AnnotationEvent;
   axis?: Axis;
-  height: number;
+  height?: number;
   timeShiftZones?: InteractedZone;
   tooltip?: Tooltip;
   width: number;

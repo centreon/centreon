@@ -111,6 +111,27 @@ const ExternalComponent = (tooltipData): JSX.Element => {
   );
 };
 
+const GraphAndCLS = (args): JSX.Element => {
+  const [data, setData] = useState();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+      setData(dataLastDay);
+    }, 1000);
+  }, []);
+
+  return (
+    <WrapperGraph
+      {...args}
+      data={data}
+      loading={loading}
+      shapeLines={{ areaThresholdLines: { display: true } }}
+    />
+  );
+};
+
 interface TimePeriodSwitchProps {
   getDataSwitch: (value: boolean) => void;
 }
@@ -321,6 +342,19 @@ export const WithEnvelopVariation: Story = {
 
 export const withExclusionPeriods: Story = {
   ...GraphWithExclusionPeriod,
+  args: {
+    end: defaultEnd,
+    height: 500,
+    start: defaultStart
+  }
+};
+
+const GraphWithCLS: Story = {
+  render: (args) => <GraphAndCLS {...args} />
+};
+
+export const withCLS: Story = {
+  ...GraphWithCLS,
   args: {
     end: defaultEnd,
     height: 500,

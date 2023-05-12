@@ -1,3 +1,5 @@
+import { MutableRefObject, useRef } from 'react';
+
 import { Responsive } from '@visx/visx';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
@@ -9,6 +11,7 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 
 import Graph from './Graph';
+import LoadingSkeleton from './LoadingSkeleton';
 import { GlobalAreaLines, GraphData, GraphProps, LegendModel } from './models';
 import useGraphData from './useGraphData';
 
@@ -28,7 +31,7 @@ interface Props extends Partial<GraphProps> {
 const WrapperGraph = ({
   end,
   start,
-  height,
+  height = 500,
   width,
   shapeLines,
   axis,
@@ -42,13 +45,14 @@ const WrapperGraph = ({
   legend
 }: Props): JSX.Element | null => {
   const { adjustedData } = useGraphData({ data, end, start });
+  const graphRef = useRef<HTMLDivElement | null>(null);
 
-  if (!adjustedData) {
-    return null;
+  if (loading || !adjustedData) {
+    return <LoadingSkeleton displayTitleSkeleton graphHeight={height} />;
   }
 
   return (
-    <div>
+    <div ref={graphRef as MutableRefObject<HTMLDivElement>}>
       <Responsive.ParentSize>
         {({
           height: responsiveHeight,
@@ -60,6 +64,7 @@ const WrapperGraph = ({
             axis={axis}
             graphData={{ ...adjustedData }}
             graphInterval={{ end, start }}
+            graphRef={graphRef}
             height={height ?? responsiveHeight}
             legend={legend}
             loading={loading}
