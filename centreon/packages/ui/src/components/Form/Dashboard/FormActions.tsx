@@ -1,4 +1,5 @@
 import { useFormikContext } from 'formik';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '../../Button';
 
@@ -17,6 +18,7 @@ const FormActions =
   }: Pick<DashboardFormProps, 'labels' | 'onCancel' | 'variant'>) =>
   (): JSX.Element => {
     const { classes } = useStyles();
+    const { t } = useTranslation();
     const { isSubmitting, dirty, isValid, submitForm } =
       useFormikContext<DashboardFormDataShape>();
 
@@ -28,7 +30,7 @@ const FormActions =
           size="small"
           onClick={onCancel}
         >
-          {labels.actions?.cancel}
+          {t(labels.actions?.cancel)}
         </Button>
         <Button
           dataTestId={`${labels.actions?.submit[variant]}-dashboard-confirm`}
@@ -37,7 +39,7 @@ const FormActions =
           type="submit"
           onClick={submitForm}
         >
-          {labels.actions?.submit[variant]}
+          {t(labels.actions?.submit[variant])}
         </Button>
       </div>
     );

@@ -1,6 +1,9 @@
 import React from 'react';
 
+import { useTranslation } from 'react-i18next';
+
 import { Add as AddIcon } from '@mui/icons-material';
+import { Typography } from '@mui/material';
 
 import { Button } from '../../Button';
 
@@ -23,10 +26,11 @@ const ListEmptyState: React.FC<ListEmptyStateProps> = ({
   dataTestId
 }): JSX.Element => {
   const { classes } = useStyles();
+  const { t } = useTranslation();
 
   return (
     <div className={classes.listEmptyState}>
-      <h2>{labels.title}</h2>
+      <Typography variant="h4">{t(labels.title)}</Typography>
       <div className={classes.actions}>
         <Button
           dataTestId={dataTestId}
@@ -34,7 +38,7 @@ const ListEmptyState: React.FC<ListEmptyStateProps> = ({
           iconVariant="start"
           onClick={(): void => onCreate?.()}
         >
-          {labels.actions.create}
+          {t(labels.actions.create)}
         </Button>
       </div>
     </div>
