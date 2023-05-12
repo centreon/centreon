@@ -5,7 +5,7 @@ on:
     branches:
       - hotfix-*
       - release-*
-      - AT-94-pipeline-scan
+      - develop #To remove
 
 env:
   #TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
@@ -102,3 +102,6 @@ jobs:
 #          appname: "sc979/centreon"
 #          sandbox-name: "${{ github.event.pull_request.base.repo.name }}-${{ github.ref_name }}"
 #          delete-on-promote: true # Optional: also Deleting the Sandbox
+
+      - name: Clean
+        run: rm -f filtered_results.json /tmp/results.json
