@@ -29,8 +29,7 @@ const ListEmptyState: React.FC<ListEmptyStateProps> = ({
         <Button
           icon={<AddIcon />}
           iconVariant="start"
-          variant="primary"
-          onClick={() => onCreate?.()}
+          onClick={(): void => onCreate?.()}
         >
           {labels.actions.create}
         </Button>

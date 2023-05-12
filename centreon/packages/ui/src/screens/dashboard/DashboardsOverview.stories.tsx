@@ -7,13 +7,19 @@ import { Add as AddIcon } from '@mui/icons-material';
 
 import { Header } from '../../components/Header';
 import { Button } from '../../components/Button';
-import { List } from '../../components/List';
+import { List, ListItem, ListEmptyState } from '../../components/List';
 import {
   DashboardForm,
   DashboardFormProps
 } from '../../components/Form/Dashboard';
 import { Default as DashboardFormDefaultStory } from '../../components/Form/Dashboard/DashboardForm.stories';
 import { Dialog } from '../../components/Dialog';
+import {
+  TiledListingPage,
+  TiledListingActions,
+  TiledListingList,
+  TiledListingContent
+} from '../../layout/TiledListingPage';
 
 const meta: Meta = {
   args: {
@@ -57,7 +63,7 @@ const dialogStateAtom = atom<{
 
 const dataDashboardsAtom = atom<Array<dashboardItem>>([]);
 
-const DefaultView = (args) => {
+const DefaultView = (args): JSX.Element => {
   const [dialogState, setDialogState] = useAtom(dialogStateAtom);
   const [dataDashboards, setDataDashboards] = useAtom(dataDashboardsAtom);
 
@@ -65,7 +71,7 @@ const DefaultView = (args) => {
     setDataDashboards(args.data.dashboards);
   }, [args.data.dashboards]);
 
-  const createDashboard = (data) => {
+  const createDashboard = (data): void => {
     data.id = dataDashboards.length
       ? Math.max(...dataDashboards.map((dashboard) => dashboard.id)) + 1
       : 0;
@@ -75,7 +81,7 @@ const DefaultView = (args) => {
     setDialogState({ item: null, open: false, variant: 'create' });
   };
 
-  const updateDashboard = (data) => {
+  const updateDashboard = (data): void => {
     setDataDashboards((prev) =>
       prev
         .map((dashboard) => (dashboard.id === data.id ? data : dashboard))
@@ -84,96 +90,85 @@ const DefaultView = (args) => {
     setDialogState({ item: null, open: false, variant: 'update' });
   };
 
-  const deleteDashboard = (id) => {
+  const deleteDashboard = (id): void => {
     setDataDashboards((prev) =>
       prev.filter((dashboard) => dashboard.id !== id)
     );
   };
 
   return (
-    <div>
+    <TiledListingPage>
       <Header title={args.title} />
-      <div className="dashboards-list">
-        {' '}
-        {/* TODO DashboardsListLayout */}
-        <div className="dashboard-list-header">
-          {' '}
-          {/* TODO DashboardsList */}
-          <div className="actions" style={{ paddingBottom: '20px' }}>
-            {' '}
-            {/* TODO DashboardsList.Actions */}
-            {dataDashboards.length !== 0 && (
-              <Button
-                icon={<AddIcon />}
-                iconVariant="start"
-                variant="primary"
-                onClick={() =>
-                  setDialogState({ item: null, open: true, variant: 'create' })
-                }
-              >
-                {args.actions.create.label}
-              </Button>
-            )}
-          </div>
-          <div className="content" style={{ paddingBottom: '20px' }}>
-            {' '}
-            {/* TODO DashboardsList.Content */}
-            {dataDashboards.length === 0 ? (
-              <List.EmptyState
-                labels={args.list.emptyState.labels}
-                onCreate={() =>
-                  setDialogState({ item: null, open: true, variant: 'create' })
-                }
-              />
-            ) : (
-              <List>
-                {dataDashboards.map((dashboard) => (
-                  <List.Item
-                    hasActions
-                    hasCardAction
-                    description={dashboard.description}
-                    key={dashboard.id}
-                    title={dashboard.name}
-                    onDelete={() => deleteDashboard(dashboard.id)}
-                    onEdit={() =>
-                      setDialogState({
-                        item: dashboard,
-                        open: true,
-                        variant: 'update'
-                      })
-                    }
-                  />
-                ))}
-              </List>
-            )}
-          </div>
-          <Dialog
-            open={dialogState.open}
-            onClose={() =>
-              setDialogState({ item: null, open: false, variant: 'create' })
-            }
-          >
-            <DashboardForm
-              labels={DashboardFormDefaultStory!.args!.labels!}
-              resource={dialogState.item}
-              variant={dialogState.variant}
-              onCancel={() =>
-                setDialogState({
-                  item: null,
-                  open: false,
-                  variant: dialogState.variant
-                })
+      <TiledListingList>
+        <TiledListingActions>
+          {dataDashboards.length !== 0 && (
+            <Button
+              icon={<AddIcon />}
+              iconVariant="start"
+              onClick={(): void =>
+                setDialogState({ item: null, open: true, variant: 'create' })
               }
-              onSubmit={(values) => {
-                dialogState.variant === 'create'
-                  ? createDashboard(values)
-                  : updateDashboard(values);
-              }}
+            >
+              {args.actions.create.label}
+            </Button>
+          )}
+        </TiledListingActions>
+        <TiledListingContent>
+          {dataDashboards.length === 0 ? (
+            <ListEmptyState
+              labels={args.list.emptyState.labels}
+              onCreate={() =>
+                setDialogState({ item: null, open: true, variant: 'create' })
+              }
             />
-          </Dialog>
-        </div>
-      </div>
-    </div>
+          ) : (
+            <List>
+              {dataDashboards.map((dashboard) => (
+                <ListItem
+                  hasActions
+                  hasCardAction
+                  description={dashboard.description}
+                  key={dashboard.id}
+                  title={dashboard.name}
+                  onDelete={(): void => deleteDashboard(dashboard.id)}
+                  onEdit={(): void =>
+                    setDialogState({
+                      item: dashboard,
+                      open: true,
+                      variant: 'update'
+                    })
+                  }
+                />
+              ))}
+            </List>
+          )}
+        </TiledListingContent>
+        <Dialog
+          open={dialogState.open}
+          onClose={(): void =>
+            setDialogState({ item: null, open: false, variant: 'create' })
+          }
+        >
+          <DashboardForm
+            labels={DashboardFormDefaultStory!.args!.labels!}
+            resource={dialogState.item || undefined}
+            variant={dialogState.variant}
+            onCancel={(): void =>
+              setDialogState({
+                item: null,
+                open: false,
+                variant: dialogState.variant
+              })
+            }
+            onSubmit={(values): void => {
+              dialogState.variant === 'create'
+                ? createDashboard(values)
+                : updateDashboard(values);
+            }}
+          />
+        </Dialog>
+      </TiledListingList>
+    </TiledListingPage>
   );
 };
 

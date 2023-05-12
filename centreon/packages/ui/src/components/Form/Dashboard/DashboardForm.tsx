@@ -8,57 +8,20 @@ import { Form, FormProps } from '../../../Form';
 import { Button } from '../../Button';
 
 import { useStyles } from './DashboardForm.styles';
-
-export interface DashboardFormProps {
-  isSubmitting?: boolean;
-
-  labels: DashboardFormLabels;
-
-  onCancel?: () => void; // TODO type
-
-  onSubmit?: FormProps<DashboardFormDataShape>['submit'];
-  resource?: any;
-
-  variant?: 'create' | 'update';
-}
-
-interface DashboardFormLabels {
-  actions: {
-    cancel: string;
-    submit: {
-      create: string;
-      update: string;
-    };
-  };
-  description?: {};
-  entity: {
-    description: string;
-    name: string;
-  };
-  title: {
-    create: string;
-    update: string;
-  };
-}
-
-interface DashboardFormDataShape {
-  description?: string;
-  name: string;
-}
+import { DashboardFormDataShape, DashboardFormProps } from './models';
 
 const DashboardForm: React.FC<DashboardFormProps> = ({
   variant = 'create',
   resource,
   labels,
   onSubmit,
-  onCancel,
-  isSubmitting = false
+  onCancel
 }: DashboardFormProps): JSX.Element => {
   const { classes } = useStyles();
 
   const formProps = useMemo<FormProps<DashboardFormDataShape>>(
     () => ({
-      initialValues: resource ?? {},
+      initialValues: resource ?? { name: '' },
       inputs: [
         {
           fieldName: 'name',
@@ -99,20 +62,14 @@ const DashboardForm: React.FC<DashboardFormProps> = ({
 
     return (
       <div className={classes.actions}>
-        <Button
-          disabled={isSubmitting}
-          size="small"
-          variant="secondary"
-          onClick={() => onCancel?.()}
-        >
+        <Button disabled={isSubmitting} size="small" onClick={onCancel}>
           {labels.actions?.cancel}
         </Button>
         <Button
           disabled={isSubmitting || !dirty || !isValid}
           size="small"
           type="submit"
-          variant="primary"
-          onClick={(e) => submitForm()}
+          onClick={submitForm}
         >
           {labels.actions?.submit[variant]}
         </Button>

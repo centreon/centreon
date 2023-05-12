@@ -16,9 +16,9 @@ export interface ListItemProps {
   description: string;
   hasActions?: boolean;
   hasCardAction?: boolean;
-  onClick?: (e: any) => void;
-  onDelete?: (e: any) => void;
-  onEdit?: (e: any) => void;
+  onClick?: () => void;
+  onDelete?: () => void;
+  onEdit?: () => void;
   title: string;
 }
 
@@ -40,7 +40,7 @@ const ListItem: React.FC<ListItemProps> = ({
 
   return (
     <MuiCard className={classes.listItem} variant="outlined">
-      <ActionArea onClick={(e) => onClick?.(e)}>
+      <ActionArea onClick={onClick}>
         <MuiCardContent>
           <h3>{title}</h3>
           <p>{description}</p>
@@ -52,13 +52,13 @@ const ListItem: React.FC<ListItemProps> = ({
             icon={<EditIcon />}
             size="small"
             variant="primary"
-            onClick={(e) => onEdit?.(e)}
+            onClick={onEdit}
           />
           <IconButton
             icon={<DeleteIcon />}
             size="small"
             variant="ghost"
-            onClick={(e) => onDelete?.(e)}
+            onClick={onDelete}
           />
         </MuiCardActions>
       )}

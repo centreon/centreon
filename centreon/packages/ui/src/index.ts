@@ -155,3 +155,8 @@ export { default as ActionsList } from './ActionsList';
 export { getStatusColors, SeverityCode } from './utils/statuses';
 
 export type { ResponseError, CatchErrorProps } from './api/customFetch';
+
+export * from './components/Button';
+export * from './components/Dialog';
+export * from './components/Form/Dashboard';
+export * from './components/Header';

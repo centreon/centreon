@@ -19,9 +19,7 @@ const useStyles = makeStyles()((theme) => ({
       display: 'flex',
       gap: '20px',
       justifyContent: 'flex-end'
-    },
-
-    padding: '0 0 12px 0'
+    }
   }
 }));
 

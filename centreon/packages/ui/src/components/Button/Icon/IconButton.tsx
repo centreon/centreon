@@ -1,8 +1,6 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 import { IconButton as MuiIconButton } from '@mui/material';
-
-import { useStyles } from './IconButton.styles';
 
 const muiColorMap: Record<
   Required<IconButtonProps>['variant'],
@@ -14,7 +12,8 @@ const muiColorMap: Record<
 };
 
 interface IconButtonProps {
-  // TODO IconProps['name']
+  ariaLabel?: string;
+  dataTestId?: string;
   disabled?: boolean;
   icon?: string | ReactNode;
   onClick?: (e) => void;
@@ -22,25 +21,25 @@ interface IconButtonProps {
   variant?: 'primary' | 'secondary' | 'ghost';
 }
 
-const IconButton: React.FC<IconButtonProps> = ({
+const IconButton = ({
   variant = 'primary',
   size = 'medium',
   icon,
   disabled = false,
-  onClick
-}): JSX.Element => {
-  const { classes } = useStyles();
-
+  onClick,
+  dataTestId,
+  ariaLabel
+}: IconButtonProps): JSX.Element => {
   return (
     <MuiIconButton
-      className={classes.iconButton}
+      aria-label={ariaLabel}
+      color={muiColorMap[variant]}
       data-size={size}
+      data-testId={dataTestId}
       data-variant={variant}
       disabled={disabled}
       size={size}
-      onClick={e => onClick?.(e)}
-      // Mui overrides
-      color={muiColorMap[variant]}
+      onClick={(e): void => onClick?.(e)}
     >
       {icon}
     </MuiIconButton>

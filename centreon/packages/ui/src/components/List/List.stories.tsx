@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { List } from './index';
+import { List, ListItem, ListEmptyState } from './index';
 
 const meta: Meta<typeof List> = {
   component: List
@@ -14,7 +14,7 @@ export const Default: Story = {
     children: (
       <>
         {[...Array(5)].map((_, i) => (
-          <List.Item
+          <ListItem
             description={`List item description ${i}`}
             key={i}
             title={`List item ${i}`}
@@ -28,7 +28,7 @@ export const Default: Story = {
 export const AsEmptyState: Story = {
   args: {
     children: (
-      <List.EmptyState
+      <ListEmptyState
         labels={{
           actions: {
             create: 'Create item'
