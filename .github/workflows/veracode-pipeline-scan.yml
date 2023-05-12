@@ -92,7 +92,7 @@ jobs:
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
       - name: Cache baseline
-        if: env.HEAD_REF == 'develop' || env.HEAD_REF == 'dev-[2-9][0-9].[0-9][0-9].x' || env.HEAD_REF == 'master' || env.HEAD_REF == '[2-9][0-9].[0-9][0-9].x'
+        if: env.HEAD_REF == 'develop' || env.HEAD_REF == 'dev-[2-9][0-9].[0-9][0-9].x' || env.HEAD_REF == 'master' || env.HEAD_REF == '[2-9][0-9].[0-9][0-9].x' || env.HEAD_REF == 'AT-94-pipeline-scan'
         uses: ./.github/actions/veracode-set-cache
         with:
           module_name: ${{ env.MODULE_NAME }}
