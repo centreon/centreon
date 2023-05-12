@@ -23,6 +23,7 @@ header('Content-type: application/csv');
 header('Content-Disposition: attachment; filename="open-tickets.csv"');
 
 require_once "../../require.php";
+require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
