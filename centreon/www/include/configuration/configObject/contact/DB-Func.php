@@ -206,7 +206,7 @@ function unblockContactInDB($contact = null)
 {
     global $pearDB, $centreon;
 
-    if (is_null($contact)) {
+    if (null === $contact) {
         return;
     }
 
