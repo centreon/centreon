@@ -43,15 +43,17 @@ const formatEntityNamed = ({
   };
 };
 
-const formatMessages = ({ channel, message, subject }: MessageType): object => {
+const formatMessages = ({ messages, messageType }): object => {
+  const message = messages.find((elm) => equals(elm.channel, messageType));
+
   return {
     channel: {
       Icon: MailIcon,
-      checked: !!equals(ChannelsEnum.Email, channel),
+      checked: !!equals(ChannelsEnum.Email, message.channel),
       label: ChannelsEnum.Email
     },
-    message,
-    subject
+    message: message.message,
+    subject: message.subject
   };
 };
 
@@ -68,7 +70,7 @@ const formatResource = ({ resources, resourceType }): object => {
           serviceEvents
         ),
         includeServices: {
-          checked: false,
+          checked: true,
           label: 'Include services for these hosts'
         }
       }

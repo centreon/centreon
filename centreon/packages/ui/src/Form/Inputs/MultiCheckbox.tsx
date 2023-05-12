@@ -1,7 +1,7 @@
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useEffect } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, includes, path, split } from 'ramda';
+import { equals, includes, or, path, split } from 'ramda';
 
 import { Box, Typography } from '@mui/material';
 
@@ -13,13 +13,25 @@ import { InputPropsWithoutGroup } from './models';
 const MultiCheckbox = ({
   checkbox,
   fieldName,
-  additionalLabel
+  additionalLabel,
+  getDisabled,
+  hideInput
 }: InputPropsWithoutGroup): JSX.Element => {
   const { values, setFieldValue } = useFormikContext<FormikValues>();
 
   const fieldNamePath = split('.', fieldName);
 
   const value = path(fieldNamePath, values);
+
+  const disabled = getDisabled?.(values) || false;
+  const hideCheckbox = hideInput?.(values) || false;
+
+  useEffect(() => {
+    if (or(disabled, hideCheckbox)) {
+      const resetedValue = value?.map((elm) => ({ ...elm, checked: false }));
+      setFieldValue(fieldName, resetedValue);
+    }
+  }, [disabled, hideCheckbox]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const label = event.target.id;
@@ -36,11 +48,13 @@ const MultiCheckbox = ({
   };
 
   return useMemoComponent({
-    Component: (
+    Component: hideCheckbox ? (
+      <Box />
+    ) : (
       <Box>
         {additionalLabel && <Typography>{additionalLabel}</Typography>}
         <MultiCheckboxComponent
-          disabled={checkbox?.disabled || false}
+          disabled={disabled}
           initialValues={checkbox?.options}
           labelPlacement={checkbox?.labelPlacement || 'end'}
           row={checkbox?.row || false}
@@ -49,7 +63,7 @@ const MultiCheckbox = ({
         />
       </Box>
     ),
-    memoProps: [value]
+    memoProps: [value, disabled, hideCheckbox]
   });
 };
 

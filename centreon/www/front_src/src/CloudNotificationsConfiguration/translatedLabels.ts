@@ -20,7 +20,7 @@ export const labelSave = 'Save';
 export const labelSelectResourcesAndEvents = 'Select resources and events';
 export const labelSelectUsers = 'Select users';
 export const labelSelectTimePeriodChannelsAndPreview =
-  'Select time period/channels of notifications/preview';
+  'Select time period / channels of notifications / preview';
 export const labelDuplicateNotification =
   'How many times would you like to duplicate selected Notification?';
 export const labelDeleteNotification = 'Delete Notification?';
@@ -37,3 +37,13 @@ export const labelChangeName = 'Change the name';
 export const labelNotificationName = 'Notification name';
 export const labelRequired = 'Required';
 export const labelPreviewEmail = 'Preview Email';
+
+export const labelSuccessfulEditNotification =
+  'The notification was successfully updated';
+export const labelSuccessfulNotificationAdded =
+  'The notification was successfully added';
+
+export const labelConfirmAddNotification = "Confirm notification creation"
+export const labelConfirmEditNotification = "Confirm notification update"
+
+export const labelDoYouWantToConfirmAction = "Do you want to confirm action ?"

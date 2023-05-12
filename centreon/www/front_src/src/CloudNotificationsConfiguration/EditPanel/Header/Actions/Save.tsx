@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 import { FormikValues, useFormikContext } from 'formik';
-import { equals } from 'ramda';
+import { or, equals } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { Box } from '@mui/material';
@@ -13,12 +13,20 @@ import {
   ConfirmDialog,
   IconButton,
   useMutationQuery,
-  Method
+  Method,
+  useSnackbar
 } from '@centreon/ui';
 
 import { EditedNotificationIdAtom, panelModeAtom } from '../../atom';
 import { isPanelOpenAtom } from '../../../atom';
-import { labelSave } from '../../../translatedLabels';
+import {
+  labelSave,
+  labelSuccessfulEditNotification,
+  labelSuccessfulNotificationAdded,
+  labelConfirmAddNotification,
+  labelConfirmEditNotification,
+  labelDoYouWantToConfirmAction
+} from '../../../translatedLabels';
 import { notificationtEndpoint } from '../../api/endpoints';
 import { PanelMode } from '../../models';
 import { adaptNotifications } from '../../api/adapters';
@@ -29,18 +37,19 @@ const useStyle = makeStyles()((theme) => ({
   }
 }));
 
-const SaveAction = ({ isValid }: { isValid: boolean }): JSX.Element => {
+const SaveAction = (): JSX.Element => {
   const { classes } = useStyle();
+
   const { t } = useTranslation();
+  const { showSuccessMessage } = useSnackbar();
+  const { values, isValid, dirty } = useFormikContext<FormikValues>();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const panelMode = useAtomValue(panelModeAtom);
   const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
   const setPanelOpen = useSetAtom(isPanelOpenAtom);
 
-  const { values } = useFormikContext<FormikValues>();
-
-  const { mutateAsync } = useMutationQuery({
+  const { isMutating, mutateAsync } = useMutationQuery({
     getEndpoint: () =>
       equals(panelMode, PanelMode.Create)
         ? notificationtEndpoint({})
@@ -57,27 +66,42 @@ const SaveAction = ({ isValid }: { isValid: boolean }): JSX.Element => {
   };
 
   const onConfirm = (): void => {
+    const labelMessage = equals(panelMode, PanelMode.Create)
+      ? labelSuccessfulNotificationAdded
+      : labelSuccessfulEditNotification;
+
     mutateAsync(adaptNotifications(values)).then(() => {
+      showSuccessMessage(t(labelMessage));
       setDialogOpen(false);
       setPanelOpen(false);
     });
   };
 
+  const disabled = or(!isValid, !dirty);
+
+  const labelConfirm = equals(panelMode, PanelMode.Create)
+    ? labelConfirmAddNotification
+    : labelConfirmEditNotification;
+
   return (
     <Box>
       <IconButton
         ariaLabel={t(labelSave)}
-        disabled={!isValid}
+        disabled={disabled as boolean}
         title={t(labelSave)}
         onClick={onClick}
       >
         <SaveIcon
           className={classes.icon}
-          color={isValid ? 'primary' : 'disabled'}
+          color={disabled ? 'disabled' : 'primary'}
         />
       </IconButton>
       <ConfirmDialog
+        confirmDisabled={isMutating}
+        labelMessage={t(labelConfirm)}
+        labelTitle={t(labelDoYouWantToConfirmAction)}
         open={dialogOpen}
+        submitting={isMutating}
         onCancel={onCancel}
         onConfirm={onConfirm}
       />

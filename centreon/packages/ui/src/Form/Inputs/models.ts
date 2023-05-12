@@ -37,7 +37,6 @@ export interface InputProps {
   };
   change?: ({ setFieldValue, value }) => void;
   checkbox?: {
-    disabled?: boolean;
     labelPlacement?: LabelPlacement;
     options?: Array<string>;
     row?: boolean;

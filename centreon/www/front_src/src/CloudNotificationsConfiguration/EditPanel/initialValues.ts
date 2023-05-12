@@ -24,7 +24,7 @@ export const getInitialValues = ({
   // }),
   hostGroups: formatResource({ resourceType: ResourcesTypeEnum.HG, resources }),
   isActivated,
-  messages: formatMessages(messages[0]),
+  messages: formatMessages({ messageType: ChannelsEnum.Email, messages }),
   name,
   serviceGroups: formatResource({
     resourceType: ResourcesTypeEnum.SG,

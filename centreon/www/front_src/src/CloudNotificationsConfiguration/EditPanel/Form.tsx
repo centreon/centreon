@@ -13,7 +13,7 @@ import {
 } from '../translatedLabels';
 import { panelWidthStorageAtom } from '../atom';
 
-import { basicFormGroups, getInputs } from './inputs';
+import useFormInputs from './useFormInputs';
 import { emptyInitialValues, getInitialValues } from './initialValues';
 import useValidationSchema from './validationSchema';
 import Header from './Header';
@@ -29,7 +29,7 @@ const useStyles = makeStyles()((theme) => ({
   reducePanel: {
     display: 'flex',
     justifyContent: 'flex-end',
-    padding: theme.spacing(1, 2)
+    padding: theme.spacing(1, 2, 0)
   }
 }));
 
@@ -60,6 +60,8 @@ const Form = (): JSX.Element => {
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
 
+  const { inputs, basicFormGroups } = useFormInputs({ panelWidth });
+
   const { validationSchema } = useValidationSchema();
 
   const { data, isLoading } = useFetchQuery({
@@ -80,11 +82,12 @@ const Form = (): JSX.Element => {
   return (
     <Box>
       <FormComponent
+        // isCollapsible
         Buttons={Box}
         className={classes.form}
         groups={basicFormGroups}
         initialValues={initialValues}
-        inputs={getInputs({ panelWidth })}
+        inputs={inputs}
         isLoading={equals(panelMode, PanelMode.Edit) ? isLoading : false}
         validationSchema={validationSchema}
       >

@@ -73,7 +73,6 @@ const Header = (): JSX.Element => {
 
   const {
     setFieldValue,
-    isValid,
     errors,
     values: { name: notificationName }
   } = useFormikContext<FormikValues>();
@@ -111,7 +110,7 @@ const Header = (): JSX.Element => {
         <Box className={classes.actions}>
           <ActivateAction />
           {equals(panelMode, PanelMode.Edit) && <DuplicateAction />}
-          <SaveAction isValid={isValid} />
+          <SaveAction />
           {equals(panelMode, PanelMode.Edit) && <DeleteAction />}
         </Box>
         <ClosePanelAction />

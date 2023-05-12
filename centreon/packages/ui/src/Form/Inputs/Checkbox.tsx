@@ -13,13 +13,18 @@ import { InputPropsWithoutGroup } from './models';
 const Checkbox = ({
   checkbox,
   fieldName,
-  additionalLabel
+  additionalLabel,
+  getDisabled,
+  hideInput
 }: InputPropsWithoutGroup): JSX.Element => {
   const { values, setFieldValue } = useFormikContext<FormikValues>();
 
   const fieldNamePath = split('.', fieldName);
 
   const value = path(fieldNamePath, values);
+
+  const disabled = getDisabled?.(values) || false;
+  const hideCheckbox = hideInput?.(values) || false;
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const newValue = {
@@ -32,20 +37,22 @@ const Checkbox = ({
   };
 
   return useMemoComponent({
-    Component: (
+    Component: hideCheckbox ? (
+      <Box />
+    ) : (
       <Box>
         {additionalLabel && <Typography>{additionalLabel}</Typography>}
         <CheckboxComponent
           Icon={value?.Icon}
           checked={value?.checked}
-          disabled={checkbox?.disabled || false}
+          disabled={disabled}
           label={value?.label}
           labelPlacement={checkbox?.labelPlacement || 'end'}
           onChange={handleChange}
         />
       </Box>
     ),
-    memoProps: [value]
+    memoProps: [value, disabled, hideCheckbox]
   });
 };
 

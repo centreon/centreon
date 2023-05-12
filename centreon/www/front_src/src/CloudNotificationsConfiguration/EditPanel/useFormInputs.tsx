@@ -1,15 +1,21 @@
-import { cond, gt, always, T } from 'ramda';
+import { cond, gt, always, T, isEmpty, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
-import { Group, InputProps, InputType } from '@centreon/ui';
+import { Group, InputType } from '@centreon/ui';
 
+import {
+  labelSelectResourcesAndEvents,
+  labelSelectUsers,
+  labelSelectTimePeriodChannelsAndPreview
+} from '../translatedLabels';
+
+import { hostEvents, serviceEvents } from './utils';
+import { EmailBody, EmailPreview } from './Channel';
 import {
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
 } from './api/endpoints';
-import EmailBody from './Channel/EmailBody';
-import EmailPreview from './Channel/EmailPreview';
-import { hostEvents, serviceEvents } from './utils';
 
 const handleGridTemplate = cond([
   [gt(650), always('auto')],
@@ -17,12 +23,29 @@ const handleGridTemplate = cond([
   [T, always('repeat(2, 1fr)')]
 ]);
 
-export const getInputs = ({
-  panelWidth
-}: {
+interface Props {
   panelWidth: number;
-}): Array<InputProps> => {
-  return [
+}
+
+const useFormInputs = ({ panelWidth }: Props): object => {
+  const { t } = useTranslation();
+
+  const basicFormGroups: Array<Group> = [
+    {
+      name: t(labelSelectResourcesAndEvents),
+      order: 1
+    },
+    {
+      name: t(labelSelectUsers),
+      order: 2
+    },
+    {
+      name: t(labelSelectTimePeriodChannelsAndPreview),
+      order: 3
+    }
+  ];
+
+  const inputs = [
     {
       additionalLabel: 'Host groups',
       fieldName: 'hostGroups',
@@ -36,6 +59,7 @@ export const getInputs = ({
             },
             fieldName: 'hostGroups.ids',
             label: 'Search host groups',
+            required: true,
             type: InputType.MultiConnectedAutocomplete
           },
           {
@@ -45,11 +69,14 @@ export const getInputs = ({
               row: true
             },
             fieldName: 'hostGroups.events',
+            getDisabled: (values) => isEmpty(values.hostGroups.ids),
             label: 'Events',
             type: InputType.MultiCheckbox
           },
           {
             fieldName: 'hostGroups.extra.includeServices',
+            getDisabled: (values) => isEmpty(values.hostGroups.ids),
+            hideInput: (values) => isEmpty(values.hostGroups.ids),
             label: 'Events',
             type: InputType.Checkbox
           },
@@ -60,13 +87,16 @@ export const getInputs = ({
               row: true
             },
             fieldName: 'hostGroups.extra.eventsServices',
+            getDisabled: (values) =>
+              not(values.hostGroups?.extra?.includeServices.checked),
+            hideInput: (values) => isEmpty(values.hostGroups.ids),
             label: 'Events',
             type: InputType.MultiCheckbox
           }
         ],
         gridTemplateColumns: handleGridTemplate(panelWidth)
       },
-      group: 'Select resources and events',
+      group: basicFormGroups[0].name,
       label: 'Resources and events',
       type: InputType.Grid
     },
@@ -83,6 +113,7 @@ export const getInputs = ({
             },
             fieldName: 'serviceGroups.ids',
             label: 'Search Service groups',
+            required: true,
             type: InputType.MultiConnectedAutocomplete
           },
           {
@@ -92,13 +123,14 @@ export const getInputs = ({
               row: true
             },
             fieldName: 'serviceGroups.events',
+            getDisabled: (values) => isEmpty(values.serviceGroups.ids),
             label: 'Events',
             type: InputType.MultiCheckbox
           }
         ],
         gridTemplateColumns: handleGridTemplate(panelWidth)
       },
-      group: 'Select resources and events',
+      group: basicFormGroups[0].name,
       label: 'Resources and events',
       type: InputType.Grid
     },
@@ -130,7 +162,7 @@ export const getInputs = ({
     //     ],
     //     gridTemplateColumns: handleGridTemplate(panelWidth)
     //   },
-    //   group: 'Select resources and events',
+    //   group: basicFormGroups[0].name,
     //   label: 'Resources and events',
     //   type: InputType.Grid
     // },
@@ -140,8 +172,9 @@ export const getInputs = ({
         endpoint: usersEndpoint
       },
       fieldName: 'users',
-      group: 'Select users',
+      group: basicFormGroups[1].name,
       label: 'Search users',
+      required: true,
       type: InputType.MultiConnectedAutocomplete
     },
     {
@@ -155,6 +188,7 @@ export const getInputs = ({
                 {
                   additionalLabel: 'Time period',
                   fieldName: 'timeperiod',
+                  getDisabled: () => true,
                   label: 'Time period',
                   type: InputType.Checkbox
                 },
@@ -176,6 +210,7 @@ export const getInputs = ({
                           row: true
                         },
                         fieldName: 'messages.channel',
+                        getDisabled: () => true,
                         label: 'SMS',
                         type: InputType.Checkbox
                       },
@@ -184,6 +219,7 @@ export const getInputs = ({
                           row: true
                         },
                         fieldName: 'messages.channel',
+                        getDisabled: () => true,
                         label: 'Slack',
                         type: InputType.Checkbox
                       }
@@ -225,24 +261,13 @@ export const getInputs = ({
           ? 'repeat(1, 1fr)'
           : 'repeat(2, 1fr)'
       },
-      group: 'Select time period/ channels of notifications / preview',
+      group: basicFormGroups[2].name,
       label: '',
       type: InputType.Grid
     }
   ];
+
+  return { basicFormGroups, inputs };
 };
 
-export const basicFormGroups: Array<Group> = [
-  {
-    name: 'Select resources and events',
-    order: 1
-  },
-  {
-    name: 'Select users',
-    order: 2
-  },
-  {
-    name: 'Select time period/ channels of notifications / preview',
-    order: 3
-  }
-];
+export default useFormInputs;
