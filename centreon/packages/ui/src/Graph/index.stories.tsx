@@ -2,14 +2,16 @@ import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
 
-import Switch from '@mui/material/Switch';
 import { Button } from '@mui/material';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 import AwesomeTimePeriod from '../TimePeriods';
 
+import { dateTimeFormat } from './common';
 import {
   argTypes,
   args as argumentsData,
@@ -20,14 +22,17 @@ import {
   lastDayForwardDate,
   zoomPreviewDate
 } from './helpers/doc';
-import dataLastDay from './mockedData/lastDayThreshold.json';
+import annotationData from './mockedData/annotationData.json';
+import exclusionPeriodFirstPeriod from './mockedData/exclusionPeriodFirstPeriod.json';
+import exclusionPeriodFourthPeriod from './mockedData/exclusionPeriodFourthPeriod.json';
+import exclusionPeriodSecondPeriod from './mockedData/exclusionPeriodSecondPeriod.json';
+import exclusionPeriodThirdPeriod from './mockedData/exclusionPeriodThirdPeriod.json';
 import dataLastDayForword from './mockedData/lastDayForward.json';
+import dataLastDay from './mockedData/lastDayThreshold.json';
 import dataLastMonth from './mockedData/lastMonth.json';
 import dataLastWeek from './mockedData/lastWeek.json';
 import dataZoomPreview from './mockedData/zoomPreview.json';
-import annotationData from './mockedData/annotationData.json';
 import { GraphData, Interval, TooltipData } from './models';
-import { dateTimeFormat } from './common';
 
 import WrapperGraph from './index';
 
@@ -225,8 +230,51 @@ const GraphAndTimePeriod = (args): JSX.Element => {
   );
 };
 
+const GraphAndExclusionPeriod = (args): JSX.Element => {
+  const [dataExclusionPeriods, setDataExclusionPeriods] = useState([]);
+
+  const handleClick = (data): void => {
+    setDataExclusionPeriods([...dataExclusionPeriods, data]);
+  };
+
+  return (
+    <>
+      <div>Add exclusion periods:</div>
+      <ButtonGroup
+        aria-label="outlined primary button group"
+        variant="contained"
+      >
+        <Button onClick={(): void => handleClick(exclusionPeriodFirstPeriod)}>
+          first
+        </Button>
+        <Button onClick={(): void => handleClick(exclusionPeriodSecondPeriod)}>
+          second
+        </Button>
+        <Button onClick={(): void => handleClick(exclusionPeriodThirdPeriod)}>
+          third
+        </Button>
+        <Button onClick={(): void => handleClick(exclusionPeriodFourthPeriod)}>
+          fourth
+        </Button>
+      </ButtonGroup>
+      <WrapperGraph
+        {...args}
+        data={dataLastDay as unknown as GraphData}
+        shapeLines={{
+          areaThresholdLines: {
+            dataExclusionPeriods,
+            display: true
+          }
+        }}
+      />
+    </>
+  );
+};
+
 const Template: Story = {
-  render: (args) => <WrapperGraph {...args} data={dataLastDay} />
+  render: (args) => (
+    <WrapperGraph {...args} data={dataLastDay as unknown as GraphData} />
+  )
 };
 
 export const Graph: Story = {
@@ -237,6 +285,10 @@ export const Graph: Story = {
 
 const WithTimePeriod = {
   render: (args): JSX.Element => <GraphAndTimePeriod {...args} />
+};
+
+const GraphWithExclusionPeriod: Story = {
+  render: (args) => <GraphAndExclusionPeriod {...args} />
 };
 
 export const GraphWithTimePeriod: Story = {
@@ -267,6 +319,15 @@ export const WithEnvelopVariation: Story = {
         display: true
       }
     },
+    start: defaultStart
+  }
+};
+
+export const withExclusionPeriods: Story = {
+  ...GraphWithExclusionPeriod,
+  args: {
+    end: defaultEnd,
+    height: 500,
     start: defaultStart
   }
 };

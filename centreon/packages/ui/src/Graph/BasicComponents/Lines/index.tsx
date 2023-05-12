@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-import { isNil } from 'ramda';
+import { isEmpty, isNil } from 'ramda';
 
 import {
   RegularLinesAnchorPoint,
@@ -19,6 +19,7 @@ import ThresholdWithVariation from './Threshold/ThresholdWithVariation';
 import { Data } from './Threshold/models';
 import useDataThreshold from './Threshold/useDataThreshold';
 import { Shape } from './models';
+import ThresholdWithPatternLines from './Threshold/ThresholdWithPatternLines';
 
 interface AnchorPoint {
   renderRegularLinesAnchorPoint: (args: RegularLinesAnchorPoint) => ReactNode;
@@ -47,6 +48,7 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
   const simulatedFactorMultiplication = areaThreshold?.factors
     ?.simulatedFactorMultiplication as number;
   const getCountDisplayedCircles = areaThreshold?.getCountDisplayedCircles;
+  const dataExclusionPeriods = areaThreshold?.dataExclusionPeriods;
 
   const {
     displayAreaInvertedStackedLines,
@@ -132,6 +134,20 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
               xScale={xScale}
             />
           )}
+
+          {dataExclusionPeriods?.map((item, index) => (
+            <ThresholdWithPatternLines
+              data={item}
+              display={
+                !isNil(dataExclusionPeriods) && !isEmpty(dataExclusionPeriods)
+              }
+              graphHeight={height}
+              key={item.times[index]}
+              leftScale={leftScale}
+              rightScale={rightScale}
+              xScale={xScale}
+            />
+          ))}
         </>
       )}
 

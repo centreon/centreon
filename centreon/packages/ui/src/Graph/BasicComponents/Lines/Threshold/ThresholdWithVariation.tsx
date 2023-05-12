@@ -52,12 +52,12 @@ const ThresholdWithVariation = ({
     Component: (
       <>
         <BasicThreshold
+          fillAboveArea={lineColorY1}
+          fillBelowArea={lineColorY0}
           getX={getX}
           getY0={getY0}
           getY1={getY1}
           graphHeight={graphHeight}
-          lineColorY0={lineColorY0}
-          lineColorY1={lineColorY1}
           timeSeries={timeSeries}
         />
 

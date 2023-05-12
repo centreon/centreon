@@ -51,3 +51,11 @@ export interface Circle {
   timeSeries: Array<TimeValue>;
   xScale: ScaleLinear<number, number>;
 }
+
+export interface ThresholdLinesModel {
+  dataY0: Data;
+  dataY1: Data;
+  graphHeight: number;
+  timeSeries: Array<TimeValue>;
+  xScale: ScaleLinear<number, number>;
+}

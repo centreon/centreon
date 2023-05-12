@@ -100,6 +100,7 @@ export interface Area {
 }
 
 export interface ThresholdArea extends Area {
+  dataExclusionPeriods?: Array<GraphData>;
   factors?: FactorsVariation;
   getCountDisplayedCircles?: (value: number) => void;
 }

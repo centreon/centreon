@@ -1,5 +1,6 @@
 import { ScaleLinear } from 'd3-scale';
 
+import { GraphData } from '../../models';
 import { Line, TimeValue } from '../../timeSeries/models';
 
 import { FactorsVariation } from './Threshold/models';
@@ -29,6 +30,7 @@ export interface AreaRegularLines extends ShapeGraphData {
 }
 
 export interface AreaThreshold extends AreaRegularLines {
+  dataExclusionPeriods?: Array<GraphData>;
   factors?: FactorsVariation;
   getCountDisplayedCircles?: (value: number) => void;
 }
