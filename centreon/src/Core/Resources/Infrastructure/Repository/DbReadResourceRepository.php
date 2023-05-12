@@ -70,7 +70,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         'alias' => 'resources.alias',
         'fqdn' => 'resources.address',
         'type' => 'resources.type',
-        'h.name' => 'parent_resource.name',
+        'h.name' => 'CASE type WHEN 1 THEN `resources.name` ELSE `resources.parent_name` END',
         'h.alias' => 'parent_resource.alias',
         'h.address' => 'parent_resource.address',
         's.description' => 'resources.type IN (0,2) AND resources.name',
