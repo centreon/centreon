@@ -103,9 +103,6 @@ class NotificationHostEventConverter
         };
     }
 
-
-
-
     /**
      * Convert a bitmask into an array of NotificationHostEvent.
      *
