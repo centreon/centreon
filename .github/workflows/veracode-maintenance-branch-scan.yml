@@ -85,10 +85,10 @@ jobs:
 
       - name: Check baseline
         run: |
-        BASELINE_FOUND=$( ls -la /tmp | grep ${{ env.REPORT_FILENAME }} )
-        if [[ -z $BASELINE_FOUND ]]; then
-          echo "BASELINE_FOUND=Yes" >> $GITHUB_OUTPUT
-        fi
+          BASELINE_FILE=$( ls -la /tmp | grep ${{ env.REPORT_FILENAME }} )
+          if [[ -z $BASELINE_FILE ]]; then
+            echo "BASELINE_FOUND=Yes" >> $GITHUB_OUTPUT
+          fi
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
