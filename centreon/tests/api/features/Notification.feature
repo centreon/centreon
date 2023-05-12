@@ -164,7 +164,7 @@ Feature:
         "is_activated": true
       }
       """
-    Then the response code should be "409"
+    Then the response code should be "400"
 
     When I send a POST request to '/api/latest/configuration/notifications' with body:
       """
