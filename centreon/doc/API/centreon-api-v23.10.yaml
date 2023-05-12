@@ -6642,7 +6642,7 @@ components:
             A value of 0 disables re-notifications of contacts about problems for this host - only one problem notification will be sent out.
         notification_timeperiod_id:
           type: integer
-          description: "Notification tiemperiod ID"
+          description: "Notification timeperiod ID"
           example: 1
           nullable: true
         add_inherited_contact_group:
