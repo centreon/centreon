@@ -3,7 +3,7 @@ name: Veracode pipeline scans
 on:
   push:
     branches:
-      # This part will generate the cache
+      # These pipelines will generate the cache
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
@@ -11,14 +11,14 @@ on:
       - AT-94-pipeline-scan #TODO: to remove - intended to test the pipeline
   pull_request:
     branches:
-      # This part use the cache
+      # These pipelines will use the cache
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
 
 env:
-  TARGET_BRANCH: ${{ github.base_ref }}
+  TARGET_BRANCH: ${{ github.base_ref }} #Caution: required for veracode runner
   MODULE_DIRECTORY: centreon-gorgone
   MODULE_NAME: centreon-gorgone
   THRESHOLD: "High"
