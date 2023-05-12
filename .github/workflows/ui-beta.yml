@@ -43,34 +43,33 @@ jobs:
         with:
           version: 7
 
-      - run: |
-          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-          sudo apt update
-          sudo apt install -y google-chrome-stable
-
       - name: Install Centreon dependencies
         run: pnpm install
         working-directory: ${{ env.centreon_directory }}
 
-      - name: Build Storybook
-        run: pnpm build:storybook
-        working-directory: ${{ env.directory }}
-
       - name: Unit test
-        run: pnpm test:ci
+        run: pnpm t
         working-directory: ${{ env.directory }}
 
-      - name: Upload snapshot diff output results
-        if: failure()
-        uses: actions/upload-artifact@v3
+  publish-snapshots:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
         with:
-          name: ${{ env.centreon_directory }}-images-snapshots-diff-output
-          path: ${{ env.directory }}/src/__image_snapshots__/__diff_output__/
+          fetch-depth: 0
+
+      - if: ${{ github.event.pull_request.draft == false }}
+        uses: ./.github/actions/chromatic
+        with:
+          frontend_directory: ${{ env.directory }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          project_token: ${{ secrets.CHROMATIC_TOKEN }}
+          ignoreLastBuildOnBranch: true
 
   publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
-    needs: [lint, unit-test, check-package-version, cypress-component-testing]
+    needs: [lint, unit-test, check-package-version, cypress-component-testing, publish-snapshots]
 
     steps:
       - uses: actions/checkout@v3

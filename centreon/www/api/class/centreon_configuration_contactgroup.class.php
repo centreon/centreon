@@ -100,7 +100,11 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
         $contactgroupList = array();
         foreach ($aclCgs['items'] as $id => $contactgroup) {
             // If we query local contactgroups and the contactgroup type is ldap, we skip it
-            if (($this->arguments['type'] === 'local') && ($contactgroup['cg_type'] === 'ldap')) {
+            if (
+                isset($this->arguments['type'])
+                && ($this->arguments['type'] === 'local')
+                && ($contactgroup['cg_type'] === 'ldap')
+            ) {
                 $aclCgs['total'] -= 1;
                 continue;
             }
@@ -117,7 +121,7 @@ class CentreonConfigurationContactgroup extends CentreonConfigurationObjects
 
         # get Ldap contactgroups
         // If we don't query local contactgroups, we can return an array with ldap contactgroups
-        if ($this->arguments['type'] !== 'local') {
+        if (! isset($this->arguments['type']) || $this->arguments['type'] !== 'local') {
             $ldapCgs = array();
             if (isset($this->arguments['page_limit'], $this->arguments['page'])) {
                 $maxItem = $this->arguments['page_limit'] * $this->arguments['page'];

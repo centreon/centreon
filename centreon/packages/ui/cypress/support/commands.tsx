@@ -1,14 +1,19 @@
 import { mount } from 'cypress/react18';
 import '@testing-library/cypress/add-commands';
+import ThemeProvider from '../../src/ThemeProvider'
 
 Cypress.Commands.add('mount', ({ Component, options }: MountProps) => {
-    return mount(Component, options);
-  });
+const wrapper = (
+    <ThemeProvider>{Component}</ThemeProvider>
+  );
   
-  interface MountProps {
-    Component: JSX.Element;
-    options?: object;
-  }
+  return mount(wrapper, options);
+});
+  
+interface MountProps {
+  Component: JSX.Element;
+  options?: object;
+}
 
 declare global {
     namespace Cypress {

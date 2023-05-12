@@ -9,7 +9,7 @@ import fetchMock, { MockParams } from 'jest-fetch-mock';
 
 import { ThemeMode } from '@centreon/ui-context';
 
-import ThemeProvider from './StoryBookThemeProvider';
+import ThemeProvider from '../src/StoryBookThemeProvider';
 
 interface Props {
   children: ReactElement;
