@@ -79,13 +79,13 @@ jobs:
       - name: DEBUG - Check /tmp
         run: ls -la /tmp
 
-      - name: Check baseline
-        run: |
-          if [[ -f /tmp/results.json ]]; then
-            echo "BASELINE_FOUND=Yes" >> $GITHUB_OUTPUT
-          else
-            echo "BASELINE_FOUND=No" >> $GITHUB_OUTPUT
-          fi
+#      - name: Check baseline
+#        run: |
+#          if [[ -f /tmp/results.json ]]; then
+#            echo "BASELINE_FOUND=Yes" >> $GITHUB_OUTPUT
+#          else
+#            echo "BASELINE_FOUND=No" >> $GITHUB_OUTPUT
+#          fi
 
       - name: DEBUG - Get BASELINE value
         run: echo ${{ env.BASELINE_FOUND }}
