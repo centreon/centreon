@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import { slice } from 'ramda';
 
 import { Box, alpha, useTheme } from '@mui/material';
@@ -20,6 +22,7 @@ interface Props {
   base: number;
   limitLegendRows?: boolean;
   lines: Array<Line>;
+  renderExtraComponent?: ReactNode;
   timeSeries: Array<TimeValue>;
   toggable?: boolean;
 }
@@ -29,7 +32,8 @@ const Legend = ({
   timeSeries,
   base,
   toggable = true,
-  limitLegendRows = true
+  limitLegendRows = true,
+  renderExtraComponent
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ limitLegendRows });
   const theme = useTheme();
@@ -127,6 +131,7 @@ const Legend = ({
           );
         })}
       </div>
+      {renderExtraComponent}
     </div>
   );
 };

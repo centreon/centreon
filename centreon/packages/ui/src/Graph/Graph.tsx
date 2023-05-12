@@ -26,12 +26,19 @@ import useAnchorPoint from './IntercatifsComponents/AnchorPoint/useAnchorPoint';
 import GraphTooltip from './IntercatifsComponents/Tooltip';
 import useGraphTooltip from './IntercatifsComponents/Tooltip/useGraphTooltip';
 import Legend from './Legend';
-import { Data, GlobalAreaLines, GraphInterval, GraphProps } from './models';
+import {
+  Data,
+  GlobalAreaLines,
+  GraphInterval,
+  GraphProps,
+  LegendModel
+} from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
 
 interface Props extends GraphProps {
   graphData: Data;
   graphInterval: GraphInterval;
+  legend?: LegendModel;
   loading: boolean;
   shapeLines?: GlobalAreaLines;
 }
@@ -48,7 +55,8 @@ const Graph = ({
   graphInterval,
   timeShiftZones,
   annotationEvent,
-  tooltip
+  tooltip,
+  legend
 }: Props): JSX.Element => {
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -261,7 +269,12 @@ const Graph = ({
             </Group.Group>
           </svg>
           <GraphTooltip {...tooltip} {...graphTooltipData} />
-          <Legend base={baseAxis} lines={newLines} timeSeries={timeSeries} />
+          <Legend
+            base={baseAxis}
+            lines={newLines}
+            renderExtraComponent={legend?.renderExtraComponent}
+            timeSeries={timeSeries}
+          />
         </div>
       </ClickAwayListener>
     </>

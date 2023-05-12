@@ -9,7 +9,7 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 
 import Graph from './Graph';
-import { GlobalAreaLines, GraphData, GraphProps } from './models';
+import { GlobalAreaLines, GraphData, GraphProps, LegendModel } from './models';
 import useGraphData from './useGraphData';
 
 dayjs.extend(localizedFormat);
@@ -19,6 +19,7 @@ dayjs.extend(timezonePlugin);
 interface Props extends Partial<GraphProps> {
   data: GraphData;
   end: string;
+  legend: LegendModel;
   loading: boolean;
   shapeLines?: GlobalAreaLines;
   start: string;
@@ -37,7 +38,8 @@ const WrapperGraph = ({
   loading,
   timeShiftZones,
   tooltip,
-  annotationEvent
+  annotationEvent,
+  legend
 }: Props): JSX.Element | null => {
   const { adjustedData } = useGraphData({ data, end, start });
 
@@ -59,6 +61,7 @@ const WrapperGraph = ({
             graphData={{ ...adjustedData }}
             graphInterval={{ end, start }}
             height={height ?? responsiveHeight}
+            legend={legend}
             loading={loading}
             shapeLines={shapeLines}
             timeShiftZones={timeShiftZones}

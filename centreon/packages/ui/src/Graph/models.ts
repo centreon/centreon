@@ -110,3 +110,6 @@ export interface GlobalAreaLines {
   areaStackedLines?: Area;
   areaThresholdLines?: ThresholdArea;
 }
+export interface LegendModel {
+  renderExtraComponent?: ReactNode;
+}
