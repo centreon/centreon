@@ -24,10 +24,11 @@ runs:
       shell: bash
 
     - name: DEBUG - Check location
-      run: ls -la
+      run: ls -la #TODO: to remove
       shell: bash
 
     - name: Create JAR files
+      #TODO: to manage JAR generation for project using JAVA
       if: inputs.compile_mvn == 'yes'
       run: echo "TODO - compile mvn files"
       shell: bash
@@ -36,12 +37,11 @@ runs:
       #if: inputs.compile_mvn != 'yes'
       run: |
         cd ${{ inputs.module_directory }}
-        ls -la
         zip -rq "../${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip" *
       shell: bash
 
     - name: DEBUG - Check location
-      run: ls -la
+      run: ls -la #TODO: to remove
       shell: bash
 
     - uses: actions/upload-artifact@v3
