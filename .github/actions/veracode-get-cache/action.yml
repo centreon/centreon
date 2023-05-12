@@ -7,9 +7,6 @@ inputs:
   target_branch_name:
     description: The target maintenance branch
     required: true
-  baseline_filename:
-    description: Name of the baseline file
-    required: true
 
 runs:
   using: "composite"
@@ -23,10 +20,10 @@ runs:
 
     - name: Get baseline file
       run: |
-        TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/${{ inputs.baseline_filename }}"
+        TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/results.json"
         aws s3 ls "$TARGET_S3" || RESULT=$( echo $? )
         if [[ $RESULT -eq 0 ]]; then
-          aws s3 cp "$TARGET_S3" "/tmp/${{ inputs.baseline_filename }}"
+          aws s3 cp "$TARGET_S3" "/tmp/results.json"
         else
           echo "[DEBUG] - File not found in the bucket"
         fi

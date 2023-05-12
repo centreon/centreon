@@ -11,7 +11,7 @@ on:
 
 env:
   #TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
-  TARGET_BRANCH: dev-23.04.x
+  TARGET_BRANCH: ${{ github.base_ref }}
   MODULE_DIRECTORY: centreon-gorgone
   MODULE_NAME: centreon-gorgone
   CRITICALITY: "VeryLow"
@@ -54,7 +54,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}"
-          # TODO: get target branch name to distinguish baseline from dev-xx.xx and xx.xx
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
