@@ -85,10 +85,12 @@ jobs:
 
       - name: Check baseline
         run: |
-          BASELINE_FILE=$( ls -la /tmp | grep ${{ env.REPORT_FILENAME }} )
-          if [[ -z $BASELINE_FILE ]]; then
+          if [[ -f /tmp/${{ env.REPORT_FILENAME}} ]]; then
             echo "BASELINE_FOUND=Yes" >> $GITHUB_OUTPUT
           fi
+
+      - name: DEBUG - Get BASELINE value
+        run: echo ${{ env.BASELINE_FOUND }}
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
@@ -97,9 +99,6 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 8
-
-      - name: DEBUG - Get BASELINE value
-        run: echo ${{ env.BASELINE_FOUND }}
 
       - name: Pipeline scan with baseline
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
