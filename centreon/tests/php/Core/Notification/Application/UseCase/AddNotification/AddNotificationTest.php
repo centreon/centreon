@@ -43,7 +43,6 @@ use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\UseCase\AddNotification\AddNotification;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
-use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\AddNotification\AddNotificationRequest;
@@ -71,7 +70,6 @@ beforeEach(function (): void {
     $this->useCase = new AddNotification(
         $this->readNotificationRepository = $this->createMock(ReadNotificationRepositoryInterface::class),
         $this->writeNotificationRepository = $this->createMock(WriteNotificationRepositoryInterface::class),
-        $this->readTimePeriodRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->contactRepository = $this->createMock(ContactRepositoryInterface::class),
         $this->resourceRepositoryProvider = $this->createMock(NotificationResourceRepositoryProviderInterface::class),
