@@ -238,7 +238,7 @@ $elemArr = array();
 $centreonToken = createCSRFToken();
 
 // Get the count of blocked contacts
-$blockedContactsCount =  count(array_filter(array_column($contacts, 'blocking_time')));
+$blockedContactsCount = count(array_filter(array_column($contacts, 'blocking_time')));
 
 foreach ($contacts as $contact) {
     if ($centreon->user->get_id() == $contact['contact_id']) {
@@ -446,7 +446,7 @@ foreach (array('o1', 'o2') as $option) {
                 "')) {" .
                 "   setO(this.form.elements['" . $option . "'].value); submit();} " .
             "else if (this.form.elements['" . $option . "'].selectedIndex == 7 && confirm('" .
-            _("The user(s) will be unblocked. Do you confirm the request ?") .
+            _("The user(s) will be unblocked. Do you confirm the request?") .
             "')) {" .
             "   setO(this.form.elements['" . $option . "'].value); submit();} " .
             "this.form.elements['" . $option . "'].selectedIndex = 0"

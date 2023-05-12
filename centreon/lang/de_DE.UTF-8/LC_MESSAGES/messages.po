@@ -15385,7 +15385,7 @@ msgstr ""
 #msgstr ""
 
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
-#msgid "The user(s) will be unblocked. Do you confirm the request ?"
+#msgid "The user(s) will be unblocked. Do you confirm the request?"
 #msgstr ""
 
 # msgid "Error while retrieving a host group"
