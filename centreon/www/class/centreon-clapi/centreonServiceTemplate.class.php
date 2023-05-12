@@ -913,11 +913,19 @@ class CentreonServiceTemplate extends CentreonObject
                 $relobj = new $relclass($this->dependencyInjector);
                 $obj = new $class($this->dependencyInjector);
                 if ($matches[1] == "get") {
-                    $tab = $relobj->getTargetIdFromSourceId(
-                        $relobj->getFirstKey(),
-                        $relobj->getSecondKey(),
-                        $serviceId
-                    );
+                    if ($matches[2] === 'hosttemplate') {
+                        $tab = $relobj->getTargetIdFromSourceId(
+                            $relobj->getSecondKey(),
+                            $relobj->getFirstKey(),
+                            $serviceId
+                        );
+                    } else {
+                        $tab = $relobj->getTargetIdFromSourceId(
+                            $relobj->getFirstKey(),
+                            $relobj->getSecondKey(),
+                            $serviceId
+                        );
+                    }
                     echo "id" . $this->delim . "name" . "\n";
                     foreach ($tab as $value) {
                         $tmp = $obj->getParameters($value, array($obj->getUniqueLabelField()));
