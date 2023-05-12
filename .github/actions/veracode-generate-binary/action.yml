@@ -1,4 +1,4 @@
-name: "generate-veracode-binary"
+name: "veracode-generate-binary"
 description: "Prepare binary to be analyzed"
 inputs:
   module_directory:
@@ -12,19 +12,21 @@ inputs:
     required: true
   compile_mvn:
     description: If java binary needs to be compiled
+  complie_cpp:
+    description: If C++ binary needs to be compiled
   exclusion_file:
-    description: Name of the file listing files and folders to exclude
+    description: Name of the file used to list files and folders to exclude (e.g test files)
 
 runs:
   using: "composite"
   steps:
     - name: Exclude unconsistent files
       if: ${{ inputs.exclusion_file != '' }}
-      run: echo "TODO - create a list of paths and files to delete before creating zip file"
+      run: echo "TODO - Delete files or folders before creating zip file"
       shell: bash
 
-    - name: DEBUG - Check location
-      run: ls -la #TODO: to remove
+    - name: DEBUG - Check location #TODO: to remove
+      run: ls -la
       shell: bash
 
     - name: Create JAR files
@@ -33,18 +35,24 @@ runs:
       run: echo "TODO - compile mvn files"
       shell: bash
 
+    - name: Compile Cpp files
+      #TODO: to manage Cpp files compilation
+      if: inputs.compile_cpp == 'yes'
+      run: echo "TODO - compile cpp files"
+      shell: bash
+
     - name: Create zip file
-      #if: inputs.compile_mvn != 'yes'
       run: |
         cd ${{ inputs.module_directory }}
         zip -rq "../${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip" *
+        "CACHE_KEY=${{ github.sha }}-${{ github.run_id }}" >> GITHUB_ENV
       shell: bash
 
-    - name: DEBUG - Check location
-      run: ls -la #TODO: to remove
+    - name: DEBUG - Check location  #TODO: to remove
+      run: ls -la
       shell: bash
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/cache/save@v3
       with:
-        name: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}"
         path: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
+        key: ${{ env.CACHE_KEY }}
