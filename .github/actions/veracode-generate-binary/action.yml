@@ -46,6 +46,9 @@ runs:
 
     - name: Create zip file
       run: |
+        if [[ -z ${{ inputs.module_directory }} || -z ${{ inputs.target_branch_name }} || -z ${{ inputs.module_name }} ]; then
+          echo "[DEBUG] - One mandatory argument is missing"
+        fi
         cd ${{ inputs.module_directory }}
         zip -rq "../${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip" *
       shell: bash
