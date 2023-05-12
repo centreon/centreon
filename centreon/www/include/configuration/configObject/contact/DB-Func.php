@@ -206,11 +206,11 @@ function unblockContactInDB(int|array|null $contact = null): void
 {
     global $pearDB, $centreon;
 
-    if (null === $contact) {
+    if (null === $contact || [] === $contact) {
         return;
     }
 
-    if (!is_array($contact)) {
+    if (is_int($contact)) {
         $contact = [$contact => "1"];
     }
 
@@ -223,11 +223,11 @@ function unblockContactInDB(int|array|null $contact = null): void
     $idPlaceholders = implode(', ', array_keys($bindContactIds));
 // retrieve the users and add log
     $updateQuery = "UPDATE contact SET blocking_time = null WHERE contact_id IN ($idPlaceholders)";
-    $statement = $pearDB->prepare($updateQuery);
+    $updateStatement = $pearDB->prepare($updateQuery);
     foreach ($bindContactIds as $token => $value) {
-        $statement->bindValue($token, $value, \PDO::PARAM_INT);
+        $updateStatement->bindValue($token, $value, \PDO::PARAM_INT);
     }
-    $statement->execute();
+    $updateStatement->execute();
 // retrieve the users and add log
     $selectQuery = "SELECT contact_id, contact_name FROM contact WHERE contact_id IN ($idPlaceholders)";
     $selectStatement = $pearDB->prepare($selectQuery);

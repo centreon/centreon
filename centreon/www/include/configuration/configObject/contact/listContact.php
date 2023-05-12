@@ -277,7 +277,7 @@ foreach ($contacts as $contact) {
         $contact['contact_id'] . "]' />";
 
     $blockedUserIcon = "
-    <a href='./main.get.php?p=" . $p . "&o=un&contact_id=" . $contact['contact_id'] . "&centreon_token=" . $centreonToken . "' onclick=\"if(confirm('" . _('Do you really want to unblock this user?') . "')) {
+    <a href='./main.get.php?p=" . $p . "&o=un&contact_id=" . $contact['contact_id'] . "&centreon_token=" . $centreonToken . "' class='unblockUserLink' onclick=\"if(confirm('" . _('Do you really want to unblock this user?') . "')) {
         window.location.href = this.href;
     }\" >
         <img src='img/icons/lock_closed.png' class='ico-22 margin_auto' border='0'>
