@@ -18,11 +18,11 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
 
 env:
-  TARGET_BRANCH: ${{ github.base_ref }} #Caution: required for veracode runner
   MODULE_DIRECTORY: centreon-gorgone
   MODULE_NAME: centreon-gorgone
   THRESHOLD: "High"
-  HEAD_REF: ${{ github.head_ref }} #Caution: required for veracode runner
+  TARGET_BRANCH: ${{ github.base_ref }} #Caution: required by veracode runner
+  HEAD_REF: ${{ github.head_ref }} #Caution: required by veracode runner
 
 jobs:
   build:
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Generate binary file
-        uses: ./.github/actions/veracode-generate-archive
+        uses: ./.github/actions/veracode-generate-binary
         with:
           module_directory: ${{ env.MODULE_DIRECTORY }}
           module_name: ${{ env.MODULE_NAME }}
@@ -49,9 +49,10 @@ jobs:
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
       - name: Get build binary
-        uses: actions/download-artifact@v3
+        uses: actions/cache/restore@v3
         with:
-          name: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}"
+          path: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
+          key: ${{ env.CACHE_KEY }}
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
@@ -62,7 +63,7 @@ jobs:
           module_name: ${{ env.MODULE_NAME }}
           target_branch_name: ${{ env.TARGET_BRANCH }}
 
-      - name: DEBUG - Get BASELINE value
+      - name: DEBUG - Get BASELINE value  #TODO: to remove
         run: echo "Baseline is set to  ${{ env.BASELINE_FILE }}"
 
       - name: Get current time
@@ -91,12 +92,19 @@ jobs:
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
-      - name: Cache baseline
+#      - name: Save baseline file
+#        if: env.HEAD_REF == 'develop' || env.HEAD_REF == 'dev-[2-9][0-9].[0-9][0-9].x' || env.HEAD_REF == 'master' || env.HEAD_REF == '[2-9][0-9].[0-9][0-9].x' || env.HEAD_REF == 'AT-94-pipeline-scan'
+#        uses: ./.github/actions/veracode-set-cache
+#        with:
+#          module_name: ${{ env.MODULE_NAME }}
+#          target_branch_name: ${{ env.TARGET_BRANCH }}
+
+      - name: Save baseline file
         if: env.HEAD_REF == 'develop' || env.HEAD_REF == 'dev-[2-9][0-9].[0-9][0-9].x' || env.HEAD_REF == 'master' || env.HEAD_REF == '[2-9][0-9].[0-9][0-9].x' || env.HEAD_REF == 'AT-94-pipeline-scan'
-        uses: ./.github/actions/veracode-set-cache
-        with:
-          module_name: ${{ env.MODULE_NAME }}
-          target_branch_name: ${{ env.TARGET_BRANCH }}
+        run: |
+          TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ env.TARGET_BRANCH }}/results.json"
+          BASELINE_FILE="/tmp/results.json"
+          aws s3 cp "$BASELINE_FILE" "$TARGET_S3"
 
       - name: Clean
         run: rm -f filtered_results.json /tmp/results.json
