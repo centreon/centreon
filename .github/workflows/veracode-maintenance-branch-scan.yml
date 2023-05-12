@@ -108,7 +108,7 @@ jobs:
           #request_policy: "Centreon_Security"
           fail_build: true
           timeout: 60
-          if: ${{ env.BASELINE_FOUND == "Yes" }}
+          if: env.BASELINE_FOUND == 'Yes'
           baseline_file: /tmp/${{ env.REPORT_FILENAME }}
 
 #      - name: Pipeline scan with baseline
