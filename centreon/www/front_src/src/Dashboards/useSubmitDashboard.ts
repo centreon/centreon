@@ -16,6 +16,7 @@ import { Dashboard } from './models';
 import { dashboardsEndpoint } from './api/endpoints';
 import {
   closeDialogAtom,
+  pageAtom,
   selectedDashboardAtom,
   selectedDashboardVariantAtom
 } from './atoms';
@@ -40,6 +41,7 @@ const useSubmitDashboard = (): UseSubmitDashboardState => {
   const selectedDashboardVariant = useAtomValue(selectedDashboardVariantAtom);
   const selectedDashboard = useAtomValue(selectedDashboardAtom);
   const closeDialog = useSetAtom(closeDialogAtom);
+  const setPage = useSetAtom(pageAtom);
 
   const isUpdateVariant = equals(
     selectedDashboardVariant,
@@ -83,6 +85,7 @@ const useSubmitDashboard = (): UseSubmitDashboardState => {
           t(isUpdateVariant ? labelDashboardUpdated : labelDashboardCreated)
         );
         closeDialog();
+        setPage(1);
       })
       .catch(displayErrorMessage)
       .finally(() => setSubmitting(false));

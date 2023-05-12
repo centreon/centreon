@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
 
 import AddIcon from '@mui/icons-material/Add';
+import { CircularProgress } from '@mui/material';
 
 import {
   Button,
@@ -34,7 +35,7 @@ const emptyListStateLabels = {
 
 const Listing = (): JSX.Element => {
   const { t } = useTranslation();
-  const { dashboards, elementRef } = useDashboards();
+  const { dashboards, elementRef, isLoading } = useDashboards();
 
   const openDialog = useSetAtom(openDialogAtom);
 
@@ -96,6 +97,11 @@ const Listing = (): JSX.Element => {
                 />
               );
             })}
+            {isLoading && (
+              <div>
+                <CircularProgress />
+              </div>
+            )}
           </List>
         )}
       </TiledListingContent>

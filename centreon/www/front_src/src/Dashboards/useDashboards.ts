@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { dec, equals, gte, isNil } from 'ramda';
-import { useAtomValue } from 'jotai';
+import { equals, gt, isNil, reduce } from 'ramda';
+import { useAtom } from 'jotai';
 
 import {
   buildListingEndpoint,
@@ -9,12 +9,12 @@ import {
   useIntersectionObserver
 } from '@centreon/ui';
 
+import { pageAtom } from './atoms';
 import { dashboardsEndpoint } from './api/endpoints';
 import { dashboardListDecoder } from './api/decoders';
 import { Dashboard } from './models';
-import { isDialogOpenAtom } from './atoms';
 
-const limit = 30;
+const limit = 4;
 
 interface UseDashboardState {
   dashboards: Array<Dashboard>;
@@ -23,10 +23,10 @@ interface UseDashboardState {
 }
 
 const useDashboards = (): UseDashboardState => {
-  const [page, setPage] = useState(1);
   const [maxPage, setMaxPage] = useState(1);
+  const dashboards = useRef<Array<Dashboard> | undefined>(undefined);
 
-  const isDialogOpen = useAtomValue(isDialogOpenAtom);
+  const [page, setPage] = useAtom(pageAtom);
 
   const { data, isLoading, prefetchNextPage, fetchStatus } = useFetchQuery({
     decoder: dashboardListDecoder,
@@ -35,13 +35,12 @@ const useDashboards = (): UseDashboardState => {
         baseEndpoint: dashboardsEndpoint,
         parameters: { limit, page: params?.page || page }
       }),
-    getQueryKey: () => ['dashboards', page, isDialogOpen],
+    getQueryKey: () => ['dashboards', page],
     isPaginated: true,
     queryOptions: {
-      enabled: !isDialogOpen,
-      keepPreviousData: true,
       refetchOnMount: false,
-      refetchOnWindowFocus: false
+      refetchOnWindowFocus: false,
+      suspense: equals(page, 1)
     }
   });
 
@@ -54,16 +53,28 @@ const useDashboards = (): UseDashboardState => {
     page
   });
 
+  dashboards.current = useMemo(() => {
+    if (isNil(data) || !equals(fetchStatus, 'idle')) {
+      return dashboards.current;
+    }
+
+    return reduce<Dashboard, Array<Dashboard>>(
+      (acc, dashboard) => [...acc, dashboard],
+      equals(page, 1) ? [] : dashboards.current || [],
+      data.result
+    );
+  }, [page, data, fetchStatus]);
+
   useEffect(() => {
     if (isNil(data)) {
       return;
     }
 
     const total = data.meta.total || 1;
-    const newMaxPage = dec(Math.ceil(total / limit));
+    const newMaxPage = Math.ceil(total / limit);
     setMaxPage(newMaxPage);
 
-    if (gte(page, newMaxPage)) {
+    if (gt(page, newMaxPage)) {
       return;
     }
 
@@ -74,7 +85,7 @@ const useDashboards = (): UseDashboardState => {
   }, [data]);
 
   return {
-    dashboards: data?.result || [],
+    dashboards: dashboards.current || [],
     elementRef,
     isLoading
   };

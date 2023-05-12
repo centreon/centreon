@@ -2,6 +2,7 @@ import { atom } from 'jotai';
 
 import { SelectedDashboard } from './models';
 
+export const pageAtom = atom(1);
 export const selectedDashboardAtom = atom<SelectedDashboard | null>(null);
 export const isDialogOpenAtom = atom((get) =>
   Boolean(get(selectedDashboardAtom))

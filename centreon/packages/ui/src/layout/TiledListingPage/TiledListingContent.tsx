@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
 
+import Responsive from '../../Responsive';
+
 import { useTiledListingActionsStyles } from './TiledListingPage.styles';
 
 interface TiledListingContentProps {
@@ -11,5 +13,9 @@ export const TiledListingContent = ({
 }: TiledListingContentProps): JSX.Element => {
   const { classes } = useTiledListingActionsStyles();
 
-  return <div className={classes.actions}>{children}</div>;
+  return (
+    <Responsive>
+      <div className={classes.actions}>{children}</div>
+    </Responsive>
+  );
 };
