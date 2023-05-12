@@ -62,7 +62,7 @@ jobs:
       - run: echo ${{ github.event.pull_request.draft == 'false' }}
         shell: bash
 
-      - if: github.event.pull_request.draft == 'false'
+      - if: github.event.pull_request.draft == false
         uses: ./.github/actions/chromatic
         with:
           frontend_directory: ${{ env.directory }}
