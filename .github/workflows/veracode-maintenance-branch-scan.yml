@@ -14,7 +14,7 @@ env:
   TARGET_BRANCH: dev-23.04.x
   MODULE_DIRECTORY: centreon-gorgone
   MODULE_NAME: centreon-gorgone
-  REPORT_FILENAME: "result.json"
+  REPORT_FILENAME: "results.json"
   #ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
   THRESHOLD: "High"
 
