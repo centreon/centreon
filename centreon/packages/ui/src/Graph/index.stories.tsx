@@ -26,7 +26,6 @@ import annotationData from './mockedData/annotationData.json';
 import exclusionPeriodFirstPeriod from './mockedData/exclusionPeriodFirstPeriod.json';
 import exclusionPeriodFourthPeriod from './mockedData/exclusionPeriodFourthPeriod.json';
 import exclusionPeriodSecondPeriod from './mockedData/exclusionPeriodSecondPeriod.json';
-import exclusionPeriodThirdPeriod from './mockedData/exclusionPeriodThirdPeriod.json';
 import dataLastDayForword from './mockedData/lastDayForward.json';
 import dataLastDay from './mockedData/lastDayThreshold.json';
 import dataLastMonth from './mockedData/lastMonth.json';
@@ -250,11 +249,8 @@ const GraphAndExclusionPeriod = (args): JSX.Element => {
         <Button onClick={(): void => handleClick(exclusionPeriodSecondPeriod)}>
           second
         </Button>
-        <Button onClick={(): void => handleClick(exclusionPeriodThirdPeriod)}>
-          third
-        </Button>
         <Button onClick={(): void => handleClick(exclusionPeriodFourthPeriod)}>
-          fourth
+          third
         </Button>
       </ButtonGroup>
       <WrapperGraph
