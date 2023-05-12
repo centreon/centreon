@@ -21,27 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Infrastructure\Repository;
+namespace Core\HostTemplate\Application\Repository;
 
-use Core\Common\Domain\YesNoDefault;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\HostTemplate\Domain\Model\HostTemplate;
 
-/**
- * This trait is here only to expose utility methods **only** to avoid duplicate code.
- * The methods SHOULD be "Pure" functions.
- */
-trait RepositoryTrait
+interface ReadHostTemplateRepositoryInterface
 {
     /**
-     * Transform an empty string `''` in `null` value, otherwise keep the same string.
+     * Find all host templates.
      *
-     * @phpstan-pure
+     * @param RequestParametersInterface $requestParameters
      *
-     * @param string $string
+     * @throws \Throwable
      *
-     * @return string|null
+     * @return HostTemplate[]
      */
-    public function emptyStringAsNull(string $string): ?string
-    {
-        return '' === $string ? null : $string;
-    }
+    public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
 }

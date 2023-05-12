@@ -21,27 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Infrastructure\Repository;
+namespace Tests\Core\Common\Domain;
 
-use Core\Common\Domain\YesNoDefault;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
+use ValueError;
 
-/**
- * This trait is here only to expose utility methods **only** to avoid duplicate code.
- * The methods SHOULD be "Pure" functions.
- */
-trait RepositoryTrait
-{
-    /**
-     * Transform an empty string `''` in `null` value, otherwise keep the same string.
-     *
-     * @phpstan-pure
-     *
-     * @param string $string
-     *
-     * @return string|null
-     */
-    public function emptyStringAsNull(string $string): ?string
-    {
-        return '' === $string ? null : $string;
-    }
-}
+it('throw an error when value is invalid for convertion', function (): void {
+    $events = YesNoDefaultConverter::fromScalar('a');
+})->throws(
+    ValueError::class,
+    '"a" is not a valid backing value for enum YesNoDefault'
+);

@@ -16174,3 +16174,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
 #msgid "Unblock"
 #msgstr ""
+
+#  msgid "Error while searching for host templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host templates"
+#  msgstr ""

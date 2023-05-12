@@ -21,27 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Infrastructure\Repository;
-
-use Core\Common\Domain\YesNoDefault;
+namespace Core\Host\Domain\Model;
 
 /**
- * This trait is here only to expose utility methods **only** to avoid duplicate code.
- * The methods SHOULD be "Pure" functions.
+ * This enum is to be used to handle snmp version options.
  */
-trait RepositoryTrait
+enum SnmpVersion: string
 {
-    /**
-     * Transform an empty string `''` in `null` value, otherwise keep the same string.
-     *
-     * @phpstan-pure
-     *
-     * @param string $string
-     *
-     * @return string|null
-     */
-    public function emptyStringAsNull(string $string): ?string
-    {
-        return '' === $string ? null : $string;
-    }
+    case One = '1';
+    case Two = '2c';
+    case Three = '3';
 }

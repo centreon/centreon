@@ -21,27 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Infrastructure\Repository;
+namespace Core\HostTemplate\Application\Exception;
 
-use Core\Common\Domain\YesNoDefault;
-
-/**
- * This trait is here only to expose utility methods **only** to avoid duplicate code.
- * The methods SHOULD be "Pure" functions.
- */
-trait RepositoryTrait
+class HostTemplateException extends \Exception
 {
     /**
-     * Transform an empty string `''` in `null` value, otherwise keep the same string.
+     * @param \Throwable $ex
      *
-     * @phpstan-pure
-     *
-     * @param string $string
-     *
-     * @return string|null
+     * @return self
      */
-    public function emptyStringAsNull(string $string): ?string
+    public static function findHostTemplates(\Throwable $ex): self
     {
-        return '' === $string ? null : $string;
+        return new self(_('Error while searching for host templates'), 0, $ex);
+    }
+
+    /**
+     * @return self
+     */
+    public static function accessNotAllowed(): self
+    {
+        return new self(_('You are not allowed to access host templates'));
     }
 }
+

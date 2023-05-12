@@ -21,27 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Infrastructure\Repository;
-
-use Core\Common\Domain\YesNoDefault;
+namespace Core\Common\Domain;
 
 /**
- * This trait is here only to expose utility methods **only** to avoid duplicate code.
- * The methods SHOULD be "Pure" functions.
+ * This enum is to be used to handle the different types of host.
  */
-trait RepositoryTrait
+enum HostType: string
 {
-    /**
-     * Transform an empty string `''` in `null` value, otherwise keep the same string.
-     *
-     * @phpstan-pure
-     *
-     * @param string $string
-     *
-     * @return string|null
-     */
-    public function emptyStringAsNull(string $string): ?string
-    {
-        return '' === $string ? null : $string;
-    }
+    case Template = '0';
+    case Host = '1';
+    case Virtual = '2';
 }

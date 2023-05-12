@@ -1,5 +1,6 @@
+# TODO : this endpoint and related code base is to be removed
 centreon_application_find_host_templates:
   methods: GET
   path: /configuration/hosts/templates
   controller: 'Centreon\Application\Controller\HostTemplateController::findHostTemplates'
-  condition: "request.attributes.get('version') >= 21.10"
+  condition: "request.attributes.get('version') >= 21.10 && request.attributes.get('version') < 23.10"
