@@ -200,7 +200,7 @@ function disableContactInDB($contact_id = null, $contact_arr = array())
 /**
  * Unblock contacts in the database
  *
- * @param int|array|null $contact Contact ID, array of contact IDs or null to unblock all contacts
+ * @param int|array<int, string>|null $contact Contact ID, array of contact IDs or null to unblock all contacts
  */
 function unblockContactInDB(int|array|null $contact = null): void
 {
