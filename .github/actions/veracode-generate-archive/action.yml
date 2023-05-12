@@ -7,11 +7,8 @@ inputs:
   module_name:
     description: Module name
     required: true
-  major_version:
-    description: The major version
-    required: true
-  minor_version:
-    description: The minor version
+  target_branch_name:
+    description: The target maintenance branch
     required: true
   compile_mvn:
     description: If java binary needs to be compiled
@@ -36,11 +33,11 @@ runs:
       shell: bash
 
     - name: Create zip file
-#      if: "${{ inputs.compile_mvn != 'yes' }}"
+      #      if: "${{ inputs.compile_mvn != 'yes' }}"
       run: |
         cd ${{ inputs.module_directory }}
         ls -la
-        zip -rq "../${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}.zip" *
+        zip -rq "../${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip" *
       shell: bash
 
     - name: DEBUG - Check location
@@ -49,5 +46,5 @@ runs:
 
     - uses: actions/upload-artifact@v3
       with:
-        name: "${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}"
-        path: "${{ inputs.module_name }}-${{ inputs.major_version }}.${{ inputs.minor_version }}.zip"
+        name: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}"
+        path: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
