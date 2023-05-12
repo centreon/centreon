@@ -55,10 +55,6 @@ apt update
 rm -f /tmp/debs-centreon/centreon-23.10*.deb /tmp/debs-centreon/centreon-central-23.10*.deb
 apt install -y /tmp/debs-centreon/centreon-*.deb
 
-rm -f /usr/share/centreon/.env.local.php
-echo "APP_DEBUG=true" >> /usr/share/centreon/.env
-echo "DEBUG_LEVEL=100" >> /usr/share/centreon/.env
-
 touch /var/log/php8.1-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.1-fpm-centreon-error.log
 
