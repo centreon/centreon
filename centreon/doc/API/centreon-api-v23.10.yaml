@@ -4,7 +4,7 @@ info:
   description: |
     # New features
     + Added host severities endpoints (GET, PUT)
-    + Added host categories endpoint (GET)
+    + Added host categories endpoint (GET, PUT)
     + Added host group endpoints (GET, PUT)
     +
     # Updated features
@@ -354,7 +354,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/HostCategoryId'
       responses:
-        "200":
+        '200':
           description: "OK"
           content:
             application/json:
@@ -364,6 +364,33 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Host category
+      summary: "Update a host category"
+      description: |
+        Update a host category
+      parameters:
+        - $ref: '#/components/parameters/HostCategoryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Configuration.Host.Category.Add"
+      responses:
+        '204':
+          description: "OK"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
     delete:

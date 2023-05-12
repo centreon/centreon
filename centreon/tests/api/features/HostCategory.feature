@@ -366,3 +366,105 @@ Feature:
     }
     """
     Then the response code should be "400"
+
+  Scenario: Update a host category
+    Given I am logged in
+
+    When I send a POST request to '/api/latest/configuration/hosts/categories' with body:
+      """
+      {
+        "name": "  host-cat-name  ",
+        "alias": "  host-cat-alias  ",
+        "comment": "blablabla"
+      }
+      """
+    Then the response code should be "201"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 1,
+        "name": "host-cat-name",
+        "alias": "host-cat-alias",
+        "is_activated": true,
+        "comment": "blablabla"
+      }
+      """
+    When I send a PUT request to '/api/latest/configuration/hosts/categories/1' with body:
+      """
+      {
+        "name": "  host-cat-name-edit  ",
+        "alias": "  host-cat-alias-edit  ",
+        "comment": null
+      }
+      """
+    Then the response code should be "204"
+    When I send a GET request to '/api/latest/configuration/hosts/categories'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+      """
+      {
+      "result": [
+        {
+          "id": 1,
+          "name": "host-cat-name-edit",
+          "alias": "host-cat-alias-edit",
+          "is_activated": true,
+          "comment": null
+        }
+        ],
+        "meta": {
+          "page": 1,
+          "limit": 10,
+          "search": {},
+          "sort_by": {},
+          "total": 1
+        }
+      }
+      """
+    When I send a PUT request to '/api/latest/configuration/hosts/categories/1' with body:
+      """
+      {
+        "name": "host-cat-name-edit   ",
+        "alias": "host-cat-alias",
+        "comment": "blablabla"
+      }
+      """
+    Then the response code should be "409"
+
+  Scenario: Update a host category with an invalid payload
+    Given I am logged in
+    When I send a POST request to '/api/latest/configuration/hosts/categories' with body:
+      """
+      {
+        "name": "  host-cat-name  ",
+        "alias": "  host-cat-alias  ",
+        "comment": "blablabla"
+      }
+      """
+    Then the response code should be "201"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 1,
+        "name": "host-cat-name",
+        "alias": "host-cat-alias",
+        "is_activated": true,
+        "comment": "blablabla"
+      }
+      """
+    When I send a PUT request to '/api/latest/configuration/hosts/categories/1' with body:
+      """
+      {
+        "not_existing": "Hello World"
+      }
+      """
+    Then the response code should be "400"
+
+    When I send a PUT request to '/api/latest/configuration/hosts/categories/1' with body:
+      """
+      {
+        "name": "",
+        "alias": "host-cat-alias"
+      }
+      """
+    Then the response code should be "400"
