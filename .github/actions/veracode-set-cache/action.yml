@@ -11,17 +11,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: DEBUG - Check location
-      run: ls -la
-      shell: bash
-
-    - name: DEBUG - Check tmp
-      run: ls -la /tmp
-      shell: bash
-
     - name: Cache baseline file
       run: |
         TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/results.json"
-        aws s3 cp "/tmp/results.json" "$TARGET_S3"
+        BASELINE_FILE="/tmp/results.json"
+        aws s3 cp "$BASELINE_FILE" "$TARGET_S3"
       shell: bash
 
