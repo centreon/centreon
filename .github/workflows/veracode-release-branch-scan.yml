@@ -31,6 +31,18 @@ jobs:
           compile_mvn: "no"
           exclusion_file: "TODO"
 
+      - name: DEBUG - Github head ref
+        run: echo ${{ github.head_ref }}
+
+      - name: DEBUG - Github ref Name
+        run: echo ${{ github.ref_name }}
+
+      - name: DEBUG - Github base ref
+        run: echo ${{ github.base_ref }}
+
+      - name: DEBUG - Hello world
+        run: echo Hello world from $GITHUB_BASE_REF
+
   sandbox-scan:
     runs-on: [self-hosted, veracode]
     needs: [build]
@@ -49,18 +61,6 @@ jobs:
 
       - name: DEBUG - Check location
         run: ls -la
-
-      - name: DEBUG - Github head ref
-        run: echo ${{ github.head_ref }}
-
-      - name: DEBUG - Github ref Name
-        run: echo ${{ github.ref_name }}
-
-      - name: DEBUG - Github base ref
-        run: echo ${{ github.base_ref }}
-
-      - name: DEBUG - Hello world
-        run: echo Hello world from $GITHUB_BASE_REF
 
       - name: Veracode upload and run a Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master

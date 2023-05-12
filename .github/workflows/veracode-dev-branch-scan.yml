@@ -6,7 +6,6 @@ on:
       - !develop
       - !dev-[2-9][0-9].[0-9][0-9].x
       - !master
-      # TODO find a way to exclude maintenance branches
       - ![2-9][0-9].[0-9][0-9].x
       - !AT-94-pipeline-scan
       - "test-99.x"
@@ -16,7 +15,7 @@ env:
   TARGET_BRANCH: dev-23.04.x
   MODULE_DIRECTORY: centreon-gorgone
   MODULE_NAME: centreon-gorgone
-  REPORT_FILENAME: "result.json"
+  REPORT_FILENAME: "results.json"
   #ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
   THRESHOLD: "High"
 
@@ -35,15 +34,6 @@ jobs:
           compile_mvn: "no"
           exclusion_file: "TODO"
 
-  development-pipeline-scan:
-    runs-on: [self-hosted, veracode]
-    needs: [build]
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Get current time
-        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
-
       - name: DEBUG - Github head ref
         run: echo ${{ github.head_ref }}
 
@@ -56,6 +46,15 @@ jobs:
       - name: DEBUG - Hello world
         run: echo "Hello world from $GITHUB_BASE_REF"
 
+  development-pipeline-scan:
+    runs-on: [self-hosted, veracode]
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get current time
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+
       - name: Get build binary
         uses: actions/download-artifact@v3
         with:
@@ -64,6 +63,9 @@ jobs:
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+
+      - name: DEBUG - Check location
+        run: ls -la
 
       - name: Get baseline from bucket
         uses: ./.github/actions/veracode-get-cache
@@ -80,6 +82,11 @@ jobs:
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 8
 
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
@@ -107,10 +114,3 @@ jobs:
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
-
-#      - name: Cache baseline
-#        uses: ./.github/actions/veracode-set-cache
-#        with:
-#          module_name: ${{ env.MODULE_NAME }}
-#          target_branch_name: ${{ env.TARGET_BRANCH }}
-#          baseline_filename: ${{ env.REPORT_FILENAME }}
