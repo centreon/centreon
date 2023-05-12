@@ -7,9 +7,6 @@ inputs:
   target_branch_name:
     description: The target maintenance branch
     required: true
-  baseline_filename:
-    description: Name of the baseline file
-    required: true
 
 runs:
   using: "composite"
@@ -21,11 +18,6 @@ runs:
         sudo ./aws/install
       shell: bash
 
-#    - uses: actions/upload-artifact@v3
-#      with:
-#        name: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}-${{ inputs.baseline_filename }}"
-#        path: "/tmp/${{ inputs.baseline_filename }}"
-    -
     - name: DEBUG - Check location
       run: ls -la
       shell: bash
@@ -34,9 +26,9 @@ runs:
       run: ls -la /tmp
       shell: bash
 
-    - name: Set baseline file
+    - name: Cache baseline file
       run: |
-        TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/${{ inputs.baseline_filename }}"
-        aws s3 cp "/tmp/${{ inputs.baseline_filename }}" "$TARGET_S3"
+        TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/results.json"
+        aws s3 cp "/tmp/results.json" "$TARGET_S3"
       shell: bash
 
