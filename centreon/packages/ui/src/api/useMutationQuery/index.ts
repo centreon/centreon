@@ -1,4 +1,6 @@
 import 'ulog';
+import { useEffect } from 'react';
+
 import { useMutation } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
 import anylogger from 'anylogger';
@@ -77,7 +79,9 @@ const useMutationQuery = <T extends object>({
     }
   };
 
-  manageError();
+  useEffect(() => {
+    manageError();
+  }, [queryData.data]);
 
   return {
     isError: (queryData.data as ResponseError | undefined)?.isError || false,

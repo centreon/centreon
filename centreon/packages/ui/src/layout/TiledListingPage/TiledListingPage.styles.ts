@@ -5,7 +5,7 @@ export const useTiledListPageStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    paddingBottom: theme.spacing(1.5)
+    padding: theme.spacing(1.5)
   }
 }));
 

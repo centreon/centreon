@@ -13,7 +13,7 @@ import {
   DashboardFormProps
 } from '../../components/Form/Dashboard';
 import { Default as DashboardFormDefaultStory } from '../../components/Form/Dashboard/DashboardForm.stories';
-import { Dialog } from '../../components/Dialog';
+import { SimpleDialog } from '../../components/Dialog';
 import {
   TiledListingPage,
   TiledListingActions,
@@ -145,7 +145,7 @@ const DefaultView = (args): JSX.Element => {
             </List>
           )}
         </TiledListingContent>
-        <Dialog
+        <SimpleDialog
           open={dialogState.open}
           onClose={(): void =>
             setDialogState({ item: null, open: false, variant: 'create' })
@@ -168,7 +168,7 @@ const DefaultView = (args): JSX.Element => {
                 : updateDashboard(values);
             }}
           />
-        </Dialog>
+        </SimpleDialog>
       </TiledListingList>
     </TiledListingPage>
   );

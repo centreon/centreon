@@ -24,7 +24,7 @@ export interface DashboardFormLabels {
 }
 
 export interface DashboardFormDataShape {
-  description?: string;
+  description?: string | null;
   name: string;
 }
 

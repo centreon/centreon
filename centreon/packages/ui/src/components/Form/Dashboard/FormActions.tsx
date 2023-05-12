@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '../../Button';
+import SaveButton from '../../../Button/Save';
 
 import {
   DashboardFormDataShape,
@@ -32,15 +33,14 @@ const FormActions =
         >
           {t(labels.actions?.cancel)}
         </Button>
-        <Button
+        <SaveButton
           dataTestId={`${labels.actions?.submit[variant]}-dashboard-confirm`}
           disabled={isSubmitting || !dirty || !isValid}
+          labelSave={t(labels.actions?.submit[variant]) as string}
+          loading={isSubmitting}
           size="small"
-          type="submit"
           onClick={submitForm}
-        >
-          {t(labels.actions?.submit[variant])}
-        </Button>
+        />
       </div>
     );
   };

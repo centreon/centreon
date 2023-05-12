@@ -14,7 +14,7 @@ import { IconButton } from '../../Button';
 import { useStyles } from './ListItem.styles';
 
 export interface ListItemProps {
-  description: string;
+  description: string | null;
   hasActions?: boolean;
   hasCardAction?: boolean;
   onClick?: () => void;
@@ -52,7 +52,7 @@ const ListItem = forwardRef(
         <ActionArea data-testId="action-area" onClick={onClick}>
           <MuiCardContent>
             <Typography variant="h5">{title}</Typography>
-            <Typography>{description}</Typography>
+            {description && <Typography>{description}</Typography>}
           </MuiCardContent>
         </ActionArea>
         {hasActions && (
