@@ -36,15 +36,6 @@ jobs:
       - name: DEBUG - Check location
         run: ls -la
 
-  maintenance-pipeline-scan:
-    runs-on: [self-hosted, veracode]
-    needs: [build]
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Get current time
-        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
-
       - name: DEBUG - Github head ref
         run: echo ${{ github.head_ref }}
 
@@ -56,6 +47,15 @@ jobs:
 
       - name: DEBUG - Hello world
         run: echo "Hello world from $GITHUB_BASE_REF"
+
+  maintenance-pipeline-scan:
+    runs-on: [self-hosted, veracode]
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get current time
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
       - name: Get build binary
         uses: actions/download-artifact@v3
@@ -97,7 +97,7 @@ jobs:
           vkey: ${{ secrets.VERACODE_API_KEY }}
           file: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
           fail_on_severity: ${{ env.THRESHOLD }}
-          baseline_file: ${{ env.REPORT_FILENAME }}
+          baseline_file: /tmp/${{ env.REPORT_FILENAME }}
           #request_policy: "Centreon_Security"
           fail_build: true
           timeout: 60
