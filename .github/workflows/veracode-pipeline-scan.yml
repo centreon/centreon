@@ -1,19 +1,27 @@
-name: Veracode scan on maintenance branches
+name: Veracode pipeline scans
 
 on:
-  pull_request:
+  push:
     branches:
+      # will generate the cache
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
-      - AT-94-pipeline-scan
+  pull_request:
+    branches:
+      # will use the cache
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
 
 env:
   TARGET_BRANCH: ${{ github.base_ref }}
   MODULE_DIRECTORY: centreon-gorgone
   MODULE_NAME: centreon-gorgone
   THRESHOLD: "High"
+  HEAD_REF: ${{ github.head_ref }} #required for veracode runner
 
 jobs:
   build:
@@ -30,7 +38,7 @@ jobs:
           compile_mvn: "no"
           exclusion_file: "TODO"
 
-  maintenance-pipeline-scan:
+  pipeline-scan:
     runs-on: [self-hosted, veracode]
     needs: [build]
     steps:
@@ -83,6 +91,7 @@ jobs:
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
       - name: Cache baseline
+        if: env.HEAD_REF == "develop" || env.HEAD_REF == "dev-[2-9][0-9].[0-9][0-9].x" || env.HEAD_REF == "master" || env.HEAD_REF == "[2-9][0-9].[0-9][0-9].x"
         uses: ./.github/actions/veracode-set-cache
         with:
           module_name: ${{ env.MODULE_NAME }}

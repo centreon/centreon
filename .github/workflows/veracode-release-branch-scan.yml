@@ -5,10 +5,8 @@ on:
     branches:
       - hotfix-*
       - release-*
-      - develop #To remove
 
 env:
-  #TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
   TARGET_BRANCH: ${{ github.base_ref }}
   MODULE_DIRECTORY: centreon-gorgone
   MODULE_NAME: centreon-gorgone
