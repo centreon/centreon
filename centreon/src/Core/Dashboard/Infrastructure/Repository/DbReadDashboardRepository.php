@@ -76,6 +76,25 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         return $this->retrieveDashboards($concatenator, $requestParameters);
     }
 
+    public function findOne(int $dashboardId): ?Dashboard
+    {
+        $concatenator = $this->getFindDashboardConcatenator();
+
+        return $this->retrieveDashboard($concatenator, $dashboardId);
+    }
+
+    public function findOneByAccessGroups(int $dashboardId, array $accessGroups): ?Dashboard
+    {
+        if ([] === $accessGroups) {
+            return null;
+        }
+
+        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        $concatenator = $this->getFindDashboardConcatenator($accessGroupIds);
+
+        return $this->retrieveDashboard($concatenator, $dashboardId);
+    }
+
     /**
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
@@ -191,5 +210,37 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
             $this->timestampToDateTimeImmutable($result['created_at']),
             $this->timestampToDateTimeImmutable($result['updated_at'])
         );
+    }
+
+    /**
+     * @param SqlConcatenator $concatenator
+     * @param int $dashboardId
+     *
+     * @throws AssertionFailedException
+     * @throws \PDOException
+     *
+     * @return Dashboard|null
+     */
+    private function retrieveDashboard(SqlConcatenator $concatenator, int $dashboardId): ?Dashboard
+    {
+        // We add the filtering by dashboard id.
+        $concatenator
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE d.id = :dashboard_id
+                    SQL
+            )
+            ->storeBindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
+
+        // Prepare SQL + bind values
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        // Retrieve the first row
+        /** @var null|false|DashboardResultSet $data */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $data ? $this->createDashboardFromArray($data) : null;
     }
 }
