@@ -11,13 +11,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Setup awscli
-      run: |
-        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-        sudo unzip -q awscliv2.zip
-        sudo ./aws/install
-      shell: bash
-
     - name: DEBUG - Check location
       run: ls -la
       shell: bash
