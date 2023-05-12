@@ -70,7 +70,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         'alias' => 'resources.alias',
         'fqdn' => 'resources.address',
         'type' => 'resources.type',
-        // We know this trick breaks the EQUAL, but this is theoretically ONLY used as REGEX from the Resource status
         'h.name' => 'CASE type WHEN 1 THEN `resources.name` ELSE `resources.parent_name` END',
         'h.alias' => 'parent_resource.alias',
         'h.address' => 'parent_resource.address',
