@@ -41,7 +41,6 @@ interface Props extends GraphProps {
   graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
   legend?: LegendModel;
-  loading: boolean;
   shapeLines?: GlobalAreaLines;
 }
 
@@ -59,7 +58,8 @@ const Graph = ({
   annotationEvent,
   tooltip,
   legend,
-  graphRef
+  graphRef,
+  header
 }: Props): JSX.Element => {
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -231,6 +231,7 @@ const Graph = ({
     <>
       <Header
         displayTimeTick={displayTimeTick}
+        header={header}
         timeTick={timeTick}
         title={title}
       />

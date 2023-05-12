@@ -31,6 +31,11 @@ const useStyles = makeStyles()((theme) => ({
     },
     fill: theme.palette.text.primary,
     position: 'relative'
+  },
+  header: {
+    display: 'grid',
+    gridTemplateColumns: '0.4fr 1fr 0.4fr',
+    width: '100%'
   }
 }));
 

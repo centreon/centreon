@@ -42,13 +42,19 @@ const WrapperGraph = ({
   timeShiftZones,
   tooltip,
   annotationEvent,
-  legend
+  legend,
+  header
 }: Props): JSX.Element | null => {
   const { adjustedData } = useGraphData({ data, end, start });
   const graphRef = useRef<HTMLDivElement | null>(null);
 
   if (loading || !adjustedData) {
-    return <LoadingSkeleton displayTitleSkeleton graphHeight={height} />;
+    return (
+      <LoadingSkeleton
+        displayTitleSkeleton={header?.displayTitle ?? true}
+        graphHeight={height}
+      />
+    );
   }
 
   return (
@@ -65,6 +71,7 @@ const WrapperGraph = ({
             graphData={{ ...adjustedData }}
             graphInterval={{ end, start }}
             graphRef={graphRef}
+            header={header}
             height={height ?? responsiveHeight}
             legend={legend}
             loading={loading}

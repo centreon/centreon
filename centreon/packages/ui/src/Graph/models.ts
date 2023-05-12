@@ -84,11 +84,18 @@ export interface AnnotationEvent {
   data?: Array<TimelineEvent>;
 }
 
+export interface HeaderGraph {
+  displayTitle?: boolean;
+  extraComponent?: ReactNode;
+}
+
 export interface GraphProps {
   anchorPoint?: AreaAnchorPoint;
   annotationEvent?: AnnotationEvent;
   axis?: Axis;
+  header?: HeaderGraph;
   height?: number;
+  loading: boolean;
   timeShiftZones?: InteractedZone;
   tooltip?: Tooltip;
   width: number;
