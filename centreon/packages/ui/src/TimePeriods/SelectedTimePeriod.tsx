@@ -1,6 +1,7 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { T, always, cond, equals, lte, map, pick } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
+import { useTranslation } from 'react-i18next';
 
 import { Button, ButtonGroup, Tooltip, useTheme } from '@mui/material';
 
@@ -35,7 +36,7 @@ const SelectedTimePeriod = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const theme = useTheme();
-
+  const { t } = useTranslation();
   const selectedTimePeriodData = useAtomValue(selectedTimePeriodAtom);
 
   const changeSelectedTimePeriod = useSetAtom(
@@ -51,6 +52,12 @@ const SelectedTimePeriod = ({
     pick(['id', 'name', 'largeName']),
     currentTimePeriods
   );
+
+  const translatedTimePeriodOptions = timePeriodOptions.map((timePeriod) => ({
+    ...timePeriod,
+    largeName: t(timePeriod.largeName),
+    name: t(timePeriod.name)
+  }));
 
   return (
     <ButtonGroup
@@ -86,7 +93,7 @@ const SelectedTimePeriod = ({
             </Button>
           </Tooltip>
         ),
-        timePeriodOptions
+        translatedTimePeriodOptions
       )}
     </ButtonGroup>
   );

@@ -1,4 +1,5 @@
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { Button, Typography } from '@mui/material';
@@ -6,6 +7,11 @@ import { Button, Typography } from '@mui/material';
 import { dateTimeFormat, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import { customTimePeriodAtom } from '../timePeriodsAtoms';
+import {
+  labelCompactTimePeriod,
+  labelFrom,
+  labelTo
+} from '../translatedLabels';
 
 import useStyles from './CompactCustomTimePeriod.styles';
 
@@ -19,6 +25,7 @@ const CompactCustomTimePeriod = ({
   disabled = false
 }: Props): JSX.Element => {
   const { classes } = useStyles();
+  const { t } = useTranslation();
 
   const { format } = useLocaleDateTimeFormat();
 
@@ -27,10 +34,10 @@ const CompactCustomTimePeriod = ({
   return (
     <div>
       <Button
-        aria-label="CompactTimePeriod"
+        aria-label={t(labelCompactTimePeriod) as string}
         className={classes.button}
         color="primary"
-        data-testid="Compact time period"
+        data-testid={labelCompactTimePeriod}
         disabled={disabled}
         variant="outlined"
         onClick={onClick}
@@ -44,7 +51,7 @@ const CompactCustomTimePeriod = ({
                 component="div"
                 variant="caption"
               >
-                From:
+                {t(labelFrom)}:
               </Typography>
 
               <Typography
@@ -64,7 +71,7 @@ const CompactCustomTimePeriod = ({
                 component="div"
                 variant="caption"
               >
-                To:
+                {t(labelTo)}:
               </Typography>
 
               <Typography

@@ -1,5 +1,14 @@
 import dayjs from 'dayjs';
 
+import {
+  labelLastDay,
+  label1Day,
+  label7Days,
+  label31Days,
+  labelLast7Days,
+  labelLast31Days
+} from './translatedLabels';
+
 export const dateFormat = 'L';
 export const timeFormat = 'LT';
 export const dateTimeFormat = `${dateFormat} ${timeFormat}`;
@@ -17,13 +26,6 @@ export interface TimePeriod {
   name: string;
   timelineEventsLimit: number;
 }
-
-export const label1Day = '1 day';
-export const label7Days = '7 days';
-export const label31Days = '31 days';
-export const labelLastDay = 'Last day';
-export const labelLast7Days = 'Last 7 days';
-export const labelLast31Days = 'Last 31 days';
 
 export const lastDayPeriod: TimePeriod = {
   dateTimeFormat: timeFormat,
