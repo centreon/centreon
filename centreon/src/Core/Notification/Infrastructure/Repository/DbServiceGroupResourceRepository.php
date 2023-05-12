@@ -50,9 +50,9 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
     /**
      * @inheritDoc
      */
-    public function supportResourceType(string $resourceType): bool
+    public function supportResourceType(string $type): bool
     {
-        return mb_strtolower($resourceType) === self::RESOURCE_TYPE;
+        return mb_strtolower($type) === self::RESOURCE_TYPE;
     }
 
     /**

@@ -325,6 +325,8 @@ final class AddNotification
     /**
      * @param int $notificationId
      * @param NotificationResource[] $newResources
+     *
+     * @throws \Throwable
      */
     private function addResources(int $notificationId, array $newResources): void
     {
@@ -384,16 +386,16 @@ final class AddNotification
         $response->isActivated = $notification->isActivated();
 
         $response->messages = array_map(
-            (fn($message) => [
+            static fn(NotificationMessage $message): array => [
                 'channel' => $message->getChannel()->value,
                 'subject' => $message->getSubject(),
                 'message' => $message->getMessage(),
-            ]),
+            ],
             $messages
         );
 
         $response->users = array_map(
-            (fn($user) => ['id' => $user->getId(), 'name' => $user->getName()]),
+            static fn(NotificationGenericObject $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
             $users
         );
 
@@ -404,13 +406,13 @@ final class AddNotification
                 'type' => $resource->getType(),
                 'events' => $eventEnumConverter::toBitmask($resource->getEvents()),
                 'ids' => array_map(
-                    (fn($resource) => ['id' => $resource->getId(), 'name' => $resource->getName()]),
+                    static fn($resource): array => ['id' => $resource->getId(), 'name' => $resource->getName()],
                     $resource->getResources()
                 ),
             ];
             if (
                 $resource->getType() === NotificationResource::HOSTGROUP_RESOURCE_TYPE
-                && $resource->getServiceEvents() !== 0
+                && ! empty($resource->getServiceEvents())
             ) {
                 $responseResource['extra'] = [
                     'event_services' => NotificationServiceEventConverter::toBitmask($resource->getServiceEvents())

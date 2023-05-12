@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Centreon\Test\Api\Context;
 
 use Centreon\Test\Behat\Api\Context\ApiContext;
+use Core\Common\Infrastructure\FeatureFlags;
 
 /**
  * @see FeatureFlags
