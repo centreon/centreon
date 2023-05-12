@@ -11,10 +11,7 @@ module.exports = {
         test: /\.[cm]?(j|t)sx?$/
       },
       {
-        exclude: [
-          excludeNodeModulesExceptCentreonUi,
-          /www(\\|\/)widgets(\\|\/)bruh/
-        ],
+        exclude: [excludeNodeModulesExceptCentreonUi],
         test: /\.[jt]sx?$/,
         use: {
           loader: 'swc-loader',

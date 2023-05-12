@@ -1,4 +1,4 @@
-import { lazy, useEffect, Suspense } from 'react';
+import { useEffect, Suspense } from 'react';
 
 import 'dayjs/locale/en';
 import 'dayjs/locale/pt';
@@ -15,14 +15,12 @@ import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import duration from 'dayjs/plugin/duration';
 import { and, equals, isNil, not } from 'ramda';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useAtomValue, useAtom } from 'jotai';
 
 import reactRoutes from '../reactRoutes/routeMap';
-import AuthenticationDenied from '../FallbackPages/AuthenticationDenied';
 
 import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
-import Provider from './Provider';
 import { MainLoaderWithoutTranslation } from './MainLoader';
 import useMain, { router } from './useMain';
 import { areUserParametersLoadedAtom } from './useUser';
@@ -36,11 +34,6 @@ dayjs.extend(weekday);
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(duration);
-
-const LoginPage = lazy(() => import('../Login'));
-const ResetPasswordPage = lazy(() => import('../ResetPassword'));
-
-const AppPage = lazy(() => import('./InitializationPage'));
 
 const Main = (): JSX.Element => {
   const navigate = router.useNavigate();
@@ -95,24 +88,9 @@ const Main = (): JSX.Element => {
 
   return (
     <Suspense fallback={<MainLoaderWithoutTranslation />}>
-      <Routes>
-        <Route
-          element={<AuthenticationDenied />}
-          path={reactRoutes.authenticationDenied}
-        />
-        <Route element={<LoginPage />} path={reactRoutes.login} />
-        <Route
-          element={<ResetPasswordPage />}
-          path={reactRoutes.resetPassword}
-        />
-        <Route element={<AppPage />} path="*" />
-      </Routes>
+      <Outlet />
     </Suspense>
   );
 };
 
-export default (): JSX.Element => (
-  <Provider>
-    <Main />
-  </Provider>
-);
+export default Main;
