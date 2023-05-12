@@ -25,12 +25,10 @@ runs:
       run: |
         TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/${{ inputs.baseline_filename }}"
         aws s3 ls "$TARGET_S3" || RESULT=$( echo $? )
-        if [[ $RESULT -ne 0 ]]; then
-          echo "[DEBUG] - File not found in the bucket"
-          touch /tmp/${{ inputs.baseline_filename }}
-          chmod 660  /tmp/${{ inputs.baseline_filename }}
-        else
+        if [[ $RESULT -eq 0 ]]; then
           aws s3 cp "$TARGET_S3" "/tmp/${{ inputs.baseline_filename }}"
+        else
+          echo "[DEBUG] - File not found in the bucket"
         fi
       shell: bash
 
@@ -41,12 +39,3 @@ runs:
     - name: DEBUG - Check tmp
       run: ls -la /tmp
       shell: bash
-
-    - name: DEBUG - test artifact name
-      run: echo "${{ inputs.module_name }}-${{ inputs.target_branch_name }}-${{ inputs.baseline_filename }}"
-      shell: bash
-
-#    - uses: actions/upload-artifact@v3
-#      with:
-#        name: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}-${{ inputs.baseline_filename }}"
-#        path: "/tmp/${{ inputs.baseline_filename }}"

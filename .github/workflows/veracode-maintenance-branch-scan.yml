@@ -17,6 +17,7 @@ env:
   REPORT_FILENAME: "results.json"
   #ZIP_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
   THRESHOLD: "High"
+  BASELINE_FOUND: "No"
 
 jobs:
   build:
@@ -82,6 +83,13 @@ jobs:
       - name: DEBUG - Check /tmp
         run: ls -la /tmp
 
+      - name: Check baseline
+        run: |
+        BASELINE_FOUND=$( ls -la /tmp | grep ${{ env.REPORT_FILENAME }} )
+        if [[ -z $BASELINE_FOUND ]]; then
+          echo "BASELINE_FOUND=Yes" >> $GITHUB_OUTPUT
+        fi
+
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
@@ -90,17 +98,30 @@ jobs:
           distribution: 'zulu'
           java-version: 8
 
-      - name: Pipeline scan
+      - name: Pipeline scan with baseline
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
           file: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
           fail_on_severity: ${{ env.THRESHOLD }}
-          baseline_file: /tmp/${{ env.REPORT_FILENAME }}
           #request_policy: "Centreon_Security"
           fail_build: true
           timeout: 60
+          if: ${{ env.BASELINE_FOUND == "Yes" }}
+          baseline_file: /tmp/${{ env.REPORT_FILENAME }}
+
+#      - name: Pipeline scan with baseline
+#        if: ${{ env.BASELINE_FOUND != "Yes" }}
+#        uses: veracode/Veracode-pipeline-scan-action@v1.0.3
+#        with:
+#          vid: ${{ secrets.VERACODE_API_ID }}
+#          vkey: ${{ secrets.VERACODE_API_KEY }}
+#          file: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
+#          fail_on_severity: ${{ env.THRESHOLD }}
+#          #request_policy: "Centreon_Security"
+#          fail_build: true
+#          timeout: 60
 
       - name: DEBUG - Check location
         run: ls -la
