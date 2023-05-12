@@ -28,16 +28,16 @@ jobs:
           exclusion_file: "TODO"
 
       - name: DEBUG - Github head ref
-        run: echo ${{ github.head_ref }}
+        run: echo ${{ github.head_ref }} #TODO: to remove
 
       - name: DEBUG - Github ref Name
-        run: echo ${{ github.ref_name }}
+        run: echo ${{ github.ref_name }} #TODO: to remove
 
       - name: DEBUG - Github base ref
-        run: echo ${{ github.base_ref }}
+        run: echo ${{ github.base_ref }} #TODO: to remove
 
       - name: DEBUG - Hello world
-        run: echo Hello world from $GITHUB_BASE_REF
+        run: echo Hello world from $GITHUB_BASE_REF #TODO: to remove
 
   sandbox-scan:
     runs-on: [self-hosted, veracode]
@@ -55,7 +55,7 @@ jobs:
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
       - name: DEBUG - Check location
-        run: ls -la
+        run: ls -la #TODO: to remove
 
       - name: Veracode upload and run a Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
@@ -77,12 +77,12 @@ jobs:
           criticality: "${{ env.CRITICALITY }}"
 
       - name: DEBUG - Check location
-        run: ls -la
+        run: ls -la #TODO: to remove
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
-# TODO: to study : usefulness to promote a sandbox scan
+# TODO: to study : usefulness to promote a sandbox scan on success
 #  veracode-sandbox-task:
 #    needs: build
 #    name: Promote a scan from sandbox
