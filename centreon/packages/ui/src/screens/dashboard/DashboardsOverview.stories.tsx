@@ -103,6 +103,7 @@ const DefaultView = (args): JSX.Element => {
         <TiledListingActions>
           {dataDashboards.length !== 0 && (
             <Button
+              dataTestId="create-dashboard"
               icon={<AddIcon />}
               iconVariant="start"
               onClick={(): void =>
@@ -116,6 +117,7 @@ const DefaultView = (args): JSX.Element => {
         <TiledListingContent>
           {dataDashboards.length === 0 ? (
             <ListEmptyState
+              dataTestId="create-dashboard"
               labels={args.list.emptyState.labels}
               onCreate={() =>
                 setDialogState({ item: null, open: true, variant: 'create' })

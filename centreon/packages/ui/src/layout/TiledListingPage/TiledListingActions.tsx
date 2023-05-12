@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 import { useTiledListingActionsStyles } from './TiledListingPage.styles';
 
 interface TiledListingActionsProps {
-  children: Array<ReactNode>;
+  children: Array<ReactNode> | ReactNode;
 }
 
 export const TiledListingActions = ({
