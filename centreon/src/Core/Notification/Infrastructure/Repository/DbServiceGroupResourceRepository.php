@@ -181,7 +181,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
             self::RESOURCE_TYPE,
             self::EVENT_ENUM,
             $resources,
-            (self::EVENT_ENUM_CONVERTER)::fromBitmask($eventResults),
+            (self::EVENT_ENUM_CONVERTER)::fromBitFlag($eventResults),
         );
     }
 
@@ -234,7 +234,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
             self::RESOURCE_TYPE,
             self::EVENT_ENUM,
             $resources,
-            (self::EVENT_ENUM_CONVERTER)::fromBitmask($eventResults),
+            (self::EVENT_ENUM_CONVERTER)::fromBitFlag($eventResults),
         );
     }
 
@@ -264,7 +264,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
                 WHERE id = :notificationId
                 SQL
         ));
-        $statement->bindValue(':events', (self::EVENT_ENUM_CONVERTER)::toBitmask($resource->getEvents()), \PDO::PARAM_INT);
+        $statement->bindValue(':events', (self::EVENT_ENUM_CONVERTER)::toBitFlag($resource->getEvents()), \PDO::PARAM_INT);
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $statement->execute();
 

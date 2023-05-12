@@ -27,17 +27,17 @@ use Core\Notification\Domain\Model\NotificationServiceEvent;
 
 class NotificationServiceEventConverter
 {
-    public const CASE_OK_AS_BIT = 0b0001;
-    public const CASE_WARNING_AS_BIT = 0b0010;
-    public const CASE_CRITICAL_AS_BIT = 0b0100;
-    public const CASE_UNKNOWN_AS_BIT = 0b1000;
+    private const CASE_OK_AS_BIT = 0b0001;
+    private const CASE_WARNING_AS_BIT = 0b0010;
+    private const CASE_CRITICAL_AS_BIT = 0b0100;
+    private const CASE_UNKNOWN_AS_BIT = 0b1000;
 
-    public const MAX_BITMASK = 0b1111;
+    private const MAX_BITMASK = 0b1111;
 
-    public const CASE_OK_AS_STR = 'o';
-    public const CASE_WARNING_AS_STR = 'w';
-    public const CASE_CRITICAL_AS_STR = 'c';
-    public const CASE_UNKNOWN_AS_STR = 'u';
+    private const CASE_OK_AS_STR = 'o';
+    private const CASE_WARNING_AS_STR = 'w';
+    private const CASE_CRITICAL_AS_STR = 'c';
+    private const CASE_UNKNOWN_AS_STR = 'u';
 
     /**
      * Convert an array of NotificationServiceEvent to a string.
@@ -117,7 +117,7 @@ class NotificationServiceEventConverter
      *
      * @return NotificationServiceEvent[]
      */
-    public static function fromBitmask(int $bitmask): array
+    public static function fromBitFlag(int $bitmask): array
     {
         if ($bitmask > self::MAX_BITMASK || $bitmask < 0) {
             throw new \ValueError("\"{$bitmask}\" is not a valid bitmask for enum NotificationServiceEvent");
@@ -141,7 +141,7 @@ class NotificationServiceEventConverter
      *
      * @return int
      */
-    public static function toBitmask(array $enums): int
+    public static function toBitFlag(array $enums): int
     {
         if ($enums === []) {
             return 0;

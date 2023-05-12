@@ -29,28 +29,26 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
-use Core\Common\Domain\TrimmedString;
-use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
-use Core\Notification\Domain\Model\NewNotification;
+use Core\Notification\Application\UseCase\AddNotification\Factory\NewNotificationFactory;
+use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationMessageFactory;
+use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationResourceFactory;
+use Core\Notification\Application\UseCase\AddNotification\Validator\NotificationUserValidator;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationGenericObject;
 use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Utility\Difference\BasicDifference;
 
 final class AddNotification
 {
@@ -90,13 +88,20 @@ final class AddNotification
             }
             $this->info('Add notification', ['request' => $request]);
 
-            $newNotification = $this->createMainObject($request);
+            $notificationFactory = new NewNotificationFactory($this->readNotificationRepository);
+            $newNotification = $notificationFactory->create($request->name, $request->isActivated);
 
-            $newMessages = $this->createMessageObjects($request);
+            $newMessages = NotificationMessageFactory::createMultipleMessage($request->messages);
 
-            $newResources = $this->createResourceObjects($request);
+            $notificationResourceFactory = new NotificationResourceFactory(
+                $this->resourceRepositoryProvider,
+                $this->readAccessGroupRepository,
+                $this->user
+            );
+            $newResources = $notificationResourceFactory->createMultipleResource($request->resources);
 
-            $this->assertUsersValidity($request);
+            $userValidator = new NotificationUserValidator();
+            $userValidator->validate($request->users, $this->contactRepository);
 
             try {
                 $this->dataStorageEngine->startTransaction();
@@ -115,20 +120,21 @@ final class AddNotification
                 throw $ex;
             }
 
-            $notification = $this->readNotificationRepository->findById($newNotificationId)
-                ?? throw NotificationException::errorWhileRetrievingObject();
-            $messages = $this->readNotificationRepository->findMessagesByNotificationId($newNotificationId);
-            $users = $this->readNotificationRepository->findUsersByNotificationId($newNotificationId);
-            $resources = $this->findResourcesByNotificationId($newNotificationId);
+            $createdNotificationInformation = $this->findCreatedNotificationInformation($newNotificationId);
 
-            $presenter->present($this->createResponse($notification, $users, $resources, $messages));
+            $presenter->present($this->createResponse(
+                $createdNotificationInformation['notification'],
+                $createdNotificationInformation['users'],
+                $createdNotificationInformation['resources'],
+                $createdNotificationInformation['messages']
+            ));
         } catch (AssertionFailedException | \ValueError $ex) {
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (NotificationException $ex) {
             $presenter->setResponseStatus(
                 match ($ex->getCode()) {
-                    NotificationException::CODE_CONFLICT => new ConflictResponse($ex),
+                        NotificationException::CODE_CONFLICT => new InvalidArgumentResponse($ex),
                     default => new ErrorResponse($ex),
                 }
             );
@@ -137,189 +143,6 @@ final class AddNotification
             $presenter->setResponseStatus(new ErrorResponse(NotificationException::addNotification()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
-    }
-
-    /**
-     * @param AddNotificationRequest $request
-     *
-     * @throws NotificationException
-     * @throws \Throwable
-     */
-    private function assertNameDoesNotAlreadyExists(AddNotificationRequest $request): void
-    {
-        if ($this->readNotificationRepository->existsByName(new TrimmedString($request->name))) {
-            $this->error('Notification name already exists', ['name' => $request->name]);
-
-            throw NotificationException::nameAlreadyExists();
-        }
-    }
-
-    /**
-     * @param AddNotificationRequest $request
-     *
-     * @throws NotificationException
-     * @throws \Throwable
-     */
-    private function assertTimePeriodExist(AddNotificationRequest $request): void
-    {
-        if (! $this->readTimePeriodRepository->exists($request->timeperiodId)) {
-            $this->error(
-                'Invalid ID provided',
-                ['propertieName' => 'timeperiodId', 'propertieValue' => $request->timeperiodId]
-            );
-
-            throw NotificationException::invalidId('timeperiod');
-        }
-    }
-
-    /**
-     * @param AddNotificationRequest $request
-     *
-     * @throws NotificationException
-     * @throws \Throwable
-     */
-    private function assertUsersValidity(AddNotificationRequest $request): void
-    {
-        $request->users = array_unique($request->users);
-        if ($request->users === []) {
-            throw NotificationException::emptyArrayNotAllowed('user');
-        }
-
-        $existingUsers = $this->contactRepository->exist($request->users);
-        $difference = new BasicDifference($request->users, $existingUsers);
-        $missingUsers = $difference->getRemoved();
-
-        if ([] !== $missingUsers) {
-            $this->error(
-                'Invalid ID(s) provided',
-                ['propertieName' => 'users', 'propertieValues' => array_values($missingUsers)]
-            );
-
-            throw NotificationException::invalidId('users');
-        }
-    }
-
-    /**
-     * @param AddNotificationRequest $request
-     *
-     * @throws \Throwable
-     *
-     * @return NewNotification
-     */
-    private function createMainObject(AddNotificationRequest $request): NewNotification
-    {
-        $this->assertNameDoesNotAlreadyExists($request);
-
-        // NOTE: Timeperiod is forced to '24x7' for the moment
-        $request->timeperiodId = 1;
-        $this->assertTimePeriodExist($request);
-
-        return new NewNotification(
-            $request->name,
-            new NotificationGenericObject($request->timeperiodId, ''),
-            $request->isActivated
-        );
-    }
-
-    /**
-     * @param AddNotificationRequest $request
-     *
-     * @throws \Throwable
-     *
-     * @return NotificationMessage[]
-     */
-    private function createMessageObjects(AddNotificationRequest $request): array
-    {
-        if ($request->messages === []) {
-            throw NotificationException::emptyArrayNotAllowed('message');
-        }
-
-        $newMessages = [];
-        foreach ($request->messages as $message) {
-            $messageType = NotificationChannel::from($message['channel']);
-
-            // If multiple message with same type are defined, only the last one of each type is kept
-            $newMessages[$messageType->value] = new NotificationMessage(
-                $messageType,
-                $message['subject'],
-                $message['message']
-            );
-        }
-
-        return $newMessages;
-    }
-
-    /**
-     * @param AddNotificationRequest $request
-     *
-     * @throws \Throwable
-     *
-     * @return NotificationResource[]
-     */
-    private function createResourceObjects(AddNotificationRequest $request): array
-    {
-        if ($request->resources === []) {
-            throw NotificationException::emptyArrayNotAllowed('resource');
-        }
-
-        $newResources = [];
-        /** @var array{
-         *      type:string,
-         *      events:int,
-         *      ids:int[],
-         *      includeServiceEvents:int
-         * } $resourceData
-         */
-        foreach ($request->resources as $resourceData) {
-            $resourceIds = array_unique($resourceData['ids']);
-
-            if (count($resourceIds) === 0) {
-                continue;
-            }
-
-            $repository = $this->resourceRepositoryProvider->getRepository($resourceData['type']);
-
-            if ($this->user->isAdmin()) {
-                // Assert IDs validity without ACLs
-                $existingResources = $repository->exist($resourceIds);
-            } else {
-                // Assert IDs validity with ACLs
-                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-                $existingResources = $repository->existByAccessGroups($resourceIds, $accessGroups);
-            }
-
-            $difference = new BasicDifference($resourceIds, $existingResources);
-            $missingResources = $difference->getRemoved();
-            if ([] !== $missingResources) {
-                $this->error(
-                    'Invalid ID(s) provided',
-                    ['propertieName' => 'resources', 'propertieValues' => array_values($missingResources)]
-                );
-
-                throw NotificationException::invalidId('resource.ids');
-            }
-
-            // If multiple resources with same type are defined, only the last one of each type is kept
-            $newResources[$repository->resourceType()] = new NotificationResource(
-                $repository->resourceType(),
-                $repository->eventEnum(),
-                array_map((fn($resourceId) => new NotificationGenericObject($resourceId, '')), $resourceIds),
-                ($repository->eventEnumConverter())::fromBitmask($resourceData['events']),
-                $resourceData['includeServiceEvents']
-                    ? NotificationServiceEventConverter::fromBitmask($resourceData['includeServiceEvents'])
-                    : []
-            );
-        }
-
-        $totalResources = 0;
-        foreach ($newResources as $newResource) {
-            $totalResources += $newResource->getResourcesCount();
-        }
-        if ($totalResources <= 0) {
-            throw NotificationException::emptyArrayNotAllowed('resource.ids');
-        }
-
-        return $newResources;
     }
 
     /**
@@ -400,11 +223,9 @@ final class AddNotification
         );
 
         foreach ($resources as $resource) {
-            $eventEnumConverter = $this->resourceRepositoryProvider->getRepository($resource->getType())
-                ->eventEnumConverter();
             $responseResource = [
                 'type' => $resource->getType(),
-                'events' => $eventEnumConverter::toBitmask($resource->getEvents()),
+                'events' => $resource->getEvents(),
                 'ids' => array_map(
                     static fn($resource): array => ['id' => $resource->getId(), 'name' => $resource->getName()],
                     $resource->getResources()
@@ -415,12 +236,36 @@ final class AddNotification
                 && ! empty($resource->getServiceEvents())
             ) {
                 $responseResource['extra'] = [
-                    'event_services' => NotificationServiceEventConverter::toBitmask($resource->getServiceEvents())
+                    'event_services' => $resource->getServiceEvents()
                 ];
             }
             $response->resources[] = $responseResource;
         }
 
         return new CreatedResponse($response->id, $response);
+    }
+
+    /**
+     * Find freshly created notification information
+     *
+     * @param int $newNotificationId
+     * @return array{
+     *  notification: Notification
+     *  messages: NotificationMessage[]
+     *  users: NotificationGenericObject[]
+     *  resources: NotificationResource[]
+     * }
+     *
+     * @throws \Throwable|NotificationException
+     */
+    private function findCreatedNotificationInformation(int $newNotificationId): array
+    {
+        return [
+            'notification' => $this->readNotificationRepository->findById($newNotificationId)
+                ?? throw NotificationException::errorWhileRetrievingObject(),
+            'messages' => $this->readNotificationRepository->findMessagesByNotificationId($newNotificationId),
+            'users' => $this->readNotificationRepository->findUsersByNotificationId($newNotificationId),
+            'resources' => $this->findResourcesByNotificationId($newNotificationId)
+        ];
     }
 }

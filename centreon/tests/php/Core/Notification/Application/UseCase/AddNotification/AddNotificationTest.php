@@ -28,7 +28,6 @@ use Core\Notification\Domain\Model\Notification;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationMessage;
@@ -104,8 +103,8 @@ beforeEach(function (): void {
                 (fn($resourceId) => new NotificationGenericObject($resourceId, "resource-name-$resourceId")),
                 $this->request->resources[0]['ids']
             ),
-            NotificationHostEventConverter::fromBitmask($this->request->resources[0]['events']),
-            NotificationServiceEventConverter::fromBitmask($this->request->resources[0]['includeServiceEvents']),
+            NotificationHostEventConverter::fromBitFlag($this->request->resources[0]['events']),
+            NotificationServiceEventConverter::fromBitFlag($this->request->resources[0]['includeServiceEvents']),
         )
     ];
     $this->users = array_map(
@@ -146,7 +145,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(NotificationException::addNotAllowed()->getMessage());
 });
 
-it('should present a ConflictResponse when name is already used', function (): void {
+it('should present a InvalidArgumentResponse when name is already used', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -159,7 +158,7 @@ it('should present a ConflictResponse when name is already used', function (): v
     ($this->useCase)($this->request, $this->presenter);
 
     expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(ConflictResponse::class)
+        ->toBeInstanceOf(InvalidArgumentResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe(NotificationException::nameAlreadyExists()->getMessage());
 });
@@ -173,10 +172,6 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
         ->expects($this->once())
         ->method('existsByName')
         ->willReturn(false);
-    $this->readTimePeriodRepository
-        ->expects($this->once())
-        ->method('exists')
-        ->willReturn(true);
 
     $this->request->name = '';
     $expectedException = AssertionException::notEmptyString('NewNotification::name');
@@ -189,36 +184,13 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
         ->toBe($expectedException->getMessage());
 });
 
-it('should throw a ConflictResponse if the timeperiodId does not exist', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-    $this->readNotificationRepository
-        ->expects($this->once())
-        ->method('existsByName')
-        ->willReturn(false);
-    $this->readTimePeriodRepository
-        ->expects($this->once())
-        ->method('exists')
-        ->willReturn(false);
-
-    ($this->useCase)($this->request, $this->presenter);
-
-    expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe(NotificationException::invalidId('timeperiod')->getMessage());
-});
-
-it('should throw a ConflictResponse if at least one of the resource IDs does not exist', function (): void {
+it('should throw a InvalidArgumentResponse if at least one of the resource IDs does not exist', function (): void {
     $this->user
         ->method('isAdmin')
         ->willReturn(true);
     $this->resourceRepositoryProvider
         ->method('getRepository')
         ->willReturn($this->resourceRepository);
-
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -227,10 +199,6 @@ it('should throw a ConflictResponse if at least one of the resource IDs does not
         ->expects($this->once())
         ->method('existsByName')
         ->willReturn(false);
-    $this->readTimePeriodRepository
-        ->expects($this->once())
-        ->method('exists')
-        ->willReturn(true);
     $this->resourceRepository
         ->expects($this->atMost(2))
         ->method('exist')
@@ -239,12 +207,12 @@ it('should throw a ConflictResponse if at least one of the resource IDs does not
     ($this->useCase)($this->request, $this->presenter);
 
     expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(ConflictResponse::class)
+        ->toBeInstanceOf(InvalidArgumentResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe(NotificationException::invalidId('resource.ids')->getMessage());
 });
 
-it('should throw a ConflictResponse if at least one resource ID is not provided', function (): void {
+it('should throw a InvalidArgumentResponse if at least one resource ID is not provided', function (): void {
 
     $this->request->resources[0]['ids'] = [];
 
@@ -256,7 +224,6 @@ it('should throw a ConflictResponse if at least one resource ID is not provided'
         ->expects($this->exactly(0))
         ->method('getRepository')
         ->willReturn($this->resourceRepository);
-
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -265,20 +232,16 @@ it('should throw a ConflictResponse if at least one resource ID is not provided'
         ->expects($this->once())
         ->method('existsByName')
         ->willReturn(false);
-    $this->readTimePeriodRepository
-        ->expects($this->once())
-        ->method('exists')
-        ->willReturn(true);
 
     ($this->useCase)($this->request, $this->presenter);
 
     expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(ConflictResponse::class)
+        ->toBeInstanceOf(InvalidArgumentResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe(NotificationException::emptyArrayNotAllowed('resource.ids')->getMessage());
 });
 
-it('should throw a ConflictResponse if at least one of the user IDs does not exist', function (): void {
+it('should throw a InvalidArgumentResponse if at least one of the user IDs does not exist', function (): void {
     $this->user
         ->expects($this->atLeast(1))
         ->method('isAdmin')
@@ -308,10 +271,6 @@ it('should throw a ConflictResponse if at least one of the user IDs does not exi
         ->expects($this->once())
         ->method('existsByName')
         ->willReturn(false);
-    $this->readTimePeriodRepository
-        ->expects($this->once())
-        ->method('exists')
-        ->willReturn(true);
     $this->resourceRepository
         ->expects($this->atMost(1))
         ->method('exist')
@@ -324,12 +283,12 @@ it('should throw a ConflictResponse if at least one of the user IDs does not exi
     ($this->useCase)($this->request, $this->presenter);
 
     expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(ConflictResponse::class)
+        ->toBeInstanceOf(InvalidArgumentResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe(NotificationException::invalidId('users')->getMessage());
 });
 
-it('should throw a ConflictResponse if at least one of the user IDs is not provided', function (): void {
+it('should throw a InvalidArgumentResponse if at least one of the user IDs is not provided', function (): void {
     $this->request->users = [];
 
     $this->user
@@ -361,10 +320,6 @@ it('should throw a ConflictResponse if at least one of the user IDs is not provi
         ->expects($this->once())
         ->method('existsByName')
         ->willReturn(false);
-    $this->readTimePeriodRepository
-        ->expects($this->once())
-        ->method('exists')
-        ->willReturn(true);
     $this->resourceRepository
         ->expects($this->atMost(1))
         ->method('exist')
@@ -373,7 +328,7 @@ it('should throw a ConflictResponse if at least one of the user IDs is not provi
     ($this->useCase)($this->request, $this->presenter);
 
     expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(ConflictResponse::class)
+        ->toBeInstanceOf(InvalidArgumentResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe(NotificationException::emptyArrayNotAllowed('user')->getMessage());
 });
@@ -408,10 +363,6 @@ it('should present an ErrorResponse if the newly created service severity cannot
         ->expects($this->once())
         ->method('existsByName')
         ->willReturn(false);
-    $this->readTimePeriodRepository
-        ->expects($this->once())
-        ->method('exists')
-        ->willReturn(true);
     $this->resourceRepository
         ->expects($this->once())
         ->method('exist')
@@ -420,7 +371,6 @@ it('should present an ErrorResponse if the newly created service severity cannot
         ->expects($this->once())
         ->method('exist')
         ->willReturn($this->request->users);
-
     $this->writeNotificationRepository
         ->expects($this->once())
         ->method('add')
@@ -478,10 +428,6 @@ it('should return created object on success', function (): void {
         ->expects($this->once())
         ->method('existsByName')
         ->willReturn(false);
-    $this->readTimePeriodRepository
-        ->expects($this->once())
-        ->method('exists')
-        ->willReturn(true);
     $this->resourceRepository
         ->expects($this->once())
         ->method('exist')
@@ -490,7 +436,6 @@ it('should return created object on success', function (): void {
         ->expects($this->once())
         ->method('exist')
         ->willReturn($this->request->users);
-
     $this->writeNotificationRepository
         ->expects($this->once())
         ->method('add')
@@ -504,7 +449,6 @@ it('should return created object on success', function (): void {
     $this->resourceRepository
         ->expects($this->once())
         ->method('add');
-
     $this->readNotificationRepository
         ->expects($this->once())
         ->method('findById')
@@ -565,7 +509,7 @@ it('should return created object on success', function (): void {
         ->toBe(array_map(
             (fn($resource) => [
                 'type' => $resource->getType(),
-                'events' => NotificationHostEventConverter::toBitmask($resource->getEvents()),
+                'events' => $resource->getEvents(),
                 'ids' => array_map(
                     (fn($resourceDetail) => [
                         'id' => $resourceDetail->getId(),
@@ -573,7 +517,7 @@ it('should return created object on success', function (): void {
                     ]),
                     $resource->getResources()),
                 'extra' => [
-                    'event_services' => NotificationServiceEventConverter::toBitmask($resource->getServiceEvents())
+                    'event_services' => $resource->getServiceEvents()
                 ]
             ]),
             $this->resources
