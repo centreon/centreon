@@ -13,6 +13,9 @@ inputs:
   ignoreLastBuildOnBranch:
     required: false
     default: false
+  autoAcceptChanges:
+    required: false
+    default: false
 
 runs:
   using: "composite"
@@ -43,5 +46,7 @@ runs:
           token: ${{ inputs.pat }}
           buildScriptName: build:storybook
           ignoreLastBuildOnBranch: ${{ inputs.ignoreLastBuildOnBranch }}
+          untraced: "centreon/packages/ui/package.json"
+          autoAcceptChanges: ${{ inputs.autoAcceptChanges }}
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
