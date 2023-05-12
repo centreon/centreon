@@ -16178,3 +16178,15 @@ msgstr ""
 
 # msgid "Error while searching for dashboards"
 # msgstr ""
+
+# msgid "Error while retrieving newly created dashboard"
+# msgstr ""
+
+# msgid "Error while adding a dashboard"
+# msgstr ""
+
+# msgid "You are not allowed to perform write operations on dashboards"
+# msgstr ""
+
+# msgid "Error while retrieving a dashboard"
+# msgstr ""

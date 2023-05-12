@@ -59,7 +59,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - if: ${{ github.event.pull_request.draft == false }}
+      - if: ${{ github.event.pull_request.draft == 'false' }}
         uses: ./.github/actions/chromatic
         with:
           frontend_directory: ${{ env.directory }}
