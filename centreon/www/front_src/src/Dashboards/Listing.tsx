@@ -53,7 +53,7 @@ const Listing = (): JSX.Element => {
   const editDashboard = (dashboard: Dashboard) => (): void => {
     openDialog({
       dashboard,
-      variant: DashboardFormVariant.Create
+      variant: DashboardFormVariant.Update
     });
   };
 

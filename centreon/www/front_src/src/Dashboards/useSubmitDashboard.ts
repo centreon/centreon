@@ -14,7 +14,11 @@ import {
 
 import { Dashboard } from './models';
 import { dashboardsEndpoint } from './api/endpoints';
-import { closeDialogAtom, selectedDashboardVariantAtom } from './atoms';
+import {
+  closeDialogAtom,
+  selectedDashboardAtom,
+  selectedDashboardVariantAtom
+} from './atoms';
 import {
   labelDashboardCreated,
   labelDashboardUpdated,
@@ -34,6 +38,7 @@ const useSubmitDashboard = (): UseSubmitDashboardState => {
   const { t } = useTranslation();
 
   const selectedDashboardVariant = useAtomValue(selectedDashboardVariantAtom);
+  const selectedDashboard = useAtomValue(selectedDashboardAtom);
   const closeDialog = useSetAtom(closeDialogAtom);
 
   const isUpdateVariant = equals(
@@ -42,7 +47,10 @@ const useSubmitDashboard = (): UseSubmitDashboardState => {
   );
 
   const { mutateAsync, isMutating } = useMutationQuery<Dashboard>({
-    getEndpoint: () => dashboardsEndpoint,
+    getEndpoint: () =>
+      isUpdateVariant
+        ? `${dashboardsEndpoint}/${selectedDashboard?.dashboard?.id}`
+        : dashboardsEndpoint,
     method: isUpdateVariant ? Method.PUT : Method.POST
   });
 
