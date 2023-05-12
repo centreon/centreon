@@ -48,7 +48,6 @@ use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 
 final class AddNotification
 {
@@ -57,7 +56,6 @@ final class AddNotification
     public function __construct(
         private readonly ReadNotificationRepositoryInterface $readNotificationRepository,
         private readonly WriteNotificationRepositoryInterface $writeNotificationRepository,
-        private readonly ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactRepositoryInterface $contactRepository,
         private readonly NotificationResourceRepositoryProviderInterface $resourceRepositoryProvider,

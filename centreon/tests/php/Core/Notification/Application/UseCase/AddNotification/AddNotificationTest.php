@@ -103,8 +103,8 @@ beforeEach(function (): void {
                 (fn($resourceId) => new NotificationGenericObject($resourceId, "resource-name-$resourceId")),
                 $this->request->resources[0]['ids']
             ),
-            NotificationHostEventConverter::fromBitFlag($this->request->resources[0]['events']),
-            NotificationServiceEventConverter::fromBitFlag($this->request->resources[0]['includeServiceEvents']),
+            NotificationHostEventConverter::fromBitFlags($this->request->resources[0]['events']),
+            NotificationServiceEventConverter::fromBitFlags($this->request->resources[0]['includeServiceEvents']),
         )
     ];
     $this->users = array_map(

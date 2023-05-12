@@ -179,8 +179,8 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
             self::RESOURCE_TYPE,
             self::EVENT_ENUM,
             $resources,
-            NotificationHostEventConverter::fromBitFlag($hostgroupEvents),
-            NotificationServiceEventConverter::fromBitFlag($includedServiceEvents),
+            NotificationHostEventConverter::fromBitFlags($hostgroupEvents),
+            NotificationServiceEventConverter::fromBitFlags($includedServiceEvents),
         );
     }
 
@@ -230,8 +230,8 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
             self::RESOURCE_TYPE,
             self::EVENT_ENUM,
             $resources,
-            NotificationHostEventConverter::fromBitFlag($hostgroupEvents),
-            NotificationServiceEventConverter::fromBitFlag($includedServiceEvents),
+            NotificationHostEventConverter::fromBitFlags($hostgroupEvents),
+            NotificationServiceEventConverter::fromBitFlags($includedServiceEvents),
         );
     }
 
@@ -264,14 +264,14 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         ));
         $statement->bindValue(
             ':events',
-            NotificationHostEventConverter::toBitFlag($resource->getEvents()),
+            NotificationHostEventConverter::toBitFlags($resource->getEvents()),
             \PDO::PARAM_INT
         );
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $statement->bindValue(
             ':serviceEvents',
             method_exists($resource, 'getServiceEvents')
-                ? NotificationServiceEventConverter::toBitFlag($resource->getServiceEvents())
+                ? NotificationServiceEventConverter::toBitFlags($resource->getServiceEvents())
                 : 0,
             \PDO::PARAM_INT
         );

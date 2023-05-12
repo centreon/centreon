@@ -31,7 +31,7 @@ class NotificationHostEventConverter
     private const CASE_DOWN_AS_BIT = 0b010;
     private const CASE_UNREACHABLE_AS_BIT = 0b100;
 
-    private const MAX_BITFLAG = 0b111;
+    private const MAX_BITFLAGS = 0b111;
 
     private const CASE_UP_AS_STR = 'o';
     private const CASE_DOWN_AS_STR = 'd';
@@ -47,16 +47,16 @@ class NotificationHostEventConverter
      */
     public static function toString(array $events): string
     {
-        $eventsAsBitFlag = [];
+        $eventsAsBitFlags = [];
         foreach ($events as $event) {
-            $eventsAsBitFlag[] = match ($event) {
+            $eventsAsBitFlags[] = match ($event) {
                 NotificationHostEvent::Up => self::CASE_UP_AS_STR,
                 NotificationHostEvent::Down => self::CASE_DOWN_AS_STR,
                 NotificationHostEvent::Unreachable => self::CASE_UNREACHABLE_AS_STR,
             };
         }
 
-        return implode(',', array_unique($eventsAsBitFlag));
+        return implode(',', array_unique($eventsAsBitFlags));
     }
 
     /**
@@ -88,7 +88,7 @@ class NotificationHostEventConverter
     }
 
     /**
-     * Convert a NotificationHostEvent into bitmask.
+     * Convert a NotificationHostEvent into bitFlags.
      *
      * @param NotificationHostEvent $event
      *
@@ -104,23 +104,23 @@ class NotificationHostEventConverter
     }
 
     /**
-     * Convert a bitmask into an array of NotificationHostEvent.
+     * Convert a bitFlags into an array of NotificationHostEvent.
      *
-     * @param int $bitmask
+     * @param int $bitFlags
      *
      * @throws \Throwable
      *
      * @return NotificationHostEvent[]
      */
-    public static function fromBitFlag(int $bitFlag): array
+    public static function fromBitFlags(int $bitFlags): array
     {
-        if ($bitFlag > self::MAX_BITFLAG || $bitFlag < 0) {
-            throw new \ValueError("\"{$bitFlag}\" is not a valid bit flag for enum NotificationHostEvent");
+        if ($bitFlags > self::MAX_BITFLAGS || $bitFlags < 0) {
+            throw new \ValueError("\"{$bitFlags}\" is not a valid bit flag for enum NotificationHostEvent");
         }
 
         $enums = [];
         foreach (NotificationHostEvent::cases() as $enum) {
-            if ($bitFlag & self::toBit($enum)) {
+            if ($bitFlags & self::toBit($enum)) {
                 $enums[] = $enum;
             }
         }
@@ -129,28 +129,28 @@ class NotificationHostEventConverter
     }
 
     /**
-     * Convert an array of NotificationHostEvent into a bitmask
-     * If the array contains NotificationHostEvent::None or is empty, an empty bitmask will be returned
+     * Convert an array of NotificationHostEvent into a bitFlags
+     * If the array contains NotificationHostEvent::None or is empty, an empty bitFlags will be returned
      *
      * @param NotificationHostEvent[] $enums
      *
      * @return int
      */
-    public static function toBitFlag(array $enums): int
+    public static function toBitFlagss(array $enums): int
     {
         if ($enums === []) {
             return 0;
         }
 
-        $bitFlag = 0;
+        $bitFlags = 0;
         foreach ($enums as $event) {
-            // Value 0 is not a bit, we consider it resets the bitFlag
+            // Value 0 is not a bit, we consider it resets the bitFlags
             if (self::toBit($event) === 0) {
                 return 0;
             }
-            $bitFlag |= self::toBit($event);
+            $bitFlags |= self::toBit($event);
         }
 
-        return $bitFlag;
+        return $bitFlags;
     }
 }

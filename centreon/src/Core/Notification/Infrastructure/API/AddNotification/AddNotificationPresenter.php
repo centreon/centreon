@@ -58,11 +58,11 @@ class AddNotificationPresenter extends AbstractPresenter
                     ? NotificationHostEventConverter::class
                     : NotificationServiceEventConverter::class;
                 $resources[$index]['type'] = $resource['type'];
-                $resources[$index]['events'] = $eventEnumConverter::toBitFlag($resource['events']);
+                $resources[$index]['events'] = $eventEnumConverter::toBitFlags($resource['events']);
                 $resources[$index]['ids'] = $resource['ids'];
                 if (! empty($resource['extra']['event_services'])
                 ) {
-                    $resources[$index]['extra']['event_services'] = NotificationServiceEventConverter::toBitFlag(
+                    $resources[$index]['extra']['event_services'] = NotificationServiceEventConverter::toBitFlags(
                         $resource['extra']['event_services']
                     );
                 }
