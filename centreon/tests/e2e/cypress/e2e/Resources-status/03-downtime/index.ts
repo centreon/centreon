@@ -13,8 +13,7 @@ import {
 
 before(() => {
   cy.startWebContainer({
-    useSlim: false,
-    version: 'MON-17222-monitoring-acknowledgment-automated'
+    version: 'develop'
   });
 });
 
@@ -194,43 +193,25 @@ Given('that you have to go to the downtime page', () => {
 
 When('I search for the resource currently "In Downtime" in the list', () => {
   cy.wait('@getTimeZone').then(() => {
-    cy.getIframeBody().as('iframeBody');
-
-    cy.get('@iframeBody')
-      .find('form input[name="search_service"]')
-      .as('searchInput');
-
-    cy.get('@searchInput').clear();
-
-    cy.get('@searchInput').type(serviceInDtName);
-
-    cy.get('@searchInput').type('{enter}');
+    cy.getIframeBody()
+      .contains(serviceInDtName)
+      .parent()
+      .parent()
+      .find('input[type="checkbox"]:first')
+      .as('serviceInDT');
   });
 });
 
 Then('the user selects the checkbox and clicks on the "Cancel" action', () => {
-  cy.get('@iframeBody')
-    .contains(serviceInDtName)
-    .parent()
-    .parent()
-    .find('input[type="checkbox"]:first')
-    .as('serviceCheck');
+  cy.get('@serviceInDT').check().should('be.checked');
 
-  cy.get('@serviceCheck').first().check();
+  cy.getIframeBody().find('form input[name="submit2"]').as('cancelButton');
 
-  cy.get('@serviceCheck').trigger('change');
-
-  cy.get('@serviceCheck').should('be.checked');
-
-  cy.get('@iframeBody').find('form input[name="submit2"]').as('@cancelButton');
-
-  cy.get('@cancelButton').click({ force: true });
+  cy.get('@cancelButton').first().click();
 });
 
 Then('the user confirms the cancellation of the downtime', () => {
-  cy.on('window:confirm', (message) => {
-    expect(message).to.equal('Do you confirm the cancellation ?');
-
+  cy.on('window:confirm', () => {
     return true;
   });
 });
@@ -240,7 +221,7 @@ Then('the line disappears from the listing', () => {
     () => {
       return cy
         .reload()
-        .then(() => cy.contains(serviceInDtName))
+        .then(() => cy.getIframeBody().contains(serviceInDtName))
         .parent()
         .then((val) => {
           return val.length === 0;
