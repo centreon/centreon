@@ -98,6 +98,9 @@ jobs:
           distribution: 'zulu'
           java-version: 8
 
+      - name: DEBUG - Get BASELINE value
+        run: echo ${{ env.BASELINE_FOUND }}
+
       - name: Pipeline scan with baseline
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
