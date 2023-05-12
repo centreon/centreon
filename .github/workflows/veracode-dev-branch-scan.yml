@@ -108,3 +108,6 @@ jobs:
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+
+      - name: Clean
+        run: rm -f filtered_results.json /tmp/results.json
