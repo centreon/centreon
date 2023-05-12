@@ -122,59 +122,61 @@ const Lines = ({
         xScale={xScale}
         yScale={stackedYScale}
       />
-      {renderAdditionalLines}
+      <g>
+        {renderAdditionalLines}
 
-      {regularLines.map(
-        ({
-          metric,
-          areaColor,
-          transparency,
-          lineColor,
-          filled,
-          unit,
-          highlight,
-          invert
-        }) => {
-          const yScale = getYScale({
-            hasMoreThanTwoUnits: !isNil(thirdUnit),
-            invert,
-            leftScale,
-            rightScale,
-            secondUnit,
-            unit
-          });
+        {regularLines.map(
+          ({
+            metric,
+            areaColor,
+            transparency,
+            lineColor,
+            filled,
+            unit,
+            highlight,
+            invert
+          }) => {
+            const yScale = getYScale({
+              hasMoreThanTwoUnits: !isNil(thirdUnit),
+              invert,
+              leftScale,
+              rightScale,
+              secondUnit,
+              unit
+            });
 
-          return (
-            <g key={metric}>
-              <RegularAnchorPoint
-                areaColor={areaColor}
-                displayTimeValues={displayTimeValues}
-                lineColor={lineColor}
-                metric={metric}
-                timeSeries={timeSeries}
-                timeTick={timeTick}
-                transparency={transparency}
-                xScale={xScale}
-                yScale={yScale}
-              />
-              <RegularLine
-                areaColor={areaColor}
-                filled={filled}
-                graphHeight={graphHeight}
-                highlight={highlight}
-                lineColor={lineColor}
-                lines={lines}
-                metric={metric}
-                timeSeries={timeSeries}
-                transparency={transparency}
-                unit={unit}
-                xScale={xScale}
-                yScale={yScale}
-              />
-            </g>
-          );
-        }
-      )}
+            return (
+              <g key={metric}>
+                <RegularAnchorPoint
+                  areaColor={areaColor}
+                  displayTimeValues={displayTimeValues}
+                  lineColor={lineColor}
+                  metric={metric}
+                  timeSeries={timeSeries}
+                  timeTick={timeTick}
+                  transparency={transparency}
+                  xScale={xScale}
+                  yScale={yScale}
+                />
+                <RegularLine
+                  areaColor={areaColor}
+                  filled={filled}
+                  graphHeight={graphHeight}
+                  highlight={highlight}
+                  lineColor={lineColor}
+                  lines={lines}
+                  metric={metric}
+                  timeSeries={timeSeries}
+                  transparency={transparency}
+                  unit={unit}
+                  xScale={xScale}
+                  yScale={yScale}
+                />
+              </g>
+            );
+          }
+        )}
+      </g>
     </g>
   );
 };
