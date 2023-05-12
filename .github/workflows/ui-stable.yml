@@ -10,6 +10,7 @@ on:
       - "centreon/packages/ui/**"
       - ".github/actions/npm-publish-package-stable/**"
       - '.github/workflows/ui-stable.yml'
+      - "!centreon/packages/ui/package.json"
 
 env:
   directory: "centreon/packages/ui"
