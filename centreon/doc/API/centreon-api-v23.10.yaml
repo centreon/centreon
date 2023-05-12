@@ -6741,7 +6741,7 @@ components:
           nullable: true
           description: "Define the image ID that should be associated with this host template"
           example: 1
-        alternative_icon:
+        icon_alternative:
           type: string
           nullable: true
           maxLength: 200
