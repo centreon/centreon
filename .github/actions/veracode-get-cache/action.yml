@@ -30,7 +30,7 @@ runs:
           touch /tmp/${{ inputs.baseline_filename }}
           chmod 660  /tmp/${{ inputs.baseline_filename }}
         else
-          aws s3 cp "$TARGET_S3" "/tmp/${{ inputs.baselone_filename }}"
+          aws s3 cp "$TARGET_S3" "/tmp/${{ inputs.baseline_filename }}"
         fi
       shell: bash
 

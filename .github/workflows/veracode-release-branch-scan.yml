@@ -10,12 +10,11 @@ on:
       - release-*
 
 env:
+  #TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
+  TARGET_BRANCH: dev-23.04.x
   MODULE_DIRECTORY: centreon-gorgone
   MODULE_NAME: centreon-gorgone
-  BRANCH_NAME: "centreon_${{ github.head_ref || github.ref_name }}"
-  HARD_MAJOR_VERSION: 23.04
-  HARD_MINOR_VERSION: 1
-  SEVERITY: "VeryLow"
+  CRITICALITY: "VeryLow"
 
 jobs:
   build:
@@ -28,8 +27,7 @@ jobs:
         with:
           module_directory: ${{ env.MODULE_DIRECTORY }}
           module_name: ${{ env.MODULE_NAME }}
-          major_version: ${{ env.HARD_MAJOR_VERSION }}
-          minor_version: ${{ env.HARD_MINOR_VERSION }}
+          target_branch_name: ${{ env.TARGET_BRANCH }}
           compile_mvn: "no"
           exclusion_file: "TODO"
 
@@ -43,7 +41,7 @@ jobs:
       - name: get build binary
         uses: actions/download-artifact@v3
         with:
-          name: "${{ env.MODULE_NAME }}-${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
+          name: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}"
           # TODO: get target branch name to distinguish baseline from dev-xx.xx and xx.xx
 
       - name: Get current time
@@ -70,18 +68,18 @@ jobs:
         with:
           appname: "centreon/${{ env.MODULE_NAME }}_GHA"
           createprofile: true
-          filepath: "${{ env.MODULE_NAME }}-${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}.zip"
-          version: "${{ env.HARD_MAJOR_VERSION }}.${{ env.HARD_MINOR_VERSION }}"
+          filepath: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
+          version: "${{ env.TARGET_BRANCH }}"
           #version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
           createsandbox: true
-          sandboxname: "${{ env.BRANCH_NAME }}"
+          sandboxname: "${{ env.TARGET_BRANCH }}"
           scantimeout: 60
           includenewmodules: true
           scanallnonfataltoplevelmodules: true
           deleteincompletescan: 1
-          criticality: "${{ env.SEVERITY }}"
+          criticality: "${{ env.CRITICALITY }}"
 
       - name: DEBUG - Check location
         run: ls -la

@@ -37,6 +37,6 @@ runs:
     - name: Set baseline file
       run: |
         TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/${{ inputs.baseline_filename }}"
-        aws s3 cp "/tmp/${{ inputs.baselone_filename }}" "$TARGET_S3"
+        aws s3 cp "/tmp/${{ inputs.baseline_filename }}" "$TARGET_S3"
       shell: bash
 
