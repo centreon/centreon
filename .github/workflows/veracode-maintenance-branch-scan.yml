@@ -65,7 +65,6 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
-        if: env.BASELINE_FOUND == 'Yes'
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
