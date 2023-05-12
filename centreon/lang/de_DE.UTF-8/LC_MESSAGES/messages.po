@@ -1732,7 +1732,6 @@ msgstr "Output"
 #: centreon/smarty_translate.php:891 centreon/smarty_translate.php:930
 #: centreon/www/install/smarty_translate.php:240
 #: centreon/www/install/smarty_translate.php:264
-#: centreon/www/include/options/accessLists/resourcesACL/showUsersAccess.php:76
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php:545
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php:676
 #: centreon/www/include/monitoring/comments/listComment.php:215
@@ -1746,7 +1745,6 @@ msgstr "Hostname"
 
 #: centreon/smarty_translate.php:894
 #: centreon/www/install/smarty_translate.php:243
-#: centreon/www/include/options/accessLists/resourcesACL/showUsersAccess.php:77
 #: centreon/www/include/configuration/configObject/service_dependency/formServiceDependency.php:257
 msgid "Service Description"
 msgstr "Servicebeschreibung"
@@ -4655,21 +4653,17 @@ msgstr "Aktivieren"
 msgid "Disable"
 msgstr "Deaktivieren"
 
-#: centreon/www/include/options/accessLists/resourcesACL/showUsersAccess.php:113
 msgid "Centreon Users"
 msgstr "Centreon Benutzer"
 
-#: centreon/www/include/options/accessLists/resourcesACL/showUsersAccess.php:159
 #: centreon/www/include/configuration/configObject/contact/displayNotification.php:196
 #: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php:192
 msgid "The selected user didn't see any resources"
 msgstr "Dem ausgewählten Benutzer wurden keine Ressourcen angezeigt"
 
-#: centreon/www/include/options/accessLists/resourcesACL/showUsersAccess.php:160
 msgid "Please select an user in order to display resources"
 msgstr "Bitte wählen Sie einen Benutzer, um dessen Ressourcen einzusehen"
 
-#: centreon/www/include/options/accessLists/resourcesACL/showUsersAccess.php:161
 #: centreon/www/include/configuration/configObject/contact/displayNotification.php:198
 #: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php:194
 msgid "The selected user is not enable."
@@ -15385,3 +15379,21 @@ msgstr ""
 
 # msgid "Groups mapping"
 # msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:280
+#msgid "Do you really want to unblock this user?"
+#msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
+#msgid "The user(s) will be unblocked. Do you confirm the request?"
+#msgstr ""
+
+# msgid "Error while retrieving a host group"
+# msgstr ""
+
+#  msgid "Error while updating a host group"
+#  msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
+#msgid "Unblock"
+#msgstr ""

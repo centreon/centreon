@@ -19,7 +19,6 @@
 			<td> 
 				{$form.o1.html}
 				<a href="{$msg.addL}" class="btc bt_success ml-1">{$msg.addT}</a>
-				<a href= '#' class="btc bt_info ml-1" onClick="window.open('{$msg.testL}','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=500, height=700');">{$msg.testT}</a>
 			</td>
 			{php}
 			   include('./include/common/pagination.php');
@@ -60,7 +59,6 @@
 			<td> 
 				{$form.o2.html}
 				<a href="{$msg.addL}" class="btc bt_success ml-1">{$msg.addT}</a>
-				<a href= '#' class="btc bt_info ml-1" onClick="window.open('{$msg.testL}','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=500, height=700');">{$msg.testT}</a>
 			</td>
 			{php}
 			   include('./include/common/pagination.php');

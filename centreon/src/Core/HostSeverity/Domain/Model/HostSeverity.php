@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostSeverity\Domain\Model;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\Assertion;
 
 class HostSeverity extends NewHostSeverity
 {
@@ -32,7 +33,7 @@ class HostSeverity extends NewHostSeverity
      * @param string $name
      * @param string $alias
      * @param int $level
-     * @param positive-int $iconId
+     * @param int $iconId
      *
      * @throws AssertionFailedException
      */
@@ -52,5 +53,62 @@ class HostSeverity extends NewHostSeverity
     public function getId(): int
     {
         return $this->id;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @throws AssertionFailedException
+     */
+    public function setName(string $name): void
+    {
+        $name = trim($name);
+        $shortName = (new \ReflectionClass($this))->getShortName();
+        Assertion::maxLength($name, self::MAX_NAME_LENGTH, $shortName . '::name');
+        Assertion::notEmptyString($name, $shortName . '::name');
+
+        $this->name = $name;
+    }
+
+    /**
+     * @param string $alias
+     *
+     * @throws AssertionFailedException
+     */
+    public function setAlias(string $alias): void
+    {
+        $alias = trim($alias);
+        $shortName = (new \ReflectionClass($this))->getShortName();
+        Assertion::maxLength($alias, self::MAX_NAME_LENGTH, $shortName . '::alias');
+        Assertion::notEmptyString($alias, $shortName . '::alias');
+
+        $this->alias = $alias;
+    }
+
+    /**
+     * @param int $iconId
+     *
+     * @throws AssertionFailedException
+     */
+    public function setIconId(int $iconId): void
+    {
+        $shortName = (new \ReflectionClass($this))->getShortName();
+        Assertion::positiveInt($iconId, "{$shortName}::iconId");
+
+        $this->iconId = $iconId;
+    }
+
+    /**
+     * @param int $level
+     *
+     * @throws AssertionFailedException
+     */
+    public function setLevel(int $level): void
+    {
+        $shortName = (new \ReflectionClass($this))->getShortName();
+        Assertion::min($level, self::MIN_LEVEL_VALUE, $shortName . '::level');
+        Assertion::max($level, self::MAX_LEVEL_VALUE, $shortName . '::level');
+
+        $this->level = $level;
     }
 }

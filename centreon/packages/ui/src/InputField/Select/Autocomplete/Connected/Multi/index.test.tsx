@@ -6,7 +6,7 @@ import {
   RenderResult,
   resetMocks,
   waitFor
-} from '../../../../../testRenderer';
+} from '../../../../../../test/testRenderer';
 import { buildListingEndpoint } from '../../../../..';
 import TestQueryProvider from '../../../../../api/TestQueryProvider';
 

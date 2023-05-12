@@ -2,7 +2,6 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   breakSomePollers,
-  checkIfConfigurationIsExported,
   checkIfConfigurationIsNotExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
@@ -10,8 +9,16 @@ import {
   insertHost,
   insertPollerConfigUserAcl,
   removeFixtures,
+  testHostName,
   waitPollerListToLoad
 } from '../common';
+import { checkIfConfigurationIsExported } from '../../../commons';
+
+let dateBeforeLogin: Date;
+
+before(() => {
+  cy.startWebContainer();
+});
 
 beforeEach(() => {
   cy.intercept({
@@ -35,14 +42,16 @@ beforeEach(() => {
 Given(
   'I am granted the rights to access the poller page and export the configuration',
   () => {
+    dateBeforeLogin = new Date();
+    
     clearCentengineLogs().then(() => {
       insertPollerConfigUserAcl();
-    })
+    });
   }
 );
 
 Given('I am logged in', () => {
-  cy.loginByTypeOfUser({ jsonName: 'user', preserveToken: true });
+  cy.loginByTypeOfUser({ jsonName: 'user', loginViaApi: true });
 });
 
 Given('the platform is configured with some resources', () => {
@@ -61,14 +70,16 @@ Given('some post-generation commands are configured for each poller', () => {
   cy.get('@pollerId').then((pollerId) => {
     cy.visit(`/centreon/main.php?p=60901&o=c&server_id=${pollerId}`);
 
-    cy.executeSqlRequestInContainer(`INSERT INTO poller_command_relations VALUES (${pollerId},39,1);`);
+    cy.executeSqlRequestInContainer(
+      `INSERT INTO poller_command_relations VALUES (${pollerId},39,1);`
+    );
 
     cy.getIframeBody()
       .find('form input[name="submitC"]')
       .eq(0)
       .contains('Save')
       .click({ force: true });
-  })
+  });
 });
 
 When('I visit the export configuration page', () => {
@@ -76,9 +87,11 @@ When('I visit the export configuration page', () => {
     page: 'Pollers',
     rootItemNumber: 0,
     subMenu: 'Pollers'
-  }).wait('@getTimeZone').then(() => {
-    cy.url().should('include', '/centreon/main.php?p=60901');
-  });
+  })
+    .wait('@getTimeZone')
+    .then(() => {
+      cy.url().should('include', '/centreon/main.php?p=60901');
+    });
 });
 
 Then(
@@ -98,8 +111,7 @@ When('I select some pollers', () => {
   cy.getIframeBody()
     .find('form .list_one>td')
     .eq(1)
-    .invoke('text')
-    .as('pollerName');
+    .then(($text) => cy.wrap($text.text()).as('pollerName'));
 });
 
 When('I click on the Export configuration button', () => {
@@ -165,7 +177,7 @@ When('I click on the export button', () => {
 });
 
 Then('the configuration is generated on selected pollers', () => {
-  checkIfConfigurationIsExported();
+  checkIfConfigurationIsExported({ dateBeforeLogin, hostName: testHostName });
 });
 
 Then('the selected pollers are {string}', (poller_action: string) => {
@@ -203,9 +215,7 @@ Then(
 );
 
 When('I click on the export configuration action and confirm', () => {
-  cy.get('header')
-    .get('svg[data-testid="DeviceHubIcon"]')
-    .click();
+  cy.get('header').get('svg[data-testid="DeviceHubIcon"]').click();
 
   cy.get('button[data-testid="Export configuration"]').click();
 
@@ -214,15 +224,14 @@ When('I click on the export configuration action and confirm', () => {
 
 Then('a success message is displayed', () => {
   cy.wait('@generateAndReloadPollers').then(() => {
-    cy.contains('Configuration exported and reloaded')
-      .should('have.length', 1);
+    cy.contains('Configuration exported and reloaded').should('have.length', 1);
   });
 });
 
 Then('the configuration is generated on all pollers', () => {
-  checkIfConfigurationIsExported();
+  checkIfConfigurationIsExported({ dateBeforeLogin, hostName: testHostName });
 
-  cy.logout()
+  cy.logout();
 
   cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
@@ -238,5 +247,5 @@ Then('the configuration is not generated on selected pollers', () => {
 });
 
 after(() => {
-  removeFixtures();
+  cy.stopWebContainer();
 });
