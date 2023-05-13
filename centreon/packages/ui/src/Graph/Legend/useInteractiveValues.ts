@@ -1,9 +1,11 @@
-import { equals, find, isNil } from 'ramda';
-import { useAtomValue } from 'jotai';
+import { useMemo } from 'react';
 
-import { TimeValue, Line } from '../timeSeries/models';
+import { useAtomValue } from 'jotai';
+import { equals, find, isNil } from 'ramda';
+
 import { timeValueAtom } from '../InteractiveComponents/interactionWithGraphAtoms';
-import { getMetrics, getLineForMetric, formatMetricValue } from '../timeSeries';
+import { formatMetricValue, getLineForMetric, getMetrics } from '../timeSeries';
+import { Line, TimeValue } from '../timeSeries/models';
 
 import { FormattedMetricData } from './models';
 
@@ -24,7 +26,7 @@ const useInteractiveValues = ({
 }: Props): InteractiveValues => {
   const timeValue = useAtomValue(timeValueAtom);
 
-  const graphTimeValue = timeSeries.find((item) =>
+  const graphTimeValue = timeSeries?.find((item) =>
     equals(item.timeTick, timeValue?.timeTick)
   );
 
@@ -32,9 +34,9 @@ const useInteractiveValues = ({
     if (isNil(graphTimeValue)) {
       return [];
     }
-    const metrics = getMetrics(graphTimeValue as TimeValue);
+    const metricsData = getMetrics(graphTimeValue as TimeValue);
 
-    const metricsToDisplay = metrics.filter((metric) => {
+    const metricsToDisplay = metricsData.filter((metric) => {
       const line = getLineForMetric({ lines, metric });
 
       return !isNil(graphTimeValue[metric]) && !isNil(line);
@@ -43,7 +45,7 @@ const useInteractiveValues = ({
     return metricsToDisplay;
   };
 
-  const metrics = getMetricsToDisplay();
+  const metrics = useMemo(() => getMetricsToDisplay(), [graphTimeValue]);
 
   const getFormattedMetricData = (
     metric: string

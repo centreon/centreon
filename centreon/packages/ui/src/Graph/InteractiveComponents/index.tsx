@@ -2,7 +2,7 @@ import { MutableRefObject } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
-import { useSetAtom } from 'jotai';
+import { useSetAtom, useAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 import { isEmpty, isNil } from 'ramda';
 
@@ -62,7 +62,7 @@ const InteractionWithGraph = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const setEventMouseDown = useSetAtom(eventMouseDownAtom);
+  const [eventMouseDown, setEventMouseDown] = useAtom(eventMouseDownAtom);
   const setEventMouseUp = useSetAtom(eventMouseUpAtom);
   const setEventMouseLeave = useSetAtom(eventMouseLeaveAtom);
 
@@ -73,7 +73,8 @@ const InteractionWithGraph = ({
   const { graphHeight, graphWidth, graphSvgRef, xScale, timeSeries } =
     commonData;
 
-  const displayZoomPreview = zoomData?.enable ?? true;
+  const displayZoomPreview =
+    (zoomData?.enable ?? true) && !isNil(eventMouseDown);
   const displayEventAnnotations =
     !isNil(annotationData?.data) && !isEmpty(annotationData?.data);
 

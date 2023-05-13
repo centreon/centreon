@@ -1,22 +1,26 @@
 import { ReactNode } from 'react';
 
 import { slice } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { Box, alpha, useTheme } from '@mui/material';
+
+import { useMemoComponent } from '@centreon/ui';
 
 import { maxLinesDisplayedLegend } from '../common';
 import { formatMetricValue } from '../timeSeries';
 import { Line, TimeValue } from '../timeSeries/models';
 import { labelAvg, labelMax, labelMin } from '../translatedLabels';
+import { timeValueAtom } from '../InteractiveComponents/interactionWithGraphAtoms';
 
 import InteractiveValue from './InteractiveValue';
 import { useStyles } from './Legend.styles';
-import LegendContent from './LegendContent';
 import LegendHeader from './LegendHeader';
 import LegendMarker from './Marker';
 import { GetMetricValueProps } from './models';
 import useInteractiveValues from './useInteractiveValues';
 import useLegend from './useLegend';
+import LegendContent from './LegendContent';
 
 interface Props {
   base: number;
@@ -27,7 +31,7 @@ interface Props {
   toggable?: boolean;
 }
 
-const Legend = ({
+const MainLegend = ({
   lines,
   timeSeries,
   base,
@@ -134,6 +138,16 @@ const Legend = ({
       {renderExtraComponent}
     </div>
   );
+};
+
+const Legend = (props: Props): JSX.Element => {
+  const { toggable, limitLegendRows, timeSeries, lines, base } = props;
+  const timeValue = useAtomValue(timeValueAtom);
+
+  return useMemoComponent({
+    Component: <MainLegend {...props} />,
+    memoProps: [timeValue, timeSeries, lines, base, toggable, limitLegendRows]
+  });
 };
 
 export default Legend;
