@@ -6,15 +6,16 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isEmpty, isNil, not } from 'ramda';
 
 import { margin } from '../../common';
+import { timeTickGraphAtom } from '../../graphAtoms';
 import { getMetrics, getTimeValue } from '../../timeSeries';
 import { TimeValue } from '../../timeSeries/models';
 import {
   MousePosition,
   changeMousePositionAndTimeValueDerivedAtom,
-  mousePositionAtom,
-  timeValueAtom,
   eventMouseDownAtom,
-  eventMouseMovingAtom
+  eventMouseMovingAtom,
+  mousePositionAtom,
+  timeValueAtom
 } from '../interactionWithGraphAtoms';
 
 interface AnchorPointResult {
@@ -35,6 +36,7 @@ const useAnchorPoint = ({
   xScale
 }: Props): AnchorPointResult => {
   const [position, setPosition] = useState<null | MousePosition>(null);
+  const [timeTick, setTimeTick] = useState<Date>();
 
   const eventMouseMoving = useAtomValue(eventMouseMovingAtom);
   const eventMouseDown = useAtomValue(eventMouseDownAtom);
@@ -45,17 +47,11 @@ const useAnchorPoint = ({
   const changeMousePositionAndTimeValue = useSetAtom(
     changeMousePositionAndTimeValueDerivedAtom
   );
+  const setTimeTickGraph = useSetAtom(timeTickGraphAtom);
 
   const metrics = getMetrics(timeValueData as TimeValue);
 
   const containsMetrics = not(isNil(metrics)) && not(isEmpty(metrics));
-
-  const mousePositionTimeTick = position
-    ? getTimeValue({ timeSeries, x: position[0], xScale }).timeTick
-    : 0;
-  const timeTick = containsMetrics
-    ? new Date(mousePositionTimeTick)
-    : undefined;
 
   const positionX = position ? position[0] - margin.left : undefined;
   const positionY = position ? position[1] - margin.top : undefined;
@@ -77,6 +73,22 @@ const useAnchorPoint = ({
 
     changeMousePositionAndTimeValue({ position: pointPosition, timeValue });
   };
+
+  useEffect(() => {
+    const mousePositionTimeTick = position
+      ? getTimeValue({ timeSeries, x: position[0], xScale }).timeTick
+      : 0;
+    const timeTickValue = containsMetrics
+      ? new Date(mousePositionTimeTick)
+      : undefined;
+
+    if (!timeTickValue) {
+      return;
+    }
+
+    setTimeTick(timeTickValue);
+    // setTimeTickGraph(timeTickValue);
+  }, [position]);
 
   useEffect(() => {
     if (eventMouseDown) {

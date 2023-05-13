@@ -2,7 +2,7 @@ import { equals, find, isNil } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { TimeValue, Line } from '../timeSeries/models';
-import { timeValueAtom } from '../IntercatifsComponents/interactionWithGraphAtoms';
+import { timeValueAtom } from '../InteractiveComponents/interactionWithGraphAtoms';
 import { getMetrics, getLineForMetric, formatMetricValue } from '../timeSeries';
 
 import { FormattedMetricData } from './models';

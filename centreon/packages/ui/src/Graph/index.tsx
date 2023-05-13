@@ -35,7 +35,7 @@ const WrapperGraph = ({
   width,
   shapeLines,
   axis,
-  anchorPoint,
+  displayAnchor,
   zoomPreview,
   data,
   loading,
@@ -65,10 +65,10 @@ const WrapperGraph = ({
           width: responsiveWidth
         }): JSX.Element => (
           <Graph
-            anchorPoint={anchorPoint}
             annotationEvent={annotationEvent}
             axis={axis}
-            graphData={{ ...adjustedData }}
+            displayAnchor={displayAnchor}
+            graphData={adjustedData}
             graphInterval={{ end, start }}
             graphRef={graphRef}
             header={header}

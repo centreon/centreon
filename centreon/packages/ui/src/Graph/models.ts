@@ -10,7 +10,7 @@ import {
   AreaRegularLines,
   AreaStackedLines
 } from './BasicComponents/Lines/models';
-import { TimelineEvent } from './IntercatifsComponents/Annotations/models';
+import { TimelineEvent } from './InteractiveComponents/Annotations/models';
 import { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
 
 export interface GraphData {
@@ -45,15 +45,6 @@ export interface GraphInterval {
   start?: string;
 }
 
-export interface AnchorPoint {
-  display: boolean;
-}
-
-export interface AreaAnchorPoint {
-  areaRegularLinesAnchorPoint: AnchorPoint;
-  areaStackedLinesAnchorPoint: AnchorPoint;
-}
-
 export interface ShapeLines {
   areaRegularLines?: AreaRegularLines;
   areaStackedLines?: AreaStackedLines;
@@ -84,16 +75,16 @@ export interface AnnotationEvent {
   data?: Array<TimelineEvent>;
 }
 
-export interface HeaderGraph {
+export interface GraphHeader {
   displayTitle?: boolean;
   extraComponent?: ReactNode;
 }
 
 export interface GraphProps {
-  anchorPoint?: AreaAnchorPoint;
   annotationEvent?: AnnotationEvent;
   axis?: Axis;
-  header?: HeaderGraph;
+  displayAnchor?: boolean;
+  header?: GraphHeader;
   height?: number;
   loading: boolean;
   timeShiftZones?: InteractedZone;

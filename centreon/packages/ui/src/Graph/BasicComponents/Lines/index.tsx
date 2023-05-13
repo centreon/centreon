@@ -1,101 +1,112 @@
-import { ReactNode } from 'react';
+import { MutableRefObject } from 'react';
 
+import { ScaleLinear } from 'd3-scale';
 import { isEmpty, isNil } from 'ramda';
 
-import {
-  RegularLinesAnchorPoint,
-  StackedAnchorPoint
-} from '../../IntercatifsComponents/AnchorPoint/models';
-import { getUnits, getYScale } from '../../timeSeries';
-import { Line } from '../../timeSeries/models';
+import RegularAnchorPoint from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
+import { displayArea } from '../../helpers/index';
+import { GlobalAreaLines } from '../../models';
+import { getStackedYScale, getUnits, getYScale } from '../../timeSeries';
+import { Line, TimeValue } from '../../timeSeries/models';
 
 import RegularLine from './RegularLines';
-import useDataRegularLines from './RegularLines/useDataRegularLines';
+import useRegularLines from './RegularLines/useRegularLines';
 import StackedLines from './StackedLines';
-import useDataStackedLines from './StackedLines/useDataStackLines';
+import useStackedLines from './StackedLines/useStackedLines';
 import ThresholdLines from './Threshold';
 import AwesomeCircles from './Threshold/Circle';
+import ThresholdWithPatternLines from './Threshold/ThresholdWithPatternLines';
 import ThresholdWithVariation from './Threshold/ThresholdWithVariation';
 import { Data } from './Threshold/models';
 import useDataThreshold from './Threshold/useDataThreshold';
-import { Shape } from './models';
-import ThresholdWithPatternLines from './Threshold/ThresholdWithPatternLines';
 
-interface AnchorPoint {
-  renderRegularLinesAnchorPoint: (args: RegularLinesAnchorPoint) => ReactNode;
-  renderStackedAnchorPoint: (args: StackedAnchorPoint) => ReactNode;
-}
-
-interface Props {
-  anchorPoint: AnchorPoint;
+interface Props extends GlobalAreaLines {
+  displayAnchor: boolean;
+  displayedLines: Array<Line>;
+  graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   height: number;
-  shape: Shape;
+  leftScale: ScaleLinear<number, number>;
+  rightScale: ScaleLinear<number, number>;
+  timeSeries: Array<TimeValue>;
+  width: number;
+  xScale: ScaleLinear<number, number>;
 }
 
-const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
-  const { areaRegularLines, areaStackedLines, areaThreshold } = shape;
-  const { renderRegularLinesAnchorPoint, renderStackedAnchorPoint } =
-    anchorPoint;
-  const { lines, leftScale, rightScale, timeSeries, xScale, display } =
-    areaThreshold;
+const Lines = ({
+  height,
+  graphSvgRef,
+  width,
+  displayAnchor,
+  leftScale,
+  rightScale,
+  xScale,
+  timeSeries,
+  displayedLines,
+  areaThresholdLines,
+  areaStackedLines,
+  areaRegularLines
+}: Props): JSX.Element => {
+  const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
+    lines: displayedLines,
+    timeSeries
+  });
+
+  const { regularLines } = useRegularLines({ lines: displayedLines });
 
   const displayEnvelopeThreshold =
-    !isNil(areaThreshold?.factors?.currentFactorMultiplication) &&
-    !isNil(areaThreshold?.factors?.simulatedFactorMultiplication);
+    !isNil(areaThresholdLines?.factors?.currentFactorMultiplication) &&
+    !isNil(areaThresholdLines?.factors?.simulatedFactorMultiplication);
 
-  const currentFactorMultiplication = areaThreshold?.factors
+  const currentFactorMultiplication = areaThresholdLines?.factors
     ?.currentFactorMultiplication as number;
-  const simulatedFactorMultiplication = areaThreshold?.factors
+
+  const simulatedFactorMultiplication = areaThresholdLines?.factors
     ?.simulatedFactorMultiplication as number;
-  const getCountDisplayedCircles = areaThreshold?.getCountDisplayedCircles;
-  const dataExclusionPeriods = areaThreshold?.dataExclusionPeriods;
 
-  const {
-    displayAreaInvertedStackedLines,
-    displayAreaStackedLines,
-    invertedStackedLines,
-    invertedStackedLinesTimeSeries,
-    regularStackedLines,
-    regularStackedLinesTimeSeries,
-    xScaleStackedLines,
-    yScaleStackedLines
-  } = useDataStackedLines(areaStackedLines);
+  const getCountDisplayedCircles = areaThresholdLines?.getCountDisplayedCircles;
 
-  const {
-    display: displayAreaRegularLines,
-    leftScale: leftScaleRegularLines,
-    timeSeries: regularLinesTimeSeries,
-    rightScale: rightScaleRegularLines,
-    xScale: xScaleRegularLines,
-    lines: regularLines
-  } = useDataRegularLines(areaRegularLines);
+  const dataExclusionPeriods = areaThresholdLines?.dataExclusionPeriods;
 
   const { dataY0, dataY1, dataYOrigin, displayThreshold } = useDataThreshold({
-    display,
+    display: areaThresholdLines?.display ?? false,
     leftScale,
-    lines,
+    lines: displayedLines,
     rightScale
   });
 
-  const commonStackedLinesProps = { xScaleStackedLines, yScaleStackedLines };
+  const displayAreaRegularLines =
+    (areaRegularLines?.display ?? true) && displayArea(regularLines);
+
+  const stackedYScale = getStackedYScale({
+    leftScale,
+    rightScale
+  });
+
+  const commonStackedLinesProps = {
+    displayAnchor,
+    graphHeight: height,
+    graphSvgRef,
+    graphWidth: width,
+    xScale,
+    yScale: stackedYScale
+  };
 
   return (
     <g>
-      {displayAreaStackedLines && (
-        <StackedLines
-          lines={regularStackedLines}
-          renderStackedAnchorPoint={renderStackedAnchorPoint}
-          timeSeries={regularStackedLinesTimeSeries}
-          {...commonStackedLinesProps}
-        />
-      )}
-      {displayAreaInvertedStackedLines && (
-        <StackedLines
-          lines={invertedStackedLines}
-          renderStackedAnchorPoint={renderStackedAnchorPoint}
-          timeSeries={invertedStackedLinesTimeSeries}
-          {...commonStackedLinesProps}
-        />
+      {(areaStackedLines?.display ?? true) && (
+        <>
+          <StackedLines
+            lines={stackedLinesData.lines}
+            timeSeries={stackedLinesData.timeSeries}
+            {...commonStackedLinesProps}
+          />
+
+          <StackedLines
+            lines={invertedStackedLinesData.lines}
+            timeSeries={invertedStackedLinesData.timeSeries}
+            {...commonStackedLinesProps}
+          />
+        </>
       )}
 
       {displayThreshold && (
@@ -169,23 +180,28 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
               const yScale = getYScale({
                 hasMoreThanTwoUnits: !isNil(thirdUnit),
                 invert,
-                leftScale: leftScaleRegularLines,
-                rightScale: rightScaleRegularLines,
+                leftScale,
+                rightScale,
                 secondUnit,
                 unit
               });
 
               return (
                 <g key={metric}>
-                  {renderRegularLinesAnchorPoint?.({
-                    areaColor,
-                    lineColor,
-                    metric,
-                    timeSeries: regularLinesTimeSeries,
-                    transparency,
-                    xScale: xScaleRegularLines,
-                    yScale
-                  })}
+                  {displayAnchor && (
+                    <RegularAnchorPoint
+                      areaColor={areaColor}
+                      graphHeight={height}
+                      graphSvgRef={graphSvgRef}
+                      graphWidth={width}
+                      lineColor={lineColor}
+                      metric={metric}
+                      timeSeries={timeSeries}
+                      transparency={transparency}
+                      xScale={xScale}
+                      yScale={yScale}
+                    />
+                  )}
                   <RegularLine
                     areaColor={areaColor}
                     filled={filled}
@@ -193,10 +209,10 @@ const Lines = ({ height, shape, anchorPoint }: Props): JSX.Element => {
                     highlight={highlight}
                     lineColor={lineColor}
                     metric={metric}
-                    timeSeries={regularLinesTimeSeries}
+                    timeSeries={timeSeries}
                     transparency={transparency}
                     unit={unit}
-                    xScale={xScaleRegularLines}
+                    xScale={xScale}
                     yScale={yScale}
                   />
                 </g>

@@ -1,7 +1,5 @@
-import { memo } from 'react';
-
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { equals, isNil, map, not, pipe } from 'ramda';
+import { isNil, map, not, pipe } from 'ramda';
 
 import { bisectDate } from '../../timeSeries';
 
@@ -11,7 +9,7 @@ import AnchorPoint from '.';
 
 interface Props {
   areaColor: string;
-  displayTimeValues: boolean;
+  displayTimeValues?: boolean;
   graphHeight: number;
   graphWidth: number;
   lineColor: string;
@@ -24,12 +22,10 @@ interface Props {
   yScale: ScaleLinear<number, number>;
 }
 
-const key = 'data';
-
 const getStackedDates = (stackValues: Array<StackValue>): Array<Date> => {
-  const toTimeTick = (stackValue: StackValue): string => {
-    return key in stackValue ? stackValue[key].timeTick : '';
-  };
+  const toTimeTick = (stackValue: StackValue): string =>
+    stackValue[2]?.data?.timeTick;
+
   const toDate = (tick: string): Date => new Date(tick);
 
   return pipe(map(toTimeTick), map(toDate))(stackValues);
@@ -54,7 +50,7 @@ const StackedAnchorPoint = ({
   areaColor,
   transparency,
   lineColor,
-  displayTimeValues,
+  displayTimeValues = true,
   ...rest
 }: Props): JSX.Element | null => {
   if (isNil(timeTick) || not(displayTimeValues)) {
@@ -87,11 +83,4 @@ const StackedAnchorPoint = ({
   );
 };
 
-export default memo(
-  StackedAnchorPoint,
-  (prevProps, nextProps) =>
-    equals(prevProps.timeTick, nextProps.timeTick) &&
-    equals(prevProps.stackValues, nextProps.stackValues) &&
-    equals(prevProps.positionX, nextProps.positionX) &&
-    equals(prevProps.positionY, nextProps.positionY)
-);
+export default StackedAnchorPoint;

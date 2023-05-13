@@ -7,24 +7,14 @@ import { ClickAwayListener, Skeleton } from '@mui/material';
 import Axes from './BasicComponents/Axes';
 import Grids from './BasicComponents/Grids';
 import Lines from './BasicComponents/Lines';
-import useRegularLines from './BasicComponents/Lines/RegularLines/useRegularLines';
-import useStackedLines from './BasicComponents/Lines/StackedLines/useStackedLines';
 import LoadingProgress from './BasicComponents/LoadingProgress';
 import useFilterLines from './BasicComponents/useFilterLines';
 import { margin } from './common';
 import { useStyles } from './Graph.styles';
 import Header from './Header';
-import InteractionWithGraph from './IntercatifsComponents';
-import {
-  RegularLinesAnchorPoint,
-  StackedAnchorPoint as StackedAnchorPointModel,
-  StackValue
-} from './IntercatifsComponents/AnchorPoint/models';
-import RegularAnchorPoint from './IntercatifsComponents/AnchorPoint/RegularAnchorPoint';
-import StackedAnchorPoint from './IntercatifsComponents/AnchorPoint/StackedAnchorPoint';
-import useAnchorPoint from './IntercatifsComponents/AnchorPoint/useAnchorPoint';
-import GraphTooltip from './IntercatifsComponents/Tooltip';
-import useGraphTooltip from './IntercatifsComponents/Tooltip/useGraphTooltip';
+import InteractionWithGraph from './InteractiveComponents';
+import GraphTooltip from './InteractiveComponents/Tooltip';
+import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import Legend from './Legend';
 import {
   Data,
@@ -50,7 +40,7 @@ const Graph = ({
   width,
   shapeLines,
   axis,
-  anchorPoint,
+  displayAnchor = true,
   loading,
   zoomPreview,
   graphInterval,
@@ -70,6 +60,7 @@ const Graph = ({
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
 
   const { title, timeSeries, baseAxis, lines } = graphData;
+
   const { displayedLines, newLines } = useFilterLines({
     displayThreshold: shapeLines?.areaThresholdLines?.display,
     lines
@@ -104,118 +95,11 @@ const Graph = ({
     [timeSeries, displayedLines, graphHeight]
   );
 
-  const { timeTick, positionX, positionY } = useAnchorPoint({
-    graphSvgRef,
-    timeSeries,
-    xScale
-  });
-
-  const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
-    lines: displayedLines,
-    timeSeries
-  });
-
-  const { regularLines } = useRegularLines({ lines: displayedLines });
-
   const graphTooltipData = useGraphTooltip({
     graphWidth,
     timeSeries,
     xScale
   });
-
-  const commonLinesProps = {
-    leftScale,
-    rightScale,
-    xScale
-  };
-
-  const areaThreshold = {
-    lines: displayedLines,
-    timeSeries,
-    ...commonLinesProps,
-    ...shapeLines?.areaThresholdLines,
-    display: shapeLines?.areaThresholdLines?.display ?? false
-  };
-
-  const areaRegularLines = {
-    display: shapeLines?.areaRegularLines?.display ?? true,
-    lines: regularLines,
-    timeSeries,
-    ...commonLinesProps
-  };
-
-  const areaStackedLines = {
-    display: shapeLines?.areaStackedLines?.display ?? true,
-    invertedStackedLinesData,
-    stackedLinesData,
-    ...commonLinesProps
-  };
-
-  const displayRegularLinesAnchorPoint =
-    anchorPoint?.areaRegularLinesAnchorPoint?.display ?? true;
-
-  const displayStackedAnchorPoint =
-    anchorPoint?.areaStackedLinesAnchorPoint?.display ?? true;
-
-  const displayTimeTick =
-    displayRegularLinesAnchorPoint ?? displayStackedAnchorPoint;
-
-  const commonAnchorPoint = {
-    displayTimeValues: true,
-    graphHeight,
-    graphWidth,
-    positionX,
-    positionY,
-    timeTick
-  };
-
-  const renderRegularLinesAnchorPoint = ({
-    areaColor,
-    lineColor,
-    metric,
-    timeSeries: regularLinesTimeSeries,
-    transparency,
-    xScale: xScaleRegularLines,
-    yScale
-  }: RegularLinesAnchorPoint): JSX.Element => (
-    <g>
-      {displayRegularLinesAnchorPoint && (
-        <RegularAnchorPoint
-          areaColor={areaColor}
-          lineColor={lineColor}
-          metric={metric}
-          timeSeries={regularLinesTimeSeries}
-          transparency={transparency}
-          xScale={xScaleRegularLines}
-          yScale={yScale}
-          {...commonAnchorPoint}
-        />
-      )}
-    </g>
-  );
-
-  const renderStackedAnchorPoint = ({
-    areaColor,
-    transparency,
-    lineColor,
-    stack,
-    xScale: x,
-    yScale: y
-  }: StackedAnchorPointModel): JSX.Element => (
-    <g>
-      {displayStackedAnchorPoint && (
-        <StackedAnchorPoint
-          areaColor={areaColor}
-          lineColor={lineColor}
-          stackValues={stack as unknown as Array<StackValue>}
-          transparency={transparency}
-          xScale={x}
-          yScale={y}
-          {...commonAnchorPoint}
-        />
-      )}
-    </g>
-  );
 
   if (!isInViewport) {
     return (
@@ -230,10 +114,12 @@ const Graph = ({
   return (
     <>
       <Header
-        displayTimeTick={displayTimeTick}
+        displayTimeTick={displayAnchor}
+        graphSvgRef={graphSvgRef}
         header={header}
-        timeTick={timeTick}
+        timeSeries={timeSeries}
         title={title}
+        xScale={xScale}
       />
       <ClickAwayListener onClickAway={graphTooltipData?.hideTooltip}>
         <div className={classes.container}>
@@ -262,12 +148,16 @@ const Graph = ({
               />
 
               <Lines
-                anchorPoint={{
-                  renderRegularLinesAnchorPoint,
-                  renderStackedAnchorPoint
-                }}
+                displayAnchor={displayAnchor}
+                displayedLines={displayedLines}
+                graphSvgRef={graphSvgRef}
                 height={graphHeight}
-                shape={{ areaRegularLines, areaStackedLines, areaThreshold }}
+                leftScale={leftScale}
+                rightScale={rightScale}
+                timeSeries={timeSeries}
+                width={graphWidth}
+                xScale={xScale}
+                {...shapeLines}
               />
 
               <InteractionWithGraph

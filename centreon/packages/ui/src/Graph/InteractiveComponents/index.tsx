@@ -37,9 +37,6 @@ interface CommonData {
   xScale: ScaleTime<number, number>;
 }
 
-// interface ZoomData extends ZoomPreviewModel {
-//   xScale: ScaleTime<number, number>;
-// }
 interface TimeShiftZonesData extends InteractedZone {
   graphInterval: GraphInterval;
   loading: boolean;

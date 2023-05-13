@@ -1,17 +1,22 @@
-import { memo } from 'react';
+import { MutableRefObject } from 'react';
 
-import { equals, isNil, not, prop } from 'ramda';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
+import { isNil, not, prop } from 'ramda';
 
-import { getDates, bisectDate } from '../../timeSeries';
+import { useMemoComponent } from '@centreon/ui';
+
+import { bisectDate, getDates } from '../../timeSeries';
 import { TimeValue } from '../../timeSeries/models';
+
+import useAnchorPoint from './useAnchorPoint';
 
 import AnchorPoint from '.';
 
 interface Props {
   areaColor: string;
-  displayTimeValues: boolean;
+  displayTimeValues?: boolean;
   graphHeight: number;
+  graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;
   lineColor: string;
   metric: string;
@@ -36,18 +41,24 @@ const getYAnchorPoint = ({
   return yScale(prop(metric, timeValue) as number);
 };
 
-const RegularAnchorPoint = ({
+const Test = ({
   xScale,
   yScale,
   metric,
   timeSeries,
-  timeTick,
   areaColor,
   transparency,
   lineColor,
-  displayTimeValues,
+  graphSvgRef,
+  displayTimeValues = true,
   ...rest
 }: Props): JSX.Element | null => {
+  const { timeTick, positionX, positionY } = useAnchorPoint({
+    graphSvgRef,
+    timeSeries,
+    xScale
+  });
+
   if (isNil(timeTick) || not(displayTimeValues)) {
     return null;
   }
@@ -72,6 +83,8 @@ const RegularAnchorPoint = ({
     <AnchorPoint
       areaColor={areaColor}
       lineColor={lineColor}
+      positionX={positionX}
+      positionY={positionY}
       transparency={transparency}
       x={xAnchorPoint}
       y={yAnchorPoint}
@@ -80,9 +93,35 @@ const RegularAnchorPoint = ({
   );
 };
 
-export default memo(
-  RegularAnchorPoint,
-  (prevProps, nextProps) =>
-    equals(prevProps.timeTick, nextProps.timeTick) &&
-    equals(prevProps.timeSeries, nextProps.timeSeries)
-);
+const RegularAnchorPoint = ({
+  xScale,
+  yScale,
+  metric,
+  timeSeries,
+  areaColor,
+  transparency,
+  lineColor,
+  graphSvgRef,
+  displayTimeValues = true,
+  ...rest
+}: Props): JSX.Element => {
+  const args = {
+    areaColor,
+    displayTimeValues,
+    graphSvgRef,
+    lineColor,
+    metric,
+    timeSeries,
+    transparency,
+    xScale,
+    yScale,
+    ...rest
+  };
+
+  return useMemoComponent({
+    Component: <Test {...args} />,
+    memoProps: [timeSeries, xScale]
+  });
+};
+
+export default RegularAnchorPoint;
