@@ -210,7 +210,7 @@ export const argTypes = {
   },
   end: {
     control: 'text',
-    description: 'the end of the interval of time to get graph data',
+    description: 'the end of the interval',
     table: {
       category: 'Graph data',
       type: {
@@ -402,7 +402,7 @@ export const argTypes = {
   },
   start: {
     control: 'text',
-    description: 'the beginning of the interval of time to get graph data',
+    description: 'the beginning of the interval of time ',
     name: 'start',
     table: {
       category: 'Graph data',
