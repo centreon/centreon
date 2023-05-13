@@ -45,8 +45,8 @@ export const defaultLastMonth = new Date(
   dayjs(Date.now()).subtract(31, 'day').toDate().getTime()
 ).toISOString();
 
-export const zoomPreviewDate = '2023-04-22';
-export const lastDayForwardDate = '2023-05-23T21';
+export const zoomPreviewDate = '2023-06-01';
+export const lastDayForwardDate = '2023-06-07';
 
 export const getCustomText = (text: string): string =>
   `<span style="color:#1EA7FD;fontSize:12px">(${text})</span>`;

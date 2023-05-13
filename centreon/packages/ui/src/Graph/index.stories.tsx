@@ -27,7 +27,7 @@ import exclusionPeriodFirstPeriod from './mockedData/exclusionPeriodFirstPeriod.
 import exclusionPeriodFourthPeriod from './mockedData/exclusionPeriodFourthPeriod.json';
 import exclusionPeriodSecondPeriod from './mockedData/exclusionPeriodSecondPeriod.json';
 import dataLastDayForword from './mockedData/lastDayForward.json';
-import dataLastDay from './mockedData/lastDayThreshold.json';
+import dataLastDay from './mockedData/lastDay.json';
 import dataLastMonth from './mockedData/lastMonth.json';
 import dataLastWeek from './mockedData/lastWeek.json';
 import dataZoomPreview from './mockedData/zoomPreview.json';

@@ -1,12 +1,11 @@
 import { useEffect } from 'react';
 
-import { Event } from '@visx/visx';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { margin } from '../../common';
 import {
   eventMouseLeaveAtom,
-  eventMouseMovingAtom
+  mousePositionAtom
 } from '../interactionWithGraphAtoms';
 
 import {
@@ -19,12 +18,11 @@ import { Props } from '.';
 const useAnnotation = ({
   graphWidth,
   data,
-  xScale,
-  graphSvgRef
+  xScale
 }: Omit<Props, 'graphHeight'>): number => {
   const [annotationHoveredId] = crypto.getRandomValues(new Uint16Array(1));
 
-  const mouseMovingEvent = useAtomValue(eventMouseMovingAtom);
+  const mousePosition = useAtomValue(mousePositionAtom);
   const mouseLeaveEvent = useAtomValue(eventMouseLeaveAtom);
 
   const setAnnotationHovered = useSetAtom(annotationHoveredAtom);
@@ -33,15 +31,11 @@ const useAnnotation = ({
   );
 
   useEffect(() => {
-    if (!mouseMovingEvent) {
+    if (!mousePosition) {
       return;
     }
-    const { x } = Event.localPoint(
-      graphSvgRef.current as SVGSVGElement,
-      mouseMovingEvent
-    ) || { x: 0 };
 
-    const mousePositionX = x - margin.left;
+    const mousePositionX = mousePosition[0] - margin.left;
 
     changeAnnotationHovered({
       annotationHoveredId,
@@ -50,7 +44,7 @@ const useAnnotation = ({
       timeline: data,
       xScale
     });
-  }, [mouseMovingEvent]);
+  }, [mousePosition]);
 
   useEffect(() => {
     setAnnotationHovered(undefined);

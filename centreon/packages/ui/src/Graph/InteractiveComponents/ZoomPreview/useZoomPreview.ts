@@ -1,16 +1,16 @@
-import { MutableRefObject, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, gte, isNil, lt } from 'ramda';
 
-import { Interval } from '../../models';
 import { margin } from '../../common';
+import { Interval } from '../../models';
 import {
   eventMouseDownAtom,
-  eventMouseMovingAtom,
-  eventMouseUpAtom
+  eventMouseUpAtom,
+  mousePositionAtom
 } from '../interactionWithGraphAtoms';
 
 import { applyingZoomAtomAtom } from './zoomPreviewAtoms';
@@ -26,21 +26,19 @@ interface ZoomPreview {
 
 interface Props {
   getInterval?: (args: Interval) => void;
-  graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;
   xScale: ScaleTime<number, number>;
 }
 
 const useZoomPreview = ({
-  graphSvgRef,
   xScale,
   graphWidth,
   getInterval
 }: Props): ZoomPreview => {
   const [zoomBoundaries, setZoomBoundaries] = useState<Boundaries | null>(null);
-  const eventMouseMoving = useAtomValue(eventMouseMovingAtom);
   const eventMouseDown = useAtomValue(eventMouseDownAtom);
   const eventMouseUp = useAtomValue(eventMouseUpAtom);
+  const mousePosition = useAtomValue(mousePositionAtom);
   const setApplyingZoom = useSetAtom(applyingZoomAtomAtom);
 
   const mousePointDown = eventMouseDown
@@ -51,12 +49,8 @@ const useZoomPreview = ({
     ? mousePointDown.x - margin.left
     : null;
 
-  const mousePositionMoving = eventMouseMoving
-    ? Event.localPoint(graphSvgRef.current as SVGSVGElement, eventMouseMoving)
-    : null;
-
-  const movingMousePositionX = mousePositionMoving
-    ? mousePositionMoving.x - margin.left
+  const movingMousePositionX = mousePosition
+    ? mousePosition[0] - margin.left
     : null;
 
   const applyZoom = (): void => {

@@ -1,20 +1,17 @@
-import { MutableRefObject } from 'react';
-
 import { Curve, Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { all, isNil, map, not, nth, path, pipe, prop } from 'ramda';
 
 import StackedAnchorPoint from '../../../InteractiveComponents/AnchorPoint/StackedAnchorPoint';
 import { StackValue } from '../../../InteractiveComponents/AnchorPoint/models';
+import useTickGraph from '../../../InteractiveComponents/AnchorPoint/useTickGraph';
 import { getFillColor } from '../../../common';
 import { getTime } from '../../../timeSeries';
 import { Line, TimeValue } from '../../../timeSeries/models';
-import useAnchorPoint from '../../../InteractiveComponents/AnchorPoint/useAnchorPoint';
 
 interface Props {
   displayAnchor: boolean;
   graphHeight: number;
-  graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;
   lines: Array<Line>;
   timeSeries: Array<TimeValue>;
@@ -27,13 +24,11 @@ const StackLines = ({
   lines,
   yScale,
   xScale,
-  graphSvgRef,
   displayAnchor,
   graphHeight,
   graphWidth
 }: Props): JSX.Element => {
-  const { timeTick, positionX, positionY } = useAnchorPoint({
-    graphSvgRef,
+  const { timeTick, positionX, positionY } = useTickGraph({
     timeSeries,
     xScale
   });

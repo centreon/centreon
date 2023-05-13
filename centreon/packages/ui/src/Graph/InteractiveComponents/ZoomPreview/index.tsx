@@ -10,12 +10,10 @@ import useZoomPreview from './useZoomPreview';
 const ZoomPreview = (data: ZoomPreviewData): JSX.Element => {
   const theme = useTheme();
 
-  const { graphHeight, xScale, graphWidth, graphSvgRef, getInterval, ...rest } =
-    data;
+  const { graphHeight, xScale, graphWidth, getInterval, ...rest } = data;
 
   const { zoomBarWidth, zoomBoundaries } = useZoomPreview({
     getInterval,
-    graphSvgRef,
     graphWidth,
     xScale
   });

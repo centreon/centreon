@@ -95,17 +95,21 @@ const Lines = ({
     <g>
       {(areaStackedLines?.display ?? true) && (
         <>
-          <StackedLines
-            lines={stackedLinesData.lines}
-            timeSeries={stackedLinesData.timeSeries}
-            {...commonStackedLinesProps}
-          />
+          {displayArea(stackedLinesData.lines) && (
+            <StackedLines
+              lines={stackedLinesData.lines}
+              timeSeries={stackedLinesData.timeSeries}
+              {...commonStackedLinesProps}
+            />
+          )}
 
-          <StackedLines
-            lines={invertedStackedLinesData.lines}
-            timeSeries={invertedStackedLinesData.timeSeries}
-            {...commonStackedLinesProps}
-          />
+          {displayArea(invertedStackedLinesData.lines) && (
+            <StackedLines
+              lines={invertedStackedLinesData.lines}
+              timeSeries={invertedStackedLinesData.timeSeries}
+              {...commonStackedLinesProps}
+            />
+          )}
         </>
       )}
 
@@ -192,7 +196,6 @@ const Lines = ({
                     <RegularAnchorPoint
                       areaColor={areaColor}
                       graphHeight={height}
-                      graphSvgRef={graphSvgRef}
                       graphWidth={width}
                       lineColor={lineColor}
                       metric={metric}

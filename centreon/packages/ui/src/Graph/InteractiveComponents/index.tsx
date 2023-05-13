@@ -1,5 +1,6 @@
 import { MutableRefObject } from 'react';
 
+import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
 import { useSetAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
@@ -11,15 +12,18 @@ import {
   InteractedZone,
   InteractedZone as ZoomPreviewModel
 } from '../models';
+import { getTimeValue } from '../timeSeries';
+import { TimeValue } from '../timeSeries/models';
 
 import Bar from './Bar';
 import TimeShiftZones from './TimeShiftZones';
 import ZoomPreview from './ZoomPreview';
 import {
   eventMouseDownAtom,
-  eventMouseMovingAtom,
   eventMouseUpAtom,
-  eventMouseLeaveAtom
+  eventMouseLeaveAtom,
+  changeMousePositionAndTimeValueDerivedAtom,
+  MousePosition
 } from './interactionWithGraphAtoms';
 import Annotations from './Annotations';
 import { TimelineEvent } from './Annotations/models';
@@ -34,6 +38,7 @@ interface CommonData {
   graphHeight: number;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   graphWidth: number;
+  timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
 }
 
@@ -57,12 +62,16 @@ const InteractionWithGraph = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const setEventMouseMoving = useSetAtom(eventMouseMovingAtom);
   const setEventMouseDown = useSetAtom(eventMouseDownAtom);
   const setEventMouseUp = useSetAtom(eventMouseUpAtom);
   const setEventMouseLeave = useSetAtom(eventMouseLeaveAtom);
 
-  const { graphHeight, graphWidth, graphSvgRef, xScale } = commonData;
+  const changeMousePositionAndTimeValue = useSetAtom(
+    changeMousePositionAndTimeValueDerivedAtom
+  );
+
+  const { graphHeight, graphWidth, graphSvgRef, xScale, timeSeries } =
+    commonData;
 
   const displayZoomPreview = zoomData?.enable ?? true;
   const displayEventAnnotations =
@@ -70,8 +79,8 @@ const InteractionWithGraph = ({
 
   const mouseLeave = (event): void => {
     setEventMouseLeave(event);
-    setEventMouseMoving(null);
     setEventMouseDown(null);
+    updateMousePosition(null);
   };
 
   const mouseUp = (event): void => {
@@ -80,11 +89,36 @@ const InteractionWithGraph = ({
   };
 
   const mouseMove = (event): void => {
-    setEventMouseMoving(event);
+    const mousePoint = Event.localPoint(
+      graphSvgRef?.current as SVGSVGElement,
+      event
+    );
+    if (!mousePoint) {
+      return;
+    }
+    updateMousePosition([mousePoint.x, mousePoint.y]);
   };
 
   const mouseDown = (event): void => {
     setEventMouseDown(event);
+  };
+
+  const updateMousePosition = (pointPosition: MousePosition): void => {
+    if (isNil(pointPosition)) {
+      changeMousePositionAndTimeValue({
+        position: null,
+        timeValue: null
+      });
+
+      return;
+    }
+    const timeValue = getTimeValue({
+      timeSeries,
+      x: pointPosition[0],
+      xScale
+    });
+
+    changeMousePositionAndTimeValue({ position: pointPosition, timeValue });
   };
 
   return (
@@ -93,7 +127,6 @@ const InteractionWithGraph = ({
         <ZoomPreview
           {...zoomData}
           graphHeight={graphHeight}
-          graphSvgRef={graphSvgRef}
           graphWidth={graphWidth}
           xScale={xScale}
         />

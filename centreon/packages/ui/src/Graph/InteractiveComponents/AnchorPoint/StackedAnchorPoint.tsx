@@ -16,7 +16,7 @@ interface Props {
   positionX?: number;
   positionY?: number;
   stackValues: Array<StackValue>;
-  timeTick?: Date;
+  timeTick: Date | null;
   transparency: number;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;

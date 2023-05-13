@@ -115,7 +115,6 @@ const Graph = ({
     <>
       <Header
         displayTimeTick={displayAnchor}
-        graphSvgRef={graphSvgRef}
         header={header}
         timeSeries={timeSeries}
         title={title}
@@ -162,7 +161,13 @@ const Graph = ({
 
               <InteractionWithGraph
                 annotationData={{ ...annotationEvent }}
-                commonData={{ graphHeight, graphSvgRef, graphWidth, xScale }}
+                commonData={{
+                  graphHeight,
+                  graphSvgRef,
+                  graphWidth,
+                  timeSeries,
+                  xScale
+                }}
                 timeShiftZonesData={{
                   ...timeShiftZones,
                   graphInterval,
