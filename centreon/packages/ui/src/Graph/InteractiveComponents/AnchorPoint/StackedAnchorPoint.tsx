@@ -1,5 +1,5 @@
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { isNil, map, not, pipe } from 'ramda';
+import { isNil, map, pipe } from 'ramda';
 
 import { bisectDate } from '../../timeSeries';
 
@@ -9,7 +9,6 @@ import AnchorPoint from '.';
 
 interface Props {
   areaColor: string;
-  displayTimeValues?: boolean;
   graphHeight: number;
   graphWidth: number;
   lineColor: string;
@@ -50,12 +49,8 @@ const StackedAnchorPoint = ({
   areaColor,
   transparency,
   lineColor,
-  displayTimeValues = true,
   ...rest
 }: Props): JSX.Element | null => {
-  if (isNil(timeTick) || not(displayTimeValues)) {
-    return null;
-  }
   if (isNil(timeTick)) {
     return null;
   }

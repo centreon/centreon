@@ -20,7 +20,6 @@ interface Prop {
 interface Section {
   description?: string;
   name: string;
-  note?: string;
   props: Array<Record<string, Prop>>;
   type: string;
 }
@@ -102,7 +101,6 @@ export const propsAxisX = [
 ];
 
 export const propsAxisY = [
-  { display: { description: 'display or not the axis', type: 'boolean' } },
   {
     displayUnit: {
       description: 'display or not the unit of the axis',
@@ -112,29 +110,18 @@ export const propsAxisY = [
 ];
 
 export const argTypes = {
-  anchorPoint: {
+  annotationEvent: {
     control: 'object',
     description: getDescription({
       sections: [
         {
-          name: 'areaRegularLinesAnchorPoint',
+          name: '',
           props: [
             {
-              display: {
-                description: 'display or not the anchor point',
-                type: 'boolean'
-              }
-            }
-          ],
-          type: 'object'
-        },
-        {
-          name: 'areaStackedLinesAnchorPoint',
-          props: [
-            {
-              display: {
-                description: 'display or not the anchor point',
-                type: 'boolean'
+              data: {
+                description:
+                  'if the data is provided , events (comments,downtime,acknowledgement) will be displayed',
+                type: 'array of events'
               }
             }
           ],
@@ -145,23 +132,11 @@ export const argTypes = {
     table: {
       category: 'Graph interaction',
       type: {
-        detail:
-          'displays the timing, circle, vertical and horizontal line for each point of the corresponding graph (line) according to the interaction of the mouse with the graph',
-        summary: 'object'
+        summary: 'display events'
       }
     }
   },
   axis: {
-    axisX: {
-      xAxisTickFormat: { control: 'text' }
-    },
-    axisYLeft: {
-      display: { control: 'boolean' },
-      displayUnit: { control: 'boolean' }
-    },
-    axisYRight: {
-      displayUnit: { control: 'boolean' }
-    },
     control: 'object',
     description: getDescription({
       sections: [
@@ -189,7 +164,49 @@ export const argTypes = {
   },
   data: {
     control: 'object',
-    description: 'the data of the graph'
+    description: getDescription({
+      sections: [
+        {
+          name: '',
+          props: [
+            {
+              global: {
+                description: 'global data of graph like title ...',
+                type: 'object'
+              }
+            },
+            {
+              metrics: {
+                description: '',
+                type: 'array of object (ds_data)'
+              }
+            },
+            {
+              times: {
+                description: '',
+                type: 'array of dates -iso string-'
+              }
+            }
+          ],
+          type: 'object'
+        }
+      ]
+    }),
+    table: {
+      category: 'Graph data'
+    },
+    type: {
+      required: true
+    }
+  },
+  displayAnchor: {
+    control: 'boolean',
+    description:
+      'displays or not the timing, circle, vertical and horizontal line for each point of the corresponding graph (line) according to the interaction of the mouse with the graph',
+    table: {
+      category: 'Graph interaction',
+      type: { summary: 'boolean' }
+    }
   },
   end: {
     control: 'text',
@@ -198,7 +215,41 @@ export const argTypes = {
       category: 'Graph data',
       type: {
         detail: 'the end of the interval',
-        summary: 'ISOString (required*)'
+        summary: 'ISOString'
+      }
+    },
+    type: {
+      required: true
+    }
+  },
+  header: {
+    control: 'object',
+    description: getDescription({
+      sections: [
+        {
+          name: '',
+          props: [
+            {
+              displayTitle: {
+                description: 'display or not the title of the graph',
+                type: 'boolean'
+              }
+            },
+            {
+              extraComponent: {
+                description: 'extra component to display on header graph',
+                type: 'React node'
+              }
+            }
+          ],
+          type: 'object'
+        }
+      ]
+    }),
+    table: {
+      category: 'Graph component',
+      type: {
+        summary: 'control header of the graph'
       }
     }
   },
@@ -208,6 +259,48 @@ export const argTypes = {
     table: {
       category: 'Sizes',
       type: { summary: 'number' }
+    }
+  },
+  legend: {
+    control: 'object',
+    description: getDescription({
+      sections: [
+        {
+          name: '',
+          props: [
+            {
+              display: {
+                description: 'display or not the legend',
+                type: 'boolean'
+              }
+            },
+            {
+              renderExtraComponent: {
+                description: 'extra component to render with legend ',
+                type: 'React node'
+              }
+            }
+          ],
+          type: 'object'
+        }
+      ]
+    }),
+    table: {
+      category: 'Graph component',
+      type: {
+        summary: 'control applying zoom to a specific zoon'
+      }
+    }
+  },
+  loading: {
+    control: 'boolean',
+    description: 'the loading indicator ',
+    table: {
+      category: 'Graph data',
+      type: { summary: 'boolean' }
+    },
+    type: {
+      required: true
     }
   },
   shapeLines: {
@@ -231,8 +324,70 @@ export const argTypes = {
           props: [
             {
               display: {
-                description: 'display or not the area',
+                description: 'display or not the area stacked lines',
                 type: 'boolean'
+              }
+            }
+          ],
+          type: 'object'
+        },
+        {
+          name: 'areaThresholdLines',
+          props: [
+            {
+              display: {
+                description:
+                  'display or not the area threshold lines , if not the component will display the corresponding graph according to the data (regular area lines)',
+                type: 'boolean'
+              }
+            },
+            {
+              displayCircles: {
+                description: 'display or not the circles',
+                type: 'boolean'
+              }
+            },
+            {
+              factors: {
+                description: getDescription({
+                  sections: [
+                    {
+                      name: 'details',
+                      props: [
+                        {
+                          currentFactorMultiplication: {
+                            description:
+                              'the variant to calculate the envelope variation',
+                            type: 'number'
+                          }
+                        },
+                        {
+                          simulatedFactorMultiplication: {
+                            description:
+                              'the simulated factor of envelope variation',
+                            type: 'number'
+                          }
+                        }
+                      ],
+                      type: 'object'
+                    }
+                  ]
+                }),
+                type: 'if the object is provided, the envelope variation of the graph is displayed according to the factors provided'
+              }
+            },
+            {
+              getCountDisplayedCircles: {
+                description:
+                  'callback return the counted circles out of the envelope variation depends on mouse position relative to time value (t)',
+                type: '() => void'
+              }
+            },
+            {
+              dataExclusionPeriods: {
+                description:
+                  'array of graph data ,showing threshold with Patter lines',
+                type: 'if the object is provided , the thresholds with pattern lines will be displayed'
               }
             }
           ],
@@ -255,6 +410,67 @@ export const argTypes = {
         detail: 'the beginning of the interval',
         summary: 'ISOString (required*)'
       }
+    },
+    type: {
+      required: true
+    }
+  },
+  timeShiftZones: {
+    control: 'object',
+    description: getDescription({
+      sections: [
+        {
+          name: '',
+          props: [
+            {
+              enable: {
+                description: 'enable or not the action drag',
+                type: 'boolean'
+              }
+            },
+            {
+              getInterval: {
+                description:
+                  'callback return the new interval of the graph (end, start) after the action drag',
+                type: '({end,start}) => void'
+              }
+            }
+          ],
+          type: 'object'
+        }
+      ]
+    }),
+    table: {
+      category: 'Graph interaction',
+      type: {
+        summary: 'control applying zoom to a specific zoon'
+      }
+    }
+  },
+  tooltip: {
+    control: 'object',
+    description: getDescription({
+      sections: [
+        {
+          name: '',
+          props: [
+            {
+              renderComponent: {
+                description:
+                  'render function with given props of tooltip data (date of the tooltip position depend on the mouse click , hideTooltip callback to hide tooltip , boolean of is tooltip opened)',
+                type: '({data,hideTooltip,tooltipOpen}) => void , if the component provided the tooltip displays'
+              }
+            }
+          ],
+          type: 'object'
+        }
+      ]
+    }),
+    table: {
+      category: 'Graph interaction',
+      type: {
+        summary: 'control graph tooltip'
+      }
     }
   },
   width: {
@@ -273,9 +489,16 @@ export const argTypes = {
           name: '',
           props: [
             {
-              display: {
+              enable: {
                 description: 'enable or not the zoomPreview',
                 type: 'boolean'
+              }
+            },
+            {
+              getInterval: {
+                description:
+                  'callback return the new interval of the graph (end, start) after applying zoom',
+                type: '({end,start}) => void'
               }
             }
           ],
@@ -286,31 +509,21 @@ export const argTypes = {
     table: {
       category: 'Graph interaction',
       type: {
-        summary: 'apply zoom to a specific zoon'
+        summary: 'control applying zoom to a specific zoon'
       }
     }
   }
 };
 
 export const args = {
-  anchorPoint: {
-    areaRegularLinesAnchorPoint: {
-      display: true
-    },
-    areaStackedLinesAnchorPoint: {
-      display: true
-    },
-    areaThresholdLines: {
-      display: true
-    }
-  },
   axis: {
-    // axisX: { xAxisTickFormat: undefined },
     axisYLeft: { displayUnit: true },
-    axisYRight: { display: true, displayUnit: true }
+    axisYRight: { displayUnit: true }
   },
+  displayAnchor: true,
   end: defaultEnd,
   height: 500,
+  loading: false,
   shapeLines: {
     areaRegularLines: {
       display: true

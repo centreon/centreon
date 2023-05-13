@@ -1,6 +1,7 @@
 import { MutableRefObject, useMemo, useRef } from 'react';
 
 import { Group } from '@visx/visx';
+import { isNil } from 'ramda';
 
 import { ClickAwayListener, Skeleton } from '@mui/material';
 
@@ -101,6 +102,9 @@ const Graph = ({
     xScale
   });
 
+  const displayLegend = legend?.display ?? true;
+  const displayTooltip = !isNil(tooltip?.renderComponent);
+
   if (!isInViewport) {
     return (
       <Skeleton
@@ -177,13 +181,18 @@ const Graph = ({
               />
             </Group.Group>
           </svg>
-          <GraphTooltip {...tooltip} {...graphTooltipData} />
-          <Legend
-            base={baseAxis}
-            lines={newLines}
-            renderExtraComponent={legend?.renderExtraComponent}
-            timeSeries={timeSeries}
-          />
+          {displayTooltip && (
+            <GraphTooltip {...tooltip} {...graphTooltipData} />
+          )}
+          {displayLegend && (
+            <Legend
+              base={baseAxis}
+              displayAnchor={displayAnchor}
+              lines={newLines}
+              renderExtraComponent={legend?.renderExtraComponent}
+              timeSeries={timeSeries}
+            />
+          )}
         </div>
       </ClickAwayListener>
     </>

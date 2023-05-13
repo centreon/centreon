@@ -67,7 +67,6 @@ export interface TooltipData {
   tooltipOpen: boolean;
 }
 export interface Tooltip {
-  enable?: boolean;
   renderComponent?: (args: TooltipData) => ReactNode;
 }
 
@@ -99,6 +98,7 @@ export interface Area {
 
 export interface ThresholdArea extends Area {
   dataExclusionPeriods?: Array<GraphData>;
+  displayCircles?: boolean;
   factors?: FactorsVariation;
   getCountDisplayedCircles?: (value: number) => void;
 }
@@ -109,5 +109,6 @@ export interface GlobalAreaLines {
   areaThresholdLines?: ThresholdArea;
 }
 export interface LegendModel {
+  display?: boolean;
   renderExtraComponent?: ReactNode;
 }

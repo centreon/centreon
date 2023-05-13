@@ -28,7 +28,10 @@ const Header = ({
   const { classes } = useStyles();
   const { toDateTime } = useLocaleDateTimeFormat();
 
-  const { timeTick } = useTickGraph({ timeSeries, xScale });
+  const { timeTick } = useTickGraph({
+    timeSeries,
+    xScale
+  });
   const time =
     displayTimeTick && !isNil(timeTick) ? toDateTime(timeTick) : null;
 

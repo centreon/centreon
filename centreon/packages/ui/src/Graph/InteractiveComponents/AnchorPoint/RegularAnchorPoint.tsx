@@ -1,5 +1,5 @@
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { isNil, not, prop } from 'ramda';
+import { isNil, prop } from 'ramda';
 
 import { bisectDate, getDates } from '../../timeSeries';
 import { TimeValue } from '../../timeSeries/models';
@@ -10,7 +10,6 @@ import AnchorPoint from '.';
 
 interface Props {
   areaColor: string;
-  displayTimeValues?: boolean;
   graphHeight: number;
   graphWidth: number;
   lineColor: string;
@@ -44,7 +43,6 @@ const RegularAnchorPoint = ({
   areaColor,
   transparency,
   lineColor,
-  displayTimeValues = true,
   ...rest
 }: Props): JSX.Element | null => {
   const { timeTick, positionX, positionY } = useTickGraph({
@@ -52,13 +50,10 @@ const RegularAnchorPoint = ({
     xScale
   });
 
-  if (isNil(timeTick) || not(displayTimeValues)) {
+  if (isNil(timeTick)) {
     return null;
   }
 
-  if (isNil(timeTick) || not(displayTimeValues)) {
-    return null;
-  }
   const xAnchorPoint = xScale(timeTick);
 
   const yAnchorPoint = getYAnchorPoint({

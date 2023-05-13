@@ -57,6 +57,8 @@ const Lines = ({
     !isNil(areaThresholdLines?.factors?.currentFactorMultiplication) &&
     !isNil(areaThresholdLines?.factors?.simulatedFactorMultiplication);
 
+  const displayCircles = areaThresholdLines?.displayCircles ?? true;
+
   const currentFactorMultiplication = areaThresholdLines?.factors
     ?.currentFactorMultiplication as number;
 
@@ -135,7 +137,7 @@ const Lines = ({
               xScale={xScale}
             />
           )}
-          {displayEnvelopeThreshold && (
+          {displayEnvelopeThreshold && displayCircles && (
             <AwesomeCircles
               dataY0={dataY0 as Data}
               dataY1={dataY1 as Data}

@@ -24,6 +24,7 @@ import LegendContent from './LegendContent';
 
 interface Props {
   base: number;
+  displayAnchor?: boolean;
   limitLegendRows?: boolean;
   lines: Array<Line>;
   renderExtraComponent?: ReactNode;
@@ -37,7 +38,8 @@ const MainLegend = ({
   base,
   toggable = true,
   limitLegendRows = true,
-  renderExtraComponent
+  renderExtraComponent,
+  displayAnchor = true
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ limitLegendRows });
   const theme = useTheme();
@@ -86,7 +88,9 @@ const MainLegend = ({
             ? color
             : alpha(theme.palette.text.disabled, 0.2);
 
-          const interactiveValue = getFormattedValue(line);
+          const interactiveValue = displayAnchor
+            ? getFormattedValue(line)
+            : null;
 
           const minMaxAvg = [
             {
@@ -118,7 +122,7 @@ const MainLegend = ({
               <LegendMarker color={markerColor} disabled={!display} />
               <div className={classes.legendData}>
                 <LegendHeader line={line} />
-                <InteractiveValue value={interactiveValue} />
+                {displayAnchor && <InteractiveValue value={interactiveValue} />}
                 {!interactiveValue && (
                   <div className={classes.minMaxAvgContainer}>
                     {minMaxAvg.map(({ label, value }) => (
@@ -141,12 +145,21 @@ const MainLegend = ({
 };
 
 const Legend = (props: Props): JSX.Element => {
-  const { toggable, limitLegendRows, timeSeries, lines, base } = props;
+  const { toggable, limitLegendRows, timeSeries, lines, base, displayAnchor } =
+    props;
   const timeValue = useAtomValue(timeValueAtom);
 
   return useMemoComponent({
     Component: <MainLegend {...props} />,
-    memoProps: [timeValue, timeSeries, lines, base, toggable, limitLegendRows]
+    memoProps: [
+      timeValue,
+      timeSeries,
+      lines,
+      base,
+      toggable,
+      limitLegendRows,
+      displayAnchor
+    ]
   });
 };
 

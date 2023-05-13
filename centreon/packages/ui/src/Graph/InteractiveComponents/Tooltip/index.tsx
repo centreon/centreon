@@ -17,7 +17,6 @@ const GraphTooltip = ({
   tooltipLeft,
   tooltipTop,
   tooltipData,
-  enable = true,
   renderComponent,
   tooltipOpen
 }: Props): JSX.Element | null => {
@@ -34,10 +33,6 @@ const GraphTooltip = ({
       document.removeEventListener('keydown', hideTooltipOnEscapePress, false);
     };
   }, []);
-
-  if (!enable) {
-    return null;
-  }
 
   if (!tooltipOpen) {
     return null;

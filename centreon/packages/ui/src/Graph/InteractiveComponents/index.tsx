@@ -2,9 +2,9 @@ import { MutableRefObject } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
-import { useSetAtom, useAtom } from 'jotai';
-import { makeStyles } from 'tss-react/mui';
+import { useSetAtom } from 'jotai';
 import { isEmpty, isNil } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   AnnotationEvent,
@@ -15,18 +15,18 @@ import {
 import { getTimeValue } from '../timeSeries';
 import { TimeValue } from '../timeSeries/models';
 
+import Annotations from './Annotations';
+import { TimelineEvent } from './Annotations/models';
 import Bar from './Bar';
 import TimeShiftZones from './TimeShiftZones';
 import ZoomPreview from './ZoomPreview';
 import {
-  eventMouseDownAtom,
-  eventMouseUpAtom,
-  eventMouseLeaveAtom,
+  MousePosition,
   changeMousePositionAndTimeValueDerivedAtom,
-  MousePosition
+  eventMouseDownAtom,
+  eventMouseLeaveAtom,
+  eventMouseUpAtom
 } from './interactionWithGraphAtoms';
-import Annotations from './Annotations';
-import { TimelineEvent } from './Annotations/models';
 
 const useStyles = makeStyles()(() => ({
   overlay: {
@@ -62,7 +62,7 @@ const InteractionWithGraph = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const [eventMouseDown, setEventMouseDown] = useAtom(eventMouseDownAtom);
+  const setEventMouseDown = useSetAtom(eventMouseDownAtom);
   const setEventMouseUp = useSetAtom(eventMouseUpAtom);
   const setEventMouseLeave = useSetAtom(eventMouseLeaveAtom);
 
@@ -73,10 +73,11 @@ const InteractionWithGraph = ({
   const { graphHeight, graphWidth, graphSvgRef, xScale, timeSeries } =
     commonData;
 
-  const displayZoomPreview =
-    (zoomData?.enable ?? true) && !isNil(eventMouseDown);
+  const displayZoomPreview = zoomData?.enable ?? true;
+
   const displayEventAnnotations =
     !isNil(annotationData?.data) && !isEmpty(annotationData?.data);
+  const displayTimeShiftZones = timeShiftZonesData?.enable ?? true;
 
   const mouseLeave = (event): void => {
     setEventMouseLeave(event);
@@ -141,11 +142,13 @@ const InteractionWithGraph = ({
           xScale={xScale}
         />
       )}
-      <TimeShiftZones
-        graphHeight={graphHeight}
-        graphWidth={graphWidth}
-        {...timeShiftZonesData}
-      />
+      {displayTimeShiftZones && (
+        <TimeShiftZones
+          graphHeight={graphHeight}
+          graphWidth={graphWidth}
+          {...timeShiftZonesData}
+        />
+      )}
       <Bar
         className={classes.overlay}
         fill="transparent"
