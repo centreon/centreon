@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\ServiceTemplate\Application\Repository;
 
+use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
+
 interface WriteServiceTemplateRepositoryInterface
 {
     /**
@@ -31,4 +33,13 @@ interface WriteServiceTemplateRepositoryInterface
      * @param int $serviceTemplateId
      */
     public function deleteById(int $serviceTemplateId): void;
+
+    /**
+     * Add a new service template.
+     *
+     * @param NewServiceTemplate $newServiceTemplate
+     *
+     * @return int
+     */
+    public function add(NewServiceTemplate $newServiceTemplate): int;
 }

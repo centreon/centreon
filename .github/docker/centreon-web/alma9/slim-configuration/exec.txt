@@ -1,0 +1,12 @@
+sleep 10
+su - apache -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
+curl http://localhost/centreon/api/latest/platform/versions
+curl http://localhost/centreon/login
+centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
+su - centreon-gorgone -s /bin/bash -c "sudo service centengine reload"
+pkill php-fpm
+pkill httpd
+service centengine stop
+service cbd stop
+service mysql stop
+sleep 10

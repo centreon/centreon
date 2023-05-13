@@ -60,8 +60,8 @@ final class DeleteServiceTemplate
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE)) {
                 $this->error(
-                    "User doesn't have sufficient rights to delete the service template",
-                    ['user_id' => $this->user->getId()]
+                    "User doesn't have sufficient rights to delete a service template",
+                    ['user_id' => $this->user->getId(), 'service_template_id' => $serviceTemplateId]
                 );
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(ServiceTemplateException::deleteNotAllowed())
