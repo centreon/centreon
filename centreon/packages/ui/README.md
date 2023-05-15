@@ -20,27 +20,57 @@ To start Storybook server, run:
 
 `pnpm storybook`
 
-# Tests
 
-We have two kind of tests:
- - Unit tests provided by Jest
- - End to End tests provided by Storyshot using Jest. Storyshot is an addon of Storybook that compares graphically our stories.
+# Add stories
 
-To run Unit tests:
+- Create a file named `index.stories.tsx` along side your component
+      
+- Add a title, the component and argTypes
+  
+  ```typescript
+  export default {
+    title: 'MyComponent',
+    Component: MyComponent,
+    argTypes: {
+      propA: { control: 'text' },
+      propB: { control: 'number' },
+    },
+  };
+  ```
 
-`pnpm test`
+- Create a playground for your component
 
-or
+  ```typescript
+    const Template: ComponentStory<typeof MyComponent> = (args) => (
+      <MyComponent {...args} />
+    );
 
-`pnpm t`
+    export const Playground = Template.bind({});
+  ```
 
-To run End to End tests:
-  - Build Storybook : `pnpm build:storybook`
-  - Run all Storyshot tests : `pnpm test:storyshot`
+- Then add your story
 
-You can also test one or more Components using the following syntax:
+  ```typescript
+    export const basic = Template.bind({});
+    basic.args = { propA: 'test', propB: 0 };
+  ```
+
+# Tests architecture
+
+There are two kinds of tests in Centreon UI.
+- Jest + RTL and Cypress: Component testing. We want to migrate from Jest to Cypress
+- Chromatic: Chromatic is a tool that snapshots our stories and better handle snapshots changes using a review process
+
+
+### Run Jest tests
 
 ```bash
-pnpm test:storyshot -- --story "Title" # Run Storyshot tests about Title component
-pnpm test:storyshot -- --story "Breadcrumb|Title" # Run Storyshot tests about Title and Breadcrumb components
+pnpm t
+```
+
+### Run Cypress tests
+
+```bash
+pnpm cypress:ui # Opens the Cypress controlled browser to debug tests
+pnpm cypress:cli # Runs tests in the terminal
 ```
