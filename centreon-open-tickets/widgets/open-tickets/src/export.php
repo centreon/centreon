@@ -219,91 +219,91 @@ if (! empty($preferences['state_type_filter'])) {
     }
 }
 
-if (! empty($preferences['poller'])) {	
-    $resultsPoller = explode(',', $preferences['poller']);	
-    $queryPoller = '';	
-    foreach ($resultsPoller as $resultPoller) {	
-        if ($queryPoller != '') {	
-            $queryPoller .= ', ';	
-        }	
-        $queryPoller .= ':instance_id_' . $resultPoller;	
-        $mainQueryParameters[] = [	
-            'parameter' => ':instance_id_' . $resultPoller,	
-            'value' => (int)$resultPoller,	
-            'type' => PDO::PARAM_INT	
-        ];	
-    }	
-    $instanceIdCondition = ' i.instance_id IN (' . $queryPoller . ')';	
-    $query = CentreonUtils::conditionBuilder($query, $instanceIdCondition);	
-}	
-if (! empty($preferences['hostgroup'])) {	
-    $results = explode(',', $preferences['hostgroup']);	
-    $queryHG = '';	
-    foreach ($results as $result) {	
-        if ($queryHG !== '') {	
-            $queryHG .= ', ';	
-        }	
-        $queryHG .= ":id_" . $result;	
-        $mainQueryParameters[] = [	
-            'parameter' => ':id_' . $result,	
-            'value' => (int)$result,	
-            'type' => PDO::PARAM_INT	
-        ];	
-    }	
-    $query = CentreonUtils::conditionBuilder(	
-        $query,	
-        " s.host_id IN (	
-            SELECT host_host_id	
-            FROM `" . $conf_centreon['db'] . "`.hostgroup_relation	
-            WHERE hostgroup_hg_id IN (" . $queryHG . ")	
-        )"	
-    );	
-}	
-if (! empty($preferences['servicegroup'])) {	
-    $resultsSG = explode(',', $preferences['servicegroup']);	
-    $querySG = '';	
-    foreach ($resultsSG as $resultSG) {	
-        if ($querySG !== '') {	
-            $querySG .= ', ';	
-        }	
-        $querySG .= ":id_" . $resultSG;	
-        $mainQueryParameters[] = [	
-            'parameter' => ':id_' . $resultSG,	
-            'value' => (int)$resultSG,	
-            'type' => PDO::PARAM_INT	
-        ];	
-    }	
-    $query = CentreonUtils::conditionBuilder(	
-        $query,	
-        " s.service_id IN (	
-            SELECT DISTINCT service_id	
-            FROM services_servicegroups	
-            WHERE servicegroup_id IN (" . $querySG . ")	
-        )"	
-    );	
-}	
-if (! empty($preferences['hostcategories'])) {	
-    $resultsHC = explode(',', $preferences['hostcategories']);	
-    $queryHC = '';	
-    foreach ($resultsHC as $resultHC) {	
-        if ($queryHC !== '') {	
-            $queryHC .= ', ';	
-        }	
-        $queryHC .= ":id_" . $resultHC;	
-        $mainQueryParameters[] = [	
-            'parameter' => ':id_' . $resultHC,	
-            'value' => (int)$resultsHC,	
-            'type' => PDO::PARAM_INT	
-        ];	
-    }	
-    $query = CentreonUtils::conditionBuilder(	
-        $query,	
-        " s.host_id IN (	
-            SELECT host_host_id	
-            FROM `" . $conf_centreon['db'] . "`.hostcategories_relation	
-            WHERE hostcategories_hc_id IN (" . $queryHC . ")	
-        )"	
-    );	
+if (! empty($preferences['poller'])) {
+    $resultsPoller = explode(',', $preferences['poller']);
+    $queryPoller = '';
+    foreach ($resultsPoller as $resultPoller) {
+        if ($queryPoller != '') {
+            $queryPoller .= ', ';
+        }
+        $queryPoller .= ':instance_id_' . $resultPoller;
+        $mainQueryParameters[] = [
+            'parameter' => ':instance_id_' . $resultPoller,
+            'value' => (int)$resultPoller,
+            'type' => PDO::PARAM_INT
+        ];
+    }
+    $instanceIdCondition = ' i.instance_id IN (' . $queryPoller . ')';
+    $query = CentreonUtils::conditionBuilder($query, $instanceIdCondition);
+}
+if (! empty($preferences['hostgroup'])) {
+    $results = explode(',', $preferences['hostgroup']);
+    $queryHG = '';
+    foreach ($results as $result) {
+        if ($queryHG !== '') {
+            $queryHG .= ', ';
+        }
+        $queryHG .= ":id_" . $result;
+        $mainQueryParameters[] = [
+            'parameter' => ':id_' . $result,
+            'value' => (int)$result,
+            'type' => PDO::PARAM_INT
+        ];
+    }
+    $query = CentreonUtils::conditionBuilder(
+        $query,
+        " s.host_id IN (
+            SELECT host_host_id
+            FROM `" . $conf_centreon['db'] . "`.hostgroup_relation
+            WHERE hostgroup_hg_id IN (" . $queryHG . ")
+        )"
+    );
+}
+if (! empty($preferences['servicegroup'])) {
+    $resultsSG = explode(',', $preferences['servicegroup']);
+    $querySG = '';
+    foreach ($resultsSG as $resultSG) {
+        if ($querySG !== '') {
+            $querySG .= ', ';
+        }
+        $querySG .= ":id_" . $resultSG;
+        $mainQueryParameters[] = [
+            'parameter' => ':id_' . $resultSG,
+            'value' => (int)$resultSG,
+            'type' => PDO::PARAM_INT
+        ];
+    }
+    $query = CentreonUtils::conditionBuilder(
+        $query,
+        " s.service_id IN (
+            SELECT DISTINCT service_id
+            FROM services_servicegroups
+            WHERE servicegroup_id IN (" . $querySG . ")
+        )"
+    );
+}
+if (! empty($preferences['hostcategories'])) {
+    $resultsHC = explode(',', $preferences['hostcategories']);
+    $queryHC = '';
+    foreach ($resultsHC as $resultHC) {
+        if ($queryHC !== '') {
+            $queryHC .= ', ';
+        }
+        $queryHC .= ":id_" . $resultHC;
+        $mainQueryParameters[] = [
+            'parameter' => ':id_' . $resultHC,
+            'value' => (int)$resultsHC,
+            'type' => PDO::PARAM_INT
+        ];
+    }
+    $query = CentreonUtils::conditionBuilder(
+        $query,
+        " s.host_id IN (
+            SELECT host_host_id
+            FROM `" . $conf_centreon['db'] . "`.hostcategories_relation
+            WHERE hostcategories_hc_id IN (" . $queryHC . ")
+        )"
+    );
 }
 if (isset($preferences["display_severities"])
     && $preferences["display_severities"]
