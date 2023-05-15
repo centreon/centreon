@@ -1,4 +1,6 @@
 import MailIcon from '@mui/icons-material/LocalPostOfficeOutlined';
+import SmsIcon from '@mui/icons-material/TextsmsOutlined';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
 
 import { ChannelsEnum, ResourcesTypeEnum } from '../models';
 
@@ -30,6 +32,24 @@ export const getInitialValues = ({
     resourceType: ResourcesTypeEnum.SG,
     resources
   }),
+  slack: {
+    channel: {
+      Icon: LinkedInIcon,
+      checked: false,
+      label: ChannelsEnum.Slack
+    },
+    message: emptyEmail,
+    subject: ''
+  },
+  sms: {
+    channel: {
+      Icon: SmsIcon,
+      checked: false,
+      label: ChannelsEnum.Sms
+    },
+    message: emptyEmail,
+    subject: ''
+  },
   timeperiod: formatEntityNamed(timeperiod),
   users
 });
@@ -54,7 +74,7 @@ export const emptyInitialValues = {
   },
   isActivated: true,
   messages: {
-    channel: { Icon: MailIcon, checked: false, label: ChannelsEnum.Email },
+    channel: { Icon: MailIcon, checked: true, label: ChannelsEnum.Email },
     message: emptyEmail,
     subject: ''
   },
@@ -63,6 +83,24 @@ export const emptyInitialValues = {
     events: [],
     ids: [],
     type: 'Service groups'
+  },
+  slack: {
+    channel: {
+      Icon: LinkedInIcon,
+      checked: false,
+      label: ChannelsEnum.Slack
+    },
+    message: emptyEmail,
+    subject: ''
+  },
+  sms: {
+    channel: {
+      Icon: SmsIcon,
+      checked: false,
+      label: ChannelsEnum.Sms
+    },
+    message: emptyEmail,
+    subject: ''
   },
   timeperiod: { checked: true, label: '24h/24 - 7/7 days' },
   users: []

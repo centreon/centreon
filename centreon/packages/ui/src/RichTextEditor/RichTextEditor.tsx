@@ -9,6 +9,8 @@ import { EditorState } from 'lexical';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { equals } from 'ramda';
 
+import { Typography } from '@mui/material';
+
 import ContentEditable from './ContentEditable';
 import ToolbarPlugin from './plugins/ToolbarPlugin/index';
 import AutoCompleteLinkPlugin from './plugins/AutoLinkPlugin/index';
@@ -17,6 +19,7 @@ import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 export interface RichTextEditorProps {
   editable: boolean;
   editorState?: string;
+  error?: string;
   getEditorState?: (editorState: EditorState) => void;
   initialEditorState?: string;
   inputClassname?: string;
@@ -44,6 +47,13 @@ const useStyles = makeStyles<{ toolbarPositions: 'start' | 'end' }>()(
           flexDirection: 'column-reverse'
         }
       : {},
+    error: {
+      color: theme.palette.error.main,
+      fontSize: theme.spacing(1.5),
+      fontWeight: '200',
+      paddingLeft: theme.spacing(1.5),
+      paddingTop: theme.spacing(0.5)
+    },
     italic: {
       fontStyle: 'italic'
     },
@@ -77,7 +87,8 @@ const RichTextEditor = ({
   editable = true,
   editorState,
   resetEditorToInitialStateCondition,
-  toolbarPositions = 'start'
+  toolbarPositions = 'start',
+  error
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -116,6 +127,7 @@ const RichTextEditor = ({
               <ContentEditable
                 editable={editable}
                 editorState={editorState}
+                error={error}
                 hasInitialTextContent={hasInitialTextContent}
                 initialEditorState={initialEditorState}
                 inputClassname={inputClassname}
@@ -133,6 +145,7 @@ const RichTextEditor = ({
           <LinkPlugin />
           <AutoCompleteLinkPlugin />
           <FloatingLinkEditorPlugin editable={editable} />
+          {error && <Typography className={classes.error}>{error}</Typography>}
         </div>
       </div>
     </LexicalComposer>

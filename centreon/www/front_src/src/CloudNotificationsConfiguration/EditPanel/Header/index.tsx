@@ -88,14 +88,14 @@ const Header = (): JSX.Element => {
             dataTestId=""
             error={error as string | undefined}
             name="name"
-            placeholder={t(labelNotificationName) as string}
+            placeholder={t(labelNotificationName)}
             value={notificationName}
             onChange={handleNameChange}
           />
         ) : (
           <>
             <IconButton
-              title={t(labelChangeName) as string}
+              title={t(labelChangeName)}
               onClick={(): void => setNameChange(true)}
             >
               <EditIcon />

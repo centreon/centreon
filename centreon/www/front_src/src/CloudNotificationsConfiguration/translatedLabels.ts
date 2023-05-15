@@ -43,7 +43,14 @@ export const labelSuccessfulEditNotification =
 export const labelSuccessfulNotificationAdded =
   'The notification was successfully added';
 
-export const labelConfirmAddNotification = "Confirm notification creation"
-export const labelConfirmEditNotification = "Confirm notification update"
+export const labelDoYouWantToConfirmAction = 'Do you want to confirm action ?';
+export const labelConfirmAddNotification = 'Confirm notification creation';
+export const labelConfirmEditNotification = 'Confirm notification update';
 
-export const labelDoYouWantToConfirmAction = "Do you want to confirm action ?"
+export const labelChooseAtLeastOneResource = 'Choose at least 1 Resource';
+export const labelChooseAtleastOneServiceGroup =
+  'Choose at least 1 Service Group';
+export const labelChooseAtleastOneUser = 'Choose at least 1 user';
+
+export const labelMessageFieldShouldNotBeEmpty =
+  'The message field should not be empty!';

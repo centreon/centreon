@@ -103,7 +103,7 @@ importers:
       react: ^18.2.0
       react-beautiful-dnd-test-utils: ^4.1.1
       react-dom: ^18.2.0
-      react-i18next: ^12.0.0
+      react-i18next: 11.15.1
       react-material-ui-carousel: ^3.4.2
       react-mock-router: ^1.0.15
       react-refresh: ^0.14.0
@@ -170,7 +170,7 @@ importers:
       ramda: 0.28.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      react-i18next: 12.2.2_qeiswpmww5mojeeisizknycqfq
+      react-i18next: 11.15.1_a4mu2jvgnv6aifsf5cxgwdwfai
       react-material-ui-carousel: 3.4.2_2gttr6iclci2bj7wtywjak247y
       react-router: 6.11.1_react@18.2.0
       react-router-dom: 6.11.1_biqbaboplfbrettd7655fr4n2y
@@ -19109,24 +19109,17 @@ packages:
     resolution: {integrity: sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==}
     dev: false
 
-  /react-i18next/12.2.2_qeiswpmww5mojeeisizknycqfq:
-    resolution: {integrity: sha512-KBB6buBmVKXUWNxXHdnthp+38gPyBT46hJCAIQ8rX19NFL/m2ahte2KARfIDf2tMnSAL7wwck6eDOd/9zn6aFg==}
+  /react-i18next/11.15.1_a4mu2jvgnv6aifsf5cxgwdwfai:
+    resolution: {integrity: sha512-lnje1uKu5XeM5MLvfbt1oygF+nEIZnpOM4Iu8bkx5ECD4XRYgi3SJDmolrp0EDxDHeK2GgFb+vEEK0hsZ9sjeA==}
     peerDependencies:
       i18next: '>= 19.0.0'
       react: '>= 16.8.0'
-      react-dom: '*'
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
     dependencies:
       '@babel/runtime': 7.21.5
+      html-escaper: 2.0.2
       html-parse-stringify: 3.0.1
       i18next: 22.4.15
       react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
     dev: false
 
   /react-inspector/5.1.1_react@18.2.0:

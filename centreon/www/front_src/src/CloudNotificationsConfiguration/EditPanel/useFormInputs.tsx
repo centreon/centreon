@@ -209,7 +209,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
                         checkbox: {
                           row: true
                         },
-                        fieldName: 'messages.channel',
+                        fieldName: 'sms.channel',
                         getDisabled: () => true,
                         label: 'SMS',
                         type: InputType.Checkbox
@@ -218,7 +218,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
                         checkbox: {
                           row: true
                         },
-                        fieldName: 'messages.channel',
+                        fieldName: 'slack.channel',
                         getDisabled: () => true,
                         label: 'Slack',
                         type: InputType.Checkbox
@@ -249,6 +249,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
             type: InputType.Grid
           },
           {
+            additionalLabel: 'Preview Email',
             custom: {
               Component: EmailPreview
             },

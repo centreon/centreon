@@ -3,7 +3,7 @@ import { ChangeEvent } from 'react';
 import { FormikValues, useFormikContext } from 'formik';
 import { path, split } from 'ramda';
 
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 
 import { Checkbox as CheckboxComponent } from '../../Checkbox';
 import { useMemoComponent } from '../..';
@@ -13,7 +13,6 @@ import { InputPropsWithoutGroup } from './models';
 const Checkbox = ({
   checkbox,
   fieldName,
-  additionalLabel,
   getDisabled,
   hideInput
 }: InputPropsWithoutGroup): JSX.Element => {
@@ -40,17 +39,14 @@ const Checkbox = ({
     Component: hideCheckbox ? (
       <Box />
     ) : (
-      <Box>
-        {additionalLabel && <Typography>{additionalLabel}</Typography>}
-        <CheckboxComponent
-          Icon={value?.Icon}
-          checked={value?.checked}
-          disabled={disabled}
-          label={value?.label}
-          labelPlacement={checkbox?.labelPlacement || 'end'}
-          onChange={handleChange}
-        />
-      </Box>
+      <CheckboxComponent
+        Icon={value?.Icon}
+        checked={value?.checked}
+        disabled={disabled}
+        label={value?.label}
+        labelPlacement={checkbox?.labelPlacement || 'end'}
+        onChange={handleChange}
+      />
     ),
     memoProps: [value, disabled, hideCheckbox]
   });

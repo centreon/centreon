@@ -4,10 +4,10 @@ import MailIcon from '@mui/icons-material/LocalPostOfficeOutlined';
 
 import { ChannelsEnum, TimeperiodType } from '../models';
 
-import { EventsType, MessageType } from './models';
+import { EventsType } from './models';
 
 const emptyEmail =
-  '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}';
+  '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
 
 const hostEvents = [EventsType.up, EventsType.down, EventsType.unreachable];
 const serviceEvents = [
@@ -49,7 +49,7 @@ const formatMessages = ({ messages, messageType }): object => {
   return {
     channel: {
       Icon: MailIcon,
-      checked: !!equals(ChannelsEnum.Email, message.channel),
+      checked: true,
       label: ChannelsEnum.Email
     },
     message: message.message,

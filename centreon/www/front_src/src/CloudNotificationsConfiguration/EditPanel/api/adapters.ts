@@ -33,11 +33,13 @@ export const adaptNotifications = ({
   users
 }): object => ({
   is_activated: isActivated,
-  messages: {
-    channel: messages.channel?.label,
-    message: messages.message,
-    subject: messages.subject
-  },
+  messages: [
+    {
+      channel: messages.channel?.label,
+      message: messages.message,
+      subject: messages.subject
+    }
+  ],
   name,
   resources: [
     // {

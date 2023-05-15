@@ -22,6 +22,12 @@ const useStyles = makeStyles()((theme) => ({
     height: '100%',
     padding: theme.spacing(4, 1)
   },
+  previewZone: {
+    alignItems: 'center',
+    display: 'flex',
+    height: '100%',
+    justifyContent: 'center'
+  },
   title: {
     background: theme.palette.background.paper,
     marginBottom: theme.spacing(1),
@@ -40,7 +46,9 @@ const EmailPreview = (): JSX.Element => {
       <Typography className={classes.title}>{t(labelPreviewEmail)}</Typography>
       <Box className={classes.preview}>
         {equals(values?.messages.message, emptyEmail) ? (
-          <Typography>{t(labelPreviewZone)}</Typography>
+          <Box className={classes.previewZone}>
+            <Typography>{t(labelPreviewZone)}</Typography>
+          </Box>
         ) : (
           <RichTextEditor
             editable={false}

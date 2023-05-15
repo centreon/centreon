@@ -9,17 +9,20 @@ import { Typography } from '@mui/material';
 
 interface StyleProps {
   editable: boolean;
+  error?: string;
   minInputHeight: number;
 }
 
 const useStyles = makeStyles<StyleProps>()(
-  (theme, { minInputHeight, editable }) => ({
+  (theme, { minInputHeight, editable, error }) => ({
     container: {
       '& p': {
         margin: 0
       },
       backgroundColor: theme.palette.background.paper,
-      border: '1px solid transparent',
+      border: error
+        ? `1px solid ${theme.palette.error.main}`
+        : '1px solid transparent',
       borderRadius: theme.shape.borderRadius,
       padding: theme.spacing(0.5, 1)
     },
@@ -31,7 +34,9 @@ const useStyles = makeStyles<StyleProps>()(
       outline: '0px solid transparent'
     },
     inputFocused: {
-      border: `1px solid ${theme.palette.primary.main}`
+      border: error
+        ? `1px solid ${theme.palette.error.main}`
+        : `1px solid ${theme.palette.primary.main}`
     },
     placeholder: {
       color: theme.palette.grey[500],
@@ -43,6 +48,7 @@ const useStyles = makeStyles<StyleProps>()(
 interface Props {
   editable: boolean;
   editorState?: string;
+  error?: string;
   hasInitialTextContent?: boolean;
   initialEditorState?: string;
   inputClassname?: string;
@@ -61,9 +67,10 @@ const ContentEditable = ({
   editorState,
   namespace,
   resetEditorToInitialStateCondition,
-  initialEditorState
+  initialEditorState,
+  error
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles({ editable, minInputHeight });
+  const { classes, cx } = useStyles({ editable, error, minInputHeight });
   const { t } = useTranslation();
 
   const [editor] = useLexicalComposerContext();
