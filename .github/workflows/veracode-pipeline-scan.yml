@@ -115,6 +115,19 @@ jobs:
       - name: DEBUG - Get BASELINE value  #TODO: to remove
         run: echo "Baseline is set to  ${{ env.BASELINE_FILE }}"
 
+      - name: Pipeline scan without baseline
+        if: env.BASELINE_FILE == ''
+        uses: veracode/Veracode-pipeline-scan-action@v1.0.3
+        with:
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          #file: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
+          file: "${{ matrix.modules }}-${{ env.TARGET_BRANCH }}.zip"
+          fail_on_severity: ${{ env.THRESHOLD }}
+          #request_policy: "Centreon_Security"
+          fail_build: true
+          timeout: 60
+
       - name: Pipeline scan with baseline
         if: env.BASELINE_FILE != ""
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
@@ -128,19 +141,6 @@ jobs:
           fail_build: true
           timeout: 60
           baseline_file: ${{ env.BASELINE_FILE }}
-
-      - name: Pipeline scan without baseline
-        if: env.BASELINE_FILE == ""
-        uses: veracode/Veracode-pipeline-scan-action@v1.0.3
-        with:
-          vid: ${{ secrets.VERACODE_API_ID }}
-          vkey: ${{ secrets.VERACODE_API_KEY }}
-          #file: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
-          file: "${{ matrix.modules }}-${{ env.TARGET_BRANCH }}.zip"
-          fail_on_severity: ${{ env.THRESHOLD }}
-          #request_policy: "Centreon_Security"
-          fail_build: true
-          timeout: 60
 
       - name: Move baseline file
         run: mv results.json /tmp
