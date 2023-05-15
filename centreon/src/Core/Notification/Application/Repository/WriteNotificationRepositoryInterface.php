@@ -54,7 +54,7 @@ interface WriteNotificationRepositoryInterface
      * Add users to a notification.
      *
      * @param int $notificationId
-     * @param int[] $users
+     * @param int[] $userIds
      *
      * @throws \Throwable
      */
