@@ -35,7 +35,6 @@ jobs:
         modules:
           [
               centreon-awie,
-              centreon-awie,
               centreon-ha,
               centreon-open-tickets,
               dependencies
@@ -73,6 +72,15 @@ jobs:
   pipeline-scan:
     runs-on: [self-hosted, veracode]
     needs: [build]
+    strategy:
+      matrix:
+        modules:
+          [
+              centreon-awie,
+              centreon-ha,
+              centreon-open-tickets,
+              dependencies
+          ]
     steps:
       - uses: actions/checkout@v3
 
