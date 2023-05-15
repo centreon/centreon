@@ -136,7 +136,7 @@ class NotificationHostEventConverter
      *
      * @return int
      */
-    public static function toBitFlagss(array $enums): int
+    public static function toBitFlags(array $enums): int
     {
         if ($enums === []) {
             return 0;
