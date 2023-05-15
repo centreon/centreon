@@ -16,7 +16,7 @@ import ActionActivate from './Actions/RowActions/Activate';
 
 export const fillNotifications = (numberOfRows: number): unknown => {
   return Array.from(Array(numberOfRows).keys()).map((index) => ({
-    channels: ['mail'],
+    channels: ['Email'],
     id: index,
     is_activated: !!(index % 2),
     name: `notification${index}`,

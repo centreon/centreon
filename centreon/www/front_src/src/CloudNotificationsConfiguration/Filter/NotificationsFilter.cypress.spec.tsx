@@ -2,20 +2,14 @@ import { TestQueryProvider, Method } from '@centreon/ui';
 
 import { buildNotificationsEndpoint } from '../Listing/api/endpoints';
 import { labelSearch } from '../translatedLabels';
-import useLoadingNotifications from '../Listing/useLoadNotifications';
 import { defaultQueryParams, getListingResponse } from '../Listing/testUtils';
 
 import Filter from '.';
 
-const FilterTest = (): JSX.Element => {
-  useLoadingNotifications();
-
-  return <Filter />;
-};
 const FilterWithQueryProvider = (): JSX.Element => {
   return (
     <TestQueryProvider>
-      <FilterTest />
+      <Filter />
     </TestQueryProvider>
   );
 };
