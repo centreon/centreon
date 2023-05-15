@@ -85,7 +85,7 @@ const AutoSizeAutocompleteField = ({
   endAdornment,
   customPadding
 }: AutoSizeAutocompleteFieldProps): JSX.Element => {
-  const [value, setValue] = React.useState(autoSizeOptions[1]);
+  const [value, setValue] = React.useState(null);
 
   const change = (_, newValue): void => {
     setValue(newValue);
