@@ -33,7 +33,7 @@ use Core\Notification\Application\Repository\WriteNotificationResourceRepository
 interface NotificationResourceRepositoryInterface extends ReadRepositoryInterface, WriteRepositoryInterface
 {
     /**
-     * Indicate wether the repository is valid for the provided resource type.
+     * Indicate whether the repository is valid for the provided resource type.
      *
      * @param string $type
      *

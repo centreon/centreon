@@ -29,7 +29,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 interface ReadNotificationResourceRepositoryInterface
 {
     /**
-     * Indicate wether the IDs provided exist (without ACLs)
+     * Indicate whether the IDs provided exist (without ACLs)
      * Return an array of the existing resource IDs out of the provided ones.
      *
      * @param int[] $resourceIds
@@ -41,7 +41,7 @@ interface ReadNotificationResourceRepositoryInterface
     public function exist(array $resourceIds): array;
 
     /**
-     * Indicate wether the IDs provided exist (with ACLs)
+     * Indicate whether the IDs provided exist (with ACLs)
      * Return an array of the existing resource IDs out of the provided ones.
      *
      * @param int[] $resourceIds

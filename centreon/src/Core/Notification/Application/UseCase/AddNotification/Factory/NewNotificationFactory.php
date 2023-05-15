@@ -42,15 +42,16 @@ class NewNotificationFactory
      * Create New Notification
      *
      * @param string $name
-     * @param boolean $isActivated
+     * @param bool $isActivated
      *
      * @return NewNotification
      *
      * @throws NotificationException
+     * @throws \Assert\AssertionFailedException
      */
     public function create(string $name, bool $isActivated): NewNotification
     {
-        self::assertNameDoesNotAlreadyExists($name);
+        $this->assertNameDoesNotAlreadyExists($name);
 
         return new NewNotification(
             $name,
@@ -60,7 +61,7 @@ class NewNotificationFactory
     }
 
     /**
-     * Validate that a notification with this name doesn't already exists
+     * Validate that a notification with this name doesn't already exist.
      *
      * @param string $name
      * @throws NotificationException

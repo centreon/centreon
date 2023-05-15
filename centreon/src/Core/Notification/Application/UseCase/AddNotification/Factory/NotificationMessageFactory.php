@@ -39,6 +39,7 @@ class NotificationMessageFactory
      *  message:string
      * } $message
      * @return NotificationMessage
+     * @throws \Assert\AssertionFailedException
      */
     public static function create(NotificationChannel $messageType, array $message): NotificationMessage
     {
@@ -59,6 +60,7 @@ class NotificationMessageFactory
      * }> $messages
      *
      * @return NotificationMessage[]
+     * @throws \Assert\AssertionFailedException
      */
     public static function createMultipleMessage(array $messages): array
     {

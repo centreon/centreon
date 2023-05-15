@@ -56,6 +56,7 @@ class NotificationResourceFactory
      *  includeServiceEvents: int
      * } $resource
      * @return NotificationResource
+     * @throws \Assert\AssertionFailedException
      */
     public function create(NotificationResourceRepositoryInterface $repository, array $resource): NotificationResource
     {
