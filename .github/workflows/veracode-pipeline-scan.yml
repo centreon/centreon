@@ -18,8 +18,8 @@ on:
       #- dev-[2-9][0-9].[0-9][0-9].x
 
 env:
-  MODULE_DIRECTORY: centreon-ha #TODO: Will be replaced by workflow's value
-  MODULE_NAME: centreon-ha #TODO: Will be replaced by workflow's value
+  MODULE_DIRECTORY: centreon-open-tickets #TODO: Will be replaced by workflow's value
+  MODULE_NAME: centreon-open-tickets #TODO: Will be replaced by workflow's value
   THRESHOLD: "High"
   CACHE_KEY: ${{ github.sha }}-${{ github.run_id }}
   #TARGET_BRANCH: ${{ github.base_ref || github.ref_name }} #Caution: required by veracode runner
