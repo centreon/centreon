@@ -103,6 +103,7 @@ class NotificationResourceFactory
      *  includeServiceEvents: int
      * }> $resources
      * @return NotificationResource[]
+     * @throws \Assert\AssertionFailedException
      */
     public function createMultipleResource(array $resources): array
     {
