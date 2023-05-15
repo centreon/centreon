@@ -49,6 +49,7 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
+      environment: ${{ needs.get-version.outputs.environment }}
     secrets:
       artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
