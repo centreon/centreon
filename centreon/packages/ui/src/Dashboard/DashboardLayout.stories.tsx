@@ -5,7 +5,7 @@ import { Typography } from '@mui/material';
 
 import FluidTypography from '../Typography/FluidTypography';
 
-import { DashboardLayout, DashboardItem } from '.';
+import { DashboardLayout } from '.';
 
 interface CustomLayout extends Layout {
   content: string;
@@ -72,17 +72,17 @@ const DashboardTemplate = ({
   header,
   layout = dashboardLayout
 }: DashboardTemplateProps): JSX.Element => (
-  <DashboardLayout<CustomLayout> layout={layout}>
+  <DashboardLayout.Layout<CustomLayout> layout={layout}>
     {layout.map(({ i, content, shouldUseFluidTypography }) => (
-      <DashboardItem header={header} key={i}>
+      <DashboardLayout.Item header={header} key={i}>
         {shouldUseFluidTypography ? (
           <FluidTypography text={content} />
         ) : (
           <Typography>{content}</Typography>
         )}
-      </DashboardItem>
+      </DashboardLayout.Item>
     ))}
-  </DashboardLayout>
+  </DashboardLayout.Layout>
 );
 
 export default {

@@ -1,6 +1,6 @@
 import { FC, useMemo } from 'react';
 
-import { Grid } from '@visx/visx';
+import { Grid as VisxGrid } from '@visx/visx';
 import { scaleLinear } from '@visx/scale';
 
 import { useTheme } from '@mui/material';
@@ -15,7 +15,7 @@ interface Props {
   width: number;
 }
 
-const DashboardGrid: FC<Props> = ({ width, height, columns }) => {
+const Grid: FC<Props> = ({ width, height, columns }) => {
   const theme = useTheme();
 
   const xScale = useMemo(
@@ -47,14 +47,14 @@ const DashboardGrid: FC<Props> = ({ width, height, columns }) => {
   return useMemoComponent({
     Component: (
       <svg style={{ height, position: 'absolute', width }}>
-        <Grid.GridColumns
+        <VisxGrid.GridColumns
           height={height}
           scale={xScale}
           stroke={theme.palette.divider}
           tickValues={xTickValues}
           width={width}
         />
-        <Grid.GridRows
+        <VisxGrid.GridRows
           height={height}
           scale={yScale}
           stroke={theme.palette.divider}
@@ -67,4 +67,4 @@ const DashboardGrid: FC<Props> = ({ width, height, columns }) => {
   });
 };
 
-export default DashboardGrid;
+export default Grid;

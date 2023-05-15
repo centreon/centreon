@@ -4,7 +4,6 @@ import { equals, map, propEq } from 'ramda';
 
 import {
   DashboardLayout,
-  DashboardItem,
   getColumnsFromScreenSize
 } from '@centreon/ui';
 
@@ -40,22 +39,22 @@ const Layout = (): JSX.Element => {
   };
 
   return (
-    <DashboardLayout
+    <DashboardLayout.Layout
       changeLayout={changeLayout}
       displayGrid={isEditing}
       layout={dashboard.layout}
     >
       {dashboard.layout.map(({ i }) => {
         return (
-          <DashboardItem
+          <DashboardLayout.Item
             header={isEditing ? <PanelHeader id={i} /> : undefined}
             key={i}
           >
             <DashboardPanel id={i} />
-          </DashboardItem>
+          </DashboardLayout.Item>
         );
       })}
-    </DashboardLayout>
+    </DashboardLayout.Layout>
   );
 };
 

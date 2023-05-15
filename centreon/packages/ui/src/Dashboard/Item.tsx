@@ -19,7 +19,7 @@ interface DashboardItemProps {
   style?: CSSProperties;
 }
 
-const DashboardItem = forwardRef(
+const Item = forwardRef(
   (
     {
       children,
@@ -69,4 +69,4 @@ const DashboardItem = forwardRef(
   }
 );
 
-export default DashboardItem;
+export default Item;

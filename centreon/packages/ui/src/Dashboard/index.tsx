@@ -1,3 +1,8 @@
-export { default as DashboardLayout } from './DashboardLayout';
-export { default as DashboardItem } from './DashboardItem';
+import { default as Layout } from './Layout';
+import { default as Item } from './Item';
 export * from './utils';
+
+export const DashboardLayout = {
+  Layout,
+  Item
+};

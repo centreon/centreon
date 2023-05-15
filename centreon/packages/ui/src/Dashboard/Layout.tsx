@@ -8,7 +8,7 @@ import { Responsive as ResponsiveHeight, useMemoComponent } from '..';
 
 import { useDashboardLayoutStyles } from './Dashboard.styles';
 import { getColumnsFromScreenSize, getLayout, rowHeight } from './utils';
-import DashboardGrid from './DashboardGrid';
+import Grid from './Grid';
 
 const ReactGridLayout = WidthProvider(GridLayout);
 
@@ -19,7 +19,7 @@ interface DashboardLayoutProps<T> {
   layout: Array<T>;
 }
 
-const DashboardLayout = <T extends Layout>({
+const Layout = <T extends Layout>({
   children,
   changeLayout,
   displayGrid,
@@ -48,7 +48,7 @@ const DashboardLayout = <T extends Layout>({
           {({ width, height }): JSX.Element => (
             <div className={classes.container}>
               {displayGrid && (
-                <DashboardGrid
+                <Grid
                   columns={columns}
                   height={height}
                   width={width}
@@ -75,4 +75,4 @@ const DashboardLayout = <T extends Layout>({
   });
 };
 
-export default DashboardLayout;
+export default Layout;
