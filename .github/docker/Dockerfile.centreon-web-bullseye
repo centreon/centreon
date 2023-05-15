@@ -55,10 +55,6 @@ apt update
 rm -f /tmp/debs-centreon/centreon-23.10*.deb /tmp/debs-centreon/centreon-central-23.10*.deb
 apt install -y /tmp/debs-centreon/centreon-*.deb
 
-rm -f /usr/share/centreon/.env.local.php
-echo "APP_DEBUG=true" >> /usr/share/centreon/.env
-echo "DEBUG_LEVEL=100" >> /usr/share/centreon/.env
-
 touch /var/log/php8.1-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.1-fpm-centreon-error.log
 
@@ -95,9 +91,6 @@ mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPT
 centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
 service mysql stop
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
-
-# CLAPI config generation creates prod cache with root user
-chown -R www-data:www-data /var/cache/centreon/symfony/*
 
 EOF
 
