@@ -18,8 +18,8 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
 
 env:
-  MODULE_DIRECTORY: centreon-gorgone
-  MODULE_NAME: centreon-gorgone
+  MODULE_DIRECTORY: centreon-gorgone #TODO: Will be replaced by workflow's value
+  MODULE_NAME: centreon-gorgone #TODO: Will be replaced by workflow's value
   THRESHOLD: "High"
   CACHE_KEY: ${{ github.sha }}-${{ github.run_id }}
   #TARGET_BRANCH: ${{ github.base_ref || github.ref_name }} #Caution: required by veracode runner
@@ -29,14 +29,30 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # TODO: Strategy to delete
+    strategy:
+      matrix:
+        modules:
+          [
+              centreon-awie,
+              centreon-awie,
+              centreon-ha,
+              centreon-open-tickets,
+              dependencies
+          ]
+
     steps:
       - uses: actions/checkout@v3
 
       - name: Generate binary file
         uses: ./.github/actions/veracode-generate-binary
         with:
-          module_directory: ${{ env.MODULE_DIRECTORY }}
-          module_name: ${{ env.MODULE_NAME }}
+          #module_directory: ${{ env.MODULE_DIRECTORY }}
+          module_directory: ${{ matrix.modules }}
+
+          #module_name: ${{ env.MODULE_NAME }}
+          module_name: ${{ matrix.modules }}
+
           target_branch_name: ${{ env.TARGET_BRANCH }}
           compile_mvn: "no"
           exclusion_file: "TODO"
@@ -66,7 +82,8 @@ jobs:
       - name: Get build binary
         uses: actions/cache/restore@v3
         with:
-          path: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
+          #path: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
+          path: "${{ matrix.modules }}-${{ env.TARGET_BRANCH }}.zip"
           key: ${{ env.CACHE_KEY }}
 
       - name: Get current time
@@ -75,11 +92,9 @@ jobs:
       - name: Get baseline from bucket
         uses: ./.github/actions/veracode-get-from-bucket
         with:
-          module_name: ${{ env.MODULE_NAME }}
+          #module_name: ${{ env.MODULE_NAME }}
+          module_name: ${{ matrix.modules }}
           target_branch_name: ${{ env.TARGET_BRANCH }}
-
-      - name: DEBUG - Get BASELINE value  #TODO: to remove
-        run: echo "Baseline is set to  ${{ env.BASELINE_FILE }}"
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
@@ -94,7 +109,8 @@ jobs:
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
-          file: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
+          #file: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
+          file: "${{ matrix.modules }}-${{ env.TARGET_BRANCH }}.zip"
           fail_on_severity: ${{ env.THRESHOLD }}
           #request_policy: "Centreon_Security"
           fail_build: true
@@ -107,17 +123,11 @@ jobs:
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
-#      - name: Save baseline file
-#        if: env.HEAD_REF == 'develop' || env.HEAD_REF == 'dev-[2-9][0-9].[0-9][0-9].x' || env.HEAD_REF == 'master' || env.HEAD_REF == '[2-9][0-9].[0-9][0-9].x' || env.HEAD_REF == 'AT-94-pipeline-scan'
-#        uses: ./.github/actions/veracode-set-cache
-#        with:
-#          module_name: ${{ env.MODULE_NAME }}
-#          target_branch_name: ${{ env.TARGET_BRANCH }}
-
       - name: Save baseline file
         if: env.HEAD_REF == 'develop' || env.HEAD_REF == 'dev-[2-9][0-9].[0-9][0-9].x' || env.HEAD_REF == 'master' || env.HEAD_REF == '[2-9][0-9].[0-9][0-9].x' || env.HEAD_REF == 'AT-94-pipeline-scan'
         run: |
-          TARGET_S3="s3://centreon-veracode-reports/${{ env.MODULE_NAME }}/${{ env.TARGET_BRANCH }}/results.json"
+          #TARGET_S3="s3://centreon-veracode-reports/${{ env.MODULE_NAME }}/${{ env.TARGET_BRANCH }}/results.json"
+          TARGET_S3="s3://centreon-veracode-reports/${{ matrix.modules }}/${{ env.TARGET_BRANCH }}/results.json"
           BASELINE_FILE="/tmp/results.json"
           aws s3 cp "$BASELINE_FILE" "$TARGET_S3"
 
