@@ -28,9 +28,7 @@ use Centreon\Domain\Common\Assertion\Assertion;
 class NotificationMessage
 {
     public const MAX_SUBJECT_LENGTH = 255,
-                 MAX_MESSAGE_LENGTH = 65535,
-                 MIN_SUBJECT_LENGTH = 1,
-                 MIN_MESSAGE_LENGTH = 1;
+                 MAX_MESSAGE_LENGTH = 65535;
 
     /**
      * @throws \Assert\AssertionFailedException
@@ -45,8 +43,8 @@ class NotificationMessage
         $this->subject = trim($subject);
         $this->message = trim($message);
 
-        Assertion::minLength($this->subject, self::MIN_SUBJECT_LENGTH, "{$shortName}::subject");
-        Assertion::minLength($this->message, self::MIN_MESSAGE_LENGTH, "{$shortName}::message");
+        Assertion::notEmptyString($this->subject, "{$shortName}::subject");
+        Assertion::notEmptyString($this->message, "{$shortName}::message");
         Assertion::maxLength($this->subject, self::MAX_SUBJECT_LENGTH, "{$shortName}::subject");
         Assertion::maxLength($this->message, self::MAX_MESSAGE_LENGTH, "{$shortName}::message");
     }
