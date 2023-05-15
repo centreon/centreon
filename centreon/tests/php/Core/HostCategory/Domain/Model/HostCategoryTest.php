@@ -43,7 +43,7 @@ it('should throw an exception when host category name is empty', function () {
     new HostCategory(1, '', $this->categoryAlias);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmpty('HostCategory::name')
+    AssertionException::notEmptyString('HostCategory::name')
         ->getMessage()
 );
 
@@ -59,16 +59,60 @@ it('should throw an exception when host category name is too long', function () 
     )->getMessage()
 );
 
+it('should throw an exception when host category name is set empty', function () {
+    $hostCategory = new HostCategory(1, 'HCName', $this->categoryAlias);
+    $hostCategory->setName('');
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::notEmptyString('HostCategory::name')
+        ->getMessage()
+);
+
+it('should throw an exception when host category name is set too long', function () {
+    $hostCategory = new HostCategory(1, 'HCName', $this->categoryAlias);
+    $hostCategory->setName(str_repeat('a', HostCategory::MAX_NAME_LENGTH + 1));
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::maxLength(
+        str_repeat('a', HostCategory::MAX_NAME_LENGTH + 1),
+        HostCategory::MAX_NAME_LENGTH + 1,
+        HostCategory::MAX_NAME_LENGTH,
+        'HostCategory::name'
+    )->getMessage()
+);
+
 it('should throw an exception when host category alias is empty', function () {
     new HostCategory(1, $this->categoryName, '');
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmpty('HostCategory::alias')
+    AssertionException::notEmptyString('HostCategory::alias')
         ->getMessage()
 );
 
 it('should throw an exception when host category alias is too long', function () {
     new HostCategory(1, $this->categoryName, str_repeat('a', HostCategory::MAX_ALIAS_LENGTH + 1));
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::maxLength(
+        str_repeat('a', HostCategory::MAX_ALIAS_LENGTH + 1),
+        HostCategory::MAX_ALIAS_LENGTH + 1,
+        HostCategory::MAX_ALIAS_LENGTH,
+        'HostCategory::alias'
+    )->getMessage()
+);
+
+it('should throw an exception when host category alias is set empty', function () {
+    $hostCategory = new HostCategory(1, $this->categoryName, 'HCAlias');
+    $hostCategory->setAlias('');
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::notEmptyString('HostCategory::alias')
+        ->getMessage()
+);
+
+it('should throw an exception when host category alias is set too long', function () {
+    $hostCategory = new HostCategory(1, $this->categoryName, 'HCAlias');
+    $hostCategory->setAlias(str_repeat('a', HostCategory::MAX_ALIAS_LENGTH + 1));
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::maxLength(

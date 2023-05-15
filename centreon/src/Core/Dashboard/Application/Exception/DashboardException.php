@@ -40,4 +40,52 @@ class DashboardException extends \Exception
     {
         return new self(_('You are not allowed to access dashboards'));
     }
+
+    /**
+     * @return self
+     */
+    public static function accessNotAllowedForWriting(): self
+    {
+        return new self(_('You are not allowed to perform write operations on dashboards'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileAdding(): self
+    {
+        return new self(_('Error while adding a dashboard'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileRetrievingJustCreated(): self
+    {
+        return new self(_('Error while retrieving newly created dashboard'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileRetrieving(): self
+    {
+        return new self(_('Error while retrieving a dashboard'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileDeleting(): self
+    {
+        return new self(_('Error while deleting a dashboard'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileUpdating(): self
+    {
+        return new self(_('Error while updating a dashboard'));
+    }
 }

@@ -51,6 +51,9 @@ class Dashboard
         $this->setDescription($description);
         $this->createdAt = $createdAt;
         $this->updatedAt = $updatedAt;
+
+        // We must avoid considering the previous setters has a state change.
+        $this->hasChanged = false;
     }
 
     public function getId(): int

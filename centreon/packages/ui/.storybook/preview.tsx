@@ -52,7 +52,7 @@ const preview: Preview = {
         date: /Date$/,
       }
     },
-    chromatic: { diffThreshold: 0.1 },
+    chromatic: { diffThreshold: 0.1, delay: 100 },
   }
 };
 

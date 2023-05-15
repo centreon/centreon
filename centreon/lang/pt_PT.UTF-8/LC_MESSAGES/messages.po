@@ -16168,3 +16168,42 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Error while searching for dashboards"
 # msgstr ""
+
+# msgid "Error while retrieving newly created dashboard"
+# msgstr ""
+
+# msgid "Error while adding a dashboard"
+# msgstr ""
+
+# msgid "You are not allowed to perform write operations on dashboards"
+# msgstr ""
+
+# msgid "Error while retrieving a dashboard"
+# msgstr ""
+
+# msgid "Error while deleting a dashboard"
+# msgstr ""
+
+# msgid "Error while updating a dashboard"
+# msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:280
+#msgid "Do you really want to unblock this user?"
+#msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
+#msgid "The user(s) will be unblocked. Do you confirm the request?"
+#msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
+#msgid "Unblock"
+#msgstr ""
+
+#  msgid "Error while searching for host templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host templates"
+#  msgstr ""
+
+#  msgid "Error while updating the host category"
+#  msgstr ""
