@@ -58,5 +58,5 @@ interface WriteNotificationRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function addUsers(int $notificationId, array $users): void;
+    public function addUsers(int $notificationId, array $userIds): void;
 }

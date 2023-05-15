@@ -99,17 +99,17 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
-    public function addUsers(int $notificationId, array $users): void
+    public function addUsers(int $notificationId, array $userIds): void
     {
-        $this->debug('Add users to notification', ['notification_id' => $notificationId, 'users' => $users]);
+        $this->debug('Add users to notification', ['notification_id' => $notificationId, 'users' => $userIds]);
 
-        if ($users === []) {
+        if ($userIds === []) {
             return;
         }
 
         $queryBinding = [];
         $bindedValues = [];
-        foreach ($users as $key => $user) {
+        foreach ($userIds as $key => $user) {
             $queryBinding[] = "(:notificationId, :userId_{$key})";
             $bindedValues[":userId_{$key}"] = $user;
         }
