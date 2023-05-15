@@ -17,7 +17,7 @@ on:
       head_ref_name:
         required: true
         type: string
-      treshold:
+      threshold:
         required: true
         type: string
 
@@ -125,7 +125,7 @@ jobs:
           vid: ${{ secrets.veracode_api_id }}
           vkey: ${{ secrets.veracode_api_key }}
           file: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
-          fail_on_severity: ${{ inputs.treshold }}
+          fail_on_severity: ${{ inputs.threshold }}
           #request_policy: "Centreon Security"
           fail_build: true
           timeout: 60
