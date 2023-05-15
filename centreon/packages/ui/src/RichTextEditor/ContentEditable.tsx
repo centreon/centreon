@@ -130,7 +130,7 @@ const ContentEditable = ({
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>): void => {
     setFocused(false);
-    onBlur(event);
+    onBlur?.(event);
   };
 
   return (
