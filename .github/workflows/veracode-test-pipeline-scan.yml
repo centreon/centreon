@@ -4,15 +4,15 @@ on:
   push:
     branches:
       ## These pipelines will generate the cache
-      #- master
-      - "[2-9][0-9].[0-9][0-9].x"
+      - master
+      #- "[2-9][0-9].[0-9][0-9].x"
       #- develop
       #- dev-[2-9][0-9].[0-9][0-9].x
       #- AT-94-pipeline-scan #TODO: to remove - intended to test the pipeline
   pull_request:
     branches:
       ## These pipelines will use the cache
-      #- master
+      - master
       #- "[2-9][0-9].[0-9][0-9].x"
       #- develop
       #- dev-[2-9][0-9].[0-9][0-9].x
