@@ -48,11 +48,7 @@ const Layout = <T extends Layout>({
           {({ width, height }): JSX.Element => (
             <div className={classes.container}>
               {displayGrid && (
-                <Grid
-                  columns={columns}
-                  height={height}
-                  width={width}
-                />
+                <Grid columns={columns} height={height} width={width} />
               )}
               <ReactGridLayout
                 cols={columns}

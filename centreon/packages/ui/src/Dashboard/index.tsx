@@ -1,8 +1,9 @@
-import { default as Layout } from './Layout';
-import { default as Item } from './Item';
+import Layout from './Layout';
+import Item from './Item';
+
 export * from './utils';
 
 export const DashboardLayout = {
-  Layout,
-  Item
+  Item,
+  Layout
 };
