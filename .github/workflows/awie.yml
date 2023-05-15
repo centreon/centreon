@@ -22,12 +22,24 @@ on:
 
 env:
   module: awie
+  cache_key: ${{ github.sha }}-${{ github.run_id }}
 
 jobs:
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
+
+  scan:
+    needs: [get-version]
+    uses: ./.github/workflows/veracode-pipeline-scan.yml
+    with:
+      module_directory: "centreon-${{ env.module }}"
+      module_name: "centreon-${{ env.module }}"
+      cache_key: ${{ env.cache_key }}
+      target_branch_name: ${{ github.base_ref || 'develop' }}
+      head_ref_name: ${{ github.head_ref }}
+      treshold: "High"
 
   package:
     needs: [get-version]
