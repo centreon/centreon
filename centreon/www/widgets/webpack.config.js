@@ -30,6 +30,13 @@ module.exports = ({ widgetName }) => {
     {
       entry: {
         [`./src/${widgetName}/src/index`]: `./src/${widgetName}/src/index.tsx`
+      },
+      resolve: {
+        alias: {
+          '@centreon/ui/fonts': path.resolve(
+            '../../node_modules/@centreon/ui/public/fonts'
+          )
+        }
       }
     }
   );

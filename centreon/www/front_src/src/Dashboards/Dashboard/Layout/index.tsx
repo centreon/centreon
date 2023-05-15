@@ -47,7 +47,10 @@ const Layout = (): JSX.Element => {
     >
       {dashboard.layout.map(({ i }) => {
         return (
-          <DashboardItem header={<PanelHeader id={i} />} key={i}>
+          <DashboardItem
+            header={isEditing ? <PanelHeader id={i} /> : undefined}
+            key={i}
+          >
             <DashboardPanel id={i} />
           </DashboardItem>
         );
