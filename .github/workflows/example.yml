@@ -106,6 +106,15 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-translation
           fail-on-cache-miss: true
 
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: package-${{ matrix.distrib }}
+          path: |
+            ./${{ env.base_directory }}/vendor/symfony
+            ./${{ env.base_directory }}/www/locale
+          retention-days: 2
+
   deliver:
     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
