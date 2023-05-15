@@ -23,12 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Notification\Domain\Model;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
-
 class NotificationResource
 {
     public const HOSTGROUP_RESOURCE_TYPE = 'hostgroup';
-    public const SERVICEGROUP_RESOURCE_TYPE = 'servicegroup';
 
     /**
      * @param string $type
