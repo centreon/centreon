@@ -1,5 +1,4 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
-import withMock from 'storybook-addon-mock';
 import { makeStyles } from 'tss-react/mui';
 
 import { Alert, Container } from '@mui/material';
@@ -20,7 +19,6 @@ export default {
     moduleName: { control: 'text' }
   },
   component: LicenseCheck,
-  decorators: [withMock],
   title: 'LicenseCheck'
 } as ComponentMeta<typeof LicenseCheck>;
 

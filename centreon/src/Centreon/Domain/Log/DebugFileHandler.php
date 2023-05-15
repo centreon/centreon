@@ -34,11 +34,6 @@ use Monolog\Logger;
 class DebugFileHandler extends StreamHandler
 {
     /**
-     * @var bool Whether the messages can be processed
-     */
-    private $isActivate;
-
-    /**
      * @param FormatterInterface $formatter Monolog formatter
      * @param string|resource $stream Resource or Log filename
      * @param bool $isActivate Whether the messages can be processed
@@ -51,25 +46,12 @@ class DebugFileHandler extends StreamHandler
     public function __construct(
         FormatterInterface $formatter,
         $stream,
-        bool $isActivate = false,
         int $filePermission = null,
-        $level = Logger::DEBUG,
+        $level = Logger::EMERGENCY,
         bool $useLocking = false,
         bool $bubble = true
     ) {
         parent::__construct($stream, $level, $bubble, $filePermission, $useLocking);
         $this->setFormatter($formatter);
-        $this->isActivate = $isActivate;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @throws \LogicException
-     */
-    protected function write(array $record): void
-    {
-        if ($this->isActivate) {
-            parent::write($record);
-        }
     }
 }

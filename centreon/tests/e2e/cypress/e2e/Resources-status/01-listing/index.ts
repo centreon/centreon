@@ -6,13 +6,12 @@ import {
   stateFilterContainer,
   setUserFilter
 } from '../common';
-import { loginAsAdminViaApiV2, submitResultsViaClapi } from '../../../commons';
+import { loginAsAdminViaApiV2 } from '../../../commons';
 
 before(() => {
   cy.startWebContainer();
 
   insertResourceFixtures()
-    .then(submitResultsViaClapi)
     .then(loginAsAdminViaApiV2)
     .then(() =>
       cy

@@ -1,4 +1,4 @@
-import { render, fireEvent } from '../../testRenderer';
+import { render, fireEvent } from '../../../test/testRenderer';
 
 import DialogDuplicate from '.';
 

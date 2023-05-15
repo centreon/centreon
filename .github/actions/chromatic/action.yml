@@ -1,0 +1,54 @@
+name: Chromatic
+description: Publish stories to Chromatic
+inputs:
+  frontend_directory:
+    description: "The frontend source directory"
+    required: true
+  project_token:
+    description: "The Chromatic project token"
+    required: true
+  pat:
+    description: "The Github PAT"
+    required: true
+  ignoreLastBuildOnBranch:
+    required: false
+    default: false
+  autoAcceptChanges:
+    required: false
+    default: false
+
+runs:
+  using: "composite"
+
+  steps:
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
+          cache: pnpm
+          cache-dependency-path: ${{ inputs.frontend_directory }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ${{ inputs.frontend_directory }}
+        shell: bash
+
+      - name: Publish to Chromatic
+        uses: chromaui/action@v1
+        with:
+          projectToken: ${{ inputs.project_token }}
+          onlyChanged: "MON-**"
+          workingDir: ${{ inputs.frontend_directory }}
+          token: ${{ inputs.pat }}
+          buildScriptName: build:storybook
+          ignoreLastBuildOnBranch: ${{ inputs.ignoreLastBuildOnBranch }}
+          untraced: |
+            - "centreon/packages/ui/package.json"
+            - "centreon/package.json"
+          autoAcceptChanges: ${{ inputs.autoAcceptChanges }}
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
