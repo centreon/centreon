@@ -39,6 +39,7 @@ jobs:
       target_branch_name: ${{ github.base_ref || 'develop' }}
       head_ref_name: ${{ github.head_ref }}
       threshold: "High"
+    secrets:
       veracode_api_id: ${{ secrets.VERACODE_API_ID }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
 
