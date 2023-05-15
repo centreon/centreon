@@ -26,7 +26,7 @@ const EmailBody = (): JSX.Element => {
       <RichTextEditor
         editable
         editorState={value}
-        error={error}
+        error={(error as string) || undefined}
         getEditorState={getEditorState}
         initialEditorState={initialValues?.messages.message}
         minInputHeight={120}
