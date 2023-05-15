@@ -37,7 +37,7 @@ class NotificationResource
      * @param array<NotificationHostEvent|NotificationServiceEvent> $events
      * @param NotificationServiceEvent[] $serviceEvents
      *
-     * @throws AssertionException
+     * @throws \ValueError
      */
     public function __construct(
         private readonly string $type,
@@ -81,6 +81,7 @@ class NotificationResource
 
     /**
      * @param array<NotificationHostEvent|NotificationServiceEvent> $events
+     * @throws \ValueError
      */
     public function setEvents(array $events): void
     {

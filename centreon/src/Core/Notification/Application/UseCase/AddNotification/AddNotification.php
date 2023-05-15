@@ -162,6 +162,7 @@ final class AddNotification
      * @param int $notificationId
      *
      * @return NotificationResource[]
+     * @throws \Throwable
      */
     private function findResourcesByNotificationId(int $notificationId): array
     {

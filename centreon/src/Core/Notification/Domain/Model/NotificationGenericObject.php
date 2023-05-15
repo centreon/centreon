@@ -27,6 +27,9 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class NotificationGenericObject
 {
+    /**
+     * @throws \Assert\AssertionFailedException
+     */
     public function __construct(
         private readonly int $id,
         private readonly string $name
