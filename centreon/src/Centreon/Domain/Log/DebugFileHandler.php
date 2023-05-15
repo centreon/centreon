@@ -24,6 +24,7 @@ namespace Centreon\Domain\Log;
 
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 /**
  * Specific monolog handler used to take into account an activation status to log or not the messages.
@@ -46,7 +47,7 @@ class DebugFileHandler extends StreamHandler
         FormatterInterface $formatter,
         $stream,
         int $filePermission = null,
-        $level = Logger::LEVEL_OFF,
+        $level = Logger::EMERGENCY,
         bool $useLocking = false,
         bool $bubble = true
     ) {

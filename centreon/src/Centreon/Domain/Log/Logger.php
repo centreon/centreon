@@ -32,8 +32,6 @@ use Centreon\Domain\Log\LoggerTrait;
  */
 class Logger implements LoggerInterface
 {
-    public const LEVEL_OFF = 900;
-
     use LoggerTrait {
         emergency as traitEmergency;
         alert as traitAlert;
