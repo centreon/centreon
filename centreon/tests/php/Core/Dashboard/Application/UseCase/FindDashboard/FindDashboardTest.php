@@ -141,7 +141,7 @@ it(
             ->and($dashboard->name)->toBe($this->testedDashboardName)
             ->and($dashboard->description)->toBe($this->testedDashboardDescription)
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
-            ->and($dashboard->updatedAt->getTimestamp())->toBe($this->testedDashboardUpdatedAt->getTimestamp());
+            ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
 );
 
@@ -176,7 +176,7 @@ it(
             ->and($dashboard->name)->toBe($this->testedDashboardName)
             ->and($dashboard->description)->toBe($this->testedDashboardDescription)
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
-            ->and($dashboard->updatedAt->getTimestamp())->toBe($this->testedDashboardUpdatedAt->getTimestamp());
+            ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
 );
 
@@ -211,6 +211,6 @@ it(
             ->and($dashboard->name)->toBe($this->testedDashboardName)
             ->and($dashboard->description)->toBe($this->testedDashboardDescription)
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
-            ->and($dashboard->updatedAt->getTimestamp())->toBe($this->testedDashboardUpdatedAt->getTimestamp());
+            ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
 );

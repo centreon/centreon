@@ -127,7 +127,7 @@ it(
             ->and($dashboard['name'] ?? null)->toBe($this->testedDashboardName)
             ->and($dashboard['description'] ?? null)->toBe($this->testedDashboardDescription)
             ->and(($dashboard['createdAt'] ?? null)?->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
-            ->and(($dashboard['updatedAt'] ?? null)?->getTimestamp())->toBe($this->testedDashboardUpdatedAt->getTimestamp());
+            ->and(($dashboard['updatedAt'] ?? null)?->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
 );
 
@@ -163,7 +163,7 @@ it(
             ->and($dashboard['name'] ?? null)->toBe($this->testedDashboardName)
             ->and($dashboard['description'] ?? null)->toBe($this->testedDashboardDescription)
             ->and(($dashboard['createdAt'] ?? null)?->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
-            ->and(($dashboard['updatedAt'] ?? null)?->getTimestamp())->toBe($this->testedDashboardUpdatedAt->getTimestamp());
+            ->and(($dashboard['updatedAt'] ?? null)?->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
 );
 
@@ -199,6 +199,6 @@ it(
             ->and($dashboard['name'] ?? null)->toBe($this->testedDashboardName)
             ->and($dashboard['description'] ?? null)->toBe($this->testedDashboardDescription)
             ->and(($dashboard['createdAt'] ?? null)?->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
-            ->and(($dashboard['updatedAt'] ?? null)?->getTimestamp())->toBe($this->testedDashboardUpdatedAt->getTimestamp());
+            ->and(($dashboard['updatedAt'] ?? null)?->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
 );

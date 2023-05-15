@@ -77,4 +77,27 @@ interface ReadDashboardRepositoryInterface
      * @return Dashboard|null
      */
     public function findOneByAccessGroups(int $dashboardId, array $accessGroups): ?Dashboard;
+
+    /**
+     * Tells whether the dashboard exists.
+     *
+     * @param int $dashboardId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsOne(int $dashboardId): bool;
+
+    /**
+     * Tells whether the dashboard exists but with access groups.
+     *
+     * @param int $dashboardId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsOneByAccessGroups(int $dashboardId, array $accessGroups): bool;
 }

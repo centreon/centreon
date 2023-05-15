@@ -17579,3 +17579,9 @@ msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les 
 
 msgid "Error while retrieving a dashboard"
 msgstr "Erreur durant la récupération d'un tableau de bord"
+
+msgid "Error while deleting a dashboard"
+msgstr "Erreur durant la suppression d'un tableau de bord"
+
+msgid "Error while updating a dashboard"
+msgstr "Erreur lors de la mise à jour d'un tableau de bord"

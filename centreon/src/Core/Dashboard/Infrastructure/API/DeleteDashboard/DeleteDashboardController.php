@@ -21,33 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\Repository;
+namespace Core\Dashboard\Infrastructure\API\DeleteDashboard;
 
-use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\NewDashboard;
+use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Log\LoggerTrait;
+use Core\Dashboard\Application\UseCase\DeleteDashboard\DeleteDashboard;
+use Symfony\Component\HttpFoundation\Response;
 
-interface WriteDashboardRepositoryInterface
+final class DeleteDashboardController extends AbstractController
 {
-    /**
-     * @param NewDashboard $newDashboard
-     *
-     * @throws \Throwable
-     *
-     * @return int
-     */
-    public function add(NewDashboard $newDashboard): int;
+    use LoggerTrait;
 
-    /**
-     * Delete a dashboard.
-     *
-     * @param int $dashboardId
-     */
-    public function delete(int $dashboardId): void;
+    public function __invoke(
+        int $dashboardId,
+        DeleteDashboard $useCase,
+        DeleteDashboardPresenter $presenter
+    ): Response {
+        $this->denyAccessUnlessGrantedForAPIConfiguration();
 
-    /**
-     * @param Dashboard $dashboard
-     *
-     * @throws \Throwable
-     */
-    public function update(Dashboard $dashboard): void;
+        $useCase($dashboardId, $presenter);
+
+        return $presenter->show();
+    }
 }

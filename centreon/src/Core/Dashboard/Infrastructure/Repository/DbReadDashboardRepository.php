@@ -76,6 +76,31 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         return $this->retrieveDashboards($concatenator, $requestParameters);
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function existsOne(int $dashboardId): bool
+    {
+        $concatenator = $this->getFindDashboardConcatenator();
+
+        return $this->existsDashboard($concatenator, $dashboardId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsOneByAccessGroups(int $dashboardId, array $accessGroups): bool
+    {
+        if ([] === $accessGroups) {
+            return false;
+        }
+
+        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        $concatenator = $this->getFindDashboardConcatenator($accessGroupIds);
+
+        return $this->existsDashboard($concatenator, $dashboardId);
+    }
+
     public function findOne(int $dashboardId): ?Dashboard
     {
         $concatenator = $this->getFindDashboardConcatenator();
@@ -99,10 +124,10 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
      *
-     * @throws AssertionFailedException
      * @throws RequestParametersTranslatorException
      * @throws \InvalidArgumentException
      * @throws \PDOException
+     * @throws AssertionFailedException
      *
      * @return list<Dashboard>
      */
@@ -196,8 +221,8 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      *
      * @phpstan-param DashboardResultSet $result
      *
-     * @throws AssertionFailedException
      * @throws \ValueError
+     * @throws AssertionFailedException
      *
      * @return Dashboard
      */
@@ -216,8 +241,41 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      * @param SqlConcatenator $concatenator
      * @param int $dashboardId
      *
-     * @throws AssertionFailedException
      * @throws \PDOException
+     *
+     * @return bool
+     */
+    private function existsDashboard(SqlConcatenator $concatenator, int $dashboardId): bool
+    {
+        $concatenator
+            // We override the select because we just need to get the ID to check the existence.
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT 1
+                    SQL
+            )
+            // We add the filtering by dashboard id.
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE d.id = :dashboard_id
+                    SQL
+            )
+            ->storeBindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
+
+        // Prepare SQL + bind values
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @param SqlConcatenator $concatenator
+     * @param int $dashboardId
+     *
+     * @throws \PDOException
+     * @throws AssertionFailedException
      *
      * @return Dashboard|null
      */

@@ -16180,3 +16180,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Error while retrieving a dashboard"
 # msgstr ""
+
+# msgid "Error while deleting a dashboard"
+# msgstr ""
+
+# msgid "Error while updating a dashboard"
+# msgstr ""
