@@ -24,7 +24,6 @@ const adaptEvents = (data: Array<string>): number => {
 };
 
 export const adaptNotifications = ({
-  // businessViews,
   hostGroups,
   isActivated,
   messages,
@@ -42,11 +41,6 @@ export const adaptNotifications = ({
   ],
   name,
   resources: [
-    // {
-    //   events: businessViews.events,
-    //   ids: map(({ id }) => id)(businessViews.ids),
-    //   type: businessViews.type
-    // },
     {
       events: adaptEvents(hostGroups.events),
       extra: {
@@ -57,7 +51,7 @@ export const adaptNotifications = ({
     },
     {
       events: adaptEvents(serviceGroups.events),
-      ids: adpatIds(hostGroups.ids),
+      ids: adpatIds(serviceGroups.ids),
       type: serviceGroups.type
     }
   ],

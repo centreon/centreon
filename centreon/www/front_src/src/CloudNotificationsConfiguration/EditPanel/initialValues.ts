@@ -20,10 +20,6 @@ export const getInitialValues = ({
   messages,
   resources
 }: NotificationType): object => ({
-  // businessViews: formatResource({
-  //   resourceType: ResourcesTypeEnum.BV,
-  //   resources
-  // }),
   hostGroups: formatResource({ resourceType: ResourcesTypeEnum.HG, resources }),
   isActivated,
   messages: formatMessages({ messageType: ChannelsEnum.Email, messages }),
@@ -55,11 +51,6 @@ export const getInitialValues = ({
 });
 
 export const emptyInitialValues = {
-  // businessViews: {
-  //   events: [],
-  //   ids: [],
-  //   type: 'Business views'
-  // },
   hostGroups: {
     events: [],
     extra: {
