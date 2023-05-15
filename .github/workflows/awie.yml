@@ -24,11 +24,6 @@ env:
   module: awie
 
 jobs:
-  get-version:
-    uses: ./.github/workflows/get-version.yml
-    with:
-      version_file: centreon-awie/www/modules/centreon-awie/conf.php
-
   scan:
     uses: ./.github/workflows/veracode-pipeline-scan.yml
     with:
@@ -41,6 +36,11 @@ jobs:
     secrets:
       veracode_api_id: ${{ secrets.VERACODE_API_ID }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
+
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon-awie/www/modules/centreon-awie/conf.php
 
   package:
     needs: [get-version]
