@@ -4,18 +4,18 @@ on:
   push:
     branches:
       # These pipelines will generate the cache
-      - develop
-      - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
       - AT-94-pipeline-scan #TODO: to remove - intended to test the pipeline
   pull_request:
     branches:
       # These pipelines will use the cache
-      - develop
-      - dev-[2-9][0-9].[0-9][0-9].x
       - master
-      - "[2-9][0-9].[0-9][0-9].x"
+      #- "[2-9][0-9].[0-9][0-9].x"
+      #- develop
+      #- dev-[2-9][0-9].[0-9][0-9].x
 
 env:
   MODULE_DIRECTORY: centreon-dsm #TODO: Will be replaced by workflow's value
@@ -135,65 +135,66 @@ jobs:
       - name: Clean
         run: rm -f filtered_results.json /tmp/results.json
 
-  sandbox-scan:
-    # sandbox scans are triggered on maintenance branches only
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: github.event_name != 'pull-request'
-    steps:
-      - name: Get current time
-        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
-
-      - name: get build binary
-        uses: actions/download-artifact@v3
-        with:
-          name: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}"
-
-      - name: Get current time
-        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
-
-      - name: DEBUG - Check location
-        run: ls -la #TODO: to remove
-
-      - name: Veracode upload and run a Sandbox scan
-        uses: veracode/veracode-uploadandscan-action@master
-        id: upload_and_scan
-        with:
-          appname: "centreon/${{ env.MODULE_NAME }}_GHA"
-          createprofile: true
-          filepath: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
-          version: "${{ env.TARGET_BRANCH }}"
-          #version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
-          vid: ${{ secrets.VERACODE_API_ID }}
-          vkey: ${{ secrets.VERACODE_API_KEY }}
-          createsandbox: true
-          sandboxname: "${{ env.TARGET_BRANCH }}"
-          scantimeout: 60
-          includenewmodules: true
-          scanallnonfataltoplevelmodules: true
-          deleteincompletescan: 1
-          criticality: "${{ env.CRITICALITY }}"
-
-      - name: DEBUG - Check location
-        run: ls -la #TODO: to remove
-
-      - name: Get current time
-        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
-
-  promote-sandbox-task:
-    needs: [build, sandbox-scan]
-    name: Promote a scan from sandbox
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull-request'
-
-    steps:
-      - name: Promote Scan on Approval
-        env:
-          VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
-          VERACODE_API_SECRET: ${{ secrets.VERACODE_API_KEY }}
-        uses: lerer/veracode-sandboxes-helper@v1.0.1
-        with:
-          activity: "promote-latest-scan"
-          appname: "sc979/centreon"
-          sandbox-name: "${{ github.event.pull_request.base.repo.name }}-${{ github.ref_name }}"
-          delete-on-promote: true # Optional: also Deleting the Sandbox
+#  sandbox-scan:
+#    # sandbox scans are triggered on maintenance branches only
+#    runs-on: ubuntu-latest
+#    needs: [build]
+#    if: github.event_name != 'pull-request'
+#    steps:
+#      - name: Get current time
+#        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+#
+#      - name: Get build binary
+#        uses: actions/cache/restore@v3
+#        with:
+#          path: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
+#          key: ${{ env.CACHE_KEY }}
+#
+#      - name: Get current time
+#        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+#
+#      - name: DEBUG - Check location
+#        run: ls -la #TODO: to remove
+#
+#      - name: Veracode upload and run a Sandbox scan
+#        uses: veracode/veracode-uploadandscan-action@master
+#        id: upload_and_scan
+#        with:
+#          appname: "centreon/${{ env.MODULE_NAME }}_GHA"
+#          createprofile: true
+#          filepath: "${{ env.MODULE_NAME }}-${{ env.TARGET_BRANCH }}.zip"
+#          version: "${{ env.TARGET_BRANCH }}"
+#          #version: "${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}"
+#          vid: ${{ secrets.VERACODE_API_ID }}
+#          vkey: ${{ secrets.VERACODE_API_KEY }}
+#          createsandbox: true
+#          sandboxname: "${{ env.TARGET_BRANCH }}"
+#          scantimeout: 60
+#          includenewmodules: true
+#          scanallnonfataltoplevelmodules: true
+#          deleteincompletescan: 1
+#          criticality: "${{ env.CRITICALITY }}"
+#
+#      - name: DEBUG - Check location
+#        run: ls -la #TODO: to remove
+#
+#      - name: Get current time
+#        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+#
+#  promote-sandbox-task:
+#    needs: [build, sandbox-scan]
+#    name: Promote a scan from sandbox
+#    runs-on: ubuntu-latest
+#    if: github.event_name != 'pull-request'
+#
+#    steps:
+#      - name: Promote Scan on Approval
+#        env:
+#          VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
+#          VERACODE_API_SECRET: ${{ secrets.VERACODE_API_KEY }}
+#        uses: lerer/veracode-sandboxes-helper@v1.0.1
+#        with:
+#          activity: "promote-latest-scan"
+#          appname: "sc979/centreon"
+#          sandbox-name: "${{ github.event.pull_request.base.repo.name }}-${{ github.ref_name }}"
+#          delete-on-promote: true # Optional: also Deleting the Sandbox
