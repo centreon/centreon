@@ -12,10 +12,8 @@ inputs:
     required: true
   compile_mvn:
     description: If java binary needs to be compiled
-  complie_cpp:
+  compile_cpp:
     description: If C++ binary needs to be compiled
-  exclusion_file:
-    description: Name of the file used to list files and folders to exclude (e.g test files)
   cache_key:
     description: key used to identify the cache
     required: true
@@ -24,22 +22,19 @@ runs:
   using: "composite"
   steps:
     - name: Exclude unconsistent files
+      #TODO: manage exclusion file
       if: ${{ inputs.exclusion_file != '' }}
       run: echo "TODO - Delete files or folders before creating zip file"
       shell: bash
 
-    - name: DEBUG - Check location #TODO: to remove
-      run: ls -la
-      shell: bash
-
     - name: Create JAR files
-      #TODO: to manage JAR generation for project using JAVA
+      #TODO: manage JAR generation for project using JAVA
       if: inputs.compile_mvn == 'yes'
       run: echo "TODO - compile mvn files"
       shell: bash
 
     - name: Compile Cpp files
-      #TODO: to manage Cpp files compilation
+      #TODO: manage Cpp files compilation
       if: inputs.compile_cpp == 'yes'
       run: echo "TODO - compile cpp files"
       shell: bash
@@ -51,10 +46,6 @@ runs:
         fi
         cd ${{ inputs.module_directory }}
         zip -rq "../${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip" *
-      shell: bash
-
-    - name: DEBUG - Check location  #TODO: to remove
-      run: ls -la
       shell: bash
 
     - uses: actions/cache/save@v3
