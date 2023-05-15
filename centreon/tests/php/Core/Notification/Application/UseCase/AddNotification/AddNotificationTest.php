@@ -507,7 +507,7 @@ it('should return created object on success', function (): void {
         ->toBe(array_map(
             (fn($resource) => [
                 'type' => $resource->getType(),
-                'events' => $resource->getEvents(),
+                'events' => NotificationHostEventConverter::toBitFlags($resource->getEvents()),
                 'ids' => array_map(
                     (fn($resourceDetail) => [
                         'id' => $resourceDetail->getId(),
@@ -515,7 +515,7 @@ it('should return created object on success', function (): void {
                     ]),
                     $resource->getResources()),
                 'extra' => [
-                    'event_services' => $resource->getServiceEvents()
+                    'event_services' => NotificationServiceEventConverter::toBitFlags($resource->getServiceEvents())
                 ]
             ]),
             $this->resources
