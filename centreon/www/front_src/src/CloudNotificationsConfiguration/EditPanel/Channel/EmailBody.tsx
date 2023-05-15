@@ -1,6 +1,6 @@
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { split, path } from 'ramda';
+import { path } from 'ramda';
 
 import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 
@@ -8,18 +8,18 @@ import { labelTypeYourTextHere } from '../../translatedLabels';
 
 const EmailBody = (): JSX.Element => {
   const { t } = useTranslation();
-  const { setFieldValue, values, initialValues, errors } =
+  const { setFieldValue, values, initialValues, errors, touched, handleBlur } =
     useFormikContext<FormikValues>();
 
   const getEditorState = (state: unknown): void => {
     setFieldValue('messages.message', JSON.stringify(state));
   };
 
-  const value = values?.messages.message;
+  const value = path(['messages', 'message'], values);
 
-  const fieldNamePath = split('.', 'messages.message');
-
-  const error = (path(fieldNamePath, errors) as string) || undefined;
+  const error = path(['messages', 'message'], touched)
+    ? path(['messages', 'message'], errors)
+    : undefined;
 
   return useMemoComponent({
     Component: (
@@ -33,6 +33,7 @@ const EmailBody = (): JSX.Element => {
         namespace="Email body"
         placeholder={t(labelTypeYourTextHere)}
         toolbarPositions="end"
+        onBlur={handleBlur('messages.message')}
       />
     ),
     memoProps: [value, error]

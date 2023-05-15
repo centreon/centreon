@@ -19,7 +19,7 @@ const useValidationSchema = (): object => {
       [emptyEmail],
       t(labelMessageFieldShouldNotBeEmpty)
     ),
-    subject: Yup.string().required(t(labelRequired))
+    subject: Yup.string().nullable()
   });
 
   const resoureceSchema = (dependency): object =>

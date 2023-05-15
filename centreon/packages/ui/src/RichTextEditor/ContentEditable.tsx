@@ -54,6 +54,7 @@ interface Props {
   inputClassname?: string;
   minInputHeight: number;
   namespace: string;
+  onBlur?: (e: string) => void;
   placeholder: string;
   resetEditorToInitialStateCondition?: () => boolean;
 }
@@ -68,7 +69,8 @@ const ContentEditable = ({
   namespace,
   resetEditorToInitialStateCondition,
   initialEditorState,
-  error
+  error,
+  onBlur
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ editable, error, minInputHeight });
   const { t } = useTranslation();
@@ -126,6 +128,11 @@ const ContentEditable = ({
 
   const isTextEmpty = isEmpty(root);
 
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>): void => {
+    setFocused(false);
+    onBlur(event);
+  };
+
   return (
     <div
       className={cx(classes.container, isFocused && classes.inputFocused)}
@@ -146,7 +153,7 @@ const ContentEditable = ({
         contentEditable={isEditable}
         data-testid={namespace}
         ref={ref}
-        onBlur={(): void => setFocused(false)}
+        onBlur={handleBlur}
         onFocus={(): void => setFocused(true)}
       />
     </div>

@@ -25,6 +25,7 @@ export interface RichTextEditorProps {
   inputClassname?: string;
   minInputHeight?: number;
   namespace?: string;
+  onBlur?: (e: string) => void;
   placeholder?: string;
   resetEditorToInitialStateCondition?: () => boolean;
   toolbarPositions?: 'start' | 'end';
@@ -88,7 +89,8 @@ const RichTextEditor = ({
   editorState,
   resetEditorToInitialStateCondition,
   toolbarPositions = 'start',
-  error
+  error,
+  onBlur
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -137,6 +139,7 @@ const RichTextEditor = ({
                 resetEditorToInitialStateCondition={
                   resetEditorToInitialStateCondition
                 }
+                onBlur={onBlur}
               />
             }
             placeholder={null}

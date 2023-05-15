@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 import { useAtomValue } from 'jotai';
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, isEmpty } from 'ramda';
+import { equals, path } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Typography, Box } from '@mui/material';
@@ -56,17 +56,14 @@ const useStyle = makeStyles()((theme) => ({
   }
 }));
 
-const Header = (): JSX.Element => {
+const NotificationName = (): JSX.Element => {
   const { t } = useTranslation();
 
   const { classes } = useStyle();
 
   const [nameChange, setNameChange] = useState(false);
-  const panelMode = useAtomValue(panelModeAtom);
 
-  const handleNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = event.target;
     setFieldValue('name', value);
   };
@@ -74,38 +71,50 @@ const Header = (): JSX.Element => {
   const {
     setFieldValue,
     errors,
+    handleBlur,
+    touched,
     values: { name: notificationName }
   } = useFormikContext<FormikValues>();
 
-  const error = isEmpty(notificationName) ? errors?.name : undefined;
+  const error = path(['name'], touched) ? path(['name'], errors) : undefined;
+
+  return (
+    <Box className={classes.title}>
+      {nameChange ? (
+        <TextField
+          required
+          dataTestId=""
+          error={error as string | undefined}
+          placeholder={t(labelNotificationName)}
+          value={notificationName}
+          onBlur={handleBlur('name')}
+          onChange={handleChange}
+        />
+      ) : (
+        <>
+          <IconButton
+            title={t(labelChangeName)}
+            onClick={(): void => setNameChange(true)}
+          >
+            <EditIcon />
+          </IconButton>
+          <Typography className={classes.name} variant="h6">
+            {notificationName}
+          </Typography>
+        </>
+      )}
+    </Box>
+  );
+};
+
+const Header = (): JSX.Element => {
+  const { classes } = useStyle();
+
+  const panelMode = useAtomValue(panelModeAtom);
 
   return (
     <Box className={classes.panelHeader}>
-      <Box className={classes.title}>
-        {nameChange ? (
-          <TextField
-            required
-            dataTestId=""
-            error={error as string | undefined}
-            name="name"
-            placeholder={t(labelNotificationName)}
-            value={notificationName}
-            onChange={handleNameChange}
-          />
-        ) : (
-          <>
-            <IconButton
-              title={t(labelChangeName)}
-              onClick={(): void => setNameChange(true)}
-            >
-              <EditIcon />
-            </IconButton>
-            <Typography className={classes.name} variant="h6">
-              {notificationName}
-            </Typography>
-          </>
-        )}
-      </Box>
+      <NotificationName />
       <Box className={classes.rightHeader}>
         <Box className={classes.actions}>
           <ActivateAction />
