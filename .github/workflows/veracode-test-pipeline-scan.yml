@@ -3,16 +3,16 @@ name: Veracode pipeline scans
 on:
   push:
     branches:
-      # These pipelines will generate the cache
-      - master
+      ## These pipelines will generate the cache
+      #- master
       - "[2-9][0-9].[0-9][0-9].x"
-      - develop
-      - dev-[2-9][0-9].[0-9][0-9].x
-      - AT-94-pipeline-scan #TODO: to remove - intended to test the pipeline
+      #- develop
+      #- dev-[2-9][0-9].[0-9][0-9].x
+      #- AT-94-pipeline-scan #TODO: to remove - intended to test the pipeline
   pull_request:
     branches:
-      # These pipelines will use the cache
-      - master
+      ## These pipelines will use the cache
+      #- master
       #- "[2-9][0-9].[0-9][0-9].x"
       #- develop
       #- dev-[2-9][0-9].[0-9][0-9].x
@@ -38,7 +38,6 @@ jobs:
           module_name: ${{ env.MODULE_NAME }}
           target_branch_name: ${{ env.TARGET_BRANCH }}
           compile_mvn: "no"
-          exclusion_file: "TODO"
           cache_key: ${{ env.CACHE_KEY }}
 
       - name: DEBUG - Github head ref
@@ -56,7 +55,7 @@ jobs:
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
-  pipeline-scan:
+  test-pipeline-scan:
     runs-on: [self-hosted, veracode]
     needs: [build]
     steps:
