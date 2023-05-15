@@ -22,7 +22,6 @@ on:
 
 env:
   module: awie
-  cache_key: ${{ github.sha }}-${{ github.run_id }}
 
 jobs:
   get-version:
@@ -36,7 +35,7 @@ jobs:
     with:
       module_directory: centreon-awie
       module_name: centreon-awie
-      cache_key: ${{ env.cache_key }}
+      cache_key: ${{ github.sha }}-${{ github.run_id }}
       target_branch_name: ${{ github.base_ref || 'develop' }}
       head_ref_name: ${{ github.head_ref }}
       treshold: "High"
