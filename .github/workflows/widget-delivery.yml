@@ -13,6 +13,9 @@ on:
       stability:
         required: true
         type: string
+      environment:
+        required: true
+        type: string
     secrets:
       artifactory_token:
         required: true
@@ -41,7 +44,7 @@ jobs:
   delivery-rpm:
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-version.outputs.environment }}
+    environment: ${{ inputs.environment }}
 
     strategy:
       matrix:
@@ -64,7 +67,7 @@ jobs:
   delivery-deb:
     if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), inputs.stability) }}
     runs-on: [self-hosted, common]
-    environment: ${{ needs.get-version.outputs.environment }}
+    environment: ${{ inputs.environment }}
 
     strategy:
       matrix:
