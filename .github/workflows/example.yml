@@ -1,0 +1,123 @@
+name: example
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  base_directory: centreon
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/example.yml"
+  push:
+    branches:
+      - develop
+    paths:
+      - ".github/workflows/example.yml"
+
+jobs:
+  get-version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  backend-dependencies:
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    needs:
+      - get-version
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/backend-dependencies
+        with:
+          base_directory: ${{ env.base_directory }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+
+  translation-build:
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    needs:
+      - get-version
+    runs-on: ubuntu-22.04
+    container:
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: |
+          mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
+          php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
+          for i in lang/* ; do
+            localefull=`basename $i`
+            langcode=`echo $localefull | cut -d _ -f 1`
+            mkdir -p "www/locale/$localefull/LC_MESSAGES"
+            msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo"
+            msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo"
+            php bin/centreon-translations.php "$langcode" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
+          done
+        working-directory: ${{ env.base_directory }}
+        shell: bash
+
+      - run: echo "::notice::translation is built"
+
+      - uses: actions/cache@v3
+        with:
+          path: ${{ env.base_directory }}/www/locale
+          key: ${{ github.sha }}-${{ github.run_id }}-translation
+
+  package:
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    needs:
+      - get-version
+      - backend-dependencies
+      - translation-build
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        distrib:
+          - alma8
+          - alma9
+    container:
+      image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/packaging-${{ matrix.distrib }}:${{ needs.get-version.outputs.major_version }}
+      credentials:
+        username: ${{ secrets.DOCKER_REGISTRY_ID }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+
+    steps:
+      - name: Restore vendor directory cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.base_directory }}/vendor
+          key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          fail-on-cache-miss: true
+
+      - name: Restore translation directory cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.base_directory }}/www/locale
+          key: ${{ github.sha }}-${{ github.run_id }}-translation
+          fail-on-cache-miss: true
+
+  deliver:
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    needs:
+      - get-version
+      - package
+    environment: ${{ needs.get-version.outputs.environment }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Deliver to jfrog repositories
+        run: echo "delivering to jfrog repositories"
+        shell: bash
