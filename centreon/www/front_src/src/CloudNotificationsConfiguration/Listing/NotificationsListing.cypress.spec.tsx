@@ -3,7 +3,6 @@ import { equals } from 'ramda';
 import { TestQueryProvider, Method } from '@centreon/ui';
 
 import { buildNotificationsEndpoint } from './api/endpoints';
-import useLoadingNotifications from './useLoadNotifications';
 import {
   defaultQueryParams,
   getListingColumns,
@@ -12,15 +11,10 @@ import {
 
 import Listing from '.';
 
-const ListingTest = (): JSX.Element => {
-  useLoadingNotifications();
-
-  return <Listing />;
-};
 const ListingWithQueryProvider = (): JSX.Element => {
   return (
     <TestQueryProvider>
-      <ListingTest />
+      <Listing />
     </TestQueryProvider>
   );
 };
