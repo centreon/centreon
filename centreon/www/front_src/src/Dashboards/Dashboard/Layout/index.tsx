@@ -2,10 +2,7 @@ import { Layout } from 'react-grid-layout';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, map, propEq } from 'ramda';
 
-import {
-  DashboardLayout,
-  getColumnsFromScreenSize
-} from '@centreon/ui';
+import { DashboardLayout, getColumnsFromScreenSize } from '@centreon/ui';
 
 import { dashboardAtom, isEditingAtom } from '../atoms';
 import { Panel } from '../models';
