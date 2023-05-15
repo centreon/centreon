@@ -115,6 +115,14 @@ jobs:
       - name: DEBUG - Get BASELINE value  #TODO: to remove
         run: echo "Baseline is set to  ${{ env.BASELINE_FILE }}"
 
+      - name: DEBUG - why if fails ...
+        if: env.BASELINE_FILE != ''
+        run: echo "BASELINE_FILE is empty and ${{ env.BASELINE_FILE }}"
+
+      - name: DEBUG - why if dollar fails...
+        if: ${{ env.BASELINE_FILE != '' }}
+        run: echo "BASELINE_FILE (2) is empty and ${{ env.BASELINE_FILE }}"
+
       - name: Pipeline scan without baseline
         if: env.BASELINE_FILE == ''
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
