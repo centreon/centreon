@@ -22,7 +22,7 @@ import {
   resetMocks,
   screen,
   waitFor
-} from '@centreon/ui/src/testRenderer';
+} from '@centreon/ui/test/testRenderer';
 
 import useDetails from '../Details/useDetails';
 import useListing from '../Listing/useListing';

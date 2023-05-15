@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 import { isNil, not } from 'ramda';
-import withMock from 'storybook-addon-mock';
 
 import { Tooltip, Typography } from '@mui/material';
 
@@ -15,7 +14,6 @@ import MultiDraggableAutocompleteField from './Multi';
 import { ItemActionProps } from '.';
 
 export default {
-  decorators: [withMock],
   title: 'InputField/Autocomplete/Draggable'
 };
 

@@ -73,7 +73,9 @@ jobs:
       version_file: centreon/www/install/insertBaseConf.sql
 
   frontend-build:
+    needs: [get-version]
     runs-on: ubuntu-22.04
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -87,7 +89,9 @@ jobs:
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
 
   backend-dependencies:
+    needs: [get-version]
     runs-on: ubuntu-22.04
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -99,6 +103,8 @@ jobs:
 
   translation-build:
     needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+
     runs-on: ubuntu-22.04
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-version.outputs.major_version }}
@@ -226,7 +232,7 @@ jobs:
         frontend-unit-test,
         frontend-component-test,
       ]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
       matrix:
@@ -268,8 +274,8 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [get-version, package]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    needs: [package, get-version]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
       matrix:
@@ -405,7 +411,7 @@ jobs:
 
   e2e-test:
     needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
     with:
       name: e2e
@@ -422,7 +428,7 @@ jobs:
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -503,7 +509,8 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
@@ -534,7 +541,8 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ !cancelled() && contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
@@ -553,4 +561,26 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  promote:
+    needs: [get-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el8, el9, bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Promote ${{ matrix.distrib }} to stable
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module: web
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}

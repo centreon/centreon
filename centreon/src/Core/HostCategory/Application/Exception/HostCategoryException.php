@@ -44,9 +44,9 @@ class HostCategoryException extends \Exception
     /**
      * @return self
      */
-    public static function addNotAllowed(): self
+    public static function writingActionsNotAllowed(): self
     {
-        return new self(_('You are not allowed to create host categories'));
+        return new self(_('You are not allowed to create/modify host categories'));
     }
 
     /**
@@ -88,6 +88,16 @@ class HostCategoryException extends \Exception
     public static function addHostCategory(\Throwable $ex): self
     {
         return new self(_('Error while creating host category'), 0, $ex);
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function updateHostCategory(\Throwable $ex): self
+    {
+        return new self(_('Error while updating the host category'), 0, $ex);
     }
 
     /**
