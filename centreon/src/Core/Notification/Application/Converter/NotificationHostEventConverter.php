@@ -81,6 +81,7 @@ class NotificationHostEventConverter
                 self::CASE_UP_AS_STR => NotificationHostEvent::Up,
                 self::CASE_DOWN_AS_STR => NotificationHostEvent::Down,
                 self::CASE_UNREACHABLE_AS_STR => NotificationHostEvent::Unreachable,
+                default => throw new \LogicException('Should never occur, only for phpstan')
             };
         }
 

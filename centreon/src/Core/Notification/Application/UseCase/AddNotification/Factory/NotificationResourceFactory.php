@@ -49,7 +49,12 @@ class NotificationResourceFactory
      * Create a NotificationResource
      *
      * @param NotificationResourceRepositoryInterface $repository
-     * @param array $resource
+     * @param array{
+     *  type: string,
+     *  ids: int[],
+     *  events: int,
+     *  includeServiceEvents: int
+     * } $resource
      * @return NotificationResource
      */
     public function create(NotificationResourceRepositoryInterface $repository, array $resource): NotificationResource
@@ -91,7 +96,12 @@ class NotificationResourceFactory
     /**
      * Create multiple NotificationResource
      *
-     * @param array $resources
+     * @param array<array{
+     *  type: string,
+     *  ids: int[],
+     *  events: int,
+     *  includeServiceEvents: int
+     * }> $resources
      * @return NotificationResource[]
      */
     public function createMultipleResource(array $resources): array

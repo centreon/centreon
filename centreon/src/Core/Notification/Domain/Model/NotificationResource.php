@@ -100,7 +100,6 @@ class NotificationResource
         if ($event instanceof $this->eventEnum) {
             $this->events[] = $event;
         } else {
-            /** @var \Enum $event */
             throw new \ValueError("\"{$event->name}\" is not a valid backing value for enum {$this->eventEnum}");
         }
     }

@@ -223,7 +223,9 @@ final class AddNotification
         foreach ($resources as $resource) {
             $responseResource = [
                 'type' => $resource->getType(),
-                'events' => $resource->getEvents(),
+                'events' => $resource->getType() === NotificationResource::HOSTGROUP_RESOURCE_TYPE
+                    ? $response->convertHostEventsToBitFlags($resource->getEvents())
+                    : $response->convertServiceEventsToBitFlags($resource->getEvents()),
                 'ids' => array_map(
                     static fn($resource): array => ['id' => $resource->getId(), 'name' => $resource->getName()],
                     $resource->getResources()
@@ -234,7 +236,7 @@ final class AddNotification
                 && ! empty($resource->getServiceEvents())
             ) {
                 $responseResource['extra'] = [
-                    'event_services' => $resource->getServiceEvents()
+                    'event_services' => $response->convertServiceEventsToBitFlags($resource->getServiceEvents())
                 ];
             }
             $response->resources[] = $responseResource;
@@ -248,9 +250,9 @@ final class AddNotification
      *
      * @param int $newNotificationId
      * @return array{
-     *  notification: Notification
-     *  messages: NotificationMessage[]
-     *  users: NotificationGenericObject[]
+     *  notification: Notification,
+     *  messages: NotificationMessage[],
+     *  users: NotificationGenericObject[],
      *  resources: NotificationResource[]
      * }
      *

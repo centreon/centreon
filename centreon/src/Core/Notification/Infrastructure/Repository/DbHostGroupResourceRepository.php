@@ -23,17 +23,18 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\Repository;
 
+use Utility\SqlConcatenator;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\Notification\Domain\Model\NotificationResource;
+use Core\Notification\Domain\Model\NotificationHostEvent;
+use Core\Notification\Domain\Model\NotificationServiceEvent;
+use Core\Notification\Domain\Model\NotificationGenericObject;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
-use Core\Notification\Domain\Model\NotificationGenericObject;
-use Core\Notification\Domain\Model\NotificationHostEvent;
-use Core\Notification\Domain\Model\NotificationResource;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Utility\SqlConcatenator;
 
 class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements NotificationResourceRepositoryInterface
 {
@@ -264,7 +265,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         ));
         $statement->bindValue(
             ':events',
-            NotificationHostEventConverter::toBitFlags($resource->getEvents()),
+            (self::EVENT_ENUM_CONVERTER)::toBitFlags($resource->getEvents()),
             \PDO::PARAM_INT
         );
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
