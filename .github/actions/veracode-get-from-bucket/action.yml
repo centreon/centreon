@@ -28,6 +28,6 @@ runs:
           echo "BASELINE_FILE=$BASELINE_FILE" >> $GITHUB_ENV
         else
           echo "[DEBUG] - File not found in the bucket"
-          echo "BASELINE_FILE=''" >> $GITHUB_ENV
+          echo "BASELINE_FILE=" >> $GITHUB_ENV
         fi
       shell: bash
