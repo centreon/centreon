@@ -116,7 +116,7 @@ jobs:
         run: echo "Baseline is set to  ${{ env.BASELINE_FILE }}"
 
       - name: Pipeline scan with baseline
-        if: env.BASELINE_FILE != ''
+        if: env.BASELINE_FILE != ""
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
@@ -130,7 +130,7 @@ jobs:
           baseline_file: ${{ env.BASELINE_FILE }}
 
       - name: Pipeline scan without baseline
-        if: env.BASELINE_FILE == ''
+        if: env.BASELINE_FILE == ""
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
