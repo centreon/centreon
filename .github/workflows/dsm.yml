@@ -30,7 +30,6 @@ jobs:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
 
   scan:
-    needs: [get-version]
     uses: ./.github/workflows/veracode-pipeline-scan.yml
     with:
       module_directory: centreon-dsm
