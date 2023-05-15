@@ -289,9 +289,6 @@ const getPreviousMonth = ({
   return cy.get(`[aria-label="${labelButton}"]`).click();
 };
 
-const formatDateToInputValue = (date: string): string =>
-  date.split(' ').join('⁩ ⁦');
-
 const checkIfDuplicateExists = (arr: Array<unknown>): boolean => {
   return new Set(arr).size !== arr.length;
 };
@@ -337,7 +334,7 @@ testData.forEach((item) =>
         formatString: 'L hh:mm A'
       });
 
-      cy.get('input').should('have.value', formatDateToInputValue(dateInput));
+      cy.get('input').should('have.value', dateInput);
     });
 
     it(`displays the correct number of days for the current month when the ${item.button} button is clicked`, () => {
