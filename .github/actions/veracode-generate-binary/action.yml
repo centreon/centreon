@@ -23,7 +23,6 @@ runs:
   steps:
     - name: Exclude unconsistent files
       #TODO: manage exclusion file
-      if: ${{ inputs.exclusion_file != '' }}
       run: echo "TODO - Delete files or folders before creating zip file"
       shell: bash
 

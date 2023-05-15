@@ -66,7 +66,6 @@ jobs:
           module_name: ${{ inputs.module_name }}
           target_branch_name: ${{ inputs.target_branch_name }}
           compile_mvn: "no"
-          exclusion_file: "TODO"
           cache_key: ${{ inputs.cache_key }}
 
       - name: DEBUG - Github head ref
