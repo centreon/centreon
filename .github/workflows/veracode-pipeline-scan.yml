@@ -78,8 +78,6 @@ jobs:
   pipeline-scan:
     runs-on: [self-hosted, veracode]
     needs: [build]
-    outputs:
-      baseline_file: ''
 
     steps:
 #      - uses: actions/checkout@v3
@@ -109,10 +107,10 @@ jobs:
           aws s3 ls "$TARGET_S3" || RESULT=$( echo $? )
           if [[ $RESULT -eq 0 ]]; then
             aws s3 cp "$TARGET_S3" "$BASELINE_FILE"
-            echo "baseline_file=$BASELINE_FILE" >> $GITHUB_OUTPUT
+            echo "baseline_file=$BASELINE_FILE" >> $GITHUB_ENV
           else
             echo "[DEBUG] - File not found in the bucket"
-            echo "baseline_file=" >> $GITHUB_OUTPUT
+            echo "baseline_file=" >> $GITHUB_ENV
           fi
 
       - name: DEBUG - check location
