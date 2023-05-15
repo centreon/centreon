@@ -112,6 +112,9 @@ jobs:
           distribution: 'zulu'
           java-version: 8
 
+      - name: DEBUG - Get BASELINE value  #TODO: to remove
+        run: echo "Baseline is set to  ${{ env.BASELINE_FILE }}"
+
       - name: Pipeline scan with baseline
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         if: env.BASELINE_FILE != ''
