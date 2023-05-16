@@ -12,7 +12,7 @@ import {
   Typography
 } from '@mui/material';
 
-import getNormalizedId from '../../utils/getNormalizedId';
+import { getNormalizedId } from '../../utils';
 
 import useAutoSize from './useAutoSize';
 
