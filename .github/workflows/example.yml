@@ -54,6 +54,7 @@ jobs:
 
       - name: Build french translation
         run: |
+          mkdir -p www/locale/fr_FR.UTF-8/LC_MESSAGES
           msgfmt "lang/fr_FR.UTF-8/LC_MESSAGES/messages.po" -o "www/locale/fr_FR.UTF-8/LC_MESSAGES/messages.mo"
         working-directory: ${{ env.base_directory }}
         shell: bash
