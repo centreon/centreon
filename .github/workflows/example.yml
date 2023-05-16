@@ -104,8 +104,8 @@ jobs:
         with:
           name: package-${{ matrix.distrib }}
           path: |
-            ./${{ env.base_directory }}/vendor/symfony/console/Application.php
-            ./${{ env.base_directory }}/www/locale
+            ./${{ env.base_directory }}/vendor/symfony/console/
+            ./${{ env.base_directory }}/www/locale/
           retention-days: 2
 
   version-summary:
