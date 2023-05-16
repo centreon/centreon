@@ -37,7 +37,7 @@ jobs:
       module_name: centreon-awie
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
-      target_branch_name: ${{ github.base_ref || ref_name }}
+      target_branch_name: ${{ github.base_ref || github.ref_name }}
       #target_branch_name: 'AT-94-pipeline-scan'
       event_name: ${{ github.event_name }}
       threshold_pipeline: "High"
