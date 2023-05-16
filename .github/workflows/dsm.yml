@@ -33,17 +33,16 @@ jobs:
     needs: [get-version]
     uses: ./.github/workflows/veracode-scans.yml
     with:
-      module_directory: centreon-awie
-      module_name: centreon-awie
-      cache_key: ${{ github.sha }}-${{ github.run_id }}
-      target_branch_name: ${{ github.base_ref || 'develop' }}
-      #head_ref_name: ${{ github.head_ref }}
-      branch_ref_name: 'AT-94-pipeline-scan'
+      module_directory: centreon-dsm
+      module_name: centreon-dsm
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
+      target_branch_name: ${{ github.base_ref || ref_name }}
+      #target_branch_name: 'AT-94-pipeline-scan'
+      event_name: ${{ github.event_name }}
       threshold_pipeline: "High"
       threshold_sandbox: "VeryLow"
-      event_name: ${{ github.event_name }}
+      cache_key: ${{ github.sha }}-${{ github.run_id }}
     secrets:
       veracode_api_id: ${{ secrets.VERACODE_API_ID }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
