@@ -39,7 +39,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     outputs:
-      scan_type: "development"
+      scan_type: ${{ steps.routing-mode.outputs.scan_type }}
 
     steps:
       - uses: actions/checkout@v3
@@ -56,6 +56,7 @@ jobs:
           cache_key: ${{ inputs.cache_key }}
 
       - name: Set routing mode
+        id: routing-mode
         if: inputs.event_name != 'pull-request' && (inputs.target_branch_name == 'develop' || inputs.target_branch_name == 'dev-[2-9][0-9].[0-9][0-9].x' || inputs.target_branch_name == 'master' || inputs.target_branch_name == '[2-9][0-9].[0-9][0-9].x')
         run: echo "scan_type=maintenance" >> $GITHUB_OUTPUT
 
