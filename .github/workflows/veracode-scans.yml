@@ -60,11 +60,6 @@ jobs:
         if: inputs.event_name != 'pull_request' && (inputs.target_branch_name == 'develop' || inputs.target_branch_name == 'dev-[2-9][0-9].[0-9][0-9].x' || inputs.target_branch_name == 'master' || inputs.target_branch_name == '[2-9][0-9].[0-9][0-9].x')
         run: echo "scan_type=maintenance" >> $GITHUB_OUTPUT
 
-      - name: DEBUG - event name
-        run: echo "event name = ${{ inputs.event_name }}"
-      - name: DEBUG - branch target name
-        run: echo "target name = ${{ inputs.target_branch_name }}"
-
   pipeline-scan:
     runs-on: [self-hosted, veracode]
     needs: [build]
@@ -104,18 +99,6 @@ jobs:
             echo "baseline_file=" >> $GITHUB_ENV
           fi
 
-      - name: DEBUG - check location
-        run: ls -la
-
-      - name: DEBUG - check location /tmp
-        run: ls -la /tmp
-
-      - name: DEBUG - get env baseline value
-        run: echo "baseline = ${{ env.baseline_file }}"
-
-      - name: DEBUG - Get routing mode
-        run: echo "mode = ${{ needs.build.outputs.scan_type }}"
-
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
@@ -128,10 +111,8 @@ jobs:
           timeout: 60
           baseline_file: "${{ env.baseline_file }}"
 
-      - name: Get current time
-        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
-
       - name: Save baseline file
+        # only baseline file generated from a maintenance branch is saved
         if: needs.build.outputs.scan_type == 'maintenance'
         run: |
           mv results.json /tmp
@@ -141,6 +122,9 @@ jobs:
 
       - name: Clean
         run: rm -f results.json filtered_results.json /tmp/results.json
+
+      - name: Get current time
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
   sandbox-scan:
     if: needs.build.outputs.scan_type == 'maintenance'
@@ -158,7 +142,7 @@ jobs:
         uses: veracode/veracode-uploadandscan-action@master
         id: upload_and_scan
         with:
-          appname: "centreon/${{ inputs.module_name }}"
+          appname: "${{ inputs.module_name }}"
           createprofile: true
           filepath: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
           version: "${{ inputs.major_version }}.${{ inputs.minor_version }}"
