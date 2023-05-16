@@ -27,36 +27,10 @@ on:
       veracode_api_key:
         required: true
 
-# should be triggered on:
-#  push:
-#    branches:
-#      # These pipelines will generate the cache
-#      - master
-#      - "[2-9][0-9].[0-9][0-9].x"
-#      - develop
-#      - dev-[2-9][0-9].[0-9][0-9].x
-#      - AT-94-pipeline-scan #TODO: to remove - intended to test the pipeline
-#  pull_request:
-#    branches:
-#      # These pipelines will use the cache
-#      - master
-#      - "[2-9][0-9].[0-9][0-9].x"
-#      - develop
-#      - dev-[2-9][0-9].[0-9][0-9].x
-
-#env:
-#  MODULE_DIRECTORY: centreon-open-tickets #TODO: Will be replaced by workflow's value
-#  MODULE_NAME: centreon-open-tickets #TODO: Will be replaced by workflow's value
-#  CACHE_KEY: ${{ github.sha }}-${{ github.run_id }}
-  #TARGET_BRANCH: ${{ github.base_ref || github.ref_name }} #Caution: required by veracode runner
-#  TARGET_BRANCH: ${{ github.base_ref || 'develop' }} #Forced to develop on push for testing purpose
-#  HEAD_REF: ${{ github.head_ref }} #Caution: required by veracode runner
-#  THRESHOLD: "High"
-
 jobs:
   build:
-    #runs-on: ubuntu-22.04
-    runs-on: [self-hosted, veracode]
+    runs-on: ubuntu-22.04
+    #runs-on: [self-hosted, veracode]
     steps:
       - uses: actions/checkout@v3
 
@@ -80,8 +54,6 @@ jobs:
     needs: [build]
 
     steps:
-#      - uses: actions/checkout@v3
-
       - name: Get build binary
         uses: actions/cache/restore@v3
         with:
@@ -129,7 +101,7 @@ jobs:
           vkey: ${{ secrets.veracode_api_key }}
           file: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
           fail_on_severity: ${{ inputs.threshold }}
-          #request_policy: "Centreon Security"
+          request_policy: "Centreon Security"
           fail_build: true
           timeout: 60
           baseline_file: ${{ needs.build.outputs.baseline_file }}
