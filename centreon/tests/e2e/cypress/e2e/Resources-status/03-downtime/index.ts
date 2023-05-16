@@ -12,9 +12,7 @@ import {
 } from '../common';
 
 before(() => {
-  cy.startWebContainer({
-    version: 'MON-17223-monitoring-downtime-automated'
-  });
+  cy.startWebContainer();
 });
 
 beforeEach(() => {
