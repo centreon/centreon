@@ -23,8 +23,23 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboards;
 
-final class FindDashboardsResponse
+use DateTimeImmutable;
+
+final class FindDashboardDto
 {
-    /** @var FindDashboardDto[] */
-    public array $dashboards = [];
+    public int $id = 0;
+
+    public string $name = '';
+
+    public string $description = '';
+
+    public DateTimeImmutable $createdAt;
+
+    public DateTimeImmutable $updatedAt;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+    }
 }

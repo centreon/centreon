@@ -123,11 +123,15 @@ it(
         $dashboard = $presentedData->dashboards[0] ?? [];
 
         expect($presentedData)->toBeInstanceOf(FindDashboardsResponse::class)
-            ->and($dashboard['id'] ?? null)->toBe($this->testedDashboardId)
-            ->and($dashboard['name'] ?? null)->toBe($this->testedDashboardName)
-            ->and($dashboard['description'] ?? null)->toBe($this->testedDashboardDescription)
-            ->and(($dashboard['createdAt'] ?? null)?->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
-            ->and(($dashboard['updatedAt'] ?? null)?->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
+            ->and($dashboard->id ?? null)->toBe($this->testedDashboardId)
+            ->and($dashboard->name ?? null)->toBe($this->testedDashboardName)
+            ->and($dashboard->description ?? null)->toBe($this->testedDashboardDescription)
+            ->and(($dashboard->createdAt ?? null)?->getTimestamp())->toBe(
+                $this->testedDashboardCreatedAt->getTimestamp()
+            )
+            ->and(($dashboard->updatedAt ?? null)?->getTimestamp())->toBeGreaterThanOrEqual(
+                $this->testedDashboardUpdatedAt->getTimestamp()
+            );
     }
 );
 
@@ -159,11 +163,13 @@ it(
         $dashboard = $presentedData->dashboards[0] ?? [];
 
         expect($presentedData)->toBeInstanceOf(FindDashboardsResponse::class)
-            ->and($dashboard['id'] ?? null)->toBe($this->testedDashboardId)
-            ->and($dashboard['name'] ?? null)->toBe($this->testedDashboardName)
-            ->and($dashboard['description'] ?? null)->toBe($this->testedDashboardDescription)
-            ->and(($dashboard['createdAt'] ?? null)?->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
-            ->and(($dashboard['updatedAt'] ?? null)?->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
+            ->and($dashboard->id ?? null)->toBe($this->testedDashboardId)
+            ->and($dashboard->name ?? null)->toBe($this->testedDashboardName)
+            ->and($dashboard->description ?? null)->toBe($this->testedDashboardDescription)
+            ->and(($dashboard->createdAt ?? null)?->getTimestamp())
+            ->toBe($this->testedDashboardCreatedAt->getTimestamp())
+            ->and(($dashboard->updatedAt ?? null)?->getTimestamp())
+            ->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
 );
 
@@ -195,10 +201,12 @@ it(
         $dashboard = $presentedData->dashboards[0] ?? [];
 
         expect($presentedData)->toBeInstanceOf(FindDashboardsResponse::class)
-            ->and($dashboard['id'] ?? null)->toBe($this->testedDashboardId)
-            ->and($dashboard['name'] ?? null)->toBe($this->testedDashboardName)
-            ->and($dashboard['description'] ?? null)->toBe($this->testedDashboardDescription)
-            ->and(($dashboard['createdAt'] ?? null)?->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
-            ->and(($dashboard['updatedAt'] ?? null)?->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
+            ->and($dashboard->id ?? null)->toBe($this->testedDashboardId)
+            ->and($dashboard->name ?? null)->toBe($this->testedDashboardName)
+            ->and($dashboard->description ?? null)->toBe($this->testedDashboardDescription)
+            ->and(($dashboard->createdAt ?? null)?->getTimestamp())
+            ->toBe($this->testedDashboardCreatedAt->getTimestamp())
+            ->and(($dashboard->updatedAt ?? null)?->getTimestamp())
+            ->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
 );

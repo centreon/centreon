@@ -115,13 +115,15 @@ final class FindDashboards
         $response = new FindDashboardsResponse();
 
         foreach ($dashboards as $dashboard) {
-            $response->dashboards[] = [
-                'id' => $dashboard->getId(),
-                'name' => $dashboard->getName(),
-                'description' => $dashboard->getDescription(),
-                'createdAt' => $dashboard->getCreatedAt(),
-                'updatedAt' => $dashboard->getUpdatedAt(),
-            ];
+            $dto = new FindDashboardDto();
+
+            $dto->id = $dashboard->getId();
+            $dto->name = $dashboard->getName();
+            $dto->description = $dashboard->getDescription();
+            $dto->createdAt = $dashboard->getCreatedAt();
+            $dto->updatedAt = $dashboard->getUpdatedAt();
+
+            $response->dashboards[] = $dto;
         }
 
         return $response;

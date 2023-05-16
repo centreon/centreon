@@ -48,11 +48,11 @@ class FindDashboardsPresenter extends DefaultPresenter implements FindDashboards
             $result = [];
             foreach ($data->dashboards as $dashboard) {
                 $result[] = [
-                    'id' => $dashboard['id'],
-                    'name' => $dashboard['name'],
-                    'description' => $this->emptyStringAsNull($dashboard['description']),
-                    'created_at' => $this->formatDateToIso8601($dashboard['createdAt']),
-                    'updated_at' => $this->formatDateToIso8601($dashboard['updatedAt']),
+                    'id' => $dashboard->id,
+                    'name' => $dashboard->name,
+                    'description' => $this->emptyStringAsNull($dashboard->description),
+                    'created_at' => $this->formatDateToIso8601($dashboard->createdAt),
+                    'updated_at' => $this->formatDateToIso8601($dashboard->updatedAt),
                 ];
             }
 
