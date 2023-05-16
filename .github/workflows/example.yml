@@ -25,7 +25,6 @@ jobs:
       version_file: centreon/www/install/insertBaseConf.sql
 
   backend-dependencies:
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
     needs:
       - get-version
     runs-on: ubuntu-22.04
@@ -39,7 +38,6 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
   translation-build:
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
     needs:
       - get-version
     runs-on: ubuntu-22.04
@@ -67,7 +65,6 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
   package:
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
     needs:
       - get-version
       - backend-dependencies
@@ -109,7 +106,6 @@ jobs:
           retention-days: 2
 
   version-summary:
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
     needs:
       - get-version
       - package
@@ -124,7 +120,7 @@ jobs:
           echo "- version: ${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}" >> $GITHUB_STEP_SUMMARY
 
   deliver:
-    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     needs:
       - get-version
