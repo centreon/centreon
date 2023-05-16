@@ -57,8 +57,21 @@ jobs:
 
       - name: Set routing mode
         id: routing-mode
-        if: inputs.event_name != 'pull-request' && (inputs.target_branch_name == 'develop' || inputs.target_branch_name == 'dev-[2-9][0-9].[0-9][0-9].x' || inputs.target_branch_name == 'master' || inputs.target_branch_name == '[2-9][0-9].[0-9][0-9].x')
-        run: echo "scan_type=maintenance" >> $GITHUB_OUTPUT
+        run: |
+          if [[ "${{ inputs.event_name }}" != 'pull-request' &&
+            (
+              "${{ inputs.target_branch_name }}" == 'develop' ||
+              "${{ inputs.target_branch_name }}" == 'dev-[2-9][0-9].[0-9][0-9].x' ||
+              "${{ inputs.target_branch_name }}" == 'master' ||
+              "${{ inputs.target_branch_name }}" == '[2-9][0-9].[0-9][0-9].x'
+            )
+          ]]; then
+            echo "scan_type=maintenance" >> $GITHUB_OUTPUT
+            echo "DEBUG - scan_type = maintenance"
+          else
+            echo "scan_type=development" >> $GITHUB_OUTPUT
+            echo "DEBUG - scan_type = development"
+          fi
 
       - name: DEBUG - event name
         run: echo "event name = ${{ inputs.event_name }}"
