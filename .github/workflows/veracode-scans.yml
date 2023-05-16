@@ -17,19 +17,16 @@ on:
       target_branch_name:
         required: true
         type: string
-      branch_ref_name:
-        required: true
-        type: string
       event_name:
-        required: true
-        type: string
-      cache_key:
         required: true
         type: string
       threshold_pipeline:
         required: true
         type: string
       threshold_sandbox:
+        required: true
+        type: string
+      cache_key:
         required: true
         type: string
     secrets:
@@ -57,7 +54,7 @@ jobs:
           cache_key: ${{ inputs.cache_key }}
 
       - name: Set routing mode
-        if: inputs.event_name != 'pull-request' && (inputs.branch_ref_name == 'develop' || inputs.branch_ref_name == 'dev-[2-9][0-9].[0-9][0-9].x' || inputs.branch_ref_name == 'master' || inputs.branch_ref_name == '[2-9][0-9].[0-9][0-9].x')
+        if: inputs.event_name != 'pull-request' && (inputs.target_branch_name == 'develop' || inputs.target_branch_name == 'dev-[2-9][0-9].[0-9][0-9].x' || inputs.target_branch_name == 'master' || inputs.target_branch_name == '[2-9][0-9].[0-9][0-9].x')
         run: echo "scan_type=maintenance" >> $GITHUB_ENV
 
       - name: DEBUG - Get routing mode
@@ -68,6 +65,9 @@ jobs:
 
       - name: DEBUG - branch ref name
         run: echo "mode = ${{ inputs.branch_ref_name }}"
+
+      - name: DEBUG - branch target name
+        run: echo "mode = ${{ inputs.target_branch_name }}"
 
   pipeline-scan:
     runs-on: [self-hosted, veracode]
