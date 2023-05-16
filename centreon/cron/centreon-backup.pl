@@ -293,6 +293,8 @@ sub getApacheDirectory() {
         return '/opt/rh/httpd24/root/etc/httpd/conf.d';
     } elsif ( -d '/etc/httpd/conf.d' ) {
         return '/etc/httpd/conf.d';
+    } elsif ( -d '/etc/apache2/sites-available' ) {
+        return '/etc/apache2/sites-available';
     } else {
         print STDERR "Unable to get Apache conf directory\n";
     }
@@ -404,7 +406,7 @@ sub databasesBackup() {
         if ($BACKUP_DATABASE_CENTREON_STORAGE == '1') {
 
             # Check if process already exist
-            my $process_number = `ps aux | grep -v grep |grep "centstorage" | wc -l | bc`;
+            my $process_number = `ps aux | grep -v grep |grep "centstorage" | wc -l`;
 
             if ($process_number == 0) {
                 $file = $TEMP_DB_DIR . "/" . $today . "-centreon_storage.sql.gz";
@@ -767,7 +769,7 @@ sub monitoringengineBackup() {
         }
     }
     my $plugins_dir = "/usr/lib64/nagios/plugins";
-    if ($plugins_dir ne "") {
+    if (-d $plugins_dir) {
         `cp -pr $plugins_dir/* $TEMP_CENTRAL_DIR/plugins/`;
         if ($? != 0) {
             print STDERR "Unable to copy plugins\n";
@@ -793,8 +795,7 @@ sub monitoringengineBackup() {
     my $logs_archive_directory = substr($nagios_server->{log_archive_path}, 0, rindex($nagios_server->{log_archive_path}, "/"));
     mkpath($TEMP_CENTRAL_DIR."/logs/archives", {mode => 0755, error => \my $err_list});
     if (@$err_list) {
-        for my $diag (@$err_list) {
-            my ($file, $message) = %$diag;
+        for my $diag (@$err_list) {            my ($file, $message) = %$diag;
             if ($file eq '') {
                 print STDERR "Unable to create temporary directories because: " . $message . "\n";
             } else {
@@ -802,9 +803,11 @@ sub monitoringengineBackup() {
             }
         }
     }
-    `cp -p $logs_archive_directory/* $TEMP_CENTRAL_DIR/logs/archives/`;
-    if ($? != 0) {
-        print STDERR "Unable to copy monitoring engine logs archives\n";
+    if (-d $logs_archive_directory) {
+        `cp -p $logs_archive_directory/* $TEMP_CENTRAL_DIR/logs/archives/`;
+        if ($? != 0) {
+            print STDERR "Unable to copy monitoring engine logs archives\n";
+        }
     }
 
     #################
