@@ -33,7 +33,6 @@ use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\CommandType;
@@ -73,7 +72,7 @@ final class AddHostTemplate
      * @param AddHostTemplateRequest $request
      * @param AddHostTemplatePresenterSaas|AddHostTemplatePresenterOnPrem $presenter
      */
-    public function __invoke(AddHostTemplateRequest $request, PresenterInterface $presenter): void
+    public function __invoke(AddHostTemplateRequest $request, AddHostTemplatePresenterInterface $presenter): void
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE)) {

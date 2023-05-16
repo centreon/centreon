@@ -46,12 +46,11 @@ use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterfac
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplate;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateRequest;
 use Core\HostTemplate\Domain\Model\HostTemplate;
-use Core\HostTemplate\Domain\Model\NewHostTemplate;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
+use Tests\Core\HostTemplate\Infrastructure\API\AddHostTemplate\AddHostTemplatePresenterStub;
 
 beforeEach(function (): void {
     $this->request = new AddHostTemplateRequest();
@@ -94,7 +93,7 @@ beforeEach(function (): void {
     $this->request->comment = 'comment-value';
     $this->request->isActivated = false;
 
-    $this->presenter = new DefaultPresenter(
+    $this->presenter = new AddHostTemplatePresenterStub(
         $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
     );
 
@@ -169,9 +168,9 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
 
     ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())
+    expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(HostTemplateException::addHostTemplate(new \Exception())->getMessage());
 });
 
@@ -183,9 +182,9 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
 
     ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())
+    expect($this->presenter->response)
         ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(HostTemplateException::addNotAllowed()->getMessage());
 });
 
@@ -201,9 +200,9 @@ it('should present a ConflictResponse when name is already used', function (): v
 
     ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())
+    expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(
             HostTemplateException::nameAlreadyExists(
                 HostTemplate::formatName($this->request->name),
@@ -228,9 +227,9 @@ it('should present a ConflictResponse when host severity ID is not valid', funct
 
     ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())
+    expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(HostTemplateException::idDoesNotExist('severityId', $this->request->severityId)->getMessage());
 });
 
@@ -254,9 +253,9 @@ it('should present a ConflictResponse when a host timezone ID is not valid', fun
 
     ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())
+    expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(HostTemplateException::idDoesNotExist('timezoneId', $this->request->timezoneId)->getMessage());
 });
 
@@ -289,9 +288,9 @@ it('should present a ConflictResponse when a timeperiod ID is not valid', functi
 
     ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())
+    expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(
             HostTemplateException::idDoesNotExist(
                 'notificationTimeperiodId',
@@ -338,9 +337,9 @@ it('should present a ConflictResponse when a command ID is not valid', function 
 
     ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())
+    expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(
             HostTemplateException::idDoesNotExist(
                 'eventHandlerCommandId',
@@ -391,9 +390,9 @@ it('should present a ConflictResponse when the host icon ID is not valid', funct
 
     ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())
+    expect($this->presenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(
             HostTemplateException::idDoesNotExist(
                 'iconId',
@@ -450,9 +449,9 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
 
     ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())
+    expect($this->presenter->response)
         ->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(AssertionException::notEmptyString('NewHostTemplate::alias')->getMessage());
 });
 
@@ -511,9 +510,9 @@ it('should present an ErrorResponse if the newly created host template cannot be
 
     ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())
+    expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->response->getMessage())
         ->toBe(HostTemplateException::errorWhileRetrievingObject()->getMessage());
 });
 
@@ -572,10 +571,10 @@ it('should return created object on success', function (): void {
 
     ($this->useCase)($this->request, $this->presenter);
 
-    expect($this->presenter->getPresentedData())->toBeInstanceOf(CreatedResponse::class);
-    expect($this->presenter->getPresentedData()->getResourceId())->toBe($this->hostTemplate->getId());
+    expect($this->presenter->response)->toBeInstanceOf(CreatedResponse::class);
+    expect($this->presenter->response->getResourceId())->toBe($this->hostTemplate->getId());
 
-    $payload = $this->presenter->getPresentedData()->getPayload();
+    $payload = $this->presenter->response->getPayload();
     expect($payload->name)
         ->toBe($this->hostTemplate->getName())
         ->and($payload->alias)

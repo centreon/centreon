@@ -38,14 +38,14 @@ use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface
 use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplates;
 use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesResponse;
 use Core\HostTemplate\Domain\Model\HostTemplate;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Tests\Core\HostTemplate\Infrastructure\API\FindHostTemplates\FindHostTemplatesPresenterStub;
 
 beforeEach(function (): void {
     $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
 
-    $this->presenter = new DefaultPresenter($this->createMock(PresenterFormatterInterface::class));
+    $this->presenter = new FindHostTemplatesPresenterStub($this->createMock(PresenterFormatterInterface::class));
     $this->useCase = new FindHostTemplates(
         $this->readHostTemplateRepository,
         $this->createMock(RequestParametersInterface::class),
@@ -152,9 +152,9 @@ it(
 
         ($this->useCase)($this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->response)
             ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->response->getMessage())
             ->toBe(HostTemplateException::findHostTemplates(new \Exception())->getMessage());
     }
 );
@@ -169,9 +169,9 @@ it(
 
         ($this->useCase)($this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->response)
             ->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->response->getMessage())
             ->toBe(HostTemplateException::accessNotAllowed()->getMessage());
     }
 );
@@ -195,9 +195,9 @@ it(
 
         ($this->useCase)($this->presenter);
 
-        expect($this->presenter->getPresentedData())
+        expect($this->presenter->response)
             ->toBeInstanceOf(FindHostTemplatesResponse::class)
-            ->and($this->presenter->getPresentedData()->hostTemplates[0])
+            ->and($this->presenter->response->hostTemplates[0])
             ->toBe($this->testedHostTemplateArray);
     }
 );
@@ -221,9 +221,9 @@ it(
 
         ($this->useCase)($this->presenter);
 
-        expect($this->presenter->getPresentedData())
+        expect($this->presenter->response)
             ->toBeInstanceOf(FindHostTemplatesResponse::class)
-            ->and($this->presenter->getPresentedData()->hostTemplates[0])
+            ->and($this->presenter->response->hostTemplates[0])
             ->toBe($this->testedHostTemplateArray);
     }
 );
