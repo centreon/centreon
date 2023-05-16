@@ -25,7 +25,7 @@ namespace Core\ServiceTemplate\Infrastructure\API\FindServiceTemplates;
 
 use Core\ServiceTemplate\Domain\Model\NotificationType;
 
-class NotificationTypeConverter
+final class NotificationTypeConverter
 {
     public const NONE_AS_BIT = 0b000000,
                  WARNING_AS_BIT = 0b000001,

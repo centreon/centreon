@@ -51,11 +51,8 @@ final class FindServiceTemplates
     {
         try {
             if (
-                ! $this->user->isAdmin()
-                && (
-                    ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ)
-                    && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE)
-                )
+                ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ)
+                && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE)
             ) {
                 $this->error(
                     "User doesn't have sufficient rights to see service templates",

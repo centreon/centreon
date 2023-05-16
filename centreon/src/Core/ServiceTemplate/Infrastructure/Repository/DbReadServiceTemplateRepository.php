@@ -187,6 +187,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      * @param _ServiceTemplate $data
      *
      * @throws AssertionFailedException
+     * @throws \Exception
      *
      * @return ServiceTemplate
      */

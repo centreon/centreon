@@ -25,7 +25,7 @@ namespace Core\ServiceTemplate\Infrastructure\API\FindServiceTemplates;
 
 use Core\Common\Domain\YesNoDefault;
 
-class YesNoDefaultConverter
+final class YesNoDefaultConverter
 {
     public static function toInt(YesNoDefault $yesNoDefault): int
     {
