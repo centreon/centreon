@@ -31,7 +31,7 @@ jobs:
 
   veracode-scans:
     needs: [get-version]
-    uses: ./.github/workflows/veracode-pipeline-scan.yml
+    uses: ./.github/workflows/veracode-scans.yml
     with:
       module_directory: centreon-awie
       module_name: centreon-awie
