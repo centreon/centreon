@@ -24,23 +24,28 @@ env:
   module: dsm
 
 jobs:
-  scan:
-    uses: ./.github/workflows/veracode-pipeline-scan.yml
-    with:
-      module_directory: centreon-dsm
-      module_name: centreon-dsm
-      cache_key: ${{ github.sha }}-${{ github.run_id }}
-      target_branch_name: ${{ github.base_ref || 'develop' }}
-      head_ref_name: ${{ github.head_ref }}
-      threshold: "High"
-    secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
-
   get-version:
     uses: ./.github/workflows/get-version.yml
     with:
-      version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
+      version_file: centreon-awie/www/modules/centreon-awie/conf.php
+
+  veracode-scans:
+    needs: [get-version]
+    uses: ./.github/workflows/veracode-pipeline-scan.yml
+    with:
+      module_directory: centreon-awie
+      module_name: centreon-awie
+      cache_key: ${{ github.sha }}-${{ github.run_id }}
+      target_branch_name: ${{ github.base_ref || 'develop' }}
+      head_ref_name: ${{ github.head_ref }}
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      threshold_pipeline: "High"
+      threshold_sandbox: "VeryLow"
+      event_name: ${{ github.event_name }}
+    secrets:
+      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
+      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
 
   package:
     needs: [get-version]

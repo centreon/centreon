@@ -8,7 +8,10 @@ on:
       module_name:
         required: true
         type: string
-      cache_key:
+      major_version:
+        required: true
+        type: string
+      minor_version:
         required: true
         type: string
       target_branch_name:
@@ -17,10 +20,18 @@ on:
       head_ref_name:
         required: true
         type: string
-      threshold:
+      event_name:
         required: true
         type: string
-
+      cache_key:
+        required: true
+        type: string
+      threshold_pipeline:
+        required: true
+        type: string
+      threshold_sandbox:
+        required: true
+        type: string
     secrets:
       veracode_api_id:
         required: true
@@ -43,8 +54,14 @@ jobs:
           module_directory: ${{ inputs.module_directory }}
           module_name: ${{ inputs.module_name }}
           target_branch_name: ${{ inputs.target_branch_name }}
-          compile_mvn: "no"
           cache_key: ${{ inputs.cache_key }}
+
+      - name: Set routing mode
+        if: inputs.event_name != 'pull-request' && (inputs.ref_name == 'develop' || inputs.ref_name == 'dev-[2-9][0-9].[0-9][0-9].x' || inputs.ref_name == 'master' || inputs.ref_name == '[2-9][0-9].[0-9][0-9].x' || inputs.head_ref_name == 'AT-94-pipeline-scan')
+        run: echo "scan_type=maintenance" >> $GITHUB_ENV
+
+      - name: DEBUG - Get routing mode
+        run: echo "mode = $env.scan_type"
 
   pipeline-scan:
     runs-on: [self-hosted, veracode]
@@ -91,11 +108,11 @@ jobs:
       - name: DEBUG - check location /tmp
         run: ls -la /tmp
 
-      - name: DEBUG - get baseline value
-        run: echo "baseline = ${{ needs.build.outputs.baseline_file }}"
-
       - name: DEBUG - get env baseline value
         run: echo "baseline = ${{ env.baseline_file }}"
+
+      - name: DEBUG - Get routing mode
+        run: echo "mode = $env.scan_type"
 
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
@@ -103,17 +120,17 @@ jobs:
           vid: ${{ secrets.veracode_api_id }}
           vkey: ${{ secrets.veracode_api_key }}
           file: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
-          fail_on_severity: ${{ inputs.threshold }}
+          fail_on_severity: ${{ inputs.threshold_pipeline }}
           #request_policy: "Centreon Security"
           #fail_build: true
           timeout: 60
-          baseline_file: ${{ needs.build.outputs.baseline_file }}
+          baseline_file: ${{ env.baseline_file }}"
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
       - name: Save baseline file
-        if: inputs.head_ref_name == 'develop' || inputs.head_ref_name == 'dev-[2-9][0-9].[0-9][0-9].x' || inputs.head_ref_name == 'master' || inputs.head_ref_name == '[2-9][0-9].[0-9][0-9].x' || inputs.head_ref_name == 'AT-94-pipeline-scan'
+        if: inputs.scan_type == 'maintenance'
         run: |
           mv results.json /tmp
           TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/results.json"
@@ -122,3 +139,55 @@ jobs:
 
       - name: Clean
         run: rm -f results.json filtered_results.json /tmp/results.json
+
+  sandbox-scan:
+    if: inputs.scan_type == 'maintenance'
+    # sandbox scans are triggered on maintenance branches only
+    runs-on: ubuntu-22.04
+    needs: [build]
+    steps:
+      - name: Get build binary
+        uses: actions/cache/restore@v3
+        with:
+          path: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
+          key: ${{ inputs.cache_key }}
+
+      - name: Veracode upload and run a Sandbox scan
+        uses: veracode/veracode-uploadandscan-action@master
+        id: upload_and_scan
+        with:
+          appname: "centreon/${{ inputs.module_name }}"
+          createprofile: true
+          filepath: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
+          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}"
+          vid: ${{ secrets.veracode_api_id }}
+          vkey: ${{ secrets.veracode_api_key }}
+          createsandbox: true
+          sandboxname: "${{ inputs.target_branch_name }}"
+          scantimeout: 60
+          includenewmodules: true
+          scanallnonfataltoplevelmodules: true
+          deleteincompletescan: 1
+          criticality: "${{ inputs.threshold_sandbox }}"
+
+      - name: Get current time
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+
+  promote-sandbox-task:
+    needs: [build, sandbox-scan]
+    name: Promote a scan from sandbox
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Promote Scan on Approval
+        env:
+          VERACODE_API_ID: ${{ secrets.veracode_api_id }}
+          VERACODE_API_SECRET: ${{ secrets.veracode_api_key }}
+        uses: lerer/veracode-sandboxes-helper@v1.0.1
+        with:
+          activity: "promote-latest-scan"
+          appname: "centreon/${{ inputs.module_name }}"
+          sandbox-name: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}"
+          delete-on-promote: true # Optional: also Deleting the Sandbox
+
+      - name: Get current time
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
