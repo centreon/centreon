@@ -60,10 +60,10 @@ jobs:
         run: |
           if [[ ${{ inputs.event_name }}  != 'pull-request' &&
             (
-              ${{ target_branch_name }} == 'develop' ||
-              ${{ target_branch_name }} == 'dev-[2-9][0-9].[0-9][0-9].x' ||
-              ${{ target_branch_name }} == 'master' ||
-              ${{ target_branch_name }} == '[2-9][0-9].[0-9][0-9].x'
+              ${{ inputs.target_branch_name }} == 'develop' ||
+              ${{ inputs.target_branch_name }} == 'dev-[2-9][0-9].[0-9][0-9].x' ||
+              ${{ inputs.target_branch_name }} == 'master' ||
+              ${{ inputs.target_branch_name }} == '[2-9][0-9].[0-9][0-9].x'
             )
           ]]; then
             echo "scan_type=maintenance" >> $GITHUB_OUTPUT
