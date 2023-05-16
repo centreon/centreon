@@ -43,9 +43,6 @@ jobs:
           compile_mvn: "no"
           cache_key: ${{ inputs.cache_key }}
 
-      - name: DEBUG - Github head ref
-        run: echo ${{ inputs.head_ref_name }} #TODO: to remove
-
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
@@ -101,7 +98,7 @@ jobs:
           vkey: ${{ secrets.veracode_api_key }}
           file: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
           fail_on_severity: ${{ inputs.threshold }}
-          request_policy: "Centreon Security"
+          #request_policy: "Centreon Security"
           fail_build: true
           timeout: 60
           baseline_file: ${{ needs.build.outputs.baseline_file }}

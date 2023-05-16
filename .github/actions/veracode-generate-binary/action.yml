@@ -10,10 +10,6 @@ inputs:
   target_branch_name:
     description: The target maintenance branch
     required: true
-  compile_mvn:
-    description: If java binary needs to be compiled
-  compile_cpp:
-    description: If C++ binary needs to be compiled
   cache_key:
     description: key used to identify the cache
     required: true
@@ -21,21 +17,22 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Exclude unconsistent files
-      #TODO: manage exclusion file
-      run: echo "TODO - Delete files or folders before creating zip file"
-      shell: bash
-
-    - name: Create JAR files
-      #TODO: manage JAR generation for project using JAVA
-      if: inputs.compile_mvn == 'yes'
-      run: echo "TODO - compile mvn files"
-      shell: bash
-
-    - name: Compile Cpp files
-      #TODO: manage Cpp files compilation
-      if: inputs.compile_cpp == 'yes'
-      run: echo "TODO - compile cpp files"
+    - name: Exclude development files
+      run: |
+        ls -la
+        if [[ -f ".veracode" ]]; then
+          for LINE in $( cat .veracode ); do
+            if [[ -d $LINE ]]; then
+              rm -rf $LINE
+            elif [[ -f $LINE ]]; then
+              rm -f $LINE
+            else
+              echo "DEBUG - unconsistent exclusion directive : $LINE"
+            fi
+          done
+        else
+          echo "DEBUG - No '.veracode' file found for this module. Skipping the exclusion directives"
+        fi
       shell: bash
 
     - name: Create zip file
