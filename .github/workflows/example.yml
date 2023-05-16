@@ -25,8 +25,6 @@ jobs:
       version_file: centreon/www/install/insertBaseConf.sql
 
   backend-dependencies:
-    needs:
-      - get-version
     runs-on: ubuntu-22.04
 
     steps:
