@@ -111,9 +111,24 @@ jobs:
         with:
           name: package-${{ matrix.distrib }}
           path: |
-            ./${{ env.base_directory }}/vendor/symfony
-            ./${{ env.base_directory }}/www/locale
+            ${{ env.base_directory }}/vendor/symfony/console/Application.php
+            ${{ env.base_directory }}/www/locale
           retention-days: 2
+
+  summary:
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+    needs:
+      - get-version
+      - package
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Generate list using Markdown
+        run: |
+          echo "This is the summary of the workflow :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- stability: ${{ needs.get-version.outputs.stability }}" >> $GITHUB_STEP_SUMMARY
+          echo "- version: ${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}" >> $GITHUB_STEP_SUMMARY
 
   deliver:
     if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
