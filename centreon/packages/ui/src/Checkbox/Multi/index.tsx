@@ -6,15 +6,15 @@ import SingleCheckbox, { LabelPlacement } from '../Single';
 
 interface Props {
   disabled?: boolean;
-  initialValues: Array<string>;
   labelPlacement?: LabelPlacement;
   onChange?: () => void;
+  options: Array<string>;
   row?: boolean;
   values: Array<string>;
 }
 
 const MultiCheckbox = ({
-  initialValues,
+  options,
   values,
   row = false,
   onChange,
@@ -23,13 +23,13 @@ const MultiCheckbox = ({
 }: Props): JSX.Element => {
   return (
     <FormGroup row={row}>
-      {initialValues?.map((elm) => {
+      {options.map((value) => {
         return (
           <SingleCheckbox
-            checked={includes(elm, values)}
+            checked={includes(value, values)}
             disabled={disabled}
-            key={elm}
-            label={elm}
+            key={value}
+            label={value}
             labelPlacement={labelPlacement}
             onChange={onChange}
           />

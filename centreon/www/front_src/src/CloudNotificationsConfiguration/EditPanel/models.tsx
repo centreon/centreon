@@ -16,13 +16,13 @@ export interface MultiIconCheckBoxProps {
 }
 
 export enum EventsType {
-  critical = 'critical',
-  down = 'down',
-  ok = 'ok',
-  unkown = 'unkown',
-  unreachable = 'unreachable',
-  up = 'up',
-  warning = 'warning'
+  Critical = 'critical',
+  Down = 'down',
+  Ok = 'ok',
+  Unkown = 'unkown',
+  Unreachable = 'unreachable',
+  Up = 'up',
+  Warning = 'warning'
 }
 
 export interface MessageType {

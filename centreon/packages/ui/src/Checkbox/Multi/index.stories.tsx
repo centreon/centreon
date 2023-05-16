@@ -2,7 +2,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import MultiCheckbox from '.';
 
-const initialValues = ['ok', 'warning', 'critical', 'unknown'];
+const options = ['ok', 'warning', 'critical', 'unknown'];
 
 const values = ['ok', 'critical'];
 
@@ -19,14 +19,14 @@ const Template: ComponentStory<typeof MultiCheckbox> = (args) => (
 export const Playground = Template.bind({});
 
 Playground.args = {
-  initialValues,
+  options,
   values
 };
 
 export const Horisontal = Template.bind({});
 
 Horisontal.args = {
-  initialValues,
+  options,
   row: true,
   values
 };
@@ -34,8 +34,8 @@ Horisontal.args = {
 export const LabelOnTop = Template.bind({});
 
 LabelOnTop.args = {
-  initialValues,
   labelPlacement: 'top',
+  options,
   row: true,
   values
 };

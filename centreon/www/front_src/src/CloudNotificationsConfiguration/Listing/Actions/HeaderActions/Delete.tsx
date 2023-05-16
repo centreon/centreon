@@ -30,7 +30,6 @@ const DeleteAction = (): JSX.Element => {
 
   const onClick = (): void => {
     setDialogOpen(true);
-    // console.log('selected : ', map(({ id }) => id)(selected));
   };
 
   const onCancel = (): void => {

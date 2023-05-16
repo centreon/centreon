@@ -6,13 +6,13 @@ const adpatIds = (data: Array<{ id: number; name: string }>): Array<number> =>
   map(({ id }) => id)(data);
 
 const getBinaryEquivalence = cond([
-  [equals(EventsType.up), always(1)],
-  [equals(EventsType.down), always(2)],
-  [equals(EventsType.unreachable), always(4)],
-  [equals(EventsType.ok), always(1)],
-  [equals(EventsType.warning), always(2)],
-  [equals(EventsType.critical), always(4)],
-  [equals(EventsType.unkown), always(8)],
+  [equals(EventsType.Up), always(1)],
+  [equals(EventsType.Down), always(2)],
+  [equals(EventsType.Unreachable), always(4)],
+  [equals(EventsType.Ok), always(1)],
+  [equals(EventsType.Warning), always(2)],
+  [equals(EventsType.Critical), always(4)],
+  [equals(EventsType.Unkown), always(8)],
   [T, always(0)]
 ]);
 

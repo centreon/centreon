@@ -55,8 +55,8 @@ const MultiCheckbox = ({
         {additionalLabel && <Typography>{additionalLabel}</Typography>}
         <MultiCheckboxComponent
           disabled={disabled}
-          initialValues={checkbox?.options}
           labelPlacement={checkbox?.labelPlacement || 'end'}
+          options={checkbox?.options}
           row={checkbox?.row || false}
           values={value}
           onChange={handleChange}

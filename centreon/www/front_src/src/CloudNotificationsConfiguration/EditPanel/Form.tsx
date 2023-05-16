@@ -42,13 +42,13 @@ const ReducePanel = (): JSX.Element => {
     setPanelWidth((prevState) => (gt(prevState, 675) ? 550 : 800));
   };
 
+  const panelWidthLabel = gt(panelWidth, 675)
+    ? t(labelReduceInformationPanel)
+    : t(labelExpandInformationPanel);
+
   return (
     <Box className={classes.reducePanel}>
-      <Button onClick={handlePanelWidth}>
-        {gt(panelWidth, 675)
-          ? t(labelReduceInformationPanel)
-          : t(labelExpandInformationPanel)}
-      </Button>
+      <Button onClick={handlePanelWidth}>{panelWidthLabel}</Button>
     </Box>
   );
 };

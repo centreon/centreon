@@ -9,12 +9,12 @@ import { EventsType } from './models';
 const emptyEmail =
   '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
 
-const hostEvents = [EventsType.up, EventsType.down, EventsType.unreachable];
+const hostEvents = [EventsType.Up, EventsType.Down, EventsType.Unreachable];
 const serviceEvents = [
-  EventsType.ok,
-  EventsType.warning,
-  EventsType.critical,
-  EventsType.unkown
+  EventsType.Ok,
+  EventsType.Warning,
+  EventsType.Critical,
+  EventsType.Unkown
 ];
 
 const formatEvents = (
