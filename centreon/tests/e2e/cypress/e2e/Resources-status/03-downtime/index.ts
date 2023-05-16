@@ -188,7 +188,11 @@ Given('a resource is on downtime', () => {
 });
 
 Given('that you have to go to the downtime page', () => {
-  cy.visit('/centreon/main.php?p=21001');
+  cy.navigateTo({
+    page: 'Downtimes',
+    rootItemNumber: 1,
+    subMenu: 'Downtimes'
+  });
 });
 
 When('I search for the resource currently "In Downtime" in the list', () => {
@@ -207,7 +211,7 @@ Then('the user selects the checkbox and clicks on the "Cancel" action', () => {
 
   cy.getIframeBody().find('form input[name="submit2"]').as('cancelButton');
 
-  cy.get('@cancelButton').first().click();
+  cy.get('@cancelButton').first().trigger('click');
 });
 
 Then('the user confirms the cancellation of the downtime', () => {
@@ -221,10 +225,12 @@ Then('the line disappears from the listing', () => {
     () => {
       return cy
         .reload()
-        .then(() => cy.getIframeBody().contains(serviceInDtName))
-        .parent()
+        .then(() =>
+          cy.getIframeBody().find('.ListTable tr:not(.ListHeader)').first()
+        )
+        .children()
         .then((val) => {
-          return val.length === 0;
+          return val.text().trim() === 'No downtime scheduled';
         });
     },
     {
@@ -240,27 +246,135 @@ Then('the user goes to the Resource Status page', () => {
   });
 });
 
+Then('the resource should not be in Downtime anymore', () => {
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(serviceInDtName))
+        .parent()
+        .then((val) => {
+          return val.css('background-color') === actionBackgroundColors.normal;
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
+});
+
+Given('multiple resources are on downtime', () => {
+  cy.contains(serviceInDtName)
+    .parent()
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .click();
+
+  cy.contains(secondServiceInDtName)
+    .parent()
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .click();
+
+  cy.getByTestId({ testId: 'Multiple Set Downtime' }).last().click();
+
+  cy.getByLabel({ label: 'Set downtime' }).last().click();
+
+  cy.wait('@postSaveDowntime').then(() => {
+    cy.contains('Downtime command sent').should('have.length', 1);
+  });
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(serviceInDtName))
+        .parent()
+        .then((val) => {
+          return (
+            val.css('background-color') === actionBackgroundColors.inDowntime
+          );
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
+});
+
+When('I search for the resources currently "In Downtime" in the list', () => {
+  cy.wait('@getTimeZone').then(() => {
+    cy.getIframeBody()
+      .contains(serviceInDtName)
+      .parent()
+      .parent()
+      .find('input[type="checkbox"]:first')
+      .as('serviceInDT');
+
+    cy.getIframeBody()
+      .contains(secondServiceInDtName)
+      .parent()
+      .parent()
+      .find('input[type="checkbox"]:first')
+      .as('secondServiceInDT');
+  });
+});
+
 Then(
-  'looks for the resource that was in Downtime, it should not be there anymore',
+  'the user selects the checkboxes and clicks on the "Cancel" action',
   () => {
-    cy.waitUntil(
-      () => {
-        return cy
-          .refreshListing()
-          .then(() => cy.contains(serviceInDtName))
-          .parent()
-          .then((val) => {
-            return (
-              val.css('background-color') === actionBackgroundColors.inDowntime
-            );
-          });
-      },
-      {
-        timeout: 15000
-      }
-    );
+    cy.get('@serviceInDT').check().should('be.checked');
+
+    cy.get('@secondServiceInDT').check().should('be.checked');
+
+    cy.getIframeBody().find('form input[name="submit2"]').as('cancelButton');
+
+    cy.get('@cancelButton').first().click();
   }
 );
+
+Then('the lines disappears from the listing', () => {
+  cy.waitUntil(
+    () => {
+      return cy
+        .reload()
+        .then(() =>
+          cy.getIframeBody().find('.ListTable tr:not(.ListHeader)').first()
+        )
+        .children()
+        .then((val) => {
+          return val.text().trim() === 'No downtime scheduled';
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
+});
+
+Then('the resources should not be in Downtime anymore', () => {
+  cy.waitUntil(
+    () => {
+      cy.refreshListing()
+        .then(() => cy.contains(serviceInDtName))
+        .parent()
+        .then((val) => {
+          return val.css('background-color') === actionBackgroundColors.normal;
+        });
+
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(secondServiceInDtName))
+        .parent()
+        .then((val) => {
+          return val.css('background-color') === actionBackgroundColors.normal;
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
+});
 
 after(() => {
   tearDownResource();

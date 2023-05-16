@@ -22,12 +22,22 @@ Background:
 #     Then the user must be notified of the sending of the order
 #     And the user should see the downtime resources appear in the listing after a refresh
 
-Scenario: Cancel a downtime on a resource
-    Given a resource is on downtime
-    And that you have to go to the downtime page
-    When I search for the resource currently "In Downtime" in the list
-    Then the user selects the checkbox and clicks on the "Cancel" action
+# Scenario: Cancel a downtime on a resource
+#     Given a resource is on downtime
+#     And that you have to go to the downtime page
+#     When I search for the resource currently "In Downtime" in the list
+#     Then the user selects the checkbox and clicks on the "Cancel" action
+#     Then the user confirms the cancellation of the downtime
+#     Then the line disappears from the listing
+#     Then the user goes to the Resource Status page
+#     And the resource should not be in Downtime anymore
+
+Scenario: Cancel multiple downtimes on multiple resources
+    Given multiple resources are on downtime
+    Given that you have to go to the downtime page
+    When I search for the resources currently "In Downtime" in the list
+    Then the user selects the checkboxes and clicks on the "Cancel" action
     Then the user confirms the cancellation of the downtime
-    Then the line disappears from the listing
+    Then the lines disappears from the listing
     Then the user goes to the Resource Status page
-    And looks for the resource that was in Downtime, it should not be there anymore
+    And the resources should not be in Downtime anymore
