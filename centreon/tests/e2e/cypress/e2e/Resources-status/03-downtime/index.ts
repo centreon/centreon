@@ -13,7 +13,7 @@ import {
 
 before(() => {
   cy.startWebContainer({
-    version: 'develop'
+    version: 'MON-17223-monitoring-downtime-automated'
   });
 });
 
@@ -261,6 +261,8 @@ Then('the resource should not be in Downtime anymore', () => {
       timeout: 15000
     }
   );
+
+  tearDownResource();
 });
 
 Given('multiple resources are on downtime', () => {
