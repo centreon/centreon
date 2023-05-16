@@ -795,7 +795,8 @@ sub monitoringengineBackup() {
     my $logs_archive_directory = substr($nagios_server->{log_archive_path}, 0, rindex($nagios_server->{log_archive_path}, "/"));
     mkpath($TEMP_CENTRAL_DIR."/logs/archives", {mode => 0755, error => \my $err_list});
     if (@$err_list) {
-        for my $diag (@$err_list) {            my ($file, $message) = %$diag;
+        for my $diag (@$err_list) {
+            my ($file, $message) = %$diag;
             if ($file eq '') {
                 print STDERR "Unable to create temporary directories because: " . $message . "\n";
             } else {
