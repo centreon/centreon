@@ -120,7 +120,7 @@ jobs:
         run: ls -la /tmp
 
       - name: DEBUG - get baseline value
-        run: echo "baseline = ${{ needs.build.outputs.baseline_file }}
+        run: echo "baseline = ${{ needs.build.outputs.baseline_file }}"
 
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
