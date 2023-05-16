@@ -61,7 +61,7 @@ jobs:
         run: echo "scan_type=maintenance" >> $GITHUB_ENV
 
       - name: DEBUG - Get routing mode
-        run: echo "mode = $env.scan_type"
+        run: echo "mode = ${{ env.scan_type }}"
 
   pipeline-scan:
     runs-on: [self-hosted, veracode]
@@ -112,7 +112,7 @@ jobs:
         run: echo "baseline = ${{ env.baseline_file }}"
 
       - name: DEBUG - Get routing mode
-        run: echo "mode = $env.scan_type"
+        run: echo "mode = ${{ env.scan_type }}"
 
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
@@ -120,11 +120,11 @@ jobs:
           vid: ${{ secrets.veracode_api_id }}
           vkey: ${{ secrets.veracode_api_key }}
           file: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
-          fail_on_severity: ${{ inputs.threshold_pipeline }}
+          fail_on_severity: "${{ inputs.threshold_pipeline }}"
           #request_policy: "Centreon Security"
           #fail_build: true
           timeout: 60
-          baseline_file: ${{ env.baseline_file }}"
+          baseline_file: "${{ env.baseline_file }}"
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
@@ -150,7 +150,7 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
-          key: ${{ inputs.cache_key }}
+          key: "${{ inputs.cache_key }}"
 
       - name: Veracode upload and run a Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
