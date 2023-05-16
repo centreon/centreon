@@ -153,7 +153,7 @@ $tpl->assign("elemArr", $elemArr);
  * Calculate available disk's space
  */
 
-$bytes = disk_free_space(_CENTREON_PATH_ . '/www/img/media/');
+$bytes = disk_free_space(\CentreonLegacyConstants::CENTREON_MEDIA_PATH);
 $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 $class = min((int)log($bytes, 1024), count($units) - 1);
 $availiableSpace = sprintf('%1.2f', $bytes / pow(1024, $class)) . ' ' . $units[$class];

@@ -74,7 +74,7 @@ class CentreonMedia
     public function getMediaDirectory()
     {
         if (empty($this->mediadirectoryname)) {
-            return _CENTREON_PATH_ . '/www/img/media/';
+            return \CentreonLegacyConstants::CENTREON_MEDIA_PATH;
         } else {
             return $this->mediadirectoryname;
         }
