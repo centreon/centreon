@@ -73,29 +73,11 @@ class CentreonMedia
      */
     public function getMediaDirectory()
     {
-        $mediaDirectory = '';
         if (empty($this->mediadirectoryname)) {
-            $query = "SELECT options.value FROM options WHERE options.key = 'nagios_path_img'";
-            try {
-                $result = $this->db->query($query);
-            } catch (\PDOException $e) {
-                throw new \Exception('Error while getting media directory ');
-            }
-
-
-            if ($result->rowCount()) {
-                $row = $result->fetchRow();
-                $mediaDirectory = $row['value'];
-            }
-
-            if (trim($mediaDirectory) == '') {
-                throw new \Exception('Error while getting media directory ');
-            }
+            return _CENTREON_PATH_ . '/www/img/media/';
         } else {
-            $mediaDirectory .= $this->mediadirectoryname;
+            return $this->mediadirectoryname;
         }
-
-        return $mediaDirectory;
     }
 
     /**

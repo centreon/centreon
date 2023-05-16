@@ -125,7 +125,6 @@ INSERT INTO `options` (`key`, `value`) VALUES
 ('tactical_refresh_interval', '20'),
 ('index_data', '1'),
 ('interval_length', '60'),
-('nagios_path_img','@centreon_dir@/www/img/media/'),
 ('selectPaginationSize', 60),
 ('display_downtime_chart','0'),
 ('display_comment_chart','0'),

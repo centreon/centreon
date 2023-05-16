@@ -134,7 +134,7 @@ abstract class AbstractService extends AbstractObject
     protected function getImages(array &$service): void
     {
         $media = Media::getInstance($this->dependencyInjector);
-        $media->getMediaPathFromId($service['esi_icon_image']);
+        $media->getMediaPathFromId($service[' ']);
     }
 
     /**
