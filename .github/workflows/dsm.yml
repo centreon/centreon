@@ -37,7 +37,8 @@ jobs:
       module_name: centreon-awie
       cache_key: ${{ github.sha }}-${{ github.run_id }}
       target_branch_name: ${{ github.base_ref || 'develop' }}
-      head_ref_name: ${{ github.head_ref }}
+      #head_ref_name: ${{ github.head_ref }}
+      branch_ref_name: 'AT-94-pipeline-scan'
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       threshold_pipeline: "High"

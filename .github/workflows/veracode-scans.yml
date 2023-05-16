@@ -17,7 +17,7 @@ on:
       target_branch_name:
         required: true
         type: string
-      head_ref_name:
+      branch_ref_name:
         required: true
         type: string
       event_name:
@@ -57,7 +57,7 @@ jobs:
           cache_key: ${{ inputs.cache_key }}
 
       - name: Set routing mode
-        if: inputs.event_name != 'pull-request' && (inputs.ref_name == 'develop' || inputs.ref_name == 'dev-[2-9][0-9].[0-9][0-9].x' || inputs.ref_name == 'master' || inputs.ref_name == '[2-9][0-9].[0-9][0-9].x' || inputs.head_ref_name == 'AT-94-pipeline-scan')
+        if: inputs.event_name != 'pull-request' && (inputs.branch_ref_name == 'develop' || inputs.branch_ref_name == 'dev-[2-9][0-9].[0-9][0-9].x' || inputs.branch_ref_name == 'master' || inputs.branch_ref_name == '[2-9][0-9].[0-9][0-9].x')
         run: echo "scan_type=maintenance" >> $GITHUB_ENV
 
       - name: DEBUG - Get routing mode
