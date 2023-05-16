@@ -52,17 +52,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: |
-          mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
-          php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
-          for i in lang/* ; do
-            localefull=`basename $i`
-            langcode=`echo $localefull | cut -d _ -f 1`
-            mkdir -p "www/locale/$localefull/LC_MESSAGES"
-            msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo"
-            msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo"
-            php bin/centreon-translations.php "$langcode" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
-          done
+      - name: Build french translation
+        run: |
+          msgfmt "lang/fr_FR.UTF-8/LC_MESSAGES/messages.po" -o "www/locale/fr_FR.UTF-8/LC_MESSAGES/messages.mo"
         working-directory: ${{ env.base_directory }}
         shell: bash
 
@@ -111,11 +103,11 @@ jobs:
         with:
           name: package-${{ matrix.distrib }}
           path: |
-            ${{ env.base_directory }}/vendor/symfony/console/Application.php
-            ${{ env.base_directory }}/www/locale
+            ./${{ env.base_directory }}/vendor/symfony/console/Application.php
+            ./${{ env.base_directory }}/www/locale
           retention-days: 2
 
-  summary:
+  version-summary:
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
     needs:
       - get-version
@@ -123,9 +115,9 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Generate list using Markdown
+      - name: Generate version summary
         run: |
-          echo "This is the summary of the workflow :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "This is the summary of the environment :rocket:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- stability: ${{ needs.get-version.outputs.stability }}" >> $GITHUB_STEP_SUMMARY
           echo "- version: ${{ needs.get-version.outputs.major_version }}.${{ needs.get-version.outputs.minor_version }}" >> $GITHUB_STEP_SUMMARY
