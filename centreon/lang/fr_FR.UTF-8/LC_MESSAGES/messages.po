@@ -17588,3 +17588,6 @@ msgstr "Vous n'êtes pas autorisé à accéder aux modèles de service"
 
 msgid "Error while searching for service templates"
 msgstr "Erreur lors de la recherche de modèles de services"
+
+msgid "[%s] (%s) was expected to be an instance of the class '%s'"
+msgstr "[%s] (%s) devait être une instance de la classe '%s'"

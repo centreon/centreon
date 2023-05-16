@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\ServiceTemplate\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\ServiceTemplate\Domain\Model\NotificationType;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 
 /**
@@ -123,3 +124,27 @@ foreach (
         )->getMessage()
     );
 }
+
+foreach (['commandArguments', 'eventHandlerArguments'] as $field) {
+    it(
+        "should convert all argument values of the {$field} field to strings only if they are of scalar type",
+        function () use ($field) {
+            $arguments = [1, 2, '3', new \Exception()];
+            $serviceTemplate = new ServiceTemplate(1, 'fake_name', 'fake_alias', ...[$field => $arguments]);
+            $methodName = 'get' . ucfirst($field);
+            expect($serviceTemplate->{$methodName}())->toBe(['1', '2', '3']);
+        }
+    );
+}
+
+it(
+    "should throw an exception when one of the arguments in the notification list is not of the correct type",
+    fn() => (new ServiceTemplate(1, 'fake_name', 'fake_alias', ...['notificationTypes' => ["fake"]]))
+)->throws(
+    AssertionException::class,
+    AssertionException::badInstanceOfObject(
+        'string',
+        NotificationType::class,
+        'ServiceTemplate::notificationTypes'
+    )->getMessage()
+);

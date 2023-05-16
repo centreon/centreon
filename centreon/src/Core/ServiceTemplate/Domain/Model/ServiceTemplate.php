@@ -36,15 +36,20 @@ class ServiceTemplate
                  MAX_NOTES_LENGTH = 65535,
                  MAX_NOTES_URL_LENGTH = 65535,
                  MAX_ACTION_URL_LENGTH = 65535,
-                 MAX_ICON_ALT_LENGTH = 200,
-                 MIN_FLAP_THRESHOLD = 0;
+                 MAX_ICON_ALT_LENGTH = 200;
+
+    /** @var list<string> */
+    private array $commandArguments = [];
+
+    /** @var list<string> */
+    private array $eventHandlerArguments = [];
 
     /**
      * @param int $id
      * @param string $name
      * @param string $alias
-     * @param list<string> $commandArguments
-     * @param list<string> $eventHandlerArguments
+     * @param list<mixed> $commandArguments
+     * @param list<mixed> $eventHandlerArguments
      * @param NotificationType[] $notificationTypes
      * @param bool $contactAdditiveInheritance
      * @param bool $contactGroupAdditiveInheritance
@@ -88,8 +93,8 @@ class ServiceTemplate
         private int $id,
         private string $name,
         private string $alias,
-        private array $commandArguments = [],
-        private array $eventHandlerArguments = [],
+        array $commandArguments = [],
+        array $eventHandlerArguments = [],
         private array $notificationTypes = [],
         private bool $contactAdditiveInheritance = false,
         private bool $contactGroupAdditiveInheritance = false,
@@ -182,6 +187,26 @@ class ServiceTemplate
             $propertyValue = ${$propertyName};
             if ($propertyValue !== null) {
                 Assertion::min($propertyValue, 0, "{$className}::{$propertyName}");
+            }
+        }
+
+        $this->commandArguments = [];
+        foreach ($commandArguments as $argument) {
+            if (is_scalar($argument)) {
+                $this->commandArguments[] = (string) $argument;
+            }
+        }
+
+        $this->eventHandlerArguments = [];
+        foreach ($eventHandlerArguments as $argument) {
+            if (is_scalar($argument)) {
+                $this->eventHandlerArguments[] = (string) $argument;
+            }
+        }
+
+        foreach ($notificationTypes as $type) {
+            if (! ($type instanceof NotificationType)) {
+                Assertion::isInstanceOf($type, NotificationType::class, "{$className}::notificationTypes");
             }
         }
     }

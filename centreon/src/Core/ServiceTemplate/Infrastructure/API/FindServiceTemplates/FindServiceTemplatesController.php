@@ -26,6 +26,7 @@ namespace Core\ServiceTemplate\Infrastructure\API\FindServiceTemplates;
 use Centreon\Application\Controller\AbstractController;
 use Core\ServiceTemplate\Application\UseCase\FindServiceTemplates\FindServiceTemplates;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class FindServiceTemplatesController extends AbstractController
 {
@@ -35,6 +36,8 @@ final class FindServiceTemplatesController extends AbstractController
      * @param FindServiceTemplatesPresenterSaas $saasPresenter
      * @param bool $isCloudPlatform
      *
+     * @throws AccessDeniedException
+     *
      * @return Response
      */
     public function __invoke(
@@ -43,7 +46,7 @@ final class FindServiceTemplatesController extends AbstractController
         FindServiceTemplatesPresenterSaas $saasPresenter,
         bool $isCloudPlatform,
     ): Response {
-        $this->denyAccessUnlessGrantedForAPIConfiguration();
+        $this->denyAccessUnlessGrantedForApiConfiguration();
 
         $presenter = $isCloudPlatform ? $saasPresenter : $onPremPresenter;
 

@@ -16199,3 +16199,6 @@ msgstr ""
 
 # msgid "Error while searching for service templates"
 # msgstr ""
+
+# msgid "[%s] (%s) was expected to be an instance of the class '%s'"
+# msgstr ""

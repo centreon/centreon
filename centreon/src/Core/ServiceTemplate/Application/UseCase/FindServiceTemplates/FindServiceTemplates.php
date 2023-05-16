@@ -52,8 +52,7 @@ final class FindServiceTemplates
         try {
             if (
                 ! $this->user->isAdmin()
-                &&
-                (
+                && (
                     ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ)
                     && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE)
                 )
@@ -110,7 +109,6 @@ final class FindServiceTemplates
             $dto->isActivated = $serviceTemplate->isActivated();
             $dto->isLocked = $serviceTemplate->isLocked();
             $dto->activeChecks = $serviceTemplate->getActiveChecks();
-            $dto->eventHandlerEnabled = $serviceTemplate->getEventHandlerEnabled();
             $dto->eventHandlerEnabled = $serviceTemplate->getEventHandlerEnabled();
             $dto->checkFreshness = $serviceTemplate->getCheckFreshness();
             $dto->notificationsEnabled = $serviceTemplate->getNotificationsEnabled();

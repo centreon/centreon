@@ -192,13 +192,11 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     private function createServiceTemplate(array $data): ServiceTemplate
     {
-        $extractCommandArgument = function (?string $arguments): array {
+        $extractCommandArgument = static function (?string $arguments): array {
             $commandSplitPattern = '/!([^!]*)/';
             $commandArguments = [];
-            if ($arguments !== null) {
-                if (preg_match_all($commandSplitPattern, $arguments, $result)) {
-                    $commandArguments = $result[1];
-                }
+            if ($arguments !== null && preg_match_all($commandSplitPattern, $arguments, $result)) {
+                $commandArguments = $result[1];
             }
 
             return $commandArguments;
@@ -261,6 +259,8 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     /**
      * @param string|null $notificationTypes
      *
+     * @throws \Exception
+     *
      * @return NotificationType[]
      */
     private function createNotificationType(?string $notificationTypes): array
@@ -269,20 +269,19 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             return [];
         }
         $notifications = [];
+        $types = explode(',', $notificationTypes);
 
-        $types = preg_split('|,|', $notificationTypes);
-        if (is_array($types)) {
-            foreach ($types as $type) {
-                $notifications[] = match ($type) {
-                    'w' => NotificationType::Warning,
-                    'u' => NotificationType::Unknown,
-                    'c' => NotificationType::Critical,
-                    'r' => NotificationType::Recovery,
-                    'f' => NotificationType::Flapping,
-                    's' => NotificationType::DowntimeScheduled,
-                    default => NotificationType::None
-                };
-            }
+        foreach (array_unique($types) as $type) {
+            $notifications[] = match ($type) {
+                'w' => NotificationType::Warning,
+                'u' => NotificationType::Unknown,
+                'c' => NotificationType::Critical,
+                'r' => NotificationType::Recovery,
+                'f' => NotificationType::Flapping,
+                's' => NotificationType::DowntimeScheduled,
+                'n' => NotificationType::None,
+                default => throw new \Exception("Notification type '{$type}' unknown")
+            };
         }
 
         return $notifications;
