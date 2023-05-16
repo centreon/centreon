@@ -29,6 +29,5 @@ enum CommandType: int
     case Check = 2;
     case Miscellaneous = 3;
 
-    // TODO always keep or dependent on module installation ?
-    case Discovery = 4;
+    // Note: exist case Discovery = 4 for autodiscovery only
 }
