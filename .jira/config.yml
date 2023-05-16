@@ -9,3 +9,4 @@ deployments:
     production:
       - ".*-production"
       - "production"
+      

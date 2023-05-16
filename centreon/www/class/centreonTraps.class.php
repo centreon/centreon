@@ -625,7 +625,12 @@ class CentreonTraps
                         SELECT s.service_id
                         FROM service s
                         WHERE s.service_register = '0'
-                        AND s.service_id = traps_service_relation.service_id)";
+                        AND s.service_id = traps_service_relation.service_id)
+                    AND NOT EXISTS (
+                        SELECT hsr.service_service_id
+                        FROM host_service_relation hsr
+                        WHERE hsr.hostgroup_hg_id IS NOT NULL
+                        AND hsr.service_service_id = traps_service_relation.service_id)";
 
             $statement = $this->db->prepare($query);
             $statement->bindValue(':trapId', $trapId, \PDO::PARAM_INT);
