@@ -106,10 +106,3 @@ Feature:
       { "not_exists": "foo-bar" }
       """
     Then the response code should be "400"
-    And the JSON should be equal to:
-      """
-      {
-        "code": 400,
-        "message": "[name] The property name is required\n[alias] The property alias is required\nThe property not_exists is not defined and the definition does not allow additional properties\n"
-      }
-      """

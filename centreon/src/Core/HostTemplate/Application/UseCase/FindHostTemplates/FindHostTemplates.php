@@ -63,7 +63,7 @@ final class FindHostTemplates
                     "User doesn't have sufficient rights to see host templates",
                     ['user_id' => $this->user->getId()]
                 );
-                $presenter->setResponseStatus(
+                $presenter->presentResponse(
                     new ForbiddenResponse(HostTemplateException::accessNotAllowed())
                 );
 
@@ -71,9 +71,9 @@ final class FindHostTemplates
             }
 
             $hostTemplates = $this->readHostTemplateRepository->findByRequestParameter($this->requestParameters);
-            $presenter->present($this->createResponse($hostTemplates));
+            $presenter->presentResponse($this->createResponse($hostTemplates));
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse(HostTemplateException::findHostTemplates($ex)));
+            $presenter->presentResponse(new ErrorResponse(HostTemplateException::findHostTemplates($ex)));
             $this->error($ex->getMessage());
         }
     }

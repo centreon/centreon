@@ -81,7 +81,7 @@ final class AddHostTemplate
                     "User doesn't have sufficient rights to add host templates",
                     ['user_id' => $this->user->getId()]
                 );
-                $presenter->setResponseStatus(
+                $presenter->presentResponse(
                     new ForbiddenResponse(HostTemplateException::addNotAllowed()->getMessage())
                 );
 
@@ -104,21 +104,21 @@ final class AddHostTemplate
             $hostTemplate = $this->readHostTemplateRepository->findById($hostTemplateId);
 
             if (! $hostTemplate) {
-                $presenter->setResponseStatus(
+                $presenter->presentResponse(
                     new ErrorResponse(HostTemplateException::errorWhileRetrievingObject())
                 );
 
                 return;
             }
 
-            $presenter->present(
+            $presenter->presentResponse(
                 new CreatedResponse($hostTemplateId, $this->createResponse($hostTemplate))
             );
         } catch (AssertionFailedException|\ValueError $ex) {
-            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
+            $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (HostTemplateException $ex) {
-            $presenter->setResponseStatus(
+            $presenter->presentResponse(
                 match ($ex->getCode()) {
                     HostTemplateException::CODE_CONFLICT => new ConflictResponse($ex),
                     default => new ErrorResponse($ex),
@@ -126,7 +126,7 @@ final class AddHostTemplate
             );
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(
+            $presenter->presentResponse(
                 new ErrorResponse(HostTemplateException::addHostTemplate($ex))
             );
             $this->error((string) $ex);

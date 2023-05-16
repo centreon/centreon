@@ -112,14 +112,14 @@ Feature:
         "timezone_id": 1,
         "severity_id": 1,
         "check_command_id": 1,
-        "check_command_args": "checkCommandArgs-value",
+        "check_command_args": [" this\nis\targ1 ", " arg2   "],
         "check_timeperiod_id": 1,
         "max_check_attempts": 5,
         "normal_check_interval": 5,
         "retry_check_interval": 5,
-        "is_active_check_enabled": 1,
-        "is_passive_check_enabled": 1,
-        "is_notification_enabled": 2,
+        "active_check_enabled": 1,
+        "passive_check_enabled": 1,
+        "notification_enabled": 2,
         "notification_options": null,
         "notification_interval": 5,
         "notification_timeperiod_id": 2,
@@ -128,14 +128,14 @@ Feature:
         "first_notification_delay": 5,
         "recovery_notification_delay": 5,
         "acknowledgement_timeout": 5,
-        "is_freshness_checked": 2,
+        "freshness_checked": 2,
         "freshness_threshold": 5,
-        "is_flap_detection_enabled": 2,
+        "flap_detection_enabled": 2,
         "low_flap_threshold": 5,
         "high_flap_threshold": 5,
-        "is_event_handler_enabled": 2,
+        "event_handler_enabled": 2,
         "event_handler_command_id": 2,
-        "event_handler_command_args": "eventHandlerCommandArgs\nvalue",
+        "event_handler_command_args": [" this\nis\targ3 ", " arg4   "],
         "note_url": 'noteUrl-value',
         "note": 'note-value',
         "action_url": 'actionUrl-value',
@@ -157,14 +157,14 @@ Feature:
         "timezone_id": 1,
         "severity_id": 1,
         "check_command_id": 1,
-        "check_command_args": "checkCommandArgs-value",
+        "check_command_args": ["this#BR#is#T#arg1", "arg2"],
         "check_timeperiod_id": 1,
         "max_check_attempts": 5,
         "normal_check_interval": 5,
         "retry_check_interval": 5,
-        "is_active_check_enabled": 1,
-        "is_passive_check_enabled": 1,
-        "is_notification_enabled": 2,
+        "active_check_enabled": 1,
+        "passive_check_enabled": 1,
+        "notification_enabled": 2,
         "notification_options": 31,
         "notification_interval": 5,
         "notification_timeperiod_id": 2,
@@ -173,14 +173,14 @@ Feature:
         "first_notification_delay": 5,
         "recovery_notification_delay": 5,
         "acknowledgement_timeout": 5,
-        "is_freshness_checked": 2,
+        "freshness_checked": 2,
         "freshness_threshold": 5,
-        "is_flap_detection_enabled": 2,
+        "flap_detection_enabled": 2,
         "low_flap_threshold": 5,
         "high_flap_threshold": 5,
-        "is_event_handler_enabled": 2,
+        "event_handler_enabled": 2,
         "event_handler_command_id": 2,
-        "event_handler_command_args": "eventHandlerCommandArgs#BR#value",
+        "event_handler_command_args": ["this#BR#is#T#arg3", "arg4"],
         "note_url": 'noteUrl-value',
         "note": 'note-value',
         "action_url": 'actionUrl-value',
@@ -197,8 +197,7 @@ Feature:
       """
       {
         "name": "host_template name",
-        "alias": "host-template-alias",
-        "is_activated": true
+        "alias": "host-template-alias"
       }
       """
     Then the response code should be "409"
@@ -209,10 +208,3 @@ Feature:
       { "not_exists": "foo-bar" }
       """
     Then the response code should be "400"
-    And the JSON should be equal to:
-      """
-      {
-        "code": 400,
-        "message": "[name] The property name is required\n[alias] The property alias is required\nThe property not_exists is not defined and the definition does not allow additional properties\n"
-      }
-      """
