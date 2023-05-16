@@ -14,7 +14,7 @@ Feature:
     STPL;ADD;service-name-1;service-alias-1;;;;
     """
 
-    When I send a GET request to '/api/latest/configuration/services/templates?search={"name": "service-name-1"}}'
+    When I send a GET request to '/api/latest/configuration/services/templates?search={"name": "service-name-1"}'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
