@@ -63,6 +63,12 @@ jobs:
       - name: DEBUG - Get routing mode
         run: echo "mode = ${{ env.scan_type }}"
 
+      - name: DEBUG - event type
+        run: echo "mode = ${{ inputs.event_name }}"
+
+      - name: DEBUG - branch ref name
+        run: echo "mode = ${{ inputs.branch_ref_name }}"
+
   pipeline-scan:
     runs-on: [self-hosted, veracode]
     needs: [build]
