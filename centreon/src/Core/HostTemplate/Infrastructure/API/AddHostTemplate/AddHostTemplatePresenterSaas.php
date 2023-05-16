@@ -26,11 +26,13 @@ namespace Core\HostTemplate\Infrastructure\API\AddHostTemplate;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplatePresenterInterface;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
-class AddHostTemplatePresenterSaas extends AbstractPresenter
+class AddHostTemplatePresenterSaas extends AbstractPresenter implements AddHostTemplatePresenterInterface
 {
     use PresenterTrait;
 
@@ -42,32 +44,29 @@ class AddHostTemplatePresenterSaas extends AbstractPresenter
     }
 
     /**
-     * @param CreatedResponse<AddHostTemplateResponse> $data
+     * @inheritDoc
      */
-    public function present(mixed $data): void
+    public function presentResponse(AddHostTemplateResponse|ResponseStatusInterface $response): void
     {
-        if (
-            $data instanceof CreatedResponse
-            && $data->getPayload() instanceof AddHostTemplateResponse
-        ) {
-            $payload = $data->getPayload();
-            $data->setPayload([
-                'id' => $payload->id,
-                'name' => $payload->name,
-                'alias' => $payload->alias,
-                'snmpVersion' => $payload->snmpVersion,
-                'snmpCommunity' => $this->emptyStringAsNull($payload->snmpCommunity),
-                'timezoneId' => $payload->timezoneId,
-                'severityId' => $payload->severityId,
-                'checkTimeperiodId' => $payload->checkTimeperiodId,
-                'noteUrl' => $this->emptyStringAsNull($payload->noteUrl),
-                'note' => $this->emptyStringAsNull($payload->note),
-                'actionUrl' => $this->emptyStringAsNull($payload->actionUrl),
-                'isLocked' => $payload->isLocked,
+        if ($response instanceof ResponseStatusInterface) {
+            $this->setResponseStatus($response);
+        } else {
+            $this->present([
+                'id' => $response->id,
+                'name' => $response->name,
+                'alias' => $response->alias,
+                'snmpVersion' => $response->snmpVersion,
+                'snmpCommunity' => $this->emptyStringAsNull($response->snmpCommunity),
+                'timezoneId' => $response->timezoneId,
+                'severityId' => $response->severityId,
+                'checkTimeperiodId' => $response->checkTimeperiodId,
+                'noteUrl' => $this->emptyStringAsNull($response->noteUrl),
+                'note' => $this->emptyStringAsNull($response->note),
+                'actionUrl' => $this->emptyStringAsNull($response->actionUrl),
+                'isLocked' => $response->isLocked,
             ]);
 
             // NOT setting location as required route does not currently exist
         }
-        parent::present($data);
     }
 }

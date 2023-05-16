@@ -26,11 +26,13 @@ namespace Core\HostTemplate\Infrastructure\API\AddHostTemplate;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplatePresenterInterface;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
-class AddHostTemplatePresenterOnPrem extends AbstractPresenter
+class AddHostTemplatePresenterOnPrem extends AbstractPresenter implements AddHostTemplatePresenterInterface
 {
     use PresenterTrait;
 
@@ -42,60 +44,58 @@ class AddHostTemplatePresenterOnPrem extends AbstractPresenter
     }
 
     /**
-     * @param CreatedResponse<AddHostTemplateResponse> $data
+     * @inheritDoc
      */
-    public function present(mixed $data): void
+    public function presentResponse(AddHostTemplateResponse|ResponseStatusInterface $response): void
     {
-        if (
-            $data instanceof CreatedResponse
-            && $data->getPayload() instanceof AddHostTemplateResponse
-        ) {
-            $payload = $data->getPayload();
-            $data->setPayload([
-                'id' => $payload->id,
-                'name' => $payload->name,
-                'alias' => $payload->alias,
-                'snmpVersion' => $payload->snmpVersion,
-                'snmpCommunity' => $this->emptyStringAsNull($payload->snmpCommunity),
-                'timezoneId' => $payload->timezoneId,
-                'severityId' => $payload->severityId,
-                'checkCommandId' => $payload->checkCommandId,
-                'checkCommandArgs' => $payload->checkCommandArgs,
-                'checkTimeperiodId' => $payload->checkTimeperiodId,
-                'maxCheckAttempts' => $payload->maxCheckAttempts,
-                'normalCheckInterval' => $payload->normalCheckInterval,
-                'retryCheckInterval' => $payload->retryCheckInterval,
-                'activeCheckEnabled' => $payload->activeCheckEnabled,
-                'passiveCheckEnabled' => $payload->passiveCheckEnabled,
-                'notificationEnabled' => $payload->notificationEnabled,
-                'notificationOptions' => $payload->notificationOptions,
-                'notificationInterval' => $payload->notificationInterval,
-                'notificationTimeperiodId' => $payload->notificationTimeperiodId,
-                'addInheritedContactGroup' => $payload->addInheritedContactGroup,
-                'addInheritedContact' => $payload->addInheritedContact,
-                'firstNotificationDelay' => $payload->firstNotificationDelay,
-                'recoveryNotificationDelay' => $payload->recoveryNotificationDelay,
-                'acknowledgementTimeout' => $payload->acknowledgementTimeout,
-                'freshnessChecked' => $payload->freshnessChecked,
-                'freshnessThreshold' => $payload->freshnessThreshold,
-                'flapDetectionEnabled' => $payload->flapDetectionEnabled,
-                'lowFlapThreshold' => $payload->lowFlapThreshold,
-                'highFlapThreshold' => $payload->highFlapThreshold,
-                'eventHandlerEnabled' => $payload->eventHandlerEnabled,
-                'eventHandlerCommandId' => $payload->eventHandlerCommandId,
-                'eventHandlerCommandArgs' => $payload->eventHandlerCommandArgs,
-                'noteUrl' => $this->emptyStringAsNull($payload->noteUrl),
-                'note' => $this->emptyStringAsNull($payload->note),
-                'actionUrl' => $this->emptyStringAsNull($payload->actionUrl),
-                'iconId' => $payload->iconId,
-                'iconAlternative' => $this->emptyStringAsNull($payload->iconAlternative),
-                'comment' => $this->emptyStringAsNull($payload->comment),
-                'isActivated' => $payload->isActivated,
-                'isLocked' => $payload->isLocked,
+        if ($response instanceof ResponseStatusInterface) {
+            $this->setResponseStatus($response);
+        } else {
+            $this->present([
+                'id' => $response->id,
+                'name' => $response->name,
+                'alias' => $response->alias,
+                'snmpVersion' => $response->snmpVersion,
+                'snmpCommunity' => $this->emptyStringAsNull($response->snmpCommunity),
+                'timezoneId' => $response->timezoneId,
+                'severityId' => $response->severityId,
+                'checkCommandId' => $response->checkCommandId,
+                'checkCommandArgs' => $response->checkCommandArgs,
+                'checkTimeperiodId' => $response->checkTimeperiodId,
+                'maxCheckAttempts' => $response->maxCheckAttempts,
+                'normalCheckInterval' => $response->normalCheckInterval,
+                'retryCheckInterval' => $response->retryCheckInterval,
+                'activeCheckEnabled' => $response->activeCheckEnabled,
+                'passiveCheckEnabled' => $response->passiveCheckEnabled,
+                'notificationEnabled' => $response->notificationEnabled,
+                'notificationOptions' => $response->notificationOptions,
+                'notificationInterval' => $response->notificationInterval,
+                'notificationTimeperiodId' => $response->notificationTimeperiodId,
+                'addInheritedContactGroup' => $response->addInheritedContactGroup,
+                'addInheritedContact' => $response->addInheritedContact,
+                'firstNotificationDelay' => $response->firstNotificationDelay,
+                'recoveryNotificationDelay' => $response->recoveryNotificationDelay,
+                'acknowledgementTimeout' => $response->acknowledgementTimeout,
+                'freshnessChecked' => $response->freshnessChecked,
+                'freshnessThreshold' => $response->freshnessThreshold,
+                'flapDetectionEnabled' => $response->flapDetectionEnabled,
+                'lowFlapThreshold' => $response->lowFlapThreshold,
+                'highFlapThreshold' => $response->highFlapThreshold,
+                'eventHandlerEnabled' => $response->eventHandlerEnabled,
+                'eventHandlerCommandId' => $response->eventHandlerCommandId,
+                'eventHandlerCommandArgs' => $response->eventHandlerCommandArgs,
+                'noteUrl' => $this->emptyStringAsNull($response->noteUrl),
+                'note' => $this->emptyStringAsNull($response->note),
+                'actionUrl' => $this->emptyStringAsNull($response->actionUrl),
+                'iconId' => $response->iconId,
+                'iconAlternative' => $this->emptyStringAsNull($response->iconAlternative),
+                'comment' => $this->emptyStringAsNull($response->comment),
+                'isActivated' => $response->isActivated,
+                'isLocked' => $response->isLocked,
             ]);
 
             // NOT setting location as required route does not currently exist
         }
-        parent::present($data);
+
     }
 }

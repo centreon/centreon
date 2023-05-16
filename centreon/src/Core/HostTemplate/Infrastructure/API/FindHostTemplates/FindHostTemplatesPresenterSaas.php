@@ -25,11 +25,13 @@ namespace Core\HostTemplate\Infrastructure\API\FindHostTemplates;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesPresenterInterface;
 use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
-class FindHostTemplatesPresenterSaas extends AbstractPresenter
+class FindHostTemplatesPresenterSaas extends AbstractPresenter implements FindHostTemplatesPresenterInterface
 {
     use PresenterTrait;
 
@@ -41,33 +43,37 @@ class FindHostTemplatesPresenterSaas extends AbstractPresenter
     }
 
     /**
-     * @param FindHostTemplatesResponse $data
+     * @inheritDoc
      */
-    public function present(mixed $data): void
+    public function presentResponse(FindHostTemplatesResponse|ResponseStatusInterface $response): void
     {
-        $result = [];
+        if ($response instanceof ResponseStatusInterface) {
+            $this->setResponseStatus($response);
+        } else {
+            $result = [];
 
-        foreach ($data->hostTemplates as $hostTemplate) {
-            $result[] = [
-                'id' => $hostTemplate['id'],
-                'name' => $hostTemplate['name'],
-                'alias' => $hostTemplate['alias'],
-                'snmp_version' => $hostTemplate['snmpVersion'],
-                'snmp_community' => $this->emptyStringAsNull($hostTemplate['snmpCommunity']),
-                'timezone_id' => $hostTemplate['timezoneId'],
-                'severity_id' => $hostTemplate['severityId'],
-                'check_timeperiod_id' => $hostTemplate['checkTimeperiodId'],
-                'note_url' => $this->emptyStringAsNull($hostTemplate['noteUrl']),
-                'note' => $this->emptyStringAsNull($hostTemplate['note']),
-                'action_url' => $this->emptyStringAsNull($hostTemplate['actionUrl']),
-                'is_activated' => $hostTemplate['isActivated'],
-                'is_locked' => $hostTemplate['isLocked'],
-            ];
+            foreach ($response->hostTemplates as $hostTemplate) {
+                $result[] = [
+                    'id' => $hostTemplate['id'],
+                    'name' => $hostTemplate['name'],
+                    'alias' => $hostTemplate['alias'],
+                    'snmp_version' => $hostTemplate['snmpVersion'],
+                    'snmp_community' => $this->emptyStringAsNull($hostTemplate['snmpCommunity']),
+                    'timezone_id' => $hostTemplate['timezoneId'],
+                    'severity_id' => $hostTemplate['severityId'],
+                    'check_timeperiod_id' => $hostTemplate['checkTimeperiodId'],
+                    'note_url' => $this->emptyStringAsNull($hostTemplate['noteUrl']),
+                    'note' => $this->emptyStringAsNull($hostTemplate['note']),
+                    'action_url' => $this->emptyStringAsNull($hostTemplate['actionUrl']),
+                    'is_activated' => $hostTemplate['isActivated'],
+                    'is_locked' => $hostTemplate['isLocked'],
+                ];
+            }
+
+            $this->present([
+                'result' => $result,
+                'meta' => $this->requestParameters->toArray(),
+            ]);
         }
-
-        parent::present([
-            'result' => $result,
-            'meta' => $this->requestParameters->toArray(),
-        ]);
     }
 }
