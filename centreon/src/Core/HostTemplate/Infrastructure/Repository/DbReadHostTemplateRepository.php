@@ -406,6 +406,18 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
          * might sometimes still be set at 0|'0' instead of NULL in DB
          */
 
+        $extractCommandArguments = function (?string $arguments): array {
+            $commandSplitPattern = '/!([^!]*)/';
+            $commandArguments = [];
+            if ($arguments !== null) {
+                if (preg_match_all($commandSplitPattern, $arguments, $result)) {
+                    $commandArguments = $result[1];
+                }
+            }
+
+            return $commandArguments;
+        };
+
         return new HostTemplate(
             $result['host_id'],
             $result['host_name'],
@@ -418,14 +430,17 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             0 === $result['host_location'] ? null : $result['host_location'],
             $result['severity_id'],
             $result['command_command_id'],
-            (string) $result['command_command_id_arg1'],
+            $extractCommandArguments($result['command_command_id_arg1']),
             $result['timeperiod_tp_id'],
             $result['host_max_check_attempts'],
             $result['host_check_interval'],
             $result['host_retry_check_interval'],
-            YesNoDefaultConverter::fromScalar($result['host_active_checks_enabled'] ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
-            YesNoDefaultConverter::fromScalar($result['host_passive_checks_enabled'] ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
-            YesNoDefaultConverter::fromScalar($result['host_notifications_enabled'] ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
+            YesNoDefaultConverter::fromScalar($result['host_active_checks_enabled']
+                ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
+            YesNoDefaultConverter::fromScalar($result['host_passive_checks_enabled']
+                ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
+            YesNoDefaultConverter::fromScalar($result['host_notifications_enabled']
+                ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
             match ($result['host_notification_options']) {
                 null => [],
                 default => HostEventConverter::fromString($result['host_notification_options']),
@@ -437,14 +452,17 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             $result['host_first_notification_delay'],
             $result['host_recovery_notification_delay'],
             $result['host_acknowledgement_timeout'],
-            YesNoDefaultConverter::fromScalar($result['host_check_freshness'] ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
+            YesNoDefaultConverter::fromScalar($result['host_check_freshness']
+                ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
             $result['host_freshness_threshold'],
-            YesNoDefaultConverter::fromScalar($result['host_flap_detection_enabled'] ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
+            YesNoDefaultConverter::fromScalar($result['host_flap_detection_enabled']
+                ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
             $result['host_low_flap_threshold'],
             $result['host_high_flap_threshold'],
-            YesNoDefaultConverter::fromScalar($result['host_event_handler_enabled'] ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
+            YesNoDefaultConverter::fromScalar($result['host_event_handler_enabled']
+                ?? YesNoDefaultConverter::toInt(YesNoDefault::Default)),
             $result['command_command_id2'],
-            (string) $result['command_command_id_arg2'],
+            $extractCommandArguments($result['command_command_id_arg2']),
             (string) $result['ehi_notes_url'],
             (string) $result['ehi_notes'],
             (string) $result['ehi_action_url'],

@@ -50,7 +50,7 @@ class NewHostTemplate
      * @param null|int $timezoneId
      * @param null|int $severityId
      * @param null|int $checkCommandId
-     * @param string $checkCommandArgs
+     * @param string[] $checkCommandArgs
      * @param null|int $checkTimeperiodId
      * @param null|int $maxCheckAttempts
      * @param null|int $normalCheckInterval
@@ -73,7 +73,7 @@ class NewHostTemplate
      * @param null|int $highFlapThreshold
      * @param YesNoDefault $eventHandlerEnabled
      * @param null|int $eventHandlerCommandId
-     * @param string $eventHandlerCommandArgs
+     * @param string[] $eventHandlerCommandArgs
      * @param string $noteUrl
      * @param string $note
      * @param string $actionUrl
@@ -93,7 +93,7 @@ class NewHostTemplate
         protected ?int $timezoneId = null,
         protected ?int $severityId = null,
         protected ?int $checkCommandId = null,
-        protected string $checkCommandArgs = '',
+        protected array $checkCommandArgs = [],
         protected ?int $checkTimeperiodId = null,
         protected ?int $maxCheckAttempts = null,
         protected ?int $normalCheckInterval = null,
@@ -116,7 +116,7 @@ class NewHostTemplate
         protected ?int $highFlapThreshold = null,
         protected YesNoDefault $eventHandlerEnabled = YesNoDefault::Default,
         protected ?int $eventHandlerCommandId = null,
-        protected string $eventHandlerCommandArgs = '',
+        protected array $eventHandlerCommandArgs = [],
         protected string $noteUrl = '',
         protected string $note = '',
         protected string $actionUrl = '',
@@ -130,8 +130,8 @@ class NewHostTemplate
 
         // Formating
         $this->name = self::formatName($name);
-        $this->checkCommandArgs = self::formatCommandArgs($checkCommandArgs);
-        $this->eventHandlerCommandArgs = self::formatCommandArgs($eventHandlerCommandArgs);
+        $this->checkCommandArgs = array_map((fn($arg) => self::formatCommandArgs($arg)), $checkCommandArgs);
+        $this->eventHandlerCommandArgs = array_map((fn($arg) => self::formatCommandArgs($arg)), $eventHandlerCommandArgs);
 
         Assertion::notEmptyString($this->name, "{$shortName}::name");
         Assertion::notEmptyString($this->alias, "{$shortName}::alias");
@@ -139,12 +139,18 @@ class NewHostTemplate
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
         Assertion::maxLength($this->alias, self::MAX_ALIAS_LENGTH, "{$shortName}::alias");
         Assertion::maxLength($this->snmpCommunity, self::MAX_SNMP_COMMUNITY_LENGTH, "{$shortName}::snmpCommunity");
-        Assertion::maxLength($this->checkCommandArgs, self::MAX_CHECK_COMMAND_ARGS_LENGTH, "{$shortName}::checkCommandArgs");
+
         Assertion::maxLength(
-            $this->eventHandlerCommandArgs,
+            implode('!', $this->checkCommandArgs),
+            self::MAX_CHECK_COMMAND_ARGS_LENGTH,
+            "{$shortName}::checkCommandArgs"
+        );
+        Assertion::maxLength(
+            implode('!', $this->eventHandlerCommandArgs),
             self::MAX_EVENT_HANDLER_COMMAND_ARGS_LENGTH,
             "{$shortName}::eventHandlerCommandArgs"
         );
+
         Assertion::maxLength($this->noteUrl, self::MAX_NOTE_URL_LENGTH, "{$shortName}::noteUrl");
         Assertion::maxLength($this->note, self::MAX_NOTE_LENGTH, "{$shortName}::note");
         Assertion::maxLength($this->actionUrl, self::MAX_ACTION_URL_LENGTH, "{$shortName}::actionUrl");
@@ -195,7 +201,7 @@ class NewHostTemplate
      *
      * @param string $args
      */
-    public static function formatCommandArgs(string $args): string
+    public static function formatCommandArg(string $args): string
     {
         return str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $args);
     }
@@ -215,12 +221,18 @@ class NewHostTemplate
         return $this->snmpCommunity;
     }
 
-    public function getCheckCommandArgs(): string
+    /**
+     * @return string[]
+     */
+    public function getCheckCommandArgs(): array
     {
         return $this->checkCommandArgs;
     }
 
-    public function getEventHandlerCommandArgs(): string
+    /**
+     * @return string[]
+     */
+    public function getEventHandlerCommandArgs(): array
     {
         return $this->eventHandlerCommandArgs;
     }
