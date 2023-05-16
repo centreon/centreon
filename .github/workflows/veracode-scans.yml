@@ -74,7 +74,6 @@ jobs:
       - name: DEBUG - routing mode
         run: |
           echo "routing mode = ${{ env.scan_type }}"
-          echo "routing mode = ${{ outputs.scan_type }}"
       - name: DEBUG - event type
         run: echo "event type = ${{ inputs.event_name }}"
       - name: DEBUG - branch ref name
