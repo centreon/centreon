@@ -106,7 +106,7 @@ jobs:
           vkey: '${{ secrets.veracode_api_key }}'
           file: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
           fail_on_severity: "${{ inputs.threshold_pipeline }}"
-          #fail_build: true #TODO: Not failing the jobs until grace period end
+          #fail_build: true #TODO: Do not fail the jobs until grace period ends
           timeout: 60
           baseline_file: "${{ env.baseline_file }}"
 
@@ -121,67 +121,6 @@ jobs:
 
       - name: Clean
         run: rm -f results.json filtered_results.json /tmp/results.json
-
-      - name: Get current time
-        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
-
-  sandbox-scan:
-    #if: needs.build.outputs.scan_type == 'maintenance'
-    # sandbox scans are triggered on maintenance branches only
-    runs-on: ubuntu-22.04
-    needs: [build]
-    steps:
-      - name: Get build binary
-        uses: actions/cache/restore@v3
-        with:
-          path: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
-          key: '${{ inputs.cache_key }}'
-
-      - name: Delete Sandbox
-        uses: veracode/veracode-sandboxes-helper@v1.0.0
-        env:
-          VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
-          VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
-        with:
-          activity: "remove-sandbox"
-          app-name: "${{ inputs.module_name }}"
-          sandbox-name: "${{ inputs.target_branch_name }}"
-
-      - name: Veracode upload and run a Sandbox scan
-        uses: veracode/veracode-uploadandscan-action@master
-        with:
-          appname: "${{ inputs.module_name }}"
-          createprofile: true
-          filepath: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
-          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}"
-          vid: '${{ secrets.veracode_api_id }}'
-          vkey: '${{ secrets.veracode_api_key }}'
-          createsandbox: true
-          sandboxname: "${{ inputs.target_branch_name }}"
-          scantimeout: 60
-          includenewmodules: true
-          scanallnonfataltoplevelmodules: true
-          deleteincompletescan: 1
-          criticality: "${{ inputs.threshold_sandbox }}"
-
-      - name: Get current time
-        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
-
-  promote-sandbox-task:
-    needs: [build, sandbox-scan]
-    name: Promote a scan from sandbox
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Promote Scan on Approval
-        uses: veracode/veracode-sandboxes-helper@v1.0.0
-        env:
-          VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
-          VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
-        with:
-          activity: "promote-latest-scan"
-          appname: "${{ inputs.module_name }}"
-          sandbox-name: "${{ inputs.target_branch_name }}"
-          delete-on-promote: true # Optional: also Deleting the Sandbox
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
