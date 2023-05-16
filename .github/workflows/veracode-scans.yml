@@ -50,10 +50,10 @@ jobs:
       - name: Generate binary file
         uses: ./.github/actions/veracode-generate-binary
         with:
-          module_directory: ${{ inputs.module_directory }}
-          module_name: ${{ inputs.module_name }}
-          target_branch_name: ${{ inputs.target_branch_name }}
-          cache_key: ${{ inputs.cache_key }}
+          module_directory: "${{ inputs.module_directory }}"
+          module_name: "${{ inputs.module_name }}"
+          target_branch_name: "${{ inputs.target_branch_name }}"
+          cache_key: '${{ inputs.cache_key }}'
 
       - name: Set routing mode
         id: routing-mode
@@ -69,7 +69,7 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
-          key: ${{ inputs.cache_key }}
+          key: '${{ inputs.cache_key }}'
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
@@ -79,7 +79,7 @@ jobs:
           distribution: 'zulu'
           java-version: 8
 
-      - name: Setup awscli
+      - name: Setup awscli #TODO: To install in veracode runner directly
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           sudo unzip -q awscliv2.zip
@@ -102,12 +102,11 @@ jobs:
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
-          vid: ${{ secrets.veracode_api_id }}
-          vkey: ${{ secrets.veracode_api_key }}
+          vid: '${{ secrets.veracode_api_id }}'
+          vkey: '${{ secrets.veracode_api_key }}'
           file: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
           fail_on_severity: "${{ inputs.threshold_pipeline }}"
-          #request_policy: "Centreon Security"
-          #fail_build: true
+          #fail_build: true #TODO: Not failing the jobs until grace period end
           timeout: 60
           baseline_file: "${{ env.baseline_file }}"
 
@@ -127,7 +126,7 @@ jobs:
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
   sandbox-scan:
-    if: needs.build.outputs.scan_type == 'maintenance'
+    #if: needs.build.outputs.scan_type == 'maintenance'
     # sandbox scans are triggered on maintenance branches only
     runs-on: ubuntu-22.04
     needs: [build]
@@ -136,18 +135,27 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
-          key: "${{ inputs.cache_key }}"
+          key: '${{ inputs.cache_key }}'
+
+      - name: Delete Sandbox
+        uses: veracode/veracode-sandboxes-helper@v1.0.0
+        env:
+          VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
+          VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
+        with:
+          activity: "remove-sandbox"
+          app-name: "${{ inputs.module_name }}"
+          sandbox-name: "${{ inputs.target_branch_name }}"
 
       - name: Veracode upload and run a Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
-        id: upload_and_scan
         with:
           appname: "${{ inputs.module_name }}"
           createprofile: true
           filepath: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
           version: "${{ inputs.major_version }}.${{ inputs.minor_version }}"
-          vid: ${{ secrets.veracode_api_id }}
-          vkey: ${{ secrets.veracode_api_key }}
+          vid: '${{ secrets.veracode_api_id }}'
+          vkey: '${{ secrets.veracode_api_key }}'
           createsandbox: true
           sandboxname: "${{ inputs.target_branch_name }}"
           scantimeout: 60
@@ -165,14 +173,14 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Promote Scan on Approval
+        uses: veracode/veracode-sandboxes-helper@v1.0.0
         env:
-          VERACODE_API_ID: ${{ secrets.veracode_api_id }}
-          VERACODE_API_SECRET: ${{ secrets.veracode_api_key }}
-        uses: lerer/veracode-sandboxes-helper@v1.0.1
+          VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
+          VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
         with:
           activity: "promote-latest-scan"
-          appname: "centreon/${{ inputs.module_name }}"
-          sandbox-name: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}"
+          appname: "${{ inputs.module_name }}"
+          sandbox-name: "${{ inputs.target_branch_name }}"
           delete-on-promote: true # Optional: also Deleting the Sandbox
 
       - name: Get current time
