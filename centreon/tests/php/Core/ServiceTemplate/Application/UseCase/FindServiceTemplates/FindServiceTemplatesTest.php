@@ -175,7 +175,7 @@ it('should present a ForbiddenResponse when the user has insufficient rights', f
         ->toBe(ServiceTemplateException::accessNotAllowed()->getMessage());
 });
 
-it('should present a FindServiceTemplatesResponse when user has the read only right', closure: function () {
+it('should present a FindServiceTemplatesResponse when user has read-only rights', closure: function () {
     $this->user
         ->expects($this->atMost(2))
         ->method('hasTopologyRole')
@@ -196,7 +196,7 @@ it('should present a FindServiceTemplatesResponse when user has the read only ri
     expect($this->presenter->response)->toBeInstanceOf(FindServiceTemplateResponse::class);
 });
 
-it('should present a FindHostTemplatesResponse when user has the read-wite rights', function () {
+it('should present a FindHostTemplatesResponse when user has read-write rights', function () {
         $this->user
         ->expects($this->atMost(2))
         ->method('hasTopologyRole')
@@ -217,13 +217,13 @@ it('should present a FindHostTemplatesResponse when user has the read-wite right
     expect($this->presenter->response)->toBeInstanceOf(FindServiceTemplateResponse::class);
 });
 
-it('should present a FindHostTemplatesResponse when user has the rights', function () {
+it('should present a FindHostTemplatesResponse when user has read or write rights', function () {
         $this->user
         ->expects($this->atMost(2))
         ->method('hasTopologyRole')
         ->willReturnMap(
             [
-                [Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ, false],
+                [Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ, true],
                 [Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true],
             ]
         );

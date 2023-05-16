@@ -1,7 +1,7 @@
 in: query
 name: limit
 required: false
-description: "Number of items per pages"
+description: "Number of items per page"
 schema:
   type: integer
   minimum: 1

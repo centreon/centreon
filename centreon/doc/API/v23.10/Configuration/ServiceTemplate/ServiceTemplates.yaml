@@ -1,7 +1,7 @@
 get:
   tags:
     - Service template
-  summary: "Find all service templates"
+  summary: "Find all service template"
   description: |
     Return all service templates configurations.
     
@@ -12,6 +12,11 @@ get:
     * alias
     * is_activated
     * is_locked
+  parameters:
+    - $ref: '../../Common/QueryParameter/Limit.yaml'
+    - $ref: '../../Common/QueryParameter/Page.yaml'
+    - $ref: '../../Common/QueryParameter/Search.yaml'
+    - $ref: '../../Common/QueryParameter/SortBy.yaml'
   responses:
     '200':
       description: "OK"

@@ -1,7 +1,7 @@
 in: query
 name: sort_by
 required: false
-description: "Sort the resulted data by its properties"
+description: "Sort the resulting data by its properties"
 schema:
   type: object
   example: '{"host.name":"ASC"}'

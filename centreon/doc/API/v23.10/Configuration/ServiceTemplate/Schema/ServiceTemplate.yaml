@@ -238,7 +238,7 @@ properties:
     example: null
   icon_alternative:
     type: string
-    description: "Define an optional string that is used in the alternative description of the icon image."
+    description: "Define an optional string that is used as an alternative description for the icon."
     nullable: true
     maxLength: 200
   severity_id:

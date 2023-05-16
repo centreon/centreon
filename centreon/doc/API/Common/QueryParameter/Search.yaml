@@ -6,12 +6,12 @@ schema:
 description: >
   Retrieve only data matching the defined search value.
 
-  Simple search can be done like the following example:
+  A simple search can be done like in the following example
   ```
   search={"host.name":"Central"}
   ```
 
-  Complex search can be done with aggregators and operators.
+  A complex search can be done with aggregators and operators.
 
   Available search aggregators are:
     * `$or`
