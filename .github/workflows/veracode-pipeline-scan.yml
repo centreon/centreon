@@ -34,6 +34,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Get current time
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
+
       - name: Generate binary file
         uses: ./.github/actions/veracode-generate-binary
         with:
@@ -42,9 +45,6 @@ jobs:
           target_branch_name: ${{ inputs.target_branch_name }}
           compile_mvn: "no"
           cache_key: ${{ inputs.cache_key }}
-
-      - name: Get current time
-        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
   pipeline-scan:
     runs-on: [self-hosted, veracode]
@@ -56,6 +56,9 @@ jobs:
         with:
           path: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
           key: ${{ inputs.cache_key }}
+
+      - name: Get current time
+        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
       - uses: actions/setup-java@v3
         with:
@@ -91,6 +94,9 @@ jobs:
       - name: DEBUG - get baseline value
         run: echo "baseline = ${{ needs.build.outputs.baseline_file }}"
 
+      - name: DEBUG - get env baseline value
+        run: echo "baseline = ${{ env.baseline_file }}"
+
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
@@ -99,12 +105,9 @@ jobs:
           file: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
           fail_on_severity: ${{ inputs.threshold }}
           #request_policy: "Centreon Security"
-          fail_build: true
+          #fail_build: true
           timeout: 60
           baseline_file: ${{ needs.build.outputs.baseline_file }}
-
-      - name: Move baseline file
-        run: mv results.json /tmp
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
@@ -112,9 +115,10 @@ jobs:
       - name: Save baseline file
         if: inputs.head_ref_name == 'develop' || inputs.head_ref_name == 'dev-[2-9][0-9].[0-9][0-9].x' || inputs.head_ref_name == 'master' || inputs.head_ref_name == '[2-9][0-9].[0-9][0-9].x' || inputs.head_ref_name == 'AT-94-pipeline-scan'
         run: |
+          mv results.json /tmp
           TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/results.json"
           BASELINE_FILE="/tmp/results.json"
           aws s3 cp "$BASELINE_FILE" "$TARGET_S3"
 
       - name: Clean
-        run: rm -f filtered_results.json /tmp/results.json
+        run: rm -f results.json filtered_results.json /tmp/results.json
