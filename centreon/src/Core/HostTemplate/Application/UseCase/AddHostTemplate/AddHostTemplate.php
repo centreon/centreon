@@ -44,8 +44,6 @@ use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
-use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateRequest;
-use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateResponse;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\HostTemplate\Domain\Model\NewHostTemplate;
 use Core\HostTemplate\Infrastructure\API\AddHostTemplate\AddHostTemplatePresenterOnPrem;
@@ -204,7 +202,6 @@ final class AddHostTemplate
     /**
      * Assert timezone ID is valid.
      *
-     * @param int $timezone
      * @param int $timezoneId
      *
      * @throws HostTemplateException
@@ -242,7 +239,7 @@ final class AddHostTemplate
     private function createNewHostTemplate(AddHostTemplateRequest $request): NewHostTemplate
     {
         $inheritanceMode
-            = ($this->optionService->findSelectedOptions(['inheritance_mode']))['inheritance_mode']?->getValue();
+            = ($this->optionService->findSelectedOptions(['inheritance_mode']))['inheritance_mode']->getValue();
 
         return new NewHostTemplate(
             $request->name,

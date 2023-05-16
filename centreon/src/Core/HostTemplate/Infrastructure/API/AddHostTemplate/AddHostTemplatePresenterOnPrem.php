@@ -23,9 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Infrastructure\API\AddHostTemplate;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplatePresenterInterface;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateResponse;
@@ -37,7 +35,6 @@ class AddHostTemplatePresenterOnPrem extends AbstractPresenter implements AddHos
     use PresenterTrait;
 
     public function __construct(
-        private readonly RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);

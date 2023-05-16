@@ -63,7 +63,6 @@ interface ReadHostTemplateRepositoryInterface
      * Determine if a host template exists by its name.
      * (include both host templates and hosts names).
      *
-     * @param int $hostTemplateId
      * @param string $hostTemplateName
      *
      * @return bool

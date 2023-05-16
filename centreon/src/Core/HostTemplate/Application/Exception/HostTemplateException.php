@@ -25,7 +25,6 @@ namespace Core\HostTemplate\Application\Exception;
 
 class HostTemplateException extends \Exception
 {
-
     public const CODE_CONFLICT = 1;
 
     /**
@@ -84,7 +83,6 @@ class HostTemplateException extends \Exception
 
     /**
      * @param string $propertieName
-     * @param int $value
      * @param int $propertieValue
      *
      * @return self
@@ -117,6 +115,5 @@ class HostTemplateException extends \Exception
     {
         return new self(sprintf(_('Host template #%s is locked (edition and suppression not allowed)'), $hostTemplateId));
     }
-
 }
 

@@ -74,7 +74,7 @@ final class DeleteHostTemplate
 
                 return;
             }
-            if($this->readHostTemplateRepository->isLocked($hostTemplateId)) {
+            if ($this->readHostTemplateRepository->isLocked($hostTemplateId)) {
                 $this->error(
                     'Host template is locked, deletion refused.',
                     ['host_template_id' => $hostTemplateId]

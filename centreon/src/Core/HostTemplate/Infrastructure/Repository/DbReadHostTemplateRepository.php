@@ -273,7 +273,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
          *     command_command_id: int|null,
          *     command_command_id_arg1: string|null,
          *     timeperiod_tp_id: int|null,
-         *     host_max_check_attemps: int|null,
+         *     host_max_check_attempts: int|null,
          *     host_check_interval: int|null,
          *     host_retry_check_interval: int|null,
          *     host_active_checks_enabled: string|null,

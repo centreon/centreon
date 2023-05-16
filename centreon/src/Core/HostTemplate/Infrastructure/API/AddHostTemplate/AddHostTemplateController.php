@@ -84,37 +84,37 @@ final class AddHostTemplateController extends AbstractController
              *     alias: string,
              *     snmp_version?: string,
              *     snmp_community?: string,
-             *     timezone_id?: ?int,
-             *     severity_id?: ?int,
-             *     check_command_id?: ?int,
+             *     timezone_id?: null|int,
+             *     severity_id?: null|int,
+             *     check_command_id?: null|int,
              *     check_command_args?: string[],
-             *     check_timeperiod_id?: ?int,
-             *     max_check_attempts?: ?int,
-             *     normal_check_interval?: ?int,
-             *     retry_check_interval?: ?int,
-             *     active_check_enabled?: ?int|string,
-             *     passive_check_enabled?: ?int|string,
-             *     notification_enabled?: ?int|string,
-             *     notification_options?: ?int,
-             *     notification_interval?: ?int,
-             *     notification_timeperiod_id?: ?int,
+             *     check_timeperiod_id?: null|int,
+             *     max_check_attempts?: null|int,
+             *     normal_check_interval?: null|int,
+             *     retry_check_interval?: null|int,
+             *     active_check_enabled?: null|int|string,
+             *     passive_check_enabled?: null|int|string,
+             *     notification_enabled?: null|int|string,
+             *     notification_options?: null|int,
+             *     notification_interval?: null|int,
+             *     notification_timeperiod_id?: null|int,
              *     add_inherited_contact_group?: bool,
              *     add_inherited_contact?: bool,
-             *     first_notification_delay?: ?int,
-             *     recovery_notification_delay?: ?int,
-             *     acknowledgement_timeout?: ?int,
-             *     freshness_checked?: ?int|string,
-             *     freshness_threshold?: ?int,
-             *     flap_detection_enabled?: ?int|string,
-             *     low_flap_threshold?: ?int,
-             *     high_flap_threshold?: ?int,
-             *     event_handler_enabled?: ?int|string,
-             *     event_handler_command_id?: ?int,
+             *     first_notification_delay?: null|int,
+             *     recovery_notification_delay?: null|int,
+             *     acknowledgement_timeout?: null|int,
+             *     freshness_checked?: null|int|string,
+             *     freshness_threshold?: null|int,
+             *     flap_detection_enabled?: null|int|string,
+             *     low_flap_threshold?: null|int,
+             *     high_flap_threshold?: null|int,
+             *     event_handler_enabled?: null|int|string,
+             *     event_handler_command_id?: null|int,
              *     event_handler_command_args?: string[],
              *     note_url?: string,
              *     note?: string,
              *     action_url?: string,
-             *     icon_id?: ?int,
+             *     icon_id?: null|int,
              *     icon_alternative?: string,
              *     comment?: string,
              *     is_activated?: bool
@@ -135,13 +135,13 @@ final class AddHostTemplateController extends AbstractController
             $dto->maxCheckAttempts = $data['max_check_attempts'] ?? null;
             $dto->normalCheckInterval = $data['normal_check_interval'] ?? null;
             $dto->retryCheckInterval = $data['retry_check_interval'] ?? null;
-            $dto->activeCheckEnabled = $data['active_check_enabled']
+            $dto->activeCheckEnabled = isset($data['active_check_enabled'])
                 ? (string) $data['active_check_enabled']
                 : '';
-            $dto->passiveCheckEnabled = $data['passive_check_enabled']
+            $dto->passiveCheckEnabled = isset($data['passive_check_enabled'])
                 ? (string) $data['passive_check_enabled']
                 : '';
-            $dto->notificationEnabled = $data['notification_enabled']
+            $dto->notificationEnabled = isset($data['notification_enabled'])
                 ? (string) $data['notification_enabled']
                 : '';
             $dto->notificationOptions = $data['notification_options'] ?? null;
@@ -152,20 +152,20 @@ final class AddHostTemplateController extends AbstractController
             $dto->firstNotificationDelay = $data['first_notification_delay'] ?? null;
             $dto->recoveryNotificationDelay = $data['recovery_notification_delay'] ?? null;
             $dto->acknowledgementTimeout = $data['acknowledgement_timeout'] ?? null;
-            $dto->freshnessChecked = $data['freshness_checked']
+            $dto->freshnessChecked = isset($data['freshness_checked'])
                 ? (string) $data['freshness_checked']
                 : '';
-            $dto->freshnessThreshold = $data['freshnessThreshold'] ?? null;
-            $dto->flapDetectionEnabled = $data['flap_detection_enabled']
+            $dto->freshnessThreshold = $data['freshness_threshold'] ?? null;
+            $dto->flapDetectionEnabled = isset($data['flap_detection_enabled'])
                 ? (string) $data['flap_detection_enabled']
                 : '';
             $dto->lowFlapThreshold = $data['low_flap_threshold'] ?? null;
             $dto->highFlapThreshold = $data['high_flap_threshold'] ?? null;
-            $dto->eventHandlerEnabled = $data['event_handler_enabled']
+            $dto->eventHandlerEnabled = isset($data['event_handler_enabled'])
                 ? (string) $data['event_handler_enabled']
                 : '';
             $dto->eventHandlerCommandId = $data['event_handler_command_id'] ?? null;
-            $dto->eventHandlerCommandArgs = $data['event_handler_commandArgs'] ?? [];
+            $dto->eventHandlerCommandArgs = $data['event_handler_command_args'] ?? [];
             $dto->noteUrl = $data['note_url'] ?? '';
             $dto->note = $data['note'] ?? '';
             $dto->actionUrl = $data['action_url'] ?? '';
@@ -206,9 +206,9 @@ final class AddHostTemplateController extends AbstractController
              *     alias: string,
              *     snmp_version?: string,
              *     snmp_community?: string,
-             *     timezone_id?: ?int,
-             *     severity_id?: ?int,
-             *     check_timeperiod_id?: ?int,
+             *     timezone_id?: null|int,
+             *     severity_id?: null|int,
+             *     check_timeperiod_id?: null|int,
              *     note_url?: string,
              *     note?: string,
              *     action_url?: string,

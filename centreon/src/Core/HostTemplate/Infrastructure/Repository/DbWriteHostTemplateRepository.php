@@ -26,9 +26,7 @@ namespace Core\HostTemplate\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
-use Core\Common\Domain\HostEvent;
 use Core\Common\Domain\HostType;
-use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
@@ -219,26 +217,26 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
         $statement->bindValue(
             ':noteUrl',
-            $hostTemplate->getNoteUrl() === null
+            $hostTemplate->getNoteUrl() === ''
                 ? null
                 : $this->legacyHtmlEncode($hostTemplate->getNoteUrl()), \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':note',
-            $hostTemplate->getNote() === null
+            $hostTemplate->getNote() === ''
                 ? null
                 : $this->legacyHtmlEncode($hostTemplate->getNote()), \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':actionUrl',
-            $hostTemplate->getActionUrl() === null
+            $hostTemplate->getActionUrl() === ''
                 ? null
                 : $this->legacyHtmlEncode($hostTemplate->getActionUrl()), \PDO::PARAM_STR
         );
         $statement->bindValue(':iconId', $hostTemplate->getIconId(), \PDO::PARAM_INT);
         $statement->bindValue(
             ':iconAlternative',
-            $hostTemplate->getIconAlternative() === null
+            $hostTemplate->getIconAlternative() === ''
                 ? null
                 : $this->legacyHtmlEncode($hostTemplate->getIconAlternative()), \PDO::PARAM_STR
         );
@@ -288,7 +286,7 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         );
         $statement->bindValue(
             ':snmpCommunity',
-            $hostTemplate->getSnmpCommunity() === null
+            $hostTemplate->getSnmpCommunity() === ''
                 ? null
                 : $this->legacyHtmlEncode($hostTemplate->getSnmpCommunity()),
             \PDO::PARAM_STR
@@ -335,28 +333,22 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         );
         $statement->bindValue(
             ':activeCheckEnabled',
-            $hostTemplate->getActiveCheckEnabled() === null
-                ? YesNoDefault::Default
-                : YesNoDefaultConverter::toString($hostTemplate->getActiveCheckEnabled()),
+            YesNoDefaultConverter::toString($hostTemplate->getActiveCheckEnabled()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':passiveCheckEnabled',
-            $hostTemplate->getPassiveCheckEnabled() === null
-                ? YesNoDefault::Default
-                : YesNoDefaultConverter::toString($hostTemplate->getPassiveCheckEnabled()),
+            YesNoDefaultConverter::toString($hostTemplate->getPassiveCheckEnabled()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':notificationEnabled',
-            $hostTemplate->getNotificationEnabled() === null
-                ? YesNoDefault::Default
-                : YesNoDefaultConverter::toString($hostTemplate->getNotificationEnabled()),
+            YesNoDefaultConverter::toString($hostTemplate->getNotificationEnabled()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':notificationOptions',
-            $hostTemplate->getNotificationOptions() === null
+            $hostTemplate->getNotificationOptions() === []
                 ? null
                 : HostEventConverter::toString($hostTemplate->getNotificationOptions()),
             \PDO::PARAM_STR
@@ -398,9 +390,7 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         );
         $statement->bindValue(
             ':freshnessChecked',
-            $hostTemplate->getFreshnessChecked() === null
-                ? YesNoDefault::Default
-                : YesNoDefaultConverter::toString($hostTemplate->getFreshnessChecked()),
+            YesNoDefaultConverter::toString($hostTemplate->getFreshnessChecked()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -410,9 +400,7 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         );
         $statement->bindValue(
             ':flapDetectionEnabled',
-            $hostTemplate->getFlapDetectionEnabled() === null
-                ? YesNoDefault::Default
-                : YesNoDefaultConverter::toString($hostTemplate->getFlapDetectionEnabled()),
+            YesNoDefaultConverter::toString($hostTemplate->getFlapDetectionEnabled()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -427,9 +415,7 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         );
         $statement->bindValue(
             ':eventHandlerEnabled',
-            $hostTemplate->getEventHandlerEnabled() === null
-                ? YesNoDefault::Default
-                : YesNoDefaultConverter::toString($hostTemplate->getEventHandlerEnabled()),
+            YesNoDefaultConverter::toString($hostTemplate->getEventHandlerEnabled()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -449,7 +435,7 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         );
         $statement->bindValue(
             ':comment',
-            $hostTemplate->getComment() === null
+            $hostTemplate->getComment() === ''
                 ? null
                 : $this->legacyHtmlEncode($hostTemplate->getComment()),
             \PDO::PARAM_STR
