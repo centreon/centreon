@@ -6647,10 +6647,11 @@ components:
           example: 1
           nullable: true
         check_command_args:
-          type: string
+          type: array
           description: "Check command arguments"
-          example: "!0!OK"
-          nullable: true
+          items:
+            type: string
+          example: ["0", "OK"]
         check_timeperiod_id:
           type: integer
           description: "Check command timeperiod ID"
@@ -6802,10 +6803,11 @@ components:
           example: 1
           nullable: true
         event_handler_command_args:
-          type: string
+          type: array
           description: "Event handler command arguments"
-          example: "!0!OK"
-          nullable: true
+          items:
+            type: string
+          example: ["0", "OK"]
         note_url:
           type: string
           nullable: true

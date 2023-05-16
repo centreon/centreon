@@ -28,6 +28,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
@@ -65,11 +66,22 @@ final class DeleteHostTemplate
                 return;
             }
             if (! $this->readHostTemplateRepository->exists($hostTemplateId)) {
-                 $this->error(
+                $this->error(
                     'Host template not found',
                     ['host_template_id' => $hostTemplateId]
                 );
                 $presenter->setResponseStatus(new NotFoundResponse('Host template'));
+
+                return;
+            }
+            if($this->readHostTemplateRepository->isLocked($hostTemplateId)) {
+                $this->error(
+                    'Host template is locked, deletion refused.',
+                    ['host_template_id' => $hostTemplateId]
+                );
+                $presenter->setResponseStatus(
+                    new InvalidArgumentResponse(HostTemplateException::hostIsLocked($hostTemplateId))
+                );
 
                 return;
             }

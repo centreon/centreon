@@ -35,10 +35,11 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\CommandType;
-use Core\Common\Domain\HostEvent;
-use Core\Common\Domain\SnmpVersion;
 use Core\Common\Domain\YesNoDefault;
+use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
@@ -244,7 +245,7 @@ final class AddHostTemplate
             = ($this->optionService->findSelectedOptions(['inheritance_mode']))['inheritance_mode']?->getValue();
 
         return new NewHostTemplate(
-            HostTemplate::formatName($request->name),
+            $request->name,
             $request->alias,
             $request->snmpVersion === ''
                 ? null
@@ -253,23 +254,23 @@ final class AddHostTemplate
             $request->timezoneId,
             $request->severityId,
             $request->checkCommandId,
-            HostTemplate::formatCommandArgs($request->checkCommandArgs),
+           $request->checkCommandArgs,
             $request->checkTimeperiodId,
             $request->maxCheckAttempts,
             $request->normalCheckInterval,
             $request->retryCheckInterval,
-            $request->isActiveCheckEnabled === ''
+            $request->activeCheckEnabled === ''
                 ? YesNoDefault::Default
-                : YesNoDefault::from($request->isActiveCheckEnabled),
-            $request->isPassiveCheckEnabled === ''
+                : YesNoDefaultConverter::fromScalar($request->activeCheckEnabled),
+            $request->passiveCheckEnabled === ''
                 ? YesNoDefault::Default
-                : YesNoDefault::from($request->isPassiveCheckEnabled),
-            $request->isNotificationEnabled === ''
+                : YesNoDefaultConverter::fromScalar($request->passiveCheckEnabled),
+            $request->notificationEnabled === ''
                 ? YesNoDefault::Default
-                : YesNoDefault::from($request->isNotificationEnabled),
+                : YesNoDefaultConverter::fromScalar($request->notificationEnabled),
             $request->notificationOptions === null
                 ? []
-                : HostEvent::fromBitMask($request->notificationOptions),
+                : HostEventConverter::fromBitMask($request->notificationOptions),
             $request->notificationInterval,
             $request->notificationTimeperiodId,
             $inheritanceMode === '1' ? $request->addInheritedContactGroup : false,
@@ -277,20 +278,20 @@ final class AddHostTemplate
             $request->firstNotificationDelay,
             $request->recoveryNotificationDelay,
             $request->acknowledgementTimeout,
-            $request->isFreshnessChecked === ''
+            $request->freshnessChecked === ''
                 ? YesNoDefault::Default
-                : YesNoDefault::from($request->isFreshnessChecked),
+                : YesNoDefaultConverter::fromScalar($request->freshnessChecked),
             $request->freshnessThreshold,
-            $request->isFlapDetectionEnabled === ''
+            $request->flapDetectionEnabled === ''
                 ? YesNoDefault::Default
-                : YesNoDefault::from($request->isFlapDetectionEnabled),
+                : YesNoDefaultConverter::fromScalar($request->flapDetectionEnabled),
             $request->lowFlapThreshold,
             $request->highFlapThreshold,
-            $request->isEventHandlerEnabled === ''
+            $request->eventHandlerEnabled === ''
                 ? YesNoDefault::Default
-                : YesNoDefault::from($request->isEventHandlerEnabled),
+                : YesNoDefaultConverter::fromScalar($request->eventHandlerEnabled),
             $request->eventHandlerCommandId,
-            HostTemplate::formatCommandArgs($request->eventHandlerCommandArgs),
+            $request->eventHandlerCommandArgs,
             $request->noteUrl,
             $request->note,
             $request->actionUrl,
@@ -308,9 +309,7 @@ final class AddHostTemplate
                 $response->id = $hostTemplate->getId();
                 $response->name = $hostTemplate->getName();
                 $response->alias = $hostTemplate->getAlias();
-                $response->snmpVersion = $hostTemplate->getSnmpVersion()
-                    ? $hostTemplate->getSnmpVersion()->value
-                    : null;
+                $response->snmpVersion = $hostTemplate->getSnmpVersion()? $hostTemplate->getSnmpVersion()->value : null;
                 $response->snmpCommunity = $hostTemplate->getSnmpCommunity();
                 $response->timezoneId = $hostTemplate->getTimezoneId();
                 $response->severityId = $hostTemplate->getSeverityId();
@@ -320,20 +319,10 @@ final class AddHostTemplate
                 $response->maxCheckAttempts = $hostTemplate->getMaxCheckAttempts();
                 $response->normalCheckInterval = $hostTemplate->getNormalCheckInterval();
                 $response->retryCheckInterval = $hostTemplate->getretryCheckInterval();
-                $response->isActiveCheckEnabled = $hostTemplate->isActiveCheckEnabled()->toInt();
-                $response->isPassiveCheckEnabled = $hostTemplate->isPassiveCheckEnabled()->toInt();
-                $response->isNotificationEnabled = $hostTemplate->isNotificationEnabled()->toInt();
-                /**
-                 * TODO
-                 *  this is related to api (> 23.10) behaviour,
-                 *  where no options selected is egal to a full bitmask
-                 *  and empty bitmask is HostEvent::None.
-                 *
-                 *  Do we keep this behaviour or do we return null ?
-                 */
-                $response->notificationOptions = $hostTemplate->getNotificationOptions() !== []
-                    ? HostEvent::toBitmask($hostTemplate->getNotificationOptions())
-                    : HostEvent::getMaxBitmask();
+                $response->activeCheckEnabled = YesNoDefaultConverter::toInt($hostTemplate->getActiveCheckEnabled());
+                $response->passiveCheckEnabled = YesNoDefaultConverter::toInt($hostTemplate->getPassiveCheckEnabled());
+                $response->notificationEnabled = YesNoDefaultConverter::toInt($hostTemplate->getNotificationEnabled());
+                $response->notificationOptions = HostEventConverter::toBitmask($hostTemplate->getNotificationOptions());
                 $response->notificationInterval = $hostTemplate->getNotificationInterval();
                 $response->notificationTimeperiodId = $hostTemplate->getNotificationTimeperiodId();
                 $response->addInheritedContactGroup = $hostTemplate->addInheritedContactGroup();
@@ -341,12 +330,12 @@ final class AddHostTemplate
                 $response->firstNotificationDelay = $hostTemplate->getfirstNotificationDelay();
                 $response->recoveryNotificationDelay = $hostTemplate->getrecoveryNotificationDelay();
                 $response->acknowledgementTimeout = $hostTemplate->getAcknowledgementTimeout();
-                $response->isFreshnessChecked = $hostTemplate->isFreshnessChecked()->toInt();
+                $response->freshnessChecked = YesNoDefaultConverter::toInt($hostTemplate->getFreshnessChecked());
                 $response->freshnessThreshold = $hostTemplate->getfreshnessThreshold();
-                $response->isFlapDetectionEnabled = $hostTemplate->isFlapDetectionEnabled()->toInt();
+                $response->flapDetectionEnabled = YesNoDefaultConverter::toInt($hostTemplate->getFlapDetectionEnabled());
                 $response->lowFlapThreshold = $hostTemplate->getLowFlapThreshold();
                 $response->highFlapThreshold = $hostTemplate->getHighFlapThreshold();
-                $response->isEventHandlerEnabled = $hostTemplate->isEventHandlerEnabled()->toInt();
+                $response->eventHandlerEnabled = YesNoDefaultConverter::toInt($hostTemplate->getEventHandlerEnabled());
                 $response->eventHandlerCommandId = $hostTemplate->getEventHandlerCommandId();
                 $response->eventHandlerCommandArgs = $hostTemplate->getEventHandlerCommandArgs();
                 $response->noteUrl = $hostTemplate->getNoteUrl();

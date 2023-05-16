@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application\UseCase\AddHostTemplate;
 
+use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\YesNoDefault;
 
 final class AddHostTemplateResponse
@@ -43,7 +44,8 @@ final class AddHostTemplateResponse
 
     public ?int $checkCommandId = null;
 
-    public string $checkCommandArgs = '';
+    /** @var string[] */
+    public array $checkCommandArgs = [];
 
     public ?int $checkTimeperiodId = null;
 
@@ -53,11 +55,11 @@ final class AddHostTemplateResponse
 
     public ?int $retryCheckInterval = null;
 
-    public int $isActiveCheckEnabled;
+    public int $activeCheckEnabled;
 
-    public int $isPassiveCheckEnabled;
+    public int $passiveCheckEnabled;
 
-    public int $isNotificationEnabled;
+    public int $notificationEnabled;
 
     public ?int $notificationOptions = null;
 
@@ -75,21 +77,22 @@ final class AddHostTemplateResponse
 
     public ?int $acknowledgementTimeout = null;
 
-    public int $isFreshnessChecked;
+    public int $freshnessChecked;
 
     public ?int $freshnessThreshold = null;
 
-    public int $isFlapDetectionEnabled;
+    public int $flapDetectionEnabled;
 
     public ?int $lowFlapThreshold = null;
 
     public ?int $highFlapThreshold = null;
 
-    public int $isEventHandlerEnabled;
+    public int $eventHandlerEnabled;
 
     public ?int $eventHandlerCommandId = null;
 
-    public string $eventHandlerCommandArgs = '';
+    /** @var string[] */
+    public array $eventHandlerCommandArgs = [];
 
     public string $noteUrl = '';
 
@@ -108,11 +111,11 @@ final class AddHostTemplateResponse
     public bool $isLocked = false;
 
     public function __construct() {
-        $this->isActiveCheckEnabled = YesNoDefault::Default->toInt();
-        $this->isPassiveCheckEnabled = YesNoDefault::Default->toInt();
-        $this->isNotificationEnabled = YesNoDefault::Default->toInt();
-        $this->isFreshnessChecked = YesNoDefault::Default->toInt();
-        $this->isFlapDetectionEnabled = YesNoDefault::Default->toInt();
-        $this->isEventHandlerEnabled = YesNoDefault::Default->toInt();
+        $this->activeCheckEnabled = YesNoDefaultConverter::toInt(YesNoDefault::Default);
+        $this->passiveCheckEnabled = YesNoDefaultConverter::toInt(YesNoDefault::Default);
+        $this->notificationEnabled = YesNoDefaultConverter::toInt(YesNoDefault::Default);
+        $this->freshnessChecked = YesNoDefaultConverter::toInt(YesNoDefault::Default);
+        $this->flapDetectionEnabled = YesNoDefaultConverter::toInt(YesNoDefault::Default);
+        $this->eventHandlerEnabled = YesNoDefaultConverter::toInt(YesNoDefault::Default);
     }
 }

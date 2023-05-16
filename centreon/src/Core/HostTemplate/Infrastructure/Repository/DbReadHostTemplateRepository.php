@@ -353,6 +353,27 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
+     * @inheritDoc
+     */
+    public function isLocked(int $hostTemplateId): bool
+    {
+        $this->info('Check is_locked property for host template with id #' . $hostTemplateId);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT host_locked
+                FROM `:db`.host
+                WHERE host_id = :hostTemplateId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_STR);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
      * @param array{
      *     host_id: int,
      *     host_name: string,

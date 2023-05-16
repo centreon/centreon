@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application\UseCase\AddHostTemplate;
 
+use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\YesNoDefault;
 
 final class AddHostTemplateRequest
@@ -41,7 +42,8 @@ final class AddHostTemplateRequest
 
     public ?int $checkCommandId = null;
 
-    public string $checkCommandArgs = '';
+    /** @var string[] */
+    public array $checkCommandArgs = [];
 
     public ?int $checkTimeperiodId = null;
 
@@ -51,11 +53,11 @@ final class AddHostTemplateRequest
 
     public ?int $retryCheckInterval = null;
 
-    public string $isActiveCheckEnabled;
+    public string $activeCheckEnabled;
 
-    public string $isPassiveCheckEnabled;
+    public string $passiveCheckEnabled;
 
-    public string $isNotificationEnabled;
+    public string $notificationEnabled;
 
     public ?int $notificationOptions = null;
 
@@ -73,21 +75,22 @@ final class AddHostTemplateRequest
 
     public ?int $acknowledgementTimeout = null;
 
-    public string $isFreshnessChecked;
+    public string $freshnessChecked;
 
     public ?int $freshnessThreshold = null;
 
-    public string $isFlapDetectionEnabled;
+    public string $flapDetectionEnabled;
 
     public ?int $lowFlapThreshold = null;
 
     public ?int $highFlapThreshold = null;
 
-    public string $isEventHandlerEnabled;
+    public string $eventHandlerEnabled;
 
     public ?int $eventHandlerCommandId = null;
 
-    public string $eventHandlerCommandArgs = '';
+    /** @var string[] */
+    public array $eventHandlerCommandArgs = [];
 
     public string $noteUrl = '';
 
@@ -104,11 +107,11 @@ final class AddHostTemplateRequest
     public bool $isActivated = true;
 
     public function __construct() {
-        $this->isActiveCheckEnabled = YesNoDefault::Default->value;
-        $this->isPassiveCheckEnabled = YesNoDefault::Default->value;
-        $this->isNotificationEnabled = YesNoDefault::Default->value;
-        $this->isFreshnessChecked = YesNoDefault::Default->value;
-        $this->isFlapDetectionEnabled = YesNoDefault::Default->value;
-        $this->isEventHandlerEnabled = YesNoDefault::Default->value;
+        $this->activeCheckEnabled = YesNoDefaultConverter::toString(YesNoDefault::Default);
+        $this->passiveCheckEnabled = YesNoDefaultConverter::toString(YesNoDefault::Default);
+        $this->notificationEnabled = YesNoDefaultConverter::toString(YesNoDefault::Default);
+        $this->freshnessChecked = YesNoDefaultConverter::toString(YesNoDefault::Default);
+        $this->flapDetectionEnabled = YesNoDefaultConverter::toString(YesNoDefault::Default);
+        $this->eventHandlerEnabled = YesNoDefaultConverter::toString(YesNoDefault::Default);
     }
 }

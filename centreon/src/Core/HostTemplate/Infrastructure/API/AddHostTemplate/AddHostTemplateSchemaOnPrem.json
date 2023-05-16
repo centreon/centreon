@@ -51,10 +51,10 @@
             ]
         },
         "check_command_args": {
-            "type": [
-                "null",
-                "string"
-            ]
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
         },
         "check_timeperiod_id": {
             "type": [
@@ -80,7 +80,7 @@
                 "integer"
             ]
         },
-        "is_active_check_enabled": {
+        "active_check_enabled": {
             "type": [
                 "null",
                 "integer",
@@ -96,7 +96,7 @@
                 "2"
             ]
         },
-        "is_passive_check_enabled": {
+        "passive_check_enabled": {
             "type": [
                 "null",
                 "integer",
@@ -112,7 +112,7 @@
                 "2"
             ]
         },
-        "is_notification_enabled": {
+        "notification_enabled": {
             "type": [
                 "null",
                 "integer",
@@ -176,7 +176,7 @@
                 "integer"
             ]
         },
-        "is_freshness_checked": {
+        "freshness_checked": {
             "type": [
                 "null",
                 "integer",
@@ -198,7 +198,7 @@
                 "integer"
             ]
         },
-        "is_flap_detection_enabled": {
+        "flap_detection_enabled": {
             "type": [
                 "null",
                 "integer",
@@ -226,7 +226,7 @@
                 "integer"
             ]
         },
-        "is_event_handler_enabled": {
+        "event_handler_enabled": {
             "type": [
                 "null",
                 "integer",
@@ -249,10 +249,10 @@
             ]
         },
         "event_handler_command_args": {
-            "type": [
-                "null",
-                "string"
-            ]
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
         },
         "note_url": {
             "type": [

@@ -112,5 +112,11 @@ class HostTemplateException extends \Exception
     {
         return new self(_('Error while retrieving a host template'));
     }
+
+    public static function hostIsLocked(int $hostTemplateId): self
+    {
+        return new self(sprintf(_('Host template #%s is locked (edition and suppression not allowed)'), $hostTemplateId));
+    }
+
 }
 

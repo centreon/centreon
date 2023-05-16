@@ -25,12 +25,14 @@ namespace Core\HostTemplate\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\HostEvent;
 use Core\Common\Domain\HostType;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
+use Core\Host\Application\Converter\HostEventConverter;
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\NewHostTemplate;
 
@@ -155,9 +157,9 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
                     :maxCheckAttempts,
                     :normalCheckInterval,
                     :retryCheckInterval,
-                    :isActiveCheckEnabled,
-                    :isPassiveCheckEnabled,
-                    :isNotificationEnabled,
+                    :activeCheckEnabled,
+                    :passiveCheckEnabled,
+                    :notificationEnabled,
                     :notificationOptions,
                     :notificationInterval,
                     :notificationTimeperiodId,
@@ -166,12 +168,12 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
                     :firstNotificationDelay,
                     :recoveryNotificationDelay,
                     :acknowledgementTimeout,
-                    :isFreshnessChecked,
+                    :freshnessChecked,
                     :freshnessThreshold,
-                    :isFlapDetectionEnabled,
+                    :flapDetectionEnabled,
                     :lowFlapThreshold,
                     :highFlapThreshold,
-                    :isEventHandlerEnabled,
+                    :eventHandlerEnabled,
                     :eventHandlerCommandId,
                     :eventHandlerCommandArgs,
                     :comment,
@@ -301,11 +303,14 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
             $hostTemplate->getCheckCommandId(),
             \PDO::PARAM_INT
         );
+        $checkCommandArguments = null;
+        if ($hostTemplate->getCheckCommandArgs() !== []) {
+            $checkCommandArguments = '!' . implode('!', $hostTemplate->getCheckCommandArgs());
+            $checkCommandArguments = $this->legacyHtmlEncode($checkCommandArguments);
+        }
         $statement->bindValue(
             ':checkCommandArgs',
-            $hostTemplate->getCheckCommandArgs() === null
-                ? null
-                : $this->legacyHtmlEncode($hostTemplate->getCheckCommandArgs()),
+            $checkCommandArguments,
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -329,31 +334,31 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
             \PDO::PARAM_INT
         );
         $statement->bindValue(
-            ':isActiveCheckEnabled',
-            $hostTemplate->isActiveCheckEnabled() === null
+            ':activeCheckEnabled',
+            $hostTemplate->getActiveCheckEnabled() === null
                 ? YesNoDefault::Default
-                : $hostTemplate->isActiveCheckEnabled()->value,
+                : YesNoDefaultConverter::toString($hostTemplate->getActiveCheckEnabled()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
-            ':isPassiveCheckEnabled',
-            $hostTemplate->isPassiveCheckEnabled() === null
+            ':passiveCheckEnabled',
+            $hostTemplate->getPassiveCheckEnabled() === null
                 ? YesNoDefault::Default
-                : $hostTemplate->isPassiveCheckEnabled()->value,
+                : YesNoDefaultConverter::toString($hostTemplate->getPassiveCheckEnabled()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
-            ':isNotificationEnabled',
-            $hostTemplate->isNotificationEnabled() === null
+            ':notificationEnabled',
+            $hostTemplate->getNotificationEnabled() === null
                 ? YesNoDefault::Default
-                : $hostTemplate->isNotificationEnabled()->value,
+                : YesNoDefaultConverter::toString($hostTemplate->getNotificationEnabled()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':notificationOptions',
             $hostTemplate->getNotificationOptions() === null
                 ? null
-                : HostEvent::toLegacyString($hostTemplate->getNotificationOptions()),
+                : HostEventConverter::toString($hostTemplate->getNotificationOptions()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -392,10 +397,10 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
             \PDO::PARAM_INT
         );
         $statement->bindValue(
-            ':isFreshnessChecked',
-            $hostTemplate->isFreshnessChecked() === null
+            ':freshnessChecked',
+            $hostTemplate->getFreshnessChecked() === null
                 ? YesNoDefault::Default
-                : $hostTemplate->isFreshnessChecked()->value,
+                : YesNoDefaultConverter::toString($hostTemplate->getFreshnessChecked()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -404,10 +409,10 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
             \PDO::PARAM_INT
         );
         $statement->bindValue(
-            ':isFlapDetectionEnabled',
-            $hostTemplate->isFlapDetectionEnabled() === null
+            ':flapDetectionEnabled',
+            $hostTemplate->getFlapDetectionEnabled() === null
                 ? YesNoDefault::Default
-                : $hostTemplate->isFlapDetectionEnabled()->value,
+                : YesNoDefaultConverter::toString($hostTemplate->getFlapDetectionEnabled()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -421,10 +426,10 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
             \PDO::PARAM_INT
         );
         $statement->bindValue(
-            ':isEventHandlerEnabled',
-            $hostTemplate->isEventHandlerEnabled() === null
+            ':eventHandlerEnabled',
+            $hostTemplate->getEventHandlerEnabled() === null
                 ? YesNoDefault::Default
-                : $hostTemplate->isEventHandlerEnabled()->value,
+                : YesNoDefaultConverter::toString($hostTemplate->getEventHandlerEnabled()),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -432,11 +437,14 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
             $hostTemplate->getEventHandlerCommandId(),
             \PDO::PARAM_INT
         );
+        $eventHandlerCommandArguments = null;
+        if ($hostTemplate->getEventHandlerCommandArgs() !== []) {
+            $eventHandlerCommandArguments = '!' . implode('!', $hostTemplate->getEventHandlerCommandArgs());
+            $eventHandlerCommandArguments = $this->legacyHtmlEncode($eventHandlerCommandArguments);
+        }
         $statement->bindValue(
             ':eventHandlerCommandArgs',
-            $hostTemplate->getEventHandlerCommandArgs() === null
-                ? null
-                : $this->legacyHtmlEncode($hostTemplate->getEventHandlerCommandArgs()),
+            $eventHandlerCommandArguments,
             \PDO::PARAM_STR
         );
         $statement->bindValue(

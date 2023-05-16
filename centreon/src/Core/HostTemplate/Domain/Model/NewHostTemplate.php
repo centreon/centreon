@@ -34,8 +34,6 @@ class NewHostTemplate
     public const MAX_NAME_LENGTH = 200,
         MAX_ALIAS_LENGTH = 200,
         MAX_SNMP_COMMUNITY_LENGTH = 255,
-        MAX_CHECK_COMMAND_ARGS_LENGTH = 65535,
-        MAX_EVENT_HANDLER_COMMAND_ARGS_LENGTH = 65535,
         MAX_NOTE_URL_LENGTH = 65535,
         MAX_NOTE_LENGTH = 65535,
         MAX_ACTION_URL_LENGTH = 65535,
@@ -130,8 +128,8 @@ class NewHostTemplate
 
         // Formating
         $this->name = self::formatName($name);
-        $this->checkCommandArgs = array_map((fn($arg) => self::formatCommandArgs($arg)), $checkCommandArgs);
-        $this->eventHandlerCommandArgs = array_map((fn($arg) => self::formatCommandArgs($arg)), $eventHandlerCommandArgs);
+        $this->checkCommandArgs = array_map((fn($arg) => self::formatCommandArg($arg)), $checkCommandArgs);
+        $this->eventHandlerCommandArgs = array_map((fn($arg) => self::formatCommandArg($arg)), $eventHandlerCommandArgs);
 
         Assertion::notEmptyString($this->name, "{$shortName}::name");
         Assertion::notEmptyString($this->alias, "{$shortName}::alias");
@@ -139,17 +137,6 @@ class NewHostTemplate
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
         Assertion::maxLength($this->alias, self::MAX_ALIAS_LENGTH, "{$shortName}::alias");
         Assertion::maxLength($this->snmpCommunity, self::MAX_SNMP_COMMUNITY_LENGTH, "{$shortName}::snmpCommunity");
-
-        Assertion::maxLength(
-            implode('!', $this->checkCommandArgs),
-            self::MAX_CHECK_COMMAND_ARGS_LENGTH,
-            "{$shortName}::checkCommandArgs"
-        );
-        Assertion::maxLength(
-            implode('!', $this->eventHandlerCommandArgs),
-            self::MAX_EVENT_HANDLER_COMMAND_ARGS_LENGTH,
-            "{$shortName}::eventHandlerCommandArgs"
-        );
 
         Assertion::maxLength($this->noteUrl, self::MAX_NOTE_URL_LENGTH, "{$shortName}::noteUrl");
         Assertion::maxLength($this->note, self::MAX_NOTE_LENGTH, "{$shortName}::note");

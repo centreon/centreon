@@ -69,4 +69,14 @@ interface ReadHostTemplateRepositoryInterface
      * @return bool
      */
     public function existsByName(string $hostTemplateName): bool;
+
+    /**
+     * Determine if a host template is_locked properties is set at true.
+     * It means edition and suppression is not allowed for the host template.
+     *
+     * @param int $hostTemplateId
+     *
+     * @return bool
+     */
+    public function isLocked(int $hostTemplateId): bool;
 }
