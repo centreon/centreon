@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\ServiceSeverity\Application\UseCase\AddServiceSeverity;
 
-use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Option\Option;
@@ -34,10 +33,12 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\CommandType;
-use Core\Common\Domain\HostEvent;
-use Core\Common\Domain\SnmpVersion;
 use Core\Common\Domain\YesNoDefault;
+use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Domain\Model\HostEvent;
+use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
@@ -48,9 +49,6 @@ use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\HostTemplate\Domain\Model\NewHostTemplate;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\ServiceSeverity\Application\Exception\ServiceSeverityException;
-use Core\ServiceSeverity\Application\UseCase\AddServiceSeverity\AddServiceSeverity;
-use Core\ServiceSeverity\Domain\Model\NewServiceSeverity;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
@@ -64,15 +62,15 @@ beforeEach(function (): void {
     $this->request->timezoneId = 1;
     $this->request->severityId = 1;
     $this->request->checkCommandId = 1;
-    $this->request->checkCommandArgs = 'checkCommandArgs-value';
+    $this->request->checkCommandArgs = ['arg1', 'arg2'];
     $this->request->checkTimeperiodId = 1;
     $this->request->maxCheckAttempts = 5;
     $this->request->normalCheckInterval = 5;
     $this->request->retryCheckInterval = 5;
-    $this->request->isActiveCheckEnabled = YesNoDefault::Yes->value;
-    $this->request->isPassiveCheckEnabled = YesNoDefault::Yes->value;
-    $this->request->isNotificationEnabled = YesNoDefault::Yes->value;
-    $this->request->notificationOptions = HostEvent::toBitmask([HostEvent::Down, HostEvent::Unreachable]);
+    $this->request->activeCheckEnabled = '1';
+    $this->request->passiveCheckEnabled = '1';
+    $this->request->notificationEnabled = '1';
+    $this->request->notificationOptions = HostEventConverter::toBitmask([HostEvent::Down, HostEvent::Unreachable]);
     $this->request->notificationInterval = 5;
     $this->request->notificationTimeperiodId = 2;
     $this->request->addInheritedContactGroup = true;
@@ -80,14 +78,14 @@ beforeEach(function (): void {
     $this->request->firstNotificationDelay = 5;
     $this->request->recoveryNotificationDelay = 5;
     $this->request->acknowledgementTimeout = 5;
-    $this->request->isFreshnessChecked = YesNoDefault::Yes->value;
+    $this->request->freshnessChecked = '1';
     $this->request->freshnessThreshold = 5;
-    $this->request->isFlapDetectionEnabled = YesNoDefault::Yes->value;
+    $this->request->flapDetectionEnabled = '1';
     $this->request->lowFlapThreshold = 5;
     $this->request->highFlapThreshold = 5;
-    $this->request->isEventHandlerEnabled = YesNoDefault::Yes->value;
+    $this->request->eventHandlerEnabled = '1';
     $this->request->eventHandlerCommandId = 2;
-    $this->request->eventHandlerCommandArgs = "eventHandlerCommandArgs\nvalue";
+    $this->request->eventHandlerCommandArgs = ["arg\n3", "  arg4"];
     $this->request->noteUrl = 'noteUrl-value';
     $this->request->note = 'note-value';
     $this->request->actionUrl = 'actionUrl-value';
@@ -124,7 +122,7 @@ beforeEach(function (): void {
         1,
         1,
         1,
-        'checkCommandArgs-value',
+        ['arg1', 'test2'],
         1,
         5,
         5,
@@ -147,7 +145,7 @@ beforeEach(function (): void {
         5,
         YesNoDefault::Yes,
         2,
-        "eventHandlerCommandArgs\nvalue",
+        ["arg\n3", 'arg4'],
         'noteUrl-value',
         'note-value',
         'actionUrl-value',
@@ -602,14 +600,14 @@ it('should return created object on success', function (): void {
         ->toBe($this->hostTemplate->getNormalCheckInterval())
         ->and($payload->retryCheckInterval)
         ->toBe($this->hostTemplate->getRetryCheckInterval())
-        ->and($payload->isActiveCheckEnabled)
-        ->toBe($this->hostTemplate->isActiveCheckEnabled()->toInt())
-        ->and($payload->isPassiveCheckEnabled)
-        ->toBe($this->hostTemplate->isPassiveCheckEnabled()->toInt())
-        ->and($payload->isNotificationEnabled)
-        ->toBe($this->hostTemplate->isNotificationEnabled()->toInt())
+        ->and($payload->activeCheckEnabled)
+        ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getActiveCheckEnabled()))
+        ->and($payload->passiveCheckEnabled)
+        ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getPassiveCheckEnabled()))
+        ->and($payload->notificationEnabled)
+        ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getNotificationEnabled()))
         ->and($payload->notificationOptions)
-        ->toBe(HostEvent::toBitmask($this->hostTemplate->getNotificationOptions()))
+        ->toBe(HostEventConverter::toBitmask($this->hostTemplate->getNotificationOptions()))
         ->and($payload->notificationInterval)
         ->toBe($this->hostTemplate->getNotificationInterval())
         ->and($payload->notificationTimeperiodId)
@@ -624,18 +622,18 @@ it('should return created object on success', function (): void {
         ->toBe($this->hostTemplate->getRecoveryNotificationDelay())
         ->and($payload->acknowledgementTimeout)
         ->toBe($this->hostTemplate->getAcknowledgementTimeout())
-        ->and($payload->isFreshnessChecked)
-        ->toBe($this->hostTemplate->isFreshnessChecked()->toInt())
+        ->and($payload->freshnessChecked)
+        ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getFreshnessChecked()))
         ->and($payload->freshnessThreshold)
         ->toBe($this->hostTemplate->getFreshnessThreshold())
-        ->and($payload->isFlapDetectionEnabled)
-        ->toBe($this->hostTemplate->isFlapDetectionEnabled()->toInt())
+        ->and($payload->flapDetectionEnabled)
+        ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getFlapDetectionEnabled()))
         ->and($payload->lowFlapThreshold)
         ->toBe($this->hostTemplate->getLowFlapThreshold())
         ->and($payload->highFlapThreshold)
         ->toBe($this->hostTemplate->getHighFlapThreshold())
-        ->and($payload->isEventHandlerEnabled)
-        ->toBe($this->hostTemplate->isEventHandlerEnabled()->toInt())
+        ->and($payload->eventHandlerEnabled)
+        ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getEventHandlerEnabled()))
         ->and($payload->eventHandlerCommandId)
         ->toBe($this->hostTemplate->getEventHandlerCommandId())
         ->and($payload->eventHandlerCommandArgs)

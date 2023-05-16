@@ -126,10 +126,17 @@ class NewHostTemplate
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 
-        // Formating
-        $this->name = self::formatName($name);
+        // Formating and assertions on string properties
         $this->checkCommandArgs = array_map((fn($arg) => self::formatCommandArg($arg)), $checkCommandArgs);
         $this->eventHandlerCommandArgs = array_map((fn($arg) => self::formatCommandArg($arg)), $eventHandlerCommandArgs);
+        $this->name = self::formatName($name);
+        $this->alias = trim($alias);
+        $this->snmpCommunity = trim($snmpCommunity);
+        $this->note = trim($note);
+        $this->noteUrl = trim($noteUrl);
+        $this->actionUrl = trim($actionUrl);
+        $this->iconAlternative = trim($iconAlternative);
+        $this->comment = trim($comment);
 
         Assertion::notEmptyString($this->name, "{$shortName}::name");
         Assertion::notEmptyString($this->alias, "{$shortName}::alias");
@@ -190,7 +197,7 @@ class NewHostTemplate
      */
     public static function formatCommandArg(string $args): string
     {
-        return str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $args);
+        return str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], trim($args));
     }
 
     public function getName(): string

@@ -42,7 +42,7 @@ beforeEach(function (): void {
                 'timezoneId' => 1,
                 'severityId' => 1,
                 'checkCommandId' => 1,
-                'checkCommandArgs' => 'checkCommandArgs-value',
+                'checkCommandArgs' => ['arg1', 'arg2'],
                 'checkTimeperiodId' => 1,
                 'maxCheckAttempts' => 5,
                 'normalCheckInterval' => 5,
@@ -65,7 +65,7 @@ beforeEach(function (): void {
                 'highFlapThreshold' => 5,
                 'eventHandlerEnabled' => YesNoDefault::Yes,
                 'eventHandlerCommandId' => 1,
-                'eventHandlerCommandArgs' => 'eventHandlerCommandArgs-value',
+                'eventHandlerCommandArgs' =>  ['arg3', 'arg4'],
                 'noteUrl' => 'noteUrl-value',
                 'note' => 'note-value',
                 'actionUrl' => 'actionUrl-value',
@@ -93,7 +93,7 @@ it('should return properly set host template instance (all properties)', functio
         ->and($hostTemplate->getTimezoneId())->toBe(1)
         ->and($hostTemplate->getSeverityId())->toBe(1)
         ->and($hostTemplate->getCheckCommandId())->toBe(1)
-        ->and($hostTemplate->getCheckCommandArgs())->toBe('checkCommandArgs-value')
+        ->and($hostTemplate->getCheckCommandArgs())->toBe(['arg1', 'arg2'])
         ->and($hostTemplate->getCheckTimeperiodId())->toBe(1)
         ->and($hostTemplate->getMaxCheckAttempts())->toBe(5)
         ->and($hostTemplate->getNormalCheckInterval())->toBe(5)
@@ -116,7 +116,7 @@ it('should return properly set host template instance (all properties)', functio
         ->and($hostTemplate->getHighFlapThreshold())->toBe(5)
         ->and($hostTemplate->getEventHandlerEnabled())->toBe(YesNoDefault::Yes)
         ->and($hostTemplate->getEventHandlerCommandId())->toBe(1)
-        ->and($hostTemplate->getEventHandlerCommandArgs())->toBe('eventHandlerCommandArgs-value')
+        ->and($hostTemplate->getEventHandlerCommandArgs())->toBe(['arg3', 'arg4'])
         ->and($hostTemplate->getNoteUrl())->toBe('noteUrl-value')
         ->and($hostTemplate->getNote())->toBe('note-value')
         ->and($hostTemplate->getActionUrl())->toBe('actionUrl-value')
@@ -138,7 +138,7 @@ it('should return properly set host template instance (mandatory properties only
         ->and($hostTemplate->getTimezoneId())->toBe(null)
         ->and($hostTemplate->getSeverityId())->toBe(null)
         ->and($hostTemplate->getCheckCommandId())->toBe(null)
-        ->and($hostTemplate->getCheckCommandArgs())->toBe('')
+        ->and($hostTemplate->getCheckCommandArgs())->toBe([])
         ->and($hostTemplate->getCheckTimeperiodId())->toBe(null)
         ->and($hostTemplate->getMaxCheckAttempts())->toBe(null)
         ->and($hostTemplate->getNormalCheckInterval())->toBe(null)
@@ -161,7 +161,7 @@ it('should return properly set host template instance (mandatory properties only
         ->and($hostTemplate->getHighFlapThreshold())->toBe(null)
         ->and($hostTemplate->getEventHandlerEnabled())->toBe(YesNoDefault::Default)
         ->and($hostTemplate->getEventHandlerCommandId())->toBe(null)
-        ->and($hostTemplate->getEventHandlerCommandArgs())->toBe('')
+        ->and($hostTemplate->getEventHandlerCommandArgs())->toBe([])
         ->and($hostTemplate->getNoteUrl())->toBe('')
         ->and($hostTemplate->getNote())->toBe('')
         ->and($hostTemplate->getActionUrl())->toBe('')
@@ -204,10 +204,10 @@ foreach (
     it(
         "should return a trimmed and formated field {$field}",
         function () use ($field): void {
-            $hostTemplate = ($this->createHostTemplate)([$field => "  \ncommandArgs\tvalue\r  "]);
+            $hostTemplate = ($this->createHostTemplate)([$field => ["  this\nis\tsome\rargument  ", "  test\n  "]]);
             $valueFromGetter = $hostTemplate->{'get' . $field}();
 
-            expect($valueFromGetter)->toBe('#BR#commandArgs#T#value#R#');
+            expect($valueFromGetter)->toBe(['this#BR#is#T#some#R#argument', 'test']);
         }
     );
 }
@@ -218,8 +218,6 @@ foreach (
         'name',
         'alias',
         'snmpCommunity',
-        'checkCommandArgs',
-        'eventHandlerCommandArgs',
         'noteUrl',
         'note',
         'actionUrl',
@@ -244,8 +242,6 @@ foreach (
         'name' => HostTemplate::MAX_NAME_LENGTH,
         'alias' => HostTemplate::MAX_ALIAS_LENGTH,
         'snmpCommunity' => HostTemplate::MAX_SNMP_COMMUNITY_LENGTH,
-        'checkCommandArgs' => HostTemplate::MAX_CHECK_COMMAND_ARGS_LENGTH,
-        'eventHandlerCommandArgs' => HostTemplate::MAX_EVENT_HANDLER_COMMAND_ARGS_LENGTH,
         'noteUrl' => HostTemplate::MAX_NOTE_URL_LENGTH,
         'note' => HostTemplate::MAX_NOTE_LENGTH,
         'actionUrl' => HostTemplate::MAX_ACTION_URL_LENGTH,
