@@ -50,7 +50,6 @@ const Form = (): JSX.Element => {
   const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
 
   const { inputs, basicFormGroups } = useFormInputs({ panelWidth });
-
   const { validationSchema } = useValidationSchema();
 
   const { data, isLoading } = useFetchQuery({
