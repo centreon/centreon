@@ -22,11 +22,11 @@ runs:
         ls -la
         if [[ -f ".veracode" ]]; then
           for LINE in $( cat .veracode ); do
-            if [[ -d $LINE ]]; then
-              rm -rf $LINE
-            elif [[ -f $LINE ]]; then
-              rm -f $LINE
-            else
+            if [[ -d '$LINE' ]]; then
+              rm -rf '$LINE'
+            elif [[ -f '$LINE' ]]; then
+              rm -f '$LINE'
+            elif [[ -z '$LINE' ]]; then
               echo "DEBUG - unconsistent exclusion directive : $LINE"
             fi
           done
