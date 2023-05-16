@@ -1,4 +1,3 @@
-import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, gt } from 'ramda';
@@ -13,6 +12,7 @@ import {
 } from '../translatedLabels';
 import { panelWidthStorageAtom } from '../atom';
 
+import useStyles from './Form.styles';
 import useFormInputs from './useFormInputs';
 import { emptyInitialValues, getInitialValues } from './initialValues';
 import useValidationSchema from './validationSchema';
@@ -21,17 +21,6 @@ import { EditedNotificationIdAtom, panelModeAtom } from './atom';
 import { PanelMode } from './models';
 import { notificationtEndpoint } from './api/endpoints';
 import { notificationdecoder } from './api/decoders';
-
-const useStyles = makeStyles()((theme) => ({
-  form: {
-    padding: theme.spacing(0, 2, 2)
-  },
-  reducePanel: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    padding: theme.spacing(1, 2, 0)
-  }
-}));
 
 const ReducePanel = (): JSX.Element => {
   const { classes } = useStyles();
@@ -82,7 +71,6 @@ const Form = (): JSX.Element => {
   return (
     <Box>
       <FormComponent
-        // isCollapsible
         Buttons={Box}
         className={classes.form}
         groups={basicFormGroups}
