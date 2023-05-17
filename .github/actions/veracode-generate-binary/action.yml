@@ -45,7 +45,7 @@ runs:
         fi
         echo "[DEBUG] - module_directory : ${{ inputs.target_branch_name }}"
         cd ${{ inputs.module_directory }}
-        ls- la
+        ls -la
         zip -rq "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip" *
         ls -la
         ls -la ../
