@@ -96,6 +96,7 @@ jobs:
           #fail_on_severity: "${{ inputs.threshold_pipeline }}"
           timeout: 60
           baseline_file: "${{ env.baseline_file }}"
+          issue_details: false
 
       - name: Save baseline file
         # only baseline file generated from a maintenance branch is saved
