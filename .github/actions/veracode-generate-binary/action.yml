@@ -43,7 +43,7 @@ runs:
         echo "[DEBUG] - module_directory : ${{ inputs.module_directory }}"
         cd ${{ inputs.module_directory }}
         ls -la
-        echo "[DEBUG] - inputs cache key value : ${{ ${{ inputs.cache_key }}"
+        echo "[DEBUG] - inputs cache key value : ${{ inputs.cache_key }}"
         zip -rq "${{ inputs.cache_key }}.zip" *
         ls -la
         ls -la ../
