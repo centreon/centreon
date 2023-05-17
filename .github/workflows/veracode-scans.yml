@@ -55,13 +55,10 @@ jobs:
     runs-on: [self-hosted, veracode]
 
     steps:
-      - name: Debug github context
-        run: echo "base ref = ${{ github.base_ref }} && ref name = ${{ github.ref_name }}"
-
       - name: Get build binary
         uses: actions/cache/restore@v3
         with:
-          path: ${{ inputs.module_directory }}/${{ inputs.module_name }}.zip
+          path: ${{ inputs.module_directory }}/${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary.zip
           key: ${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary
 
       - uses: actions/setup-java@v3 #TODO: To install in veracode runner directly
@@ -110,9 +107,9 @@ jobs:
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
-          vid: '${{ secrets.veracode_api_id }}'
-          vkey: '${{ secrets.veracode_api_key }}'
-          file: "${{ inputs.module_name }}.zip"
+          vid: ${{ secrets.veracode_api_id }}
+          vkey: ${{ secrets.veracode_api_key }}
+          file: "${{ inputs.module_directory }}/${{ inputs.cache_key }}.zip"
           fail_build: false #TODO: Do not fail the jobs until grace period ends
           #fail_on_severity: "${{ inputs.threshold_pipeline }}"
           timeout: 60
