@@ -56,7 +56,7 @@ jobs:
 
       - name: Set routing mode
         id: routing-mode
-        if: ${{ github.event_name != 'pull_request' && (needs.get-version.outputs.stability == 'stable' || needs.get-version.outputs.stability == 'unstable')
+        if: ${{ github.event_name != 'pull_request' && (needs.get-version.outputs.stability == 'stable' || needs.get-version.outputs.stability == 'unstable') }}
         run: echo "scan_type=maintenance" >> $GITHUB_OUTPUT
 
   pipeline-scan:
