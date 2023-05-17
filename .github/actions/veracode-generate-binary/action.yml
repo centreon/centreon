@@ -7,9 +7,6 @@ inputs:
   module_name:
     description: Module name
     required: true
-  target_branch_name:
-    description: The target maintenance branch
-    required: true
   cache_key:
     description: key used to identify the cache
     required: true
@@ -40,18 +37,18 @@ runs:
 
     - name: Create zip file
       run: |
-        if [[ -z "${{ inputs.module_directory }}" || -z "${{ inputs.target_branch_name }}" || -z "${{ inputs.module_name }}" ]]; then
+        if [[ -z "${{ inputs.module_directory }}" || -z "${{ inputs.cache_key }}" || -z "${{ inputs.module_name }}" ]]; then
           echo "[DEBUG] - One mandatory argument is missing"
         fi
         echo "[DEBUG] - module_directory : ${{ inputs.module_directory }}"
         cd ${{ inputs.module_directory }}
         ls -la
-        zip -rq "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip" *
+        zip -rq "${{ inputs.module_name }}-${{ inputs.cache_key }}.zip" *
         ls -la
         ls -la ../
       shell: bash
 
     - uses: actions/cache/save@v3
       with:
-        path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
+        path: "${{ inputs.module_directory }}/${{ inputs.module_name }}.zip"
         key: ${{ inputs.cache_key }}
