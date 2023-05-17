@@ -38,13 +38,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: DEBUG - cache key value from context
-        run: echo "Cache key value = ${{ github.sha }}-${{ github.run_id }}"
-      - name: DEBUG - target branch name from context
-        run: echo "Cache key value = ${{ github.base_ref || github.ref_name }}"
-      - name: DEBUG - event name
-        run: echo "Event name = ${{ github.event_name }}"
-
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
@@ -71,11 +64,6 @@ jobs:
         with:
           path: "${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }}.zip"
           key: '${{ github.sha }}-${{ github.run_id }}'
-
-      - name: DEBUG - cache key value from context
-        run: echo "Cache key value = ${{ github.sha }}-${{ github.run_id }}"
-      - name: DEBUG - target branch name from context
-        run: echo "Cache key value = ${{ github.base_ref || github.ref_name }}"
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
