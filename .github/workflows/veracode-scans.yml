@@ -59,7 +59,7 @@ jobs:
       - name: Get build binary
         uses: actions/cache/restore@v3
         with:
-          path: "${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }}.zip"
+          path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
           key: "${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary"
 
       - uses: actions/setup-java@v3 #TODO: To install in veracode runner directly
