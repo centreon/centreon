@@ -43,7 +43,6 @@ jobs:
         with:
           module_directory: "${{ inputs.module_directory }}"
           module_name: "${{ inputs.module_name }}"
-          target_branch_name: "${{ github.base_ref || github.ref_name }}"
           cache_key: "${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary"
 
       - name: Set routing mode
@@ -61,11 +60,9 @@ jobs:
 
       - name: Get build binary
         uses: actions/cache/restore@v3
-        env:
-          target_branch_name: ${{ github.base_ref || github.ref_name }}
         with:
-          path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ env.target_branch_name }}".zip"
-          key: "${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary"
+          path: ${{ inputs.module_directory }}/${{ inputs.module_name }}.zip
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary
 
       - uses: actions/setup-java@v3 #TODO: To install in veracode runner directly
         with:
@@ -115,7 +112,7 @@ jobs:
         with:
           vid: '${{ secrets.veracode_api_id }}'
           vkey: '${{ secrets.veracode_api_key }}'
-          file: "${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }}.zip"
+          file: "${{ inputs.module_name }}.zip"
           fail_build: false #TODO: Do not fail the jobs until grace period ends
           #fail_on_severity: "${{ inputs.threshold_pipeline }}"
           timeout: 60
