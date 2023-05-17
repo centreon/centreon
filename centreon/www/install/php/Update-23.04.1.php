@@ -18,3 +18,42 @@
  * For more information : contact@centreon.com
  *
  */
+
+require_once __DIR__ . '/../../class/centreonLog.class.php';
+$centreonLog = new CentreonLog();
+
+//error specific content
+$versionOfTheUpgrade = 'UPGRADE - 23.04.1: ';
+$errorMessage = '';
+
+$removeNagiosPathImg = function(CentreonDB $pearDB) {
+    $selectStatement = $pearDB->query("SELECT 1 FROM option WHERE `key`='nagios_path_img'");
+    if($selectStatement->rowCount() > 0) {
+        $pearDB->query("DELETE FROM option WHERE `key`='nagios_path_img'");
+    }
+};
+
+try {
+    // Transactional queries
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
+
+    $removeNagiosPathImg($pearDB);
+
+    $pearDB->commit();
+} catch (\Exception $e) {
+    if ($pearDB->inTransaction()) {
+        $pearDB->rollBack();
+    }
+
+    $centreonLog->insertLog(
+        4,
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
+    );
+
+    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+}

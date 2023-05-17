@@ -55,15 +55,6 @@ interface HostConfigurationReadRepositoryInterface
     public function findHostTemplatesRecursively(Host $host): array;
 
     /**
-     * Find all host templates.
-     *
-     * @return HostTemplate[]
-     * @throws RepositoryException
-     * @throws \Throwable
-     */
-    public function findHostTemplates(): array;
-
-    /**
      * Indicates if a hostname is already in use.
      *
      * @param string $hostName Hostname to be found
