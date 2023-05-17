@@ -42,8 +42,8 @@ jobs:
         uses: ./.github/actions/veracode-generate-binary
         with:
           module_directory: "${{ inputs.module_directory }}"
-          module_name: "${{ inputs.module_name }}"
-          cache_key: "${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary"
+          module_name: ${{ inputs.module_name }}
+          cache_key: ${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary
 
       - name: Set routing mode
         id: routing-mode
@@ -58,8 +58,8 @@ jobs:
       - name: Get build binary
         uses: actions/cache/restore@v3
         with:
-          path: ${{ inputs.module_directory }}/${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary.zip
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary
+          path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
+          key: ${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary
 
       - uses: actions/setup-java@v3 #TODO: To install in veracode runner directly
         with:
@@ -86,33 +86,12 @@ jobs:
             echo "baseline_file=" >> $GITHUB_ENV
           fi
 
-      - name: Debug me
-        run: |
-          echo "ls on current"
-          ls -la
-
-          echo "ls module directory"
-          ls -la ${{ inputs.module_directory }}
-
-          echo "ls on /tmp"
-          ls -la /tmp
-
-          echo "baseline file name"
-          echo "baseline: ${{ env.baseline_file }}"
-          echo "find baseline file"
-          echo "find ./ -name '${{ env.baseline_file }}'"
-
-          echo "archive name name"
-          echo "archive name: '${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }}.zip'"
-          echo "find archive file"
-          echo "find ./ -name '${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }}.zip'"
-
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
           vid: ${{ secrets.veracode_api_id }}
           vkey: ${{ secrets.veracode_api_key }}
-          file: "${{ inputs.module_directory }}/${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary.zip"
+          file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           fail_build: false #TODO: Do not fail the jobs until grace period ends
           #fail_on_severity: "${{ inputs.threshold_pipeline }}"
           timeout: 60
@@ -120,7 +99,7 @@ jobs:
 
       - name: Save baseline file
         # only baseline file generated from a maintenance branch is saved
-        #if: needs.set-routing-mode.outputs.scan_type == 'maintenance'
+        if: needs.set-routing-mode.outputs.scan_type == 'maintenance'
         run: |
           mv results.json /tmp
           TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}/results.json"

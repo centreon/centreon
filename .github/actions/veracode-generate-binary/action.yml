@@ -40,13 +40,8 @@ runs:
         if [[ -z "${{ inputs.module_directory }}" || -z "${{ inputs.cache_key }}" || -z "${{ inputs.module_name }}" ]]; then
           echo "[DEBUG] - At least one mandatory argument is missing"
         fi
-        echo "[DEBUG] - module_directory : ${{ inputs.module_directory }}"
         cd ${{ inputs.module_directory }}
-        ls -la
-        echo "[DEBUG] - inputs cache key value : ${{ inputs.cache_key }}"
         zip -rq "${{ inputs.cache_key }}.zip" *
-        ls -la
-        ls -la ../
       shell: bash
 
     - uses: actions/cache/save@v3
