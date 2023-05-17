@@ -2938,6 +2938,10 @@ ul.module_list {
     background-color: var(--ui-progress-bar-value-background-color) !important
 }
 
+.widget-progressbar-value {
+    color: var(--widget-progress-bar-value-color) !important
+}
+
 .section-expand {
     height: 95%;
     margin-bottom: 20px;
