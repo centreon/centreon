@@ -72,6 +72,21 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
+  veracode-scans:
+    needs: [get-version]
+    uses: ./.github/workflows/veracode-scans.yml
+    with:
+      module_directory: centreon
+      module_name: centreon
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+      threshold_pipeline: "High"
+      threshold_sandbox: "VeryLow"
+    secrets:
+      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
+      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
+
   frontend-build:
     needs: [get-version]
     runs-on: ubuntu-22.04
