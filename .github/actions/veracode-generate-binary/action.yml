@@ -25,14 +25,16 @@ runs:
           for LINE in $( cat .veracode ); do
             if [[ -d '$LINE' ]]; then
               rm -rf '$LINE'
+              echo "INFO - folder removed from analysis : $LINE"
             elif [[ -f '$LINE' ]]; then
               rm -f '$LINE'
+              echo "INFO - file removed from analysis : $LINE"
             elif [[ -z '$LINE' ]]; then
-              echo "DEBUG - unconsistent exclusion directive : $LINE"
+              echo "INFO - unconsistent exclusion directive. Skipping: $LINE"
             fi
           done
         else
-          echo "DEBUG - No '.veracode' file found for this module. Skipping exclusion step"
+          echo "INFO - No '.veracode' file found for this module. Skipping exclusion step"
         fi
       shell: bash
 
