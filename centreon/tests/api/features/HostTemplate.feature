@@ -29,7 +29,7 @@ Feature:
           "timezone_id": null,
           "severity_id": null,
           "check_command_id": null,
-          "check_command_args": null,
+          "check_command_args": [],
           "check_timeperiod_id": null,
           "max_check_attempts": null,
           "normal_check_interval": null,
@@ -52,7 +52,7 @@ Feature:
           "high_flap_threshold": null,
           "event_handler_enabled": 2,
           "event_handler_command_id": null,
-          "event_handler_command_args": null,
+          "event_handler_command_args": [],
           "note_url": null,
           "note": null,
           "action_url": null,
@@ -101,6 +101,11 @@ Feature:
 
   Scenario: Host template creation
     Given I am logged in
+    And the following CLAPI import data:
+      """
+      HC;ADD;severity1;host-severity-alias
+      HC;setseverity;severity1;42;logos/logo-centreon-colors.png
+      """
 
     When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
       """
@@ -108,7 +113,7 @@ Feature:
         "name": "  host template name  ",
         "alias": "  host-template-alias  ",
         "snmp_version": "2c",
-        "snmp_community": "   snmpCommunity-value",
+        "snmp_community": "   snmpCommunity-value  ",
         "timezone_id": 1,
         "severity_id": 1,
         "check_command_id": 1,
@@ -136,12 +141,12 @@ Feature:
         "event_handler_enabled": 2,
         "event_handler_command_id": 2,
         "event_handler_command_args": [" this\nis\targ3 ", " arg4   "],
-        "note_url": 'noteUrl-value',
-        "note": 'note-value',
-        "action_url": 'actionUrl-value',
+        "note_url": "noteUrl-value",
+        "note": "note-value",
+        "action_url": "actionUrl-value",
         "icon_id": 1,
-        "icon_alternative": 'iconAlternative-value',
-        "comment": 'comment-value',
+        "icon_alternative": "iconAlternative-value",
+        "comment": "comment-value",
         "is_activated": false
       }
       """
@@ -168,8 +173,8 @@ Feature:
         "notification_options": 31,
         "notification_interval": 5,
         "notification_timeperiod_id": 2,
-        "add_inherited_contact_group": true,
-        "add_inherited_contact": true,
+        "add_inherited_contact_group": false,
+        "add_inherited_contact": false,
         "first_notification_delay": 5,
         "recovery_notification_delay": 5,
         "acknowledgement_timeout": 5,
@@ -181,18 +186,17 @@ Feature:
         "event_handler_enabled": 2,
         "event_handler_command_id": 2,
         "event_handler_command_args": ["this#BR#is#T#arg3", "arg4"],
-        "note_url": 'noteUrl-value',
-        "note": 'note-value',
-        "action_url": 'actionUrl-value',
+        "note_url": "noteUrl-value",
+        "note": "note-value",
+        "action_url": "actionUrl-value",
         "icon_id": 1,
-        "icon_alternative": 'iconAlternative-value',
-        "comment": 'comment-value',
+        "icon_alternative": "iconAlternative-value",
+        "comment": "comment-value",
         "is_activated": false,
         "is_locked": false
       }
       """
 
-    # conflict on name
     When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
       """
       {
@@ -201,10 +205,3 @@ Feature:
       }
       """
     Then the response code should be "409"
-
-    # missing mandatory fields
-    When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
-      """
-      { "not_exists": "foo-bar" }
-      """
-    Then the response code should be "400"

@@ -1,4 +1,5 @@
 type: object
+required: ['name', 'alias']
 properties:
   name:
     type: string
@@ -107,6 +108,7 @@ properties:
 
       example: A value equal to 5 corresponding to the selected options DOWN and RECOVERY
     example: 5
+    nullable: true
   notification_interval:
     type: integer
     nullable: true

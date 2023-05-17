@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\CommandType;
@@ -72,7 +73,7 @@ final class AddHostTemplate
      * @param AddHostTemplateRequest $request
      * @param AddHostTemplatePresenterSaas|AddHostTemplatePresenterOnPrem $presenter
      */
-    public function __invoke(AddHostTemplateRequest $request, AddHostTemplatePresenterInterface $presenter): void
+    public function __invoke(AddHostTemplateRequest $request, PresenterInterface $presenter): void
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE)) {
@@ -110,9 +111,7 @@ final class AddHostTemplate
                 return;
             }
 
-            $presenter->presentResponse(
-                new CreatedResponse($hostTemplateId, $this->createResponse($hostTemplate))
-            );
+            $presenter->presentResponse($this->createResponse($hostTemplate));
         } catch (AssertionFailedException|\ValueError $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -237,8 +236,10 @@ final class AddHostTemplate
 
     private function createNewHostTemplate(AddHostTemplateRequest $request): NewHostTemplate
     {
-        $inheritanceMode
-            = ($this->optionService->findSelectedOptions(['inheritance_mode']))['inheritance_mode']->getValue();
+        $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
+        $inheritanceMode = isset($inheritanceMode['inheritance_mode'])
+            ? $inheritanceMode['inheritance_mode']->getValue()
+            : 0;
 
         return new NewHostTemplate(
             $request->name,

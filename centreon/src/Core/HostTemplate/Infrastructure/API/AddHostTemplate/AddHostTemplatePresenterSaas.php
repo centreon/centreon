@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostTemplate\Infrastructure\API\AddHostTemplate;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplatePresenterInterface;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateResponse;
@@ -48,20 +49,26 @@ class AddHostTemplatePresenterSaas extends AbstractPresenter implements AddHostT
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
-            $this->present([
-                'id' => $response->id,
-                'name' => $response->name,
-                'alias' => $response->alias,
-                'snmpVersion' => $response->snmpVersion,
-                'snmpCommunity' => $this->emptyStringAsNull($response->snmpCommunity),
-                'timezoneId' => $response->timezoneId,
-                'severityId' => $response->severityId,
-                'checkTimeperiodId' => $response->checkTimeperiodId,
-                'noteUrl' => $this->emptyStringAsNull($response->noteUrl),
-                'note' => $this->emptyStringAsNull($response->note),
-                'actionUrl' => $this->emptyStringAsNull($response->actionUrl),
-                'isLocked' => $response->isLocked,
-            ]);
+
+            $this->present(
+                new CreatedResponse(
+                    $response->id,
+                    [
+                        'id' => $response->id,
+                        'name' => $response->name,
+                        'alias' => $response->alias,
+                        'snmp_version' => $response->snmpVersion,
+                        'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
+                        'timezone_id' => $response->timezoneId,
+                        'severity_id' => $response->severityId,
+                        'check_timeperiod_id' => $response->checkTimeperiodId,
+                        'note_url' => $this->emptyStringAsNull($response->noteUrl),
+                        'note' => $this->emptyStringAsNull($response->note),
+                        'action_url' => $this->emptyStringAsNull($response->actionUrl),
+                        'is_locked' => $response->isLocked,
+                    ]
+                )
+            );
 
             // NOT setting location as required route does not currently exist
         }

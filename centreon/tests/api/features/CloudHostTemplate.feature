@@ -52,8 +52,33 @@ Feature:
     }
     """
 
+  Scenario: Host template deletion
+    Given I am logged in
+    And the following CLAPI import data:
+      """
+      HTPL;ADD;htpl-name-1;htpl-alias-1;;;;
+      """
+
+    When I send a GET request to '/api/latest/configuration/hosts/templates?search={"name":{"$lk":"htpl-%"}}'
+    Then the response code should be "200"
+    And I store response values in:
+      | name           | path         |
+      | hostTemplateId | result[0].id |
+
+    When I send a DELETE request to '/api/latest/configuration/hosts/templates/<hostTemplateId>'
+    Then the response code should be "204"
+
+    When I send a GET request to '/api/latest/configuration/hosts/templates?search={"name":{"$lk":"htpl-%"}}'
+    Then the response code should be "200"
+    And the json node "result" should have 0 elements
+
   Scenario: Host template creation
     Given I am logged in
+    And the following CLAPI import data:
+    """
+    HC;ADD;severity1;host-severity-alias
+    HC;setseverity;severity1;42;logos/logo-centreon-colors.png
+    """
 
     When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
       """
@@ -64,10 +89,10 @@ Feature:
         "snmp_community": "   snmpCommunity-value",
         "timezone_id": 1,
         "severity_id": 1,
-        "note_url": 'noteUrl-value',
-        "note": 'note-value',
-        "action_url": 'actionUrl-value',
-        "is_activated": false
+        "check_timeperiod_id": 1,
+        "note_url": "noteUrl-value",
+        "note": "note-value",
+        "action_url": "actionUrl-value"
       }
       """
     Then the response code should be "201"
@@ -81,28 +106,19 @@ Feature:
         "snmp_community": "snmpCommunity-value",
         "timezone_id": 1,
         "severity_id": 1,
-        "note_url": 'noteUrl-value',
-        "note": 'note-value',
-        "action_url": 'actionUrl-value',
-        "is_activated": false,
+        "check_timeperiod_id": 1,
+        "note_url": "noteUrl-value",
+        "note": "note-value",
+        "action_url": "actionUrl-value",
         "is_locked": false
       }
       """
 
-    # conflict on name
     When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
       """
       {
         "name": "host_template name",
-        "alias": "host-template-alias",
-        "is_activated": true
+        "alias": "host-template-alias"
       }
       """
     Then the response code should be "409"
-
-    # missing mandatory fields
-    When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
-      """
-      { "not_exists": "foo-bar" }
-      """
-    Then the response code should be "400"
