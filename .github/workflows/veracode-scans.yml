@@ -56,7 +56,7 @@ jobs:
 
     steps:
       - name: Debug github context
-        run: echo "base ref = ${{ github.base_ref }} && ref name = ${{ github.ref_name }}
+        run: echo "base ref = ${{ github.base_ref }} && ref name = ${{ github.ref_name }}"
 
       - name: Get build binary
         uses: actions/cache/restore@v3
