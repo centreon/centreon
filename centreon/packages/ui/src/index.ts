@@ -155,3 +155,6 @@ export { default as ActionsList } from './ActionsList';
 export { getStatusColors, SeverityCode } from './utils/statuses';
 
 export type { ResponseError, CatchErrorProps } from './api/customFetch';
+
+export { default as FluidTypography } from './Typography/FluidTypography';
+export * from './Dashboard';

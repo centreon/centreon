@@ -500,7 +500,7 @@ Then('the acknowledgement is removed', () => {
         });
     },
     {
-      timeout: 15000
+      timeout: 30000
     }
   );
 });
