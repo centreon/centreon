@@ -15,11 +15,10 @@ runs:
   using: "composite"
   steps:
     - name: Exclude development files
-      # TODO: remove harmful chars from the file
       run: |
         ls -la
         if [[ -f ".veracode" ]]; then
-          for LINE in $( cat .veracode ); do
+          for LINE in $( cat .veracode | sed 's/[^a-z_/A-Z]//g' ); do
             if [[ -d '$LINE' ]]; then
               rm -rf '$LINE'
               echo "INFO - folder removed from analysis : $LINE"
