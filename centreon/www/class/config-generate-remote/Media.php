@@ -62,7 +62,7 @@ class Media extends AbstractObject
         $stmt->execute();
         $this->medias = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
 
-        $this->pathImg = \CentreonLegacyConstants::CENTREON_MEDIA_PATH;
+        $this->pathImg = \CentreonMedia::CENTREON_MEDIA_PATH;
     }
 
     /**

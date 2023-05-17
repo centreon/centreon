@@ -38,6 +38,8 @@
  */
 class CentreonMedia
 {
+    public const CENTREON_MEDIA_PATH = __DIR__ . '/../img/media/';
+
     /**
      *
      * @var \CentreonDB
@@ -74,7 +76,7 @@ class CentreonMedia
     public function getMediaDirectory()
     {
         if (empty($this->mediadirectoryname)) {
-            return \CentreonLegacyConstants::CENTREON_MEDIA_PATH;
+            return self::CENTREON_MEDIA_PATH;
         } else {
             return $this->mediadirectoryname;
         }
