@@ -44,7 +44,7 @@ jobs:
           module_directory: "${{ inputs.module_directory }}"
           module_name: "${{ inputs.module_name }}"
           target_branch_name: "${{ github.base_ref || github.ref_name }}"
-          cache_key: "${{ github.sha }}-${{ github.run_id }}-veracode-binary"
+          cache_key: "${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary"
 
       - name: Set routing mode
         id: routing-mode
@@ -60,7 +60,7 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: "${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }}.zip"
-          key: '${{ github.sha }}-${{ github.run_id }}-veracode-binary'
+          key: "${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary"
 
       - uses: actions/setup-java@v3 #TODO: To install in veracode runner directly
         with:
