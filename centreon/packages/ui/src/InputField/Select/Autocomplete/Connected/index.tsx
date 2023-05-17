@@ -16,16 +16,18 @@ import {
 import { CircularProgress, useTheme } from '@mui/material';
 
 import { Props as AutocompleteFieldProps } from '..';
-import useIntersectionObserver from '../../../../utils/useIntersectionObserver';
+import {
+  useDebounce,
+  useIntersectionObserver,
+  useDeepCompare
+} from '../../../../utils';
 import { ListingModel, SelectEntry } from '../../../..';
 import Option from '../../Option';
 import {
   ConditionsSearchParameter,
   SearchParameter
 } from '../../../../api/buildListingEndpoint/models';
-import useDebounce from '../../../../utils/useDebounce';
 import useFetchQuery from '../../../../api/useFetchQuery';
-import { useDeepCompare } from '../../../../utils/useMemoComponent';
 
 export interface ConnectedAutoCompleteFieldProps<TData> {
   conditionField?: keyof SelectEntry;

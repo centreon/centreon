@@ -19,10 +19,8 @@ interface MemoComponent {
   memoProps: Array<unknown>;
 }
 
-const useMemoComponent = ({
+export const useMemoComponent = ({
   Component,
   memoProps
 }: MemoComponent): JSX.Element =>
   useMemo(() => Component, useDeepCompare(memoProps));
-
-export default useMemoComponent;

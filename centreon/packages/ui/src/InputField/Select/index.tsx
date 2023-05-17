@@ -13,7 +13,7 @@ import {
   Divider
 } from '@mui/material';
 
-import getNormalizedId from '../../utils/getNormalizedId';
+import { getNormalizedId } from '../../utils';
 
 import Option from './Option';
 
