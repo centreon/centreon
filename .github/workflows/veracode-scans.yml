@@ -62,7 +62,7 @@ jobs:
             echo "display_summary=false" >> $GITHUB_OUTPUT
           elif [[ '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'unstable' ]]; then
             echo "scan_type=maintenance" >> $GITHUB_OUTPUT
-            echo "fail_build=false" >> $GITHUB_OUTPUT
+            echo "fail_build=true" >> $GITHUB_OUTPUT
             echo "development_stage=Testing" >> $GITHUB_OUTPUT
             echo "display_summary=true" >> $GITHUB_OUTPUT
           else
