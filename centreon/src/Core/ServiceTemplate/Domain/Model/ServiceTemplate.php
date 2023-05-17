@@ -205,9 +205,7 @@ class ServiceTemplate
         }
 
         foreach ($notificationTypes as $type) {
-            if (! ($type instanceof NotificationType)) {
-                Assertion::isInstanceOf($type, NotificationType::class, "{$className}::notificationTypes");
-            }
+            Assertion::isInstanceOf($type, NotificationType::class, "{$className}::notificationTypes");
         }
     }
 
