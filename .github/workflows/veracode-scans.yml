@@ -14,6 +14,9 @@ on:
       minor_version:
         required: true
         type: string
+      stability:
+        required: true
+        type: string
       threshold_pipeline:
         required: true
         type: string
@@ -29,6 +32,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    outputs:
+      scan_type: ${{ steps.routing-mode.outputs.scan_type }}
 
     steps:
       - uses: actions/checkout@v3
@@ -51,20 +56,13 @@ jobs:
           target_branch_name: "${{ github.base_ref || github.ref_name }}"
           cache_key: "${{ github.sha }}-${{ github.run_id }}"
 
-  set-routing-mode:
-    needs: [get-version]
-    runs-on: ubuntu-22.04
-    outputs:
-        scan_type: ${{ steps.routing-mode.outputs.scan_type }}
-
-    steps:
       - name: Set routing mode
         id: routing-mode
-        if: ${{ github.event_name != 'pull_request' && (needs.get-version.outputs.stability == 'stable' || needs.get-version.outputs.stability == 'unstable') }}
+        if: github.event_name != 'pull_request' && (inputs.stability == 'stable' || inputs.stability == 'unstable')
         run: echo "scan_type=maintenance" >> $GITHUB_OUTPUT
 
   pipeline-scan:
-    needs: [build, get-version]
+    needs: [build]
     runs-on: [self-hosted, veracode]
 
     steps:
@@ -126,9 +124,6 @@ jobs:
           TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}/results.json"
           BASELINE_FILE="/tmp/results.json"
           aws s3 cp "$BASELINE_FILE" "$TARGET_S3"
-
-      - name: Clean
-        run: rm -f results.json filtered_results.json /tmp/results.json
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
