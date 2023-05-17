@@ -37,6 +37,7 @@ jobs:
       module_name: centreon-dsm
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
       threshold_pipeline: "High"
       threshold_sandbox: "VeryLow"
     secrets:
