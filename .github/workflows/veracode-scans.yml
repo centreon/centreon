@@ -52,7 +52,7 @@ jobs:
           cache_key: "${{ github.sha }}-${{ github.run_id }}"
 
   set-routing-mode:
-    needs: [ get-version ]
+    needs: [get-version]
     runs-on: ubuntu-22.04
     outputs:
         scan_type: ${{ steps.routing-mode.outputs.scan_type }}
@@ -64,7 +64,7 @@ jobs:
         run: echo "scan_type=maintenance" >> $GITHUB_OUTPUT
 
   pipeline-scan:
-    needs: [ build, get-version ]
+    needs: [build, get-version]
     runs-on: [self-hosted, veracode]
 
     steps:
