@@ -1,14 +1,10 @@
 name: centreon-ui
 
 on:
-  push:
+  pull_request:
     paths:
       - "centreon/packages/ui/**"
       - '.github/workflows/ui-beta.yml'
-      - '.github/actions/chromatic/**'
-      - '.github/actions/frontend-lint'
-    branches:
-      - MON-**
   workflow_dispatch:
 
 env:
