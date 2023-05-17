@@ -1581,24 +1581,34 @@ function get_child($id_page, $lcaTStr)
     global $pearDB;
 
     if ($lcaTStr != "") {
-        $rq = " SELECT topology_parent,topology_name,topology_id,topology_url,topology_page,topology_url_opt, is_react, topology_feature_flag
-                FROM topology
-                WHERE topology_page IN ($lcaTStr)
-                AND topology_parent = '" . $id_page . "' AND topology_page IS NOT NULL AND topology_show = '1'
-                ORDER BY topology_order, topology_group ";
+        $rq = <<<SQL
+            SELECT topology_parent, topology_name, topology_id, topology_url, topology_url_substitute,
+                topology_page, topology_url_opt, is_react, topology_feature_flag
+            FROM topology
+            WHERE topology_page IN ($lcaTStr)
+                AND topology_parent = :id_page
+                AND topology_page IS NOT NULL
+                AND topology_show = '1'
+            ORDER BY topology_order, topology_group
+            SQL;
     } else {
-        $rq = " SELECT topology_parent,topology_name,topology_id,topology_url,topology_page,topology_url_opt, is_react, topology_feature_flag
-                FROM topology
-                WHERE topology_parent = '" . $id_page . "' AND topology_page IS NOT NULL AND topology_show = '1'
-                ORDER BY topology_order, topology_group ";
+        $rq = <<<SQL
+            SELECT topology_parent, topology_name, topology_id, topology_url, topology_url_substitute,
+                topology_page, topology_url_opt, is_react, topology_feature_flag
+            FROM topology
+            WHERE topology_parent = :id_page
+              AND topology_page IS NOT NULL
+              AND topology_show = '1'
+            ORDER BY topology_order, topology_group
+            SQL;
     }
-
-    $DBRESULT = $pearDB->query($rq);
-    $redirect = $DBRESULT->fetch();
+    $statement = $pearDB->prepare($rq);
+    $statement->bindValue(':id_page', (int) $id_page, \PDO::PARAM_INT);
+    $statement->execute();
+    $redirect = $statement->fetch(\PDO::FETCH_ASSOC);
     if (! is_enabled_feature_flag($redirect['topology_feature_flag'] ?? null)) {
         return false;
     }
-
     return $redirect;
 }
 

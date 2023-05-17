@@ -50,5 +50,6 @@ runs:
             - "centreon/packages/ui/package.json"
             - "centreon/package.json"
           autoAcceptChanges: ${{ inputs.autoAcceptChanges }}
+          exitOnceUploaded: true
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"

@@ -1,15 +1,29 @@
-import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { FC } from 'react';
 
-import { Typography } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 
-import { labelDashboard } from '../translatedLabels';
+import Layout from './Layout';
+import Toolbar from './Toolbar';
 
-const Dashboard = (): JSX.Element => {
-  const { t } = useTranslation();
-  const { dashboardId } = useParams();
+const useStyles = makeStyles()((theme) => ({
+  toolbarContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '90vh',
+    padding: theme.spacing(0, 3),
+    rowGap: theme.spacing(2)
+  }
+}));
 
-  return <Typography>{`${t(labelDashboard)} ${dashboardId}`}</Typography>;
+const Dashboard: FC = () => {
+  const { classes } = useStyles();
+
+  return (
+    <div className={classes.toolbarContainer}>
+      <Toolbar />
+      <Layout />
+    </div>
+  );
 };
 
 export default Dashboard;

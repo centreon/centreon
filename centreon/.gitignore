@@ -52,7 +52,6 @@ src/Centreon*
 !src/CentreonRemote/
 !src/CentreonUser/
 www/modules/centreon-*
-www/widgets
 !www/widgets/require.php
 
 .lighthouseci
