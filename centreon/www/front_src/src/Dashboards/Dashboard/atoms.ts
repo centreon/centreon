@@ -19,8 +19,9 @@ import {
 import { getColumnsFromScreenSize } from '@centreon/ui';
 
 import { Panel, Dashboard, PanelConfiguration } from './models';
+import { atomWithStorage } from 'jotai/utils';
 
-export const dashboardAtom = atom<Dashboard>({
+export const dashboardAtom = atomWithStorage<Dashboard>(`centreon-selected-dashboard-panels`, {
   layout: []
 });
 
