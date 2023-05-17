@@ -2,7 +2,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { alpha } from '@mui/material';
 
-export const useDashboardLayoutStyles = makeStyles()((theme) => ({
+export const useDashboardLayoutStyles = makeStyles<boolean>()((theme, isStatic: boolean) => ({
   container: {
     '& .react-grid-item': {
       borderRadius: theme.shape.borderRadius,
@@ -25,7 +25,7 @@ export const useDashboardLayoutStyles = makeStyles()((theme) => ({
       backgroundColor: theme.palette.action.focus,
       backgroundImage: 'none',
       borderRadius: theme.shape.borderRadius,
-      display: 'block',
+      display: isStatic ? 'none' : 'block',
       opacity: 0,
       position: 'absolute'
     },

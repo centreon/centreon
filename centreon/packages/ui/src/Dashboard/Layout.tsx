@@ -23,9 +23,11 @@ const Layout = <T extends Layout>({
   children,
   changeLayout,
   displayGrid,
-  layout
+  layout,
 }: DashboardLayoutProps<T>): JSX.Element => {
-  const { classes } = useDashboardLayoutStyles();
+  const isStatic = layout.every((item) => item.static);
+  
+  const { classes } = useDashboardLayoutStyles(isStatic);
 
   const [columns, setColumns] = useState(getColumnsFromScreenSize());
 
@@ -40,6 +42,7 @@ const Layout = <T extends Layout>({
       window.removeEventListener('resize', resize);
     };
   }, []);
+
 
   return useMemoComponent({
     Component: (
