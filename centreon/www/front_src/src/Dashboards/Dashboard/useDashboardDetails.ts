@@ -12,12 +12,12 @@ interface UseDashboardDetailsState {
 }
 
 const useDashboardDetails = (): UseDashboardDetailsState => {
-  const { id } = useParams();
+  const { dashboardId } = useParams();
 
   const { data: dashboard } = useFetchQuery({
     decoder: dashboardDetailsDecoder,
-    getEndpoint: () => `${dashboardsEndpoint}/${id}`,
-    getQueryKey: () => ['dashboard', id]
+    getEndpoint: () => `${dashboardsEndpoint}/${dashboardId}`,
+    getQueryKey: () => ['dashboard', dashboardId]
   });
 
   return {

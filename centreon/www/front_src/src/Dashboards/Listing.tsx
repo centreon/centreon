@@ -25,6 +25,8 @@ import {
 } from './translatedLabels';
 import { openDialogAtom } from './atoms';
 import { Dashboard } from './models';
+import { useNavigate } from 'react-router-dom';
+import routeMap from '../reactRoutes/routeMap';
 
 const emptyListStateLabels = {
   actions: {
@@ -36,6 +38,7 @@ const emptyListStateLabels = {
 const Listing = (): JSX.Element => {
   const { t } = useTranslation();
   const { dashboards, elementRef, isLoading } = useDashboards();
+  const navigate = useNavigate();
 
   const openDialog = useSetAtom(openDialogAtom);
 
@@ -56,6 +59,10 @@ const Listing = (): JSX.Element => {
       dashboard,
       variant: DashboardFormVariant.Update
     });
+  };
+
+  const navigateToDashboard = (dashboardId: number) => (): void => {
+    navigate(`${routeMap.dashboards}/${dashboardId}`);
   };
 
   return (
@@ -94,6 +101,7 @@ const Listing = (): JSX.Element => {
                   title={dashboard.name}
                   onDelete={(): void => undefined}
                   onEdit={editDashboard(dashboard)}
+                  onClick={navigateToDashboard(dashboard.id)}
                 />
               );
             })}
