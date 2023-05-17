@@ -78,39 +78,15 @@ foreach (
 
 // updatedAt change
 
-$testUpdatedAtClosure = function (callable $setter) {
-    return function () use ($setter): void {
-        $dashboard = ($this->createDashboard)();
-
-        $timeBefore = time();
-        $updatedAtBefore = $this->testedUpdatedAt->getTimestamp();
-        $setter($dashboard);
-        $updatedAtAfter = $dashboard->getUpdatedAt()->getTimestamp();
-
-        expect($updatedAtAfter)->toBeGreaterThanOrEqual($timeBefore)
-            ->and($updatedAtAfter)->toBeGreaterThan($updatedAtBefore);
-    };
-};
-
 it(
-    'should NOT change the updatedAt field when we do not call any setter',
+    'should NOT change the updatedAt field',
     function (): void {
         $updatedAtBefore = $this->testedUpdatedAt->getTimestamp();
-        $timeBefore = time();
         $dashboard = ($this->createDashboard)();
         $updatedAtAfter = $dashboard->getUpdatedAt()->getTimestamp();
 
-        expect($updatedAtAfter)->toBeLessThan($timeBefore)
-            ->and($updatedAtAfter)->toBe($updatedAtBefore);
+        expect($updatedAtAfter)->toBe($updatedAtBefore);
     }
-);
-it(
-    'should change the updatedAt field when we call setName()',
-    $testUpdatedAtClosure(fn(Dashboard $dashboard) => $dashboard->setName('changed'))
-);
-it(
-    'should change the updatedAt field when we call setDescription()',
-    $testUpdatedAtClosure(fn(Dashboard $dashboard) => $dashboard->setDescription('changed'))
 );
 
 // too long fields

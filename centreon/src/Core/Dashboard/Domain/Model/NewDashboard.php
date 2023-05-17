@@ -27,7 +27,15 @@ use Assert\AssertionFailedException;
 
 class NewDashboard
 {
-    use DashboardModelTrait;
+    use DashboardValidationTrait;
+
+    protected string $name;
+
+    protected string $description;
+
+    protected \DateTimeImmutable $createdAt;
+
+    protected \DateTimeImmutable $updatedAt;
 
     /**
      * @param string $name
@@ -40,5 +48,47 @@ class NewDashboard
         $this->setDescription('');
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @throws AssertionFailedException
+     */
+    public function setName(string $name): void
+    {
+        $this->name = trim($name);
+        $this->ensureValidName($this->name);
+    }
+
+    /**
+     * @param string $description
+     *
+     * @throws AssertionFailedException
+     */
+    public function setDescription(string $description): void
+    {
+        $this->description = trim($description);
+        $this->ensureValidDescription($this->description);
     }
 }

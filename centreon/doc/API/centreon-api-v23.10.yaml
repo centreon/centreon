@@ -1738,6 +1738,11 @@ paths:
         * name
 
         `Since Centreon web 23.10`
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         "200":
           description: "OK"

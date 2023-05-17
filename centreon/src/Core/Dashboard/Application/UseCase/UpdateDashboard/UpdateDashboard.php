@@ -37,7 +37,6 @@ use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 final class UpdateDashboard
 {
@@ -99,8 +98,8 @@ final class UpdateDashboard
      * @param UpdateDashboardRequest $request
      * @param int $dashboardId
      *
-     * @throws \Throwable
      * @throws DashboardException
+     * @throws \Throwable
      *
      * @return NoContentResponse|NotFoundResponse
      */
@@ -122,8 +121,8 @@ final class UpdateDashboard
      * @param UpdateDashboardRequest $request
      * @param int $dashboardId
      *
-     * @throws \Throwable
      * @throws DashboardException
+     * @throws \Throwable
      *
      * @return NoContentResponse|NotFoundResponse
      */
@@ -155,9 +154,14 @@ final class UpdateDashboard
      */
     private function updateDashboardAndSave(Dashboard $dashboard, UpdateDashboardRequest $request): void
     {
-        $dashboard->setName($request->name);
-        $dashboard->setDescription($request->description);
+        $updatedDashboard = new Dashboard(
+            id: $dashboard->getId(),
+            name: $request->name,
+            description: $request->description,
+            createdAt: $dashboard->getCreatedAt(),
+            updatedAt: new \DateTimeImmutable(),
+        );
 
-        $this->writeDashboardRepository->update($dashboard);
+        $this->writeDashboardRepository->update($updatedDashboard);
     }
 }
