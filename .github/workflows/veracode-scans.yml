@@ -97,6 +97,10 @@ jobs:
           timeout: 60
           baseline_file: "${{ env.baseline_file }}"
           issue_details: false
+          summary_display: false
+          json_display: false
+          verbose: false
+          summary_output: false
 
       - name: Save baseline file
         # only baseline file generated from a maintenance branch is saved
