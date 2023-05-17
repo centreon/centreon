@@ -95,9 +95,6 @@ jobs:
           echo "ls on /tmp"
           ls -la /tmp
 
-          echo "ls on ${{ inputs.module_name }}"
-          ls -la ${{ inputs.module_name }}
-
           echo "baseline file name"
           echo "baseline: ${{ env.baseline_file }}"
           echo "find baseline file"
