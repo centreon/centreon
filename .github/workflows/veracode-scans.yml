@@ -114,8 +114,8 @@ jobs:
           vid: '${{ secrets.veracode_api_id }}'
           vkey: '${{ secrets.veracode_api_key }}'
           file: "${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }}.zip"
-          fail_on_severity: "${{ inputs.threshold_pipeline }}"
-          #fail_build: true #TODO: Do not fail the jobs until grace period ends
+          fail_build: false #TODO: Do not fail the jobs until grace period ends
+          #fail_on_severity: "${{ inputs.threshold_pipeline }}"
           timeout: 60
           baseline_file: "${{ env.baseline_file }}"
 
