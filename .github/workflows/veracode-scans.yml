@@ -14,19 +14,10 @@ on:
       minor_version:
         required: true
         type: string
-      target_branch_name:
-        required: true
-        type: string
-      event_name:
-        required: true
-        type: string
       threshold_pipeline:
         required: true
         type: string
       threshold_sandbox:
-        required: true
-        type: string
-      cache_key:
         required: true
         type: string
     secrets:
@@ -37,6 +28,7 @@ on:
 
 jobs:
   build:
+    needs: [get-version]
     runs-on: ubuntu-22.04
     outputs:
       scan_type: ${{ steps.routing-mode.outputs.scan_type }}
@@ -46,12 +38,10 @@ jobs:
 
       - name: DEBUG - cache key value from context
         run: echo "Cache key value = ${{ github.sha }}-${{ github.run_id }}"
-      - name: DEBUG - cache key value from inputs
-        run: echo "Cache key value = ${{ inputs.cache_key }}"
       - name: DEBUG - target branch name from context
         run: echo "Cache key value = ${{ github.base_ref || github.ref_name }}"
-      - name: DEBUG - target branch name from inputs
-        run: echo "Cache key value = ${{ inputs.target_branch_name }}"
+      - name: DEBUG - event name
+        run: echo "Event name = ${{ github.event_name }}"
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
@@ -61,12 +51,12 @@ jobs:
         with:
           module_directory: "${{ inputs.module_directory }}"
           module_name: "${{ inputs.module_name }}"
-          target_branch_name: "${{ inputs.target_branch_name }}"
-          cache_key: '${{ inputs.cache_key }}'
+          target_branch_name: "${{ github.base_ref || github.ref_name }}"
+          cache_key: "${{ github.sha }}-${{ github.run_id }}"
 
       - name: Set routing mode
         id: routing-mode
-        if: inputs.event_name != 'pull_request' && (inputs.target_branch_name == 'develop' || inputs.target_branch_name == 'dev-[2-9][0-9].[0-9][0-9].x' || inputs.target_branch_name == 'master' || inputs.target_branch_name == '[2-9][0-9].[0-9][0-9].x')
+        if: ${{ github.event_name != 'pull_request' && (needs.get-version.outputs.stability == 'stable' || needs.get-version.outputs.stability == 'unstable')
         run: echo "scan_type=maintenance" >> $GITHUB_OUTPUT
 
   pipeline-scan:
@@ -77,17 +67,13 @@ jobs:
       - name: Get build binary
         uses: actions/cache/restore@v3
         with:
-          path: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
-          key: '${{ inputs.cache_key }}'
+          path: "${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }}.zip"
+          key: '${{ github.sha }}-${{ github.run_id }}'
 
       - name: DEBUG - cache key value from context
         run: echo "Cache key value = ${{ github.sha }}-${{ github.run_id }}"
-      - name: DEBUG - cache key value from inputs
-        run: echo "Cache key value = ${{ inputs.cache_key }}"
       - name: DEBUG - target branch name from context
         run: echo "Cache key value = ${{ github.base_ref || github.ref_name }}"
-      - name: DEBUG - target branch name from inputs
-        run: echo "Cache key value = ${{ inputs.target_branch_name }}"
 
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
@@ -106,7 +92,7 @@ jobs:
       - name: Get baseline file
         id: baseline_search
         run: |
-          TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/results.json"
+          TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}/results.json"
           BASELINE_FILE="/tmp/results.json"
           aws s3 ls "$TARGET_S3" || RESULT=$( echo $? )
           if [[ $RESULT -eq 0 ]]; then
@@ -122,7 +108,7 @@ jobs:
         with:
           vid: '${{ secrets.veracode_api_id }}'
           vkey: '${{ secrets.veracode_api_key }}'
-          file: "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip"
+          file: "${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }}.zip"
           fail_on_severity: "${{ inputs.threshold_pipeline }}"
           #fail_build: true #TODO: Do not fail the jobs until grace period ends
           timeout: 60
@@ -133,7 +119,7 @@ jobs:
         if: needs.build.outputs.scan_type == 'maintenance'
         run: |
           mv results.json /tmp
-          TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ inputs.target_branch_name }}/results.json"
+          TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}/results.json"
           BASELINE_FILE="/tmp/results.json"
           aws s3 cp "$BASELINE_FILE" "$TARGET_S3"
 
