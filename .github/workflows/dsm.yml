@@ -37,11 +37,8 @@ jobs:
       module_name: centreon-dsm
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
-      target_branch_name: ${{ github.base_ref || github.ref_name }}
-      event_name: ${{ github.event_name }}
       threshold_pipeline: "High"
       threshold_sandbox: "VeryLow"
-      cache_key: ${{ github.sha }}-${{ github.run_id }}
     secrets:
       veracode_api_id: ${{ secrets.VERACODE_API_ID }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
