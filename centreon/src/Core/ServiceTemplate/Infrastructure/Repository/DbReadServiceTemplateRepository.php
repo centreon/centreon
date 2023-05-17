@@ -26,6 +26,7 @@ namespace Core\ServiceTemplate\Infrastructure\Repository;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\YesNoDefault;
@@ -94,10 +95,81 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $this->db = $db;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function findById(int $serviceTemplateId): ?ServiceTemplate
+    {
+        $request = <<<'SQL'
+                SELECT service_id,
+                       cg_additive_inheritance,
+                       contact_additive_inheritance,
+                       command_command_id,
+                       command_command_id2,
+                       command_command_id_arg,
+                       command_command_id_arg2,
+                       service_acknowledgement_timeout,
+                       service_activate,
+                       service_active_checks_enabled,
+                       service_event_handler_enabled,
+                       service_flap_detection_enabled,
+                       service_check_freshness,
+                       service_locked,
+                       service_notifications_enabled,
+                       service_passive_checks_enabled,
+                       service_is_volatile,
+                       service_low_flap_threshold,
+                       service_high_flap_threshold,
+                       service_max_check_attempts,
+                       service_description,
+                       service_comment,
+                       service_alias,
+                       service_freshness_threshold,
+                       service_normal_check_interval,
+                       service_notification_interval,
+                       service_notification_options,
+                       service_notifications_enabled,
+                       service_passive_checks_enabled,
+                       service_recovery_notification_delay,
+                       service_retry_check_interval,
+                       service_template_model_stm_id,
+                       service_first_notification_delay,
+                       timeperiod_tp_id,
+                       timeperiod_tp_id2,
+                       esi.esi_action_url,
+                       esi.esi_icon_image,
+                       esi.esi_icon_image_alt,
+                       esi.esi_notes,
+                       esi.esi_notes_url,
+                       esi.graph_id,
+                       scr.sc_id as severity_id
+                FROM `:db`.service
+                LEFT JOIN `:db`.extended_service_information esi
+                    ON esi.service_service_id = service.service_id
+                LEFT JOIN `:db`.service_categories_relation scr
+                    ON scr.service_service_id = service.service_id
+                LEFT JOIN `:db`.service_categories sc
+                    ON sc.sc_id = scr.sc_id
+                    AND sc.level IS NOT NULL
+                WHERE service.service_id = :id
+            SQL;
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _ServiceTemplate $result */
+            return $this->createServiceTemplate($result);
+        }
+
+        return null;
+    }
+
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array
     {
         $this->info('Searching for service templates');
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator->setConcordanceArray([
             'id' => 'service_id',
             'name' => 'service_description',
@@ -181,6 +253,19 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         }
 
         return $serviceTemplates;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exists(int $serviceTemplateId): bool
+    {
+        $request = $this->translateDbName('SELECT 1 FROM `:db`.service WHERE service_id = :id');
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 
     /**
@@ -271,7 +356,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         }
         $notifications = [];
         $types = explode(',', $notificationTypes);
-
         foreach (array_unique($types) as $type) {
             $notifications[] = match ($type) {
                 'w' => NotificationType::Warning,
