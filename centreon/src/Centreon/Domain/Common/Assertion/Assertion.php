@@ -300,7 +300,7 @@ class Assertion
 
     /**
      * @param object $value
-     * @param string $className
+     * @param class-string $className
      * @param string|null $propertyPath
      *
      * @throws \Assert\AssertionFailedException
@@ -309,7 +309,7 @@ class Assertion
     {
         if (! ($value instanceof $className)) {
             throw AssertionException::badInstanceOfObject(
-                is_object($value) ? get_class($value) : gettype($value),
+                get_debug_type($value),
                 $className,
                 $propertyPath
             );
