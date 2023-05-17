@@ -686,29 +686,44 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         $this->conditions->validate(
             $this->configuration,
-            $this->idTokenPayload ?: $this->attributePathFetcher->fetch(
-                $accessToken,
-                $this->configuration,
-                $authenticationConditions->getEndpoint()
-            )
+            $authenticationConditions->isEnabled()
+                ? array_merge(
+                    $this->idTokenPayload,
+                    $this->attributePathFetcher->fetch(
+                        $accessToken,
+                        $this->configuration,
+                        $authenticationConditions->getEndpoint()
+                    )
+                )
+                : $this->idTokenPayload
         );
 
         $this->rolesMapping->validate(
             $this->configuration,
-            $this->idTokenPayload ?: $this->attributePathFetcher->fetch(
-                $accessToken,
-                $this->configuration,
-                $rolesMapping->getEndpoint()
-            )
+            $rolesMapping->isEnabled()
+                ? array_merge(
+                    $this->idTokenPayload,
+                    $this->attributePathFetcher->fetch(
+                        $accessToken,
+                        $this->configuration,
+                        $rolesMapping->getEndpoint()
+                    )
+                )
+                : $this->idTokenPayload
         );
 
         $this->groupsMapping->validate(
             $this->configuration,
-            $this->idTokenPayload ?: $this->attributePathFetcher->fetch(
-                $accessToken,
-                $this->configuration,
-                $groupsMapping->getEndpoint()
+            $groupsMapping->isEnabled()
+            ? array_merge(
+                $this->idTokenPayload,
+                $this->attributePathFetcher->fetch(
+                    $accessToken,
+                    $this->configuration,
+                    $groupsMapping->getEndpoint()
+                )
             )
+            : $this->idTokenPayload
         );
     }
 
