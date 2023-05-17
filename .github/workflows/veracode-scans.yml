@@ -28,10 +28,7 @@ on:
 
 jobs:
   build:
-    needs: [get-version]
     runs-on: ubuntu-22.04
-    outputs:
-      scan_type: ${{ steps.routing-mode.outputs.scan_type }}
 
     steps:
       - uses: actions/checkout@v3
@@ -54,14 +51,21 @@ jobs:
           target_branch_name: "${{ github.base_ref || github.ref_name }}"
           cache_key: "${{ github.sha }}-${{ github.run_id }}"
 
+  set-routing-mode:
+    needs: [ get-version ]
+    runs-on: ubuntu-22.04
+    outputs:
+        scan_type: ${{ steps.routing-mode.outputs.scan_type }}
+
+    steps:
       - name: Set routing mode
         id: routing-mode
         if: ${{ github.event_name != 'pull_request' && (needs.get-version.outputs.stability == 'stable' || needs.get-version.outputs.stability == 'unstable') }}
         run: echo "scan_type=maintenance" >> $GITHUB_OUTPUT
 
   pipeline-scan:
+    needs: [ build, get-version ]
     runs-on: [self-hosted, veracode]
-    needs: [build]
 
     steps:
       - name: Get build binary
@@ -116,7 +120,7 @@ jobs:
 
       - name: Save baseline file
         # only baseline file generated from a maintenance branch is saved
-        if: needs.build.outputs.scan_type == 'maintenance'
+        if: needs.set-routing-mode.outputs.scan_type == 'maintenance'
         run: |
           mv results.json /tmp
           TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}/results.json"
