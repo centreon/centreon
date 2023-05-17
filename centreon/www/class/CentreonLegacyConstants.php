@@ -21,5 +21,5 @@
 
 class CentreonLegacyConstants
 {
-    public const CENTREON_MEDIA_PATH = _CENTREON_PATH_ . '/www/img/media/';
+    public const CENTREON_MEDIA_PATH = __DIR__ . '/../img/media/';
 }
