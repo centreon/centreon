@@ -38,16 +38,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Get current time
-        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
-
       - name: Generate binary file
         uses: ./.github/actions/veracode-generate-binary
         with:
           module_directory: "${{ inputs.module_directory }}"
           module_name: "${{ inputs.module_name }}"
           target_branch_name: "${{ github.base_ref || github.ref_name }}"
-          cache_key: "${{ github.sha }}-${{ github.run_id }}"
+          cache_key: "${{ github.sha }}-${{ github.run_id }}-veracode-binary"
 
       - name: Set routing mode
         id: routing-mode
@@ -63,12 +60,9 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: "${{ inputs.module_name }}-${{ github.base_ref || github.ref_name }}.zip"
-          key: '${{ github.sha }}-${{ github.run_id }}'
+          key: '${{ github.sha }}-${{ github.run_id }}-veracode-binary'
 
-      - name: Get current time
-        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
-
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v3 #TODO: To install in veracode runner directly
         with:
           distribution: 'zulu'
           java-version: 8
@@ -112,6 +106,3 @@ jobs:
           TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}/results.json"
           BASELINE_FILE="/tmp/results.json"
           aws s3 cp "$BASELINE_FILE" "$TARGET_S3"
-
-      - name: Get current time
-        run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
