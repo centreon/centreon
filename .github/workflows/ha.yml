@@ -29,6 +29,21 @@ jobs:
     with:
       version_file: centreon-ha/.env
 
+  veracode-scans:
+    needs: [get-version]
+    uses: ./.github/workflows/veracode-scans.yml
+    with:
+      module_directory: centreon-ha
+      module_name: centreon-ha
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+      threshold_pipeline: "High"
+      threshold_sandbox: "VeryLow"
+    secrets:
+      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
+      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
+
   package:
     needs: [get-version]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
