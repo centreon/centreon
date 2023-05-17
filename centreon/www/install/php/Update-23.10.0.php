@@ -35,7 +35,9 @@ $removeNagiosPathImg = function(CentreonDB $pearDB) {
 
 try {
     // Transactional queries
-    $pearDB->beginTransaction();
+    if (! $pearDB->inTransaction()) {
+        $pearDB->beginTransaction();
+    }
 
     $removeNagiosPathImg($pearDB);
 
