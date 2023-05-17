@@ -43,12 +43,13 @@ runs:
         echo "[DEBUG] - module_directory : ${{ inputs.module_directory }}"
         cd ${{ inputs.module_directory }}
         ls -la
-        zip -rq "${{ inputs.module_name }}-${{ inputs.cache_key }}.zip" *
+        echo "[DEBUG] - inputs cache key value : ${{ ${{ inputs.cache_key }}"
+        zip -rq "${{ inputs.cache_key }}.zip" *
         ls -la
         ls -la ../
       shell: bash
 
     - uses: actions/cache/save@v3
       with:
-        path: "${{ inputs.module_directory }}/${{ inputs.module_name }}.zip"
+        path: "${{ inputs.module_directory }}/${{ inputs.cache_key }}.zip"
         key: ${{ inputs.cache_key }}
