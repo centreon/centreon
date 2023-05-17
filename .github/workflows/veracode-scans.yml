@@ -111,17 +111,17 @@ jobs:
         run: |
           echo "vid: ${{ secrets.veracode_api_id }}"
           echo "vkey: ${{ secrets.veracode_api_key }}"
-          echo "file: ${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
-          echo "#fail_build: ${{ steps.routing-mode.outputs.fail_build }}"
-          echo "#fail_on_severity: ${{ inputs.threshold_pipeline }}"
+          echo "file: '${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip'"
+          echo "#fail_build: '${{ needs.steps.routing-mode.outputs.fail_build }}'"
+          echo "#fail_on_severity: '${{ inputs.threshold_pipeline }}'"
           echo "timeout: 60"
-          echo "baseline_file: ${{ env.baseline_file }}"
-          echo "issue_details: ${{ needs.set-routing-mode.outputs.display_summary }}"
-          echo "summary_display: ${{ needs.set-routing-mode.outputs.display_summary }}"
-          echo "json_display: ${{ needs.set-routing-mode.outputs.display_summary }}"
-          echo "verbose: false"
-          echo "summary_output: false"
-          echo "development_stage: ${{ needs.set-routing-mode.outputs.development_stage }}"
+          echo "baseline_file: '${{ env.baseline_file }}'"
+          echo "issue_details: '${{ needs.set-routing-mode.outputs.display_summary }}'"
+          echo "summary_display: '${{ needs.set-routing-mode.outputs.display_summary }}'"
+          echo "json_display: '${{ needs.set-routing-mode.outputs.display_summary }}'"
+          echo "verbose: false - harcoded"
+          echo "summary_output: false - hardcoded"
+          echo "development_stage: '${{ needs.set-routing-mode.outputs.development_stage }}'"
 
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
@@ -133,13 +133,13 @@ jobs:
           #fail_build: ${{ steps.routing-mode.outputs.fail_build }}
           #fail_on_severity: "${{ inputs.threshold_pipeline }}"
           timeout: 60
-          baseline_file: "${{ env.baseline_file }}"
-          issue_details: ${{ needs.set-routing-mode.outputs.display_summary }}
-          summary_display: ${{ needs.set-routing-mode.outputs.display_summary }}
-          json_display: ${{ needs.set-routing-mode.outputs.display_summary }}
-          verbose: false
-          summary_output: false
-          development_stage: ${{ needs.set-routing-mode.outputs.development_stage }}
+          baseline_file: "/tmp/results.json"
+          issue_details: 'false'
+          summary_display: 'false'
+          json_display: 'false'
+          verbose: 'false'
+          summary_output: 'false'
+          development_stage: '${{ needs.set-routing-mode.outputs.development_stage }}'
 
       - name: Save baseline file
         # only baseline file generated from a maintenance branch is saved
