@@ -44,6 +44,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: DEBUG - cache key value from context
+        run: echo "Cache key value = ${{ github.sha }}-${{ github.run_id }}"
+      - name: DEBUG - cache key value from inputs
+        run: echo "Cache key value = ${{ inputs.cache_key }}"
+      - name: DEBUG - target branch name from context
+        run: echo "Cache key value = ${{ github.base_ref || github.ref_name }}"
+      - name: DEBUG - target branch name from inputs
+        run: echo "Cache key value = ${{ inputs.target_branch_name }}"
+
       - name: Get current time
         run: echo "$(date +'%Y-%m-%d %H:%M:%S')"
 
