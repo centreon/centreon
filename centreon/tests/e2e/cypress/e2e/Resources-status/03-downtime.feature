@@ -23,7 +23,7 @@ Scenario: Set a downtime more one resource with default settings
     And the user should see the downtime resources appear in the listing after a refresh
 
 Scenario: Cancel a downtime on a resource
-    Given a resource is on downtime
+    Given a resource is in downtime
     And that you have to go to the downtime page
     When I search for the resource currently "In Downtime" in the list
     Then the user selects the checkbox and clicks on the "Cancel" action
