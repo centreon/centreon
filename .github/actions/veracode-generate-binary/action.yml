@@ -43,7 +43,7 @@ runs:
         if [[ -z "${{ inputs.module_directory }}" || -z "${{ inputs.target_branch_name }}" || -z "${{ inputs.module_name }}" ]]; then
           echo "[DEBUG] - One mandatory argument is missing"
         fi
-        echo "[DEBUG] - module_directory : ${{ inputs.target_branch_name }}
+        echo "[DEBUG] - module_directory : ${{ inputs.target_branch_name }}"
         cd ${{ inputs.module_directory }}
         ls- la
         zip -rq "${{ inputs.module_name }}-${{ inputs.target_branch_name }}.zip" *
