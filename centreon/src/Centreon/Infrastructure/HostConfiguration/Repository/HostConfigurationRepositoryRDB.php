@@ -619,9 +619,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
                 LEFT JOIN `:db`.view_img smi
                     ON smi.img_id = ext.ehi_statusmap_image
                 LEFT JOIN `:db`.host_template_relation htr
-                    ON htr.host_host_id = h.host_id
-                LEFT JOIN `:db`.options AS opt
-                    ON opt.key = \'nagios_path_img\''
+                    ON htr.host_host_id = h.host_id'
             );
             // Search
             $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
