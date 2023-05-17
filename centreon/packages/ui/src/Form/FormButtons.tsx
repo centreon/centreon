@@ -8,8 +8,7 @@ import { makeStyles } from 'tss-react/mui';
 import { Button } from '@mui/material';
 
 import SaveButton from '../Button/Save';
-import useMemoComponent from '../utils/useMemoComponent';
-import getNormalizedId from '../utils/getNormalizedId';
+import { useMemoComponent, getNormalizedId } from '../utils';
 
 import {
   labelReset,
