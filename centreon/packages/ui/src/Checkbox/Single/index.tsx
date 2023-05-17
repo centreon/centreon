@@ -1,5 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
-import { equals } from 'ramda';
+import { T, always, cond, equals } from 'ramda';
 
 import { SvgIconComponent } from '@mui/icons-material';
 import {
@@ -16,6 +16,15 @@ interface StyleProps {
   hasIcon: boolean;
   labelPlacement: LabelPlacement;
 }
+
+const getLabelSpacing = (labelPlacement, theme): string => {
+  return cond([
+    [equals('top'), always(theme.spacing(0, 0, 0.5))],
+    [equals('end'), always(theme.spacing(0, 0, 0, 0.5))],
+    [T, always(0)]
+  ])(labelPlacement);
+};
+
 const useStyles = makeStyles<StyleProps>()(
   (theme, { disabled, hasIcon, labelPlacement }) => ({
     container: hasIcon
@@ -33,7 +42,8 @@ const useStyles = makeStyles<StyleProps>()(
       color: disabled ? theme.palette.grey[600] : 'default',
       fontSize: equals(labelPlacement, 'top')
         ? theme.typography.body2.fontSize
-        : theme.typography.body1.fontSize
+        : theme.typography.body1.fontSize,
+      padding: getLabelSpacing(labelPlacement, theme)
     }
   })
 );
@@ -72,12 +82,14 @@ const SingleCheckbox = ({
             disabled={disabled}
             id={label}
             size="small"
+            sx={{ padding: 0 }}
             onChange={onChange}
           />
         }
         key={label}
         label={<Typography className={classes.label}>{label}</Typography>}
         labelPlacement={labelPlacement}
+        sx={{ margin: 0, padding: 0 }}
       />
     </Box>
   );

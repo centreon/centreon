@@ -22,7 +22,7 @@ const MultiCheckbox = ({
   disabled = false
 }: Props): JSX.Element => {
   return (
-    <FormGroup row={row}>
+    <FormGroup row={row} sx={{ display: 'flex', gap: 5 }}>
       {options.map((value) => {
         return (
           <SingleCheckbox
