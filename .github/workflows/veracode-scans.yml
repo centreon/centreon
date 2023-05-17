@@ -91,6 +91,9 @@ jobs:
           echo "ls on current"
           ls -la
 
+          echo "ls module directory"
+          ls -la ${{ inputs.module_directory }}
+
           echo "ls on /tmp"
           ls -la /tmp
 
@@ -109,7 +112,7 @@ jobs:
         with:
           vid: ${{ secrets.veracode_api_id }}
           vkey: ${{ secrets.veracode_api_key }}
-          file: "${{ inputs.module_directory }}/${{ inputs.cache_key }}.zip"
+          file: "${{ inputs.module_directory }}/${{ github.sha }}-${{ github.run_id }}-${{ inputs.module_name }}-veracode-binary.zip"
           fail_build: false #TODO: Do not fail the jobs until grace period ends
           #fail_on_severity: "${{ inputs.threshold_pipeline }}"
           timeout: 60
