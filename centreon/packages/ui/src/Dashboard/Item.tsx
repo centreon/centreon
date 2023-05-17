@@ -4,7 +4,7 @@ import { isNil } from 'ramda';
 
 import { Card } from '@mui/material';
 
-import useMemoComponent from '../utils/useMemoComponent';
+import { useMemoComponent } from '../utils';
 
 import { useDashboardItemStyles } from './Dashboard.styles';
 

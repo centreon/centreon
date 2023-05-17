@@ -1,5 +1,7 @@
 import React, { ReactNode } from 'react';
 
+import { Divider, Typography } from '@mui/material';
+
 import { useStyles } from './Header.styles';
 
 interface HeaderProps {
@@ -7,13 +9,16 @@ interface HeaderProps {
   title: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, nav }): JSX.Element => {
+const Header = ({ title, nav }: HeaderProps): JSX.Element => {
   const { classes } = useStyles();
 
   return (
-    <header className={classes.header}>
-      <h1>{title}</h1>
-      {nav && <nav>{nav}</nav>}
+    <header>
+      <div className={classes.header}>
+        <Typography variant="h5">{title}</Typography>
+        {nav && <nav>{nav}</nav>}
+      </div>
+      <Divider className={classes.divider} orientation="horizontal" />
     </header>
   );
 };

@@ -5,7 +5,7 @@ import { scaleLinear } from '@visx/scale';
 
 import { useTheme } from '@mui/material';
 
-import useMemoComponent from '../utils/useMemoComponent';
+import { useMemoComponent } from '../utils';
 
 import { maxColumns, rowHeight } from './utils';
 
