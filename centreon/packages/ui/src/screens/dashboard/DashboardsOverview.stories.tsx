@@ -1,46 +1,48 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
-import { Meta } from '@storybook/react';
-import { atom, useAtom } from 'jotai';
+import { Meta } from "@storybook/react";
+import { atom, useAtom } from "jotai";
 
-import { Add as AddIcon } from '@mui/icons-material';
+import { Add as AddIcon } from "@mui/icons-material";
 
-import { Header } from '../../components/Header';
-import { Button } from '../../components/Button';
-import { List, ListItem, ListEmptyState } from '../../components/List';
 import {
+  Button,
   DashboardForm,
-  DashboardFormProps
-} from '../../components/Form/Dashboard';
-import { Default as DashboardFormDefaultStory } from '../../components/Form/Dashboard/DashboardForm.stories';
-import { SimpleDialog } from '../../components/Dialog';
+  DashboardFormProps,
+  Dialog,
+  Header,
+  List,
+  ListEmptyState,
+  ListItem,
+} from "../../components";
+import { Default as DashboardFormDefaultStory } from "../../components/Form/Dashboard/DashboardForm.stories";
 import {
-  TiledListingPage,
   TiledListingActions,
+  TiledListingContent,
   TiledListingList,
-  TiledListingContent
-} from '../../layout/TiledListingPage';
+  TiledListingPage,
+} from "../../layout/TiledListingPage";
 
 const meta: Meta = {
   args: {
     actions: {
       create: {
-        label: 'Create a dashboard'
-      }
+        label: "Create a dashboard",
+      },
     },
     list: {
       emptyState: {
         labels: {
           actions: {
-            create: 'Create dashboard'
+            create: "Create dashboard",
           },
-          title: 'No dashboards found'
-        }
-      }
+          title: "No dashboards found",
+        },
+      },
     },
-    title: 'Dashboards overview'
+    title: "Dashboards overview",
   },
-  title: 'screens/Dashboard/Dashboards overview'
+  title: "screens/Dashboards",
 };
 
 export default meta;
@@ -54,11 +56,11 @@ interface dashboardItem {
 const dialogStateAtom = atom<{
   item: dashboardItem | null;
   open: boolean;
-  variant: DashboardFormProps['variant'];
+  variant: DashboardFormProps["variant"];
 }>({
   item: null,
   open: false,
-  variant: 'create'
+  variant: "create",
 });
 
 const dataDashboardsAtom = atom<Array<dashboardItem>>([]);
@@ -78,7 +80,7 @@ const DefaultView = (args): JSX.Element => {
     setDataDashboards((prev) =>
       [...prev, data].sort((a, b) => a.name.localeCompare(b.name))
     );
-    setDialogState({ item: null, open: false, variant: 'create' });
+    setDialogState({ item: null, open: false, variant: "create" });
   };
 
   const updateDashboard = (data): void => {
@@ -87,7 +89,7 @@ const DefaultView = (args): JSX.Element => {
         .map((dashboard) => (dashboard.id === data.id ? data : dashboard))
         .sort((a, b) => a.name.localeCompare(b.name))
     );
-    setDialogState({ item: null, open: false, variant: 'update' });
+    setDialogState({ item: null, open: false, variant: "update" });
   };
 
   const deleteDashboard = (id): void => {
@@ -106,8 +108,8 @@ const DefaultView = (args): JSX.Element => {
               dataTestId="create-dashboard"
               icon={<AddIcon />}
               iconVariant="start"
-              onClick={(): void =>
-                setDialogState({ item: null, open: true, variant: 'create' })
+              onClick={() =>
+                setDialogState({ item: null, open: true, variant: "create" })
               }
             >
               {args.actions.create.label}
@@ -120,7 +122,7 @@ const DefaultView = (args): JSX.Element => {
               dataTestId="create-dashboard"
               labels={args.list.emptyState.labels}
               onCreate={() =>
-                setDialogState({ item: null, open: true, variant: 'create' })
+                setDialogState({ item: null, open: true, variant: "create" })
               }
             />
           ) : (
@@ -132,12 +134,12 @@ const DefaultView = (args): JSX.Element => {
                   description={dashboard.description}
                   key={dashboard.id}
                   title={dashboard.name}
-                  onDelete={(): void => deleteDashboard(dashboard.id)}
-                  onEdit={(): void =>
+                  onDelete={() => deleteDashboard(dashboard.id)}
+                  onEdit={() =>
                     setDialogState({
                       item: dashboard,
                       open: true,
-                      variant: 'update'
+                      variant: "update",
                     })
                   }
                 />
@@ -145,30 +147,30 @@ const DefaultView = (args): JSX.Element => {
             </List>
           )}
         </TiledListingContent>
-        <SimpleDialog
+        <Dialog
           open={dialogState.open}
-          onClose={(): void =>
-            setDialogState({ item: null, open: false, variant: 'create' })
+          onClose={() =>
+            setDialogState({ item: null, open: false, variant: "create" })
           }
         >
           <DashboardForm
             labels={DashboardFormDefaultStory!.args!.labels!}
             resource={dialogState.item || undefined}
             variant={dialogState.variant}
-            onCancel={(): void =>
+            onCancel={() =>
               setDialogState({
                 item: null,
                 open: false,
-                variant: dialogState.variant
+                variant: dialogState.variant,
               })
             }
             onSubmit={(values): void => {
-              dialogState.variant === 'create'
+              dialogState.variant === "create"
                 ? createDashboard(values)
                 : updateDashboard(values);
             }}
           />
-        </SimpleDialog>
+        </Dialog>
       </TiledListingList>
     </TiledListingPage>
   );
@@ -178,22 +180,22 @@ export const Default = {
   args: {
     data: {
       dashboards: [
-        { description: 'Dashboard 1 description', id: 1, name: 'Dashboard 1' },
-        { description: 'Dashboard 2 description', id: 2, name: 'Dashboard 2' },
-        { description: 'Dashboard 3 description', id: 3, name: 'Dashboard 3' },
-        { description: 'Dashboard 4 description', id: 4, name: 'Dashboard 4' },
-        { description: 'Dashboard 5 description', id: 5, name: 'Dashboard 5' }
-      ]
-    }
+        { description: "Dashboard 1 description", id: 1, name: "Dashboard 1" },
+        { description: "Dashboard 2 description", id: 2, name: "Dashboard 2" },
+        { description: "Dashboard 3 description", id: 3, name: "Dashboard 3" },
+        { description: "Dashboard 4 description", id: 4, name: "Dashboard 4" },
+        { description: "Dashboard 5 description", id: 5, name: "Dashboard 5" },
+      ],
+    },
   },
-  render: DefaultView
+  render: DefaultView,
 };
 
 export const AsInitialState = {
   args: {
     data: {
-      dashboards: []
-    }
+      dashboards: [],
+    },
   },
-  render: DefaultView
+  render: DefaultView,
 };
