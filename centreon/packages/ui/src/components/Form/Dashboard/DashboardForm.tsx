@@ -1,55 +1,78 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from "react";
 
-import * as Yup from 'yup';
-import { useTranslation } from 'react-i18next';
+import * as Yup from "yup";
+import { useTranslation } from "react-i18next";
 
-import { InputType } from '../../../Form/Inputs/models';
-import { Form, FormProps } from '../../../Form';
+import { InputType } from "../../../Form/Inputs/models";
+import { Form, FormProps } from "../../../Form";
 
-import { useStyles } from './DashboardForm.styles';
-import {
-  DashboardFormDataShape,
-  DashboardFormProps,
-  DashboardFormVariant
-} from './models';
+import { useStyles } from "./DashboardForm.styles";
+
 import {
   labelCharacters,
   labelMustBeAtLeast,
   labelMustBeMost,
-  labelRequired
-} from './translatedLabels';
-import { FormActions } from './FormActions';
+  labelRequired,
+} from "./translatedLabels";
+
+import { useFormikContext } from "formik";
+import { Button } from "../../Button";
+
+export type DashboardFormProps = {
+  labels: DashboardFormLabels;
+  onCancel?: () => void;
+  onSubmit?: FormProps<DashboardResource>["submit"];
+  resource?: DashboardResource;
+  variant?: "create" | "update";
+};
+
+export type DashboardFormLabels = {
+  actions: {
+    cancel: string;
+    submit: Record<Required<DashboardFormProps>["variant"], string>;
+  };
+  entity: {
+    description: string;
+    name: string;
+  };
+  title: Record<Required<DashboardFormProps>["variant"], string>;
+};
+
+export type DashboardResource = {
+  description?: string | null;
+  name: string;
+};
 
 const DashboardForm: React.FC<DashboardFormProps> = ({
-  variant = DashboardFormVariant.Create,
+  variant = "create",
   resource,
   labels,
   onSubmit,
-  onCancel
+  onCancel,
 }: DashboardFormProps): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const formProps = useMemo<FormProps<DashboardFormDataShape>>(
+  const formProps = useMemo<FormProps<DashboardResource>>(
     () => ({
-      initialValues: resource ?? { name: '' },
+      initialValues: resource ?? { name: "" },
       inputs: [
         {
-          fieldName: 'name',
-          group: 'main',
+          fieldName: "name",
+          group: "main",
           label: labels?.entity?.name,
           required: true,
-          type: InputType.Text
+          type: InputType.Text,
         },
         {
-          fieldName: 'description',
-          group: 'main',
+          fieldName: "description",
+          group: "main",
           label: labels?.entity?.description,
           text: {
-            multilineRows: 3
+            multilineRows: 3,
           },
-          type: InputType.Text
-        }
+          type: InputType.Text,
+        },
       ],
       submit: (values, bag) => onSubmit?.(values, bag),
       validationSchema: Yup.object().shape({
@@ -73,23 +96,45 @@ const DashboardForm: React.FC<DashboardFormProps> = ({
             (p) =>
               `${p.label} ${t(labelMustBeMost)} ${p.max} ${labelCharacters}`
           )
-          .required(t(labelRequired) as string)
-      })
+          .required(t(labelRequired) as string),
+      }),
     }),
     [resource, labels, onSubmit]
   );
 
+  const FormActions = useCallback((): JSX.Element => {
+    const { isSubmitting, dirty, isValid, submitForm } =
+      useFormikContext<DashboardResource>();
+
+    return (
+      <div className={classes.actions}>
+        <Button
+          aria-label="cancel"
+          disabled={isSubmitting}
+          size="small"
+          variant="secondary"
+          onClick={() => onCancel?.()}
+        >
+          {labels.actions?.cancel}
+        </Button>
+        <Button
+          aria-label="submit"
+          disabled={isSubmitting || !dirty || !isValid}
+          size="small"
+          type="submit"
+          variant="primary"
+          onClick={() => submitForm()}
+        >
+          {labels.actions?.submit[variant]}
+        </Button>
+      </div>
+    );
+  }, [classes, onCancel, labels, variant]);
+
   return (
     <div className={classes.dashboardForm}>
       <h2>{labels?.title[variant]}</h2>
-      <Form<DashboardFormDataShape>
-        {...formProps}
-        Buttons={FormActions({
-          labels,
-          onCancel,
-          variant
-        })}
-      />
+      <Form<DashboardResource> {...formProps} Buttons={FormActions} />
     </div>
   );
 };

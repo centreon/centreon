@@ -1,10 +1,10 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from "@storybook/react";
 
-import { Dialog } from './Dialog';
-import { DialogTitle } from './DialogTitle';
+import { Dialog } from ".";
+import { Default as HeaderStory } from "./Header/DialogHeader.stories";
 
 const meta: Meta<typeof Dialog> = {
-  component: Dialog
+  component: Dialog,
 };
 
 export default meta;
@@ -12,19 +12,19 @@ type Story = StoryObj<typeof Dialog>;
 
 export const Default: Story = {
   args: {
-    children: 'Content area',
-    open: true
-  }
+    children: "Content area",
+    open: true,
+  },
 };
 
-export const WithTitle: Story = {
+export const WithHeader: Story = {
+  render: (args) => (
+    <Dialog {...args}>
+      <Dialog.Header {...HeaderStory.args} />
+      {args.children}
+    </Dialog>
+  ),
   args: {
-    children: (
-      <>
-        <DialogTitle>Title</DialogTitle>
-        Content area
-      </>
-    ),
-    open: true
-  }
+    ...Default.args,
+  },
 };

@@ -9,11 +9,9 @@ import {
   Button,
   DashboardForm,
   DashboardFormProps,
+  DataTable,
   Dialog,
   Header,
-  List,
-  ListEmptyState,
-  ListItem,
 } from "../../components";
 import { Default as DashboardFormDefaultStory } from "../../components/Form/Dashboard/DashboardForm.stories";
 import {
@@ -105,7 +103,7 @@ const DefaultView = (args): JSX.Element => {
         <TiledListingActions>
           {dataDashboards.length !== 0 && (
             <Button
-              dataTestId="create-dashboard"
+              aria-label="add"
               icon={<AddIcon />}
               iconVariant="start"
               onClick={() =>
@@ -117,18 +115,17 @@ const DefaultView = (args): JSX.Element => {
           )}
         </TiledListingActions>
         <TiledListingContent>
-          {dataDashboards.length === 0 ? (
-            <ListEmptyState
-              dataTestId="create-dashboard"
-              labels={args.list.emptyState.labels}
-              onCreate={() =>
-                setDialogState({ item: null, open: true, variant: "create" })
-              }
-            />
-          ) : (
-            <List>
-              {dataDashboards.map((dashboard) => (
-                <ListItem
+          <DataTable isEmpty={dataDashboards.length === 0}>
+            {dataDashboards.length === 0 ? (
+              <DataTable.EmptyState
+                labels={args.list.emptyState.labels}
+                onCreate={() =>
+                  setDialogState({ item: null, open: true, variant: "create" })
+                }
+              />
+            ) : (
+              dataDashboards.map((dashboard) => (
+                <DataTable.Item
                   hasActions
                   hasCardAction
                   description={dashboard.description}
@@ -143,9 +140,9 @@ const DefaultView = (args): JSX.Element => {
                     })
                   }
                 />
-              ))}
-            </List>
-          )}
+              ))
+            )}
+          </DataTable>
         </TiledListingContent>
         <Dialog
           open={dialogState.open}

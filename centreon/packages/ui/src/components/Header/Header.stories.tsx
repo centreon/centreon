@@ -1,9 +1,12 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from "@storybook/react";
 
-import { Header } from './Header';
+import { Settings as SettingsIcon } from "@mui/icons-material";
+
+import { Header } from "./Header";
+import { IconButton } from "../Button";
 
 const meta: Meta<typeof Header> = {
-  component: Header
+  component: Header,
 };
 
 export default meta;
@@ -11,18 +14,17 @@ type Story = StoryObj<typeof Header>;
 
 export const Default: Story = {
   args: {
-    title: 'Header'
-  }
+    title: "Header",
+  },
 };
 
 export const WithNav: Story = {
   args: {
     nav: (
       <>
-        <a href="#">Home</a>
-        <a href="#">Other</a>
+        <IconButton icon={<SettingsIcon />} size="small" variant="ghost" />
       </>
     ),
-    title: 'Header with nav'
-  }
+    title: "Header with nav",
+  },
 };

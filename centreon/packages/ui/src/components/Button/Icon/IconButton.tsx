@@ -1,45 +1,53 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from "react";
 
-import { IconButton as MuiIconButton } from '@mui/material';
+import { IconButton as MuiIconButton } from "@mui/material";
+
+import { useStyles } from "./IconButton.styles";
+import { AriaLabelingAttributes } from "../../../@types/aria-attributes";
+import { DataTestAttributes } from "../../../@types/data-attributes";
 
 const muiColorMap: Record<
-  Required<IconButtonProps>['variant'],
-  'primary' | 'secondary' | 'default'
+  Required<IconButtonProps>["variant"],
+  "primary" | "secondary" | "default"
 > = {
-  ghost: 'default',
-  primary: 'primary',
-  secondary: 'secondary'
+  ghost: "default",
+  primary: "primary",
+  secondary: "secondary",
 };
 
-interface IconButtonProps {
-  ariaLabel?: string;
-  dataTestId?: string;
+type IconButtonProps = {
   disabled?: boolean;
   icon?: string | ReactNode;
   onClick?: (e) => void;
-  size?: 'small' | 'medium' | 'large';
-  variant?: 'primary' | 'secondary' | 'ghost';
-}
+  size?: "small" | "medium" | "large";
+  variant?: "primary" | "secondary" | "ghost";
+} & AriaLabelingAttributes &
+  DataTestAttributes;
 
-const IconButton = ({
-  variant = 'primary',
-  size = 'medium',
+/***
+ * @todo re-factor as `iconVariant: 'icon-only'` Button variant, and remove IconButton component (reason: code duplication)
+ */
+const IconButton: React.FC<IconButtonProps> = ({
+  variant = "primary",
+  size = "medium",
   icon,
   disabled = false,
   onClick,
-  dataTestId,
-  ariaLabel
-}: IconButtonProps): JSX.Element => {
+  ...attr
+}): JSX.Element => {
+  const { classes } = useStyles();
+
   return (
     <MuiIconButton
-      aria-label={ariaLabel}
-      color={muiColorMap[variant]}
+      className={classes.iconButton}
       data-size={size}
-      data-testId={dataTestId}
       data-variant={variant}
       disabled={disabled}
       size={size}
-      onClick={(e): void => onClick?.(e)}
+      onClick={(e) => onClick?.(e)}
+      {...attr}
+      // Mui overrides
+      color={muiColorMap[variant]}
     >
       {icon}
     </MuiIconButton>

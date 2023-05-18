@@ -1,26 +1,27 @@
-import { makeStyles } from 'tss-react/mui';
+import { makeStyles } from "tss-react/mui";
 
 const useStyles = makeStyles()((theme) => ({
   header: {
-    alignItems: 'baseline',
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    padding: theme.spacing(0, 0, 1.5, 0),
+    marginBottom: theme.spacing(2.5),
     borderBottom: `1px solid ${theme.palette.primary.main}`,
-    display: 'flex',
-    flexDirection: 'row',
 
     h1: {
-      font: 'normal normal 600 24px/24px Roboto',
-      letterSpacing: '0.18px',
-      margin: '0 0 12px 0'
+      font: "normal normal 600 24px/24px Roboto",
+      letterSpacing: "0.18px",
+      margin: theme.spacing(0, 0, 1.5, 0),
     },
-    justifyContent: 'space-between',
-    marginBottom: '20px',
 
     nav: {
-      display: 'flex',
-      gap: '20px',
-      justifyContent: 'flex-end'
-    }
-  }
+      display: "flex",
+      gap: theme.spacing(1),
+      justifyContent: "flex-end",
+    },
+  },
 }));
 
 export { useStyles };
