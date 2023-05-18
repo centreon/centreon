@@ -152,7 +152,7 @@ Then(
   }
 );
 
-Given('a resource is on downtime', () => {
+Given('a resource is in downtime', () => {
   cy.contains(serviceInDtName)
     .parent()
     .parent()
