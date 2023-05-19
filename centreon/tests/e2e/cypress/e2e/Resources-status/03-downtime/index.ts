@@ -1,15 +1,29 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkThatServicesExistInDatabase } from '../../../commons';
+import {
+  applyConfigurationViaClapi,
+  checkServicesExistInDatabase,
+  checkThatConfigurationIsExported
+} from '../../../commons';
 import {
   actionBackgroundColors,
   checkIfUserNotificationsAreEnabled,
-  insertDtResources,
+  initializeResourceData,
   searchInput,
   secondServiceInDtName,
   serviceInDtName,
   tearDownResource
 } from '../common';
+
+const insertDtResources = (): Cypress.Chainable => {
+  const dateBeforeLogin = new Date();
+
+  return cy
+    .setUserTokenApiV1()
+    .then(initializeResourceData)
+    .then(applyConfigurationViaClapi)
+    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }));
+};
 
 before(() => {
   cy.startWebContainer();
@@ -46,9 +60,7 @@ Given('the user have the necessary rights to set downtime', () => {
 Given('minimally one resource with and notifications enabled on user', () => {
   insertDtResources();
 
-  checkThatServicesExistInDatabase({
-    serviceDesc: [serviceInDtName, secondServiceInDtName]
-  });
+  checkServicesExistInDatabase([serviceInDtName, secondServiceInDtName]);
 
   checkIfUserNotificationsAreEnabled();
 
@@ -59,7 +71,7 @@ Given('minimally one resource with and notifications enabled on user', () => {
   cy.get('[data-value="all"]').click();
 });
 
-Given('resource selected', () => {
+Given('a resource is selected', () => {
   cy.contains(serviceInDtName)
     .parent()
     .parent()
@@ -105,7 +117,7 @@ Then('I see the resource as downtime in the listing', () => {
   tearDownResource();
 });
 
-Given('multiple resources selected', () => {
+Given('multiple resources are selected', () => {
   cy.contains(serviceInDtName)
     .parent()
     .parent()
@@ -377,5 +389,5 @@ Then('the resources should not be in Downtime anymore', () => {
 });
 
 after(() => {
-  tearDownResource();
+  cy.stopWebContainer();
 });

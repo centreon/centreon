@@ -9,14 +9,14 @@ Background:
     And minimally one resource with and notifications enabled on user
 
 Scenario: Set a downtime on resource with default settings
-    Given resource selected
+    Given a resource is selected
     When the user click on the "Set downtime" action
     And the user fill in the required fields on the start date now, and validate it
     Then the user must be notified of the sending of the order
     And I see the resource as downtime in the listing
 
 Scenario: Set a downtime more one resource with default settings
-    Given multiple resources selected
+    Given multiple resources are selected
     When the user click on the "Set downtime" action
     And the user fill in the required fields on the start date now, and validate it
     Then the user must be notified of the sending of the order

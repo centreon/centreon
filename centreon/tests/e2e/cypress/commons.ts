@@ -122,18 +122,14 @@ const checkThatFixtureHostsExistInDatabase = ({
   });
 };
 
-const checkThatServicesExistInDatabase = ({ serviceDesc }): void => {
+const checkServicesExistInDatabase = (serviceNames: Array<string>): void => {
   cy.log('Checking services in database');
 
   let conditionBuild = '';
 
-  if (Array.isArray(serviceDesc)) {
-    serviceDesc.forEach((description) => {
-      conditionBuild += ` AND s.description LIKE '%${description}%'`;
-    });
-  } else {
-    conditionBuild = ` s.description LIKE '%${serviceDesc}%'`;
-  }
+  serviceNames.forEach((description) => {
+    conditionBuild += ` AND s.description LIKE '%${description}%'`;
+  });
 
   const query = `SELECT COUNT(s.service_id) as count_services from services as s WHERE s.enabled=1${conditionBuild};`;
   const command = `docker exec -i ${Cypress.env(
@@ -156,11 +152,9 @@ const checkThatServicesExistInDatabase = ({ serviceDesc }): void => {
     if (servicesFoundStepCount < maxSteps) {
       cy.wait(stepWaitingTime);
 
-      return cy.wrap(null).then(() =>
-        checkThatServicesExistInDatabase({
-          serviceDesc
-        })
-      );
+      return cy
+        .wrap(null)
+        .then(() => checkServicesExistInDatabase(serviceNames));
     }
 
     throw new Error(
@@ -320,5 +314,5 @@ export {
   insertFixture,
   logout,
   checkIfConfigurationIsExported,
-  checkThatServicesExistInDatabase
+  checkServicesExistInDatabase
 };

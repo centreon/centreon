@@ -302,5 +302,5 @@ export {
   clearCentengineLogs,
   tearDownAckResource,
   typeToSearchInput,
-  insertDtResources
+  initializeResourceData
 };
