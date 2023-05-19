@@ -1,10 +1,10 @@
-export type AriaLabelingAttributes = {
-  "aria-label"?: string;
-  "aria-labelledby"?: string;
-  "aria-describedby"?: string;
-  "aria-details"?: string;
-};
+export interface AriaLabelingAttributes {
+  'aria-describedby'?: string;
+  'aria-details'?: string;
+  'aria-label'?: string;
+  'aria-labelledby'?: string;
+}
 
-export type AriaValidationAttributes = {
-  "aria-errormessage"?: string;
-};
+export interface AriaValidationAttributes {
+  'aria-errormessage'?: string;
+}

@@ -1,9 +1,9 @@
-import { Meta, StoryObj } from "@storybook/react";
+import { Meta, StoryObj } from '@storybook/react';
 
-import { DataTable } from "./index";
+import { DataTable } from './index';
 
 const meta: Meta<typeof DataTable> = {
-  component: DataTable,
+  component: DataTable
 };
 
 export default meta;
@@ -16,13 +16,13 @@ export const Default: Story = {
         {[...Array(5)].map((_, i) => (
           <DataTable.Item
             description={`Item description ${i}`}
-            key={i}
+            key={`k-${i}`}
             title={`Item ${i}`}
           />
         ))}
       </>
-    ),
-  },
+    )
+  }
 };
 
 export const AsEmptyState: Story = {
@@ -31,12 +31,12 @@ export const AsEmptyState: Story = {
       <DataTable.EmptyState
         labels={{
           actions: {
-            create: "Create item",
+            create: 'Create item'
           },
-          title: "No items found",
+          title: 'No items found'
         }}
       />
     ),
-    isEmpty: true,
-  },
+    isEmpty: true
+  }
 };

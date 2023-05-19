@@ -1,13 +1,13 @@
-import React from "react";
+import React from 'react';
 
-import { useTranslation } from "react-i18next";
+import { useTranslation } from 'react-i18next';
 
-import { Add as AddIcon } from "@mui/icons-material";
-import { Typography } from "@mui/material";
+import { Add as AddIcon } from '@mui/icons-material';
+import { Typography } from '@mui/material';
 
-import { Button } from "../../Button";
+import { Button } from '../../Button';
 
-import { useStyles } from "./DataTableEmptyState.styles";
+import { useStyles } from './DataTableEmptyState.styles';
 
 type ListEmptyStateProps = {
   labels: {
@@ -21,7 +21,7 @@ type ListEmptyStateProps = {
 
 const DataTableEmptyState: React.FC<ListEmptyStateProps> = ({
   labels,
-  onCreate,
+  onCreate
 }): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();

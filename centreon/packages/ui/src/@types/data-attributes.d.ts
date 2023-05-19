@@ -1,3 +1,3 @@
-export type DataTestAttributes = {
-  "data-testid"?: string;
-};
+export interface DataTestAttributes {
+  'data-testid'?: string;
+}

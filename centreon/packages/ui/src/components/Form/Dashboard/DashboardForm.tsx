@@ -1,41 +1,39 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from 'react';
 
-import * as Yup from "yup";
-import { useTranslation } from "react-i18next";
+import * as Yup from 'yup';
+import { useTranslation } from 'react-i18next';
+import { useFormikContext } from 'formik';
 
-import { InputType } from "../../../Form/Inputs/models";
-import { Form, FormProps } from "../../../Form";
+import { InputType } from '../../../Form/Inputs/models';
+import { Form, FormProps } from '../../../Form';
+import { Button } from '../../Button';
 
-import { useStyles } from "./DashboardForm.styles";
-
+import { useStyles } from './DashboardForm.styles';
 import {
   labelCharacters,
   labelMustBeAtLeast,
   labelMustBeMost,
-  labelRequired,
-} from "./translatedLabels";
-
-import { useFormikContext } from "formik";
-import { Button } from "../../Button";
+  labelRequired
+} from './translatedLabels';
 
 export type DashboardFormProps = {
   labels: DashboardFormLabels;
   onCancel?: () => void;
-  onSubmit?: FormProps<DashboardResource>["submit"];
+  onSubmit?: FormProps<DashboardResource>['submit'];
   resource?: DashboardResource;
-  variant?: "create" | "update";
+  variant?: 'create' | 'update';
 };
 
 export type DashboardFormLabels = {
   actions: {
     cancel: string;
-    submit: Record<Required<DashboardFormProps>["variant"], string>;
+    submit: Record<Required<DashboardFormProps>['variant'], string>;
   };
   entity: {
     description: string;
     name: string;
   };
-  title: Record<Required<DashboardFormProps>["variant"], string>;
+  title: Record<Required<DashboardFormProps>['variant'], string>;
 };
 
 export type DashboardResource = {
@@ -44,35 +42,35 @@ export type DashboardResource = {
 };
 
 const DashboardForm: React.FC<DashboardFormProps> = ({
-  variant = "create",
+  variant = 'create',
   resource,
   labels,
   onSubmit,
-  onCancel,
+  onCancel
 }: DashboardFormProps): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
   const formProps = useMemo<FormProps<DashboardResource>>(
     () => ({
-      initialValues: resource ?? { name: "" },
+      initialValues: resource ?? { name: '' },
       inputs: [
         {
-          fieldName: "name",
-          group: "main",
+          fieldName: 'name',
+          group: 'main',
           label: labels?.entity?.name,
           required: true,
-          type: InputType.Text,
+          type: InputType.Text
         },
         {
-          fieldName: "description",
-          group: "main",
+          fieldName: 'description',
+          group: 'main',
           label: labels?.entity?.description,
           text: {
-            multilineRows: 3,
+            multilineRows: 3
           },
-          type: InputType.Text,
-        },
+          type: InputType.Text
+        }
       ],
       submit: (values, bag) => onSubmit?.(values, bag),
       validationSchema: Yup.object().shape({
@@ -96,13 +94,13 @@ const DashboardForm: React.FC<DashboardFormProps> = ({
             (p) =>
               `${p.label} ${t(labelMustBeMost)} ${p.max} ${labelCharacters}`
           )
-          .required(t(labelRequired) as string),
-      }),
+          .required(t(labelRequired) as string)
+      })
     }),
     [resource, labels, onSubmit]
   );
 
-  const FormActions = useCallback((): JSX.Element => {
+  const FormActions = useCallback<React.FC>((): JSX.Element => {
     const { isSubmitting, dirty, isValid, submitForm } =
       useFormikContext<DashboardResource>();
 
@@ -123,7 +121,7 @@ const DashboardForm: React.FC<DashboardFormProps> = ({
           size="small"
           type="submit"
           variant="primary"
-          onClick={() => submitForm()}
+          onClick={submitForm}
         >
           {labels.actions?.submit[variant]}
         </Button>

@@ -1,39 +1,40 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode } from 'react';
 
-import { Button as MuiButton } from "@mui/material";
+import { Button as MuiButton } from '@mui/material';
 
-import { useStyles } from "./Button.styles";
-import { AriaLabelingAttributes } from "../../@types/aria-attributes";
-import { DataTestAttributes } from "../../@types/data-attributes";
+import { AriaLabelingAttributes } from '../../@types/aria-attributes';
+import { DataTestAttributes } from '../../@types/data-attributes';
+
+import { useStyles } from './Button.styles';
 
 const muiVariantMap: Record<
-  Required<ButtonProps>["variant"],
-  "text" | "outlined" | "contained"
+  Required<ButtonProps>['variant'],
+  'text' | 'outlined' | 'contained'
 > = {
-  ghost: "text",
-  primary: "contained",
-  secondary: "outlined",
+  ghost: 'text',
+  primary: 'contained',
+  secondary: 'outlined'
 };
 
 type ButtonProps = {
   children: ReactNode;
   disabled?: boolean;
   icon?: string | ReactNode;
-  iconVariant?: "none" | "start" | "end";
+  iconVariant?: 'none' | 'start' | 'end';
   onClick?: (e) => void;
-  size?: "small" | "medium" | "large";
-  type?: "button" | "submit" | "reset";
-  variant?: "primary" | "secondary" | "ghost";
+  size?: 'small' | 'medium' | 'large';
+  type?: 'button' | 'submit' | 'reset';
+  variant?: 'primary' | 'secondary' | 'ghost';
 } & AriaLabelingAttributes &
   DataTestAttributes;
 
 const Button: React.FC<ButtonProps> = ({
   children,
-  variant = "primary",
-  size = "medium",
-  iconVariant = "none",
+  variant = 'primary',
+  size = 'medium',
+  iconVariant = 'none',
   icon,
-  type = "button",
+  type = 'button',
   disabled = false,
   onClick,
   ...attr
@@ -54,8 +55,8 @@ const Button: React.FC<ButtonProps> = ({
       {...attr}
       // Mui overrides
       color="primary"
-      {...(iconVariant === "start" && { startIcon: icon })}
-      {...(iconVariant === "end" && { endIcon: icon })}
+      {...(iconVariant === 'start' && { startIcon: icon })}
+      {...(iconVariant === 'end' && { endIcon: icon })}
     >
       {children}
     </MuiButton>

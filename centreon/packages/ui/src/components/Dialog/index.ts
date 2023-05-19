@@ -1,6 +1,6 @@
-import { Dialog as DialogRoot } from "./Dialog";
-import { DialogHeader } from "./Header/DialogHeader";
+import { Dialog as DialogRoot } from './Dialog';
+import { DialogHeader } from './Header/DialogHeader';
 
 export const Dialog = Object.assign(DialogRoot, {
-  Header: DialogHeader,
+  Header: DialogHeader
 });

@@ -1,6 +1,6 @@
-import { useMemo, useRef, DependencyList, ReactElement } from "react";
+import { useMemo, useRef, DependencyList, ReactElement } from 'react';
 
-import { equals } from "ramda";
+import { equals } from 'ramda';
 
 export const useDeepCompare = (value: DependencyList): Array<number> => {
   const ref = useRef<React.DependencyList>();
@@ -21,7 +21,7 @@ interface MemoComponent {
 
 export const useMemoComponent = ({
   Component,
-  memoProps,
+  memoProps
 }: MemoComponent): JSX.Element =>
   useMemo(() => Component, useDeepCompare(memoProps));
 

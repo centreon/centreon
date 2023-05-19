@@ -1,9 +1,9 @@
-import { Meta, StoryObj } from "@storybook/react";
+import { Meta, StoryObj } from '@storybook/react';
 
-import { DataTableEmptyState } from "./DataTableEmptyState";
+import { DataTableEmptyState } from './DataTableEmptyState';
 
 const meta: Meta<typeof DataTableEmptyState> = {
-  component: DataTableEmptyState,
+  component: DataTableEmptyState
 };
 
 export default meta;
@@ -13,9 +13,9 @@ export const Default: Story = {
   args: {
     labels: {
       actions: {
-        create: "Create item",
+        create: 'Create item'
       },
-      title: "No items found",
-    },
-  },
+      title: 'No items found'
+    }
+  }
 };

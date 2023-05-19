@@ -1,11 +1,11 @@
-import { Meta, StoryObj } from "@storybook/react";
+import { Meta, StoryObj } from '@storybook/react';
 
-import { Add as AddIcon } from "@mui/icons-material";
+import { Add as AddIcon } from '@mui/icons-material';
 
-import { Button } from "./Button";
+import { Button } from './Button';
 
 const meta: Meta<typeof Button> = {
-  component: Button,
+  component: Button
 };
 
 export default meta;
@@ -13,15 +13,15 @@ type Story = StoryObj<typeof Button>;
 
 export const Default: Story = {
   args: {
-    children: "Label",
-    "aria-label": "button",
-  },
+    'aria-label': 'button',
+    children: 'Label'
+  }
 };
 
 export const WithIcon: Story = {
   args: {
     ...Default.args,
     icon: <AddIcon />,
-    iconVariant: "start", // TODO Icon component
-  },
+    iconVariant: 'start' // TODO Icon component
+  }
 };

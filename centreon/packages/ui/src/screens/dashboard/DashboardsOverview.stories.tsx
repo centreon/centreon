@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
-import { Meta } from "@storybook/react";
-import { atom, useAtom } from "jotai";
+import { Meta } from '@storybook/react';
+import { atom, useAtom } from 'jotai';
 
-import { Add as AddIcon } from "@mui/icons-material";
+import { Add as AddIcon } from '@mui/icons-material';
 
 import {
   Button,
@@ -11,36 +11,36 @@ import {
   DashboardFormProps,
   DataTable,
   Dialog,
-  Header,
-} from "../../components";
-import { Default as DashboardFormDefaultStory } from "../../components/Form/Dashboard/DashboardForm.stories";
+  Header
+} from '../../components';
+import { Default as DashboardFormDefaultStory } from '../../components/Form/Dashboard/DashboardForm.stories';
 import {
   TiledListingActions,
   TiledListingContent,
   TiledListingList,
-  TiledListingPage,
-} from "../../layout/TiledListingPage";
+  TiledListingPage
+} from '../../layout/TiledListingPage';
 
 const meta: Meta = {
   args: {
     actions: {
       create: {
-        label: "Create a dashboard",
-      },
+        label: 'Create a dashboard'
+      }
     },
     list: {
       emptyState: {
         labels: {
           actions: {
-            create: "Create dashboard",
+            create: 'Create dashboard'
           },
-          title: "No dashboards found",
-        },
-      },
+          title: 'No dashboards found'
+        }
+      }
     },
-    title: "Dashboards overview",
+    title: 'Dashboards overview'
   },
-  title: "screens/Dashboards",
+  title: 'screens/Dashboards'
 };
 
 export default meta;
@@ -54,40 +54,42 @@ interface dashboardItem {
 const dialogStateAtom = atom<{
   item: dashboardItem | null;
   open: boolean;
-  variant: DashboardFormProps["variant"];
+  variant: DashboardFormProps['variant'];
 }>({
   item: null,
   open: false,
-  variant: "create",
+  variant: 'create'
 });
 
 const dataDashboardsAtom = atom<Array<dashboardItem>>([]);
 
 const DefaultView = (args): JSX.Element => {
+  const { data, title, actions, list } = args;
   const [dialogState, setDialogState] = useAtom(dialogStateAtom);
   const [dataDashboards, setDataDashboards] = useAtom(dataDashboardsAtom);
 
   useEffect(() => {
-    setDataDashboards(args.data.dashboards);
-  }, [args.data.dashboards]);
+    setDataDashboards(data.dashboards);
+  }, [data.dashboards]);
 
-  const createDashboard = (data): void => {
-    data.id = dataDashboards.length
-      ? Math.max(...dataDashboards.map((dashboard) => dashboard.id)) + 1
+  const createDashboard = (d): void => {
+    const dashboard = { ...d };
+    dashboard.id = dataDashboards.length
+      ? Math.max(...dataDashboards.map((db) => db.id)) + 1
       : 0;
     setDataDashboards((prev) =>
-      [...prev, data].sort((a, b) => a.name.localeCompare(b.name))
+      [...prev, dashboard].sort((a, b) => a.name.localeCompare(b.name))
     );
-    setDialogState({ item: null, open: false, variant: "create" });
+    setDialogState({ item: null, open: false, variant: 'create' });
   };
 
-  const updateDashboard = (data): void => {
+  const updateDashboard = (d): void => {
     setDataDashboards((prev) =>
       prev
-        .map((dashboard) => (dashboard.id === data.id ? data : dashboard))
+        .map((dashboard) => (dashboard.id === d.id ? d : dashboard))
         .sort((a, b) => a.name.localeCompare(b.name))
     );
-    setDialogState({ item: null, open: false, variant: "update" });
+    setDialogState({ item: null, open: false, variant: 'update' });
   };
 
   const deleteDashboard = (id): void => {
@@ -98,7 +100,7 @@ const DefaultView = (args): JSX.Element => {
 
   return (
     <TiledListingPage>
-      <Header title={args.title} />
+      <Header title={title} />
       <TiledListingList>
         <TiledListingActions>
           {dataDashboards.length !== 0 && (
@@ -107,10 +109,10 @@ const DefaultView = (args): JSX.Element => {
               icon={<AddIcon />}
               iconVariant="start"
               onClick={() =>
-                setDialogState({ item: null, open: true, variant: "create" })
+                setDialogState({ item: null, open: true, variant: 'create' })
               }
             >
-              {args.actions.create.label}
+              {actions.create.label}
             </Button>
           )}
         </TiledListingActions>
@@ -118,9 +120,9 @@ const DefaultView = (args): JSX.Element => {
           <DataTable isEmpty={dataDashboards.length === 0}>
             {dataDashboards.length === 0 ? (
               <DataTable.EmptyState
-                labels={args.list.emptyState.labels}
+                labels={list.emptyState.labels}
                 onCreate={() =>
-                  setDialogState({ item: null, open: true, variant: "create" })
+                  setDialogState({ item: null, open: true, variant: 'create' })
                 }
               />
             ) : (
@@ -136,7 +138,7 @@ const DefaultView = (args): JSX.Element => {
                     setDialogState({
                       item: dashboard,
                       open: true,
-                      variant: "update",
+                      variant: 'update'
                     })
                   }
                 />
@@ -147,7 +149,7 @@ const DefaultView = (args): JSX.Element => {
         <Dialog
           open={dialogState.open}
           onClose={() =>
-            setDialogState({ item: null, open: false, variant: "create" })
+            setDialogState({ item: null, open: false, variant: 'create' })
           }
         >
           <DashboardForm
@@ -158,14 +160,14 @@ const DefaultView = (args): JSX.Element => {
               setDialogState({
                 item: null,
                 open: false,
-                variant: dialogState.variant,
+                variant: dialogState.variant
               })
             }
-            onSubmit={(values): void => {
-              dialogState.variant === "create"
+            onSubmit={(values) =>
+              dialogState.variant === 'create'
                 ? createDashboard(values)
-                : updateDashboard(values);
-            }}
+                : updateDashboard(values)
+            }
           />
         </Dialog>
       </TiledListingList>
@@ -177,22 +179,22 @@ export const Default = {
   args: {
     data: {
       dashboards: [
-        { description: "Dashboard 1 description", id: 1, name: "Dashboard 1" },
-        { description: "Dashboard 2 description", id: 2, name: "Dashboard 2" },
-        { description: "Dashboard 3 description", id: 3, name: "Dashboard 3" },
-        { description: "Dashboard 4 description", id: 4, name: "Dashboard 4" },
-        { description: "Dashboard 5 description", id: 5, name: "Dashboard 5" },
-      ],
-    },
+        { description: 'Dashboard 1 description', id: 1, name: 'Dashboard 1' },
+        { description: 'Dashboard 2 description', id: 2, name: 'Dashboard 2' },
+        { description: 'Dashboard 3 description', id: 3, name: 'Dashboard 3' },
+        { description: 'Dashboard 4 description', id: 4, name: 'Dashboard 4' },
+        { description: 'Dashboard 5 description', id: 5, name: 'Dashboard 5' }
+      ]
+    }
   },
-  render: DefaultView,
+  render: DefaultView
 };
 
 export const AsInitialState = {
   args: {
     data: {
-      dashboards: [],
-    },
+      dashboards: []
+    }
   },
-  render: DefaultView,
+  render: DefaultView
 };

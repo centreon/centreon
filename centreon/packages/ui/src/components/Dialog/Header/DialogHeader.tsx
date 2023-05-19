@@ -1,11 +1,11 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode } from 'react';
 
-import { Close as CloseIcon } from "@mui/icons-material";
-import { DialogTitle as MuiDialogTitle } from "@mui/material";
+import { Close as CloseIcon } from '@mui/icons-material';
+import { DialogTitle as MuiDialogTitle } from '@mui/material';
 
-import { useStyles } from "./DialogHeader.styles";
+import { IconButton } from '../../Button';
 
-import { IconButton } from "../../Button";
+import { useStyles } from './DialogHeader.styles';
 
 type DialogHeaderProps = {
   children?: ReactNode;
@@ -16,7 +16,7 @@ type DialogHeaderProps = {
 const DialogHeader: React.FC<DialogHeaderProps> = ({
   children,
   hasCloseButton = false,
-  onClose,
+  onClose
 }): JSX.Element => {
   const { classes } = useStyles();
 
@@ -27,8 +27,8 @@ const DialogHeader: React.FC<DialogHeaderProps> = ({
         <IconButton
           aria-label="close"
           icon={<CloseIcon />}
+          size="small"
           variant="ghost"
-          size={"small"}
           onClick={() => onClose?.()}
         />
       )}

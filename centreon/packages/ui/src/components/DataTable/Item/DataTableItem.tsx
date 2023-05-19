@@ -1,17 +1,17 @@
-import React, { RefObject, forwardRef, useMemo } from "react";
+import React, { RefObject, forwardRef, useMemo } from 'react';
 
 import {
   Card as MuiCard,
   CardActionArea as MuiCardActionArea,
   CardActions as MuiCardActions,
   CardContent as MuiCardContent,
-  Typography,
-} from "@mui/material";
-import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
+  Typography
+} from '@mui/material';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 
-import { IconButton } from "../../Button";
+import { IconButton } from '../../Button';
 
-import { useStyles } from "./DataTableItem.styles";
+import { useStyles } from './DataTableItem.styles';
 
 export interface DataTableItemProps {
   description?: string;
@@ -32,7 +32,7 @@ const DataTableItem = forwardRef(
       hasActions = false,
       onClick,
       onEdit,
-      onDelete,
+      onDelete
     }: DataTableItemProps,
     ref
   ): JSX.Element => {

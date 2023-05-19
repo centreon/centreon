@@ -1,23 +1,23 @@
-import { makeStyles } from "tss-react/mui";
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   dialogHeader: {
-    padding: theme.spacing(0, 0, 2, 0),
-    display: "flex",
-    justifyContent: "space-between",
+    '& .MuiDialogTitle-root': {
+      padding: theme.spacing(0)
+    },
+    '& > button': {
+      svg: {
+        opacity: 0.6
+      },
+      transform: 'translate(5px, 0px)'
+    },
+    display: 'flex',
     gap: theme.spacing(2),
 
-    "& .MuiDialogTitle-root": {
-      padding: theme.spacing(0),
-    },
+    justifyContent: 'space-between',
 
-    "& > button": {
-      transform: "translate(5px, 0px)",
-      svg: {
-        opacity: 0.6,
-      },
-    },
-  },
+    padding: theme.spacing(0, 0, 2, 0)
+  }
 }));
 
 export { useStyles };

@@ -1,26 +1,27 @@
-import React from "react";
+import React from 'react';
 
-import {
-  Dialog as MuiDialog,
-  DialogProps as MuiDialogProps,
-} from "@mui/material";
+import { Dialog as MuiDialog } from '@mui/material';
 
-import { useStyles } from "./Dialog.styles";
+import { useStyles } from './Dialog.styles';
 
 type DialogProps = {
   children: React.ReactNode;
-  onClose?: (event: object, reason: "escapeKeyDown" | "backdropClick") => void;
-  open: MuiDialogProps["open"];
+  onClose?: (event: object, reason: 'escapeKeyDown' | 'backdropClick') => void;
+  open: boolean;
 };
 
 /** *
  * @description This component is *WIP* and is not ready for production. Use the default `Dialog` component instead.
  */
-const Dialog = ({ children, ...dialogProps }: DialogProps): JSX.Element => {
+const Dialog: React.FC<DialogProps> = ({
+  children,
+  onClose,
+  open
+}): JSX.Element => {
   const { classes } = useStyles();
 
   return (
-    <MuiDialog className={classes.dialog} {...dialogProps}>
+    <MuiDialog className={classes.dialog} open={open} onClose={onClose}>
       {children}
     </MuiDialog>
   );
