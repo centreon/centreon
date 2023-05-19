@@ -1,0 +1,111 @@
+<script>
+  var host_selected = {$host_selected|json_encode};
+  var service_selected = {$service_selected|json_encode};
+</script>
+
+{literal}
+<script>
+  
+  $(document).ready(function() {
+    let hostIdList = [];
+    let hostNameList = [];
+    let hgNameList = [];
+    $('#ci_type_selector').change(function() {
+      if (!this.checked) {
+        addHostCiToSelect()
+      } else {
+        addHgCiToSelect()
+      }
+    })
+
+    function addCiSelectOptions(id, ciName, is_selected) {
+      const text = $('<div />').text(ciName).html()
+      const value=id + "___" + text + "___" + text;
+      $("#select_ezv_ci_name").append(new Option(text, value, is_selected, is_selected)).trigger('change');
+      // $("#select2-select_ezv_ci_name-container").val(ciName).trigger('change');
+    }
+  
+    $("#select_ezv_ci_name").select2({
+      tags: true
+    });
+
+    function clearCiSelect() {
+      $("#select_ezv_ci_name").empty();
+      $("#select_ezv_ci_name").append(new Option("-- select -- ", -1));
+    }
+
+    function addHostCiToSelect() {
+      clearCiSelect();
+      if (hostNameList.length == 1) {
+        addCiSelectOptions(0, hostNameList[0], true);
+      } else {
+        $(hostNameList).each(function(index, value) {
+          addCiSelectOptions(index, value, false);
+        });
+      }
+    }
+
+    function addHgCiToSelect() {
+      clearCiSelect();
+      if (hgNameList.length == 1) {
+        addCiSelectOptions(0, hgNameList[0], true);
+      } else {
+        $(hgNameList).each(function(index, hgName) {
+          addCiSelectOptions(index, hgName, false);
+        });
+      }
+    }
+  
+    // clearCiSelect();
+    if (host_selected.length !== 0) {
+      $(host_selected).each(function() {
+        hostIdList.push(this.host_id);
+        hostNameList.push(this.name);
+      })
+    }
+    
+    if (service_selected.length !== 0) {
+      $(service_selected).each(function() {
+        hostIdList.push(this.host_id);
+        hostNameList.push(this.host_name);
+      })
+    }
+
+    // $(#select2-select_ezv_ci_name-container"
+
+
+    addHostCiToSelect()
+    console.log(hostIdList)
+    
+    let postData = {
+      rule_id: $('#rule_id').val(),
+      provider_id: $('#provider_id').val(),
+      methods: ['getHostgroups'],
+      provider_data: {
+        host_list: hostIdList
+      }
+    }
+    
+    jQuery.ajax({
+      url: './modules/centreon-open-tickets/providers/EasyVistaRest/ajax/call.php',
+      type: 'post',
+      data: {
+        data: JSON.stringify(postData)
+      },
+      success: function (data) {
+        let result = JSON.parse(data);
+        if (result.code !== 0) {
+          jQuery('#form_error').text(result.msg + ' Please contact your administrator.');
+          return;
+        }
+
+        hgNameList = result.getHostgroups;
+        if ($('#ci_type_selector').is(":checked")) {
+          addHgCiToSelect();
+        }
+      }
+    });
+  });
+</script>
+
+{/literal}

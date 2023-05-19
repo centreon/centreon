@@ -1,0 +1,61 @@
+<tr class="list_lvl_1">
+    <td class="ListColLvl1_name" colspan="2">
+        <h4>{$header.EasyVistaRest}</h4>
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.address.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.address.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.api_path.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.api_path.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.account.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.account.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.token.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.token.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.protocol.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.protocol.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.timeout.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.timeout.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.mappingTicket.label}
+    </td>
+    <td class="FormRowValue">
+        {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicket" cloneSet=$form.mappingTicket}
+    </td>
+</tr>
