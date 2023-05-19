@@ -2,11 +2,10 @@ import React, { useCallback, useMemo } from 'react';
 
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
-import { useFormikContext } from 'formik';
 
 import { InputType } from '../../../Form/Inputs/models';
 import { Form, FormProps } from '../../../Form';
-import { Button } from '../../Button';
+import { FormVariant } from '../Form.models';
 
 import { useStyles } from './DashboardForm.styles';
 import {
@@ -15,30 +14,23 @@ import {
   labelMustBeMost,
   labelRequired
 } from './translatedLabels';
+import {
+  DashboardFormActions,
+  DashboardFormActionsProps
+} from './DashboardFormActions';
+import { DashboardResource } from './Dashboard.resource';
 
 export type DashboardFormProps = {
   labels: DashboardFormLabels;
-  onCancel?: () => void;
   onSubmit?: FormProps<DashboardResource>['submit'];
   resource?: DashboardResource;
-  variant?: 'create' | 'update';
-};
+  variant?: FormVariant;
+} & Pick<DashboardFormActionsProps, 'onCancel'>;
 
 export type DashboardFormLabels = {
-  actions: {
-    cancel: string;
-    submit: Record<Required<DashboardFormProps>['variant'], string>;
-  };
-  entity: {
-    description: string;
-    name: string;
-  };
-  title: Record<Required<DashboardFormProps>['variant'], string>;
-};
-
-export type DashboardResource = {
-  description?: string | null;
-  name: string;
+  actions: DashboardFormActionsProps['labels'];
+  entity: Required<DashboardResource>;
+  title: Record<FormVariant, string>;
 };
 
 const DashboardForm: React.FC<DashboardFormProps> = ({
@@ -100,34 +92,16 @@ const DashboardForm: React.FC<DashboardFormProps> = ({
     [resource, labels, onSubmit]
   );
 
-  const FormActions = useCallback<React.FC>((): JSX.Element => {
-    const { isSubmitting, dirty, isValid, submitForm } =
-      useFormikContext<DashboardResource>();
-
-    return (
-      <div className={classes.actions}>
-        <Button
-          aria-label="cancel"
-          disabled={isSubmitting}
-          size="small"
-          variant="secondary"
-          onClick={() => onCancel?.()}
-        >
-          {labels.actions?.cancel}
-        </Button>
-        <Button
-          aria-label="submit"
-          disabled={isSubmitting || !dirty || !isValid}
-          size="small"
-          type="submit"
-          variant="primary"
-          onClick={submitForm}
-        >
-          {labels.actions?.submit[variant]}
-        </Button>
-      </div>
-    );
-  }, [classes, onCancel, labels, variant]);
+  const FormActions = useCallback(
+    () => (
+      <DashboardFormActions
+        labels={labels?.actions}
+        variant={variant}
+        onCancel={onCancel}
+      />
+    ),
+    [labels, onCancel, variant]
+  );
 
   return (
     <div className={classes.dashboardForm}>
