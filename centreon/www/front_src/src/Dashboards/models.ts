@@ -1,4 +1,4 @@
-import { DashboardFormVariant } from '@centreon/ui';
+import { FormVariant } from '@centreon/ui/components';
 
 export interface Dashboard {
   createdAt: string;
@@ -10,5 +10,5 @@ export interface Dashboard {
 
 export interface SelectedDashboard {
   dashboard: Dashboard | null;
-  variant: DashboardFormVariant;
+  variant: FormVariant;
 }

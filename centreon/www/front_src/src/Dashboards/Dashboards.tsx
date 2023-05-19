@@ -1,14 +1,15 @@
-import { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 
+import { TiledListingPage } from '@centreon/ui';
 import {
-  TiledListingPage,
-  Header,
-  SimpleDialog,
-  DashboardForm
-} from '@centreon/ui';
+  DashboardForm,
+  DashboardResource,
+  Dialog,
+  Header
+} from '@centreon/ui/components';
 
 import {
   labelCancel,
@@ -27,8 +28,7 @@ import {
   selectedDashboardAtom
 } from './atoms';
 import useSubmitDashboard from './useSubmitDashboard';
-
-const Listing = lazy(() => import('./Listing'));
+import Listing from './Listing';
 
 const formLabels = {
   actions: {
@@ -63,15 +63,17 @@ const Dashboards = (): JSX.Element => {
       <Suspense fallback={<ListingSkeleton />}>
         <Listing />
       </Suspense>
-      <SimpleDialog open={isDialogOpen} onClose={closeDialog}>
+      <Dialog open={isDialogOpen} onClose={closeDialog}>
         <DashboardForm
           labels={formLabels}
-          resource={selectedDashboard?.dashboard || undefined}
+          resource={
+            (selectedDashboard?.dashboard as DashboardResource) || undefined
+          }
           variant={selectedDashboard?.variant}
           onCancel={closeDialog}
           onSubmit={submit}
         />
-      </SimpleDialog>
+      </Dialog>
     </TiledListingPage>
   );
 };

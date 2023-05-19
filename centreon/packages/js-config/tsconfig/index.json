@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "downlevelIteration": true,
-    "module": "es6",
-    "target": "es6",
+    "module": "esnext",
+    "target": "es2018",
     "jsx": "react-jsx",
     "strict": true,
     "noImplicitAny": false,

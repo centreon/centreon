@@ -31,10 +31,17 @@
   },
   "homepage": "https://github.com/centreon/centreon#readme",
   "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./components": "./src/components/index.ts",
+    "./fonts/*": "./public/fonts/*",
+    "./test/testRenderer": "./test/testRenderer.tsx"
+  },
   "files": [
     "package.json",
     "src/*",
-    "public/*"
+    "public/*",
+    "test/*"
   ],
   "devDependencies": {
     "@cypress/react": "^7.0.2",

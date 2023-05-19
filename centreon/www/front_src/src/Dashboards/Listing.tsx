@@ -8,15 +8,11 @@ import AddIcon from '@mui/icons-material/Add';
 import { CircularProgress } from '@mui/material';
 
 import {
-  Button,
-  DashboardFormVariant,
-  List,
-  ListEmptyState,
-  ListItem,
   TiledListingActions,
   TiledListingContent,
   TiledListingList
 } from '@centreon/ui';
+import { Button, DataTable } from '@centreon/ui/components';
 
 import useDashboards from './useDashboards';
 import {
@@ -47,14 +43,14 @@ const Listing = (): JSX.Element => {
   const createDashboard = (): void => {
     openDialog({
       dashboard: null,
-      variant: DashboardFormVariant.Create
+      variant: 'create'
     });
   };
 
   const editDashboard = (dashboard: Dashboard) => (): void => {
     openDialog({
       dashboard,
-      variant: DashboardFormVariant.Update
+      variant: 'update'
     });
   };
 
@@ -63,7 +59,8 @@ const Listing = (): JSX.Element => {
       <TiledListingActions>
         {hasDashboards && (
           <Button
-            dataTestId="create-dashboard"
+            aria-label="create"
+            data-testid="create-dashboard"
             icon={<AddIcon />}
             iconVariant="start"
             onClick={createDashboard}
@@ -73,22 +70,23 @@ const Listing = (): JSX.Element => {
         )}
       </TiledListingActions>
       <TiledListingContent>
-        {!hasDashboards ? (
-          <ListEmptyState
-            dataTestId="create-dashboard"
-            labels={emptyListStateLabels}
-            onCreate={createDashboard}
-          />
-        ) : (
-          <List>
-            {dashboards.map((dashboard, index) => {
+        <DataTable isEmpty={hasDashboards}>
+          {!hasDashboards ? (
+            <DataTable.EmptyState
+              aria-label="create"
+              data-testid="create-dashboard"
+              labels={emptyListStateLabels}
+              onCreate={createDashboard}
+            />
+          ) : (
+            dashboards.map((dashboard, index) => {
               const isLastElement = equals(index, dec(dashboards.length));
 
               return (
-                <ListItem
+                <DataTable.Item
                   hasActions
                   hasCardAction
-                  description={dashboard.description}
+                  description={dashboard.description ?? undefined}
                   key={dashboard.id}
                   ref={isLastElement ? elementRef : undefined}
                   title={dashboard.name}
@@ -96,13 +94,13 @@ const Listing = (): JSX.Element => {
                   onEdit={editDashboard(dashboard)}
                 />
               );
-            })}
-            {isLoading && (
-              <div>
-                <CircularProgress />
-              </div>
-            )}
-          </List>
+            })
+          )}
+        </DataTable>
+        {isLoading && (
+          <div>
+            <CircularProgress />
+          </div>
         )}
       </TiledListingContent>
     </TiledListingList>

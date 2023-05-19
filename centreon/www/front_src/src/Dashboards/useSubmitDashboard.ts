@@ -4,13 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { FormikHelpers } from 'formik';
 
 import {
-  DashboardFormDataShape,
-  DashboardFormVariant,
   Method,
   ResponseError,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
+import { DashboardResource, FormVariant } from '@centreon/ui/components';
 
 import { Dashboard } from './models';
 import { dashboardsEndpoint } from './api/endpoints';
@@ -30,8 +29,8 @@ import {
 interface UseSubmitDashboardState {
   isMutating: boolean;
   submit: (
-    dashboard: DashboardFormDataShape,
-    formikHelpers: FormikHelpers<DashboardFormDataShape>
+    dashboard: DashboardResource,
+    formikHelpers: FormikHelpers<DashboardResource>
   ) => void;
 }
 
@@ -45,7 +44,7 @@ const useSubmitDashboard = (): UseSubmitDashboardState => {
 
   const isUpdateVariant = equals(
     selectedDashboardVariant,
-    DashboardFormVariant.Update
+    'update' as FormVariant
   );
 
   const { mutateAsync, isMutating } = useMutationQuery<Dashboard>({
@@ -68,9 +67,9 @@ const useSubmitDashboard = (): UseSubmitDashboardState => {
     );
   };
 
-  const submit = (values: DashboardFormDataShape, { setSubmitting }): void => {
-    const normalizedValues: DashboardFormDataShape = {
-      description: values.description || null,
+  const submit = (values: DashboardResource, { setSubmitting }): void => {
+    const normalizedValues: DashboardResource = {
+      description: values.description || undefined,
       name: values.name
     };
 
