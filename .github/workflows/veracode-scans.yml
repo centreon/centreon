@@ -112,16 +112,16 @@ jobs:
           echo "vid: ${{ secrets.veracode_api_id }}"
           echo "vkey: ${{ secrets.veracode_api_key }}"
           echo "file: '${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip'"
-          echo "#fail_build: '${{ needs.steps.routing-mode.outputs.fail_build }}'"
+          echo "#fail_build: '${{ needs.build.outputs.fail_build }}'"
           echo "#fail_on_severity: '${{ inputs.threshold_pipeline }}'"
           echo "timeout: 60"
           echo "baseline_file: '${{ env.baseline_file }}'"
-          echo "issue_details: '${{ needs.set-routing-mode.outputs.display_summary }}'"
-          echo "summary_display: '${{ needs.set-routing-mode.outputs.display_summary }}'"
-          echo "json_display: '${{ needs.set-routing-mode.outputs.display_summary }}'"
+          echo "issue_details: '${{ needs.build.outputs.display_summary }}'"
+          echo "summary_display: '${{ needs.build.outputs.display_summary }}'"
+          echo "json_display: '${{ needs.build.outputs.display_summary }}'"
           echo "verbose: false - harcoded"
           echo "summary_output: false - hardcoded"
-          echo "development_stage: '${{ needs.set-routing-mode.outputs.development_stage }}'"
+          echo "development_stage: '${{ needs.build.outputs.development_stage }}'"
 
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
