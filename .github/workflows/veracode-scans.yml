@@ -133,7 +133,7 @@ jobs:
           #fail_build: ${{ steps.routing-mode.outputs.fail_build }}
           #fail_on_severity: "${{ inputs.threshold_pipeline }}"
           timeout: 60
-          baseline_file: "/tmp/results.json"
+          baseline_file: ${{ env.baseline_file }}
           issue_details: 'false'
           summary_display: 'false'
           json_display: 'false'
