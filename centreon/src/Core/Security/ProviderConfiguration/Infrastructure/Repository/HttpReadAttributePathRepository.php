@@ -92,7 +92,7 @@ class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInte
         $options = ["headers" => $headers, "body" => $body, "verify_peer" => $customConfiguration->verifyPeer()];
 
         try {
-            $response = $this->client->request("GET", $url, $options);
+            $response = $this->client->request("POST", $url, $options);
         } catch (Exception) {
             throw new InvalidResponseException();
         }
