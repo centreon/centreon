@@ -33,7 +33,7 @@ const useStyles = makeStyles<StylesProps>()(
       height: '100%'
     },
     container: {
-      backgroundColor: theme.palette.background.default,
+      backgroundColor: theme.palette.background.panel,
       borderTopRightRadius: 0,
       display: 'grid',
       gridTemplate: 'auto auto 1fr / 1fr',

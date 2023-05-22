@@ -99,7 +99,9 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
       ? 'row'
       : 'column'
   },
-  inputWrapper: { width: '100%' },
+  inputWrapper: {
+    width: '100%'
+  },
   inputs: {
     display: 'flex',
     flexDirection: 'column',
@@ -111,6 +113,7 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
 interface Props {
   groupDirection?: GroupDirection;
   groups?: Array<Group>;
+  groupsClassName?: string;
   inputs: Array<InputProps>;
   isCollapsible: boolean;
   isLoading?: boolean;
@@ -121,9 +124,10 @@ const Inputs = ({
   groups = [],
   isLoading = false,
   isCollapsible,
-  groupDirection
+  groupDirection,
+  groupsClassName
 }: Props): JSX.Element => {
-  const { classes } = useStyles({ groupDirection });
+  const { classes, cx } = useStyles({ groupDirection });
   const { t } = useTranslation();
   const formikContext = useFormikContext<FormikValues>();
 
@@ -194,6 +198,7 @@ const Inputs = ({
           <Fragment key={groupName}>
             <div>
               <CollapsibleGroup
+                className={groupsClassName}
                 defaultIsOpen={isFirstElement}
                 group={groupProps}
                 hasGroupTitle={hasGroupTitle}
@@ -219,13 +224,18 @@ const Inputs = ({
                       >
                         {inputProps.additionalLabel && (
                           <Typography
-                            className={classes.additionalLabel}
+                            className={cx(
+                              classes.additionalLabel,
+                              inputProps?.additionalLabelClassName
+                            )}
                             variant="body1"
                           >
                             {t(inputProps.additionalLabel)}
                           </Typography>
                         )}
-                        <Input {...inputProps} />
+                        <div className={inputProps?.inputClassName || ''}>
+                          <Input {...inputProps} />
+                        </div>
                       </div>
                     );
                   })}
