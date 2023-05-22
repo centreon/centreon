@@ -130,7 +130,7 @@ jobs:
           timeout: 60
           #baseline_file: '${{ env.baseline_file }}'
 
-          issue_details: '${{ needs.build.outputs.display_summary }}'
+          #issue_details: '${{ needs.build.outputs.display_summary }}'
           #issue_details: 'false'
 
           #summary_display: 'false'
@@ -142,11 +142,7 @@ jobs:
           #development_stage: 'Development'
           development_stage: '${{ needs.build.outputs.development_stage }}'
 
-          request_policy: "Centreon"
-          policy_file: "./Centreon"
-          verbose: true
-
-          #policy_name: "Veracode Transitional High"
+          policy_name: "Veracode Transitional High"
 
           #fail_on_severity: '${{ inputs.threshold_pipeline }}' #n'affiche que ce qui est au dessus de ce niveau
 
