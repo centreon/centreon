@@ -1,26 +1,34 @@
-import { cond, gt, always, T, isEmpty, not, equals } from 'ramda';
+/* eslint-disable hooks/sort */
+import { useState } from 'react';
+
+import { cond, gt, always, T, isEmpty, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
 import { Box } from '@mui/material';
 
 import { Group, InputType } from '@centreon/ui';
-import { ThemeMode } from '@centreon/ui-context';
 
 import {
   labelSelectResourcesAndEvents,
   labelSelectUsers,
   labelSelectTimePeriodChannelsAndPreview,
-  labelEmailTemplateForTheNotificationMessage
-} from '../translatedLabels';
-
-import { hostEvents, serviceEvents } from './utils';
-import { EmailBody } from './Channel';
+  labelEmailTemplateForTheNotificationMessage,
+  labelSubject,
+  labelNotificationChannels,
+  labelHostGroups,
+  labelServiceGroups,
+  labelUsers,
+  labelTimePeriod
+} from '../../translatedLabels';
+import { hostEvents, serviceEvents } from '../utils';
+import { EmailBody } from '../Channel';
 import {
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
-} from './api/endpoints';
+} from '../api/endpoints';
+
+import { useStyles } from './Inputs.styles';
 
 const handleGridTemplate = cond([
   [gt(650), always('auto')],
@@ -32,41 +40,10 @@ interface Props {
   panelWidth: number;
 }
 
-const useStyles = makeStyles()((theme) => ({
-  additionalLabel: {
-    color: theme.palette.primary.main,
-    fontSize: theme.typography.h6.fontSize,
-    fontweight: theme.typography.fontWeightMedium,
-    marginBottom: theme.spacing(1),
-    marginTop: theme.spacing(1)
-  },
-  channels: {
-    paddingBottom: theme.spacing(1),
-    paddingTop: theme.spacing(3)
-  },
-  divider: {
-    background: theme.palette.divider,
-    height: theme.spacing(0.125)
-  },
-  emailTemplateTitle: {
-    fontWeight: theme.typography.fontWeightBold
-  },
-  grid: {
-    '& > div:nth-child(3)': {
-      marginTop: theme.spacing(4)
-    },
-    rowGap: theme.spacing(1)
-  },
-  input: {
-    backgroundColor: equals(ThemeMode.light, theme.palette.mode)
-      ? theme.palette.background.panelGroups
-      : 'default',
-    padding: theme.spacing(1)
-  }
-}));
-
 const useFormInputs = ({ panelWidth }: Props): object => {
-  const { classes } = useStyles();
+  const [isExtraFieldHiden, setIsExtraFieldHiden] = useState(false);
+
+  const { classes } = useStyles({ isExtraFieldHiden });
   const { t } = useTranslation();
 
   const basicFormGroups: Array<Group> = [
@@ -86,11 +63,12 @@ const useFormInputs = ({ panelWidth }: Props): object => {
 
   const inputs = [
     {
-      additionalLabel: 'Host groups',
+      additionalLabel: t(labelHostGroups),
       additionalLabelClassName: classes.additionalLabel,
       fieldName: 'hostGroups',
       grid: {
         alignItems: 'center',
+        className: classes.hostsGrid,
         columns: [
           {
             connectedAutocomplete: {
@@ -116,7 +94,11 @@ const useFormInputs = ({ panelWidth }: Props): object => {
           {
             fieldName: 'hostGroups.extra.includeServices',
             getDisabled: (values) => isEmpty(values.hostGroups.ids),
-            hideInput: (values) => isEmpty(values.hostGroups.ids),
+            hideInput: (values): boolean => {
+              setIsExtraFieldHiden(isEmpty(values.hostGroups.ids));
+
+              return isEmpty(values.hostGroups.ids);
+            },
             label: 'Events',
             type: InputType.Checkbox
           },
@@ -137,12 +119,12 @@ const useFormInputs = ({ panelWidth }: Props): object => {
         gridTemplateColumns: handleGridTemplate(panelWidth)
       },
       group: basicFormGroups[0].name,
-      inputClassName: classes.input,
+      inputClassName: classes.hostInput,
       label: 'Resources and events',
       type: InputType.Grid
     },
     {
-      additionalLabel: 'Service groups',
+      additionalLabel: t(labelServiceGroups),
       additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
@@ -173,12 +155,12 @@ const useFormInputs = ({ panelWidth }: Props): object => {
         gridTemplateColumns: handleGridTemplate(panelWidth)
       },
       group: basicFormGroups[0].name,
-      inputClassName: classes.input,
+      inputClassName: classes.hostInput,
       label: 'Resources and events',
       type: InputType.Grid
     },
     {
-      additionalLabel: 'Users',
+      additionalLabel: t(labelUsers),
       additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
@@ -210,7 +192,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
       type: InputType.Grid
     },
     {
-      additionalLabel: 'Time period',
+      additionalLabel: t(labelTimePeriod),
       additionalLabelClassName: classes.additionalLabel,
       fieldName: 'timeperiod',
       getDisabled: () => true,
@@ -220,7 +202,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
       type: InputType.Checkbox
     },
     {
-      additionalLabel: 'Notification channels',
+      additionalLabel: t(labelNotificationChannels),
       additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
@@ -282,13 +264,13 @@ const useFormInputs = ({ panelWidth }: Props): object => {
             },
             fieldName: '',
             group: basicFormGroups[2].name,
-            label: 'email template',
+            label: 'Email template',
             type: InputType.Custom
           },
           {
             fieldName: 'messages.subject',
             group: basicFormGroups[2].name,
-            label: 'Subject',
+            label: t(labelSubject),
             type: InputType.Text
           },
           {
