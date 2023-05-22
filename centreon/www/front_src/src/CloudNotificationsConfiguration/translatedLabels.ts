@@ -51,10 +51,13 @@ export const labelChooseAtLeastOneResource = 'Choose at least 1 Resource';
 export const labelChooseAtleastOneServiceGroup =
   'Choose at least 1 Service Group';
 export const labelChooseAtleastOneUser = 'Choose at least 1 user';
-
 export const labelMessageFieldShouldNotBeEmpty =
   'The message field should not be empty!';
-
 export const labelClosePanel = 'Close the panel';
 export const labelEmailTemplateForTheNotificationMessage =
   'Email template for the notification message';
+export const labelSubject = 'Subject';
+export const labelNotificationChannels = 'Notification channels';
+export const labelServiceGroups = 'Service groups';
+export const labelHostGroups = 'Host groups';
+export const labelTimePeriod = 'Time period';
