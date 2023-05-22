@@ -49,15 +49,4 @@ interface ReadServiceTemplateRepositoryInterface
      * @return ServiceTemplate[]
      */
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
-
-    /**
-     * Check the existence of a service template.
-     *
-     * @param int $serviceTemplateId
-     *
-     * @throws \Throwable
-     *
-     * @return bool
-     */
-    public function exists(int $serviceTemplateId): bool;
 }

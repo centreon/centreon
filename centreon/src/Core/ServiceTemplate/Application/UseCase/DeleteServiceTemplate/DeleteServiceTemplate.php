@@ -70,7 +70,7 @@ final class DeleteServiceTemplate
                 return;
             }
 
-            if (($serviceTemplate = $this->readRepository->findById($serviceTemplateId)) == null) {
+            if (($serviceTemplate = $this->readRepository->findById($serviceTemplateId)) === null) {
                 $this->error('Service template not found', ['service_template_id' => $serviceTemplateId]);
                 $presenter->setResponseStatus(new NotFoundResponse('Service template'));
 
@@ -93,6 +93,13 @@ final class DeleteServiceTemplate
 
             $this->writeRepository->deleteById($serviceTemplateId);
             $presenter->setResponseStatus(new NoContentResponse());
+            $this->info(
+                'Service template deleted',
+                [
+                    'service_template_id' => $serviceTemplateId,
+                    'user_id' => $this->user->getId(),
+                ]
+            );
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse(ServiceTemplateException::errorWhileDeleting($ex)));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);

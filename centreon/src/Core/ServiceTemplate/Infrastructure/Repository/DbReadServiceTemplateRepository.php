@@ -165,6 +165,9 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         return null;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array
     {
         $this->info('Searching for service templates');
@@ -256,19 +259,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
-     * @inheritDoc
-     */
-    public function exists(int $serviceTemplateId): bool
-    {
-        $request = $this->translateDbName('SELECT 1 FROM `:db`.service WHERE service_id = :id');
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
-        $statement->execute();
-
-        return (bool) $statement->fetchColumn();
-    }
-
-    /**
      * @param _ServiceTemplate $data
      *
      * @throws AssertionFailedException
@@ -333,6 +323,11 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         );
     }
 
+    /**
+     * @param string $value
+     *
+     * @return YesNoDefault
+     */
     private function createYesNoDefault(string $value): YesNoDefault
     {
         return match ($value) {
