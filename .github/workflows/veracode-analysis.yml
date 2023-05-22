@@ -138,6 +138,7 @@ jobs:
           #summary_output: 'false'
 
           development_stage: '${{ needs.build.outputs.development_stage }}'
+          create_baseline_from: filtered
 
       - name: Save filtered baseline file
         run: |
