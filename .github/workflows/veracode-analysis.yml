@@ -102,7 +102,7 @@ jobs:
             echo "[DEBUG] - Filtered baseline file not found in the bucket"
             TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}/results.json"
             aws s3 ls "$TARGET_S3" || RESULT=$( echo $? )
-            if [[ $RESULT -eq 0 ]]; then
+            if [[ $RESULT -eq 200 ]]; then
               aws s3 cp "$TARGET_S3" "/tmp/results.json"
               echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
               echo "create_baseline_from=standard" >> $GITHUB_ENV
