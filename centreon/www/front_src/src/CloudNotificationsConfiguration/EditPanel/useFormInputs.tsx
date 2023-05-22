@@ -1,16 +1,21 @@
-import { cond, gt, always, T, isEmpty, not } from 'ramda';
+import { cond, gt, always, T, isEmpty, not, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
+import { Box } from '@mui/material';
 
 import { Group, InputType } from '@centreon/ui';
+import { ThemeMode } from '@centreon/ui-context';
 
 import {
   labelSelectResourcesAndEvents,
   labelSelectUsers,
-  labelSelectTimePeriodChannelsAndPreview
+  labelSelectTimePeriodChannelsAndPreview,
+  labelEmailTemplateForTheNotificationMessage
 } from '../translatedLabels';
 
 import { hostEvents, serviceEvents } from './utils';
-import { EmailBody, EmailPreview } from './Channel';
+import { EmailBody } from './Channel';
 import {
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
@@ -27,7 +32,41 @@ interface Props {
   panelWidth: number;
 }
 
+const useStyles = makeStyles()((theme) => ({
+  additionalLabel: {
+    color: theme.palette.primary.main,
+    fontSize: theme.typography.h6.fontSize,
+    fontweight: theme.typography.fontWeightMedium,
+    marginBottom: theme.spacing(1),
+    marginTop: theme.spacing(1)
+  },
+  channels: {
+    paddingBottom: theme.spacing(1),
+    paddingTop: theme.spacing(3)
+  },
+  divider: {
+    background: theme.palette.divider,
+    height: theme.spacing(0.125)
+  },
+  emailTemplateTitle: {
+    fontWeight: theme.typography.fontWeightBold
+  },
+  grid: {
+    '& > div:nth-child(3)': {
+      marginTop: theme.spacing(4)
+    },
+    rowGap: theme.spacing(1)
+  },
+  input: {
+    backgroundColor: equals(ThemeMode.light, theme.palette.mode)
+      ? theme.palette.background.panelGroups
+      : 'default',
+    padding: theme.spacing(1)
+  }
+}));
+
 const useFormInputs = ({ panelWidth }: Props): object => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const basicFormGroups: Array<Group> = [
@@ -48,6 +87,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
   const inputs = [
     {
       additionalLabel: 'Host groups',
+      additionalLabelClassName: classes.additionalLabel,
       fieldName: 'hostGroups',
       grid: {
         alignItems: 'center',
@@ -97,11 +137,13 @@ const useFormInputs = ({ panelWidth }: Props): object => {
         gridTemplateColumns: handleGridTemplate(panelWidth)
       },
       group: basicFormGroups[0].name,
+      inputClassName: classes.input,
       label: 'Resources and events',
       type: InputType.Grid
     },
     {
       additionalLabel: 'Service groups',
+      additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
         alignItems: 'center',
@@ -131,139 +173,139 @@ const useFormInputs = ({ panelWidth }: Props): object => {
         gridTemplateColumns: handleGridTemplate(panelWidth)
       },
       group: basicFormGroups[0].name,
+      inputClassName: classes.input,
       label: 'Resources and events',
       type: InputType.Grid
     },
-    // {
-    //   additionalLabel: 'Business views',
-    //   fieldName: '',
-    //   grid: {
-    //     alignItems: 'center',
-    //     columns: [
-    //       {
-    //         connectedAutocomplete: {
-    //           additionalConditionParameters: [],
-    //           endpoint: businessViewsEndpoint
-    //         },
-    //         fieldName: 'businessViews.ids',
-    //         label: 'Search Business Views',
-    //         type: InputType.MultiConnectedAutocomplete
-    //       },
-    //       {
-    //         checkbox: {
-    //           labelPlacement: 'top',
-    //           options: ,
-    //           row: true
-    //         },
-    //         fieldName: 'businessViews.events',
-    //         label: 'Events',
-    //         type: InputType.MultiCheckbox
-    //       }
-    //     ],
-    //     gridTemplateColumns: handleGridTemplate(panelWidth)
-    //   },
-    //   group: basicFormGroups[0].name,
-    //   label: 'Resources and events',
-    //   type: InputType.Grid
-    // },
     {
-      connectedAutocomplete: {
-        additionalConditionParameters: [],
-        endpoint: usersEndpoint
-      },
-      fieldName: 'users',
-      group: basicFormGroups[1].name,
-      label: 'Search users',
-      required: true,
-      type: InputType.MultiConnectedAutocomplete
-    },
-    {
+      additionalLabel: 'Users',
+      additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
         columns: [
           {
-            fieldName: '',
-            grid: {
-              columns: [
-                {
-                  additionalLabel: 'Time period',
-                  fieldName: 'timeperiod',
-                  getDisabled: () => true,
-                  label: 'Time period',
-                  type: InputType.Checkbox
-                },
-                {
-                  additionalLabel: 'Notification Channels',
-                  fieldName: '',
-                  grid: {
-                    columns: [
-                      {
-                        checkbox: {
-                          row: true
-                        },
-                        fieldName: 'messages.channel',
-                        label: 'Email',
-                        type: InputType.Checkbox
-                      },
-                      {
-                        checkbox: {
-                          row: true
-                        },
-                        fieldName: 'sms.channel',
-                        getDisabled: () => true,
-                        label: 'SMS',
-                        type: InputType.Checkbox
-                      },
-                      {
-                        checkbox: {
-                          row: true
-                        },
-                        fieldName: 'slack.channel',
-                        getDisabled: () => true,
-                        label: 'Slack',
-                        type: InputType.Checkbox
-                      }
-                    ]
-                  },
-                  label: 'Notification Channels',
-                  type: InputType.Grid
-                },
-                {
-                  fieldName: 'messages.subject',
-
-                  label: 'Subject',
-                  type: InputType.Text
-                },
-                {
-                  custom: {
-                    Component: EmailBody
-                  },
-                  fieldName: 'messages.message',
-                  label: 'Content',
-                  type: InputType.Custom
-                }
-              ],
-              gridTemplateColumns: 'repeat(1, 1fr)'
+            connectedAutocomplete: {
+              additionalConditionParameters: [],
+              endpoint: usersEndpoint
             },
-            label: '',
-            type: InputType.Grid
+            fieldName: 'users',
+            label: 'Search users',
+            required: true,
+            type: InputType.MultiConnectedAutocomplete
           },
           {
-            additionalLabel: 'Preview Email',
             custom: {
-              Component: EmailPreview
+              Component: Box
             },
-            fieldName: 'preview',
-            label: 'Preview',
+            fieldName: 'users',
+            label: '',
             type: InputType.Custom
           }
         ],
-        gridTemplateColumns: gt(650)(panelWidth)
-          ? 'repeat(1, 1fr)'
-          : 'repeat(2, 1fr)'
+        gridTemplateColumns: handleGridTemplate(panelWidth)
+      },
+      group: basicFormGroups[1].name,
+      inputClassName: classes.input,
+      label: '',
+      type: InputType.Grid
+    },
+    {
+      additionalLabel: 'Time period',
+      additionalLabelClassName: classes.additionalLabel,
+      fieldName: 'timeperiod',
+      getDisabled: () => true,
+      group: basicFormGroups[2].name,
+      inputClassName: classes.input,
+      label: 'Time period',
+      type: InputType.Checkbox
+    },
+    {
+      additionalLabel: 'Notification channels',
+      additionalLabelClassName: classes.additionalLabel,
+      fieldName: '',
+      grid: {
+        className: classes.grid,
+        columns: [
+          {
+            fieldName: '',
+            grid: {
+              className: classes.channels,
+              columns: [
+                {
+                  checkbox: {
+                    row: true
+                  },
+                  fieldName: 'messages.channel',
+                  label: 'Email',
+                  type: InputType.Checkbox
+                },
+                {
+                  checkbox: {
+                    row: true
+                  },
+                  fieldName: 'sms.channel',
+                  getDisabled: () => true,
+                  label: 'SMS',
+                  type: InputType.Checkbox
+                },
+                {
+                  checkbox: {
+                    row: true
+                  },
+                  fieldName: 'slack.channel',
+                  getDisabled: () => true,
+                  label: 'Slack',
+                  type: InputType.Checkbox
+                }
+              ]
+            },
+            group: basicFormGroups[2].name,
+            label: 'Notification Channels',
+            type: InputType.Grid
+          },
+          {
+            custom: {
+              Component: () => <Box className={classes.divider} />
+            },
+            fieldName: '',
+            group: basicFormGroups[2].name,
+            label: '',
+            type: InputType.Custom
+          },
+          {
+            custom: {
+              Component: () => (
+                <Box className={classes.emailTemplateTitle}>
+                  {t(labelEmailTemplateForTheNotificationMessage)}
+                </Box>
+              )
+            },
+            fieldName: '',
+            group: basicFormGroups[2].name,
+            label: 'email template',
+            type: InputType.Custom
+          },
+          {
+            fieldName: 'messages.subject',
+            group: basicFormGroups[2].name,
+            label: 'Subject',
+            type: InputType.Text
+          },
+          {
+            custom: {
+              Component: EmailBody
+            },
+            fieldName: 'messages.message',
+            group: basicFormGroups[2].name,
+            label: 'Content',
+            type: InputType.Custom
+          }
+        ],
+        gridTemplateColumns: 'auto'
       },
       group: basicFormGroups[2].name,
-      label: '',
+      inputClassName: classes.input,
+      label: 'Notification channels',
       type: InputType.Grid
     }
   ];

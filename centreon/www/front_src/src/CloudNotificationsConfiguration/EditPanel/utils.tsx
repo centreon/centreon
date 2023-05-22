@@ -1,9 +1,8 @@
 import { equals, isNil } from 'ramda';
 
-import MailIcon from '@mui/icons-material/LocalPostOfficeOutlined';
-
 import { ChannelsEnum, TimeperiodType } from '../models';
 
+import { EmailIcon } from './Channel/Icons';
 import { EventsType } from './models';
 
 const emptyEmail =
@@ -48,7 +47,7 @@ const formatMessages = ({ messages, messageType }): object => {
 
   return {
     channel: {
-      Icon: MailIcon,
+      Icon: EmailIcon,
       checked: true,
       label: ChannelsEnum.Email
     },
