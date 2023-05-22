@@ -1,14 +1,11 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-import { executeActionViaClapi, insertFixture } from '../../commons';
+import { insertFixture } from '../../commons';
 
-let dateBeforeLogin: Date;
 const waitToExport = 10000;
 const waitPollerListToLoad = 3000;
 const testHostName = 'test_host';
 
 const insertPollerConfigUserAcl = (): Cypress.Chainable => {
-  dateBeforeLogin = new Date();
-
   return cy
     .setUserTokenApiV1()
     .executeCommandsViaClapi(
@@ -41,68 +38,41 @@ const getPoller = (pollerName: string): Cypress.Chainable => {
 
 const removeFixtures = (): Cypress.Chainable => {
   return cy.setUserTokenApiV1().then(() => {
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'CONTACT',
-      values: 'user1'
-    });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'HOST',
-      values: 'test_host'
-    });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'ACLGROUP',
-      values: 'ACL Group test'
-    });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'ACLMENU',
-      values: 'acl_menu_test'
-    });
-    executeActionViaClapi({
-      action: 'DEL',
-      object: 'ACLACTION',
-      values: 'acl_action_test'
-    });
-  });
-};
-
-const checkExportedFileContent = (): Cypress.Chainable<boolean> => {
-  return cy
-    .exec(
-      `docker exec -i ${Cypress.env(
-        'dockerName'
-      )} sh -c "grep '${testHostName}' /etc/centreon-engine/hosts.cfg | tail -1"`
-    )
-    .then(({ stdout }): boolean => {
-      if (stdout) {
-        return true;
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'CONTACT',
+        values: 'user1'
       }
-
-      return false;
     });
-};
-
-const checkIfConfigurationIsExported = (): void => {
-  cy.log('Checking that configuration is exported');
-  const now = dateBeforeLogin.getTime();
-
-  cy.wait(waitToExport);
-
-  cy.exec(
-    `docker exec -i ${Cypress.env(
-      'dockerName'
-    )} date -r /etc/centreon-engine/hosts.cfg`
-  ).then(({ stdout }): Cypress.Chainable<null> | null => {
-    const configurationExported = now < new Date(stdout).getTime();
-
-    if (configurationExported && checkExportedFileContent()) {
-      return null;
-    }
-
-    throw new Error(`No configuration has been exported`);
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'HOST',
+        values: 'test_host'
+      }
+    });
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'ACLGROUP',
+        values: 'ACL Group test'
+      }
+    });
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'ACLMENU',
+        values: 'acl_menu_test'
+      }
+    });
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'ACLACTION',
+        values: 'acl_action_test'
+      }
+    });
   });
 };
 
@@ -175,10 +145,10 @@ export {
   getPoller,
   insertHost,
   removeFixtures,
-  checkIfConfigurationIsExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
   breakSomePollers,
   waitPollerListToLoad,
-  checkIfConfigurationIsNotExported
+  checkIfConfigurationIsNotExported,
+  testHostName
 };

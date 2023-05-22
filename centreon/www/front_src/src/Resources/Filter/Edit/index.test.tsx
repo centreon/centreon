@@ -9,7 +9,7 @@ import {
   waitFor,
   fireEvent,
   act
-} from '@centreon/ui/src/testRenderer';
+} from '@centreon/ui/test/testRenderer';
 
 import Context, { ResourceContext } from '../../testUtils/Context';
 import useFilter from '../../testUtils/useFilter';

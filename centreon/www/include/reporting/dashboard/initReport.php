@@ -383,7 +383,7 @@ $formPeriod->addElement(
         'class' => 'alternativeDate'
     )
 );
-$formPeriod->addElement('submit', 'button', _("Apply period"), array('class' => 'btc bt_success'));
+$formPeriod->addElement('submit', 'button', _("Apply period"), array('class' => 'btc bt_success ml-2'));
 $formPeriod->setDefaults(
     [
         'period' => $period,

@@ -13,7 +13,7 @@ interface Props {
   disabled: boolean;
   icon: JSX.Element;
   label: string;
-  onClick: () => void;
+  onClick: (event) => void;
   permitted?: boolean;
   testId: string;
 }
@@ -32,7 +32,7 @@ const ResourceActionButton = ({
   const { applyBreakPoint } = useMediaQueryListing();
 
   const displayCondensed =
-    Boolean(useMediaQuery(theme.breakpoints.down(1100))) || applyBreakPoint;
+    Boolean(useMediaQuery(theme.breakpoints.down(1024))) || applyBreakPoint;
 
   const title = permitted ? label : `${label} (${t(labelActionNotPermitted)})`;
 

@@ -185,6 +185,8 @@ class MonitoringResourceControllerTest extends TestCase
                'downtime' => 'downtime',
                'acknowledgement' => 'acknowledgement',
                'timeline' => 'timeline',
+               'check' => 'check',
+               'forced_check' => 'forced_check'
             ]
         );
         $serviceHypermediaProvider->method('createInternalUris')->willReturn(

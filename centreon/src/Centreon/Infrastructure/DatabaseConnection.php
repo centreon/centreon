@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Centreon\Infrastructure;
 
+use Psr\Log\LoggerInterface;
+
 /**
  * This class extend the PDO class and can be used to create a database
  * connection.
@@ -43,21 +45,35 @@ class DatabaseConnection extends \PDO
     /**
      * Initialize the PDO connection
      *
+     * @param LoggerInterface $logger
      * @param string $host
      * @param string $basename
      * @param string $login
      * @param string $password
      * @param int $port
      */
-    public function __construct(string $host, string $basename, string $login, string $password, int $port = 3306)
-    {
-        $dsn = "mysql:dbname={$basename};host={$host};port={$port}";
-        $options = array(
-            \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4',
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-        );
-        parent::__construct($dsn, $login, $password, $options);
+    public function __construct(
+        LoggerInterface $logger,
+        string $host,
+        string $basename,
+        string $login,
+        string $password,
+        int $port = 3306
+    ) {
+        try {
+            $dsn = "mysql:dbname={$basename};host={$host};port={$port}";
+            $options = array(
+                \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            );
+            parent::__construct($dsn, $login, $password, $options);
+        } catch (\PDOException $ex) {
+            if ($ex->getCode() === 2002) {
+                $logger->error("Unable to connect to database", ["trace" => (string) $ex]);
+                throw new \Exception("Unable to connect to database");
+            }
+        }
     }
 
     /**

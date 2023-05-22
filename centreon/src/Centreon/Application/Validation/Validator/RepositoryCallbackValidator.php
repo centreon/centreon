@@ -37,6 +37,7 @@
 
 namespace Centreon\Application\Validation\Validator;
 
+use App\Kernel;
 use Centreon\Application\Validation\Constraints\RepositoryCallback;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
@@ -75,7 +76,11 @@ class RepositoryCallbackValidator extends CallbackValidator implements CentreonV
         }
 
         $method = $constraint->repoMethod;
-        $repo = $this->db->getRepository($constraint->repository);
+
+        $repository = (Kernel::createForWeb())
+            ->getContainer()
+            ->get($constraint->repository);
+
         $fieldAccessor = $constraint->fieldAccessor;
         $value = $object->$fieldAccessor();
         $field = $constraint->fields;
@@ -85,7 +90,7 @@ class RepositoryCallbackValidator extends CallbackValidator implements CentreonV
                 '%s targeted by Callback constraint is not a valid callable in the repository',
                 json_encode($method)
             ));
-        } elseif (null !== $object && !$repo->$method($object)) {
+        } elseif (null !== $object && !$repository->$method($object)) {
             $this->context->buildViolation($constraint->message)
                 ->atPath($field)
                 ->setInvalidValue($value)

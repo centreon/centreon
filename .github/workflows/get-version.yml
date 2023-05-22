@@ -17,7 +17,9 @@ on:
       stability:
         description: "branch stability (stable, testing, unstable, canary)"
         value: ${{ jobs.get-version.outputs.stability }}
-
+      environment:
+        description: "environment deployed"
+        value: ${{ jobs.get-version.outputs.environment }}
 jobs:
   get-version:
     runs-on: ubuntu-22.04
@@ -26,6 +28,7 @@ jobs:
       minor_version: ${{ steps.get_version.outputs.minor_version }}
       release: ${{ steps.get_version.outputs.release }}
       stability: ${{ steps.get_version.outputs.stability }}
+      environment: ${{ steps.get_version.outputs.env }}
 
     steps:
       - uses: actions/checkout@v3
@@ -62,6 +65,7 @@ jobs:
             n=${VERSION//[!0-9]/ }
             a=(${n//\./ })
             echo "major_version=${a[0]}.${a[1]}" >> $GITHUB_OUTPUT
+            MAJOR=${a[0]}.${a[1]}
             echo "minor_version=${a[2]}" >> $GITHUB_OUTPUT
           else
             echo "Cannot parse version number from ${{ inputs.version_file }}"
@@ -74,21 +78,38 @@ jobs:
             BRANCHNAME="$GITHUB_HEAD_REF"
           fi
 
-          echo "release=1" >> $GITHUB_OUTPUT
+          case "$BRANCHNAME" in
+            master | [2-9][0-9].[0-9][0-9].x | release* | hotfix*)
+              echo "release=1" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "release=`date +%s`.`echo ${{ github.sha }} | cut -c -7`" >> $GITHUB_OUTPUT
+              ;;
+          esac
 
           case "$BRANCHNAME" in
             develop | dev-[2-9][0-9].[0-9][0-9].x)
               STABILITY="unstable"
+              ENV="development"
               ;;
             release* | hotfix*)
               STABILITY="testing"
+              ENV="testing"
               ;;
             master | [2-9][0-9].[0-9][0-9].x)
               STABILITY="stable"
+              ENV="production"
+              ;;
+            pkgtest-*)
+              STABILITY="pkgtest"
+              ENV="development"
               ;;
             *)
               STABILITY="canary"
+              ENV="development"
               ;;
           esac
           echo "stability=$STABILITY" >> $GITHUB_OUTPUT
+          echo "env=$MAJOR-$ENV" >> $GITHUB_OUTPUT
+          echo "GH_ENV: $ENV"
         shell: bash

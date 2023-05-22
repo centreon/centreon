@@ -35,12 +35,14 @@ class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInte
      * @param Local $local
      * @param OpenId $openId
      * @param WebSSO $webSSO
+     * @param SAML $saml
      * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
      */
     public function __construct(
-        private Local $local,
-        private OpenId $openId,
-        private WebSSO $webSSO,
+        private readonly Local $local,
+        private readonly OpenId $openId,
+        private readonly WebSSO $webSSO,
+        private readonly SAML $saml,
         private ReadConfigurationRepositoryInterface $readConfigurationRepository
     ) {
     }
@@ -50,16 +52,17 @@ class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInte
      * @return ProviderAuthenticationInterface
      * @throws ProviderException
      */
-    public function create(string $providerName): ProviderAuthenticationInterface
+    public function create(string $providerType): ProviderAuthenticationInterface
     {
-        $provider = match ($providerName) {
+        $provider = match ($providerType) {
             Provider::LOCAL => $this->local,
             Provider::OPENID => $this->openId,
             Provider::WEB_SSO => $this->webSSO,
-            default => throw ProviderException::providerConfigurationNotFound($providerName)
+            Provider::SAML => $this->saml,
+            default => throw ProviderException::providerConfigurationNotFound($providerType)
         };
 
-        $provider->setConfiguration($this->readConfigurationRepository->getConfigurationByName($providerName));
+        $provider->setConfiguration($this->readConfigurationRepository->getConfigurationByType($providerType));
 
         return $provider;
     }

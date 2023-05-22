@@ -58,32 +58,9 @@ class CommandConfigurationContext extends CentreonContext
      */
     public function thePropertiesAreUpdated()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new CommandConfigurationListingPage($this, true, 4);
-                    $this->currentPage = $this->currentPage->inspect($this->updatedProperties['command_name']);
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->updatedProperties as $key => $value) {
-                        if ($value != $object[$key]) {
-                            if (is_array($value)) {
-                                $value = implode(' ', $value);
-                            }
-                            if ($value != $object[$key]) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new CommandConfigurationListingPage($this, true, 4);
+        $this->currentPage = $this->currentPage->inspect($this->updatedProperties['command_name']);
+        $this->comparePageProperties($this->currentPage, $this->updatedProperties);
     }
 
     /**
@@ -104,35 +81,11 @@ class CommandConfigurationContext extends CentreonContext
      */
     public function theNewCommandHasTheSameProperties()
     {
-        $this->tableau = array();
-        try {
-            $this->spin(
-                function ($context) {
-                    $this->currentPage = new CommandConfigurationListingPage($this, true, 3);
-                    $this->currentPage = $this->currentPage->inspect($this->initialProperties['command_name'] . '_1');
-                    $object = $this->currentPage->getProperties();
-                    foreach ($this->initialProperties as $key => $value) {
-                        if ($key != 'command_name' && $value != $object[$key]) {
-                            if (is_array($value)) {
-                                $value = implode(' ', $value);
-                            }
-                            if ($value != $object[$key]) {
-                                $this->tableau[] = $key;
-                            }
-                        }
-                        if ($key == 'command_name' && $value .'_1' != $object[$key]) {
-                            $this->tableau[] = $key;
-                        }
-                    }
-                    return count($this->tableau) == 0;
-                },
-                "Some properties are not being updated : ",
-                5
-            );
-        } catch (\Exception $e) {
-            $this->tableau = array_unique($this->tableau);
-            throw new \Exception("Some properties are not being updated : " . implode(',', $this->tableau));
-        }
+        $this->currentPage = new CommandConfigurationListingPage($this, true, 3);
+        $this->currentPage = $this->currentPage->inspect($this->initialProperties['command_name'] . '_1');
+        $newProperties = $this->initialProperties;
+        $newProperties['command_name'] = $this->initialProperties['command_name'] . '_1';
+        $this->comparePageProperties($this->currentPage, $newProperties);
     }
 
     /**

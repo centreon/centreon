@@ -33,6 +33,7 @@ module.exports = merge(
   {
     devServer: {
       ...devServer,
+      port: 9092,
       static: [
         {
           directory: `${__dirname}/www/front_src/public`,
@@ -44,6 +45,9 @@ module.exports = merge(
     plugins: devServerPlugins,
     resolve: {
       alias: {
+        '@centreon/ui/fonts': path.resolve(
+          './node_modules/@centreon/ui/public/fonts'
+        ),
         '@mui/material': path.resolve('./node_modules/@mui/material'),
         dayjs: path.resolve('./node_modules/dayjs'),
         'react-router-dom': path.resolve('./node_modules/react-router-dom')

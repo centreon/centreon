@@ -21,16 +21,27 @@
 
 namespace Centreon\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
-use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 use Centreon\Domain\Entity\ContactGroup;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
-use PDO;
+use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
 
-class ContactGroupRepository extends ServiceEntityRepository implements PaginationRepositoryInterface
+class ContactGroupRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
+
+    /** @var int $resultCountForPagination */
+    private int $resultCountForPagination = 0;
+
+    /**
+     * @param DatabaseConnection $db
+     */
+    public function __construct(DatabaseConnection $db)
+    {
+        $this->db = $db;
+    }
 
     /**
      * Check list of IDs
@@ -49,21 +60,25 @@ class ContactGroupRepository extends ServiceEntityRepository implements Paginati
     {
         $collector = new StatementCollector();
 
-        $sql = 'SELECT SQL_CALC_FOUND_ROWS * FROM `' . ContactGroup::TABLE . '`';
+        $sql = 'SELECT SQL_CALC_FOUND_ROWS * FROM `:db`.contactgroup';
 
         $isWhere = false;
         if ($filters !== null) {
-            if (array_key_exists('search', $filters) && $filters['search']) {
+            if ($filters['search'] ?? false) {
                 $sql .= ' WHERE `cg_name` LIKE :search';
                 $collector->addValue(':search', "%{$filters['search']}%");
                 $isWhere = true;
             }
-            if (array_key_exists('ids', $filters) && is_array($filters['ids'])) {
+            if (
+                array_key_exists('ids', $filters)
+                && is_array($filters['ids'])
+                && [] !== $filters['ids']
+            ) {
                 $idsListKey = [];
                 foreach ($filters['ids'] as $x => $id) {
                     $key = ":id{$x}";
                     $idsListKey[] = $key;
-                    $collector->addValue($key, $id, PDO::PARAM_INT);
+                    $collector->addValue($key, $id, \PDO::PARAM_INT);
                     unset($x, $id);
                 }
                 $sql .= $isWhere ? ' AND' : ' WHERE';
@@ -71,24 +86,30 @@ class ContactGroupRepository extends ServiceEntityRepository implements Paginati
             }
         }
 
-        if (!empty($ordering['field'])) {
+        if ($ordering['field'] ?? false) {
             $sql .= ' ORDER BY `' . $ordering['field'] . '` ' . $ordering['order'];
         }
 
         if ($limit !== null) {
             $sql .= ' LIMIT :limit';
-            $collector->addValue(':limit', $limit, PDO::PARAM_INT);
+            $collector->addValue(':limit', $limit, \PDO::PARAM_INT);
         }
 
         if ($offset !== null) {
             $sql .= ' OFFSET :offset';
-            $collector->addValue(':offset', $offset, PDO::PARAM_INT);
+            $collector->addValue(':offset', $offset, \PDO::PARAM_INT);
         }
-        $stmt = $this->db->prepare($sql);
-        $collector->bind($stmt);
-        $stmt->execute();
-        $stmt->setFetchMode(PDO::FETCH_CLASS, ContactGroup::class);
-        $result = $stmt->fetchAll();
+        $statement = $this->db->prepare($this->translateDbName($sql));
+        $collector->bind($statement);
+        $statement->execute();
+
+        $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
+
+        if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
+            $this->resultCountForPagination = $total;
+        }
+        $statement->setFetchMode(\PDO::FETCH_CLASS, ContactGroup::class);
+        $result = $statement->fetchAll();
 
         return $result;
     }
@@ -98,6 +119,6 @@ class ContactGroupRepository extends ServiceEntityRepository implements Paginati
      */
     public function getPaginationListTotal(): int
     {
-        return $this->db->numberRows();
+        return $this->resultCountForPagination;
     }
 }

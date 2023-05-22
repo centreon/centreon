@@ -36,7 +36,7 @@ const ActionsList = ({ className, actions }: Props): JSX.Element => {
     <MenuList className={cx(classes.list, className)}>
       {actions?.map(({ Icon, label, onClick }) => {
         return (
-          <MenuItem key={label} onClick={onClick}>
+          <MenuItem aria-label={label} key={label} onClick={onClick}>
             <ListItemIcon>
               <Icon fontSize="small" />
             </ListItemIcon>

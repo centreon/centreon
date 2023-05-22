@@ -11,10 +11,10 @@ export interface User {
   isExportButtonEnabled: boolean;
   locale: string;
   name: string;
-  resourceStatusViewMode: ListingVariant;
   themeMode?: ThemeMode;
   timezone: string;
   use_deprecated_pages: boolean;
+  user_interface_density: ListingVariant;
 }
 
 export enum ThemeMode {

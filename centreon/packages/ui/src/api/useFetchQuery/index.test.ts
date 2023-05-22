@@ -81,6 +81,10 @@ describe('useFetchQuery', () => {
 
     await waitFor(() => {
       expect(result.current.error).toStrictEqual({
+        additionalInformation: {
+          code: 2,
+          message: 'custom message'
+        },
         message: 'custom message',
         statusCode: 400
       });
@@ -120,6 +124,7 @@ describe('useFetchQuery', () => {
 
     await waitFor(() => {
       expect(result.current.error).toStrictEqual({
+        additionalInformation: {},
         message: 'Something went wrong',
         statusCode: 400
       });
@@ -143,6 +148,7 @@ describe('useFetchQuery', () => {
 
     await waitFor(() => {
       expect(result.current.error).toStrictEqual({
+        additionalInformation: {},
         message: 'Something went wrong',
         statusCode: 400
       });

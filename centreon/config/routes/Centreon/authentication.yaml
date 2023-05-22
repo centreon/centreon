@@ -9,3 +9,21 @@ centreon_application_authentication_logout:
     path: /logout
     controller: 'Centreon\Application\Controller\AuthenticationController::logout'
     condition: "request.attributes.get('version') >= 21.10"
+
+centreon_application_authentication_login_saml:
+    methods: GET
+    path: /login/saml
+    controller: 'Core\Security\Authentication\Infrastructure\Api\Login\SAML\LoginController'
+    condition: "request.attributes.get('version') >= 23.04"
+
+centreon_application_authentication_saml_acs:
+    methods: POST
+    path: /saml/acs
+    controller: 'Core\Security\Authentication\Infrastructure\Api\Login\SAML\CallbackController'
+    condition: "request.attributes.get('version') >= 23.04"
+
+centreon_application_authentication_callback_sls:
+    methods: GET
+    path: /saml/sls
+    controller: 'Core\Security\Authentication\Infrastructure\Api\Login\SAML\SLSController'
+    condition: "request.attributes.get('version') >= 23.04"

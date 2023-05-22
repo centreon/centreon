@@ -68,8 +68,10 @@ const commonDecoders = {
         endpoints: JsonDecoder.object<ResourceEndpoints>(
           {
             acknowledgement: JsonDecoder.optional(JsonDecoder.string),
+            check: JsonDecoder.optional(JsonDecoder.string),
             details: JsonDecoder.optional(JsonDecoder.string),
             downtime: JsonDecoder.optional(JsonDecoder.string),
+            forced_check: JsonDecoder.optional(JsonDecoder.string),
             metrics: JsonDecoder.optional(JsonDecoder.string),
             performance_graph: JsonDecoder.optional(JsonDecoder.string),
             sensitivity: JsonDecoder.optional(JsonDecoder.string),

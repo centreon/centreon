@@ -14,7 +14,6 @@ import type { HostStatusResponse } from '../../api/decoders';
 
 import getHostPropsAdapter from './getHostPropsAdapter';
 import type { HostPropsAdapterOutput } from './getHostPropsAdapter';
-import { labelHosts } from './translatedLabels';
 
 const HostStatusCounter = (): JSX.Element | null => {
   const { isLoading, data, isAllowed } = useResourceCounters<
@@ -45,7 +44,7 @@ const HostStatusCounter = (): JSX.Element | null => {
         <TopCounterResourceSubMenu items={data.items} />
       )}
       showPendingBadge={data.hasPending}
-      title={labelHosts}
+      title={data.buttonLabel}
     />
   );
 };

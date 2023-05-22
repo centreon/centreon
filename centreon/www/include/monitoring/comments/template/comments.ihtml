@@ -25,7 +25,7 @@
                     <td>
                         {if $msgs}<a href="{$msgs.addL}" class="btc bt_success">{$msgs.addT}</a>{/if}
                         {if $nb_comments_svc && $msgs}<input type="submit" name="submit2" value="{$delete}"
-                                                             class="btc bt_danger"
+                                                             class="btc bt_danger ml-2"
                                                              onclick="return confirm('{$msgs.delConfirm}')">{/if}
                     </td>
                     {php}
@@ -84,7 +84,7 @@
                         <td>
                             {if $msgs}<a href="{$msgs.addL}" class="btc bt_success">{$msgs.addT}</a>{/if}
                             {if $nb_comments_svc && $msgs}<input type="submit" name="submit2" value="{$delete}"
-                                                                 class="btc bt_danger"
+                                                                 class="btc bt_danger ml-2"
                                                                  onclick="return confirm('{$msgs.delConfirm}')">{/if}
                         </td>
                         {php}

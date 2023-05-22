@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Update SAML configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "is_active",
+    "is_forced",
+    "remote_login_url",
+    "entity_id_url",
+    "certificate",
+    "user_id_attribute",
+    "logout_from",
+    "auto_import",
+    "contact_template",
+    "email_bind_attribute",
+    "fullname_bind_attribute",
+    "authentication_conditions",
+    "groups_mapping",
+    "roles_mapping"
+  ],
+  "properties": {
+    "is_active": {
+      "type": "boolean"
+    },
+    "is_forced": {
+      "type": "boolean"
+    },
+    "remote_login_url": {
+      "type": ["string", "null"]
+    },
+    "entity_id_url": {
+      "type": "string"
+    },
+    "certificate": {
+      "type": ["string", "null"]
+    },
+    "user_id_attribute": {
+      "type": "string"
+    },
+    "logout_from": {
+      "type": "boolean"
+    },
+    "logout_from_url": {
+      "type": ["string", "null"]
+    },
+    "auto_import": {
+      "type": "boolean"
+    },
+    "contact_template": {
+      "type": ["object", "null"],
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "email_bind_attribute": {
+      "type": ["string", "null"]
+    },
+    "fullname_bind_attribute": {
+      "type": ["string", "null"]
+    },
+    "authentication_conditions": {
+      "type": "object",
+      "required": [
+        "is_enabled",
+        "attribute_path",
+        "authorized_values"
+      ],
+      "properties": {
+        "is_enabled": {
+          "type": "boolean"
+        },
+        "attribute_path": {
+          "type": "string"
+        },
+        "authorized_values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "groups_mapping": {
+      "type": "object",
+      "required": [
+        "is_enabled",
+        "attribute_path",
+        "relations"
+      ],
+      "properties": {
+        "is_enabled": {
+          "type": "boolean"
+        },
+        "attribute_path": {
+          "type": "string"
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "group_value",
+              "contact_group_id"
+            ],
+            "properties": {
+              "group_value": {
+                "type": "string"
+              },
+              "contact_group_id": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "roles_mapping": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "is_enabled",
+        "apply_only_first_role",
+        "attribute_path",
+        "relations"
+      ],
+      "properties": {
+        "is_enabled": {
+          "type": "boolean"
+        },
+        "apply_only_first_role": {
+          "type": "boolean"
+        },
+        "attribute_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "relations": {
+          "type": "array",
+          "minLength": 0,
+          "items": {
+            "type": "object",
+            "properties": {
+              "claim_value": {
+                "type": "string"
+              },
+              "access_group_id": {
+                "type": "integer"
+              },
+              "priority": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -34,7 +34,9 @@ class Contact implements UserInterface, ContactInterface
 
     // user action roles
     public const ROLE_HOST_CHECK = 'ROLE_HOST_CHECK';
+    public const ROLE_HOST_FORCED_CHECK = 'ROLE_HOST_FORCED_CHECK';
     public const ROLE_SERVICE_CHECK = 'ROLE_SERVICE_CHECK';
+    public const ROLE_SERVICE_FORCED_CHECK = 'ROLE_SERVICE_FORCED_CHECK';
     public const ROLE_HOST_ACKNOWLEDGEMENT = 'ROLE_HOST_ACKNOWLEDGEMENT';
     public const ROLE_HOST_DISACKNOWLEDGEMENT = 'ROLE_HOST_DISACKNOWLEDGEMENT';
     public const ROLE_SERVICE_ACKNOWLEDGEMENT = 'ROLE_SERVICE_ACKNOWLEDGEMENT';
@@ -78,6 +80,10 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ_WRITE = 'ROLE_CONFIGURATION_SERVICES_CATEGORIES_RW';
     public const ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ = 'ROLE_CONFIGURATION_SERVICES_CATEGORIES_R';
     public const ROLE_ADMINISTRATION_AUTHENTICATION_READ_WRITE = 'ROLE_ADMINISTRATION_AUTHENTICATION_RW';
+    public const ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE = 'ROLE_CONFIGURATION_HOSTS_TEMPLATES_RW';
+    public const ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ = 'ROLE_CONFIGURATION_HOSTS_TEMPLATES_R';
+    public const ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE = 'ROLE_CONFIGURATION_SERVICES_TEMPLATES_RW';
+    public const ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ = 'ROLE_CONFIGURATION_SERVICES_TEMPLATES_R';
 
     /**
      * @var string
@@ -195,6 +201,9 @@ class Contact implements UserInterface, ContactInterface
      * @var string|null
      */
     private $theme;
+
+    /** @var string|null */
+    private $userInterfaceDensity;
 
     /**
      * @param int $timezoneId
@@ -723,5 +732,25 @@ class Contact implements UserInterface, ContactInterface
     public function getTheme(): ?string
     {
         return $this->theme;
+    }
+
+    /**
+     * @param string|null $userInterfaceDensity
+     *
+     * @return $this
+     */
+    public function setUserInterfaceDensity(?string $userInterfaceDensity): self
+    {
+        $this->userInterfaceDensity = $userInterfaceDensity;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUserInterfaceDensity(): ?string
+    {
+        return $this->userInterfaceDensity;
     }
 }

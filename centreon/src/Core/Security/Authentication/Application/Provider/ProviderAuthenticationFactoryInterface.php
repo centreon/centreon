@@ -26,8 +26,8 @@ namespace Core\Security\Authentication\Application\Provider;
 interface ProviderAuthenticationFactoryInterface
 {
     /**
-     * @param string $providerName
+     * @param string $providerType
      * @return ProviderAuthenticationInterface
      */
-    public function create(string $providerName): ProviderAuthenticationInterface;
+    public function create(string $providerType): ProviderAuthenticationInterface;
 }

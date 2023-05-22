@@ -2,7 +2,15 @@ import { ChangeEvent, useCallback, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useFormikContext, FormikValues } from 'formik';
-import { equals, isEmpty, not, path, split } from 'ramda';
+import {
+  equals,
+  gt,
+  isEmpty,
+  not,
+  path,
+  split,
+  type as variableType
+} from 'ramda';
 
 import { TextField, useMemoComponent } from '../..';
 
@@ -80,6 +88,11 @@ const Text = ({
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
 
+  const isMultiline =
+    equals(variableType(text?.multilineRows), 'Number') &&
+    gt(text?.multilineRows || 0, 0);
+  const rows = isMultiline ? text?.multilineRows : undefined;
+
   return useMemoComponent({
     Component: (
       <TextField
@@ -90,7 +103,9 @@ const Text = ({
         disabled={disabled}
         error={error as string | undefined}
         label={t(label)}
+        multiline={isMultiline}
         required={isRequired}
+        rows={rows}
         type={getInputType()}
         value={value || ''}
         onBlur={handleBlur(fieldName)}

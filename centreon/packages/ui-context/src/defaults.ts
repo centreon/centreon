@@ -6,10 +6,10 @@ const defaultUser: User = {
   isExportButtonEnabled: false,
   locale: navigator.language,
   name: '',
-  resourceStatusViewMode: ListingVariant.compact,
   themeMode: ThemeMode.light,
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  use_deprecated_pages: false
+  use_deprecated_pages: false,
+  user_interface_density: ListingVariant.compact
 };
 
 const defaultResourceStorageOptimizationMode = false;

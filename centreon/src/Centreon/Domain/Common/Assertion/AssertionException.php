@@ -32,6 +32,8 @@ class AssertionException extends \Assert\InvalidArgumentException
 {
     public const INVALID_EMAIL = Assert::INVALID_EMAIL;
     public const INVALID_GREATER_OR_EQUAL = Assert::INVALID_GREATER_OR_EQUAL;
+
+    public const INVALID_INSTANCE_OF = Assert::INVALID_INSTANCE_OF;
     public const INVALID_IP = Assert::INVALID_IP;
     public const INVALID_IP_OR_DOMAIN = 1002;
     public const INVALID_MAX = Assert::INVALID_MAX;
@@ -424,6 +426,33 @@ class AssertionException extends \Assert\InvalidArgumentException
             self::INVALID_REGEX,
             $propertyPath,
             $value
+        );
+    }
+
+    /**
+     * Exception when the object is not of the correct class type.
+     *
+     * @param string $objectInstanceName
+     * @param string $instanceNameRequired
+     * @param string|null $propertyPath
+     *
+     * @return self
+     */
+    public static function badInstanceOfObject(
+        string $objectInstanceName,
+        string $instanceNameRequired,
+        ?string $propertyPath = null
+    ): self {
+        return new self(
+            sprintf(
+                _("[%s] (%s) was expected to be an instance of the class '%s'"),
+                $propertyPath,
+                $objectInstanceName,
+                $instanceNameRequired
+            ),
+            self::INVALID_INSTANCE_OF,
+            $propertyPath,
+            $objectInstanceName
         );
     }
 

@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
+use Core\Security\Authentication\Domain\Exception\AclConditionsException;
+use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Exception;
 use Throwable;
 use Pimple\Container;
@@ -40,7 +43,7 @@ use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 
 class OpenId implements ProviderAuthenticationInterface
 {
@@ -63,8 +66,10 @@ class OpenId implements ProviderAuthenticationInterface
 
     /**
      * @param LoginRequest $request
+     * @throws ConfigurationException
      * @throws SSOAuthenticationException
-     * @throws OpenIdConfigurationException
+     * @throws AclConditionsException
+     * @throws AuthenticationConditionsException
      */
     public function authenticateOrFail(LoginRequest $request): void
     {
@@ -172,7 +177,8 @@ class OpenId implements ProviderAuthenticationInterface
             'show_deprecated_pages' => $user->isUsingDeprecatedPages(),
             'reach_api' => $user->hasAccessToApiConfiguration() ? 1 : 0,
             'reach_api_rt' => $user->hasAccessToApiRealTime() ? 1 : 0,
-            'contact_theme' => $user->getTheme() ?? 'light'
+            'contact_theme' => $user->getTheme() ?? 'light',
+            'auth_type' => Provider::OPENID
         ];
 
         $this->provider->setLegacySession(new \Centreon($sessionUserInfos));

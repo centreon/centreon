@@ -1,0 +1,7 @@
+UpdateHostCategory:
+  methods: PUT
+  path: /configuration/hosts/categories/{hostCategoryId}
+  requirements:
+    hostCategoryId: '\d+'
+  controller: 'Core\HostCategory\Infrastructure\API\UpdateHostCategory\UpdateHostCategoryController'
+  condition: "request.attributes.get('version') >= 23.10"

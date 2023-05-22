@@ -42,17 +42,10 @@ const getElements = (): void => {
 export default (): void =>
   describe(labelServices, () => {
     describe('responsive behaviors', () => {
-      it('hides the button’s text at viewports uneder 768px', () => {
+      it("hides the button's text at viewports uneder 768px", () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
-        cy.get('@serviceButton').within(() => {
-          cy.findByText(labelServices).should('be.visible');
-          cy.findByTestId('ExpandLessIcon').should('be.visible');
-          cy.findByTestId('GrainIcon').should('be.visible');
-        });
-
-        cy.viewport(767, 300);
         cy.get('@serviceButton').within(() => {
           cy.findByText(labelServices).should('not.be.visible');
           cy.findByTestId('ExpandLessIcon').should('be.visible');

@@ -32,3 +32,15 @@ centreon_security_find_provider_configuration_openid:
     path: /administration/authentication/providers/openid
     controller: 'Core\Security\ProviderConfiguration\Infrastructure\OpenId\Api\FindOpenIdConfiguration\FindOpenIdConfigurationController'
     condition: "request.attributes.get('version') >= 22.04"
+
+centreon_security_update_provider_configuration_saml:
+    methods: PUT
+    path: /administration/authentication/providers/saml
+    controller: 'Core\Security\ProviderConfiguration\Infrastructure\SAML\Api\UpdateSAMLConfiguration\UpdateSAMLConfigurationController'
+    condition: "request.attributes.get('version') >= 23.04"
+
+centreon_security_find_provider_configuration_saml:
+    methods: GET
+    path: /administration/authentication/providers/saml
+    controller: 'Core\Security\ProviderConfiguration\Infrastructure\SAML\Api\FindSAMLConfiguration\FindSAMLConfigurationController'
+    condition: "request.attributes.get('version') >= 23.04"

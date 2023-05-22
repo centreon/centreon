@@ -12,7 +12,11 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    marginLeft: theme.spacing(4),
+    [theme.breakpoints.down(769)]: {
+      display: 'none'
+    }
   },
   nowrap: {
     whiteSpace: 'nowrap'

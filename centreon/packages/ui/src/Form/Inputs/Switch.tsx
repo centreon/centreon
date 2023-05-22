@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { FormControlLabel, Switch as MUISwitch } from '@mui/material';
 
-import getNormalizedId from '../../utils/getNormalizedId';
+import { getNormalizedId } from '../../utils/getNormalizedId';
 import { useMemoComponent } from '../..';
 
 import { InputPropsWithoutGroup } from './models';

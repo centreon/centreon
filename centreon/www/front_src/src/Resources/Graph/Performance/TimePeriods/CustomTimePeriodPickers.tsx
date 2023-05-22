@@ -4,11 +4,13 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
+import { useAtomValue } from 'jotai';
 
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { Button, Typography } from '@mui/material';
 
 import { dateTimeFormat, useLocaleDateTimeFormat } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import {
   CustomTimePeriod,
@@ -97,6 +99,8 @@ const CustomTimePeriodPickers = ({
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState<Element | undefined>(undefined);
 
+  const { timezone } = useAtomValue(userAtom);
+
   const { format } = useLocaleDateTimeFormat();
 
   const openPopover = (event: MouseEvent): void => {
@@ -131,7 +135,7 @@ const CustomTimePeriodPickers = ({
               <div className={classes.date}>
                 <Typography variant="caption">
                   {format({
-                    date: customTimePeriod.start,
+                    date: dayjs(customTimePeriod.start).tz(timezone).toDate(),
                     formatString: dateTimeFormat
                   })}
                 </Typography>
@@ -144,7 +148,7 @@ const CustomTimePeriodPickers = ({
               <div className={classes.date}>
                 <Typography variant="caption">
                   {format({
-                    date: customTimePeriod.end,
+                    date: dayjs(customTimePeriod.end).tz(timezone).toDate(),
                     formatString: dateTimeFormat
                   })}
                 </Typography>

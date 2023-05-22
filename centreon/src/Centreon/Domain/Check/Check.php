@@ -46,7 +46,7 @@ class Check
     /**
      * @var bool
      */
-    private $isForced = true;
+    private $isForced = false;
 
     /**
      * @var bool Indicates if this downtime should be applied to linked services
