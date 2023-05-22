@@ -36,7 +36,7 @@ class Command
         private readonly bool $isLocked = false,
         // Note: this is not the full list of object properties, see DB definition for more
     ) {
-        Assertion::notEmptyString($name);
+        Assertion::notEmptyString($name, 'Command::name');
     }
 
     public function getId(): int

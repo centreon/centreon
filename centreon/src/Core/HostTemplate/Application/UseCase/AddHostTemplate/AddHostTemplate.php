@@ -140,18 +140,18 @@ final class AddHostTemplate
      */
     private function assertIsValidName(string $name): void
     {
-        $formatedName = HostTemplate::formatName($name);
-        if ($this->readHostTemplateRepository->existsByName($formatedName)) {
-            $this->error('Host template name already exists', ['name' => $name, 'formatedName' => $formatedName]);
+        $formattedName = HostTemplate::formatName($name);
+        if ($this->readHostTemplateRepository->existsByName($formattedName)) {
+            $this->error('Host template name already exists', ['name' => $name, 'formattedName' => $formattedName]);
 
-            throw HostTemplateException::nameAlreadyExists($formatedName, $name);
+            throw HostTemplateException::nameAlreadyExists($formattedName, $name);
         }
     }
 
     /**
      * Assert icon ID is valid.
      *
-     * @param int $iconId
+     * @param ?int $iconId
      *
      * @throws HostTemplateException
      */
@@ -167,24 +167,24 @@ final class AddHostTemplate
     /**
      * Assert time period ID is valid.
      *
-     * @param int $timePeriodId
-     * @param ?string $propertieName
+     * @param ?int $timePeriodId
+     * @param ?string $propertyName
      *
      * @throws HostTemplateException
      */
-    private function assertIsValidTimePeriod(?int $timePeriodId, ?string $propertieName = null): void
+    private function assertIsValidTimePeriod(?int $timePeriodId, ?string $propertyName = null): void
     {
         if ($timePeriodId !== null && false === $this->readTimePeriodRepository->exists($timePeriodId) ) {
             $this->error('Time period does not exist', ['time_period_id' => $timePeriodId]);
 
-            throw HostTemplateException::idDoesNotExist($propertieName ?? 'timePeriodId', $timePeriodId);
+            throw HostTemplateException::idDoesNotExist($propertyName ?? 'timePeriodId', $timePeriodId);
         }
     }
 
     /**
      * Assert host severity ID is valid.
      *
-     * @param int $severityId
+     * @param ?int $severityId
      *
      * @throws HostTemplateException
      */
@@ -200,7 +200,7 @@ final class AddHostTemplate
     /**
      * Assert timezone ID is valid.
      *
-     * @param int $timezoneId
+     * @param ?int $timezoneId
      *
      * @throws HostTemplateException
      */
@@ -216,13 +216,13 @@ final class AddHostTemplate
     /**
      * Assert command ID is valid.
      *
-     * @param int $commandId
+     * @param ?int $commandId
      * @param CommandType $commandType
-     * @param ?string $propertieName
+     * @param ?string $propertyName
      *
      * @throws HostTemplateException
      */
-    private function assertIsValidCommand(?int $commandId, CommandType $commandType, ?string $propertieName = null): void
+    private function assertIsValidCommand(?int $commandId, CommandType $commandType, ?string $propertyName = null): void
     {
         if (
             $commandId !== null
@@ -230,7 +230,7 @@ final class AddHostTemplate
         ) {
             $this->error('Command does not exist', ['command_id' => $commandId, 'command_type' => $commandType]);
 
-            throw HostTemplateException::idDoesNotExist($propertieName ?? 'commandId', $commandId);
+            throw HostTemplateException::idDoesNotExist($propertyName ?? 'commandId', $commandId);
         }
     }
 
@@ -306,7 +306,7 @@ final class AddHostTemplate
                 $response->id = $hostTemplate->getId();
                 $response->name = $hostTemplate->getName();
                 $response->alias = $hostTemplate->getAlias();
-                $response->snmpVersion = $hostTemplate->getSnmpVersion()? $hostTemplate->getSnmpVersion()->value : null;
+                $response->snmpVersion = $hostTemplate->getSnmpVersion() ? $hostTemplate->getSnmpVersion()->value : null;
                 $response->snmpCommunity = $hostTemplate->getSnmpCommunity();
                 $response->timezoneId = $hostTemplate->getTimezoneId();
                 $response->severityId = $hostTemplate->getSeverityId();
@@ -315,7 +315,7 @@ final class AddHostTemplate
                 $response->checkTimeperiodId = $hostTemplate->getCheckTimeperiodId();
                 $response->maxCheckAttempts = $hostTemplate->getMaxCheckAttempts();
                 $response->normalCheckInterval = $hostTemplate->getNormalCheckInterval();
-                $response->retryCheckInterval = $hostTemplate->getretryCheckInterval();
+                $response->retryCheckInterval = $hostTemplate->getRetryCheckInterval();
                 $response->activeCheckEnabled = YesNoDefaultConverter::toInt($hostTemplate->getActiveCheckEnabled());
                 $response->passiveCheckEnabled = YesNoDefaultConverter::toInt($hostTemplate->getPassiveCheckEnabled());
                 $response->notificationEnabled = YesNoDefaultConverter::toInt($hostTemplate->getNotificationEnabled());
@@ -324,11 +324,11 @@ final class AddHostTemplate
                 $response->notificationTimeperiodId = $hostTemplate->getNotificationTimeperiodId();
                 $response->addInheritedContactGroup = $hostTemplate->addInheritedContactGroup();
                 $response->addInheritedContact = $hostTemplate->addInheritedContact();
-                $response->firstNotificationDelay = $hostTemplate->getfirstNotificationDelay();
-                $response->recoveryNotificationDelay = $hostTemplate->getrecoveryNotificationDelay();
+                $response->firstNotificationDelay = $hostTemplate->getFirstNotificationDelay();
+                $response->recoveryNotificationDelay = $hostTemplate->getRecoveryNotificationDelay();
                 $response->acknowledgementTimeout = $hostTemplate->getAcknowledgementTimeout();
                 $response->freshnessChecked = YesNoDefaultConverter::toInt($hostTemplate->getFreshnessChecked());
-                $response->freshnessThreshold = $hostTemplate->getfreshnessThreshold();
+                $response->freshnessThreshold = $hostTemplate->getFreshnessThreshold();
                 $response->flapDetectionEnabled = YesNoDefaultConverter::toInt($hostTemplate->getFlapDetectionEnabled());
                 $response->lowFlapThreshold = $hostTemplate->getLowFlapThreshold();
                 $response->highFlapThreshold = $hostTemplate->getHighFlapThreshold();

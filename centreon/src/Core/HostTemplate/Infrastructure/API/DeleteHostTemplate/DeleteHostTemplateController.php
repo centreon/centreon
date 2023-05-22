@@ -45,7 +45,7 @@ final class DeleteHostTemplateController extends AbstractController
         DeleteHostTemplate $useCase,
         DefaultPresenter $presenter,
     ): Response {
-        $this->denyAccessUnlessGrantedForAPIConfiguration();
+        $this->denyAccessUnlessGrantedForApiConfiguration();
 
         $useCase($hostTemplateId, $presenter);
 

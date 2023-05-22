@@ -31,8 +31,10 @@ class Timezone
      * @param int $id
      * @param string $name
      * @param string $offset
-     * @param string $dst_offset
+     * @param string $dstOffset
      * @param string $description
+     *
+     * @throws \Assert\AssertionFailedException
      */
     public function __construct(
         private readonly int $id,
@@ -41,7 +43,7 @@ class Timezone
         private readonly string $dstOffset,
         private readonly string $description = ''
     ) {
-        Assertion::notEmptyString($name);
+        Assertion::notEmptyString($name, 'Timezone::name');
     }
 
     public function getId(): int
