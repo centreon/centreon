@@ -143,7 +143,7 @@ jobs:
           development_stage: '${{ needs.build.outputs.development_stage }}'
 
           request_policy: "Centreon"
-          policy_file: "./Centreon
+          policy_file: "./Centreon"
 
           #policy_name: "Veracode Transitional High"
 
