@@ -90,7 +90,7 @@ final class AddHostTemplate
             $this->assertIsValidTimePeriod($request->checkTimeperiodId, 'checkTimeperiodId');
             $this->assertIsValidTimePeriod($request->notificationTimeperiodId, 'notificationTimeperiodId');
             $this->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
-            $this->assertIsValidCommand($request->eventHandlerCommandId, CommandType::Check, 'eventHandlerCommandId');
+            $this->assertIsValidCommand($request->eventHandlerCommandId, null, 'eventHandlerCommandId');
             $this->assertIsValidIcon($request->iconId);
 
             $newHostTemplate = $this->createNewHostTemplate($request);
@@ -213,15 +213,24 @@ final class AddHostTemplate
      * Assert command ID is valid.
      *
      * @param ?int $commandId
-     * @param CommandType $commandType
+     * @param ?CommandType $commandType
      * @param ?string $propertyName
      *
      * @throws HostTemplateException
      */
-    private function assertIsValidCommand(?int $commandId, CommandType $commandType, ?string $propertyName = null): void
+    private function assertIsValidCommand(?int $commandId, ?CommandType $commandType = null, ?string $propertyName = null): void
     {
+        if ($commandId === null) {
+            return;
+        }
+
+        if ($commandType === null && false === $this->readCommandRepository->exists($commandId)) {
+            $this->error('Command does not exist', ['command_id' => $commandId]);
+
+            throw HostTemplateException::idDoesNotExist($propertyName ?? 'commandId', $commandId);
+        }
         if (
-            $commandId !== null
+            $commandType !== null
             && false === $this->readCommandRepository->existsByIdAndCommandType($commandId, $commandType)
         ) {
             $this->error('Command does not exist', ['command_id' => $commandId, 'command_type' => $commandType]);
@@ -263,7 +272,7 @@ final class AddHostTemplate
                 : YesNoDefaultConverter::fromScalar($request->notificationEnabled),
             $request->notificationOptions === null
                 ? []
-                : HostEventConverter::fromBitMask($request->notificationOptions),
+                : HostEventConverter::fromBitFlag($request->notificationOptions),
             $request->notificationInterval,
             $request->notificationTimeperiodId,
             $inheritanceMode === '1' ? $request->addInheritedContactGroup : false,
@@ -315,7 +324,7 @@ final class AddHostTemplate
                 $response->activeCheckEnabled = YesNoDefaultConverter::toInt($hostTemplate->getActiveCheckEnabled());
                 $response->passiveCheckEnabled = YesNoDefaultConverter::toInt($hostTemplate->getPassiveCheckEnabled());
                 $response->notificationEnabled = YesNoDefaultConverter::toInt($hostTemplate->getNotificationEnabled());
-                $response->notificationOptions = HostEventConverter::toBitmask($hostTemplate->getNotificationOptions());
+                $response->notificationOptions = HostEventConverter::toBitFlag($hostTemplate->getNotificationOptions());
                 $response->notificationInterval = $hostTemplate->getNotificationInterval();
                 $response->notificationTimeperiodId = $hostTemplate->getNotificationTimeperiodId();
                 $response->addInheritedContactGroup = $hostTemplate->addInheritedContactGroup();

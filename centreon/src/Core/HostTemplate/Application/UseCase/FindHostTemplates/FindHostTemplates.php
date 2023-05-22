@@ -102,7 +102,7 @@ final class FindHostTemplates
                 'activeCheckEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getActiveCheckEnabled()),
                 'passiveCheckEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getPassiveCheckEnabled()),
                 'notificationEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getNotificationEnabled()),
-                'notificationOptions' => HostEventConverter::toBitmask($hostTemplate->getNotificationOptions()),
+                'notificationOptions' => HostEventConverter::toBitFlag($hostTemplate->getNotificationOptions()),
                 'notificationInterval' => $hostTemplate->getNotificationInterval(),
                 'notificationTimeperiodId' => $hostTemplate->getNotificationTimeperiodId(),
                 'addInheritedContactGroup' => $hostTemplate->addInheritedContactGroup(),

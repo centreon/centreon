@@ -28,6 +28,15 @@ use Core\Common\Domain\CommandType;
 interface ReadCommandRepositoryInterface
 {
     /**
+     * Determine if a command exists by its ID.
+     *
+     * @param int $commandId
+     *
+     * @return bool
+     */
+    public function exists(int $commandId): bool;
+
+    /**
      * Determine if a command exists by its ID and type.
      *
      * @param int $commandId

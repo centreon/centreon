@@ -111,7 +111,7 @@ beforeEach(function (): void {
         'activeCheckEnabled' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
         'passiveCheckEnabled' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
         'notificationEnabled' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
-        'notificationOptions' => HostEventConverter::toBitmask([HostEvent::Down, HostEvent::Unreachable]),
+        'notificationOptions' => HostEventConverter::toBitFlag([HostEvent::Down, HostEvent::Unreachable]),
         'notificationInterval' => 5,
         'notificationTimeperiodId' => 1,
         'addInheritedContactGroup' => true,

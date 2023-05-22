@@ -28,7 +28,6 @@ use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplatePresenterInterface;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateResponse;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
 class AddHostTemplatePresenterOnPrem extends AbstractPresenter implements AddHostTemplatePresenterInterface

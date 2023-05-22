@@ -70,7 +70,7 @@ beforeEach(function (): void {
     $this->request->activeCheckEnabled = '1';
     $this->request->passiveCheckEnabled = '1';
     $this->request->notificationEnabled = '1';
-    $this->request->notificationOptions = HostEventConverter::toBitmask([HostEvent::Down, HostEvent::Unreachable]);
+    $this->request->notificationOptions = HostEventConverter::toBitFlag([HostEvent::Down, HostEvent::Unreachable]);
     $this->request->notificationInterval = 5;
     $this->request->notificationTimeperiodId = 2;
     $this->request->addInheritedContactGroup = true;
@@ -327,14 +327,13 @@ it('should present a ConflictResponse when a command ID is not valid', function 
             ]
         );
     $this->readCommandRepository
-        ->expects($this->atMost(2))
+        ->expects($this->once())
         ->method('existsByIdAndCommandType')
-        ->willReturnMap(
-            [
-                [$this->request->checkCommandId, CommandType::Check, true],
-                [$this->request->eventHandlerCommandId, CommandType::Check, false],
-            ]
-        );
+        ->willReturn(true);
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(false);
 
     ($this->useCase)($this->request, $this->presenter);
 
@@ -376,14 +375,13 @@ it('should present a ConflictResponse when the host icon ID is not valid', funct
             ]
         );
     $this->readCommandRepository
-        ->expects($this->atMost(2))
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readCommandRepository
+        ->expects($this->once())
         ->method('existsByIdAndCommandType')
-        ->willReturnMap(
-            [
-                [$this->request->checkCommandId, CommandType::Check, true],
-                [$this->request->eventHandlerCommandId, CommandType::Check, true],
-            ]
-        );
+        ->willReturn(true);
     $this->readViewImgRepository
         ->expects($this->atMost(2))
         ->method('existsOne')
@@ -429,14 +427,13 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
             ]
         );
     $this->readCommandRepository
-        ->expects($this->atMost(2))
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readCommandRepository
+        ->expects($this->once())
         ->method('existsByIdAndCommandType')
-        ->willReturnMap(
-            [
-                [$this->request->checkCommandId, CommandType::Check, true],
-                [$this->request->eventHandlerCommandId, CommandType::Check, true],
-            ]
-        );
+        ->willReturn(true);
     $this->readViewImgRepository
         ->expects($this->once())
         ->method('existsOne')
@@ -483,14 +480,13 @@ it('should present an ErrorResponse if the newly created host template cannot be
             ]
         );
     $this->readCommandRepository
-        ->expects($this->atMost(2))
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readCommandRepository
+        ->expects($this->once())
         ->method('existsByIdAndCommandType')
-        ->willReturnMap(
-            [
-                [$this->request->checkCommandId, CommandType::Check, true],
-                [$this->request->eventHandlerCommandId, CommandType::Check, true],
-            ]
-        );
+        ->willReturn(true);
     $this->readViewImgRepository
         ->expects($this->once())
         ->method('existsOne')
@@ -544,14 +540,13 @@ it('should return created object on success', function (): void {
             ]
         );
     $this->readCommandRepository
-        ->expects($this->atMost(2))
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readCommandRepository
+        ->expects($this->once())
         ->method('existsByIdAndCommandType')
-        ->willReturnMap(
-            [
-                [$this->request->checkCommandId, CommandType::Check, true],
-                [$this->request->eventHandlerCommandId, CommandType::Check, true],
-            ]
-        );
+        ->willReturn(true);
     $this->readViewImgRepository
         ->expects($this->once())
         ->method('existsOne')
@@ -607,7 +602,7 @@ it('should return created object on success', function (): void {
         ->and($response->notificationEnabled)
         ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getNotificationEnabled()))
         ->and($response->notificationOptions)
-        ->toBe(HostEventConverter::toBitmask($this->hostTemplate->getNotificationOptions()))
+        ->toBe(HostEventConverter::toBitFlag($this->hostTemplate->getNotificationOptions()))
         ->and($response->notificationInterval)
         ->toBe($this->hostTemplate->getNotificationInterval())
         ->and($response->notificationTimeperiodId)

@@ -41,6 +41,27 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
         $this->db = $db;
     }
 
+        /**
+     * @inheritDoc
+     */
+    public function exists(int $commandId): bool
+    {
+        $this->info(sprintf('Check existence of command with id #%d', $commandId));
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.command
+                WHERE command_id = :commandId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':commandId', $commandId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
     /**
      * @inheritDoc
      */

@@ -34,7 +34,7 @@ properties:
     nullable: true
   check_command_id:
     type: integer
-    description: "Check command ID"
+    description: "Check command ID. Must be of type 'Check'."
     example: 1
     nullable: true
   check_command_args:
@@ -100,11 +100,13 @@ properties:
 
       The value is the sum of all the values of the selected options.
 
+      * `0` - NONE
       * `1` - DOWN
       * `2` - UNREACHABLE
       * `4` - RECOVERY
       * `8` - FLAPPING
       * `16` - DOWNTIME_SCHEDULED
+      * NULL - (inheritance of his parent's value. If there is no parent, the values used will be: DOWN, UNREACHABLE, RECOVERY, FLAPPING and DOWNTIME_SCHEDULED)
 
       example: A value equal to 5 corresponding to the selected options DOWN and RECOVERY
     example: 5

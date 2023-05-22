@@ -43,7 +43,7 @@ final class FindHostTemplatesResponse
      *          activeCheckEnabled: int,
      *          passiveCheckEnabled: int,
      *          notificationEnabled: int,
-     *          notificationOptions: int,
+     *          notificationOptions: ?int,
      *          notificationInterval: int|null,
      *          notificationTimeperiodId: int|null,
      *          addInheritedContactGroup: bool,
