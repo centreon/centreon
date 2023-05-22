@@ -72,9 +72,9 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  veracode-scans:
+  veracode-analysis:
     needs: [get-version]
-    uses: ./.github/workflows/veracode-scans.yml
+    uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon
       module_name: centreon
