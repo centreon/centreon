@@ -122,6 +122,47 @@ const checkThatFixtureHostsExistInDatabase = ({
   });
 };
 
+const checkServicesExistInDatabase = (serviceNames: Array<string>): void => {
+  cy.log('Checking services in database');
+
+  let conditionBuild = '';
+
+  serviceNames.forEach((description) => {
+    conditionBuild += ` AND s.description LIKE '%${description}%'`;
+  });
+
+  const query = `SELECT COUNT(s.service_id) as count_services from services as s WHERE s.enabled=1${conditionBuild};`;
+  const command = `docker exec -i ${Cypress.env(
+    'dockerName'
+  )} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
+
+  cy.exec(command).then(({ stdout }): Cypress.Chainable<null> | null => {
+    servicesFoundStepCount += 1;
+
+    const output = stdout || '0';
+    const foundServiceCount = parseInt(output.split('\n')[1], 10);
+
+    cy.log('Service count in database', foundServiceCount);
+    cy.log('Service database check step count', servicesFoundStepCount);
+
+    if (foundServiceCount > 0) {
+      return null;
+    }
+
+    if (servicesFoundStepCount < maxSteps) {
+      cy.wait(stepWaitingTime);
+
+      return cy
+        .wrap(null)
+        .then(() => checkServicesExistInDatabase(serviceNames));
+    }
+
+    throw new Error(
+      `No service found in the database after ${pollingCheckTimeout}ms`
+    );
+  });
+};
+
 let configurationExportedCheckStepCount = 0;
 
 const checkThatConfigurationIsExported = ({
@@ -272,5 +313,6 @@ export {
   loginAsAdminViaApiV2,
   insertFixture,
   logout,
-  checkIfConfigurationIsExported
+  checkIfConfigurationIsExported,
+  checkServicesExistInDatabase
 };
