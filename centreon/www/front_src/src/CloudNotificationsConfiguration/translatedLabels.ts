@@ -54,3 +54,7 @@ export const labelChooseAtleastOneUser = 'Choose at least 1 user';
 
 export const labelMessageFieldShouldNotBeEmpty =
   'The message field should not be empty!';
+
+export const labelClosePanel = 'Close the panel';
+export const labelEmailTemplateForTheNotificationMessage =
+  'Email template for the notification message';
