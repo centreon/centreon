@@ -124,33 +124,20 @@ jobs:
         with:
           vid: ${{ secrets.veracode_api_id }}
           vkey: ${{ secrets.veracode_api_key }}
+
           file: '${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip'
           fail_build: false #TODO: Do not fail the jobs until grace period ends
           #fail_build: '${{ needs.build.outputs.fail_build }}'
+          #fail_on_severity: '${{ inputs.threshold_pipeline }}' #n'affiche que ce qui est au dessus de ce niveau
           timeout: 60
-          #baseline_file: '${{ env.baseline_file }}'
 
-          #issue_details: '${{ needs.build.outputs.display_summary }}'
-          #issue_details: 'false'
-
-          #summary_display: 'false'
-          #summary_display: '${{ needs.build.outputs.display_summary }}'
-
+          baseline_file: '${{ env.baseline_file }}'
+          issue_details: '${{ needs.build.outputs.display_summary }}'
+          summary_display: '${{ needs.build.outputs.display_summary }}'
           #summary_output: '${{ needs.build.outputs.display_summary }}'
           #summary_output: 'false'
 
-          #development_stage: 'Development'
           development_stage: '${{ needs.build.outputs.development_stage }}'
-
-          request_policy: "Veracode_Recommended_High"
-          policy_name: "Veracode_Recommended_High"
-
-          #fail_on_severity: '${{ inputs.threshold_pipeline }}' #n'affiche que ce qui est au dessus de ce niveau
-
-      - name: DEBUG request policy location
-        run: |
-          ls -la
-          find ./ -name "Centreon"
 
       - name: Save baseline file
         # only baseline file generated from a maintenance branch is saved
