@@ -2,12 +2,30 @@ import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   form: {
-    padding: theme.spacing(0, 2, 2)
+    padding: theme.spacing(0, 4, 2, 2)
+  },
+  groups: {
+    '&:hover': {
+      background: theme.palette.background.listingHeader
+    },
+    background: theme.palette.background.listingHeader,
+    color: theme.palette.common.white,
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    padding: theme.spacing(1, 1.25)
   },
   reducePanel: {
     display: 'flex',
     justifyContent: 'flex-end',
-    padding: theme.spacing(1, 2, 0)
+    margin: theme.spacing(1.5, 4),
+    padding: 0
+  },
+  reducePanelButton: {
+    color: theme.palette.text.primary,
+    fontSize: theme.typography.body1.fontSize,
+    fontWeight: theme.typography.fontWeightRegular,
+    height: 'initial',
+    padding: 0
   }
 }));
 

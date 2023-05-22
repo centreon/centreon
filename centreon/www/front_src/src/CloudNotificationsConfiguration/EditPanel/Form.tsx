@@ -37,7 +37,9 @@ const ReducePanel = (): JSX.Element => {
 
   return (
     <Box className={classes.reducePanel}>
-      <Button onClick={handlePanelWidth}>{panelWidthLabel}</Button>
+      <Button className={classes.reducePanelButton} onClick={handlePanelWidth}>
+        {panelWidthLabel}
+      </Button>
     </Box>
   );
 };
@@ -67,15 +69,19 @@ const Form = (): JSX.Element => {
       ? getInitialValues(data)
       : emptyInitialValues;
 
+  const loading = equals(panelMode, PanelMode.Edit) ? isLoading : false;
+
   return (
     <Box>
       <FormComponent
+        isCollapsible
         Buttons={Box}
         className={classes.form}
         groups={basicFormGroups}
+        groupsClassName={classes.groups}
         initialValues={initialValues}
         inputs={inputs}
-        isLoading={equals(panelMode, PanelMode.Edit) ? isLoading : false}
+        isLoading={loading}
         validationSchema={validationSchema}
       >
         <>
