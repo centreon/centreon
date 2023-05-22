@@ -141,7 +141,7 @@ jobs:
           #json_display: 'false'
 
           #verbose: '${{ needs.build.outputs.display_summary }}'
-          #verbose: 'true'
+          verbose: 'true'
 
           #summary_output: '${{ needs.build.outputs.display_summary }}'
           #summary_output: 'true'
