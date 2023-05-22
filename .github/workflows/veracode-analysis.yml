@@ -132,7 +132,7 @@ jobs:
           #baseline_file: '${{ env.baseline_file }}'
 
           #issue_details: '${{ needs.build.outputs.display_summary }}'
-          issue_details: 'true'
+          #issue_details: 'true'
 
           #summary_display: 'false'
           #summary_display: '${{ needs.build.outputs.display_summary }}'
