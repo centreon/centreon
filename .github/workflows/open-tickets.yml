@@ -29,9 +29,9 @@ jobs:
     with:
       version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
 
-  veracode-scans:
+  veracode-analysis:
     needs: [get-version]
-    uses: ./.github/workflows/veracode-scans.yml
+    uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-open-tickets
       module_name: centreon-open-tickets

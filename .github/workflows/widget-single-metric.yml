@@ -26,9 +26,9 @@ jobs:
     with:
       version_file: widgets/centreon-widget-single-metric/single-metric/configs.xml
 
-  veracode-scans:
+  veracode-analysis:
     needs: [get-version]
-    uses: ./.github/workflows/veracode-scans.yml
+    uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: widgets/centreon-widget-single-metric
       module_name: centreon-widget-single-metric

@@ -29,9 +29,9 @@ jobs:
     with:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
 
-  veracode-scans:
+  veracode-analysis:
     needs: [get-version]
-    uses: ./.github/workflows/veracode-scans.yml
+    uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-awie
       module_name: centreon-awie

@@ -26,9 +26,9 @@ jobs:
     with:
       version_file: widgets/centreon-widget-graph-monitoring/graph-monitoring/configs.xml
 
-  veracode-scans:
+  veracode-analysis:
     needs: [get-version]
-    uses: ./.github/workflows/veracode-scans.yml
+    uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: widgets/centreon-widget-graph-monitoring
       module_name: centreon-widget-graph-monitoring

@@ -26,9 +26,9 @@ jobs:
     with:
       version_file: widgets/centreon-widget-ntopng-listing/ntopng-listing/configs.xml
 
-  veracode-scans:
+  veracode-analysis:
     needs: [get-version]
-    uses: ./.github/workflows/veracode-scans.yml
+    uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: widgets/centreon-widget-ntopng-listing
       module_name: centreon-widget-ntopng-listing

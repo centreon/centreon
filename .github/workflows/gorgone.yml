@@ -29,9 +29,9 @@ jobs:
     with:
       version_file: centreon-gorgone/packaging/centreon-gorgone.spectemplate
 
-  veracode-scans:
+  veracode-analysis:
     needs: [get-version]
-    uses: ./.github/workflows/veracode-scans.yml
+    uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-gorgone
       module_name: centreon-gorgone
