@@ -1,9 +1,6 @@
-import MailIcon from '@mui/icons-material/LocalPostOfficeOutlined';
-import SmsIcon from '@mui/icons-material/TextsmsOutlined';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
-
 import { ChannelsEnum, ResourcesTypeEnum } from '../models';
 
+import { SlackIcon, EmailIcon, SmsIcon } from './Channel/Icons';
 import { NotificationType } from './models';
 import {
   emptyEmail,
@@ -30,7 +27,7 @@ export const getInitialValues = ({
   }),
   slack: {
     channel: {
-      Icon: LinkedInIcon,
+      Icon: SlackIcon,
       checked: false,
       label: ChannelsEnum.Slack
     },
@@ -65,7 +62,7 @@ export const emptyInitialValues = {
   },
   isActivated: true,
   messages: {
-    channel: { Icon: MailIcon, checked: true, label: ChannelsEnum.Email },
+    channel: { Icon: EmailIcon, checked: true, label: ChannelsEnum.Email },
     message: emptyEmail,
     subject: ''
   },
@@ -77,7 +74,7 @@ export const emptyInitialValues = {
   },
   slack: {
     channel: {
-      Icon: LinkedInIcon,
+      Icon: SlackIcon,
       checked: false,
       label: ChannelsEnum.Slack
     },
