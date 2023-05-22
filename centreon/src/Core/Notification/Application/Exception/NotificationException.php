@@ -61,4 +61,9 @@ class NotificationException extends \Exception
     {
         return new self(_('Invalid resource type'), self::CODE_CONFLICT);
     }
+
+    public static function listNotAllowed(): self
+    {
+        return new self(_('You are not allowed to list notifications configurations'));
+    }
 }

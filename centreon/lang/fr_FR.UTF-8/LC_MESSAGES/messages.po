@@ -17561,3 +17561,6 @@ msgstr "Erreur lors de la recherche de la catégorie d'hôtes #%d"
 
 msgid "Error while retrieving a host category"
 msgstr "Erreur lors de la récupération de la catégorie d'hôtes"
+
+msgid "You are not allowed to list notifications configurations"
+msgstr "Vous n'êtes pas autorisé a listé les configurations de notifications"

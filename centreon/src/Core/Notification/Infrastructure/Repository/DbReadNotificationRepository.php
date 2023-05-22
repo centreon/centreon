@@ -23,15 +23,16 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\Repository;
 
+use Utility\SqlConcatenator;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Domain\TrimmedString;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Centreon\Infrastructure\DatabaseConnection;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\NotificationGenericObject;
 use Core\Notification\Domain\Model\NotificationMessage;
+use Core\Notification\Domain\Model\NotificationGenericObject;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 
 class DbReadNotificationRepository extends AbstractRepositoryRDB implements ReadNotificationRepositoryInterface
 {
@@ -137,6 +138,34 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
+     * Find notification users for a notification.
+     *
+     * @param non-empty-array<int> $notificationIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int,int>
+     */
+    public function findUsersCountByNotificationIds(array $notificationIds): array
+    {
+        $concatenator = $this->getConcatenatorForFindUsersCountQuery()
+            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE notification_id IN (:notification_ids)
+                SQL
+            );
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $result = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+        return $result ?: [];
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function exists(int $notificationId): bool
@@ -164,5 +193,95 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function findAll(): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT id, name, timeperiod_id, tp_name, is_activated
+                FROM `:db`.notification
+                INNER JOIN timeperiod ON timeperiod_id = tp_id
+            SQL
+        ));
+        $statement->execute();
+        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        if ($result === false) {
+            return [];
+        }
+
+        $notifications = [];
+        foreach ($result as $notificationData) {
+            $notifications[] = new Notification(
+                $notificationData['id'],
+                $notificationData['name'],
+                new NotificationGenericObject($notificationData['timeperiod_id'], $notificationData['tp_name']),
+                (bool) $notificationData['is_activated'],
+            );
+        }
+        return $notifications;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNotificationChannelsByNotificationIds(array $notificationIds): array
+    {
+        $concatenator = (new SqlConcatenator())
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT notification_id, channel
+                SQL
+            )->defineFrom(
+                <<<'SQL'
+                    FROM `:db`.notification_message
+                SQL
+            )
+            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
+            ->defineWhere(
+                <<<'SQL'
+                    WHERE notification_id IN (:notification_ids)
+                SQL
+            );
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        if ($result === false) {
+            return [];
+        }
+
+        $notificationsChannels = [];
+        foreach ($result as $notificationData) {
+            $notificationsChannels[$notificationData['notification_id']][] = NotificationChannel::from($notificationData['channel']);
+        }
+
+        return $notificationsChannels;
+    }
+
+    private function getConcatenatorForFindUsersCountQuery(): SqlConcatenator
+    {
+        $concatenator = (new SqlConcatenator())
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT notification_id, COUNT(user_id)
+                    SQL
+            )->defineFrom(
+                <<<'SQL'
+                    FROM
+                        `:db`.notification_user_relation rel
+                    SQL
+            )->defineGroupBy(
+                <<<'SQL'
+                    GROUP BY notification_id
+                SQL
+            );
+
+        return $concatenator;
     }
 }

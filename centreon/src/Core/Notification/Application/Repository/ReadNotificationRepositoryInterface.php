@@ -25,8 +25,9 @@ namespace Core\Notification\Application\Repository;
 
 use Core\Common\Domain\TrimmedString;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\NotificationGenericObject;
+use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationMessage;
+use Core\Notification\Domain\Model\NotificationGenericObject;
 
 interface ReadNotificationRepositoryInterface
 {
@@ -53,6 +54,17 @@ interface ReadNotificationRepositoryInterface
     public function findMessagesByNotificationId(int $notificationId): array;
 
     /**
+     * Undocumented function
+     *
+     * @param int[] $notificationIds
+     * @return array<
+     *  int,
+     *  NotificationChannel[]
+     * >
+     */
+    public function findNotificationChannelsByNotificationIds(array $notificationIds): array;
+
+    /**
      * Find notification users for a notification.
      *
      * @param int $notificationId
@@ -62,6 +74,17 @@ interface ReadNotificationRepositoryInterface
      * @return NotificationGenericObject[]
      */
     public function findUsersByNotificationId(int $notificationId): array;
+
+    /**
+     * Find notification users for multiple notifications.
+     *
+     * @param array $notificationId
+     *
+     * @throws \Throwable
+     *
+     * @return NotificationGenericObject[]
+     */
+    public function findUsersCountByNotificationIds(array $notificationIds): array;
 
     /**
      * Tells whether the notification exists.
@@ -85,4 +108,13 @@ interface ReadNotificationRepositoryInterface
      * @return bool
      */
     public function existsByName(TrimmedString $notificationName): bool;
+
+    /**
+     * Return all the notifications
+     *
+     * @return Notification[]
+     *
+     * @throws \Throwable
+     */
+    public function findAll(): array;
 }

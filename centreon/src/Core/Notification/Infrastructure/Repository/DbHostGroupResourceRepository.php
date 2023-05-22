@@ -29,7 +29,6 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Domain\Model\NotificationHostEvent;
-use Core\Notification\Domain\Model\NotificationServiceEvent;
 use Core\Notification\Domain\Model\NotificationGenericObject;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
@@ -387,6 +386,75 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
                     INNER JOIN `:db`.hostgroup hg
                         ON rel.hg_id = hg.hg_id
                     SQL
+            );
+
+        if ([] !== $accessGroupIds) {
+            $concatenator->appendJoins(
+                <<<'SQL'
+                    INNER JOIN `:db`.acl_resources_hg_relations arhr
+                        ON rel.hg_id = arhr.hg_hg_id
+                    INNER JOIN `:db`.acl_resources res
+                        ON arhr.acl_res_id = res.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations argr
+                        ON res.acl_res_id = argr.acl_res_id
+                    INNER JOIN `:db`.acl_groups ag
+                        ON argr.acl_group_id = ag.acl_group_id
+                    SQL
+            )->appendWhere(
+                <<<'SQL'
+                    WHERE ag.acl_group_id IN (:accessGroupIds)
+                    SQL
+            )->storeBindValueMultiple(':accessGroupIds', $accessGroupIds, \PDO::PARAM_INT);
+        }
+
+        return $concatenator;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findResourcesCountByNotificationIdsAndAccessGroups(
+        array $notificationIds,
+        array $accessGroups
+    ): array {
+        $accessGroupIds = array_map(
+            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+        $concatenator = $this->getConcatenatorForFindResourcesCountQuery($accessGroupIds)
+            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE notification_id IN (:notification_ids)
+                SQL
+            );
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $result = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+        return $result ?: [];
+    }
+
+    private function getConcatenatorForFindResourcesCountQuery(array $accessGroupIds)
+    {
+        $concatenator = (new SqlConcatenator())
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT
+                    notification_id, COUNT(rel.hg_id)
+                    SQL
+            )->defineFrom(
+                <<<'SQL'
+                    FROM
+                        `:db`.notification_hg_relation rel
+                    SQL
+            )->defineGroupBy(
+                <<<'SQL'
+                    GROUP BY notification_id
+                SQL
             );
 
         if ([] !== $accessGroupIds) {
