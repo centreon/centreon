@@ -139,9 +139,16 @@ jobs:
 
           development_stage: '${{ needs.build.outputs.development_stage }}'
 
+      - name: Save filtered baseline file
+        run: |
+          mv filtered_results.json /tmp
+          TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}/filtered_results.json"
+          BASELINE_FILE="/tmp/filtered_results.json"
+          aws s3 cp "$BASELINE_FILE" "$TARGET_S3"
+
       - name: Save baseline file
         # only baseline file generated from a maintenance branch is saved
-        if: needs.set-routing-mode.outputs.scan_type == 'maintenance'
+        #if: needs.set-routing-mode.outputs.scan_type == 'maintenance'
         run: |
           mv results.json /tmp
           TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}/results.json"
