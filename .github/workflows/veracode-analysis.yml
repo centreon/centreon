@@ -144,6 +144,7 @@ jobs:
 
           request_policy: "Centreon"
           policy_file: "./Centreon"
+          verbose: true
 
           #policy_name: "Veracode Transitional High"
 
