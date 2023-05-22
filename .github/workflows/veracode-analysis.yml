@@ -142,8 +142,9 @@ jobs:
           #development_stage: 'Development'
           development_stage: '${{ needs.build.outputs.development_stage }}'
 
-          request_policy: "Centreon Security"
-          #request_policy: "Veracode Transitional High"
+          request_policy: "Centreon_Security"
+
+          #policy_name: "Veracode Transitional High"
 
           #fail_on_severity: '${{ inputs.threshold_pipeline }}' #n'affiche que ce qui est au dessus de ce niveau
 
