@@ -25,7 +25,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   modalBody: {
     '& > p': {
-      '&:first-child': {
+      '&:first-of-type': {
         margin: theme.spacing(0, 0, 1, 0)
       },
       color: theme.palette.text.secondary,

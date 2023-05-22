@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 
 import { dec, equals, gt } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
+import { generatePath, useNavigate } from 'react-router-dom';
 
 import AddIcon from '@mui/icons-material/Add';
 import { CircularProgress } from '@mui/material';
@@ -14,12 +15,14 @@ import {
 } from '@centreon/ui';
 import { Button, DataTable } from '@centreon/ui/components';
 
+import routeMap from '../reactRoutes/routeMap';
+
 import useDashboards from './useDashboards';
 import {
   labelCreateADashboard,
   labelNoDashboardsFound
 } from './translatedLabels';
-import { openDialogAtom } from './atoms';
+import { deleteDialogStateAtom, openDialogAtom } from './atoms';
 import { Dashboard } from './models';
 
 const emptyListStateLabels = {
@@ -33,6 +36,9 @@ const Listing = (): JSX.Element => {
   const { t } = useTranslation();
   const { dashboards, elementRef, isLoading } = useDashboards();
 
+  const [deleteDialogState, setDeleteDialogState] = useAtom(
+    deleteDialogStateAtom
+  );
   const openDialog = useSetAtom(openDialogAtom);
 
   const hasDashboards = useMemo(
@@ -54,6 +60,10 @@ const Listing = (): JSX.Element => {
     });
   };
 
+  const navigate = useNavigate();
+  const navigateToDashboard = (dashboard: Dashboard) => (): void =>
+    navigate(generatePath(routeMap.dashboard, { dashboardId: dashboard.id }));
+
   return (
     <TiledListingList>
       <TiledListingActions>
@@ -70,7 +80,7 @@ const Listing = (): JSX.Element => {
         )}
       </TiledListingActions>
       <TiledListingContent>
-        <DataTable isEmpty={hasDashboards}>
+        <DataTable isEmpty={!hasDashboards}>
           {!hasDashboards ? (
             <DataTable.EmptyState
               aria-label="create"
@@ -90,7 +100,10 @@ const Listing = (): JSX.Element => {
                   key={dashboard.id}
                   ref={isLastElement ? elementRef : undefined}
                   title={dashboard.name}
-                  onDelete={(): void => undefined}
+                  onClick={navigateToDashboard(dashboard)}
+                  onDelete={() =>
+                    setDeleteDialogState({ item: dashboard, open: true })
+                  }
                   onEdit={editDashboard(dashboard)}
                 />
               );

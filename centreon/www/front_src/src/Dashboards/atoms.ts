@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
 
-import { SelectedDashboard } from './models';
+import { Dashboard, SelectedDashboard } from './models';
 
 export const pageAtom = atom(1);
 export const selectedDashboardAtom = atom<SelectedDashboard | null>(null);
@@ -20,3 +20,11 @@ export const closeDialogAtom = atom(null, (get, set) => {
 export const selectedDashboardVariantAtom = atom(
   (get) => get(selectedDashboardAtom)?.variant
 );
+
+export const deleteDialogStateAtom = atom<{
+  item: Dashboard | null;
+  open: boolean;
+}>({
+  item: null,
+  open: false
+});

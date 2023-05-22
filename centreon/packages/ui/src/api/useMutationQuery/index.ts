@@ -22,7 +22,7 @@ export interface UseMutationQueryProps<T> {
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
   fetchHeaders?: HeadersInit;
-  getEndpoint: () => string;
+  getEndpoint: (payload) => string;
   httpCodesBypassErrorSnackbar?: Array<number>;
   method: Method;
 }
@@ -53,7 +53,7 @@ const useMutationQuery = <T extends object>({
         catchError,
         decoder,
         defaultFailureMessage,
-        endpoint: getEndpoint(),
+        endpoint: getEndpoint(payload),
         headers: new Headers({
           'Content-Type': 'application/x-www-form-urlencoded',
           ...fetchHeaders
