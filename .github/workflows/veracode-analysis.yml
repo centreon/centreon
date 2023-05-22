@@ -127,9 +127,9 @@ jobs:
           file: '${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip'
           fail_build: false #TODO: Do not fail the jobs until grace period ends
           #fail_build: '${{ needs.build.outputs.fail_build }}'
-          fail_on_severity: '${{ inputs.threshold_pipeline }}'
+          #fail_on_severity: '${{ inputs.threshold_pipeline }}'
           timeout: 60
-          baseline_file: '${{ env.baseline_file }}'
+          #baseline_file: '${{ env.baseline_file }}'
           #issue_details: 'false'
           #summary_display: 'false'
           #json_display: 'false'
