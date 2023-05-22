@@ -134,14 +134,11 @@ jobs:
           #issue_details: '${{ needs.build.outputs.display_summary }}'
           issue_details: 'true'
 
-          #summary_display: 'false'
+          summary_display: 'false'
           #summary_display: '${{ needs.build.outputs.display_summary }}'
 
           #json_display: '${{ needs.build.outputs.display_summary }}'
           #json_display: 'false'
-
-          #verbose: '${{ needs.build.outputs.display_summary }}'
-          verbose: 'true'
 
           #summary_output: '${{ needs.build.outputs.display_summary }}'
           #summary_output: 'true'
