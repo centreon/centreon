@@ -135,15 +135,9 @@ final class AddHostTemplateController extends AbstractController
             $dto->maxCheckAttempts = $data['max_check_attempts'] ?? null;
             $dto->normalCheckInterval = $data['normal_check_interval'] ?? null;
             $dto->retryCheckInterval = $data['retry_check_interval'] ?? null;
-            $dto->activeCheckEnabled = isset($data['active_check_enabled'])
-                ? (string) $data['active_check_enabled']
-                : '';
-            $dto->passiveCheckEnabled = isset($data['passive_check_enabled'])
-                ? (string) $data['passive_check_enabled']
-                : '';
-            $dto->notificationEnabled = isset($data['notification_enabled'])
-                ? (string) $data['notification_enabled']
-                : '';
+            $dto->activeCheckEnabled = (string) ($data['active_check_enabled'] ?? '');
+            $dto->passiveCheckEnabled = (string) ($data['passive_check_enabled'] ?? '');
+            $dto->notificationEnabled = (string) ($data['notification_enabled'] ?? '');
             $dto->notificationOptions = $data['notification_options'] ?? null;
             $dto->notificationInterval = $data['notification_interval'] ?? null;
             $dto->notificationTimeperiodId = $data['notification_timeperiod_id'] ?? null;
@@ -152,18 +146,12 @@ final class AddHostTemplateController extends AbstractController
             $dto->firstNotificationDelay = $data['first_notification_delay'] ?? null;
             $dto->recoveryNotificationDelay = $data['recovery_notification_delay'] ?? null;
             $dto->acknowledgementTimeout = $data['acknowledgement_timeout'] ?? null;
-            $dto->freshnessChecked = isset($data['freshness_checked'])
-                ? (string) $data['freshness_checked']
-                : '';
+            $dto->freshnessChecked = (string) ($data['freshness_checked'] ?? '');
             $dto->freshnessThreshold = $data['freshness_threshold'] ?? null;
-            $dto->flapDetectionEnabled = isset($data['flap_detection_enabled'])
-                ? (string) $data['flap_detection_enabled']
-                : '';
+            $dto->flapDetectionEnabled = (string) ($data['flap_detection_enabled'] ?? '');
             $dto->lowFlapThreshold = $data['low_flap_threshold'] ?? null;
             $dto->highFlapThreshold = $data['high_flap_threshold'] ?? null;
-            $dto->eventHandlerEnabled = isset($data['event_handler_enabled'])
-                ? (string) $data['event_handler_enabled']
-                : '';
+            $dto->eventHandlerEnabled = (string) ($data['event_handler_enabled'] ?? '');
             $dto->eventHandlerCommandId = $data['event_handler_command_id'] ?? null;
             $dto->eventHandlerCommandArgs = $data['event_handler_command_args'] ?? [];
             $dto->noteUrl = $data['note_url'] ?? '';

@@ -35,12 +35,6 @@ class AddHostTemplatePresenterOnPrem extends AbstractPresenter implements AddHos
 {
     use PresenterTrait;
 
-    public function __construct(
-        protected PresenterFormatterInterface $presenterFormatter,
-    ) {
-        parent::__construct($presenterFormatter);
-    }
-
     /**
      * @inheritDoc
      */

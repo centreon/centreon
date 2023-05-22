@@ -29,11 +29,9 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Option\OptionService;
 use Core\Application\Common\UseCase\ConflictResponse;
-use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\CommandType;
@@ -46,8 +44,6 @@ use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\HostTemplate\Domain\Model\NewHostTemplate;
-use Core\HostTemplate\Infrastructure\API\AddHostTemplate\AddHostTemplatePresenterOnPrem;
-use Core\HostTemplate\Infrastructure\API\AddHostTemplate\AddHostTemplatePresenterSaas;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
@@ -71,9 +67,9 @@ final class AddHostTemplate
 
     /**
      * @param AddHostTemplateRequest $request
-     * @param AddHostTemplatePresenterSaas|AddHostTemplatePresenterOnPrem $presenter
+     * @param AddHostTemplatePresenterInterface $presenter
      */
-    public function __invoke(AddHostTemplateRequest $request, PresenterInterface $presenter): void
+    public function __invoke(AddHostTemplateRequest $request, AddHostTemplatePresenterInterface $presenter): void
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE)) {
