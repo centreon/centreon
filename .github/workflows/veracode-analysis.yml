@@ -130,11 +130,11 @@ jobs:
           fail_on_severity: '${{ inputs.threshold_pipeline }}'
           timeout: 60
           baseline_file: '${{ env.baseline_file }}'
-          issue_details: 'false'
-          summary_display: 'false'
-          json_display: 'false'
-          verbose: 'false'
-          summary_output: 'false'
+          #issue_details: 'false'
+          #summary_display: 'false'
+          #json_display: 'false'
+          #verbose: 'false'
+          #summary_output: 'false'
           development_stage: '${{ needs.build.outputs.development_stage }}'
 
       - name: Save baseline file
