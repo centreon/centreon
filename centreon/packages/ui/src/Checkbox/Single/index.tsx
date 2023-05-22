@@ -31,18 +31,17 @@ const useStyles = makeStyles<StyleProps>()(
       ? {
           alignItems: 'center',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          minHeight: theme.spacing(11)
         }
       : {},
-    icon: {
-      color: disabled ? theme.palette.grey[400] : theme.palette.primary.main,
-      fontSize: theme.spacing(12)
-    },
     label: {
-      color: disabled ? theme.palette.grey[600] : 'default',
-      fontSize: equals(labelPlacement, 'top')
-        ? theme.typography.body2.fontSize
-        : theme.typography.body1.fontSize,
+      color: disabled ? theme.palette.grey[600] : theme.palette.text.secondary,
+      fontSize: theme.typography.body1.fontSize,
+      fontWeight: equals(labelPlacement, 'top')
+        ? theme.typography.fontWeightBold
+        : theme.typography.fontWeightRegular,
       padding: getLabelSpacing(labelPlacement, theme)
     }
   })
@@ -51,6 +50,7 @@ const useStyles = makeStyles<StyleProps>()(
 interface Props {
   Icon?: SvgIconComponent;
   checked: boolean;
+  className?: string;
   disabled?: boolean;
   label: string;
   labelPlacement?: LabelPlacement;
@@ -62,18 +62,19 @@ const SingleCheckbox = ({
   checked,
   label,
   onChange,
+  className,
   disabled = false,
   labelPlacement = 'end'
 }: Props): JSX.Element => {
-  const { classes } = useStyles({
+  const { classes, cx } = useStyles({
     disabled,
     hasIcon: !!Icon,
     labelPlacement
   });
 
   return (
-    <Box className={classes.container}>
-      {Icon && <Icon className={classes.icon} />}
+    <Box className={cx(classes.container, className)}>
+      {Icon && <Icon />}
       <FormControlLabel
         control={
           <MuiCheckbox
