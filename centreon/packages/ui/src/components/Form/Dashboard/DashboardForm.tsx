@@ -30,7 +30,6 @@ export type DashboardFormProps = {
 export type DashboardFormLabels = {
   actions: DashboardFormActionsProps['labels'];
   entity: Required<DashboardResource>;
-  title: Record<FormVariant, string>;
 };
 
 const DashboardForm: React.FC<DashboardFormProps> = ({
@@ -39,7 +38,7 @@ const DashboardForm: React.FC<DashboardFormProps> = ({
   labels,
   onSubmit,
   onCancel
-}: DashboardFormProps): JSX.Element => {
+}): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -105,7 +104,6 @@ const DashboardForm: React.FC<DashboardFormProps> = ({
 
   return (
     <div className={classes.dashboardForm}>
-      <h2>{labels?.title[variant]}</h2>
       <Form<DashboardResource> {...formProps} Buttons={FormActions} />
     </div>
   );

@@ -22,10 +22,6 @@ export const Default: Story = {
       entity: {
         description: 'Description',
         name: 'Name'
-      },
-      title: {
-        create: 'Create dashboard',
-        update: 'Update dashboard'
       }
     }
   }

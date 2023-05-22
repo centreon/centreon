@@ -10,8 +10,8 @@ import {
   DashboardForm,
   DashboardFormProps,
   DataTable,
-  Dialog,
-  Header
+  Header,
+  Modal
 } from '../../components';
 import { Default as DashboardFormDefaultStory } from '../../components/Form/Dashboard/DashboardForm.stories';
 import {
@@ -26,6 +26,29 @@ const meta: Meta = {
     actions: {
       create: {
         label: 'Create a dashboard'
+      }
+    },
+    deleteConfirmation: {
+      labels: {
+        actions: {
+          cancel: 'Cancel',
+          confirm: 'Delete'
+        },
+        description: (name) => (
+          <>
+            Are you sure you want to delete <strong>{name}</strong> ?
+          </>
+        ),
+        title: 'Delete dashboard'
+      }
+    },
+    form: {
+      labels: {
+        ...DashboardFormDefaultStory.args!.labels,
+        title: {
+          create: 'Create dashboard',
+          update: 'Update dashboard'
+        }
       }
     },
     list: {
@@ -61,11 +84,22 @@ const dialogStateAtom = atom<{
   variant: 'create'
 });
 
+const deleteDialogStateAtom = atom<{
+  item: dashboardItem | null;
+  open: boolean;
+}>({
+  item: null,
+  open: false
+});
+
 const dataDashboardsAtom = atom<Array<dashboardItem>>([]);
 
 const DefaultView = (args): JSX.Element => {
   const { data, title, actions, list } = args;
   const [dialogState, setDialogState] = useAtom(dialogStateAtom);
+  const [deleteDialogState, setDeleteDialogState] = useAtom(
+    deleteDialogStateAtom
+  );
   const [dataDashboards, setDataDashboards] = useAtom(dataDashboardsAtom);
 
   useEffect(() => {
@@ -133,7 +167,9 @@ const DefaultView = (args): JSX.Element => {
                   description={dashboard.description}
                   key={dashboard.id}
                   title={dashboard.name}
-                  onDelete={() => deleteDashboard(dashboard.id)}
+                  onDelete={() =>
+                    setDeleteDialogState({ item: dashboard, open: true })
+                  }
                   onEdit={() =>
                     setDialogState({
                       item: dashboard,
@@ -146,30 +182,66 @@ const DefaultView = (args): JSX.Element => {
             )}
           </DataTable>
         </TiledListingContent>
-        <Dialog
+        <Modal
           open={dialogState.open}
           onClose={() =>
-            setDialogState({ item: null, open: false, variant: 'create' })
+            setDialogState({
+              item: null,
+              open: false,
+              variant: dialogState.variant
+            })
           }
         >
-          <DashboardForm
-            labels={DashboardFormDefaultStory!.args!.labels!}
-            resource={dialogState.item || undefined}
-            variant={dialogState.variant}
-            onCancel={() =>
-              setDialogState({
-                item: null,
-                open: false,
-                variant: dialogState.variant
-              })
-            }
-            onSubmit={(values) =>
-              dialogState.variant === 'create'
-                ? createDashboard(values)
-                : updateDashboard(values)
-            }
+          <Modal.Header>
+            {args.form.labels.title[dialogState.variant ?? 'create']}
+          </Modal.Header>
+          <Modal.Body>
+            <DashboardForm
+              labels={DashboardFormDefaultStory!.args!.labels!}
+              resource={dialogState.item || undefined}
+              variant={dialogState.variant}
+              onCancel={() =>
+                setDialogState({
+                  item: null,
+                  open: false,
+                  variant: dialogState.variant
+                })
+              }
+              onSubmit={(values) =>
+                dialogState.variant === 'create'
+                  ? createDashboard(values)
+                  : updateDashboard(values)
+              }
+            />
+          </Modal.Body>
+        </Modal>
+        <Modal
+          open={deleteDialogState.open}
+          onClose={() =>
+            setDeleteDialogState({
+              ...deleteDialogState,
+              open: false
+            })
+          }
+        >
+          <Modal.Header>{args.deleteConfirmation.labels.title}</Modal.Header>
+          <Modal.Body>
+            <p>
+              {args.deleteConfirmation.labels.description(
+                deleteDialogState.item?.name
+              )}
+            </p>
+          </Modal.Body>
+          <Modal.Actions
+            isDanger
+            labels={args.deleteConfirmation.labels.actions}
+            onCancel={() => setDeleteDialogState({ item: null, open: false })}
+            onConfirm={() => {
+              deleteDashboard(deleteDialogState.item?.id);
+              setDeleteDialogState({ item: null, open: false });
+            }}
           />
-        </Dialog>
+        </Modal>
       </TiledListingList>
     </TiledListingPage>
   );

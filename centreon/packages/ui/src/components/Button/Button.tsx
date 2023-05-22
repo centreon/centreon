@@ -21,6 +21,7 @@ type ButtonProps = {
   disabled?: boolean;
   icon?: string | ReactNode;
   iconVariant?: 'none' | 'start' | 'end';
+  isDanger?: boolean;
   onClick?: (e) => void;
   size?: 'small' | 'medium' | 'large';
   type?: 'button' | 'submit' | 'reset';
@@ -37,6 +38,7 @@ const Button: React.FC<ButtonProps> = ({
   type = 'button',
   disabled = false,
   onClick,
+  isDanger = false,
   ...attr
 }): JSX.Element => {
   const { classes } = useStyles();
@@ -45,6 +47,7 @@ const Button: React.FC<ButtonProps> = ({
     <MuiButton
       className={classes.button}
       data-icon-variant={iconVariant}
+      data-is-danger={isDanger}
       data-size={size}
       data-variant={variant}
       disabled={disabled}

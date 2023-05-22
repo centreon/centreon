@@ -25,3 +25,10 @@ export const WithIcon: Story = {
     iconVariant: 'start' // TODO Icon component
   }
 };
+
+export const AsDanger: Story = {
+  args: {
+    ...Default.args,
+    isDanger: true
+  }
+};
