@@ -95,7 +95,7 @@ const deleteDialogStateAtom = atom<{
 const dataDashboardsAtom = atom<Array<dashboardItem>>([]);
 
 const DefaultView = (args): JSX.Element => {
-  const { data, title, actions, list } = args;
+  const { data, title, actions, list, form, deleteConfirmation } = args;
   const [dialogState, setDialogState] = useAtom(dialogStateAtom);
   const [deleteDialogState, setDeleteDialogState] = useAtom(
     deleteDialogStateAtom
@@ -193,7 +193,7 @@ const DefaultView = (args): JSX.Element => {
           }
         >
           <Modal.Header>
-            {args.form.labels.title[dialogState.variant ?? 'create']}
+            {form.labels.title[dialogState.variant ?? 'create']}
           </Modal.Header>
           <Modal.Body>
             <DashboardForm
@@ -224,17 +224,17 @@ const DefaultView = (args): JSX.Element => {
             })
           }
         >
-          <Modal.Header>{args.deleteConfirmation.labels.title}</Modal.Header>
+          <Modal.Header>{deleteConfirmation.labels.title}</Modal.Header>
           <Modal.Body>
             <p>
-              {args.deleteConfirmation.labels.description(
+              {deleteConfirmation.labels.description(
                 deleteDialogState.item?.name
               )}
             </p>
           </Modal.Body>
           <Modal.Actions
             isDanger
-            labels={args.deleteConfirmation.labels.actions}
+            labels={deleteConfirmation.labels.actions}
             onCancel={() => setDeleteDialogState({ item: null, open: false })}
             onConfirm={() => {
               deleteDashboard(deleteDialogState.item?.id);

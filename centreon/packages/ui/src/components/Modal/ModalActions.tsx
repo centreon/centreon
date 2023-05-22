@@ -28,9 +28,7 @@ const ModalActions: React.FC<ModalActionsProps> = ({
 
   return (
     <div className={classes.modalActions}>
-      {children ? (
-        <>{children}</>
-      ) : (
+      {children || (
         <>
           <Button
             aria-label="cancel"
