@@ -44,8 +44,10 @@ const Form = <T extends object>({
   if (isLoading) {
     return (
       <Inputs
+        groupsAreOpen
         isLoading
         groups={groups}
+        groupsClassName={groupsClassName}
         inputs={inputs}
         isCollapsible={isCollapsible}
       />
@@ -66,6 +68,7 @@ const Form = <T extends object>({
         {children}
         <div className={className}>
           <Inputs
+            groupsAreOpen
             groupDirection={groupDirection}
             groups={groups}
             groupsClassName={groupsClassName}

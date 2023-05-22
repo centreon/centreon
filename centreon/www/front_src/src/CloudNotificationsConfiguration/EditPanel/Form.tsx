@@ -13,7 +13,7 @@ import {
 import { panelWidthStorageAtom } from '../atom';
 
 import useStyles from './Form.styles';
-import useFormInputs from './useFormInputs';
+import useFormInputs from './FormInputs/useFormInputs';
 import { emptyInitialValues, getInitialValues } from './initialValues';
 import useValidationSchema from './validationSchema';
 import Header from './Header';
@@ -74,6 +74,7 @@ const Form = (): JSX.Element => {
   return (
     <Box>
       <FormComponent
+        groupsAreOpen
         isCollapsible
         Buttons={Box}
         className={classes.form}

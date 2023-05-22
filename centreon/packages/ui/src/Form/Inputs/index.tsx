@@ -113,6 +113,7 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
 interface Props {
   groupDirection?: GroupDirection;
   groups?: Array<Group>;
+  groupsAreOpen?: boolean;
   groupsClassName?: string;
   inputs: Array<InputProps>;
   isCollapsible: boolean;
@@ -125,7 +126,8 @@ const Inputs = ({
   isLoading = false,
   isCollapsible,
   groupDirection,
-  groupsClassName
+  groupsClassName,
+  groupsAreOpen
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ groupDirection });
   const { t } = useTranslation();
@@ -192,7 +194,7 @@ const Inputs = ({
           ? R.find(R.propEq('name', groupName), groups)
           : ({} as Group);
 
-        const isFirstElement = R.equals(index, 0);
+        const isFirstElement = groupsAreOpen || R.equals(index, 0);
 
         return (
           <Fragment key={groupName}>
