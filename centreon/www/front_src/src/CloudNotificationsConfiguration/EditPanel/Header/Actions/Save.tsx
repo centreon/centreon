@@ -28,12 +28,12 @@ import {
   labelDoYouWantToConfirmAction
 } from '../../../translatedLabels';
 import { notificationtEndpoint } from '../../api/endpoints';
-import { PanelMode } from '../../models';
 import { adaptNotifications } from '../../api/adapters';
+import { PanelMode } from '../../models';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
-    fontSize: theme.spacing(2.75)
+    fontSize: theme.spacing(2.5)
   }
 }));
 

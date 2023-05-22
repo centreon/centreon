@@ -17,13 +17,12 @@ import { isPanelOpenAtom } from '../../../atom';
 const useStyle = makeStyles()((theme) => ({
   icon: {
     color: theme.palette.text.secondary,
-    fontSize: theme.spacing(2.75)
+    fontSize: theme.spacing(2.5)
   }
 }));
 
 const DeleteAction = (): JSX.Element => {
   const { classes } = useStyle();
-
   const { t } = useTranslation();
 
   const [dialogOpen, setDialogOpen] = useState(false);
