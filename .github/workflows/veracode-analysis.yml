@@ -132,19 +132,21 @@ jobs:
           #baseline_file: '${{ env.baseline_file }}'
 
           #issue_details: '${{ needs.build.outputs.display_summary }}'
-          #issue_details: 'true'
+          #issue_details: 'false'
 
           #summary_display: 'false'
           #summary_display: '${{ needs.build.outputs.display_summary }}'
 
           #json_display: '${{ needs.build.outputs.display_summary }}'
-          #json_display: 'false'
+          json_display: 'false'
 
           #summary_output: '${{ needs.build.outputs.display_summary }}'
-          summary_output: 'false'
+          #summary_output: 'false'
 
+          #development_stage: 'Development'
           #development_stage: '${{ needs.build.outputs.development_stage }}'
-          #development_stage: '${{ needs.build.outputs.development_stage }}'
+
+          #policy ?
 
       - name: Save baseline file
         # only baseline file generated from a maintenance branch is saved
