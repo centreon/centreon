@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import { makeStyles } from 'tss-react/mui';
 import { useAtomValue } from 'jotai';
 import { FormikValues, useFormikContext } from 'formik';
 import { equals, path } from 'ramda';
@@ -15,6 +14,7 @@ import { panelModeAtom } from '../atom';
 import { PanelMode } from '../models';
 import { labelChangeName, labelNotificationName } from '../../translatedLabels';
 
+import useStyles from './Header.styles';
 import {
   DeleteAction,
   DuplicateAction,
@@ -23,43 +23,9 @@ import {
   SaveAction
 } from './Actions';
 
-const useStyle = makeStyles()((theme) => ({
-  actions: {
-    alignItems: 'center',
-    borderRight: '1px dotted black',
-    display: 'flex',
-    gap: theme.spacing(2),
-    paddingInline: theme.spacing(2)
-  },
-  name: {
-    fontWeight: theme.typography.fontWeightBold
-  },
-  panelHeader: {
-    background: theme.palette.background.paper,
-    boxSizing: 'border-box',
-    display: 'flex',
-    justifyContent: 'space-between',
-    padding: theme.spacing(1.5, 0),
-    paddingLeft: theme.spacing(2),
-    position: 'sticky',
-    top: 0,
-    zIndex: theme.zIndex.tooltip
-  },
-  rightHeader: {
-    alignItems: 'center',
-    display: 'flex'
-  },
-  title: {
-    alignItems: 'center',
-    display: 'flex',
-    gap: theme.spacing(1)
-  }
-}));
-
 const NotificationName = (): JSX.Element => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
-
-  const { classes } = useStyle();
 
   const [nameChange, setNameChange] = useState(false);
 
@@ -108,7 +74,7 @@ const NotificationName = (): JSX.Element => {
 };
 
 const Header = (): JSX.Element => {
-  const { classes } = useStyle();
+  const { classes } = useStyles();
 
   const panelMode = useAtomValue(panelModeAtom);
 
