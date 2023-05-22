@@ -142,6 +142,7 @@ jobs:
           #development_stage: 'Development'
           development_stage: '${{ needs.build.outputs.development_stage }}'
 
+          request_policy: "Veracode_Recommended_High"
           policy_name: "Veracode_Recommended_High"
 
           #fail_on_severity: '${{ inputs.threshold_pipeline }}' #n'affiche que ce qui est au dessus de ce niveau
