@@ -92,22 +92,20 @@ jobs:
       - name: Get baseline files
         id: baseline_search
         run: |
-          TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}/filtered_results.json"
-          aws s3 ls "$TARGET_S3" || RESULT=$( echo $? )
-          if [[ $RESULT -eq 200 ]]; then
-            aws s3 cp "$TARGET_S3" "/tmp/filtered_results.json"
+          TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
+          aws s3 ls "$TARGET_S3/filtered_results.json" || RESULT=$( echo $? )
+          if [[ $RESULT -eq 0 ]]; then
+            aws s3 cp "$TARGET_S3/filtered_results.json" "/tmp/filtered_results.json"
             echo "baseline_file=/tmp/filtered_results.json" >> $GITHUB_ENV
             echo "create_baseline_from=filtered" >> $GITHUB_ENV
           else
             echo "[DEBUG] - Filtered baseline file not found in the bucket"
-            TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}/results.json"
-            aws s3 ls "$TARGET_S3" || RESULT=$( echo $? )
-            if [[ $RESULT -eq 200 ]]; then
-              aws s3 cp "$TARGET_S3" "/tmp/results.json"
+            aws s3 ls "$TARGET_S3/results.json" || RESULT=$( echo $? )
+            if [[ $RESULT -eq 0 ]]; then
+              aws s3 cp "$TARGET_S3/results.json" "/tmp/results.json"
               echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
               echo "create_baseline_from=standard" >> $GITHUB_ENV
             else
-              aws s3 ls "$TARGET_S3" || RESULT=$( echo $? )
               echo "[DEBUG] - Standard baseline file not found in the bucket"
               echo "baseline_file=" >> $GITHUB_ENV
               echo "create_baseline_from=" >> $GITHUB_ENV
@@ -121,27 +119,23 @@ jobs:
           vkey: ${{ secrets.veracode_api_key }}
 
           file: '${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip'
+          baseline_file: '${{ env.baseline_file }}'
+          create_baseline_from: '${{ env.create_baseline_from }}'
+
           fail_build: false #TODO: Do not fail the jobs until grace period ends
           #fail_build: '${{ needs.build.outputs.fail_build }}'
-          #fail_on_severity: '${{ inputs.threshold_pipeline }}'
+          fail_on_severity: '${{ inputs.threshold_pipeline }}'
           timeout: 60
 
-          #baseline_file: '${{ env.baseline_file }}'
-          baseline_file: ''
-          issue_details: '${{ needs.build.outputs.display_summary }}'
-          summary_display: '${{ needs.build.outputs.display_summary }}'
-          #summary_output: '${{ needs.build.outputs.display_summary }}'
-          #summary_output: 'false'
-
           development_stage: '${{ needs.build.outputs.development_stage }}'
-          #create_baseline_from: '${{ env.create_baseline_from }}'
-          create_baseline_from: ''
+          summary_display: '${{ needs.build.outputs.display_summary }}'
+          issue_details: '${{ needs.build.outputs.display_summary }}'
 
-      - name: Save baseline file
-        # only baseline file generated from a maintenance branch is saved
+      - name: Save baseline files
+        # only baseline files generated from a maintenance branch are saved
         if: needs.set-routing-mode.outputs.scan_type == 'maintenance'
         run: |
           mv *results.json /tmp
-          TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}/results.json"
-          aws s3 cp "/tmp/filtered_results.json" "$TARGET_S3"
-          aws s3 cp "/tmp/results.json" "$TARGET_S3"
+          TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
+          aws s3 cp "/tmp/filtered_results.json" "$TARGET_S3/filtered_results.json"
+          aws s3 cp "/tmp/results.json" "$TARGET_S3/results.json"
