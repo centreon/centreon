@@ -47,8 +47,8 @@ final class DeleteServiceTemplate
     public function __construct(
         private readonly ReadServiceTemplateRepositoryInterface $readRepository,
         private readonly WriteServiceTemplateRepositoryInterface $writeRepository,
-        private readonly ContactInterface $user)
-    {
+        private readonly ContactInterface $user
+    ) {
     }
 
     /**
@@ -70,7 +70,7 @@ final class DeleteServiceTemplate
                 return;
             }
 
-            if (! $serviceTemplate = $this->readRepository->findById($serviceTemplateId)) {
+            if (($serviceTemplate = $this->readRepository->findById($serviceTemplateId)) == null) {
                 $this->error('Service template not found', ['service_template_id' => $serviceTemplateId]);
                 $presenter->setResponseStatus(new NotFoundResponse('Service template'));
 

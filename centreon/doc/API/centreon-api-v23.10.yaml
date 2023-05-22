@@ -489,6 +489,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/services/templates:
     $ref: "./v23.10/Configuration/ServiceTemplate/ServiceTemplates.yaml"
+  /configuration/services/templates/{service_template_id}:
+    $ref: "v23.10/Configuration/ServiceTemplate/ServiceTemplate.yaml"
   /monitoring/services/categories:
     get:
       tags:
