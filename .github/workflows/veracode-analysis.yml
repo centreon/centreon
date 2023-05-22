@@ -139,6 +139,7 @@ jobs:
 
           development_stage: '${{ needs.build.outputs.development_stage }}'
           create_baseline_from: filtered
+          request_policy: "Centreon"
 
       - name: Save filtered baseline file
         run: |
