@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\ServiceTemplate\Application\UseCase\DeleteServiceTemplate\DeleteServiceTemplate;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class DeleteServiceTemplateController extends AbstractController
 {
@@ -34,6 +35,8 @@ final class DeleteServiceTemplateController extends AbstractController
      * @param DeleteServiceTemplate $useCase
      * @param DefaultPresenter $presenter
      * @param int $serviceTemplateId
+     *
+     * @throws AccessDeniedException
      *
      * @return Response
      */
