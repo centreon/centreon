@@ -25,8 +25,6 @@ namespace Core\Notification\Application\UseCase\FindNotifications;
 
 final class FindNotificationsResponse
 {
-    /**
-     * @var NotificationDto[]
-     */
+    /** @var NotificationDto[] */
     public array $notifications = [];
 }

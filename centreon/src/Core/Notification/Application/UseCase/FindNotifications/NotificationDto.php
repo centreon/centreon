@@ -35,9 +35,7 @@ class NotificationDto
 
     public bool $isActivated = true;
 
-    /**
-     * @var NotificationChannel[]
-     */
+    /** @var NotificationChannel[] */
     public array $notificationChannels = [];
 
     /**
@@ -55,7 +53,7 @@ class NotificationDto
      * }
      */
     public array $timeperiod = [
-        "id" => 1,
-        "name" => "24x7"
+        'id' => 1,
+        'name' => '24x7',
     ];
 }
