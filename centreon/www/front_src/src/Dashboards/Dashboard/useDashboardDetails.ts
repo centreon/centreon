@@ -1,4 +1,7 @@
+import { useEffect } from 'react';
+
 import { useParams } from 'react-router-dom';
+import { useSetAtom } from 'jotai';
 
 import { useFetchQuery } from '@centreon/ui';
 
@@ -6,9 +9,7 @@ import { dashboardsEndpoint } from '../api/endpoints';
 
 import { dashboardDetailsDecoder, panelsDetailsDecoder } from './api/decoders';
 import { DashboardDetails, Panel, PanelDetails } from './models';
-import { useEffect } from 'react';
 import { dashboardAtom } from './atoms';
-import { useSetAtom } from 'jotai';
 
 interface UseDashboardDetailsState {
   dashboard?: DashboardDetails;
@@ -20,21 +21,23 @@ interface FormatPanelProps {
   staticPanel?: boolean;
 }
 
-const formatPanel = ({ panel, staticPanel = true }: FormatPanelProps): Panel => ({
+const formatPanel = ({
+  panel,
+  staticPanel = true
+}: FormatPanelProps): Panel => ({
   h: panel.layout.height,
   i: `${panel.id}`,
   minH: panel.layout.minHeight,
   minW: panel.layout.minWidth,
-  w: panel.layout.width,
-  x: panel.layout.x,
-  y: panel.layout.y,
   options: panel.widgetSettings,
   panelConfiguration: {
     path: panel.widgetType
   },
-  static: staticPanel
+  static: staticPanel,
+  w: panel.layout.width,
+  x: panel.layout.x,
+  y: panel.layout.y
 });
-
 
 const useDashboardDetails = (): UseDashboardDetailsState => {
   const { dashboardId } = useParams();
@@ -55,9 +58,9 @@ const useDashboardDetails = (): UseDashboardDetailsState => {
 
   useEffect(() => {
     setDashboard({
-      layout: panels?.map(panel => formatPanel({ panel })) || []
+      layout: panels?.map((panel) => formatPanel({ panel })) || []
     });
-  }, [panels])
+  }, [panels]);
 
   return {
     dashboard,

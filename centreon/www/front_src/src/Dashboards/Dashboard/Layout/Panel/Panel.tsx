@@ -29,7 +29,6 @@ const Panel: FC<Props> = ({ id }) => {
   const changePanelOptions = (newPanelOptions): void => {
     setPanelOptions({ id, options: newPanelOptions });
   };
-  console.log('panelOptions', panelOptions, panelConfigurations)
 
   return useMemoComponent({
     Component: (

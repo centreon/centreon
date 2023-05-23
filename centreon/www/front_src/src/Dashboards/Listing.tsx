@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { dec, equals, gt } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
+import { useNavigate } from 'react-router-dom';
 
 import AddIcon from '@mui/icons-material/Add';
 import { CircularProgress } from '@mui/material';
@@ -18,6 +19,8 @@ import {
   TiledListingList
 } from '@centreon/ui';
 
+import routeMap from '../reactRoutes/routeMap';
+
 import useDashboards from './useDashboards';
 import {
   labelCreateADashboard,
@@ -25,8 +28,6 @@ import {
 } from './translatedLabels';
 import { openDialogAtom } from './atoms';
 import { Dashboard } from './models';
-import { useNavigate } from 'react-router-dom';
-import routeMap from '../reactRoutes/routeMap';
 
 const emptyListStateLabels = {
   actions: {
@@ -99,9 +100,9 @@ const Listing = (): JSX.Element => {
                   key={dashboard.id}
                   ref={isLastElement ? elementRef : undefined}
                   title={dashboard.name}
+                  onClick={navigateToDashboard(dashboard.id)}
                   onDelete={(): void => undefined}
                   onEdit={editDashboard(dashboard)}
-                  onClick={navigateToDashboard(dashboard.id)}
                 />
               );
             })}

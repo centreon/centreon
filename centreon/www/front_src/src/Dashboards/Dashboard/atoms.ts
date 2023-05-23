@@ -19,9 +19,8 @@ import {
 import { getColumnsFromScreenSize } from '@centreon/ui';
 
 import { Panel, Dashboard, PanelConfiguration } from './models';
-import { atomWithStorage } from 'jotai/utils';
 
-export const dashboardAtom = atomWithStorage<Dashboard>(`centreon-selected-dashboard-panels`, {
+export const dashboardAtom = atom<Dashboard>({
   layout: []
 });
 
@@ -217,6 +216,23 @@ export const duplicatePanelDerivedAtom = atom(
       options: panel?.options,
       panelConfiguration: panel?.panelConfiguration as PanelConfiguration,
       width: panel?.w
+    });
+  }
+);
+
+export const switchPanelsEditionModeDerivedAtom = atom(
+  null,
+  (_, setAtom, isEditing: boolean) => {
+    setAtom(isEditingAtom, isEditing);
+    setAtom(dashboardAtom, (currentDashboard): Dashboard => {
+      const newLayout = map<Panel, Panel>(
+        set(lensProp('static'), !isEditing),
+        currentDashboard.layout
+      );
+
+      return {
+        layout: newLayout
+      };
     });
   }
 );
