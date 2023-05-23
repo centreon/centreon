@@ -6,7 +6,7 @@ import { useSetAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 
 import AddIcon from '@mui/icons-material/Add';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Link } from '@mui/material';
 
 import {
   Button,
@@ -62,10 +62,6 @@ const Listing = (): JSX.Element => {
     });
   };
 
-  const navigateToDashboard = (dashboardId: number) => (): void => {
-    navigate(`${routeMap.dashboards}/${dashboardId}`);
-  };
-
   return (
     <TiledListingList>
       <TiledListingActions>
@@ -90,20 +86,21 @@ const Listing = (): JSX.Element => {
         ) : (
           <List>
             {dashboards.map((dashboard, index) => {
-              const isLastElement = equals(index, dec(dashboards.length));
+              const isLastElement = equals(index)(dec(dashboards.length));
 
               return (
-                <ListItem
-                  hasActions
-                  hasCardAction
-                  description={dashboard.description}
-                  key={dashboard.id}
-                  ref={isLastElement ? elementRef : undefined}
-                  title={dashboard.name}
-                  onClick={navigateToDashboard(dashboard.id)}
-                  onDelete={(): void => undefined}
-                  onEdit={editDashboard(dashboard)}
-                />
+                <Link href={`.${routeMap.dashboards}/${dashboard.id}`} >
+                  <ListItem
+                    hasActions
+                    hasCardAction
+                    description={dashboard.description}
+                    key={dashboard.id}
+                    ref={isLastElement ? elementRef : undefined}
+                    title={dashboard.name}
+                    onDelete={(): void => undefined}
+                    onEdit={editDashboard(dashboard)}
+                  />
+                </Link>
               );
             })}
             {isLoading && (

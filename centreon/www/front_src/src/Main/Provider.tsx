@@ -1,6 +1,6 @@
 import { lazy, useEffect } from 'react';
 
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { Route, RouterProvider, Routes, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 import { not, startsWith, tail } from 'ramda';
 import { createStore } from 'jotai';
 
@@ -55,7 +55,7 @@ const Provider = (): JSX.Element | null => {
       ]
     }
   ], {
-    basename,
+    basename
   })
 
   if (not(pathStartsWithBasename)) {

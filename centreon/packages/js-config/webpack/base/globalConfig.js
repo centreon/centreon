@@ -12,8 +12,7 @@ module.exports = {
       },
       {
         exclude: [
-          excludeNodeModulesExceptCentreonUi,
-          /www(\\|\/)widgets(\\|\/)bruh/
+          excludeNodeModulesExceptCentreonUi
         ],
         test: /\.[jt]sx?$/,
         use: {
