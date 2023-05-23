@@ -15,7 +15,7 @@ const useStyles = makeStyles()((theme) => ({
     background: theme.palette.background.listingHeader,
     color: theme.palette.common.white,
     flexDirection: 'row-reverse',
-    height: '38px',
+    height: theme.spacing(5),
     justifyContent: 'space-between',
     paddingInline: theme.spacing(1.25)
   },
