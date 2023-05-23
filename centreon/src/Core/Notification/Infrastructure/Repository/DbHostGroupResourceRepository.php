@@ -460,7 +460,6 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
     }
 
     /**
-     *
      * @param int[] $accessGroupIds
      *
      * @return SqlConcatenator

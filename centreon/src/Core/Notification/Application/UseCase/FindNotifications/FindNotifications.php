@@ -137,7 +137,7 @@ final class FindNotifications
                 ];
             }
             $notificationDto->timeperiodId = $notification->getTimePeriod()->getId();
-            $notificationDto->timeperiodName =  $notification->getTimePeriod()->getName();
+            $notificationDto->timeperiodName = $notification->getTimePeriod()->getName();
             $notificationDto->notificationChannels = $notificationChannelByNotifications[$notification->getId()];
 
             $notificationDtos[] = $notificationDto;
@@ -163,6 +163,7 @@ final class FindNotifications
         );
         if (($notificationIdWithEmptyUser = array_search(0, $notificationsUsersCount, true)) !== false) {
             $this->error('No users found for a notification', ['notification' => $notificationIdWithEmptyUser]);
+
             throw NotificationException::invalidUsers($notificationIdWithEmptyUser);
         }
 
@@ -200,6 +201,7 @@ final class FindNotifications
      * @param NotificationResourceRepositoryInterface $hostGroupResourceRepository
      * @param NotificationResourceRepositoryInterface $serviceGroupResourceRepository
      * @param int[] $notificationsIds
+     *
      * @return array{
      *  hostgroup_resources_count: array<int,int>,
      *  servicegroup_resources_count: array<int,int>
@@ -230,8 +232,8 @@ final class FindNotifications
             );
 
         return [
-            "hostgroup_resources_count" => $hostgroupResourcesCount,
-            "servicegroup_resources_count" => $servicegroupResourcesCount
+            'hostgroup_resources_count' => $hostgroupResourcesCount,
+            'servicegroup_resources_count' => $servicegroupResourcesCount,
         ];
     }
 
@@ -241,6 +243,7 @@ final class FindNotifications
      * @param NotificationResourceRepositoryInterface $hostGroupResourceRepository
      * @param NotificationResourceRepositoryInterface $serviceGroupResourceRepository
      * @param int[] $notificationsIds
+     *
      * @return array{
      *  hostgroup_resources_count: array<int,int>,
      *  servicegroup_resources_count: array<int,int>
@@ -263,8 +266,8 @@ final class FindNotifications
             );
 
         return [
-            "hostgroup_resources_count" => $hostgroupResourcesCount,
-            "servicegroup_resources_count" => $servicegroupResourcesCount
+            'hostgroup_resources_count' => $hostgroupResourcesCount,
+            'servicegroup_resources_count' => $servicegroupResourcesCount,
         ];
     }
 }
