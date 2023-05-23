@@ -16,6 +16,7 @@ interface Props<T> {
   className?: string;
   groupDirection?: GroupDirection;
   groups?: Array<Group>;
+  groupsAreOpen?: boolean;
   groupsClassName?: string;
   initialValues: T;
   inputs: Array<InputProps>;
@@ -39,14 +40,15 @@ const Form = <T extends object>({
   groupDirection = GroupDirection.Vertical,
   children,
   className,
-  groupsClassName
+  groupsClassName,
+  groupsAreOpen
 }: Props<T>): JSX.Element => {
   if (isLoading) {
     return (
       <Inputs
-        groupsAreOpen
         isLoading
         groups={groups}
+        groupsAreOpen={groupsAreOpen}
         groupsClassName={groupsClassName}
         inputs={inputs}
         isCollapsible={isCollapsible}
@@ -68,9 +70,9 @@ const Form = <T extends object>({
         {children}
         <div className={className}>
           <Inputs
-            groupsAreOpen
             groupDirection={groupDirection}
             groups={groups}
+            groupsAreOpen={groupsAreOpen}
             groupsClassName={groupsClassName}
             inputs={inputs}
             isCollapsible={isCollapsible}
