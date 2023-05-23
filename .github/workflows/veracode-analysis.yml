@@ -123,7 +123,7 @@ jobs:
 
       - name: Save baseline files
         # only baseline files generated from a maintenance branch are saved
-        if: needs.set-routing-mode.outputs.development_stage != 'Development'
+        if: needs.build.outputs.development_stage != 'Development'
         run: |
           mv *results.json /tmp
           TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
