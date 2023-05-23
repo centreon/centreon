@@ -50,17 +50,17 @@ it('throw an error when bitmask is invalid', function (): void {
     $events = HostEventConverter::fromBitFlag(HostEventConverter::MAX_BITFLAG | 0b100000);
 })->throws(
     ValueError::class,
-    '"' . (HostEventConverter::MAX_BITFLAG | 0b100000) . '" is not a valid bitmask for enum HostEvent'
+    '"' . (HostEventConverter::MAX_BITFLAG | 0b100000) . '" is not a valid value for enum HostEvent'
 );
-
-it('return a full bitmask when array is empty', function (): void {
-    $events = HostEventConverter::toBitFlag([]);
-
-    expect($events)->toBe(HostEventConverter::MAX_BITFLAG);
-});
 
 it('return an empty bitmask when array contains HostEvent::None', function (): void {
     $events = HostEventConverter::toBitFlag([HostEvent::Down, HostEvent::Unreachable, HostEvent::None]);
 
     expect($events)->toBe(0b00000);
+});
+
+it('return null when bitmask when array is empty', function (): void {
+    $events = HostEventConverter::toBitFlag([]);
+
+    expect($events)->toBe(null);
 });
