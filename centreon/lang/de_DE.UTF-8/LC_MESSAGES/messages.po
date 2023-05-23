@@ -15403,3 +15403,12 @@ msgstr ""
 
 #  msgid "You are not allowed to access host templates"
 #  msgstr ""
+
+# msgid "The service template '%s' is locked and cannot be deleted"
+# msgstr ""
+
+# msgid "You are not allowed to delete this service template"
+# msgstr ""
+
+# msgid "Error while deleting the service template"
+# msgstr ""
