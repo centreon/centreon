@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Notification\Domain\Model\Notification;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Notification\Domain\Model\NotificationChannel;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Application\Exception\NotificationException;
@@ -104,6 +105,7 @@ final class FindNotifications
      *
      * @param Notification[] $notifications
      * @param NotificationCounts $notificationCounts
+     * @param array<int, NotificationChannel[]> $notificationChannelByNotifications
      * @return FindNotificationsResponse
      */
     private function createResponse(
@@ -148,9 +150,9 @@ final class FindNotifications
     }
 
     /**
-     * Undocumented function
+     * Retrieve the count of users, hostgroup resources, servicegroup resources for the listed notifications.
      *
-     * @param array<int> $notificationsIds
+     * @param non-empty-array<int> $notificationsIds
      * @return NotificationCounts
      */
     private function getCountByNotifications(array $notificationsIds): NotificationCounts

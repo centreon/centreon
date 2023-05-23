@@ -41,8 +41,6 @@ class NotificationDto
     public array $notificationChannels = [];
 
     /**
-     * Undocumented variable
-     *
      * @var array<array{
      *  type: string,
      *  count: int
@@ -56,5 +54,8 @@ class NotificationDto
      *  name: string
      * }
      */
-    public array $timeperiod = [];
+    public array $timeperiod = [
+        "id" => 1,
+        "name" => "24x7"
+    ];
 }

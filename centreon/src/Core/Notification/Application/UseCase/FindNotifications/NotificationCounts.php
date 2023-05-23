@@ -25,6 +25,11 @@ namespace Core\Notification\Application\UseCase\FindNotifications;
 
 class NotificationCounts
 {
+    /**
+     * @param array<int,int> $notificationsUsersCount
+     * @param array<int,int> $hostgroupResourcesCount
+     * @param array<int,int> $servicegroupResourcesCount
+     */
     public function __construct(
         private readonly array $notificationsUsersCount,
         private readonly array $hostgroupResourcesCount,

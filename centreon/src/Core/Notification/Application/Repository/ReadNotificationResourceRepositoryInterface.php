@@ -95,7 +95,6 @@ interface ReadNotificationResourceRepositoryInterface
      * Count the Resource by their notification id.
      *
      * @param int[] $notificationIds
-     * @param AccessGroup[] $accessGroups
      * @return array<int,int>
      */
     public function findResourcesCountByNotificationIds(array $notificationIds): array;

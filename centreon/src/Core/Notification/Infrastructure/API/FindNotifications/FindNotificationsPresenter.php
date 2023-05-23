@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Notification\Infrastructure\API\FindNotifications;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
@@ -39,6 +40,9 @@ class FindNotificationsPresenter extends AbstractPresenter implements FindNotifi
         parent::__construct($presenterFormatter);
     }
 
+    /**
+     * @param FindNotificationsResponse|ResponseStatusInterface $response
+     */
     public function presentResponse(FindNotificationsResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
@@ -49,9 +53,9 @@ class FindNotificationsPresenter extends AbstractPresenter implements FindNotifi
                     "result" => array_map(static function ($notificationDto) {
                         return [
                             "id" => $notificationDto->id,
-                            "name" => $notificationDto->name,
-                            "users" => $notificationDto->usersCount,
                             "is_activated" => $notificationDto->isActivated,
+                            "name" => $notificationDto->name,
+                            "user_count" => $notificationDto->usersCount,
                             "channels" => self::convertNotificationChannelToString(
                                 $notificationDto->notificationChannels
                             ),
@@ -69,7 +73,7 @@ class FindNotificationsPresenter extends AbstractPresenter implements FindNotifi
      * Convert NotificationChannel Enum values to string values
      *
      * @param NotificationChannel[] $notificationChannels
-     * @return string
+     * @return string[]
      */
     private static function convertNotificationChannelToString(array $notificationChannels): array
     {

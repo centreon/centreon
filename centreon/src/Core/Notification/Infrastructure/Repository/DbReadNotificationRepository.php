@@ -191,35 +191,18 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findAll(?RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
-        $sqlTranslator?->setConcordanceArray([
-            'name' => 'notification.name',
-        ]);
-
-        $query = $this->translateDbName(
-            <<<'SQL'
-                SELECT id, name, timeperiod_id, tp_name, is_activated
-                FROM `:db`.notification
-                INNER JOIN timeperiod ON timeperiod_id = tp_id
-            SQL
-        );
-
-        $searchQuery = $sqlTranslator?->translateSearchParameterToSql();
-        $query .= !is_null($searchQuery) ? $searchQuery : '';
-
-        $paginationQuery = $sqlTranslator?->translatePaginationToSql();
-        $query .= $paginationQuery;
+        $query = $this->buildFindAllQuery($sqlTranslator);
 
         $statement = $this->db->prepare($query);
-        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
+        if ($sqlTranslator !== null) {
+            foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+                $type = (int) key($data);
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
         }
         $statement->execute();
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-        if ($result === false) {
-            return [];
-        }
 
         $notifications = [];
         foreach ($result as $notificationData) {
@@ -260,13 +243,10 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $statement->execute();
 
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-        if ($result === false) {
-            return [];
-        }
 
         $notificationsChannels = [];
         foreach ($result as $notificationData) {
-            $notificationsChannels[$notificationData['notification_id']][] = NotificationChannel::from($notificationData['channel']);
+            $notificationsChannels[(int) $notificationData['notification_id']][] = NotificationChannel::from($notificationData['channel']);
         }
 
         return $notificationsChannels;
@@ -294,5 +274,39 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
             );
 
         return $concatenator;
+    }
+
+    /**
+     * Build Query for findAll with research parameters
+     *
+     * @param SqlRequestParametersTranslator|null $sqlTranslator
+     * @return string
+     */
+    private function buildFindAllQuery(?SqlRequestParametersTranslator $sqlTranslator): string
+    {
+
+        $query = $this->translateDbName(
+            <<<'SQL'
+                SELECT id, name, timeperiod_id, tp_name, is_activated
+                FROM `:db`.notification
+                INNER JOIN timeperiod ON timeperiod_id = tp_id
+            SQL
+        );
+
+        if ($sqlTranslator === null) {
+            return $query;
+        }
+
+        $sqlTranslator->setConcordanceArray([
+            'name' => 'notification.name',
+        ]);
+
+        $searchQuery = $sqlTranslator->translateSearchParameterToSql();
+        $query .= !is_null($searchQuery) ? $searchQuery : '';
+
+        $paginationQuery = $sqlTranslator->translatePaginationToSql();
+        $query .= $paginationQuery;
+        $this->error("QUERY : " . $query);
+        return $query;
     }
 }

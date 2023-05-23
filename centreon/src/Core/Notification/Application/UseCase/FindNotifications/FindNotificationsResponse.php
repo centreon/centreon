@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotifications;
 
-class FindNotificationsResponse
+final class FindNotificationsResponse
 {
     /**
-     * @var array NotificationDto[]
+     * @var NotificationDto[]
      */
     public array $notifications = [];
 }
