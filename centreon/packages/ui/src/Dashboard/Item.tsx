@@ -1,9 +1,10 @@
-import { CSSProperties, ForwardedRef, MouseEvent, forwardRef } from 'react';
+import { CSSProperties, ForwardedRef, forwardRef, MouseEvent } from 'react';
 
 import { isNil } from 'ramda';
 
 import { Card } from '@mui/material';
 
+/* eslint-disable-next-line import/no-named-as-default */
 import useMemoComponent from '../utils/useMemoComponent';
 
 import { useDashboardItemStyles } from './Dashboard.styles';

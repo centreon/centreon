@@ -36,9 +36,7 @@ const Listing = (): JSX.Element => {
   const { t } = useTranslation();
   const { dashboards, elementRef, isLoading } = useDashboards();
 
-  const [deleteDialogState, setDeleteDialogState] = useAtom(
-    deleteDialogStateAtom
-  );
+  const [, setDeleteDialogState] = useAtom(deleteDialogStateAtom);
   const openDialog = useSetAtom(openDialogAtom);
 
   const hasDashboards = useMemo(

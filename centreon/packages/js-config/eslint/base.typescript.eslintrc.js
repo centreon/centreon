@@ -80,7 +80,7 @@ module.exports = {
           }
         ],
         camelcase: 'off',
-        'import/no-cycle': 'warn',
+        'import/no-cycle': 'off',
         'import/no-named-as-default': 'warn',
         'no-shadow': 'off',
         'no-unused-expressions': 'off'

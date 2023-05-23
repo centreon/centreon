@@ -120,6 +120,7 @@ const Dashboards = (): JSX.Element => {
         <Modal.Header>{labels.modalTitle.delete}</Modal.Header>
         <Modal.Body>
           <p
+            /* eslint-disable-next-line react/no-danger */
             dangerouslySetInnerHTML={{
               __html:
                 t(labelDescriptionDeleteDashboard, {

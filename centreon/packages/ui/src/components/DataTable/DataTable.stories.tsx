@@ -16,7 +16,7 @@ export const Default: Story = {
         {[...Array(5)].map((_, i) => (
           <DataTable.Item
             description={`Item description ${i}`}
-            key={`k-${i}`}
+            key={`k-${i}`} // eslint-disable-line react/no-array-index-key
             title={`Item ${i}`}
           />
         ))}
