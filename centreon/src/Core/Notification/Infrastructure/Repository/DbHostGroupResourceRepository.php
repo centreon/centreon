@@ -459,7 +459,13 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         return $concatenator;
     }
 
-    private function getConcatenatorForFindResourcesCountQuery(array $accessGroupIds)
+    /**
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @return SqlConcatenator
+     */
+    private function getConcatenatorForFindResourcesCountQuery(array $accessGroupIds): SqlConcatenator
     {
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
