@@ -19,7 +19,7 @@ const useStyles = makeStyles()({
   }
 });
 
-const AuthenticationDenied: FC = () => {
+const AuthenticationDenied = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
