@@ -28,6 +28,7 @@ use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationGenericObject;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 
 interface ReadNotificationRepositoryInterface
 {
@@ -112,9 +113,11 @@ interface ReadNotificationRepositoryInterface
     /**
      * Return all the notifications
      *
+     * @param RequestParametersInterface|null $requestParameters
+     *
      * @return Notification[]
      *
      * @throws \Throwable
      */
-    public function findAll(): array;
+    public function findAll(?RequestParametersInterface $requestParameters): array;
 }

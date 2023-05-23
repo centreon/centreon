@@ -25,11 +25,20 @@ namespace Core\Notification\Infrastructure\API\FindNotifications;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsPresenterInterface;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsResponse;
+use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsPresenterInterface;
 
 class FindNotificationsPresenter extends AbstractPresenter implements FindNotificationsPresenterInterface
 {
+    public function __construct(
+        private readonly RequestParametersInterface $requestParameters,
+        protected PresenterFormatterInterface $presenterFormatter
+    ) {
+        parent::__construct($presenterFormatter);
+    }
+
     public function presentResponse(FindNotificationsResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
@@ -43,12 +52,14 @@ class FindNotificationsPresenter extends AbstractPresenter implements FindNotifi
                             "name" => $notificationDto->name,
                             "users" => $notificationDto->usersCount,
                             "is_activated" => $notificationDto->isActivated,
-                            "channels" => self::convertNotificationChannelToString($notificationDto->notificationChannels),
+                            "channels" => self::convertNotificationChannelToString(
+                                $notificationDto->notificationChannels
+                            ),
                             "resources" => $notificationDto->resources,
                             "timeperiod" => $notificationDto->timeperiod
                         ];
                     }, $response->notifications),
-                    "meta" => []
+                    "meta" => $this->requestParameters->toArray()
                 ]
             );
         }

@@ -25,8 +25,10 @@ namespace Core\Notification\Infrastructure\Repository;
 
 use Utility\SqlConcatenator;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\TrimmedString;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationMessage;
@@ -106,13 +108,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
-     * Find notification users for a notification.
-     *
-     * @param int $notificationId
-     *
-     * @throws \Throwable
-     *
-     * @return NotificationGenericObject[]
+     * @inheritDoc
      */
     public function findUsersByNotificationId(int $notificationId): array
     {
@@ -138,13 +134,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
-     * Find notification users for a notification.
-     *
-     * @param non-empty-array<int> $notificationIds
-     *
-     * @throws \Throwable
-     *
-     * @return array<int,int>
+     * @inheritDoc
      */
     public function findUsersCountByNotificationIds(array $notificationIds): array
     {
@@ -198,15 +188,29 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     /**
      * {@inheritDoc}
      */
-    public function findAll(): array
+    public function findAll(?RequestParametersInterface $requestParameters): array
     {
-        $statement = $this->db->prepare($this->translateDbName(
+        $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
+        $sqlTranslator?->setConcordanceArray([
+            'name' => 'notification.name',
+        ]);
+        $searchQuery = $sqlTranslator?->translateSearchParameterToSql();
+
+        $query = $this->translateDbName(
             <<<'SQL'
                 SELECT id, name, timeperiod_id, tp_name, is_activated
                 FROM `:db`.notification
                 INNER JOIN timeperiod ON timeperiod_id = tp_id
             SQL
-        ));
+        );
+        $query .= !is_null($searchQuery) ? $searchQuery : '';
+
+        $statement = $this->db->prepare($query);
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
         $statement->execute();
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
         if ($result === false) {
@@ -264,6 +268,9 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         return $notificationsChannels;
     }
 
+    /**
+     * @return SqlConcatenator
+     */
     private function getConcatenatorForFindUsersCountQuery(): SqlConcatenator
     {
         $concatenator = (new SqlConcatenator())

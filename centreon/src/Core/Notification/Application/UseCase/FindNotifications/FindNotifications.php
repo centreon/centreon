@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Application\Exception\NotificationException;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Notification\Application\UseCase\FindNotifications\NotificationCounts;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -45,6 +46,7 @@ final class FindNotifications
         private readonly ReadNotificationRepositoryInterface $notificationRepository,
         private readonly NotificationResourceRepositoryProviderInterface $repositoryProvider,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly RequestParametersInterface $requestParameters,
     ) {
     }
 
@@ -66,7 +68,7 @@ final class FindNotifications
 
         try {
             $this->info('Search for Notifications');
-            $notifications = $this->notificationRepository->findAll();
+            $notifications = $this->notificationRepository->findAll($this->requestParameters);
             $notificationsIds = [];
             foreach ($notifications as $notification) {
                 $notificationsIds[] = $notification->getId();
@@ -89,15 +91,10 @@ final class FindNotifications
             $presenter->presentResponse(
                 $this->createResponse([], new NotificationCounts([],[],[]), [])
             );
-        }  catch (\Throwable $ex) {
+        } catch (\Throwable | NotificationException $ex) {
             $this->error('An error occured while retrieving the notifications listing', ["trace" => (string) $ex]);
             $presenter->presentResponse(
-                new ErrorResponse(_('An error occured whil retrieving the notifications listing'))
-            );
-        } catch (\Throwable $ex) {
-            $this->error('An error occured while retrieving the notifications listing', ["trace" => (string) $ex]);
-            $presenter->presentResponse(
-                new ErrorResponse(_('An error occured whil retrieving the notifications listing'))
+                new ErrorResponse(_('An error occured while retrieving the notifications listing'))
             );
         }
     }
