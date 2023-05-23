@@ -438,6 +438,28 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         return $result ?: [];
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function findResourcesCountByNotificationIds(array $notificationIds): array
+    {
+        $concatenator = $this->getConcatenatorForFindResourcesCountQuery([])
+            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE notification_id IN (:notification_ids)
+                SQL
+            );
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $result = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+        return $result ?: [];
+    }
+
     private function getConcatenatorForFindResourcesCountQuery(array $accessGroupIds)
     {
         $concatenator = (new SqlConcatenator())

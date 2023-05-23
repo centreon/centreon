@@ -76,13 +76,13 @@ interface ReadNotificationRepositoryInterface
     public function findUsersByNotificationId(int $notificationId): array;
 
     /**
-     * Find notification users for multiple notifications.
+     * Find notification users for a notification.
      *
-     * @param array $notificationId
+     * @param non-empty-array<int> $notificationIds
      *
      * @throws \Throwable
      *
-     * @return NotificationGenericObject[]
+     * @return array<int,int>
      */
     public function findUsersCountByNotificationIds(array $notificationIds): array;
 
