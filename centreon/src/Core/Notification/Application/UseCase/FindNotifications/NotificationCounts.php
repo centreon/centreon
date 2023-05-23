@@ -44,19 +44,11 @@ class NotificationCounts
 
     public function getHostgroupResourcesCountByNotificationId(int $notificationId): ?int
     {
-        if (array_key_exists($notificationId, $this->hostgroupResourcesCount)) {
-            return $this->hostgroupResourcesCount[$notificationId];
-        }
-
-        return null;
+        return $this->hostgroupResourcesCount[$notificationId] ?? null;
     }
 
     public function getServicegroupResourcesCountByNotificationId(int $notificationId): ?int
     {
-        if (array_key_exists($notificationId, $this->servicegroupResourcesCount)) {
-            return $this->servicegroupResourcesCount[$notificationId];
-        }
-
-        return null;
+        return $this->servicegroupResourcesCount[$notificationId] ?? null;
     }
 }

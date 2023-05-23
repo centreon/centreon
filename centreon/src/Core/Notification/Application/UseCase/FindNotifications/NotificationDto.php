@@ -46,14 +46,7 @@ class NotificationDto
      */
     public array $resources = [];
 
-    /**
-     * @var array{
-     *  id: int,
-     *  name: string
-     * }
-     */
-    public array $timeperiod = [
-        'id' => 1,
-        'name' => '24x7',
-    ];
+    public int $timeperiodId = 0;
+
+    public string $timeperiodName = '';
 }

@@ -57,12 +57,9 @@ interface ReadNotificationRepositoryInterface
     /**
      * Find notification channels for multiple notification.
      *
-     * @param int[] $notificationIds
+     * @param non-empty-array<int> $notificationIds
      *
-     * @return array<
-     *  int,
-     *  NotificationChannel[]
-     * >
+     * @return array<int, NotificationChannel[]> [notification_id => ["Slack","Sms","Email"]]
      */
     public function findNotificationChannelsByNotificationIds(array $notificationIds): array;
 
@@ -84,7 +81,7 @@ interface ReadNotificationRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return array<int,int>
+     * @return array<int,int> [notification_id => user_count]
      */
     public function findUsersCountByNotificationIds(array $notificationIds): array;
 

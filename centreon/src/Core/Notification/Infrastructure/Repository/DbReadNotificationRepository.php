@@ -194,13 +194,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $query = $this->buildFindAllQuery($sqlTranslator);
 
         $statement = $this->db->prepare($query);
-        if ($sqlTranslator !== null) {
-            foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-                $type = (int) key($data);
-                $value = $data[$type];
-                $statement->bindValue($key, $value, $type);
-            }
-        }
+        $sqlTranslator?->bindSearchValues($statement);
         $statement->execute();
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -306,7 +300,6 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
 
         $paginationQuery = $sqlTranslator->translatePaginationToSql();
         $query .= $paginationQuery;
-        $this->error('QUERY : ' . $query);
 
         return $query;
     }

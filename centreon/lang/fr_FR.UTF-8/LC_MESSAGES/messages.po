@@ -17564,3 +17564,6 @@ msgstr "Erreur lors de la récupération de la catégorie d'hôtes"
 
 msgid "You are not allowed to list notifications configurations"
 msgstr "Vous n'êtes pas autorisé a listé les configurations de notifications"
+
+msgid "Notification #%d should have at least one user"
+msgstr "La notification #%d doit avoir au moins un utilisateur"

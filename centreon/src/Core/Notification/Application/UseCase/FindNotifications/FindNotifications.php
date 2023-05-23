@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Notification\Application\Exception\NotificationException;
+use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Domain\Model\Notification;
@@ -69,27 +70,27 @@ final class FindNotifications
         try {
             $this->info('Search for Notifications');
             $notifications = $this->notificationRepository->findAll($this->requestParameters);
-            $notificationsIds = [];
-            foreach ($notifications as $notification) {
-                $notificationsIds[] = $notification->getId();
-            }
-
-            if (! empty ($notificationsIds)) {
-                $this->info('Retrieving Notification channels for notifications', ['notifications' => implode(', ', $notificationsIds)]);
-                $notificationChannelByNotifications = $this->notificationRepository
-                    ->findNotificationChannelsByNotificationIds(
-                        $notificationsIds
-                    );
-                $notificationCounts = $this->getCountByNotifications($notificationsIds);
-                $presenter->presentResponse(
-                    $this->createResponse($notifications, $notificationCounts, $notificationChannelByNotifications)
-                );
+            if (empty ($notifications)) {
+                $presenter->presentResponse(new FindNotificationsResponse());
 
                 return;
             }
 
+            $notificationsIds = [];
+            foreach ($notifications as $notification) {
+                $notificationsIds[] = $notification->getId();
+            }
+            $this->info(
+                'Retrieving Notification channels for notifications',
+                ['notifications' => implode(', ', $notificationsIds)]
+            );
+            $notificationChannelByNotifications = $this->notificationRepository
+                ->findNotificationChannelsByNotificationIds(
+                    $notificationsIds
+                );
+            $notificationCounts = $this->getCountByNotifications($notificationsIds);
             $presenter->presentResponse(
-                $this->createResponse([], new NotificationCounts([],[],[]), [])
+                $this->createResponse($notifications, $notificationCounts, $notificationChannelByNotifications)
             );
         } catch (\Throwable|NotificationException $ex) {
             $this->error('An error occured while retrieving the notifications listing', ['trace' => (string) $ex]);
@@ -135,10 +136,8 @@ final class FindNotifications
                     ),
                 ];
             }
-            $notificationDto->timeperiod = [
-                'id' => $notification->getTimePeriod()->getId(),
-                'name' => $notification->getTimePeriod()->getName(),
-            ];
+            $notificationDto->timeperiodId = $notification->getTimePeriod()->getId();
+            $notificationDto->timeperiodName =  $notification->getTimePeriod()->getName();
             $notificationDto->notificationChannels = $notificationChannelByNotifications[$notification->getId()];
 
             $notificationDtos[] = $notificationDto;
@@ -162,53 +161,110 @@ final class FindNotifications
         $notificationsUsersCount = $this->notificationRepository->findUsersCountByNotificationIds(
             $notificationsIds
         );
-        if (($notificationWithEmptyUser = array_search(0, $notificationsUsersCount, true)) !== false) {
-            $this->error('No users found for a notification', ['notification' => $notificationWithEmptyUser]);
-
-            throw NotificationException::invalidUsers();
+        if (($notificationIdWithEmptyUser = array_search(0, $notificationsUsersCount, true)) !== false) {
+            $this->error('No users found for a notification', ['notification' => $notificationIdWithEmptyUser]);
+            throw NotificationException::invalidUsers($notificationIdWithEmptyUser);
         }
+
         $hostGroupResourceRepository = $this->repositoryProvider->getRepository(
             NotificationResource::HOSTGROUP_RESOURCE_TYPE
         );
         $serviceGroupResourceRepository = $this->repositoryProvider->getRepository(
             NotificationResource::SERVICEGROUP_RESOURCE_TYPE
         );
+
         if (! $this->user->isAdmin()) {
-            $this->info('Retrieving ACLs for user', ['user' => $this->user->getId()]);
-            $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-
-            $this->info('Retrieving hostgroup resource counts for an user with ACL', ['user' => $this->user->getId()]);
-            $hostgroupResourcesCount = $hostGroupResourceRepository->findResourcesCountByNotificationIdsAndAccessGroups(
-                $notificationsIds,
-                $accessGroups
-            );
-
-            $this->info(
-                'Retrieving servicegroup resource counts for an user with ACL',
-                ['user' => $this->user->getId()]
-            );
-            $servicegroupResourcesCount = $serviceGroupResourceRepository
-                ->findResourcesCountByNotificationIdsAndAccessGroups(
-                    $notificationsIds,
-                    $accessGroups
-                );
-        } else {
-            $this->info('Retrieving hostgroup resource counts for an admin user', ['user' => $this->user->getId()]);
-            $hostgroupResourcesCount = $hostGroupResourceRepository->findResourcesCountByNotificationIds(
+            $resourcesCount = $this->getResourcesCountWithACL(
+                $hostGroupResourceRepository,
+                $serviceGroupResourceRepository,
                 $notificationsIds
             );
-
-            $this->info('Retrieving servicegroup resource counts for an admin user', ['user' => $this->user->getId()]);
-            $servicegroupResourcesCount = $serviceGroupResourceRepository
-                ->findResourcesCountByNotificationIds(
-                    $notificationsIds
-                );
+        } else {
+            $resourcesCount = $this->getResourcesCountForAdmin(
+                $hostGroupResourceRepository,
+                $serviceGroupResourceRepository,
+                $notificationsIds
+            );
         }
 
         return new NotificationCounts(
             $notificationsUsersCount,
-            $hostgroupResourcesCount,
-            $servicegroupResourcesCount
+            $resourcesCount['hostgroup_resources_count'],
+            $resourcesCount['servicegroup_resources_count']
         );
+    }
+
+    /**
+     * Get count of Hostgroup and Servicegroup Resources by listed notifications id and ACL.
+     *
+     * @param NotificationResourceRepositoryInterface $hostGroupResourceRepository
+     * @param NotificationResourceRepositoryInterface $serviceGroupResourceRepository
+     * @param int[] $notificationsIds
+     * @return array{
+     *  hostgroup_resources_count: array<int,int>,
+     *  servicegroup_resources_count: array<int,int>
+     * }
+     */
+    private function getResourcesCountWithACL(
+        NotificationResourceRepositoryInterface $hostGroupResourceRepository,
+        NotificationResourceRepositoryInterface $serviceGroupResourceRepository,
+        array $notificationsIds
+    ): array {
+        $this->info('Retrieving ACLs for user', ['user' => $this->user->getId()]);
+        $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+
+        $this->info('Retrieving hostgroup resource counts for an user with ACL', ['user' => $this->user->getId()]);
+        $hostgroupResourcesCount = $hostGroupResourceRepository->findResourcesCountByNotificationIdsAndAccessGroups(
+            $notificationsIds,
+            $accessGroups
+        );
+
+        $this->info(
+            'Retrieving servicegroup resource counts for an user with ACL',
+            ['user' => $this->user->getId()]
+        );
+        $servicegroupResourcesCount = $serviceGroupResourceRepository
+            ->findResourcesCountByNotificationIdsAndAccessGroups(
+                $notificationsIds,
+                $accessGroups
+            );
+
+        return [
+            "hostgroup_resources_count" => $hostgroupResourcesCount,
+            "servicegroup_resources_count" => $servicegroupResourcesCount
+        ];
+    }
+
+    /**
+     * Get count of Hostgroup and Servicegroup Resources by listed notifications id and ACL.
+     *
+     * @param NotificationResourceRepositoryInterface $hostGroupResourceRepository
+     * @param NotificationResourceRepositoryInterface $serviceGroupResourceRepository
+     * @param int[] $notificationsIds
+     * @return array{
+     *  hostgroup_resources_count: array<int,int>,
+     *  servicegroup_resources_count: array<int,int>
+     * }
+     */
+    private function getResourcesCountForAdmin(
+        NotificationResourceRepositoryInterface $hostGroupResourceRepository,
+        NotificationResourceRepositoryInterface $serviceGroupResourceRepository,
+        array $notificationsIds
+    ): array {
+        $this->info('Retrieving hostgroup resource counts for an admin user', ['user' => $this->user->getId()]);
+        $hostgroupResourcesCount = $hostGroupResourceRepository->findResourcesCountByNotificationIds(
+            $notificationsIds
+        );
+
+        $this->info('Retrieving servicegroup resource counts for an admin user', ['user' => $this->user->getId()]);
+        $servicegroupResourcesCount = $serviceGroupResourceRepository
+            ->findResourcesCountByNotificationIds(
+                $notificationsIds
+            );
+
+        return [
+            "hostgroup_resources_count" => $hostgroupResourcesCount,
+            "servicegroup_resources_count" => $servicegroupResourcesCount
+        ];
     }
 }

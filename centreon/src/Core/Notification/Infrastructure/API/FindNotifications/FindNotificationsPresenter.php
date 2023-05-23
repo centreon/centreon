@@ -60,7 +60,10 @@ class FindNotificationsPresenter extends AbstractPresenter implements FindNotifi
                                 $notificationDto->notificationChannels
                             ),
                             'resources' => $notificationDto->resources,
-                            'timeperiod' => $notificationDto->timeperiod,
+                            'timeperiod' => [
+                                'id' => $notificationDto->timeperiodId,
+                                'name' => $notificationDto->timeperiodName
+                            ],
                         ];
                     }, $response->notifications),
                     'meta' => $this->requestParameters->toArray(),

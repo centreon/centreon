@@ -67,8 +67,8 @@ class NotificationException extends \Exception
         return new self(_('You are not allowed to list notifications configurations'));
     }
 
-    public static function invalidUsers(): self
+    public static function invalidUsers(int $notificationId): self
     {
-        return new self(_('A notification should have at least one user'));
+        return new self(sprintf(_('Notification #%d should have at least one user'), $notificationId));
     }
 }
