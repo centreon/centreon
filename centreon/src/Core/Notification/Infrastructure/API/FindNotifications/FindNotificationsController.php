@@ -23,11 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\API\FindNotifications;
 
-use Symfony\Component\HttpFoundation\Response;
 use Centreon\Application\Controller\AbstractController;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Core\Notification\Application\UseCase\FindNotifications\FindNotifications;
-use Core\Notification\Infrastructure\API\FindNotifications\FindNotificationsPresenter;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class FindNotificationsController extends AbstractController
 {
@@ -35,15 +34,16 @@ final class FindNotificationsController extends AbstractController
      * @param FindNotifications $useCase
      * @param FindNotificationsPresenter $presenter
      *
-     * @return Response
-     *
      * @throws AccessDeniedException
+     *
+     * @return Response
      */
     public function __invoke(FindNotifications $useCase, FindNotificationsPresenter $presenter): Response
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         $useCase($presenter);
+
         return $presenter->show();
     }
 }
