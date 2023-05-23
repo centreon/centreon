@@ -35,17 +35,22 @@ class FindNotificationsPresenter extends AbstractPresenter implements FindNotifi
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
-            $this->present(array_map(static function ($notificationDto) {
-                return [
-                    "id" => $notificationDto->id,
-                    "name" => $notificationDto->name,
-                    "users" => $notificationDto->usersCount,
-                    "is_activated" => $notificationDto->isActivated,
-                    "channels" => self::convertNotificationChannelToString($notificationDto->notificationChannels),
-                    "resources" => $notificationDto->resources,
-                    "timeperiod" => $notificationDto->timeperiod
-                ];
-            }, $response->notifications));
+            $this->present(
+                [
+                    "result" => array_map(static function ($notificationDto) {
+                        return [
+                            "id" => $notificationDto->id,
+                            "name" => $notificationDto->name,
+                            "users" => $notificationDto->usersCount,
+                            "is_activated" => $notificationDto->isActivated,
+                            "channels" => self::convertNotificationChannelToString($notificationDto->notificationChannels),
+                            "resources" => $notificationDto->resources,
+                            "timeperiod" => $notificationDto->timeperiod
+                        ];
+                    }, $response->notifications),
+                    "meta" => []
+                ]
+            );
         }
     }
 
@@ -53,7 +58,7 @@ class FindNotificationsPresenter extends AbstractPresenter implements FindNotifi
      * Convert NotificationChannel Enum values to string values
      *
      * @param NotificationChannel[] $notificationChannels
-     * @return string[]
+     * @return string
      */
     private static function convertNotificationChannelToString(array $notificationChannels): array
     {
