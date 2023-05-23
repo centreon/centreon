@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -15,9 +15,18 @@ import {
   labelSave,
   labelYouWillCancelPageWithoutSaving
 } from './translatedLabels';
-import { isEditingAtom, switchPanelsEditionModeDerivedAtom } from './atoms';
+import { dashboardAtom, isEditingAtom, switchPanelsEditionModeDerivedAtom } from './atoms';
+import useDashboardSaveBlocker from './useDashboardSaveBlocker';
+import { PanelDetails } from './models';
+import { formatPanel } from './useDashboardDetails';
 
-const HeaderActions = (): JSX.Element => {
+interface HeaderActionsProps {
+  id?: number;
+  name?: string;
+  panels?: Array<PanelDetails>;
+}
+
+const HeaderActions = ({ id, name, panels }: HeaderActionsProps): JSX.Element => {
   const { t } = useTranslation();
 
   const [isAskingCancelConfirmation, setIsAskingCancelConfirmation] =
@@ -27,6 +36,9 @@ const HeaderActions = (): JSX.Element => {
   const switchPanelsEditionMode = useSetAtom(
     switchPanelsEditionModeDerivedAtom
   );
+  const setDashboard = useSetAtom(dashboardAtom);
+
+  const { blocked, blockNavigation, proceedNavigation } = useDashboardSaveBlocker({ id, name, });
 
   const startEditing = (): void => {
     switchPanelsEditionMode(true);
@@ -36,15 +48,39 @@ const HeaderActions = (): JSX.Element => {
     setIsAskingCancelConfirmation(true);
   };
 
-  const closeAskCancelConfirmation = (): void => {
+  const closeAskCancelConfirmationAndBlock = (): void => {
     setIsAskingCancelConfirmation(false);
+    
+    if (blocked) {
+      blockNavigation?.();
+    }
+  };
+
+  const closeAskCancelConfirmationAndProceed = (): void => {
+    setIsAskingCancelConfirmation(false);
+    
+    if (blocked) {
+      proceedNavigation?.();
+    }
   };
 
   const cancelEditing = (): void => {
+    setDashboard({
+      layout: panels?.map((panel) => formatPanel({ panel })) || []
+    });
     switchPanelsEditionMode(false);
+    closeAskCancelConfirmationAndProceed();
   };
 
   const savePanels = (): void => undefined;
+
+  useEffect(() => {
+    if (!blocked) {
+      return;
+    }
+
+    setIsAskingCancelConfirmation(true);
+  }, [blocked])
 
   if (!isEditing) {
     return (
@@ -61,7 +97,7 @@ const HeaderActions = (): JSX.Element => {
       </Button>
       <SimpleDialog
         open={isAskingCancelConfirmation}
-        onClose={closeAskCancelConfirmation}
+        onClose={closeAskCancelConfirmationAndBlock}
       >
         <DialogTitle>{t(labelCancelDashboard)}</DialogTitle>
         <DialogContent>

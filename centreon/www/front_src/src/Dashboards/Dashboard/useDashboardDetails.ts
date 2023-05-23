@@ -21,7 +21,7 @@ interface FormatPanelProps {
   staticPanel?: boolean;
 }
 
-const formatPanel = ({
+export const formatPanel = ({
   panel,
   staticPanel = true
 }: FormatPanelProps): Panel => ({

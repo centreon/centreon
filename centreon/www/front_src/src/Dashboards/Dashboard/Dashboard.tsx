@@ -5,11 +5,11 @@ import useDashboardDetails from './useDashboardDetails';
 import HeaderActions from './HeaderActions';
 
 const Dashboard = (): JSX.Element => {
-  const { dashboard } = useDashboardDetails();
+  const { dashboard, panels } = useDashboardDetails();
 
   return (
     <TiledListingPage>
-      <Header nav={<HeaderActions />} title={dashboard?.name || ''} />
+      <Header nav={<HeaderActions id={dashboard?.id} name={dashboard?.name} panels={panels} />} title={dashboard?.name || ''} />
       <Layout />
     </TiledListingPage>
   );

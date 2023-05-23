@@ -45,3 +45,9 @@ export interface PanelDetails extends NamedEntity {
   };
   widgetType: string;
 }
+
+export interface QuitWithoutSavedDashboard extends Dashboard {
+  id?: number;
+  name?: string;
+  date: string;
+}

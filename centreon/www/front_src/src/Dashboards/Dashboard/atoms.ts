@@ -18,7 +18,8 @@ import {
 
 import { getColumnsFromScreenSize } from '@centreon/ui';
 
-import { Panel, Dashboard, PanelConfiguration } from './models';
+import { Panel, Dashboard, PanelConfiguration, QuitWithoutSavedDashboard } from './models';
+import { atomWithStorage } from 'jotai/utils';
 
 export const dashboardAtom = atom<Dashboard>({
   layout: []
@@ -236,3 +237,5 @@ export const switchPanelsEditionModeDerivedAtom = atom(
     });
   }
 );
+
+export const quitWithoutSavedDashboardAtom = atomWithStorage<QuitWithoutSavedDashboard | null>('centreon-quit-without-saved-dashboard', null)
