@@ -194,7 +194,6 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $sqlTranslator?->setConcordanceArray([
             'name' => 'notification.name',
         ]);
-        $searchQuery = $sqlTranslator?->translateSearchParameterToSql();
 
         $query = $this->translateDbName(
             <<<'SQL'
@@ -203,7 +202,12 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                 INNER JOIN timeperiod ON timeperiod_id = tp_id
             SQL
         );
+
+        $searchQuery = $sqlTranslator?->translateSearchParameterToSql();
         $query .= !is_null($searchQuery) ? $searchQuery : '';
+
+        $paginationQuery = $sqlTranslator?->translatePaginationToSql();
+        $query .= $paginationQuery;
 
         $statement = $this->db->prepare($query);
         foreach ($sqlTranslator->getSearchValues() as $key => $data) {
