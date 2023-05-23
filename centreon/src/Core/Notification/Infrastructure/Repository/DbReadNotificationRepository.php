@@ -23,18 +23,18 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\Repository;
 
-use Utility\SqlConcatenator;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Common\Domain\TrimmedString;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\NotificationMessage;
-use Core\Notification\Domain\Model\NotificationGenericObject;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Core\Notification\Domain\Model\Notification;
+use Core\Notification\Domain\Model\NotificationChannel;
+use Core\Notification\Domain\Model\NotificationGenericObject;
+use Core\Notification\Domain\Model\NotificationMessage;
+use Utility\SqlConcatenator;
 
 class DbReadNotificationRepository extends AbstractRepositoryRDB implements ReadNotificationRepositoryInterface
 {
@@ -142,8 +142,8 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
             ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
             ->appendWhere(
                 <<<'SQL'
-                    WHERE notification_id IN (:notification_ids)
-                SQL
+                        WHERE notification_id IN (:notification_ids)
+                    SQL
             );
 
         $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
@@ -213,6 +213,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                 (bool) $notificationData['is_activated'],
             );
         }
+
         return $notifications;
     }
 
@@ -224,18 +225,18 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
                 <<<'SQL'
-                    SELECT notification_id, channel
-                SQL
+                        SELECT notification_id, channel
+                    SQL
             )->defineFrom(
                 <<<'SQL'
-                    FROM `:db`.notification_message
-                SQL
+                        FROM `:db`.notification_message
+                    SQL
             )
             ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
             ->defineWhere(
                 <<<'SQL'
-                    WHERE notification_id IN (:notification_ids)
-                SQL
+                        WHERE notification_id IN (:notification_ids)
+                    SQL
             );
 
         $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
@@ -257,7 +258,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
      */
     private function getConcatenatorForFindUsersCountQuery(): SqlConcatenator
     {
-        $concatenator = (new SqlConcatenator())
+        return (new SqlConcatenator())
             ->defineSelect(
                 <<<'SQL'
                     SELECT notification_id, COUNT(user_id)
@@ -269,17 +270,16 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                     SQL
             )->defineGroupBy(
                 <<<'SQL'
-                    GROUP BY notification_id
-                SQL
+                        GROUP BY notification_id
+                    SQL
             );
-
-        return $concatenator;
     }
 
     /**
-     * Build Query for findAll with research parameters
+     * Build Query for findAll with research parameters.
      *
      * @param SqlRequestParametersTranslator|null $sqlTranslator
+     *
      * @return string
      */
     private function buildFindAllQuery(?SqlRequestParametersTranslator $sqlTranslator): string
@@ -287,10 +287,10 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
 
         $query = $this->translateDbName(
             <<<'SQL'
-                SELECT id, name, timeperiod_id, tp_name, is_activated
-                FROM `:db`.notification
-                INNER JOIN timeperiod ON timeperiod_id = tp_id
-            SQL
+                    SELECT id, name, timeperiod_id, tp_name, is_activated
+                    FROM `:db`.notification
+                    INNER JOIN timeperiod ON timeperiod_id = tp_id
+                SQL
         );
 
         if ($sqlTranslator === null) {
@@ -302,11 +302,12 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         ]);
 
         $searchQuery = $sqlTranslator->translateSearchParameterToSql();
-        $query .= !is_null($searchQuery) ? $searchQuery : '';
+        $query .= ! is_null($searchQuery) ? $searchQuery : '';
 
         $paginationQuery = $sqlTranslator->translatePaginationToSql();
         $query .= $paginationQuery;
-        $this->error("QUERY : " . $query);
+        $this->error('QUERY : ' . $query);
+
         return $query;
     }
 }

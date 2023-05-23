@@ -37,7 +37,6 @@ use Utility\SqlConcatenator;
 class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements NotificationResourceRepositoryInterface
 {
     use LoggerTrait;
-
     private const RESOURCE_TYPE = 'servicegroup';
     private const EVENT_ENUM = NotificationServiceEvent::class;
     private const EVENT_ENUM_CONVERTER = NotificationServiceEventConverter::class;
@@ -292,6 +291,63 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         }
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function findResourcesCountByNotificationIdsAndAccessGroups(
+        array $notificationIds,
+        array $accessGroups
+    ): array {
+        $accessGroupIds = array_map(
+            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+        $concatenator = $this->getConcatenatorForFindResourcesCountQuery($accessGroupIds)
+            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
+            ->appendWhere(
+                <<<'SQL'
+                        WHERE notification_id IN (:notification_ids)
+                    SQL
+            );
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $result = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+        return $result ?: [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findResourcesCountByNotificationIds(array $notificationIds): array
+    {
+        $concatenator = $this->getConcatenatorForFindResourcesCountQuery([])
+            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
+            ->appendWhere(
+                <<<'SQL'
+                        WHERE notification_id IN (:notification_ids)
+                    SQL
+            );
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $result = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+        return $result ?: [];
+    }
+
+    /**
+     * Retrieve events by Notification Id.
+     *
+     * @param int $notificationId
+     *
+     * @return int|null
+     */
     private function retrieveEvents(int $notificationId): ?int
     {
         $statement = $this->db->prepare($this->translateDbName(
@@ -399,51 +455,12 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         return $concatenator;
     }
 
-    public function findResourcesCountByNotificationIdsAndAccessGroups(
-        array $notificationIds,
-        array $accessGroups
-    ): array {
-        $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
-            $accessGroups
-        );
-        $concatenator = $this->getConcatenatorForFindResourcesCountQuery($accessGroupIds)
-            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
-            ->appendWhere(
-                <<<'SQL'
-                    WHERE notification_id IN (:notification_ids)
-                SQL
-            );
-
-        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
-        $concatenator->bindValuesToStatement($statement);
-        $statement->execute();
-
-        $result = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
-
-        return $result ?: [];
-    }
-
-    public function findResourcesCountByNotificationIds(array $notificationIds): array
-    {
-        $concatenator = $this->getConcatenatorForFindResourcesCountQuery([])
-            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
-            ->appendWhere(
-                <<<'SQL'
-                    WHERE notification_id IN (:notification_ids)
-                SQL
-            );
-
-        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
-        $concatenator->bindValuesToStatement($statement);
-        $statement->execute();
-
-        $result = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
-
-        return $result ?: [];
-    }
-
-    private function getConcatenatorForFindResourcesCountQuery(array $accessGroupIds)
+    /**
+     * @param int[] $accessGroupIds
+     *
+     * @return SqlConcatenator
+     */
+    private function getConcatenatorForFindResourcesCountQuery(array $accessGroupIds): SqlConcatenator
     {
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
@@ -458,8 +475,8 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
                     SQL
             )->defineGroupBy(
                 <<<'SQL'
-                    GROUP BY notification_id
-                SQL
+                        GROUP BY notification_id
+                    SQL
             );
 
         if ([] !== $accessGroupIds) {
