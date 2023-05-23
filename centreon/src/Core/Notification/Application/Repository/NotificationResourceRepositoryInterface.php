@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\Repository;
 
-use Core\Notification\Domain\Model\NotificationHostEvent;
-use Core\Notification\Domain\Model\NotificationServiceEvent;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\ReadNotificationResourceRepositoryInterface as ReadRepositoryInterface;
 use Core\Notification\Application\Repository\WriteNotificationResourceRepositoryInterface as WriteRepositoryInterface;
+use Core\Notification\Domain\Model\NotificationHostEvent;
+use Core\Notification\Domain\Model\NotificationServiceEvent;
 
 interface NotificationResourceRepositoryInterface extends ReadRepositoryInterface, WriteRepositoryInterface
 {

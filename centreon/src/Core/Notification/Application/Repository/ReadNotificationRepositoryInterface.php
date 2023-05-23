@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\TrimmedString;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationGenericObject;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Notification\Domain\Model\NotificationMessage;
 
 interface ReadNotificationRepositoryInterface
 {
@@ -55,9 +55,10 @@ interface ReadNotificationRepositoryInterface
     public function findMessagesByNotificationId(int $notificationId): array;
 
     /**
-     * Undocumented function
+     * Find notification channels for multiple notification.
      *
      * @param int[] $notificationIds
+     *
      * @return array<
      *  int,
      *  NotificationChannel[]
@@ -111,13 +112,13 @@ interface ReadNotificationRepositoryInterface
     public function existsByName(TrimmedString $notificationName): bool;
 
     /**
-     * Return all the notifications
+     * Return all the notifications.
      *
      * @param RequestParametersInterface|null $requestParameters
      *
-     * @return Notification[]
-     *
      * @throws \Throwable
+     *
+     * @return Notification[]
      */
     public function findAll(?RequestParametersInterface $requestParameters): array;
 }
