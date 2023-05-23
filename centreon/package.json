@@ -1,6 +1,6 @@
 {
   "name": "centreon",
-  "version": "23.4.0",
+  "version": "23.10.3",
   "description": "centreon web package",
   "scripts": {
     "widgets:build": "(cd www/widgets && pnpm build)",
