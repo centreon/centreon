@@ -82,17 +82,17 @@ jobs:
       - name: Get baseline files
         id: baseline_search
         run: |
-          TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
-          aws s3 ls "$TARGET_S3/filtered_results.json" || RESULT=$( echo $? )
+          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
+          aws s3 ls "$BUCKET/filtered_results.json" || RESULT=$( echo $? )
           if [[ $RESULT -eq 0 ]]; then
-            aws s3 cp "$TARGET_S3/filtered_results.json" "/tmp/filtered_results.json"
+            aws s3 cp "$BUCKET/filtered_results.json" "/tmp/filtered_results.json"
             echo "baseline_file=/tmp/filtered_results.json" >> $GITHUB_ENV
             echo "create_baseline_from=filtered" >> $GITHUB_ENV
           else
             echo "[DEBUG] - Filtered baseline file not found in the bucket"
-            aws s3 ls "$TARGET_S3/results.json" || RESULT=$( echo $? )
+            aws s3 ls "$BUCKET/results.json" || RESULT=$( echo $? )
             if [[ $RESULT -eq 0 ]]; then
-              aws s3 cp "$TARGET_S3/results.json" "/tmp/results.json"
+              aws s3 cp "$BUCKET/results.json" "/tmp/results.json"
               echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
               echo "create_baseline_from=standard" >> $GITHUB_ENV
             else
@@ -126,6 +126,6 @@ jobs:
         if: needs.build.outputs.development_stage != 'Development'
         run: |
           mv *results.json /tmp
-          TARGET_S3="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
-          aws s3 cp "/tmp/filtered_results.json" "$TARGET_S3/filtered_results.json"
-          aws s3 cp "/tmp/results.json" "$TARGET_S3/results.json"
+          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
+          aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
+          aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
