@@ -37,6 +37,7 @@ export const useStyles = makeStyles<StyleProps>()(
       backgroundColor: equals(ThemeMode.light, theme.palette.mode)
         ? theme.palette.background.panelGroups
         : 'default',
+      borderRadius: theme.spacing(0.5),
       padding: theme.spacing(1.5, 1)
     },
     hostsGrid: {
@@ -46,6 +47,8 @@ export const useStyles = makeStyles<StyleProps>()(
       backgroundColor: equals(ThemeMode.light, theme.palette.mode)
         ? theme.palette.background.panelGroups
         : 'default',
+
+      borderRadius: theme.spacing(0.5),
       padding: theme.spacing(1)
     }
   })

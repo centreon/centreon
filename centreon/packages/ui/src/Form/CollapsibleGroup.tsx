@@ -95,7 +95,9 @@ const CollapsibleGroup = ({
         <ContainerComponent>
           {isCollapsible && <CollapseIcon />}
           <div className={classes.groupTitleIcon}>
-            <Typography variant="h5">{t(group?.name as string)}</Typography>
+            <Typography className="groupText" variant="h5">
+              {t(group?.name as string)}
+            </Typography>
             {group?.EndIcon && (
               <Tooltip
                 classes={{

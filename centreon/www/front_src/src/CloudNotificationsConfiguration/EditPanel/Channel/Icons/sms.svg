@@ -1,11 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="88" height="60" viewBox="0 0 256 256" fill="#D9D9D9" xml:space="preserve">
-
-<defs>
-</defs>
-<g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)" >
-	<path d="M 14.972 86.134 c -0.193 0 -0.388 -0.038 -0.574 -0.116 c -0.551 -0.231 -0.909 -0.77 -0.909 -1.368 V 67.853 H 5.177 C 2.322 67.853 0 65.531 0 62.676 V 9.043 c 0 -2.854 2.322 -5.177 5.177 -5.177 h 79.646 C 87.678 3.866 90 6.189 90 9.043 v 53.633 c 0 2.855 -2.322 5.177 -5.177 5.177 H 34.206 L 16.011 85.709 C 15.728 85.987 15.353 86.134 14.972 86.134 z M 5.177 6.833 c -1.218 0 -2.21 0.991 -2.21 2.21 v 53.633 c 0 1.219 0.991 2.21 2.21 2.21 h 9.795 c 0.82 0 1.484 0.664 1.484 1.484 v 14.746 L 32.56 65.311 c 0.278 -0.272 0.65 -0.425 1.039 -0.425 h 51.224 c 1.219 0 2.21 -0.991 2.21 -2.21 V 9.043 c 0 -1.218 -0.991 -2.21 -2.21 -2.21 H 5.177 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
-	<path d="M 45.194 45.22 c -5.094 0 -9.239 -4.144 -9.239 -9.238 c 0 -5.094 4.144 -9.239 9.239 -9.239 c 5.094 0 9.238 4.144 9.238 9.239 C 54.432 41.076 50.288 45.22 45.194 45.22 z M 45.194 29.711 c -3.458 0 -6.272 2.813 -6.272 6.272 c 0 3.458 2.813 6.271 6.272 6.271 c 3.458 0 6.271 -2.813 6.271 -6.271 C 51.465 32.524 48.652 29.711 45.194 29.711 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
-	<path d="M 68.931 45.22 c -5.094 0 -9.238 -4.144 -9.238 -9.238 c 0 -5.094 4.144 -9.239 9.238 -9.239 s 9.238 4.144 9.238 9.239 C 78.169 41.076 74.024 45.22 68.931 45.22 z M 68.931 29.711 c -3.458 0 -6.271 2.813 -6.271 6.272 c 0 3.458 2.813 6.271 6.271 6.271 s 6.271 -2.813 6.271 -6.271 C 75.202 32.524 72.388 29.711 68.931 29.711 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
-	<path d="M 21.458 45.22 c -5.094 0 -9.239 -4.144 -9.239 -9.238 c 0 -5.094 4.144 -9.239 9.239 -9.239 s 9.239 4.144 9.239 9.239 C 30.697 41.076 26.552 45.22 21.458 45.22 z M 21.458 29.711 c -3.458 0 -6.272 2.813 -6.272 6.272 c 0 3.458 2.813 6.271 6.272 6.271 s 6.272 -2.813 6.272 -6.271 C 27.73 32.524 24.916 29.711 21.458 29.711 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
-</g>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="87" height="65.121" viewBox="0 0 87 65.121">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_1863" data-name="Rectangle 1863" width="87" height="65.121" transform="translate(0 0)" fill="none"/>
+    </clipPath>
+  </defs>
+  <g id="Groupe_1717" data-name="Groupe 1717" transform="translate(0 0)" clip-path="url(#clip-path)">
+    <path id="Tracé_2803" data-name="Tracé 2803" d="M80.319,1.5H6.682A5.2,5.2,0,0,0,1.5,6.681V61.5l12-12H80.319A5.2,5.2,0,0,0,85.5,44.319V6.681A5.2,5.2,0,0,0,80.319,1.5Z" fill="none" stroke="#999" stroke-miterlimit="10" stroke-width="3"/>
+    <rect id="Rectangle_1860" data-name="Rectangle 1860" width="6" height="6" transform="translate(31.5 22.5)" fill="#999"/>
+    <rect id="Rectangle_1861" data-name="Rectangle 1861" width="6" height="6" transform="translate(55.5 22.5)" fill="#999"/>
+    <rect id="Rectangle_1862" data-name="Rectangle 1862" width="6" height="6" transform="translate(43.5 22.5)" fill="#999"/>
+  </g>
 </svg>

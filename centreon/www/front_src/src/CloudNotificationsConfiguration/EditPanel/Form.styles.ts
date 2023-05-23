@@ -5,14 +5,19 @@ const useStyles = makeStyles()((theme) => ({
     padding: theme.spacing(0, 4, 2, 2)
   },
   groups: {
+    '& .groupText': {
+      fontSize: theme.typography.formtitle.fontSize,
+      fontWeight: theme.typography.fontWeightBold
+    },
     '&:hover': {
       background: theme.palette.background.listingHeader
     },
     background: theme.palette.background.listingHeader,
     color: theme.palette.common.white,
     flexDirection: 'row-reverse',
+    height: '38px',
     justifyContent: 'space-between',
-    padding: theme.spacing(1, 1.25)
+    paddingInline: theme.spacing(1.25)
   },
   reducePanel: {
     display: 'flex',

@@ -37,11 +37,13 @@ const useStyles = makeStyles<StyleProps>()(
         }
       : {},
     label: {
-      color: disabled ? theme.palette.grey[600] : theme.palette.text.secondary,
+      color: disabled
+        ? theme.palette.action.disabled
+        : theme.palette.text.secondary,
       fontSize: theme.typography.body1.fontSize,
       fontWeight: equals(labelPlacement, 'top')
         ? theme.typography.fontWeightBold
-        : theme.typography.fontWeightRegular,
+        : theme.typography.fontWeightMedium,
       padding: getLabelSpacing(labelPlacement, theme)
     }
   })
