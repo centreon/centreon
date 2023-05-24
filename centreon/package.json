@@ -23,7 +23,7 @@
     "cypress:cli": "./cypress/scripts/cypress-cli.sh",
     "cypress:cli:updateSnapshot": "./cypress/scripts/cypress-cli.sh --env updateSnapshots=true",
     "cypress:ui": "cypress open --component --browser=chrome",
-    "cypress:run": "cypress run --component --browser=chrome" 
+    "cypress:run": "cypress run --component --browser=chrome"
   },
   "devDependencies": {
     "@centreon/js-config": "workspace:*",
@@ -153,7 +153,7 @@
     "react-material-ui-carousel": "^3.4.2",
     "react-resizable": "^3.0.5",
     "react-router": "^6.4.3",
-    "react-router-dom": "^6.4.3",
+    "react-router-dom": "^6.11.2",
     "react-select": "^5.6.0",
     "react-spring": "^9.5.5",
     "string-argv": "^0.3.1",

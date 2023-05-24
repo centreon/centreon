@@ -1,6 +1,6 @@
 import { lazy, useEffect } from 'react';
 
-import { Route, RouterProvider, Routes, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { not, startsWith, tail } from 'ramda';
 import { createStore } from 'jotai';
 
