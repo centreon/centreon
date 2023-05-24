@@ -94,7 +94,7 @@ const HeaderActions = ({
   if (!isEditing) {
     return (
       <Button
-        dataTestId="edit_dashboard"
+        data-testid="edit_dashboard"
         icon={<EditIcon />}
         iconVariant="start"
         onClick={startEditing}
@@ -107,7 +107,7 @@ const HeaderActions = ({
   return (
     <>
       <Button
-        dataTestId="cancel_dashboard"
+        data-testid="cancel_dashboard"
         variant="ghost"
         onClick={askCancelConfirmation}
       >
@@ -122,7 +122,6 @@ const HeaderActions = ({
           <Typography>{t(labelYouWillCancelPageWithoutSaving)}</Typography>
         </Modal.Body>
         <Modal.Actions
-          isDanger
           labels={{
             cancel: labelCancel,
             confirm: labelSave
