@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { Grid as VisxGrid } from '@visx/visx';
 import { scaleLinear } from '@visx/scale';
@@ -15,7 +15,7 @@ interface Props {
   width: number;
 }
 
-const Grid: FC<Props> = ({ width, height, columns }) => {
+const Grid = ({ width, height, columns }: Props): ReactElement => {
   const theme = useTheme();
 
   const xScale = useMemo(
