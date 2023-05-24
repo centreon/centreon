@@ -23,30 +23,12 @@ declare(strict_types=1);
 
 namespace Core\ServiceTemplate\Application\Repository;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
-
-interface ReadServiceTemplateRepositoryInterface
+interface WriteServiceTemplateRepositoryInterface
 {
     /**
-     * Find one service template.
+     * Delete a service template by ID.
      *
      * @param int $serviceTemplateId
-     *
-     * @throws \Throwable
-     *
-     * @return ServiceTemplate|null
      */
-    public function findById(int $serviceTemplateId): ?ServiceTemplate;
-
-    /**
-     * Find all service templates.
-     *
-     * @param RequestParametersInterface $requestParameters
-     *
-     * @throws \Throwable
-     *
-     * @return ServiceTemplate[]
-     */
-    public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
+    public function deleteById(int $serviceTemplateId): void;
 }

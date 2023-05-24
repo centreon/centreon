@@ -15738,3 +15738,12 @@ msgstr ""
 
 # msgid "[%s] (%s) was expected to be an instance of the class '%s'"
 # msgstr ""
+
+# msgid "The service template '%s' is locked and cannot be deleted"
+# msgstr ""
+
+# msgid "You are not allowed to delete this service template"
+# msgstr ""
+
+# msgid "Error while deleting the service template"
+# msgstr ""

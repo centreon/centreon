@@ -17591,3 +17591,12 @@ msgstr "Erreur lors de la recherche de modèles de services"
 
 msgid "[%s] (%s) was expected to be an instance of the class '%s'"
 msgstr "[%s] (%s) devait être une instance de la classe '%s'"
+
+msgid "The service template '%s' is locked and cannot be deleted"
+msgstr "Le modèle de service '%s' est verrouillé et ne peut pas être supprimé"
+
+msgid "You are not allowed to delete this service template"
+msgstr "Vous n'êtes pas autorisé à supprimer ce modèle de service"
+
+msgid "Error while deleting the service template"
+msgstr "Erreur lors de la suppression du modèle de service"
