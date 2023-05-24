@@ -17,6 +17,7 @@ runs:
         cd ${{ inputs.module_directory }}
         ls -la
         if [[ -f ".veracode" ]]; then
+          cat .veracode
           for LINE in $( cat .veracode | sed 's/[^a-z_/A-Z]//g' ); do
             if [[ -d '$LINE' ]]; then
               rm -rf '$LINE'
