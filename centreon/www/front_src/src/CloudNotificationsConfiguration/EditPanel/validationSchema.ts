@@ -17,7 +17,7 @@ const useValidationSchema = (): object => {
   const messagesSchema = Yup.object({
     message: Yup.string().notOneOf(
       [emptyEmail],
-      t(labelMessageFieldShouldNotBeEmpty)
+      t(labelMessageFieldShouldNotBeEmpty) as string
     ),
     subject: Yup.string().nullable()
   });
@@ -29,7 +29,7 @@ const useValidationSchema = (): object => {
         ids: Yup.array()
       }),
       then: Yup.object().shape({
-        ids: Yup.array().min(1, t(labelChooseAtLeastOneResource))
+        ids: Yup.array().min(1, t(labelChooseAtLeastOneResource) as string)
       })
     });
 
@@ -37,9 +37,9 @@ const useValidationSchema = (): object => {
     {
       hostGroups: resoureceSchema('serviceGroups.ids'),
       messages: messagesSchema,
-      name: Yup.string().required(t(labelRequired)),
+      name: Yup.string().required(t(labelRequired) as string),
       serviceGroups: resoureceSchema('hostGroups.ids'),
-      users: Yup.array().min(1, t(labelChooseAtleastOneUser))
+      users: Yup.array().min(1, t(labelChooseAtleastOneUser) as string)
     },
     ['hostGroups', 'serviceGroups']
   );

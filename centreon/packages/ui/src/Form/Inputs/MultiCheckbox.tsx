@@ -15,7 +15,8 @@ const MultiCheckbox = ({
   fieldName,
   additionalLabel,
   getDisabled,
-  hideInput
+  hideInput,
+  dataTestId
 }: InputPropsWithoutGroup): JSX.Element => {
   const { values, setFieldValue } = useFormikContext<FormikValues>();
 
@@ -54,6 +55,7 @@ const MultiCheckbox = ({
       <Box>
         {additionalLabel && <Typography>{additionalLabel}</Typography>}
         <MultiCheckboxComponent
+          dataTestId={dataTestId || ''}
           disabled={disabled}
           labelPlacement={checkbox?.labelPlacement || 'end'}
           options={checkbox?.options}

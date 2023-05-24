@@ -34,9 +34,9 @@ const ClosePanelAction = (): JSX.Element => {
 
   return (
     <IconButton
-      ariaLabel={t(labelClosePanel)}
+      ariaLabel={t(labelClosePanel) as string}
       className={classes.button}
-      title={t(labelClosePanel)}
+      title={t(labelClosePanel) as string}
       onClick={handleClose}
     >
       <CloseIcon className={classes.icon} />

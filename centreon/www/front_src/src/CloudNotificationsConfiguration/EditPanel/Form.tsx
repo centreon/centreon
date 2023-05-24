@@ -1,15 +1,10 @@
-import { useTranslation } from 'react-i18next';
-import { useAtom, useAtomValue } from 'jotai';
-import { equals, gt } from 'ramda';
+import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
-import { Box, Button } from '@mui/material';
+import { Box } from '@mui/material';
 
 import { Form as FormComponent, useFetchQuery } from '@centreon/ui';
 
-import {
-  labelExpandInformationPanel,
-  labelReduceInformationPanel
-} from '../translatedLabels';
 import { panelWidthStorageAtom } from '../atom';
 
 import useStyles from './Form.styles';
@@ -21,28 +16,7 @@ import { EditedNotificationIdAtom, panelModeAtom } from './atom';
 import { PanelMode } from './models';
 import { notificationtEndpoint } from './api/endpoints';
 import { notificationdecoder } from './api/decoders';
-
-const ReducePanel = (): JSX.Element => {
-  const { classes } = useStyles();
-  const { t } = useTranslation();
-  const [panelWidth, setPanelWidth] = useAtom(panelWidthStorageAtom);
-
-  const handlePanelWidth = (): void => {
-    setPanelWidth((prevState) => (gt(prevState, 675) ? 550 : 800));
-  };
-
-  const panelWidthLabel = gt(panelWidth, 675)
-    ? t(labelReduceInformationPanel)
-    : t(labelExpandInformationPanel);
-
-  return (
-    <Box className={classes.reducePanel}>
-      <Button className={classes.reducePanelButton} onClick={handlePanelWidth}>
-        {panelWidthLabel}
-      </Button>
-    </Box>
-  );
-};
+import ReducePanel from './ReducePanel';
 
 const Form = (): JSX.Element => {
   const { classes } = useStyles();

@@ -18,6 +18,7 @@ export const labelSearch = 'Search';
 export const labelSave = 'Save';
 
 export const labelSelectResourcesAndEvents = 'Select resources and events';
+export const labelSearchHostGroups = 'Search host groups';
 export const labelSelectUsers = 'Select users';
 export const labelSelectTimePeriodChannelsAndPreview =
   'Select time period / channels of notifications / preview';
@@ -61,3 +62,4 @@ export const labelNotificationChannels = 'Notification channels';
 export const labelServiceGroups = 'Service groups';
 export const labelHostGroups = 'Host groups';
 export const labelTimePeriod = 'Time period';
+export const labelSearchServiceGroups = 'Search service groups';

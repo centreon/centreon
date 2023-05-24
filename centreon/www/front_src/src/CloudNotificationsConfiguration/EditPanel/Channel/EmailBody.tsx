@@ -30,8 +30,8 @@ const EmailBody = (): JSX.Element => {
         getEditorState={getEditorState}
         initialEditorState={initialValues?.messages.message}
         minInputHeight={120}
-        namespace="Email body"
-        placeholder={t(labelTypeYourTextHere)}
+        namespace="EmailBody"
+        placeholder={t(labelTypeYourTextHere) as string}
         toolbarPositions="end"
         onBlur={handleBlur('messages.message')}
       />

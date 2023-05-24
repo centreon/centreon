@@ -46,9 +46,9 @@ const DeleteAction = (): JSX.Element => {
   return (
     <Box>
       <IconButton
-        ariaLabel={t(labelDelete)}
+        ariaLabel={t(labelDelete) as string}
         disabled={false}
-        title={t(labelDelete)}
+        title={t(labelDelete) as string}
         onClick={onClick}
       >
         <DeleteIcon className={classes.icon} />

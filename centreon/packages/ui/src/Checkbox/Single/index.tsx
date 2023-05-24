@@ -53,6 +53,7 @@ interface Props {
   Icon?: SvgIconComponent;
   checked: boolean;
   className?: string;
+  dataTestId?: string;
   disabled?: boolean;
   label: string;
   labelPlacement?: LabelPlacement;
@@ -66,7 +67,8 @@ const SingleCheckbox = ({
   onChange,
   className,
   disabled = false,
-  labelPlacement = 'end'
+  labelPlacement = 'end',
+  dataTestId
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({
     disabled,
@@ -89,6 +91,7 @@ const SingleCheckbox = ({
             onChange={onChange}
           />
         }
+        data-testid={dataTestId || ''}
         key={label}
         label={<Typography className={classes.label}>{label}</Typography>}
         labelPlacement={labelPlacement}

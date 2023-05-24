@@ -18,7 +18,9 @@ import {
   labelHostGroups,
   labelServiceGroups,
   labelUsers,
-  labelTimePeriod
+  labelTimePeriod,
+  labelSearchHostGroups,
+  labelSearchServiceGroups
 } from '../../translatedLabels';
 import { hostEvents, serviceEvents } from '../utils';
 import { EmailBody } from '../Channel';
@@ -65,6 +67,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
     {
       additionalLabel: t(labelHostGroups),
       additionalLabelClassName: classes.additionalLabel,
+      dataTestId: t(labelHostGroups),
       fieldName: 'hostGroups',
       grid: {
         alignItems: 'center',
@@ -75,8 +78,9 @@ const useFormInputs = ({ panelWidth }: Props): object => {
               additionalConditionParameters: [],
               endpoint: hostsGroupsEndpoint
             },
+            dataTestId: t(labelSearchHostGroups),
             fieldName: 'hostGroups.ids',
-            label: 'Search host groups',
+            label: t(labelSearchHostGroups),
             required: true,
             type: InputType.MultiConnectedAutocomplete
           },
@@ -86,12 +90,14 @@ const useFormInputs = ({ panelWidth }: Props): object => {
               options: hostEvents,
               row: true
             },
+            dataTestId: 'Host groups events',
             fieldName: 'hostGroups.events',
             getDisabled: (values) => isEmpty(values.hostGroups.ids),
-            label: 'Events',
+            label: 'Host groups events',
             type: InputType.MultiCheckbox
           },
           {
+            dataTestId: 'include Services',
             fieldName: 'hostGroups.extra.includeServices',
             getDisabled: (values) => isEmpty(values.hostGroups.ids),
             hideInput: (values): boolean => {
@@ -99,7 +105,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
 
               return isEmpty(values.hostGroups.ids);
             },
-            label: 'Events',
+            label: 'include Services',
             type: InputType.Checkbox
           },
           {
@@ -108,6 +114,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
               options: serviceEvents,
               row: true
             },
+            dataTestId: 'Extra events services',
             fieldName: 'hostGroups.extra.eventsServices',
             getDisabled: (values) =>
               not(values.hostGroups?.extra?.includeServices.checked),
@@ -120,7 +127,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
       },
       group: basicFormGroups[0].name,
       inputClassName: classes.hostInput,
-      label: 'Resources and events',
+      label: t(labelHostGroups),
       type: InputType.Grid
     },
     {
@@ -135,8 +142,9 @@ const useFormInputs = ({ panelWidth }: Props): object => {
               additionalConditionParameters: [],
               endpoint: serviceGroupsEndpoint
             },
+            dataTestId: t(labelSearchServiceGroups),
             fieldName: 'serviceGroups.ids',
-            label: 'Search Service groups',
+            label: t(labelSearchServiceGroups),
             required: true,
             type: InputType.MultiConnectedAutocomplete
           },
@@ -146,9 +154,10 @@ const useFormInputs = ({ panelWidth }: Props): object => {
               options: serviceEvents,
               row: true
             },
+            dataTestId: 'Service groups events',
             fieldName: 'serviceGroups.events',
             getDisabled: (values) => isEmpty(values.serviceGroups.ids),
-            label: 'Events',
+            label: 'Service groups events',
             type: InputType.MultiCheckbox
           }
         ],
@@ -179,7 +188,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
             custom: {
               Component: Box
             },
-            fieldName: 'users',
+            fieldName: '',
             label: '',
             type: InputType.Custom
           }
@@ -194,11 +203,12 @@ const useFormInputs = ({ panelWidth }: Props): object => {
     {
       additionalLabel: t(labelTimePeriod),
       additionalLabelClassName: classes.additionalLabel,
+      dataTestId: t(labelTimePeriod),
       fieldName: 'timeperiod',
       getDisabled: () => true,
       group: basicFormGroups[2].name,
       inputClassName: classes.input,
-      label: 'Time period',
+      label: t(labelTimePeriod),
       type: InputType.Checkbox
     },
     {
@@ -217,6 +227,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
                   checkbox: {
                     row: true
                   },
+                  dataTestId: 'Email',
                   fieldName: 'messages.channel',
                   label: 'Email',
                   type: InputType.Checkbox
@@ -225,6 +236,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
                   checkbox: {
                     row: true
                   },
+                  dataTestId: 'SMS',
                   fieldName: 'sms.channel',
                   getDisabled: () => true,
                   label: 'SMS',
@@ -234,6 +246,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
                   checkbox: {
                     row: true
                   },
+                  dataTestId: 'Slack',
                   fieldName: 'slack.channel',
                   getDisabled: () => true,
                   label: 'Slack',
@@ -279,7 +292,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
             },
             fieldName: 'messages.message',
             group: basicFormGroups[2].name,
-            label: 'Content',
+            label: 'message',
             type: InputType.Custom
           }
         ],

@@ -18,6 +18,7 @@ const ActivateAction = (): JSX.Element => {
   return (
     <Tooltip title={t(labelActiveOrInactive)}>
       <Switch
+        ariaLabel={t(labelActiveOrInactive) as string}
         checked={values?.isActivated}
         color="success"
         inputProps={{ 'aria-label': 'controlled' }}

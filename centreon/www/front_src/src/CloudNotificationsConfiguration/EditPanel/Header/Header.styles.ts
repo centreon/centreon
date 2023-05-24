@@ -19,7 +19,7 @@ const useStyles = makeStyles()((theme) => ({
     padding: theme.spacing(1.5, 2),
     position: 'sticky',
     top: 0,
-    zIndex: theme.zIndex.tooltip
+    zIndex: theme.zIndex.drawer + 1
   },
   rightHeader: {
     alignItems: 'center',

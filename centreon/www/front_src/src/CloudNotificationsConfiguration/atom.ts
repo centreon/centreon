@@ -14,7 +14,7 @@ export const searchAtom = atom<string>('');
 export const isPanelOpenAtom = atom<boolean>(false);
 
 export const panelWidthStorageAtom = atomWithStorage(
-  'centreon-cloud-notifications-width',
+  'cloud-notifications-panel-width',
   800
 );
 
