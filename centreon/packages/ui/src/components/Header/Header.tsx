@@ -1,5 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react';
 
+import { Typography as MuiTypography } from '@mui/material';
+
 import { useStyles } from './Header.styles';
 
 type HeaderProps = {
@@ -12,7 +14,7 @@ const Header = ({ title, nav }: HeaderProps): ReactElement => {
 
   return (
     <header className={classes.header}>
-      <h1>{title}</h1>
+      <MuiTypography variant="h1">{title}</MuiTypography>
       {nav && <nav>{nav}</nav>}
     </header>
   );
