@@ -155,7 +155,7 @@ it(
         expect($this->presenter->response)
             ->toBeInstanceOf(ErrorResponse::class)
             ->and($this->presenter->response->getMessage())
-            ->toBe(HostTemplateException::findHostTemplates(new \Exception())->getMessage());
+            ->toBe(HostTemplateException::findHostTemplates()->getMessage());
     }
 );
 

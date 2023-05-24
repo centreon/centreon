@@ -35,7 +35,6 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\CommandType;
-use Core\Common\Domain\YesNoDefault;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
@@ -74,7 +73,7 @@ final class AddHostTemplate
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE)) {
                 $this->error(
-                    "User doesn't have sufficient rights to add host templates",
+                    "User doesn't have sufficient rights to add a host template",
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->presentResponse(
@@ -121,7 +120,7 @@ final class AddHostTemplate
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(
-                new ErrorResponse(HostTemplateException::addHostTemplate($ex))
+                new ErrorResponse(HostTemplateException::addHostTemplate())
             );
             $this->error((string) $ex);
         }
@@ -256,20 +255,14 @@ final class AddHostTemplate
             $request->timezoneId,
             $request->severityId,
             $request->checkCommandId,
-           $request->checkCommandArgs,
+            $request->checkCommandArgs,
             $request->checkTimeperiodId,
             $request->maxCheckAttempts,
             $request->normalCheckInterval,
             $request->retryCheckInterval,
-            $request->activeCheckEnabled === ''
-                ? YesNoDefault::Default
-                : YesNoDefaultConverter::fromScalar($request->activeCheckEnabled),
-            $request->passiveCheckEnabled === ''
-                ? YesNoDefault::Default
-                : YesNoDefaultConverter::fromScalar($request->passiveCheckEnabled),
-            $request->notificationEnabled === ''
-                ? YesNoDefault::Default
-                : YesNoDefaultConverter::fromScalar($request->notificationEnabled),
+            YesNoDefaultConverter::fromScalar($request->activeCheckEnabled),
+            YesNoDefaultConverter::fromScalar($request->passiveCheckEnabled),
+            YesNoDefaultConverter::fromScalar($request->notificationEnabled),
             $request->notificationOptions === null
                 ? []
                 : HostEventConverter::fromBitFlag($request->notificationOptions),
@@ -280,18 +273,12 @@ final class AddHostTemplate
             $request->firstNotificationDelay,
             $request->recoveryNotificationDelay,
             $request->acknowledgementTimeout,
-            $request->freshnessChecked === ''
-                ? YesNoDefault::Default
-                : YesNoDefaultConverter::fromScalar($request->freshnessChecked),
+            YesNoDefaultConverter::fromScalar($request->freshnessChecked),
             $request->freshnessThreshold,
-            $request->flapDetectionEnabled === ''
-                ? YesNoDefault::Default
-                : YesNoDefaultConverter::fromScalar($request->flapDetectionEnabled),
+            YesNoDefaultConverter::fromScalar($request->flapDetectionEnabled),
             $request->lowFlapThreshold,
             $request->highFlapThreshold,
-            $request->eventHandlerEnabled === ''
-                ? YesNoDefault::Default
-                : YesNoDefaultConverter::fromScalar($request->eventHandlerEnabled),
+            YesNoDefaultConverter::fromScalar($request->eventHandlerEnabled),
             $request->eventHandlerCommandId,
             $request->eventHandlerCommandArgs,
             $request->noteUrl,
@@ -311,7 +298,7 @@ final class AddHostTemplate
                 $response->id = $hostTemplate->getId();
                 $response->name = $hostTemplate->getName();
                 $response->alias = $hostTemplate->getAlias();
-                $response->snmpVersion = $hostTemplate->getSnmpVersion() ? $hostTemplate->getSnmpVersion()->value : null;
+                $response->snmpVersion = $hostTemplate->getSnmpVersion()?->value;
                 $response->snmpCommunity = $hostTemplate->getSnmpCommunity();
                 $response->timezoneId = $hostTemplate->getTimezoneId();
                 $response->severityId = $hostTemplate->getSeverityId();

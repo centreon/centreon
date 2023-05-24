@@ -70,7 +70,7 @@ final class FindHostTemplates
             $hostTemplates = $this->readHostTemplateRepository->findByRequestParameter($this->requestParameters);
             $presenter->presentResponse($this->createResponse($hostTemplates));
         } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(HostTemplateException::findHostTemplates($ex)));
+            $presenter->presentResponse(new ErrorResponse(HostTemplateException::findHostTemplates()));
             $this->error($ex->getMessage());
         }
     }

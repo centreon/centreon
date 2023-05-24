@@ -41,7 +41,7 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
         $this->db = $db;
     }
 
-        /**
+    /**
      * @inheritDoc
      */
     public function exists(int $commandId): bool

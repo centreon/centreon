@@ -83,49 +83,37 @@
         "active_check_enabled": {
             "type": [
                 "null",
-                "integer",
-                "string"
+                "integer"
             ],
             "enum": [
                 null,
                 0,
                 1,
-                2,
-                "0",
-                "1",
-                "2"
+                2
             ]
         },
         "passive_check_enabled": {
             "type": [
                 "null",
-                "integer",
-                "string"
+                "integer"
             ],
             "enum": [
                 null,
                 0,
                 1,
-                2,
-                "0",
-                "1",
-                "2"
+                2
             ]
         },
         "notification_enabled": {
             "type": [
                 "null",
-                "integer",
-                "string"
+                "integer"
             ],
             "enum": [
                 null,
                 0,
                 1,
-                2,
-                "0",
-                "1",
-                "2"
+                2
             ]
         },
         "notification_options": {
@@ -179,17 +167,13 @@
         "freshness_checked": {
             "type": [
                 "null",
-                "integer",
-                "string"
+                "integer"
             ],
             "enum": [
                 null,
                 0,
                 1,
-                2,
-                "0",
-                "1",
-                "2"
+                2
             ]
         },
         "freshness_threshold": {
@@ -201,17 +185,13 @@
         "flap_detection_enabled": {
             "type": [
                 "null",
-                "integer",
-                "string"
+                "integer"
             ],
             "enum": [
                 null,
                 0,
                 1,
-                2,
-                "0",
-                "1",
-                "2"
+                2
             ]
         },
         "low_flap_threshold": {
@@ -229,17 +209,13 @@
         "event_handler_enabled": {
             "type": [
                 "null",
-                "integer",
-                "string"
+                "integer"
             ],
             "enum": [
                 null,
                 0,
                 1,
-                2,
-                "0",
-                "1",
-                "2"
+                2
             ]
         },
         "event_handler_command_id": {

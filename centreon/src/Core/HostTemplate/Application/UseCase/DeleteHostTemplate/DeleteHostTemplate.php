@@ -90,7 +90,7 @@ final class DeleteHostTemplate
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
-                new ErrorResponse(HostTemplateException::deleteHostTemplate($ex))
+                new ErrorResponse(HostTemplateException::deleteHostTemplate())
             );
             $this->error((string) $ex);
         }

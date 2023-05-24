@@ -28,33 +28,27 @@ class HostTemplateException extends \Exception
     public const CODE_CONFLICT = 1;
 
     /**
-     * @param \Throwable $ex
-     *
      * @return self
      */
-    public static function findHostTemplates(\Throwable $ex): self
+    public static function findHostTemplates(): self
     {
-        return new self(_('Error while searching for host templates'), 0, $ex);
+        return new self(_('Error while searching for host templates'));
     }
 
     /**
-     * @param \Throwable $ex
-     *
      * @return self
      */
-    public static function deleteHostTemplate(\Throwable $ex): self
+    public static function deleteHostTemplate(): self
     {
-        return new self(_('Error while deleting a host template'), 0, $ex);
+        return new self(_('Error while deleting a host template'));
     }
 
     /**
-     * @param \Throwable $ex
-     *
      * @return self
      */
-    public static function addHostTemplate(\Throwable $ex): self
+    public static function addHostTemplate(): self
     {
-        return new self(_('Error while adding a host template'), 0, $ex);
+        return new self(_('Error while adding a host template'));
     }
 
     /**

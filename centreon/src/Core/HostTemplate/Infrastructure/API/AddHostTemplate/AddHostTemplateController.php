@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplate;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -92,9 +93,9 @@ final class AddHostTemplateController extends AbstractController
              *     max_check_attempts?: null|int,
              *     normal_check_interval?: null|int,
              *     retry_check_interval?: null|int,
-             *     active_check_enabled?: null|int|string,
-             *     passive_check_enabled?: null|int|string,
-             *     notification_enabled?: null|int|string,
+             *     active_check_enabled?: int,
+             *     passive_check_enabled?: int,
+             *     notification_enabled?: int,
              *     notification_options?: null|int,
              *     notification_interval?: null|int,
              *     notification_timeperiod_id?: null|int,
@@ -103,12 +104,12 @@ final class AddHostTemplateController extends AbstractController
              *     first_notification_delay?: null|int,
              *     recovery_notification_delay?: null|int,
              *     acknowledgement_timeout?: null|int,
-             *     freshness_checked?: null|int|string,
+             *     freshness_checked?: int,
              *     freshness_threshold?: null|int,
-             *     flap_detection_enabled?: null|int|string,
+             *     flap_detection_enabled?: int,
              *     low_flap_threshold?: null|int,
              *     high_flap_threshold?: null|int,
-             *     event_handler_enabled?: null|int|string,
+             *     event_handler_enabled?: int,
              *     event_handler_command_id?: null|int,
              *     event_handler_command_args?: string[],
              *     note_url?: string,
@@ -120,7 +121,7 @@ final class AddHostTemplateController extends AbstractController
              *     is_activated?: bool
              * } $data
              */
-            $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostTemplateSchemaOnPrem.json');
+            $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostTemplateOnPremSchema.json');
 
             $dto = new AddHostTemplateRequest();
             $dto->name = $data['name'];
@@ -135,9 +136,9 @@ final class AddHostTemplateController extends AbstractController
             $dto->maxCheckAttempts = $data['max_check_attempts'] ?? null;
             $dto->normalCheckInterval = $data['normal_check_interval'] ?? null;
             $dto->retryCheckInterval = $data['retry_check_interval'] ?? null;
-            $dto->activeCheckEnabled = (string) ($data['active_check_enabled'] ?? '');
-            $dto->passiveCheckEnabled = (string) ($data['passive_check_enabled'] ?? '');
-            $dto->notificationEnabled = (string) ($data['notification_enabled'] ?? '');
+            $dto->activeCheckEnabled = $data['active_check_enabled'] ?? 2;
+            $dto->passiveCheckEnabled = $data['passive_check_enabled'] ?? 2;
+            $dto->notificationEnabled = $data['notification_enabled'] ?? 2;
             $dto->notificationOptions = $data['notification_options'] ?? null;
             $dto->notificationInterval = $data['notification_interval'] ?? null;
             $dto->notificationTimeperiodId = $data['notification_timeperiod_id'] ?? null;
@@ -146,12 +147,12 @@ final class AddHostTemplateController extends AbstractController
             $dto->firstNotificationDelay = $data['first_notification_delay'] ?? null;
             $dto->recoveryNotificationDelay = $data['recovery_notification_delay'] ?? null;
             $dto->acknowledgementTimeout = $data['acknowledgement_timeout'] ?? null;
-            $dto->freshnessChecked = (string) ($data['freshness_checked'] ?? '');
+            $dto->freshnessChecked = $data['freshness_checked'] ?? 2;
             $dto->freshnessThreshold = $data['freshness_threshold'] ?? null;
-            $dto->flapDetectionEnabled = (string) ($data['flap_detection_enabled'] ?? '');
+            $dto->flapDetectionEnabled = $data['flap_detection_enabled'] ?? 2;
             $dto->lowFlapThreshold = $data['low_flap_threshold'] ?? null;
             $dto->highFlapThreshold = $data['high_flap_threshold'] ?? null;
-            $dto->eventHandlerEnabled = (string) ($data['event_handler_enabled'] ?? '');
+            $dto->eventHandlerEnabled = $data['event_handler_enabled'] ?? 2;
             $dto->eventHandlerCommandId = $data['event_handler_command_id'] ?? null;
             $dto->eventHandlerCommandArgs = $data['event_handler_command_args'] ?? [];
             $dto->noteUrl = $data['note_url'] ?? '';
@@ -168,7 +169,7 @@ final class AddHostTemplateController extends AbstractController
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse($ex));
+            $presenter->setResponseStatus(new ErrorResponse(HostTemplateException::addHostTemplate()));
         }
 
         return $presenter->show();
@@ -203,7 +204,7 @@ final class AddHostTemplateController extends AbstractController
              *     is_activated?: bool
              * } $data
              */
-            $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostTemplateSchemaSaas.json');
+            $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostTemplateSaasSchema.json');
 
             $dto = new AddHostTemplateRequest();
             $dto->name = $data['name'];
@@ -224,7 +225,7 @@ final class AddHostTemplateController extends AbstractController
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse($ex));
+            $presenter->setResponseStatus(new ErrorResponse(HostTemplateException::addHostTemplate()));
         }
 
         return $presenter->show();

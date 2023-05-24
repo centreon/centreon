@@ -71,7 +71,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe(HostTemplateException::deleteHostTemplate(new \Exception())->getMessage());
+        ->toBe(HostTemplateException::deleteHostTemplate()->getMessage());
 });
 
 it('should present a ForbiddenResponse when a user has insufficient rights', function (): void {

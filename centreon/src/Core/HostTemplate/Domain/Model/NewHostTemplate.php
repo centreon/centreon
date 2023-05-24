@@ -127,9 +127,9 @@ class NewHostTemplate
         $shortName = (new \ReflectionClass($this))->getShortName();
 
         // Formating and assertions on string properties
-        $this->checkCommandArgs = array_map(self::formatCommandArg(...), $checkCommandArgs);
-        $this->eventHandlerCommandArgs = array_map(self::formatCommandArg(...), $eventHandlerCommandArgs);
         $this->name = self::formatName($name);
+        $this->checkCommandArgs = array_map(trim(...), $checkCommandArgs);
+        $this->eventHandlerCommandArgs = array_map(trim(...), $eventHandlerCommandArgs);
         $this->alias = trim($alias);
         $this->snmpCommunity = trim($snmpCommunity);
         $this->note = trim($note);
@@ -188,16 +188,6 @@ class NewHostTemplate
     final public static function formatName(string $name): string
     {
         return str_replace(' ', '_', trim($name));
-    }
-
-    /**
-     * Format a string as per domain rules for a command arguments.
-     *
-     * @param string $args
-     */
-    final public static function formatCommandArg(string $args): string
-    {
-        return str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], trim($args));
     }
 
     public function getName(): string

@@ -23,11 +23,22 @@ declare(strict_types=1);
 
 namespace Core\Command\Domain\Model;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\CommandType;
 
 class Command
 {
+
+    /**
+     * @param int $id
+     * @param string $name
+     * @param CommandType $type
+     * @param bool $isActivated
+     * @param bool $isLocked
+     *
+     * @throws AssertionFailedException
+     */
     public function __construct(
         private readonly int $id,
         private readonly string $name,

@@ -40,10 +40,18 @@ class Timezone
         private readonly int $id,
         private readonly string $name,
         private readonly string $offset,
-        private readonly string $dstOffset,
+        private readonly string $daylightSavingTimeOffset,
         private readonly string $description = ''
     ) {
-        Assertion::notEmptyString($name, 'Timezone::name');
+        $shortName = (new \ReflectionClass($this))->getShortName();
+
+        Assertion::notEmptyString($name, "{$shortName}::name");
+        Assertion::regex($offset, '/^[-+][0-9]{2}:[0-9]{2}$/', "{$shortName}::offset");
+        Assertion::regex(
+            $daylightSavingTimeOffset,
+            '/^[-+][0-9]{2}:[0-9]{2}$/',
+            "{$shortName}::daylightSavingTimeOffset"
+        );
     }
 
     public function getId(): int
@@ -61,9 +69,9 @@ class Timezone
         return $this->offset;
     }
 
-    public function getDstOffset(): string
+    public function getDaylightSavingTimeOffset(): string
     {
-        return $this->dstOffset;
+        return $this->daylightSavingTimeOffset;
     }
 
     public function getDescription(): string

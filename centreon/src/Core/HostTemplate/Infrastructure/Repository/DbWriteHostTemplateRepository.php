@@ -281,7 +281,7 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         );
         $statement->bindValue(
             ':snmpVersion',
-            $hostTemplate->getSnmpVersion() === null ? null : $hostTemplate->getSnmpVersion()->value,
+            $hostTemplate->getSnmpVersion()?->value,
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -303,7 +303,10 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         );
         $checkCommandArguments = null;
         if ($hostTemplate->getCheckCommandArgs() !== []) {
-            $checkCommandArguments = '!' . implode('!', $hostTemplate->getCheckCommandArgs());
+            $checkCommandArguments = '!' . implode(
+                '!',
+                str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $hostTemplate->getCheckCommandArgs())
+            );
             $checkCommandArguments = $this->legacyHtmlEncode($checkCommandArguments);
         }
         $statement->bindValue(
@@ -425,7 +428,10 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         );
         $eventHandlerCommandArguments = null;
         if ($hostTemplate->getEventHandlerCommandArgs() !== []) {
-            $eventHandlerCommandArguments = '!' . implode('!', $hostTemplate->getEventHandlerCommandArgs());
+            $eventHandlerCommandArguments = '!' . implode(
+                '!',
+                str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $hostTemplate->getEventHandlerCommandArgs())
+            );
             $eventHandlerCommandArguments = $this->legacyHtmlEncode($eventHandlerCommandArguments);
         }
         $statement->bindValue(

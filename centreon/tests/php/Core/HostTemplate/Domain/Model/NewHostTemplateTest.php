@@ -199,12 +199,12 @@ foreach (
     ] as $field
 ) {
     it(
-        "should return a trimmed and formated field {$field}",
+        "should return a trimmed field {$field}",
         function () use ($field): void {
-            $hostTemplate = ($this->createHostTemplate)([$field => ["  this\nis\tsome\rargument  ", "  test\n  "]]);
+            $hostTemplate = ($this->createHostTemplate)([$field => ["  arg1  ", "  arg2  "]]);
             $valueFromGetter = $hostTemplate->{'get' . $field}();
 
-            expect($valueFromGetter)->toBe(['this#BR#is#T#some#R#argument', 'test']);
+            expect($valueFromGetter)->toBe(['arg1', 'arg2']);
         }
     );
 }

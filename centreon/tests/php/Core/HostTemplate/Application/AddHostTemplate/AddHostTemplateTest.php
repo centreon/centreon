@@ -67,9 +67,9 @@ beforeEach(function (): void {
     $this->request->maxCheckAttempts = 5;
     $this->request->normalCheckInterval = 5;
     $this->request->retryCheckInterval = 5;
-    $this->request->activeCheckEnabled = '1';
-    $this->request->passiveCheckEnabled = '1';
-    $this->request->notificationEnabled = '1';
+    $this->request->activeCheckEnabled = 1;
+    $this->request->passiveCheckEnabled = 1;
+    $this->request->notificationEnabled = 1;
     $this->request->notificationOptions = HostEventConverter::toBitFlag([HostEvent::Down, HostEvent::Unreachable]);
     $this->request->notificationInterval = 5;
     $this->request->notificationTimeperiodId = 2;
@@ -78,12 +78,12 @@ beforeEach(function (): void {
     $this->request->firstNotificationDelay = 5;
     $this->request->recoveryNotificationDelay = 5;
     $this->request->acknowledgementTimeout = 5;
-    $this->request->freshnessChecked = '1';
+    $this->request->freshnessChecked = 1;
     $this->request->freshnessThreshold = 5;
-    $this->request->flapDetectionEnabled = '1';
+    $this->request->flapDetectionEnabled = 1;
     $this->request->lowFlapThreshold = 5;
     $this->request->highFlapThreshold = 5;
-    $this->request->eventHandlerEnabled = '1';
+    $this->request->eventHandlerEnabled = 1;
     $this->request->eventHandlerCommandId = 2;
     $this->request->eventHandlerCommandArgs = ["arg\n3", "  arg4"];
     $this->request->noteUrl = 'noteUrl-value';
@@ -172,7 +172,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
     expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->response->getMessage())
-        ->toBe(HostTemplateException::addHostTemplate(new \Exception())->getMessage());
+        ->toBe(HostTemplateException::addHostTemplate()->getMessage());
 });
 
 it('should present a ForbiddenResponse when a user has insufficient rights', function (): void {
