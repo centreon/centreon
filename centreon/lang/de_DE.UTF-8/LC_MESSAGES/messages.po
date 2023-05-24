@@ -15433,3 +15433,6 @@ msgstr ""
 
 #  msgid "Error while retrieving a host template"
 #  msgstr ""
+
+#  msgid "Host template #%d is locked (edition and deletion not allowed)"
+#  msgstr ""

@@ -107,7 +107,7 @@ class HostTemplateException extends \Exception
 
     public static function hostIsLocked(int $hostTemplateId): self
     {
-        return new self(sprintf(_('Host template #%s is locked (edition and deletion not allowed)'), $hostTemplateId));
+        return new self(sprintf(_('Host template #%d is locked (edition and deletion not allowed)'), $hostTemplateId));
     }
 }
 
