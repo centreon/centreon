@@ -1,6 +1,6 @@
 import { ReactElement, ReactNode } from 'react';
 
-import { Divider, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 
 import { useStyles } from './Header.styles';
 
