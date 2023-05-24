@@ -13,21 +13,22 @@ runs:
   steps:
     - name: Exclude development files
       run: |
-        ls -la
         if [[ -f ".veracode" ]]; then
           for LINE in $( cat .veracode | sed 's/[^a-z_/A-Z]//g' ); do
             if [[ -d '$LINE' ]]; then
               rm -rf '$LINE'
-              echo "INFO - folder removed from analysis : $LINE"
+              echo "[INFO] - folder removed from analysis : $LINE"
             elif [[ -f '$LINE' ]]; then
               rm -f '$LINE'
-              echo "INFO - file removed from analysis : $LINE"
+              echo "[INFO] - file removed from analysis : $LINE"
             elif [[ -z '$LINE' ]]; then
-              echo "INFO - unconsistent exclusion directive. Skipping: $LINE"
+              echo "[INFO] - empty directive. Skipping this line"
+            else
+              echo "[INFO] - target to exclude not found. Skipping: '$LINE'"
             fi
           done
         else
-          echo "INFO - No '.veracode' file found for this module. Skipping exclusion step"
+          echo "[INFO] - No '.veracode' file found for this module. Skipping exclusion step"
         fi
       shell: bash
 
