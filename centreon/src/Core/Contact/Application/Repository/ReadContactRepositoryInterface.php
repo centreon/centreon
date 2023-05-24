@@ -21,27 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboard;
+namespace Core\Contact\Application\Repository;
 
-final class FindDashboardResponse
+interface ReadContactRepositoryInterface
 {
-    public int $id = 0;
-
-    public string $name = '';
-
-    public string $description = '';
-
-    public ?FindDashboardUserDto $createdBy = null;
-
-    public ?FindDashboardUserDto $updatedBy = null;
-
-    public \DateTimeImmutable $createdAt;
-
-    public \DateTimeImmutable $updatedAt;
-
-    public function __construct()
-    {
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
-    }
+    /**
+     * Find contact names by IDs.
+     *
+     * @param int ...$ids
+     *
+     * @return array<int, array{id: int, name: string}>
+     */
+    public function findNamesByIds(int ...$ids): array;
 }

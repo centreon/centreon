@@ -26,6 +26,7 @@ namespace Core\Dashboard\Infrastructure\API\FindDashboard;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
+use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardUserDto;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
@@ -40,11 +41,26 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
                 'id' => $data->id,
                 'name' => $data->name,
                 'description' => $this->emptyStringAsNull($data->description),
+                'created_by' => $this->userToOptionalArray($data->createdBy),
+                'updated_by' => $this->userToOptionalArray($data->updatedBy),
                 'created_at' => $this->formatDateToIso8601($data->createdAt),
                 'updated_at' => $this->formatDateToIso8601($data->updatedAt),
             ]);
         } else {
             $this->setResponseStatus($data);
         }
+    }
+
+    /**
+     * @param ?FindDashboardUserDto $dto
+     *
+     * @return null|array{id: int, name: string}
+     */
+    private function userToOptionalArray(?FindDashboardUserDto $dto): ?array
+    {
+        return $dto ? [
+            'id' => $dto->id,
+            'name' => $dto->name,
+        ] : null;
     }
 }

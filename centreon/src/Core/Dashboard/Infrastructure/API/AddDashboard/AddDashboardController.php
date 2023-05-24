@@ -31,17 +31,27 @@ use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboard;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class AddDashboardController extends AbstractController
 {
     use LoggerTrait;
 
+    /**
+     * @param Request $request
+     * @param AddDashboard $useCase
+     * @param AddDashboardPresenter $presenter
+     *
+     * @throws AccessDeniedException
+     *
+     * @return Response
+     */
     public function __invoke(
         Request $request,
         AddDashboard $useCase,
         AddDashboardPresenter $presenter
     ): Response {
-        $this->denyAccessUnlessGrantedForAPIConfiguration();
+        $this->denyAccessUnlessGrantedForApiConfiguration();
 
         try {
             /** @var array{

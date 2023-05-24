@@ -55,4 +55,29 @@ trait DashboardValidationTrait
         $shortName = (new \ReflectionClass($this))->getShortName();
         Assertion::maxLength($description, Dashboard::MAX_DESCRIPTION_LENGTH, $shortName . '::description');
     }
+
+    /**
+     * @param int $value
+     * @param string $propertyName
+     *
+     * @throws AssertionFailedException
+     */
+    private function ensurePositiveInt(int $value, string $propertyName): void
+    {
+        $shortName = (new \ReflectionClass($this))->getShortName();
+        Assertion::positiveInt($value, $shortName . '::' . $propertyName);
+    }
+
+    /**
+     * @param ?int $value
+     * @param string $propertyName
+     *
+     * @throws AssertionFailedException
+     */
+    private function ensureNullablePositiveInt(?int $value, string $propertyName): void
+    {
+        if (null !== $value) {
+            $this->ensurePositiveInt($value, $propertyName);
+        }
+    }
 }

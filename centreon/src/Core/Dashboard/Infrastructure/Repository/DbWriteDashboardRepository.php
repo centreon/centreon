@@ -67,6 +67,8 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
                 (
                     name,
                     description,
+                    created_by,
+                    updated_by,
                     created_at,
                     updated_at
                 )
@@ -74,6 +76,8 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
                 (
                     :name,
                     :description,
+                    :created_by,
+                    :updated_by,
                     :created_at,
                     :updated_at
                 )
@@ -93,6 +97,7 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
             SET
                 `name` = :name,
                 `description` = :description,
+                `updated_by` = :updated_by,
                 `updated_at` = :updated_at
             WHERE
                 `id` = :dashboard_id
@@ -113,9 +118,11 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
         $statement->bindValue(':name', $dashboard->getName());
         $statement->bindValue(':description', $this->emptyStringAsNull($dashboard->getDescription()));
         $statement->bindValue(':updated_at', $dashboard->getUpdatedAt()->getTimestamp());
+        $statement->bindValue(':updated_by', $dashboard->getUpdatedBy());
 
         if ($dashboard instanceof NewDashboard) {
             $statement->bindValue(':created_at', $dashboard->getCreatedAt()->getTimestamp());
+            $statement->bindValue(':created_by', $dashboard->getCreatedBy());
         }
     }
 }

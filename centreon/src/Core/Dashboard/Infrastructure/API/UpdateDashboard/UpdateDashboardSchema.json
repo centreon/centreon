@@ -3,7 +3,8 @@
   "title": "Update a dashboard",
   "type": "object",
   "required": [
-    "name"
+    "name",
+    "description"
   ],
   "additionalProperties": false,
   "properties": {

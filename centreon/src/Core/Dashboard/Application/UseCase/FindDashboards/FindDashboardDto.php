@@ -33,6 +33,10 @@ final class FindDashboardDto
 
     public string $description = '';
 
+    public ?FindDashboardsUserDto $createdBy = null;
+
+    public ?FindDashboardsUserDto $updatedBy = null;
+
     public DateTimeImmutable $createdAt;
 
     public DateTimeImmutable $updatedAt;

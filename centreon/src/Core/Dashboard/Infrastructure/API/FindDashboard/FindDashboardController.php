@@ -44,7 +44,7 @@ final class FindDashboardController extends AbstractController
         FindDashboard $useCase,
         FindDashboardPresenter $presenter,
     ): Response {
-        $this->denyAccessUnlessGrantedForAPIConfiguration();
+        $this->denyAccessUnlessGrantedForApiConfiguration();
 
         $useCase($dashboardId, $presenter);
 

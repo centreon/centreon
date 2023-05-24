@@ -29,6 +29,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
@@ -41,6 +42,7 @@ final class FindDashboard
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly ContactInterface $contact
     ) {
     }
@@ -132,6 +134,9 @@ final class FindDashboard
      */
     private function createResponse(Dashboard $dashboard): FindDashboardResponse
     {
+        $contactIds = $this->extractAllContactIdsFromDashboard($dashboard);
+        $contactNames = $this->readContactRepository->findNamesByIds(...$contactIds);
+
         $response = new FindDashboardResponse();
 
         $response->id = $dashboard->getId();
@@ -140,6 +145,35 @@ final class FindDashboard
         $response->createdAt = $dashboard->getCreatedAt();
         $response->updatedAt = $dashboard->getUpdatedAt();
 
+        if (null !== ($contactId = $dashboard->getCreatedBy())) {
+            $response->createdBy = new FindDashboardUserDto();
+            $response->createdBy->id = $contactId;
+            $response->createdBy->name = $contactNames[$contactId]['name'] ?? '';
+        }
+        if (null !== ($contactId = $dashboard->getCreatedBy())) {
+            $response->updatedBy = new FindDashboardUserDto();
+            $response->updatedBy->id = $contactId;
+            $response->updatedBy->name = $contactNames[$contactId]['name'] ?? '';
+        }
+
         return $response;
+    }
+
+    /**
+     * @param Dashboard $dashboard
+     *
+     * @return int[]
+     */
+    private function extractAllContactIdsFromDashboard(Dashboard $dashboard): array
+    {
+        $contactIds = [];
+        if ($id = $dashboard->getCreatedBy()) {
+            $contactIds[] = $id;
+        }
+        if ($id = $dashboard->getUpdatedBy()) {
+            $contactIds[] = $id;
+        }
+
+        return $contactIds;
     }
 }

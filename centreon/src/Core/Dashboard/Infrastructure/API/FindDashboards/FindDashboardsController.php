@@ -26,9 +26,18 @@ namespace Core\Dashboard\Infrastructure\API\FindDashboards;
 use Centreon\Application\Controller\AbstractController;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboards;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class FindDashboardsController extends AbstractController
 {
+    /**
+     * @param FindDashboards $useCase
+     * @param FindDashboardsPresenter $presenter
+     *
+     * @throws AccessDeniedException
+     *
+     * @return Response
+     */
     public function __invoke(
         FindDashboards $useCase,
         FindDashboardsPresenter $presenter

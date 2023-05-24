@@ -27,11 +27,12 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsResponse;
+use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsUserDto;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
-class FindDashboardsPresenter extends DefaultPresenter implements FindDashboardsPresenterInterface
+final class FindDashboardsPresenter extends DefaultPresenter implements FindDashboardsPresenterInterface
 {
     use PresenterTrait;
 
@@ -51,6 +52,8 @@ class FindDashboardsPresenter extends DefaultPresenter implements FindDashboards
                     'id' => $dashboard->id,
                     'name' => $dashboard->name,
                     'description' => $this->emptyStringAsNull($dashboard->description),
+                    'created_by' => $this->userToOptionalArray($dashboard->createdBy),
+                    'updated_by' => $this->userToOptionalArray($dashboard->updatedBy),
                     'created_at' => $this->formatDateToIso8601($dashboard->createdAt),
                     'updated_at' => $this->formatDateToIso8601($dashboard->updatedAt),
                 ];
@@ -63,5 +66,18 @@ class FindDashboardsPresenter extends DefaultPresenter implements FindDashboards
         } else {
             $this->setResponseStatus($data);
         }
+    }
+
+    /**
+     * @param ?FindDashboardsUserDto $dto
+     *
+     * @return null|array{id: int, name: string}
+     */
+    private function userToOptionalArray(?FindDashboardsUserDto $dto): ?array
+    {
+        return $dto ? [
+            'id' => $dto->id,
+            'name' => $dto->name,
+        ] : null;
     }
 }

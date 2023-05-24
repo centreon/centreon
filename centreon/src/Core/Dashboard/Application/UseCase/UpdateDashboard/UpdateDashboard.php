@@ -98,8 +98,8 @@ final class UpdateDashboard
      * @param UpdateDashboardRequest $request
      * @param int $dashboardId
      *
-     * @throws DashboardException
      * @throws \Throwable
+     * @throws DashboardException
      *
      * @return NoContentResponse|NotFoundResponse
      */
@@ -121,8 +121,8 @@ final class UpdateDashboard
      * @param UpdateDashboardRequest $request
      * @param int $dashboardId
      *
-     * @throws DashboardException
      * @throws \Throwable
+     * @throws DashboardException
      *
      * @return NoContentResponse|NotFoundResponse
      */
@@ -150,7 +150,7 @@ final class UpdateDashboard
      * @param Dashboard $dashboard
      * @param UpdateDashboardRequest $request
      *
-     * @throws AssertionFailedException
+     * @throws AssertionFailedException|\Throwable
      */
     private function updateDashboardAndSave(Dashboard $dashboard, UpdateDashboardRequest $request): void
     {
@@ -158,8 +158,10 @@ final class UpdateDashboard
             id: $dashboard->getId(),
             name: $request->name,
             description: $request->description,
+            createdBy: $dashboard->getCreatedBy(),
+            updatedBy: $this->contact->getId(),
             createdAt: $dashboard->getCreatedAt(),
-            updatedAt: new \DateTimeImmutable(),
+            updatedAt: new \DateTimeImmutable()
         );
 
         $this->writeDashboardRepository->update($updatedDashboard);

@@ -6990,6 +6990,28 @@ components:
               type: integer
               description: "Dashboard ID"
               example: 1
+            created_by:
+              type: object
+              nullable: true
+              properties:
+                id: { type: integer, description: "Creation contact ID" }
+                name: { type: string,  description: "Creation contact name" }
+            updated_by:
+              type: object
+              nullable: true
+              properties:
+                id: { type: integer, description: "Last update contact ID" }
+                name: { type: string,  description: "Last update contact name" }
+            created_at:
+              type: string
+              format: date-time
+              nullable: true
+              description: "Creation date (ISO8601)"
+            updated_at:
+              type: string
+              format: date-time
+              nullable: true
+              description: "Last update date (ISO8601)"
     Configuration.Dashboard.Add:
       type: object
       properties:
@@ -6998,21 +7020,11 @@ components:
           maxLength: 200
           description: "Dashboard name"
           example: "my dashboard"
-        comment:
+        description:
           type: string
           nullable: true
           maxLength: 65535
           description: "Description about this dashboard"
-        created_at:
-          type: string
-          format: date-time
-          nullable: true
-          description: "Creation date (ISO8601)"
-        updated_at:
-          type: string
-          format: date-time
-          nullable: true
-          description: "Last update date (ISO8601)"
     Configuration.Service.Group:
       allOf:
         - $ref: '#/components/schemas/Configuration.Service.Group.Add'

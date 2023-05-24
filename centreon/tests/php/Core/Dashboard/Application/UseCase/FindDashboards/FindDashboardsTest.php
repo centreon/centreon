@@ -28,6 +28,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboards;
@@ -45,6 +46,7 @@ beforeEach(function (): void {
         $this->readDashboardRepository,
         $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->createMock(RequestParametersInterface::class),
+        $this->createMock(ReadContactRepositoryInterface::class),
         $this->contact
     );
 
@@ -52,6 +54,8 @@ beforeEach(function (): void {
         $this->testedDashboardId = 1,
         $this->testedDashboardName = 'dashboard-name',
         $this->testedDashboardDescription = 'dashboard-description',
+        $this->testedDashboardCreatedBy = 2,
+        $this->testedDashboardUpdatedBy = 3,
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
         $this->testedDashboardUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00'),
     );
@@ -71,9 +75,9 @@ it(
 
         ($this->useCase)($this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->data)
             ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->data->getMessage())
             ->toBe(DashboardException::errorWhileSearching()->getMessage());
     }
 );
@@ -97,9 +101,9 @@ it(
 
         ($this->useCase)($this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->data)
             ->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->data->getMessage())
             ->toBe(DashboardException::accessNotAllowed()->getMessage());
     }
 );
@@ -119,7 +123,7 @@ it(
         ($this->useCase)($this->presenter);
 
         /** @var FindDashboardsResponse $presentedData */
-        $presentedData = $this->presenter->getPresentedData();
+        $presentedData = $this->presenter->data;
         $dashboard = $presentedData->dashboards[0] ?? [];
 
         expect($presentedData)->toBeInstanceOf(FindDashboardsResponse::class)
@@ -159,7 +163,7 @@ it(
         ($this->useCase)($this->presenter);
 
         /** @var FindDashboardsResponse $presentedData */
-        $presentedData = $this->presenter->getPresentedData();
+        $presentedData = $this->presenter->data;
         $dashboard = $presentedData->dashboards[0] ?? [];
 
         expect($presentedData)->toBeInstanceOf(FindDashboardsResponse::class)
@@ -197,7 +201,7 @@ it(
         ($this->useCase)($this->presenter);
 
         /** @var FindDashboardsResponse $presentedData */
-        $presentedData = $this->presenter->getPresentedData();
+        $presentedData = $this->presenter->data;
         $dashboard = $presentedData->dashboards[0] ?? [];
 
         expect($presentedData)->toBeInstanceOf(FindDashboardsResponse::class)

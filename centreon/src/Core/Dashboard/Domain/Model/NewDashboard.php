@@ -37,17 +37,34 @@ class NewDashboard
 
     protected \DateTimeImmutable $updatedAt;
 
+    protected int $createdBy;
+
+    protected int $updatedBy;
+
     /**
      * @param string $name
+     * @param int $createdBy
      *
      * @throws AssertionFailedException
      */
-    public function __construct(string $name)
+    public function __construct(string $name, int $createdBy)
     {
         $this->setName($name);
         $this->setDescription('');
+        $this->setCreatedBy($createdBy);
+        $this->setUpdatedBy($createdBy);
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function getCreatedBy(): int
+    {
+        return $this->createdBy;
+    }
+
+    public function getUpdatedBy(): int
+    {
+        return $this->updatedBy;
     }
 
     public function getCreatedAt(): \DateTimeImmutable
@@ -90,5 +107,27 @@ class NewDashboard
     {
         $this->description = trim($description);
         $this->ensureValidDescription($this->description);
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @throws AssertionFailedException
+     */
+    public function setCreatedBy(int $userId): void
+    {
+        $this->createdBy = $userId;
+        $this->ensurePositiveInt($this->createdBy, 'createdBy');
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @throws AssertionFailedException
+     */
+    public function setUpdatedBy(int $userId): void
+    {
+        $this->updatedBy = $userId;
+        $this->ensurePositiveInt($this->updatedBy, 'updatedBy');
     }
 }

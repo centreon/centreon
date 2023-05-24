@@ -29,8 +29,12 @@ use Core\Dashboard\Domain\Model\NewDashboard;
 
 beforeEach(function (): void {
     $this->createDashboard = static function (array $fields = []): NewDashboard {
-        $dashboard = new NewDashboard($fields['name'] ?? 'dashboard-name');
+        $dashboard = new NewDashboard(
+            $fields['name'] ?? 'dashboard-name',
+            $fields['created_by'] ?? 2
+        );
         $dashboard->setDescription($fields['description'] ?? 'dashboard-description');
+        $dashboard->setUpdatedBy($fields['updated_by'] ?? 3);
 
         return $dashboard;
     };
@@ -43,7 +47,9 @@ it('should return properly set dashboard instance', function (): void {
     expect($dashboard->getName())->toBe('dashboard-name')
         ->and($dashboard->getDescription())->toBe('dashboard-description')
         ->and($dashboard->getCreatedAt()->getTimestamp())->toBeGreaterThanOrEqual($now)
-        ->and($dashboard->getUpdatedAt()->getTimestamp())->toBeGreaterThanOrEqual($now);
+        ->and($dashboard->getUpdatedAt()->getTimestamp())->toBeGreaterThanOrEqual($now)
+        ->and($dashboard->getCreatedBy())->toBe(2)
+        ->and($dashboard->getUpdatedBy())->toBe(3);
 });
 
 // mandatory fields
@@ -109,3 +115,21 @@ foreach (
         AssertionException::maxLength($tooLong, $length + 1, $length, "NewDashboard::{$field}")->getMessage()
     );
 }
+
+// not positive integers
+
+foreach (
+    [
+        'created_by' => 'createdBy',
+        'updated_by' => 'updatedBy',
+    ] as $field => $propertyName
+) {
+    it(
+        "should throw an exception when dashboard {$field} is not a positive integer",
+        fn() => ($this->createDashboard)([$field => 0])
+    )->throws(
+        AssertionException::class,
+        AssertionException::positiveInt(0, 'NewDashboard::' . $propertyName)->getMessage()
+    );
+}
+

@@ -42,6 +42,8 @@ class Dashboard
      * @param int $id
      * @param string $name
      * @param string $description
+     * @param ?int $createdBy
+     * @param ?int $updatedBy
      * @param \DateTimeImmutable $createdAt
      * @param \DateTimeImmutable $updatedAt
      *
@@ -51,6 +53,8 @@ class Dashboard
         protected readonly int $id,
         string $name,
         string $description,
+        protected readonly ?int $createdBy,
+        protected readonly ?int $updatedBy,
         protected readonly \DateTimeImmutable $createdAt,
         protected readonly \DateTimeImmutable $updatedAt,
     ) {
@@ -59,11 +63,23 @@ class Dashboard
 
         $this->ensureValidName($this->name);
         $this->ensureValidDescription($this->description);
+        $this->ensureNullablePositiveInt($this->createdBy, 'createdBy');
+        $this->ensureNullablePositiveInt($this->updatedBy, 'updatedBy');
     }
 
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function getCreatedBy(): ?int
+    {
+        return $this->createdBy;
+    }
+
+    public function getUpdatedBy(): ?int
+    {
+        return $this->updatedBy;
     }
 
     public function getCreatedAt(): \DateTimeImmutable
