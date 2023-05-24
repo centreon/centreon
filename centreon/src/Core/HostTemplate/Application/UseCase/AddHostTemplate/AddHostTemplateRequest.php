@@ -53,11 +53,11 @@ final class AddHostTemplateRequest
 
     public ?int $retryCheckInterval = null;
 
-    public int $activeCheckEnabled;
+    public int $activeCheckEnabled = 2;
 
-    public int $passiveCheckEnabled;
+    public int $passiveCheckEnabled = 2;
 
-    public int $notificationEnabled;
+    public int $notificationEnabled = 2;
 
     public ?int $notificationOptions = null;
 
@@ -75,17 +75,17 @@ final class AddHostTemplateRequest
 
     public ?int $acknowledgementTimeout = null;
 
-    public int $freshnessChecked;
+    public int $freshnessChecked = 2;
 
     public ?int $freshnessThreshold = null;
 
-    public int $flapDetectionEnabled;
+    public int $flapDetectionEnabled = 2;
 
     public ?int $lowFlapThreshold = null;
 
     public ?int $highFlapThreshold = null;
 
-    public int $eventHandlerEnabled;
+    public int $eventHandlerEnabled = 2;
 
     public ?int $eventHandlerCommandId = null;
 
@@ -105,13 +105,4 @@ final class AddHostTemplateRequest
     public string $comment = '';
 
     public bool $isActivated = true;
-
-    public function __construct() {
-        $this->activeCheckEnabled = YesNoDefaultConverter::toInt(YesNoDefault::Default);
-        $this->passiveCheckEnabled = YesNoDefaultConverter::toInt(YesNoDefault::Default);
-        $this->notificationEnabled = YesNoDefaultConverter::toInt(YesNoDefault::Default);
-        $this->freshnessChecked = YesNoDefaultConverter::toInt(YesNoDefault::Default);
-        $this->flapDetectionEnabled = YesNoDefaultConverter::toInt(YesNoDefault::Default);
-        $this->eventHandlerEnabled = YesNoDefaultConverter::toInt(YesNoDefault::Default);
-    }
 }
