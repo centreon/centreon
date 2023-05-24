@@ -13,22 +13,18 @@ runs:
   steps:
     - name: Exclude development files
       run: |
-        ls -la
         cd ${{ inputs.module_directory }}
-        ls -la
         if [[ -f ".veracode" ]]; then
-          cat .veracode
           for LINE in $( cat .veracode | sed 's/[^a-z_/A-Z]//g' ); do
-            if [[ -d '$LINE' ]]; then
-              rm -rf '$LINE'
-              echo "[INFO] - folder removed from analysis : $LINE"
-            elif [[ -f '$LINE' ]]; then
-              rm -f '$LINE'
-              echo "[INFO] - file removed from analysis : $LINE"
-            elif [[ -z '$LINE' ]]; then
+            if [[ -d "$LINE" ]]; then
+              rm -rf "$LINE"
+              echo "[INFO] - folder removed from analysis : '$LINE'"
+            elif [[ -f "$LINE" ]]; then
+              rm -f "$LINE"
+              echo "[INFO] - file removed from analysis : '$LINE'"
+            elif [[ -z "$LINE" ]]; then
               echo "[INFO] - empty directive. Skipping this line"
             else
-              ls -la
               echo "[INFO] - target to exclude not found. Skipping: '$LINE'"
             fi
           done
