@@ -71,7 +71,6 @@ const listNotificationResponse = {
   ]
 };
 
-
 const hostGroupsResponse = {
   meta: {
     limit: 10,
@@ -136,10 +135,9 @@ const usersResponse = {
   ]
 };
 
-
 export {
-  usersResponse, 
+  usersResponse,
   listNotificationResponse,
-hostGroupsResponse,
-serviceGroupsResponse,
-}
+  hostGroupsResponse,
+  serviceGroupsResponse
+};
