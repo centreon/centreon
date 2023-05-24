@@ -28,6 +28,7 @@ runs:
             elif [[ -z '$LINE' ]]; then
               echo "[INFO] - empty directive. Skipping this line"
             else
+              ls -la
               echo "[INFO] - target to exclude not found. Skipping: '$LINE'"
             fi
           done
