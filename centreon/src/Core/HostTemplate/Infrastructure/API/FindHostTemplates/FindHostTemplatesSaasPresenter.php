@@ -31,7 +31,7 @@ use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesRes
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
-class FindHostTemplatesPresenterOnPrem extends AbstractPresenter implements FindHostTemplatesPresenterInterface
+class FindHostTemplatesSaasPresenter extends AbstractPresenter implements FindHostTemplatesPresenterInterface
 {
     use PresenterTrait;
 
@@ -51,6 +51,7 @@ class FindHostTemplatesPresenterOnPrem extends AbstractPresenter implements Find
             $this->setResponseStatus($response);
         } else {
             $result = [];
+
             foreach ($response->hostTemplates as $hostTemplate) {
                 $result[] = [
                     'id' => $hostTemplate['id'],
@@ -60,37 +61,10 @@ class FindHostTemplatesPresenterOnPrem extends AbstractPresenter implements Find
                     'snmp_community' => $this->emptyStringAsNull($hostTemplate['snmpCommunity']),
                     'timezone_id' => $hostTemplate['timezoneId'],
                     'severity_id' => $hostTemplate['severityId'],
-                    'check_command_id' => $hostTemplate['checkCommandId'],
-                    'check_command_args' => $hostTemplate['checkCommandArgs'],
                     'check_timeperiod_id' => $hostTemplate['checkTimeperiodId'],
-                    'max_check_attempts' => $hostTemplate['maxCheckAttempts'],
-                    'normal_check_interval' => $hostTemplate['normalCheckInterval'],
-                    'retry_check_interval' => $hostTemplate['retryCheckInterval'],
-                    'active_check_enabled' => $hostTemplate['activeCheckEnabled'],
-                    'passive_check_enabled' => $hostTemplate['passiveCheckEnabled'],
-                    'notification_enabled' => $hostTemplate['notificationEnabled'],
-                    'notification_options' => $hostTemplate['notificationOptions'],
-                    'notification_interval' => $hostTemplate['notificationInterval'],
-                    'notification_timeperiod_id' => $hostTemplate['notificationTimeperiodId'],
-                    'add_inherited_contact_group' => $hostTemplate['addInheritedContactGroup'],
-                    'add_inherited_contact' => $hostTemplate['addInheritedContact'],
-                    'first_notification_delay' => $hostTemplate['firstNotificationDelay'],
-                    'recovery_notification_delay' => $hostTemplate['recoveryNotificationDelay'],
-                    'acknowledgement_timeout' => $hostTemplate['acknowledgementTimeout'],
-                    'freshness_checked' => $hostTemplate['freshnessChecked'],
-                    'freshness_threshold' => $hostTemplate['freshnessThreshold'],
-                    'flap_detection_enabled' => $hostTemplate['flapDetectionEnabled'],
-                    'low_flap_threshold' => $hostTemplate['lowFlapThreshold'],
-                    'high_flap_threshold' => $hostTemplate['highFlapThreshold'],
-                    'event_handler_enabled' => $hostTemplate['eventHandlerEnabled'],
-                    'event_handler_command_id' => $hostTemplate['eventHandlerCommandId'],
-                    'event_handler_command_args' => $hostTemplate['eventHandlerCommandArgs'],
                     'note_url' => $this->emptyStringAsNull($hostTemplate['noteUrl']),
                     'note' => $this->emptyStringAsNull($hostTemplate['note']),
                     'action_url' => $this->emptyStringAsNull($hostTemplate['actionUrl']),
-                    'icon_id' => $hostTemplate['iconId'],
-                    'icon_alternative' => $this->emptyStringAsNull($hostTemplate['iconAlternative']),
-                    'comment' => $this->emptyStringAsNull($hostTemplate['comment']),
                     'is_activated' => $hostTemplate['isActivated'],
                     'is_locked' => $hostTemplate['isLocked'],
                 ];

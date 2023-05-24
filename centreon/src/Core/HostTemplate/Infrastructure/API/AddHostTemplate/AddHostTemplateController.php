@@ -41,8 +41,8 @@ final class AddHostTemplateController extends AbstractController
     /**
      * @param Request $request
      * @param AddHostTemplate $useCase
-     * @param AddHostTemplatePresenterSaas $saasPresenter
-     * @param AddHostTemplatePresenterOnPrem $onPremPresenter
+     * @param AddHostTemplateSaasPresenter $saasPresenter
+     * @param AddHostTemplateOnPremPresenter $onPremPresenter
      * @param bool $isCloudPlatform
      *
      * @throws AccessDeniedException
@@ -52,8 +52,8 @@ final class AddHostTemplateController extends AbstractController
     public function __invoke(
         Request $request,
         AddHostTemplate $useCase,
-        AddHostTemplatePresenterSaas $saasPresenter,
-        AddHostTemplatePresenterOnPrem $onPremPresenter,
+        AddHostTemplateSaasPresenter $saasPresenter,
+        AddHostTemplateOnPremPresenter $onPremPresenter,
         bool $isCloudPlatform,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
@@ -67,14 +67,14 @@ final class AddHostTemplateController extends AbstractController
 
     /**
      * @param AddHostTemplate $useCase
-     * @param AddHostTemplatePresenterOnPrem $presenter
+     * @param AddHostTemplateOnPremPresenter $presenter
      * @param Request $request
      *
      * @return Response
      */
     private function executeUseCaseOnPrem(
         AddHostTemplate $useCase,
-        AddHostTemplatePresenterOnPrem $presenter,
+        AddHostTemplateOnPremPresenter $presenter,
         Request $request
     ): Response
     {
@@ -177,14 +177,14 @@ final class AddHostTemplateController extends AbstractController
 
     /**
      * @param AddHostTemplate $useCase
-     * @param AddHostTemplatePresenterSaas $presenter
+     * @param AddHostTemplateSaasPresenter $presenter
      * @param Request $request
      *
      * @return Response
      */
     private function executeUseCaseSaas(
         AddHostTemplate $useCase,
-        AddHostTemplatePresenterSaas $presenter,
+        AddHostTemplateSaasPresenter $presenter,
         Request $request
     ): Response
     {

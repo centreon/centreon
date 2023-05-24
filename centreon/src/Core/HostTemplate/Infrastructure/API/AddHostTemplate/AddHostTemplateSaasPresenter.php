@@ -30,7 +30,7 @@ use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplatePresent
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateResponse;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
-class AddHostTemplatePresenterOnPrem extends AbstractPresenter implements AddHostTemplatePresenterInterface
+class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostTemplatePresenterInterface
 {
     use PresenterTrait;
 
@@ -42,6 +42,7 @@ class AddHostTemplatePresenterOnPrem extends AbstractPresenter implements AddHos
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
+
             $this->present(
                 new CreatedResponse(
                     $response->id,
@@ -53,38 +54,10 @@ class AddHostTemplatePresenterOnPrem extends AbstractPresenter implements AddHos
                         'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
                         'timezone_id' => $response->timezoneId,
                         'severity_id' => $response->severityId,
-                        'check_command_id' => $response->checkCommandId,
-                        'check_command_args' => $response->checkCommandArgs,
                         'check_timeperiod_id' => $response->checkTimeperiodId,
-                        'max_check_attempts' => $response->maxCheckAttempts,
-                        'normal_check_interval' => $response->normalCheckInterval,
-                        'retry_check_interval' => $response->retryCheckInterval,
-                        'active_check_enabled' => $response->activeCheckEnabled,
-                        'passive_check_enabled' => $response->passiveCheckEnabled,
-                        'notification_enabled' => $response->notificationEnabled,
-                        'notification_options' => $response->notificationOptions,
-                        'notification_interval' => $response->notificationInterval,
-                        'notification_timeperiod_id' => $response->notificationTimeperiodId,
-                        'add_inherited_contact_group' => $response->addInheritedContactGroup,
-                        'add_inherited_contact' => $response->addInheritedContact,
-                        'first_notification_delay' => $response->firstNotificationDelay,
-                        'recovery_notification_delay' => $response->recoveryNotificationDelay,
-                        'acknowledgement_timeout' => $response->acknowledgementTimeout,
-                        'freshness_checked' => $response->freshnessChecked,
-                        'freshness_threshold' => $response->freshnessThreshold,
-                        'flap_detection_enabled' => $response->flapDetectionEnabled,
-                        'low_flap_threshold' => $response->lowFlapThreshold,
-                        'high_flap_threshold' => $response->highFlapThreshold,
-                        'event_handler_enabled' => $response->eventHandlerEnabled,
-                        'event_handler_command_id' => $response->eventHandlerCommandId,
-                        'event_handler_command_args' => $response->eventHandlerCommandArgs,
                         'note_url' => $this->emptyStringAsNull($response->noteUrl),
                         'note' => $this->emptyStringAsNull($response->note),
                         'action_url' => $this->emptyStringAsNull($response->actionUrl),
-                        'icon_id' => $response->iconId,
-                        'icon_alternative' => $this->emptyStringAsNull($response->iconAlternative),
-                        'comment' => $this->emptyStringAsNull($response->comment),
-                        'is_activated' => $response->isActivated,
                         'is_locked' => $response->isLocked,
                     ]
                 )
@@ -92,6 +65,5 @@ class AddHostTemplatePresenterOnPrem extends AbstractPresenter implements AddHos
 
             // NOT setting location as required route does not currently exist
         }
-
     }
 }
