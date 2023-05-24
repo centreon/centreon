@@ -51,7 +51,7 @@ properties:
   max_check_attemps:
     type: integer
     nullable: true
-    description: "Define the number of times that monitoring engine will retry the host check command if it returns any non-OK state"
+    description: "Define the number of times that the monitoring engine will retry the host check command if it returns any non-OK state"
   check_interval:
     type: integer
     nullable: true
@@ -75,24 +75,24 @@ properties:
       Indicates whether the active checks is enabled or not
 
       * `0` - STATUS_DISABLED
-      * `1` - STATUS_ENABLE
-      * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
   passive_check_enabled:
     type: integer
     description: |
-      Indicates whether the passive checks is enabled or not
+      Indicates whether passive checks are enabled or not
 
       * `0` - STATUS_DISABLED
-      * `1` - STATUS_ENABLE
-      * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
   notification_enabled:
     type: integer
     description: |
       Specify whether notifications for this host are enabled or not
 
       * `0` - STATUS_DISABLED
-      * `1` - STATUS_ENABLE
-      * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
   notification_options:
     type: integer
     description: |
@@ -106,7 +106,7 @@ properties:
       * `4` - RECOVERY
       * `8` - FLAPPING
       * `16` - DOWNTIME_SCHEDULED
-      * NULL - (inheritance of his parent's value. If there is no parent, the values used will be: DOWN, UNREACHABLE, RECOVERY, FLAPPING and DOWNTIME_SCHEDULED)
+      * NULL - (inheritance of its parent's value. If there is no parent, the values used will be: DOWN, UNREACHABLE, RECOVERY, FLAPPING and DOWNTIME_SCHEDULED)
 
       example: A value equal to 5 corresponding to the selected options DOWN and RECOVERY
     example: 5
@@ -161,8 +161,8 @@ properties:
       Indicates whether freshness is checked or not
 
       * `0` - STATUS_DISABLED
-      * `1` - STATUS_ENABLE
-      * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
   freshness_threshold:
     type: integer
     nullable: true
@@ -173,8 +173,8 @@ properties:
       Indicates whether the flap detection is enabled or not
 
       * `0` - STATUS_DISABLED
-      * `1` - STATUS_ENABLE
-      * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
   low_flap_threshold:
     type: integer
     nullable: true
@@ -189,8 +189,8 @@ properties:
       Indicates whether the event handler is enabled or not
 
       * `0` - STATUS_DISABLED
-      * `1` - STATUS_ENABLE
-      * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
   event_handler_command_id:
     type: integer
     description: "Event handler command ID"
@@ -226,7 +226,7 @@ properties:
     type: string
     nullable: true
     maxLength: 200
-    description: "Define an optional string that is used in the alternative description of the icon image"
+    description: "Define an optional string that is used as alternative description for the icon"
   comment:
     type: string
     nullable: true

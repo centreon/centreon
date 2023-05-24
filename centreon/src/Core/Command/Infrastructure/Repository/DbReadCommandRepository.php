@@ -46,7 +46,7 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
      */
     public function exists(int $commandId): bool
     {
-        $this->info(sprintf('Check existence of command with id #%d', $commandId));
+        $this->info(sprintf('Check existence of command with ID #%d', $commandId));
 
         $request = $this->translateDbName(
             <<<'SQL'
@@ -67,7 +67,7 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
      */
     public function existsByIdAndCommandType(int $commandId, CommandType $commandType): bool
     {
-        $this->info(sprintf('Check existence of command with id #%d and type %s', $commandId, $commandType->value));
+        $this->info(sprintf('Check existence of command with ID #%d and type %s', $commandId, $commandType->value));
 
         $request = $this->translateDbName(
             <<<'SQL'

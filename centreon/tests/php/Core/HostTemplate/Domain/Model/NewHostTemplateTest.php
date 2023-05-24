@@ -186,7 +186,7 @@ foreach (
 }
 
 // name and conmmands args should be formated
-it("should return trimmed and formated name field after construct", function (): void {
+it("should return trimmed and formatted name field after construct", function (): void {
     $hostTemplate = new NewHostTemplate('    host template name   ', 'alias');
 
     expect($hostTemplate->getName())->toBe('host_template_name');

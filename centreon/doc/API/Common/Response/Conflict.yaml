@@ -10,4 +10,4 @@ content:
           example: 409
         message:
           type: string
-          example: "A platform using the name : 'myPoller' or address : '1.1.1.2' already exists"
+          example: "A platform using the name: 'myPoller' or address: '1.1.1.2' already exists"

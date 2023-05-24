@@ -45,7 +45,7 @@ class DbReadTimezoneRepository extends AbstractRepositoryRDB implements ReadTime
      */
     public function exists(int $timezoneId): bool
     {
-        $this->info('Check existence of timezone with id #' . $timezoneId);
+        $this->info('Check existence of timezone with ID #' . $timezoneId);
 
         $request = $this->translateDbName(
             <<<'SQL'

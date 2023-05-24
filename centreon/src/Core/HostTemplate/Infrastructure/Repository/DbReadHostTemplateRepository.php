@@ -197,7 +197,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
      */
     public function findById(int $hostTemplateId): ?HostTemplate
     {
-        $this->info('Get a host template with id #' . $hostTemplateId);
+        $this->info('Get a host template with ID #' . $hostTemplateId);
 
         $request = $this->translateDbName(
             <<<'SQL'
@@ -313,7 +313,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
      */
     public function exists(int $hostTemplateId): bool
     {
-        $this->info('Check existence of host template with id #' . $hostTemplateId);
+        $this->info('Check existence of host template with ID #' . $hostTemplateId);
 
         $request = $this->translateDbName(
             <<<'SQL'
@@ -357,7 +357,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
      */
     public function isLocked(int $hostTemplateId): bool
     {
-        $this->info('Check is_locked property for host template with id #' . $hostTemplateId);
+        $this->info('Check is_locked property for host template with ID #' . $hostTemplateId);
 
         $request = $this->translateDbName(
             <<<'SQL'
