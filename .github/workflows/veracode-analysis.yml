@@ -126,3 +126,66 @@ jobs:
           BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
           aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
           aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
+
+  policy-scan:
+    needs: [build]
+    name: Run a sandbox scan
+    #if: needs.build.outputs.development_stage != 'Development' # TODO to revert before merge
+    if: github.base_ref == 'MON-19351-sandbox-scan'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get build binary
+        uses: actions/cache/restore@v3
+        with:
+          path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
+          key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
+
+      - name: DEBUG - Check location
+        run: ls -la
+
+      - name: DEBUG - Check location tmp
+        run: ls -la /tmp
+
+      - name: Run a sandbox scan
+        uses: veracode/veracode-uploadandscan-action@master
+        with:
+          appname: "${{ inputs.module_name }}"
+          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}"
+          filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          createprofile: true
+          createsandbox: true
+          #sandboxname: "${{ github.ref_name }}" # TODO to revert before merge
+          sandboxname: "fake_develop"
+          criticality: "High"
+          scantimeout: 60
+          includenewmodules: 'true'
+          scanallnonfataltoplevelmodules: 'true'
+          continue-on-error: 'true'
+          deleteincompletescan: 1
+          scanpollinginterval: 60 # time between two checks / 0.2.5
+
+      - name: DEBUG - Check branch ref name
+        run: echo "current branch name ${{ github.base_ref }}"
+
+  promote-scan-to-policy:
+    needs: [build, policy-scan]
+    name: Promote sandbox scan as policy scan
+    #if: github.ref_name == 'develop' # TODO to revert before merge
+    if: github.base_ref == 'MON-19351-sandbox-scan'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Promote sandbox scan to policy
+        env:
+          VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
+          VERACODE_API_SECRET: ${{ secrets.VERACODE_API_KEY }}
+        uses: veracode/veracode-sandboxes-helper@v1.0.0
+        with:
+          activity: "promote-latest-scan"
+          app-name: "${{ inputs.module_name }}"
+          #sandboxname: "${{ github.ref_name }}" # TODO to revert before merge
+          sandboxname: "fake_develop"
+          delete-on-promote: 'true'
