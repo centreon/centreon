@@ -97,12 +97,12 @@ final class FindNotifications
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (NotificationException $ex) {
-            $this->error('An error occured while retrieving the notifications listing', ['trace' => (string) $ex]);
+            $this->error('An error occurred while retrieving the notifications listing', ['trace' => (string) $ex]);
             $presenter->presentResponse(new ErrorResponse($ex));
         } catch (\Throwable $ex) {
-            $this->error('An error occured while retrieving the notifications listing', ['trace' => (string) $ex]);
+            $this->error('An error occurred while retrieving the notifications listing', ['trace' => (string) $ex]);
             $presenter->presentResponse(
-                new ErrorResponse(_('An error occured while retrieving the notifications listing'))
+                new ErrorResponse(_('An error occurred while retrieving the notifications listing'))
             );
         }
     }
@@ -174,14 +174,14 @@ final class FindNotifications
         $this->info('Retrieving ACLs for user', ['user' => $this->user->getId()]);
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
 
-        $this->info('Retrieving hostgroup resource counts for an user with ACL', ['user' => $this->user->getId()]);
+        $this->info('Retrieving hostgroup resource counts for a user with ACLs', ['user' => $this->user->getId()]);
         $hostgroupResourcesCount = $hostGroupResourceRepository->findResourcesCountByNotificationIdsAndAccessGroups(
             $notificationsIds,
             $accessGroups
         );
 
         $this->info(
-            'Retrieving servicegroup resource counts for an user with ACL',
+            'Retrieving servicegroup resource counts for a user with ACLs',
             ['user' => $this->user->getId()]
         );
         $servicegroupResourcesCount = $serviceGroupResourceRepository

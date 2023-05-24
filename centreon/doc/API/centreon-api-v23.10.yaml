@@ -279,7 +279,7 @@ paths:
       description: |
         List all notifications
 
-        This endpoint is accessible for Saas platforms only
+        This endpoint is accessible for SaaS platforms only
       responses:
         '200':
           description: "OK"

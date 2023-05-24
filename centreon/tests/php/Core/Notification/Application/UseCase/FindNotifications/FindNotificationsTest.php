@@ -53,7 +53,7 @@ beforeEach(function (): void {
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
 });
 
-it('should present an error response when the user is not admin and doesnt have sufficient ACLs', function (): void {
+it('should present an error response when the user is not admin and doesn\'t have sufficient ACLs', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1);
 
     (new FindNotifications(
