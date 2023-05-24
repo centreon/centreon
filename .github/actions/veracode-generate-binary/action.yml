@@ -14,7 +14,7 @@ runs:
     - name: Exclude development files
       run: |
         ls -la
-        cd ${{ inputs.module_name }}
+        cd ${{ inputs.module_directory }}
         ls -la
         if [[ -f ".veracode" ]]; then
           for LINE in $( cat .veracode | sed 's/[^a-z_/A-Z]//g' ); do
@@ -38,7 +38,8 @@ runs:
     - name: Create zip file
       run: |
         if [[ -z "${{ inputs.module_directory }}" || -z "${{ inputs.cache_key }}" ]]; then
-          echo "[DEBUG] - At least one mandatory argument is missing"
+          echo "[DEBUG] - At least one mandatory argument is missing. killing process"
+          exit 1
         fi
         cd ${{ inputs.module_directory }}
         zip -rq "${{ inputs.cache_key }}.zip" *
