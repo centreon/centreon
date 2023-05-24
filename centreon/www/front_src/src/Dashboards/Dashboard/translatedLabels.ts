@@ -7,3 +7,5 @@ export const labelCancel = 'Cancel';
 export const labelCancelDashboard = 'Cancel dashboard';
 export const labelYouWillCancelPageWithoutSaving =
   'You will cancel page without saving, your changes will be lost.';
+export const labelYourDashboardHasBeenSaved = 'Your dashboard has been saved';
+export const labelSaving = 'Saving...';

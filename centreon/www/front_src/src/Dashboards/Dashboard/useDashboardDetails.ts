@@ -10,6 +10,7 @@ import { dashboardsEndpoint } from '../api/endpoints';
 import { dashboardDetailsDecoder, panelsDetailsDecoder } from './api/decoders';
 import { DashboardDetails, Panel, PanelDetails } from './models';
 import { dashboardAtom } from './atoms';
+import { getPanelsEndpoint } from './api/endpoints';
 
 interface UseDashboardDetailsState {
   dashboard?: DashboardDetails;
@@ -29,6 +30,7 @@ export const formatPanel = ({
   i: `${panel.id}`,
   minH: panel.layout.minHeight,
   minW: panel.layout.minWidth,
+  name: panel.name,
   options: panel.widgetSettings,
   panelConfiguration: {
     path: panel.widgetType
@@ -56,7 +58,7 @@ const useDashboardDetails = (): UseDashboardDetailsState => {
 
   const { data: panels } = useFetchQuery({
     decoder: panelsDetailsDecoder,
-    getEndpoint: () => `${dashboardsEndpoint}/${dashboardId}/panels`,
+    getEndpoint: () => getPanelsEndpoint(dashboardId),
     getQueryKey: () => ['dashboard', dashboardId, 'panels']
   });
 

@@ -1,12 +1,14 @@
 import React, { ReactElement } from 'react';
 
 import { Button } from '../Button';
+import { SaveButton } from '../..';
 
 import { useStyles } from './Modal.styles';
 
 export type ModalActionsProps = {
   children?: React.ReactNode;
   isDanger?: boolean;
+  isLoading?: boolean;
   labels?: ModalActionsLabels;
   onCancel?: () => void;
   onConfirm?: () => void;
@@ -15,6 +17,7 @@ export type ModalActionsProps = {
 export type ModalActionsLabels = {
   cancel: string;
   confirm: string;
+  loading: string;
 };
 
 const ModalActions = ({
@@ -22,7 +25,8 @@ const ModalActions = ({
   labels,
   onCancel,
   onConfirm,
-  isDanger = false
+  isDanger = false,
+  isLoading = false
 }: ModalActionsProps): ReactElement => {
   const { classes } = useStyles();
 
@@ -32,22 +36,23 @@ const ModalActions = ({
         <>
           <Button
             aria-label="cancel"
+            disabled={isLoading}
             size="small"
             variant="secondary"
             onClick={() => onCancel?.()}
           >
             {labels?.cancel}
           </Button>
-          <Button
+          <SaveButton
             aria-label="confirm"
-            isDanger={isDanger}
+            color={isDanger ? 'error' : 'primary'}
+            labelLoading={labels?.loading}
+            labelSave={labels?.confirm}
+            loading={isLoading}
             size="small"
             type="submit"
-            variant="primary"
             onClick={() => onConfirm?.()}
-          >
-            {labels?.confirm}
-          </Button>
+          />
         </>
       )}
     </div>

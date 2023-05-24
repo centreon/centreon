@@ -7,12 +7,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import { Typography } from '@mui/material';
 
 import { Modal, Button } from '@centreon/ui/components';
+import { SaveButton } from '@centreon/ui';
 
 import {
   labelCancel,
   labelCancelDashboard,
   labelEdit,
   labelSave,
+  labelSaving,
   labelYouWillCancelPageWithoutSaving
 } from './translatedLabels';
 import {
@@ -23,6 +25,7 @@ import {
 import useDashboardSaveBlocker from './useDashboardSaveBlocker';
 import { PanelDetails } from './models';
 import { formatPanel } from './useDashboardDetails';
+import useSaveDashboard from './useSaveDashboard';
 
 interface HeaderActionsProps {
   id?: number;
@@ -48,6 +51,8 @@ const HeaderActions = ({
 
   const { blocked, blockNavigation, proceedNavigation } =
     useDashboardSaveBlocker({ id, name });
+
+  const { saveDashboard, isSaving } = useSaveDashboard();
 
   const startEditing = (): void => {
     switchPanelsEditionMode(true);
@@ -81,7 +86,13 @@ const HeaderActions = ({
     closeAskCancelConfirmationAndProceed();
   };
 
-  const savePanels = (): void => undefined;
+  const saveAndProceed = (): void => {
+    saveDashboard();
+
+    if (blocked) {
+      proceedNavigation?.();
+    }
+  };
 
   useEffect(() => {
     if (!blocked) {
@@ -108,11 +119,18 @@ const HeaderActions = ({
     <>
       <Button
         data-testid="cancel_dashboard"
+        disabled={isSaving}
         variant="ghost"
         onClick={askCancelConfirmation}
       >
         {t(labelCancel)}
       </Button>
+      <SaveButton
+        labelLoading={t(labelSaving) as string}
+        labelSave={t(labelSave) as string}
+        loading={isSaving}
+        onClick={saveDashboard}
+      />
       <Modal
         open={isAskingCancelConfirmation}
         onClose={closeAskCancelConfirmationAndBlock}
@@ -122,12 +140,14 @@ const HeaderActions = ({
           <Typography>{t(labelYouWillCancelPageWithoutSaving)}</Typography>
         </Modal.Body>
         <Modal.Actions
+          isLoading={isSaving}
           labels={{
             cancel: labelCancel,
-            confirm: labelSave
+            confirm: labelSave,
+            loading: labelSaving
           }}
           onCancel={cancelEditing}
-          onConfirm={savePanels}
+          onConfirm={saveAndProceed}
         />
       </Modal>
     </>

@@ -67,7 +67,6 @@ const SaveButton = ({
             },
             className
           )}
-          color="primary"
           data-testid={labelSave}
           id={getNormalizedId(labelSave)}
           loading={loading}
