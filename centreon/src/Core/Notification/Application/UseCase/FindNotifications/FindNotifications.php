@@ -24,20 +24,20 @@ declare(strict_types=1);
 namespace Core\Notification\Application\UseCase\FindNotifications;
 
 use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Notification\Domain\Model\Notification;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Notification\Domain\Model\NotificationChannel;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Application\Exception\NotificationException;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
+use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Core\Notification\Domain\Model\Notification;
+use Core\Notification\Domain\Model\NotificationChannel;
+use Core\Notification\Domain\Model\NotificationResource;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 
 final class FindNotifications
 {
@@ -84,7 +84,7 @@ final class FindNotifications
             $this->info(
                 'Retrieving Notification channels for notifications',
                 ['notifications' => implode(', ', $notificationsIds)]
-            );  
+            );
             $notificationChannelByNotifications = $this->notificationRepository
                 ->findNotificationChannelsByNotificationIds(
                     $notificationsIds
@@ -159,7 +159,7 @@ final class FindNotifications
      *
      * @param NotificationResourceRepositoryInterface $hostGroupResourceRepository
      * @param NotificationResourceRepositoryInterface $serviceGroupResourceRepository
-     * @param int[] $notificationsIds
+     * @param non-empty-array<int> $notificationsIds
      *
      * @return array{
      *  hostgroup_resources_count: array<int,int>,
@@ -201,7 +201,7 @@ final class FindNotifications
      *
      * @param NotificationResourceRepositoryInterface $hostGroupResourceRepository
      * @param NotificationResourceRepositoryInterface $serviceGroupResourceRepository
-     * @param int[] $notificationsIds
+     * @param non-empty-array<int> $notificationsIds
      *
      * @return array{
      *  hostgroup_resources_count: array<int,int>,

@@ -82,7 +82,7 @@ interface ReadNotificationResourceRepositoryInterface
     /**
      * Count the Resource by their notification id.
      *
-     * @param int[] $notificationIds
+     * @param non-empty-array<int> $notificationIds
      * @param AccessGroup[] $accessGroups
      *
      * @return array<int,int> [notification_id => resource_count]
@@ -95,7 +95,7 @@ interface ReadNotificationResourceRepositoryInterface
     /**
      * Count the Resource by their notification id.
      *
-     * @param int[] $notificationIds
+     * @param non-empty-array<int> $notificationIds
      *
      * @return array<int,int> [notification_id => resource_count]
      */
