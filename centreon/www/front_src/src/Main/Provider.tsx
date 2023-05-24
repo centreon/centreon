@@ -5,6 +5,7 @@ import { not, startsWith, tail } from 'ramda';
 import { createStore } from 'jotai';
 
 import { Module, QueryProvider } from '@centreon/ui';
+
 import routeMap from '../reactRoutes/routeMap';
 import AuthenticationDenied from '../FallbackPages/AuthenticationDenied';
 
@@ -32,31 +33,35 @@ const Provider = (): JSX.Element | null => {
     window.location.href = `${basename}${path}`;
   }, []);
 
-  const router = createBrowserRouter([
+  const router = createBrowserRouter(
+    [
+      {
+        Component: Main,
+        children: [
+          {
+            Component: AuthenticationDenied,
+            path: routeMap.authenticationDenied
+          },
+          {
+            Component: LoginPage,
+            path: routeMap.login
+          },
+          {
+            Component: ResetPasswordPage,
+            path: routeMap.resetPassword
+          },
+          {
+            Component: AppPage,
+            path: '*'
+          }
+        ],
+        path: '/'
+      }
+    ],
     {
-      path: '/',
-      Component: Main,
-      children: [
-        {
-          path: routeMap.authenticationDenied,
-          Component: AuthenticationDenied,
-        }, {
-          path: routeMap.login,
-          Component: LoginPage,
-        },
-        {
-          path: routeMap.resetPassword,
-          Component: ResetPasswordPage,
-        },
-        {
-          path: '*',
-          Component: AppPage,
-        }
-      ]
+      basename
     }
-  ], {
-    basename
-  })
+  );
 
   if (not(pathStartsWithBasename)) {
     return null;

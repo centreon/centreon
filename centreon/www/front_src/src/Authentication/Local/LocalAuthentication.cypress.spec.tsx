@@ -45,16 +45,12 @@ import {
   labelMinutes,
   labelChooseAValueBetween1and10,
   labelThisWillNotBeUsedBecauseNumberOfAttemptsIsNotDefined,
-  labelBlockingDurationMustBeLessThanOrEqualTo7Days,
   labelDay
 } from './translatedLabels';
 import {
   defaultPasswordSecurityPolicyAPI,
   retrievedPasswordSecurityPolicyAPI,
-  defaultPasswordSecurityPolicyWithNullValues,
-  securityPolicyWithInvalidDelayBeforeNewPassword,
-  securityPolicyWithInvalidPasswordExpiration,
-  securityPolicyWithInvalidBlockingDuration
+  defaultPasswordSecurityPolicyWithNullValues
 } from './defaults';
 import { PasswordSecurityPolicyToAPI } from './models';
 

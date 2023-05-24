@@ -15,7 +15,11 @@ import {
   labelSave,
   labelYouWillCancelPageWithoutSaving
 } from './translatedLabels';
-import { dashboardAtom, isEditingAtom, switchPanelsEditionModeDerivedAtom } from './atoms';
+import {
+  dashboardAtom,
+  isEditingAtom,
+  switchPanelsEditionModeDerivedAtom
+} from './atoms';
 import useDashboardSaveBlocker from './useDashboardSaveBlocker';
 import { PanelDetails } from './models';
 import { formatPanel } from './useDashboardDetails';
@@ -26,7 +30,11 @@ interface HeaderActionsProps {
   panels?: Array<PanelDetails>;
 }
 
-const HeaderActions = ({ id, name, panels }: HeaderActionsProps): JSX.Element => {
+const HeaderActions = ({
+  id,
+  name,
+  panels
+}: HeaderActionsProps): JSX.Element => {
   const { t } = useTranslation();
 
   const [isAskingCancelConfirmation, setIsAskingCancelConfirmation] =
@@ -38,7 +46,8 @@ const HeaderActions = ({ id, name, panels }: HeaderActionsProps): JSX.Element =>
   );
   const setDashboard = useSetAtom(dashboardAtom);
 
-  const { blocked, blockNavigation, proceedNavigation } = useDashboardSaveBlocker({ id, name, });
+  const { blocked, blockNavigation, proceedNavigation } =
+    useDashboardSaveBlocker({ id, name });
 
   const startEditing = (): void => {
     switchPanelsEditionMode(true);
@@ -50,7 +59,7 @@ const HeaderActions = ({ id, name, panels }: HeaderActionsProps): JSX.Element =>
 
   const closeAskCancelConfirmationAndBlock = (): void => {
     setIsAskingCancelConfirmation(false);
-    
+
     if (blocked) {
       blockNavigation?.();
     }
@@ -58,7 +67,7 @@ const HeaderActions = ({ id, name, panels }: HeaderActionsProps): JSX.Element =>
 
   const closeAskCancelConfirmationAndProceed = (): void => {
     setIsAskingCancelConfirmation(false);
-    
+
     if (blocked) {
       proceedNavigation?.();
     }
@@ -80,7 +89,7 @@ const HeaderActions = ({ id, name, panels }: HeaderActionsProps): JSX.Element =>
     }
 
     setIsAskingCancelConfirmation(true);
-  }, [blocked])
+  }, [blocked]);
 
   if (!isEditing) {
     return (

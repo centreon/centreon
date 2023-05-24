@@ -9,7 +9,16 @@ const Dashboard = (): JSX.Element => {
 
   return (
     <TiledListingPage>
-      <Header nav={<HeaderActions id={dashboard?.id} name={dashboard?.name} panels={panels} />} title={dashboard?.name || ''} />
+      <Header
+        nav={
+          <HeaderActions
+            id={dashboard?.id}
+            name={dashboard?.name}
+            panels={panels}
+          />
+        }
+        title={dashboard?.name || ''}
+      />
       <Layout />
     </TiledListingPage>
   );

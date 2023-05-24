@@ -15,11 +15,16 @@ import {
   reject,
   set
 } from 'ramda';
+import { atomWithStorage } from 'jotai/utils';
 
 import { getColumnsFromScreenSize } from '@centreon/ui';
 
-import { Panel, Dashboard, PanelConfiguration, QuitWithoutSavedDashboard } from './models';
-import { atomWithStorage } from 'jotai/utils';
+import {
+  Panel,
+  Dashboard,
+  PanelConfiguration,
+  QuitWithoutSavedDashboard
+} from './models';
 
 export const dashboardAtom = atom<Dashboard>({
   layout: []
@@ -238,4 +243,8 @@ export const switchPanelsEditionModeDerivedAtom = atom(
   }
 );
 
-export const quitWithoutSavedDashboardAtom = atomWithStorage<QuitWithoutSavedDashboard | null>('centreon-quit-without-saved-dashboard', null)
+export const quitWithoutSavedDashboardAtom =
+  atomWithStorage<QuitWithoutSavedDashboard | null>(
+    'centreon-quit-without-saved-dashboard',
+    null
+  );
