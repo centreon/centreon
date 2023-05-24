@@ -11,18 +11,22 @@ import {
 } from './atoms';
 import { NamedEntity } from './models';
 
-interface UseDashboardSaveBlockerState {
+export interface UseDashboardSaveBlockerState {
   blockNavigation?: () => void;
   blocked: boolean;
   proceedNavigation?: () => void;
 }
+
+export const router = {
+  useBlocker: unstable_useBlocker
+};
 
 const useDashboardSaveBlocker = (
   dashboard: Partial<NamedEntity>
 ): UseDashboardSaveBlockerState => {
   const isEditing = useAtomValue(isEditingAtom);
 
-  const blocker = unstable_useBlocker(isEditing);
+  const blocker = router.useBlocker(isEditing);
 
   const { layout } = useAtomValue(dashboardAtom);
   const quitWithoutSavedDashboard = useSetAtom(quitWithoutSavedDashboardAtom);

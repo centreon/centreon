@@ -1,0 +1,21 @@
+{
+  "id": 1,
+  "name": "My Dashboard",
+  "description": "my description",
+  "created_at": "",
+  "updated_at": "",
+  "owned_by": {
+    "id": 1,
+    "name": "Arnaud"
+  },
+  "updated_by": {
+    "id": 1,
+    "name": "Arnaud"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "name": "My widget"
+    }
+  ]
+}

@@ -26,6 +26,7 @@
     "cypress:run": "cypress run --component --browser=chrome"
   },
   "devDependencies": {
+    "@4tw/cypress-drag-drop": "^2.2.3",
     "@centreon/js-config": "workspace:*",
     "@cypress/react": "^7.0.2",
     "@cypress/webpack-dev-server": "^3.2.3",

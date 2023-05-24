@@ -12,7 +12,7 @@ interface DashboardItemProps {
   children: JSX.Element;
   className?: string;
   header?: JSX.Element;
-  key: string;
+  id: string;
   onMouseDown?: (e: MouseEvent<HTMLDivElement>) => void;
   onMouseUp?: (e: MouseEvent<HTMLDivElement>) => void;
   onTouchEnd?: (e) => void;
@@ -23,7 +23,7 @@ const Item = forwardRef(
   (
     {
       children,
-      key,
+      id,
       style,
       className,
       header,
@@ -49,14 +49,19 @@ const Item = forwardRef(
       Component: (
         <div
           className={className}
-          key={key}
+          key={id}
           ref={ref}
           style={style}
           {...cardContainerListeners}
         >
           <Card className={classes.widgetContainer}>
             {header && (
-              <div {...listeners} className={classes.widgetHeader}>
+              <div
+                {...listeners}
+                className={classes.widgetHeader}
+                data-testid={`${id}_move_panel`}
+                role="button"
+              >
                 {header}
               </div>
             )}
@@ -64,7 +69,7 @@ const Item = forwardRef(
           </Card>
         </div>
       ),
-      memoProps: [key, style, className, header]
+      memoProps: [id, style, className, header]
     });
   }
 );

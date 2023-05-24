@@ -39,8 +39,12 @@ export const formatPanel = ({
   y: panel.layout.y
 });
 
+export const routerParams = {
+  useParams
+};
+
 const useDashboardDetails = (): UseDashboardDetailsState => {
-  const { dashboardId } = useParams();
+  const { dashboardId } = routerParams.useParams();
 
   const setDashboard = useSetAtom(dashboardAtom);
 

@@ -93,7 +93,12 @@ const HeaderActions = ({
 
   if (!isEditing) {
     return (
-      <Button icon={<EditIcon />} iconVariant="start" onClick={startEditing}>
+      <Button
+        dataTestId="edit_dashboard"
+        icon={<EditIcon />}
+        iconVariant="start"
+        onClick={startEditing}
+      >
         {t(labelEdit)}
       </Button>
     );
@@ -101,7 +106,11 @@ const HeaderActions = ({
 
   return (
     <>
-      <Button variant="ghost" onClick={askCancelConfirmation}>
+      <Button
+        dataTestId="cancel_dashboard"
+        variant="ghost"
+        onClick={askCancelConfirmation}
+      >
         {t(labelCancel)}
       </Button>
       <SimpleDialog
@@ -113,10 +122,16 @@ const HeaderActions = ({
           <Typography>{t(labelYouWillCancelPageWithoutSaving)}</Typography>
         </DialogContent>
         <DialogActions>
-          <Button variant="ghost" onClick={cancelEditing}>
+          <Button
+            dataTestId="cancel_dashboard_confirmation"
+            variant="ghost"
+            onClick={cancelEditing}
+          >
             {t(labelCancel)}
           </Button>
-          <Button onClick={savePanels}>{t(labelSave)}</Button>
+          <Button dataTestId="save_dashboard_confirmation" onClick={savePanels}>
+            {t(labelSave)}
+          </Button>
         </DialogActions>
       </SimpleDialog>
     </>

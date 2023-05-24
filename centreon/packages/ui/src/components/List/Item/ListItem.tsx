@@ -49,7 +49,7 @@ const ListItem = forwardRef(
         ref={ref as RefObject<HTMLDivElement>}
         variant="outlined"
       >
-        <ActionArea data-testId="action-area" onClick={onClick}>
+        <ActionArea data-testid="action-area" onClick={onClick}>
           <MuiCardContent>
             <Typography variant="h5">{title}</Typography>
             {description && <Typography>{description}</Typography>}
@@ -58,14 +58,14 @@ const ListItem = forwardRef(
         {hasActions && (
           <MuiCardActions>
             <IconButton
-              data-testId="edit"
+              data-testid="edit"
               icon={<EditIcon />}
               size="small"
               variant="primary"
               onClick={onEdit}
             />
             <IconButton
-              data-testId="dashboard-delete"
+              data-testid="dashboard-delete"
               icon={<DeleteIcon />}
               size="small"
               variant="ghost"
