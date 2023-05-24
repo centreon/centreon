@@ -92,60 +92,15 @@ final class FindNotifications
             $presenter->presentResponse(
                 $this->createResponse($notifications, $notificationCounts, $notificationChannelByNotifications)
             );
-        } catch (\Throwable|NotificationException $ex) {
+        } catch (NotificationException $ex) {
+            $this->error('An error occured while retrieving the notifications listing', ['trace' => (string) $ex]);
+            $presenter->presentResponse(new ErrorResponse($ex));
+        } catch (\Throwable $ex) {
             $this->error('An error occured while retrieving the notifications listing', ['trace' => (string) $ex]);
             $presenter->presentResponse(
                 new ErrorResponse(_('An error occured while retrieving the notifications listing'))
             );
         }
-    }
-
-    /**
-     * Create Response Object.
-     *
-     * @param Notification[] $notifications
-     * @param NotificationCounts $notificationCounts
-     * @param array<int, NotificationChannel[]> $notificationChannelByNotifications
-     *
-     * @return FindNotificationsResponse
-     */
-    private function createResponse(
-        array $notifications,
-        NotificationCounts $notificationCounts,
-        array $notificationChannelByNotifications
-    ): FindNotificationsResponse {
-        $response = new FindNotificationsResponse();
-
-        $notificationDtos = [];
-        foreach ($notifications as $notification) {
-            $notificationDto = new NotificationDto();
-            $notificationDto->id = $notification->getId();
-            $notificationDto->name = $notification->getName();
-            $notificationDto->usersCount = $notificationCounts->getUsersCountByNotificationId($notification->getId());
-            if ($notificationCounts->getHostgroupResourcesCountByNotificationId($notification->getId()) !== null) {
-                $notificationDto->resources[] = [
-                    'type' => NotificationResource::HOSTGROUP_RESOURCE_TYPE,
-                    'count' => $notificationCounts->getHostgroupResourcesCountByNotificationId($notification->getId()),
-                ];
-            }
-            if ($notificationCounts->getServicegroupResourcesCountByNotificationId($notification->getId()) !== null) {
-                $notificationDto->resources[] = [
-                    'type' => NotificationResource::SERVICEGROUP_RESOURCE_TYPE,
-                    'count' => $notificationCounts->getServicegroupResourcesCountByNotificationId(
-                        $notification->getId()
-                    ),
-                ];
-            }
-            $notificationDto->timeperiodId = $notification->getTimePeriod()->getId();
-            $notificationDto->timeperiodName = $notification->getTimePeriod()->getName();
-            $notificationDto->notificationChannels = $notificationChannelByNotifications[$notification->getId()];
-
-            $notificationDtos[] = $notificationDto;
-        }
-
-        $response->notifications = $notificationDtos;
-
-        return $response;
     }
 
     /**
@@ -269,5 +224,53 @@ final class FindNotifications
             'hostgroup_resources_count' => $hostgroupResourcesCount,
             'servicegroup_resources_count' => $servicegroupResourcesCount,
         ];
+    }
+
+    /**
+     * Create Response Object.
+     *
+     * @param Notification[] $notifications
+     * @param NotificationCounts $notificationCounts
+     * @param array<int, NotificationChannel[]> $notificationChannelByNotifications
+     *
+     * @return FindNotificationsResponse
+     */
+    private function createResponse(
+        array $notifications,
+        NotificationCounts $notificationCounts,
+        array $notificationChannelByNotifications
+    ): FindNotificationsResponse {
+        $response = new FindNotificationsResponse();
+
+        $notificationDtos = [];
+        foreach ($notifications as $notification) {
+            $notificationDto = new NotificationDto();
+            $notificationDto->id = $notification->getId();
+            $notificationDto->name = $notification->getName();
+            $notificationDto->usersCount = $notificationCounts->getUsersCountByNotificationId($notification->getId());
+            if ($notificationCounts->getHostgroupResourcesCountByNotificationId($notification->getId()) !== null) {
+                $notificationDto->resources[] = [
+                    'type' => NotificationResource::HOSTGROUP_RESOURCE_TYPE,
+                    'count' => $notificationCounts->getHostgroupResourcesCountByNotificationId($notification->getId()),
+                ];
+            }
+            if ($notificationCounts->getServicegroupResourcesCountByNotificationId($notification->getId()) !== null) {
+                $notificationDto->resources[] = [
+                    'type' => NotificationResource::SERVICEGROUP_RESOURCE_TYPE,
+                    'count' => $notificationCounts->getServicegroupResourcesCountByNotificationId(
+                        $notification->getId()
+                    ),
+                ];
+            }
+            $notificationDto->timeperiodId = $notification->getTimePeriod()->getId();
+            $notificationDto->timeperiodName = $notification->getTimePeriod()->getName();
+            $notificationDto->notificationChannels = $notificationChannelByNotifications[$notification->getId()];
+
+            $notificationDtos[] = $notificationDto;
+        }
+
+        $response->notifications = $notificationDtos;
+
+        return $response;
     }
 }

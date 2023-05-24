@@ -254,3 +254,87 @@ Feature:
         "is_activated": true
       }
       """
+
+  Scenario: Notification Listing as admin
+    Given I am logged in
+    And a feature flag "notification" of bitmask 2
+    And the following CLAPI import data:
+    """
+    SG;ADD;service-grp1;service-grp1-alias
+    SG;ADD;service-grp2;service-grp2-alias
+    CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
+    CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
+    """
+
+    When I send a POST request to '/api/latest/configuration/notifications' with body:
+    """
+    {
+      "name": "notification-name",
+      "timeperiod": 1,
+      "resources": [
+        {
+          "type": "hostgroup",
+          "events": 5,
+          "ids": [53,56],
+          "extra": {
+            "event_services": 2
+          }
+        },
+        {
+          "type": "servicegroup",
+          "events": 5,
+          "ids": [1,2]
+        }
+      ],
+      "messages": [
+        {
+          "channel": "Slack",
+          "subject": "Hello world !",
+          "message": "just a small message"
+        }
+      ],
+      "users": [20,21],
+      "is_activated": true
+    }
+    """
+    Then the response code should be "201"
+
+    When I send a GET request to '/api/latest/configuration/notifications'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+      "result": [
+        {
+          "id": 1,
+          "is_activated": true,
+          "name": "notification-name",
+          "user_count": 2,
+          "channels": [
+            "Slack"
+          ],
+          "resources": [
+            {
+              "type": "hostgroup",
+              "count": 2
+            },
+            {
+              "type": "servicegroup",
+              "count": 2
+            }
+          ],
+          "timeperiod": {
+            "id": 1,
+            "name": "24x7"
+          }
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "limit": 10,
+        "search": {},
+        "sort_by": {},
+        "total": 0
+      }
+    }
+    """
