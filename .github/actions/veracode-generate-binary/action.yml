@@ -13,6 +13,9 @@ runs:
   steps:
     - name: Exclude development files
       run: |
+        ls -la
+        cd ${{ inputs.module_name }}
+        ls -la
         if [[ -f ".veracode" ]]; then
           for LINE in $( cat .veracode | sed 's/[^a-z_/A-Z]//g' ); do
             if [[ -d '$LINE' ]]; then
