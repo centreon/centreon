@@ -5,8 +5,7 @@ import { scaleLinear } from '@visx/scale';
 
 import { useTheme } from '@mui/material';
 
-/* eslint-disable-next-line import/no-named-as-default */
-import useMemoComponent from '../utils/useMemoComponent';
+import { useMemoComponent } from '../utils';
 
 import { maxColumns, rowHeight } from './utils';
 

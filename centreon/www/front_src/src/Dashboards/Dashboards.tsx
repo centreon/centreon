@@ -83,7 +83,7 @@ const Dashboards = (): JSX.Element => {
         update: t(labelUpdateDashboard)
       }
     }),
-    [t]
+    []
   );
 
   return (

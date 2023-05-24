@@ -18,9 +18,7 @@ const useStyles = makeStyles()((theme) => ({
     },
     height: '100%',
     justifyContent: 'center',
-
     minHeight: '30vh',
-
     width: '100%'
   }
 }));
