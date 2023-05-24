@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
@@ -7,10 +7,9 @@ import { Typography } from '@mui/material';
 
 import { Button } from '../../Button';
 
-import { useStyles } from './ListEmptyState.styles';
+import { useStyles } from './DataTableEmptyState.styles';
 
-interface ListEmptyStateProps {
-  dataTestId?: string;
+type ListEmptyStateProps = {
   labels: {
     actions: {
       create: string;
@@ -18,25 +17,24 @@ interface ListEmptyStateProps {
     title: string;
   };
   onCreate?: () => void;
-}
+};
 
-const ListEmptyState: React.FC<ListEmptyStateProps> = ({
+const DataTableEmptyState = ({
   labels,
-  onCreate,
-  dataTestId
-}): JSX.Element => {
+  onCreate
+}: ListEmptyStateProps): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
   return (
-    <div className={classes.listEmptyState}>
+    <div className={classes.dataTableEmptyState}>
       <Typography variant="h4">{t(labels.title)}</Typography>
       <div className={classes.actions}>
         <Button
-          dataTestId={dataTestId}
+          aria-label="create"
           icon={<AddIcon />}
           iconVariant="start"
-          onClick={(): void => onCreate?.()}
+          onClick={() => onCreate?.()}
         >
           {t(labels.actions.create)}
         </Button>
@@ -45,4 +43,4 @@ const ListEmptyState: React.FC<ListEmptyStateProps> = ({
   );
 };
 
-export { ListEmptyState };
+export { DataTableEmptyState };

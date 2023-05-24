@@ -22,10 +22,6 @@ export const Default: Story = {
       entity: {
         description: 'Description',
         name: 'Name'
-      },
-      title: {
-        create: 'Create dashboard',
-        update: 'Update dashboard'
       }
     }
   }
@@ -36,7 +32,6 @@ export const AsUpdateVariant: Story = {
     ...Default.args,
     resource: {
       description: 'Description 1',
-      id: '1',
       name: 'Dashboard 1'
     },
     variant: 'update'

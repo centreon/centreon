@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-non-null-assertion */
 import { useEffect } from 'react';
 
 import { Meta } from '@storybook/react';
@@ -5,20 +6,20 @@ import { atom, useAtom } from 'jotai';
 
 import { Add as AddIcon } from '@mui/icons-material';
 
-import { Header } from '../../components/Header';
-import { Button } from '../../components/Button';
-import { List, ListItem, ListEmptyState } from '../../components/List';
 import {
+  Button,
   DashboardForm,
-  DashboardFormProps
-} from '../../components/Form/Dashboard';
+  DashboardFormProps,
+  DataTable,
+  Header,
+  Modal
+} from '../../components';
 import { Default as DashboardFormDefaultStory } from '../../components/Form/Dashboard/DashboardForm.stories';
-import { SimpleDialog } from '../../components/Dialog';
 import {
-  TiledListingPage,
   TiledListingActions,
+  TiledListingContent,
   TiledListingList,
-  TiledListingContent
+  TiledListingPage
 } from '../../layout/TiledListingPage';
 
 const meta: Meta = {
@@ -26,6 +27,29 @@ const meta: Meta = {
     actions: {
       create: {
         label: 'Create a dashboard'
+      }
+    },
+    deleteConfirmation: {
+      labels: {
+        actions: {
+          cancel: 'Cancel',
+          confirm: 'Delete'
+        },
+        description: (name) => (
+          <>
+            Are you sure you want to delete <strong>{name}</strong> ?
+          </>
+        ),
+        title: 'Delete dashboard'
+      }
+    },
+    form: {
+      labels: {
+        ...DashboardFormDefaultStory.args!.labels,
+        title: {
+          create: 'Create dashboard',
+          update: 'Update dashboard'
+        }
       }
     },
     list: {
@@ -40,7 +64,7 @@ const meta: Meta = {
     },
     title: 'Dashboards overview'
   },
-  title: 'screens/Dashboard/Dashboards overview'
+  title: 'screens/Dashboards'
 };
 
 export default meta;
@@ -61,30 +85,43 @@ const dialogStateAtom = atom<{
   variant: 'create'
 });
 
+const deleteDialogStateAtom = atom<{
+  item: dashboardItem | null;
+  open: boolean;
+}>({
+  item: null,
+  open: false
+});
+
 const dataDashboardsAtom = atom<Array<dashboardItem>>([]);
 
 const DefaultView = (args): JSX.Element => {
+  const { data, title, actions, list, form, deleteConfirmation } = args;
   const [dialogState, setDialogState] = useAtom(dialogStateAtom);
+  const [deleteDialogState, setDeleteDialogState] = useAtom(
+    deleteDialogStateAtom
+  );
   const [dataDashboards, setDataDashboards] = useAtom(dataDashboardsAtom);
 
   useEffect(() => {
-    setDataDashboards(args.data.dashboards);
-  }, [args.data.dashboards]);
+    setDataDashboards(data.dashboards);
+  }, [data.dashboards]);
 
-  const createDashboard = (data): void => {
-    data.id = dataDashboards.length
-      ? Math.max(...dataDashboards.map((dashboard) => dashboard.id)) + 1
+  const createDashboard = (d): void => {
+    const dashboard = { ...d };
+    dashboard.id = dataDashboards.length
+      ? Math.max(...dataDashboards.map((db) => db.id)) + 1
       : 0;
     setDataDashboards((prev) =>
-      [...prev, data].sort((a, b) => a.name.localeCompare(b.name))
+      [...prev, dashboard].sort((a, b) => a.name.localeCompare(b.name))
     );
     setDialogState({ item: null, open: false, variant: 'create' });
   };
 
-  const updateDashboard = (data): void => {
+  const updateDashboard = (d): void => {
     setDataDashboards((prev) =>
       prev
-        .map((dashboard) => (dashboard.id === data.id ? data : dashboard))
+        .map((dashboard) => (dashboard.id === d.id ? d : dashboard))
         .sort((a, b) => a.name.localeCompare(b.name))
     );
     setDialogState({ item: null, open: false, variant: 'update' });
@@ -98,42 +135,43 @@ const DefaultView = (args): JSX.Element => {
 
   return (
     <TiledListingPage>
-      <Header title={args.title} />
+      <Header title={title} />
       <TiledListingList>
         <TiledListingActions>
           {dataDashboards.length !== 0 && (
             <Button
-              dataTestId="create-dashboard"
+              aria-label="add"
               icon={<AddIcon />}
               iconVariant="start"
-              onClick={(): void =>
+              onClick={() =>
                 setDialogState({ item: null, open: true, variant: 'create' })
               }
             >
-              {args.actions.create.label}
+              {actions.create.label}
             </Button>
           )}
         </TiledListingActions>
         <TiledListingContent>
-          {dataDashboards.length === 0 ? (
-            <ListEmptyState
-              dataTestId="create-dashboard"
-              labels={args.list.emptyState.labels}
-              onCreate={() =>
-                setDialogState({ item: null, open: true, variant: 'create' })
-              }
-            />
-          ) : (
-            <List>
-              {dataDashboards.map((dashboard) => (
-                <ListItem
+          <DataTable isEmpty={dataDashboards.length === 0}>
+            {dataDashboards.length === 0 ? (
+              <DataTable.EmptyState
+                labels={list.emptyState.labels}
+                onCreate={() =>
+                  setDialogState({ item: null, open: true, variant: 'create' })
+                }
+              />
+            ) : (
+              dataDashboards.map((dashboard) => (
+                <DataTable.Item
                   hasActions
                   hasCardAction
                   description={dashboard.description}
                   key={dashboard.id}
                   title={dashboard.name}
-                  onDelete={(): void => deleteDashboard(dashboard.id)}
-                  onEdit={(): void =>
+                  onDelete={() =>
+                    setDeleteDialogState({ item: dashboard, open: true })
+                  }
+                  onEdit={() =>
                     setDialogState({
                       item: dashboard,
                       open: true,
@@ -141,34 +179,70 @@ const DefaultView = (args): JSX.Element => {
                     })
                   }
                 />
-              ))}
-            </List>
-          )}
+              ))
+            )}
+          </DataTable>
         </TiledListingContent>
-        <SimpleDialog
+        <Modal
           open={dialogState.open}
-          onClose={(): void =>
-            setDialogState({ item: null, open: false, variant: 'create' })
+          onClose={() =>
+            setDialogState({
+              item: null,
+              open: false,
+              variant: dialogState.variant
+            })
           }
         >
-          <DashboardForm
-            labels={DashboardFormDefaultStory!.args!.labels!}
-            resource={dialogState.item || undefined}
-            variant={dialogState.variant}
-            onCancel={(): void =>
-              setDialogState({
-                item: null,
-                open: false,
-                variant: dialogState.variant
-              })
-            }
-            onSubmit={(values): void => {
-              dialogState.variant === 'create'
-                ? createDashboard(values)
-                : updateDashboard(values);
+          <Modal.Header>
+            {form.labels.title[dialogState.variant ?? 'create']}
+          </Modal.Header>
+          <Modal.Body>
+            <DashboardForm
+              labels={DashboardFormDefaultStory!.args!.labels!}
+              resource={dialogState.item || undefined}
+              variant={dialogState.variant}
+              onCancel={() =>
+                setDialogState({
+                  item: null,
+                  open: false,
+                  variant: dialogState.variant
+                })
+              }
+              onSubmit={(values) =>
+                dialogState.variant === 'create'
+                  ? createDashboard(values)
+                  : updateDashboard(values)
+              }
+            />
+          </Modal.Body>
+        </Modal>
+        <Modal
+          open={deleteDialogState.open}
+          onClose={() =>
+            setDeleteDialogState({
+              ...deleteDialogState,
+              open: false
+            })
+          }
+        >
+          <Modal.Header>{deleteConfirmation.labels.title}</Modal.Header>
+          <Modal.Body>
+            <p>
+              {deleteConfirmation.labels.description(
+                deleteDialogState.item?.name
+              )}
+            </p>
+          </Modal.Body>
+          <Modal.Actions
+            isDanger
+            labels={deleteConfirmation.labels.actions}
+            onCancel={() => setDeleteDialogState({ item: null, open: false })}
+            onConfirm={() => {
+              deleteDashboard(deleteDialogState.item?.id);
+              setDeleteDialogState({ item: null, open: false });
             }}
           />
-        </SimpleDialog>
+        </Modal>
       </TiledListingList>
     </TiledListingPage>
   );

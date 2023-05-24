@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
-import {
-  Button as MuiButton,
-  ButtonProps as MuiButtonProps
-} from '@mui/material';
+import { Button as MuiButton } from '@mui/material';
+
+import { AriaLabelingAttributes } from '../../@types/aria-attributes';
+import { DataTestAttributes } from '../../@types/data-attributes';
 
 import { useStyles } from './Button.styles';
 
@@ -11,54 +11,53 @@ const muiVariantMap: Record<
   Required<ButtonProps>['variant'],
   'text' | 'outlined' | 'contained'
 > = {
-  contained: 'contained',
   ghost: 'text',
-  outlined: 'outlined'
+  primary: 'contained',
+  secondary: 'outlined'
 };
 
-interface ButtonProps {
-  ariaLabel?: string;
+type ButtonProps = {
   children: ReactNode;
-  color?: MuiButtonProps['color'];
-  dataTestId?: string;
   disabled?: boolean;
   icon?: string | ReactNode;
   iconVariant?: 'none' | 'start' | 'end';
+  isDanger?: boolean;
   onClick?: (e) => void;
   size?: 'small' | 'medium' | 'large';
   type?: 'button' | 'submit' | 'reset';
-  variant?: 'outlined' | 'contained' | 'ghost';
-}
+  variant?: 'primary' | 'secondary' | 'ghost';
+} & AriaLabelingAttributes &
+  DataTestAttributes;
 
 const Button = ({
   children,
-  variant = 'contained',
+  variant = 'primary',
   size = 'medium',
   iconVariant = 'none',
   icon,
   type = 'button',
   disabled = false,
   onClick,
-  dataTestId,
-  ariaLabel,
-  color = 'primary'
-}: ButtonProps): JSX.Element => {
+  isDanger = false,
+  ...attr
+}: ButtonProps): ReactElement => {
   const { classes } = useStyles();
 
   return (
     <MuiButton
-      aria-label={ariaLabel}
       className={classes.button}
-      color={color}
       data-icon-variant={iconVariant}
+      data-is-danger={isDanger}
       data-size={size}
-      data-testid={dataTestId}
       data-variant={variant}
       disabled={disabled}
       size={size}
       type={type}
       variant={muiVariantMap[variant]}
-      onClick={(e): void => onClick?.(e)}
+      onClick={(e) => onClick?.(e)}
+      {...attr}
+      // Mui overrides
+      color="primary"
       {...(iconVariant === 'start' && { startIcon: icon })}
       {...(iconVariant === 'end' && { endIcon: icon })}
     >

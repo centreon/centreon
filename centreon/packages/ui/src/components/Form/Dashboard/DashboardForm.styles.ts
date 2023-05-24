@@ -10,14 +10,6 @@ const useStyles = makeStyles()((theme) => ({
   dashboardForm: {
     display: 'flex',
     flexDirection: 'column',
-
-    h2: {
-      color: theme.palette.primary.main,
-      font: 'normal normal 600 24px/24px Roboto',
-      letterSpacing: '0.18px',
-
-      margin: '0 0 12px 0'
-    },
     maxWidth: '480px',
 
     width: '100%'

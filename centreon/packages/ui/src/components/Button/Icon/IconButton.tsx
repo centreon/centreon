@@ -1,6 +1,11 @@
-import { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { IconButton as MuiIconButton } from '@mui/material';
+
+import { AriaLabelingAttributes } from '../../../@types/aria-attributes';
+import { DataTestAttributes } from '../../../@types/data-attributes';
+
+import { useStyles } from './IconButton.styles';
 
 const muiColorMap: Record<
   Required<IconButtonProps>['variant'],
@@ -11,35 +16,40 @@ const muiColorMap: Record<
   secondary: 'secondary'
 };
 
-interface IconButtonProps {
-  ariaLabel?: string;
-  dataTestId?: string;
+type IconButtonProps = {
   disabled?: boolean;
   icon?: string | ReactNode;
   onClick?: (e) => void;
   size?: 'small' | 'medium' | 'large';
   variant?: 'primary' | 'secondary' | 'ghost';
-}
+} & AriaLabelingAttributes &
+  DataTestAttributes;
 
+/**
+ * @todo re-factor as `iconVariant: 'icon-only'` Button variant, and remove IconButton component (reason: code duplication)
+ */
 const IconButton = ({
   variant = 'primary',
   size = 'medium',
   icon,
   disabled = false,
   onClick,
-  dataTestId,
-  ariaLabel
-}: IconButtonProps): JSX.Element => {
+  ...attr
+}: IconButtonProps): ReactElement => {
+  const { classes } = useStyles();
+
   return (
     <MuiIconButton
-      aria-label={ariaLabel}
-      color={muiColorMap[variant]}
+      className={classes.iconButton}
       data-size={size}
       data-testid={dataTestId}
       data-variant={variant}
       disabled={disabled}
       size={size}
-      onClick={(e): void => onClick?.(e)}
+      onClick={(e) => onClick?.(e)}
+      {...attr}
+      // Mui overrides
+      color={muiColorMap[variant]}
     >
       {icon}
     </MuiIconButton>

@@ -1,15 +1,17 @@
 /* eslint-disable react/no-array-index-key */
-import { List, ListItemSkeleton } from '@centreon/ui';
+import { ReactElement } from 'react';
+
+import { DataTable } from '@centreon/ui/components';
 
 const tiles = Array(5).fill(0);
 
-const ListingSkeleton = (): JSX.Element => {
+const ListingSkeleton = (): ReactElement => {
   return (
-    <List>
+    <DataTable>
       {tiles.map((_, index) => (
-        <ListItemSkeleton key={index} />
+        <DataTable.ItemSkeleton key={index} />
       ))}
-    </List>
+    </DataTable>
   );
 };
 

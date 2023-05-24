@@ -1,15 +1,15 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { Divider, Typography } from '@mui/material';
 
 import { useStyles } from './Header.styles';
 
-interface HeaderProps {
+type HeaderProps = {
   nav?: ReactNode;
   title: string;
-}
+};
 
-const Header = ({ title, nav }: HeaderProps): JSX.Element => {
+const Header = ({ title, nav }: HeaderProps): ReactElement => {
   const { classes } = useStyles();
 
   return (

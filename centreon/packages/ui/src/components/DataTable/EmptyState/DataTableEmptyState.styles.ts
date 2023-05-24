@@ -5,7 +5,7 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row'
   },
-  listEmptyState: {
+  dataTableEmptyState: {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
@@ -18,9 +18,7 @@ const useStyles = makeStyles()((theme) => ({
     },
     height: '100%',
     justifyContent: 'center',
-
     minHeight: '30vh',
-
     width: '100%'
   }
 }));

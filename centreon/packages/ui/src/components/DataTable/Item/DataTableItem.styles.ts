@@ -1,7 +1,7 @@
 import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
-  listItem: {
+  dataTableItem: {
     '& .MuiCardActionArea-root': {
       alignItems: 'flex-start',
       display: 'flex',

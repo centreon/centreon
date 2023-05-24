@@ -1,18 +1,18 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { ListItem } from './ListItem';
+import { DataTableItem } from './DataTableItem';
 
-const meta: Meta<typeof ListItem> = {
-  component: ListItem
+const meta: Meta<typeof DataTableItem> = {
+  component: DataTableItem
 };
 
 export default meta;
-type Story = StoryObj<typeof ListItem>;
+type Story = StoryObj<typeof DataTableItem>;
 
 export const Default: Story = {
   args: {
-    description: 'List item description',
-    title: 'List item'
+    description: 'DataTable item description',
+    title: 'DataTable item'
   }
 };
 

@@ -13,6 +13,7 @@ type Story = StoryObj<typeof Button>;
 
 export const Default: Story = {
   args: {
+    'aria-label': 'button',
     children: 'Label'
   }
 };
@@ -21,6 +22,13 @@ export const WithIcon: Story = {
   args: {
     ...Default.args,
     icon: <AddIcon />,
-    iconVariant: 'start' // TODO Icon component
+    iconVariant: 'start'
+  }
+};
+
+export const AsDanger: Story = {
+  args: {
+    ...Default.args,
+    isDanger: true
   }
 };

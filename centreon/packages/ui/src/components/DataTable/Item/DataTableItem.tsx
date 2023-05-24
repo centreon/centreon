@@ -1,4 +1,4 @@
-import React, { RefObject, forwardRef, useMemo } from 'react';
+import React, { forwardRef, ReactElement, RefObject, useMemo } from 'react';
 
 import {
   Card as MuiCard,
@@ -11,10 +11,10 @@ import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 
 import { IconButton } from '../../Button';
 
-import { useStyles } from './ListItem.styles';
+import { useStyles } from './DataTableItem.styles';
 
-export interface ListItemProps {
-  description: string | null;
+export interface DataTableItemProps {
+  description?: string;
   hasActions?: boolean;
   hasCardAction?: boolean;
   onClick?: () => void;
@@ -23,7 +23,7 @@ export interface ListItemProps {
   title: string;
 }
 
-const ListItem = forwardRef(
+const DataTableItem = forwardRef(
   (
     {
       title,
@@ -33,9 +33,9 @@ const ListItem = forwardRef(
       onClick,
       onEdit,
       onDelete
-    }: ListItemProps,
+    }: DataTableItemProps,
     ref
-  ): JSX.Element => {
+  ): ReactElement => {
     const { classes } = useStyles();
 
     const ActionArea = useMemo(
@@ -45,11 +45,11 @@ const ListItem = forwardRef(
 
     return (
       <MuiCard
-        className={classes.listItem}
+        className={classes.dataTableItem}
         ref={ref as RefObject<HTMLDivElement>}
         variant="outlined"
       >
-        <ActionArea data-testid="action-area" onClick={onClick}>
+        <ActionArea aria-label="view" onClick={() => onClick?.()} aria-label="view">
           <MuiCardContent>
             <Typography variant="h5">{title}</Typography>
             {description && <Typography>{description}</Typography>}
@@ -59,17 +59,19 @@ const ListItem = forwardRef(
           <MuiCardActions>
             <IconButton
               data-testid="edit"
+              aria-label="edit"
               icon={<EditIcon />}
               size="small"
               variant="primary"
-              onClick={onEdit}
+              onClick={() => onEdit?.()}
             />
             <IconButton
               data-testid="dashboard-delete"
+              aria-label="delete"
               icon={<DeleteIcon />}
               size="small"
               variant="ghost"
-              onClick={onDelete}
+              onClick={() => onDelete?.()}
             />
           </MuiCardActions>
         )}
@@ -78,4 +80,4 @@ const ListItem = forwardRef(
   }
 );
 
-export { ListItem };
+export { DataTableItem };

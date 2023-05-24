@@ -1,13 +1,13 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { ListEmptyState } from './ListEmptyState';
+import { DataTableEmptyState } from './DataTableEmptyState';
 
-const meta: Meta<typeof ListEmptyState> = {
-  component: ListEmptyState
+const meta: Meta<typeof DataTableEmptyState> = {
+  component: DataTableEmptyState
 };
 
 export default meta;
-type Story = StoryObj<typeof ListEmptyState>;
+type Story = StoryObj<typeof DataTableEmptyState>;
 
 export const Default: Story = {
   args: {

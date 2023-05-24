@@ -1,23 +1,23 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { List, ListItem, ListEmptyState } from './index';
+import { DataTable } from './index';
 
-const meta: Meta<typeof List> = {
-  component: List
+const meta: Meta<typeof DataTable> = {
+  component: DataTable
 };
 
 export default meta;
-type Story = StoryObj<typeof List>;
+type Story = StoryObj<typeof DataTable>;
 
 export const Default: Story = {
   args: {
     children: (
       <>
         {[...Array(5)].map((_, i) => (
-          <ListItem
-            description={`List item description ${i}`}
-            key={i}
-            title={`List item ${i}`}
+          <DataTable.Item
+            description={`Item description ${i}`}
+            key={`k-${i}`} // eslint-disable-line react/no-array-index-key
+            title={`Item ${i}`}
           />
         ))}
       </>
@@ -28,7 +28,7 @@ export const Default: Story = {
 export const AsEmptyState: Story = {
   args: {
     children: (
-      <ListEmptyState
+      <DataTable.EmptyState
         labels={{
           actions: {
             create: 'Create item'

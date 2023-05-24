@@ -1,36 +1,48 @@
-import React, { useMemo } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
 
 import { InputType } from '../../../Form/Inputs/models';
 import { Form, FormProps } from '../../../Form';
+import { FormVariant } from '../Form.models';
 
 import { useStyles } from './DashboardForm.styles';
-import {
-  DashboardFormDataShape,
-  DashboardFormProps,
-  DashboardFormVariant
-} from './models';
 import {
   labelCharacters,
   labelMustBeAtLeast,
   labelMustBeMost,
   labelRequired
 } from './translatedLabels';
-import { FormActions } from './FormActions';
+import {
+  DashboardFormActions,
+  DashboardFormActionsProps
+} from './DashboardFormActions';
+import { DashboardResource } from './Dashboard.resource';
 
-const DashboardForm: React.FC<DashboardFormProps> = ({
-  variant = DashboardFormVariant.Create,
+export type DashboardFormProps = {
+  labels: DashboardFormLabels;
+  onSubmit?: FormProps<DashboardResource>['submit'];
+  resource?: DashboardResource;
+  variant?: FormVariant;
+} & Pick<DashboardFormActionsProps, 'onCancel'>;
+
+export type DashboardFormLabels = {
+  actions: DashboardFormActionsProps['labels'];
+  entity: Required<DashboardResource>;
+};
+
+const DashboardForm = ({
+  variant = 'create',
   resource,
   labels,
   onSubmit,
   onCancel
-}: DashboardFormProps): JSX.Element => {
+}: DashboardFormProps): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const formProps = useMemo<FormProps<DashboardFormDataShape>>(
+  const formProps = useMemo<FormProps<DashboardResource>>(
     () => ({
       initialValues: resource ?? { name: '' },
       inputs: [
@@ -79,17 +91,20 @@ const DashboardForm: React.FC<DashboardFormProps> = ({
     [resource, labels, onSubmit]
   );
 
+  const FormActions = useCallback(
+    () => (
+      <DashboardFormActions
+        labels={labels?.actions}
+        variant={variant}
+        onCancel={onCancel}
+      />
+    ),
+    [labels, onCancel, variant]
+  );
+
   return (
     <div className={classes.dashboardForm}>
-      <h2>{labels?.title[variant]}</h2>
-      <Form<DashboardFormDataShape>
-        {...formProps}
-        Buttons={FormActions({
-          labels,
-          onCancel,
-          variant
-        })}
-      />
+      <Form<DashboardResource> {...formProps} Buttons={FormActions} />
     </div>
   );
 };
