@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement, ReactNode, useMemo } from 'react';
 
 import { Button as MuiButton } from '@mui/material';
 
@@ -43,6 +43,15 @@ const Button = ({
 }: ButtonProps): ReactElement => {
   const { classes } = useStyles();
 
+  const MuiOverrideProps = useMemo(
+    () => ({
+      color: 'primary' as const,
+      ...(iconVariant === 'start' && { startIcon: icon }),
+      ...(iconVariant === 'end' && { endIcon: icon })
+    }),
+    [icon, iconVariant]
+  );
+
   return (
     <MuiButton
       className={classes.button}
@@ -56,10 +65,7 @@ const Button = ({
       variant={muiVariantMap[variant]}
       onClick={(e) => onClick?.(e)}
       {...attr}
-      // Mui overrides
-      color="primary"
-      {...(iconVariant === 'start' && { startIcon: icon })}
-      {...(iconVariant === 'end' && { endIcon: icon })}
+      {...MuiOverrideProps}
     >
       {children}
     </MuiButton>
