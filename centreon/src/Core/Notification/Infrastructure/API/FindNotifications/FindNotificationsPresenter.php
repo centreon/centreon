@@ -55,7 +55,7 @@ class FindNotificationsPresenter extends AbstractPresenter implements FindNotifi
                             'id' => $notificationDto->id,
                             'is_activated' => $notificationDto->isActivated,
                             'name' => $notificationDto->name,
-                            'user_count' => $notificationDto->usersCount,
+                            'user_count' => $notificationDto->usersCount ?? 0,
                             'channels' => self::convertNotificationChannelToString(
                                 $notificationDto->notificationChannels
                             ),

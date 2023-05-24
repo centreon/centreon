@@ -37,9 +37,9 @@ class NotificationCounts
     ) {
     }
 
-    public function getUsersCountByNotificationId(int $notificationId): int
+    public function getUsersCountByNotificationId(int $notificationId): ?int
     {
-        return $this->notificationsUsersCount[$notificationId];
+        return $this->notificationsUsersCount[$notificationId] ?? null;
     }
 
     public function getHostgroupResourcesCountByNotificationId(int $notificationId): ?int

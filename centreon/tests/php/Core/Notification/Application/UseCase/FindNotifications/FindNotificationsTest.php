@@ -95,46 +95,6 @@ it('should present an empty response when no notifications are configured', func
         ->toBeEmpty();
 });
 
-it('should present an ErrorResponse when a notification doesn\'t have any user', function (): void {
-    $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
-        [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
-    );
-
-    $notificationOne = new Notification(1,'notification-one', new NotificationGenericObject(1, '24x7'), true);
-    $notificationTwo = new Notification(2,'notification-two', new NotificationGenericObject(1, '24x7'), true);
-    $notificationThree = new Notification(3,'notification-three', new NotificationGenericObject(1, '24x7'), true);
-
-    $this->notificationRepository
-        ->expects($this->once())
-        ->method('findAll')
-        ->willReturn([
-            $notificationOne,
-            $notificationTwo,
-            $notificationThree,
-        ]);
-
-    $this->notificationRepository
-        ->expects($this->once())
-        ->method('findUsersCountByNotificationIds')
-        ->willReturn([
-            1 => 4,
-            2 => 0,
-        ]);
-
-    (new FindNotifications(
-        $contact,
-        $this->notificationRepository,
-        $this->repositoryProvider,
-        $this->readAccessGroupRepository,
-        $this->requestParameters
-    ))($this->presenter);
-
-    expect($this->presenter->responseStatus)
-        ->toBeInstanceOf(ErrorResponse::class)
-        ->and($this->presenter->responseStatus?->getMessage())
-        ->toBe(NotificationException::invalidUsers(2)->getMessage());
-});
-
 it('should get the resources count with ACL calculation when the user is not admin', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
