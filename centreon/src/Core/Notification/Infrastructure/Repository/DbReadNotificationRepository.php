@@ -23,18 +23,19 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\Repository;
 
+use Utility\SqlConcatenator;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Centreon\Infrastructure\DatabaseConnection;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\NotificationGenericObject;
 use Core\Notification\Domain\Model\NotificationMessage;
-use Utility\SqlConcatenator;
+use Centreon\Domain\RequestParameters\RequestParameters;
+use Core\Notification\Domain\Model\NotificationGenericObject;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 
 class DbReadNotificationRepository extends AbstractRepositoryRDB implements ReadNotificationRepositoryInterface
 {
@@ -191,6 +192,11 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findAll(?RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
+        if ($sqlTranslator !== null) {
+            $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
+                RequestParameters::CONCORDANCE_MODE_STRICT
+            );
+        }
         $query = $this->buildFindAllQuery($sqlTranslator);
 
         $statement = $this->db->prepare($query);

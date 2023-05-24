@@ -24,19 +24,20 @@ declare(strict_types=1);
 namespace Core\Notification\Application\UseCase\FindNotifications;
 
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Notification\Domain\Model\Notification;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Notification\Application\Exception\NotificationException;
-use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
-use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
-use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Notification\Domain\Model\NotificationResource;
+use Core\Notification\Application\Exception\NotificationException;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
+use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 
 final class FindNotifications
 {
@@ -70,7 +71,7 @@ final class FindNotifications
         try {
             $this->info('Search for Notifications');
             $notifications = $this->notificationRepository->findAll($this->requestParameters);
-            if (empty ($notifications)) {
+            if (empty($notifications)) {
                 $presenter->presentResponse(new FindNotificationsResponse());
 
                 return;
@@ -83,7 +84,7 @@ final class FindNotifications
             $this->info(
                 'Retrieving Notification channels for notifications',
                 ['notifications' => implode(', ', $notificationsIds)]
-            );
+            );  
             $notificationChannelByNotifications = $this->notificationRepository
                 ->findNotificationChannelsByNotificationIds(
                     $notificationsIds
@@ -92,6 +93,9 @@ final class FindNotifications
             $presenter->presentResponse(
                 $this->createResponse($notifications, $notificationCounts, $notificationChannelByNotifications)
             );
+        } catch (RequestParametersTranslatorException $ex) {
+            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (NotificationException $ex) {
             $this->error('An error occured while retrieving the notifications listing', ['trace' => (string) $ex]);
             $presenter->presentResponse(new ErrorResponse($ex));
