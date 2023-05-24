@@ -272,6 +272,38 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
+    get:
+      tags:
+        - Notification
+      summary: "List all notifications"
+      description: |
+        List all notifications
+
+        This endpoint is accessible for Saas platforms only
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Configuration.Notification.Listing'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/templates:
     get:
       tags:
@@ -6341,6 +6373,37 @@ components:
                       for the services linked to the defined above resources
                       (Only available for type hostgroup)
                     type: integer
+    Configuration.Notification.Listing:
+      type: object
+      properties:
+        id:
+          type: integer
+        is_activated:
+          type: boolean
+        name:
+          type: string
+        user_count:
+          type: integer
+        channels:
+          type: array
+          items:
+            type: string
+        resources:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              count:
+                type: integer
+        timeperiod:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
     Configuration.NewTimePeriod:
       type: object
       properties:
