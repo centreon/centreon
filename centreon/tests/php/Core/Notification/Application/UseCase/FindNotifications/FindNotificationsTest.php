@@ -24,26 +24,26 @@ declare(strict_types=1);
 namespace Tests\Core\Notification\Application\UseCase\FindNotifications;
 
 use Centreon\Domain\Contact\Contact;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Notification\Application\Exception\NotificationException;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
-use Core\Notification\Application\UseCase\FindNotifications\FindNotifications;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
+use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Core\Notification\Application\UseCase\FindNotifications\FindNotifications;
 use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsResponse;
 use Core\Notification\Application\UseCase\FindNotifications\NotificationDto;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationGenericObject;
 use Core\Notification\Domain\Model\NotificationResource;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Tests\Core\Notification\Infrastructure\API\FindNotifications\FindNotificationsPresenterStub;
 
-beforeEach(function() {
+beforeEach(function (): void {
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new FindNotificationsPresenterStub($this->presenterFormatter);
@@ -53,7 +53,7 @@ beforeEach(function() {
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
 });
 
-it('should present an error response when the user is not admin and doesnt have sufficient ACLs', function () {
+it('should present an error response when the user is not admin and doesnt have sufficient ACLs', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1);
 
     (new FindNotifications(
@@ -70,7 +70,7 @@ it('should present an error response when the user is not admin and doesnt have 
         ->toBe(NotificationException::listNotAllowed()->getMessage());
 });
 
-it('should present an empty response when no notifications are configured', function () {
+it('should present an empty response when no notifications are configured', function (): void {
     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
@@ -95,14 +95,14 @@ it('should present an empty response when no notifications are configured', func
         ->toBeEmpty();
 });
 
-it('should present an ErrorResponse when a notification doesn\'t have any user', function () {
+it('should present an ErrorResponse when a notification doesn\'t have any user', function (): void {
     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $notificationOne = new Notification(1,"notification-one", new NotificationGenericObject(1, '24x7'), true);
-    $notificationTwo = new Notification(2,"notification-two", new NotificationGenericObject(1, '24x7'), true);
-    $notificationThree = new Notification(3,"notification-three", new NotificationGenericObject(1, '24x7'), true);
+    $notificationOne = new Notification(1,'notification-one', new NotificationGenericObject(1, '24x7'), true);
+    $notificationTwo = new Notification(2,'notification-two', new NotificationGenericObject(1, '24x7'), true);
+    $notificationThree = new Notification(3,'notification-three', new NotificationGenericObject(1, '24x7'), true);
 
     $this->notificationRepository
         ->expects($this->once())
@@ -110,7 +110,7 @@ it('should present an ErrorResponse when a notification doesn\'t have any user',
         ->willReturn([
             $notificationOne,
             $notificationTwo,
-            $notificationThree
+            $notificationThree,
         ]);
 
     $this->notificationRepository
@@ -118,7 +118,7 @@ it('should present an ErrorResponse when a notification doesn\'t have any user',
         ->method('findUsersCountByNotificationIds')
         ->willReturn([
             1 => 4,
-            2 => 0
+            2 => 0,
         ]);
 
     (new FindNotifications(
@@ -135,14 +135,14 @@ it('should present an ErrorResponse when a notification doesn\'t have any user',
         ->toBe(NotificationException::invalidUsers(2)->getMessage());
 });
 
-it('should get the resources count with ACL calculation when the user is not admin', function() {
+it('should get the resources count with ACL calculation when the user is not admin', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $notificationOne = new Notification(1,"notification-one", new NotificationGenericObject(1, '24x7'), true);
-    $notificationTwo = new Notification(2,"notification-two", new NotificationGenericObject(1, '24x7'), true);
-    $notificationThree = new Notification(3,"notification-three", new NotificationGenericObject(1, '24x7'), true);
+    $notificationOne = new Notification(1,'notification-one', new NotificationGenericObject(1, '24x7'), true);
+    $notificationTwo = new Notification(2,'notification-two', new NotificationGenericObject(1, '24x7'), true);
+    $notificationThree = new Notification(3,'notification-three', new NotificationGenericObject(1, '24x7'), true);
 
     $this->notificationRepository
         ->expects($this->once())
@@ -150,7 +150,7 @@ it('should get the resources count with ACL calculation when the user is not adm
         ->willReturn([
             $notificationOne,
             $notificationTwo,
-            $notificationThree
+            $notificationThree,
         ]);
 
     $this->notificationRepository
@@ -158,7 +158,7 @@ it('should get the resources count with ACL calculation when the user is not adm
         ->method('findUsersCountByNotificationIds')
         ->willReturn([
             1 => 4,
-            2 => 3
+            2 => 3,
         ]);
 
     $accessGroups = [
@@ -193,14 +193,14 @@ it('should get the resources count with ACL calculation when the user is not adm
     ))($this->presenter);
 });
 
-it('should get the resources count without ACL calculation when the user is admin', function() {
+it('should get the resources count without ACL calculation when the user is admin', function (): void {
     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $notificationOne = new Notification(1,"notification-one", new NotificationGenericObject(1, '24x7'), true);
-    $notificationTwo = new Notification(2,"notification-two", new NotificationGenericObject(1, '24x7'), true);
-    $notificationThree = new Notification(3,"notification-three", new NotificationGenericObject(1, '24x7'), true);
+    $notificationOne = new Notification(1,'notification-one', new NotificationGenericObject(1, '24x7'), true);
+    $notificationTwo = new Notification(2,'notification-two', new NotificationGenericObject(1, '24x7'), true);
+    $notificationThree = new Notification(3,'notification-three', new NotificationGenericObject(1, '24x7'), true);
 
     $this->notificationRepository
         ->expects($this->once())
@@ -208,7 +208,7 @@ it('should get the resources count without ACL calculation when the user is admi
         ->willReturn([
             $notificationOne,
             $notificationTwo,
-            $notificationThree
+            $notificationThree,
         ]);
 
     $this->notificationRepository
@@ -216,7 +216,7 @@ it('should get the resources count without ACL calculation when the user is admi
         ->method('findUsersCountByNotificationIds')
         ->willReturn([
             1 => 4,
-            2 => 3
+            2 => 3,
         ]);
 
     $this->repositoryProvider
@@ -240,14 +240,14 @@ it('should get the resources count without ACL calculation when the user is admi
     ))($this->presenter);
 });
 
-it('should present a FindNotificationsResponse when the use case is executed correctly', function() {
+it('should present a FindNotificationsResponse when the use case is executed correctly', function (): void {
     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $notificationOne = new Notification(1,"notification-one", new NotificationGenericObject(1, '24x7'), true);
-    $notificationTwo = new Notification(2,"notification-two", new NotificationGenericObject(1, '24x7'), true);
-    $notificationThree = new Notification(3,"notification-three", new NotificationGenericObject(1, '24x7'), true);
+    $notificationOne = new Notification(1,'notification-one', new NotificationGenericObject(1, '24x7'), true);
+    $notificationTwo = new Notification(2,'notification-two', new NotificationGenericObject(1, '24x7'), true);
+    $notificationThree = new Notification(3,'notification-three', new NotificationGenericObject(1, '24x7'), true);
 
     $this->notificationRepository
         ->expects($this->once())
@@ -255,16 +255,16 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         ->willReturn([
             $notificationOne,
             $notificationTwo,
-            $notificationThree
+            $notificationThree,
         ]);
 
     $notificationChannelsByNotifications = [
-        1 => [NotificationChannel::from("Slack")],
-        2 => [NotificationChannel::from("Slack"), NotificationChannel::from("Sms")],
+        1 => [NotificationChannel::from('Slack')],
+        2 => [NotificationChannel::from('Slack'), NotificationChannel::from('Sms')],
         3 => [
-            NotificationChannel::from("Slack"),
-            NotificationChannel::from("Sms"),
-            NotificationChannel::from("Email")
+            NotificationChannel::from('Slack'),
+            NotificationChannel::from('Sms'),
+            NotificationChannel::from('Email'),
         ],
     ];
 
@@ -276,7 +276,7 @@ it('should present a FindNotificationsResponse when the use case is executed cor
     $usersCount = [
         1 => 4,
         2 => 4,
-        3 => 2
+        3 => 2,
     ];
 
     $this->notificationRepository
@@ -309,7 +309,6 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         $this->repositoryProvider,
         $this->readAccessGroupRepository,
         $this->requestParameters
-
     ))($this->presenter);
 
     expect($this->presenter->response)
@@ -332,12 +331,12 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         ->and($firstNotification->resources)->toBe(
             [
                 [
-                    "type" => NotificationResource::HOSTGROUP_RESOURCE_TYPE,
-                    "count" => $hostgroupResourcesCount[$notificationOne->getId()]
+                    'type' => NotificationResource::HOSTGROUP_RESOURCE_TYPE,
+                    'count' => $hostgroupResourcesCount[$notificationOne->getId()],
                 ],
                 [
-                    "type" => NotificationResource::SERVICEGROUP_RESOURCE_TYPE,
-                    "count" => $servicegroupResourcesCount[$notificationOne->getId()]
+                    'type' => NotificationResource::SERVICEGROUP_RESOURCE_TYPE,
+                    'count' => $servicegroupResourcesCount[$notificationOne->getId()],
                 ],
             ]
         )
@@ -355,12 +354,12 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         ->and($secondNotification->resources)->toBe(
             [
                 [
-                    "type" => NotificationResource::HOSTGROUP_RESOURCE_TYPE,
-                    "count" => $hostgroupResourcesCount[$notificationTwo->getId()]
+                    'type' => NotificationResource::HOSTGROUP_RESOURCE_TYPE,
+                    'count' => $hostgroupResourcesCount[$notificationTwo->getId()],
                 ],
                 [
-                    "type" => NotificationResource::SERVICEGROUP_RESOURCE_TYPE,
-                    "count" => $servicegroupResourcesCount[$notificationTwo->getId()]
+                    'type' => NotificationResource::SERVICEGROUP_RESOURCE_TYPE,
+                    'count' => $servicegroupResourcesCount[$notificationTwo->getId()],
                 ],
             ]
         )
@@ -378,12 +377,12 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         ->and($thirdNotification->resources)->toBe(
             [
                 [
-                    "type" => NotificationResource::HOSTGROUP_RESOURCE_TYPE,
-                    "count" => $hostgroupResourcesCount[$notificationThree->getId()]
+                    'type' => NotificationResource::HOSTGROUP_RESOURCE_TYPE,
+                    'count' => $hostgroupResourcesCount[$notificationThree->getId()],
                 ],
                 [
-                    "type" => NotificationResource::SERVICEGROUP_RESOURCE_TYPE,
-                    "count" => $servicegroupResourcesCount[$notificationThree->getId()]
+                    'type' => NotificationResource::SERVICEGROUP_RESOURCE_TYPE,
+                    'count' => $servicegroupResourcesCount[$notificationThree->getId()],
                 ],
             ]
         )
