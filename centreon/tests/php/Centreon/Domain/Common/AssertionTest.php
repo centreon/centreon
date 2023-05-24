@@ -189,6 +189,11 @@ $failDataProvider = [
         AssertionException::badInstanceOfObject(gettype('test'), \Exception::class, $propertyPath)->getMessage(),
         AssertionException::INVALID_INSTANCE_OF
     ],
+    "unauthorisedCharacters('new bad string!', '!&#@')" => [
+        fn() => Assertion::unauthorisedCharacters('new bad string!', '!&#@', $propertyPath),
+        AssertionException::unauthorisedCharacters('new bad string!', '!', $propertyPath)->getMessage(),
+        AssertionException::INVALID_CHARACTERS
+    ],
 ];
 
 // We use a custom data provider with a loop to avoid pest from auto-evaluating the closure from the dataset.
@@ -309,6 +314,9 @@ $successDataProvider = [
     "isInstanceOf(new \Exception(), \Throwable::class)" => [
         fn() => Assertion::isInstanceOf(new \Exception(), \Throwable::class, $propertyPath),
     ],
+    "unauthorisedCharacters('new bad string!', '&#@')" => [
+        fn() => Assertion::unauthorisedCharacters('new bad string!', '&#@', $propertyPath),
+    ]
 ];
 
 // We use a custom data provider with a loop to avoid pest from auto-evaluating the closure from the dataset.

@@ -30,8 +30,10 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 use Core\ServiceTemplate\Application\UseCase\FindServiceTemplates\FindServiceTemplateResponse;
 use Core\ServiceTemplate\Application\UseCase\FindServiceTemplates\FindServiceTemplatesPresenterInterface;
+use Core\ServiceTemplate\Infrastructure\Model\NotificationTypeConverter;
+use Core\ServiceTemplate\Infrastructure\Model\YesNoDefaultConverter;
 
-class FindServiceTemplatesPresenterOnPrem extends AbstractPresenter implements FindServiceTemplatesPresenterInterface
+class FindServiceTemplatesOnPremPresenter extends AbstractPresenter implements FindServiceTemplatesPresenterInterface
 {
     use PresenterTrait;
 
@@ -76,7 +78,7 @@ class FindServiceTemplatesPresenterOnPrem extends AbstractPresenter implements F
                     'freshness_checked' => YesNoDefaultConverter::toInt($dto->checkFreshness),
                     'freshness_threshold' => $dto->freshnessThreshold,
                     'flap_detection_enabled' => YesNoDefaultConverter::toInt($dto->flapDetectionEnabled),
-                    'low_flap_threshold' => $dto->highFlapThreshold,
+                    'low_flap_threshold' => $dto->lowFlapThreshold,
                     'high_flap_threshold' => $dto->highFlapThreshold,
                     'event_handler_enabled' => YesNoDefaultConverter::toInt($dto->eventHandlerEnabled),
                     'event_handler_command_id' => $dto->eventHandlerId,

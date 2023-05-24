@@ -21,18 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Core\ServiceTemplate\Infrastructure\API\FindServiceTemplates;
+namespace Core\MonitoringServer\Model;
 
-use Core\Common\Domain\YesNoDefault;
-
-final class YesNoDefaultConverter
+class MonitoringServer
 {
-    public static function toInt(YesNoDefault $yesNoDefault): int
-    {
-        return match ($yesNoDefault) {
-            YesNoDefault::No => 0,
-            YesNoDefault::Yes => 1,
-            default => 2,
-        };
-    }
+    public const ILLEGAL_CHARACTERS = '~!$%^&*"|\'<>?,()=';
 }

@@ -35,3 +35,26 @@ get:
       $ref: '../../Common/Response/Forbidden.yaml'
     '500':
       $ref: '../../Common/Response/InternalServerError.yaml'
+post:
+  tags:
+    - Service template
+  summary: "Add a service template"
+  description: "Add a service template configuration"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/NewServiceTemplate.yaml'
+  responses:
+    '201':
+      allOf:
+        - $ref: '../../Common/Response/Created.yaml'
+        - content:
+            application/json:
+              schema:
+                $ref: 'Schema/ServiceTemplate.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

@@ -21,25 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\ServiceTemplate\Application\Repository;
+namespace Core\ServiceTemplate\Infrastructure\Model;
 
-use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
+use Core\Common\Domain\YesNoDefault;
 
-interface WriteServiceTemplateRepositoryInterface
+final class YesNoDefaultConverter
 {
-    /**
-     * Delete a service template by ID.
-     *
-     * @param int $serviceTemplateId
-     */
-    public function deleteById(int $serviceTemplateId): void;
-
-    /**
-     * Add a new service template.
-     *
-     * @param NewServiceTemplate $newServiceTemplate
-     *
-     * @return int
-     */
-    public function add(NewServiceTemplate $newServiceTemplate): int;
+    public static function toInt(YesNoDefault $yesNoDefault): int
+    {
+        return match ($yesNoDefault) {
+            YesNoDefault::No => 0,
+            YesNoDefault::Yes => 1,
+            default => 2,
+        };
+    }
 }

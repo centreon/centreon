@@ -21,25 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\ServiceTemplate\Application\Repository;
+namespace Tests\Core\ServiceTemplate\Infrastructure\API\AddServiceTemplate;
 
-use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplatePresenterInterface;
+use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplateResponse;
 
-interface WriteServiceTemplateRepositoryInterface
+class AddServiceTemplatePresenterStub extends AbstractPresenter implements AddServiceTemplatePresenterInterface
 {
-    /**
-     * Delete a service template by ID.
-     *
-     * @param int $serviceTemplateId
-     */
-    public function deleteById(int $serviceTemplateId): void;
+    public ?ResponseStatusInterface $response;
 
-    /**
-     * Add a new service template.
-     *
-     * @param NewServiceTemplate $newServiceTemplate
-     *
-     * @return int
-     */
-    public function add(NewServiceTemplate $newServiceTemplate): int;
+    public function presentResponse(ResponseStatusInterface|AddServiceTemplateResponse $response): void
+    {
+        $this->response = $response;
+    }
 }

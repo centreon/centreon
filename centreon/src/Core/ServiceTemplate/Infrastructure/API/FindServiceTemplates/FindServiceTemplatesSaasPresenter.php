@@ -31,7 +31,7 @@ use Core\Infrastructure\Common\Presenter\PresenterTrait;
 use Core\ServiceTemplate\Application\UseCase\FindServiceTemplates\FindServiceTemplateResponse;
 use Core\ServiceTemplate\Application\UseCase\FindServiceTemplates\FindServiceTemplatesPresenterInterface;
 
-class FindServiceTemplatesPresenterSaas extends AbstractPresenter implements FindServiceTemplatesPresenterInterface
+class FindServiceTemplatesSaasPresenter extends AbstractPresenter implements FindServiceTemplatesPresenterInterface
 {
     use PresenterTrait;
 

@@ -21,11 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\ServiceTemplate\Infrastructure\API\FindServiceTemplates;
+namespace Core\ServiceTemplate\Application\Model;
 
+use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\Assertion;
 use Core\ServiceTemplate\Domain\Model\NotificationType;
 
-final class NotificationTypeConverter
+class NotificationTypeConverter
 {
     public const NONE_AS_BIT = 0b000000,
                  WARNING_AS_BIT = 0b000001,
@@ -37,25 +39,27 @@ final class NotificationTypeConverter
                  ALL_TYPE = 0b111111;
 
     /**
-     * @param NotificationType[] $notificationTypes
+     * @param int $bitFlag
      *
-     * @return int
+     * @throws AssertionFailedException
+     *
+     * @return list<NotificationType>
      */
-    public static function toBits(array $notificationTypes): int
+    public static function fromBits(int $bitFlag): array
     {
-        if ($notificationTypes === []) {
-            return self::ALL_TYPE;
-        }
-        $bits = 0;
-        foreach ($notificationTypes as $type) {
-            // The 0 is considered a "None" type and therefore we do not expect any other values.
-            if (self::toBit($type) === 0) {
-                return 0;
-            }
-            $bits |= self::toBit($type);
+        Assertion::range($bitFlag, 0, self::ALL_TYPE);
+        if ($bitFlag === self::NONE_AS_BIT) {
+            return [];
         }
 
-        return $bits;
+        $notificationTypes = [];
+        foreach (NotificationType::cases() as $notificationType) {
+            if ($bitFlag & self::toBit($notificationType)) {
+                $notificationTypes[] = $notificationType;
+            }
+        }
+
+        return $notificationTypes;
     }
 
     /**
@@ -66,13 +70,13 @@ final class NotificationTypeConverter
     private static function toBit(NotificationType $notificationType): int
     {
         return match ($notificationType) {
-            NotificationType::None => self::NONE_AS_BIT,
             NotificationType::Warning => self::WARNING_AS_BIT,
             NotificationType::Unknown => self::UNKNOWN_AS_BIT,
             NotificationType::Critical => self::CRITICAL_AS_BIT,
             NotificationType::Recovery => self::RECOVERY_AS_BIT,
             NotificationType::Flapping => self::FLAPPING_AS_BIT,
             NotificationType::DowntimeScheduled => self::DOWNTIME_SCHEDULED_AS_BIT,
+            NotificationType::None => self::NONE_AS_BIT,
         };
     }
 }

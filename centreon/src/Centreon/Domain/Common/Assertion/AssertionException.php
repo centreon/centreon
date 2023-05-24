@@ -32,7 +32,6 @@ class AssertionException extends \Assert\InvalidArgumentException
 {
     public const INVALID_EMAIL = Assert::INVALID_EMAIL;
     public const INVALID_GREATER_OR_EQUAL = Assert::INVALID_GREATER_OR_EQUAL;
-
     public const INVALID_INSTANCE_OF = Assert::INVALID_INSTANCE_OF;
     public const INVALID_IP = Assert::INVALID_IP;
     public const INVALID_IP_OR_DOMAIN = 1002;
@@ -46,6 +45,9 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const INVALID_CHOICE = Assert::INVALID_CHOICE;
     public const VALUE_EMPTY = Assert::VALUE_EMPTY;
     public const VALUE_NULL = Assert::VALUE_NULL;
+
+    // Error codes of Centreon assertion start from 300
+    public const INVALID_CHARACTERS = 300;
 
     /**
      * The extended constructor is here only to enforce the types used
@@ -65,6 +67,32 @@ class AssertionException extends \Assert\InvalidArgumentException
         array $constraints = []
     ) {
         parent::__construct($message, $code, $propertyPath, $value, $constraints);
+    }
+
+    /**
+     * Exception when the value contains unauthorised characters.
+     *
+     * @param string $value Tested value
+     * @param string $unauthorisedCharacters List of unauthorised characters found in the value
+     * @param string|null $propertyPath Property's path (ex: Host::name)
+     *
+     * @return self
+     */
+    public static function unauthorisedCharacters(
+        string $value,
+        string $unauthorisedCharacters,
+        ?string $propertyPath = null
+    ): self {
+        return new self(
+            sprintf(
+                _('[%s] The value contains unauthorised characters: %s'),
+                $propertyPath,
+                $unauthorisedCharacters,
+            ),
+            self::INVALID_CHARACTERS,
+            $propertyPath,
+            $value
+        );
     }
 
     /**
