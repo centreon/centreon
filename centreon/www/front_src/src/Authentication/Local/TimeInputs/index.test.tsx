@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 
-import { render, RenderResult, screen } from '@centreon/ui/src/testRenderer';
+import { render, RenderResult, screen } from '@centreon/ui/test/testRenderer';
 
 import { labelMinute, labelMinutes } from '../translatedLabels';
 

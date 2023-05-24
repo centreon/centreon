@@ -1,14 +1,10 @@
-import { Dispatch, SetStateAction, useState } from 'react';
-
 import dayjs from 'dayjs';
 
-import { DesktopDateTimePicker } from '@mui/x-date-pickers';
-import { TextFieldProps } from '@mui/material';
+import { DateTimePicker } from '@mui/x-date-pickers';
 
-import { TextField } from '@centreon/ui';
+import { useDateTimePickerAdapter } from '@centreon/ui';
 
 import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
-import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 
 interface Props {
   changeDate: (props) => void;
@@ -16,28 +12,8 @@ interface Props {
   disabled?: boolean;
   maxDate?: Date | dayjs.Dayjs;
   minDate?: Date | dayjs.Dayjs;
-  onClosePicker?: (isClosed: boolean) => void;
   property: CustomTimePeriodProperty;
-  setDate: Dispatch<SetStateAction<Date | null>>;
 }
-
-const renderDateTimePickerTextField =
-  (blur: () => void) =>
-  ({ inputRef, inputProps, InputProps }: TextFieldProps): JSX.Element => {
-    return (
-      <TextField
-        // eslint-disable-next-line react/no-unstable-nested-components
-        EndAdornment={(): JSX.Element => <div>{InputProps?.endAdornment}</div>}
-        dataTestId="calendar"
-        inputProps={{
-          ...inputProps,
-          ref: inputRef,
-          style: { padding: 8 }
-        }}
-        onBlur={blur}
-      />
-    );
-  };
 
 const DateTimePickerInput = ({
   date,
@@ -45,64 +21,22 @@ const DateTimePickerInput = ({
   minDate,
   property,
   changeDate,
-  setDate,
-  onClosePicker,
   disabled = false
 }: Props): JSX.Element => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { desktopPickerMediaQuery } = useDateTimePickerAdapter();
 
-  const { getDestinationAndConfiguredTimezoneOffset, formatKeyboardValue } =
-    useDateTimePickerAdapter();
-
-  const changeTime = (
-    newValue: dayjs.Dayjs | null,
-    keyBoardValue: string | undefined
-  ): void => {
-    if (isOpen) {
-      changeDate({ date: dayjs(newValue).toDate(), property });
-
-      return;
-    }
-    const value = dayjs(formatKeyboardValue(keyBoardValue))
-      .add(
-        dayjs.duration({ hours: getDestinationAndConfiguredTimezoneOffset() })
-      )
-      .toDate();
-
-    setDate(value);
-  };
-
-  const blur = (): void => {
-    changeDate({ date, property });
-  };
-  const close = (): void => {
-    setIsOpen(false);
-    onClosePicker?.(true);
-  };
-
-  const open = (): void => {
-    setIsOpen(true);
-    onClosePicker?.(false);
+  const changeTime = (newValue: dayjs.Dayjs | null): void => {
+    changeDate({ date: dayjs(newValue).toDate(), property });
   };
 
   return (
-    <DesktopDateTimePicker<dayjs.Dayjs>
-      hideTabs
-      PopperProps={{
-        open: isOpen
-      }}
-      dayOfWeekFormatter={(day: string): string =>
-        day.substring(0, 2).toUpperCase()
-      }
+    <DateTimePicker<dayjs.Dayjs>
+      desktopModeMediaQuery={desktopPickerMediaQuery}
       disabled={disabled}
       maxDate={maxDate && dayjs(maxDate)}
       minDate={minDate && dayjs(minDate)}
-      open={isOpen}
-      renderInput={renderDateTimePickerTextField(blur)}
-      value={date as dayjs.Dayjs}
+      value={dayjs(date)}
       onChange={changeTime}
-      onClose={close}
-      onOpen={open}
     />
   );
 };

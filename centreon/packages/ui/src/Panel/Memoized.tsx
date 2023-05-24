@@ -2,7 +2,7 @@
 
 import { forwardRef } from 'react';
 
-import useMemoComponent from '../utils/useMemoComponent';
+import { useMemoComponent } from '../utils';
 
 import Panel, { Props } from '.';
 

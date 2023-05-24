@@ -11284,6 +11284,18 @@ msgstr "Ceci est un modèle de contact."
 msgid "View contact notifications"
 msgstr "Afficher les notifications du contact"
 
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:280
+msgid "Do you really want to unblock this user?"
+msgstr "Voulez-vous vraiment débloquer cet utilisateur ?"
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
+msgid "The user(s) will be unblocked. Do you confirm the request?"
+msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l'action ?"
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
+msgid "Unblock"
+msgstr "Débloquer"
+
 #: centreon-web/www/include/configuration/configObject/escalation/ViewEscalation.php:103
 msgid "Escalations View"
 msgstr "Visualisation des escalades"
@@ -17561,3 +17573,30 @@ msgstr "Erreur lors de la recherche de la catégorie d'hôtes #%d"
 
 msgid "Error while retrieving a host category"
 msgstr "Erreur lors de la récupération de la catégorie d'hôtes"
+
+msgid "Error while searching for host templates"
+msgstr "Erreur lors de la recherche des modèles d'hôtes"
+
+msgid "You are not allowed to access host templates"
+msgstr "Vous n'êtes pas autorisé à accéder aux modèles d'hôtes"
+
+msgid "Error while updating the host category"
+msgstr "Erreur lors de la mise à jour de la catégorie d'hôte"
+
+msgid "You are not allowed to access service templates"
+msgstr "Vous n'êtes pas autorisé à accéder aux modèles de service"
+
+msgid "Error while searching for service templates"
+msgstr "Erreur lors de la recherche de modèles de services"
+
+msgid "[%s] (%s) was expected to be an instance of the class '%s'"
+msgstr "[%s] (%s) devait être une instance de la classe '%s'"
+
+msgid "The service template '%s' is locked and cannot be deleted"
+msgstr "Le modèle de service '%s' est verrouillé et ne peut pas être supprimé"
+
+msgid "You are not allowed to delete this service template"
+msgstr "Vous n'êtes pas autorisé à supprimer ce modèle de service"
+
+msgid "Error while deleting the service template"
+msgstr "Erreur lors de la suppression du modèle de service"

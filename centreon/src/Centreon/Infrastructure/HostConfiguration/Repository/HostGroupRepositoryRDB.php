@@ -221,8 +221,8 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
                         ON imapR.img_img_id = imap.img_id
                     LEFT JOIN `:db`.view_img_dir imapD
                         ON imapD.dir_id = imapR.dir_dir_parent_id
-                    INNER JOIN `:db`.acl_resources_hc_relations arhr
-                        ON hg.hg_id = arhr.hc_id
+                    INNER JOIN `:db`.acl_resources_hg_relations arhr
+                        ON hg.hg_id = arhr.hg_hg_id
                     INNER JOIN `:db`.acl_resources res
                         ON arhr.acl_res_id = res.acl_res_id
                     INNER JOIN `:db`.acl_res_group_relations argr

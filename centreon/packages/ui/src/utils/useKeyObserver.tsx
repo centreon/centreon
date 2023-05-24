@@ -4,7 +4,7 @@ interface UseKeyObserverProps {
   isShiftKeyDown: boolean;
 }
 
-const useKeyObserver = (): UseKeyObserverProps => {
+export const useKeyObserver = (): UseKeyObserverProps => {
   const [isShiftKeyDown, setIsShiftKeyDown] = useState<boolean>(false);
 
   const pressShift = (): void => setIsShiftKeyDown(true);
@@ -34,5 +34,3 @@ const useKeyObserver = (): UseKeyObserverProps => {
     isShiftKeyDown
   };
 };
-
-export default useKeyObserver;
