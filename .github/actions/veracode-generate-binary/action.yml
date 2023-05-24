@@ -4,9 +4,6 @@ inputs:
   module_directory:
     description: Path to the module
     required: true
-  module_name:
-    description: Module name
-    required: true
   cache_key:
     description: key used to identify the cache
     required: true
@@ -36,7 +33,7 @@ runs:
 
     - name: Create zip file
       run: |
-        if [[ -z "${{ inputs.module_directory }}" || -z "${{ inputs.cache_key }}" || -z "${{ inputs.module_name }}" ]]; then
+        if [[ -z "${{ inputs.module_directory }}" || -z "${{ inputs.cache_key }}" ]]; then
           echo "[DEBUG] - At least one mandatory argument is missing"
         fi
         cd ${{ inputs.module_directory }}
