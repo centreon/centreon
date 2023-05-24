@@ -111,7 +111,7 @@ jobs:
           create_baseline_from: '${{ env.create_baseline_from }}'
           fail_build: false #TODO: Do not fail the jobs until grace period ends
           #fail_build: '${{ needs.build.outputs.fail_build }}'
-          fail_on_severity: 'High'
+          fail_on_severity: 'Low'
           timeout: 60
           development_stage: '${{ needs.build.outputs.development_stage }}'
           summary_display: '${{ needs.build.outputs.display_summary }}'
