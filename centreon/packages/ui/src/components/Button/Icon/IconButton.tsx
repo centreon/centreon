@@ -42,7 +42,6 @@ const IconButton = ({
     <MuiIconButton
       className={classes.iconButton}
       data-size={size}
-      data-testid={dataTestId}
       data-variant={variant}
       disabled={disabled}
       size={size}

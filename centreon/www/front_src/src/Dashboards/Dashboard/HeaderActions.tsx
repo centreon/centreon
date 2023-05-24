@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import EditIcon from '@mui/icons-material/Edit';
-import { DialogActions, DialogContent, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 
-import { Button, DialogTitle, SimpleDialog } from '@centreon/ui';
+import { Modal, Button } from '@centreon/ui/components';
 
 import {
   labelCancel,
@@ -113,27 +113,24 @@ const HeaderActions = ({
       >
         {t(labelCancel)}
       </Button>
-      <SimpleDialog
+      <Modal
         open={isAskingCancelConfirmation}
         onClose={closeAskCancelConfirmationAndBlock}
       >
-        <DialogTitle>{t(labelCancelDashboard)}</DialogTitle>
-        <DialogContent>
+        <Modal.Header>{t(labelCancelDashboard)}</Modal.Header>
+        <Modal.Body>
           <Typography>{t(labelYouWillCancelPageWithoutSaving)}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            dataTestId="cancel_dashboard_confirmation"
-            variant="ghost"
-            onClick={cancelEditing}
-          >
-            {t(labelCancel)}
-          </Button>
-          <Button dataTestId="save_dashboard_confirmation" onClick={savePanels}>
-            {t(labelSave)}
-          </Button>
-        </DialogActions>
-      </SimpleDialog>
+        </Modal.Body>
+        <Modal.Actions
+          isDanger
+          labels={{
+            cancel: labelCancel,
+            confirm: labelSave
+          }}
+          onCancel={cancelEditing}
+          onConfirm={savePanels}
+        />
+      </Modal>
     </>
   );
 };

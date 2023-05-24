@@ -1,7 +1,8 @@
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { FormikHelpers } from 'formik';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   Method,
@@ -37,10 +38,12 @@ interface UseSubmitDashboardState {
 const useSubmitDashboard = (): UseSubmitDashboardState => {
   const { t } = useTranslation();
 
+  const [page, setPage] = useAtom(pageAtom);
   const selectedDashboardVariant = useAtomValue(selectedDashboardVariantAtom);
   const selectedDashboard = useAtomValue(selectedDashboardAtom);
   const closeDialog = useSetAtom(closeDialogAtom);
-  const setPage = useSetAtom(pageAtom);
+
+  const queryClient = useQueryClient();
 
   const isUpdateVariant = equals(
     selectedDashboardVariant,
@@ -85,6 +88,9 @@ const useSubmitDashboard = (): UseSubmitDashboardState => {
         );
         closeDialog();
         setPage(1);
+        queryClient.invalidateQueries({
+          queryKey: ['dashboards', page]
+        });
       })
       .catch(displayErrorMessage)
       .finally(() => setSubmitting(false));

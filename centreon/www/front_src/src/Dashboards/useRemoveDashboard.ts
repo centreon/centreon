@@ -1,5 +1,6 @@
-import { useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   Method,
@@ -24,13 +25,15 @@ interface UseRemoveDashboardState {
 const useRemoveDashboard = (): UseRemoveDashboardState => {
   const { t } = useTranslation();
 
+  const [page, setPage] = useAtom(pageAtom);
   const setDeleteDialogState = useSetAtom(deleteDialogStateAtom);
-  const setPage = useSetAtom(pageAtom);
 
   const { mutateAsync, isMutating } = useMutationQuery({
     getEndpoint: (payload) => `${dashboardsEndpoint}/${payload?.id}`,
     method: Method.DELETE
   });
+
+  const queryClient = useQueryClient();
 
   const { showSuccessMessage, showErrorMessage } = useSnackbar();
 
@@ -49,6 +52,9 @@ const useRemoveDashboard = (): UseRemoveDashboardState => {
         showSuccessMessage(t(labelDashboardDeleted));
         setDeleteDialogState({ item: null, open: false });
         setPage(1);
+        queryClient.invalidateQueries({
+          queryKey: ['dashboards', page]
+        });
       })
       .catch(displayErrorMessage);
   };

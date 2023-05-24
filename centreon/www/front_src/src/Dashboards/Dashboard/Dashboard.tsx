@@ -1,4 +1,5 @@
-import { Header, TiledListingPage } from '@centreon/ui';
+import { TiledListingPage } from '@centreon/ui';
+import { Header } from '@centreon/ui/components';
 
 import Layout from './Layout';
 import useDashboardDetails from './useDashboardDetails';
