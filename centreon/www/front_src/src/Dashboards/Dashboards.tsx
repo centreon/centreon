@@ -1,4 +1,4 @@
-import { Suspense, useMemo } from 'react';
+import { ReactElement, Suspense, useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
@@ -38,7 +38,7 @@ import useRemoveDashboard from './useRemoveDashboard';
 
 import { ModalActionsLabels } from 'packages/ui/src/components/Modal/ModalActions';
 
-const Dashboards = (): JSX.Element => {
+const Dashboards = (): ReactElement => {
   const { t } = useTranslation();
 
   const [deleteDialogState, setDeleteDialogState] = useAtom(

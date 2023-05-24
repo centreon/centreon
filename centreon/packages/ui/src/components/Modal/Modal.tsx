@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 
 import { Dialog as MuiDialog } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
@@ -22,14 +22,14 @@ export type ModalProps = {
 /** *
  * @description This component is *WIP* and is not ready for production. Use the default `Dialog` component instead.
  */
-const Modal: React.FC<ModalProps> = ({
+const Modal = ({
   children,
   hasCloseButton = true,
   onClose,
   open,
   size = 'small',
   ...attr
-}): JSX.Element => {
+}: ModalProps): ReactElement => {
   const { classes } = useStyles();
 
   return (

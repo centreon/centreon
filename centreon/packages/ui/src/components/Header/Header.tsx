@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { useStyles } from './Header.styles';
 
@@ -7,7 +7,7 @@ type HeaderProps = {
   title: string;
 };
 
-const Header: React.FC<HeaderProps> = ({ title, nav }): JSX.Element => {
+const Header = ({ title, nav }: HeaderProps): ReactElement => {
   const { classes } = useStyles();
 
   return (

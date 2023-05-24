@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
@@ -19,10 +19,10 @@ type ListEmptyStateProps = {
   onCreate?: () => void;
 };
 
-const DataTableEmptyState: React.FC<ListEmptyStateProps> = ({
+const DataTableEmptyState = ({
   labels,
   onCreate
-}): JSX.Element => {
+}: ListEmptyStateProps): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 

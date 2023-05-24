@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { Button as MuiButton } from '@mui/material';
 
@@ -29,7 +29,7 @@ type ButtonProps = {
 } & AriaLabelingAttributes &
   DataTestAttributes;
 
-const Button: React.FC<ButtonProps> = ({
+const Button = ({
   children,
   variant = 'primary',
   size = 'medium',
@@ -40,7 +40,7 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   isDanger = false,
   ...attr
-}): JSX.Element => {
+}: ButtonProps): ReactElement => {
   const { classes } = useStyles();
 
   return (

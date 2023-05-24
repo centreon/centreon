@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { DialogTitle as MuiDialogTitle } from '@mui/material';
 
@@ -8,7 +8,7 @@ export type ModalHeaderProps = {
   children?: ReactNode;
 };
 
-const ModalHeader: React.FC<ModalHeaderProps> = ({ children }): JSX.Element => {
+const ModalHeader = ({ children }: ModalHeaderProps): ReactElement => {
   const { classes } = useStyles();
 
   return (

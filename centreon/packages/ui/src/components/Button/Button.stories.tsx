@@ -22,7 +22,7 @@ export const WithIcon: Story = {
   args: {
     ...Default.args,
     icon: <AddIcon />,
-    iconVariant: 'start' // TODO Icon component
+    iconVariant: 'start'
   }
 };
 

@@ -1,4 +1,4 @@
-import React, { RefObject, forwardRef, useMemo } from 'react';
+import React, { forwardRef, ReactElement, RefObject, useMemo } from 'react';
 
 import {
   Card as MuiCard,
@@ -35,7 +35,7 @@ const DataTableItem = forwardRef(
       onDelete
     }: DataTableItemProps,
     ref
-  ): JSX.Element => {
+  ): ReactElement => {
     const { classes } = useStyles();
 
     const ActionArea = useMemo(

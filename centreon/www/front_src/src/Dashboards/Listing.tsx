@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { dec, equals, gt } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -32,7 +32,7 @@ const emptyListStateLabels = {
   title: labelNoDashboardsFound
 };
 
-const Listing = (): JSX.Element => {
+const Listing = (): ReactElement => {
   const { t } = useTranslation();
   const { dashboards, elementRef, isLoading } = useDashboards();
 

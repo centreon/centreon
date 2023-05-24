@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
@@ -32,13 +32,13 @@ export type DashboardFormLabels = {
   entity: Required<DashboardResource>;
 };
 
-const DashboardForm: React.FC<DashboardFormProps> = ({
+const DashboardForm = ({
   variant = 'create',
   resource,
   labels,
   onSubmit,
   onCancel
-}): JSX.Element => {
+}: DashboardFormProps): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 

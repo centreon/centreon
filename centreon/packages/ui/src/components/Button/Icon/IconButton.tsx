@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { IconButton as MuiIconButton } from '@mui/material';
 
@@ -28,14 +28,14 @@ type IconButtonProps = {
 /**
  * @todo re-factor as `iconVariant: 'icon-only'` Button variant, and remove IconButton component (reason: code duplication)
  */
-const IconButton: React.FC<IconButtonProps> = ({
+const IconButton = ({
   variant = 'primary',
   size = 'medium',
   icon,
   disabled = false,
   onClick,
   ...attr
-}): JSX.Element => {
+}: IconButtonProps): ReactElement => {
   const { classes } = useStyles();
 
   return (

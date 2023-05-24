@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 
 import { useFormikContext } from 'formik';
 
@@ -19,11 +19,11 @@ export type DashboardFormActionsLabels = {
   submit: Record<FormVariant, string>;
 };
 
-const DashboardFormActions: React.FC<DashboardFormActionsProps> = ({
+const DashboardFormActions = ({
   labels,
   onCancel,
   variant
-}): JSX.Element => {
+}: DashboardFormActionsProps): ReactElement => {
   const { classes } = useStyles();
   const { isSubmitting, dirty, isValid, submitForm } =
     useFormikContext<DashboardResource>();

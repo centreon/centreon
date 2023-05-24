@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 
 import { useStyles } from './DataTable.styles';
 
@@ -12,11 +12,11 @@ type DataTableProps = {
  * @description DataTable component is used to display a list of items.
  * It supports grids (as cards) and tables (as rows) with filtering, pagination, sorting, and other features
  */
-const DataTable: React.FC<DataTableProps> = ({
+const DataTable = ({
   children,
   variant = 'grid',
   isEmpty = false
-}): JSX.Element => {
+}: DataTableProps): ReactElement => {
   const { classes } = useStyles();
 
   return (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 
 import { Button } from '../Button';
 
@@ -17,13 +17,13 @@ export type ModalActionsLabels = {
   confirm: string;
 };
 
-const ModalActions: React.FC<ModalActionsProps> = ({
+const ModalActions = ({
   children,
   labels,
   onCancel,
   onConfirm,
   isDanger = false
-}): JSX.Element => {
+}: ModalActionsProps): ReactElement => {
   const { classes } = useStyles();
 
   return (
