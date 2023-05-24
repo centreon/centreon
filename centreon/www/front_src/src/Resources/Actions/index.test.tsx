@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
-import dayjs from 'dayjs';
 import { createStore, Provider } from 'jotai';
 import mockDate from 'mockdate';
 import { equals, head, last, map, pick } from 'ramda';
@@ -23,7 +22,7 @@ import {
   resetMocks,
   screen,
   waitFor
-} from '@centreon/ui/src/testRenderer';
+} from '@centreon/ui/test/testRenderer';
 
 import useDetails from '../Details/useDetails';
 import useListing from '../Listing/useListing';
@@ -47,7 +46,6 @@ import {
   labelDowntimeBy,
   labelDuration,
   labelEnableAutorefresh,
-  labelEndDateGreaterThanStartDate,
   labelEndTime,
   labelFixed,
   labelForcedCheck,
@@ -492,8 +490,7 @@ describe(Actions, () => {
   });
 
   it('cannot send a downtime request when Downtime action is clicked and start date is greater than end date', async () => {
-    const { getByLabelText, getAllByText, findByText, getByText } =
-      renderActions();
+    const { getByLabelText, getAllByText, findByText } = renderActions();
 
     const selectedResources = [host];
 
@@ -511,70 +508,58 @@ describe(Actions, () => {
 
     await findByText(labelDowntimeByAdmin);
 
-    userEvent.type(getByLabelText(labelEndTime), '{selectall}');
-    userEvent.paste(
-      getByLabelText(labelEndTime),
-      dayjs(mockNow).format('L LT')
+    userEvent.type(
+      getByLabelText(labelEndTime).querySelector('input') as HTMLElement,
+      '01/01/2019 12:34 AM'
     );
 
     await waitFor(() =>
       expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeDisabled()
     );
-
-    expect(getByText(labelEndDateGreaterThanStartDate)).toBeInTheDocument();
   });
 
-  it('cannot send a downtime request when the Downtime action is clicked and the input dates have an invalid format', async () => {
-    const {
-      getByLabelText,
-      getAllByText,
-      findByText,
-      getByText,
-      findAllByText
-    } = renderActions();
+  const invalidDateTestCases = [
+    ['start', labelStartTime],
+    ['end', labelEndTime]
+  ];
 
-    const selectedResources = [host];
+  it.each(invalidDateTestCases)(
+    'cannot send a downtime request when the Downtime action is clicked and the %p time input have an invalid format',
+    async (_, label) => {
+      const {
+        getByLabelText,
+        getAllByText,
+        findByText,
+        getByText,
+        findAllByText
+      } = renderActions();
 
-    act(() => {
-      context.setSelectedResources?.(selectedResources);
-    });
+      const selectedResources = [host];
 
-    await findAllByText(labelSetDowntime);
+      act(() => {
+        context.setSelectedResources?.(selectedResources);
+      });
 
-    fireEvent.click(head(getAllByText(labelSetDowntime)) as HTMLElement);
+      await findAllByText(labelSetDowntime);
 
-    await findByText(labelDowntimeByAdmin);
+      fireEvent.click(head(getAllByText(labelSetDowntime)) as HTMLElement);
 
-    userEvent.type(getByLabelText(labelStartTime), '{backspace}l');
+      await findByText(labelDowntimeByAdmin);
 
-    await waitFor(() => {
-      expect(
-        last(getAllByText(labelSetDowntime)) as HTMLElement
-      ).toBeDisabled();
-    });
+      userEvent.type(
+        getByLabelText(label).querySelector('input') as HTMLElement,
+        '{selectall}{backspace}a'
+      );
 
-    expect(getByText(labelInvalidFormat)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          last(getAllByText(labelSetDowntime)) as HTMLElement
+        ).toBeDisabled();
+      });
 
-    userEvent.type(getByLabelText(labelStartTime), '{backspace}M');
-
-    await waitFor(() =>
-      expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeEnabled()
-    );
-
-    userEvent.type(getByLabelText(labelEndTime), 'a');
-
-    await waitFor(() =>
-      expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeDisabled()
-    );
-
-    expect(getByText(labelInvalidFormat)).toBeInTheDocument();
-
-    userEvent.type(getByLabelText(labelEndTime), '{backspace}');
-
-    await waitFor(() =>
-      expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeEnabled()
-    );
-  });
+      expect(getByText(labelInvalidFormat)).toBeInTheDocument();
+    }
+  );
 
   it('sends a downtime request when Resources are selected and the Downtime action is clicked and confirmed', async () => {
     const { findAllByText, getAllByText } = renderActions();

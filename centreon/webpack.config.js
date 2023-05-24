@@ -20,8 +20,8 @@ module.exports = (jscTransformConfiguration) =>
       },
       plugins: [
         new webpack.ProvidePlugin({
-          process: 'process/browser',
           React: 'react',
+          process: 'process/browser'
         }),
         new HtmlWebpackPlugin({
           alwaysWriteToDisk: true,

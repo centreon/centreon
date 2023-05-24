@@ -10,7 +10,7 @@ import { Provider, useSetAtom } from 'jotai';
 
 import { userAtom, ThemeMode } from '@centreon/ui-context';
 
-import useLocaleDateTimeFormat from '.';
+import { useLocaleDateTimeFormat } from '.';
 
 dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);

@@ -166,12 +166,6 @@ function updateNagiosConfigData($gopt_id = null)
 
     updateOption(
         $pearDB,
-        "nagios_path_img",
-        isset($ret["nagios_path_img"]) && $ret["nagios_path_img"] != null
-            ? $pearDB->escape($ret["nagios_path_img"]) : "NULL"
-    );
-    updateOption(
-        $pearDB,
         "nagios_path_plugins",
         isset($ret["nagios_path_plugins"]) && $ret["nagios_path_plugins"] != null
             ? $pearDB->escape($ret["nagios_path_plugins"]) : "NULL"

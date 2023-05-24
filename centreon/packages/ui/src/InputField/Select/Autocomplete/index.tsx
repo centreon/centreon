@@ -20,7 +20,7 @@ import Option from '../Option';
 import TextField from '../../Text';
 import { SelectEntry } from '..';
 import { searchLabel } from '../../translatedLabels';
-import getNormalizedId from '../../../utils/getNormalizedId';
+import { getNormalizedId } from '../../../utils';
 
 export type Props = {
   autoFocus?: boolean;

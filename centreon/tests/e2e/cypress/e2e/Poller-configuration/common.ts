@@ -1,7 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 import { insertFixture } from '../../commons';
 
-const dateBeforeLogin = new Date();
 const waitToExport = 10000;
 const waitPollerListToLoad = 3000;
 const testHostName = 'test_host';
@@ -77,43 +76,6 @@ const removeFixtures = (): Cypress.Chainable => {
   });
 };
 
-const checkExportedFileContent = (): Cypress.Chainable<boolean> => {
-  return cy
-    .exec(
-      `docker exec -i ${Cypress.env(
-        'dockerName'
-      )} sh -c "grep '${testHostName}' /etc/centreon-engine/hosts.cfg | tail -1"`
-    )
-    .then(({ stdout }): boolean => {
-      if (stdout) {
-        return true;
-      }
-
-      return false;
-    });
-};
-
-const checkIfConfigurationIsExported = (beforeLoginDate: Date): void => {
-  cy.log('Checking that configuration is exported');
-  const now = beforeLoginDate.getTime();
-
-  cy.wait(waitToExport);
-
-  cy.exec(
-    `docker exec -i ${Cypress.env(
-      'dockerName'
-    )} date -r /etc/centreon-engine/hosts.cfg`
-  ).then(({ stdout }): Cypress.Chainable<null> | null => {
-    const configurationExported = now < new Date(stdout).getTime();
-
-    if (configurationExported && checkExportedFileContent()) {
-      return null;
-    }
-
-    throw new Error(`No configuration has been exported`);
-  });
-};
-
 const checkIfMethodIsAppliedToPollers = (method: string): void => {
   cy.log('Checking that if the method is applied to pollers');
 
@@ -183,11 +145,10 @@ export {
   getPoller,
   insertHost,
   removeFixtures,
-  checkIfConfigurationIsExported,
   checkIfMethodIsAppliedToPollers,
   clearCentengineLogs,
   breakSomePollers,
   waitPollerListToLoad,
   checkIfConfigurationIsNotExported,
-  dateBeforeLogin
+  testHostName
 };

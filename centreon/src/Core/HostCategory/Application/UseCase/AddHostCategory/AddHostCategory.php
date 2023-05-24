@@ -32,6 +32,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Common\Domain\TrimmedString;
 use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
@@ -62,9 +63,9 @@ final class AddHostCategory
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostCategoryException::addNotAllowed())
+                    new ForbiddenResponse(HostCategoryException::writingActionsNotAllowed())
                 );
-            } elseif ($this->readHostCategoryRepository->existsByName(trim($request->name))) {
+            } elseif ($this->readHostCategoryRepository->existsByName(new TrimmedString($request->name))) {
                 $this->error('Host category name already exists', [
                     'hostcategory_name' => trim($request->name),
                 ]);
@@ -72,8 +73,8 @@ final class AddHostCategory
                     new ConflictResponse(HostCategoryException::hostNameAlreadyExists())
                 );
             } else {
-                $newHostCategory = new NewHostCategory(trim($request->name), trim($request->alias));
-                $newHostCategory->setComment($request->comment ? trim($request->comment) : null);
+                $newHostCategory = new NewHostCategory($request->name, $request->alias);
+                $newHostCategory->setComment($request->comment ?: null);
                 $newHostCategory->setActivated($request->isActivated);
 
                 $hostCategoryId = $this->writeHostCategoryRepository->add($newHostCategory);

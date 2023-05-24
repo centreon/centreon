@@ -150,3 +150,19 @@ default:
       paths: [ "%paths.base%/features/Notification.feature" ]
       contexts:
         - Centreon\Test\Api\Context\CloudPlatformContext
+    host_templates:
+      paths: [ "%paths.base%/features/HostTemplate.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext
+    cloud_host_templates:
+      paths: [ "%paths.base%/features/CloudHostTemplate.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\CloudPlatformContext
+    service_templates_on_prem:
+      paths: [ "%paths.base%/features/ServiceTemplatesOnPrem.feature" ]
+      contexts:
+      - Centreon\Test\Behat\Api\Context\ApiContext
+    service_template_cloud:
+      paths: [ "%paths.base%/features/ServiceTemplatesCloud.feature" ]
+      contexts:
+      - Centreon\Test\Api\Context\CloudPlatformContext

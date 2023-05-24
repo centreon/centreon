@@ -7,11 +7,9 @@ interface UseDeepCallback<TParameters, TReturn, TMemoProps> {
   deps: Array<TMemoProps>;
 }
 
-const useDeepCallback = <TParameters, TReturn, TMemoProps>({
+export const useDeepCallback = <TParameters, TReturn, TMemoProps>({
   deps,
   callback
 }: UseDeepCallback<TParameters, TReturn, TMemoProps>): ((
   props: TParameters
 ) => TReturn) => useCallback((props) => callback(props), useDeepCompare(deps));
-
-export default useDeepCallback;

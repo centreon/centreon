@@ -17,7 +17,7 @@ import { alpha, Box, FormHelperText, Typography } from '@mui/material';
 
 import { userAtom } from '@centreon/ui-context';
 
-import useMemoComponent from '../utils/useMemoComponent';
+import { useMemoComponent } from '../utils';
 
 import { labelDropOr, labelSelectAFile } from './translatedLabels';
 import useDropzone, { UseDropzoneState } from './useDropzone';

@@ -122,13 +122,13 @@
     function doAction(slt, act, msg) {
         var bChecked = isChecked();
         if (slt.selectedIndex != 0 && !bChecked) {
-            alert('Please select one or more items');
+            parent.window.alert('Please select one or more items');
             return false;
         }
         if (slt.selectedIndex == 0) {
             return false;
         } else {
-            if (confirm(msg)) {
+            if (parent.window.confirm(msg)) {
                 jQuery('input[name=o]').attr('value', act);
                 document.form.submit();
             } else {

@@ -10,6 +10,7 @@ import { FormHelperText, Popover, Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 
 import { userAtom } from '@centreon/ui-context';
+import { useDateTimePickerAdapter } from '@centreon/ui';
 
 import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
 import {
@@ -19,7 +20,6 @@ import {
   labelStartDate,
   labelTo
 } from '../../../translatedLabels';
-import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 
 import DateTimePickerInput from './DateTimePickerInput';
 import {
@@ -164,8 +164,8 @@ const PopoverCustomTimePeriodPickers = ({
       <div className={classNamePaper} data-testid="popover">
         {renderTitle}
         <LocalizationProvider
+          adapterLocale={locale.substring(0, 2)}
           dateAdapter={Adapter}
-          locale={locale.substring(0, 2)}
         >
           <div className={classNamePicker}>
             <Typography>{t(labelFrom)}</Typography>
@@ -177,7 +177,6 @@ const PopoverCustomTimePeriodPickers = ({
                 maxDate={pickersData?.maxDatePickerStartInput}
                 minDate={pickersData?.minDatePickerStartInput}
                 property={CustomTimePeriodProperty.start}
-                setDate={setStart}
                 onClosePicker={pickersData?.onCloseStartPicker}
               />
             </div>
@@ -190,7 +189,6 @@ const PopoverCustomTimePeriodPickers = ({
                 maxDate={pickersData?.maxDatePickerEndInput}
                 minDate={pickersData?.minDatePickerEndInput}
                 property={CustomTimePeriodProperty.end}
-                setDate={setEnd}
                 onClosePicker={pickersData?.onCloseEndPicker}
               />
             </div>
