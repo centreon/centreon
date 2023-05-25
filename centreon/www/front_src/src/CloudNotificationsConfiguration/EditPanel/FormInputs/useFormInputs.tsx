@@ -11,7 +11,7 @@ import { Group, InputType } from '@centreon/ui';
 import {
   labelSelectResourcesAndEvents,
   labelSelectUsers,
-  labelSelectTimePeriodChannelsAndPreview,
+  labelSelectTimePeriodAndChannels,
   labelEmailTemplateForTheNotificationMessage,
   labelSubject,
   labelNotificationChannels,
@@ -58,7 +58,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
       order: 2
     },
     {
-      name: t(labelSelectTimePeriodChannelsAndPreview),
+      name: t(labelSelectTimePeriodAndChannels),
       order: 3
     }
   ];

@@ -15555,6 +15555,126 @@ msgstr "par"
 msgid "Notification sent to"
 msgstr "Notification envoyée à"
 
+#: cloud notification configuration
+
+msgid "Notifications management"
+msgstr "Gestion des notifications"
+
+msgid "Welcome to the notifications interface"
+msgstr "Bienvenue dans l'interface de gestion des notifications"
+
+msgid "Create a notification"
+msgstr "Créer une notification"
+
+msgid "Add"
+msgstr "Ajouter"
+
+msgid "Duplicate"
+msgstr "Dupliquer"
+
+msgid "Channels"
+msgstr "Canaux"
+
+msgid "Select resources and events"
+msgstr "Sélectionner les ressources et les événements"
+
+msgid "Search host groups"
+msgstr ""
+
+msgid "Select users"
+msgstr ""
+
+msgid "Select time period / channels of notifications"
+msgstr ""
+
+msgid "How many times would you like to duplicate selected Notification?"
+msgstr ""
+
+msgid "Delete Notification?"
+msgstr ""
+
+msgid "This action cannot be undone"
+msgstr ""
+
+msgid "Reduce information panel"
+msgstr ""
+
+msgid "Expand information panel"
+msgstr ""
+
+msgid "Type your text here"
+msgstr ""
+
+msgid "Preview Zone"
+msgstr ""
+
+msgid "Active / Inactive"
+msgstr ""
+
+msgid "Change the name"
+msgstr ""
+
+msgid "Notification name"
+msgstr ""
+
+msgid "Required"
+msgstr ""
+
+msgid "Preview Email"
+msgstr ""
+
+msgid "The notification was successfully updated"
+msgstr ""
+
+msgid "The notification was successfully added"
+msgstr ""
+
+msgid "Do you want to confirm action ?"
+msgstr ""
+
+msgid "Confirm notification creation"
+msgstr ""
+
+msgid "Confirm notification update"
+msgstr ""
+
+msgid "Choose at least 1 Resource"
+msgstr ""
+
+msgid "Choose at least 1 Service Group"
+msgstr ""
+
+msgid "Choose at least 1 user"
+msgstr ""
+
+msgid "The message field should not be empty!"
+msgstr ""
+
+msgid "Close the panel"
+msgstr ""
+
+msgid "Email template for the notification message"
+msgstr ""
+
+msgid "Subject"
+msgstr ""
+
+msgid "Notification channels"
+msgstr ""
+
+msgid "Service groups"
+msgstr ""
+
+msgid "Host groups"
+msgstr ""
+
+msgid "Time period"
+msgstr ""
+
+msgid "Search service groups"
+msgstr ""
+
+
 #: api/platform
 msgid "Unable to convert in remote server, no Central to link provided"
 msgstr "Impossible de convertir en remote, aucun Central à lier renseigné"

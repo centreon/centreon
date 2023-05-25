@@ -20,8 +20,8 @@ export const labelSave = 'Save';
 export const labelSelectResourcesAndEvents = 'Select resources and events';
 export const labelSearchHostGroups = 'Search host groups';
 export const labelSelectUsers = 'Select users';
-export const labelSelectTimePeriodChannelsAndPreview =
-  'Select time period / channels of notifications / preview';
+export const labelSelectTimePeriodAndChannels =
+  'Select time period / channels of notifications';
 export const labelDuplicateNotification =
   'How many times would you like to duplicate selected Notification?';
 export const labelDeleteNotification = 'Delete Notification?';
