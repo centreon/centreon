@@ -1,7 +1,7 @@
 import { ChangeEvent, useEffect } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, includes, or, path, split } from 'ramda';
+import { equals, includes, path, split } from 'ramda';
 
 import { Box, Typography } from '@mui/material';
 
