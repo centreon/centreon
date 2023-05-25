@@ -7,7 +7,7 @@ interface HookParam {
   page: number;
 }
 
-const useIntersectionObserver = ({
+export const useIntersectionObserver = ({
   maxPage,
   page,
   loading,
@@ -41,5 +41,3 @@ const useIntersectionObserver = ({
 
   return lastElementRef;
 };
-
-export default useIntersectionObserver;

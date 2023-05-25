@@ -224,7 +224,6 @@ $form->addElement('text', 'centreon_support_email', _("Centreon Support Email"),
 
 $form->applyFilter('__ALL__', 'myTrim');
 $form->applyFilter('nagios_path', 'slash');
-$form->applyFilter('nagios_path_img', 'slash');
 $form->applyFilter('nagios_path_plugins', 'slash');
 $form->applyFilter('oreon_path', 'slash');
 $form->applyFilter('debug_path', 'slash');

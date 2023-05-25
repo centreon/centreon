@@ -26,6 +26,19 @@ jobs:
     with:
       version_file: widgets/centreon-widget-live-top10-memory-usage/live-top10-memory-usage/configs.xml
 
+  veracode-analysis:
+    needs: [get-version]
+    uses: ./.github/workflows/veracode-analysis.yml
+    with:
+      module_directory: widgets/centreon-widget-live-top10-memory-usage
+      module_name: centreon-widget-live-top10-memory-usage
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+    secrets:
+      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
+      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
+
   package:
     needs: [get-version]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}

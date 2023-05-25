@@ -1,0 +1,80 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add host template",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "alias"
+    ],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "alias": {
+            "type": "string"
+        },
+        "snmp_version": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "enum": [
+                null,
+                "1",
+                "2c",
+                "3"
+            ]
+        },
+        "snmp_community": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "timezone_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "severity_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "check_timeperiod_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "note_url": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "note": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "action_url": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "is_activated": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        }
+    }
+}
+
+

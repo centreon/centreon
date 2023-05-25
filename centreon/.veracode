@@ -1,0 +1,11 @@
+features/**/*
+GPL_LIB/**/*
+lang/**/*
+tests/**/*
+node_modules/**/*
+vendor/**/*
+www/include/common/javascript/jquery/**/*
+www/include/common/javascript/marked.js
+www/lib/wz_tooltip/wz_tooltip.js
+www/install/sql/**/*
+www/install/*.sql

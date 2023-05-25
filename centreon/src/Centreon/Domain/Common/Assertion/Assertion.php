@@ -299,6 +299,24 @@ class Assertion
     }
 
     /**
+     * @param object $value
+     * @param class-string $className
+     * @param string|null $propertyPath
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public static function isInstanceOf(mixed $value, string $className, ?string $propertyPath = null): void
+    {
+        if (! ($value instanceof $className)) {
+            throw AssertionException::badInstanceOfObject(
+                get_debug_type($value),
+                $className,
+                $propertyPath
+            );
+        }
+    }
+
+    /**
      * Make a string version of a value.
      *
      * Copied from {@see \Assert\Assertion::stringify()}.

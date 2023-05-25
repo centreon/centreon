@@ -4,7 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import { Theme, Tooltip } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
-import getNormalizedId from '../../utils/getNormalizedId';
+import { getNormalizedId } from '../../utils';
 
 import StartIcon from './StartIcon';
 import Content from './Content';
