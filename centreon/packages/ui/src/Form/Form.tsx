@@ -1,16 +1,22 @@
-import { Formik, FormikHelpers, FormikValues } from 'formik';
+import {
+  Formik,
+  FormikHelpers,
+  FormikSharedConfig,
+  FormikValues
+} from 'formik';
 import * as Yup from 'yup';
 
 import FormButtons from './FormButtons';
 import Inputs from './Inputs';
 import { Group, InputProps } from './Inputs/models';
+import { useStyles } from './Form.styles';
 
 export enum GroupDirection {
   Horizontal = 'horizontal',
   Vertical = 'vertical'
 }
 
-interface Props<T> {
+export type FormProps<T> = {
   Buttons?: React.ComponentType;
   groupDirection?: GroupDirection;
   groups?: Array<Group>;
@@ -21,7 +27,7 @@ interface Props<T> {
   submit: (values: T, bag: FormikHelpers<T>) => void | Promise<void>;
   validate?: (values: FormikValues) => void;
   validationSchema: Yup.SchemaOf<T>;
-}
+} & Omit<FormikSharedConfig<T>, 'isInitialValid'>;
 
 const Form = <T extends object>({
   initialValues,
@@ -33,8 +39,11 @@ const Form = <T extends object>({
   Buttons = FormButtons,
   isLoading = false,
   isCollapsible = false,
-  groupDirection = GroupDirection.Vertical
-}: Props<T>): JSX.Element => {
+  groupDirection = GroupDirection.Vertical,
+  ...formikSharedConfig
+}: FormProps<T>): JSX.Element => {
+  const { classes } = useStyles();
+
   if (isLoading) {
     return (
       <Inputs
@@ -48,15 +57,13 @@ const Form = <T extends object>({
 
   return (
     <Formik<T>
-      enableReinitialize
-      validateOnBlur
-      validateOnMount
       initialValues={initialValues}
       validate={validate}
       validationSchema={validationSchema}
       onSubmit={submit}
+      {...formikSharedConfig}
     >
-      <div>
+      <div className={classes.form}>
         <Inputs
           groupDirection={groupDirection}
           groups={groups}
@@ -69,4 +76,4 @@ const Form = <T extends object>({
   );
 };
 
-export default Form;
+export { Form };

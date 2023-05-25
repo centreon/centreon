@@ -24,3 +24,5 @@ export const useMemoComponent = ({
   memoProps
 }: MemoComponent): JSX.Element =>
   useMemo(() => Component, useDeepCompare(memoProps));
+
+export default useMemoComponent;

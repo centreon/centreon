@@ -1,17 +1,23 @@
-import { CSSProperties, ForwardedRef, MouseEvent, forwardRef } from 'react';
+import {
+  CSSProperties,
+  ForwardedRef,
+  forwardRef,
+  MouseEvent,
+  ReactElement
+} from 'react';
 
 import { isNil } from 'ramda';
 
 import { Card } from '@mui/material';
 
-import useMemoComponent from '../utils/useMemoComponent';
+import { useMemoComponent } from '../utils';
 
 import { useDashboardItemStyles } from './Dashboard.styles';
 
 interface DashboardItemProps {
-  children: JSX.Element;
+  children: ReactElement;
   className?: string;
-  header?: JSX.Element;
+  header?: ReactElement;
   key: string;
   onMouseDown?: (e: MouseEvent<HTMLDivElement>) => void;
   onMouseUp?: (e: MouseEvent<HTMLDivElement>) => void;
@@ -32,7 +38,7 @@ const Item = forwardRef(
       onTouchEnd
     }: DashboardItemProps,
     ref: ForwardedRef<HTMLDivElement>
-  ): JSX.Element => {
+  ): ReactElement => {
     const { classes } = useDashboardItemStyles();
 
     const hasHeader = !isNil(header);
