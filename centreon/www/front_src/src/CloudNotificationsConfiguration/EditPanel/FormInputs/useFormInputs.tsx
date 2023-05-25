@@ -43,9 +43,9 @@ interface Props {
 }
 
 const useFormInputs = ({ panelWidth }: Props): object => {
-  const [isExtraFieldHiden, setIsExtraFieldHiden] = useState(false);
+  const [isExtraFieldHidden, setIsExtraFieldHidden] = useState(false);
 
-  const { classes } = useStyles({ isExtraFieldHiden });
+  const { classes } = useStyles({ isExtraFieldHidden });
   const { t } = useTranslation();
 
   const basicFormGroups: Array<Group> = [
@@ -101,7 +101,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
             fieldName: 'hostGroups.extra.includeServices',
             getDisabled: (values) => isEmpty(values.hostGroups.ids),
             hideInput: (values): boolean => {
-              setIsExtraFieldHiden(isEmpty(values.hostGroups.ids));
+              setIsExtraFieldHidden(isEmpty(values.hostGroups.ids));
 
               return isEmpty(values.hostGroups.ids);
             },

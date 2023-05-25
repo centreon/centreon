@@ -6,7 +6,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   groups: {
     '& .groupText': {
-      fontSize: theme.typography.formtitle.fontSize,
+      fontSize: theme.typography.formTitle.fontSize,
       fontWeight: theme.typography.fontWeightBold
     },
     '&:hover': {

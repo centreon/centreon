@@ -4,11 +4,11 @@ import { equals } from 'ramda';
 import { ThemeMode } from '@centreon/ui-context';
 
 interface StyleProps {
-  isExtraFieldHiden: boolean;
+  isExtraFieldHidden: boolean;
 }
 
 export const useStyles = makeStyles<StyleProps>()(
-  (theme, { isExtraFieldHiden }) => ({
+  (theme, { isExtraFieldHidden }) => ({
     additionalLabel: {
       color: theme.palette.primary.main,
       fontSize: theme.typography.h6.fontSize,
@@ -41,7 +41,7 @@ export const useStyles = makeStyles<StyleProps>()(
       padding: theme.spacing(1.5, 1)
     },
     hostsGrid: {
-      rowGap: isExtraFieldHiden ? 0 : theme.spacing(3)
+      rowGap: isExtraFieldHidden ? 0 : theme.spacing(3)
     },
     input: {
       backgroundColor: equals(ThemeMode.light, theme.palette.mode)

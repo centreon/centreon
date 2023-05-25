@@ -283,7 +283,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
       fontSize: '0.625rem'
     },
     fontFamily: 'Roboto, Arial',
-    formtitle: {
+    formTitle: {
       fontSize: '1.125rem'
     }
   }

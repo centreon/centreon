@@ -21,7 +21,6 @@ const ActivateAction = (): JSX.Element => {
         ariaLabel={t(labelActiveOrInactive) as string}
         checked={values?.isActivated}
         color="success"
-        inputProps={{ 'aria-label': 'controlled' }}
         name="isActivated"
         size="small"
         onChange={handleChange}
