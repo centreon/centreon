@@ -14,7 +14,7 @@ import { dashboardsEndpoint } from './api/endpoints';
 import { dashboardListDecoder } from './api/decoders';
 import { Dashboard } from './models';
 
-const limit = 4;
+const limit = 100;
 
 interface UseDashboardState {
   dashboards: Array<Dashboard>;

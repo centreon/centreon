@@ -1,5 +1,6 @@
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   Method,
@@ -32,6 +33,8 @@ const useRemoveDashboard = (): UseRemoveDashboardState => {
     method: Method.DELETE
   });
 
+  const queryClient = useQueryClient();
+
   const { showSuccessMessage, showErrorMessage } = useSnackbar();
 
   const displayErrorMessage = (): void => {
@@ -49,6 +52,7 @@ const useRemoveDashboard = (): UseRemoveDashboardState => {
         showSuccessMessage(t(labelDashboardDeleted));
         setDeleteDialogState({ item: null, open: false });
         setPage(1);
+        queryClient.invalidateQueries({ queryKey: ['dashboards'] });
       })
       .catch(displayErrorMessage);
   };
