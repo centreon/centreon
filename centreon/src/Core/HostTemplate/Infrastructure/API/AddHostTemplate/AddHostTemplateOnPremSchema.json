@@ -1,0 +1,276 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add host template",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "alias"
+    ],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "alias": {
+            "type": "string"
+        },
+        "snmp_version": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "enum": [
+                null,
+                "1",
+                "2c",
+                "3"
+            ]
+        },
+        "snmp_community": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "timezone_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "severity_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "check_command_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "check_command_args": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "check_timeperiod_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "max_check_attempts": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "normal_check_interval": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "retry_check_interval": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "active_check_enabled": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "enum": [
+                null,
+                0,
+                1,
+                2
+            ]
+        },
+        "passive_check_enabled": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "enum": [
+                null,
+                0,
+                1,
+                2
+            ]
+        },
+        "notification_enabled": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "enum": [
+                null,
+                0,
+                1,
+                2
+            ]
+        },
+        "notification_options": {
+            "type": [
+                "integer",
+                "null"
+            ]
+        },
+        "notification_interval": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "notification_timeperiod_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "add_inherited_contact_group": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "add_inherited_contact": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "first_notification_delay": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "recovery_notification_delay": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "acknowledgement_timeout": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "freshness_checked": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "enum": [
+                null,
+                0,
+                1,
+                2
+            ]
+        },
+        "freshness_threshold": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "flap_detection_enabled": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "enum": [
+                null,
+                0,
+                1,
+                2
+            ]
+        },
+        "low_flap_threshold": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "high_flap_threshold": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "event_handler_enabled": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "enum": [
+                null,
+                0,
+                1,
+                2
+            ]
+        },
+        "event_handler_command_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "event_handler_command_args": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "note_url": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "note": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "action_url": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "icon_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "icon_alternative": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "comment": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "is_activated": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        }
+    }
+}

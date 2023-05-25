@@ -184,6 +184,11 @@ $failDataProvider = [
         )->getMessage(),
         AssertionException::INVALID_MAX_DATE,
     ],
+    "isInstanceOf('test', Exception:class)" => [
+        fn() => Assertion::isInstanceOf('test', \Exception::class, $propertyPath),
+        AssertionException::badInstanceOfObject(gettype('test'), \Exception::class, $propertyPath)->getMessage(),
+        AssertionException::INVALID_INSTANCE_OF
+    ],
 ];
 
 // We use a custom data provider with a loop to avoid pest from auto-evaluating the closure from the dataset.
@@ -300,6 +305,9 @@ $successDataProvider = [
             new \DateTime('2023-02-08 16:00:00'),
             $propertyPath
         ),
+    ],
+    "isInstanceOf(new \Exception(), \Throwable::class)" => [
+        fn() => Assertion::isInstanceOf(new \Exception(), \Throwable::class, $propertyPath),
     ],
 ];
 
