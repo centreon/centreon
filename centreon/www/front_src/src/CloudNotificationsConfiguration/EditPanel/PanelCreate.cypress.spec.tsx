@@ -11,7 +11,10 @@ import {
   labelSearchServiceGroups,
   labelDoYouWantToConfirmAction,
   labelSuccessfulNotificationAdded,
-  labelConfirmAddNotification
+  labelConfirmAddNotification,
+  labelClosePanel,
+  labelExpandInformationPanel,
+  labelReduceInformationPanel
 } from '../translatedLabels';
 
 import { notificationtEndpoint } from './api/endpoints';
@@ -172,6 +175,19 @@ describe('Panel : Creation mode', () => {
 
     cy.waitForRequest('@addNotificationRequest');
     cy.findByText(labelSuccessfulNotificationAdded).should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('Confirms that the close button triggers the display of a confirmation dialog if the user has made some changes to the form', () => {
+    cy.findByLabelText(labelSearchHostGroups).click();
+    cy.waitForRequest('@getHostsGroupsEndpoint');
+    cy.findByText('Firewall').click();
+
+    cy.findByLabelText(labelClosePanel).click();
+
+    cy.findByText(labelReduceInformationPanel);
+    cy.findByText(labelExpandInformationPanel);
 
     cy.matchImageSnapshot();
   });

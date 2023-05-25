@@ -15653,6 +15653,12 @@ msgstr "Groupes d'hôtes "
 msgid "Search service groups"
 msgstr "Rechercher des groupes de service"
 
+msgid "Do you want to quit the form without saving the changes?"
+msgstr "Souhaitez-vous quitter le formulaire sans enregistrer les modifications ?"
+
+msgid "Your form has unsaved changes"
+msgstr "Votre formulaire comporte des modifications non enregistrées"
+
 
 #: api/platform
 msgid "Unable to convert in remote server, no Central to link provided"

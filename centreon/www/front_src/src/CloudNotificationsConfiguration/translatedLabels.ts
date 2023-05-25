@@ -63,3 +63,8 @@ export const labelServiceGroups = 'Service groups';
 export const labelHostGroups = 'Host groups';
 export const labelTimePeriod = 'Time period';
 export const labelSearchServiceGroups = 'Search service groups';
+
+export const labelDoYouWantToQuitWithoutSaving =
+  'Do you want to quit the form without saving the changes?';
+
+export const labelYourFormHasUnsavedChanges = 'Your form has unsaved changes';
