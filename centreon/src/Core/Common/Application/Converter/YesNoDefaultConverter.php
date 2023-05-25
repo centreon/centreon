@@ -73,7 +73,7 @@ class YesNoDefaultConverter
      *
      * @param YesNoDefault $enum
      *
-     * @return int
+     * @return string
      */
     public static function toString(YesNoDefault $enum): string
     {
