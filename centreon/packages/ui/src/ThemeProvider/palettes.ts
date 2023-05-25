@@ -154,6 +154,7 @@ export const darkPalette: PaletteOptions = {
     default: '#4a4a4a',
     listingHeader: '#666666',
     panel: '#4a4a4a',
+    panelGroups: '#666666',
     paper: '#212121'
   },
   divider: '#666666',

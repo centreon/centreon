@@ -1,7 +1,4 @@
 import { makeStyles } from 'tss-react/mui';
-import { equals } from 'ramda';
-
-import { ThemeMode } from '@centreon/ui-context';
 
 interface StyleProps {
   isExtraFieldHidden: boolean;
@@ -34,9 +31,7 @@ export const useStyles = makeStyles<StyleProps>()(
       rowGap: theme.spacing(1)
     },
     hostInput: {
-      backgroundColor: equals(ThemeMode.light, theme.palette.mode)
-        ? theme.palette.background.panelGroups
-        : 'default',
+      backgroundColor: theme.palette.background.panelGroups,
       borderRadius: theme.spacing(0.5),
       padding: theme.spacing(1.5, 1)
     },
@@ -44,10 +39,7 @@ export const useStyles = makeStyles<StyleProps>()(
       rowGap: isExtraFieldHidden ? 0 : theme.spacing(3)
     },
     input: {
-      backgroundColor: equals(ThemeMode.light, theme.palette.mode)
-        ? theme.palette.background.panelGroups
-        : 'default',
-
+      backgroundColor: theme.palette.background.panelGroups,
       borderRadius: theme.spacing(0.5),
       padding: theme.spacing(1)
     }
