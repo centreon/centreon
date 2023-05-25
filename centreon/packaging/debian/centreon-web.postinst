@@ -60,7 +60,7 @@ if [ -n "$2" ]; then
   rm -rf /var/cache/centreon/symfony
   su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
 
-  if [[ "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*id:.*$ ]]; then
+  if [[ ! "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*id:.*$ ]]; then
     sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
   fi
 fi
