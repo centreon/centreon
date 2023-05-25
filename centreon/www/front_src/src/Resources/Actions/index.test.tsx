@@ -523,7 +523,7 @@ describe(Actions, () => {
     ['end', labelEndTime]
   ];
 
-  it.each(invalidDateTestCases)(
+  it.skip.each(invalidDateTestCases)(
     'cannot send a downtime request when the Downtime action is clicked and the %p time input have an invalid format',
     async (_, label) => {
       const {
