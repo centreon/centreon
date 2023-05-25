@@ -22,7 +22,7 @@ const useValidationSchema = (): object => {
     subject: Yup.string().nullable()
   });
 
-  const resourceSchema  = (dependency): object =>
+  const resourceSchema = (dependency): object =>
     Yup.object().when(dependency, {
       is: (value) => isEmpty(value),
       otherwise: Yup.object().shape({
@@ -35,10 +35,10 @@ const useValidationSchema = (): object => {
 
   const validationSchema = Yup.object().shape(
     {
-      hostGroups: resourceSchema ('serviceGroups.ids'),
+      hostGroups: resourceSchema('serviceGroups.ids'),
       messages: messagesSchema,
       name: Yup.string().required(t(labelRequired) as string),
-      serviceGroups: resourceSchema ('hostGroups.ids'),
+      serviceGroups: resourceSchema('hostGroups.ids'),
       users: Yup.array().min(1, t(labelChooseAtleastOneUser) as string)
     },
     ['hostGroups', 'serviceGroups']
