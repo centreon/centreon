@@ -689,10 +689,13 @@ class OpenIdProvider implements OpenIdProviderInterface
             $authenticationConditions->isEnabled()
                 ? array_merge(
                     $this->idTokenPayload,
-                    $this->attributePathFetcher->fetch(
-                        $accessToken,
-                        $this->configuration,
-                        $authenticationConditions->getEndpoint()
+                    array_diff_key(
+                        $this->attributePathFetcher->fetch(
+                            $accessToken,
+                            $this->configuration,
+                            $authenticationConditions->getEndpoint()
+                        ),
+                        $this->idTokenPayload
                     )
                 )
                 : $this->idTokenPayload
@@ -703,10 +706,13 @@ class OpenIdProvider implements OpenIdProviderInterface
             $rolesMapping->isEnabled()
                 ? array_merge(
                     $this->idTokenPayload,
-                    $this->attributePathFetcher->fetch(
-                        $accessToken,
-                        $this->configuration,
-                        $rolesMapping->getEndpoint()
+                    array_diff_key(
+                        $this->attributePathFetcher->fetch(
+                            $accessToken,
+                            $this->configuration,
+                            $rolesMapping->getEndpoint()
+                        ),
+                        $this->idTokenPayload
                     )
                 )
                 : $this->idTokenPayload
@@ -717,10 +723,13 @@ class OpenIdProvider implements OpenIdProviderInterface
             $groupsMapping->isEnabled()
             ? array_merge(
                 $this->idTokenPayload,
-                $this->attributePathFetcher->fetch(
-                    $accessToken,
-                    $this->configuration,
-                    $groupsMapping->getEndpoint()
+                array_diff_key(
+                    $this->attributePathFetcher->fetch(
+                        $accessToken,
+                        $this->configuration,
+                        $groupsMapping->getEndpoint()
+                    ),
+                    $this->idTokenPayload
                 )
             )
             : $this->idTokenPayload
