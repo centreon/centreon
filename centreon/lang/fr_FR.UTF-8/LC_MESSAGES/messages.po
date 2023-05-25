@@ -15566,12 +15566,6 @@ msgstr "Bienvenue dans l'interface de gestion des notifications"
 msgid "Create a notification"
 msgstr "Créer une notification"
 
-msgid "Add"
-msgstr "Ajouter"
-
-msgid "Duplicate"
-msgstr "Dupliquer"
-
 msgid "Channels"
 msgstr "Canaux"
 
@@ -15605,9 +15599,6 @@ msgstr ""
 msgid "Type your text here"
 msgstr ""
 
-msgid "Preview Zone"
-msgstr ""
-
 msgid "Active / Inactive"
 msgstr ""
 
@@ -15615,12 +15606,6 @@ msgid "Change the name"
 msgstr ""
 
 msgid "Notification name"
-msgstr ""
-
-msgid "Required"
-msgstr ""
-
-msgid "Preview Email"
 msgstr ""
 
 msgid "The notification was successfully updated"
@@ -15662,13 +15647,7 @@ msgstr ""
 msgid "Notification channels"
 msgstr ""
 
-msgid "Service groups"
-msgstr ""
-
 msgid "Host groups"
-msgstr ""
-
-msgid "Time period"
 msgstr ""
 
 msgid "Search service groups"
