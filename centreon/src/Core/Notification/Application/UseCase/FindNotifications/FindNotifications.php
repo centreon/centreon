@@ -249,13 +249,13 @@ final class FindNotifications
             $notificationDto = new NotificationDto();
             $notificationDto->id = $notification->getId();
             $notificationDto->name = $notification->getName();
-            if (($usersCount = $notificationCounts->getUsersCountByNotificationId($notification->getId())) !== null) {
+            if (($usersCount = $notificationCounts->getUsersCountByNotificationId($notification->getId())) !== 0) {
                 $notificationDto->usersCount = $usersCount;
             }
             if (
                 ($hostgroupResourcesCount = $notificationCounts->getHostgroupResourcesCountByNotificationId(
                     $notification->getId()
-                )) !== null
+                )) !== 0
             ) {
                 $notificationDto->resources[] = [
                     'type' => NotificationResource::HOSTGROUP_RESOURCE_TYPE,
@@ -265,7 +265,7 @@ final class FindNotifications
             if (
                 ($servicegroupResourcesCount = $notificationCounts->getServicegroupResourcesCountByNotificationId(
                     $notification->getId()
-                )) !== null
+                )) !== 0
             ) {
                 $notificationDto->resources[] = [
                     'type' => NotificationResource::SERVICEGROUP_RESOURCE_TYPE,

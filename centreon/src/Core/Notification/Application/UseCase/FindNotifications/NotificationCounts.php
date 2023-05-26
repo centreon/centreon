@@ -37,18 +37,18 @@ class NotificationCounts
     ) {
     }
 
-    public function getUsersCountByNotificationId(int $notificationId): ?int
+    public function getUsersCountByNotificationId(int $notificationId): int
     {
-        return $this->notificationsUsersCount[$notificationId] ?? null;
+        return $this->notificationsUsersCount[$notificationId] ?? 0;
     }
 
-    public function getHostgroupResourcesCountByNotificationId(int $notificationId): ?int
+    public function getHostgroupResourcesCountByNotificationId(int $notificationId): int
     {
-        return $this->hostgroupResourcesCount[$notificationId] ?? null;
+        return $this->hostgroupResourcesCount[$notificationId] ?? 0;
     }
 
-    public function getServicegroupResourcesCountByNotificationId(int $notificationId): ?int
+    public function getServicegroupResourcesCountByNotificationId(int $notificationId): int
     {
-        return $this->servicegroupResourcesCount[$notificationId] ?? null;
+        return $this->servicegroupResourcesCount[$notificationId] ?? 0;
     }
 }
