@@ -1,5 +1,4 @@
-description: |
-  Indicates that there is a conflict between resources.
+description: "Conflict. More details are specified in the response"
 content:
   application/json:
     schema:
@@ -11,4 +10,4 @@ content:
           example: 409
         message:
           type: string
-          example: "Conflict found between resources"
+          example: "A platform using the name: 'myPoller' or address: '1.1.1.2' already exists"

@@ -17601,6 +17601,30 @@ msgstr "Vous n'êtes pas autorisé à supprimer ce modèle de service"
 msgid "Error while deleting the service template"
 msgstr "Erreur lors de la suppression du modèle de service"
 
+msgid "Error while deleting a host template"
+msgstr "Erreur lors de la suppression du modèle d'hôtes"
+
+msgid "Error while adding a host template"
+msgstr "Erreur lors de la création du modèle d'hôtes"
+
+msgid "You are not allowed to delete host templates"
+msgstr "Vous n'êtes pas autorisé à supprimer des modèles d'hôtes"
+
+msgid "You are not allowed to add host templates"
+msgstr "Vous n'êtes pas autorisé à créer des modèles d'hôtes"
+
+msgid "The %s with value '%d' does not exist"
+msgstr "Le champ %s avec la valeur '%d' n'existe pas"
+
+msgid "The name %s (original name: %s) already exists"
+msgstr "Le nom %s (nom original: %s) existe déjà"
+
+msgid "Error while retrieving a host template"
+msgstr "Error lors de la récupération d'un modèle d'hôtes"
+
+msgid "Host template #%d is locked (edition and deletion not allowed)"
+msgstr "Le modèle d'hôte #%d est verrouillé (édition et suppression interdites)"
+
 msgid "You are not allowed to list notifications configurations"
 msgstr "Vous n'êtes pas autorisé à lister les configurations de notifications"
 
