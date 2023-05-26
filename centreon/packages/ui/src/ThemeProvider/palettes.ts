@@ -20,6 +20,7 @@ declare module '@mui/material/styles' {
       listingHeader: string;
       paper: string;
     };
+    layout: TypeLayout;
     pending: {
       contrastText: string;
       main: string;
@@ -35,6 +36,7 @@ declare module '@mui/material/styles' {
     warning: string;
   }
   interface PaletteOptions {
+    layout: TypeLayout;
     pending: {
       contrastText: string;
       main: string;
@@ -44,6 +46,16 @@ declare module '@mui/material/styles' {
 
   interface TypeBackground {
     listingHeader: string;
+  }
+
+  interface TypeLayout {
+    body: {
+      background: string;
+    };
+    header: {
+      background: string;
+      border: string;
+    };
   }
 }
 
@@ -89,6 +101,15 @@ export const lightPalette: PaletteOptions = {
   info: {
     contrastText: '#000',
     main: '#1588D1'
+  },
+  layout: {
+    body: {
+      background: '#F6F6F6'
+    },
+    header: {
+      background: '#FFFFFF',
+      border: '#E3E3E3'
+    }
   },
   mode: ThemeMode.light,
   pending: {
@@ -158,6 +179,15 @@ export const darkPalette: PaletteOptions = {
   info: {
     contrastText: '#fff',
     main: '#1CA9F4'
+  },
+  layout: {
+    body: {
+      background: '#F6F6F6'
+    },
+    header: {
+      background: '#FFFFFF',
+      border: '#E3E3E3'
+    }
   },
   mode: ThemeMode.dark,
   pending: {

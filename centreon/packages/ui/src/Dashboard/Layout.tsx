@@ -1,7 +1,7 @@
-import { ReactElement, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Responsive } from '@visx/visx';
-import GridLayout, { Layout, WidthProvider } from 'react-grid-layout';
+import GridLayout, { WidthProvider, Layout } from 'react-grid-Layout';
 import 'react-grid-layout/css/styles.css';
 
 import { Responsive as ResponsiveHeight, useMemoComponent } from '..';
@@ -14,7 +14,7 @@ const ReactGridLayout = WidthProvider(GridLayout);
 
 interface DashboardLayoutProps<T> {
   changeLayout?: (newLayout: Array<Layout>) => void;
-  children: Array<ReactElement>;
+  children: Array<JSX.Element>;
   displayGrid?: boolean;
   layout: Array<T>;
 }
@@ -24,7 +24,7 @@ const Layout = <T extends Layout>({
   changeLayout,
   displayGrid,
   layout
-}: DashboardLayoutProps<T>): ReactElement => {
+}: DashboardLayoutProps<T>): JSX.Element => {
   const { classes } = useDashboardLayoutStyles();
 
   const [columns, setColumns] = useState(getColumnsFromScreenSize());
@@ -45,7 +45,7 @@ const Layout = <T extends Layout>({
     Component: (
       <ResponsiveHeight>
         <Responsive.ParentSize>
-          {({ width, height }): ReactElement => (
+          {({ width, height }): JSX.Element => (
             <div className={classes.container}>
               {displayGrid && (
                 <Grid columns={columns} height={height} width={width} />

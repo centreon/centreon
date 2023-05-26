@@ -15,12 +15,7 @@ import {
   Modal
 } from '../../components';
 import { Default as DashboardFormDefaultStory } from '../../components/Form/Dashboard/DashboardForm.stories';
-import {
-  TiledListingActions,
-  TiledListingContent,
-  TiledListingList,
-  TiledListingPage
-} from '../../layout/TiledListingPage';
+import { PageLayout } from '../../components/Layout/PageLayout';
 
 const meta: Meta = {
   args: {
@@ -63,6 +58,9 @@ const meta: Meta = {
       }
     },
     title: 'Dashboards overview'
+  },
+  parameters: {
+    layout: 'fullscreen'
   },
   title: 'screens/Dashboards'
 };
@@ -134,10 +132,12 @@ const DefaultView = (args): JSX.Element => {
   };
 
   return (
-    <TiledListingPage>
-      <Header title={title} />
-      <TiledListingList>
-        <TiledListingActions>
+    <PageLayout>
+      <PageLayout.Header>
+        <Header title={title} />
+      </PageLayout.Header>
+      <PageLayout.Body>
+        <PageLayout.Actions>
           {dataDashboards.length !== 0 && (
             <Button
               aria-label="add"
@@ -150,39 +150,43 @@ const DefaultView = (args): JSX.Element => {
               {actions.create.label}
             </Button>
           )}
-        </TiledListingActions>
-        <TiledListingContent>
-          <DataTable isEmpty={dataDashboards.length === 0}>
-            {dataDashboards.length === 0 ? (
-              <DataTable.EmptyState
-                labels={list.emptyState.labels}
-                onCreate={() =>
-                  setDialogState({ item: null, open: true, variant: 'create' })
+        </PageLayout.Actions>
+
+        <DataTable isEmpty={dataDashboards.length === 0}>
+          {dataDashboards.length === 0 ? (
+            <DataTable.EmptyState
+              labels={list.emptyState.labels}
+              onCreate={() =>
+                setDialogState({
+                  item: null,
+                  open: true,
+                  variant: 'create'
+                })
+              }
+            />
+          ) : (
+            dataDashboards.map((dashboard) => (
+              <DataTable.Item
+                hasActions
+                hasCardAction
+                description={dashboard.description}
+                key={dashboard.id}
+                title={dashboard.name}
+                onDelete={() =>
+                  setDeleteDialogState({ item: dashboard, open: true })
+                }
+                onEdit={() =>
+                  setDialogState({
+                    item: dashboard,
+                    open: true,
+                    variant: 'update'
+                  })
                 }
               />
-            ) : (
-              dataDashboards.map((dashboard) => (
-                <DataTable.Item
-                  hasActions
-                  hasCardAction
-                  description={dashboard.description}
-                  key={dashboard.id}
-                  title={dashboard.name}
-                  onDelete={() =>
-                    setDeleteDialogState({ item: dashboard, open: true })
-                  }
-                  onEdit={() =>
-                    setDialogState({
-                      item: dashboard,
-                      open: true,
-                      variant: 'update'
-                    })
-                  }
-                />
-              ))
-            )}
-          </DataTable>
-        </TiledListingContent>
+            ))
+          )}
+        </DataTable>
+
         <Modal
           open={dialogState.open}
           onClose={() =>
@@ -243,8 +247,8 @@ const DefaultView = (args): JSX.Element => {
             }}
           />
         </Modal>
-      </TiledListingList>
-    </TiledListingPage>
+      </PageLayout.Body>
+    </PageLayout>
   );
 };
 

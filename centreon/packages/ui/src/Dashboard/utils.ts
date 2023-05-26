@@ -1,5 +1,5 @@
 import { lt } from 'ramda';
-import { Layout } from 'react-grid-layout';
+import { Layout } from 'react-grid-Layout';
 
 export const maxColumns = 12;
 const minColumns = 1;

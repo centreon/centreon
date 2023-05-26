@@ -12,7 +12,6 @@ const useStyles = makeStyles()((theme) => ({
       margin: theme.spacing(0, 0, 1.5, 0)
     },
     justifyContent: 'space-between',
-    marginBottom: theme.spacing(2.5),
 
     nav: {
       display: 'flex',
