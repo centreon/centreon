@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Notification\Application\Exception\NotificationException;
@@ -37,7 +38,6 @@ use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 
 final class FindNotifications
 {
@@ -109,9 +109,9 @@ final class FindNotifications
      *
      * @param non-empty-array<int> $notificationsIds
      *
-     * @return NotificationCounts
-     *
      * @throws \Throwable $ex
+     *
+     * @return NotificationCounts
      */
     private function getCountByNotifications(array $notificationsIds): NotificationCounts
     {
@@ -155,12 +155,12 @@ final class FindNotifications
      * @param NotificationResourceRepositoryInterface $serviceGroupResourceRepository
      * @param non-empty-array<int> $notificationsIds
      *
+     * @throws \Throwable $ex
+     *
      * @return array{
      *  hostgroup_resources_count: array<int,int>,
      *  servicegroup_resources_count: array<int,int>
      * }
-     *
-     * @throws \Throwable $ex
      */
     private function getResourcesCountWithACL(
         NotificationResourceRepositoryInterface $hostGroupResourceRepository,
@@ -199,12 +199,12 @@ final class FindNotifications
      * @param NotificationResourceRepositoryInterface $serviceGroupResourceRepository
      * @param non-empty-array<int> $notificationsIds
      *
+     * @throws \Throwable $ex
+     *
      * @return array{
      *  hostgroup_resources_count: array<int,int>,
      *  servicegroup_resources_count: array<int,int>
      * }
-     *
-     * @throws \Throwable $ex
      */
     private function getResourcesCountForAdmin(
         NotificationResourceRepositoryInterface $hostGroupResourceRepository,
@@ -249,7 +249,7 @@ final class FindNotifications
             $notificationDto = new NotificationDto();
             $notificationDto->id = $notification->getId();
             $notificationDto->name = $notification->getName();
-            if(($usersCount = $notificationCounts->getUsersCountByNotificationId($notification->getId())) !== null) {
+            if (($usersCount = $notificationCounts->getUsersCountByNotificationId($notification->getId())) !== null) {
                 $notificationDto->usersCount = $usersCount;
             }
             if (

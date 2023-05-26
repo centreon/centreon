@@ -26,8 +26,8 @@ namespace Tests\Core\Notification\Infrastructure\API\FindNotifications;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsResponse;
 use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsPresenterInterface;
+use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsResponse;
 
 class FindNotificationsPresenterStub extends AbstractPresenter implements FindNotificationsPresenterInterface
 {

@@ -23,19 +23,19 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\Repository;
 
-use Utility\SqlConcatenator;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Common\Domain\TrimmedString;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\TrimmedString;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\NotificationMessage;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Notification\Domain\Model\NotificationGenericObject;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Core\Notification\Domain\Model\NotificationMessage;
+use Utility\SqlConcatenator;
 
 class DbReadNotificationRepository extends AbstractRepositoryRDB implements ReadNotificationRepositoryInterface
 {

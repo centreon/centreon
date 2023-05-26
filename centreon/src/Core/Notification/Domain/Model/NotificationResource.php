@@ -79,6 +79,7 @@ class NotificationResource
 
     /**
      * @param array<NotificationHostEvent|NotificationServiceEvent> $events
+     *
      * @throws \ValueError
      */
     public function setEvents(array $events): void
@@ -130,8 +131,6 @@ class NotificationResource
      * Should only be used for Notification of type hostgroup.
      *
      * @param NotificationServiceEvent $serviceEvent
-     *
-     * @return void
      */
     public function addServiceEvent(NotificationServiceEvent $serviceEvent): void
     {

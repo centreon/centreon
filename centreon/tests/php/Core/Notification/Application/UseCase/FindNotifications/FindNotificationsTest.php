@@ -25,7 +25,6 @@ namespace Tests\Core\Notification\Application\UseCase\FindNotifications;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Exception\NotificationException;
