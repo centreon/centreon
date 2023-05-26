@@ -6,6 +6,7 @@ info:
     + Added host severities endpoints (GET, PUT)
     + Added host categories endpoint (GET, PUT)
     + Added host group endpoints (GET, PUT)
+    + Added notification endpoint (POST)
     + Added service templates endpoints (GET)
     + Add host template endpoints (POST, DELETE)
     +
@@ -62,6 +63,7 @@ tags:
   - name: Host severity
   - name: Host template
   - name: Monitoring server
+  - name: Notification
   - name: Proxy
   - name: Service
   - name: Service group
@@ -245,6 +247,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/notifications:
+    $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
   /configuration/hosts/templates:
     $ref: './v23.10/Configuration/HostTemplate/HostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
@@ -5954,7 +5958,6 @@ components:
                         type: integer
                         description: "Access group id"
                         example: 1
-
     AuthenticationSAMLProvider:
       type: object
       required:
@@ -6091,7 +6094,6 @@ components:
                     type: number
                     description: "priority of the role"
                     example: 1
-
     ReadAuthenticationSAMLProvider:
       allOf:
         -   $ref: '#/components/schemas/AuthenticationSAMLProvider'
@@ -6176,7 +6178,6 @@ components:
                           type: integer
                           description: "Access group id"
                           example: 1
-
     AuthenticationWebSSOProvider:
       type: object
       required:
@@ -6261,6 +6262,27 @@ components:
                 type: string
                 description: "Comment to add to the monitored resource"
                 example: "Resource is not-OK but it is expected"
+    Configuration.Notification.GenericObject:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Configuration.Notification.Message:
+      type: object
+      description: Type and content of the notification
+      properties:
+        channel:
+          type: string
+          enum:
+            - 'Slack'
+            - 'Email'
+            - 'Sms'
+        subject:
+          type: string
+        message:
+          type: string
     Configuration.NewTimePeriod:
       type: object
       properties:
