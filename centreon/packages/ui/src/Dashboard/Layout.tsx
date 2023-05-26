@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { Responsive } from '@visx/visx';
-import GridLayout, { WidthProvider, Layout } from 'react-grid-Layout';
+import GridLayout, { Layout, WidthProvider } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 
 import { Responsive as ResponsiveHeight, useMemoComponent } from '..';

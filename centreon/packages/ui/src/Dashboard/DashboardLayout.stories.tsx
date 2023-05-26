@@ -1,5 +1,5 @@
 import { ComponentMeta } from '@storybook/react';
-import { Layout } from 'react-grid-Layout';
+import { Layout } from 'react-grid-layout';
 
 import { Typography } from '@mui/material';
 
