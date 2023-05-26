@@ -15,17 +15,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : contact@centreon.com
+ * For more information : user@centreon.com
  *
  */
 
 declare(strict_types=1);
 
-namespace Core\Notification\Domain\Model;
+namespace Core\Notification\Application\UseCase\FindNotifications;
 
-enum NotificationChannel: string
+use Core\Notification\Domain\Model\NotificationChannel;
+
+class NotificationDto
 {
-    case Email = 'Email';
-    case Sms = 'Sms';
-    case Slack = 'Slack';
+    public int $id = 0;
+
+    public string $name = '';
+
+    public int $usersCount = 0;
+
+    public bool $isActivated = true;
+
+    /** @var NotificationChannel[] */
+    public array $notificationChannels = [];
+
+    /**
+     * @var array<array{
+     *  type: string,
+     *  count: int
+     * }>
+     */
+    public array $resources = [];
+
+    public int $timeperiodId = 0;
+
+    public string $timeperiodName = '';
 }

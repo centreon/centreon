@@ -26,6 +26,7 @@ namespace Core\Notification\Domain\Model;
 class NotificationResource
 {
     public const HOSTGROUP_RESOURCE_TYPE = 'hostgroup';
+    public const SERVICEGROUP_RESOURCE_TYPE = 'servicegroup';
 
     /**
      * @param string $type
@@ -78,6 +79,7 @@ class NotificationResource
 
     /**
      * @param array<NotificationHostEvent|NotificationServiceEvent> $events
+     *
      * @throws \ValueError
      */
     public function setEvents(array $events): void
@@ -129,8 +131,6 @@ class NotificationResource
      * Should only be used for Notification of type hostgroup.
      *
      * @param NotificationServiceEvent $serviceEvent
-     *
-     * @return void
      */
     public function addServiceEvent(NotificationServiceEvent $serviceEvent): void
     {

@@ -21,11 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Domain\Model;
+namespace Core\Notification\Application\UseCase\FindNotifications;
 
-enum NotificationChannel: string
+final class FindNotificationsResponse
 {
-    case Email = 'Email';
-    case Sms = 'Sms';
-    case Slack = 'Slack';
+    /** @var NotificationDto[] */
+    public array $notifications = [];
 }

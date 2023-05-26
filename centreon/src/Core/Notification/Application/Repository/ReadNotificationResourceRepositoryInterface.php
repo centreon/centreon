@@ -78,4 +78,26 @@ interface ReadNotificationResourceRepositoryInterface
         int $notificationId,
         array $accessGroups
     ): ?NotificationResource;
+
+    /**
+     * Count the Resource by their notification id.
+     *
+     * @param non-empty-array<int> $notificationIds
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return array<int,int> [notification_id => resource_count]
+     */
+    public function findResourcesCountByNotificationIdsAndAccessGroups(
+        array $notificationIds,
+        array $accessGroups
+    ): array;
+
+    /**
+     * Count the Resource by their notification id.
+     *
+     * @param non-empty-array<int> $notificationIds
+     *
+     * @return array<int,int> [notification_id => resource_count]
+     */
+    public function findResourcesCountByNotificationIds(array $notificationIds): array;
 }
