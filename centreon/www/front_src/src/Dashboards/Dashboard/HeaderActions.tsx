@@ -88,6 +88,7 @@ const HeaderActions = ({
 
   const saveAndProceed = (): void => {
     saveDashboard();
+    setIsAskingCancelConfirmation(false);
 
     if (blocked) {
       proceedNavigation?.();
