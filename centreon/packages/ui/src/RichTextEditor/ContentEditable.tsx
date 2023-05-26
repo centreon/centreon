@@ -46,6 +46,7 @@ const useStyles = makeStyles<StyleProps>()(
 );
 
 interface Props {
+  className?: string;
   editable: boolean;
   editorState?: string;
   error?: string;
@@ -70,7 +71,8 @@ const ContentEditable = ({
   resetEditorToInitialStateCondition,
   initialEditorState,
   error,
-  onBlur
+  onBlur,
+  className
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ editable, error, minInputHeight });
   const { t } = useTranslation();
@@ -135,7 +137,11 @@ const ContentEditable = ({
 
   return (
     <div
-      className={cx(classes.container, isFocused && classes.inputFocused)}
+      className={cx(
+        classes.container,
+        className,
+        isFocused && classes.inputFocused
+      )}
       id={namespace}
     >
       {editable && isTextEmpty && (

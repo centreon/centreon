@@ -96,6 +96,7 @@ export interface Props {
   selectedTabId?: number;
   tabs?: Array<JSX.Element>;
   width?: number;
+  className?:string;
 }
 
 const Panel = React.forwardRef(
@@ -111,11 +112,12 @@ const Panel = React.forwardRef(
       width = 550,
       minWidth = 550,
       headerBackgroundColor,
-      onResize
+      onResize,
+      className
     }: Props,
     ref
   ): JSX.Element => {
-    const { classes } = useStyles({
+    const { classes , cx } = useStyles({
       hasTabs: !isEmpty(tabs),
       headerBackgroundColor,
       width
@@ -179,7 +181,7 @@ const Panel = React.forwardRef(
           exit: 50
         }}
       >
-        <Paper className={classes.container} elevation={2}>
+        <Paper className={cx(classes.container, className)} elevation={2}>
           {!isNil(onResize) && (
             <div className={classes.dragger} role="none" onMouseDown={resize} />
           )}

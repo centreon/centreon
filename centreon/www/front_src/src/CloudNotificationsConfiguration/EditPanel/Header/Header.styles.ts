@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 const useStyles = makeStyles()((theme) => ({
   actions: {
     alignItems: 'center',
-    borderRight: '1px dotted black',
+    borderRight: `1px dotted ${theme.palette.text.primary}`,
     display: 'flex',
     gap: theme.spacing(2),
     paddingRight: theme.spacing(1.5)

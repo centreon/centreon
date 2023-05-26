@@ -17,6 +17,7 @@ import AutoCompleteLinkPlugin from './plugins/AutoLinkPlugin/index';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 
 export interface RichTextEditorProps {
+  cententClassName?: string;
   editable: boolean;
   editorState?: string;
   error?: string;
@@ -90,7 +91,8 @@ const RichTextEditor = ({
   resetEditorToInitialStateCondition,
   toolbarPositions = 'start',
   error,
-  onBlur
+  onBlur,
+  cententClassName
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -127,6 +129,7 @@ const RichTextEditor = ({
             ErrorBoundary={LexicalErrorBoundary}
             contentEditable={
               <ContentEditable
+                className={cententClassName || ''}
                 editable={editable}
                 editorState={editorState}
                 error={error}
