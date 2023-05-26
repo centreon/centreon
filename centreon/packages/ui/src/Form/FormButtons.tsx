@@ -23,8 +23,7 @@ const useStyles = makeStyles()((theme) => ({
     columnGap: theme.spacing(2),
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: theme.spacing(2)
+    justifyContent: 'flex-end'
   }
 }));
 

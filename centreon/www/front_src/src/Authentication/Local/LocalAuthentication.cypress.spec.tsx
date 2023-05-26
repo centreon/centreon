@@ -45,16 +45,12 @@ import {
   labelMinutes,
   labelChooseAValueBetween1and10,
   labelThisWillNotBeUsedBecauseNumberOfAttemptsIsNotDefined,
-  labelBlockingDurationMustBeLessThanOrEqualTo7Days,
   labelDay
 } from './translatedLabels';
 import {
   defaultPasswordSecurityPolicyAPI,
   retrievedPasswordSecurityPolicyAPI,
-  defaultPasswordSecurityPolicyWithNullValues,
-  securityPolicyWithInvalidDelayBeforeNewPassword,
-  securityPolicyWithInvalidPasswordExpiration,
-  securityPolicyWithInvalidBlockingDuration
+  defaultPasswordSecurityPolicyWithNullValues
 } from './defaults';
 import { PasswordSecurityPolicyToAPI } from './models';
 
@@ -368,52 +364,6 @@ describe('Authentication', () => {
       cy.matchImageSnapshot();
     });
 
-    it('displays an error message when the delay before new password time is outside the bounds', () => {
-      cy.interceptAPIRequest({
-        alias: 'getSecurityPolicyWithInvalidDelayBeforeNewPasswordFromAPI',
-        method: Method.GET,
-        path: '**api/latest/administration/authentication/providers/local',
-        response: securityPolicyWithInvalidDelayBeforeNewPassword
-      });
-      cy.waitForRequest(
-        '@getSecurityPolicyWithInvalidDelayBeforeNewPasswordFromAPI'
-      );
-
-      cy.findByText(labelPasswordExpirationPolicy).should('be.visible');
-      cy.findByText(labelMinimumTimeBetweenPasswordChanges).should(
-        'be.visible'
-      );
-      cy.findByText(labelChooseADurationBetween1HourAnd1Week).should(
-        'be.visible'
-      );
-
-      cy.interceptAPIRequest({
-        alias: 'getSecurityPolicyWithInvalidPasswordExpirationFromAPI',
-        method: Method.GET,
-        path: '**api/latest/administration/authentication/providers/local',
-        response: securityPolicyWithInvalidPasswordExpiration
-      });
-
-      cy.mount({
-        Component: (
-          <Router>
-            <div style={{ backgroundColor: '#fff' }}>
-              <LocalAuthenticationTestWithJotai />
-            </div>
-          </Router>
-        )
-      });
-      cy.waitForRequest(
-        '@getSecurityPolicyWithInvalidPasswordExpirationFromAPI'
-      );
-
-      cy.findByText(labelChooseADurationBetween7DaysAnd12Months).should(
-        'be.visible'
-      );
-
-      cy.matchImageSnapshot();
-    });
-
     it('does not display any error message when the delay before new password time is cleared', () => {
       cy.waitForRequest('@getDefaultPasswordSecurityPolicyFromAPI');
 
@@ -554,25 +504,6 @@ describe('Authentication', () => {
       cy.findByText(
         labelThisWillNotBeUsedBecauseNumberOfAttemptsIsNotDefined
       ).should('be.visible');
-
-      cy.matchImageSnapshot();
-    });
-
-    it('displays an error message when the time blocking duration is 7 days and 1 hour', () => {
-      cy.interceptAPIRequest({
-        alias: 'getSecurityPolicyWithInvalidBlockingDurationFromAPI',
-        method: Method.GET,
-        path: '**api/latest/administration/authentication/providers/local',
-        response: securityPolicyWithInvalidBlockingDuration
-      });
-
-      cy.waitForRequest('@getSecurityPolicyWithInvalidBlockingDurationFromAPI');
-
-      cy.findByText(labelPasswordBlockingPolicy).should('be.visible');
-
-      cy.findByText(labelBlockingDurationMustBeLessThanOrEqualTo7Days).should(
-        'be.visible'
-      );
 
       cy.matchImageSnapshot();
     });

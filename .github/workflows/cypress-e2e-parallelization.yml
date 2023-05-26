@@ -100,7 +100,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.name }}-test-logs
+          name: ${{ inputs.name }}-test-videos
           path: ${{ inputs.module_name }}/tests/e2e/cypress/results/videos/
           retention-days: 1
 
