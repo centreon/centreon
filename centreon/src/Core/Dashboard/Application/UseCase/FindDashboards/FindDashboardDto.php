@@ -21,9 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboard;
+namespace Core\Dashboard\Application\UseCase\FindDashboards;
 
-final class FindDashboardResponse
+use DateTimeImmutable;
+
+final class FindDashboardDto
 {
     public int $id = 0;
 
@@ -31,13 +33,13 @@ final class FindDashboardResponse
 
     public string $description = '';
 
-    public ?FindDashboardUserDto $createdBy = null;
+    public ?FindDashboardsUserDto $createdBy = null;
 
-    public ?FindDashboardUserDto $updatedBy = null;
+    public ?FindDashboardsUserDto $updatedBy = null;
 
-    public \DateTimeImmutable $createdAt;
+    public DateTimeImmutable $createdAt;
 
-    public \DateTimeImmutable $updatedAt;
+    public DateTimeImmutable $updatedAt;
 
     public function __construct()
     {

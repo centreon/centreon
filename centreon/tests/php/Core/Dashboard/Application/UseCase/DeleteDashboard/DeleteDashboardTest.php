@@ -53,6 +53,8 @@ beforeEach(function (): void {
         $this->testedDashboardId = 1,
         $this->testedDashboardName = 'dashboard-name',
         $this->testedDashboardDescription = 'dashboard-description',
+        $this->testedDashboardCreatedBy = 2,
+        $this->testedDashboardUpdatedBy = 3,
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
         $this->testedDashboardUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00'),
     );
@@ -70,9 +72,9 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
 
     ($this->useCase)($this->testedDashboardId, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())
+    expect($this->presenter->data)
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->data->getMessage())
         ->toBe(DashboardException::errorWhileDeleting()->getMessage());
 });
 
@@ -92,9 +94,9 @@ it('should present a ForbiddenResponse when the user does not have the correct r
 
     ($this->useCase)($this->testedDashboardId, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())
+    expect($this->presenter->data)
         ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($this->presenter->getResponseStatus()?->getMessage())
+        ->and($this->presenter->data->getMessage())
         ->toBe(DashboardException::accessNotAllowedForWriting()->getMessage());
 });
 
@@ -110,7 +112,7 @@ it('should present a NoContentResponse as admin', function (): void {
 
     ($this->useCase)($this->testedDashboardId, $this->presenter);
 
-    expect($this->presenter->getPresentedData())
+    expect($this->presenter->data)
         ->toBeInstanceOf(NoContentResponse::class);
 });
 
@@ -134,7 +136,7 @@ it('should present a ForbiddenResponse as allowed READ user', function (): void 
 
     ($this->useCase)($this->testedDashboardId, $this->presenter);
 
-    expect($this->presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
+    expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class);
 });
 
 it('should present a NoContentResponse as allowed READ_WRITE user', function (): void {
@@ -158,5 +160,5 @@ it('should present a NoContentResponse as allowed READ_WRITE user', function ():
 
     ($this->useCase)($this->testedDashboardId, $this->presenter);
 
-    expect($this->presenter->getPresentedData())->toBeInstanceOf(NoContentResponse::class);
+    expect($this->presenter->data)->toBeInstanceOf(NoContentResponse::class);
 });

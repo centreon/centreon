@@ -28,14 +28,12 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\UpdateDashboard\UpdateDashboardPresenterInterface;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 
-class UpdateDashboardPresenterStub extends DefaultPresenter implements UpdateDashboardPresenterInterface
+class UpdateDashboardPresenterStub implements UpdateDashboardPresenterInterface
 {
+    public ResponseStatusInterface|NoContentResponse $data;
+
     public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void
     {
-        if ($data instanceof NoContentResponse) {
-            $this->present($data);
-        } else {
-            $this->setResponseStatus($data);
-        }
+        $this->data = $data;
     }
 }

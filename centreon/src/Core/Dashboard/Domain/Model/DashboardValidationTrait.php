@@ -29,60 +29,20 @@ use Centreon\Domain\Common\Assertion\Assertion;
 /**
  * This trait exists only here for DRY reasons.
  *
- * It gathers all the common getters/setters of {@see Dashboard} and {@see NewDashboard} entities.
+ * It gathers all the guard methods of common fields from {@see Dashboard} and {@see NewDashboard} entities.
  */
-trait DashboardModelTrait
+trait DashboardValidationTrait
 {
-    protected string $name;
-
-    protected string $description;
-
-    protected \DateTimeImmutable $createdAt;
-
-    protected \DateTimeImmutable $updatedAt;
-
-    protected bool $hasChanged = false;
-
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): \DateTimeImmutable
-    {
-        if ($this->hasChanged) {
-            $this->hasChanged = false;
-            $this->updatedAt = new \DateTimeImmutable();
-        }
-
-        return $this->updatedAt;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
     /**
      * @param string $name
      *
      * @throws AssertionFailedException
      */
-    public function setName(string $name): void
+    private function ensureValidName(string $name): void
     {
-        $name = trim($name);
-
         $shortName = (new \ReflectionClass($this))->getShortName();
         Assertion::maxLength($name, Dashboard::MAX_NAME_LENGTH, $shortName . '::name');
         Assertion::notEmptyString($name, $shortName . '::name');
-
-        $this->hasChanged = true;
-        $this->name = $name;
-    }
-
-    public function getDescription(): string
-    {
-        return $this->description;
     }
 
     /**
@@ -90,14 +50,34 @@ trait DashboardModelTrait
      *
      * @throws AssertionFailedException
      */
-    public function setDescription(string $description): void
+    private function ensureValidDescription(string $description): void
     {
-        $description = trim($description);
-
         $shortName = (new \ReflectionClass($this))->getShortName();
-        Assertion::maxLength($description, Dashboard::MAX_DESCRIPTION_LENGTH, $shortName . '::alias');
+        Assertion::maxLength($description, Dashboard::MAX_DESCRIPTION_LENGTH, $shortName . '::description');
+    }
 
-        $this->hasChanged = true;
-        $this->description = $description;
+    /**
+     * @param int $value
+     * @param string $propertyName
+     *
+     * @throws AssertionFailedException
+     */
+    private function ensurePositiveInt(int $value, string $propertyName): void
+    {
+        $shortName = (new \ReflectionClass($this))->getShortName();
+        Assertion::positiveInt($value, $shortName . '::' . $propertyName);
+    }
+
+    /**
+     * @param ?int $value
+     * @param string $propertyName
+     *
+     * @throws AssertionFailedException
+     */
+    private function ensureNullablePositiveInt(?int $value, string $propertyName): void
+    {
+        if (null !== $value) {
+            $this->ensurePositiveInt($value, $propertyName);
+        }
     }
 }

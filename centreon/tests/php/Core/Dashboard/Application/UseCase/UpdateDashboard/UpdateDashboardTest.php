@@ -55,6 +55,8 @@ beforeEach(function (): void {
         $this->testedDashboardId = 1,
         $this->testedDashboardName = 'dashboard-updated-name',
         $this->testedDashboardDescription = 'dashboard-description',
+        $this->testedDashboardCreatedBy = 2,
+        $this->testedDashboardUpdatedBy = 3,
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
         $this->testedDashboardUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00'),
     );
@@ -74,9 +76,9 @@ it(
 
         ($this->useCase)($this->testedDashboardId, $this->testedUpdateDashboardRequest, $this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->data)
             ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->data->getMessage())
             ->toBe(DashboardException::errorWhileUpdating()->getMessage());
     }
 );
@@ -95,9 +97,9 @@ it(
 
         ($this->useCase)($this->testedDashboardId, $this->testedUpdateDashboardRequest, $this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->data)
             ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->data->getMessage())
             ->toBe($msg);
     }
 );
@@ -119,9 +121,9 @@ it(
 
         ($this->useCase)($this->testedDashboardId, $this->testedUpdateDashboardRequest, $this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->data)
             ->toBeInstanceOf(InvalidArgumentResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->data->getMessage())
             ->toBe($expectedException->getMessage());
     }
 );
@@ -144,9 +146,9 @@ it(
 
         ($this->useCase)($this->testedDashboardId, $this->testedUpdateDashboardRequest, $this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->data)
             ->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->data->getMessage())
             ->toBe(DashboardException::accessNotAllowedForWriting()->getMessage());
     }
 );
@@ -154,10 +156,8 @@ it(
 it(
     'should present a NoContentResponse as admin',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
+        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())->method('getId')->willReturn(1);
         $this->writeDashboardRepository
             ->expects($this->once())
             ->method('update');
@@ -169,7 +169,7 @@ it(
         ($this->useCase)($this->testedDashboardId, $this->testedUpdateDashboardRequest, $this->presenter);
 
         /** @var NoContentResponse $presentedData */
-        $presentedData = $this->presenter->getPresentedData();
+        $presentedData = $this->presenter->data;
 
         expect($presentedData)->toBeInstanceOf(NoContentResponse::class);
     }
@@ -181,10 +181,8 @@ it(
         $updatedAt = null;
         $updatedAtBeforeUseCase = $this->testedDashboardUpdatedAt->getTimestamp();
 
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
+        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())->method('getId')->willReturn(1);
         $this->writeDashboardRepository
             ->expects($this->once())
             ->method('update')
@@ -228,17 +226,15 @@ it(
 
         ($this->useCase)($this->testedDashboardId, $this->testedUpdateDashboardRequest, $this->presenter);
 
-        expect($this->presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
+        expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class);
     }
 );
 
 it(
     'should present a NoContentResponse as allowed READ_WRITE user',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
+        $this->contact->expects($this->once())->method('isAdmin')->willReturn(false);
+        $this->contact->expects($this->atLeastOnce())->method('getId')->willReturn(1);
         $this->contact
             ->expects($this->atMost(2))
             ->method('hasTopologyRole')
@@ -263,7 +259,7 @@ it(
         ($this->useCase)($this->testedDashboardId, $this->testedUpdateDashboardRequest, $this->presenter);
 
         /** @var NoContentResponse $presentedData */
-        $presentedData = $this->presenter->getPresentedData();
+        $presentedData = $this->presenter->data;
 
         expect($presentedData)->toBeInstanceOf(NoContentResponse::class);
     }

@@ -55,6 +55,8 @@ beforeEach(function (): void {
         $this->testedDashboardId = 1,
         $this->testedDashboardName = 'dashboard-name',
         $this->testedDashboardDescription = 'dashboard-description',
+        $this->testedDashboardCreatedBy = 2,
+        $this->testedDashboardUpdatedBy = 3,
         $this->testedDashboardCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
         $this->testedDashboardUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00'),
     );
@@ -70,9 +72,9 @@ it(
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->data)
             ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->data->getMessage())
             ->toBe(DashboardException::errorWhileAdding()->getMessage());
     }
 );
@@ -80,16 +82,14 @@ it(
 it(
     'should present an ErrorResponse with a custom message when a DashboardException is thrown',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
+        $this->contact->expects($this->once())->method('isAdmin')
             ->willThrowException(new DashboardException($msg = uniqid('fake message ', true)));
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->data)
             ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->data->getMessage())
             ->toBe($msg);
     }
 );
@@ -97,19 +97,16 @@ it(
 it(
     'should present a InvalidArgumentResponse when a model field value is not valid',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
+        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
 
         $this->testedAddDashboardRequest->name = '';
         $expectedException = AssertionException::notEmptyString('NewDashboard::name');
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->data)
             ->toBeInstanceOf(InvalidArgumentResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->data->getMessage())
             ->toBe($expectedException->getMessage());
     }
 );
@@ -117,10 +114,8 @@ it(
 it(
     'should present an ErrorResponse if the newly created dashboard cannot be retrieved',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
+        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())->method('getId')->willReturn(1);
         $this->writeDashboardRepository
             ->expects($this->once())
             ->method('add')
@@ -132,9 +127,9 @@ it(
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->data)
             ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->data->getMessage())
             ->toBe(DashboardException::errorWhileRetrievingJustCreated()->getMessage());
     }
 );
@@ -157,9 +152,9 @@ it(
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->data)
             ->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->data->getMessage())
             ->toBe(DashboardException::accessNotAllowedForWriting()->getMessage());
     }
 );
@@ -167,10 +162,8 @@ it(
 it(
     'should present a AddDashboardResponse as admin',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
+        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())->method('getId')->willReturn(1);
         $this->writeDashboardRepository
             ->expects($this->once())
             ->method('add')
@@ -183,14 +176,16 @@ it(
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
         /** @var AddDashboardResponse $presentedData */
-        $dashboard = $this->presenter->getPresentedData();
+        $dashboard = $this->presenter->data;
 
         expect($dashboard)->toBeInstanceOf(AddDashboardResponse::class)
             ->and($dashboard->id)->toBe($this->testedDashboardId)
             ->and($dashboard->name)->toBe($this->testedDashboardName)
             ->and($dashboard->description)->toBe($this->testedDashboardDescription)
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
-            ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
+            ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual(
+                $this->testedDashboardUpdatedAt->getTimestamp()
+            );
     }
 );
 
@@ -213,17 +208,15 @@ it(
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
-        expect($this->presenter->getResponseStatus())->toBeInstanceOf(ForbiddenResponse::class);
+        expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class);
     }
 );
 
 it(
     'should present a AddDashboardResponse as allowed READ_WRITE user',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
+        $this->contact->expects($this->once())->method('isAdmin')->willReturn(false);
+        $this->contact->expects($this->atLeastOnce())->method('getId')->willReturn(1);
         $this->contact
             ->expects($this->atMost(2))
             ->method('hasTopologyRole')
@@ -249,13 +242,15 @@ it(
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
         /** @var AddDashboardResponse $presentedData */
-        $dashboard = $this->presenter->getPresentedData();
+        $dashboard = $this->presenter->data;
 
         expect($dashboard)->toBeInstanceOf(AddDashboardResponse::class)
             ->and($dashboard->id)->toBe($this->testedDashboardId)
             ->and($dashboard->name)->toBe($this->testedDashboardName)
             ->and($dashboard->description)->toBe($this->testedDashboardDescription)
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
-            ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
+            ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual(
+                $this->testedDashboardUpdatedAt->getTimestamp()
+            );
     }
 );

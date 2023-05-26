@@ -41,6 +41,8 @@ use Utility\SqlConcatenator;
  *     id: int,
  *     name: string,
  *     description: ?string,
+ *     created_by: int,
+ *     updated_by: int,
  *     created_at: int,
  *     updated_at: int
  * }
@@ -124,10 +126,9 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
      *
-     * @throws RequestParametersTranslatorException
-     * @throws \InvalidArgumentException
-     * @throws \PDOException
      * @throws AssertionFailedException
+     * @throws RequestParametersTranslatorException
+     * @throws \PDOException
      *
      * @return list<Dashboard>
      */
@@ -179,6 +180,8 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                         d.id,
                         d.name,
                         d.description,
+                        d.created_by,
+                        d.updated_by,
                         d.created_at,
                         d.updated_at
                     SQL
@@ -229,11 +232,13 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
     private function createDashboardFromArray(array $result): Dashboard
     {
         return new Dashboard(
-            $result['id'],
-            $result['name'],
-            (string) $result['description'],
-            $this->timestampToDateTimeImmutable($result['created_at']),
-            $this->timestampToDateTimeImmutable($result['updated_at'])
+            id: $result['id'],
+            name: $result['name'],
+            description: (string) $result['description'],
+            createdBy: $result['created_by'],
+            updatedBy: $result['updated_by'],
+            createdAt: $this->timestampToDateTimeImmutable($result['created_at']),
+            updatedAt: $this->timestampToDateTimeImmutable($result['updated_at'])
         );
     }
 
