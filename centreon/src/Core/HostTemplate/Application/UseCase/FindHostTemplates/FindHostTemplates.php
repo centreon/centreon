@@ -29,14 +29,11 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
-use Core\HostTemplate\Infrastructure\API\FindHostTemplates\FindHostTemplatesPresenterOnPrem;
-use Core\HostTemplate\Infrastructure\API\FindHostTemplates\FindHostTemplatesPresenterSaas;
 
 final class FindHostTemplates
 {
@@ -50,9 +47,9 @@ final class FindHostTemplates
     }
 
     /**
-     * @param FindHostTemplatesPresenterOnPrem|FindHostTemplatesPresenterSaas $presenter
+     * @param FindHostTemplatesPresenterInterface $presenter
      */
-    public function __invoke(PresenterInterface $presenter): void
+    public function __invoke(FindHostTemplatesPresenterInterface $presenter): void
     {
         try {
             if (
@@ -63,7 +60,7 @@ final class FindHostTemplates
                     "User doesn't have sufficient rights to see host templates",
                     ['user_id' => $this->user->getId()]
                 );
-                $presenter->setResponseStatus(
+                $presenter->presentResponse(
                     new ForbiddenResponse(HostTemplateException::accessNotAllowed())
                 );
 
@@ -71,9 +68,9 @@ final class FindHostTemplates
             }
 
             $hostTemplates = $this->readHostTemplateRepository->findByRequestParameter($this->requestParameters);
-            $presenter->present($this->createResponse($hostTemplates));
+            $presenter->presentResponse($this->createResponse($hostTemplates));
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse(HostTemplateException::findHostTemplates($ex)));
+            $presenter->presentResponse(new ErrorResponse(HostTemplateException::findHostTemplates()));
             $this->error($ex->getMessage());
         }
     }
@@ -105,7 +102,7 @@ final class FindHostTemplates
                 'activeCheckEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getActiveCheckEnabled()),
                 'passiveCheckEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getPassiveCheckEnabled()),
                 'notificationEnabled' => YesNoDefaultConverter::toInt($hostTemplate->getNotificationEnabled()),
-                'notificationOptions' => HostEventConverter::toBitmask($hostTemplate->getNotificationOptions()),
+                'notificationOptions' => HostEventConverter::toBitFlag($hostTemplate->getNotificationOptions()),
                 'notificationInterval' => $hostTemplate->getNotificationInterval(),
                 'notificationTimeperiodId' => $hostTemplate->getNotificationTimeperiodId(),
                 'addInheritedContactGroup' => $hostTemplate->addInheritedContactGroup(),

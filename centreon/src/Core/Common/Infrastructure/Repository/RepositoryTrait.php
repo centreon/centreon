@@ -44,4 +44,19 @@ trait RepositoryTrait
     {
         return '' === $string ? null : $string;
     }
+
+    /**
+     * from legacy behaviour:
+     * remove html tags and encode simple and double quotes.
+     *
+     * (@see \HtmlAnalyzer::sanitizeAndRemoveTags)
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    public function legacyHtmlEncode(string $string): string
+    {
+        return \HtmlAnalyzer::sanitizeAndRemoveTags($string);
+    }
 }

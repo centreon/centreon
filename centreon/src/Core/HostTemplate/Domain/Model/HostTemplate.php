@@ -40,7 +40,7 @@ class HostTemplate extends NewHostTemplate
      * @param null|int $timezoneId
      * @param null|int $severityId
      * @param null|int $checkCommandId
-     * @param string $checkCommandArgs
+     * @param string[] $checkCommandArgs
      * @param null|int $checkTimeperiodId
      * @param null|int $maxCheckAttempts
      * @param null|int $normalCheckInterval
@@ -63,7 +63,7 @@ class HostTemplate extends NewHostTemplate
      * @param null|int $highFlapThreshold
      * @param YesNoDefault $eventHandlerEnabled
      * @param null|int $eventHandlerCommandId
-     * @param string $eventHandlerCommandArgs
+     * @param string[] $eventHandlerCommandArgs
      * @param string $noteUrl
      * @param string $note
      * @param string $actionUrl
@@ -84,7 +84,7 @@ class HostTemplate extends NewHostTemplate
         ?int $timezoneId = null,
         ?int $severityId = null,
         ?int $checkCommandId = null,
-        string $checkCommandArgs = '',
+        array $checkCommandArgs = [],
         ?int $checkTimeperiodId = null,
         ?int $maxCheckAttempts = null,
         ?int $normalCheckInterval = null,
@@ -107,7 +107,7 @@ class HostTemplate extends NewHostTemplate
         ?int $highFlapThreshold = null,
         YesNoDefault $eventHandlerEnabled = YesNoDefault::Default,
         ?int $eventHandlerCommandId = null,
-        string $eventHandlerCommandArgs = '',
+        array $eventHandlerCommandArgs = [],
         string $noteUrl = '',
         string $note = '',
         string $actionUrl = '',
