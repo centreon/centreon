@@ -138,7 +138,10 @@ final class AddDashboard
      */
     private function createNewDashboard(AddDashboardRequest $request): NewDashboard
     {
-        $dashboard = new NewDashboard($request->name);
+        $dashboard = new NewDashboard(
+            $request->name,
+            $this->contact->getId()
+        );
         $dashboard->setDescription($request->description);
 
         return $dashboard;
@@ -158,6 +161,14 @@ final class AddDashboard
         $response->description = $dashboard->getDescription();
         $response->createdAt = $dashboard->getCreatedAt();
         $response->updatedAt = $dashboard->getUpdatedAt();
+
+        $response->createdBy = new AddDashboardUserDto();
+        $response->createdBy->id = $this->contact->getId();
+        $response->createdBy->name = $this->contact->getName();
+
+        $response->updatedBy = new AddDashboardUserDto();
+        $response->updatedBy->id = $this->contact->getId();
+        $response->updatedBy->name = $this->contact->getName();
 
         return $response;
     }

@@ -20,7 +20,8 @@ import {
   labelDelete,
   labelDeleteDashboard,
   labelDescription,
-  labelDescriptionDeleteDashboard,
+  labelDescriptionDeleteDashboardPartOne,
+  labelDescriptionDeleteDashboardPartTwo,
   labelName,
   labelUpdate,
   labelUpdateDashboard
@@ -53,7 +54,7 @@ const Dashboards = (): ReactElement => {
 
   const labels = useMemo(
     (): {
-      deleteConfirmation: { actions: ModalActionsLabels; description: string };
+      deleteConfirmation: { actions: ModalActionsLabels };
       form: DashboardFormLabels;
       modalTitle: { create: string; delete: string; update: string };
     } => ({
@@ -61,8 +62,7 @@ const Dashboards = (): ReactElement => {
         actions: {
           cancel: t(labelCancel),
           confirm: t(labelDelete)
-        },
-        description: t(labelDescriptionDeleteDashboard)
+        }
       },
       form: {
         actions: {
@@ -119,15 +119,11 @@ const Dashboards = (): ReactElement => {
       >
         <Modal.Header>{labels.modalTitle.delete}</Modal.Header>
         <Modal.Body>
-          <p
-            /* eslint-disable-next-line react/no-danger */
-            dangerouslySetInnerHTML={{
-              __html:
-                t(labelDescriptionDeleteDashboard, {
-                  name: deleteDialogState.item?.name
-                }) || ''
-            }}
-          />
+          <p>
+            {t(labelDescriptionDeleteDashboardPartOne)}
+            <strong>{deleteDialogState.item?.name}</strong>
+            {t(labelDescriptionDeleteDashboardPartTwo)}
+          </p>
         </Modal.Body>
         <Modal.Actions
           isDanger

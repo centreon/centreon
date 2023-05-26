@@ -1,10 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
-  divider: {
-    borderColor: theme.palette.primary.main,
-    marginBottom: theme.spacing(2.5)
-  },
   header: {
     alignItems: 'flex-start',
     borderBottom: `1px solid ${theme.palette.primary.main}`,

@@ -118,7 +118,7 @@ When('I click on the Export configuration button', () => {
   cy.getIframeBody()
     .find('form button[name="apply_configuration"]')
     .contains('Export configuration')
-    .click();
+    .click({ force: true });
 });
 
 Then('I am redirected to generate page', () => {

@@ -27,7 +27,6 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Common\Infrastructure\FeatureFlags;
 use Core\Dashboard\Application\UseCase\UpdateDashboard\UpdateDashboard;
 use Core\Dashboard\Application\UseCase\UpdateDashboard\UpdateDashboardRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,10 +38,9 @@ final class UpdateDashboardController extends AbstractController
     use LoggerTrait;
 
     /**
+     * @param int $dashboardId
      * @param Request $request
      * @param UpdateDashboard $useCase
-     * @param FeatureFlags $flags
-     * @param int $dashboardId
      * @param UpdateDashboardPresenter $presenter
      *
      * @throws AccessDeniedException
@@ -54,14 +52,13 @@ final class UpdateDashboardController extends AbstractController
         Request $request,
         UpdateDashboard $useCase,
         UpdateDashboardPresenter $presenter,
-        FeatureFlags $flags,
     ): Response {
-        $this->denyAccessUnlessGrantedForAPIConfiguration();
+        $this->denyAccessUnlessGrantedForApiConfiguration();
 
         try {
             /** @var array{
              *     name: string,
-             *     description?: ?string
+             *     description: ?string
              * } $dataSent
              */
             $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateDashboardSchema.json');

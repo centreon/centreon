@@ -1,0 +1,24 @@
+delete:
+      tags:
+        - Host template
+      summary: "Delete a host template configuration"
+      description: |
+        Delete a host template configuration
+      parameters:
+        - in: path
+          name: host_template_id
+          description: "ID of existing host template configuration"
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '204':
+          $ref: '../../Common/Response/NoContent.yaml'
+        '403':
+          $ref: '../../Common/Response/Forbidden.yaml'
+        '404':
+          $ref: '../../Common/Response/NotFound.yaml'
+        '500':
+          $ref: '../../Common/Response/InternalServerError.yaml'

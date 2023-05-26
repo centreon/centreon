@@ -1,4 +1,10 @@
-import { CSSProperties, ForwardedRef, forwardRef, MouseEvent } from 'react';
+import {
+  CSSProperties,
+  ForwardedRef,
+  forwardRef,
+  MouseEvent,
+  ReactElement
+} from 'react';
 
 import { isNil } from 'ramda';
 
@@ -9,10 +15,9 @@ import { useMemoComponent } from '../utils';
 import { useDashboardItemStyles } from './Dashboard.styles';
 
 interface DashboardItemProps {
-  children: JSX.Element;
+  children: ReactElement;
   className?: string;
-  header?: JSX.Element;
-  key: string;
+  header?: ReactElement;
   onMouseDown?: (e: MouseEvent<HTMLDivElement>) => void;
   onMouseUp?: (e: MouseEvent<HTMLDivElement>) => void;
   onTouchEnd?: (e) => void;
@@ -23,7 +28,6 @@ const Item = forwardRef(
   (
     {
       children,
-      key,
       style,
       className,
       header,
@@ -32,7 +36,7 @@ const Item = forwardRef(
       onTouchEnd
     }: DashboardItemProps,
     ref: ForwardedRef<HTMLDivElement>
-  ): JSX.Element => {
+  ): ReactElement => {
     const { classes } = useDashboardItemStyles();
 
     const hasHeader = !isNil(header);
@@ -49,7 +53,6 @@ const Item = forwardRef(
       Component: (
         <div
           className={className}
-          key={key}
           ref={ref}
           style={style}
           {...cardContainerListeners}

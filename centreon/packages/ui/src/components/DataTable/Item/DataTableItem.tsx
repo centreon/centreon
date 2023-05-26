@@ -5,7 +5,7 @@ import {
   CardActionArea as MuiCardActionArea,
   CardActions as MuiCardActions,
   CardContent as MuiCardContent,
-  Typography
+  Typography as MuiTypography
 } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 
@@ -49,10 +49,10 @@ const DataTableItem = forwardRef(
         ref={ref as RefObject<HTMLDivElement>}
         variant="outlined"
       >
-        <ActionArea aria-label="view" onClick={() => onClick?.()} aria-label="view">
+        <ActionArea aria-label="view" onClick={() => onClick?.()}>
           <MuiCardContent>
-            <Typography variant="h5">{title}</Typography>
-            {description && <Typography>{description}</Typography>}
+            <MuiTypography variant="h5">{title}</MuiTypography>
+            {description && <MuiTypography>{description}</MuiTypography>}
           </MuiCardContent>
         </ActionArea>
         {hasActions && (

@@ -28,14 +28,12 @@ use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardPresenterInterfa
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 
-class AddDashboardPresenterStub extends DefaultPresenter implements AddDashboardPresenterInterface
+class AddDashboardPresenterStub implements AddDashboardPresenterInterface
 {
+    public AddDashboardResponse|ResponseStatusInterface $data;
+
     public function presentResponse(AddDashboardResponse|ResponseStatusInterface $data): void
     {
-        if ($data instanceof AddDashboardResponse) {
-            $this->present($data);
-        } else {
-            $this->setResponseStatus($data);
-        }
+        $this->data = $data;
     }
 }

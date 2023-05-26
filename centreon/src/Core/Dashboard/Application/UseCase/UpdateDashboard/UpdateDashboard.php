@@ -37,7 +37,6 @@ use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 final class UpdateDashboard
 {
@@ -151,13 +150,20 @@ final class UpdateDashboard
      * @param Dashboard $dashboard
      * @param UpdateDashboardRequest $request
      *
-     * @throws AssertionFailedException
+     * @throws AssertionFailedException|\Throwable
      */
     private function updateDashboardAndSave(Dashboard $dashboard, UpdateDashboardRequest $request): void
     {
-        $dashboard->setName($request->name);
-        $dashboard->setDescription($request->description);
+        $updatedDashboard = new Dashboard(
+            id: $dashboard->getId(),
+            name: $request->name,
+            description: $request->description,
+            createdBy: $dashboard->getCreatedBy(),
+            updatedBy: $this->contact->getId(),
+            createdAt: $dashboard->getCreatedAt(),
+            updatedAt: new \DateTimeImmutable()
+        );
 
-        $this->writeDashboardRepository->update($dashboard);
+        $this->writeDashboardRepository->update($updatedDashboard);
     }
 }

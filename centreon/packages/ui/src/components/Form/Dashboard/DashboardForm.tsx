@@ -9,7 +9,6 @@ import { FormVariant } from '../Form.models';
 
 import { useStyles } from './DashboardForm.styles';
 import {
-  labelCharacters,
   labelMustBeAtLeast,
   labelMustBeMost,
   labelRequired
@@ -67,24 +66,13 @@ const DashboardForm = ({
       validationSchema: Yup.object().shape({
         description: Yup.string()
           .label(labels?.entity?.description)
-          .max(
-            180,
-            (p) =>
-              `${p.label} ${t(labelMustBeMost)} ${p.max} ${labelCharacters}`
-          )
-          .optional(),
+          .max(180, ({ max, label }) => t(labelMustBeMost, { label, max }))
+          .optional()
+          .nullable(),
         name: Yup.string()
           .label(labels?.entity?.name)
-          .min(
-            3,
-            (p) =>
-              `${p.label} ${t(labelMustBeAtLeast)} ${p.min} ${labelCharacters}`
-          )
-          .max(
-            50,
-            (p) =>
-              `${p.label} ${t(labelMustBeMost)} ${p.max} ${labelCharacters}`
-          )
+          .min(3, ({ min, label }) => t(labelMustBeAtLeast, { label, min }))
+          .max(50, ({ max, label }) => t(labelMustBeMost, { label, max }))
           .required(t(labelRequired) as string)
       })
     }),

@@ -38,14 +38,14 @@ use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface
 use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplates;
 use Core\HostTemplate\Application\UseCase\FindHostTemplates\FindHostTemplatesResponse;
 use Core\HostTemplate\Domain\Model\HostTemplate;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Tests\Core\HostTemplate\Infrastructure\API\FindHostTemplates\FindHostTemplatesPresenterStub;
 
 beforeEach(function (): void {
     $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
 
-    $this->presenter = new DefaultPresenter($this->createMock(PresenterFormatterInterface::class));
+    $this->presenter = new FindHostTemplatesPresenterStub($this->createMock(PresenterFormatterInterface::class));
     $this->useCase = new FindHostTemplates(
         $this->readHostTemplateRepository,
         $this->createMock(RequestParametersInterface::class),
@@ -61,7 +61,7 @@ beforeEach(function (): void {
         1,
         1,
         1,
-        'checkCommandArgs-value',
+        ['arg1', 'arg2'],
         1,
         5,
         5,
@@ -84,7 +84,7 @@ beforeEach(function (): void {
         5,
         YesNoDefault::Yes,
         1,
-        'eventHandlerCommandArgs-value',
+        ['arg3', 'arg4'],
         'noteUrl-value',
         'note-value',
         'actionUrl-value',
@@ -103,7 +103,7 @@ beforeEach(function (): void {
         'timezoneId' => 1,
         'severityId' => 1,
         'checkCommandId' => 1,
-        'checkCommandArgs' => 'checkCommandArgs-value',
+        'checkCommandArgs' => ['arg1', 'arg2'],
         'checkTimeperiodId' => 1,
         'maxCheckAttempts' => 5,
         'normalCheckInterval' => 5,
@@ -111,7 +111,7 @@ beforeEach(function (): void {
         'activeCheckEnabled' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
         'passiveCheckEnabled' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
         'notificationEnabled' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
-        'notificationOptions' => HostEventConverter::toBitmask([HostEvent::Down, HostEvent::Unreachable]),
+        'notificationOptions' => HostEventConverter::toBitFlag([HostEvent::Down, HostEvent::Unreachable]),
         'notificationInterval' => 5,
         'notificationTimeperiodId' => 1,
         'addInheritedContactGroup' => true,
@@ -126,7 +126,7 @@ beforeEach(function (): void {
         'highFlapThreshold' => 5,
         'eventHandlerEnabled' => YesNoDefaultConverter::toInt(YesNoDefault::Yes),
         'eventHandlerCommandId' => 1,
-        'eventHandlerCommandArgs' => 'eventHandlerCommandArgs-value',
+        'eventHandlerCommandArgs' => ['arg3', 'arg4'],
         'noteUrl' => 'noteUrl-value',
         'note' => 'note-value',
         'actionUrl' => 'actionUrl-value',
@@ -152,10 +152,10 @@ it(
 
         ($this->useCase)($this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->response)
             ->toBeInstanceOf(ErrorResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
-            ->toBe(HostTemplateException::findHostTemplates(new \Exception())->getMessage());
+            ->and($this->presenter->response->getMessage())
+            ->toBe(HostTemplateException::findHostTemplates()->getMessage());
     }
 );
 
@@ -169,9 +169,9 @@ it(
 
         ($this->useCase)($this->presenter);
 
-        expect($this->presenter->getResponseStatus())
+        expect($this->presenter->response)
             ->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->getResponseStatus()?->getMessage())
+            ->and($this->presenter->response->getMessage())
             ->toBe(HostTemplateException::accessNotAllowed()->getMessage());
     }
 );
@@ -195,9 +195,9 @@ it(
 
         ($this->useCase)($this->presenter);
 
-        expect($this->presenter->getPresentedData())
+        expect($this->presenter->response)
             ->toBeInstanceOf(FindHostTemplatesResponse::class)
-            ->and($this->presenter->getPresentedData()->hostTemplates[0])
+            ->and($this->presenter->response->hostTemplates[0])
             ->toBe($this->testedHostTemplateArray);
     }
 );
@@ -221,9 +221,9 @@ it(
 
         ($this->useCase)($this->presenter);
 
-        expect($this->presenter->getPresentedData())
+        expect($this->presenter->response)
             ->toBeInstanceOf(FindHostTemplatesResponse::class)
-            ->and($this->presenter->getPresentedData()->hostTemplates[0])
+            ->and($this->presenter->response->hostTemplates[0])
             ->toBe($this->testedHostTemplateArray);
     }
 );
