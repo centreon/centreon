@@ -21,14 +21,9 @@ export const useStyles = makeStyles()((theme) => ({
       }
     },
 
-    backgroundColor: 'rgba(151, 71, 255, .1)',
-
-    // border: '1.5px dashed rgba(151, 71, 255, .5)',
+    backgroundColor: '#9747FF19',
     borderRadius: '4px',
-
-    // boxSizing: 'content-box',
-    color: 'rgba(151, 71, 255, 1)',
-
+    color: '#9747FFFF',
     minHeight: theme.spacing(4),
 
     position: 'relative'

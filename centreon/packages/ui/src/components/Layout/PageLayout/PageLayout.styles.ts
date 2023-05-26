@@ -22,7 +22,7 @@ export const useStyles = makeStyles()((theme) => ({
       padding: theme.spacing(5, 4, 2),
       position: 'sticky',
       top: 0,
-      zIndex: 100
+      zIndex: `calc(${theme.zIndex.mobileStepper} - 100)`
     },
 
     padding: theme.spacing(5, 4, 0)
