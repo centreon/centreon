@@ -1,0 +1,14 @@
+description: |
+  Indicates that there is a conflict between resources.
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int64
+          example: 409
+        message:
+          type: string
+          example: "Conflict found between resources"
