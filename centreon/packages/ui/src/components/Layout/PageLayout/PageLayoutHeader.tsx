@@ -4,7 +4,7 @@ import { useStyles } from './PageLayout.styles';
 
 type PageLayoutHeaderProps = {
   children: Array<ReactNode> | ReactNode;
-}
+};
 
 export const PageLayoutHeader = ({
   children

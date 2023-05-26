@@ -4,7 +4,7 @@ import { useStyles } from './PageLayout.styles';
 
 type PageLayoutActionsProps = {
   children: Array<ReactNode> | ReactNode;
-}
+};
 
 export const PageLayoutActions = ({
   children
