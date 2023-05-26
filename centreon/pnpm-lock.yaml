@@ -450,13 +450,14 @@ importers:
   tests/e2e:
     specifiers:
       '@badeball/cypress-cucumber-preprocessor': ^16.0.3
+      '@centreon/js-config': ^23.10.0
       '@cypress/webpack-preprocessor': ^5.15.5
       '@swc/core': ^1.2.203
       '@types/cypress': ^1.1.3
       '@types/cypress-cucumber-preprocessor': ^4.0.1
       '@types/dockerode': ^3.3.16
       '@types/node': ^14.14.44
-      cypress: ^12.11.0
+      cypress: 12.11.0
       cypress-wait-until: ^1.7.2
       dockerode: ^3.3.5
       mochawesome: ^7.1.3
@@ -466,14 +467,15 @@ importers:
       typescript: ^4.7.3
       webpack: ^5.77.0
     devDependencies:
-      '@badeball/cypress-cucumber-preprocessor': 16.0.3_cypress@12.12.0
+      '@badeball/cypress-cucumber-preprocessor': 16.0.3_cypress@12.11.0
+      '@centreon/js-config': link:../../packages/js-config
       '@cypress/webpack-preprocessor': 5.17.1_webpack@5.82.1
       '@swc/core': 1.3.58
       '@types/cypress': 1.1.3
       '@types/cypress-cucumber-preprocessor': 4.0.1
       '@types/dockerode': 3.3.17
       '@types/node': 14.18.47
-      cypress: 12.12.0
+      cypress: 12.11.0
       cypress-wait-until: 1.7.2
       dockerode: 3.3.5
       mochawesome: 7.1.3
@@ -1892,7 +1894,7 @@ packages:
       - supports-color
     dev: true
 
-  /@badeball/cypress-cucumber-preprocessor/16.0.3_cypress@12.12.0:
+  /@badeball/cypress-cucumber-preprocessor/16.0.3_cypress@12.11.0:
     resolution: {integrity: sha512-a7F9bvINA62n4p5IOh2Eo5O9En18nROP1WuX9GUlTOyBzKk6+J9ALms+Bb1Y3bTJ8moX2kgEiR2rlrrhQprFAw==}
     engines: {node: '>=14.14.0'}
     hasBin: true
@@ -1916,7 +1918,7 @@ packages:
       cli-table: 0.3.11
       common-ancestor-path: 1.0.1
       cosmiconfig: 7.1.0
-      cypress: 12.12.0
+      cypress: 12.11.0
       debug: 4.3.4
       error-stack-parser: 2.1.4
       esbuild: 0.17.19
@@ -2205,7 +2207,7 @@ packages:
       bluebird: 3.7.1
       debug: 4.3.4
       lodash: 4.17.21
-      webpack: 5.82.1_ilv23h42sd7ioyiaw4anl5c75u
+      webpack: 5.82.1_@swc+core@1.3.58
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -2710,14 +2712,14 @@ packages:
       '@jest/test-result': 28.1.3
       '@jest/transform': 28.1.3
       '@jest/types': 28.1.3
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       ci-info: 3.8.0
       exit: 0.1.2
       graceful-fs: 4.2.11
       jest-changed-files: 28.1.3
-      jest-config: 28.1.3_@types+node@14.18.47
+      jest-config: 28.1.3_@types+node@18.16.12
       jest-haste-map: 28.1.3
       jest-message-util: 28.1.3
       jest-regex-util: 28.0.2
@@ -2751,7 +2753,7 @@ packages:
     dependencies:
       '@jest/fake-timers': 28.1.3
       '@jest/types': 28.1.3
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
       jest-mock: 28.1.3
 
   /@jest/expect-utils/28.1.3:
@@ -2775,7 +2777,7 @@ packages:
     dependencies:
       '@jest/types': 28.1.3
       '@sinonjs/fake-timers': 9.1.2
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
       jest-message-util: 28.1.3
       jest-mock: 28.1.3
       jest-util: 28.1.3
@@ -2929,7 +2931,7 @@ packages:
       '@jest/schemas': 28.1.3
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
       '@types/yargs': 17.0.24
       chalk: 4.1.2
 
@@ -5702,7 +5704,7 @@ packages:
   /@types/docker-modem/3.0.2:
     resolution: {integrity: sha512-qC7prjoEYR2QEe6SmCVfB1x3rfcQtUr1n4x89+3e0wSTMQ/KYCyf+/RAA9n2tllkkNc6//JMUZePdFRiGIWfaQ==}
     dependencies:
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
       '@types/ssh2': 1.11.11
     dev: true
 
@@ -5835,7 +5837,7 @@ packages:
   /@types/jsdom/16.2.15:
     resolution: {integrity: sha512-nwF87yjBKuX/roqGYerZZM0Nv1pZDMAT5YhOHYeM/72Fic+VEqJh4nyoqoapzJnW3pUlfxPY5FhgsJtM+dRnQQ==}
     dependencies:
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
       '@types/parse5': 6.0.3
       '@types/tough-cookie': 4.0.2
     dev: true
@@ -8126,7 +8128,7 @@ packages:
     engines: {node: '>=12.13.0'}
     hasBin: true
     dependencies:
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.1
@@ -8705,6 +8707,56 @@ packages:
 
   /cypress-wait-until/1.7.2:
     resolution: {integrity: sha512-uZ+M8/MqRcpf+FII/UZrU7g1qYZ4aVlHcgyVopnladyoBrpoaMJ4PKZDrdOJ05H5RHbr7s9Tid635X3E+ZLU/Q==}
+    dev: true
+
+  /cypress/12.11.0:
+    resolution: {integrity: sha512-TJE+CCWI26Hwr5Msb9GpQhFLubdYooW0fmlPwTsfiyxmngqc7+SZGLPeIkj2dTSSZSEtpQVzOzvcnzH0o8G7Vw==}
+    engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      '@cypress/request': 2.88.11
+      '@cypress/xvfb': 1.2.4_supports-color@8.1.1
+      '@types/node': 14.18.47
+      '@types/sinonjs__fake-timers': 8.1.1
+      '@types/sizzle': 2.3.3
+      arch: 2.2.0
+      blob-util: 2.0.2
+      bluebird: 3.7.2
+      buffer: 5.7.1
+      cachedir: 2.3.0
+      chalk: 4.1.2
+      check-more-types: 2.24.0
+      cli-cursor: 3.1.0
+      cli-table3: 0.6.3
+      commander: 6.2.1
+      common-tags: 1.8.2
+      dayjs: 1.11.7
+      debug: 4.3.4_supports-color@8.1.1
+      enquirer: 2.3.6
+      eventemitter2: 6.4.7
+      execa: 4.1.0
+      executable: 4.1.1
+      extract-zip: 2.0.1_supports-color@8.1.1
+      figures: 3.2.0
+      fs-extra: 9.1.0
+      getos: 3.2.1
+      is-ci: 3.0.1
+      is-installed-globally: 0.4.0
+      lazy-ass: 1.6.0
+      listr2: 3.14.0_enquirer@2.3.6
+      lodash: 4.17.21
+      log-symbols: 4.1.0
+      minimist: 1.2.8
+      ospath: 1.2.2
+      pretty-bytes: 5.6.0
+      proxy-from-env: 1.0.0
+      request-progress: 3.0.0
+      semver: 7.5.1
+      supports-color: 8.1.1
+      tmp: 0.2.1
+      untildify: 4.0.0
+      yauzl: 2.10.0
     dev: true
 
   /cypress/12.12.0:
@@ -10700,7 +10752,6 @@ packages:
   /extsprintf/1.4.1:
     resolution: {integrity: sha512-Wrk35e8ydCKDj/ArClo1VrPVmN8zph5V4AtHwIuHhvMXsKf73UT3BOD+azBIW+3wOJ4FhEH7zyaJCFvChjYvMA==}
     engines: {'0': node >=0.6.0}
-    dev: true
 
   /fast-deep-equal/3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
@@ -12457,7 +12508,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /jest-config/28.1.3_@types+node@14.18.47:
+  /jest-config/28.1.3_@types+node@18.16.12:
     resolution: {integrity: sha512-MG3INjByJ0J4AsNBm7T3hsuxKQqFIiRo/AUqb1q9LRKI5UU6Aar9JHbr9Ivn1TVwfUD9KirRoM/T6u8XlcQPHQ==}
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
     peerDependencies:
@@ -12472,7 +12523,7 @@ packages:
       '@babel/core': 7.21.8
       '@jest/test-sequencer': 28.1.3
       '@jest/types': 28.1.3
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
       babel-jest: 28.1.3_@babel+core@7.21.8
       chalk: 4.1.2
       ci-info: 3.8.0
@@ -12705,7 +12756,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
     dev: true
 
   /jest-mock/28.1.3:
@@ -12713,7 +12764,7 @@ packages:
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
     dependencies:
       '@jest/types': 28.1.3
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
 
   /jest-pnp-resolver/1.2.3_jest-resolve@28.1.3:
     resolution: {integrity: sha512-+3NpwQEnRoIBtx4fyhblQDPgJI0H1IEIkX7ShLUjPGA7TtUTvI1oiKi3SR4oBR0hQhQR80l4WAe5RrXBwWMA8w==}
@@ -12854,7 +12905,7 @@ packages:
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
     dependencies:
       '@jest/types': 28.1.3
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
       chalk: 4.1.2
       ci-info: 3.8.0
       graceful-fs: 4.2.11
@@ -12900,7 +12951,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -16779,7 +16830,7 @@ packages:
     resolution: {integrity: sha512-DI7/OuAUD+GMpR6dmu8lliO2Wg5zfeh+/xsdyJZCzd8o5JgFUjCeLsBDuZjIQJdwXS3J0L/uZYrELKYqx+PXog==}
     engines: {node: '>=8.0'}
     dependencies:
-      '@types/node': 14.18.47
+      '@types/node': 18.16.12
       image-ssim: 0.2.0
       jpeg-js: 0.4.4
     dev: true
@@ -17176,7 +17227,7 @@ packages:
       webpack: '>=2'
     dependencies:
       '@swc/core': 1.3.58
-      webpack: 5.82.1_ilv23h42sd7ioyiaw4anl5c75u
+      webpack: 5.82.1_@swc+core@1.3.58
     dev: true
 
   /symbol-tree/3.2.4:
@@ -17320,7 +17371,7 @@ packages:
       schema-utils: 3.1.2
       serialize-javascript: 6.0.1
       terser: 5.17.4
-      webpack: 5.82.1_ilv23h42sd7ioyiaw4anl5c75u
+      webpack: 5.82.1_@swc+core@1.3.58
 
   /terser-webpack-plugin/5.3.8_webpack@5.82.1:
     resolution: {integrity: sha512-WiHL3ElchZMsK27P8uIUh4604IgJyAW47LVXGbEoB21DbQcZ+OuMpGjVYnEUaqcWM6dO8uS2qUbA7LSCWqvsbg==}
@@ -17996,7 +18047,7 @@ packages:
     dependencies:
       assert-plus: 1.0.0
       core-util-is: 1.0.2
-      extsprintf: 1.3.0
+      extsprintf: 1.4.1
 
   /verror/1.10.1:
     resolution: {integrity: sha512-veufcmxri4e3XSrT0xwfUR7kguIkaxBeosDg00yDWhk49wdwkSUrvvsm7nc75e1PUyvIeZj6nS8VQRYz2/S4Xg==}
@@ -18415,7 +18466,6 @@ packages:
       - '@swc/core'
       - esbuild
       - uglify-js
-    dev: true
 
   /webpack/5.82.1_ilv23h42sd7ioyiaw4anl5c75u:
     resolution: {integrity: sha512-C6uiGQJ+Gt4RyHXXYt+v9f+SN1v83x68URwgxNQ98cvH8kxiuywWGP4XeNZ1paOzZ63aY3cTciCEQJNFUljlLw==}
