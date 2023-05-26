@@ -55,7 +55,7 @@ class Conditions implements SecurityAccessInterface
         $scope = $configuration->getType();
         $customConfiguration = $configuration->getCustomConfiguration();
         $authenticationConditions = $customConfiguration->getAuthenticationConditions();
-        if (!$authenticationConditions->isEnabled()) {
+        if (! $authenticationConditions->isEnabled()) {
             $this->loginLogger->info($scope, "Authentication conditions disabled");
             $this->info("Authentication conditions disabled");
             return;
@@ -64,13 +64,11 @@ class Conditions implements SecurityAccessInterface
         $this->loginLogger->info($scope, "Authentication conditions is enabled");
         $this->info("Authentication conditions is enabled");
 
-        $customConfiguration = $configuration->getCustomConfiguration();
-        $conditionsConfiguration = $customConfiguration->getAuthenticationConditions();
-        $localConditions = $conditionsConfiguration->getAuthorizedValues();
+        $localConditions = $authenticationConditions->getAuthorizedValues();
 
-        $authenticationAttributePath[] = $conditionsConfiguration->getAttributePath();
+        $authenticationAttributePath[] = $authenticationConditions->getAttributePath();
         if ($configuration->getType() === Provider::OPENID) {
-            $authenticationAttributePath = explode(".", $conditionsConfiguration->getAttributePath());
+            $authenticationAttributePath = explode(".", $authenticationConditions->getAttributePath());
         }
 
         $this->loginLogger->info($scope, "Configured attribute path found", $authenticationAttributePath);
@@ -113,7 +111,7 @@ class Conditions implements SecurityAccessInterface
             $this->error(
                 "Configured attribute value not found in conditions endpoint",
                 [
-                    "configured_authorized_values" => $conditionsConfiguration->getAuthorizedValues()
+                    "configured_authorized_values" => $authenticationConditions->getAuthorizedValues()
                 ]
             );
 
