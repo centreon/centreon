@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.10.19",
+  "version": "23.10.20",
   "description": "Centreon UI Components",
   "scripts": {
     "eslint": "eslint ./src --ext .js,.jsx,.ts,.tsx --max-warnings 0",
@@ -126,6 +126,5 @@
   "jest-junit": {
     "suiteName": "jest tests",
     "output": "./junit.xml"
-  },
-  "_id": "@centreon/ui@23.10.2"
+  }
 }
