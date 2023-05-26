@@ -52,7 +52,7 @@ get:
                 items:
                   $ref: "Schema/Notification.Listing.yaml"
               meta:
-                '../../Common/Schema/Meta.yaml'
+                $ref: '../../Common/Schema/Meta.yaml'
     '400':
       $ref: '../../Common/Response/BadRequest.yaml'
     '403':
