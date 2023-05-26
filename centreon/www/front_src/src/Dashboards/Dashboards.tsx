@@ -21,6 +21,7 @@ import {
   labelDeleteDashboard,
   labelDescription,
   labelDescriptionDeleteDashboard,
+  labelLoading,
   labelName,
   labelUpdate,
   labelUpdateDashboard
@@ -60,7 +61,8 @@ const Dashboards = (): ReactElement => {
       deleteConfirmation: {
         actions: {
           cancel: t(labelCancel),
-          confirm: t(labelDelete)
+          confirm: t(labelDelete),
+          loading: t(labelLoading)
         },
         description: t(labelDescriptionDeleteDashboard)
       },

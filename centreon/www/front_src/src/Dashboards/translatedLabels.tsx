@@ -20,3 +20,4 @@ export const labelDashboardDeleted = 'Dashboard deleted';
 export const labelFailedToCreateDashboard = 'Failed to create the dashboard';
 export const labelFailedToUpdateDashboard = 'Failed to update the dashboard';
 export const labelFailedToDeleteDashboard = 'Failed to delete the dashboard';
+export const labelLoading = 'Loading';

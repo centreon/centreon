@@ -44,7 +44,7 @@ const DashboardForm = ({
 
   const formProps = useMemo<FormProps<DashboardResource>>(
     () => ({
-      initialValues: resource ?? { name: '' },
+      initialValues: resource ?? { description: null, name: '' },
       inputs: [
         {
           fieldName: 'name',
@@ -56,7 +56,7 @@ const DashboardForm = ({
         {
           fieldName: 'description',
           group: 'main',
-          label: labels?.entity?.description,
+          label: labels?.entity?.description || '',
           text: {
             multilineRows: 3
           },
@@ -66,13 +66,13 @@ const DashboardForm = ({
       submit: (values, bag) => onSubmit?.(values, bag),
       validationSchema: Yup.object().shape({
         description: Yup.string()
-          .label(labels?.entity?.description)
+          .label(labels?.entity?.description || '')
           .max(
             180,
             (p) =>
               `${p.label} ${t(labelMustBeMost)} ${p.max} ${labelCharacters}`
           )
-          .optional(),
+          .nullable(),
         name: Yup.string()
           .label(labels?.entity?.name)
           .min(
