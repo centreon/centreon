@@ -3,13 +3,13 @@ import { ReactElement, Suspense, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
-import { TiledListingPage } from '@centreon/ui';
 import {
   DashboardForm,
   DashboardFormLabels,
   DashboardResource,
   Header,
-  Modal
+  Modal,
+  PageLayout
 } from '@centreon/ui/components';
 
 import {
@@ -26,7 +26,7 @@ import {
   labelUpdate,
   labelUpdateDashboard
 } from './translatedLabels';
-import ListingSkeleton from './Skeleton';
+import { ListingSkeleton } from './ListingSkeleton';
 import {
   closeDialogAtom,
   deleteDialogStateAtom,
@@ -87,11 +87,15 @@ const Dashboards = (): ReactElement => {
   );
 
   return (
-    <TiledListingPage>
-      <Header title={t(labelDashboards)} />
-      <Suspense fallback={<ListingSkeleton />}>
-        <Listing />
-      </Suspense>
+    <PageLayout>
+      <PageLayout.Header>
+        <Header title={t(labelDashboards)} />
+      </PageLayout.Header>
+      <PageLayout.Body>
+        <Suspense fallback={<ListingSkeleton />}>
+          <Listing />
+        </Suspense>
+      </PageLayout.Body>
       <Modal open={isDialogOpen} onClose={closeDialog}>
         <Modal.Header>
           {labels.modalTitle[selectedDashboard?.variant ?? 'create']}
@@ -136,7 +140,7 @@ const Dashboards = (): ReactElement => {
           }
         />
       </Modal>
-    </TiledListingPage>
+    </PageLayout>
   );
 };
 

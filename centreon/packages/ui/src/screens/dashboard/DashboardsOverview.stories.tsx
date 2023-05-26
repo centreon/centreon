@@ -186,68 +186,68 @@ const DefaultView = (args): JSX.Element => {
             ))
           )}
         </DataTable>
-
-        <Modal
-          open={dialogState.open}
-          onClose={() =>
-            setDialogState({
-              item: null,
-              open: false,
-              variant: dialogState.variant
-            })
-          }
-        >
-          <Modal.Header>
-            {form.labels.title[dialogState.variant ?? 'create']}
-          </Modal.Header>
-          <Modal.Body>
-            <DashboardForm
-              labels={DashboardFormDefaultStory!.args!.labels!}
-              resource={dialogState.item || undefined}
-              variant={dialogState.variant}
-              onCancel={() =>
-                setDialogState({
-                  item: null,
-                  open: false,
-                  variant: dialogState.variant
-                })
-              }
-              onSubmit={(values) =>
-                dialogState.variant === 'create'
-                  ? createDashboard(values)
-                  : updateDashboard(values)
-              }
-            />
-          </Modal.Body>
-        </Modal>
-        <Modal
-          open={deleteDialogState.open}
-          onClose={() =>
-            setDeleteDialogState({
-              ...deleteDialogState,
-              open: false
-            })
-          }
-        >
-          <Modal.Header>{deleteConfirmation.labels.title}</Modal.Header>
-          <Modal.Body>
-            <p>
-              {deleteConfirmation.labels.description(
-                deleteDialogState.item?.name
-              )}
-            </p>
-          </Modal.Body>
-          <Modal.Actions
-            isDanger
-            labels={deleteConfirmation.labels.actions}
-            onCancel={() => setDeleteDialogState({ item: null, open: false })}
-            onConfirm={() => {
-              deleteDashboard(deleteDialogState.item?.id);
-              setDeleteDialogState({ item: null, open: false });
-            }}
-          />
-        </Modal>
       </PageLayout.Body>
+
+      <Modal
+        open={dialogState.open}
+        onClose={() =>
+          setDialogState({
+            item: null,
+            open: false,
+            variant: dialogState.variant
+          })
+        }
+      >
+        <Modal.Header>
+          {form.labels.title[dialogState.variant ?? 'create']}
+        </Modal.Header>
+        <Modal.Body>
+          <DashboardForm
+            labels={DashboardFormDefaultStory!.args!.labels!}
+            resource={dialogState.item || undefined}
+            variant={dialogState.variant}
+            onCancel={() =>
+              setDialogState({
+                item: null,
+                open: false,
+                variant: dialogState.variant
+              })
+            }
+            onSubmit={(values) =>
+              dialogState.variant === 'create'
+                ? createDashboard(values)
+                : updateDashboard(values)
+            }
+          />
+        </Modal.Body>
+      </Modal>
+      <Modal
+        open={deleteDialogState.open}
+        onClose={() =>
+          setDeleteDialogState({
+            ...deleteDialogState,
+            open: false
+          })
+        }
+      >
+        <Modal.Header>{deleteConfirmation.labels.title}</Modal.Header>
+        <Modal.Body>
+          <p>
+            {deleteConfirmation.labels.description(
+              deleteDialogState.item?.name
+            )}
+          </p>
+        </Modal.Body>
+        <Modal.Actions
+          isDanger
+          labels={deleteConfirmation.labels.actions}
+          onCancel={() => setDeleteDialogState({ item: null, open: false })}
+          onConfirm={() => {
+            deleteDashboard(deleteDialogState.item?.id);
+            setDeleteDialogState({ item: null, open: false });
+          }}
+        />
+      </Modal>
     </PageLayout>
   );
 };
