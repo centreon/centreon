@@ -67,7 +67,7 @@ const Item = forwardRef(
           </Card>
         </div>
       ),
-      memoProps: [key, style, className, header]
+      memoProps: [style, className, header]
     });
   }
 );

@@ -11,11 +11,11 @@ export const dashboardDetailsDecoder = JsonDecoder.object<DashboardDetails>(
   {
     ...namedEntityDecoder,
     createdAt: JsonDecoder.string,
-    description: JsonDecoder.string,
-    ownedBy: JsonDecoder.object<DashboardDetails['ownedBy']>(
+    createdBy: JsonDecoder.object<DashboardDetails['createdBy']>(
       namedEntityDecoder,
-      'Owned By'
+      'CreatedBy By'
     ),
+    description: JsonDecoder.nullable(JsonDecoder.string),
     panels: JsonDecoder.array(
       JsonDecoder.object(namedEntityDecoder, 'Panel'),
       'Panels'
@@ -29,7 +29,7 @@ export const dashboardDetailsDecoder = JsonDecoder.object<DashboardDetails>(
   'Dashboard Details',
   {
     createdAt: 'created_at',
-    ownedBy: 'owned_by',
+    createdBy: 'created_by',
     updatedAt: 'updated_at',
     updatedBy: 'updated_by'
   }
