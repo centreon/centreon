@@ -25,7 +25,7 @@ namespace Core\Notification\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
 
-class NotificationGenericObject
+class ConfigurationResource
 {
     /**
      * @throws \Assert\AssertionFailedException
@@ -34,7 +34,7 @@ class NotificationGenericObject
         private readonly int $id,
         private readonly string $name
     ) {
-        Assertion::positiveInt($id, 'NotificationGenericObject::id');
+        Assertion::positiveInt($id, 'Resource::id');
     }
 
     /**
