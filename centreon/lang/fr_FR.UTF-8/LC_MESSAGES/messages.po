@@ -17648,3 +17648,9 @@ msgstr "Error lors de la récupération d'un modèle d'hôtes"
 
 msgid "Host template #%d is locked (edition and deletion not allowed)"
 msgstr "Le modèle d'hôte #%d est verrouillé (édition et suppression interdites)"
+
+msgid "You are not allowed to list notifications configurations"
+msgstr "Vous n'êtes pas autorisé à lister les configurations de notifications"
+
+msgid "Notification #%d should have at least one user"
+msgstr "La notification #%d doit avoir au moins un utilisateur"
