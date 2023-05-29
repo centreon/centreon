@@ -79,7 +79,7 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
     {
         $metricIds = [];
         $subQueryColumns = [];
-        $subQueryPattern = 'AVG(CASE WHEN id_metric = %d THEN `value` end) AS %s';
+        $subQueryPattern = 'AVG(CASE WHEN id_metric = %d THEN `value` end) AS "%s"';
         foreach ($metrics as $metric) {
             $subQueryColumns[] = sprintf($subQueryPattern, $metric->getId(), $metric->getName());
             $metricIds[] = $metric->getId();
