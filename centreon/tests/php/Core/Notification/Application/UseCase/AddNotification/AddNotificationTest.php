@@ -33,6 +33,7 @@ use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationMessage;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
