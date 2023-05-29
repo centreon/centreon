@@ -7,8 +7,13 @@ import {
   insertDtResources,
   searchInput,
   secondServiceInDtName,
-  serviceInDtName
+  serviceInDtName,
+  tearDownResource
 } from '../common';
+
+before(() => {
+  cy.startWebContainer();
+});
 
 beforeEach(() => {
   cy.intercept({
@@ -26,8 +31,6 @@ beforeEach(() => {
 });
 
 Given('the user have the necessary rights to page Resource Status', () => {
-  cy.startWebContainer();
-
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: true
@@ -97,7 +100,7 @@ Then('I see the resource as downtime in the listing', () => {
     }
   );
 
-  cy.stopWebContainer();
+  tearDownResource();
 });
 
 Given('multiple resources are selected', () => {
@@ -143,7 +146,7 @@ Then(
       }
     );
 
-    cy.stopWebContainer();
+    tearDownResource();
   }
 );
 
@@ -255,7 +258,7 @@ Then('the resource should not be in Downtime anymore', () => {
     }
   );
 
-  cy.stopWebContainer();
+  tearDownResource();
 });
 
 Given('multiple resources are on downtime', () => {
