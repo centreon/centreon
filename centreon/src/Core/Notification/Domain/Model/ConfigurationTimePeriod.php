@@ -25,41 +25,35 @@ namespace Core\Notification\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
 
-class NewNotification
+class ConfigurationTimePeriod
 {
-    public const MAX_NAME_LENGTH = 255;
-
     /**
-     * @param string $name
-     * @param ConfigurationTimePeriod $timePeriod
-     * @param bool $isActivated
-     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
-        protected string $name,
-        protected ConfigurationTimePeriod $timePeriod,
-        protected bool $isActivated = true
+        private readonly int $id,
+        private readonly string $name
     ) {
-        $shortName = (new \ReflectionClass($this))->getShortName();
-
-        $this->name = trim($this->name);
-        Assertion::notEmptyString($this->name, "{$shortName}::name");
-        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
+        Assertion::positiveInt($id, 'timePeriod::id');
     }
 
+    /**
+     * Get the timeperiod id.
+     *
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the timeperiod name.
+     *
+     * @return string
+     */
     public function getName(): string
     {
         return $this->name;
-    }
-
-    public function getTimePeriod(): ConfigurationTimePeriod
-    {
-        return $this->timePeriod;
-    }
-
-    public function isActivated(): bool
-    {
-        return $this->isActivated;
     }
 }
