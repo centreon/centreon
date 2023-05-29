@@ -28,7 +28,7 @@ use Core\Common\Domain\TrimmedString;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationMessage;
-use Core\Notification\Domain\Model\User;
+use Core\Notification\Domain\Model\ConfigurationUser;
 
 interface ReadNotificationRepositoryInterface
 {
@@ -70,7 +70,7 @@ interface ReadNotificationRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return User[]
+     * @return ConfigurationUser[]
      */
     public function findUsersByNotificationId(int $notificationId): array;
 

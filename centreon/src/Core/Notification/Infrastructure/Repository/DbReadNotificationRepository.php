@@ -34,8 +34,8 @@ use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationMessage;
-use Core\Notification\Domain\Model\TimePeriod;
-use Core\Notification\Domain\Model\User;
+use Core\Notification\Domain\Model\ConfigurationTimePeriod;
+use Core\Notification\Domain\Model\ConfigurationUser;
 use Utility\SqlConcatenator;
 
 class DbReadNotificationRepository extends AbstractRepositoryRDB implements ReadNotificationRepositoryInterface
@@ -75,7 +75,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         return new Notification(
             $result['id'],
             $result['name'],
-            new TimePeriod($result['timeperiod_id'], $result['tp_name']),
+            new ConfigurationTimePeriod($result['timeperiod_id'], $result['tp_name']),
             (bool) $result['is_activated'],
         );
     }
@@ -129,7 +129,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $users = [];
 
         foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
-            $users[] = new User($result['user_id'], $result['contact_name']);
+            $users[] = new ConfigurationUser($result['user_id'], $result['contact_name']);
         }
 
         return $users;
@@ -210,7 +210,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
             $notifications[] = new Notification(
                 $notificationData['id'],
                 $notificationData['name'],
-                new TimePeriod($notificationData['timeperiod_id'], $notificationData['tp_name']),
+                new ConfigurationTimePeriod($notificationData['timeperiod_id'], $notificationData['tp_name']),
                 (bool) $notificationData['is_activated'],
             );
         }

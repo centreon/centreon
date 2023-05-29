@@ -25,7 +25,7 @@ namespace Core\Notification\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
 
-class Resource
+class ConfigurationTimePeriod
 {
     /**
      * @throws \Assert\AssertionFailedException
@@ -34,11 +34,11 @@ class Resource
         private readonly int $id,
         private readonly string $name
     ) {
-        Assertion::positiveInt($id, 'Resource::id');
+        Assertion::positiveInt($id, 'timePeriod::id');
     }
 
     /**
-     * Get the resource id.
+     * Get the timeperiod id.
      *
      * @return int
      */
@@ -48,7 +48,7 @@ class Resource
     }
 
     /**
-     * Get the resource name.
+     * Get the timeperiod name.
      *
      * @return string
      */

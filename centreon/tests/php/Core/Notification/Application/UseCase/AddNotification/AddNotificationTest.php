@@ -47,9 +47,9 @@ use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\Resource;
-use Core\Notification\Domain\Model\TimePeriod as NotificationTimePeriod;
-use Core\Notification\Domain\Model\User;
+use Core\Notification\Domain\Model\ConfigurationResource;
+use Core\Notification\Domain\Model\ConfigurationTimePeriod;
+use Core\Notification\Domain\Model\ConfigurationUser;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 
@@ -85,7 +85,7 @@ beforeEach(function (): void {
     $this->notification = new Notification(
         1,
         $this->request->name,
-        $this->timeperiodLight = new NotificationTimePeriod($this->request->timeperiodId, 'timeperiod-name'),
+        $this->timeperiodLight = new ConfigurationTimePeriod($this->request->timeperiodId, 'timeperiod-name'),
         $this->request->isActivated
     );
     $this->messages = [
@@ -100,7 +100,7 @@ beforeEach(function (): void {
             'hostgroup',
             NotificationHostEvent::class,
             array_map(
-                (fn($resourceId) => new Resource($resourceId, "resource-name-{$resourceId}")),
+                (fn($resourceId) => new ConfigurationResource($resourceId, "resource-name-{$resourceId}")),
                 $this->request->resources[0]['ids']
             ),
             NotificationHostEventConverter::fromBitFlags($this->request->resources[0]['events']),
@@ -108,7 +108,7 @@ beforeEach(function (): void {
         ),
     ];
     $this->users = array_map(
-        (fn($userId) => new User($userId, "user_name_{$userId}")),
+        (fn($userId) => new ConfigurationUser($userId, "user_name_{$userId}")),
         $this->request->users
     );
 });

@@ -45,7 +45,7 @@ use Core\Notification\Application\UseCase\AddNotification\Validator\Notification
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\User;
+use Core\Notification\Domain\Model\ConfigurationUser;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -186,7 +186,7 @@ final class AddNotification
 
     /**
      * @param Notification $notification
-     * @param User[] $users
+     * @param ConfigurationUser[] $users
      * @param NotificationResource[] $resources
      * @param NotificationMessage[] $messages
      *
@@ -218,7 +218,7 @@ final class AddNotification
         );
 
         $response->users = array_map(
-            static fn(User $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
+            static fn(ConfigurationUser $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
             $users
         );
 
@@ -257,7 +257,7 @@ final class AddNotification
      * @return array{
      *  notification: Notification,
      *  messages: NotificationMessage[],
-     *  users: User[],
+     *  users: ConfigurationUser[],
      *  resources: NotificationResource[]
      * }
      */

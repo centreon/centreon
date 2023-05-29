@@ -31,7 +31,7 @@ use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\Resource;
+use Core\Notification\Domain\Model\ConfigurationResource;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
@@ -170,7 +170,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         $concatenator->bindValuesToStatement($statement);
         $statement->execute();
         $resources = array_map(
-            (fn($data) => new Resource($data['hg_id'], $data['hg_name'])),
+            (fn($data) => new ConfigurationResource($data['hg_id'], $data['hg_name'])),
             $statement->fetchAll(\PDO::FETCH_ASSOC)
         );
 
@@ -221,7 +221,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         $statement->execute();
 
         $resources = array_map(
-            (fn($data) => new Resource($data['hg_id'], $data['hg_name'])),
+            (fn($data) => new ConfigurationResource($data['hg_id'], $data['hg_name'])),
             $statement->fetchAll(\PDO::FETCH_ASSOC)
         );
 

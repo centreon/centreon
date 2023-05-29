@@ -25,7 +25,7 @@ namespace Core\Notification\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
 
-class User
+class ConfigurationUser
 {
     /**
      * @throws \Assert\AssertionFailedException
@@ -38,7 +38,7 @@ class User
     }
 
     /**
-     * Get the resource id.
+     * Get the user id.
      *
      * @return int
      */
@@ -48,7 +48,7 @@ class User
     }
 
     /**
-     * Get the resource name.
+     * Get the user name.
      *
      * @return string
      */

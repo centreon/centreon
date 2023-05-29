@@ -30,7 +30,7 @@ class Notification extends NewNotification
     /**
      * @param int $id
      * @param string $name
-     * @param TimePeriod $timePeriod
+     * @param ConfigurationTimePeriod $timePeriod
      * @param bool $isActivated
      *
      * @throws \Assert\AssertionFailedException
@@ -38,7 +38,7 @@ class Notification extends NewNotification
     public function __construct(
         private readonly int $id,
         string $name,
-        TimePeriod $timePeriod,
+        ConfigurationTimePeriod $timePeriod,
         bool $isActivated = true
     ) {
         Assertion::positiveInt($id, 'Notification::id');
