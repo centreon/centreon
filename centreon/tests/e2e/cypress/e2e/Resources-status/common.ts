@@ -171,6 +171,16 @@ const deleteUserFilter = (): Cypress.Chainable => {
     });
 };
 
+const tearDownResource = (): Cypress.Chainable => {
+  const dateBeforeLogin = new Date();
+
+  return cy
+    .setUserTokenApiV1()
+    .then(() => cy.removeResourceData())
+    .then(applyConfigurationViaClapi)
+    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }));
+};
+
 const tearDownAckResource = (): Cypress.Chainable => {
   return cy
     .setUserTokenApiV1()
@@ -287,6 +297,7 @@ export {
   insertResourceFixtures,
   setUserFilter,
   deleteUserFilter,
+  tearDownResource,
   checkIfUserNotificationsAreEnabled,
   insertAckResourceFixtures,
   submitCustomResultsViaClapi,
