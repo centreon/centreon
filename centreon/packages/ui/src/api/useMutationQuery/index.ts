@@ -1,4 +1,6 @@
 import 'ulog';
+import { useEffect } from 'react';
+
 import { useMutation } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
 import anylogger from 'anylogger';
@@ -20,7 +22,7 @@ export interface UseMutationQueryProps<T> {
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
   fetchHeaders?: HeadersInit;
-  getEndpoint: () => string;
+  getEndpoint: (payload) => string;
   httpCodesBypassErrorSnackbar?: Array<number>;
   method: Method;
 }
@@ -51,7 +53,7 @@ const useMutationQuery = <T extends object>({
         catchError,
         decoder,
         defaultFailureMessage,
-        endpoint: getEndpoint(),
+        endpoint: getEndpoint(payload),
         headers: new Headers({
           'Content-Type': 'application/x-www-form-urlencoded',
           ...fetchHeaders
@@ -77,7 +79,9 @@ const useMutationQuery = <T extends object>({
     }
   };
 
-  manageError();
+  useEffect(() => {
+    manageError();
+  }, [queryData.data]);
 
   return {
     isError: (queryData.data as ResponseError | undefined)?.isError || false,

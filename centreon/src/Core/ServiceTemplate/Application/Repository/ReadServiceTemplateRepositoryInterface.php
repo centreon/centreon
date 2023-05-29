@@ -29,6 +29,17 @@ use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 interface ReadServiceTemplateRepositoryInterface
 {
     /**
+     * Find one service template.
+     *
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceTemplate|null
+     */
+    public function findById(int $serviceTemplateId): ?ServiceTemplate;
+
+    /**
      * Find all service templates.
      *
      * @param RequestParametersInterface $requestParameters

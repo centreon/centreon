@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
@@ -67,6 +68,9 @@ final class FindServiceTemplates
 
             $serviceTemplates = $this->repository->findByRequestParameter($this->requestParameters);
             $presenter->presentResponse($this->createResponse($serviceTemplates));
+        } catch (RequestParametersTranslatorException $ex) {
+            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(ServiceTemplateException::errorWhileSearching($ex)));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);

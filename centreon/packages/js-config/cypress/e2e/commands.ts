@@ -37,6 +37,13 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'clickSubRootMenuItem',
+  (page: string): Cypress.Chainable => {
+    return cy.get('div[data-cy="collapse"]').eq(1).contains(page).click();
+  }
+);
+
 interface NavigateToProps {
   page: string;
   rootItemNumber: number;
@@ -49,8 +56,8 @@ Cypress.Commands.add(
     if (subMenu) {
       cy.hoverRootMenuItem(rootItemNumber)
         .contains(subMenu)
-        .trigger('mouseover', { force: true });
-      cy.contains(page).click({ force: true });
+        .trigger('mouseover');
+      cy.clickSubRootMenuItem(page);
 
       return;
     }
@@ -342,6 +349,7 @@ Cypress.Commands.add(
 declare global {
   namespace Cypress {
     interface Chainable {
+      clickSubRootMenuItem: (page: string) => Cypress.Chainable;
       copyFromContainer: (props: CopyFromContainerProps) => Cypress.Chainable;
       copyToContainer: (props: CopyToContainerProps) => Cypress.Chainable;
       execInContainer: ({

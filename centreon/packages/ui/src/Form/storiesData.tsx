@@ -81,9 +81,7 @@ export const basicFormValidationSchema = Yup.object().shape({
   scopes: Yup.array().of(
     Yup.string().min(3, '3 characters min').required('Required')
   ),
-  sports: Yup.array()
-    .of(selectEntryValidationSchema.required('Required'))
-    .min(2, 'Choose at least 2 sports')
+  sports: Yup.array().of(selectEntryValidationSchema.required('Required'))
 });
 
 const roleEntries: Array<SelectEntry> = [

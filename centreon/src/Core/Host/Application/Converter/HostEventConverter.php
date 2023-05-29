@@ -44,7 +44,7 @@ class HostEventConverter
     private const CASE_FLAPPING_AS_BIT = 0b01000;
     private const CASE_DOWNTIME_SCHEDULED_AS_BIT = 0b10000;
 
-    public const MAX_BITMASK = 0b11111;
+    public const MAX_BITFLAG = 0b11111;
 
     /**
      * Convert an array of HostEvent to a string.
@@ -103,7 +103,7 @@ class HostEventConverter
     }
 
     /**
-     * Convert a HostEvent into bitmask.
+     * Convert a HostEvent into bitFlag.
      *
      * @param HostEvent $event
      *
@@ -122,23 +122,27 @@ class HostEventConverter
     }
 
     /**
-     * Convert a bitmask into an array of HostEvent.
+     * Convert a bitFlag into an array of HostEvent.
      *
-     * @param int $bitmask
+     * @param ?int $bitFlag
      *
      * @throws \Throwable
      *
      * @return HostEvent[]
      */
-    public static function fromBitmask(int $bitmask): array
+    public static function fromBitFlag(?int $bitFlag): array
     {
-        if ($bitmask > self::MAX_BITMASK || $bitmask < 0) {
-            throw new \ValueError("\"{$bitmask}\" is not a valid bitmask for enum HostEvent");
+        if ($bitFlag > self::MAX_BITFLAG || $bitFlag < 0) {
+            throw new \ValueError("\"{$bitFlag}\" is not a valid value for enum HostEvent");
+        }
+
+        if ($bitFlag === self::CASE_NONE_AS_BIT) {
+            return [HostEvent::None];
         }
 
         $enums = [];
         foreach (HostEvent::cases() as $enum) {
-            if ($bitmask & self::toBit($enum)) {
+            if ($bitFlag & self::toBit($enum)) {
                 $enums[] = $enum;
             }
         }
@@ -147,29 +151,29 @@ class HostEventConverter
     }
 
     /**
-     * Convert an array of HostEvent into a bitmask
-     * If the array contains HostEvent::None, an empty bitmask will be returned
-     * If the array is empty, a full bitmask will be returned.
+     * Convert an array of HostEvent into a bitFlag
+     * If the array contains HostEvent::None, an empty bitFlag will be returned
+     * If the array is empty, null is returned.
      *
      * @param HostEvent[] $enums
      *
-     * @return int
+     * @return ?int
      */
-    public static function toBitmask(array $enums): int
+    public static function toBitFlag(array $enums): ?int
     {
         if ($enums === []) {
-            return self::MAX_BITMASK;
+            return null;
         }
 
-        $bitmask = 0;
+        $bitFlag = 0;
         foreach ($enums as $event) {
-            // Value 0 is not a bit, we consider it resets the bitmask
+            // Value 0 is not a bit, we consider it resets the bitFlag
             if (self::toBit($event) === 0) {
                 return 0;
             }
-            $bitmask |= self::toBit($event);
+            $bitFlag |= self::toBit($event);
         }
 
-        return $bitmask;
+        return $bitFlag;
     }
 }
