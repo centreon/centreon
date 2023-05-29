@@ -156,7 +156,7 @@ jobs:
           - name: "UUID"
             use_dh_make_perl: "false"
           - name: "ZMQ::Constants"
-            build_distribs: "el9"
+            build_distribs: "el9,bullseye"
           - name: "ZMQ::FFI"
             build_distribs: "el8,el9"
             rpm_dependencies: "zeromq"
