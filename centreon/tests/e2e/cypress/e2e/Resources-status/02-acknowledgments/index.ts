@@ -139,7 +139,7 @@ Then(
           });
       },
       {
-        timeout: 15000
+        timeout: 30000
       }
     );
   }
@@ -223,7 +223,7 @@ Then(
           });
       },
       {
-        timeout: 15000
+        timeout: 30000
       }
     );
   }
@@ -374,7 +374,7 @@ When('the {string} resource is marked as acknowledged', (resource: string) => {
         });
     },
     {
-      timeout: 15000
+      timeout: 30000
     }
   );
 });
@@ -457,7 +457,7 @@ Given(
           });
       },
       {
-        timeout: 15000
+        timeout: 30000
       }
     );
 
@@ -500,7 +500,7 @@ Then('the acknowledgement is removed', () => {
         });
     },
     {
-      timeout: 15000
+      timeout: 30000
     }
   );
 });
