@@ -10,6 +10,10 @@ inputs:
   module_name:
     description: "The module name"
     required: true
+  command:
+    description: The eslint command
+    required: false
+    default: eslint
 
 runs:
   using: "composite"
@@ -32,7 +36,7 @@ runs:
         shell: bash
 
       - name: Run ESLint
-        run: pnpm eslint -f json -o eslint-report.json --max-warnings 0
+        run: pnpm ${{ inputs.command }} -f json -o eslint-report.json --max-warnings 0
         working-directory: ${{ inputs.frontend_directory }}
         shell: bash
 
