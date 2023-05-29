@@ -1,33 +1,14 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  applyConfigurationViaClapi,
-  checkServicesExistInDatabase,
-  checkThatConfigurationIsExported
-} from '../../../commons';
+import { checkServicesExistInDatabase } from '../../../commons';
 import {
   actionBackgroundColors,
   checkIfUserNotificationsAreEnabled,
-  initializeResourceData,
+  insertDtResources,
   searchInput,
   secondServiceInDtName,
-  serviceInDtName,
-  tearDownResource
+  serviceInDtName
 } from '../common';
-
-const insertDtResources = (): Cypress.Chainable => {
-  const dateBeforeLogin = new Date();
-
-  return cy
-    .setUserTokenApiV1()
-    .then(initializeResourceData)
-    .then(applyConfigurationViaClapi)
-    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }));
-};
-
-before(() => {
-  cy.startWebContainer();
-});
 
 beforeEach(() => {
   cy.intercept({
@@ -45,6 +26,8 @@ beforeEach(() => {
 });
 
 Given('the user have the necessary rights to page Resource Status', () => {
+  cy.startWebContainer();
+
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: true
@@ -114,7 +97,7 @@ Then('I see the resource as downtime in the listing', () => {
     }
   );
 
-  tearDownResource();
+  cy.stopWebContainer();
 });
 
 Given('multiple resources are selected', () => {
@@ -160,7 +143,7 @@ Then(
       }
     );
 
-    tearDownResource();
+    cy.stopWebContainer();
   }
 );
 
@@ -272,7 +255,7 @@ Then('the resource should not be in Downtime anymore', () => {
     }
   );
 
-  tearDownResource();
+  cy.stopWebContainer();
 });
 
 Given('multiple resources are on downtime', () => {

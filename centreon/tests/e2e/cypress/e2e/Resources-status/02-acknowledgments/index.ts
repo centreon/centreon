@@ -15,14 +15,8 @@ import {
   searchInput,
   serviceInAcknowledgementName,
   submitCustomResultsViaClapi,
-  tearDownAckResource,
-  tearDownResource,
   typeToSearchInput
 } from '../common';
-
-before(() => {
-  cy.startWebContainer();
-});
 
 beforeEach(() => {
   cy.intercept({
@@ -40,6 +34,8 @@ beforeEach(() => {
 });
 
 Given('the user has the necessary rights to page Ressource Status', () => {
+  cy.startWebContainer();
+
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: true
@@ -171,7 +167,7 @@ Then(
 
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
-    tearDownResource().then(() => tearDownAckResource());
+    cy.stopWebContainer();
   }
 );
 
@@ -265,7 +261,7 @@ Then(
 
     cy.get('div[role="tooltip"]').should('be.visible');
 
-    tearDownResource().then(() => tearDownAckResource());
+    cy.stopWebContainer();
   }
 );
 
@@ -422,7 +418,8 @@ When(
 
 Then('no notification are sent to the users', () => {
   checkIfNotificationsAreNotBeingSent();
-  tearDownResource().then(() => tearDownAckResource());
+
+  cy.stopWebContainer();
 });
 
 Given(
@@ -517,7 +514,5 @@ Then(
 );
 
 after(() => {
-  tearDownResource().then(() => tearDownAckResource());
-
   cy.stopWebContainer();
 });
