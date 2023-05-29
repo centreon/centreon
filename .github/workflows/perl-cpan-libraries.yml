@@ -164,6 +164,7 @@ jobs:
             use_dh_make_perl: "false"
             version: "0.01"
             rpm_dependencies: "zeromq"
+            deb_dependencies: "libzmq5"
     name: package ${{ matrix.distrib }} ${{ matrix.name }}
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
