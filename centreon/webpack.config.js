@@ -29,6 +29,12 @@ module.exports = (jscTransformConfiguration) =>
           template: './www/front_src/public/index.html'
         }),
         new HtmlWebpackHarddiskPlugin()
-      ]
+      ],
+      resolve: {
+        alias: {
+          'centreon-widgets': path.resolve(__dirname, 'www', 'widgets', 'src')
+        },
+        modules: [path.resolve(__dirname, '.'), 'node_modules']
+      }
     }
   );

@@ -1,25 +1,30 @@
 import { useMemo } from 'react';
 
-import { filter, isNil, pathEq } from 'ramda';
+import { concat, filter, isNil, pathEq } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import { federatedModulesAtom } from '../../federatedModules/atoms';
+import {
+  federatedModulesAtom,
+  federatedWidgetsAtom
+} from '../../federatedModules/atoms';
 import { Remote } from '../../federatedModules/Load';
 import {
   FederatedModule,
   StyleMenuSkeleton
 } from '../../federatedModules/models';
 
-interface Props {
+interface Props extends Record<string, unknown> {
   federatedModulesConfigurations: Array<FederatedModule>;
+  isFederatedWidget?: boolean;
   styleMenuSkeleton?: StyleMenuSkeleton;
 }
 
 const FederatedModules = ({
   federatedModulesConfigurations,
   styleMenuSkeleton,
+  isFederatedWidget,
   ...rest
 }: Props): JSX.Element | null => {
   return useMemoComponent({
@@ -36,8 +41,9 @@ const FederatedModules = ({
               (component) => {
                 return (
                   <Remote
-                    isFederatedModule
+                    isFederatedComponent
                     component={component}
+                    isFederatedWidget={isFederatedWidget}
                     key={component}
                     moduleFederationName={moduleFederationName}
                     moduleName={moduleName}
@@ -56,8 +62,9 @@ const FederatedModules = ({
   });
 };
 
-interface LoadableComponentsContainerProps {
+interface LoadableComponentsContainerProps extends Record<string, unknown> {
   [props: string]: unknown;
+  isFederatedWidget?: boolean;
   path: string;
   styleMenuSkeleton?: StyleMenuSkeleton;
 }
@@ -93,12 +100,21 @@ const defaultStyleMenuSkeleton = {
 const LoadableComponentsContainer = ({
   path,
   styleMenuSkeleton = defaultStyleMenuSkeleton,
+  isFederatedWidget,
   ...props
 }: LoadableComponentsContainerProps): JSX.Element | null => {
   const federatedModules = useAtomValue(federatedModulesAtom);
+  const federatedWidgets = useAtomValue(federatedWidgetsAtom);
 
   const federatedModulesToDisplay = useMemo(
-    () => getLoadableComponents({ federatedModules, path }),
+    () =>
+      getLoadableComponents({
+        federatedModules: concat(
+          federatedModules || [],
+          federatedWidgets || []
+        ),
+        path
+      }),
     [federatedModules, path]
   );
 
@@ -109,6 +125,7 @@ const LoadableComponentsContainer = ({
   return (
     <FederatedModules
       federatedModulesConfigurations={federatedModulesToDisplay}
+      isFederatedWidget={isFederatedWidget}
       styleMenuSkeleton={styleMenuSkeleton}
       {...props}
     />
