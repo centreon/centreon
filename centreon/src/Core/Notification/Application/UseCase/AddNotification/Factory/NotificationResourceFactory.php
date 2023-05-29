@@ -29,8 +29,8 @@ use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
-use Core\Notification\Domain\Model\Resource;
 use Core\Notification\Domain\Model\NotificationResource;
+use Core\Notification\Domain\Model\Resource;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Utility\Difference\BasicDifference;
 
@@ -46,7 +46,7 @@ class NotificationResourceFactory
     }
 
     /**
-     * Create a NotificationResource
+     * Create a NotificationResource.
      *
      * @param NotificationResourceRepositoryInterface $repository
      * @param array{
@@ -55,8 +55,10 @@ class NotificationResourceFactory
      *  events: int,
      *  includeServiceEvents: int
      * } $resource
-     * @return NotificationResource
+     *
      * @throws \Assert\AssertionFailedException
+     *
+     * @return NotificationResource
      */
     public function create(NotificationResourceRepositoryInterface $repository, array $resource): NotificationResource
     {
@@ -95,7 +97,7 @@ class NotificationResourceFactory
     }
 
     /**
-     * Create multiple NotificationResource
+     * Create multiple NotificationResource.
      *
      * @param array<array{
      *  type: string,
@@ -103,8 +105,10 @@ class NotificationResourceFactory
      *  events: int,
      *  includeServiceEvents: int
      * }> $resources
-     * @return NotificationResource[]
+     *
      * @throws \Assert\AssertionFailedException
+     *
+     * @return NotificationResource[]
      */
     public function createMultipleResource(array $resources): array
     {

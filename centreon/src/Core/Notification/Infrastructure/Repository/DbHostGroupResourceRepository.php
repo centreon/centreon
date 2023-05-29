@@ -29,9 +29,9 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
-use Core\Notification\Domain\Model\Resource;
 use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Notification\Domain\Model\NotificationResource;
+use Core\Notification\Domain\Model\Resource;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 

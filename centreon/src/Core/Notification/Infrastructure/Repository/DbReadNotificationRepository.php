@@ -33,9 +33,9 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
+use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\TimePeriod;
 use Core\Notification\Domain\Model\User;
-use Core\Notification\Domain\Model\NotificationMessage;
 use Utility\SqlConcatenator;
 
 class DbReadNotificationRepository extends AbstractRepositoryRDB implements ReadNotificationRepositoryInterface

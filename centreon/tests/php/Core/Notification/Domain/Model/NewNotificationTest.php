@@ -31,7 +31,6 @@ beforeEach(function (): void {
     $this->name = 'notification-name';
     $this->timePeriod = new TimePeriod(1, '');
     $this->isActivated = false;
-
 });
 
 it('should return properly set notification instance', function (): void {
@@ -78,5 +77,4 @@ it('should throw an exception when notification name is too long', function (): 
         'NewNotification::name'
     )->getMessage()
 );
-
 

@@ -27,8 +27,8 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\TrimmedString;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\User;
 use Core\Notification\Domain\Model\NotificationMessage;
+use Core\Notification\Domain\Model\User;
 
 interface ReadNotificationRepositoryInterface
 {

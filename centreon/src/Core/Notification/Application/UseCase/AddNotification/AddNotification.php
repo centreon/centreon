@@ -43,9 +43,9 @@ use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationMe
 use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationResourceFactory;
 use Core\Notification\Application\UseCase\AddNotification\Validator\NotificationUserValidator;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\User;
 use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
+use Core\Notification\Domain\Model\User;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -126,7 +126,7 @@ final class AddNotification
                 $createdNotificationInformation['resources'],
                 $createdNotificationInformation['messages']
             ));
-        } catch (AssertionFailedException | \ValueError $ex) {
+        } catch (AssertionFailedException|\ValueError $ex) {
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (NotificationException $ex) {
@@ -161,8 +161,9 @@ final class AddNotification
     /**
      * @param int $notificationId
      *
-     * @return NotificationResource[]
      * @throws \Throwable
+     *
+     * @return NotificationResource[]
      */
     private function findResourcesByNotificationId(int $notificationId): array
     {
@@ -237,7 +238,7 @@ final class AddNotification
                 && ! empty($resource->getServiceEvents())
             ) {
                 $responseResource['extra'] = [
-                    'event_services' => $response->convertServiceEventsToBitFlags($resource->getServiceEvents())
+                    'event_services' => $response->convertServiceEventsToBitFlags($resource->getServiceEvents()),
                 ];
             }
             $response->resources[] = $responseResource;
@@ -247,17 +248,18 @@ final class AddNotification
     }
 
     /**
-     * Find freshly created notification information
+     * Find freshly created notification information.
      *
      * @param int $newNotificationId
+     *
+     * @throws \Throwable|NotificationException
+     *
      * @return array{
      *  notification: Notification,
      *  messages: NotificationMessage[],
      *  users: User[],
      *  resources: NotificationResource[]
      * }
-     *
-     * @throws \Throwable|NotificationException
      */
     private function findCreatedNotificationInformation(int $newNotificationId): array
     {
@@ -266,7 +268,7 @@ final class AddNotification
                 ?? throw NotificationException::errorWhileRetrievingObject(),
             'messages' => $this->readNotificationRepository->findMessagesByNotificationId($newNotificationId),
             'users' => $this->readNotificationRepository->findUsersByNotificationId($newNotificationId),
-            'resources' => $this->findResourcesByNotificationId($newNotificationId)
+            'resources' => $this->findResourcesByNotificationId($newNotificationId),
         ];
     }
 }

@@ -31,6 +31,10 @@ class NotificationMessage
                  MAX_MESSAGE_LENGTH = 65535;
 
     /**
+     * @param protectedNotificationChannel $channel
+     * @param protectedstring $subject
+     * @param protectedstring $message
+     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(

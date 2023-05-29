@@ -36,8 +36,8 @@ use Core\Notification\Application\UseCase\FindNotifications\FindNotificationsRes
 use Core\Notification\Application\UseCase\FindNotifications\NotificationDto;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\TimePeriod;
 use Core\Notification\Domain\Model\NotificationResource;
+use Core\Notification\Domain\Model\TimePeriod;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Tests\Core\Notification\Infrastructure\API\FindNotifications\FindNotificationsPresenterStub;

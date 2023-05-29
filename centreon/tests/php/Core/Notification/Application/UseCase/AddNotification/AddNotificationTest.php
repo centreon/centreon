@@ -23,35 +23,35 @@ declare(strict_types=1);
 
 namespace Tests\Core\Notification\Application\UseCase\AddNotification;
 
-use Core\TimePeriod\Domain\Model\TimePeriod;
-use Core\Notification\Domain\Model\Notification;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\CreatedResponse;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\NotificationMessage;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
-use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\NotificationHostEvent;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Notification\Domain\Model\TimePeriod as NotificationTimePeriod;
-use Core\Notification\Domain\Model\Resource;
-use Core\Notification\Domain\Model\User;
-use Core\Notification\Application\Exception\NotificationException;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\CreatedResponse;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Notification\Application\UseCase\AddNotification\AddNotification;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
-use Core\Notification\Application\UseCase\AddNotification\AddNotificationRequest;
-use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
+use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
+use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
+use Core\Notification\Application\UseCase\AddNotification\AddNotification;
+use Core\Notification\Application\UseCase\AddNotification\AddNotificationRequest;
+use Core\Notification\Domain\Model\Notification;
+use Core\Notification\Domain\Model\NotificationChannel;
+use Core\Notification\Domain\Model\NotificationHostEvent;
+use Core\Notification\Domain\Model\NotificationMessage;
+use Core\Notification\Domain\Model\NotificationResource;
+use Core\Notification\Domain\Model\Resource;
+use Core\Notification\Domain\Model\TimePeriod as NotificationTimePeriod;
+use Core\Notification\Domain\Model\User;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\TimePeriod\Domain\Model\TimePeriod;
 
 beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
@@ -60,12 +60,12 @@ beforeEach(function (): void {
     $this->request = new AddNotificationRequest();
     $this->request->name = 'notification-name';
     $this->request->timeperiodId = 2;
-    $this->request->users = [20,21];
+    $this->request->users = [20, 21];
     $this->request->resources = [
-        ['type' => 'hostgroup', 'ids' => [12,25], 'events'=> 5, 'includeServiceEvents' => 1],
+        ['type' => 'hostgroup', 'ids' => [12, 25], 'events' => 5, 'includeServiceEvents' => 1],
     ];
     $this->request->messages = [
-        ['channel' => 'Slack', 'subject' => 'some subject', 'message' => 'some message']
+        ['channel' => 'Slack', 'subject' => 'some subject', 'message' => 'some message'],
     ];
     $this->request->isActivated = true;
 
@@ -93,22 +93,22 @@ beforeEach(function (): void {
             NotificationChannel::from($this->request->messages[0]['channel']),
             $this->request->messages[0]['subject'],
             $this->request->messages[0]['message'],
-        )
+        ),
     ];
     $this->resources = [
         $this->hostgroupResource = new NotificationResource(
             'hostgroup',
             NotificationHostEvent::class,
             array_map(
-                (fn($resourceId) => new Resource($resourceId, "resource-name-$resourceId")),
+                (fn($resourceId) => new Resource($resourceId, "resource-name-{$resourceId}")),
                 $this->request->resources[0]['ids']
             ),
             NotificationHostEventConverter::fromBitFlags($this->request->resources[0]['events']),
             NotificationServiceEventConverter::fromBitFlags($this->request->resources[0]['includeServiceEvents']),
-        )
+        ),
     ];
     $this->users = array_map(
-        (fn($userId) => new User($userId, "user_name_$userId")),
+        (fn($userId) => new User($userId, "user_name_{$userId}")),
         $this->request->users
     );
 });
@@ -213,7 +213,6 @@ it('should throw a InvalidArgumentResponse if at least one of the resource IDs d
 });
 
 it('should throw a InvalidArgumentResponse if at least one resource ID is not provided', function (): void {
-
     $this->request->resources[0]['ids'] = [];
 
     $this->user
@@ -484,7 +483,7 @@ it('should return created object on success', function (): void {
         ->and($payload->timeperiod)
         ->toBe([
             'id' => $this->notification->getTimePeriod()->getId(),
-            'name' => $this->notification->getTimePeriod()->getName()
+            'name' => $this->notification->getTimePeriod()->getName(),
         ])
         ->and($payload->isActivated)
         ->toBe($this->notification->isActivated())
@@ -492,7 +491,7 @@ it('should return created object on success', function (): void {
         ->toBe(array_map(
             (fn($user) => [
                 'id' => $user->getId(),
-                'name' => $user->getName()
+                'name' => $user->getName(),
             ]),
             $this->users
         ))
@@ -513,12 +512,12 @@ it('should return created object on success', function (): void {
                 'ids' => array_map(
                     (fn($resourceDetail) => [
                         'id' => $resourceDetail->getId(),
-                        'name' => $resourceDetail->getName()
+                        'name' => $resourceDetail->getName(),
                     ]),
                     $resource->getResources()),
                 'extra' => [
-                    'event_services' => NotificationServiceEventConverter::toBitFlags($resource->getServiceEvents())
-                ]
+                    'event_services' => NotificationServiceEventConverter::toBitFlags($resource->getServiceEvents()),
+                ],
             ]),
             $this->resources
         ));
