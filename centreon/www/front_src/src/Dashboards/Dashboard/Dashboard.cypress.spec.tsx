@@ -121,7 +121,7 @@ describe('Dashboard', () => {
 
     cy.matchImageSnapshot();
 
-    cy.findByTestId('cancel_dashboard_confirmation').click();
+    cy.findByTestId('cancel_confirmation').click();
 
     cy.contains(labelEdit).click();
 
@@ -172,7 +172,7 @@ describe('Dashboard', () => {
 
     cy.contains(labelCancelDashboard).should('be.visible');
 
-    cy.findByTestId('cancel_dashboard_confirmation')
+    cy.findByTestId('cancel_confirmation')
       .click()
       .then(() => {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions

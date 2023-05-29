@@ -123,8 +123,8 @@ const HeaderActions = ({
         </Modal.Body>
         <Modal.Actions
           labels={{
-            cancel: labelCancel,
-            confirm: labelSave
+            cancel: t(labelCancel),
+            confirm: t(labelSave)
           }}
           onCancel={cancelEditing}
           onConfirm={savePanels}

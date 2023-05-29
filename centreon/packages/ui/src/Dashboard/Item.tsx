@@ -18,6 +18,7 @@ interface DashboardItemProps {
   children: ReactElement;
   className?: string;
   header?: ReactElement;
+  id: string;
   onMouseDown?: (e: MouseEvent<HTMLDivElement>) => void;
   onMouseUp?: (e: MouseEvent<HTMLDivElement>) => void;
   onTouchEnd?: (e) => void;
@@ -33,7 +34,8 @@ const Item = forwardRef(
       header,
       onMouseDown,
       onMouseUp,
-      onTouchEnd
+      onTouchEnd,
+      id
     }: DashboardItemProps,
     ref: ForwardedRef<HTMLDivElement>
   ): ReactElement => {
@@ -59,7 +61,11 @@ const Item = forwardRef(
         >
           <Card className={classes.widgetContainer}>
             {header && (
-              <div {...listeners} className={classes.widgetHeader}>
+              <div
+                {...listeners}
+                className={classes.widgetHeader}
+                data-testid={`${id}_move_panel`}
+              >
                 {header}
               </div>
             )}
