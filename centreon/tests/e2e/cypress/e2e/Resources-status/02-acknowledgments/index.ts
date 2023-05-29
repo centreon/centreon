@@ -84,6 +84,8 @@ Given('acknowledgment column is enabled in Resource Status', () => {
 
   cy.get('li[role="menuitem"][value="Tries"]').click();
 
+  cy.get('li[role="menuitem"][value="Parent"]').click();
+
   cy.get('[aria-label="Add columns"]').click();
 });
 
