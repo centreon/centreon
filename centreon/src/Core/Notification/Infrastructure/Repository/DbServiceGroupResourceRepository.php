@@ -28,7 +28,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
-use Core\Notification\Domain\Model\NotificationGenericObject;
+use Core\Notification\Domain\Model\Resource;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Domain\Model\NotificationServiceEvent;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -172,7 +172,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         $concatenator->bindValuesToStatement($statement);
         $statement->execute();
         $resources = array_map(
-            (fn($data) => new NotificationGenericObject($data['sg_id'], $data['sg_name'])),
+            (fn($data) => new Resource($data['sg_id'], $data['sg_name'])),
             $statement->fetchAll(\PDO::FETCH_ASSOC)
         );
 
@@ -225,7 +225,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         $statement->execute();
 
         $resources = array_map(
-            (fn($data) => new NotificationGenericObject($data['sg_id'], $data['sg_name'])),
+            (fn($data) => new Resource($data['sg_id'], $data['sg_name'])),
             $statement->fetchAll(\PDO::FETCH_ASSOC)
         );
 

@@ -43,7 +43,7 @@ use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationMe
 use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationResourceFactory;
 use Core\Notification\Application\UseCase\AddNotification\Validator\NotificationUserValidator;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\NotificationGenericObject;
+use Core\Notification\Domain\Model\User;
 use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
@@ -185,7 +185,7 @@ final class AddNotification
 
     /**
      * @param Notification $notification
-     * @param NotificationGenericObject[] $users
+     * @param User[] $users
      * @param NotificationResource[] $resources
      * @param NotificationMessage[] $messages
      *
@@ -217,7 +217,7 @@ final class AddNotification
         );
 
         $response->users = array_map(
-            static fn(NotificationGenericObject $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
+            static fn(User $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
             $users
         );
 
@@ -253,7 +253,7 @@ final class AddNotification
      * @return array{
      *  notification: Notification,
      *  messages: NotificationMessage[],
-     *  users: NotificationGenericObject[],
+     *  users: User[],
      *  resources: NotificationResource[]
      * }
      *

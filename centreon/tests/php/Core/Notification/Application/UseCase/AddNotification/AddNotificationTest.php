@@ -36,8 +36,9 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Notification\Domain\Model\NotificationGenericObject;
-use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
+use Core\Notification\Domain\Model\TimePeriod as NotificationTimePeriod;
+use Core\Notification\Domain\Model\Resource;
+use Core\Notification\Domain\Model\User;
 use Core\Notification\Application\Exception\NotificationException;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -83,7 +84,7 @@ beforeEach(function (): void {
     $this->notification = new Notification(
         1,
         $this->request->name,
-        $this->timeperiodLight = new NotificationGenericObject($this->request->timeperiodId, 'timeperiod-name'),
+        $this->timeperiodLight = new NotificationTimePeriod($this->request->timeperiodId, 'timeperiod-name'),
         $this->request->isActivated
     );
     $this->messages = [
@@ -98,7 +99,7 @@ beforeEach(function (): void {
             'hostgroup',
             NotificationHostEvent::class,
             array_map(
-                (fn($resourceId) => new NotificationGenericObject($resourceId, "resource-name-$resourceId")),
+                (fn($resourceId) => new Resource($resourceId, "resource-name-$resourceId")),
                 $this->request->resources[0]['ids']
             ),
             NotificationHostEventConverter::fromBitFlags($this->request->resources[0]['events']),
@@ -106,7 +107,7 @@ beforeEach(function (): void {
         )
     ];
     $this->users = array_map(
-        (fn($userId) => new NotificationGenericObject($userId, "user_name_$userId")),
+        (fn($userId) => new User($userId, "user_name_$userId")),
         $this->request->users
     );
 });

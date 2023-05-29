@@ -25,11 +25,11 @@ namespace Tests\Core\Notification\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\NotificationGenericObject;
+use Core\Notification\Domain\Model\TimePeriod;
 
 beforeEach(function (): void {
     $this->name = 'notification-name';
-    $this->timePeriod = new NotificationGenericObject(1, '');
+    $this->timePeriod = new TimePeriod(1, '');
     $this->isActivated = false;
 
 });

@@ -29,7 +29,7 @@ use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
-use Core\Notification\Domain\Model\NotificationGenericObject;
+use Core\Notification\Domain\Model\Resource;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Utility\Difference\BasicDifference;
@@ -86,7 +86,7 @@ class NotificationResourceFactory
         return new NotificationResource(
             $repository->resourceType(),
             $repository->eventEnum(),
-            array_map((fn($resourceId) => new NotificationGenericObject($resourceId, '')), $resourceIds),
+            array_map((fn($resourceId) => new Resource($resourceId, '')), $resourceIds),
             ($repository->eventEnumConverter())::fromBitFlags($resource['events']),
             $resource['includeServiceEvents']
                 ? NotificationServiceEventConverter::fromBitFlags($resource['includeServiceEvents'])

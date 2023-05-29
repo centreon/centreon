@@ -31,7 +31,7 @@ class NotificationResource
     /**
      * @param string $type
      * @param class-string<NotificationHostEvent|NotificationServiceEvent> $eventEnum
-     * @param NotificationGenericObject[] $resources
+     * @param Resource[] $resources
      * @param array<NotificationHostEvent|NotificationServiceEvent> $events
      * @param NotificationServiceEvent[] $serviceEvents
      *
@@ -54,7 +54,7 @@ class NotificationResource
     }
 
     /**
-     * @return NotificationGenericObject[]
+     * @return Resource[]
      */
     public function getResources(): array
     {

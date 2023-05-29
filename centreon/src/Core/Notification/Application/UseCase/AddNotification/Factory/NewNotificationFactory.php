@@ -28,7 +28,7 @@ use Core\Common\Domain\TrimmedString;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Domain\Model\NewNotification;
-use Core\Notification\Domain\Model\NotificationGenericObject;
+use Core\Notification\Domain\Model\TimePeriod;
 
 class NewNotificationFactory
 {
@@ -55,7 +55,7 @@ class NewNotificationFactory
 
         return new NewNotification(
             $name,
-            new NotificationGenericObject(1, ''),
+            new TimePeriod(1, ''),
             $isActivated
         );
     }

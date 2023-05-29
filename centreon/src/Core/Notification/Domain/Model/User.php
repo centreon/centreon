@@ -21,14 +21,39 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Notification\Domain\Model;
+namespace Core\Notification\Domain\Model;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Notification\Domain\Model\NotificationGenericObject;
+use Centreon\Domain\Common\Assertion\Assertion;
 
-it('should throw an exception when generic object ID is not > 0', function (): void {
-    $notification = new NotificationGenericObject(-1,'object-name');
-})->throws(
-    \Assert\InvalidArgumentException::class,
-    AssertionException::positiveInt(-1, 'NotificationGenericObject::id')->getMessage()
-);
+class User
+{
+    /**
+     * @throws \Assert\AssertionFailedException
+     */
+    public function __construct(
+        private readonly int $id,
+        private readonly string $name
+    ) {
+        Assertion::positiveInt($id, 'User::id');
+    }
+
+    /**
+     * Get the resource id.
+     *
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the resource name.
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+}
