@@ -2,16 +2,20 @@ import { ReactElement, ReactNode } from 'react';
 
 import { Tooltip as MuiTooltip } from '@mui/material';
 
+import { AriaLabelingAttributes } from '../../@types/aria-attributes';
+import { DataTestAttributes } from '../../@types/data-attributes';
+
 import { useStyles } from './Tooltip.styles';
 
-type TooltipProps = {
+export type TooltipProps = {
   children: ReactElement;
   followCursor?: boolean;
   hasCaret?: boolean;
   isOpen?: boolean;
   label: ReactNode;
   position?: 'top' | 'bottom' | 'left' | 'right';
-};
+} & AriaLabelingAttributes &
+  DataTestAttributes;
 
 const Tooltip = ({
   children,
@@ -19,9 +23,14 @@ const Tooltip = ({
   position = 'bottom',
   followCursor = true,
   isOpen,
-  hasCaret = false
+  hasCaret = false,
+  ...attr
 }: TooltipProps): ReactElement => {
   const { classes } = useStyles();
+
+  // useEffect(() => {
+  //   console.log('Tooltip', isOpen);
+  // }, [isOpen]);
 
   return (
     <MuiTooltip
@@ -31,6 +40,7 @@ const Tooltip = ({
       open={isOpen}
       placement={position}
       title={label}
+      {...attr}
     >
       {children}
     </MuiTooltip>
