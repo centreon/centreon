@@ -2,6 +2,8 @@ const routeMap = {
   about: '/administration/about',
   authentication: '/administration/authentication',
   authenticationDenied: '/authentication-denied',
+  dashboard: '/home/dashboards/:dashboardId',
+  dashboards: '/home/dashboards',
   extensionsManagerPage: '/administration/extensions/manager',
   install: '/install/install.php',
   login: '/login',

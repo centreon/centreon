@@ -34,6 +34,39 @@ class ServiceTemplateException extends \Exception
     }
 
     /**
+     * @param string $serviceTemplateName
+     *
+     * @return self
+     */
+    public static function cannotBeDelete(string $serviceTemplateName): self
+    {
+        return new self(
+            sprintf(
+                _('The service template \'%s\' is locked and cannot be deleted'),
+                $serviceTemplateName
+            )
+        );
+    }
+
+    /**
+     * @return self
+     */
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete this service template'));
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function errorWhileDeleting(\Throwable $ex): self
+    {
+        return new self(_('Error while deleting the service template'), 0, $ex);
+    }
+
+    /**
      * @param \Throwable $ex
      *
      * @return self

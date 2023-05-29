@@ -1,0 +1,10 @@
+{
+  "federatedComponentsConfiguration": {
+    "path": "/widgets/text",
+    "federatedComponents": [
+      "./text"
+    ]
+  },
+  "moduleFederationName": "widgettext",
+  "moduleName": "centreon-widget-text"
+}

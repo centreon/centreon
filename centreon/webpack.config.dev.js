@@ -23,21 +23,23 @@ const output =
       }
     : {};
 
-const getStaticDirectoryPath = (moduleName) =>
+const getModuleDirectoryPath = (moduleName) =>
   `${__dirname}/www/modules/${moduleName}/static`;
+
+const getWidgetsDirectoryPath = () => `${__dirname}/www/widgets`;
 
 const modules = [
   {
-    getDirectoryPath: getStaticDirectoryPath,
+    getDirectoryPath: getModuleDirectoryPath,
     name: 'centreon-license-manager'
   },
   {
-    getDirectoryPath: getStaticDirectoryPath,
+    getDirectoryPath: getModuleDirectoryPath,
     name: 'centreon-autodiscovery-server'
   },
-  { getDirectoryPath: getStaticDirectoryPath, name: 'centreon-bam-server' },
+  { getDirectoryPath: getModuleDirectoryPath, name: 'centreon-bam-server' },
   {
-    getDirectoryPath: getStaticDirectoryPath,
+    getDirectoryPath: getModuleDirectoryPath,
     name: 'centreon-augmented-services'
   },
   {
@@ -45,12 +47,16 @@ const modules = [
     name: 'centreon-map4-web-client'
   },
   {
-    getDirectoryPath: getStaticDirectoryPath,
+    getDirectoryPath: getModuleDirectoryPath,
     name: 'centreon-it-edition-extensions'
   },
   {
-    getDirectoryPath: getStaticDirectoryPath,
+    getDirectoryPath: getModuleDirectoryPath,
     name: 'centreon-anomaly-detection'
+  },
+  {
+    getDirectoryPath: getWidgetsDirectoryPath,
+    name: ''
   }
 ];
 
@@ -77,6 +83,9 @@ module.exports = merge(
     plugins: devServerPlugins,
     resolve: {
       alias: {
+        '@centreon/ui/fonts': path.resolve(
+          './node_modules/@centreon/ui/public/fonts'
+        ),
         '@mui/material': path.resolve('./node_modules/@mui/material'),
         dayjs: path.resolve('./node_modules/dayjs'),
         'react-router-dom': path.resolve('./node_modules/react-router-dom')
