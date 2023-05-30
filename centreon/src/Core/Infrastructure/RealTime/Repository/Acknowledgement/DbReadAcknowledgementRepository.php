@@ -66,7 +66,7 @@ class DbReadAcknowledgementRepository extends AbstractRepositoryDRB implements R
                     FROM `:dbstg`.acknowledgements ack
                 LEFT JOIN `:db`.contact ON contact.contact_alias = ack.author
                 INNER JOIN (
-                    SELECT max(acknowledgement_id) as acknowledgement_id
+                    SELECT MAX(acknowledgement_id) AS acknowledgement_id
                     FROM `:dbstg`.acknowledgements ack
                     WHERE ack.host_id = :hostId
                     AND ack.service_id = :serviceId
