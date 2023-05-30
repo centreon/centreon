@@ -14,7 +14,8 @@ import { labelDuplicate } from '../../../translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
   icon: {
-    fontSize: theme.spacing(2.5)
+    color: theme.palette.primary.main,
+    fontSize: theme.spacing(2.25)
   }
 }));
 

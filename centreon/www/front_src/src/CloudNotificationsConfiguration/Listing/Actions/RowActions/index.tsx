@@ -9,8 +9,10 @@ import Duplicate from './Duplicate';
 
 const useStyles = makeStyles()((theme) => ({
   actions: {
+    alignItems: 'center',
     display: 'flex',
-    gap: theme.spacing(1.5)
+    gap: theme.spacing(3),
+    justifyContent: 'space-between'
   }
 }));
 

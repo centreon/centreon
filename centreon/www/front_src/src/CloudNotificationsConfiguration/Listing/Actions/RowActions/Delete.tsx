@@ -13,7 +13,10 @@ import { labelDelete } from '../../../translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
   icon: {
-    color: theme.palette.error.main,
+    '& :hover': {
+      color: theme.palette.error.main
+    },
+    color: theme.palette.primary.main,
     fontSize: theme.spacing(2.5)
   }
 }));

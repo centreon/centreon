@@ -1,9 +1,25 @@
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 
-import { Switch, Tooltip } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { Switch as MUISwitch, Tooltip } from '@mui/material';
 
 import { labelActiveOrInactive } from '../../../translatedLabels';
+
+const Switch = styled(MUISwitch)(({ theme }) => ({
+  '& .MuiSwitch-switchBase': {
+    '&.Mui-checked': {
+      '& + .MuiSwitch-track': {
+        backgroundColor: theme.palette.success.main,
+        opacity: 1
+      },
+      color: theme.palette.common.white
+    }
+  },
+  '& .MuiSwitch-thumb': {
+    backgroundColor: theme.palette.common.white
+  }
+}));
 
 const ActivateAction = (): JSX.Element => {
   const { t } = useTranslation();
