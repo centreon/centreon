@@ -20,6 +20,7 @@ declare module '@mui/material/styles' {
       listingHeader: string;
       paper: string;
     };
+    header: TypeHeader;
     layout: TypeLayout;
     pending: {
       contrastText: string;
@@ -36,6 +37,7 @@ declare module '@mui/material/styles' {
     warning: string;
   }
   interface PaletteOptions {
+    header: TypeHeader;
     layout: TypeLayout;
     pending: {
       contrastText: string;
@@ -55,6 +57,24 @@ declare module '@mui/material/styles' {
     header: {
       background: string;
       border: string;
+    };
+  }
+
+  interface TypeHeader {
+    page: {
+      action: {
+        background: {
+          active: string;
+          default: string;
+        };
+        color: {
+          active: string;
+          default: string;
+        };
+      };
+      border: string;
+      description: string;
+      title: string;
     };
   }
 }
@@ -97,6 +117,23 @@ export const lightPalette: PaletteOptions = {
   error: {
     contrastText: '#000',
     main: '#FF4A4A'
+  },
+  header: {
+    page: {
+      action: {
+        background: {
+          active: '#1975D10F',
+          default: '#FFFFFF00'
+        },
+        color: {
+          active: '#1976D2',
+          default: '#696969'
+        }
+      },
+      border: '#4A4A4A',
+      description: '#4A4A4A',
+      title: '#000000'
+    }
   },
   info: {
     contrastText: '#000',
@@ -175,6 +212,23 @@ export const darkPalette: PaletteOptions = {
   error: {
     contrastText: '#fff',
     main: '#D60101'
+  },
+  header: {
+    page: {
+      action: {
+        background: {
+          active: '#1975D10F',
+          default: '#FFFFFF00'
+        },
+        color: {
+          active: '#1976D2',
+          default: '#696969'
+        }
+      },
+      border: '#bdbdbd',
+      description: '#bdbdbd',
+      title: '#fff'
+    }
   },
   info: {
     contrastText: '#fff',
