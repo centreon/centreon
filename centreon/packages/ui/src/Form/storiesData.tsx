@@ -4,6 +4,7 @@ import { equals, prop } from 'ramda';
 
 import { Typography } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import MailIcon from '@mui/icons-material/MailOutline';
 
 import { SelectEntry } from '../InputField/Select';
 import { Listing } from '../api/models';
@@ -113,6 +114,11 @@ export const basicFormInitialValues = {
   isForced: false,
   language: 'French',
   name: '',
+  notifications: {
+    channels: { Icon: MailIcon, checked: true, label: 'mail' },
+    hostevents: ['ok', 'warning'],
+    includeServices: { checked: true, label: 'Include services for this host' }
+  },
   password: '',
   roleMapping: [
     {
@@ -155,6 +161,10 @@ export const basicFormGroups: Array<Group> = [
     TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>,
     name: 'Second group',
     order: 2
+  },
+  {
+    name: 'Third group',
+    order: 3
   }
 ];
 
@@ -202,6 +212,32 @@ export const basicFormInputs: Array<InputProps> = [
       ]
     },
     type: InputType.Radio
+  },
+  {
+    checkbox: {
+      labelPlacement: 'top',
+      options: ['ok', 'warning', 'critical', 'unknown'],
+      row: true
+    },
+    fieldName: 'notifications.hostevents',
+    group: 'Third group',
+    label: 'host events',
+    type: InputType.MultiCheckbox
+  },
+  {
+    checkbox: {
+      row: true
+    },
+    fieldName: 'notifications.channels',
+    group: 'Third group',
+    label: 'channels',
+    type: InputType.Checkbox
+  },
+  {
+    fieldName: 'notifications.includeServices',
+    group: 'Third group',
+    label: 'Iclude services',
+    type: InputType.Checkbox
   },
   {
     fieldName: 'anotherText',

@@ -2,6 +2,8 @@ import type { Props as SingleAutocompleteFieldProps } from './InputField/Select/
 
 export { default as IconButton } from './Button/Icon';
 
+export { Checkbox, MultiCheckbox } from './Checkbox';
+
 export { default as SingleAutocompleteField } from './InputField/Select/Autocomplete';
 export type { SingleAutocompleteFieldProps };
 
@@ -128,6 +130,9 @@ export {
 } from './FileDropZone';
 export type { CustomDropZoneContentProps } from './FileDropZone';
 export { default as TestQueryProvider } from './api/TestQueryProvider';
+export * from './utils/useThemeMode';
+export * from './utils/typedMemo';
+export * from './utils/panelSize';
 export * from './FallbackPage/FallbackPage';
 export * from './Logo/CentreonLogo';
 export * from './TopCounterElements';
