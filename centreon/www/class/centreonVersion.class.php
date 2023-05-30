@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2005-2018 Centreon
+ * Copyright 2005-2023 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -157,14 +157,28 @@ class CentreonVersion
     {
         $data = array();
 
-        // Get OS version
         if (function_exists("shell_exec") && is_readable("/etc/os-release")) {
-            $os = shell_exec('cat /etc/os-release');
-            if (preg_match_all('/ID=?"(.*)?"/', $os, $matches)) {
-                $data['OS_name'] = $matches[1][0];
-                $data['OS_version'] = $matches[1][1];
-            }
+            $result = shell_exec('cat /etc/os-release');
+            // Get keys
+            $listOfKeys = preg_match_all('/.*=/', $result, $matches);
+            $listOfKeys = $matches[0];
+            // Get values
+            $listOfValues = preg_match_all('/=.*/', $result, $matches);
+            $listOfValues = $matches[0];
+            // Remove "=" symbol and apply lower case
+            array_walk($listOfKeys, function(&$v, $k){
+                $v = strtolower(str_replace('=', '', $v));
+            });
+            array_walk($listOfValues, function(&$v, $k){
+                $v = preg_replace('/=|"/', '', $v);
+            });
+            // Create array with keys/values
+            $result = array_combine($listOfKeys, $listOfValues);
+
+            $data['OS_name'] = $result['name'];
+            $data['OS_version'] = $result['version_id'];
         }
+
         return $data;
     }
 
