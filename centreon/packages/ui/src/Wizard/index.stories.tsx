@@ -201,29 +201,16 @@ export const threeStepsWithCustomConfirmDialogLabels = (): JSX.Element => (
   />
 );
 
-const FirstStep = ({
-  disableNextOnSendingRequests
-}: StepComponentProps): JSX.Element => {
-  useEffect(() => {
-    disableNextOnSendingRequests([true, false, true]);
-    setTimeout(() => {
-      disableNextOnSendingRequests([false, false, false]);
-    }, 1500);
-  }, []);
-
-  return (
-    <Typography align="center" variant="h5">
-      Sending request...
-    </Typography>
-  );
-};
-
 export const twoStepsWithSendingRequest = (): JSX.Element => (
   <Wizard
     open
     steps={[
       {
-        Component: FirstStep,
+        Component: (): JSX.Element => (
+          <Typography align="center" variant="h5">
+              Sending request...
+          </Typography>
+        ),
         skipFormChangeCheck: true,
         stepName: 'First step'
       },
