@@ -73,15 +73,6 @@ const initializeAndMount = (): ReturnType<typeof createStore> => {
     });
   });
 
-  cy.fixture('Dashboards/Dashboard/panels.json').then((panels) => {
-    cy.interceptAPIRequest({
-      alias: 'getDashboardPanels',
-      method: Method.GET,
-      path: `${dashboardsEndpoint}/1/panels`,
-      response: panels
-    });
-  });
-
   cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });
 
   cy.mount({
@@ -103,7 +94,6 @@ describe('Dashboard', () => {
     const store = initializeAndMount();
 
     cy.waitForRequest('@getDashboardDetails');
-    cy.waitForRequest('@getDashboardPanels');
 
     cy.contains(labelEditDashboard).click();
 
@@ -134,7 +124,6 @@ describe('Dashboard', () => {
     const store = initializeAndMount();
 
     cy.waitForRequest('@getDashboardDetails');
-    cy.waitForRequest('@getDashboardPanels');
 
     cy.contains(labelEditDashboard).click();
 
@@ -156,7 +145,6 @@ describe('Dashboard', () => {
     const store = initializeAndMount();
 
     cy.waitForRequest('@getDashboardDetails');
-    cy.waitForRequest('@getDashboardPanels');
 
     cy.contains(labelEditDashboard).click();
 
@@ -178,7 +166,6 @@ describe('Dashboard', () => {
     initializeAndMount();
 
     cy.waitForRequest('@getDashboardDetails');
-    cy.waitForRequest('@getDashboardPanels');
 
     cy.contains(labelEditDashboard).click();
 
@@ -193,7 +180,6 @@ describe('Dashboard', () => {
     initializeAndMount();
 
     cy.waitForRequest('@getDashboardDetails');
-    cy.waitForRequest('@getDashboardPanels');
 
     cy.contains(labelEditDashboard).click();
 
@@ -208,7 +194,6 @@ describe('Dashboard', () => {
     const store = initializeAndMount();
 
     cy.waitForRequest('@getDashboardDetails');
-    cy.waitForRequest('@getDashboardPanels');
 
     cy.contains(labelEditDashboard).click();
 

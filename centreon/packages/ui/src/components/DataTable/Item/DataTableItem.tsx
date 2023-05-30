@@ -58,16 +58,16 @@ const DataTableItem = forwardRef(
         {hasActions && (
           <MuiCardActions>
             <IconButton
-              data-testid="edit"
               aria-label="edit"
+              data-testid="edit"
               icon={<EditIcon />}
               size="small"
               variant="primary"
               onClick={() => onEdit?.()}
             />
             <IconButton
-              data-testid="dashboard-delete"
               aria-label="delete"
+              data-testid="dashboard-delete"
               icon={<DeleteIcon />}
               size="small"
               variant="ghost"

@@ -22,15 +22,6 @@ export interface NamedEntity {
   name: string;
 }
 
-export interface DashboardDetails extends NamedEntity {
-  createdAt: string;
-  createdBy: NamedEntity;
-  description: string | null;
-  panels: Array<NamedEntity>;
-  updatedAt: string;
-  updatedBy: NamedEntity;
-}
-
 export interface PanelDetails extends NamedEntity {
   layout: {
     height: number;
@@ -44,6 +35,15 @@ export interface PanelDetails extends NamedEntity {
     [key: string]: unknown;
   };
   widgetType: string;
+}
+
+export interface DashboardDetails extends NamedEntity {
+  createdAt: string;
+  createdBy: NamedEntity;
+  description: string | null;
+  panels: Array<PanelDetails>;
+  updatedAt: string;
+  updatedBy: NamedEntity;
 }
 
 export interface QuitWithoutSavedDashboard extends Dashboard {

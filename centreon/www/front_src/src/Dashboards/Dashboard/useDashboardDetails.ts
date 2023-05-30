@@ -2,12 +2,13 @@ import { useEffect } from 'react';
 
 import { useParams } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
+import { propOr } from 'ramda';
 
 import { useFetchQuery } from '@centreon/ui';
 
 import { dashboardsEndpoint } from '../api/endpoints';
 
-import { dashboardDetailsDecoder, panelsDetailsDecoder } from './api/decoders';
+import { dashboardDetailsDecoder } from './api/decoders';
 import { DashboardDetails, Panel, PanelDetails } from './models';
 import { dashboardAtom } from './atoms';
 
@@ -43,6 +44,9 @@ export const routerParams = {
   useParams
 };
 
+const getPanels = (dashboard?: DashboardDetails): Array<PanelDetails> =>
+  propOr([] as Array<PanelDetails>, 'panels', dashboard);
+
 const useDashboardDetails = (): UseDashboardDetailsState => {
   const { dashboardId } = routerParams.useParams();
 
@@ -54,15 +58,11 @@ const useDashboardDetails = (): UseDashboardDetailsState => {
     getQueryKey: () => ['dashboard', dashboardId]
   });
 
-  const { data: panels } = useFetchQuery({
-    decoder: panelsDetailsDecoder,
-    getEndpoint: () => `${dashboardsEndpoint}/${dashboardId}/panels`,
-    getQueryKey: () => ['dashboard', dashboardId, 'panels']
-  });
+  const panels = getPanels(dashboard);
 
   useEffect(() => {
     setDashboard({
-      layout: panels?.map((panel) => formatPanel({ panel })) || []
+      layout: panels.map((panel) => formatPanel({ panel })) || []
     });
   }, [panels]);
 
