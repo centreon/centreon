@@ -31,7 +31,6 @@ final class AddHostSeverityRequest
 
     public int $level = 0;
 
-    /** @var int<0, max> */
     public int $iconId = 0;
 
     public bool $isActivated = true;

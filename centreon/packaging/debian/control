@@ -142,8 +142,6 @@ Depends:
     php8.1-ldap,
     php8.1-readline,
     php8.1-sqlite3,
-    php8.1-grpc,
-    php8.1-protobuf,
     php-pear,
     rrdtool
 Recommends: ntp | bsd-mailx
@@ -197,6 +195,8 @@ Architecture: all
 Depends:
     centreon-common (>= ${centreon:version}~),
     centreon-common (<< ${centreon:versionThreshold}~),
+    centreon-perl-libs (>= ${centreon:version}~),
+    centreon-perl-libs (<< ${centreon:versionThreshold}~),
     snmptrapd,
     snmpd,
     ${misc:Depends}

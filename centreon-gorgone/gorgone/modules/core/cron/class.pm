@@ -96,8 +96,14 @@ sub action_getcron {
                     code => $options{data}->{parameters}->{code}
                 }
             });
-            my $watcher_timer = $self->{loop}->timer(5, 0, \&stop_ev);
-            $self->{loop}->run();
+
+            my $timeout = 5;
+            my $ctime = time();
+            while (1) {
+                my $watcher_timer = $self->{loop}->timer(1, 0, \&stop_ev);
+                $self->{loop}->run();
+                last if (time() > ($ctime + $timeout));
+            }
 
             $data = $connector->{ack}->{data}->{data}->{result};
         } else {
@@ -436,8 +442,13 @@ sub dispatcher {
         json_encode => 1
     });
  
-    my $watcher_timer = $options->{connector}->{loop}->timer(5, 0, \&stop_ev);
-    $options->{connector}->{loop}->run();
+    my $timeout = 5;
+    my $ctime = time();
+    while (1) {
+        my $watcher_timer = $options->{connector}->{loop}->timer(1, 0, \&stop_ev);
+        $options->{connector}->{loop}->run();
+        last if (time() > ($ctime + $timeout));
+    }
 }
 
 sub run {

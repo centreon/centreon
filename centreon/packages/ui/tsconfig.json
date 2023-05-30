@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "typeRoots": [
-      "./types",
+      "./src/@types",
       "./node_modules/@types"
     ],
     "outDir": "./dist",
@@ -15,15 +15,11 @@
     "esModuleInterop": true
   },
   "include": [
-    "./src",
-    "./types"
+    "./src"
   ],
   "exclude": [
     "./node_modules",
     "./dist",
-    "./src/**/*.test.ts",
-    "./src/**/*.test.tsx",
-    "./src/**/*.stories.tsx",
-    "../../node_modules",
-  ]
+    "../../node_modules"
+  ],
 }

@@ -8,8 +8,7 @@ import { makeStyles } from 'tss-react/mui';
 import { Button } from '@mui/material';
 
 import SaveButton from '../Button/Save';
-import useMemoComponent from '../utils/useMemoComponent';
-import getNormalizedId from '../utils/getNormalizedId';
+import { useMemoComponent, getNormalizedId } from '../utils';
 
 import {
   labelReset,
@@ -24,8 +23,7 @@ const useStyles = makeStyles()((theme) => ({
     columnGap: theme.spacing(2),
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: theme.spacing(2)
+    justifyContent: 'flex-end'
   }
 }));
 

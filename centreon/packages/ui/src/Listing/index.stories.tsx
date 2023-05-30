@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { React, useState } from 'react';
+import { useState } from 'react';
 
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { equals, prop } from 'ramda';
@@ -12,7 +12,7 @@ import { ListingVariant } from '@centreon/ui-context';
 
 import { ListingProps } from '..';
 
-import { Column, ColumnType } from './models';
+import { Column, ColumnType, SortOrder } from './models';
 
 import Listing from '.';
 
@@ -153,7 +153,7 @@ const Story = ({
         limit={listing.length}
         predefinedRowsSelection={predefinedRowsSelection}
         rowColorConditions={rowColorConditions}
-        rows={listing}
+        rows={props.rows ?? listing}
         selectedRows={selected}
         totalRows={listing.length}
         viewerModeConfiguration={viewerModeConfiguration}
@@ -191,6 +191,10 @@ export const loadingWithData = (): JSX.Element => {
   return <Story loading />;
 };
 
+export const asEmptyState = (): JSX.Element => {
+  return <Story rows={[]} />;
+};
+
 const actions = (
   <Button color="primary" size="small" variant="contained">
     Action
@@ -210,12 +214,14 @@ const editableColumns = [
     getFormattedString: ({ name }): string => name,
     id: 'name',
     label: 'Name',
+    sortable: true,
     type: ColumnType.string
   },
   {
     getFormattedString: ({ description }): string => description,
     id: 'description',
     label: 'Description',
+    sortable: true,
     type: ColumnType.string
   },
   {
@@ -243,6 +249,26 @@ const ListingWithEditableColumns = (): JSX.Element => {
     setSelectedColumnIds(defaultColumnIds);
   };
 
+  const [sortedRows, setSortedRows] = useState(listing);
+  const [sortParams, setSortParams] = useState({
+    sortField: editableColumns[0].id,
+    sortOrder: 'desc'
+  });
+
+  const onSort = (params: {
+    sortField: string;
+    sortOrder: SortOrder;
+  }): void => {
+    const rows = [...sortedRows];
+    rows.sort((a, b) =>
+      params.sortOrder === 'desc'
+        ? a[params.sortField]?.localeCompare(b[params.sortField])
+        : b[params.sortField]?.localeCompare(a[params.sortField])
+    );
+    setSortedRows(rows);
+    setSortParams(params);
+  };
+
   return (
     <Story
       columnConfiguration={{
@@ -250,13 +276,17 @@ const ListingWithEditableColumns = (): JSX.Element => {
         sortable: true
       }}
       columns={editableColumns}
+      rows={sortedRows}
+      sortField={sortParams.sortField}
+      sortOrder={sortParams.sortOrder as SortOrder}
       onResetColumns={resetColumns}
       onSelectColumns={setSelectedColumnIds}
+      onSort={onSort}
     />
   );
 };
 
-export const withEditableColumns = (): JSX.Element => (
+export const withEditableAndSortableColumns = (): JSX.Element => (
   <ListingWithEditableColumns />
 );
 

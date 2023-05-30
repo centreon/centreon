@@ -42,6 +42,20 @@ Feature:
         }
     }
     """
+    When I send a GET request to '/api/latest/configuration/hosts/severities/1'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 1,
+        "name": "severity1",
+        "alias": "host-severity-alias",
+        "level": 42,
+        "icon_id": 1,
+        "is_activated": true,
+        "comment": "blabla bla"
+      }
+      """
 
   Scenario: Host severities listing as non-admin with ACL filters
     Given the following CLAPI import data:
@@ -88,6 +102,22 @@ Feature:
         }
     }
     """
+    When I send a GET request to '/api/latest/configuration/hosts/severities/2'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 2,
+        "name": "host-sev2",
+        "alias": "host-sev2-alias",
+        "level": 2,
+        "icon_id": 1,
+        "is_activated": true,
+        "comment": null
+      }
+      """
+    When I send a GET request to '/api/latest/configuration/hosts/severities/1'
+    Then the response code should be "404"
 
   Scenario: Host severities listing as non-admin without ACL filters
     Given the following CLAPI import data:
@@ -142,6 +172,34 @@ Feature:
         }
     }
     """
+    When I send a GET request to '/api/latest/configuration/hosts/severities/1'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 1,
+        "name": "host-sev1",
+        "alias": "host-sev1-alias",
+        "level": 1,
+        "icon_id": 1,
+        "is_activated": true,
+        "comment": null
+      }
+      """
+    When I send a GET request to '/api/latest/configuration/hosts/severities/2'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 2,
+        "name": "host-sev2",
+        "alias": "host-sev2-alias",
+        "level": 2,
+        "icon_id": 1,
+        "is_activated": true,
+        "comment": null
+      }
+      """
 
   Scenario: Delete a host severity
     Given I am logged in
@@ -305,3 +363,121 @@ Feature:
         "message": "[name] The property name is required\n[alias] The property alias is required\n[level] The property level is required\n[icon_id] The property icon_id is required\nThe property not_exists is not defined and the definition does not allow additional properties\n"
     }
     """
+
+  Scenario: Update a host severity
+    Given I am logged in
+
+    When I send a POST request to '/api/latest/configuration/hosts/severities' with body:
+      """
+      {
+        "name": "  host-sev-name  ",
+        "alias": "  host-sev-alias  ",
+        "level": 2,
+        "icon_id": 1,
+        "comment": "blablabla"
+      }
+      """
+    Then the response code should be "201"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 1,
+        "name": "host-sev-name",
+        "alias": "host-sev-alias",
+        "level": 2,
+        "icon_id": 1,
+        "is_activated": true,
+        "comment": "blablabla"
+      }
+      """
+    When I send a PUT request to '/api/latest/configuration/hosts/severities/1' with body:
+      """
+      {
+        "name": "  host-sev-name-edit  ",
+        "alias": "  host-sev-alias-edit  ",
+        "level": 2,
+        "icon_id": 1,
+        "comment": null
+      }
+      """
+    Then the response code should be "204"
+    When I send a GET request to '/api/latest/configuration/hosts/severities'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+      """
+      {
+        "result": [
+          {
+            "id": 1,
+            "name": "host-sev-name-edit",
+            "alias": "host-sev-alias-edit",
+            "level": 2,
+            "icon_id": 1,
+            "is_activated": true,
+            "comment": null
+          }
+        ],
+        "meta": {
+          "page": 1,
+          "limit": 10,
+          "search": {},
+          "sort_by": {},
+          "total": 1
+        }
+      }
+      """
+    When I send a PUT request to '/api/latest/configuration/hosts/severities/1' with body:
+      """
+      {
+        "name": "host-sev-name-edit   ",
+        "alias": "host-sev-alias",
+        "level": 2,
+        "icon_id": 1,
+        "comment": "blablabla"
+      }
+      """
+    Then the response code should be "409"
+
+  Scenario: Update a host severity with an invalid payload
+    Given I am logged in
+    When I send a POST request to '/api/latest/configuration/hosts/severities' with body:
+      """
+      {
+        "name": "  host-sev-name  ",
+        "alias": "  host-sev-alias  ",
+        "level": 2,
+        "icon_id": 1,
+        "comment": "blablabla"
+      }
+      """
+    Then the response code should be "201"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 1,
+        "name": "host-sev-name",
+        "alias": "host-sev-alias",
+        "level": 2,
+        "icon_id": 1,
+        "is_activated": true,
+        "comment": "blablabla"
+      }
+      """
+    When I send a PUT request to '/api/latest/configuration/hosts/severities/1' with body:
+      """
+      {
+        "not_existing": "Hello World"
+      }
+      """
+    Then the response code should be "400"
+
+    When I send a PUT request to '/api/latest/configuration/hosts/severities/1' with body:
+      """
+      {
+        "name": "",
+        "alias": "host-sev-alias",
+        "level": 2,
+        "icon_id": 1
+      }
+      """
+    Then the response code should be "400"

@@ -2494,7 +2494,6 @@ msgstr "Statut détaillé"
 #: centreon-web/www/install/smarty_translate.php:873
 #: centreon-web/www/install/smarty_translate.php:909
 #: centreon-web/www/include/Administration/parameters/ldap/xml/additionalRowXml.php:100
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:75
 #: centreon-web/www/include/monitoring/acknowlegement/hostAcknowledge.php:71
 #: centreon-web/www/include/monitoring/acknowlegement/serviceAcknowledge.php:73
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:481
@@ -2507,7 +2506,6 @@ msgid "Host Name"
 msgstr "Nom de l'hôte"
 
 #: centreon-web/www/install/smarty_translate.php:876
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:76
 #: centreon-web/www/include/configuration/configObject/service_dependency/formServiceDependency.php:167
 msgid "Service Description"
 msgstr "Description du service"
@@ -6331,21 +6329,17 @@ msgstr "Gestion des hôtes"
 msgid "Services Resources"
 msgstr "Gestion des services"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:109
 msgid "Centreon Users"
 msgstr "Utilisateurs Centreon"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:147
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:229
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:224
 msgid "The selected user didn't see any resources"
 msgstr "L'utilisateur sélectionné ne voit aucune ressource"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:148
 msgid "Please select an user in order to display resources"
 msgstr "Merci de sélectionner un utilisateur pour afficher les ressources"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:149
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:231
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:226
 msgid "The selected user is not enable."
@@ -11290,6 +11284,18 @@ msgstr "Ceci est un modèle de contact."
 msgid "View contact notifications"
 msgstr "Afficher les notifications du contact"
 
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:280
+msgid "Do you really want to unblock this user?"
+msgstr "Voulez-vous vraiment débloquer cet utilisateur ?"
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
+msgid "The user(s) will be unblocked. Do you confirm the request?"
+msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l'action ?"
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
+msgid "Unblock"
+msgstr "Débloquer"
+
 #: centreon-web/www/include/configuration/configObject/escalation/ViewEscalation.php:103
 msgid "Escalations View"
 msgstr "Visualisation des escalades"
@@ -15435,8 +15441,8 @@ msgstr "Commande d'acquittement envoyée"
 msgid "Downtime command sent"
 msgstr "Commande de configuration de plage de maintenance envoyée"
 
-msgid "Check command sent"
-msgstr "Commande de contrôle envoyée"
+msgid "Check command sent ! Please refresh the listing to update the data."
+msgstr "Commande de contrôle envoyée ! Veuillez actualiser le tableau pour mettre à jour les données."
 
 msgid "Type of resource"
 msgstr "Type de ressource"
@@ -17279,11 +17285,17 @@ msgstr "Erreur durant la suppression d'un groupe d'hôtes"
 msgid "Error while adding a host group"
 msgstr "Erreur durant l'ajout d'un groupe d'hôtes"
 
+msgid "Error while updating a host group"
+msgstr "Erreur lors de la mise à jour d'un groupe d'hôtes"
+
 msgid "The host group name '%s' already exists"
 msgstr "Le groupe d'hôtes '%s' existe déjà"
 
 msgid "Error while retrieving newly created host group"
 msgstr "Erreur durant la récupération d'un groupe d'hôtes venant d'être créé"
+
+msgid "Error while retrieving a host group"
+msgstr "Erreur durant la récupération d'un groupe d'hôtes"
 
 msgid "The host group icon '%s' with id '%d' does not exist"
 msgstr "L'icône '%s' avec l'identifiant '%d' n'existe pas"
@@ -17296,9 +17308,6 @@ msgstr "Ce nom de catégorie d'hôtes existe déjà"
 
 msgid "Error while creating host category"
 msgstr "Erreur lors de la création d'une catégorie d'hôtes"
-
-msgid "Error while retrieving recently created host category"
-msgstr "Error lors de la récupération de la catégorie d'hôtes nouvellement créée"
 
 msgid "You are not allowed to access host severities"
 msgstr "Vous n'êtes pas autorisé à accéder aux sévérités d'hôtes"
@@ -17315,11 +17324,11 @@ msgstr "Erreur durant la suppression d'une sévérité d'hôtes"
 msgid "Error while creating host severity"
 msgstr "Erreur lors de la création d'une sévérité d'hôtes"
 
-msgid "You are not allowed to create host severities"
-msgstr "Vous n'êtes pas autorisé à créer des sévérités d'hôtes"
+msgid "You are not allowed to create/modify a host severity"
+msgstr "Vous n'êtes pas autorisé à créer/modifier des sévérités d'hôtes"
 
-msgid "Error while retrieving recently created host severity"
-msgstr "Error lors de la récupération de la sévérité d'hôtes nouvellement créée"
+msgid "Error while retrieving host severity"
+msgstr "Error lors de la récupération d'une sévérité d'hôtes"
 
 msgid "Host severity name already exists"
 msgstr "Ce nom de sévérité d'hôtes existe déjà"
@@ -17414,8 +17423,8 @@ msgstr "Vérifier les ressources sélectionnées uniquement pendant la période 
 msgid "Check selected resources even outside configured check period"
 msgstr "Vérifier les ressources sélectionnées même en dehors de la période de vérification configurée"
 
-msgid "Forced check command sent"
-msgstr "Commande de vérification forcée envoyée"
+msgid "Forced check command sent ! Please refresh the listing to update the data."
+msgstr "Commande de vérification forcée envoyée ! Veuillez actualiser le tableau pour mettre à jour les données."
 
 msgid "Developed by"
 msgstr "Développé par"
@@ -17530,7 +17539,7 @@ msgstr "Se déconnecter de"
 msgid "Centreon UI only"
 msgstr "Interface Centreon uniquement"
 
-msgid "Both identity Provider and Centreon UI"
+msgid "Both identity provider and Centreon UI"
 msgstr "Fournisseur d'identité et interface Centreon"
 
 msgid "Define relation between roles and ACL access groups"
@@ -17540,3 +17549,102 @@ msgstr "Définir la relation entre les rôles et les groupes d'accès ACL"
 
 msgid "B.Activities"
 msgstr "A.Métier"
+
+msgid "Logout URL"
+msgstr "URL de déconnexion"
+
+msgid "Full name attribute"
+msgstr "Attribut de nom complet"
+
+msgid "Roles mapping"
+msgstr "Association des rôles"
+
+msgid "Groups mapping"
+msgstr "Association des groupes"
+
+msgid "Error while updating host severity"
+msgstr "Erreur lors de la mise à jour de la sévérité d'hôtes"
+
+msgid "Error when searching for the host severity #%d"
+msgstr "Erreur lors de la recherche de la sévérité d'hôtes #%d"
+
+msgid "Error when searching for the host category #%d"
+msgstr "Erreur lors de la recherche de la catégorie d'hôtes #%d"
+
+msgid "Error while retrieving a host category"
+msgstr "Erreur lors de la récupération de la catégorie d'hôtes"
+
+msgid "You are not allowed to access dashboards"
+msgstr "Vous n'êtes pas autorisé à accéder aux tableaux de bord"
+
+msgid "Error while searching for dashboards"
+msgstr "Erreur lors de la recherche de tableaux de bord"
+
+msgid "Error while retrieving newly created dashboard"
+msgstr "Erreur durant la récupération d'un tableau de bord venant d'être créé"
+
+msgid "Error while adding a dashboard"
+msgstr "Erreur durant l'ajout d'un tableau de bord"
+
+msgid "You are not allowed to perform write operations on dashboards"
+msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les tableaux de bord"
+
+msgid "Error while retrieving a dashboard"
+msgstr "Erreur durant la récupération d'un tableau de bord"
+
+msgid "Error while deleting a dashboard"
+msgstr "Erreur durant la suppression d'un tableau de bord"
+
+msgid "Error while updating a dashboard"
+msgstr "Erreur lors de la mise à jour d'un tableau de bord"
+
+msgid "Error while searching for host templates"
+msgstr "Erreur lors de la recherche des modèles d'hôtes"
+
+msgid "You are not allowed to access host templates"
+msgstr "Vous n'êtes pas autorisé à accéder aux modèles d'hôtes"
+
+msgid "Error while updating the host category"
+msgstr "Erreur lors de la mise à jour de la catégorie d'hôte"
+
+msgid "You are not allowed to access service templates"
+msgstr "Vous n'êtes pas autorisé à accéder aux modèles de service"
+
+msgid "Error while searching for service templates"
+msgstr "Erreur lors de la recherche de modèles de services"
+
+msgid "[%s] (%s) was expected to be an instance of the class '%s'"
+msgstr "[%s] (%s) devait être une instance de la classe '%s'"
+
+msgid "The service template '%s' is locked and cannot be deleted"
+msgstr "Le modèle de service '%s' est verrouillé et ne peut pas être supprimé"
+
+msgid "You are not allowed to delete this service template"
+msgstr "Vous n'êtes pas autorisé à supprimer ce modèle de service"
+
+msgid "Error while deleting the service template"
+msgstr "Erreur lors de la suppression du modèle de service"
+
+msgid "Error while deleting a host template"
+msgstr "Erreur lors de la suppression du modèle d'hôtes"
+
+msgid "Error while adding a host template"
+msgstr "Erreur lors de la création du modèle d'hôtes"
+
+msgid "You are not allowed to delete host templates"
+msgstr "Vous n'êtes pas autorisé à supprimer des modèles d'hôtes"
+
+msgid "You are not allowed to add host templates"
+msgstr "Vous n'êtes pas autorisé à créer des modèles d'hôtes"
+
+msgid "The %s with value '%d' does not exist"
+msgstr "Le champ %s avec la valeur '%d' n'existe pas"
+
+msgid "The name %s (original name: %s) already exists"
+msgstr "Le nom %s (nom original: %s) existe déjà"
+
+msgid "Error while retrieving a host template"
+msgstr "Error lors de la récupération d'un modèle d'hôtes"
+
+msgid "Host template #%d is locked (edition and deletion not allowed)"
+msgstr "Le modèle d'hôte #%d est verrouillé (édition et suppression interdites)"

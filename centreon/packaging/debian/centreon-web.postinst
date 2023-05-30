@@ -11,9 +11,7 @@ if [ "$1" = "configure" ] ; then
     chmod 0775 \
       /usr/share/centreon/src \
       /usr/share/centreon/api
-    chmod -R 0775 \
-      /var/log/centreon \
-      /var/lib/centreon
+    chmod -R 0775 /var/lib/centreon
     chmod -R 0775 \
       /usr/share/centreon/www \
       /usr/share/centreon/GPL_LIB/SmartyCache
@@ -59,7 +57,12 @@ fi
 
 # rebuild symfony cache on upgrade
 if [ -n "$2" ]; then
-  su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear --no-warmup"
+  rm -rf /var/cache/centreon/symfony
+  su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
+
+  if ! echo "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" | grep -Eq "^.*id:.*$"; then
+    sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+  fi
 fi
 
 # Try auto configure timezone for php

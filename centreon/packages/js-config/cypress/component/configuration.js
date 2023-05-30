@@ -2,15 +2,15 @@
 const { defineConfig } = require('cypress');
 const {
   addMatchImageSnapshotPlugin
-} = require('cypress-image-snapshot/plugin');
+} = require('@simonsmith/cypress-image-snapshot/plugin');
 
-module.exports = ({ webpackConfig, cypressFolder, specPattern, env }) => {
+module.exports = ({ webpackConfig, cypressFolder, specPattern, env, useVite = false }) => {
   const mainCypressFolder = cypressFolder || 'cypress';
 
   return defineConfig({
     component: {
       devServer: {
-        bundler: 'webpack',
+        bundler: useVite ? 'vite' : 'webpack',
         framework: 'react',
         webpackConfig
       },

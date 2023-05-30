@@ -2,13 +2,15 @@ name: centreon-ui-merge
 
 on:
   workflow_dispatch:
-  pull_request:
-    types:
-      - closed
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
     paths:
       - "centreon/packages/ui/**"
       - ".github/actions/npm-publish-package-stable/**"
       - '.github/workflows/ui-stable.yml'
+      - "!centreon/packages/ui/package.json"
 
 env:
   directory: "centreon/packages/ui"
@@ -24,21 +26,8 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  clean-up-npm-beta-tag:
-    runs-on: ubuntu-22.04
-    if: github.event.pull_request.merged == true
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: ./.github/actions/clean-up-npm-tag
-        with:
-          package: ui
-          npm_token: ${{ secrets.NPM_TOKEN }}
-
   publish-new-npm-version:
     runs-on: ubuntu-22.04
-    if: ${{ github.event.pull_request.merged == true }}
 
     steps:
       - uses: actions/checkout@v3
@@ -51,14 +40,17 @@ jobs:
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
 
-  publish-storybook:
+  publish-snapshots:
     runs-on: ubuntu-22.04
-    needs: [get-version]
 
     steps:
       - uses: actions/checkout@v3
-
-      - uses: ./.github/actions/publish-storybook
         with:
-          major_version: ${{ needs.get-version.outputs.major_version }}
-          directory: ${{ env.directory }}
+          fetch-depth: 0
+
+      - uses: ./.github/actions/chromatic
+        with:
+          frontend_directory: ${{ env.directory }}
+          pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
+          project_token: ${{ secrets.CHROMATIC_TOKEN }}
+          autoAcceptChanges: true

@@ -22,12 +22,13 @@ runs:
     - uses: pnpm/action-setup@v2
       with:
         version: 7
+        run_install: false
 
     - name: Setup PHP 8.1
       uses: shivammathur/setup-php@v2
       with:
         php-version: 8.1
-        extensions: yaml, xml, common, mysql, cli, dom, mbstring, intl, pdo, zip
+        extensions: yaml, xml, mysql, dom, mbstring, intl, pdo, zip
         coverage: none
         tools: composer:v2
 
@@ -49,10 +50,10 @@ runs:
       shell: bash
 
     - name: Install npm dependencies
-      run:  pnpm i
+      run: pnpm install --frozen-lockfile
       shell: bash
       working-directory: centreon/lighthouse
-    
+
     - name: Run lighthouse
       run: pnpm run:lighthouse
       shell: bash

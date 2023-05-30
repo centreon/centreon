@@ -1,0 +1,8 @@
+{
+  "install_dir_engine": "\/usr\/share\/centreon-engine",
+  "centreon_engine_stats_binary": "\/usr\/sbin\/centenginestats",
+  "monitoring_var_lib": "\/var\/lib\/centreon-engine",
+  "centreon_engine_connectors": "\/usr\/lib64\/centreon-connector",
+  "centreon_engine_lib": "\/usr\/lib64\/centreon-engine",
+  "centreonplugins": "\/usr\/lib\/centreon\/plugins"
+}

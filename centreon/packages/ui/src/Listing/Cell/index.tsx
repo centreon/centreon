@@ -64,8 +64,7 @@ const getRowHighlightStyle = ({
 }: GetRowHighlightStyleProps): CSSObject | undefined =>
   isRowHighlighted
     ? {
-        color: theme.palette.text.primary,
-        fontWeight: theme.typography.fontWeightBold
+        color: theme.palette.text.primary
       }
     : undefined;
 
@@ -100,7 +99,7 @@ const useStyles = makeStyles<StylesProps>()(
       overflow: 'hidden',
       ...getTextStyleByViewMode({ theme, viewMode }),
       p: getRowHighlightStyle({ isRowHighlighted, theme }),
-      padding: 0,
+      padding: theme.spacing(0, 1),
       whiteSpace: 'nowrap'
     }
   })

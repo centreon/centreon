@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { equals, isEmpty, isNil, not, pick } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -11,7 +11,7 @@ import { userAtom, ListingVariant } from '@centreon/ui-context';
 
 import { ListingProps } from '../..';
 import { labelOf, labelRowsPerPage } from '../translatedLabels';
-import useMemoComponent from '../../utils/useMemoComponent';
+import { useMemoComponent } from '../../utils';
 import IconButton from '../../Button/Icon/index';
 
 import StyledPagination from './Pagination';

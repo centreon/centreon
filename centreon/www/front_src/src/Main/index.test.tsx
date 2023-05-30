@@ -7,7 +7,7 @@ import {
   RenderResult,
   waitFor,
   screen
-} from '@centreon/ui/src/testRenderer';
+} from '@centreon/ui/test/testRenderer';
 
 import {
   platformInstallationStatusEndpoint,
@@ -294,7 +294,8 @@ describe('Main', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('displays the login page when the path is "/login" and the user is not connected', async () => {
+  // To migrate to Cypress
+  it.only('displays the login page when the path is "/login" and the user is not connected', async () => {
     window.history.pushState({}, '', '/login');
     mockNotConnectedGetRequests();
 

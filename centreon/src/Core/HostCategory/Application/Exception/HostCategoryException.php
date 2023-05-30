@@ -44,9 +44,20 @@ class HostCategoryException extends \Exception
     /**
      * @return self
      */
-    public static function addNotAllowed(): self
+    public static function writingActionsNotAllowed(): self
     {
-        return new self(_('You are not allowed to create host categories'));
+        return new self(_('You are not allowed to create/modify host categories'));
+    }
+
+    /**
+     * @param \Throwable $ex
+     * @param int $hostCategoryId
+     *
+     * @return self
+     */
+    public static function findHostCategory(\Throwable $ex, int $hostCategoryId): self
+    {
+        return new self(sprintf(_('Error when searching for the host category #%d'), $hostCategoryId), 0, $ex);
     }
 
     /**
@@ -80,6 +91,16 @@ class HostCategoryException extends \Exception
     }
 
     /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function updateHostCategory(\Throwable $ex): self
+    {
+        return new self(_('Error while updating the host category'), 0, $ex);
+    }
+
+    /**
      * @return self
      */
     public static function hostNameAlreadyExists(): self
@@ -90,8 +111,8 @@ class HostCategoryException extends \Exception
     /**
      * @return self
      */
-    public static function errorWhileRetrievingJustCreated(): self
+    public static function errorWhileRetrievingObject(): self
     {
-        return new self(_('Error while retrieving recently created host category'));
+        return new self(_('Error while retrieving a host category'));
     }
 }

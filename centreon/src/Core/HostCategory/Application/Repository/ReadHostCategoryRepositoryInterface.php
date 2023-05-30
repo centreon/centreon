@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostCategory\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\TrimmedString;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -74,13 +75,13 @@ interface ReadHostCategoryRepositoryInterface
     /**
      * Check existance of a host category by name
      *
-     * @param string $hostCategoryName
+     * @param TrimmedString $hostCategoryName
      *
      * @throws \Throwable
      *
      * @return bool
      */
-    public function existsByName(string $hostCategoryName): bool;
+    public function existsByName(TrimmedString $hostCategoryName): bool;
 
     /**
      * Find one host category

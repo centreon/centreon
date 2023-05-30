@@ -6,39 +6,47 @@ inputs:
     required: true
   index_file:
     description: The index.html file path
-    required: true
+    required: false
   static_directory:
     description: The static directory
     required: true
   index_cache_key:
     description: "The index.html cache key"
-    required: true
+    required: false
   static_cache_key:
     description: "The frontend static directory cache key"
     required: true
+  command:
+    description: The build command
+    required: false
+    default: build
 
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 18
-
     - uses: pnpm/action-setup@v2
       with:
         version: 7
+        run_install: false
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.base_directory }}
 
     - name: Install dependencies
-      run: pnpm i
-      working-directory: ${{ env.base_directory }}
+      run: pnpm install --frozen-lockfile
+      working-directory: ${{ inputs.base_directory }}
       shell: bash
 
     - name: Build frontend
-      run: pnpm build
+      run: pnpm ${{ inputs.command }}
       working-directory: ${{ inputs.base_directory }}
       shell: bash
 
     - name: Cache index.html file
+      if: ${{ inputs.index_cache_key != '' && inputs.index_file != '' }}
       uses: actions/cache@v3
       with:
         path: ${{ inputs.index_file }}

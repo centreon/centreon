@@ -18,6 +18,12 @@ inputs:
     description: The static directory cache key
   frontend_static_directory:
     description: The static directory
+  frontend_widgets_cache_key:
+    description: The widgets build cache key
+  frontend_widgets_directory:
+    description: The frontend widgets directory
+  widgets_directory:
+    description: The widgets directory
   backend_vendor_cache_key:
     description: The vendor directory cache key
   backend_vendor_directory:
@@ -38,6 +44,9 @@ inputs:
   release:
     description: The release number
     required: true
+  commit_hash:
+    description: The commit hash
+    required: true
   cache_key:
     description: The package files cache key
     required: true
@@ -52,6 +61,7 @@ runs:
       with:
         path: ${{ inputs.frontend_index_file }}
         key: ${{ inputs.frontend_index_cache_key }}
+        fail-on-cache-miss: true
 
     - name: Restore static directory cache
       if: "${{ inputs.frontend_static_directory != '' && inputs.frontend_static_cache_key != '' }}"
@@ -59,6 +69,21 @@ runs:
       with:
         path: ${{ inputs.frontend_static_directory }}
         key: ${{ inputs.frontend_static_cache_key }}
+        fail-on-cache-miss: true
+    
+    - name: Restore widgets directory cache
+      if: "${{ inputs.frontend_widgets_directory != '' && inputs.frontend_widgets_cache_key != '' }}"
+      uses: actions/cache@v3
+      with:
+        path: ${{ inputs.frontend_widgets_directory }}
+        key: ${{ inputs.frontend_widgets_cache_key }}
+        fail-on-cache-miss: true
+
+    - run: |
+        mv ${{ inputs.frontend_widgets_directory }}/* ${{ inputs.widgets_directory }}
+        rm -rf ${{ inputs.frontend_widgets_directory }}
+      if: "${{ inputs.frontend_widgets_directory != '' && inputs.frontend_widgets_cache_key != '' }}"
+      shell: bash
 
     - name: Restore vendor directory cache
       if: "${{ inputs.backend_vendor_directory != '' && inputs.backend_vendor_cache_key != '' }}"
@@ -66,6 +91,7 @@ runs:
       with:
         path: ${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
+        fail-on-cache-miss: true
 
     - name: Restore translation directory cache
       if: "${{ inputs.translation_directory != '' && inputs.translation_cache_key != '' }}"
@@ -73,12 +99,14 @@ runs:
       with:
         path: ${{ inputs.translation_directory }}
         key: ${{ inputs.translation_cache_key }}
+        fail-on-cache-miss: true
 
     - if: ${{ inputs.package_extension == 'rpm' }}
       run: |
         VERSION=${{ inputs.major_version }}.${{ inputs.minor_version }}
         RELEASE=${{ inputs.release }}
         MODULE_BASENAME=`basename ${{ inputs.base_directory }}`
+        COMMIT_HASH=${{ inputs.commit_hash }}
 
         mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
@@ -91,7 +119,7 @@ runs:
           cp -rp $MODULE_BASENAME/packaging/src/* ~/rpmbuild/SOURCES/
         fi
 
-        rpmbuild -ba ${{ inputs.spec_file }} -D "PACKAGE_NAME $MODULE_BASENAME" -D "PACKAGE_VERSION $VERSION" -D "PACKAGE_RELEASE $RELEASE"
+        rpmbuild -ba ${{ inputs.spec_file }} -D "PACKAGE_NAME $MODULE_BASENAME" -D "PACKAGE_VERSION $VERSION" -D "PACKAGE_RELEASE $RELEASE" -D "COMMIT_HASH $COMMIT_HASH"
 
         cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
 
