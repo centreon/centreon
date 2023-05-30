@@ -28,14 +28,12 @@ use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsPresenterInt
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 
-class FindDashboardsPresenterStub extends DefaultPresenter implements FindDashboardsPresenterInterface
+class FindDashboardsPresenterStub implements FindDashboardsPresenterInterface
 {
+    public ResponseStatusInterface|FindDashboardsResponse $data;
+
     public function presentResponse(FindDashboardsResponse|ResponseStatusInterface $data): void
     {
-        if ($data instanceof FindDashboardsResponse) {
-            $this->present($data);
-        } else {
-            $this->setResponseStatus($data);
-        }
+        $this->data = $data;
     }
 }

@@ -25,16 +25,25 @@ namespace Core\Dashboard\Domain\Model;
 
 use Assert\AssertionFailedException;
 
+/**
+ * @immutable
+ */
 class Dashboard
 {
-    use DashboardModelTrait;
+    use DashboardValidationTrait;
     public const MAX_NAME_LENGTH = 200;
     public const MAX_DESCRIPTION_LENGTH = 65535;
+
+    protected readonly string $name;
+
+    protected readonly string $description;
 
     /**
      * @param int $id
      * @param string $name
      * @param string $description
+     * @param ?int $createdBy
+     * @param ?int $updatedBy
      * @param \DateTimeImmutable $createdAt
      * @param \DateTimeImmutable $updatedAt
      *
@@ -44,20 +53,52 @@ class Dashboard
         protected readonly int $id,
         string $name,
         string $description,
-        \DateTimeImmutable $createdAt,
-        \DateTimeImmutable $updatedAt,
+        protected readonly ?int $createdBy,
+        protected readonly ?int $updatedBy,
+        protected readonly \DateTimeImmutable $createdAt,
+        protected readonly \DateTimeImmutable $updatedAt,
     ) {
-        $this->setName($name);
-        $this->setDescription($description);
-        $this->createdAt = $createdAt;
-        $this->updatedAt = $updatedAt;
+        $this->name = trim($name);
+        $this->description = trim($description);
 
-        // We must avoid considering the previous setters has a state change.
-        $this->hasChanged = false;
+        $this->ensureValidName($this->name);
+        $this->ensureValidDescription($this->description);
+        $this->ensureNullablePositiveInt($this->createdBy, 'createdBy');
+        $this->ensureNullablePositiveInt($this->updatedBy, 'updatedBy');
     }
 
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function getCreatedBy(): ?int
+    {
+        return $this->createdBy;
+    }
+
+    public function getUpdatedBy(): ?int
+    {
+        return $this->updatedBy;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
     }
 }

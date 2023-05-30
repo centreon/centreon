@@ -4,6 +4,7 @@ import { loginAsAdminViaApiV2 } from '../../../commons';
 
 before(() => {
   cy.startWebContainer();
+  loginAsAdminViaApiV2();
 });
 
 beforeEach(() => {
@@ -16,7 +17,6 @@ beforeEach(() => {
 Given(
   'a user with dashboard edition rights on the dashboard listing page',
   () => {
-    loginAsAdminViaApiV2();
     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
   }
 );
@@ -73,6 +73,50 @@ Then('the newly created dashboard appears in the dashboards library', () => {
     'dashboard-1'
   );
 });
+
+Given(
+  'a user with dashboard edition rights who is about to create a dashboard',
+  () => {
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({ label: 'create', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-cancel');
+    cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
+      'My Cancelled Dashboard :('
+    );
+  }
+);
+
+When('they leave the creation form without saving the dashboard', () => {
+  cy.getByLabel({ label: 'cancel', tag: 'button' }).click();
+});
+
+Then(
+  'the dashboard has not been created when they are redirected back on the dashboards library',
+  () => {
+    cy.reload();
+    cy.getByLabel({ label: 'view', tag: 'button' })
+      .should('contain.text', 'dashboard-cancel')
+      .should('not.exist');
+  }
+);
+
+When('they open the form to create a new dashboard for the second time', () => {
+  cy.getByLabel({ label: 'create', tag: 'button' }).click();
+});
+
+Then(
+  'the information they filled in the first creation form has not been saved',
+  () => {
+    cy.getByLabel({ label: 'Name', tag: 'input' }).should(
+      'not.contain.text',
+      'dashboard-cancel'
+    );
+    cy.getByLabel({ label: 'Description', tag: 'textarea' }).should(
+      'not.contain.text',
+      'My Cancelled Dashboard :('
+    );
+  }
+);
 
 afterEach(() => {
   cy.getByLabel({ label: 'delete', tag: 'button' }).each((element) => {

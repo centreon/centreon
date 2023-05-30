@@ -59,4 +59,22 @@ trait RepositoryTrait
         return \DateTimeImmutable::createFromFormat('U', (string) $timestamp)
             ?: throw new \ValueError('Unable to create a DateTimeImmutable from an integer.');
     }
+<<<<<<< HEAD
+=======
+
+    /**
+     * from legacy behaviour:
+     * remove html tags and encode simple and double quotes.
+     *
+     * (@see \HtmlAnalyzer::sanitizeAndRemoveTags)
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    public function legacyHtmlEncode(string $string): string
+    {
+        return \HtmlAnalyzer::sanitizeAndRemoveTags($string);
+    }
+>>>>>>> 14325c59eb9d824d6076f940489704510864a617
 }

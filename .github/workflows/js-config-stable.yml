@@ -15,17 +15,6 @@ env:
   base_branch: develop
 
 jobs:
-  clean-up-npm-beta-tag:
-    runs-on: ubuntu-22.04
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: ./.github/actions/clean-up-npm-tag
-        with:
-          package: js-config
-          npm_token: ${{ secrets.NPM_TOKEN }}
-
   publish-new-npm-version:
     runs-on: ubuntu-22.04
     if: ${{ github.event.pull_request.merged == true }}

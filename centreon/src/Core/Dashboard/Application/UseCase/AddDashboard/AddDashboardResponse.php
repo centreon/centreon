@@ -31,6 +31,10 @@ final class AddDashboardResponse
 
     public string $description = '';
 
+    public ?AddDashboardUserDto $createdBy = null;
+
+    public ?AddDashboardUserDto $updatedBy = null;
+
     public \DateTimeImmutable $createdAt;
 
     public \DateTimeImmutable $updatedAt;

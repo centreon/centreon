@@ -28,14 +28,12 @@ use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardPresenterInter
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 
-class FindDashboardPresenterStub extends DefaultPresenter implements FindDashboardPresenterInterface
+class FindDashboardPresenterStub implements FindDashboardPresenterInterface
 {
+    public FindDashboardResponse|ResponseStatusInterface $data;
+
     public function presentResponse(FindDashboardResponse|ResponseStatusInterface $data): void
     {
-        if ($data instanceof FindDashboardResponse) {
-            $this->present($data);
-        } else {
-            $this->setResponseStatus($data);
-        }
+        $this->data = $data;
     }
 }

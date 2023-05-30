@@ -26,16 +26,13 @@ namespace Tests\Core\Dashboard\Application\UseCase\DeleteDashboard;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\DeleteDashboard\DeleteDashboardPresenterInterface;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
 
-class DeleteDashboardPresenterStub extends DefaultPresenter implements DeleteDashboardPresenterInterface
+class DeleteDashboardPresenterStub implements DeleteDashboardPresenterInterface
 {
+    public ResponseStatusInterface|NoContentResponse $data;
+
     public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void
     {
-        if ($data instanceof NoContentResponse) {
-            $this->present($data);
-        } else {
-            $this->setResponseStatus($data);
-        }
+        $this->data = $data;
     }
 }
