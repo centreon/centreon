@@ -28,7 +28,7 @@ export const labelPollerRunning = 'Everything is OK';
 export const labelConfigurePollers = 'Configure pollers';
 export const labelAllPollers = 'All pollers:';
 export const labelPollers = 'Pollers';
-export const labelInstallCommand = 'Install command';
+export const labelInstallCommand = 'Copy install command';
 export const labelSuccessfulCopyPollerCommand =
   'Poller installation command copied to the clipboard';
 export const labelFailureCopyPollerCommand =
