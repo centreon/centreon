@@ -63,11 +63,11 @@ class DbReadAcknowledgementRepository extends AbstractRepositoryDRB implements R
     {
         $acknowledgement = null;
         $sql = "SELECT ack.*, contact.contact_id AS author_id
-                    FROM ``:dbstg``.acknowledgements ack
+                    FROM `:dbstg`.acknowledgements ack
                 LEFT JOIN `:db`.contact ON contact.contact_alias = ack.author
                 INNER JOIN (
                     SELECT max(acknowledgement_id) as acknowledgement_id
-                    FROM ``:dbstg``.acknowledgements ack
+                    FROM `:dbstg`.acknowledgements ack
                     WHERE ack.host_id = :hostId
                     AND ack.service_id = :serviceId
                     AND ack.deletion_time IS NULL
