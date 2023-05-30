@@ -155,28 +155,16 @@ class CentreonVersion
      */
     public function getVersionSystem()
     {
-        $data = array();
+        $data = [];
 
         if (function_exists("shell_exec") && is_readable("/etc/os-release")) {
             $result = shell_exec('cat /etc/os-release');
-            // Get keys
-            $listOfKeys = preg_match_all('/.*=/', $result, $matches);
-            $listOfKeys = $matches[0];
-            // Get values
-            $listOfValues = preg_match_all('/=.*/', $result, $matches);
-            $listOfValues = $matches[0];
-            // Remove "=" symbol and apply lower case
-            array_walk($listOfKeys, function(&$v, $k){
-                $v = strtolower(str_replace('=', '', $v));
-            });
-            array_walk($listOfValues, function(&$v, $k){
-                $v = preg_replace('/=|"/', '', $v);
-            });
-            // Create array with keys/values
-            $result = array_combine($listOfKeys, $listOfValues);
 
-            $data['OS_name'] = $result['name'];
-            $data['OS_version'] = $result['version_id'];
+            preg_match_all('/(.*)="?(.*)"?/', $result, $matches, PREG_PATTERN_ORDER);
+            $osRelease = array_combine($matches[1], $matches[2]);
+
+            $data['OS_name'] = $osRelease['NAME'];
+            $data['OS_version'] = $osRelease['VERSION_ID'];
         }
 
         return $data;
