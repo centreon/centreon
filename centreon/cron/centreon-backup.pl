@@ -770,7 +770,7 @@ sub monitoringengineBackup() {
     }
     my $plugins_dir = "/usr/lib64/nagios/plugins";
     if (-d $plugins_dir) {
-        `cp -pr $plugins_dir $TEMP_CENTRAL_DIR/plugins/`;
+        `cp -pr $plugins_dir/* $TEMP_CENTRAL_DIR/plugins/`;
         if ($? != 0) {
             print STDERR "Unable to copy plugins\n";
         }
