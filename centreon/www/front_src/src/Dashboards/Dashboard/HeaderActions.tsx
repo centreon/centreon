@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 
-import EditIcon from '@mui/icons-material/Edit';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Typography } from '@mui/material';
 
 import { Modal, Button } from '@centreon/ui/components';
@@ -11,7 +11,7 @@ import { Modal, Button } from '@centreon/ui/components';
 import {
   labelExit,
   labelExitEditionMode,
-  labelEdit,
+  labelEditDashboard,
   labelSave,
   labelLeaveEditionModeChangesNotSaved,
   labelQuitDashboardChangesNotSaved,
@@ -122,11 +122,12 @@ const HeaderActions = ({
     return (
       <Button
         data-testid="edit_dashboard"
-        icon={<EditIcon />}
+        icon={<EditOutlinedIcon />}
         iconVariant="start"
+        variant="ghost"
         onClick={startEditing}
       >
-        {t(labelEdit)}
+        {t(labelEditDashboard)}
       </Button>
     );
   }

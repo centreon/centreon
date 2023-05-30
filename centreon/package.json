@@ -53,7 +53,7 @@
     "clean-webpack-plugin": "^4.0.0",
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.3",
-    "cypress": "^12.4.0",
+    "cypress": "^12.11.0",
     "cypress-msw-interceptor": "2.1.0",
     "cypress-plugin-tab": "^1.0.5",
     "eslint": "^8.27.0",
