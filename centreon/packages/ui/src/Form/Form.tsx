@@ -17,13 +17,13 @@ export enum GroupDirection {
 }
 
 export type FormProps<T> = {
-  groupsAreOpen?: boolean;
-  groupsClassName?: string;
+  Buttons?: React.ComponentType;
   children?: JSX.Element;
   className?: string;
-  Buttons?: React.ComponentType;
   groupDirection?: GroupDirection;
   groups?: Array<Group>;
+  groupsAreOpen?: boolean;
+  groupsClassName?: string;
   initialValues: T;
   inputs: Array<InputProps>;
   isCollapsible?: boolean;
@@ -50,17 +50,17 @@ const Form = <T extends object>({
   groupDirection = GroupDirection.Vertical,
   ...formikSharedConfig
 }: FormProps<T>): JSX.Element => {
-  const { classes } = useStyles();
+  const { cx, classes } = useStyles();
 
   if (isLoading) {
     return (
       <Inputs
         isLoading
         groups={groups}
-        inputs={inputs}
-        isCollapsible={isCollapsible}
         groupsAreOpen={groupsAreOpen}
         groupsClassName={groupsClassName}
+        inputs={inputs}
+        isCollapsible={isCollapsible}
       />
     );
   }
@@ -73,9 +73,9 @@ const Form = <T extends object>({
       onSubmit={submit}
       {...formikSharedConfig}
     >
-      <div className={classes.form}>
+      <div>
         {children}
-        <div className={className}>
+        <div className={cx(className, classes.form)}>
           <Inputs
             groupDirection={groupDirection}
             groups={groups}
@@ -84,8 +84,8 @@ const Form = <T extends object>({
             inputs={inputs}
             isCollapsible={isCollapsible}
           />
+          <Buttons />
         </div>
-        <Buttons />
       </div>
     </Formik>
   );

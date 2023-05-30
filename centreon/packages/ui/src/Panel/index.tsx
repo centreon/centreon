@@ -85,6 +85,7 @@ export interface Tab {
 }
 
 export interface Props {
+  className?: string;
   header: React.ReactElement;
   headerBackgroundColor?: string;
   labelClose?: string;
@@ -96,7 +97,6 @@ export interface Props {
   selectedTabId?: number;
   tabs?: Array<JSX.Element>;
   width?: number;
-  className?:string;
 }
 
 const Panel = React.forwardRef(
@@ -117,7 +117,7 @@ const Panel = React.forwardRef(
     }: Props,
     ref
   ): JSX.Element => {
-    const { classes , cx } = useStyles({
+    const { classes, cx } = useStyles({
       hasTabs: !isEmpty(tabs),
       headerBackgroundColor,
       width
