@@ -17,7 +17,7 @@
     "build:analyze": "pnpm widgets:build:analyze && pnpm centreon:build:analyze",
     "eslint": "eslint ./www/front_src --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "eslint:fix": "pnpm eslint --fix",
-    "test": "jest --silent",
+    "test": "jest",
     "test:watch": "pnpm test --watch",
     "test:coverage": "jest --coverage",
     "cypress:cli": "./cypress/scripts/cypress-cli.sh",
