@@ -10,6 +10,9 @@ on:
       image_name:
         required: true
         type: string
+      os:
+        required: true
+        type: string
       features_path:
         required: true
         type: string
@@ -83,10 +86,11 @@ jobs:
         uses: ./.github/actions/cypress-e2e-testing
         with:
           name: ${{ inputs.name }}
+          web_image_os: ${{ inputs.os }}
           web_image_version: ${{ github.head_ref || github.ref_name }}
           openid_image_version: ${{ inputs.major_version }}
           module: centreon
-          feature_file_path: ${{matrix.feature}}
+          feature_file_path: ${{ matrix.feature }}
 
       - name: Upload test logs
         if: failure()

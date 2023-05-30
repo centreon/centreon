@@ -263,7 +263,7 @@ Cypress.Commands.add(
   'startWebContainer',
   ({
     name = Cypress.env('dockerName'),
-    os = 'alma9',
+    os = Cypress.env('WEB_IMAGE_OS'),
     useSlim = true,
     version = Cypress.env('WEB_IMAGE_VERSION')
   }: StartWebContainerProps = {}): Cypress.Chainable => {
