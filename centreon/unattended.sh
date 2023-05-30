@@ -184,6 +184,12 @@ function parse_subcommand_options() {
 		    wizard_autoplay="true"
 			log "INFO" "The installation wizard will be executed by the script"
 			;;
+		u)
+			api_login=$OPTARG
+			;;
+		p)
+			api_password=$OPTARG
+			;;
 		\?)
 			log "ERROR" "Invalid option: -"$OPTARG""
 			usage
@@ -882,7 +888,15 @@ install)
 update)
 	case $topology in
 	central)
-		error_and_exit "Update operation is not supported yet" ##TODO
+		update_centreon_packages
+		if [ "$wizard_autoplay" == "true" ]; then
+			play_update_wizard
+			restart_centreon_process
+			log "INFO" "Log in to Centreon web interface via the URL: http://$central_ip/centreon"
+		else
+			CENTREON_DOC_URL="https://docs.centreon.com/docs/update/update-centreon-platform/#update-the-centreon-solution"
+			log "INFO" "Follow the steps described in Centreon documentation: $CENTREON_DOC_URL"
+		fi
 		;;
 	poller)
 		CENTREON_DOC_URL=""
