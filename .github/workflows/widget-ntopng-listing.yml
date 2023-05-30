@@ -26,6 +26,19 @@ jobs:
     with:
       version_file: widgets/centreon-widget-ntopng-listing/ntopng-listing/configs.xml
 
+  veracode-analysis:
+    needs: [get-version]
+    uses: ./.github/workflows/veracode-analysis.yml
+    with:
+      module_directory: widgets/centreon-widget-ntopng-listing
+      module_name: centreon-widget-ntopng-listing
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+    secrets:
+      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
+      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
+
   package:
     needs: [get-version]
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
@@ -49,6 +62,7 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
+      environment: ${{ needs.get-version.outputs.environment }}
     secrets:
       artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
       token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}

@@ -24,6 +24,7 @@ on:
 
 env:
   base_directory: centreon
+  widgets_directory: centreon/www/widgets
 
 jobs:
   changes:
@@ -72,7 +73,7 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  frontend-build:
+  frontend-web-build:
     needs: [get-version]
     runs-on: ubuntu-22.04
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
@@ -87,6 +88,20 @@ jobs:
           static_directory: ${{ env.base_directory }}/www/static
           index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+          command: centreon:build
+
+  frontend-widgets-build:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/frontend-build
+        with:
+          base_directory: ${{ env.widgets_directory }}
+          static_directory: ${{ env.widgets_directory }}/src
+          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
 
   backend-dependencies:
     needs: [get-version]
@@ -134,7 +149,7 @@ jobs:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
-  frontend-lint:
+  frontend-web-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
@@ -146,6 +161,19 @@ jobs:
         with:
           frontend_directory: ${{ env.base_directory }}
           module_name: centreon
+
+  frontend-widgets-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.widgets_directory }}
+          module_name: centreon-widgets
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -186,7 +214,7 @@ jobs:
     with:
       name: component
       module_name: centreon
-      specs_path: www/front_src/src/**
+      specs_path: www/**
 
   backend-unit-test:
     runs-on: ubuntu-22.04
@@ -227,8 +255,10 @@ jobs:
         translation-build,
         backend-dependencies,
         backend-unit-test,
-        frontend-build,
-        frontend-lint,
+        frontend-web-build,
+        frontend-web-lint,
+        frontend-widgets-build,
+        frontend-widgets-lint,
         frontend-unit-test,
         frontend-component-test,
       ]
@@ -257,6 +287,9 @@ jobs:
       frontend_index_file: centreon/www/index.html
       frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
       frontend_static_directory: centreon/www/static
+      frontend_widgets_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
+      frontend_widgets_directory: centreon/www/widgets/src
+      widgets_directory: centreon/www/widgets
       backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
       backend_vendor_directory: centreon/vendor
       translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation

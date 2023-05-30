@@ -24,6 +24,8 @@ interface Filter {
 }
 
 const serviceInAcknowledgementName = 'service_test_ack';
+const serviceInDtName = 'service_test_dt';
+const secondServiceInDtName = 'service_test_dt_2';
 const hostInAcknowledgementName = 'test_host';
 const hostChildInAcknowledgementName = 'test_host_ack';
 const stateFilterContainer = '[aria-label="State filter"]';
@@ -47,7 +49,11 @@ const initializeResourceData = (): Cypress.Chainable => {
     'resources/clapi/service3/01-add.json',
     'resources/clapi/service3/02-set-max-check.json',
     'resources/clapi/service3/03-disable-active-check.json',
-    'resources/clapi/service3/04-enable-passive-check.json'
+    'resources/clapi/service3/04-enable-passive-check.json',
+    'resources/clapi/service4/01-add.json',
+    'resources/clapi/service4/02-set-max-check.json',
+    'resources/clapi/service4/03-disable-active-check.json',
+    'resources/clapi/service4/04-enable-passive-check.json'
   ];
 
   return cy.wrap(Promise.all(files.map(insertFixture)));
@@ -100,6 +106,16 @@ const insertResourceFixtures = (): Cypress.Chainable => {
         })
       );
   });
+};
+
+const insertDtResources = (): Cypress.Chainable => {
+  const dateBeforeLogin = new Date();
+
+  return cy
+    .setUserTokenApiV1()
+    .then(initializeResourceData)
+    .then(applyConfigurationViaClapi)
+    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }));
 };
 
 const insertAckResourceFixtures = (): Cypress.Chainable => {
@@ -156,10 +172,13 @@ const deleteUserFilter = (): Cypress.Chainable => {
 };
 
 const tearDownResource = (): Cypress.Chainable => {
+  const dateBeforeLogin = new Date();
+
   return cy
     .setUserTokenApiV1()
     .then(() => cy.removeResourceData())
-    .then(applyConfigurationViaClapi);
+    .then(applyConfigurationViaClapi)
+    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }));
 };
 
 const tearDownAckResource = (): Cypress.Chainable => {
@@ -273,6 +292,8 @@ export {
   serviceInAcknowledgementName,
   hostInAcknowledgementName,
   hostChildInAcknowledgementName,
+  serviceInDtName,
+  secondServiceInDtName,
   insertResourceFixtures,
   setUserFilter,
   deleteUserFilter,
@@ -283,5 +304,7 @@ export {
   checkIfNotificationsAreNotBeingSent,
   clearCentengineLogs,
   tearDownAckResource,
-  typeToSearchInput
+  typeToSearchInput,
+  initializeResourceData,
+  insertDtResources
 };

@@ -26,7 +26,9 @@ namespace Core\HostCategory\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
+use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostCategory\Domain\Model\NewHostCategory;
 
 class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements WriteHostCategoryRepositoryInterface
@@ -46,8 +48,11 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
         $this->debug('Delete host category', ['hostCategoryId' => $hostCategoryId]);
 
         $request = $this->translateDbName(
-            'DELETE hc FROM `:db`.hostcategories hc
-            WHERE hc.hc_id = :hostCategoryId'
+            <<<'SQL'
+                DELETE hc
+                FROM `:db`.hostcategories hc
+                WHERE hc.hc_id = :hostCategoryId
+                SQL
         );
         $request .= ' AND hc.level IS NULL ';
 
@@ -66,19 +71,57 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
         $this->debug('Add host category', ['hostCategory' => $hostCategory]);
 
         $request = $this->translateDbName(
-            'INSERT INTO `:db`.hostcategories
-            (hc_name, hc_alias, hc_comment, hc_activate) VALUES
-            (:name, :alias, :comment, :isActivated)'
+            <<<'SQL'
+                INSERT INTO `:db`.hostcategories (hc_name, hc_alias, hc_comment, hc_activate)
+                VALUES (:name, :alias, :comment, :isActivated)
+                SQL
         );
         $statement = $this->db->prepare($request);
 
         $statement->bindValue(':name', $hostCategory->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':alias', $hostCategory->getAlias(), \PDO::PARAM_STR);
         $statement->bindValue(':comment', $hostCategory->getComment(), \PDO::PARAM_STR);
-        $statement->bindValue(':isActivated', $hostCategory->isActivated() ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(
+            ':isActivated',
+            (new BoolToEnumNormalizer())->normalize($hostCategory->isActivated()),
+            \PDO::PARAM_STR
+        );
 
         $statement->execute();
 
         return (int) $this->db->lastInsertId();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(HostCategory $hostCategory): void
+    {
+        $this->debug('Update host category', ['hostCategory' => $hostCategory]);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.hostcategories
+                set hc_name = :name,
+                    hc_alias = :alias,
+                    hc_comment = :comment,
+                    hc_activate = :isActivated
+                WHERE hc_id = :id
+                AND level IS NULL
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':id', $hostCategory->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(':name', $hostCategory->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':alias', $hostCategory->getAlias(), \PDO::PARAM_STR);
+        $statement->bindValue(':comment', $hostCategory->getComment(), \PDO::PARAM_STR);
+        $statement->bindValue(
+            ':isActivated',
+            (new BoolToEnumNormalizer())->normalize($hostCategory->isActivated()),
+            \PDO::PARAM_STR
+        );
+
+        $statement->execute();
     }
 }

@@ -16181,6 +16181,81 @@ msgstr ""
 #  msgid "Error while retrieving a host category"
 #  msgstr ""
 
+# msgid "You are not allowed to access dashboards"
+# msgstr ""
+
+# msgid "Error while searching for dashboards"
+# msgstr ""
+
+# msgid "Error while retrieving newly created dashboard"
+# msgstr ""
+
+# msgid "Error while adding a dashboard"
+# msgstr ""
+
+# msgid "You are not allowed to perform write operations on dashboards"
+# msgstr ""
+
+# msgid "Error while retrieving a dashboard"
+# msgstr ""
+
+# msgid "Error while deleting a dashboard"
+# msgstr ""
+
+# msgid "Error while updating a dashboard"
+# msgstr ""
+
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
 #msgid "Unblock"
 #msgstr ""
+
+#  msgid "Error while searching for host templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host templates"
+#  msgstr ""
+
+#  msgid "Error while updating the host category"
+#  msgstr ""
+
+# msgid "You are not allowed to access service templates"
+# msgstr ""
+
+# msgid "Error while searching for service templates"
+# msgstr ""
+
+# msgid "[%s] (%s) was expected to be an instance of the class '%s'"
+# msgstr ""
+
+# msgid "The service template '%s' is locked and cannot be deleted"
+# msgstr ""
+
+# msgid "You are not allowed to delete this service template"
+# msgstr ""
+
+# msgid "Error while deleting the service template"
+# msgstr ""
+
+#  msgid "Error while deleting a host template"
+#  msgstr ""
+
+#  msgid "Error while adding a host template"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to add host templates"
+#  msgstr ""
+
+#  msgid "The %s with value '%d' does not exist"
+#  msgstr ""
+
+#  msgid "The name %s (original name: %s) already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving a host template"
+#  msgstr ""
+
+#  msgid "Host template #%d is locked (edition and deletion not allowed)"
+#  msgstr ""

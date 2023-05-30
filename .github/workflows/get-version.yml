@@ -90,21 +90,26 @@ jobs:
           case "$BRANCHNAME" in
             develop | dev-[2-9][0-9].[0-9][0-9].x)
               STABILITY="unstable"
+              ENV="development"
               ;;
             release* | hotfix*)
               STABILITY="testing"
+              ENV="testing"
               ;;
             master | [2-9][0-9].[0-9][0-9].x)
               STABILITY="stable"
+              ENV="production"
               ;;
             pkgtest-*)
               STABILITY="pkgtest"
+              ENV="development"
               ;;
             *)
               STABILITY="canary"
+              ENV="development"
               ;;
           esac
           echo "stability=$STABILITY" >> $GITHUB_OUTPUT
-          echo "env=$MAJOR-$STABILITY" >> $GITHUB_OUTPUT
-          echo "GH_ENV: $MAJOR-$STABILITY"
+          echo "env=$MAJOR-$ENV" >> $GITHUB_OUTPUT
+          echo "GH_ENV: $ENV"
         shell: bash

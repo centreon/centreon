@@ -1912,6 +1912,7 @@ CREATE TABLE `topology` (
   `topology_group` int(11) DEFAULT NULL,
   `topology_url` varchar(255) DEFAULT NULL,
   `topology_url_opt` varchar(255) DEFAULT NULL,
+  `topology_url_substitute` varchar(255) DEFAULT null,
   `topology_popup` enum('0','1') DEFAULT NULL,
   `topology_modules` enum('0','1') DEFAULT NULL,
   `topology_show` enum('0','1') DEFAULT '1',
@@ -2471,6 +2472,24 @@ CREATE TABLE IF NOT EXISTS `vault_configuration` (
     FOREIGN KEY (`vault_id`)
     REFERENCES `vault` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `dashboard` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(200) NOT NULL,
+  `description` text,
+  `created_by` int(11) NULL,
+  `updated_by` int(11) NULL,
+  `created_at` int(11) NOT NULL,
+  `updated_at` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `name_index` (`name`),
+  CONSTRAINT `contact_created_by`
+    FOREIGN KEY (`created_by`)
+    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL,
+  CONSTRAINT `contact_updated_by`
+    FOREIGN KEY (`updated_by`)
+    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

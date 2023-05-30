@@ -17573,3 +17573,78 @@ msgstr "Erreur lors de la recherche de la catégorie d'hôtes #%d"
 
 msgid "Error while retrieving a host category"
 msgstr "Erreur lors de la récupération de la catégorie d'hôtes"
+
+msgid "You are not allowed to access dashboards"
+msgstr "Vous n'êtes pas autorisé à accéder aux tableaux de bord"
+
+msgid "Error while searching for dashboards"
+msgstr "Erreur lors de la recherche de tableaux de bord"
+
+msgid "Error while retrieving newly created dashboard"
+msgstr "Erreur durant la récupération d'un tableau de bord venant d'être créé"
+
+msgid "Error while adding a dashboard"
+msgstr "Erreur durant l'ajout d'un tableau de bord"
+
+msgid "You are not allowed to perform write operations on dashboards"
+msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les tableaux de bord"
+
+msgid "Error while retrieving a dashboard"
+msgstr "Erreur durant la récupération d'un tableau de bord"
+
+msgid "Error while deleting a dashboard"
+msgstr "Erreur durant la suppression d'un tableau de bord"
+
+msgid "Error while updating a dashboard"
+msgstr "Erreur lors de la mise à jour d'un tableau de bord"
+
+msgid "Error while searching for host templates"
+msgstr "Erreur lors de la recherche des modèles d'hôtes"
+
+msgid "You are not allowed to access host templates"
+msgstr "Vous n'êtes pas autorisé à accéder aux modèles d'hôtes"
+
+msgid "Error while updating the host category"
+msgstr "Erreur lors de la mise à jour de la catégorie d'hôte"
+
+msgid "You are not allowed to access service templates"
+msgstr "Vous n'êtes pas autorisé à accéder aux modèles de service"
+
+msgid "Error while searching for service templates"
+msgstr "Erreur lors de la recherche de modèles de services"
+
+msgid "[%s] (%s) was expected to be an instance of the class '%s'"
+msgstr "[%s] (%s) devait être une instance de la classe '%s'"
+
+msgid "The service template '%s' is locked and cannot be deleted"
+msgstr "Le modèle de service '%s' est verrouillé et ne peut pas être supprimé"
+
+msgid "You are not allowed to delete this service template"
+msgstr "Vous n'êtes pas autorisé à supprimer ce modèle de service"
+
+msgid "Error while deleting the service template"
+msgstr "Erreur lors de la suppression du modèle de service"
+
+msgid "Error while deleting a host template"
+msgstr "Erreur lors de la suppression du modèle d'hôtes"
+
+msgid "Error while adding a host template"
+msgstr "Erreur lors de la création du modèle d'hôtes"
+
+msgid "You are not allowed to delete host templates"
+msgstr "Vous n'êtes pas autorisé à supprimer des modèles d'hôtes"
+
+msgid "You are not allowed to add host templates"
+msgstr "Vous n'êtes pas autorisé à créer des modèles d'hôtes"
+
+msgid "The %s with value '%d' does not exist"
+msgstr "Le champ %s avec la valeur '%d' n'existe pas"
+
+msgid "The name %s (original name: %s) already exists"
+msgstr "Le nom %s (nom original: %s) existe déjà"
+
+msgid "Error while retrieving a host template"
+msgstr "Error lors de la récupération d'un modèle d'hôtes"
+
+msgid "Host template #%d is locked (edition and deletion not allowed)"
+msgstr "Le modèle d'hôte #%d est verrouillé (édition et suppression interdites)"
