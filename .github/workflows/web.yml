@@ -325,13 +325,13 @@ jobs:
       - name: Generate information according to matrix os
         id: matrix_include
         run: |
-          if [ "${{ matrix.os }}" = "alma8"]; then
+          if [ "${{ matrix.os }}" = "alma8" ]; then
             DISTRIB=el8
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.os }}" = "alma9"]; then
+          elif [ "${{ matrix.os }}" = "alma9" ]; then
             DISTRIB=el9
             PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.os }}" = "bullseye"]; then
+          elif [ "${{ matrix.os }}" = "bullseye" ]; then
             DISTRIB=bullseye
             PACKAGE_EXTENSION=deb
           else
