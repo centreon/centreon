@@ -208,7 +208,7 @@ export const twoStepsWithSendingRequest = (): JSX.Element => (
       {
         Component: (): JSX.Element => (
           <Typography align="center" variant="h5">
-              Sending request...
+            Sending request...
           </Typography>
         ),
         skipFormChangeCheck: true,
