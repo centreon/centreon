@@ -4,7 +4,7 @@ FROM almalinux:8 AS web_fresh
 
 ENV CENTREON_MAJOR_VERSION=$VERSION
 
-RUN echo $CENTREON_MAJOR_VERSION && bash -ex <<EOF
+RUN echo ${VERSION} && bash -ex <<EOF
 
 ######################################
 # install and configure repositories #
