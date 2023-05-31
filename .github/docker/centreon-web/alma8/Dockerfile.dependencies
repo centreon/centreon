@@ -4,7 +4,7 @@ FROM almalinux:8 AS web_fresh
 
 ENV CENTREON_MAJOR_VERSION=$VERSION
 
-RUN bash -e <<EOF
+RUN bash -ex <<"EOF"
 
 ######################################
 # install and configure repositories #
@@ -16,7 +16,7 @@ dnf config-manager --set-enabled powertools
 
 dnf install -y epel-release
 
-dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/\${CENTREON_MAJOR_VERSION}/el8/centreon-\${CENTREON_MAJOR_VERSION}.repo
+dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${CENTREON_MAJOR_VERSION}/el8/centreon-${CENTREON_MAJOR_VERSION}.repo
 dnf config-manager --set-enabled 'centreon*'
 
 #############################
