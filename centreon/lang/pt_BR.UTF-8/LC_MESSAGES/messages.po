@@ -16275,5 +16275,5 @@ msgstr ""
 # msgid "If you leave the edition mode, your changes will not be saved."
 # msgstr ""
 
-# msgid "If you leave {{dashboardName}}, you changes will not be saved."
+# msgid "If you leave {{dashboardName}}, your changes will not be saved."
 # msgstr ""
