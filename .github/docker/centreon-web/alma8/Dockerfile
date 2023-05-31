@@ -1,7 +1,7 @@
 ARG REGISTRY_URL
 ARG VERSION
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-alma9:${VERSION} AS web_fresh
+FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${VERSION} AS web_fresh
 
 COPY *.rpm /tmp/rpms-centreon/
 
@@ -19,10 +19,10 @@ dnf clean all --enablerepo=*
 
 EOF
 
-COPY --chmod=755 ./.github/docker/centreon-web-alma9/entrypoint/container.sh /usr/share/centreon/container.sh
-COPY --chmod=755 ./.github/docker/centreon-web-alma9/entrypoint/container.d/* /usr/share/centreon/container.d/
-COPY --chmod=755 ./.github/docker/centreon-web-alma9/scripts/autoinstall.php /usr/share/centreon/
-COPY --chown=apache:apache ./.github/docker/centreon-web-alma9/configuration /usr/share/centreon/www/install/tmp/
+COPY --chmod=755 ./.github/docker/centreon-web-alma8/entrypoint/container.sh /usr/share/centreon/container.sh
+COPY --chmod=755 ./.github/docker/centreon-web-alma8/entrypoint/container.d/* /usr/share/centreon/container.d/
+COPY --chmod=755 ./.github/docker/centreon-web-alma8/scripts/autoinstall.php /usr/share/centreon/
+COPY --chown=apache:apache ./.github/docker/centreon-web-alma8/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF
 
@@ -53,7 +53,7 @@ ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 FROM web_fresh AS web_standard
 
-COPY ./.github/docker/sql /tmp/sql
+COPY ./.github/docker/centreon-web-common/sql /tmp/sql
 
 RUN bash -e <<EOF
 

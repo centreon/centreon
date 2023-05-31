@@ -44,14 +44,6 @@ innodb_log_file_size=4M
 innodb_fast_shutdown=0
 " > /etc/mysql/conf.d/container.cnf
 
-apt clean
-
-EOF
-
-RUN <<EOF
-
-apt update
-
 rm -f /tmp/debs-centreon/centreon-${VERSION}*.deb /tmp/debs-centreon/centreon-central-${VERSION}*.deb
 apt install -y /tmp/debs-centreon/centreon-*.deb
 
@@ -62,18 +54,16 @@ apt clean
 
 EOF
 
-COPY --chmod=+x ./.github/docker/centreon-web-bullseye/entrypoint/container.sh /usr/share/centreon/container.sh
-COPY ./.github/docker/centreon-web-bullseye/entrypoint/container.d /usr/share/centreon/container.d
-COPY ./.github/docker/init/* /etc/init.d/
-COPY --chmod=+x ./.github/docker/centreon-web-bullseye/scripts/autoinstall.php /usr/share/centreon/
+COPY --chmod=755 ./.github/docker/centreon-web-bullseye/entrypoint/container.sh /usr/share/centreon/container.sh
+COPY --chmod=755 ./.github/docker/centreon-web-bullseye/entrypoint/container.d/* /usr/share/centreon/container.d/
+COPY --chmod=755 ./.github/docker/centreon-web-common/init/* /etc/init.d/
+COPY --chmod=755 ./.github/docker/centreon-web-bullseye/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=www-data:www-data ./.github/docker/centreon-web-bullseye/configuration /usr/share/centreon/www/install/tmp/
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql
 
-chmod +x /usr/share/centreon/container.d/*
-chmod +x /etc/init.d/*
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 cd /usr/share/centreon/www/install/steps/process
@@ -100,9 +90,9 @@ ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 FROM web_fresh AS web_standard
 
-COPY ./.github/docker/sql /tmp/sql
+COPY ./.github/docker/centreon-web-common/sql /tmp/sql
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 service mysql start
 mysql centreon < /tmp/sql/standard.sql

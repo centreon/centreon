@@ -362,7 +362,7 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ env.project }}-${{ matrix.os }}
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_fresh
           context: .
           build-args: |
@@ -374,7 +374,7 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ env.project }}-${{ matrix.os }}
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_fresh
           context: .
           build-args: |
@@ -386,7 +386,7 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ env.project }}-${{ matrix.os }}
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_standard
           context: .
           build-args: |
@@ -398,7 +398,7 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ env.project }}-${{ matrix.os }}
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_standard
           context: .
           build-args: |

@@ -163,4 +163,4 @@ dnf clean all --enablerepo=*
 
 EOF
 
-COPY --chmod=755 ./.github/docker/init/* /etc/init.d/
+COPY --chmod=755 ./.github/docker/centreon-web-common/init/* /etc/init.d/
