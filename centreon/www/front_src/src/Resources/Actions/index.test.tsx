@@ -526,13 +526,8 @@ describe(Actions, () => {
   it.each(invalidDateTestCases)(
     'cannot send a downtime request when the Downtime action is clicked and the %p time input have an invalid format',
     async (_, label) => {
-      const {
-        getByLabelText,
-        getAllByText,
-        findByText,
-        getByText,
-        findAllByText
-      } = renderActions();
+      const { getByLabelText, getAllByText, findByText, findAllByText } =
+        renderActions();
 
       const selectedResources = [host];
 
@@ -557,7 +552,7 @@ describe(Actions, () => {
         ).toBeDisabled();
       });
 
-      expect(getByText(labelInvalidFormat)).toBeInTheDocument();
+      expect(findByText(labelInvalidFormat)).toBeInTheDocument();
     }
   );
 
