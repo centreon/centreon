@@ -55,7 +55,7 @@ ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 FROM web_fresh AS web_standard
 
-COPY ./.github/docker/centreon-web-common/sql /tmp/sql
+COPY ./.github/docker/centreon-web/sql /tmp/sql
 
 RUN bash -e <<EOF
 

@@ -56,7 +56,7 @@ apt clean
 
 EOF
 
-COPY --chmod=755 ./.github/docker/centreon-web-common/init/* /etc/init.d/
+COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint/container.sh /usr/share/centreon/container.sh
 COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint/container.d/* /usr/share/centreon/container.d/
 COPY --chmod=755 ./.github/docker/centreon-web/bullseye/scripts/autoinstall.php /usr/share/centreon/
@@ -92,7 +92,7 @@ ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 FROM web_fresh AS web_standard
 
-COPY ./.github/docker/centreon-web-common/sql /tmp/sql
+COPY ./.github/docker/centreon-web/sql /tmp/sql
 
 RUN bash -e <<EOF
 
