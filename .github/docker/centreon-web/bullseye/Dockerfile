@@ -2,6 +2,8 @@ ARG VERSION
 
 FROM debian:bullseye AS web_fresh
 
+ARG VERSION
+
 ENV DEBIAN_FRONTEND noninteractive
 
 COPY *.deb /tmp/debs-centreon/
@@ -22,9 +24,9 @@ apt update
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
 
-#echo "deb https://packages.centreon.com/apt-standard-\${VERSION}-stable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
-#echo "deb https://packages.centreon.com/apt-standard-\${VERSION}-testing/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
-echo "deb https://packages.centreon.com/apt-standard-\${VERSION}-unstable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+#echo "deb https://packages.centreon.com/apt-standard-${VERSION}-stable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
+#echo "deb https://packages.centreon.com/apt-standard-${VERSION}-testing/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
+echo "deb https://packages.centreon.com/apt-standard-${VERSION}-unstable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
 echo "deb https://packages.centreon.com/apt-plugins-unstable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-unstable.list
 wget -O- https://packages.centreon.com/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 apt update
@@ -44,7 +46,7 @@ innodb_log_file_size=4M
 innodb_fast_shutdown=0
 " > /etc/mysql/conf.d/container.cnf
 
-rm -f /tmp/debs-centreon/centreon-\${VERSION}*.deb /tmp/debs-centreon/centreon-central-\${VERSION}*.deb
+rm -f /tmp/debs-centreon/centreon-${VERSION}*.deb /tmp/debs-centreon/centreon-central-${VERSION}*.deb
 apt install -y /tmp/debs-centreon/centreon-*.deb
 
 touch /var/log/php8.1-fpm-centreon-error.log

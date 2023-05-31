@@ -2,6 +2,8 @@ ARG VERSION
 
 FROM almalinux:9 AS web_fresh
 
+ARG VERSION
+
 RUN bash -e <<EOF
 
 ######################################

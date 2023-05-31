@@ -3,11 +3,13 @@ ARG VERSION
 
 FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${VERSION} AS web_fresh
 
+ARG VERSION
+
 COPY *.rpm /tmp/rpms-centreon/
 
 RUN bash -e <<EOF
 
-rm -f /tmp/rpms-centreon/centreon-\${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-\${VERSION}*.rpm
+rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm
 dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
 
 echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
