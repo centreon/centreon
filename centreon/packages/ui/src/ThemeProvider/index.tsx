@@ -177,6 +177,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
           padding: 0;
           width: 100%;
           height: 100%;
+          text-rendering: optimizeLegibility;
         }
         body {
           background-color: ${theme.palette.background.paper};
