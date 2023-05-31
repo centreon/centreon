@@ -56,7 +56,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: 'Schema/HostTemplateRequest.yaml'
+          $ref: 'Schema/PostHostTemplateRequest.yaml'
   responses:
     '201':
       description: "Object created"

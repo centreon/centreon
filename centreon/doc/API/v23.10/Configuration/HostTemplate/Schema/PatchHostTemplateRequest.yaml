@@ -1,0 +1,31 @@
+type: object
+required: []
+properties:
+  macros:
+    type: array
+    items:
+      type: object
+      required: ['name', 'value', 'is_password', 'description']
+      properties:
+        name:
+          type: string
+          description: "Name of the macro"
+          example: "MacroName"
+        value:
+          type: string
+          nullable: true
+          description: |
+            Value of the macro.
+
+            If macro.is_password property is set to true and macro.value is set to null,
+            then the macro.value will be considered unchanged.
+          example: "macroValue"
+        is_password:
+          type: boolean
+          description: "Indicates whether the macro value is a password or not"
+          example: false
+        description:
+          type: string
+          nullable: true
+          description: "Macro description"
+          example: "Some text to describe the macro"

@@ -103,6 +103,7 @@ properties:
 
       The value is the sum of all the values of the selected options.
 
+      * `0` - NONE
       * `1` - DOWN
       * `2` - UNREACHABLE
       * `4` - RECOVERY
