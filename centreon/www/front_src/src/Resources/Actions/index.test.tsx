@@ -518,11 +518,6 @@ describe(Actions, () => {
     );
   });
 
-  const invalidDateTestCases = [
-    ['start', labelStartTime],
-    ['end', labelEndTime]
-  ];
-
   it('sends a downtime request when Resources are selected and the Downtime action is clicked and confirmed', async () => {
     const { findAllByText, getAllByText } = renderActions();
 
