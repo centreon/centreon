@@ -19,10 +19,10 @@ dnf clean all --enablerepo=*
 
 EOF
 
-COPY --chmod=755 ./.github/docker/centreon-web-alma9/entrypoint/container.sh /usr/share/centreon/container.sh
-COPY --chmod=755 ./.github/docker/centreon-web-alma9/entrypoint/container.d/* /usr/share/centreon/container.d/
-COPY --chmod=755 ./.github/docker/centreon-web-alma9/scripts/autoinstall.php /usr/share/centreon/
-COPY --chown=apache:apache ./.github/docker/centreon-web-alma9/configuration /usr/share/centreon/www/install/tmp/
+COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint/container.sh /usr/share/centreon/container.sh
+COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint/container.d/* /usr/share/centreon/container.d/
+COPY --chmod=755 ./.github/docker/centreon-web/alma9/scripts/autoinstall.php /usr/share/centreon/
+COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /usr/share/centreon/www/install/tmp/
 
 RUN <<EOF
 
