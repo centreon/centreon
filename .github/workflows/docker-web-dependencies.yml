@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     strategy:
+      fail-fast: false
       matrix:
         distrib: [alma8, alma9]
     steps:
