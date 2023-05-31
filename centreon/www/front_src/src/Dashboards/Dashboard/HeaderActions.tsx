@@ -155,6 +155,7 @@ const HeaderActions = ({
         {t(labelExit)}
       </Button>
       <SaveButton
+        disabled={!dirty}
         labelLoading={t(labelSaving) as string}
         labelSave={t(labelSave) as string}
         loading={isSaving}

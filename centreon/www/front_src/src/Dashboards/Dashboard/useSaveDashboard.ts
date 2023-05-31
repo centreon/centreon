@@ -1,4 +1,3 @@
-import { useParams } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -9,6 +8,7 @@ import { getDashboardEndpoint } from './api/endpoints';
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from './atoms';
 import { Panel, PanelDetailsToAPI } from './models';
 import { labelYourDashboardHasBeenSaved } from './translatedLabels';
+import { routerParams } from './useDashboardDetails';
 
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
   layout.map(
@@ -37,7 +37,7 @@ interface UseSaveDashboardState {
 
 const useSaveDashboard = (): UseSaveDashboardState => {
   const { t } = useTranslation();
-  const { dashboardId } = useParams();
+  const { dashboardId } = routerParams.useParams();
 
   const queryClient = useQueryClient();
 

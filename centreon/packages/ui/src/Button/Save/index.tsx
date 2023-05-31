@@ -60,7 +60,7 @@ const SaveButton = ({
     <Tooltip placement="bottom" title={tooltipLabel}>
       <div>
         <LoadingButton
-          aria-label="save button"
+          aria-label={labelSave}
           className={cx(
             {
               [classes.loadingButton]: !hasLabel
