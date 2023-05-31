@@ -315,6 +315,7 @@ jobs:
     env:
       project: centreon-web
     strategy:
+      fail-fast: false
       matrix:
         os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
