@@ -23,19 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboards;
 
-use DateTimeImmutable;
-
 final class FindDashboardsResponse
 {
-    /** @var array<
-     *     array{
-     *         id: int,
-     *         name: string,
-     *         description: string,
-     *         createdAt: DateTimeImmutable,
-     *         updatedAt: DateTimeImmutable
-     *     }
-     * >
-     */
+    /** @var FindDashboardDto[] */
     public array $dashboards = [];
 }

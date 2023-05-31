@@ -3,7 +3,7 @@ import React, { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Add as AddIcon } from '@mui/icons-material';
-import { Typography } from '@mui/material';
+import { Typography as MuiTypography } from '@mui/material';
 
 import { Button } from '../../Button';
 
@@ -28,7 +28,7 @@ const DataTableEmptyState = ({
 
   return (
     <div className={classes.dataTableEmptyState}>
-      <Typography variant="h4">{t(labels.title)}</Typography>
+      <MuiTypography variant="h2">{t(labels.title)}</MuiTypography>
       <div className={classes.actions}>
         <Button
           aria-label="create"

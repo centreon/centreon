@@ -27,18 +27,107 @@ use Assert\AssertionFailedException;
 
 class NewDashboard
 {
-    use DashboardModelTrait;
+    use DashboardValidationTrait;
+
+    protected string $name;
+
+    protected string $description;
+
+    protected \DateTimeImmutable $createdAt;
+
+    protected \DateTimeImmutable $updatedAt;
+
+    protected int $createdBy;
+
+    protected int $updatedBy;
+
+    /**
+     * @param string $name
+     * @param int $createdBy
+     *
+     * @throws AssertionFailedException
+     */
+    public function __construct(string $name, int $createdBy)
+    {
+        $this->setName($name);
+        $this->setDescription('');
+        $this->setCreatedBy($createdBy);
+        $this->setUpdatedBy($createdBy);
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function getCreatedBy(): int
+    {
+        return $this->createdBy;
+    }
+
+    public function getUpdatedBy(): int
+    {
+        return $this->updatedBy;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
 
     /**
      * @param string $name
      *
      * @throws AssertionFailedException
      */
-    public function __construct(string $name)
+    public function setName(string $name): void
     {
-        $this->setName($name);
-        $this->setDescription('');
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->name = trim($name);
+        $this->ensureValidName($this->name);
+    }
+
+    /**
+     * @param string $description
+     *
+     * @throws AssertionFailedException
+     */
+    public function setDescription(string $description): void
+    {
+        $this->description = trim($description);
+        $this->ensureValidDescription($this->description);
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @throws AssertionFailedException
+     */
+    public function setCreatedBy(int $userId): void
+    {
+        $this->createdBy = $userId;
+        $this->ensurePositiveInt($this->createdBy, 'createdBy');
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @throws AssertionFailedException
+     */
+    public function setUpdatedBy(int $userId): void
+    {
+        $this->updatedBy = $userId;
+        $this->ensurePositiveInt($this->updatedBy, 'updatedBy');
     }
 }

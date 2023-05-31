@@ -239,4 +239,6 @@
     --chart-legend-color: var(--color-white);
     /* license manager error page variables */
     --license-manager-error-message-color: var(--color-primary-dark);
+    /* widget progress bar value color */
+    --widget-progress-bar-value-color: var(--color-white);
 }

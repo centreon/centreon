@@ -27,13 +27,16 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Dashboard\Domain\Model\Dashboard;
 
 beforeEach(function (): void {
+    $this->testedCreatedAt = new \DateTimeImmutable('2023-05-09T12:00:00+00:00');
     $this->testedUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00');
     $this->createDashboard = function (array $fields = []): Dashboard {
         return new Dashboard(
             $fields['id'] ?? 1,
             $fields['name'] ?? 'dashboard-name',
             $fields['description'] ?? 'dashboard-description',
-            new \DateTimeImmutable('2023-05-09T12:00:00+00:00'),
+            \array_key_exists('created_by', $fields) ? $fields['created_by'] : 2,
+            \array_key_exists('updated_by', $fields) ? $fields['updated_by'] : 3,
+            $this->testedCreatedAt,
             $this->testedUpdatedAt
         );
     };
@@ -44,7 +47,11 @@ it('should return properly set dashboard instance', function (): void {
 
     expect($dashboard->getId())->toBe(1)
         ->and($dashboard->getName())->toBe('dashboard-name')
-        ->and($dashboard->getDescription())->toBe('dashboard-description');
+        ->and($dashboard->getDescription())->toBe('dashboard-description')
+        ->and($dashboard->getUpdatedAt()->getTimestamp())->toBe($this->testedUpdatedAt->getTimestamp())
+        ->and($dashboard->getCreatedAt()->getTimestamp())->toBe($this->testedCreatedAt->getTimestamp())
+        ->and($dashboard->getCreatedBy())->toBe(2)
+        ->and($dashboard->getUpdatedBy())->toBe(3);
 });
 
 // mandatory fields
@@ -78,39 +85,15 @@ foreach (
 
 // updatedAt change
 
-$testUpdatedAtClosure = function (callable $setter) {
-    return function () use ($setter): void {
-        $dashboard = ($this->createDashboard)();
-
-        $timeBefore = time();
-        $updatedAtBefore = $this->testedUpdatedAt->getTimestamp();
-        $setter($dashboard);
-        $updatedAtAfter = $dashboard->getUpdatedAt()->getTimestamp();
-
-        expect($updatedAtAfter)->toBeGreaterThanOrEqual($timeBefore)
-            ->and($updatedAtAfter)->toBeGreaterThan($updatedAtBefore);
-    };
-};
-
 it(
-    'should NOT change the updatedAt field when we do not call any setter',
+    'should NOT change the updatedAt field',
     function (): void {
         $updatedAtBefore = $this->testedUpdatedAt->getTimestamp();
-        $timeBefore = time();
         $dashboard = ($this->createDashboard)();
         $updatedAtAfter = $dashboard->getUpdatedAt()->getTimestamp();
 
-        expect($updatedAtAfter)->toBeLessThan($timeBefore)
-            ->and($updatedAtAfter)->toBe($updatedAtBefore);
+        expect($updatedAtAfter)->toBe($updatedAtBefore);
     }
-);
-it(
-    'should change the updatedAt field when we call setName()',
-    $testUpdatedAtClosure(fn(Dashboard $dashboard) => $dashboard->setName('changed'))
-);
-it(
-    'should change the updatedAt field when we call setDescription()',
-    $testUpdatedAtClosure(fn(Dashboard $dashboard) => $dashboard->setDescription('changed'))
 );
 
 // too long fields
@@ -132,5 +115,41 @@ foreach (
     )->throws(
         AssertionException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "Dashboard::{$field}")->getMessage()
+    );
+}
+
+// not positive integers
+
+foreach (
+    [
+        'created_by' => 'createdBy',
+        'updated_by' => 'updatedBy',
+    ] as $field => $propertyName
+) {
+    it(
+        "should throw an exception when dashboard {$field} is not a positive integer",
+        fn() => ($this->createDashboard)([$field => 0])
+    )->throws(
+        AssertionException::class,
+        AssertionException::positiveInt(0, 'Dashboard::' . $propertyName)->getMessage()
+    );
+}
+
+// nullable field allowed
+
+foreach (
+    [
+        'created_by' => 'createdBy',
+        'updated_by' => 'updatedBy',
+    ] as $field => $propertyName
+) {
+    it(
+        "should return the NULL field {$field} after construct",
+        function () use ($field, $propertyName): void {
+            $dashboard = ($this->createDashboard)([$field => null]);
+            $valueFromGetter = $dashboard->{'get' . $propertyName}();
+
+            expect($valueFromGetter)->toBeNull();
+        }
     );
 }

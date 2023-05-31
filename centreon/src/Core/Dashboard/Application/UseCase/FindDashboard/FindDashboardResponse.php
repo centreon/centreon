@@ -31,6 +31,10 @@ final class FindDashboardResponse
 
     public string $description = '';
 
+    public ?FindDashboardUserDto $createdBy = null;
+
+    public ?FindDashboardUserDto $updatedBy = null;
+
     public \DateTimeImmutable $createdAt;
 
     public \DateTimeImmutable $updatedAt;

@@ -1,0 +1,5 @@
+DeleteServiceTemplate:
+  methods: DELETE
+  path: /configuration/services/templates/{serviceTemplateId}
+  controller: 'Core\ServiceTemplate\Infrastructure\API\DeleteServiceTemplate\DeleteServiceTemplateController'
+  condition: "request.attributes.get('version') >= 23.10"

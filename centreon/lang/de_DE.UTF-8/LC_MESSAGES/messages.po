@@ -15427,3 +15427,54 @@ msgstr ""
 
 #  msgid "You are not allowed to access host templates"
 #  msgstr ""
+
+# msgid "The service template '%s' is locked and cannot be deleted"
+# msgstr ""
+
+# msgid "You are not allowed to delete this service template"
+# msgstr ""
+
+# msgid "Error while deleting the service template"
+# msgstr ""
+
+#  msgid "Error while deleting a host template"
+#  msgstr ""
+
+#  msgid "Error while adding a host template"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to add host templates"
+#  msgstr ""
+
+#  msgid "The %s with value '%d' does not exist"
+#  msgstr ""
+
+#  msgid "The name %s (original name: %s) already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving a host template"
+#  msgstr ""
+
+#  msgid "Host template #%d is locked (edition and deletion not allowed)"
+#  msgstr ""
+
+# msgid "Edit dashboard"
+# msgstr ""
+
+# msgid "Exit"
+# msgstr ""
+
+# msgid "Exit {{dashboardName}}"
+# msgstr ""
+
+# msgid "Exit edition mode"
+# msgstr ""
+
+# msgid "If you leave the edition mode, your changes will not be saved."
+# msgstr ""
+
+# msgid "If you leave {{dashboardName}}, you changes will not be saved."
+# msgstr ""

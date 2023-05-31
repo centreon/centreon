@@ -35,10 +35,11 @@ const ModalActions = ({
       {children || (
         <>
           <Button
-            aria-label="cancel"
+            aria-label={labels?.cancel}
+            data-testid="cancel_confirmation"
             disabled={isLoading}
             size="small"
-            variant="secondary"
+            variant="ghost"
             onClick={() => onCancel?.()}
           >
             {labels?.cancel}
@@ -46,6 +47,7 @@ const ModalActions = ({
           <SaveButton
             aria-label="confirm"
             color={isDanger ? 'error' : 'primary'}
+            data-testid="confirm_confirmation"
             labelLoading={labels?.loading}
             labelSave={labels?.confirm}
             loading={isLoading}

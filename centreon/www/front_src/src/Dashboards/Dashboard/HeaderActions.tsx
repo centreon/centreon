@@ -1,21 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 
-import EditIcon from '@mui/icons-material/Edit';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Typography } from '@mui/material';
 
 import { Modal, Button } from '@centreon/ui/components';
 import { SaveButton } from '@centreon/ui';
 
 import {
-  labelCancel,
-  labelCancelDashboard,
-  labelEdit,
+  labelExit,
+  labelExitEditionMode,
+  labelEditDashboard,
   labelSave,
   labelSaving,
-  labelYouWillCancelPageWithoutSaving
+  labelLeaveEditionModeChangesNotSaved,
+  labelQuitDashboardChangesNotSaved,
+  labelExitDashboard
 } from './translatedLabels';
 import {
   dashboardAtom,
@@ -26,6 +28,7 @@ import useDashboardSaveBlocker from './useDashboardSaveBlocker';
 import { PanelDetails } from './models';
 import { formatPanel } from './useDashboardDetails';
 import useSaveDashboard from './useSaveDashboard';
+import useDashboardDirty from './useDashboardDirty';
 
 interface HeaderActionsProps {
   id?: number;
@@ -54,11 +57,20 @@ const HeaderActions = ({
 
   const { saveDashboard, isSaving } = useSaveDashboard();
 
+  const dirty = useDashboardDirty(
+    (panels || []).map((panel) => formatPanel({ panel, staticPanel: false }))
+  );
+
   const startEditing = (): void => {
     switchPanelsEditionMode(true);
   };
 
   const askCancelConfirmation = (): void => {
+    if (!dirty) {
+      switchPanelsEditionMode(false);
+
+      return;
+    }
     setIsAskingCancelConfirmation(true);
   };
 
@@ -102,15 +114,31 @@ const HeaderActions = ({
     setIsAskingCancelConfirmation(true);
   }, [blocked]);
 
+  const modalTitle = useMemo(
+    () =>
+      blocked && isAskingCancelConfirmation
+        ? t(labelExitDashboard, { dashboardName: name })
+        : t(labelExitEditionMode),
+    [blocked, isAskingCancelConfirmation, name]
+  );
+  const modalMessage = useMemo(
+    () =>
+      blocked && isAskingCancelConfirmation
+        ? t(labelQuitDashboardChangesNotSaved, { dashboardName: name })
+        : t(labelLeaveEditionModeChangesNotSaved),
+    [blocked, isAskingCancelConfirmation, name]
+  );
+
   if (!isEditing) {
     return (
       <Button
         data-testid="edit_dashboard"
-        icon={<EditIcon />}
+        icon={<EditOutlinedIcon />}
         iconVariant="start"
+        variant="ghost"
         onClick={startEditing}
       >
-        {t(labelEdit)}
+        {t(labelEditDashboard)}
       </Button>
     );
   }
@@ -123,7 +151,7 @@ const HeaderActions = ({
         variant="ghost"
         onClick={askCancelConfirmation}
       >
-        {t(labelCancel)}
+        {t(labelExit)}
       </Button>
       <SaveButton
         labelLoading={t(labelSaving) as string}
@@ -135,16 +163,16 @@ const HeaderActions = ({
         open={isAskingCancelConfirmation}
         onClose={closeAskCancelConfirmationAndBlock}
       >
-        <Modal.Header>{t(labelCancelDashboard)}</Modal.Header>
+        <Modal.Header>{modalTitle}</Modal.Header>
         <Modal.Body>
-          <Typography>{t(labelYouWillCancelPageWithoutSaving)}</Typography>
+          <Typography>{modalMessage}</Typography>
         </Modal.Body>
         <Modal.Actions
           isLoading={isSaving}
           labels={{
-            cancel: labelCancel,
-            confirm: labelSave,
-            loading: labelSaving
+            cancel: t(labelExit),
+            confirm: t(labelSave),
+            loading: t(labelSaving)
           }}
           onCancel={cancelEditing}
           onConfirm={saveAndProceed}

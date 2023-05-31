@@ -7,34 +7,6 @@ const namedEntityDecoder = {
   name: JsonDecoder.string
 };
 
-export const dashboardDetailsDecoder = JsonDecoder.object<DashboardDetails>(
-  {
-    ...namedEntityDecoder,
-    createdAt: JsonDecoder.string,
-    description: JsonDecoder.string,
-    ownedBy: JsonDecoder.object<DashboardDetails['ownedBy']>(
-      namedEntityDecoder,
-      'Owned By'
-    ),
-    panels: JsonDecoder.array(
-      JsonDecoder.object(namedEntityDecoder, 'Panel'),
-      'Panels'
-    ),
-    updatedAt: JsonDecoder.string,
-    updatedBy: JsonDecoder.object<DashboardDetails['updatedBy']>(
-      namedEntityDecoder,
-      'Updated By'
-    )
-  },
-  'Dashboard Details',
-  {
-    createdAt: 'created_at',
-    ownedBy: 'owned_by',
-    updatedAt: 'updated_at',
-    updatedBy: 'updated_by'
-  }
-);
-
 const panelDetailsDecoder = JsonDecoder.object<PanelDetails>(
   {
     ...namedEntityDecoder,
@@ -63,7 +35,32 @@ const panelDetailsDecoder = JsonDecoder.object<PanelDetails>(
   }
 );
 
-export const panelsDetailsDecoder = JsonDecoder.array(
+const panelsDetailsDecoder = JsonDecoder.array(
   panelDetailsDecoder,
   'Panels Details'
+);
+
+export const dashboardDetailsDecoder = JsonDecoder.object<DashboardDetails>(
+  {
+    ...namedEntityDecoder,
+    createdAt: JsonDecoder.string,
+    createdBy: JsonDecoder.object<DashboardDetails['createdBy']>(
+      namedEntityDecoder,
+      'CreatedBy By'
+    ),
+    description: JsonDecoder.nullable(JsonDecoder.string),
+    panels: panelsDetailsDecoder,
+    updatedAt: JsonDecoder.string,
+    updatedBy: JsonDecoder.object<DashboardDetails['updatedBy']>(
+      namedEntityDecoder,
+      'Updated By'
+    )
+  },
+  'Dashboard Details',
+  {
+    createdAt: 'created_at',
+    createdBy: 'created_by',
+    updatedAt: 'updated_at',
+    updatedBy: 'updated_by'
+  }
 );

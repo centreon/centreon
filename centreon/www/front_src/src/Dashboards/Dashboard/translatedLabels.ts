@@ -1,11 +1,14 @@
 export const labelSave = 'Save';
-export const labelEdit = 'Edit';
+export const labelEditDashboard = 'Edit dashboard';
 export const labelAddWidget = 'Widget';
 export const labelAddAWidget = 'Add a widget';
+export const labelExit = 'Exit';
+export const labelExitDashboard = 'Exit {{dashboardName}}';
+export const labelExitEditionMode = 'Exit edition mode';
+export const labelLeaveEditionModeChangesNotSaved =
+  'If you leave the edition mode, your changes will not be saved.';
+export const labelQuitDashboardChangesNotSaved =
+  'If you leave {{dashboardName}}, you changes will not be saved.';
 export const labelAdd = 'Add';
-export const labelCancel = 'Cancel';
-export const labelCancelDashboard = 'Cancel dashboard';
-export const labelYouWillCancelPageWithoutSaving =
-  'You will cancel page without saving, your changes will be lost.';
 export const labelYourDashboardHasBeenSaved = 'Your dashboard has been saved';
 export const labelSaving = 'Saving...';

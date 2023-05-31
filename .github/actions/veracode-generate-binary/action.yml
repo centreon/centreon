@@ -1,0 +1,49 @@
+name: "veracode-generate-binary"
+description: "Prepare binary to be analyzed"
+inputs:
+  module_directory:
+    description: Path to the module
+    required: true
+  module_name:
+    description: Module name
+    required: true
+  cache_key:
+    description: key used to identify the cache
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Exclude development files
+      run: |
+        ls -la
+        if [[ -f ".veracode" ]]; then
+          for LINE in $( cat .veracode | sed 's/[^a-z_/A-Z]//g' ); do
+            if [[ -d '$LINE' ]]; then
+              rm -rf '$LINE'
+              echo "INFO - folder removed from analysis : $LINE"
+            elif [[ -f '$LINE' ]]; then
+              rm -f '$LINE'
+              echo "INFO - file removed from analysis : $LINE"
+            elif [[ -z '$LINE' ]]; then
+              echo "INFO - unconsistent exclusion directive. Skipping: $LINE"
+            fi
+          done
+        else
+          echo "INFO - No '.veracode' file found for this module. Skipping exclusion step"
+        fi
+      shell: bash
+
+    - name: Create zip file
+      run: |
+        if [[ -z "${{ inputs.module_directory }}" || -z "${{ inputs.cache_key }}" || -z "${{ inputs.module_name }}" ]]; then
+          echo "[DEBUG] - At least one mandatory argument is missing"
+        fi
+        cd ${{ inputs.module_directory }}
+        zip -rq "${{ inputs.cache_key }}.zip" *
+      shell: bash
+
+    - uses: actions/cache/save@v3
+      with:
+        path: "${{ inputs.module_directory }}/${{ inputs.cache_key }}.zip"
+        key: ${{ inputs.cache_key }}

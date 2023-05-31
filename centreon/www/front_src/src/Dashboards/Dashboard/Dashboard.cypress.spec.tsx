@@ -8,14 +8,15 @@ import { unstable_Blocker } from 'react-router-dom';
 import { Method, TestQueryProvider } from '@centreon/ui';
 
 import { federatedWidgetsAtom } from '../../federatedModules/atoms';
-import { labelCancel } from '../translatedLabels';
 import { dashboardsEndpoint } from '../api/endpoints';
 
 import { router } from './useDashboardSaveBlocker';
 import {
-  labelCancelDashboard,
-  labelEdit,
-  labelYouWillCancelPageWithoutSaving
+  labelEditDashboard,
+  labelExit,
+  labelExitDashboard,
+  labelExitEditionMode,
+  labelLeaveEditionModeChangesNotSaved
 } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 import { dashboardAtom } from './atoms';
@@ -72,15 +73,6 @@ const initializeAndMount = (): ReturnType<typeof createStore> => {
     });
   });
 
-  cy.fixture('Dashboards/Dashboard/panels.json').then((panels) => {
-    cy.interceptAPIRequest({
-      alias: 'getDashboardPanels',
-      method: Method.GET,
-      path: `${dashboardsEndpoint}/1/panels`,
-      response: panels
-    });
-  });
-
   cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });
 
   cy.mount({
@@ -102,9 +94,8 @@ describe('Dashboard', () => {
     const store = initializeAndMount();
 
     cy.waitForRequest('@getDashboardDetails');
-    cy.waitForRequest('@getDashboardPanels');
 
-    cy.contains(labelEdit).click();
+    cy.contains(labelEditDashboard).click();
 
     cy.fixture('Dashboards/Dashboard/updatedLayout.json').then((panels) => {
       store.set(dashboardAtom, {
@@ -114,65 +105,109 @@ describe('Dashboard', () => {
 
     cy.findByTestId('1_move_panel').should('not.exist');
 
-    cy.contains(labelCancel).click();
+    cy.contains(labelExit).click();
 
-    cy.contains(labelCancelDashboard).should('be.visible');
-    cy.contains(labelYouWillCancelPageWithoutSaving).should('be.visible');
+    cy.contains(labelExitEditionMode).should('be.visible');
+    cy.contains(labelLeaveEditionModeChangesNotSaved).should('be.visible');
 
     cy.matchImageSnapshot();
 
-    cy.findByTestId('cancel_dashboard_confirmation').click();
+    cy.findByTestId('cancel_confirmation').click();
 
-    cy.contains(labelEdit).click();
+    cy.contains(labelEditDashboard).click();
 
     cy.findByTestId('1_move_panel').should('exist');
   });
 
   it('closes the cancel confirmation modal when the modal backdrop is clicked', () => {
     initializeBlocker();
-    initializeAndMount();
+    const store = initializeAndMount();
 
     cy.waitForRequest('@getDashboardDetails');
-    cy.waitForRequest('@getDashboardPanels');
 
-    cy.contains(labelEdit).click();
+    cy.contains(labelEditDashboard).click();
 
-    cy.contains(labelCancel).click();
+    cy.fixture('Dashboards/Dashboard/updatedLayout.json').then((panels) => {
+      store.set(dashboardAtom, {
+        layout: panels
+      });
+    });
+
+    cy.contains(labelExit).click();
     cy.get('body').click('topLeft');
 
-    cy.contains(labelCancel).should('be.visible');
+    cy.contains(labelExit).should('be.visible');
 
     cy.matchImageSnapshot();
   });
 
   it('displays the cancel confirmation modal when the user tries to navigate away from the dashboard', () => {
-    initializeAndMount();
+    const store = initializeAndMount();
 
     cy.waitForRequest('@getDashboardDetails');
-    cy.waitForRequest('@getDashboardPanels');
 
-    cy.contains(labelEdit).click();
+    cy.contains(labelEditDashboard).click();
+
+    cy.fixture('Dashboards/Dashboard/updatedLayout.json').then((panels) => {
+      store.set(dashboardAtom, {
+        layout: panels
+      });
+    });
 
     initializeBlocker(true);
 
-    cy.contains(labelCancelDashboard).should('be.visible');
+    cy.contains(labelExitDashboard).should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('does not display the cancel confirmation modal when the Exit button is clicked and the dashboard is not updated', () => {
+    initializeBlocker();
+    initializeAndMount();
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.contains(labelEditDashboard).click();
+
+    cy.contains(labelExit).click();
+
+    cy.contains(labelExitEditionMode).should('not.exist');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('does not display the cancel confirmation modal when the user tries to navigate away from the dashboard and the dashboard is not updated', () => {
+    initializeAndMount();
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.contains(labelEditDashboard).click();
+
+    initializeBlocker(true);
+
+    cy.contains(labelExitEditionMode).should('not.exist');
 
     cy.matchImageSnapshot();
   });
 
   it('proceeds the navigation when the corresponding button is clicked and the user tries to navigate away from the dashboard', () => {
-    initializeAndMount();
+    const store = initializeAndMount();
 
     cy.waitForRequest('@getDashboardDetails');
-    cy.waitForRequest('@getDashboardPanels');
 
-    cy.contains(labelEdit).click();
+    cy.contains(labelEditDashboard).click();
+
+    cy.fixture('Dashboards/Dashboard/updatedLayout.json').then((panels) => {
+      store.set(dashboardAtom, {
+        layout: panels
+      });
+    });
 
     const { proceed } = initializeBlocker(true);
 
-    cy.contains(labelCancelDashboard).should('be.visible');
+    cy.contains(labelExitDashboard).should('be.visible');
 
-    cy.findByTestId('cancel_dashboard_confirmation')
+    cy.findByTestId('cancel_confirmation')
       .click()
       .then(() => {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
