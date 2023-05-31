@@ -13,7 +13,10 @@ const meta: Meta<typeof Modal> = {
       options: ['small', 'medium', 'large']
     }
   },
-  component: Modal
+  component: Modal,
+  parameters: {
+    chromatic: { delay: 300 }
+  }
 };
 
 export default meta;

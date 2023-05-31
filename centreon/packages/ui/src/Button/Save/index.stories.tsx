@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
+import { ComponentStory, StoryObj } from '@storybook/react';
 import { makeStyles } from 'tss-react/mui';
 
 import { Theme } from '@mui/material';
@@ -13,7 +13,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
   }
 }));
 
-export default {
+const meta = {
   argTypes: {
     labelLoading: { control: 'text' },
     labelSave: { control: 'text' },
@@ -26,8 +26,14 @@ export default {
 
   component: ButtonSave,
 
+  parameters: {
+    chromatic: { delay: 300 }
+  },
   title: 'Button/Save'
-} as ComponentMeta<typeof ButtonSave>;
+};
+
+export default meta;
+type Story = StoryObj<typeof ButtonSave>;
 
 const TemplateButtonSave: ComponentStory<typeof ButtonSave> = (args) => (
   <ButtonSave {...args} />
