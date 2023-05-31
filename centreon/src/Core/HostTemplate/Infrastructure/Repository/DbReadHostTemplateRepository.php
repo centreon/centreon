@@ -311,6 +311,36 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
+    public function findInheritanceLine(int $hostTemplateId): array
+    {
+        $this->info('Find parents ids of host template with id #' . $hostTemplateId);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT host_tpl_id
+                FROM host_template_relation
+                WHERE host_host_id = :hostTemplateId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $templates = [];
+        foreach ($statement->fetchAll(\PDO::FETCH_COLUMN, 0) as $templateId) {
+            $templates = array_merge(
+                $templates,
+                [$templateId],
+                $this->findInheritanceLine($templateId)
+            );
+        }
+
+        return $templates;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function exists(int $hostTemplateId): bool
     {
         $this->info('Check existence of host template with ID #' . $hostTemplateId);

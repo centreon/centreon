@@ -54,6 +54,14 @@ class HostTemplateException extends \Exception
     /**
      * @return self
      */
+    public static function patchHostTemplate(): self
+    {
+        return new self(_('Error while patching a host template'));
+    }
+
+    /**
+     * @return self
+     */
     public static function accessNotAllowed(): self
     {
         return new self(_('You are not allowed to access host templates'));
@@ -73,6 +81,24 @@ class HostTemplateException extends \Exception
     public static function addNotAllowed(): self
     {
         return new self(_('You are not allowed to add host templates'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function writeActionsNotAllowed(): self
+    {
+        return new self(_('You are not allowed to perform write actions on host templates'));
+    }
+
+    /**
+     * @param int $hostTemplateId
+     *
+     * @return self
+     */
+    public static function notFound(int $hostTemplateId): self
+    {
+        return new self(sprintf(_('Host template #%d not found'), $hostTemplateId));
     }
 
     /**
