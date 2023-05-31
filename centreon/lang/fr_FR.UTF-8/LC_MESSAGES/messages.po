@@ -17666,3 +17666,9 @@ msgstr "Si vous quittez le mode édition, vos changements ne seront pas sauvegar
 
 msgid "If you leave {{dashboardName}}, your changes will not be saved."
 msgstr "Si vous quittez {{dashboardName}}, vos changements ne seront pas sauvegardés."
+
+msgid "Your dashboard has been saved"
+msgstr "Votre tableau de bord a été enregistré"
+
+msgid "Saving..."
+msgstr "En cours de sauvegarde..."
