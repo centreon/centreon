@@ -2,6 +2,8 @@
 import '@centreon/js-config/cypress/component/commands';
 import '@testing-library/cypress/add-commands';
 
+import React from 'react';
+
 import dayjs from 'dayjs';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
@@ -12,6 +14,20 @@ import weekday from 'dayjs/plugin/weekday';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import duration from 'dayjs/plugin/duration';
+import { equals } from 'ramda';
+
+import { SearchParameter } from '@centreon/ui';
+import { SortQueryParameterValue } from '@centreon/ui/src/api/buildListingEndpoint/models';
+
+interface Query {
+  key: string;
+  value: string | SearchParameter | SortQueryParameterValue;
+}
+
+interface WaitForRequestAndVerifyQueries {
+  queries: Array<Query>;
+  requestAlias: string;
+}
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
@@ -38,10 +54,47 @@ Cypress.Commands.add('waitFiltersAndListingRequests', () => {
   cy.waitForRequest('@dataToListingTable');
 });
 
+Cypress.Commands.add('render', (Component) => {
+  cy.mount({
+    Component: <Component />
+  });
+
+  cy.viewport(1200, 1000);
+});
+
+Cypress.Commands.add(
+  'waitForRequestAndVerifyQueries',
+  ({ requestAlias, queries }: WaitForRequestAndVerifyQueries) => {
+    cy.waitForRequest(`@${requestAlias}`).then(({ request }) => {
+      queries.forEach(({ key, value }) => {
+        if (equals(typeof value, 'string')) {
+          expect(request?.url?.searchParams.get(key)).to.equal(value);
+
+          return;
+        }
+        expect(request?.url?.searchParams.get(key)).to.equal(
+          JSON.stringify(value)
+        );
+      });
+    });
+  }
+);
+
+Cypress.Commands.add('waitForRequestAndVerifyBody', (requestAlias, body) => {
+  cy.waitForRequest(`@${requestAlias}`).then(({ request }) => {
+    expect(JSON.parse(request.body)).to.deep.equal(body);
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
+      render: (options) => Cypress.Chainable;
       waitFiltersAndListingRequests: () => Cypress.Chainable;
+      waitForRequestAndVerifyBody: (requestAlias, body) => Cypress.Chainable;
+      waitForRequestAndVerifyQueries: (
+        props: WaitForRequestAndVerifyQueries
+      ) => Cypress.Chainable;
     }
   }
 }

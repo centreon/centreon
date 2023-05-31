@@ -1,29 +1,15 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  applyConfigurationViaClapi,
-  checkServicesExistInDatabase,
-  checkThatConfigurationIsExported
-} from '../../../commons';
+import { checkServicesExistInDatabase } from '../../../commons';
 import {
   actionBackgroundColors,
   checkIfUserNotificationsAreEnabled,
-  initializeResourceData,
+  insertDtResources,
   searchInput,
   secondServiceInDtName,
   serviceInDtName,
   tearDownResource
 } from '../common';
-
-const insertDtResources = (): Cypress.Chainable => {
-  const dateBeforeLogin = new Date();
-
-  return cy
-    .setUserTokenApiV1()
-    .then(initializeResourceData)
-    .then(applyConfigurationViaClapi)
-    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }));
-};
 
 before(() => {
   cy.startWebContainer();
