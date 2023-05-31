@@ -10,4 +10,3 @@ export const labelLeaveEditionModeChangesNotSaved =
   'If you leave the edition mode, your changes will not be saved.';
 export const labelQuitDashboardChangesNotSaved =
   'If you leave {{dashboardName}}, your changes will not be saved.';
-
