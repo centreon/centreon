@@ -1,4 +1,4 @@
 import { dashboardsEndpoint } from '../../api/endpoints';
 
-export const getPanelsEndpoint = (id?: string): string =>
-  `${dashboardsEndpoint}/${id}/panels`;
+export const getDashboardEndpoint = (id?: string): string =>
+  `${dashboardsEndpoint}/${id}`;

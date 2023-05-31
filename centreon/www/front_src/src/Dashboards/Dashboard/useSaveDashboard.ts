@@ -5,12 +5,12 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import { getPanelsEndpoint } from './api/endpoints';
+import { getDashboardEndpoint } from './api/endpoints';
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from './atoms';
-import { Panel, PanelDetailsAPI } from './models';
+import { Panel, PanelDetailsToAPI } from './models';
 import { labelYourDashboardHasBeenSaved } from './translatedLabels';
 
-const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsAPI> =>
+const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
   layout.map(
     ({ h, i, panelConfiguration, w, x, y, minH, minW, options, name }) => ({
       id: Number(i),
@@ -49,16 +49,16 @@ const useSaveDashboard = (): UseSaveDashboardState => {
   const { showSuccessMessage } = useSnackbar();
 
   const { mutateAsync, isMutating } = useMutationQuery({
-    getEndpoint: () => getPanelsEndpoint(dashboardId),
-    method: Method.PUT
+    getEndpoint: () => getDashboardEndpoint(dashboardId),
+    method: Method.PATCH
   });
 
   const saveDashboard = (): void => {
-    mutateAsync(formatPanelsToAPI(dashboard.layout)).then(() => {
+    mutateAsync({ panels: formatPanelsToAPI(dashboard.layout) }).then(() => {
       showSuccessMessage(t(labelYourDashboardHasBeenSaved));
       switchPanelsEditionMode(false);
       queryClient.invalidateQueries({
-        queryKey: ['dashboard', dashboardId, 'panels']
+        queryKey: ['dashboard', dashboardId]
       });
     });
   };

@@ -62,15 +62,6 @@ export interface PanelDetailsToAPI extends NamedEntity {
   widget_type: string;
 }
 
-export interface DashboardDetailsToAPI extends NamedEntity {
-  created_at: string;
-  created_by: NamedEntity;
-  description: string | null;
-  panels: Array<PanelDetailsToAPI>;
-  updated_at: string;
-  updated_by: NamedEntity;
-}
-
 export interface QuitWithoutSavedDashboard extends Dashboard {
   date: string;
   id?: number;
