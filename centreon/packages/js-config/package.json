@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^14.0.0",
+    "@tsconfig/node16": "^1.0.4",
     "@types/dockerode": "^3.3.16",
     "dockerode": "^3.3.5",
     "eslint": "^8.17.0",
