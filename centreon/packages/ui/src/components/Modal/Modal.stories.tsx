@@ -37,7 +37,35 @@ export const Default: Story = {
       <Modal.Actions
         labels={{
           cancel: 'Cancel',
-          confirm: 'Confirm'
+          confirm: 'Confirm',
+          loading: 'Loading'
+        }}
+      />
+    </Modal>
+  )
+};
+
+export const DefaultWithLoading: Story = {
+  args: {
+    hasCloseButton: true,
+    open: true,
+    size: 'small'
+  },
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Header>Modal title</Modal.Header>
+      <Modal.Body>
+        <p>
+          Occaecat consectetur amet officia magna. Eu sunt aute duis duis cillum
+          irure mollit ex aute excepteur eu id cillum.
+        </p>
+      </Modal.Body>
+      <Modal.Actions
+        isLoading
+        labels={{
+          cancel: 'Cancel',
+          confirm: 'Confirm',
+          loading: 'Loading'
         }}
       />
     </Modal>
@@ -62,7 +90,35 @@ export const AsDangerAction: Story = {
         isDanger
         labels={{
           cancel: 'Cancel',
-          confirm: 'Confirm'
+          confirm: 'Confirm',
+          loading: 'Loading'
+        }}
+      />
+    </Modal>
+  )
+};
+
+export const AsDangerActionWithLoading: Story = {
+  args: {
+    ...Default.args
+  },
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Body>
+        <Modal.Body>
+          <p>
+            Occaecat consectetur amet <strong>officia magna</strong>. Eu sunt
+            aute duis duis cillum irure mollit ex aute excepteur eu id cillum.
+          </p>
+        </Modal.Body>
+      </Modal.Body>
+      <Modal.Actions
+        isDanger
+        isLoading
+        labels={{
+          cancel: 'Cancel',
+          confirm: 'Confirm',
+          loading: 'Loading'
         }}
       />
     </Modal>

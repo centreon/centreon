@@ -70,7 +70,7 @@ const SaveButton = ({
           data-testid={labelSave}
           id={getNormalizedId(labelSave)}
           loading={loading}
-          loadingPosition={labelLoading ? 'start' : 'center'}
+          loadingPosition={labelLoading && rest.startIcon ? 'start' : 'center'}
           size={size}
           startIcon={<StartIcon startIconConfig={startIconConfig} />}
           variant="contained"
