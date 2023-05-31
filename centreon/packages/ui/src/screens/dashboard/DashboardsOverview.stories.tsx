@@ -134,7 +134,11 @@ const DefaultView = (args): JSX.Element => {
   return (
     <PageLayout>
       <PageLayout.Header>
-        <PageHeader title={title} />
+        <PageHeader>
+          <PageHeader.Main>
+            <PageHeader.Title title={title} />
+          </PageHeader.Main>
+        </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
         <PageLayout.Actions>

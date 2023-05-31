@@ -7,8 +7,8 @@ import {
   DashboardForm,
   DashboardFormLabels,
   DashboardResource,
-  Header,
   Modal,
+  PageHeader,
   PageLayout
 } from '@centreon/ui/components';
 
@@ -89,7 +89,11 @@ const Dashboards = (): ReactElement => {
   return (
     <PageLayout>
       <PageLayout.Header>
-        <Header title={t(labelDashboards)} />
+        <PageHeader>
+          <PageHeader.Main>
+            <PageHeader.Title title={t(labelDashboards)} />
+          </PageHeader.Main>
+        </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
         <Suspense fallback={<ListingSkeleton />}>
