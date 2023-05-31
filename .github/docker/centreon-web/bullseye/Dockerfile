@@ -62,7 +62,7 @@ COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint/container.d/*
 COPY --chmod=755 ./.github/docker/centreon-web/bullseye/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=www-data:www-data ./.github/docker/centreon-web/bullseye/configuration /usr/share/centreon/www/install/tmp/
 
-RUN bash -e <<EOF
+RUN <<EOF
 
 sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql
 
