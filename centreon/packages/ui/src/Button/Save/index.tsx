@@ -17,6 +17,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
 
 interface Props extends Record<string, unknown> {
   className?: string;
+  hasStartIcon?: boolean;
   labelLoading?: string;
   labelSave?: string;
   labelSucceeded?: string;
@@ -45,6 +46,7 @@ const SaveButton = ({
   labelSave = '',
   size = 'small',
   className,
+  hasStartIcon = true,
   ...rest
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
@@ -70,9 +72,11 @@ const SaveButton = ({
           data-testid={labelSave}
           id={getNormalizedId(labelSave)}
           loading={loading}
-          loadingPosition={labelLoading && rest.startIcon ? 'start' : 'center'}
+          loadingPosition={labelLoading && hasStartIcon ? 'start' : 'center'}
           size={size}
-          startIcon={<StartIcon startIconConfig={startIconConfig} />}
+          startIcon={
+            hasStartIcon && <StartIcon startIconConfig={startIconConfig} />
+          }
           variant="contained"
           {...rest}
         >

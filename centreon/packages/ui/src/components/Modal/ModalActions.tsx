@@ -30,12 +30,6 @@ const ModalActions = ({
 }: ModalActionsProps): ReactElement => {
   const { classes } = useStyles();
 
-  const icon = isDanger
-    ? {
-        startIcon: undefined
-      }
-    : null;
-
   return (
     <div className={classes.modalActions}>
       {children || (
@@ -54,13 +48,12 @@ const ModalActions = ({
             aria-label="confirm"
             color={isDanger ? 'error' : 'primary'}
             data-testid="confirm_confirmation"
+            hasStartIcon={!isDanger}
             labelLoading={labels?.loading}
             labelSave={labels?.confirm}
             loading={isLoading}
-            size="small"
             type="submit"
             onClick={() => onConfirm?.()}
-            {...icon}
           />
         </>
       )}
