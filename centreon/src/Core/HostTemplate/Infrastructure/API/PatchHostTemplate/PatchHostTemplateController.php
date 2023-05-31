@@ -65,8 +65,6 @@ final class PatchHostTemplateController extends AbstractController
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PatchHostTemplateSchema.json');
 
-            // TODO handle error message if property is not handled yet in doc API
-
             $dto = new PatchHostTemplateRequest();
             $dto->macros = $data['macros'] ?? null;
 
