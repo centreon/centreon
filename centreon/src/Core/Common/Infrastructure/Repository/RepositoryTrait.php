@@ -59,8 +59,6 @@ trait RepositoryTrait
         return \DateTimeImmutable::createFromFormat('U', (string) $timestamp)
             ?: throw new \ValueError('Unable to create a DateTimeImmutable from an integer.');
     }
-<<<<<<< HEAD
-=======
 
     /**
      * from legacy behaviour:
@@ -76,5 +74,4 @@ trait RepositoryTrait
     {
         return \HtmlAnalyzer::sanitizeAndRemoveTags($string);
     }
->>>>>>> 14325c59eb9d824d6076f940489704510864a617
 }
