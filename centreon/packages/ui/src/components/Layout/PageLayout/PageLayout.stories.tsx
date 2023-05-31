@@ -67,7 +67,8 @@ export const DefaultWithPageHeader: Story = {
     children: (
       <>
         <PageLayout.Header>
-          {/* @ts-ignore */}
+          {/* eslint-disable react/jsx-pascal-case */}
+          {/* @ts-expect-error storybook story render method not being recognised */}
           <DefaultPageHeaderStory.render {...DefaultPageHeaderStory.args} />
         </PageLayout.Header>
         <PageLayout.Body>

@@ -69,14 +69,15 @@ const TextOverflowTooltip = ({
 
   const elRef = useRef<HTMLDivElement>(null);
 
-  const onResize = () => {
+  const onResize = (): void => {
     const { firstElementChild: el } = elRef.current || {};
-    el instanceof HTMLElement &&
+    if (el instanceof HTMLElement) {
       setState({
         ...state,
         hasOverflow:
           el.scrollWidth > el.offsetWidth || el.scrollHeight > el.offsetHeight
       });
+    }
   };
 
   useResizeObserver({
@@ -85,7 +86,7 @@ const TextOverflowTooltip = ({
   });
 
   useEffect(() => {
-    isOpen && setState({ ...state, isOpen });
+    if (isOpen) setState({ ...state, isOpen });
     onResize();
   }, [isOpen, label]);
 

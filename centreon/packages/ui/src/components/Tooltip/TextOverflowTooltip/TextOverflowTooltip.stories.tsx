@@ -1,7 +1,7 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
-import { within } from '@storybook/testing-library';
 
 // import { expect } from '@storybook/jest';
 import { TextOverflowTooltip } from './TextOverflowTooltip';
@@ -23,11 +23,11 @@ export const Default: Story = {
     label:
       'Qui deserunt pariatur quis. Duis nisi velit culpa labore ipsum reprehenderit sunt laborum anim sint quis magna consequat amet. Voluptate tempor nostrud eiusmod enim qui reprehenderit.'
   },
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   play: async ({ args, canvasElement, step }) => {
-    const canvas = within(canvasElement);
-    const paragraph = canvas.getByTestId('paragraph');
-
     // FIXME
+    // const canvas = within(canvasElement);
+    // const paragraph = canvas.getByTestId('paragraph');
     // await userEvent.hover(paragraph);
     // await new Promise((resolve) => setTimeout(resolve, 500));
     // const tooltip = await within(
