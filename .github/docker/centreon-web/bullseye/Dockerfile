@@ -10,9 +10,9 @@ COPY *.deb /tmp/debs-centreon/
 
 RUN <<EOF
 
-apt update
+apt-get update
 
-apt install -y ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo
+apt-get install -y ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo
 
 VERSION_CODENAME=$(
     . /etc/os-release
@@ -20,7 +20,7 @@ VERSION_CODENAME=$(
 )
 echo "deb https://packages.sury.org/php/ $VERSION_CODENAME main" | tee /etc/apt/sources.list.d/sury-php.list
 wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
-apt update
+apt-get update
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
 
@@ -29,9 +29,9 @@ curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- -
 echo "deb https://packages.centreon.com/apt-standard-${VERSION}-unstable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
 echo "deb https://packages.centreon.com/apt-plugins-unstable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-unstable.list
 wget -O- https://packages.centreon.com/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
-apt update
+apt-get update
 
-apt install -y mariadb-server mariadb-client
+apt-get install -y mariadb-server mariadb-client
 
 echo "[server]
 skip-grant-tables
@@ -47,12 +47,12 @@ innodb_fast_shutdown=0
 " > /etc/mysql/conf.d/container.cnf
 
 rm -f /tmp/debs-centreon/centreon-${VERSION}*.deb /tmp/debs-centreon/centreon-central-${VERSION}*.deb
-apt install -y /tmp/debs-centreon/centreon-*.deb
+apt-get install -y /tmp/debs-centreon/centreon-*.deb
 
 touch /var/log/php8.1-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.1-fpm-centreon-error.log
 
-apt clean
+apt-get clean
 
 EOF
 
