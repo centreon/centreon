@@ -4,13 +4,13 @@ import { loginAsAdminViaApiV2 } from '../../../commons';
 
 before(() => {
   cy.startWebContainer();
-  loginAsAdminViaApiV2();
 });
 
 beforeEach(() => {
+  loginAsAdminViaApiV2();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?page=1&limit=4'
+    url: '/centreon/api/latest/configuration/dashboards?page=1&limit=100'
   }).as('listAllDashboards');
 });
 
@@ -72,6 +72,12 @@ Then('the newly created dashboard appears in the dashboards library', () => {
     'contain.text',
     'dashboard-1'
   );
+
+  cy.getByLabel({ label: 'delete', tag: 'button' }).each((element) => {
+    cy.wrap(element).click();
+    cy.getByLabel({ label: 'confirm', tag: 'button' }).click();
+    cy.wait('@listAllDashboards');
+  });
 });
 
 Given(
@@ -94,9 +100,7 @@ Then(
   'the dashboard has not been created when they are redirected back on the dashboards library',
   () => {
     cy.reload();
-    cy.getByLabel({ label: 'view', tag: 'button' })
-      .should('contain.text', 'dashboard-cancel')
-      .should('not.exist');
+    cy.getByLabel({ label: 'view', tag: 'button' }).should('not.exist');
   }
 );
 
@@ -117,11 +121,3 @@ Then(
     );
   }
 );
-
-afterEach(() => {
-  cy.getByLabel({ label: 'delete', tag: 'button' }).each((element) => {
-    cy.wrap(element).click();
-    cy.getByLabel({ label: 'confirm', tag: 'button' }).click();
-    cy.wait('@listAllDashboards');
-  });
-});
