@@ -1,8 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
-  checkThatFixtureHostsExistInDatabase,
-  checkThatFixtureServicesExistInDatabase
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
 } from '../../../commons';
 import {
   actionBackgroundColors,
@@ -33,7 +33,7 @@ beforeEach(() => {
   }).as('getTimeZone');
 });
 
-Given('the user has the necessary rights to page Ressource Status', () => {
+Given('the user has the necessary rights to page Resource Status', () => {
   cy.startWebContainer();
 
   cy.loginByTypeOfUser({
@@ -174,7 +174,7 @@ Then(
 );
 
 Given(
-  'a multiple resources selected on Resources Status with the "Resource Problems" filter enabled',
+  'multiple resources selected on Resources Status with the "Resource Problems" filter enabled',
   () => {
     cy.contains('Unhandled alerts');
 
@@ -278,6 +278,12 @@ Given('criteria is {string}', (criteria: string) => {
 Given(
   'a resource of host is selected with {string}',
   (initial_status: string) => {
+    checkHostsAreMonitored([
+      {
+        name: hostChildInAcknowledgementName,
+      }
+    ]);
+
     const hostStatus = {
       host: hostChildInAcknowledgementName,
       output: `submit_${hostChildInAcknowledgementName}_${initial_status}`,
@@ -286,11 +292,12 @@ Given(
 
     submitCustomResultsViaClapi(hostStatus);
 
-    checkThatFixtureHostsExistInDatabase({
-      hostAlias: hostChildInAcknowledgementName,
-      submitOutput: `submit_${hostChildInAcknowledgementName}_${initial_status}`,
-      submitResults: [hostStatus]
-    });
+    checkHostsAreMonitored([
+      {
+        name: hostChildInAcknowledgementName,
+        output: hostStatus.output
+      }
+    ]);
 
     cy.refreshListing();
 
@@ -312,13 +319,9 @@ Given(
       status: initial_status
     };
 
-    submitCustomResultsViaClapi(serviceStatus);
+    checkServicesAreMonitored([{ name: serviceInAcknowledgementName }]);
 
-    checkThatFixtureServicesExistInDatabase({
-      outputText: `submit_${serviceInAcknowledgementName}_${initial_status}`,
-      serviceDesc: serviceInAcknowledgementName,
-      submitResults: [serviceStatus]
-    });
+    submitCustomResultsViaClapi(serviceStatus);
 
     cy.refreshListing();
 
@@ -391,13 +394,17 @@ When(
           service: serviceInAcknowledgementName,
           status: changed_status
         };
+
+        checkServicesAreMonitored([{ name: serviceInAcknowledgementName }]);
+
         submitCustomResultsViaClapi(status);
 
-        checkThatFixtureServicesExistInDatabase({
-          outputText: `submit_${serviceInAcknowledgementName}_${changed_status}`,
-          serviceDesc: serviceInAcknowledgementName,
-          submitResults: [status]
-        });
+        checkServicesAreMonitored([
+          {
+            name: serviceInAcknowledgementName,
+            status: changed_status
+          }
+        ]);
         break;
       default:
         status = {
@@ -406,13 +413,21 @@ When(
           status: changed_status
         };
 
+        checkHostsAreMonitored([
+          {
+            name: hostChildInAcknowledgementName
+          }
+        ]);
+
         submitCustomResultsViaClapi(status);
 
-        checkThatFixtureHostsExistInDatabase({
-          hostAlias: hostChildInAcknowledgementName,
-          submitOutput: `submit_${hostChildInAcknowledgementName}_${changed_status}`,
-          submitResults: [status]
-        });
+        checkHostsAreMonitored([
+          {
+            name: hostChildInAcknowledgementName,
+            output: status.output,
+            status: status.status
+          }
+        ]);
         break;
     }
   }

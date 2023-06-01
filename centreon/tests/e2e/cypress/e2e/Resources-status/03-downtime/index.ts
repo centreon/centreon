@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesExistInDatabase } from '../../../commons';
+import { checkServicesAreMonitored } from '../../../commons';
 import {
   actionBackgroundColors,
   checkIfUserNotificationsAreEnabled,
@@ -46,7 +46,14 @@ Given('the user have the necessary rights to set downtime', () => {
 Given('minimally one resource with and notifications enabled on user', () => {
   insertDtResources();
 
-  checkServicesExistInDatabase([serviceInDtName, secondServiceInDtName]);
+  checkServicesAreMonitored([
+    {
+      name: serviceInDtName
+    },
+    {
+      name: secondServiceInDtName
+    }
+  ]);
 
   checkIfUserNotificationsAreEnabled();
 

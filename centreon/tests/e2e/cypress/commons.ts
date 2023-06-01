@@ -14,10 +14,11 @@ interface SubmitResult {
   output: string;
   service?: string;
   status: string;
+  updatetime?: string;
 }
 
 const stepWaitingTime = 250;
-const pollingCheckTimeout = 100000;
+const pollingCheckTimeout = 60000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
 const waitToExport = 3000;
 
@@ -30,60 +31,41 @@ const apiLogout = '/centreon/api/latest/authentication/logout';
 let servicesFoundStepCount = 0;
 let hostsFoundStepCount = 0;
 
-const checkThatFixtureServicesExistInDatabase = ({
-  serviceDesc,
-  outputText,
-  submitResults
-}): void => {
-  cy.log('Checking services in database');
+const getStatusNumberFromString = (status: string): number => {
+  const statuses = {
+    critical: '2',
+    down: '1',
+    unknown: '3',
+    unreachable: '2',
+    up: '0',
+    warning: '1'
+  };
 
-  const query = `SELECT COUNT(s.service_id) as count_services from services as s WHERE s.description LIKE '%${serviceDesc}%' AND s.output LIKE '%${outputText}%' AND s.enabled=1;`;
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
+  if (status in statuses) {
+    return statuses[status];
+  }
 
-  cy.exec(command).then(({ stdout }): Cypress.Chainable<null> | null => {
-    servicesFoundStepCount += 1;
+  throw new Error(`Status ${status} does not exist`);
+}
 
-    const output = stdout || '0';
-    const foundServiceCount = parseInt(output.split('\n')[1], 10);
+interface MonitoredHost {
+  name: string;
+  status?: string;
+  output?: string;
+}
 
-    cy.log('Service count in database', foundServiceCount);
-    cy.log('Service database check step count', servicesFoundStepCount);
-
-    if (foundServiceCount > 0) {
-      return null;
-    }
-
-    if (servicesFoundStepCount < maxSteps) {
-      cy.wait(stepWaitingTime);
-
-      return cy
-        .wrap(null)
-        .then(() => submitResultsViaClapi(submitResults))
-        .then(() =>
-          checkThatFixtureServicesExistInDatabase({
-            outputText,
-            serviceDesc,
-            submitResults
-          })
-        );
-    }
-
-    throw new Error(
-      `No service found in the database after ${pollingCheckTimeout}ms`
-    );
-  });
-};
-
-const checkThatFixtureHostsExistInDatabase = ({
-  hostAlias,
-  submitOutput,
-  submitResults
-}): void => {
+const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
   cy.log('Checking hosts in database');
 
-  const query = `SELECT COUNT(h.host_id) as count_hosts from hosts as h WHERE h.name LIKE '%${hostAlias}%' AND h.output LIKE '%${submitOutput}%' AND h.enabled=1;`;
+  let query = 'SELECT COUNT(h.host_id) from hosts as h WHERE h.enabled=1';
+  hosts.forEach(({ name, output = '', status = '' }) => {
+    query += ` AND (h.name = '${name}' AND h.output LIKE '%${output}%'`;
+    if (status !== '') {
+      query += ` AND h.state = ${getStatusNumberFromString(status)}`;
+    }
+    query += ')';
+  });
+
   const command = `docker exec -i ${Cypress.env(
     'dockerName'
   )} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
@@ -92,12 +74,12 @@ const checkThatFixtureHostsExistInDatabase = ({
     hostsFoundStepCount += 1;
 
     const output = stdout || '0';
-    const foundServiceCount = parseInt(output.split('\n')[1], 10);
+    const foundHostCount = parseInt(output.split('\n')[1], 10);
 
-    cy.log('Host count in database', foundServiceCount);
+    cy.log('Host count in database', foundHostCount);
     cy.log('Host database check step count', hostsFoundStepCount);
 
-    if (foundServiceCount > 0) {
+    if (foundHostCount >= hosts.length) {
       return null;
     }
 
@@ -106,32 +88,33 @@ const checkThatFixtureHostsExistInDatabase = ({
 
       return cy
         .wrap(null)
-        .then(() => submitResultsViaClapi(submitResults))
-        .then(() =>
-          checkThatFixtureHostsExistInDatabase({
-            hostAlias,
-            submitOutput,
-            submitResults
-          })
-        );
+        .then(() => checkHostsAreMonitored(hosts));
     }
 
     throw new Error(
-      `No service found in the database after ${pollingCheckTimeout}ms`
+      `Hosts ${hosts.map(({ name }) => name).join()} are not monitored after ${pollingCheckTimeout}ms`
     );
   });
 };
 
-const checkServicesExistInDatabase = (serviceNames: Array<string>): void => {
+interface MonitoredService {
+  name: string;
+  status?: string;
+  output?: string;
+}
+
+const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
   cy.log('Checking services in database');
 
-  let conditionBuild = '';
-
-  serviceNames.forEach((description) => {
-    conditionBuild += ` AND s.description LIKE '%${description}%'`;
+  let query = 'SELECT COUNT(s.service_id) from services as s WHERE s.enabled=1';
+  services.forEach(({ name, output = '', status = '' }) => {
+    query += ` AND (s.description = '${name}' AND s.output LIKE '%${output}%'`;
+    if (status !== '') {
+      query += ` AND s.state = ${getStatusNumberFromString(status)}`;
+    }
+    query += ')';
   });
 
-  const query = `SELECT COUNT(s.service_id) as count_services from services as s WHERE s.enabled=1${conditionBuild};`;
   const command = `docker exec -i ${Cypress.env(
     'dockerName'
   )} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
@@ -145,7 +128,7 @@ const checkServicesExistInDatabase = (serviceNames: Array<string>): void => {
     cy.log('Service count in database', foundServiceCount);
     cy.log('Service database check step count', servicesFoundStepCount);
 
-    if (foundServiceCount > 0) {
+    if (foundServiceCount >= services.length) {
       return null;
     }
 
@@ -154,11 +137,11 @@ const checkServicesExistInDatabase = (serviceNames: Array<string>): void => {
 
       return cy
         .wrap(null)
-        .then(() => checkServicesExistInDatabase(serviceNames));
+        .then(() => checkServicesAreMonitored(services));
     }
 
     throw new Error(
-      `No service found in the database after ${pollingCheckTimeout}ms`
+      `Services ${services.map(({ name }) => name).join()} are not monitored after ${pollingCheckTimeout}ms`
     );
   });
 };
@@ -302,8 +285,9 @@ export {
   ActionClapi,
   SubmitResult,
   checkThatConfigurationIsExported,
-  checkThatFixtureServicesExistInDatabase,
-  checkThatFixtureHostsExistInDatabase,
+  checkHostsAreMonitored,
+  checkServicesAreMonitored,
+  getStatusNumberFromString,
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,
@@ -313,6 +297,5 @@ export {
   loginAsAdminViaApiV2,
   insertFixture,
   logout,
-  checkIfConfigurationIsExported,
-  checkServicesExistInDatabase
+  checkIfConfigurationIsExported
 };

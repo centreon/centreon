@@ -1,8 +1,9 @@
 import {
   apiBase,
   applyConfigurationViaClapi,
+  getStatusNumberFromString,
   checkThatConfigurationIsExported,
-  checkThatFixtureServicesExistInDatabase,
+  checkServicesAreMonitored,
   loginAsAdminViaApiV2,
   submitResultsViaClapi,
   versionApi,
@@ -97,14 +98,10 @@ const insertResourceFixtures = (): Cypress.Chainable => {
       .then(initializeResourceData)
       .then(applyConfigurationViaClapi)
       .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
-      .then(() => submitResultsViaClapi(submitResults))
       .then(() =>
-        checkThatFixtureServicesExistInDatabase({
-          outputText: 'submit_status_2',
-          serviceDesc: serviceInAcknowledgementName,
-          submitResults
-        })
-      );
+        checkServicesAreMonitored([{ name: serviceInAcknowledgementName }])
+      )
+      .then(() => submitResultsViaClapi(submitResults));
   });
 };
 
@@ -132,14 +129,13 @@ const insertAckResourceFixtures = (): Cypress.Chainable => {
     .then(initializeAckChildRessources)
     .then(applyConfigurationViaClapi)
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
-    .then(() => submitResultsViaClapi(results))
     .then(() =>
-      checkThatFixtureServicesExistInDatabase({
-        outputText: 'submit_status_2',
-        serviceDesc: serviceInAcknowledgementName,
-        submitResults: results
-      })
-    );
+      checkServicesAreMonitored([{ name: serviceInAcknowledgementName }])
+    )
+    .then(() => submitResultsViaClapi(results))
+    .refreshListing()
+    .then(() => cy.contains(serviceInAcknowledgementName, { timeout: 30000 }))
+    .then(() => cy.contains('submit_status_2', { timeout: 30000 }));
 };
 
 const setUserFilter = (body: Filter): Cypress.Chainable => {
@@ -228,7 +224,7 @@ const submitCustomResultsViaClapi = (
   return submitResultsViaClapi([
     {
       ...submitResults,
-      status: statusIds[submitResults.status],
+      status: getStatusNumberFromString(submitResults.status).toString(),
       updatetime: timestampNow.toString()
     }
   ]);
