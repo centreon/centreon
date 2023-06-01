@@ -3,6 +3,10 @@ required: []
 properties:
   macros:
     type: array
+    description: |
+      Host macros defined for the host (directly or through template or command inheritance)
+
+      If multiple macros are defined with the same name, only the last one will be saved.
     items:
       type: object
       required: ['name', 'value', 'is_password', 'description']
