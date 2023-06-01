@@ -33,7 +33,6 @@ const meta = {
 };
 
 export default meta;
-type Story = StoryObj<typeof ButtonSave>;
 
 const TemplateButtonSave: ComponentStory<typeof ButtonSave> = (args) => (
   <ButtonSave {...args} />
