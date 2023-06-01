@@ -22,11 +22,11 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\ProviderPresenter;
 
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderResponse\{
     OpenIdProviderResponse
 };
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class OpenIdProviderPresenter implements ProviderPresenterInterface
 {
@@ -47,6 +47,7 @@ class OpenIdProviderPresenter implements ProviderPresenterInterface
 
     /**
      * @param OpenIdProviderResponse $response
+     *
      * @return array<string,mixed>
      */
     public function present(mixed $response): array
@@ -64,10 +65,10 @@ class OpenIdProviderPresenter implements ProviderPresenterInterface
             );
 
         $authenticationUriParts = [
-            "client_id" => $response->clientId,
-            "response_type" => "code",
-            "redirect_uri" => rtrim($redirectUri, '/'),
-            "state" => uniqid()
+            'client_id' => $response->clientId,
+            'response_type' => 'code',
+            'redirect_uri' => rtrim($redirectUri, '/'),
+            'state' => uniqid(),
         ];
 
         $authorizationEndpointBase = '';
