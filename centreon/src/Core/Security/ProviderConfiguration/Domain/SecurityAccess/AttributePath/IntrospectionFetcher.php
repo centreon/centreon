@@ -58,7 +58,7 @@ class IntrospectionFetcher implements AttributePathFetcherInterface
             . ltrim($customConfiguration->getIntrospectionTokenEndpoint(), '/');
 
         try {
-            return $this->attributePathRepository->getData($url, $accessToken, $configuration);
+            return $this->attributePathRepository->getData($url, $accessToken, $configuration, $endpoint->getType());
         } catch (InvalidResponseException $invalidResponseException) {
             $this->loginLogger->exception(
                 $scope,
