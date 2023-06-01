@@ -66,6 +66,6 @@ Scenario Outline: Acknowledge a resource with sticky only on a service
 Scenario: Disacknowledge a resource
     Given a single resource selected on Resources Status with the criteria "state: acknowledged"
     And a resource marked as acknowledged is selected
-    And user uses the "Disacknowledge" action for this resource in the "More actions" menu
+    And the user uses the "Disacknowledge" action for this resource in the "More actions" menu
     Then the acknowledgement is removed
     Then the resource is not marked as acknowledged after listing is refreshed with the criteria "state: acknowledged"
