@@ -70,7 +70,7 @@ const DashboardForm = ({
           .max(
             180,
             (p) =>
-              `${p.label} ${t(labelMustBeMost)} ${p.max} ${labelCharacters}`
+              `${p.label} ${t(labelMustBeMost)} ${p.max} ${t(labelCharacters)}`
           )
           .nullable(),
         name: Yup.string()
