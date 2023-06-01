@@ -1,9 +1,12 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
+import { insertDashboardList } from '../common';
 import { loginAsAdminViaApiV2 } from '../../../commons';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startWebContainer({
+    version: 'develop'
+  });
 });
 
 beforeEach(() => {
@@ -14,6 +17,7 @@ beforeEach(() => {
   }).as('listAllDashboards');
 });
 
+// To refine
 Given('a user with access to the dashboards library', () => {
   cy.visit(`${Cypress.config().baseUrl}/centreon/monitoring/resources`);
 });
@@ -36,3 +40,18 @@ Then(
     cy.getByLabel({ label: 'create', tag: 'button' }).should('exist');
   }
 );
+
+Given('a non-empty list of dashboards that fits on one page', () => {
+  insertDashboardList('dashboards/navigation/01-onepage.json');
+});
+
+When('the user clicks on the dashboard they want to select', () => {
+  cy.getByLabel({ label: 'view', tag: 'button' })
+    .contains('dashboard-to-locate')
+    .click();
+});
+
+// Missing development about dashboard retrieve
+Then('they are redirected to the information page for that dashboard', () => {
+  cy.getByLabel({});
+});
