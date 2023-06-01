@@ -17669,6 +17669,3 @@ msgstr "Si vous quittez {{dashboardName}}, vos changements ne seront pas sauvega
 
 msgid "Your dashboard has been saved"
 msgstr "Votre tableau de bord a été sauvegardé"
-
-msgid "Saving..."
-msgstr "En cours de sauvegarde..."
