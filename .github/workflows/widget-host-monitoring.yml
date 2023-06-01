@@ -31,7 +31,6 @@ jobs:
     uses: ./.github/workflows/veracode-analysis.yml
     concurrency:
       group: veracode-widgets
-      cancel-in-progress: true
     with:
       module_directory: widgets/centreon-widget-host-monitoring
       module_name: centreon-widget-host-monitoring
