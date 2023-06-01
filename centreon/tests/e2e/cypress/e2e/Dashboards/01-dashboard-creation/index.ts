@@ -3,7 +3,9 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import { loginAsAdminViaApiV2 } from '../../../commons';
 
 before(() => {
-  cy.startWebContainer();
+  cy.startWebContainer({
+    version: 'develop'
+  });
 });
 
 beforeEach(() => {
@@ -40,23 +42,14 @@ Then(
   }
 );
 
-When('they fill in the mandatory fields of the form', () => {
+When('they fill in the name field', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-1');
-
-  cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-    'My First Dashboard :)'
-  );
 });
 
 Then('they are allowed to create the dashboard', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).should(
     'have.value',
     'dashboard-1'
-  );
-
-  cy.getByLabel({ label: 'Description', tag: 'textarea' }).should(
-    'have.value',
-    'My First Dashboard :)'
   );
 
   cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
@@ -79,6 +72,31 @@ Then('the newly created dashboard appears in the dashboards library', () => {
     cy.wait('@listAllDashboards');
   });
 });
+
+Given(
+  'a user with dashboard edition rights on the dashboard creation form',
+  () => {
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({ label: 'create', tag: 'button' }).click();
+  }
+);
+
+When('they fill in the name and description fields and save', () => {
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-1');
+  cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
+    'My First Dashboard :)'
+  );
+  cy.getByLabel({ label: 'submit', tag: 'button' }).click();
+});
+
+Then(
+  'the newly created dashboard appears in the dashboards library with its name and description',
+  () => {
+    cy.getByLabel({ label: 'view', tag: 'button' })
+      .should('contain.text', 'dashboard-1')
+      .should('contain.text', 'My First Dashboard :)');
+  }
+);
 
 Given(
   'a user with dashboard edition rights who is about to create a dashboard',

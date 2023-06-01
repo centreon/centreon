@@ -3,14 +3,19 @@ Feature: Create a new dashboard
   I need to start creating a dashboard starting from an empty page on which I will place widgets
   So these dashboards can be consulted by myself and other users
   
-Scenario: Create a new dashboard without template or category
+Scenario: Create a new dashboard with name only
   Given a user with dashboard edition rights on the dashboard listing page
   When they open the form to create a new dashboard 
   Then the creation form is displayed and contains the fields to create a dashboard
-  When they fill in the mandatory fields of the form
+  When they fill in the name field
   Then they are allowed to create the dashboard
   When they save the dashboard
   Then the newly created dashboard appears in the dashboards library
+
+Scenario: Create a new dashboard with name and description
+  Given a user with dashboard edition rights on the dashboard creation form
+  When they fill in the name and description fields and save
+  Then the newly created dashboard appears in the dashboards library with its name and description
 
 Scenario: Cancel a creation form
   Given a user with dashboard edition rights who is about to create a dashboard
