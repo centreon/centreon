@@ -22,11 +22,11 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Infrastructure\Api\FindProviderConfigurations\ProviderPresenter;
 
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderResponse\{
     OpenIdProviderResponse
 };
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class OpenIdProviderPresenter implements ProviderPresenterInterface
 {
@@ -47,6 +47,7 @@ class OpenIdProviderPresenter implements ProviderPresenterInterface
 
     /**
      * @param OpenIdProviderResponse $response
+     *
      * @return array<string,mixed>
      */
     public function present(mixed $response): array
@@ -67,13 +68,63 @@ class OpenIdProviderPresenter implements ProviderPresenterInterface
             'id' => $response->id,
             'type' => CustomConfiguration::TYPE,
             'name' => CustomConfiguration::NAME,
-            'authentication_uri' => $response->baseUrl . '/'
-                . ltrim($response->authorizationEndpoint ?? '', '/')
-                . '?client_id=' . $response->clientId . '&response_type=code' . '&redirect_uri='
-                . rtrim($redirectUri, '/') . '&state=' . uniqid()
-                . (! empty($response->connectionScopes) ? '&scope=' . implode('%20', $response->connectionScopes) : ''),
+            'authentication_uri' => $this->buildAuthenticationUri(
+                    $response->baseUrl,
+                    $response->clientId,
+                    $response->authorizationEndpoint,
+                    $redirectUri,
+                    $response->connectionScopes
+                ),
             'is_active' => $response->isActive,
             'is_forced' => $response->isForced,
         ];
+    }
+
+    /**
+     * Build authentication URI
+     *
+     * @param string|null $baseUrl
+     * @param string|null $clientId
+     * @param string|null $authorizationEndpoint
+     * @param string|null $redirectUri
+     * @param string[]|null $connectionScopes
+     *
+     * @return string
+     */
+    private function buildAuthenticationUri(
+        ?string $baseUrl,
+        ?string $clientId,
+        ?string $authorizationEndpoint,
+        ?string $redirectUri,
+        ?array $connectionScopes
+    ): string {
+        if ($baseUrl === null
+            || $clientId === null
+            || $authorizationEndpoint === null
+            || $redirectUri === null
+            || $connectionScopes === null
+        ) {
+            return '';
+        }
+        $authenticationUriParts = [
+            'client_id' => $clientId,
+            'response_type' => 'code',
+            'redirect_uri' => rtrim($redirectUri, '/'),
+            'state' => uniqid(),
+        ];
+        $authorizationEndpointBase = parse_url($authorizationEndpoint, PHP_URL_PATH);
+        $authorizationEndpointParts = parse_url($authorizationEndpoint, PHP_URL_QUERY);
+
+        if ($authorizationEndpointBase === false || $authorizationEndpointParts === false) {
+            throw new \ValueError(_('Unable to parse authorization url'));
+        }
+
+        $queryParams = http_build_query($authenticationUriParts);
+        if ($authorizationEndpointParts !== null) {
+            $queryParams .= '&' . $authorizationEndpointParts;
+        }
+
+        return $baseUrl . '/' . ltrim($authorizationEndpointBase ?? '', '/') . '?' . $queryParams
+            . (! empty($connectionScopes) ? '&scope=' . implode('%20', $connectionScopes) : '');
     }
 }
