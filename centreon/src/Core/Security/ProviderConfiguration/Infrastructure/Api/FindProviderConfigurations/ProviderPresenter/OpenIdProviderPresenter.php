@@ -79,7 +79,7 @@ class OpenIdProviderPresenter implements ProviderPresenterInterface
             $authorizationEndpointParts = parse_url($response->authorizationEndpoint, PHP_URL_QUERY);
 
             if ($authorizationEndpointBase === false || $authorizationEndpointParts === false) {
-                throw new \Exception(_('Unable to parse authorization url'));
+                throw new \ValueError(_('Unable to parse authorization url'));
             }
 
             $queryParams = http_build_query($authenticationUriParts);
