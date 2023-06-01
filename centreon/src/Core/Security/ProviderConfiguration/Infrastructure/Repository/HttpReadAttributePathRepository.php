@@ -60,10 +60,10 @@ class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInte
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function getData(string $url, string $token, Configuration $configuration): array
+    public function getData(string $url, string $token, Configuration $configuration, string $endpointType): array
     {
         try {
-            $response = $this->getResponseOrFail($url, $token, $configuration);
+            $response = $this->getResponseOrFail($url, $token, $configuration, $endpointType);
             $this->statusCodeIsValidOrFail($response);
 
             return $this->getContentOrFail($response);
