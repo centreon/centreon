@@ -68,31 +68,44 @@ class OpenIdProviderPresenter implements ProviderPresenterInterface
             'id' => $response->id,
             'type' => CustomConfiguration::TYPE,
             'name' => CustomConfiguration::NAME,
-            'authentication_uri' => $response->baseUrl . '/'
-                . $this->buildAuthenticationUriParameters(
+            'authentication_uri' => $this->buildAuthenticationUri(
+                    $response->baseUrl,
                     $response->clientId,
                     $response->authorizationEndpoint,
-                    $redirectUri
-                )
-                . (! empty($response->connectionScopes) ? '&scope=' . implode('%20', $response->connectionScopes) : ''),
+                    $redirectUri,
+                    $response->connectionScopes
+                ),
             'is_active' => $response->isActive,
             'is_forced' => $response->isForced,
         ];
     }
 
     /**
-     * Build Authentication Uri query parameters.
+     * Build authentication URI
      *
-     * @param string $clientId
-     * @param string $authorizationEndpoint
-     * @param string $redirectUri
+     * @param string|null $baseUrl
+     * @param string|null $clientId
+     * @param string|null $authorizationEndpoint
+     * @param string|null $redirectUri
+     * @param string[]|null $connectionScopes
+     *
      * @return string
      */
-    private function buildAuthenticationUriParameters(
-        string $clientId,
-        string $authorizationEndpoint,
-        string $redirectUri
+    private function buildAuthenticationUri(
+        ?string $baseUrl,
+        ?string $clientId,
+        ?string $authorizationEndpoint,
+        ?string $redirectUri,
+        ?array $connectionScopes
     ): string {
+        if ($baseUrl === null
+            || $clientId === null
+            || $authorizationEndpoint === null
+            || $redirectUri === null
+            || $connectionScopes === null
+        ) {
+            return '';
+        }
         $authenticationUriParts = [
             'client_id' => $clientId,
             'response_type' => 'code',
@@ -111,6 +124,7 @@ class OpenIdProviderPresenter implements ProviderPresenterInterface
             $queryParams .= '&' . $authorizationEndpointParts;
         }
 
-        return ltrim($authorizationEndpointBase ?? '', '/') . '?' . $queryParams;
+        return $baseUrl . '/' . ltrim($authorizationEndpointBase ?? '', '/') . '?' . $queryParams
+            . (! empty($connectionScopes) ? '&scope=' . implode('%20', $connectionScopes) : '');
     }
 }
