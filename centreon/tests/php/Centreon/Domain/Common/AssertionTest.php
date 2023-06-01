@@ -187,7 +187,27 @@ $failDataProvider = [
     "isInstanceOf('test', Exception:class)" => [
         fn() => Assertion::isInstanceOf('test', \Exception::class, $propertyPath),
         AssertionException::badInstanceOfObject(gettype('test'), \Exception::class, $propertyPath)->getMessage(),
-        AssertionException::INVALID_INSTANCE_OF
+        AssertionException::INVALID_INSTANCE_OF,
+    ],
+    'jsonString("not:valid")' => [
+        fn() => Assertion::jsonString('not:valid', $propertyPath),
+        AssertionException::invalidJsonString($propertyPath)->getMessage(),
+        AssertionException::INVALID_JSON_STRING,
+    ],
+    'jsonString("")' => [
+        fn() => Assertion::jsonString('', $propertyPath),
+        AssertionException::invalidJsonString($propertyPath)->getMessage(),
+        AssertionException::INVALID_JSON_STRING,
+    ],
+    'arrayJsonEncodable("malformed utf8 : ..")' => [
+        fn() => Assertion::jsonEncodable("malformed utf8 :\xd8\x3d", $propertyPath),
+        AssertionException::notJsonEncodable($propertyPath)->getMessage(),
+        AssertionException::INVALID_ARRAY_JSON_ENCODABLE,
+    ],
+    'arrayJsonEncodable("too long")' => [
+        fn() => Assertion::jsonEncodable('too long', $propertyPath, 5),
+        AssertionException::maxLength('<JSON>', 10, 5, $propertyPath)->getMessage(),
+        AssertionException::INVALID_MAX_LENGTH,
     ],
 ];
 
@@ -308,6 +328,36 @@ $successDataProvider = [
     ],
     "isInstanceOf(new \Exception(), \Throwable::class)" => [
         fn() => Assertion::isInstanceOf(new \Exception(), \Throwable::class, $propertyPath),
+    ],
+    "jsonString('{}')" => [
+        fn() => Assertion::jsonString('{}', $propertyPath),
+    ],
+    "jsonString('[]')" => [
+        fn() => Assertion::jsonString('[]', $propertyPath),
+    ],
+    "jsonString('42')" => [
+        fn() => Assertion::jsonString('42', $propertyPath),
+    ],
+    "jsonString('42.42')" => [
+        fn() => Assertion::jsonString('42', $propertyPath),
+    ],
+    "jsonString('null')" => [
+        fn() => Assertion::jsonString('null', $propertyPath),
+    ],
+    "jsonString('false')" => [
+        fn() => Assertion::jsonString('false', $propertyPath),
+    ],
+    "jsonString('true')" => [
+        fn() => Assertion::jsonString('true', $propertyPath),
+    ],
+    "jsonString('\"foo\"')" => [
+        fn() => Assertion::jsonString('"foo"', $propertyPath),
+    ],
+    'arrayJsonEncodable([1,2,3])' => [
+        fn() => Assertion::jsonEncodable([1, 2, 3], $propertyPath),
+    ],
+    'arrayJsonEncodable("foo")' => [
+        fn() => Assertion::jsonEncodable('foo', $propertyPath),
     ],
 ];
 
