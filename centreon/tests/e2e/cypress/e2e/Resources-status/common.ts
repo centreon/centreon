@@ -101,7 +101,12 @@ const insertResourceFixtures = (): Cypress.Chainable => {
       .then(() =>
         checkServicesAreMonitored([{ name: serviceInAcknowledgementName }])
       )
-      .then(() => submitResultsViaClapi(submitResults));
+      .then(() => submitResultsViaClapi(submitResults))
+      .then(() =>
+        checkServicesAreMonitored([
+          { name: serviceInAcknowledgementName, output: 'submit_status' }
+        ])
+      );
   });
 };
 

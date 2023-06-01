@@ -57,7 +57,7 @@ interface MonitoredHost {
 const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
   cy.log('Checking hosts in database');
 
-  let query = 'SELECT COUNT(h.host_id) from hosts as h WHERE h.enabled=1';
+  let query = 'SELECT COUNT(h.host_id) from hosts as h WHERE h.enabled=1 AND (';
   const conditions: Array<string> = [];
   hosts.forEach(({ name, output = '', status = '' }) => {
     let condition = `(h.name = '${name}'`;
