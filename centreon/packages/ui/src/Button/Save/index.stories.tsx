@@ -1,4 +1,4 @@
-import { ComponentStory, StoryObj } from '@storybook/react';
+import { ComponentStory } from '@storybook/react';
 import { makeStyles } from 'tss-react/mui';
 
 import { Theme } from '@mui/material';
