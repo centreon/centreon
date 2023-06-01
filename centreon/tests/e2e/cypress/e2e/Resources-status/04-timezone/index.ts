@@ -7,8 +7,12 @@ import {
   serviceInDtName
 } from '../common';
 
+const chosenTZ = 'Africa/Casablanca';
+
 before(() => {
-  cy.startWebContainer();
+  cy.startWebContainer({
+    version: 'develop'
+  });
 });
 
 beforeEach(() => {
@@ -63,12 +67,12 @@ When('user selects a Timezone \\/ Location', () => {
   cy.getIframeBody()
     .find('input[class="select2-search__field"]')
     .clear()
-    .type('Africa/Casablanca')
+    .type(chosenTZ)
     .wait('@getTimezonesList');
 
   cy.getIframeBody()
     .find('ul[id="select2-contact_location-results"] li')
-    .contains('Africa/Casablanca')
+    .contains(chosenTZ)
     .eq(0)
     .click();
 });
@@ -82,10 +86,22 @@ When('user saves the form', () => {
 });
 
 Then('timezone information are updated on the banner', () => {
-  cy.get('header div[data-cy="clock"]').then(($time) => {
-    const timeofTZ = new Date().toLocaleString('en-US', {
-      timeZone: 'Africa/Casablanca'
+  cy.reload().then(() => {
+    cy.get('header div[data-cy="clock"]').then(($time) => {
+      const timeofTZ = new Date().toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZone: chosenTZ
+      });
+      const localTime = $time.children()[1].textContent;
+      expect(localTime).to.equal(timeofTZ);
     });
-    console.log($time.children()[1]);
   });
+});
+
+Then("new timezone information is displayed in user's profile menu", () => {
+  cy.getIframeBody()
+    .find('span[aria-labelledby="select2-contact_location-container"]')
+    .eq(0)
+    .should('contain.text', chosenTZ);
 });

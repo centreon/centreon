@@ -12,3 +12,4 @@ Scenario: Configuring timezone in user's profile
    And user selects a Timezone / Location
    And user saves the form
    Then timezone information are updated on the banner
+   And new timezone information is displayed in user's profile menu
