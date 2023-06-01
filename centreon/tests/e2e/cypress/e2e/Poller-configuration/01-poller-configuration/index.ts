@@ -77,7 +77,7 @@ Given('some post-generation commands are configured for each poller', () => {
     cy.getIframeBody()
       .find('form input[name="submitC"]')
       .eq(0)
-      .contains('save button')
+      .contains('Save')
       .click({ force: true });
   });
 });
