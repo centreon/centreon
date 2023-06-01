@@ -83,8 +83,8 @@ class DbWriteHostMacroRepository extends AbstractRepositoryRDB implements WriteH
                 SET
                     `host_macro_value` = :macroValue,
                     `is_password` = :isPassword,
-                    `description` = :macroDescription
-                    `order` = :macroOrder
+                    `description` = :macroDescription,
+                    `macro_order` = :macroOrder
                 WHERE `host_host_id` = :hostId
                 AND `host_macro_name` = :macroName
                 SQL

@@ -32,7 +32,7 @@ it('should return properly set host macro instance', function (): void {
     $macro->setDescription('macroDescription');
 
     expect($macro->getHostId())->toBe(1)
-        ->and($macro->getName())->toBe('macroName')
+        ->and($macro->getName())->toBe('MACRONAME')
         ->and($macro->getValue())->toBe('macroValue');
 });
 
@@ -48,7 +48,7 @@ it('should throw an exception when host macro name is too long', function (): vo
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::maxLength(
-        str_repeat('a', HostMacro::MAX_NAME_LENGTH + 1),
+        str_repeat('A', HostMacro::MAX_NAME_LENGTH + 1),
         HostMacro::MAX_NAME_LENGTH + 1,
         HostMacro::MAX_NAME_LENGTH,
         'HostMacro::name'

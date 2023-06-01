@@ -43,8 +43,6 @@ class HostMacro
      * @param string $name
      * @param string $value
      *
-     * Note : See DB for complete property list
-     *
      * @throws AssertionFailedException
      */
     public function __construct(
@@ -56,6 +54,7 @@ class HostMacro
 
         Assertion::positiveInt($hostId, "{$shortName}::hostId");
 
+        $this->name = strtoupper($name);
         Assertion::notEmptyString($this->name, "{$shortName}::name");
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
 

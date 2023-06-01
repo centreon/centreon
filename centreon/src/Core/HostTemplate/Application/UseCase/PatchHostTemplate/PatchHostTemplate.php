@@ -91,16 +91,8 @@ final class PatchHostTemplate
             $this->updateProperties($request, $hostTemplate);
 
             $presenter->setResponseStatus(new NoContentResponse());
-        } catch (HostTemplateException $ex) {
-            $presenter->setResponseStatus(
-                match ($ex->getCode()) {
-                    HostTemplateException::CODE_CONFLICT => new ConflictResponse($ex),
-                    default => new ErrorResponse($ex),
-                }
-            );
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
-        $presenter->setResponseStatus(new ErrorResponse(HostTemplateException::patchHostTemplate()));
+            $presenter->setResponseStatus(new ErrorResponse(HostTemplateException::patchHostTemplate()));
             $this->error($ex->getMessage());
         }
     }
@@ -155,13 +147,14 @@ final class PatchHostTemplate
 
         $macros = [];
         foreach ($request->macros as $data) {
+            $macroName = strtoupper($data['name']);
             // Note: do not handle vault at the moment
             $macroValue = $data['value'] ?? '';
             if ($data['is_password'] && $data['value'] === null) {
                 // retrieve actual password value
-                $macroValue = isset($directMacros[$data['name']])
-                    ? $directMacros[$data['name']]->getValue()
-                    : (isset($inheritedMacros[$data['name']]) ? $inheritedMacros[$data['name']]->getValue() : '');
+                $macroValue = isset($directMacros[$macroName])
+                    ? $directMacros[$macroName]->getValue()
+                    : (isset($inheritedMacros[$macroName]) ? $inheritedMacros[$macroName]->getValue() : '');
             }
 
             $macro = new HostMacro(
@@ -177,14 +170,14 @@ final class PatchHostTemplate
 
         $macrosDifference = new HostMacroDifference($directMacros, $inheritedMacros, $commandMacros, $macros);
 
-        $removedMacros = $macrosDifference->getRemoved();
+        foreach ($macrosDifference->getRemoved() as $macro) {
+            $this->writeHostMacroRepository->delete($macro);
+        }
+
         $updatedMacros = $macrosDifference->getUpdated();
         $addedMacros = $macrosDifference->getAdded();
         $commonMacros = $macrosDifference->getCommon();
         $order = 0;
-        foreach ($removedMacros as $macro) {
-            $this->writeHostMacroRepository->delete($macro);
-        }
         foreach ($macros as $macro) {
             if (isset($updatedMacros[$macro->getName()])) {
                 $macro->setOrder($order);
