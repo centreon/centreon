@@ -97,6 +97,10 @@ jobs:
             fi
           fi
 
+
+      - name: Check availability
+
+
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
