@@ -33,7 +33,7 @@ properties:
           description: Bitmask of the events that trigger a notification for the resource type
         ids:
           type: array
-          description: Resource that trigger a notification
+          description: list of resource IDs triggering a notification
           items:
             type: integer
         extra:
