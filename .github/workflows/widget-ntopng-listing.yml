@@ -29,6 +29,8 @@ jobs:
   veracode-analysis:
     needs: [get-version]
     uses: ./.github/workflows/veracode-analysis.yml
+    concurrency:
+      group: veracode-widgets
     with:
       module_directory: widgets/centreon-widget-ntopng-listing
       module_name: centreon-widget-ntopng-listing

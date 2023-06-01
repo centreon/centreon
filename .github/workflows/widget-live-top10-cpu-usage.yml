@@ -29,6 +29,8 @@ jobs:
   veracode-analysis:
     needs: [get-version]
     uses: ./.github/workflows/veracode-analysis.yml
+    concurrency:
+      group: veracode-widgets
     with:
       module_directory: widgets/centreon-widget-live-top10-cpu-usage
       module_name: centreon-widget-live-top10-cpu-usage
