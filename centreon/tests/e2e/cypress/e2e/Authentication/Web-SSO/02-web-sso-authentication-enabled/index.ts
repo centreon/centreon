@@ -51,7 +51,7 @@ When(
     cy.getByLabel({ label: 'Login header attribute name', tag: 'input' })
       .clear()
       .type('REMOTE_USER');
-    cy.getByLabel({ label: 'save button', tag: 'button' })
+    cy.getByLabel({ label: 'Save', tag: 'button' })
       .click({ force: true })
       .wait('@updateWebSSOProvider')
       .its('response.statusCode')

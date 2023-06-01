@@ -65,7 +65,7 @@ When(
 
     configureOpenIDConnect();
 
-    cy.getByLabel({ label: 'save button', tag: 'button' })
+    cy.getByLabel({ label: 'Save', tag: 'button' })
       .click({ force: true })
       .wait('@updateOIDCProvider')
       .its('response.statusCode')

@@ -91,7 +91,7 @@ When(
     })
       .clear()
       .type('name');
-    cy.getByLabel({ label: 'save button', tag: 'button' })
+    cy.getByLabel({ label: 'Save', tag: 'button' })
       .click()
       .wait('@updateOIDCProvider')
       .its('response.statusCode')

@@ -58,7 +58,7 @@ When(
 );
 
 Then('the configuration is saved and secrets are not visible', () => {
-  cy.getByLabel({ label: 'save button', tag: 'button' })
+  cy.getByLabel({ label: 'Save', tag: 'button' })
     .click()
     .wait('@updateOIDCProvider')
     .its('response.statusCode')
@@ -130,7 +130,7 @@ When(
       })
       .check();
 
-    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Save', tag: 'button' }).click();
 
     cy.wait('@updateOIDCProvider')
       .its('response.statusCode')
