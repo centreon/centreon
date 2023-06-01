@@ -39,9 +39,9 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\HostMacro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\HostMacro\Domain\Model\HostMacro;
+use Core\HostMacro\Domain\Model\HostMacroDifference;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
-use Core\HostTemplate\Domain\Model\HostMacroDifference;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 
 final class PatchHostTemplate

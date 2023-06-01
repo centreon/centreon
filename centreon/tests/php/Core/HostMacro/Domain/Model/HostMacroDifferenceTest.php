@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\HostTemplate\Domain\Model;
+namespace Tests\Core\HostMacro\Domain\Model;
 
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\HostMacro\Domain\Model\HostMacro;
-use Core\HostTemplate\Domain\Model\HostMacroDifference;
+use Core\HostMacro\Domain\Model\HostMacroDifference;
 
 beforeEach(function (): void {
 

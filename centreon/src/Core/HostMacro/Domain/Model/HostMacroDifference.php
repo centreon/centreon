@@ -21,9 +21,8 @@
 
 declare(strict_types=1);
 
-namespace Core\HostTemplate\Domain\Model;
+namespace Core\HostMacro\Domain\Model;
 use Core\CommandMacro\Domain\Model\CommandMacro;
-use Core\HostMacro\Domain\Model\HostMacro;
 
 final class HostMacroDifference
 {
