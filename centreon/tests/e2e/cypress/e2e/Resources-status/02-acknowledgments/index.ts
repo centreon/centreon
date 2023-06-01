@@ -31,6 +31,9 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+  cy.intercept('/centreon/api/latest/monitoring/resources*').as(
+    'monitoringEndpoint'
+  );
 });
 
 Given('the user has the necessary rights to page Resource Status', () => {
@@ -481,9 +484,26 @@ Given(
 
 Given('a resource marked as acknowledged is selected', () => {
   typeToSearchInput('type:host h.name:^test_host$ state:acknowledged');
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(/^test_host$/))
+        .parent()
+        .then((val) => {
+          return (
+            val.css('background-color') === actionBackgroundColors.acknowledge
+          );
+        });
+    },
+    {
+      timeout: 30000
+    }
+  );
+
   cy.contains(/^test_host$/)
     .parent()
-    .should('have.css', 'background-color', actionBackgroundColors.acknowledge)
     .parent()
     .find('input[type="checkbox"]:first')
     .click();
@@ -525,7 +545,7 @@ Then(
   () => {
     typeToSearchInput('state:acknowledged');
 
-    cy.refreshListing();
+    cy.wait('@monitoringEndpoint');
 
     cy.should('not.contain', /^test_host$/);
   }
