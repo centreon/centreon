@@ -17,7 +17,6 @@ const useStyles = makeStyles()((theme: Theme) => ({
 
 interface Props extends Record<string, unknown> {
   className?: string;
-  hasStartIcon?: boolean;
   labelLoading?: string;
   labelSave?: string;
   labelSucceeded?: string;
@@ -46,7 +45,6 @@ const SaveButton = ({
   labelSave = '',
   size = 'small',
   className,
-  hasStartIcon = true,
   ...rest
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
@@ -62,21 +60,20 @@ const SaveButton = ({
     <Tooltip placement="bottom" title={tooltipLabel}>
       <div>
         <LoadingButton
-          aria-label={labelSave}
+          aria-label="save button"
           className={cx(
             {
               [classes.loadingButton]: !hasLabel
             },
             className
           )}
+          color="primary"
           data-testid={labelSave}
           id={getNormalizedId(labelSave)}
           loading={loading}
-          loadingPosition={labelLoading && hasStartIcon ? 'start' : 'center'}
+          loadingPosition={labelLoading ? 'start' : 'center'}
           size={size}
-          startIcon={
-            hasStartIcon && <StartIcon startIconConfig={startIconConfig} />
-          }
+          startIcon={<StartIcon startIconConfig={startIconConfig} />}
           variant="contained"
           {...rest}
         >

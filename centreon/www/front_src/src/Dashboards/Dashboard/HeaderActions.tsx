@@ -7,14 +7,12 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Typography } from '@mui/material';
 
 import { Modal, Button } from '@centreon/ui/components';
-import { SaveButton } from '@centreon/ui';
 
 import {
   labelExit,
   labelExitEditionMode,
   labelEditDashboard,
   labelSave,
-  labelSaving,
   labelLeaveEditionModeChangesNotSaved,
   labelQuitDashboardChangesNotSaved,
   labelExitDashboard
@@ -55,7 +53,7 @@ const HeaderActions = ({
   const { blocked, blockNavigation, proceedNavigation } =
     useDashboardSaveBlocker({ id, name });
 
-  const { saveDashboard, isSaving } = useSaveDashboard();
+  const { saveDashboard } = useSaveDashboard();
 
   const dirty = useDashboardDirty(
     (panels || []).map((panel) => formatPanel({ panel, staticPanel: false }))
@@ -101,6 +99,7 @@ const HeaderActions = ({
   const saveAndProceed = (): void => {
     saveDashboard();
     setIsAskingCancelConfirmation(false);
+    switchPanelsEditionMode(false);
 
     if (blocked) {
       proceedNavigation?.();
@@ -147,20 +146,21 @@ const HeaderActions = ({
   return (
     <>
       <Button
+        aria-label={t(labelExit) as string}
         data-testid="cancel_dashboard"
-        disabled={isSaving}
         variant="ghost"
         onClick={askCancelConfirmation}
       >
         {t(labelExit)}
       </Button>
-      <SaveButton
+      <Button
+        aria-label={t(labelSave) as string}
+        data-testid="save_dashboard"
         disabled={!dirty}
-        labelLoading={t(labelSaving) as string}
-        labelSave={t(labelSave) as string}
-        loading={isSaving}
-        onClick={saveDashboard}
-      />
+        onClick={saveAndProceed}
+      >
+        {t(labelSave)}
+      </Button>
       <Modal
         open={isAskingCancelConfirmation}
         onClose={closeAskCancelConfirmationAndBlock}
@@ -170,11 +170,9 @@ const HeaderActions = ({
           <Typography>{modalMessage}</Typography>
         </Modal.Body>
         <Modal.Actions
-          isLoading={isSaving}
           labels={{
             cancel: t(labelExit),
-            confirm: t(labelSave),
-            loading: t(labelSaving)
+            confirm: t(labelSave)
           }}
           onCancel={cancelEditing}
           onConfirm={saveAndProceed}

@@ -11,4 +11,3 @@ export const labelQuitDashboardChangesNotSaved =
   'If you leave {{dashboardName}}, your changes will not be saved.';
 export const labelAdd = 'Add';
 export const labelYourDashboardHasBeenSaved = 'Your dashboard has been saved';
-export const labelSaving = 'Saving...';

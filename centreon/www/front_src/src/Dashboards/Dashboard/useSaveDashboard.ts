@@ -31,7 +31,6 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
   );
 
 interface UseSaveDashboardState {
-  isSaving: boolean;
   saveDashboard: () => void;
 }
 
@@ -48,7 +47,7 @@ const useSaveDashboard = (): UseSaveDashboardState => {
 
   const { showSuccessMessage } = useSnackbar();
 
-  const { mutateAsync, isMutating } = useMutationQuery({
+  const { mutateAsync } = useMutationQuery({
     getEndpoint: () => getDashboardEndpoint(dashboardId),
     method: Method.PATCH
   });
@@ -63,7 +62,7 @@ const useSaveDashboard = (): UseSaveDashboardState => {
     });
   };
 
-  return { isSaving: isMutating, saveDashboard };
+  return { saveDashboard };
 };
 
 export default useSaveDashboard;
