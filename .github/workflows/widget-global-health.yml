@@ -29,9 +29,6 @@ jobs:
   veracode-analysis:
     needs: [get-version]
     uses: ./.github/workflows/veracode-container-legacy-analysis.yml
-    concurrency:
-      group: veracode-widgets
-      cancel-in-progress: false
     with:
       module_directory: widgets/centreon-widget-global-health
       module_name: centreon-widget-global-health

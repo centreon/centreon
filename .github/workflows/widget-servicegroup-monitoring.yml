@@ -29,9 +29,6 @@ jobs:
   veracode-analysis:
     needs: [get-version]
     uses: ./.github/workflows/veracode-container-legacy-analysis.yml
-    concurrency:
-      group: veracode-widgets
-      cancel-in-progress: false
     with:
       module_directory: widgets/centreon-widget-servicegroup-monitoring
       module_name: centreon-widget-servicegroup-monitoring
