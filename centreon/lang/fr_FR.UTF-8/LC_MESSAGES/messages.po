@@ -17650,4 +17650,4 @@ msgid "Host template #%d is locked (edition and deletion not allowed)"
 msgstr "Le modèle d'hôte #%d est verrouillé (édition et suppression interdites)"
 
 msgid "Unable to parse authorization url"
-msgstr "Impossible d'analyser l'url d'autorisation"
+msgstr "Impossible d'analyser l'URL d'autorisation"
