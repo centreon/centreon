@@ -280,7 +280,7 @@ Given(
   (initial_status: string) => {
     checkHostsAreMonitored([
       {
-        name: hostChildInAcknowledgementName,
+        name: hostChildInAcknowledgementName
       }
     ]);
 

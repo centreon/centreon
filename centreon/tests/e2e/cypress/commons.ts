@@ -46,12 +46,12 @@ const getStatusNumberFromString = (status: string): number => {
   }
 
   throw new Error(`Status ${status} does not exist`);
-}
+};
 
 interface MonitoredHost {
   name: string;
-  status?: string;
   output?: string;
+  status?: string;
 }
 
 const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
@@ -86,21 +86,21 @@ const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
     if (hostsFoundStepCount < maxSteps) {
       cy.wait(stepWaitingTime);
 
-      return cy
-        .wrap(null)
-        .then(() => checkHostsAreMonitored(hosts));
+      return cy.wrap(null).then(() => checkHostsAreMonitored(hosts));
     }
 
     throw new Error(
-      `Hosts ${hosts.map(({ name }) => name).join()} are not monitored after ${pollingCheckTimeout}ms`
+      `Hosts ${hosts
+        .map(({ name }) => name)
+        .join()} are not monitored after ${pollingCheckTimeout}ms`
     );
   });
 };
 
 interface MonitoredService {
   name: string;
-  status?: string;
   output?: string;
+  status?: string;
 }
 
 const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
@@ -135,13 +135,13 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
     if (servicesFoundStepCount < maxSteps) {
       cy.wait(stepWaitingTime);
 
-      return cy
-        .wrap(null)
-        .then(() => checkServicesAreMonitored(services));
+      return cy.wrap(null).then(() => checkServicesAreMonitored(services));
     }
 
     throw new Error(
-      `Services ${services.map(({ name }) => name).join()} are not monitored after ${pollingCheckTimeout}ms`
+      `Services ${services
+        .map(({ name }) => name)
+        .join()} are not monitored after ${pollingCheckTimeout}ms`
     );
   });
 };
