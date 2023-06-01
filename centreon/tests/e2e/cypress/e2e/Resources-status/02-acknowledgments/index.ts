@@ -480,6 +480,7 @@ Given(
 );
 
 Given('a resource marked as acknowledged is selected', () => {
+  typeToSearchInput('type:host h.name:^test_host$ state:acknowledged');
   cy.contains(/^test_host$/)
     .parent()
     .should('have.css', 'background-color', actionBackgroundColors.acknowledge)
@@ -489,7 +490,7 @@ Given('a resource marked as acknowledged is selected', () => {
 });
 
 Given(
-  'the uses uses the "Disacknowledge" action for this resource in the "More actions" menu',
+  'the user uses the "Disacknowledge" action for this resource in the "More actions" menu',
   () => {
     cy.getByLabel({ label: 'More actions' }).click();
 
@@ -502,7 +503,7 @@ Given(
 );
 
 Then('the acknowledgement is removed', () => {
-  typeToSearchInput('type:host');
+  typeToSearchInput('type:host h.name:^test_host$');
   cy.waitUntil(
     () => {
       return cy
