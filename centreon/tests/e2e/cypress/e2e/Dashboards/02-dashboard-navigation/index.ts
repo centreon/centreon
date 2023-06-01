@@ -50,8 +50,3 @@ When('the user clicks on the dashboard they want to select', () => {
     .contains('dashboard-to-locate')
     .click();
 });
-
-// Missing development about dashboard retrieve
-Then('they are redirected to the information page for that dashboard', () => {
-  cy.getByLabel({});
-});
