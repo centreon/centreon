@@ -58,13 +58,21 @@ const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
   cy.log('Checking hosts in database');
 
   let query = 'SELECT COUNT(h.host_id) from hosts as h WHERE h.enabled=1';
+  const conditions: Array<string> = [];
   hosts.forEach(({ name, output = '', status = '' }) => {
-    query += ` AND (h.name = '${name}' AND h.output LIKE '%${output}%'`;
-    if (status !== '') {
-      query += ` AND h.state = ${getStatusNumberFromString(status)}`;
+    let condition = `(h.name = '${name}'`;
+    if (output !== '') {
+      condition += ` AND h.output LIKE '%${output}%'`;
     }
-    query += ')';
+    if (status !== '') {
+      condition += ` AND h.state = ${getStatusNumberFromString(status)}`;
+    }
+    condition += ')';
+    conditions.push(condition);
   });
+  query += conditions.join(' OR ');
+  query += ')';
+  cy.log(query);
 
   const command = `docker exec -i ${Cypress.env(
     'dockerName'
@@ -106,14 +114,23 @@ interface MonitoredService {
 const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
   cy.log('Checking services in database');
 
-  let query = 'SELECT COUNT(s.service_id) from services as s WHERE s.enabled=1';
+  let query =
+    'SELECT COUNT(s.service_id) from services as s WHERE s.enabled=1 AND (';
+  const conditions: Array<string> = [];
   services.forEach(({ name, output = '', status = '' }) => {
-    query += ` AND (s.description = '${name}' AND s.output LIKE '%${output}%'`;
-    if (status !== '') {
-      query += ` AND s.state = ${getStatusNumberFromString(status)}`;
+    let condition = `(s.description = '${name}'`;
+    if (output !== '') {
+      condition += ` AND s.output LIKE '%${output}%'`;
     }
-    query += ')';
+    if (status !== '') {
+      condition += ` AND s.state = ${getStatusNumberFromString(status)}`;
+    }
+    condition += ')';
+    conditions.push(condition);
   });
+  query += conditions.join(' OR ');
+  query += ')';
+  cy.log(query);
 
   const command = `docker exec -i ${Cypress.env(
     'dockerName'

@@ -112,7 +112,8 @@ const insertDtResources = (): Cypress.Chainable => {
     .setUserTokenApiV1()
     .then(initializeResourceData)
     .then(applyConfigurationViaClapi)
-    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }));
+    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
+    .then(() => checkServicesAreMonitored([{ name: serviceInDtName }]));
 };
 
 const insertAckResourceFixtures = (): Cypress.Chainable => {
