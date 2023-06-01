@@ -287,7 +287,7 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         $this->sendRequestForConnectionTokenOrFail($authorizationCode);
         $this->createAuthenticationTokens();
-        if (array_key_exists("id_token", $this->connectionTokenResponseContent)) {
+            if (array_key_exists("id_token", $this->connectionTokenResponseContent)) {
             $this->idTokenPayload = $this->extractTokenPayload($this->connectionTokenResponseContent["id_token"]);
         }
         $this->verifyThatClientIsAllowedToConnectOrFail($clientIp);
@@ -422,7 +422,7 @@ class OpenIdProvider implements OpenIdProviderInterface
     {
         try {
             $tokenParts = explode(".", $token);
-            return json_decode($this->urlSafeTokenDecode($tokenParts[1]));
+            return json_decode($this->urlSafeTokenDecode($tokenParts[1]), true);
         } catch (Throwable $ex) {
             $this->error(
                 SSOAuthenticationException::unableToDecodeIdToken()->getMessage(),

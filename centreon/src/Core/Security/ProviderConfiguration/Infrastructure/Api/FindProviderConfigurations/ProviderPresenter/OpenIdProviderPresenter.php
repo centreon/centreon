@@ -63,14 +63,36 @@ class OpenIdProviderPresenter implements ProviderPresenterInterface
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
 
+        $authenticationUriParts = [
+            "client_id" => $response->clientId,
+            "response_type" => "code",
+            "redirect_uri" => rtrim($redirectUri, '/'),
+            "state" => uniqid()
+        ];
+
+        $authorizationEndpointBase = '';
+        $queryParams = '';
+
+        if ($response->authorizationEndpoint !== null) {
+            $authorizationEndpointBase = parse_url($response->authorizationEndpoint, PHP_URL_PATH);
+            $authorizationEndpointParts = parse_url($response->authorizationEndpoint, PHP_URL_QUERY);
+
+            if ($authorizationEndpointBase === false || $authorizationEndpointParts === false) {
+                throw new \Exception(_('Unable to parse authorization url'));
+            }
+
+            $queryParams = http_build_query($authenticationUriParts);
+            if ($authorizationEndpointParts !== null) {
+                $queryParams .= '&' . $authorizationEndpointParts;
+            }
+        }
+
         return [
             'id' => $response->id,
             'type' => CustomConfiguration::TYPE,
             'name' => CustomConfiguration::NAME,
-            'authentication_uri' => $response->baseUrl . '/'
-                . ltrim($response->authorizationEndpoint ?? '', '/')
-                . '?client_id=' . $response->clientId . '&response_type=code' . '&redirect_uri='
-                . rtrim($redirectUri, '/') . '&state=' . uniqid()
+            'authentication_uri' => $response->baseUrl . '/' . ltrim($authorizationEndpointBase ?? '', '/')
+                . '?' . $queryParams
                 . (! empty($response->connectionScopes) ? '&scope=' . implode('%20', $response->connectionScopes) : ''),
             'is_active' => $response->isActive,
             'is_forced' => $response->isForced,
