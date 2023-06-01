@@ -34,7 +34,9 @@ interface ReadAttributePathRepositoryInterface
      * @param string $url
      * @param string $token
      * @param Configuration $configuration
+     * @param string $endpointType
+     * 
      * @return array
      */
-    public function getData(string $url, string $token, Configuration $configuration): array;
+    public function getData(string $url, string $token, Configuration $configuration, string $endpointType): array;
 }
