@@ -54,7 +54,7 @@ class NotificationException extends \Exception
 
     public static function invalidId(string $propertyName): self
     {
-        return new self(sprintf(_('Invalid id provided for %s'), $propertyName), self::CODE_CONFLICT);
+        return new self(sprintf(_('Invalid ID provided for %s'), $propertyName), self::CODE_CONFLICT);
     }
 
     public static function invalidResourceType(): self

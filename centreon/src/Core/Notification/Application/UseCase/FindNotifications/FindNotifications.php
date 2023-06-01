@@ -69,7 +69,7 @@ final class FindNotifications
         }
 
         try {
-            $this->info('Search for Notifications');
+            $this->info('Search for notifications');
             $notifications = $this->notificationRepository->findAll($this->requestParameters);
             if (empty($notifications)) {
                 $presenter->presentResponse(new FindNotificationsResponse());
@@ -82,7 +82,7 @@ final class FindNotifications
                 $notificationsIds[] = $notification->getId();
             }
             $this->info(
-                'Retrieving Notification channels for notifications',
+                'Retrieving notification channels for notifications',
                 ['notifications' => implode(', ', $notificationsIds)]
             );
             $notificationChannelByNotifications = $this->notificationRepository
