@@ -43,7 +43,7 @@ Given(
   'I am granted the rights to access the poller page and export the configuration',
   () => {
     dateBeforeLogin = new Date();
-    
+
     clearCentengineLogs().then(() => {
       insertPollerConfigUserAcl();
     });
@@ -77,7 +77,7 @@ Given('some post-generation commands are configured for each poller', () => {
     cy.getIframeBody()
       .find('form input[name="submitC"]')
       .eq(0)
-      .contains('Save')
+      .contains('save button')
       .click({ force: true });
   });
 });

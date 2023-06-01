@@ -108,7 +108,7 @@ When(
         tag: 'input'
       })
       .should('have.value', 'ALL');
-    cy.getByLabel({ label: 'Save', tag: 'button' })
+    cy.getByLabel({ label: 'save button', tag: 'button' })
       .click()
       .wait('@updateOIDCProvider')
       .its('response.statusCode')

@@ -82,10 +82,10 @@ describe('Web SSO configuration form', () => {
     userEvent.tab();
 
     await waitFor(() => {
-      expect(screen.getByLabelText(labelSave)).not.toBeDisabled();
+      expect(screen.getByLabelText('save button')).not.toBeDisabled();
     });
 
-    userEvent.click(screen.getByText(labelSave));
+    userEvent.click(screen.getByText('save button'));
 
     await waitFor(() => {
       expect(getFetchCall(1)).toEqual(
