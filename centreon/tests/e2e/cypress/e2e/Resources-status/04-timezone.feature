@@ -13,3 +13,8 @@ Scenario: Configuring timezone in user's profile
    And user saves the form
    Then timezone information are updated on the banner
    And new timezone information is displayed in user's profile menu
+
+Scenario: User can set a realtime downtime with a custom timezone in Monitoring>Resource Status
+  Given a user with a custom timezone set in his profile
+  When the user creates a downtime on a resource
+  Then date and time fields should be based on the custom timezone of the user

@@ -1,7 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesExistInDatabase } from '../../../commons';
+import { checkServicesAreMonitored } from '../../../commons';
 import {
+  actionBackgroundColors,
   insertDtResources,
   secondServiceInDtName,
   serviceInDtName
@@ -44,7 +45,14 @@ Given('a user authenticated in a Centreon server', () => {
 Given('the platform is configured with at least one resource', () => {
   insertDtResources();
 
-  checkServicesExistInDatabase([serviceInDtName, secondServiceInDtName]);
+  checkServicesAreMonitored([
+    {
+      name: serviceInDtName
+    },
+    {
+      name: secondServiceInDtName
+    }
+  ]);
 });
 
 When('user cliks on Timezone field in his profile menu', () => {
@@ -104,4 +112,52 @@ Then("new timezone information is displayed in user's profile menu", () => {
     .find('span[aria-labelledby="select2-contact_location-container"]')
     .eq(0)
     .should('contain.text', chosenTZ);
+
+  cy.logout();
+});
+
+Given('a user with a custom timezone set in his profile', () => {
+  cy.navigateTo({
+    page: 'My Account',
+    rootItemNumber: 4,
+    subMenu: 'Parameters'
+  }).wait('@getTimeZone');
+
+  cy.getIframeBody()
+    .find('span[aria-labelledby="select2-contact_location-container"]')
+    .eq(0)
+    .should('contain.text', chosenTZ);
+});
+
+When('the user creates a downtime on a resource', () => {
+  cy.contains(serviceInDtName)
+    .parent()
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .click();
+
+  cy.getByTestId({ testId: 'Multiple Set Downtime' }).last().click();
+
+  cy.getByLabel({ label: 'Set downtime' }).last().click();
+
+  cy.wait('@postSaveDowntime').then(() => {
+    cy.contains('Downtime command sent').should('have.length', 1);
+  });
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(serviceInDtName))
+        .parent()
+        .then((val) => {
+          return (
+            val.css('background-color') === actionBackgroundColors.inDowntime
+          );
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
 });
