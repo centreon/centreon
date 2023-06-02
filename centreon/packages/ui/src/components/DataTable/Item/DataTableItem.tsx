@@ -67,7 +67,7 @@ const DataTableItem = forwardRef(
             />
             <IconButton
               aria-label="delete"
-              data-testid="dashboard-delete"
+              data-testid="delete"
               icon={<DeleteIcon />}
               size="small"
               variant="ghost"
