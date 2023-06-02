@@ -65,8 +65,7 @@ export const AsDangerAction: Story = {
         isDanger
         labels={{
           cancel: 'Cancel',
-          confirm: 'Confirm',
-          loading: 'Loading'
+          confirm: 'Confirm'
         }}
       />
     </Modal>
