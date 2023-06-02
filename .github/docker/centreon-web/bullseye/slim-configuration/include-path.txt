@@ -2,10 +2,10 @@
 /usr/bin
 /sbin
 /usr/sbin
-/run/httpd
+/run/lock
 /usr/share/zoneinfo
 /var/lock
-/etc/httpd
+/etc/apache2
 /etc/sudo.conf
 /etc/sudoers
 /etc/sudoers.d
