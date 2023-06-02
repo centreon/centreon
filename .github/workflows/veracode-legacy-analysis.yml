@@ -122,7 +122,7 @@ jobs:
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
 
       - name: Restore baseline file
-        if: needs.download-data-from-bucket.create_baseline_from != ""
+        if: needs.download-data-from-bucket.create_baseline_from != ''
         uses: actions/cache/restore@v3
         with:
           path: "{{ needs.download-data-from-bucket.baseline_file }}"
