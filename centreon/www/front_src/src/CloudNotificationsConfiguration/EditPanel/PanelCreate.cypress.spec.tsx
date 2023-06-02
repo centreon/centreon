@@ -13,8 +13,8 @@ import {
   labelSuccessfulNotificationAdded,
   labelConfirmAddNotification,
   labelClosePanel,
-  labelExpandInformationPanel,
-  labelReduceInformationPanel
+  labelDoYouWantToQuitWithoutSaving,
+  labelYourFormHasUnsavedChanges
 } from '../translatedLabels';
 
 import { notificationtEndpoint } from './api/endpoints';
@@ -186,8 +186,8 @@ describe('Panel : Creation mode', () => {
 
     cy.findByLabelText(labelClosePanel).click();
 
-    cy.findByText(labelReduceInformationPanel);
-    cy.findByText(labelExpandInformationPanel);
+    cy.findByText(labelYourFormHasUnsavedChanges);
+    cy.findByText(labelDoYouWantToQuitWithoutSaving);
 
     cy.matchImageSnapshot();
   });
