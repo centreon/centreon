@@ -88,15 +88,14 @@ class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInte
         string $endpointType
     ): ResponseInterface {
         $customConfiguration = $configuration->getCustomConfiguration();
-        $options = ["verify_peer" => $customConfiguration->verifyPeer()];
+        $headers = ["Authorization" => "Bearer " . trim($token)];
+        $options = ["verify_peer" => $customConfiguration->verifyPeer(), "headers" => $headers];
         if ($endpointType !== Endpoint::CUSTOM) {
-            $headers = ["Authorization" => "Bearer " . trim($token)];
             $body = [
                 "token" => $token,
                 "client_id" => $customConfiguration->getClientId(),
                 "client_secret" => $customConfiguration->getClientSecret()
             ];
-            $options['headers'] = $headers;
             $options['body'] = $body;
         }
 
