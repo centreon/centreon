@@ -27,7 +27,7 @@ jobs:
       version_file: widgets/centreon-widget-engine-status/engine-status/configs.xml
 
   veracode-analysis:
-    concurrency: ci-${{ github.run_id }}
+    concurrency: ci-${{ github.sha }}
     needs: [get-version]
     #uses: ./.github/workflows/veracode-legacy-analysis.yml
     uses: ./.github/workflows/veracode-analysis.yml
