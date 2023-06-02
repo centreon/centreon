@@ -524,7 +524,7 @@ describe(Actions, () => {
   ];
 
   it.each(invalidDateTestCases)(
-    'cannot send a downtime request when the Downtime action is clicked and the %p time input have an invalid format',
+    'cannot send a downtime request when the Downtime action is clicked and the %p time input has an invalid format',
     async (_, label) => {
       const {
         getByLabelText,
@@ -548,7 +548,7 @@ describe(Actions, () => {
 
       userEvent.type(
         getByLabelText(label).querySelector('input') as HTMLElement,
-        '{selectall}{backspace}a'
+        '{selectall}{backspace}'
       );
 
       await waitFor(() => {

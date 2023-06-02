@@ -63,12 +63,15 @@ class DbReadAcknowledgementRepository extends AbstractRepositoryDRB implements R
     {
         $acknowledgement = null;
         $sql = "SELECT ack.*, contact.contact_id AS author_id
-            FROM `:dbstg`.acknowledgements ack
-            LEFT JOIN `:db`.contact
-            ON contact.contact_alias = ack.author
-            WHERE ack.host_id = :hostId
-            AND ack.service_id = :serviceId
-            AND ack.deletion_time IS NULL";
+                    FROM `:dbstg`.acknowledgements ack
+                LEFT JOIN `:db`.contact ON contact.contact_alias = ack.author
+                INNER JOIN (
+                    SELECT MAX(acknowledgement_id) AS acknowledgement_id
+                    FROM `:dbstg`.acknowledgements ack
+                    WHERE ack.host_id = :hostId
+                    AND ack.service_id = :serviceId
+                    AND ack.deletion_time IS NULL
+                ) ack_max ON ack_max.acknowledgement_id = ack.acknowledgement_id";
 
         $statement = $this->db->prepare($this->translateDbName($sql));
         $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);

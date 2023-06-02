@@ -43,7 +43,7 @@ Given(
   'I am granted the rights to access the poller page and export the configuration',
   () => {
     dateBeforeLogin = new Date();
-    
+
     clearCentengineLogs().then(() => {
       insertPollerConfigUserAcl();
     });

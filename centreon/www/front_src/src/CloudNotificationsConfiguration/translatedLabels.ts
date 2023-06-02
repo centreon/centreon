@@ -23,8 +23,8 @@ export const labelSelectUsers = 'Select users';
 export const labelSelectTimePeriodAndChannels =
   'Select time period / channels of notifications';
 export const labelDuplicateNotification =
-  'How many times would you like to duplicate selected Notification?';
-export const labelDeleteNotification = 'Delete Notification?';
+  'How many times would you like to duplicate selected notification?';
+export const labelDeleteNotification = 'Delete notification?';
 export const labelDeleteNotificationWarning = 'This action cannot be undone';
 
 export const labelReduceInformationPanel = 'Reduce information panel';

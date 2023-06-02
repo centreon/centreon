@@ -1,0 +1,40 @@
+name: actionlint
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+      - hotfix-*
+      - release-*
+    paths:
+      - ".github/**"
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Download actionlint
+        id: get_actionlint
+        run: bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+        shell: bash
+
+      - name: Check workflow files
+        run: |
+          ${{ steps.get_actionlint.outputs.executable }} \
+          -ignore 'label "common" is unknown' \
+          -ignore 'label "veracode" is unknown' \
+          -ignore '"github.head_ref" is potentially untrusted' \
+          -shellcheck= \
+          -pyflakes= \
+          -color
+        shell: bash
