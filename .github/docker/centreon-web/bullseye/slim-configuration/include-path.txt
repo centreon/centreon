@@ -12,8 +12,8 @@
 /etc/pam.d
 /usr/libexec/sudo
 /var/www/html
-/usr/lib64/httpd/modules
-/var/lib/php/session
+/usr/lib/apache2/modules
+/var/lib/php/sessions
 /usr/share/centreon
 /var/cache/centreon
 /var/cache/centreon-gorgone
@@ -27,5 +27,5 @@
 /var/lib/centreon-gorgone
 /var/lib/mysql/centreon
 /var/lib/mysql/centreon_storage
-/usr/lib64/nagios/plugins
+/usr/lib/nagios/plugins
 /usr/lib/centreon/plugins
