@@ -11,12 +11,12 @@ import useStyles from './Form.styles';
 import useFormInputs from './FormInputs/useFormInputs';
 import { emptyInitialValues, getInitialValues } from './initialValues';
 import useValidationSchema from './validationSchema';
-import Header from './Header';
 import { EditedNotificationIdAtom, panelModeAtom } from './atom';
 import { PanelMode } from './models';
 import { notificationtEndpoint } from './api/endpoints';
 import { notificationdecoder } from './api/decoders';
 import ReducePanel from './ReducePanel';
+import Header from './Header';
 
 const Form = (): JSX.Element => {
   const { classes } = useStyles();
