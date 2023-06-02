@@ -121,7 +121,7 @@ Then(
 );
 
 Then(
-  'the previously selected resource is marked as acknowledged in the listing with the corresponding colour',
+  'the previously selected resource is marked as acknowledged in the listing with the corresponding color',
   () => {
     cy.getByLabel({ label: 'State filter' }).click();
 
@@ -196,7 +196,7 @@ Given(
 );
 
 Then(
-  'the previously selected resources are marked as acknowledged in the listing with the corresponidng colour',
+  'the previously selected resources are marked as acknowledged in the listing with the corresponding color',
   () => {
     cy.getByLabel({ label: 'State filter' }).click();
 
@@ -547,7 +547,7 @@ Then(
 
     cy.wait('@monitoringEndpoint');
 
-    cy.should('not.contain', /^test_host$/);
+    cy.contains(/^test_host$/).should('not.exist');
   }
 );
 
