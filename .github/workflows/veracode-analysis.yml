@@ -70,11 +70,6 @@ jobs:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
 
-      - uses: actions/setup-java@v3 #TODO: To install in veracode runner directly
-        with:
-          distribution: 'zulu'
-          java-version: 8
-
       - name: Get baseline files
         run: |
           BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
@@ -97,9 +92,17 @@ jobs:
             fi
           fi
 
-
       - name: Check availability
+        run: |
+          sudo apt-get update && sudo apt-get install httpie
+          export VERACODE_API_KEY_ID=${{ secrets.veracode_api_id }}
+          export VERACODE_API_KEY_SECRET=${{ secrets.veracode_api_key }}
+          http -A veracode_hmac "https://api.veracode.com/appsec/v1/applications"
 
+      - uses: actions/setup-java@v3 #TODO: To install in veracode runner directly
+        with:
+          distribution: 'zulu'
+          java-version: 8
 
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
@@ -119,7 +122,7 @@ jobs:
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
-        #if: needs.build.outputs.development_stage != 'Development'
+        if: needs.build.outputs.development_stage != 'Development'
         run: |
           mv *results.json /tmp
           BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"

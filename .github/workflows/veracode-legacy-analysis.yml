@@ -179,7 +179,7 @@ jobs:
 
     steps:
       - name: debug location
-        runs: ls -la
+        run: ls -la
 
       - name: Cache filtered baseline file
         uses: actions/cache/save@v3
@@ -194,7 +194,7 @@ jobs:
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary-to-save"
 
       - name: debug location
-        runs: ls -la
+        run: ls -la
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
