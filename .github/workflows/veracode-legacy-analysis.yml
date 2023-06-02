@@ -103,7 +103,7 @@ jobs:
           fi
 
       - name: Cache baseline file
-        if: env.create_baseline_from != ""
+        if: env.create_baseline_from != ''
         uses: actions/cache/save@v3
         with:
           path: "{{ env.baseline_file }}"
