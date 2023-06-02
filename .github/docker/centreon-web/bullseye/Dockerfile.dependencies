@@ -126,7 +126,6 @@ open_files_limit        = 32000
 ################################
 
 apt-get install -y \
-  centreon-engine \
   centreon-plugin-applications-databases-mysql \
   centreon-plugin-applications-monitoring-centreon-central \
   centreon-plugin-applications-monitoring-centreon-database \
