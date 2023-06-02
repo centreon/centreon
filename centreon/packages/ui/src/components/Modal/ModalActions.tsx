@@ -41,7 +41,7 @@ const ModalActions = ({
           </Button>
           <Button
             aria-label={labels?.confirm}
-            data-testid="confirm_confirmation"
+            data-testid="confirm"
             isDanger={isDanger}
             size="small"
             type="submit"
