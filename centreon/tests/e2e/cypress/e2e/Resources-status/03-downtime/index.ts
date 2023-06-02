@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesExistInDatabase } from '../../../commons';
+import { checkServicesAreMonitored } from '../../../commons';
 import {
   actionBackgroundColors,
   checkIfUserNotificationsAreEnabled,
@@ -46,7 +46,14 @@ Given('the user have the necessary rights to set downtime', () => {
 Given('minimally one resource with and notifications enabled on user', () => {
   insertDtResources();
 
-  checkServicesExistInDatabase([serviceInDtName, secondServiceInDtName]);
+  checkServicesAreMonitored([
+    {
+      name: serviceInDtName
+    },
+    {
+      name: secondServiceInDtName
+    }
+  ]);
 
   checkIfUserNotificationsAreEnabled();
 
@@ -203,7 +210,8 @@ When('I search for the resource currently "In Downtime" in the list', () => {
 });
 
 Then('the user selects the checkbox and clicks on the "Cancel" action', () => {
-  cy.get('@serviceInDT').check().should('be.checked');
+  cy.get('@serviceInDT').check();
+  cy.get('@serviceInDT').should('be.checked');
 
   cy.getIframeBody().find('form input[name="submit2"]').as('cancelButton');
 
@@ -321,9 +329,11 @@ When('I search for the resources currently "In Downtime" in the list', () => {
 Then(
   'the user selects the checkboxes and clicks on the "Cancel" action',
   () => {
-    cy.get('@serviceInDT').check().should('be.checked');
+    cy.get('@serviceInDT').check();
+    cy.get('@serviceInDT').should('be.checked');
 
-    cy.get('@secondServiceInDT').check().should('be.checked');
+    cy.get('@secondServiceInDT').check();
+    cy.get('@secondServiceInDT').should('be.checked');
 
     cy.getIframeBody().find('form input[name="submit2"]').as('cancelButton');
 

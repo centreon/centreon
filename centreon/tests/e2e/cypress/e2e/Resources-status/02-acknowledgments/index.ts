@@ -1,8 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
-  checkThatFixtureHostsExistInDatabase,
-  checkThatFixtureServicesExistInDatabase
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
 } from '../../../commons';
 import {
   actionBackgroundColors,
@@ -31,9 +31,12 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+  cy.intercept('/centreon/api/latest/monitoring/resources*').as(
+    'monitoringEndpoint'
+  );
 });
 
-Given('the user has the necessary rights to page Ressource Status', () => {
+Given('the user has the necessary rights to page Resource Status', () => {
   cy.startWebContainer();
 
   cy.loginByTypeOfUser({
@@ -118,7 +121,7 @@ Then(
 );
 
 Then(
-  'the previously selected resource is marked as acknowledged in the listing with the corresponding colour',
+  'the previously selected resource is marked as acknowledged in the listing with the corresponding color',
   () => {
     cy.getByLabel({ label: 'State filter' }).click();
 
@@ -174,7 +177,7 @@ Then(
 );
 
 Given(
-  'a multiple resources selected on Resources Status with the "Resource Problems" filter enabled',
+  'multiple resources selected on Resources Status with the "Resource Problems" filter enabled',
   () => {
     cy.contains('Unhandled alerts');
 
@@ -193,7 +196,7 @@ Given(
 );
 
 Then(
-  'the previously selected resources are marked as acknowledged in the listing with the corresponidng colour',
+  'the previously selected resources are marked as acknowledged in the listing with the corresponding color',
   () => {
     cy.getByLabel({ label: 'State filter' }).click();
 
@@ -278,6 +281,12 @@ Given('criteria is {string}', (criteria: string) => {
 Given(
   'a resource of host is selected with {string}',
   (initial_status: string) => {
+    checkHostsAreMonitored([
+      {
+        name: hostChildInAcknowledgementName
+      }
+    ]);
+
     const hostStatus = {
       host: hostChildInAcknowledgementName,
       output: `submit_${hostChildInAcknowledgementName}_${initial_status}`,
@@ -286,11 +295,12 @@ Given(
 
     submitCustomResultsViaClapi(hostStatus);
 
-    checkThatFixtureHostsExistInDatabase({
-      hostAlias: hostChildInAcknowledgementName,
-      submitOutput: `submit_${hostChildInAcknowledgementName}_${initial_status}`,
-      submitResults: [hostStatus]
-    });
+    checkHostsAreMonitored([
+      {
+        name: hostChildInAcknowledgementName,
+        output: hostStatus.output
+      }
+    ]);
 
     cy.refreshListing();
 
@@ -312,13 +322,9 @@ Given(
       status: initial_status
     };
 
-    submitCustomResultsViaClapi(serviceStatus);
+    checkServicesAreMonitored([{ name: serviceInAcknowledgementName }]);
 
-    checkThatFixtureServicesExistInDatabase({
-      outputText: `submit_${serviceInAcknowledgementName}_${initial_status}`,
-      serviceDesc: serviceInAcknowledgementName,
-      submitResults: [serviceStatus]
-    });
+    submitCustomResultsViaClapi(serviceStatus);
 
     cy.refreshListing();
 
@@ -391,13 +397,17 @@ When(
           service: serviceInAcknowledgementName,
           status: changed_status
         };
+
+        checkServicesAreMonitored([{ name: serviceInAcknowledgementName }]);
+
         submitCustomResultsViaClapi(status);
 
-        checkThatFixtureServicesExistInDatabase({
-          outputText: `submit_${serviceInAcknowledgementName}_${changed_status}`,
-          serviceDesc: serviceInAcknowledgementName,
-          submitResults: [status]
-        });
+        checkServicesAreMonitored([
+          {
+            name: serviceInAcknowledgementName,
+            status: changed_status
+          }
+        ]);
         break;
       default:
         status = {
@@ -406,13 +416,21 @@ When(
           status: changed_status
         };
 
+        checkHostsAreMonitored([
+          {
+            name: hostChildInAcknowledgementName
+          }
+        ]);
+
         submitCustomResultsViaClapi(status);
 
-        checkThatFixtureHostsExistInDatabase({
-          hostAlias: hostChildInAcknowledgementName,
-          submitOutput: `submit_${hostChildInAcknowledgementName}_${changed_status}`,
-          submitResults: [status]
-        });
+        checkHostsAreMonitored([
+          {
+            name: hostChildInAcknowledgementName,
+            output: status.output,
+            status: status.status
+          }
+        ]);
         break;
     }
   }
@@ -465,16 +483,34 @@ Given(
 );
 
 Given('a resource marked as acknowledged is selected', () => {
+  typeToSearchInput('type:host h.name:^test_host$ state:acknowledged');
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(/^test_host$/))
+        .parent()
+        .then((val) => {
+          return (
+            val.css('background-color') === actionBackgroundColors.acknowledge
+          );
+        });
+    },
+    {
+      timeout: 30000
+    }
+  );
+
   cy.contains(/^test_host$/)
     .parent()
-    .should('have.css', 'background-color', actionBackgroundColors.acknowledge)
     .parent()
     .find('input[type="checkbox"]:first')
     .click();
 });
 
 Given(
-  'the uses uses the "Disacknowledge" action for this resource in the "More actions" menu',
+  'the user uses the "Disacknowledge" action for this resource in the "More actions" menu',
   () => {
     cy.getByLabel({ label: 'More actions' }).click();
 
@@ -487,7 +523,7 @@ Given(
 );
 
 Then('the acknowledgement is removed', () => {
-  typeToSearchInput('type:host');
+  typeToSearchInput('type:host h.name:^test_host$');
   cy.waitUntil(
     () => {
       return cy
@@ -509,9 +545,9 @@ Then(
   () => {
     typeToSearchInput('state:acknowledged');
 
-    cy.refreshListing();
+    cy.wait('@monitoringEndpoint');
 
-    cy.should('not.contain', /^test_host$/);
+    cy.contains(/^test_host$/).should('not.exist');
   }
 );
 
