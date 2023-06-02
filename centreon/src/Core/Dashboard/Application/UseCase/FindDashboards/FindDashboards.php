@@ -32,6 +32,8 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponseDto;
+use Core\Dashboard\Application\UseCase\FindDashboards\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -120,7 +122,7 @@ final class FindDashboards
         $contactNames = $this->readContactRepository->findNamesByIds(...$contactIds);
 
         foreach ($dashboards as $dashboard) {
-            $dto = new FindDashboardDto();
+            $dto = new DashboardResponseDto();
 
             $dto->id = $dashboard->getId();
             $dto->name = $dashboard->getName();
@@ -129,12 +131,12 @@ final class FindDashboards
             $dto->updatedAt = $dashboard->getUpdatedAt();
 
             if (null !== ($contactId = $dashboard->getCreatedBy())) {
-                $dto->createdBy = new FindDashboardsUserDto();
+                $dto->createdBy = new UserResponseDto();
                 $dto->createdBy->id = $contactId;
                 $dto->createdBy->name = $contactNames[$contactId]['name'] ?? '';
             }
             if (null !== ($contactId = $dashboard->getCreatedBy())) {
-                $dto->updatedBy = new FindDashboardsUserDto();
+                $dto->updatedBy = new UserResponseDto();
                 $dto->updatedBy->id = $contactId;
                 $dto->updatedBy->name = $contactNames[$contactId]['name'] ?? '';
             }
