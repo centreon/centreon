@@ -1,3 +1,4 @@
+ARG REGISTRY_URL
 ARG VERSION
 
 FROM debian:bullseye AS web_fresh
@@ -12,42 +13,10 @@ RUN <<EOF
 
 apt-get update
 
-apt-get install -y ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo libfaketime
-
-VERSION_CODENAME=$(
-    . /etc/os-release
-    echo $VERSION_CODENAME
-)
-echo "deb https://packages.sury.org/php/ $VERSION_CODENAME main" | tee /etc/apt/sources.list.d/sury-php.list
-wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
-apt-get update
-
-curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
-
-#echo "deb https://packages.centreon.com/apt-standard-${VERSION}-stable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
-#echo "deb https://packages.centreon.com/apt-standard-${VERSION}-testing/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
-echo "deb https://packages.centreon.com/apt-standard-${VERSION}-unstable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
-echo "deb https://packages.centreon.com/apt-plugins-unstable/ $VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-unstable.list
-wget -O- https://packages.centreon.com/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
-apt-get update
-
-apt-get install -y mariadb-server mariadb-client
-
-echo "[server]
-skip-grant-tables
-log_output=FILE
-general_log_file=/var/lib/mysql/queries.log
-general_log=0
-slow_query_log_file=/var/lib/mysql/slow_queries.log
-slow_query_log=1
-innodb_file_per_table
-innodb_flush_method=O_DIRECT
-innodb_log_file_size=4M
-innodb_fast_shutdown=0
-" > /etc/mysql/conf.d/container.cnf
-
 rm -f /tmp/debs-centreon/centreon-${VERSION}*.deb /tmp/debs-centreon/centreon-central-${VERSION}*.deb
 apt-get install -y /tmp/debs-centreon/centreon-*.deb
+
+echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
 
 touch /var/log/php8.1-fpm-centreon-error.log
 chown www-data:www-data /var/log/php8.1-fpm-centreon-error.log
@@ -56,7 +25,6 @@ apt-get clean
 
 EOF
 
-COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint/container.sh /usr/share/centreon/container.sh
 COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint/container.d/* /usr/share/centreon/container.d/
 COPY --chmod=755 ./.github/docker/centreon-web/bullseye/scripts/autoinstall.php /usr/share/centreon/
@@ -68,6 +36,7 @@ sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql
 
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
+
 cd /usr/share/centreon/www/install/steps/process
 su www-data -s /bin/bash -c "php configFileSetup.php"
 su www-data -s /bin/bash -c "php installConfigurationDb.php"

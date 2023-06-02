@@ -64,7 +64,7 @@ jobs:
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-update') }}"
         uses: actions/cache@v3
         with:
-          path: ./*.rpm
+          path: ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
           key: ${{ inputs.package_cache_key }}
           fail-on-cache-miss: true
 
@@ -72,7 +72,7 @@ jobs:
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-update') }}"
         run: |
           mkdir -p ${{ inputs.package_directory }}
-          mv ./*.rpm ${{ inputs.package_directory }}
+          mv ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
         shell: bash
 
       - name: Login to Registry

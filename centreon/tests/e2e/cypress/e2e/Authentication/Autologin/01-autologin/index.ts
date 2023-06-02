@@ -1,6 +1,7 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import { initializeConfigACLAndGetLoginPage } from '../common';
+import { find } from 'node_modules/cypress/types/lodash';
 
 before(() => {
   cy.startWebContainer();
@@ -38,7 +39,7 @@ When('the administrator activates autologin on the platform', () => {
   cy.getIframeBody().find('#Form #enableAutoLogin').should('be.checked');
 
   cy.getIframeBody().find('#submitGeneralOptionsForm').click({ force: true });
-  cy.getIframeBody().find('#submitGeneralOptionsForm').reload();
+  cy.getIframeBody().find('input[type="button"]').contains('Modify');
 });
 
 Then(

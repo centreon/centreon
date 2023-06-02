@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [alma8, alma9]
+        distrib: [alma8, alma9, bullseye]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
