@@ -34,7 +34,7 @@ const ModalActions = ({
             aria-label={labels?.cancel}
             data-testid="cancel_confirmation"
             size="small"
-            variant="ghost"
+            variant="secondary"
             onClick={() => onCancel?.()}
           >
             {labels?.cancel}
