@@ -161,12 +161,14 @@ jobs:
         continue-on-error: true
 
       - name: Cache filtered baseline file
+        #if: needs.build.outputs.development_stage != 'Development'
         uses: actions/cache/save@v3
         with:
           path: "filtered_results.json"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary-to-save"
 
       - name: Cache standard baseline file
+        #if: needs.build.outputs.development_stage != 'Development'
         uses: actions/cache/save@v3
         with:
           path: "results.json"
@@ -174,6 +176,7 @@ jobs:
 
   save-data-in-bucket:
     needs: [pipeline-scan]
+    #if: needs.build.outputs.development_stage != 'Development'
     name: Save new results
     runs-on: [self-hosted, veracode]
 
@@ -182,13 +185,13 @@ jobs:
         run: ls -la
 
       - name: Cache filtered baseline file
-        uses: actions/cache/save@v3
+        uses: actions/cache/restore@v3
         with:
           path: "filtered_results.json"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary-to-save"
 
       - name: Cache standard baseline file
-        uses: actions/cache/save@v3
+        uses: actions/cache/restore@v3
         with:
           path: "results.json"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary-to-save"

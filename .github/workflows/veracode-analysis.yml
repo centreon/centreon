@@ -92,12 +92,12 @@ jobs:
             fi
           fi
 
-      - name: Check availability
-        run: |
-          sudo apt-get update && sudo apt-get install httpie
-          export VERACODE_API_KEY_ID=${{ secrets.veracode_api_id }}
-          export VERACODE_API_KEY_SECRET=${{ secrets.veracode_api_key }}
-          http -A veracode_hmac "https://api.veracode.com/appsec/v1/applications"
+#      - name: Check availability
+#        run: |
+#          sudo apt-get update && sudo apt-get install httpie
+#          export VERACODE_API_KEY_ID=${{ secrets.veracode_api_id }}
+#          export VERACODE_API_KEY_SECRET=${{ secrets.veracode_api_key }}
+#          http -A veracode_hmac "https://api.veracode.com/appsec/v1/applications"
 
       - uses: actions/setup-java@v3 #TODO: To install in veracode runner directly
         with:

@@ -78,12 +78,6 @@ jobs:
           distribution: 'zulu'
           java-version: 8
 
-      - name: Setup awscli #TODO: To install in veracode runner directly
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          sudo unzip -q awscliv2.zip
-          sudo ./aws/install
-
       - name: Get baseline files
         run: |
           BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
@@ -117,21 +111,14 @@ jobs:
             -fjf filtered_results.json
         continue-on-error: true
 
-      - name: Pipeline scan
-        uses: veracode/Veracode-pipeline-scan-action@v1.0.3
-        with:
-          vid:
-          vkey: ${{ secrets.veracode_api_key }}
-          file:
-          baseline_file: "${{ env.baseline_file }}"
-          create_baseline_from: "${{ env.create_baseline_from }}"
-          fail_build: false #TODO: Do not fail the jobs until grace period ends
-          #fail_build: '${{ needs.build.outputs.fail_build }}'
-          fail_on_severity: "Medium"
-          timeout: 60
-          development_stage: '${{ needs.build.outputs.development_stage }}'
-          summary_display: '${{ needs.build.outputs.display_summary }}'
-          issue_details: '${{ needs.build.outputs.display_summary }}'
+#          create_baseline_from: "${{ env.create_baseline_from }}"
+#          fail_build: false #TODO: Do not fail the jobs until grace period ends
+#          #fail_build: '${{ needs.build.outputs.fail_build }}'
+#          fail_on_severity: "Medium"
+#          timeout: 60
+#          development_stage: '${{ needs.build.outputs.development_stage }}'
+#          summary_display: '${{ needs.build.outputs.display_summary }}'
+#          issue_details: '${{ needs.build.outputs.display_summary }}'
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved

@@ -28,7 +28,7 @@ jobs:
 
   veracode-analysis:
     needs: [get-version]
-    uses: ./.github/workflows/veracode-container-legacy-analysis.yml
+    uses: ./.github/workflows/veracode-legacy-analysis.yml
     with:
       module_directory: widgets/centreon-widget-grid-map
       module_name: centreon-widget-grid-map
