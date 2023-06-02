@@ -36,6 +36,10 @@ const reactRoutes = [
     path: routeMap.about
   },
   {
+    comp: lazy(() => import('../CloudNotificationsConfiguration')),
+    path: routeMap.cloudNotificationConfiguration
+  },
+  {
     comp: lazy(() => import('../Dashboards')),
     path: routeMap.dashboards
   },
