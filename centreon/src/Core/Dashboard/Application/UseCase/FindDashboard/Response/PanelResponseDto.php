@@ -21,19 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Dashboard\Application\UseCase\UpdateDashboard;
+namespace Core\Dashboard\Application\UseCase\FindDashboard\Response;
 
-use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Dashboard\Application\UseCase\UpdateDashboard\UpdateDashboardPresenterInterface;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
-
-class UpdateDashboardPresenterStub implements UpdateDashboardPresenterInterface
+final class PanelResponseDto
 {
-    public ResponseStatusInterface|NoContentResponse $data;
-
-    public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void
-    {
-        $this->data = $data;
+    /**
+     * @param int $id
+     * @param string $name
+     * @param PanelLayoutResponseDto $layout
+     * @param string $widgetType
+     * @param array<mixed> $widgetSettings
+     */
+    public function __construct(
+        public int $id = 0,
+        public string $name = '',
+        public PanelLayoutResponseDto $layout = new PanelLayoutResponseDto(),
+        public string $widgetType = '',
+        public array $widgetSettings = [],
+    ) {
     }
 }

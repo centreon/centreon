@@ -21,21 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Infrastructure\API\UpdateDashboard;
+namespace Tests\Core\Dashboard\Application\UseCase\PartialUpdateDashboard;
 
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Dashboard\Application\UseCase\UpdateDashboard\UpdateDashboardPresenterInterface;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardPresenterInterface;
 
-final class UpdateDashboardPresenter extends DefaultPresenter implements UpdateDashboardPresenterInterface
+class PartialUpdateDashboardPresenterStub implements PartialUpdateDashboardPresenterInterface
 {
+    public ResponseStatusInterface|NoContentResponse $data;
+
     public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void
     {
-        if ($data instanceof NoContentResponse) {
-            $this->present($data);
-        } else {
-            $this->setResponseStatus($data);
-        }
+        $this->data = $data;
     }
 }

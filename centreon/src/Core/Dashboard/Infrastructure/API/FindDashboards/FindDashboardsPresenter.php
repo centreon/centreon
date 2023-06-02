@@ -27,7 +27,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsResponse;
-use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsUserDto;
+use Core\Dashboard\Application\UseCase\FindDashboards\Response\UserResponseDto;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
@@ -69,11 +69,11 @@ final class FindDashboardsPresenter extends DefaultPresenter implements FindDash
     }
 
     /**
-     * @param ?FindDashboardsUserDto $dto
+     * @param ?\Core\Dashboard\Application\UseCase\FindDashboards\Response\UserResponseDto $dto
      *
      * @return null|array{id: int, name: string}
      */
-    private function userToOptionalArray(?FindDashboardsUserDto $dto): ?array
+    private function userToOptionalArray(?UserResponseDto $dto): ?array
     {
         return $dto ? [
             'id' => $dto->id,

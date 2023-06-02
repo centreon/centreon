@@ -21,11 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\UpdateDashboard;
+namespace Core\Dashboard\Application\UseCase\FindDashboard\Response;
 
-final class UpdateDashboardRequest
+final class UserResponseDto
 {
-    public string $name = '';
-
-    public string $description = '';
+    public function __construct(
+        public int $id = 0,
+        public string $name = '',
+    ) {
+    }
 }

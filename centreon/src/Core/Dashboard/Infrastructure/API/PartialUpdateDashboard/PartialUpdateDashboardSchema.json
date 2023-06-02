@@ -1,0 +1,70 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Update a dashboard",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "description": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "panels": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "layout",
+                    "widget_type",
+                    "widget_settings"
+                ],
+                "properties": {
+                    "id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "layout": {
+                        "type": "object",
+                        "minProperties": 6,
+                        "properties": {
+                            "x": {
+                                "type": "integer"
+                            },
+                            "y": {
+                                "type": "integer"
+                            },
+                            "width": {
+                                "type": "integer"
+                            },
+                            "height": {
+                                "type": "integer"
+                            },
+                            "min_width": {
+                                "type": "integer"
+                            },
+                            "min_height": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "widget_type": {
+                        "type": "string"
+                    },
+                    "widget_settings": {
+                        "type": "object"
+                    }
+                }
+            }
+        }
+    }
+}

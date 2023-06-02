@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\UpdateDashboard;
+namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard;
 
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface UpdateDashboardPresenterInterface
+interface PartialUpdateDashboardPresenterInterface
 {
     public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void;
 }

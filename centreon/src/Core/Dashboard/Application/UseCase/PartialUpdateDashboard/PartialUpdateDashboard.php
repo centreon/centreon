@@ -21,50 +21,57 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\UpdateDashboard;
+namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Application\Type\NoValue;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-final class UpdateDashboard
+final class PartialUpdateDashboard
 {
     use LoggerTrait;
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly WriteDashboardRepositoryInterface $writeDashboardRepository,
+        private readonly ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
+        private readonly WriteDashboardPanelRepositoryInterface $writeDashboardPanelRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $contact
     ) {
     }
 
     /**
      * @param int $dashboardId
-     * @param UpdateDashboardRequest $request
-     * @param UpdateDashboardPresenterInterface $presenter
+     * @param PartialUpdateDashboardRequest $request
+     * @param PartialUpdateDashboardPresenterInterface $presenter
      */
     public function __invoke(
         int $dashboardId,
-        UpdateDashboardRequest $request,
-        UpdateDashboardPresenterInterface $presenter
+        PartialUpdateDashboardRequest $request,
+        PartialUpdateDashboardPresenterInterface $presenter
     ): void {
         try {
             if ($this->contact->isAdmin()) {
-                $response = $this->updateDashboardAsAdmin($dashboardId, $request);
+                $response = $this->PartialUpdateDashboardAsAdmin($dashboardId, $request);
             } elseif ($this->contactCanPerformWriteOperations()) {
-                $response = $this->updateDashboardAsContact($dashboardId, $request);
+                $response = $this->PartialUpdateDashboardAsContact($dashboardId, $request);
             } else {
                 $response = new ForbiddenResponse(DashboardException::accessNotAllowedForWriting());
             }
@@ -95,17 +102,17 @@ final class UpdateDashboard
     }
 
     /**
-     * @param UpdateDashboardRequest $request
+     * @param PartialUpdateDashboardRequest $request
      * @param int $dashboardId
      *
-     * @throws \Throwable
      * @throws DashboardException
+     * @throws \Throwable
      *
      * @return NoContentResponse|NotFoundResponse
      */
-    private function updateDashboardAsAdmin(
+    private function PartialUpdateDashboardAsAdmin(
         int $dashboardId,
-        UpdateDashboardRequest $request
+        PartialUpdateDashboardRequest $request
     ): NoContentResponse|NotFoundResponse {
         $dashboard = $this->readDashboardRepository->findOne($dashboardId);
         if (null === $dashboard) {
@@ -118,17 +125,17 @@ final class UpdateDashboard
     }
 
     /**
-     * @param UpdateDashboardRequest $request
+     * @param PartialUpdateDashboardRequest $request
      * @param int $dashboardId
      *
-     * @throws \Throwable
      * @throws DashboardException
+     * @throws \Throwable
      *
      * @return NoContentResponse|NotFoundResponse
      */
-    private function updateDashboardAsContact(
+    private function PartialUpdateDashboardAsContact(
         int $dashboardId,
-        UpdateDashboardRequest $request
+        PartialUpdateDashboardRequest $request
     ): NoContentResponse|NotFoundResponse {
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
         $dashboard = $this->readDashboardRepository->findOneByAccessGroups($dashboardId, $accessGroups);
@@ -148,22 +155,66 @@ final class UpdateDashboard
 
     /**
      * @param Dashboard $dashboard
-     * @param UpdateDashboardRequest $request
+     * @param PartialUpdateDashboardRequest $request
      *
      * @throws AssertionFailedException|\Throwable
      */
-    private function updateDashboardAndSave(Dashboard $dashboard, UpdateDashboardRequest $request): void
+    private function updateDashboardAndSave(Dashboard $dashboard, PartialUpdateDashboardRequest $request): void
     {
-        $updatedDashboard = new Dashboard(
+        // Build of the new domain objects.
+        $updatedDashboard = $this->getUpdatedDashboard($dashboard, $request);
+
+        $panelsDifference = null;
+        if (! ($request->panels instanceof NoValue)) {
+            $panelIdsFromRepository = $this->readDashboardPanelRepository->findPanelIdsByDashboardId($dashboard->getId());
+            $panelsDifference = new PartialUpdateDashboardPanelsDifference($panelIdsFromRepository, $request->panels);
+        }
+
+        // Store the objects into the repositories.
+        try {
+            $this->dataStorageEngine->startTransaction();
+
+            $this->writeDashboardRepository->update($updatedDashboard);
+
+            if (null !== $panelsDifference) {
+                foreach ($panelsDifference->getPanelIdsToDelete() as $id) {
+                    $this->writeDashboardPanelRepository->deletePanel($id);
+                }
+                foreach ($panelsDifference->getPanelsToCreate() as $panel) {
+                    $this->writeDashboardPanelRepository->addPanel($dashboard->getId(), $panel);
+                }
+                foreach ($panelsDifference->getPanelsToUpdate() as $panel) {
+                    $this->writeDashboardPanelRepository->updatePanel($dashboard->getId(), $panel);
+                }
+            }
+
+            $this->dataStorageEngine->commitTransaction();
+        } catch (\Throwable $ex) {
+            $this->error("Rollback of 'Partial Update Dashboard' transaction.");
+            $this->dataStorageEngine->rollbackTransaction();
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @param Dashboard $dashboard
+     * @param PartialUpdateDashboardRequest $request
+     *
+     * @throws AssertionFailedException
+     *
+     * @return Dashboard
+     */
+    private function getUpdatedDashboard(Dashboard $dashboard, PartialUpdateDashboardRequest $request): Dashboard
+    {
+        return new Dashboard(
             id: $dashboard->getId(),
-            name: $request->name,
-            description: $request->description,
+            name: NoValue::coalesce($request->name, $dashboard->getName()),
+            description: NoValue::coalesce($request->description, $dashboard->getDescription()),
             createdBy: $dashboard->getCreatedBy(),
             updatedBy: $this->contact->getId(),
             createdAt: $dashboard->getCreatedAt(),
             updatedAt: new \DateTimeImmutable()
         );
-
-        $this->writeDashboardRepository->update($updatedDashboard);
     }
 }

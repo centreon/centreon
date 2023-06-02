@@ -21,11 +21,31 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboard;
+namespace Core\Dashboard\Application\Repository;
 
-final class FindDashboardUserDto
+use Core\Dashboard\Domain\Model\DashboardPanel;
+
+interface ReadDashboardPanelRepositoryInterface
 {
-    public int $id = 0;
+    /**
+     * Find all panels IDs of a specific dashboard.
+     *
+     * @param int $dashboardId
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findPanelIdsByDashboardId(int $dashboardId): array;
 
-    public string $name = '';
+    /**
+     * Find all panels of a specific dashboard.
+     *
+     * @param int $dashboardId
+     *
+     * @throws \Throwable
+     *
+     * @return DashboardPanel[]
+     */
+    public function findPanelsByDashboardId(int $dashboardId): array;
 }
