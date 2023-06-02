@@ -204,12 +204,12 @@ jobs:
           aws s3 cp "filtered_results.json" "$BUCKET/filtered_results.json"
           aws s3 cp "results.json" "$BUCKET/results.json"
 
-  pipeline-scan-legacy:
-    needs: [build]
-    name: Run pipeline scan in legacy mode
-    runs-on: [self-hosted, veracode]
-    containers:
-      image: veracode/pipeline-scan:latest
-      options: --user-root
-
-    steps:
+#  pipeline-scan-legacy:
+#    needs: [build]
+#    name: Run pipeline scan in legacy mode
+#    runs-on: [self-hosted, veracode]
+#    containers:
+#      image: veracode/pipeline-scan:latest
+#      options: --user-root
+#
+#    steps:
