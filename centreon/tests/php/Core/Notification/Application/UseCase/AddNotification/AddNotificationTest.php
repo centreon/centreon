@@ -145,7 +145,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(NotificationException::addNotAllowed()->getMessage());
 });
 
-it('should present a InvalidArgumentResponse when name is already used', function (): void {
+it('should present an InvalidArgumentResponse when name is already used', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -184,7 +184,7 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
         ->toBe($expectedException->getMessage());
 });
 
-it('should throw a InvalidArgumentResponse if at least one of the resource IDs does not exist', function (): void {
+it('should throw an InvalidArgumentResponse if at least one of the resource IDs does not exist', function (): void {
     $this->user
         ->method('isAdmin')
         ->willReturn(true);
@@ -212,7 +212,7 @@ it('should throw a InvalidArgumentResponse if at least one of the resource IDs d
         ->toBe(NotificationException::invalidId('resource.ids')->getMessage());
 });
 
-it('should throw a InvalidArgumentResponse if at least one resource ID is not provided', function (): void {
+it('should throw an InvalidArgumentResponse if at least one resource ID is not provided', function (): void {
     $this->request->resources[0]['ids'] = [];
 
     $this->user
@@ -240,7 +240,7 @@ it('should throw a InvalidArgumentResponse if at least one resource ID is not pr
         ->toBe(NotificationException::emptyArrayNotAllowed('resource.ids')->getMessage());
 });
 
-it('should throw a InvalidArgumentResponse if at least one of the user IDs does not exist', function (): void {
+it('should throw an InvalidArgumentResponse if at least one of the user IDs does not exist', function (): void {
     $this->user
         ->expects($this->atLeast(1))
         ->method('isAdmin')
@@ -287,7 +287,7 @@ it('should throw a InvalidArgumentResponse if at least one of the user IDs does 
         ->toBe(NotificationException::invalidId('users')->getMessage());
 });
 
-it('should throw a InvalidArgumentResponse if at least one of the user IDs is not provided', function (): void {
+it('should throw an InvalidArgumentResponse if at least one of the user IDs is not provided', function (): void {
     $this->request->users = [];
 
     $this->user

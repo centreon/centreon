@@ -431,7 +431,7 @@ Feature:
     }
     """
 
-  Scenario: Notification Listing as non-admin without sufficient right
+  Scenario: Notification listing as non-admin without sufficient rights
     Given the following CLAPI import data:
     """
     CONTACT;ADD;test-user;test-user;test-user@localservice.com;Centreon@2022;0;1;en_US;local

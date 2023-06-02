@@ -85,7 +85,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
     public function exist(array $resourceIds): array
     {
         $this->info(
-            'Check if resource ids exist',
+            'Check if resource IDs exist',
             ['resource_type' => self::RESOURCE_TYPE, 'resource_ids' => $resourceIds]
         );
 
@@ -113,7 +113,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
     public function existByAccessGroups(array $resourceIds, array $accessGroups): array
     {
         $this->info(
-            'Check if resource ids exist with accessGroups',
+            'Check if resource IDs exist with accessGroups',
             [
                 'resource_type' => self::RESOURCE_TYPE,
                 'resource_ids' => $resourceIds,

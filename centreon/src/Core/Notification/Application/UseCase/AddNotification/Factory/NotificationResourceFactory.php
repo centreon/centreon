@@ -78,7 +78,7 @@ class NotificationResourceFactory
         if ([] !== $missingResources) {
             $this->error(
                 'Invalid ID(s) provided',
-                ['propertieName' => 'resources', 'propertieValues' => array_values($missingResources)]
+                ['propertyName' => 'resources', 'propertyValues' => array_values($missingResources)]
             );
 
             throw NotificationException::invalidId('resource.ids');

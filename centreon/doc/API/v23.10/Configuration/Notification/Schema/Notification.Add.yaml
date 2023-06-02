@@ -8,9 +8,9 @@ properties:
     type: boolean
   timeperiod:
     type: integer
-    description: Timeperiod during which the notification is send
+    description: Timeperiod during which the notification is sent
   users:
-    description: Users to whom the notification is send
+    description: Users to whom the notification is sent
     type: array
     items:
       type: integer
@@ -21,7 +21,7 @@ properties:
   resources:
     type: array
     description: |
-      Resource configurations that triggers a notification
+      Resource configurations that trigger a notification
     items:
       type: object
       properties:
@@ -33,7 +33,7 @@ properties:
           description: Bitmask of the events that trigger a notification for the resource type
         ids:
           type: array
-          description: Resource that trigger a notification
+          description: list of resource IDs triggering a notification
           items:
             type: integer
         extra:
@@ -42,6 +42,6 @@ properties:
             event_services:
               description: |
                 Bitmask of the service's events that trigger a notification
-                for the services linked to the defined above resources
+                for the services linked to the resources defined above
                 (Only available for type hostgroup)
               type: integer

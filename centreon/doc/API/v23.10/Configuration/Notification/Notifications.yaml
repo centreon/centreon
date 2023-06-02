@@ -5,7 +5,7 @@ post:
   description: |
     Create a notification
 
-    This endpoint is accessible for Saas platforms only
+    This endpoint is accessible for SaaS platforms only
   requestBody:
     required: true
     content:

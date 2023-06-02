@@ -52,7 +52,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
      */
     public function findById(int $notificationId): ?Notification
     {
-        $this->info('Get a notification configuration with id #' . $notificationId);
+        $this->info('Get a notification configuration with ID #' . $notificationId);
 
         $request = $this->translateDbName(
             'SELECT id, name, timeperiod_id, tp_name, is_activated
@@ -85,7 +85,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
      */
     public function findMessagesByNotificationId(int $notificationId): array
     {
-        $this->info('Get all notification messages for notification with id #' . $notificationId);
+        $this->info('Get all notification messages for notification with ID #' . $notificationId);
 
         $request = $this->translateDbName(
             'SELECT id, channel, subject, message
@@ -114,7 +114,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
      */
     public function findUsersByNotificationId(int $notificationId): array
     {
-        $this->info('Get all notification users for notification with id #' . $notificationId);
+        $this->info('Get all notification users for notification with ID #' . $notificationId);
 
         $request = $this->translateDbName(
             'SELECT notification_id, user_id, contact.contact_name
@@ -162,7 +162,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
      */
     public function exists(int $notificationId): bool
     {
-        $this->info('Check existence of notification configuration with id #' . $notificationId);
+        $this->info('Check existence of notification configuration with ID #' . $notificationId);
 
         $request = $this->translateDbName('SELECT 1 FROM `:db`.notification WHERE id = :notificationId');
         $statement = $this->db->prepare($request);
