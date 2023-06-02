@@ -12,7 +12,7 @@ RUN <<EOF
 
 apt-get update
 
-apt-get install -y ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo
+apt-get install -y ca-certificates apt-transport-https software-properties-common wget gnupg2 curl sudo libfaketime
 
 VERSION_CODENAME=$(
     . /etc/os-release
