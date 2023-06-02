@@ -77,7 +77,8 @@ class CloudPlatformContext extends ApiContext
 
         // Do not forget to escape special chars !
         $this->container->execute(
-            'php -r ' . escapeshellarg($phpOneline) . ' 2>&1',
+            'php -r ' . escapeshellarg($phpOneline),
+            //'php -r ' . escapeshellarg($phpOneline) . ' 2>&1',
             $this->webService
         );
     }
