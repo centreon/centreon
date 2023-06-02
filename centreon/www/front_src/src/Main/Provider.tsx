@@ -4,7 +4,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { not, startsWith, tail } from 'ramda';
 import { createStore } from 'jotai';
 
-import { Module, QueryProvider } from '@centreon/ui';
+import { Module } from '@centreon/ui';
 
 import routeMap from '../reactRoutes/routeMap';
 import AuthenticationDenied from '../FallbackPages/AuthenticationDenied';
@@ -69,9 +69,7 @@ const Provider = (): JSX.Element | null => {
 
   return (
     <Module maxSnackbars={2} seedName="centreon" store={store}>
-      <QueryProvider>
-        <RouterProvider router={router} />
-      </QueryProvider>
+      <RouterProvider router={router} />
     </Module>
   );
 };
