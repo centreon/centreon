@@ -9,7 +9,7 @@
 /etc/sudo.conf
 /etc/sudoers
 /etc/sudoers.d
-/etc/pam.d/sudo
+/etc/pam.d
 /usr/libexec/sudo
 /var/www/html
 /usr/lib64/httpd/modules
