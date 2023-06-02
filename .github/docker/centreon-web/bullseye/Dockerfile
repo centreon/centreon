@@ -1,7 +1,7 @@
 ARG REGISTRY_URL
 ARG VERSION
 
-FROM debian:bullseye AS web_fresh
+FROM ${REGISTRY_URL}/centreon-web-dependencies-bullseye:${VERSION} AS web_fresh
 
 ARG VERSION
 
