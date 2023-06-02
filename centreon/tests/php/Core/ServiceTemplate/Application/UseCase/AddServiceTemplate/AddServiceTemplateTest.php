@@ -118,7 +118,7 @@ it('should present a ForbiddenResponse when the user has insufficient rights', f
         ->toBe(ServiceTemplateException::addNotAllowed()->getMessage());
 });
 
-it('should present a ErrorResponse when the user name already exists', function () {
+it('should present an ErrorResponse when the user name already exists', function () {
     $this->user
     ->expects($this->once())
     ->method('hasTopologyRole')

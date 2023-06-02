@@ -134,20 +134,20 @@ properties:
       * `16` - FLAPPING
       * `32` - DOWNTIME_SCHEDULED
       
-      example: A value equal to 5 corresponding to the selected options WARNING and CRITICAL
+      example: A value equal to 5 corresponds to the selected options WARNING and CRITICAL
     example: 5
   first_notification_delay:
     type: integer
     nullable: true
     description: |
-      Define the number of "time units" to wait before sending out the first problem notification when this service enters a non-UP state.
+      Define the number of "time units" to wait before sending out the first problem notification when this service enters a non-OK state.
       
       With the default time unit of 60s, this number will mean multiples of 1 minute.
   recovery_notification_delay:
     type: integer
     nullable: true
     description: |
-      Define the number of "time units" to wait before sending out the recovery notification when this service enters an UP state.
+      Define the number of "time units" to wait before sending out the recovery notification when this service enters an OK state.
       
       With the default time unit of 60s, this number will mean multiples of 1 minute.
   acknowledgement_timeout:
@@ -161,7 +161,7 @@ properties:
       
       * `0` - STATUS_DISABLED
       * `1` - STATUS_ENABLED
-      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
     example: 2
   freshness_threshold:
     type: integer
@@ -174,7 +174,7 @@ properties:
       
       * `0` - STATUS_DISABLED
       * `1` - STATUS_ENABLED
-      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
     example: 2
   low_flap_threshold:
     type: integer
@@ -191,7 +191,7 @@ properties:
       
       * `0` - STATUS_DISABLED
       * `1` - STATUS_ENABLED
-      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
     example: 2
   event_handler_command_id:
     type: integer
@@ -223,7 +223,7 @@ properties:
     nullable: true
   action_url:
     type: string
-    description: "Define an optional URL that can be used to provide more actions to be performed on the service."
+    description: "Define an optional URL that can be used to specify actions to be performed on the service."
     nullable: true
     maxLength: 65535
   icon_id:
