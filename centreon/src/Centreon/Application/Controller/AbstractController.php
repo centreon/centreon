@@ -27,7 +27,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use JsonSchema\Constraints\Constraint;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Abstraction over the FOSRestController

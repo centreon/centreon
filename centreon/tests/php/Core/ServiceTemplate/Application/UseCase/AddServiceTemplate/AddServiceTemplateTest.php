@@ -145,7 +145,7 @@ it('should present a ErrorResponse when the user name already exists', function 
         ->toBe(ServiceTemplateException::nameAlreadyExists($name)->getMessage());
 });
 
-it('should present a ConflictResponse when the severity id is not valid', function () {
+it('should present a ConflictResponse when the severity ID is not valid', function () {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
     $request->severityId = 1;
@@ -178,7 +178,7 @@ it('should present a ConflictResponse when the severity id is not valid', functi
         ->toBe(ServiceTemplateException::idDoesNotExist('severity_id', $request->severityId)->getMessage());
 });
 
-it('should present a ConflictResponse when the performance graph id is not valid', function () {
+it('should present a ConflictResponse when the performance graph ID is not valid', function () {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
     $request->severityId = 1;
@@ -218,7 +218,7 @@ it('should present a ConflictResponse when the performance graph id is not valid
         ->toBe(ServiceTemplateException::idDoesNotExist('graph_template_id', $request->severityId)->getMessage());
 });
 
-it('should present a ConflictResponse when the service template id is not valid', function () {
+it('should present a ConflictResponse when the service template ID is not valid', function () {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
     $request->severityId = 1;
@@ -265,7 +265,7 @@ it('should present a ConflictResponse when the service template id is not valid'
         ->toBe(ServiceTemplateException::idDoesNotExist('service_template_id', $request->severityId)->getMessage());
 });
 
-it('should present a ConflictResponse when the command id is not valid', function () {
+it('should present a ConflictResponse when the command ID is not valid', function () {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
     $request->severityId = 1;
@@ -319,7 +319,7 @@ it('should present a ConflictResponse when the command id is not valid', functio
         ->toBe(ServiceTemplateException::idDoesNotExist('check_command_id', $request->severityId)->getMessage());
 });
 
-it('should present a ConflictResponse when the event handler id is not valid', function () {
+it('should present a ConflictResponse when the event handler ID is not valid', function () {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
     $request->severityId = 1;
@@ -383,7 +383,7 @@ it('should present a ConflictResponse when the event handler id is not valid', f
         );
 });
 
-it('should present a ConflictResponse when the time period id is not valid', function () {
+it('should present a ConflictResponse when the time period ID is not valid', function () {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
     $request->severityId = 1;
@@ -454,7 +454,7 @@ it('should present a ConflictResponse when the time period id is not valid', fun
         );
 });
 
-it('should present a ConflictResponse when the notification time period id is not valid', function () {
+it('should present a ConflictResponse when the notification time period ID is not valid', function () {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
     $request->severityId = 1;
@@ -530,7 +530,7 @@ it('should present a ConflictResponse when the notification time period id is no
         );
 });
 
-it('should present a ConflictResponse when the icon id is not valid', function () {
+it('should present a ConflictResponse when the icon ID is not valid', function () {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
     $request->severityId = 1;
@@ -613,7 +613,7 @@ it('should present a ConflictResponse when the icon id is not valid', function (
         );
 });
 
-it('should present a InvalidArgumentResponse when data are not valid', function () {
+it('should present an InvalidArgumentResponse when data are not valid', function () {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
     $request->severityId = 1;
@@ -690,7 +690,7 @@ it('should present a InvalidArgumentResponse when data are not valid', function 
         ->and($this->presenter->response->getMessage());
 });
 
-it('should present a ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function () {
     $request = createAddServiceTemplateRequest();
 
     $this->user

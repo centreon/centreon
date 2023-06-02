@@ -50,7 +50,7 @@ properties:
   retry_check_interval:
     type: integer
     description: |
-      Define the number of "time units" to wait before scheduling a re-check for this service after a non-UP state was detected.
+      Define the number of "time units" to wait before scheduling a re-check for this service after a non-OK state was detected.
       
       With the default time unit of 60s, this number will mean multiples of 1 minute.
       
@@ -64,7 +64,7 @@ properties:
       
       * `0` - STATUS_DISABLED
       * `1` - STATUS_ENABLED
-      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
     example: 2
   passive_check_enabled:
     type: integer
@@ -73,7 +73,7 @@ properties:
       
       * `0` - STATUS_DISABLED
       * `1` - STATUS_ENABLED
-      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
     example: 2
   volatility_enabled:
     type: integer
@@ -82,7 +82,7 @@ properties:
 
       * `0` - STATUS_DISABLED
       * `1` - STATUS_ENABLED
-      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
     example: 2
   notification_enabled:
     type: integer
@@ -91,7 +91,7 @@ properties:
       
       * `0` - STATUS_DISABLED
       * `1` - STATUS_ENABLED
-      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
     example: 2
   is_contact_additive_inheritance:
     type: boolean
