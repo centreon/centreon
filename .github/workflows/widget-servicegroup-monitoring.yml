@@ -27,8 +27,10 @@ jobs:
       version_file: widgets/centreon-widget-servicegroup-monitoring/servicegroup-monitoring/configs.xml
 
   veracode-analysis:
+    concurrency: ci-${{ github.run_id }}
     needs: [get-version]
-    uses: ./.github/workflows/veracode-legacy-analysis.yml
+    #uses: ./.github/workflows/veracode-legacy-analysis.yml
+    uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: widgets/centreon-widget-servicegroup-monitoring
       module_name: centreon-widget-servicegroup-monitoring
