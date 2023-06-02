@@ -17669,3 +17669,12 @@ msgstr "Si vous quittez {{dashboardName}}, vos changements ne seront pas sauvega
 
 msgid "Your dashboard has been saved"
 msgstr "Votre tableau de bord a été sauvegardé"
+
+msgid "Unable to parse authorization url"
+msgstr "Impossible d'analyser l'URL d'autorisation"
+
+msgid "You are not allowed to list notifications configurations"
+msgstr "Vous n'êtes pas autorisé à lister les configurations de notifications"
+
+msgid "Notification #%d should have at least one user"
+msgstr "La notification #%d doit avoir au moins un utilisateur"
