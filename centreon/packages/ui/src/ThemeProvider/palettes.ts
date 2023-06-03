@@ -161,6 +161,8 @@ export const lightPalette: PaletteOptions = {
   },
   secondary: {
     contrastText: '#fff',
+    dark: '#ac28c1',
+    light: '#e5a5f0',
     main: '#C772D6'
   },
   statusBackground: {
