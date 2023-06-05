@@ -14,8 +14,8 @@ runs:
     - name: Exclude development files
       run: |
         cd ${{ inputs.module_directory }}
-        if [[ -f ".veracode" ]]; then
-          for LINE in $( cat .veracode | sed 's/[^a-zA-Z0-9_./-]//g' | sed -r 's/\.\./\./g' ); do
+        if [[ -f ".veracode-exclusions" ]]; then
+          for LINE in $( cat .veracode-exclusions | sed 's/[^a-zA-Z0-9_./-]//g' | sed -r 's/\.\./\./g' ); do
             if [[ -d "$LINE" ]]; then
               rm -rf "$LINE"
               echo "[INFO] - folder removed from analysis : '$LINE'"
@@ -29,7 +29,7 @@ runs:
             fi
           done
         else
-          echo "[INFO] - No '.veracode' file found for this module. Skipping exclusion step"
+          echo "[INFO] - No '.veracode-exclusions' file found for this module. Skipping exclusion step"
         fi
       shell: bash
 
