@@ -18,7 +18,6 @@
  * For more information : contact@centreon.com
  *
  */
-const _CENTREON_LOG_ = "/var/log/centreon";
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
