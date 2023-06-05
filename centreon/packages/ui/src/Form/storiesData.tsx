@@ -214,30 +214,39 @@ export const basicFormInputs: Array<InputProps> = [
     type: InputType.Radio
   },
   {
-    checkbox: {
-      labelPlacement: 'top',
-      options: ['ok', 'warning', 'critical', 'unknown'],
-      row: true
+    additionalLabel: 'Notifications',
+    fieldName: '',
+    grid: {
+      alignItems: 'center',
+      columns: [
+        {
+          checkbox: {
+            row: true
+          },
+          fieldName: 'notifications.channels',
+          label: 'channels',
+          type: InputType.Checkbox
+        },
+        {
+          fieldName: 'notifications.includeServices',
+          label: 'Iclude services',
+          type: InputType.Checkbox
+        },
+        {
+          checkbox: {
+            labelPlacement: 'top',
+            options: ['ok', 'warning', 'critical', 'unknown'],
+            row: true
+          },
+          fieldName: 'notifications.hostevents',
+          label: 'host events',
+          type: InputType.MultiCheckbox
+        }
+      ]
     },
-    fieldName: 'notifications.hostevents',
     group: 'Third group',
-    label: 'host events',
-    type: InputType.MultiCheckbox
-  },
-  {
-    checkbox: {
-      row: true
-    },
-    fieldName: 'notifications.channels',
-    group: 'Third group',
-    label: 'channels',
-    type: InputType.Checkbox
-  },
-  {
-    fieldName: 'notifications.includeServices',
-    group: 'Third group',
-    label: 'Iclude services',
-    type: InputType.Checkbox
+    label: 'Notifications',
+    type: InputType.Grid
   },
   {
     fieldName: 'anotherText',

@@ -36,6 +36,9 @@ const useStyles = makeStyles<StyleProps>()(
           minHeight: theme.spacing(11)
         }
       : {},
+    icon: {
+      fontSize: theme.spacing(10)
+    },
     label: {
       color: disabled
         ? theme.palette.action.disabled
@@ -78,7 +81,7 @@ const SingleCheckbox = ({
 
   return (
     <Box className={cx(classes.container, className)}>
-      {Icon && <Icon />}
+      {Icon && <Icon className={classes.icon} />}
       <FormControlLabel
         control={
           <MuiCheckbox
