@@ -105,6 +105,7 @@ const useValidationSchema = (): Yup.SchemaOf<OpenidConfiguration> => {
     isActive: switchSchema,
     isForced: switchSchema,
     loginClaim: Yup.string().nullable(),
+    redirectUrl: Yup.string().nullable(),
     rolesMapping: Yup.object({
       applyOnlyFirstRole: switchSchema,
       attributePath: Yup.string(),

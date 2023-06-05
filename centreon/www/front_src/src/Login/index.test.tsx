@@ -4,13 +4,13 @@ import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
 import userEvent from '@testing-library/user-event';
 
+import { SnackbarProvider } from '@centreon/ui';
 import {
   render,
   RenderResult,
   screen,
   waitFor,
-  SnackbarProvider,
-} from '@centreon/ui';
+} from '@centreon/ui/src/testRenderer';
 
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import { labelAlias } from '../Resources/translatedLabels';

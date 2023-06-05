@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { equals, not } from 'ramda';

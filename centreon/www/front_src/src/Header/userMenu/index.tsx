@@ -3,7 +3,7 @@ import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { useTranslation, withTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 import { equals, gt, isNil, not, __ } from 'ramda';
 
 import {
@@ -200,12 +200,12 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
   const { showSuccessMessage } = useSnackbar();
   const { toHumanizedDuration } = useLocaleDateTimeFormat();
 
-  const setAreUserParametersLoaded = useUpdateAtom(areUserParametersLoadedAtom);
-  const setPasswordResetInformationsAtom = useUpdateAtom(
+  const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
+  const setPasswordResetInformationsAtom = useSetAtom(
     passwordResetInformationsAtom,
   );
-  const setSelectedNavigationItems = useUpdateAtom(selectedNavigationItemsAtom);
-  const setHoveredNavigationItems = useUpdateAtom(hoveredNavigationItemsAtom);
+  const setSelectedNavigationItems = useSetAtom(selectedNavigationItemsAtom);
+  const setHoveredNavigationItems = useSetAtom(hoveredNavigationItemsAtom);
 
   const loadUserData = (): void => {
     sendRequest({ endpoint: userEndpoint })

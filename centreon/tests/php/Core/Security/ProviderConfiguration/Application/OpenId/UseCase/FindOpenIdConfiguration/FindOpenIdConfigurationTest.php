@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\Core\Security\ProviderConfiguration\Application\OpenId\UseCase\FindOpenIdConfiguration;
 
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Contact\Domain\Model\ContactGroup;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
@@ -81,7 +80,8 @@ it('should present a provider configuration', function () {
             []
         ),
         'authentication_conditions' => new AuthenticationConditions(false, '', new Endpoint(), []),
-        "groups_mapping" => new GroupsMapping(false, "", new Endpoint(), [])
+        "groups_mapping" => new GroupsMapping(false, "", new Endpoint(), []),
+        'redirect_url' => null
     ]);
     $configuration->setCustomConfiguration($customConfiguration);
 
@@ -122,6 +122,7 @@ it('should present a provider configuration', function () {
     expect($presenter->response->userNameBindAttribute)->toBeNull();
     expect($presenter->response->authenticationConditions)->toBeArray();
     expect($presenter->response->groupsMapping)->toBeArray();
+    expect($presenter->response->redirectUrl)->toBeNull();
 });
 
 it('should present an ErrorResponse when an error occured during the process', function () {

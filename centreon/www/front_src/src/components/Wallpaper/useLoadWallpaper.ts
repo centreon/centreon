@@ -1,7 +1,7 @@
 import { useMemo, useEffect } from 'react';
 
 import { always, lte, cond } from 'ramda';
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 
 import { useTheme } from '@mui/material';
 
@@ -14,7 +14,7 @@ import { loadImageDerivedAtom } from './loadImageAtom';
 const useLoadWallpaper = (): void => {
   const theme = useTheme();
 
-  const loadImage = useUpdateAtom(loadImageDerivedAtom);
+  const loadImage = useSetAtom(loadImageDerivedAtom);
 
   const imagePath = useMemo(
     (): string =>

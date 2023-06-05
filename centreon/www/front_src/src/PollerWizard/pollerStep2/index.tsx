@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { useUpdateAtom, useAtomValue } from 'jotai/utils';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { pick } from 'ramda';
 
 import { Typography, FormControlLabel, Checkbox } from '@mui/material';
@@ -63,7 +63,7 @@ const PollerWizardStepTwo = ({
   });
 
   const pollerData = useAtomValue<PollerData | null>(pollerAtom);
-  const setWizard = useUpdateAtom(setWizardDerivedAtom);
+  const setWizard = useSetAtom(setWizardDerivedAtom);
 
   const getRemoteServers = (): void => {
     getRemoteServersRequest({

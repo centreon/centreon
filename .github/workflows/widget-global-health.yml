@@ -26,6 +26,19 @@ jobs:
     with:
       version_file: widgets/centreon-widget-global-health/global-health/configs.xml
 
+  veracode-analysis:
+    needs: [get-version]
+    uses: ./.github/workflows/veracode-analysis.yml
+    with:
+      module_directory: widgets/centreon-widget-global-health
+      module_name: centreon-widget-global-health
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+    secrets:
+      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
+      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
+
   package:
     needs: [get-version]
     uses: ./.github/workflows/widget-package.yml
@@ -56,3 +69,4 @@ jobs:
       yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
       yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
       yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
+      token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}

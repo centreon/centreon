@@ -1,6 +1,6 @@
 import { pluck, values } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { FormControlLabel, FormGroup, Switch } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
@@ -31,8 +31,8 @@ const Options = (): JSX.Element => {
 
   const graphOptions = useAtomValue(graphOptionsAtom);
   const tabParameters = useAtomValue(tabParametersAtom);
-  const changeGraphOptions = useUpdateAtom(changeGraphOptionsDerivedAtom);
-  const setGraphTabParameters = useUpdateAtom(setGraphTabParametersDerivedAtom);
+  const changeGraphOptions = useSetAtom(changeGraphOptionsDerivedAtom);
+  const setGraphTabParameters = useSetAtom(setGraphTabParametersDerivedAtom);
 
   const graphOptionsConfiguration = values(graphOptions);
 

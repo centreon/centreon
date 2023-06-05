@@ -48,31 +48,35 @@ runs:
   steps:
     - name: Restore index file cache
       if: "${{ inputs.frontend_index_file != '' && inputs.frontend_index_cache_key != '' }}"
-      uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
+      uses: actions/cache@v3
       with:
         path: ${{ inputs.frontend_index_file }}
         key: ${{ inputs.frontend_index_cache_key }}
+        fail-on-cache-miss: true
 
     - name: Restore static directory cache
       if: "${{ inputs.frontend_static_directory != '' && inputs.frontend_static_cache_key != '' }}"
-      uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
+      uses: actions/cache@v3
       with:
         path: ${{ inputs.frontend_static_directory }}
         key: ${{ inputs.frontend_static_cache_key }}
+        fail-on-cache-miss: true
 
     - name: Restore vendor directory cache
       if: "${{ inputs.backend_vendor_directory != '' && inputs.backend_vendor_cache_key != '' }}"
-      uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
+      uses: actions/cache@v3
       with:
         path: ${{ inputs.backend_vendor_directory }}
         key: ${{ inputs.backend_vendor_cache_key }}
+        fail-on-cache-miss: true
 
     - name: Restore translation directory cache
       if: "${{ inputs.translation_directory != '' && inputs.translation_cache_key != '' }}"
-      uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
+      uses: actions/cache@v3
       with:
         path: ${{ inputs.translation_directory }}
         key: ${{ inputs.translation_cache_key }}
+        fail-on-cache-miss: true
 
     - if: ${{ inputs.package_extension == 'rpm' }}
       run: |
@@ -112,7 +116,17 @@ runs:
         cd ./$MODULE_BASENAME
 
         if [ -f "debian/substvars" ]; then
+          MAJOR=${{ inputs.major_version }}
+          MAJOR_LEFT_PART=$( echo $MAJOR | cut -d "." -f1 )
+          MAJOR_RIGHT_PART=$( echo $MAJOR | cut -d "-" -f1 | cut -d "." -f2 )
+          BUMP_MAJOR_RIGHT_PART=$(( MAJOR_RIGHT_PART+1 ))
+          if [ ${#BUMP_MAJOR_RIGHT_PART} -eq 1 ]; then
+              # Add a zero before the new single numeric char
+              BUMP_MAJOR_RIGHT_PART="0$BUMP_MAJOR_RIGHT_PART"
+          fi
           sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
+          sed -i "s/^centreon:versionThreshold=.*$/centreon:versionThreshold=$(echo "$MAJOR_LEFT_PART.$BUMP_MAJOR_RIGHT_PART" | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
+
         fi
 
         debmake -f "Centreon" -e "contact@centreon.com" -u "$VERSION" -y -r "bullseye"
@@ -132,7 +146,7 @@ runs:
         retention-days: 1
 
     - name: Cache packaged files
-      uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
+      uses: actions/cache@v3
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}

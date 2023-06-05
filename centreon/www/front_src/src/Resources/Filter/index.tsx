@@ -30,8 +30,7 @@ import {
   remove,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 
 import CloseIcon from '@mui/icons-material/Close';
 import {
@@ -50,6 +49,7 @@ import {
   getData,
   useRequest,
   LoadingSkeleton,
+  SelectEntry,
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
@@ -156,10 +156,10 @@ const Filter = (): JSX.Element => {
   const currentFilter = useAtomValue(currentFilterAtom);
   const sendingFilter = useAtomValue(sendingFilterAtom);
   const user = useAtomValue(userAtom);
-  const applyCurrentFilter = useUpdateAtom(applyCurrentFilterDerivedAtom);
-  const applyFilter = useUpdateAtom(applyFilterDerivedAtom);
-  const setNewFilter = useUpdateAtom(setNewFilterDerivedAtom);
-  const clearFilter = useUpdateAtom(clearFilterDerivedAtom);
+  const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+  const applyFilter = useSetAtom(applyFilterDerivedAtom);
+  const setNewFilter = useSetAtom(setNewFilterDerivedAtom);
+  const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
   const open = Boolean(autocompleteAnchor);
 
@@ -474,13 +474,13 @@ const Filter = (): JSX.Element => {
     applyFilter(updatedFilter);
   };
 
-  const translatedOptions = [
+  const translatedOptions: Array<SelectEntry> = [
     unhandledProblemsFilter,
     resourceProblemsFilter,
     allFilter,
-  ].map(({ id, name }) => ({ id, name: t(name) }));
+  ].map(({ id, name }) => ({ id, name: t(name), testId: `Filter ${name}` }));
 
-  const customFilterOptions = isEmpty(customFilters)
+  const customFilterOptions: Array<SelectEntry> = isEmpty(customFilters)
     ? []
     : [
         {
@@ -491,7 +491,7 @@ const Filter = (): JSX.Element => {
         ...customFilters,
       ];
 
-  const options = [
+  const options: Array<SelectEntry> = [
     { id: '', name: t(labelNewFilter) },
     ...translatedOptions,
     ...customFilterOptions,
@@ -550,7 +550,7 @@ const Filter = (): JSX.Element => {
             <Suspense fallback={<FilterLoadingSkeleton />}>
               <SelectFilter
                 ariaLabel={t(labelStateFilter)}
-                options={options.map(pick(['id', 'name', 'type']))}
+                options={options.map(pick(['id', 'name', 'type', 'testId']))}
                 selectedOptionId={
                   canDisplaySelectedFilter ? currentFilter.id : ''
                 }

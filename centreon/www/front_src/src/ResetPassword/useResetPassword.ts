@@ -2,7 +2,7 @@ import { FormikHelpers, FormikValues } from 'formik';
 import { equals, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 
 import { putData, useRequest, useSnackbar } from '@centreon/ui';

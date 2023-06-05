@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { isNil, isEmpty, values } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 
 import { Typography, FormControlLabel, Checkbox } from '@mui/material';
 import Radio from '@mui/material/Radio';
@@ -85,7 +85,7 @@ const RemoteServerWizardStepOne = ({
     request: postData,
   });
 
-  const setWizard = useUpdateAtom(setRemoteServerWizardDerivedAtom);
+  const setWizard = useSetAtom(setRemoteServerWizardDerivedAtom);
 
   const getWaitList = (): void => {
     sendRequest({

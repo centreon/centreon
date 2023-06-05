@@ -1,5 +1,7 @@
-bin/registerServerTopology.sh                           usr/share/centreon/bin
-bin/registerServerTopologyTemplate                      usr/share/centreon/bin
-lib/perl/centreon/script/centreontrapd.pm               etc/centreon
-debian/extra/centreon-poller-centreon-engine/centreon   etc/sudoers.d
-debian/extra/centreon-poller-centreon-engine/conf.pm    etc/centreon
+#!/usr/bin/dh-exec
+
+bin/registerServerTopology.sh         usr/share/centreon/bin
+bin/registerServerTopologyTemplate    usr/share/centreon/bin
+packaging/src/centreontrapd.pm        etc/centreon
+
+packaging/src/sudoersCentreonEngine => etc/sudoers.d/centreon

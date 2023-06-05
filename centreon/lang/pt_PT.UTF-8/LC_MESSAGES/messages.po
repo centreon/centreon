@@ -15911,3 +15911,94 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "You are not allowed to edit time periods"
 #  msgstr ""
+
+#  msgid "Monitoring server disabled (#%d)"
+#  msgstr ""
+
+# msgid "Redirect URL"
+# msgstr ""
+
+# msgid "SAML configuration"
+# msgstr ""
+
+# msgid "Define SAML configuration"
+# msgstr ""
+
+# msgid "Failed to save SAML configuration"
+# msgstr ""
+
+# msgid "SAML configuration saved"
+# msgstr ""
+
+# msgid "Enable SAMLv2 authentication"
+# msgstr ""
+
+# msgid "SAML only"
+# msgstr ""
+
+# msgid "Remote login URL"
+# msgstr ""
+
+# msgid "Issuer (Entity ID) URL"
+# msgstr ""
+
+# msgid "Copy/paste x.509 certificate"
+# msgstr ""
+
+# msgid "User ID (login) attribute for Centreon user"
+# msgstr ""
+
+# msgid "Logout from"
+# msgstr ""
+
+# msgid "Centreon UI only"
+# msgstr ""
+
+# msgid "Both identity provider and Centreon UI"
+# msgstr ""
+
+# msgid "Define relation between roles and ACL access groups"
+# msgstr ""
+
+#: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
+# msgid "B.Activities"
+# msgstr ""
+
+# msgid "Logout URL"
+# msgstr ""
+
+# msgid "Logout URL"
+# msgstr ""
+
+# msgid "Full name attribute"
+# msgstr ""
+
+# msgid "Roles mapping"
+# msgstr ""
+
+# msgid "Groups mapping"
+# msgstr ""
+
+# msgid "Error while updating host severity"
+# msgstr ""
+
+# msgid "Error when searching for the host severity #%d"
+# msgstr ""
+
+#  msgid "Error when searching for the host category #%d"
+#  msgstr ""
+
+#  msgid "Error while retrieving a host category"
+#  msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:280
+#msgid "Do you really want to unblock this user?"
+#msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
+#msgid "The user(s) will be unblocked. Do you confirm the request?"
+#msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
+#msgid "Unblock"
+#msgstr ""

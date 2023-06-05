@@ -123,7 +123,8 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
             ),
             "groups_mapping" => $this->groupsMappingToArray(
                 $customConfiguration->getGroupsMapping()
-            )
+            ),
+            'redirect_url' => $customConfiguration->getRedirectUrl()
         ];
     }
 

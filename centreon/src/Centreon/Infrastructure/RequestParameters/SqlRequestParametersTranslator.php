@@ -292,12 +292,11 @@ class SqlRequestParametersTranslator
         ) {
             // We check the regex
             if ($searchOperator === RequestParameters::OPERATOR_REGEXP) {
-                try {
-                    preg_match('/' . $mixedValue . '/', '');
-                } catch (\Throwable $ex) {
-                    // No exception in prod environment
-                    throw new RequestParametersTranslatorException('Bad regex format \'' . $mixedValue . '\'', 0, $ex);
+                // For MySQL compatibility
+                if ($mixedValue === '') {
+                    $mixedValue = '.*';
                 }
+                preg_match('/' . $mixedValue . '/', '');
                 if (preg_last_error() !== PREG_NO_ERROR) {
                     throw new RequestParametersTranslatorException('Bad regex format \'' . $mixedValue . '\'', 0);
                 }

@@ -1,8 +1,8 @@
-debian/extra/centreon-web/crontab/centreon      etc/cron.d
-debian/extra/centreon-web/crontab/centstorage   etc/cron.d
-debian/extra/centreon-web/centreon.conf         etc/php/8.1/fpm/pool.d
-debian/extra/centreon-web/centreon.ini          etc/php/8.1/mods-available
-debian/extra/centreon-web/install.conf.php      usr/share/centreon/www/install
+#!/usr/bin/dh-exec
+
+packaging/src/instCentWeb.conf                  etc/centreon
+packaging/src/instCentPlugins.conf              etc/centreon
+packaging/src/install.conf.php                  usr/share/centreon/www/install
 bin/centFillTrapDB                              usr/share/centreon/bin
 bin/centreon                                    usr/share/centreon/bin
 bin/centreon-partitioning.php                   usr/share/centreon/bin
@@ -31,3 +31,9 @@ src/*                                           usr/share/centreon/src
 vendor/*                                        usr/share/centreon/vendor
 www/*                                           usr/share/centreon/www
 api/*                                           usr/share/centreon/api
+
+tmpl/install/centreon.cron => etc/cron.d/centreon
+tmpl/install/centstorage.cron => etc/cron.d/centstorage
+packaging/src/php-fpm.conf => etc/php/8.1/fpm/pool.d/centreon.conf
+packaging/src/php-fpm-systemd.conf => etc/default/centreon.conf
+packaging/src/php.ini => etc/php/8.1/mods-available/centreon.ini

@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 
 import { Routes, Route } from 'react-router-dom';
 import { isNil, not } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { styled } from '@mui/material';
 

@@ -1,1 +1,3 @@
-debian/extra/centreon-plugins-sudoers/centreon-plugins   etc/sudoers.d
+#!/usr/bin/dh-exec
+
+packaging/src/sudoersCentreonPlugins => etc/sudoers.d/centreon-plugins

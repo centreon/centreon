@@ -1,17 +1,16 @@
 import axios from 'axios';
 import userEvent from '@testing-library/user-event';
 
+import { buildListingEndpoint, TestQueryProvider } from '@centreon/ui';
 import {
   RenderResult,
   render,
   screen,
   waitFor,
-  buildListingEndpoint,
-  TestQueryProvider,
   resetMocks,
   mockResponseOnce,
   getFetchCall,
-} from '@centreon/ui';
+} from '@centreon/ui/src/testRenderer';
 
 import {
   authenticationProvidersEndpoint,

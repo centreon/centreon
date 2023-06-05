@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 
 import { Formik } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 
 import { Paper, Typography } from '@mui/material';

@@ -1,7 +1,12 @@
 import axios from 'axios';
 import { Provider } from 'jotai';
 
-import { render, RenderResult, waitFor, screen } from '@centreon/ui';
+import {
+  render,
+  RenderResult,
+  waitFor,
+  screen,
+} from '@centreon/ui/src/testRenderer';
 
 import {
   platformInstallationStatusEndpoint,
@@ -204,19 +209,12 @@ const mockNotConnectedGetRequests = (): void => {
 };
 
 const mockInstallGetRequests = (): void => {
-  mockedAxios.get
-    .mockResolvedValueOnce({
-      data: {
-        has_upgrade_available: false,
-        is_installed: false,
-      },
-    })
-    .mockRejectedValueOnce({
-      response: { status: 403 },
-    })
-    .mockResolvedValueOnce({
-      data: retrievedWeb,
-    });
+  mockedAxios.get.mockResolvedValueOnce({
+    data: {
+      has_upgrade_available: false,
+      is_installed: false,
+    },
+  });
 };
 
 const mockUpgradeAndUserDisconnectedGetRequests = (): void => {
@@ -331,13 +329,6 @@ describe('Main', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         platformInstallationStatusEndpoint,
-        cancelTokenRequestParam,
-      );
-    });
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        userEndpoint,
         cancelTokenRequestParam,
       );
     });

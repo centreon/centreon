@@ -19,8 +19,7 @@ import {
   dropLast,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 
 import makeStyles from '@mui/styles/makeStyles';
 import CloseIcon from '@mui/icons-material/Close';
@@ -96,8 +95,8 @@ const Filter = (): JSX.Element => {
 
   const [search, setSearch] = useAtom(searchAtom);
   const currentFilter = useAtomValue(currentFilterCriteriasAtom);
-  const applyCurrentFilter = useUpdateAtom(applyCurrentFilterDerivedAtom);
-  const clearFilter = useUpdateAtom(clearFilterDerivedAtom);
+  const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+  const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
   const open = Boolean(autocompleteAnchor);
 

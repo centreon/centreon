@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { useSnackbar, useRequest } from '@centreon/ui';
 import { acknowledgementAtom, userAtom } from '@centreon/ui-context';

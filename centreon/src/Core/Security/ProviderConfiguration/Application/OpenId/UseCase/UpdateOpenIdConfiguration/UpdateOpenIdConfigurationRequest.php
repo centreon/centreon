@@ -179,6 +179,11 @@ class UpdateOpenIdConfigurationRequest
     ];
 
     /**
+     * @var string|null
+     */
+    public ?string $redirectUrl = null;
+
+    /**
      * @return array<string,mixed>
      */
     public function toArray(): array
@@ -204,7 +209,8 @@ class UpdateOpenIdConfigurationRequest
             'verify_peer' => $this->verifyPeer,
             'authentication_conditions' => $this->authenticationConditions,
             'groups_mapping' => $this->groupsMapping,
-            'roles_mapping' => $this->rolesMapping
+            'roles_mapping' => $this->rolesMapping,
+            'redirect_url' => $this->redirectUrl
         ];
     }
 }

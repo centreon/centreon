@@ -154,7 +154,7 @@ class AuthenticationControllerTest extends TestCase
             View::create(
                 [
                     "code" => Response::HTTP_UNAUTHORIZED,
-                    "message" => 'Invalid credentials',
+                    "message" => 'Authentication failed',
                 ],
                 Response::HTTP_UNAUTHORIZED
             ),
@@ -208,7 +208,7 @@ class AuthenticationControllerTest extends TestCase
             View::create(
                 [
                     "code" => Response::HTTP_UNAUTHORIZED,
-                    "message" => 'Invalid credentials'
+                    "message" => 'Authentication failed'
                 ],
                 Response::HTTP_UNAUTHORIZED
             ),

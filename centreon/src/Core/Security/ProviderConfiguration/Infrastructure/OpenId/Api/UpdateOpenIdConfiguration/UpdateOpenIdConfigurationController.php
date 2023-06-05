@@ -91,6 +91,7 @@ class UpdateOpenIdConfigurationController extends AbstractController
         $updateOpenIdConfigurationRequest->rolesMapping = $requestData['roles_mapping'];
         $updateOpenIdConfigurationRequest->authenticationConditions = $requestData["authentication_conditions"];
         $updateOpenIdConfigurationRequest->groupsMapping = $requestData["groups_mapping"];
+        $updateOpenIdConfigurationRequest->redirectUrl = $requestData['redirect_url'];
 
         return $updateOpenIdConfigurationRequest;
     }

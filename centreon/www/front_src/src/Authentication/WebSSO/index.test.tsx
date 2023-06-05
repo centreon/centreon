@@ -1,7 +1,12 @@
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 
-import { render, RenderResult, screen, waitFor } from '@centreon/ui';
+import {
+  render,
+  RenderResult,
+  screen,
+  waitFor,
+} from '@centreon/ui/src/testRenderer';
 
 import { Provider } from '../models';
 import { authenticationProvidersEndpoint } from '../api/endpoints';

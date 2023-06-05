@@ -36,6 +36,7 @@ use Core\Security\ProviderConfiguration\Domain\Local\Model\CustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\User\Application\Repository\ReadUserRepositoryInterface;
 use Core\Security\User\Application\Repository\WriteUserRepositoryInterface;
 use Core\Security\User\Domain\Model\User;
@@ -81,6 +82,7 @@ class LocalProvider implements LocalProviderInterface
      * @param ReadUserRepositoryInterface $readUserRepository
      * @param WriteUserRepositoryInterface $writeUserRepository
      * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
+     * @param LoginLoggerInterface $loginLogger
      */
     public function __construct(
         private int $sessionExpirationDelay,
@@ -89,7 +91,8 @@ class LocalProvider implements LocalProviderInterface
         private OptionServiceInterface $optionService,
         private ReadUserRepositoryInterface $readUserRepository,
         private WriteUserRepositoryInterface $writeUserRepository,
-        private ReadConfigurationRepositoryInterface $readConfigurationRepository
+        private ReadConfigurationRepositoryInterface $readConfigurationRepository,
+        private readonly LoginLoggerInterface $loginLogger
     ) {
     }
 
@@ -278,6 +281,12 @@ class LocalProvider implements LocalProviderInterface
         $this->writeUserRepository->updateBlockingInformation($user);
 
         if ($isUserBlocked) {
+            $this->loginLogger->info(
+                Provider::LOCAL,
+                "User is blocked: maximum number of authentication attempts was reached",
+                ['contact_alias' => $user->getAlias()]
+            );
+
             $this->info(
                 '[LOCAL PROVIDER] authentication failed because user is blocked',
                 [

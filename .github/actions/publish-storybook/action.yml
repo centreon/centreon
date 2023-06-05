@@ -8,19 +8,24 @@ inputs:
   directory:
     description: "Directory"
     required: true
+  centreon_directory:
+    description: "Centreon directory"
+    required: true
 
 runs:
   using: "composite"
   steps:
     - uses: actions/setup-node@v3
       with:
-        node-version: 16.2.0
+        node-version: 16
+
+    - name: Install dependencies
+      run: npm ci --legacy-peer-deps
+      shell: bash
+      working-directory: ${{ inputs.centreon_directory }}
 
     - name: Build storybook
-      run: |
-        npm ci --legacy-peer-deps
-
-        npm run build:storybook
+      run: npm run build:storybook
       shell: bash
       working-directory: ${{ inputs.directory }}
 

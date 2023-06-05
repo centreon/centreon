@@ -1,0 +1,22 @@
+name: "publish-unit-test-result"
+description: "Publish unit test result"
+inputs:
+  check_name:
+    description: "Name of the check and comment"
+    default: "${{ github.workflow }}-${{ github.job }}-report"
+  path:
+    description: "Path to the report files"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        check_name: "${{ inputs.check_name }}"
+        comment_mode: off
+        compare_to_earlier_commit: false
+        ignore_runs: true
+        check_run_annotations: none
+        job_summary: false
+        junit_files: "${{ inputs.path }}"
+        fail_on: nothing

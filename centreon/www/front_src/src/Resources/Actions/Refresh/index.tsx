@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
-import { useAtomValue } from 'jotai/utils';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { Grid } from '@mui/material';
 import IconRefresh from '@mui/icons-material/Refresh';
@@ -37,6 +36,7 @@ const AutorefreshButton = ({
   return (
     <IconButton
       ariaLabel={t(label)}
+      data-testid="Disable autorefresh"
       size="small"
       title={t(label)}
       onClick={toggleAutorefresh}
@@ -67,7 +67,7 @@ const RefreshActions = ({ onRefresh }: Props): JSX.Element => {
       <Grid item>
         <IconButton
           ariaLabel={t(labelRefresh)}
-          data-testid={labelRefresh}
+          data-testid="Refresh"
           disabled={sending}
           size="small"
           title={t(labelRefresh)}

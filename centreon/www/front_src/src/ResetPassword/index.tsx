@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { isNil, not } from 'ramda';
 import { useNavigate } from 'react-router-dom';
 import { Formik } from 'formik';

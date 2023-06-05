@@ -83,7 +83,7 @@ jobs:
           done
         shell: bash
 
-      - uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
+      - uses: actions/cache@v3
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
@@ -92,25 +92,12 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 17
-
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-        working-directory: centreon
-
-      - name: Lint
-        run: npm run eslint -- -o junit.xml -f junit --quiet
-        working-directory: centreon
-
-      - if: failure()
-        uses: ./.github/actions/publish-report
+      - uses: ./.github/actions/frontend-lint
         with:
-          path: "centreon/junit.xml"
-          format: "java-junit"
+          frontend_directory: ${{ env.base_directory }}
+          module_name: centreon
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -118,7 +105,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v3
         with:
-          node-version: 17
+          node-version: 16
 
       - uses: actions/checkout@v3
 
@@ -252,7 +239,7 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Use cache RPM files
-        uses: actions/cache@69d9d449aced6a2ede0bc19182fadc3a0a42d2b0
+        uses: actions/cache@v3
         with:
           path: ./*.rpm
           key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib_rpm }}
@@ -276,15 +263,6 @@ jobs:
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
-
-      - uses: docker/build-push-action@v3
-        with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
-          target: web_widgets
-          context: .
-          pull: true
-          push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
     needs: [dockerize]
@@ -336,20 +314,6 @@ jobs:
           image_cypress_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
 
-      - name: Archive videos
-        uses: actions/upload-artifact@v3
-        if: ${{ failure() }}
-        with:
-          name: cypress-videos
-          path: centreon/tests/e2e/cypress/results/videos
-          retention-days: 1
-
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          check_name: centreon-web-frontend-e2e-tests-report
-          path: "centreon/tests/e2e/cypress-result.xml"
-
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
@@ -374,7 +338,7 @@ jobs:
           module: centreon
 
       - name: Publish report to S3
-        if: ${{ github.event_name == 'push' }} 
+        if: ${{ github.event_name == 'push' }}
         uses: ./.github/actions/lighthouse-to-s3
         with:
           report_path: centreon/lighthouse/report/lighthouseci-index.html
@@ -389,6 +353,40 @@ jobs:
           path: centreon/lighthouse/report/lighthouseci-index.html
           retention-days: 1
 
+  deliver-sources:
+    runs-on: [self-hosted, common]
+    needs:
+      [
+        get-version,
+        api-integration-test,
+        e2e-test,
+        performances-test,
+        legacy-e2e-test,
+      ]
+    if: ${{ !cancelled() && contains(fromJson('["stable"]'), needs.get-version.outputs.stability) && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Deliver sources
+        uses: ./.github/actions/release-sources
+        with:
+          bucket_directory: centreon
+          module_directory: centreon
+          module_name: centreon-web
+          frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+          frontend_index_file: centreon/www/index.html
+          frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+          frontend_static_directory: centreon/www/static
+          backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          backend_vendor_directory: centreon/vendor
+          translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
+          translation_directory: centreon/www/locale
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
+
   deliver-rpm:
     runs-on: [self-hosted, common]
     needs:
@@ -399,7 +397,9 @@ jobs:
         e2e-test,
         performances-test,
       ]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -437,7 +437,9 @@ jobs:
         e2e-test,
         performances-test,
       ]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [bullseye]

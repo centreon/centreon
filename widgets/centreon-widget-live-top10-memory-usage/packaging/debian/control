@@ -10,5 +10,6 @@ Package: centreon-widget-live-top10-memory-usage
 Architecture: all
 Depends:    ${misc:Depends},
             ${shlibs:Depends},
-            centreon-web
+            centreon-web (>= ${centreon:version}~),
+            centreon-web (<< ${centreon:versionThreshold}~)
 Description: Add homepage with Centreon Widgets

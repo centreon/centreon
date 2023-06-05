@@ -22,49 +22,54 @@ declare(strict_types=1);
 
 namespace Security;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
+use Centreon\Domain\Contact\Interfaces\{ContactInterface, ContactRepositoryInterface};
 use Centreon\Domain\Exception\ContactDisabledException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
 use Centreon\Domain\Menu\Model\Page;
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
+use Centreon\Domain\Platform\Interfaces\PlatformRepositoryInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Centreon\Domain\VersionHelper;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
-use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
-use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
-use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
+use Core\Security\Authentication\Application\Provider\{
+    ProviderAuthenticationInterface,
+    ProviderAuthenticationFactoryInterface
+};
+use Core\Security\Authentication\Application\Repository\{
+    WriteTokenRepositoryInterface,
+    WriteSessionRepositoryInterface
+};
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
-use Core\Security\Authentication\Domain\Model\NewProviderToken;
-use Core\Security\Authentication\Domain\Model\ProviderToken;
+use Core\Security\Authentication\Domain\Exception\AuthenticationException as CentreonAuthenticationException;
+use Core\Security\Authentication\Domain\Model\{NewProviderToken, ProviderToken};
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use DateInterval;
 use DateTimeImmutable;
 use FOS\RestBundle\View\View;
-use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
-use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
+use Security\Domain\Authentication\Interfaces\{AuthenticationServiceInterface, SessionRepositoryInterface};
 use Security\Domain\Authentication\Model\Session;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Exception\BadCredentialsException;
-use Symfony\Component\Security\Core\Exception\CredentialsExpiredException;
-use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
-use Symfony\Component\Security\Core\Exception\UserNotFoundException;
+use Symfony\Component\HttpFoundation\{Request, Response};
+use Symfony\Component\Security\Core\Exception\{
+    AuthenticationException,
+    BadCredentialsException,
+    CredentialsExpiredException,
+    SessionUnavailableException,
+    UserNotFoundException
+};
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
-use Core\Security\Authentication\Domain\Exception\AuthenticationException as CentreonAuthenticationException;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class WebSSOAuthenticator extends AbstractAuthenticator
 {
     use HttpUrlTrait;
     use LoggerTrait;
+
+    private const MINIMUM_SUPPORTED_VERSION = "22.04";
 
     /**
      * @var ProviderAuthenticationInterface
@@ -81,6 +86,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      * @param ProviderAuthenticationFactoryInterface $providerFactory
      * @param ContactRepositoryInterface $contactRepository
      * @param MenuServiceInterface $menuService
+     * @param PlatformRepositoryInterface $platformRepository
      */
     public function __construct(
         private AuthenticationServiceInterface $authenticationService,
@@ -91,9 +97,13 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         private WriteSessionRepositoryInterface $writeSessionRepository,
         private ProviderAuthenticationFactoryInterface $providerFactory,
         private ContactRepositoryInterface $contactRepository,
-        private MenuServiceInterface $menuService
+        private MenuServiceInterface $menuService,
+        private PlatformRepositoryInterface $platformRepository
     ) {
-        $this->provider = $this->providerFactory->create(Provider::WEB_SSO);
+        $webVersion = $this->platformRepository->getWebVersion();
+        if (VersionHelper::compare($webVersion, self::MINIMUM_SUPPORTED_VERSION, VersionHelper::GE)) {
+            $this->provider = $this->providerFactory->create(Provider::WEB_SSO);
+        }
     }
 
     /**
@@ -101,13 +111,16 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      */
     public function supports(Request $request): bool
     {
+        $webVersion = $this->platformRepository->getWebVersion();
         // We skip all API calls
-        if ($request->headers->has('X-Auth-Token')) {
+        if (
+            $request->headers->has('X-Auth-Token')
+            || VersionHelper::compare($webVersion, self::MINIMUM_SUPPORTED_VERSION, VersionHelper::LT)
+        ) {
             return false;
         }
 
-        $provider = $this->providerFactory->create(Provider::WEB_SSO);
-        $configuration = $provider->getConfiguration();
+        $configuration = $this->provider->getConfiguration();
 
         $sessionId = $request->getSession()->getId();
         $isValidToken = $this->authenticationService->isValidToken($sessionId);

@@ -198,6 +198,49 @@ function disableContactInDB($contact_id = null, $contact_arr = array())
 }
 
 /**
+ * Unblock contacts in the database
+ *
+ * @param int|array<int, string>|null $contact Contact ID, array of contact IDs or null to unblock all contacts
+ */
+function unblockContactInDB(int|array|null $contact = null): void
+{
+    global $pearDB, $centreon;
+
+    if (null === $contact || [] === $contact) {
+        return;
+    }
+
+    if (is_int($contact)) {
+        $contact = [$contact => "1"];
+    }
+
+
+    $bindContactIds = [];
+    foreach (array_keys($contact) as $contactId) {
+        $bindContactIds[':contact_' . $contactId] = $contactId;
+    }
+//  implode ids for  IN() clause
+    $idPlaceholders = implode(', ', array_keys($bindContactIds));
+// retrieve the users and add log
+    $updateQuery = "UPDATE contact SET blocking_time = null WHERE contact_id IN ($idPlaceholders)";
+    $updateStatement = $pearDB->prepare($updateQuery);
+    foreach ($bindContactIds as $token => $value) {
+        $updateStatement->bindValue($token, $value, \PDO::PARAM_INT);
+    }
+    $updateStatement->execute();
+// retrieve the users and add log
+    $selectQuery = "SELECT contact_id, contact_name FROM contact WHERE contact_id IN ($idPlaceholders)";
+    $selectStatement = $pearDB->prepare($selectQuery);
+    foreach ($bindContactIds as $token => $value) {
+        $selectStatement->bindValue($token, $value, \PDO::PARAM_INT);
+    }
+    $selectStatement->execute();
+
+    while ($row = $selectStatement->fetch()) {
+        $centreon->CentreonLogAction->insertLog("contact", $row['contact_id'], $row['contact_name'], "unblock");
+    }
+}
+/**
  * Delete Contacts
  * @param array $contacts
  */
@@ -455,7 +498,7 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                         "WHERE contact_contact_id = '" . (int)$key . "'";
                     $dbResult = $pearDB->query($query);
                     $fields["contact_svNotifCmds"] = "";
-                    $query = "INSERT INTO contact_servicecommands_relation 
+                    $query = "INSERT INTO contact_servicecommands_relation
                          VALUES (:contact_id, :command_command_id)";
                     $statement = $pearDB->prepare($query);
                     while ($serviceCmd = $dbResult->fetch()) {
@@ -1150,6 +1193,9 @@ function sanitizeFormContactParameters(array $ret): array
 {
     global $encryptType, $dependencyInjector;
     $bindParams = [];
+    $bindParams[':contact_host_notification_options'] = [\PDO::PARAM_STR => null];
+    $bindParams[':contact_service_notification_options'] = [\PDO::PARAM_STR => null];
+
     foreach ($ret as $inputName => $inputValue) {
         switch ($inputName) {
             case 'timeperiod_tp_id':
@@ -1177,19 +1223,13 @@ function sanitizeFormContactParameters(array $ret): array
                 break;
             case 'contact_hostNotifOpts':
                 $inputValue = \HtmlAnalyzer::sanitizeAndRemoveTags(implode(",", array_keys($inputValue)));
-                if (empty($inputValue)) {
-                    $bindParams[':contact_host_notification_options'] = [\PDO::PARAM_STR => null];
-                } else {
+                if (! empty($inputValue)) {
                     $bindParams[':contact_host_notification_options'] = [\PDO::PARAM_STR => $inputValue];
                 }
                 break;
             case 'contact_svNotifOpts':
-                $inputValue = \HtmlAnalyzer::sanitizeAndRemoveTags(
-                    implode(",", array_keys($inputValue))
-                );
-                if (empty($inputValue)) {
-                    $bindParams[':contact_service_notification_options'] = [\PDO::PARAM_STR => null];
-                } else {
+                $inputValue = \HtmlAnalyzer::sanitizeAndRemoveTags(implode(",", array_keys($inputValue)));
+                if (! empty($inputValue)) {
                     $bindParams[':contact_service_notification_options'] = [\PDO::PARAM_STR => $inputValue];
                 }
                 break;

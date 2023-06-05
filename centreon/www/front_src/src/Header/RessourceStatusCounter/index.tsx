@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 
 import axios from 'axios';
 import * as yup from 'yup';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { ClickAwayListener } from '@mui/material';
 

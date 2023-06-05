@@ -1,6 +1,6 @@
 import { Shape } from '@visx/visx';
 import { NumberValue, ScaleLinear } from 'd3-scale';
-import { useUpdateAtom } from 'jotai/utils';
+import { useSetAtom } from 'jotai';
 import { isNil, prop } from 'ramda';
 
 import { TimeValue } from '../models';
@@ -28,7 +28,7 @@ const AnomalyDetectionShapeCircle = ({
   pointXUpper,
   originMetric,
 }: AnomalyDetectionShapeCircleProps): JSX.Element => {
-  const setCountedRedCircles = useUpdateAtom(countedRedCirclesAtom);
+  const setCountedRedCircles = useSetAtom(countedRedCirclesAtom);
 
   interface IsOnline {
     maxDistance: number;

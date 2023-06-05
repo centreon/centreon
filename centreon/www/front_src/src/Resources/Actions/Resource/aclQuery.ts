@@ -15,7 +15,7 @@ import {
   reject,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { aclAtom } from '@centreon/ui-context';
 

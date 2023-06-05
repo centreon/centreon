@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { pipe, isNil, sortBy, reject } from 'ramda';
 
 import { Button, Grid } from '@mui/material';
@@ -64,8 +64,8 @@ const CriteriasContent = (): JSX.Element => {
   const isNonSelectableCriteria = (criteria: CriteriaModel): boolean =>
     pipe(({ name }) => name, getSelectableCriteriaByName, isNil)(criteria);
 
-  const applyCurrentFilter = useUpdateAtom(applyCurrentFilterDerivedAtom);
-  const clearFilter = useUpdateAtom(clearFilterDerivedAtom);
+  const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+  const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
   return (
     <PopoverMenu
@@ -91,13 +91,19 @@ const CriteriasContent = (): JSX.Element => {
           })}
           <Grid container item className={classes.searchButton} spacing={1}>
             <Grid item data-testid={labelClear}>
-              <Button color="primary" size="small" onClick={clearFilter}>
+              <Button
+                color="primary"
+                data-testid="Filter Clear"
+                size="small"
+                onClick={clearFilter}
+              >
                 {t(labelClear)}
               </Button>
             </Grid>
             <Grid item data-testid={labelSearch}>
               <Button
                 color="primary"
+                data-testid="Filter Search"
                 size="small"
                 variant="contained"
                 onClick={applyCurrentFilter}

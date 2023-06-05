@@ -12,8 +12,7 @@ import {
   symmetricDifference,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom, useAtom } from 'jotai';
 
 import { Menu, MenuItem, CircularProgress } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
@@ -77,9 +76,9 @@ const SaveFilterMenu = (): JSX.Element => {
   const [customFilters, setCustomFilters] = useAtom(customFiltersAtom);
   const currentFilter = useAtomValue(currentFilterAtom);
   const filters = useAtomValue(filtersDerivedAtom);
-  const applyFilter = useUpdateAtom(applyFilterDerivedAtom);
-  const setEditPanelOpen = useUpdateAtom(editPanelOpenAtom);
-  const setSendingFilter = useUpdateAtom(sendingFilterAtom);
+  const applyFilter = useSetAtom(applyFilterDerivedAtom);
+  const setEditPanelOpen = useSetAtom(editPanelOpenAtom);
+  const setSendingFilter = useSetAtom(sendingFilterAtom);
 
   const { showSuccessMessage } = useSnackbar();
 
@@ -174,18 +173,27 @@ const SaveFilterMenu = (): JSX.Element => {
         onClose={closeSaveFilterMenu}
       >
         <MenuItem
+          data-testid="Filter Save as new"
           disabled={!canSaveFilterAsNew}
           onClick={openCreateFilterDialog}
         >
           {t(labelSaveAsNew)}
         </MenuItem>
-        <MenuItem disabled={!canSaveFilter} onClick={updateFilter}>
+        <MenuItem
+          data-testid="Filter Save"
+          disabled={!canSaveFilter}
+          onClick={updateFilter}
+        >
           <div className={classes.save}>
             <span>{t(labelSave)}</span>
             {sendingUpdateFilterRequest && <CircularProgress size={15} />}
           </div>
         </MenuItem>
-        <MenuItem disabled={isEmpty(customFilters)} onClick={openEditPanel}>
+        <MenuItem
+          data-testid="Filter Edit filters"
+          disabled={isEmpty(customFilters)}
+          onClick={openEditPanel}
+        >
           {t(labelEditFilters)}
         </MenuItem>
       </Menu>

@@ -11292,6 +11292,18 @@ msgstr "Ceci est un modèle de contact."
 msgid "View contact notifications"
 msgstr "Afficher les notifications du contact"
 
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:280
+msgid "Do you really want to unblock this user?"
+msgstr "Voulez-vous vraiment débloquer cet utilisateur ?"
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
+msgid "The user(s) will be unblocked. Do you confirm the request?"
+msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l'action ?"
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
+msgid "Unblock"
+msgstr "Débloquer"
+
 #: centreon-web/www/include/configuration/configObject/escalation/ViewEscalation.php:103
 msgid "Escalations View"
 msgstr "Visualisation des escalades"
@@ -16231,6 +16243,9 @@ msgstr "Erreur lors de la recherche d'un contact"
 msgid "Monitoring server not found (#%d)"
 msgstr "Serveur de supervision non trouvé (#%d)"
 
+msgid "Monitoring server disabled (#%d)"
+msgstr "Serveur de supervision désactivé (#%d)"
+
 msgid "Generation error on monitoring server #%d: %s"
 msgstr "Erreur de génération sur le serveur de supervision #%d : %s"
 
@@ -17220,3 +17235,6 @@ msgstr "Le fournisseur de coffre-fort n'existe pas"
 
 msgid "Event queues maximum total size"
 msgstr "Taille maximale de l’ensemble des queues d'évènements"
+
+msgid "Redirect URL"
+msgstr "URL de redirection"
