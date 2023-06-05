@@ -1,8 +1,9 @@
 import {
   apiBase,
   applyConfigurationViaClapi,
+  getStatusNumberFromString,
   checkThatConfigurationIsExported,
-  checkThatFixtureServicesExistInDatabase,
+  checkServicesAreMonitored,
   loginAsAdminViaApiV2,
   submitResultsViaClapi,
   versionApi,
@@ -97,13 +98,14 @@ const insertResourceFixtures = (): Cypress.Chainable => {
       .then(initializeResourceData)
       .then(applyConfigurationViaClapi)
       .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
+      .then(() =>
+        checkServicesAreMonitored([{ name: serviceInAcknowledgementName }])
+      )
       .then(() => submitResultsViaClapi(submitResults))
       .then(() =>
-        checkThatFixtureServicesExistInDatabase({
-          outputText: 'submit_status_2',
-          serviceDesc: serviceInAcknowledgementName,
-          submitResults
-        })
+        checkServicesAreMonitored([
+          { name: serviceInAcknowledgementName, output: 'submit_status' }
+        ])
       );
   });
 };
@@ -115,7 +117,8 @@ const insertDtResources = (): Cypress.Chainable => {
     .setUserTokenApiV1()
     .then(initializeResourceData)
     .then(applyConfigurationViaClapi)
-    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }));
+    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
+    .then(() => checkServicesAreMonitored([{ name: serviceInDtName }]));
 };
 
 const insertAckResourceFixtures = (): Cypress.Chainable => {
@@ -132,14 +135,13 @@ const insertAckResourceFixtures = (): Cypress.Chainable => {
     .then(initializeAckChildRessources)
     .then(applyConfigurationViaClapi)
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
-    .then(() => submitResultsViaClapi(results))
     .then(() =>
-      checkThatFixtureServicesExistInDatabase({
-        outputText: 'submit_status_2',
-        serviceDesc: serviceInAcknowledgementName,
-        submitResults: results
-      })
-    );
+      checkServicesAreMonitored([{ name: serviceInAcknowledgementName }])
+    )
+    .then(() => submitResultsViaClapi(results))
+    .refreshListing()
+    .then(() => cy.contains(serviceInAcknowledgementName, { timeout: 30000 }))
+    .then(() => cy.contains('submit_status_2', { timeout: 30000 }));
 };
 
 const setUserFilter = (body: Filter): Cypress.Chainable => {
@@ -216,19 +218,11 @@ const submitCustomResultsViaClapi = (
   submitResults: SubmitResult
 ): Cypress.Chainable => {
   const timestampNow = Math.floor(Date.now() / 1000) - 15;
-  const statusIds = {
-    critical: '2',
-    down: '1',
-    unknown: '3',
-    unreachable: '2',
-    up: '0',
-    warning: '1'
-  };
 
   return submitResultsViaClapi([
     {
       ...submitResults,
-      status: statusIds[submitResults.status],
+      status: getStatusNumberFromString(submitResults.status).toString(),
       updatetime: timestampNow.toString()
     }
   ]);
