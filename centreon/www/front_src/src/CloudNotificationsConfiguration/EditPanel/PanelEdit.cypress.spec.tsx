@@ -357,7 +357,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the Subject field is properly rendered with the edited notification subject'', () => {
+  it('Confirms that the Subject field is properly rendered with the edited notification subject', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByLabelText(labelSubject).should('have.value', 'Notification');
