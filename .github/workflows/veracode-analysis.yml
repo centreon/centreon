@@ -97,7 +97,7 @@ jobs:
           distribution: 'zulu'
           java-version: 8
 
-      -name: DEBUG location
+      - name: DEBUG location
         run: |
           ls -la
           ls -la /tmp
