@@ -403,7 +403,7 @@ describe('Edit Panel : Confirm Dialog', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the Confirm button triggers the sending of a PUT request, () => {
+  it('Confirms that the Confirm button triggers the sending of a PUT request', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByLabelText(labelActiveOrInactive).click();
