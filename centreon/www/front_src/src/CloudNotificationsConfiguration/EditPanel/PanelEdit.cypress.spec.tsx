@@ -101,7 +101,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the notification name is properly rendered with the edited value and supports the capability for users to modify the name by interacting with the "Edit icon" ', () => {
+  it('Confirms that the notification name is properly rendered with the edited value and supports the capability for users to modify the name by interacting with the Edit icon', () => {
     cy.waitForRequest('@listingRequest');
 
     const notificationName = 'Notifications 1';
@@ -121,7 +121,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Ensures that the Form correctly handles an empty name field by showing an error message and disabling the save button as a validation measure', () => {
+  it('Ensures that the form handles an empty name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByTestId(labelChangeName).click();
@@ -135,7 +135,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the "Expand/Reduce" button triggers the desired expansion or reduction of the panel, providing users with the ability to control its visibility and size', () => {
+  it('Confirms that the "Expand/Collapse" button triggers the desired expansion or collapse of the panel, providing users with the ability to control its visibility and size', () => {
     cy.waitForRequest('@listingRequest');
 
     expect(
@@ -162,7 +162,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it("Ensures that the save button's initial state is set to disabled", () => {
+  it("Ensures that the Save button's initial state is set to disabled", () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByLabelText(labelSave).should('be.disabled');
@@ -390,7 +390,7 @@ describe('Edit Panel', () => {
 describe('Edit Panel : Confirm Dialog', () => {
   beforeEach(initialize);
 
-  it('Confirms that the save button triggers the display of a confirmation dialog, providing the user with an additional confirmation step before proceeding with the action', () => {
+  it('Confirms that the Save button triggers the display of a confirmation dialog, providing the user with an additional confirmation step before proceeding with the action', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByLabelText(labelSave).should('be.disabled');

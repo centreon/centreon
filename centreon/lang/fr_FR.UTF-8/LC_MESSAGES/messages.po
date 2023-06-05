@@ -15581,10 +15581,10 @@ msgstr "Sélectionner les utilisateurs"
 msgid "Select time period / channels of notifications"
 msgstr "Sélectionner la période / les canaux de notifications"
 
-msgid "How many times would you like to duplicate selected Notification?"
+msgid "How many times would you like to duplicate the selected notification?"
 msgstr "Combien de fois souhaitez-vous dupliquer la notification sélectionnée ?"
 
-msgid "Delete Notification?"
+msgid "Delete notification?"
 msgstr "Supprimer la notification?"
 
 msgid "This action cannot be undone"
@@ -15594,7 +15594,7 @@ msgid "Reduce information panel"
 msgstr "Réduire le panneau d'informations"
 
 msgid "Expand information panel"
-msgstr "Elargir le panneau d'informations"
+msgstr "Agrandir le panneau d'informations"
 
 msgid "Type your text here"
 msgstr "Tapez votre texte ici"
@@ -15614,7 +15614,7 @@ msgstr "La notification a été mise à jour avec succès"
 msgid "The notification was successfully added"
 msgstr "La notification a été ajoutée avec succès"
 
-msgid "Do you want to confirm action ?"
+msgid "Do you want to confirm the action ?"
 msgstr "Souhaitez-vous confirmer l'action ?"
 
 msgid "Confirm notification creation"
@@ -15623,23 +15623,23 @@ msgstr "Confirmer la création de la notification"
 msgid "Confirm notification update"
 msgstr "Confirmer la mise à jour de la notification"
 
-msgid "Choose at least 1 Resource"
+msgid "Choose at least 1 resource"
 msgstr "Veuillez sélectionner au moins 1 ressource"
 
 msgid "Choose at least 1 Service Group"
-msgstr "Veuillez sélectionner au moins 1 groupe des services"
+msgstr "Veuillez sélectionner au moins 1 groupe de services"
 
 msgid "Choose at least 1 user"
 msgstr "Veuillez sélectionner au moins 1 utilisateur"
 
 msgid "The message field should not be empty!"
-msgstr "Le champ du message ne doit pas être vide !"
+msgstr "Le champ Message ne doit pas être vide !"
 
 msgid "Close the panel"
 msgstr "Fermer le panneau"
 
 msgid "Email template for the notification message"
-msgstr "Modèle d'e-mail pour le message de notification"
+msgstr "Modèle d'email pour le message de notification"
 
 msgid "Subject"
 msgstr "Sujet"

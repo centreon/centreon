@@ -77,7 +77,7 @@ const initialize = (): void => {
 describe('Panel : Creation mode', () => {
   beforeEach(initialize);
 
-  it('Ensures that the header displays only the save icon', () => {
+  it('Ensures that the header displays only the Save icon', () => {
     cy.findByLabelText(labelSave).should('be.visible');
     cy.findByLabelText(labelDelete).should('not.exist');
     cy.findByLabelText(labelDuplicate).should('not.exist');
@@ -109,7 +109,7 @@ describe('Panel : Creation mode', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the save button is correctly activated when all required fields are filled, and the form is error-free, allowing the user to save the form data', () => {
+  it('Confirms that the Save button is correctly activated when all required fields are filled, and the form is error-free, allowing the user to save the form data', () => {
     cy.findByLabelText(labelSave).should('be.disabled');
 
     cy.findByLabelText(labelSearchHostGroups).click();
@@ -131,7 +131,7 @@ describe('Panel : Creation mode', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the save button triggers the display of a confirmation dialog, providing the user with an additional confirmation step before proceeding with the action', () => {
+  it('Confirms that the Save button triggers the display of a confirmation dialog, providing the user with an additional confirmation step before proceeding with the action', () => {
     cy.findByLabelText(labelSearchHostGroups).click();
     cy.waitForRequest('@getHostsGroupsEndpoint');
     cy.findByText('Firewall').click();
@@ -154,7 +154,7 @@ describe('Panel : Creation mode', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Tests that a POST request is sent when the confirm button is clicked', () => {
+  it('Tests that a POST request is sent when the Confirm button is clicked', () => {
     cy.findByLabelText(labelSearchHostGroups).click();
     cy.waitForRequest('@getHostsGroupsEndpoint');
     cy.findByText('Firewall').click();
@@ -179,7 +179,7 @@ describe('Panel : Creation mode', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the close button triggers the display of a confirmation dialog if the user has made some changes to the form', () => {
+  it('Confirms that the Close button triggers the display of a confirmation dialog if the user has made some changes to the form', () => {
     cy.findByLabelText(labelSearchHostGroups).click();
     cy.waitForRequest('@getHostsGroupsEndpoint');
     cy.findByText('Firewall').click();
