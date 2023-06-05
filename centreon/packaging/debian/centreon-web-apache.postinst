@@ -2,23 +2,6 @@
 
 if [ "$1" = "configure" ] ; then
 
-  if [ "$(getent passwd www-data)" ]; then
-    usermod -a -G centreon www-data
-    usermod -a -G www-data centreon
-  fi
-
-  if [ "$(getent passwd centreon-gorgone)" ]; then
-    usermod -a -G centreon-gorgone www-data
-    usermod -a -G www-data centreon-gorgone
-  fi
-
-  echo "$(getent passwd centreon-broker)"
-  if [ "$(getent passwd centreon-broker)" ]; then
-    echo "add www-data group to centreon-broker user"
-    usermod -a -G centreon-broker www-data
-    usermod -a -G www-data centreon-broker
-  fi
-
   if [ -f "/etc/apache2/sites-available/centreon.conf" ]; then
     a2dismod php8.0
     a2enconf centreon.conf
@@ -34,6 +17,21 @@ if [ "$1" = "configure" ] ; then
     # Restart apache2
     systemctl enable php8.1-fpm
     systemctl restart apache2 php8.1-fpm
+  fi
+
+  if [ "$(getent passwd www-data)" ]; then
+    usermod -a -G centreon www-data
+    usermod -a -G www-data centreon
+  fi
+
+  if [ "$(getent passwd centreon-gorgone)" ]; then
+    usermod -a -G centreon-gorgone www-data
+    usermod -a -G www-data centreon-gorgone
+  fi
+
+  if [ "$(getent passwd centreon-broker)" ]; then
+    usermod -a -G centreon-broker www-data
+    usermod -a -G www-data centreon-broker
   fi
 fi
 

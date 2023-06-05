@@ -66,7 +66,7 @@ class CloudPlatformContext extends FeatureFlagContext
             \$env->add('IS_CLOUD_PLATFORM', true);
             \$env->save();
 
-            (new Dotenv())->bootEnv('{$centreonDir}/.env');
+            (new Dotenv())->bootEnv('{$centreonDir}/.env', 'dev', ['test'], true);
             PHP;
 
         // We MUST remove the linefeed (\n) to be a valid oneline command.
