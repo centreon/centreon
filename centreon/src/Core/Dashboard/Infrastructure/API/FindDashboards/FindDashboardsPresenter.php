@@ -69,7 +69,7 @@ final class FindDashboardsPresenter extends DefaultPresenter implements FindDash
     }
 
     /**
-     * @param ?\Core\Dashboard\Application\UseCase\FindDashboards\Response\UserResponseDto $dto
+     * @param ?UserResponseDto $dto
      *
      * @return null|array{id: int, name: string}
      */

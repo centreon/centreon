@@ -54,7 +54,7 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
     }
 
     /**
-     * @param ?\Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto $dto
+     * @param ?UserResponseDto $dto
      *
      * @return null|array<scalar>
      */

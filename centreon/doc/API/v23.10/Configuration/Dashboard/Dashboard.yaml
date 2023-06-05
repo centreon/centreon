@@ -14,7 +14,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: 'Schema/DashboardWithPanels.yaml'
+            $ref: 'Schema/Dashboard.Find.yaml'
     '403': { $ref: '../../Common/Response/Forbidden.yaml' }
     '404': { $ref: '../../Common/Response/NotFound.yaml' }
     '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
@@ -34,7 +34,7 @@ patch:
     content:
       application/json:
         schema:
-          $ref: 'Schema/DashboardPartialUpdate.yaml'
+          $ref: 'Schema/Dashboard.PartialUpdate.yaml'
   responses:
     '204': { description: "OK" }
     '400': { $ref: '../../Common/Response/BadRequest.yaml' }

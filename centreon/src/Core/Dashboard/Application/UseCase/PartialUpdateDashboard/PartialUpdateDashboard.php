@@ -54,7 +54,8 @@ final class PartialUpdateDashboard
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $contact
-    ) {
+    )
+    {
     }
 
     /**
@@ -66,29 +67,29 @@ final class PartialUpdateDashboard
         int $dashboardId,
         PartialUpdateDashboardRequest $request,
         PartialUpdateDashboardPresenterInterface $presenter
-    ): void {
+    ): void
+    {
         try {
             if ($this->contact->isAdmin()) {
-                $response = $this->PartialUpdateDashboardAsAdmin($dashboardId, $request);
+                $response = $this->partialUpdateDashboardAsAdmin($dashboardId, $request);
             } elseif ($this->contactCanPerformWriteOperations()) {
-                $response = $this->PartialUpdateDashboardAsContact($dashboardId, $request);
+                $response = $this->partialUpdateDashboardAsContact($dashboardId, $request);
             } else {
                 $response = new ForbiddenResponse(DashboardException::accessNotAllowedForWriting());
             }
 
             if ($response instanceof NoContentResponse) {
-                $presenter->presentResponse($response);
                 $this->info('Update dashboard', ['request' => $request]);
             } elseif ($response instanceof NotFoundResponse) {
-                $presenter->presentResponse($response);
                 $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
             } else {
-                $presenter->presentResponse($response);
                 $this->error(
                     "User doesn't have sufficient rights to update dashboards",
                     ['user_id' => $this->contact->getId()]
                 );
             }
+
+            $presenter->presentResponse($response);
         } catch (AssertionFailedException $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -105,15 +106,16 @@ final class PartialUpdateDashboard
      * @param PartialUpdateDashboardRequest $request
      * @param int $dashboardId
      *
-     * @throws DashboardException
      * @throws \Throwable
+     * @throws DashboardException
      *
      * @return NoContentResponse|NotFoundResponse
      */
-    private function PartialUpdateDashboardAsAdmin(
+    private function partialUpdateDashboardAsAdmin(
         int $dashboardId,
         PartialUpdateDashboardRequest $request
-    ): NoContentResponse|NotFoundResponse {
+    ): NoContentResponse|NotFoundResponse
+    {
         $dashboard = $this->readDashboardRepository->findOne($dashboardId);
         if (null === $dashboard) {
             return new NotFoundResponse('Dashboard');
@@ -128,15 +130,16 @@ final class PartialUpdateDashboard
      * @param PartialUpdateDashboardRequest $request
      * @param int $dashboardId
      *
-     * @throws DashboardException
      * @throws \Throwable
+     * @throws DashboardException
      *
      * @return NoContentResponse|NotFoundResponse
      */
-    private function PartialUpdateDashboardAsContact(
+    private function partialUpdateDashboardAsContact(
         int $dashboardId,
         PartialUpdateDashboardRequest $request
-    ): NoContentResponse|NotFoundResponse {
+    ): NoContentResponse|NotFoundResponse
+    {
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
         $dashboard = $this->readDashboardRepository->findOneByAccessGroups($dashboardId, $accessGroups);
         if (null === $dashboard) {

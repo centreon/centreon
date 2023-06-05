@@ -26,7 +26,7 @@ get:
             properties:
               result:
                 type: array
-                items: { $ref: 'Schema/DashboardSimple.yaml' }
+                items: { $ref: 'Schema/Dashboard.Listing.yaml' }
               meta:
                 $ref: '../../Common/Schema/Meta.yaml'
     '403': { $ref: '../../Common/Response/Forbidden.yaml' }
@@ -50,14 +50,14 @@ post:
     content:
       application/json:
         schema:
-          $ref: 'Schema/DashboardAdd.yaml'
+          $ref: 'Schema/Dashboard.Add.yaml'
   responses:
     "201":
       description: "OK"
       content:
         application/json:
           schema:
-          $ref: 'Schema/DashboardSimple.yaml'
+          $ref: 'Schema/Dashboard.Listing.yaml'
     '400': { $ref: '../../Common/Response/BadRequest.yaml' }
     '403': { $ref: '../../Common/Response/Forbidden.yaml' }
     '404': { $ref: '../../Common/Response/NotFound.yaml' }

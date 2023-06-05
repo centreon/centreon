@@ -88,7 +88,7 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
     }
 
     /**
-     * @param ?\Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto $dto
+     * @param ?UserResponseDto $dto
      *
      * @return null|array{id: int, name: string}
      */

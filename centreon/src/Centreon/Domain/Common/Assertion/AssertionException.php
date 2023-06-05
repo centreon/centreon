@@ -35,7 +35,7 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const INVALID_INSTANCE_OF = Assert::INVALID_INSTANCE_OF;
     public const INVALID_IP = Assert::INVALID_IP;
     public const INVALID_IP_OR_DOMAIN = 1002;
-    public const INVALID_ARRAY_JSON_ENCODABLE = 1003;
+    public const INVALID_ARRAY_JSON_ENCODABLE = 1004;
     public const INVALID_JSON_STRING = Assert::INVALID_JSON_STRING;
     public const INVALID_MAX = Assert::INVALID_MAX;
     public const INVALID_MAX_DATE = 1001;

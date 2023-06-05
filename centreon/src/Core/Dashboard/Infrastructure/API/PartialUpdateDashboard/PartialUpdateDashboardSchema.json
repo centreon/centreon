@@ -35,6 +35,7 @@
                     },
                     "layout": {
                         "type": "object",
+                        "additionalProperties": false,
                         "minProperties": 6,
                         "properties": {
                             "x": {

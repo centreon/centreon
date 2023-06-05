@@ -5,8 +5,7 @@ Feature:
 
   Background:
     Given a running instance of Centreon Web API
-    # Commented by purpose because we want to test the real Json schema
-    # And the endpoints are described in Centreon Web API documentation
+    And the endpoints are described in Centreon Web API documentation
 
   Scenario: Dashboard with orphan owner return null in API
     Given I am logged in
@@ -136,12 +135,6 @@ Feature:
       | id          | 2               |
       | name        | "2nd-dashboard" |
       | description | null            |
-
-    When I send a POST request to '/api/latest/configuration/dashboards' with body:
-    """
-    { "unknown_field": "something" }
-    """
-    Then the response code should be "400"
 
     When I send a DELETE request to '/api/latest/configuration/dashboards/999'
     Then the response code should be "404"

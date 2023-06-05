@@ -46,7 +46,8 @@ final class FindDashboard
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly ContactInterface $contact
-    ) {
+    )
+    {
     }
 
     /**
@@ -74,12 +75,13 @@ final class FindDashboard
                     ['user_id' => $this->contact->getId()]
                 );
             }
+
+            $presenter->presentResponse($response);
         } catch (\Throwable $ex) {
-            $response = new ErrorResponse(DashboardException::errorWhileRetrieving());
+            $presenter->presentResponse(new ErrorResponse(DashboardException::errorWhileRetrieving()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
 
-        $presenter->presentResponse($response);
     }
 
     /**

@@ -19,5 +19,5 @@ properties:
     type: array
     items:
       allOf:
-        - $ref: 'Panel/DashboardPanelWithoutId.yaml'
-        - $ref: 'Panel/DashboardPanelIdOptional.yaml'
+        - $ref: 'Panel/DashboardPanel.WithoutId.yaml'
+        - $ref: 'Panel/DashboardPanel.IdOptional.yaml'
