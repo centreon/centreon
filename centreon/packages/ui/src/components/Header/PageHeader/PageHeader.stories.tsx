@@ -1,13 +1,12 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import {
-  ArrowDropDown as ArrowDropDownIcon,
-  Menu as MenuIcon,
   Settings as SettingsIcon,
   StarOutline as StarOutlineIcon
 } from '@mui/icons-material';
 
 import { Button, IconButton } from '../../Button';
+import { Menu } from '../../Menu';
 
 import { PageHeader } from './index';
 
@@ -63,8 +62,14 @@ export const WithMenu: Story = {
     <PageHeader>
       <PageHeader.Main>
         <PageHeader.Menu>
-          <MenuIcon />
-          <ArrowDropDownIcon data-size="small" />
+          <Menu>
+            <Menu.Button />
+            <Menu.Items>
+              <Menu.Item>Menu Item</Menu.Item>
+              <Menu.Item>Menu Item</Menu.Item>
+              <Menu.Item>Menu Item</Menu.Item>
+            </Menu.Items>
+          </Menu>
         </PageHeader.Menu>
         <PageHeader.Title {...args} />
       </PageHeader.Main>

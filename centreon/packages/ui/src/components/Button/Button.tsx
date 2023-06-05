@@ -16,13 +16,15 @@ const muiVariantMap: Record<
   secondary: 'outlined'
 };
 
-type ButtonProps = {
+export type ButtonProps = {
   children: ReactNode;
+  className?: string;
   disabled?: boolean;
   icon?: string | ReactNode;
   iconVariant?: 'none' | 'start' | 'end';
   isDanger?: boolean;
   onClick?: (e) => void;
+  ref?: React.Ref<HTMLButtonElement>;
   size?: 'small' | 'medium' | 'large';
   type?: 'button' | 'submit' | 'reset';
   variant?: 'primary' | 'secondary' | 'ghost';
@@ -39,9 +41,10 @@ const Button = ({
   disabled = false,
   onClick,
   isDanger = false,
+  className = '',
   ...attr
 }: ButtonProps): ReactElement => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
   const MuiOverrideProps = useMemo(
     () => ({
@@ -54,7 +57,7 @@ const Button = ({
 
   return (
     <MuiButton
-      className={classes.button}
+      className={cx(classes.button, className)}
       data-icon-variant={iconVariant}
       data-is-danger={isDanger}
       data-size={size}

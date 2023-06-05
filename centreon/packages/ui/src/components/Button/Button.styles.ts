@@ -2,6 +2,12 @@ import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
+    '&[data-size="medium"]': {
+      fontSize: '16px',
+      height: 'unset',
+      lineHeight: '24px'
+    },
+
     '&[data-size="small"]': {
       '&[data-variant="primary"], &[data-variant="secondary"]': {
         paddingLeft: theme.spacing(2),
@@ -28,7 +34,9 @@ const useStyles = makeStyles()((theme) => ({
 
       borderColor: theme.palette.primary.main,
       color: theme.palette.primary.main
-    }
+    },
+
+    transition: 'unset'
   }
 }));
 

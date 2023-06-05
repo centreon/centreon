@@ -4,6 +4,8 @@ import { alpha, PaletteOptions } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
 
+import * as BaseTokens from '../base/tokens/themes/base.tokens';
+
 declare module '@mui/material/styles/createPalette' {
   interface TypeAction {
     acknowledged: string;
@@ -22,6 +24,7 @@ declare module '@mui/material/styles' {
     };
     header: TypeHeader;
     layout: TypeLayout;
+    menu: TypeMenu;
     pending: {
       contrastText: string;
       main: string;
@@ -39,6 +42,7 @@ declare module '@mui/material/styles' {
   interface PaletteOptions {
     header: TypeHeader;
     layout: TypeLayout;
+    menu: TypeMenu;
     pending: {
       contrastText: string;
       main: string;
@@ -75,6 +79,37 @@ declare module '@mui/material/styles' {
       border: string;
       description: string;
       title: string;
+    };
+  }
+
+  interface TypeMenu {
+    background: string;
+    button: {
+      background: {
+        active: string;
+        default: string;
+        hover: string;
+      };
+      color: {
+        active: string;
+        default: string;
+        hover: string;
+      };
+    };
+    divider: {
+      border: string;
+    };
+    item: {
+      background: {
+        active: string;
+        default: string;
+        hover: string;
+      };
+      color: {
+        active: string;
+        default: string;
+        hover: string;
+      };
     };
   }
 }
@@ -146,6 +181,36 @@ export const lightPalette: PaletteOptions = {
     header: {
       background: '#FFFFFF',
       border: '#E3E3E3'
+    }
+  },
+  menu: {
+    background: '#FFFFFF',
+    button: {
+      background: {
+        active: BaseTokens.colorBlue50,
+        default: 'transparent',
+        hover: BaseTokens.colorGrey50
+      },
+      color: {
+        active: BaseTokens.colorBlue400,
+        default: BaseTokens.colorGrey400,
+        hover: BaseTokens.colorGrey500
+      }
+    },
+    divider: {
+      border: BaseTokens.colorGrey200
+    },
+    item: {
+      background: {
+        active: BaseTokens.colorBlue50,
+        default: 'transparent',
+        hover: BaseTokens.colorGrey50
+      },
+      color: {
+        active: BaseTokens.colorBlue400,
+        default: BaseTokens.colorGrey900,
+        hover: BaseTokens.colorGrey950
+      }
     }
   },
   mode: ThemeMode.light,
@@ -243,6 +308,36 @@ export const darkPalette: PaletteOptions = {
     header: {
       background: '#FFFFFF',
       border: '#E3E3E3'
+    }
+  },
+  menu: {
+    background: BaseTokens.colorGrey950,
+    button: {
+      background: {
+        active: BaseTokens.colorBlue950,
+        default: 'transparent',
+        hover: BaseTokens.colorGrey950
+      },
+      color: {
+        active: BaseTokens.colorBlue600,
+        default: BaseTokens.colorGrey600,
+        hover: BaseTokens.colorGrey500
+      }
+    },
+    divider: {
+      border: BaseTokens.colorGrey800
+    },
+    item: {
+      background: {
+        active: BaseTokens.colorBlue950,
+        default: 'transparent',
+        hover: BaseTokens.colorGrey950
+      },
+      color: {
+        active: BaseTokens.colorBlue400,
+        default: BaseTokens.colorGrey50,
+        hover: '#fff'
+      }
     }
   },
   mode: ThemeMode.dark,

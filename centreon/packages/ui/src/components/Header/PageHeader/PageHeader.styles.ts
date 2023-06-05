@@ -45,19 +45,13 @@ const useStyles = makeStyles()((theme) => ({
   pageHeaderMain: {
     display: 'flex',
     flexGrow: 1,
-    gap: theme.spacing(1.5)
+    gap: theme.spacing(1)
   },
   pageHeaderMenu: {
-    // TEMP
-    '& [data-size="small"]': {
-      height: '20px',
-      marginTop: theme.spacing(0.25),
-      width: '20px'
-    },
-    alignItems: 'top',
+    alignItems: 'flex-start',
     display: 'flex',
-    opacity: 0.5,
-    padding: theme.spacing(0.25, 0)
+    position: 'relative',
+    transform: `translateY(-${theme.spacing(0.25)})`
   },
   pageHeaderTitle: {
     '& > *': {
