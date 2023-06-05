@@ -17687,3 +17687,6 @@ msgstr "Erreur lors de la récupération d'un modèle de service"
 
 msgid "The service template name '%s' already exists"
 msgstr "Le nom du modèle de service '%s' existe déjà"
+
+msgid "[%s] The value contains unauthorized characters: %s"
+msgstr "[%s] La valeur contient des caractères non autorisés : %s"

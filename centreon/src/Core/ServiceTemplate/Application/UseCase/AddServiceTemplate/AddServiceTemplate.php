@@ -33,12 +33,11 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Common\Domain\CommandType;
 use Core\Common\Domain\TrimmedString;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
-use Core\ServiceTemplate\Application\Model\NotificationTypeConverter;
-use Core\ServiceTemplate\Application\Model\YesNoDefaultConverter;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
@@ -81,10 +80,10 @@ final class AddServiceTemplate
 
                 return;
             }
-            $nameToCheck = new TrimmedString($request->name);
+            $nameToCheck = new TrimmedString(ServiceTemplate::formatName($request->name));
             if ($this->readServiceTemplateRepository->existsByName($nameToCheck)) {
                 $presenter->presentResponse(
-                    new ErrorResponse(ServiceTemplateException::nameAlreadyExists((string) $nameToCheck))
+                    new ConflictResponse(ServiceTemplateException::nameAlreadyExists((string) $nameToCheck))
                 );
 
                 return;
@@ -148,7 +147,10 @@ final class AddServiceTemplate
      */
     public function assertIsValidCommand(?int $commandId): void
     {
-        if ($commandId !== null && ! $this->commandRepository->exists($commandId)) {
+        if (
+            $commandId !== null
+            && ! $this->commandRepository->existsByIdAndCommandType($commandId, CommandType::Check)
+        ) {
             $this->error('Check command does not exist', ['check_command_id' => $commandId]);
 
             throw ServiceTemplateException::idDoesNotExist('check_command_id', $commandId);
@@ -232,61 +234,7 @@ final class AddServiceTemplate
             ? $inheritanceMode['inheritance_mode']->getValue()
             : 0;
 
-        $serviceTemplate = new NewServiceTemplate($request->name, $request->alias);
-        foreach ($request->commandArguments as $argument) {
-            $serviceTemplate->addCommandArgument($argument);
-        }
-
-        foreach ($request->eventHandlerArguments as $argument) {
-            $serviceTemplate->addEventHandlerArgument($argument);
-        }
-
-        foreach (NotificationTypeConverter::fromBits($request->notificationTypes) as $notificationType) {
-            $serviceTemplate->addNotificationType($notificationType);
-        }
-
-        $serviceTemplate->setContactAdditiveInheritance(
-            $inheritanceMode ? $request->isContactAdditiveInheritance : false
-        );
-
-        $serviceTemplate->setContactGroupAdditiveInheritance(
-            $inheritanceMode ? $request->isContactGroupAdditiveInheritance : false
-        );
-
-        $serviceTemplate->setActivated($request->isActivated);
-        $serviceTemplate->setLocked($request->isLocked);
-        $serviceTemplate->setActiveChecks(YesNoDefaultConverter::fromInt($request->activeChecks));
-        $serviceTemplate->setPassiveCheck(YesNoDefaultConverter::fromInt($request->passiveCheck));
-        $serviceTemplate->setVolatility(YesNoDefaultConverter::fromInt($request->volatility));
-        $serviceTemplate->setCheckFreshness(YesNoDefaultConverter::fromInt($request->checkFreshness));
-        $serviceTemplate->setEventHandlerEnabled(YesNoDefaultConverter::fromInt($request->eventHandlerEnabled));
-        $serviceTemplate->setFlapDetectionEnabled(YesNoDefaultConverter::fromInt($request->flapDetectionEnabled));
-        $serviceTemplate->setNotificationsEnabled(YesNoDefaultConverter::fromInt($request->notificationsEnabled));
-        $serviceTemplate->setComment($request->comment);
-        $serviceTemplate->setNote($request->note);
-        $serviceTemplate->setNoteUrl($request->noteUrl);
-        $serviceTemplate->setActionUrl($request->actionUrl);
-        $serviceTemplate->setIconAlternativeText($request->iconAlternativeText);
-        $serviceTemplate->setGraphTemplateId($request->graphTemplateId);
-        $serviceTemplate->setServiceTemplateParentId($request->serviceTemplateParentId);
-        $serviceTemplate->setCommandId($request->commandId);
-        $serviceTemplate->setEventHandlerId($request->eventHandlerId);
-        $serviceTemplate->setNotificationTimePeriodId($request->notificationTimePeriodId);
-        $serviceTemplate->setCheckTimePeriodId($request->checkTimePeriodId);
-        $serviceTemplate->setIconId($request->iconId);
-        $serviceTemplate->setSeverityId($request->severityId);
-        $serviceTemplate->setMaxCheckAttempts($request->maxCheckAttempts);
-        $serviceTemplate->setNormalCheckInterval($request->normalCheckInterval);
-        $serviceTemplate->setRetryCheckInterval($request->retryCheckInterval);
-        $serviceTemplate->setFreshnessThreshold($request->freshnessThreshold);
-        $serviceTemplate->setLowFlapThreshold($request->lowFlapThreshold);
-        $serviceTemplate->setHighFlapThreshold($request->highFlapThreshold);
-        $serviceTemplate->setNotificationInterval($request->notificationInterval);
-        $serviceTemplate->setRecoveryNotificationDelay($request->recoveryNotificationDelay);
-        $serviceTemplate->setFirstNotificationDelay($request->firstNotificationDelay);
-        $serviceTemplate->setAcknowledgementTimeout($request->acknowledgementTimeout);
-
-        return $serviceTemplate;
+        return NewServiceTemplateFactory::create((int) $inheritanceMode, $request);
     }
 
     /**

@@ -46,12 +46,12 @@ final class NotificationTypeConverter
     /**
      * @param NotificationType[] $notificationTypes
      *
-     * @return int
+     * @return int|null
      */
-    public static function toBits(array $notificationTypes): int
+    public static function toBits(array $notificationTypes): ?int
     {
         if ($notificationTypes === []) {
-            return self::ALL_TYPE;
+            return null;
         }
         $bits = 0;
         foreach ($notificationTypes as $type) {
@@ -68,7 +68,7 @@ final class NotificationTypeConverter
     /**
      * @param NotificationType[] $notificationTypes
      *
-     * @return string
+     * @return string|null
      */
     public static function toString(array $notificationTypes): ?string
     {

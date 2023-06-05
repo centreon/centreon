@@ -76,51 +76,51 @@ class NewServiceTemplate
 
     private YesNoDefault $notificationsEnabled = YesNoDefault::Default;
 
-    private ?string $comment;
+    private ?string $comment = null;
 
-    private ?string $note;
+    private ?string $note = null;
 
-    private ?string $noteUrl;
+    private ?string $noteUrl = null;
 
-    private ?string $actionUrl;
+    private ?string $actionUrl = null;
 
-    private ?string $iconAlternativeText;
+    private ?string $iconAlternativeText = null;
 
-    private ?int $graphTemplateId;
+    private ?int $graphTemplateId = null;
 
-    private ?int $serviceTemplateParentId;
+    private ?int $serviceTemplateParentId = null;
 
-    private ?int $commandId;
+    private ?int $commandId = null;
 
-    private ?int $eventHandlerId;
+    private ?int $eventHandlerId = null;
 
-    private ?int $notificationTimePeriodId;
+    private ?int $notificationTimePeriodId = null;
 
-    private ?int $checkTimePeriodId;
+    private ?int $checkTimePeriodId = null;
 
-    private ?int $iconId;
+    private ?int $iconId = null;
 
-    private ?int $severityId;
+    private ?int $severityId = null;
 
-    private ?int $maxCheckAttempts;
+    private ?int $maxCheckAttempts = null;
 
-    private ?int $normalCheckInterval;
+    private ?int $normalCheckInterval = null;
 
-    private ?int $retryCheckInterval;
+    private ?int $retryCheckInterval = null;
 
-    private ?int $freshnessThreshold;
+    private ?int $freshnessThreshold = null;
 
-    private ?int $lowFlapThreshold;
+    private ?int $lowFlapThreshold = null;
 
-    private ?int $highFlapThreshold;
+    private ?int $highFlapThreshold = null;
 
-    private ?int $notificationInterval;
+    private ?int $notificationInterval = null;
 
-    private ?int $recoveryNotificationDelay;
+    private ?int $recoveryNotificationDelay = null;
 
-    private ?int $firstNotificationDelay;
+    private ?int $firstNotificationDelay = null;
 
-    private ?int $acknowledgementTimeout;
+    private ?int $acknowledgementTimeout = null;
 
     /**
      * @param string $name
@@ -144,6 +144,10 @@ class NewServiceTemplate
      */
     public function setName(string $name): void
     {
+        $name = preg_replace('/\s{2,}/', ' ', $name);
+        if ($name === null) {
+            throw AssertionException::notNull($this->className . '::name');
+        }
         $name = trim($name);
         Assertion::notEmptyString($name, $this->className . '::name');
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, $this->className . '::name');
@@ -172,7 +176,7 @@ class NewServiceTemplate
         $alias = trim($alias);
         Assertion::notEmptyString($alias, $this->className . '::alias');
         Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, $this->className . '::alias');
-        Assertion::unauthorisedCharacters(
+        Assertion::unauthorizedCharacters(
             $alias,
             MonitoringServer::ILLEGAL_CHARACTERS,
             $this->className . '::alias'

@@ -140,7 +140,7 @@ it('should present an ErrorResponse when the user name already exists', function
     $request->name = $name;
     ($this->useCase)($request, $this->presenter);
     expect($this->presenter->response)
-        ->toBeInstanceOf(ErrorResponse::class)
+        ->toBeInstanceOf(ConflictResponse::class)
         ->and($this->presenter->response->getMessage())
         ->toBe(ServiceTemplateException::nameAlreadyExists($name)->getMessage());
 });

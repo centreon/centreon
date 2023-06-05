@@ -49,7 +49,7 @@ class NotificationTypeConverter
     {
         Assertion::range($bitFlag, 0, self::ALL_TYPE);
         if ($bitFlag === self::NONE_AS_BIT) {
-            return [];
+            return [NotificationType::None];
         }
 
         $notificationTypes = [];

@@ -155,7 +155,7 @@ it(
     fn() => (new ServiceTemplate(1, 'fake_name', 'fake_alias' . MonitoringServer::ILLEGAL_CHARACTERS[0]))
 )->throws(
     AssertionException::class,
-    AssertionException::unauthorisedCharacters(
+    AssertionException::unauthorizedCharacters(
         'fake_alias' . MonitoringServer::ILLEGAL_CHARACTERS[0],
         MonitoringServer::ILLEGAL_CHARACTERS[0],
         'ServiceTemplate::alias'

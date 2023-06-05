@@ -15825,3 +15825,6 @@ msgstr ""
 
 #  msgid "The service template name '%s' already exists"
 #  msgstr ""
+
+#  msgid "[%s] The value contains unauthorized characters: %s"
+#  msgstr ""

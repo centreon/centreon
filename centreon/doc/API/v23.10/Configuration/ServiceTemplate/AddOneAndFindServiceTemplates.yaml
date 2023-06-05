@@ -45,7 +45,9 @@ post:
     content:
       application/json:
         schema:
-          $ref: 'Schema/NewServiceTemplate.yaml'
+          allOf:
+            - required: ["name", "alias"]
+            - $ref: 'Schema/NewServiceTemplate.yaml'
   responses:
     '201':
       allOf:
@@ -54,7 +56,11 @@ post:
             application/json:
               schema:
                 $ref: 'Schema/ServiceTemplate.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
     '403':
       $ref: '../../Common/Response/Forbidden.yaml'
+    '409':
+      $ref: '../../Common/Response/Conflict.yaml'
     '500':
       $ref: '../../Common/Response/InternalServerError.yaml'

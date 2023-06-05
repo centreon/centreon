@@ -190,8 +190,8 @@ $failDataProvider = [
         AssertionException::INVALID_INSTANCE_OF
     ],
     "unauthorisedCharacters('new bad string!', '!&#@')" => [
-        fn() => Assertion::unauthorisedCharacters('new bad string!', '!&#@', $propertyPath),
-        AssertionException::unauthorisedCharacters('new bad string!', '!', $propertyPath)->getMessage(),
+        fn() => Assertion::unauthorizedCharacters('new bad string!', '!&#@', $propertyPath),
+        AssertionException::unauthorizedCharacters('new bad string!', '!', $propertyPath)->getMessage(),
         AssertionException::INVALID_CHARACTERS
     ],
 ];
@@ -315,7 +315,10 @@ $successDataProvider = [
         fn() => Assertion::isInstanceOf(new \Exception(), \Throwable::class, $propertyPath),
     ],
     "unauthorisedCharacters('new bad string!', '&#@')" => [
-        fn() => Assertion::unauthorisedCharacters('new bad string!', '&#@', $propertyPath),
+        fn() => Assertion::unauthorizedCharacters('new bad string!', '&#@', $propertyPath),
+    ],
+    "unauthorisedCharacters('new bad string!&#@', '')" => [
+        fn() => Assertion::unauthorizedCharacters('new bad string!&#@', '', $propertyPath),
     ]
 ];
 

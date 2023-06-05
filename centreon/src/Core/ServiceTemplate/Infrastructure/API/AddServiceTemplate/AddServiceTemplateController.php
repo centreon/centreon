@@ -29,8 +29,6 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Domain\YesNoDefault;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplate;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplateRequest;
-use Core\ServiceTemplate\Domain\Model\NotificationType;
-use Core\ServiceTemplate\Infrastructure\Model\NotificationTypeConverter;
 use Core\ServiceTemplate\Infrastructure\Model\YesNoDefaultConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -109,8 +107,7 @@ class AddServiceTemplateController extends AbstractController
             : 'AddServiceTemplateOnPremSchema.json';
 
         try {
-            /** @var _ServiceTemplate $data
-             */
+            /** @var _ServiceTemplate $data */
             $data = $this->validateAndRetrieveDataSent(
                 $request,
                 __DIR__ . DIRECTORY_SEPARATOR . $validationSchema
@@ -151,9 +148,7 @@ class AddServiceTemplateController extends AbstractController
         $dto->isContactGroupAdditiveInheritance = $request['is_contact_group_additive_inheritance'] ?? false;
         $dto->notificationInterval = $request['notification_interval'] ?? null;
         $dto->notificationTimePeriodId = $request['notification_timeperiod_id'] ?? null;
-        $dto->notificationTypes = $request['notification_type'] ?? NotificationTypeConverter::toBits(
-            [NotificationType::None]
-        );
+        $dto->notificationTypes = $request['notification_type'] ?? null;
         $dto->firstNotificationDelay = $request['first_notification_delay'] ?? null;
         $dto->recoveryNotificationDelay = $request['recovery_notification_delay'] ?? null;
         $dto->acknowledgementTimeout = $request['acknowledgement_timeout'] ?? null;
@@ -173,7 +168,6 @@ class AddServiceTemplateController extends AbstractController
         $dto->iconAlternativeText = $request['icon_alternative'] ?? null;
         $dto->severityId = $request['severity_id'];
         $dto->isActivated = $request['is_activated'] ?? true;
-        $dto->isLocked = $request['is_locked'] ?? false;
 
         return $dto;
     }

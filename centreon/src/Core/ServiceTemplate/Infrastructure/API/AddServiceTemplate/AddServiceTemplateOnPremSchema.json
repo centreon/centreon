@@ -113,7 +113,10 @@
             ]
         },
         "notification_type": {
-            "type": "integer"
+            "type": [
+                "null",
+                "integer"
+            ]
         },
         "first_notification_delay": {
             "type": [
@@ -230,9 +233,6 @@
             ]
         },
         "is_activated": {
-            "type": "boolean"
-        },
-        "is_locked": {
             "type": "boolean"
         }
     }

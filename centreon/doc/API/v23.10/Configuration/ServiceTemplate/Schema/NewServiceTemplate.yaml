@@ -127,12 +127,15 @@ properties:
       
       The value is the sum of all the values of the selected options.
       
+      * `0` - NONE
       * `1` - WARNING
       * `2` - UNKNOWN
       * `4` - CRITICAL
       * `8` - RECOVERY
       * `16` - FLAPPING
       * `32` - DOWNTIME_SCHEDULED
+      * NULL - (inheritance of its parent's value. If there is no parent, 
+      the value will be assumed to be: WARNING|UNKNOWN|CRITICAL|RECOVERY|FLAPPING|DOWNTIME_SCHEDULED)
       
       example: A value equal to 5 corresponds to the selected options WARNING and CRITICAL
     example: 5
@@ -245,8 +248,4 @@ properties:
   is_activated:
     type: boolean
     description: "Indicates whether the service template is activated or not"
-    example: true
-  is_locked:
-    type: boolean
-    description: "Indicates whether the configuration is locked for editing or not"
     example: true

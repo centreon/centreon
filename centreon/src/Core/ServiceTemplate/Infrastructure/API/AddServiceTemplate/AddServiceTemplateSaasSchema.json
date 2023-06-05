@@ -49,9 +49,6 @@
                 "null",
                 "integer"
             ]
-        },
-        "is_locked": {
-            "type": "boolean"
         }
     }
 }

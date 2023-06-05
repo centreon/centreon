@@ -300,6 +300,10 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                 $commandArguments = $result[1];
             }
 
+            foreach ($commandArguments as $index => $argument) {
+                $commandArguments[$index] = str_replace(['#BR#', '#T#', '#R#'], ["\n", "\t", "\r"], $argument);
+            }
+
             return $commandArguments;
         };
 

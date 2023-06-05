@@ -318,36 +318,27 @@ class Assertion
 
     /**
      * @param string $value Value to test
-     * @param string $unauthorisedCharacters List of non-authorised characters
+     * @param string $unauthorizedCharacters List of non-authorized characters
      * @param string|null $propertyPath Property's path (ex: Host::name)
      *
      * @throws \Assert\AssertionFailedException
      */
-    public static function unauthorisedCharacters(
+    public static function unauthorizedCharacters(
         string $value,
-        string $unauthorisedCharacters,
+        string $unauthorizedCharacters,
         ?string $propertyPath = null
     ): void {
-        if ($unauthorisedCharacters !== '') {
-            /** @var array<int, int> $chars */
-            $chars = count_chars($value, 1);
-            /** @var int[] $result */
-            $result = array_keys($chars);
-            /** @var int[] $characters */
-            $characters = [];
-            foreach (str_split($unauthorisedCharacters, 1) as $char) {
-                $characters[] = ord($char);
-            }
-            $characters = array_values($characters);
-            $unauthorisedCharacters = array_intersect($result, $characters);
-            $unauthorisedCharactersFound = [];
-            if ($unauthorisedCharacters !== []) {
-                foreach ($unauthorisedCharacters as $index => $char) {
-                    $unauthorisedCharactersFound[$index] = chr($char);
-                }
-                throw AssertionException::unauthorisedCharacters(
+        if ($unauthorizedCharacters !== '' && $value !== '') {
+            $unauthorizedCharactersFound = array_unique(
+                array_intersect(
+                    mb_str_split($value),
+                    mb_str_split($unauthorizedCharacters)
+                )
+            );
+            if ($unauthorizedCharactersFound !== []) {
+                throw AssertionException::unauthorizedCharacters(
                     $value,
-                    implode('', $unauthorisedCharactersFound),
+                    implode('', $unauthorizedCharactersFound),
                     $propertyPath
                 );
             }

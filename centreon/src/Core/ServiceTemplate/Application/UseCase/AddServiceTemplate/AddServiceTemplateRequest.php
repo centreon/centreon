@@ -35,15 +35,13 @@ final class AddServiceTemplateRequest
     /** @var list<string> */
     public array $eventHandlerArguments = [];
 
-    public int $notificationTypes = 0;
+    public int|null $notificationTypes = null;
 
     public bool $isContactAdditiveInheritance = false;
 
     public bool $isContactGroupAdditiveInheritance = false;
 
     public bool $isActivated = false;
-
-    public bool $isLocked = false;
 
     public int $activeChecks = 0;
 
@@ -61,47 +59,47 @@ final class AddServiceTemplateRequest
 
     public string|null $comment = null;
 
-    public string|null $note;
+    public string|null $note = null;
 
-    public string|null $noteUrl;
+    public string|null $noteUrl = null;
 
-    public string|null $actionUrl;
+    public string|null $actionUrl = null;
 
-    public string|null $iconAlternativeText;
+    public string|null $iconAlternativeText = null;
 
-    public int|null $graphTemplateId;
+    public int|null $graphTemplateId = null;
 
-    public int|null $serviceTemplateParentId;
+    public int|null $serviceTemplateParentId = null;
 
-    public int|null $commandId;
+    public int|null $commandId = null;
 
-    public int|null $eventHandlerId;
+    public int|null $eventHandlerId = null;
 
-    public int|null $notificationTimePeriodId;
+    public int|null $notificationTimePeriodId = null;
 
-    public int|null $checkTimePeriodId;
+    public int|null $checkTimePeriodId = null;
 
-    public int|null $iconId;
+    public int|null $iconId = null;
 
-    public int|null $severityId;
+    public int|null $severityId = null;
 
-    public int|null $maxCheckAttempts;
+    public int|null $maxCheckAttempts = null;
 
-    public int|null $normalCheckInterval;
+    public int|null $normalCheckInterval = null;
 
-    public int|null $retryCheckInterval;
+    public int|null $retryCheckInterval = null;
 
-    public int|null $freshnessThreshold;
+    public int|null $freshnessThreshold = null;
 
-    public int|null $lowFlapThreshold;
+    public int|null $lowFlapThreshold = null;
 
-    public int|null $highFlapThreshold;
+    public int|null $highFlapThreshold = null;
 
-    public int|null $notificationInterval;
+    public int|null $notificationInterval = null;
 
-    public int|null $recoveryNotificationDelay;
+    public int|null $recoveryNotificationDelay = null;
 
-    public int|null $firstNotificationDelay;
+    public int|null $firstNotificationDelay = null;
 
-    public int|null $acknowledgementTimeout;
+    public int|null $acknowledgementTimeout = null;
 }

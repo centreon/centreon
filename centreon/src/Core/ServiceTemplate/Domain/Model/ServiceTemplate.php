@@ -145,10 +145,10 @@ class ServiceTemplate
             ] as $field => $limitation
         ) {
             $propertyValue = $this->{$field};
-            if ($field === 'alias') {
+            if (in_array($field, ['name', 'alias'], true)) {
                 $propertyValue = preg_replace('/\s{2,}/', ' ', $propertyValue);
                 if ($propertyValue === null) {
-                    throw AssertionException::notNull($className . '::alias');
+                    throw AssertionException::notNull($className . '::' . $field);
                 }
             }
             if ($propertyValue !== null) {
@@ -158,10 +158,10 @@ class ServiceTemplate
             }
         }
 
-        Assertion::unauthorisedCharacters(
-            $this->alias,
+        Assertion::unauthorizedCharacters(
+            $this->name,
             MonitoringServer::ILLEGAL_CHARACTERS,
-            "{$className}::alias"
+            "{$className}::name"
         );
 
         // Assertions on ForeignKeys
@@ -537,5 +537,10 @@ class ServiceTemplate
     public function getAcknowledgementTimeout(): ?int
     {
         return $this->acknowledgementTimeout;
+    }
+
+    public static function formatName(string $name): string
+    {
+        return (string) preg_replace('/\s{2,}/', ' ', $name);
     }
 }

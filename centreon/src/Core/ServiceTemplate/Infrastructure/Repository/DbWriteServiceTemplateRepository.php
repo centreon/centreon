@@ -362,7 +362,7 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
     {
         $serializedArguments = '';
         foreach ($arguments as $argument) {
-            $serializedArguments .= '!' . $argument;
+            $serializedArguments .= '!' . str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $argument);
         }
 
         return $serializedArguments;

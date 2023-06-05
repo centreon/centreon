@@ -43,6 +43,7 @@ class DbReadPerformanceGraphRepository extends AbstractRepositoryRDB implements 
         $statement = $this->db->prepare($request);
         $statement->bindValue(':id', $performanceGraphId, \PDO::PARAM_INT);
         $statement->execute();
+
         return (bool) $statement->fetchColumn();
     }
 }
