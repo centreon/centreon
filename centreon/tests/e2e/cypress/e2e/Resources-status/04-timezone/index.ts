@@ -206,5 +206,49 @@ Then(
         ).to.equal(Totime);
       });
     });
+
+    tearDownResource();
   }
 );
+
+When('the user creates an acknowledgement on a resource', () => {
+  cy.navigateTo({
+    page: 'Resources Status',
+    rootItemNumber: 1
+  });
+
+  cy.getByLabel({ label: 'State filter' }).click();
+
+  cy.get('[data-value="all"]').click();
+
+  cy.contains(serviceInDtName)
+    .parent()
+    .parent()
+    .find('input[type="checkbox"]:first')
+    .click();
+
+  cy.getByTestId({ testId: 'Multiple Set Downtime' }).last().click();
+
+  cy.getByLabel({ label: 'Set downtime' }).last().click();
+
+  cy.wait('@postSaveDowntime').then(() => {
+    cy.contains('Downtime command sent').should('have.length', 1);
+  });
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(serviceInDtName))
+        .parent()
+        .then((val) => {
+          return (
+            val.css('background-color') === actionBackgroundColors.inDowntime
+          );
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
+});

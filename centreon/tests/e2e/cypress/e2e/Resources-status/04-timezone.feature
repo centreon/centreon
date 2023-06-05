@@ -18,3 +18,8 @@ Scenario: User can set a realtime downtime with a custom timezone in Monitoring>
   Given a user with a custom timezone set in his profile
   When the user creates a downtime on a resource
   Then date and time fields should be based on the custom timezone of the user
+
+Scenario: User can set a acknowledgement with a custom timezone in Monitoring>Resource Status
+  Given a user with a custom timezone set in his profile
+  When the user creates an acknowledgement on a resource
+  Then date and time fields should be based on the custom timezone of the user
