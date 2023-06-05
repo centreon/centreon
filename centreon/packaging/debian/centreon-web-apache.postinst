@@ -12,7 +12,9 @@ if [ "$1" = "configure" ] ; then
     usermod -a -G www-data centreon-gorgone
   fi
 
+  echo "$(getent passwd centreon-broker)"
   if [ "$(getent passwd centreon-broker)" ]; then
+    echo "add www-data group to centreon-broker user"
     usermod -a -G centreon-broker www-data
     usermod -a -G www-data centreon-broker
   fi
