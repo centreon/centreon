@@ -120,6 +120,8 @@ performance_schema      = ON
 open_files_limit        = 32000
 " > /etc/mysql/conf.d/container.cnf
 
+sed -i "s@^bind-address@#bind-address@" /etc/mysql/mariadb.conf.d/50-server.cnf
+
 ################################
 # install collect dependencies #
 ################################
