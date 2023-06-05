@@ -1,4 +1,4 @@
-import { ReactElement, useMemo } from 'react';
+import { useMemo, ReactElement } from 'react';
 
 import { Grid as VisxGrid } from '@visx/visx';
 import { scaleLinear } from '@visx/scale';

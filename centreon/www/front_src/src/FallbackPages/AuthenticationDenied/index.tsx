@@ -1,5 +1,3 @@
-import { FC } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -19,7 +17,7 @@ const useStyles = makeStyles()({
   }
 });
 
-const AuthenticationDenied: FC = () => {
+const AuthenticationDenied = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
