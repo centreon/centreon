@@ -15813,3 +15813,6 @@ msgstr ""
 
 # msgid "If you leave {{dashboardName}}, your changes will not be saved."
 # msgstr ""
+
+# msgid "Your dashboard has been saved"
+# msgstr ""

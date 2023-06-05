@@ -115,7 +115,7 @@ const LoadableComponentsContainer = ({
         ),
         path
       }),
-    [federatedModules, path]
+    [federatedModules, path, federatedWidgets]
   );
 
   if (isNil(federatedModulesToDisplay)) {
