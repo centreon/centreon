@@ -1,7 +1,6 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import { initializeConfigACLAndGetLoginPage } from '../common';
-import { find } from 'node_modules/cypress/types/lodash';
 
 before(() => {
   cy.startWebContainer();
