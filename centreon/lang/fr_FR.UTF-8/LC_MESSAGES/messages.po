@@ -17658,3 +17658,8 @@ msgstr "Vous n'êtes pas autorisé à lister les configurations de notifications
 msgid "Notification #%d should have at least one user"
 msgstr "La notification #%d doit avoir au moins un utilisateur"
 
+msgid "Error while linking host categories to a host template"
+msgstr "Erreur lors de la liaison de catégories d'hôte à un modèle d'hôte"
+
+msgid "The %s does not exist with id(s) '%s'"
+msgstr "Le champ %s n'existe pas avec le(s) id(s) '%s'"
