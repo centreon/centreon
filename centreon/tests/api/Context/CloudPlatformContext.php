@@ -75,19 +75,17 @@ class CloudPlatformContext extends ApiContext
         // We MUST remove the linefeed (\n) to be a valid oneline command.
         $phpOneline = preg_replace('!\s*\n\s*!', '', $phpScript);
 
-        var_dump($this->container->execute(
-            'cat /usr/share/centreon/.env.local.php',
-            $this->webService
-        ));
         // Do not forget to escape special chars !
         $this->container->execute(
-            'php -r ' . escapeshellarg($phpOneline),
-            //'php -r ' . escapeshellarg($phpOneline) . ' 2>&1',
+            'php -r ' . escapeshellarg($phpOneline) . ' 2>&1',
             $this->webService
         );
-        var_dump($this->container->execute(
-            'cat /usr/share/centreon/.env.local.php',
+
+        $this->container->execute(
+            'su - $('
+              . 'ps aux | grep -E "[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx" | grep -v root | head -1 | cut -d\  -f1'
+              . ') -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"',
             $this->webService
-        ));
+        );
     }
 }
