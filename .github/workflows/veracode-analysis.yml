@@ -1,4 +1,4 @@
-# Veracode scans pipeline
+# Veracode scans
 on:
   workflow_call:
     inputs:
@@ -92,7 +92,7 @@ jobs:
             fi
           fi
 
-      - uses: actions/setup-java@v3 #TODO: To install in veracode runner directly
+      - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 8
