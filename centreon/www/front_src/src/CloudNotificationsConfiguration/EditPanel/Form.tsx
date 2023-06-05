@@ -48,7 +48,7 @@ const Form = (): JSX.Element => {
   return (
     <Box>
       <FormComponent
-        groupsAreOpen
+        areGoupsOpen
         isCollapsible
         Buttons={Box}
         className={classes.form}

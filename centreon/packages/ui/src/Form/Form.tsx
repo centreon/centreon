@@ -22,7 +22,7 @@ export type FormProps<T> = {
   className?: string;
   groupDirection?: GroupDirection;
   groups?: Array<Group>;
-  groupsAreOpen?: boolean;
+  areGoupsOpen?: boolean;
   groupsClassName?: string;
   initialValues: T;
   inputs: Array<InputProps>;
@@ -37,7 +37,7 @@ const Form = <T extends object>({
   children,
   className,
   groupsClassName,
-  groupsAreOpen,
+  areGoupsOpen,
   initialValues,
   validate,
   validationSchema,
@@ -57,7 +57,7 @@ const Form = <T extends object>({
       <Inputs
         isLoading
         groups={groups}
-        groupsAreOpen={groupsAreOpen}
+        areGoupsOpen={areGoupsOpen}
         groupsClassName={groupsClassName}
         inputs={inputs}
         isCollapsible={isCollapsible}
@@ -79,7 +79,7 @@ const Form = <T extends object>({
           <Inputs
             groupDirection={groupDirection}
             groups={groups}
-            groupsAreOpen={groupsAreOpen}
+            areGoupsOpen={areGoupsOpen}
             groupsClassName={groupsClassName}
             inputs={inputs}
             isCollapsible={isCollapsible}
