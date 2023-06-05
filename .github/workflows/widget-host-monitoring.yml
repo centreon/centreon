@@ -27,9 +27,7 @@ jobs:
       version_file: widgets/centreon-widget-host-monitoring/host-monitoring/configs.xml
 
   veracode-analysis:
-    concurrency: ci-${{ github.sha }}
     needs: [get-version]
-    #uses: ./.github/workflows/veracode-legacy-analysis.yml
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: widgets/centreon-widget-host-monitoring
