@@ -1,6 +1,9 @@
 type: object
-required: ['name', 'alias']
 properties:
+  id:
+    type: integer
+    description: "Host template id"
+    example: 1
   name:
     type: string
     description: "Host template name"
@@ -34,7 +37,7 @@ properties:
     nullable: true
   check_command_id:
     type: integer
-    description: "Check command ID. Must be of type 'Check'."
+    description: "Check command ID"
     example: 1
     nullable: true
   check_command_args:
@@ -72,7 +75,7 @@ properties:
   active_check_enabled:
     type: integer
     description: |
-      Indicates whether the active checks is enabled or not
+      Indicates whether active checks are enabled or not
 
       * `0` - STATUS_DISABLED
       * `1` - STATUS_ENABLED
@@ -100,7 +103,6 @@ properties:
 
       The value is the sum of all the values of the selected options.
 
-      * `0` - NONE
       * `1` - DOWN
       * `2` - UNREACHABLE
       * `4` - RECOVERY
@@ -174,7 +176,7 @@ properties:
 
       * `0` - STATUS_DISABLED
       * `1` - STATUS_ENABLED
-      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+      * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of Centreon Engine)
   low_flap_threshold:
     type: integer
     nullable: true
@@ -226,7 +228,7 @@ properties:
     type: string
     nullable: true
     maxLength: 200
-    description: "Define an optional string that is used as alternative description for the icon"
+    description: "Define an optional string that is used in the alternative description of the icon image"
   comment:
     type: string
     nullable: true
@@ -234,7 +236,19 @@ properties:
   is_activated:
     type: boolean
     description: "Indicates whether the host template is activated or not"
+  is_locked:
+    type: boolean
+    description: "Indicates whether the configuration is locked for editing or not"
   categories:
     type: array
-    description: "Define the host category IDs that should be associated with this host template"
-    example: [1, 15, 8]
+    items:
+     type: object
+     properties:
+      id:
+       type: integer
+       description: "Define a host category ID that is associated with this host template"
+       example: 1
+      name:
+       type: string
+       description: "Define a host category name that is associated with this host template"
+       example: 'host-category-name'
