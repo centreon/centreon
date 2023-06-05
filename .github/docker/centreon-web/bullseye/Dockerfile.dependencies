@@ -96,7 +96,6 @@ apt-get update
 apt-get install -y mariadb-server mariadb-client
 
 echo "[server]
-skip-grant-tables
 log_output=FILE
 general_log_file        = /var/lib/mysql/queries.log
 general_log             = 0
