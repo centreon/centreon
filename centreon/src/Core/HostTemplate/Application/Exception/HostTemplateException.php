@@ -52,6 +52,16 @@ class HostTemplateException extends \Exception
     }
 
     /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function linkHostCategories(\Throwable $ex): self
+    {
+        return new self(_('Error while linking host categories to host template'), 0, $ex);
+    }
+
+    /**
      * @return self
      */
     public static function accessNotAllowed(): self
@@ -87,6 +97,24 @@ class HostTemplateException extends \Exception
     }
 
     /**
+     * @param string $propertieName
+     * @param int[] $propertieValues
+     *
+     * @return self
+     */
+    public static function idsDoNotExist(string $propertieName, array $propertieValues): self
+    {
+        return new self(
+            sprintf(
+                _("The %s does not exist with id(s) '%s' "),
+                $propertieName,
+                implode(',', $propertieValues)
+            ),
+            self::CODE_CONFLICT
+        );
+    }
+
+    /**
      * @param string $formatedName
      * @param string $originalName
      *
@@ -105,9 +133,22 @@ class HostTemplateException extends \Exception
         return new self(_('Error while retrieving a host template'));
     }
 
+    /**
+     * @param int $hostTemplateId
+     *
+     * @return self
+     */
     public static function hostIsLocked(int $hostTemplateId): self
     {
         return new self(sprintf(_('Host template #%d is locked (edition and deletion not allowed)'), $hostTemplateId));
+    }
+
+    /**
+     * @return self
+     */
+    public static function writeActionsNotAllowed(): self
+    {
+        return new self(_('You are not allowed to perform writing action on host templates'));
     }
 }
 
