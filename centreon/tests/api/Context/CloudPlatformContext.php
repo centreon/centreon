@@ -85,11 +85,7 @@ class CloudPlatformContext extends ApiContext
             $this->webService
         );
 
-        var_dump($this->container->execute(
-            'cat /usr/share/centreon/.env',
-            $this->webService
-        ));
-
+        // Reload symfony cache to use updated environment variables
         $this->container->execute(
             'su - $('
               . 'ps aux | grep -E "[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx" | grep -v root | head -1 | cut -d\  -f1'
