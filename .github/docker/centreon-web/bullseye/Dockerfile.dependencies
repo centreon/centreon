@@ -61,7 +61,7 @@ apt-get install -y \
 # install test dependencies #
 #############################
 
-apt-get install -y libfaketime
+apt-get install -y faketime
 
 ############################
 # install php dependencies #
