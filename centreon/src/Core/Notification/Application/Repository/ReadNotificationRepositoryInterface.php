@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\Repository;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\TrimmedString;
 use Core\Notification\Domain\Model\Notification;
-use Core\Notification\Domain\Model\NotificationGenericObject;
+use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationMessage;
+use Core\Notification\Domain\Model\ConfigurationUser;
 
 interface ReadNotificationRepositoryInterface
 {
@@ -53,15 +55,35 @@ interface ReadNotificationRepositoryInterface
     public function findMessagesByNotificationId(int $notificationId): array;
 
     /**
+     * Find notification channels for multiple notification.
+     *
+     * @param non-empty-array<int> $notificationIds
+     *
+     * @return array<int, NotificationChannel[]> [notification_id => ["Slack","Sms","Email"]]
+     */
+    public function findNotificationChannelsByNotificationIds(array $notificationIds): array;
+
+    /**
      * Find notification users for a notification.
      *
      * @param int $notificationId
      *
      * @throws \Throwable
      *
-     * @return NotificationGenericObject[]
+     * @return ConfigurationUser[]
      */
     public function findUsersByNotificationId(int $notificationId): array;
+
+    /**
+     * Find notification users for a notification.
+     *
+     * @param non-empty-array<int> $notificationIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int,int> [notification_id => user_count]
+     */
+    public function findUsersCountByNotificationIds(array $notificationIds): array;
 
     /**
      * Tells whether the notification exists.
@@ -85,4 +107,15 @@ interface ReadNotificationRepositoryInterface
      * @return bool
      */
     public function existsByName(TrimmedString $notificationName): bool;
+
+    /**
+     * Return all the notifications.
+     *
+     * @param RequestParametersInterface|null $requestParameters
+     *
+     * @throws \Throwable
+     *
+     * @return Notification[]
+     */
+    public function findAll(?RequestParametersInterface $requestParameters): array;
 }

@@ -1,12 +1,22 @@
-import DialogContentText from '@mui/material/DialogContentText';
+import { DialogContentText, Typography } from '@mui/material';
 
 import Dialog, { Props as DialogProps } from '..';
 
-type Props = DialogProps & { labelMessage?: string | null };
+type Props = DialogProps & {
+  labelMessage?: string | null;
+  labelSecondMessage?: string | null;
+};
 
-const Confirm = ({ labelMessage, ...rest }: Props): JSX.Element => (
+const Confirm = ({
+  labelMessage,
+  labelSecondMessage,
+  ...rest
+}: Props): JSX.Element => (
   <Dialog {...rest}>
-    {labelMessage && <DialogContentText>{labelMessage}</DialogContentText>}
+    <DialogContentText>
+      {labelMessage && <Typography>{labelMessage}</Typography>}
+      {labelSecondMessage && <Typography>{labelSecondMessage}</Typography>}
+    </DialogContentText>
   </Dialog>
 );
 

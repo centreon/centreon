@@ -1,7 +1,7 @@
 {
   "name": "@centreon/js-config",
   "description": "Centreon Frontend shared build configuration",
-  "version": "23.10.3",
+  "version": "23.10.5",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/centreon/centreon-frontend.git"
@@ -17,12 +17,14 @@
   },
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^14.0.0",
+    "@tsconfig/node16": "^1.0.4",
     "@types/dockerode": "^3.3.16",
     "dockerode": "^3.3.5",
     "eslint": "^8.17.0",
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-babel": "^5.3.1",
     "eslint-plugin-hooks": "^0.4.3",
     "eslint-plugin-import": "^2.26.0",

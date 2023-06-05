@@ -175,9 +175,13 @@ INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`,
 
 -- Add unified view page entry
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`) VALUES ('Resources Status', '/monitoring/resources', '1', '1', 2, 200, 1, 2);
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`, `topology_feature_flag`) VALUES ('Dashboard (beta)', '/home/dashboards', '1', '1', 1, 104, 1, 2, 'dashboard');
 
 -- Add password policy page
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`) VALUES ('Authentication', '/administration/authentication', '1', '1', 5, 509, 1, 10);
+
+-- add cloud notifications configuration page 
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`,`topology_feature_flag`) VALUES ('Notifications', '/configuration/notifications', '1', '1', 604, 60413, 1, 1,'notification');
 
 /*!40000 ALTER TABLE `topology` ENABLE KEYS */;
 UNLOCK TABLES;

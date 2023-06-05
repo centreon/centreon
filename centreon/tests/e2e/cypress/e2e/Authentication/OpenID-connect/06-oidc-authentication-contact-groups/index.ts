@@ -3,8 +3,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import {
   configureOpenIDConnect,
   getUserContactId,
-  initializeOIDCUserAndGetLoginPage,
-  removeContact
+  initializeOIDCUserAndGetLoginPage
 } from '../common';
 
 before(() => {

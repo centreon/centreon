@@ -248,33 +248,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/notifications:
-    post:
-      tags:
-        - Notification
-      summary: "Create a notification"
-      description: |
-        Create a notification
-
-        This endpoint is accessible for Saas platforms only
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Configuration.Notification.Add"
-      responses:
-        '201':
-          description: "OK"
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
   /configuration/hosts/templates:
     $ref: './v23.10/Configuration/HostTemplate/HostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
@@ -1752,6 +1726,152 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/dashboards:
+    get:
+      tags:
+        - Dashboard
+      summary: "List all dashboards"
+      description: |
+        Return all dashboard configurations.
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+
+        `Since Centreon web 23.10`
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Configuration.Dashboard'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Dashboard
+      summary: "Add a dashboard"
+      description: |
+        Add a new dashboard configuration.
+
+        Mandatory body properties are:
+
+        * name
+
+        `Since Centreon web 23.10`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration.Dashboard.Add'
+      responses:
+        "201":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Dashboard'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration/dashboards/{dashboard_id}:
+    get:
+      tags:
+        - Dashboard
+      summary: "Get a dashboard"
+      description: |
+        Return one dashboard configuration.
+
+        `Since Centreon web 23.10`
+      parameters:
+        - $ref: '#/components/parameters/DashboardId'
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Dashboard'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags:
+        - Dashboard
+      summary: "Delete a dashboard"
+      description: |
+        Delete one dashboard configuration.
+
+        `Since Centreon web 23.10`
+      parameters:
+        - $ref: '#/components/parameters/DashboardId'
+      responses:
+        '204':
+          description: "OK"
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Dashboard
+      summary: "Update a dashboard"
+      description: |
+        `Since Centreon web 23.10`
+
+        Update dashboard.
+      parameters:
+        - $ref: '#/components/parameters/DashboardId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration.Dashboard.Add'
+      responses:
+        '204':
+          description: "OK"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/access-groups:
@@ -5228,6 +5348,15 @@ components:
         type: integer
         format: int64
         example: 5
+    DashboardId:
+      in: path
+      name: dashboard_id
+      description: "ID of the dashboard"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 5
     ServiceGroupId:
       in: path
       name: servicegroup_id
@@ -6309,54 +6438,6 @@ components:
           type: string
         message:
           type: string
-    Configuration.Notification.Add:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Name of the notification
-          example: "Notification-A"
-        is_activated:
-          type: boolean
-        timeperiod:
-          type: integer
-          description: Timeperiod during which the notification is send
-        users:
-          description: Users to whom the notification is send
-          type: array
-          items:
-            type: integer
-        messages:
-          type: array
-          items:
-            $ref: "#/components/schemas/Configuration.Notification.Message"
-        resources:
-          type: array
-          description: |
-            Resource configurations that triggers a notification
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                description: Type of the resources that trigger a notification
-              events:
-                type: integer
-                description: Bitmask of the events that trigger a notification for the resource type
-              ids:
-                type: array
-                description: Resource that trigger a notification
-                items:
-                  type: integer
-              extra:
-                type: object
-                properties:
-                  event_services:
-                    description: |
-                      Bitmask of the service's events that trigger a notification
-                      for the services linked to the defined above resources
-                      (Only available for type hostgroup)
-                    type: integer
     Configuration.NewTimePeriod:
       type: object
       properties:
@@ -6610,6 +6691,248 @@ components:
         is_activated:
           type: boolean
           description: "Indicates whether this host severity is enabled or not"
+    Configuration.Host.Template:
+      allOf:
+        - $ref: '#/components/schemas/Configuration.Host.Template.Add'
+        - properties:
+            id:
+              type: integer
+              description: "Host template id"
+              example: 1
+            is_locked:
+              type: boolean
+              description: "Indicates whether the configuration is locked for editing or not"
+    Configuration.Host.Template.Add:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Host template name"
+          example: "generic-active-host"
+        alias:
+          type: string
+          description: "Host template alias"
+          example: "generic-active-host"
+        snmp_community:
+          type: string
+          nullable: true
+          description: "Community of the SNMP agent"
+        snmp_version:
+          type: string
+          nullable: true
+          enum: [1, 2c, 3]
+          description: |
+            Version of the SNMP agent.
+
+            The value can be `1`, `2c` or `3`
+          example: "2c"
+        timezone_id:
+          type: integer
+          description: "Timezone ID"
+          example: 1
+          nullable: true
+        severity_id:
+          type: integer
+          description: "Severity ID"
+          example: 1
+          nullable: true
+        check_command_id:
+          type: integer
+          description: "Check command ID"
+          example: 1
+          nullable: true
+        check_command_args:
+          type: string
+          description: "Check command arguments"
+          example: "!0!OK"
+          nullable: true
+        check_timeperiod_id:
+          type: integer
+          description: "Check command timeperiod ID"
+          example: 1
+          nullable: true
+        max_check_attemps:
+          type: integer
+          nullable: true
+          description: "Define the number of times that monitoring engine will retry the host check command if it returns any non-OK state"
+        check_interval:
+          type: integer
+          nullable: true
+          description: |
+            Define the number of 'time units' between regularly scheduled checks of the host.
+
+            With the default time unit of 60s, this number will mean multiples of 1 minute.
+        retry_check_interval:
+          type: integer
+          nullable: true
+          description: |
+            Define the number of "time units" to wait before scheduling a re-check for this host after a non-UP state was detected.
+
+            With the default time unit of 60s, this number will mean multiples of 1 minute.
+
+            Once the host has been retried max_check_attempts times without a change in its status,
+            it will revert to being scheduled at its "normal" check interval rate.
+        active_check_enabled:
+          type: integer
+          description: |
+            Indicates whether the active checks is enabled or not
+
+            * `0` - STATUS_DISABLED
+            * `1` - STATUS_ENABLE
+            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+        passive_check_enabled:
+          type: integer
+          description: |
+            Indicates whether the passive checks is enabled or not
+
+            * `0` - STATUS_DISABLED
+            * `1` - STATUS_ENABLE
+            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+        notification_enabled:
+          type: integer
+          description: |
+            Specify whether notifications for this host are enabled or not
+
+            * `0` - STATUS_DISABLED
+            * `1` - STATUS_ENABLE
+            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+        notification_options:
+          type: integer
+          description: |
+            Define the states of the host for which notifications should be sent out.
+
+            The value is the sum of all the values of the selected options.
+
+            * `1` - DOWN
+            * `2` - UNREACHABLE
+            * `4` - RECOVERY
+            * `8` - FLAPPING
+            * `16` - DOWNTIME_SCHEDULED
+
+            example: A value equal to 5 corresponding to the selected options DOWN and RECOVERY
+          example: 5
+        notification_interval:
+          type: integer
+          nullable: true
+          description: |
+            Define the number of "time units" to wait before re-notifying a contact that this host is still down or unreachable.
+
+            With the default time unit of 60s, this number will mean multiples of 1 minute.
+
+            A value of 0 disables re-notifications of contacts about problems for this host - only one problem notification will be sent out.
+        notification_timeperiod_id:
+          type: integer
+          description: "Notification timeperiod ID"
+          example: 1
+          nullable: true
+        add_inherited_contact_group:
+          type: boolean
+          description: |
+            Only used when notification inheritance for hosts and services is set to vertical inheritance only.
+
+            When enabled, the contact definition will not override the definitions on template levels, it will be appended instead.
+        add_inherited_contact:
+          type: boolean
+          description: |
+            Only used when notification inheritance for hosts and services is set to vertical inheritance only.
+
+            When enabled, the contactgroup definition will not override the definitions on template levels, it will be appended instead.
+        first_notification_delay:
+          type: integer
+          nullable: true
+          description: |
+            Define the number of "time units" to wait before sending out the first problem notification when this host enters a non-UP state.
+
+            With the default time unit of 60s, this number will mean multiples of 1 minute.
+        recovery_notification_delay:
+          type: integer
+          nullable: true
+          description: |
+            Define the number of "time units" to wait before sending out the recovery notification when this host enters an UP state.
+
+            With the default time unit of 60s, this number will mean multiples of 1 minute.
+        acknowledgement_timeout:
+          type: integer
+          nullable: true
+          description: "Specify a duration of acknowledgement for this host."
+        freshness_checked:
+          type: integer
+          description: |
+            Indicates whether freshness is checked or not
+
+            * `0` - STATUS_DISABLED
+            * `1` - STATUS_ENABLE
+            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+        freshness_threshold:
+          type: integer
+          nullable: true
+          description: "Specify the freshness threshold (in seconds) for this host."
+        flap_detection_enabled:
+          type: integer
+          description: |
+            Indicates whether the flap detection is enabled or not
+
+            * `0` - STATUS_DISABLED
+            * `1` - STATUS_ENABLE
+            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+        low_flap_threshold:
+          type: integer
+          nullable: true
+          description: "Specify the low state change threshold used in flap detection for this host"
+        high_flap_threshold:
+          type: integer
+          nullable: true
+          description: "Specify the high state change threshold used in flap detection for this host"
+        event_handler_enabled:
+          type: integer
+          description: |
+            Indicates whether the event handler is enabled or not
+
+            * `0` - STATUS_DISABLED
+            * `1` - STATUS_ENABLE
+            * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
+        event_handler_command_id:
+          type: integer
+          description: "Event handler command ID"
+          example: 1
+          nullable: true
+        event_handler_command_args:
+          type: string
+          description: "Event handler command arguments"
+          example: "!0!OK"
+          nullable: true
+        note_url:
+          type: string
+          nullable: true
+          maxLength: 65535
+          description: "Define an optional URL that can be used to provide more information about the host."
+        note:
+          type: string
+          nullable: true
+          maxLength: 65535
+          description: "Define an optional note."
+        action_url:
+          type: string
+          nullable: true
+          maxLength: 65535
+          description: "Define an optional URL that can be used to provide more actions to be performed on the host."
+        icon_id:
+          type: integer
+          nullable: true
+          description: "Define the image ID that should be associated with this host template"
+          example: 1
+        icon_alternative:
+          type: string
+          nullable: true
+          maxLength: 200
+          description: "Define an optional string that is used in the alternative description of the icon image"
+        comment:
+          type: string
+          nullable: true
+          description: "Host template comments"
+        is_activated:
+          type: boolean
+          description: "Indicates whether the host template is activated or not"
     Configuration.Host.Group:
       allOf:
         - $ref: '#/components/schemas/Configuration.Host.Group.Add'
@@ -6681,6 +7004,49 @@ components:
         is_activated:
           type: boolean
           description: "Indicates whether the host group is activated or not"
+    Configuration.Dashboard:
+      allOf:
+        - $ref: '#/components/schemas/Configuration.Dashboard.Add'
+        - properties:
+            id:
+              type: integer
+              description: "Dashboard ID"
+              example: 1
+            created_by:
+              type: object
+              nullable: true
+              properties:
+                id: { type: integer, description: "Creation contact ID" }
+                name: { type: string,  description: "Creation contact name" }
+            updated_by:
+              type: object
+              nullable: true
+              properties:
+                id: { type: integer, description: "Last update contact ID" }
+                name: { type: string,  description: "Last update contact name" }
+            created_at:
+              type: string
+              format: date-time
+              nullable: true
+              description: "Creation date (ISO8601)"
+            updated_at:
+              type: string
+              format: date-time
+              nullable: true
+              description: "Last update date (ISO8601)"
+    Configuration.Dashboard.Add:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          description: "Dashboard name"
+          example: "my dashboard"
+        description:
+          type: string
+          nullable: true
+          maxLength: 65535
+          description: "Description about this dashboard"
     Configuration.Service.Group:
       allOf:
         - $ref: '#/components/schemas/Configuration.Service.Group.Add'

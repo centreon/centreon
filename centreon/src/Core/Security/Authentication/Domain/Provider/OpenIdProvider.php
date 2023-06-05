@@ -422,7 +422,7 @@ class OpenIdProvider implements OpenIdProviderInterface
     {
         try {
             $tokenParts = explode(".", $token);
-            return json_decode(base64_decode($tokenParts[1]), true);
+            return json_decode($this->urlSafeTokenDecode($tokenParts[1]), true);
         } catch (Throwable $ex) {
             $this->error(
                 SSOAuthenticationException::unableToDecodeIdToken()->getMessage(),
@@ -963,5 +963,24 @@ class OpenIdProvider implements OpenIdProviderInterface
     public function getUserContactGroups(): array
     {
         return $this->groupsMapping->getUserContactGroups();
+    }
+
+    /**
+     * Decode using the RFC-4648 "URL and Filename safe" Base 64 Alphabet.
+     * @see https://www.ietf.org/rfc/rfc4648.txt
+     *
+     * @param string $token
+     * @return string
+     *
+     * @throws \ValueError
+     */
+    private function urlSafeTokenDecode(string $token): string
+    {
+        $decoded = base64_decode(str_replace(['-', '_'], ['+', '/'], $token), true);
+        if (false === $decoded) {
+            throw new \ValueError('The token cannot be base64 decoded');
+        }
+
+        return $decoded;
     }
 }

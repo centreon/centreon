@@ -24,14 +24,19 @@ declare(strict_types=1);
 namespace Core\Notification\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\NotificationGenericObject;
 use Core\Notification\Domain\Model\NotificationMessage;
+use Core\Notification\Domain\Model\ConfigurationTimePeriod;
+use Core\Notification\Domain\Model\ConfigurationUser;
+use Utility\SqlConcatenator;
 
 class DbReadNotificationRepository extends AbstractRepositoryRDB implements ReadNotificationRepositoryInterface
 {
@@ -47,7 +52,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
      */
     public function findById(int $notificationId): ?Notification
     {
-        $this->info('Get a notification configuration with id #' . $notificationId);
+        $this->info('Get a notification configuration with ID #' . $notificationId);
 
         $request = $this->translateDbName(
             'SELECT id, name, timeperiod_id, tp_name, is_activated
@@ -70,7 +75,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         return new Notification(
             $result['id'],
             $result['name'],
-            new NotificationGenericObject($result['timeperiod_id'], $result['tp_name']),
+            new ConfigurationTimePeriod($result['timeperiod_id'], $result['tp_name']),
             (bool) $result['is_activated'],
         );
     }
@@ -80,7 +85,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
      */
     public function findMessagesByNotificationId(int $notificationId): array
     {
-        $this->info('Get all notification messages for notification with id #' . $notificationId);
+        $this->info('Get all notification messages for notification with ID #' . $notificationId);
 
         $request = $this->translateDbName(
             'SELECT id, channel, subject, message
@@ -105,17 +110,11 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
-     * Find notification users for a notification.
-     *
-     * @param int $notificationId
-     *
-     * @throws \Throwable
-     *
-     * @return NotificationGenericObject[]
+     * @inheritDoc
      */
     public function findUsersByNotificationId(int $notificationId): array
     {
-        $this->info('Get all notification users for notification with id #' . $notificationId);
+        $this->info('Get all notification users for notification with ID #' . $notificationId);
 
         $request = $this->translateDbName(
             'SELECT notification_id, user_id, contact.contact_name
@@ -130,10 +129,32 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $users = [];
 
         foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
-            $users[] = new NotificationGenericObject($result['user_id'], $result['contact_name']);
+            $users[] = new ConfigurationUser($result['user_id'], $result['contact_name']);
         }
 
         return $users;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findUsersCountByNotificationIds(array $notificationIds): array
+    {
+        $concatenator = $this->getConcatenatorForFindUsersCountQuery()
+            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
+            ->appendWhere(
+                <<<'SQL'
+                        WHERE notification_id IN (:notification_ids)
+                    SQL
+            );
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $result = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+        return $result ?: [];
     }
 
     /**
@@ -141,7 +162,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
      */
     public function exists(int $notificationId): bool
     {
-        $this->info('Check existence of notification configuration with id #' . $notificationId);
+        $this->info('Check existence of notification configuration with ID #' . $notificationId);
 
         $request = $this->translateDbName('SELECT 1 FROM `:db`.notification WHERE id = :notificationId');
         $statement = $this->db->prepare($request);
@@ -164,5 +185,129 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function findAll(?RequestParametersInterface $requestParameters): array
+    {
+        $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
+        if ($sqlTranslator !== null) {
+            $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
+                RequestParameters::CONCORDANCE_MODE_STRICT
+            );
+        }
+        $query = $this->buildFindAllQuery($sqlTranslator);
+
+        $statement = $this->db->prepare($query);
+        $sqlTranslator?->bindSearchValues($statement);
+        $statement->execute();
+        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        $notifications = [];
+        foreach ($result as $notificationData) {
+            $notifications[] = new Notification(
+                $notificationData['id'],
+                $notificationData['name'],
+                new ConfigurationTimePeriod($notificationData['timeperiod_id'], $notificationData['tp_name']),
+                (bool) $notificationData['is_activated'],
+            );
+        }
+
+        return $notifications;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNotificationChannelsByNotificationIds(array $notificationIds): array
+    {
+        $concatenator = (new SqlConcatenator())
+            ->defineSelect(
+                <<<'SQL'
+                        SELECT notification_id, channel
+                    SQL
+            )->defineFrom(
+                <<<'SQL'
+                        FROM `:db`.notification_message
+                    SQL
+            )
+            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
+            ->defineWhere(
+                <<<'SQL'
+                        WHERE notification_id IN (:notification_ids)
+                    SQL
+            );
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        $notificationsChannels = [];
+        foreach ($result as $notificationData) {
+            $notificationsChannels[(int) $notificationData['notification_id']][] = NotificationChannel::from($notificationData['channel']);
+        }
+
+        return $notificationsChannels;
+    }
+
+    /**
+     * @return SqlConcatenator
+     */
+    private function getConcatenatorForFindUsersCountQuery(): SqlConcatenator
+    {
+        return (new SqlConcatenator())
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT notification_id, COUNT(user_id)
+                    SQL
+            )->defineFrom(
+                <<<'SQL'
+                    FROM
+                        `:db`.notification_user_relation rel
+                    SQL
+            )->defineGroupBy(
+                <<<'SQL'
+                        GROUP BY notification_id
+                    SQL
+            );
+    }
+
+    /**
+     * Build Query for findAll with research parameters.
+     *
+     * @param SqlRequestParametersTranslator|null $sqlTranslator
+     *
+     * @return string
+     */
+    private function buildFindAllQuery(?SqlRequestParametersTranslator $sqlTranslator): string
+    {
+
+        $query = $this->translateDbName(
+            <<<'SQL'
+                    SELECT id, name, timeperiod_id, tp_name, is_activated
+                    FROM `:db`.notification
+                    INNER JOIN timeperiod ON timeperiod_id = tp_id
+                SQL
+        );
+
+        if ($sqlTranslator === null) {
+            return $query;
+        }
+
+        $sqlTranslator->setConcordanceArray([
+            'name' => 'notification.name',
+        ]);
+
+        $searchQuery = $sqlTranslator->translateSearchParameterToSql();
+        $query .= ! is_null($searchQuery) ? $searchQuery : '';
+
+        $paginationQuery = $sqlTranslator->translatePaginationToSql();
+        $query .= $paginationQuery;
+
+        return $query;
     }
 }
