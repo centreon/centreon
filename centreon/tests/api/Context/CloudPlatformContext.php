@@ -69,7 +69,11 @@ class CloudPlatformContext extends ApiContext
                 }
             }
             \$a = array_merge(\$a, {$envvarsExported});
-            file_put_contents(\$php, "<?php return ".var_export(\$a,true).";");
+            @unlink('{$centreonDir}/.env');
+            @unlink('{$centreonDir}/.env.local.php');
+            foreach (\$a as \$envVarKey => \$envVarValue) {
+                file_put_contents('/usr/share/centreon/.env', \$envVarKey . '=' . \$envVarValue . "\\n", FILE_APPEND);
+            }
             PHP;
 
         // We MUST remove the linefeed (\n) to be a valid oneline command.
@@ -80,6 +84,11 @@ class CloudPlatformContext extends ApiContext
             'php -r ' . escapeshellarg($phpOneline) . ' 2>&1',
             $this->webService
         );
+
+        var_dump($this->container->execute(
+            'cat /usr/share/centreon/.env',
+            $this->webService
+        ));
 
         $this->container->execute(
             'su - $('
