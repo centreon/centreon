@@ -170,7 +170,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the save button correctly responds to field changes, becoming enabled when a modification occurs and the form is error-free', () => {
+  it('Confirms that the Save button responds to field changes correctly, becoming enabled when a modification occurs and the form is error-free', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByLabelText(labelSave).should('be.disabled');
@@ -180,7 +180,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Displays host groups resources and events with the edited notification values', () => {
+  it('Displays host group resources and events with the edited notification values', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByLabelText(labelSearchHostGroups).should('be.visible');
@@ -232,7 +232,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Ensures that when the "Host Groups" field is empty, all events checkboxes are unchecked and the "Include Services" field is not visible.', () => {
+  it('Ensures that when the "Host Groups" field is empty, all event checkboxes are unchecked and the "Include Services" field is not visible.', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByTestId('include Services').should('be.visible');
@@ -273,7 +273,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Ensures that when the service groups field is empty, all associated events are disabled and unchecked', () => {
+  it('Ensures that when the Service Groups field is empty, all associated events are disabled and unchecked', () => {
     cy.waitForRequest('@listingRequest');
 
     for (let i = 0; i < 3; i += 1) {
@@ -290,7 +290,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Validates that when both resource fields are empty, the user interface responds by displaying an error message and disabling the save button', () => {
+  it('Validates that when both resource fields are empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@listingRequest');
 
     for (let i = 0; i < 7; i += 1) {
@@ -303,7 +303,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Displays users field with Edited notification users', () => {
+  it('Displays the Users field with edited notification users', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByText('centreon-gorgone').should('be.visible');
@@ -312,7 +312,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Validates that when users field is empty, the user interface responds by displaying an error message and disabling the save button', () => {
+  it('Validates that when the Users field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findAllByTestId('CancelIcon').eq(7).click();
@@ -337,7 +337,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the three icons for notification channels are appropriately presented, with the email icon initially chosen and the other icons disabled', () => {
+  it('Confirms that the three icons for notification channels are appropriately presented, with the email icon initially selected and the other icons disabled', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByTestId('Email').within(() => {
@@ -357,7 +357,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the subject field is properly rendered with the edited notification subject', () => {
+  it('Confirms that the Subject field is properly rendered with the edited notification subject'', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByLabelText(labelSubject).should('have.value', 'Notification');
@@ -365,7 +365,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the message field is properly rendered with the edited notification message', () => {
+  it('Confirms that the Message field is properly rendered with the edited notification message', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByTestId('EmailBody').contains('Bonjour');
@@ -374,7 +374,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Validates that when the message field is empty, the user interface responds by displaying an error message and disabling the save button', () => {
+  it('Validates that when the Message field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByTestId('EmailBody').clear();
@@ -403,7 +403,7 @@ describe('Edit Panel : Confirm Dialog', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the confirm button triggers the sending of a PUT request', () => {
+  it('Confirms that the Confirm button triggers the sending of a PUT request, () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByLabelText(labelActiveOrInactive).click();

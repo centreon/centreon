@@ -23,34 +23,33 @@ export const labelSelectUsers = 'Select users';
 export const labelSelectTimePeriodAndChannels =
   'Select time period / channels of notifications';
 export const labelDuplicateNotification =
-  'How many times would you like to duplicate the selected notification?';
+  'How many times would you like to duplicate selected notification?';
 export const labelDeleteNotification = 'Delete notification?';
 export const labelDeleteNotificationWarning = 'This action cannot be undone';
 
-export const labelReduceInformationPanel = 'Reduce information panel';
+export const labelReduceInformationPanel = 'Collapse information panel';
 export const labelExpandInformationPanel = 'Expand information panel';
 
 export const labelTypeYourTextHere = 'Type your text here';
-export const labelPreviewZone = 'Preview Zone';
 
 export const labelActiveOrInactive = 'Active / Inactive';
 export const labelChangeName = 'Change the name';
 export const labelNotificationName = 'Notification name';
 export const labelRequired = 'Required';
-export const labelPreviewEmail = 'Preview Email';
 
 export const labelSuccessfulEditNotification =
   'The notification was successfully updated';
 export const labelSuccessfulNotificationAdded =
   'The notification was successfully added';
 
-export const labelDoYouWantToConfirmAction = 'Do you want to confirm the action ?';
+export const labelDoYouWantToConfirmAction =
+  'Do you want to confirm the action ?';
 export const labelConfirmAddNotification = 'Confirm notification creation';
 export const labelConfirmEditNotification = 'Confirm notification update';
 
 export const labelChooseAtLeastOneResource = 'Choose at least 1 resource';
 export const labelChooseAtleastOneServiceGroup =
-  'Choose at least 1 Service Group';
+  'Choose at least 1 service group';
 export const labelChooseAtleastOneUser = 'Choose at least 1 user';
 export const labelMessageFieldShouldNotBeEmpty =
   'The message field should not be empty!';

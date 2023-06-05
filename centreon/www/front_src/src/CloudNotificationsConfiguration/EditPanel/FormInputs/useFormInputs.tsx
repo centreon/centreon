@@ -292,7 +292,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
             },
             fieldName: 'messages.message',
             group: basicFormGroups[2].name,
-              label: 'Message',
+            label: 'Message',
             type: InputType.Custom
           }
         ],

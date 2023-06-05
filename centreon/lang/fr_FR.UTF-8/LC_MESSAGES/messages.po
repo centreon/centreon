@@ -15581,7 +15581,7 @@ msgstr "Sélectionner les utilisateurs"
 msgid "Select time period / channels of notifications"
 msgstr "Sélectionner la période / les canaux de notifications"
 
-msgid "How many times would you like to duplicate the selected notification?"
+msgid "How many times would you like to duplicate selected notification?"
 msgstr "Combien de fois souhaitez-vous dupliquer la notification sélectionnée ?"
 
 msgid "Delete notification?"
@@ -15590,7 +15590,7 @@ msgstr "Supprimer la notification?"
 msgid "This action cannot be undone"
 msgstr "Cette action est irréversible"
 
-msgid "Reduce information panel"
+msgid "Collapse information panel"
 msgstr "Réduire le panneau d'informations"
 
 msgid "Expand information panel"
@@ -15626,7 +15626,7 @@ msgstr "Confirmer la mise à jour de la notification"
 msgid "Choose at least 1 resource"
 msgstr "Veuillez sélectionner au moins 1 ressource"
 
-msgid "Choose at least 1 Service Group"
+msgid "Choose at least 1 service group"
 msgstr "Veuillez sélectionner au moins 1 groupe de services"
 
 msgid "Choose at least 1 user"
