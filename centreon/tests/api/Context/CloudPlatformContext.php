@@ -35,7 +35,7 @@ class CloudPlatformContext extends ApiContext
     public function aRunningCloudPlatformInstanceOfCentreonApi(): void
     {
         $this->aRunningInstanceOfCentreonApi();
-        $this->setEnvironmentVariableInsideTheContainer(['IS_CLOUD_PLATFORM' => 1]);
+        $this->setEnvironmentVariableInsideTheContainer(['IS_CLOUD_PLATFORM' => true]);
     }
 
     /**
@@ -52,28 +52,23 @@ class CloudPlatformContext extends ApiContext
     protected function setEnvironmentVariableInsideTheContainer(array $envars): void
     {
         $centreonDir = '/usr/share/centreon';
-        $envvarsExported = var_export($envars, true);
+        $envVarsExported = var_export($envars, true);
 
         $phpScript = <<<PHP
-            \$php = '{$centreonDir}/.env.local.php';
-            \$env = '{$centreonDir}/.env';
-            if (is_file(\$php)){
-                \$a = require \$php;
-            }else{
-                is_file(\$env) ?: throw new Exception("\$env Not Found.");
-                \$a = [];
-                foreach (file(\$env) as \$l){
-                    if (preg_match('!^([^#]+?)=(.+)$!', trim(\$l), \$m)){
-                        \$a[\$m[1]] = \$m[2];
-                    }
-                }
+            require_once '{$centreonDir}/vendor/autoload.php';
+            require_once '{$centreonDir}/config/centreon.config.php';
+
+            use Symfony\Component\Dotenv\Dotenv;
+
+            \$env = new \Utility\EnvironmentFileManager(_CENTREON_PATH_);
+            \$env->load();
+            foreach({$envVarsExported} as \$envVarKey => \$envVarValue) {
+                \$env->add(\$envVarKey, \$envVarValue);
             }
-            \$a = array_merge(\$a, {$envvarsExported});
-            @unlink('{$centreonDir}/.env');
-            @unlink('{$centreonDir}/.env.local.php');
-            foreach (\$a as \$envVarKey => \$envVarValue) {
-                file_put_contents('/usr/share/centreon/.env', \$envVarKey . '=' . \$envVarValue . "\\n", FILE_APPEND);
-            }
+            \$env->add('IS_CLOUD_PLATFORM', true);
+            \$env->save();
+
+            (new Dotenv())->bootEnv('{$centreonDir}/.env');
             PHP;
 
         // We MUST remove the linefeed (\n) to be a valid oneline command.
