@@ -97,6 +97,11 @@ jobs:
           distribution: 'zulu'
           java-version: 8
 
+      -name: DEBUG location
+        run: |
+          ls -la
+          ls -la /tmp
+
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
