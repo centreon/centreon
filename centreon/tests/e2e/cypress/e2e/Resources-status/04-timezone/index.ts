@@ -5,15 +5,27 @@ import {
   actionBackgroundColors,
   insertDtResources,
   secondServiceInDtName,
-  serviceInDtName
+  serviceInDtName,
+  tearDownResource
 } from '../common';
 
 const chosenTZ = 'Africa/Casablanca';
 
-before(() => {
-  cy.startWebContainer({
-    version: 'develop'
+const addSecondsToStringTime = ({ time, secondsToAdd }): string => {
+  const date = new Date(`2000/01/01 ${time}`);
+
+  date.setSeconds(date.getSeconds() + secondsToAdd);
+
+  const updatedTimeString = date.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit'
   });
+
+  return updatedTimeString;
+};
+
+before(() => {
+  cy.startWebContainer();
 });
 
 beforeEach(() => {
@@ -94,17 +106,18 @@ When('user saves the form', () => {
 });
 
 Then('timezone information are updated on the banner', () => {
-  cy.reload().then(() => {
-    cy.get('header div[data-cy="clock"]').then(($time) => {
-      const timeofTZ = new Date().toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        timeZone: chosenTZ
+  cy.reload()
+    .wait('@getTimeZone')
+    .then(() => {
+      cy.getTimeFromHeader().then((localTime: string) => {
+        const timeofTZ = new Date().toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          timeZone: chosenTZ
+        });
+        expect(localTime).to.equal(timeofTZ);
       });
-      const localTime = $time.children()[1].textContent;
-      expect(localTime).to.equal(timeofTZ);
     });
-  });
 });
 
 Then("new timezone information is displayed in user's profile menu", () => {
@@ -114,6 +127,8 @@ Then("new timezone information is displayed in user's profile menu", () => {
     .should('contain.text', chosenTZ);
 
   cy.logout();
+
+  tearDownResource();
 });
 
 Given('a user with a custom timezone set in his profile', () => {
@@ -130,6 +145,15 @@ Given('a user with a custom timezone set in his profile', () => {
 });
 
 When('the user creates a downtime on a resource', () => {
+  cy.navigateTo({
+    page: 'Resources Status',
+    rootItemNumber: 1
+  });
+
+  cy.getByLabel({ label: 'State filter' }).click();
+
+  cy.get('[data-value="all"]').click();
+
   cy.contains(serviceInDtName)
     .parent()
     .parent()
@@ -161,3 +185,26 @@ When('the user creates a downtime on a resource', () => {
     }
   );
 });
+
+Then(
+  'date and time fields should be based on the custom timezone of the user',
+  () => {
+    cy.contains(serviceInDtName).parent().click();
+
+    cy.get('p[data-testid="To_date"]').then(($toDate) => {
+      const toDate = $toDate[0].textContent;
+
+      const timeRegex = /(\d{1,2}:\d{2} [AP]M)$/;
+
+      const extractedTime = toDate?.match(timeRegex);
+
+      const Totime = extractedTime ? extractedTime[0] : '';
+
+      cy.getTimeFromHeader().then((localTime: string) => {
+        expect(
+          addSecondsToStringTime({ secondsToAdd: 3600, time: localTime })
+        ).to.equal(Totime);
+      });
+    });
+  }
+);
