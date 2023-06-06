@@ -7,9 +7,9 @@ const EmptyNotificationsIcon = (): JSX.Element => {
     <Image
       alt="No notification foud!"
       fallback={<LoadingSkeleton />}
-      height={180}
+      height={279}
       imagePath={Icon}
-      width={230}
+      width={328}
     />
   );
 };

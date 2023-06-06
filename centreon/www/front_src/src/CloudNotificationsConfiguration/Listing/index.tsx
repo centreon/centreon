@@ -14,8 +14,10 @@ import {
   panelWidthStorageAtom,
   selectedRowsAtom
 } from '../atom';
+import { EditedNotificationIdAtom, panelModeAtom } from '../EditPanel/atom';
+import { PanelMode } from '../EditPanel/models';
 
-import Actions from './HeaderActions';
+import Actions from './Actions/HeaderActions';
 import useListingColumns from './columns';
 import useLoadingNotifications from './useLoadNotifications';
 
@@ -37,6 +39,8 @@ const NotificationsListing = (): JSX.Element => {
   const [isPannelOpen, setIsPannelOpen] = useAtom(isPanelOpenAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const setLimit = useSetAtom(limitAtom);
+  const setEditedNotificationId = useSetAtom(EditedNotificationIdAtom);
+  const setPanelMode = useSetAtom(panelModeAtom);
 
   const { loading, data: listingData } = useLoadingNotifications();
 
@@ -49,7 +53,9 @@ const NotificationsListing = (): JSX.Element => {
     setPage(updatedPage + 1);
   };
 
-  const onRowClick = (): void => {
+  const onRowClick = (row): void => {
+    setEditedNotificationId(row.id);
+    setPanelMode(PanelMode.Edit);
     setIsPannelOpen(true);
   };
 

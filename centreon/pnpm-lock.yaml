@@ -153,7 +153,7 @@ importers:
       '@mui/material': 5.13.3_dt65rpbqxfgmlvwbpcy2icm2oq
       '@mui/styles': 5.13.2_i2bxsyfskhzbpjanbovidbfj7u
       '@mui/system': 5.13.2_mxqk7walufaayqqt3sn3kiepuu
-      '@mui/x-date-pickers': 6.6.0_qs6mtdujq4zg54ogz5p6yti6fu
+      '@mui/x-date-pickers': 6.6.0_7f76ozrep5mdszv3ljygnmclwi
       '@simonsmith/cypress-image-snapshot': 6.0.1_6s76g3xfxgufkwjv6vmaziqouu
       '@tanstack/react-query': 4.29.12_biqbaboplfbrettd7655fr4n2y
       '@tanstack/react-query-devtools': 4.29.12_f6xbmyfm3jdupkpideh3h2ypeu
@@ -171,7 +171,7 @@ importers:
       d3-interpolate: 3.0.1
       d3-scale: 4.0.2
       d3-time: 3.1.0
-      dayjs: 1.11.7
+      dayjs: 1.11.8
       dom-serializer: 2.0.0
       dom-to-image: 2.6.0
       dompurify: 2.4.5
@@ -4668,7 +4668,7 @@ packages:
       react: 18.2.0
       react-is: 18.2.0
 
-  /@mui/x-date-pickers/6.6.0_qs6mtdujq4zg54ogz5p6yti6fu:
+  /@mui/x-date-pickers/6.6.0_7f76ozrep5mdszv3ljygnmclwi:
     resolution: {integrity: sha512-cF7Ijv0IgYi/tCQa2qdoCEHF5gtj/nn/gGdr3oOw/VI6QcKQkbLwA0baPfWEMS2weT9HR6JFerMQ5i57dWv+2A==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -4714,7 +4714,7 @@ packages:
       '@mui/utils': 5.13.1_react@18.2.0
       '@types/react-transition-group': 4.4.6
       clsx: 1.2.1
-      dayjs: 1.11.7
+      dayjs: 1.11.8
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -9986,7 +9986,7 @@ packages:
       cli-table3: 0.6.3
       commander: 6.2.1
       common-tags: 1.8.2
-      dayjs: 1.11.7
+      dayjs: 1.11.8
       debug: 4.3.4_supports-color@8.1.1
       enquirer: 2.3.6
       eventemitter2: 6.4.7
@@ -10188,8 +10188,8 @@ packages:
     resolution: {integrity: sha512-2P0p0pFGzHS5EMnhdxQi7aJN+iMheud0UhG4dlE1DLAlvL8JHjJJTX/CSm4JXwV0Ka5nGk3zC5mcb5bUQUxxMA==}
     dev: true
 
-  /dayjs/1.11.7:
-    resolution: {integrity: sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==}
+  /dayjs/1.11.8:
+    resolution: {integrity: sha512-LcgxzFoWMEPO7ggRv1Y2N31hUf2R0Vj7fuy/m+Bg1K8rr+KAs1AEy4y9jd5DXe8pbHgX+srkHNS7TH6Q6ZhYeQ==}
 
   /debounce/1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}

@@ -54,6 +54,7 @@ const useLoadingNotifications = (): LoadNotifications => {
     ],
     isPaginated: true,
     queryOptions: {
+      refetchOnMount: false,
       suspense: false
     }
   });
