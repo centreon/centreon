@@ -1,19 +1,19 @@
 [
     {
-        "name": "aba",
-        "description":"ubu" 
+        "name": "dashboard-name-0",
+        "description":"dashboard-description-0" 
     },
     {
-        "name": "awa",
-        "description":"uwu" 
+        "name": "dashboard-name-1",
+        "description":"dashboard-description-1" 
     },
     {
-        "name": "asa",
-        "description":"usu" 
+        "name": "dashboard-name-2",
+        "description":"dashboard-description-2" 
     },
     {
-        "name": "aja",
-        "description":"uju" 
+        "name": "dashboard-name-3",
+        "description":"dashboard-description-3" 
     },
     {
         "name": "dashboard-to-locate",
