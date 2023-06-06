@@ -38,7 +38,7 @@ const CheckboxGroup = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
-  const row = equals(direction, 'vertical');
+  const row = !equals(direction, 'vertical');
 
   return (
     <FormGroup
