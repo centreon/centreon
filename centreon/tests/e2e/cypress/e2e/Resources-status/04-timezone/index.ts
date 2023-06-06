@@ -16,19 +16,6 @@ import {
 
 const chosenTZ = 'Africa/Casablanca';
 
-const addSecondsToStringTime = ({ time, secondsToAdd }): string => {
-  const date = new Date(`2000/01/01 ${time}`);
-
-  date.setSeconds(date.getSeconds() + secondsToAdd);
-
-  const updatedTimeString = date.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit'
-  });
-
-  return updatedTimeString;
-};
-
 before(() => {
   cy.startWebContainer();
 });
@@ -305,7 +292,6 @@ Then(
       .find('td')
       .eq(1)
       .then(($date) => {
-        console.log($date[0].textContent);
         const toDate = $date[0].textContent;
 
         const timeRegex = /(\d{1,2}:\d{2} [AP]M)$/;
