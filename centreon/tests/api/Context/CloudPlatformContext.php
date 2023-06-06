@@ -78,11 +78,18 @@ class CloudPlatformContext extends FeatureFlagContext
             $this->webService
         );
 
+        $result = $this->container->execute(
+            'ps aux | grep -E "[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx" | grep -v root | head -1 | cut -d\  -f1',
+            $this->webService
+        );
+        if (!isset($result['output'])) {
+            throw new \Exception('Cannot get apache user');
+        }
+        $apacheUser = $result['output'];
+
         // Reload symfony cache to use updated environment variables
         $this->container->execute(
-            'su - $('
-              . 'ps aux | grep -E "[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx" | grep -v root | head -1 | cut -d\  -f1'
-              . ') -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"',
+            'su ' . $apacheUser . ' -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"',
             $this->webService
         );
     }
