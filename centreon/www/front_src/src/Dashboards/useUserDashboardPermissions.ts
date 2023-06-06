@@ -6,27 +6,27 @@ import { userAtom } from '@centreon/ui-context';
 import { DashboardRole, Dashboard } from './models';
 
 interface useUserDashboardPermissionsState {
-  getHasEditPermission: (dashboard: Dashboard) => boolean;
-  isEitherCreatorOrAdministrator: boolean;
+  canCreateOrManagerDashboards: boolean;
+  hasEditPermission: (dashboard: Dashboard) => boolean;
 }
 
 const useUserDashboardPermissions = (): useUserDashboardPermissionsState => {
-  const { dashboard: globalRoles } = useAtomValue(userAtom);
+  const { dashboard: globalPermissions } = useAtomValue(userAtom);
 
-  const isEitherCreatorOrAdministrator =
-    globalRoles.createDashboards || globalRoles.manageAllDashboards;
+  const canCreateOrManagerDashboards =
+    globalPermissions.createDashboards || globalPermissions.manageAllDashboards;
 
-  const getHasEditPermission = (dashboard: Dashboard): boolean => {
+  const hasEditPermission = (dashboard: Dashboard): boolean => {
     return (
-      globalRoles.manageAllDashboards ||
-      (isEitherCreatorOrAdministrator &&
+      globalPermissions.manageAllDashboards ||
+      (globalPermissions.createDashboards &&
         equals(dashboard.ownRole, DashboardRole.editor))
     );
   };
 
   return {
-    getHasEditPermission,
-    isEitherCreatorOrAdministrator
+    canCreateOrManagerDashboards,
+    hasEditPermission
   };
 };
 

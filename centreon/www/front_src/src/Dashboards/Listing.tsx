@@ -36,7 +36,7 @@ const emptyListStateLabels = {
 const Listing = (): ReactElement => {
   const { t } = useTranslation();
   const { dashboards, elementRef, isLoading } = useDashboards();
-  const { getHasEditPermission, isEitherCreatorOrAdministrator } =
+  const { hasEditPermission, canCreateOrManagerDashboards } =
     useUserDashboardPermissions();
 
   const [, setDeleteDialogState] = useAtom(deleteDialogStateAtom);
@@ -68,7 +68,7 @@ const Listing = (): ReactElement => {
   return (
     <TiledListingList>
       <TiledListingActions>
-        {hasDashboards && isEitherCreatorOrAdministrator && (
+        {hasDashboards && canCreateOrManagerDashboards && (
           <Button
             aria-label="create"
             data-testid="create-dashboard"
@@ -85,7 +85,7 @@ const Listing = (): ReactElement => {
           {!hasDashboards ? (
             <DataTable.EmptyState
               aria-label="create"
-              canCreate={isEitherCreatorOrAdministrator}
+              canCreate={canCreateOrManagerDashboards}
               data-testid="create-dashboard"
               labels={emptyListStateLabels}
               onCreate={createDashboard}
@@ -98,7 +98,7 @@ const Listing = (): ReactElement => {
                 <DataTable.Item
                   hasCardAction
                   description={dashboard.description ?? undefined}
-                  hasActions={getHasEditPermission(dashboard)}
+                  hasActions={hasEditPermission(dashboard)}
                   key={dashboard.id}
                   ref={isLastElement ? elementRef : undefined}
                   title={dashboard.name}

@@ -12,10 +12,10 @@ import HeaderActions from './HeaderActions';
 const Dashboard = (): JSX.Element => {
   const { dashboard, panels } = useDashboardDetails();
 
-  const { getHasEditPermission } = useUserDashboardPermissions();
+  const { hasEditPermission } = useUserDashboardPermissions();
 
-  const hasEditPermission = useMemo(
-    () => dashboard && getHasEditPermission(dashboard),
+  const canEdit = useMemo(
+    () => dashboard && hasEditPermission(dashboard),
     [dashboard]
   );
 
@@ -23,7 +23,7 @@ const Dashboard = (): JSX.Element => {
     <TiledListingPage>
       <Header
         nav={
-          hasEditPermission && (
+          canEdit && (
             <HeaderActions
               id={dashboard?.id}
               name={dashboard?.name}
