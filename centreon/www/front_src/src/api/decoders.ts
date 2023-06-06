@@ -1,13 +1,38 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import { ThemeMode, ListingVariant } from '@centreon/ui-context';
+import {
+  ThemeMode,
+  ListingVariant,
+  DashboardGlobalRole,
+  DashboardRolesAndPermissions
+} from '@centreon/ui-context';
 import type { User } from '@centreon/ui-context';
 
 import { PlatformInstallationStatus } from './models';
 
+const dashboardDecoder = JsonDecoder.object<DashboardRolesAndPermissions>(
+  {
+    createDashboards: JsonDecoder.boolean,
+    globalUserRole: JsonDecoder.enumeration<DashboardGlobalRole>(
+      DashboardGlobalRole,
+      'DashboardGlobalRole'
+    ),
+    manageAllDashboards: JsonDecoder.boolean,
+    viewDashboards: JsonDecoder.boolean
+  },
+  'Dashboard roles and permissions',
+  {
+    createDashboards: 'create_role',
+    globalUserRole: 'global_user_role',
+    manageAllDashboards: 'administrate_role',
+    viewDashboards: 'view_role'
+  }
+);
+
 export const userDecoder = JsonDecoder.object<User>(
   {
     alias: JsonDecoder.string,
+    dashboard: dashboardDecoder,
     default_page: JsonDecoder.optional(
       JsonDecoder.nullable(JsonDecoder.string)
     ),
