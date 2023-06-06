@@ -15,4 +15,4 @@ const ListingSkeleton = (): ReactElement => {
   );
 };
 
-export default ListingSkeleton;
+export { ListingSkeleton };

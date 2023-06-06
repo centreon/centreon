@@ -8,12 +8,7 @@ import { generatePath, useNavigate } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
 import { CircularProgress } from '@mui/material';
 
-import {
-  TiledListingActions,
-  TiledListingContent,
-  TiledListingList
-} from '@centreon/ui';
-import { Button, DataTable } from '@centreon/ui/components';
+import { Button, DataTable, PageLayout } from '@centreon/ui/components';
 
 import routeMap from '../reactRoutes/routeMap';
 
@@ -63,8 +58,8 @@ const Listing = (): ReactElement => {
     navigate(generatePath(routeMap.dashboard, { dashboardId: dashboard.id }));
 
   return (
-    <TiledListingList>
-      <TiledListingActions>
+    <>
+      <PageLayout.Actions>
         {hasDashboards && (
           <Button
             aria-label="create"
@@ -76,45 +71,44 @@ const Listing = (): ReactElement => {
             {t(labelCreateADashboard)}
           </Button>
         )}
-      </TiledListingActions>
-      <TiledListingContent>
-        <DataTable isEmpty={!hasDashboards}>
-          {!hasDashboards ? (
-            <DataTable.EmptyState
-              aria-label="create"
-              data-testid="create-dashboard"
-              labels={emptyListStateLabels}
-              onCreate={createDashboard}
-            />
-          ) : (
-            dashboards.map((dashboard, index) => {
-              const isLastElement = equals(index, dec(dashboards.length));
+      </PageLayout.Actions>
 
-              return (
-                <DataTable.Item
-                  hasActions
-                  hasCardAction
-                  description={dashboard.description ?? undefined}
-                  key={dashboard.id}
-                  ref={isLastElement ? elementRef : undefined}
-                  title={dashboard.name}
-                  onClick={navigateToDashboard(dashboard)}
-                  onDelete={() =>
-                    setDeleteDialogState({ item: dashboard, open: true })
-                  }
-                  onEdit={editDashboard(dashboard)}
-                />
-              );
-            })
-          )}
-        </DataTable>
-        {isLoading && (
-          <div>
-            <CircularProgress />
-          </div>
+      <DataTable isEmpty={!hasDashboards}>
+        {!hasDashboards ? (
+          <DataTable.EmptyState
+            aria-label="create"
+            data-testid="create-dashboard"
+            labels={emptyListStateLabels}
+            onCreate={createDashboard}
+          />
+        ) : (
+          dashboards.map((dashboard, index) => {
+            const isLastElement = equals(index, dec(dashboards.length));
+
+            return (
+              <DataTable.Item
+                hasActions
+                hasCardAction
+                description={dashboard.description ?? undefined}
+                key={dashboard.id}
+                ref={isLastElement ? elementRef : undefined}
+                title={dashboard.name}
+                onClick={navigateToDashboard(dashboard)}
+                onDelete={() =>
+                  setDeleteDialogState({ item: dashboard, open: true })
+                }
+                onEdit={editDashboard(dashboard)}
+              />
+            );
+          })
         )}
-      </TiledListingContent>
-    </TiledListingList>
+      </DataTable>
+      {isLoading && (
+        <div>
+          <CircularProgress />
+        </div>
+      )}
+    </>
   );
 };
 
