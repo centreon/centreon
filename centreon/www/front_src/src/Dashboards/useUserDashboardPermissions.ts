@@ -3,7 +3,7 @@ import { equals } from 'ramda';
 
 import { userAtom } from '@centreon/ui-context';
 
-import { DahboardRole, Dashboard } from './models';
+import { DashboardRole, Dashboard } from './models';
 
 interface useUserDashboardPermissionsState {
   getHasEditPermission: (dashboard: Dashboard) => boolean;
@@ -18,8 +18,9 @@ const useUserDashboardPermissions = (): useUserDashboardPermissionsState => {
 
   const getHasEditPermission = (dashboard: Dashboard): boolean => {
     return (
-      isEitherCreatorOrAdministrator &&
-      equals(dashboard.ownRole, DahboardRole.editor)
+      globalRoles.administrateRole ||
+      (isEitherCreatorOrAdministrator &&
+        equals(dashboard.ownRole, DashboardRole.editor))
     );
   };
 

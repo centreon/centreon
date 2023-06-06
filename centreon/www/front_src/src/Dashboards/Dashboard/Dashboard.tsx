@@ -14,8 +14,6 @@ const Dashboard = (): JSX.Element => {
 
   const { getHasEditPermission } = useUserDashboardPermissions();
 
-  console.log(dashboard);
-
   const hasEditPermission = useMemo(
     () => dashboard && getHasEditPermission(dashboard),
     [dashboard]

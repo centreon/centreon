@@ -5,7 +5,7 @@ export interface NamedEntity {
   name: string;
 }
 
-export enum DahboardRole {
+export enum DashboardRole {
   editor = 'editor',
   viewer = 'viewer'
 }
@@ -14,7 +14,7 @@ export interface Dashboard extends NamedEntity {
   createdAt: string;
   createdBy: NamedEntity;
   description: string | null;
-  ownRole: DahboardRole;
+  ownRole: DashboardRole;
   updatedAt: string;
   updatedBy: NamedEntity;
 }

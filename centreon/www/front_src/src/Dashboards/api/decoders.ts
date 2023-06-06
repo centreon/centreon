@@ -2,7 +2,7 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
-import { DahboardRole, Dashboard, NamedEntity } from '../models';
+import { DashboardRole, Dashboard, NamedEntity } from '../models';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
@@ -14,7 +14,10 @@ export const dashboardDecoderObject = {
   createdAt: JsonDecoder.string,
   createdBy: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Created By'),
   description: JsonDecoder.nullable(JsonDecoder.string),
-  ownRole: JsonDecoder.enumeration<DahboardRole>(DahboardRole, 'DahboardRole'),
+  ownRole: JsonDecoder.enumeration<DashboardRole>(
+    DashboardRole,
+    'DashboardRole'
+  ),
   updatedAt: JsonDecoder.string,
   updatedBy: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
 };
