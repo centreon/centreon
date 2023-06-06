@@ -58,45 +58,45 @@ jobs:
             echo "display_summary=true" >> $GITHUB_OUTPUT
           fi
 
-  pipeline-scan:
-    needs: [build]
-    name: Run a pipeline scan
-    runs-on: [self-hosted, veracode]
-
-    steps:
-      - name: Get build binary
-        uses: actions/cache/restore@v3
-        with:
-          path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
-          key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
-
-      - name: Get baseline files
-        run: |
-          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
-          aws s3 ls "$BUCKET/filtered_results.json" || RESULT=$( echo $? )
-          if [[ $RESULT -eq 0 ]]; then
-            aws s3 cp "$BUCKET/filtered_results.json" "/tmp/filtered_results.json"
-            echo "baseline_file=/tmp/filtered_results.json" >> $GITHUB_ENV
-            echo "create_baseline_from=filtered" >> $GITHUB_ENV
-          else
-            echo "[DEBUG] - Filtered baseline file not found in the bucket"
-            aws s3 ls "$BUCKET/results.json" || RESULT=$( echo $? )
-            if [[ $RESULT -eq 0 ]]; then
-              aws s3 cp "$BUCKET/results.json" "/tmp/results.json"
-              echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
-              echo "create_baseline_from=standard" >> $GITHUB_ENV
-            else
-              echo "[DEBUG] - Standard baseline file not found in the bucket"
-              echo "baseline_file=" >> $GITHUB_ENV
-              echo "create_baseline_from=" >> $GITHUB_ENV
-            fi
-          fi
-
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: 8
-
+#  pipeline-scan:
+#    needs: [build]
+#    name: Run a pipeline scan
+#    runs-on: [self-hosted, veracode]
+#
+#    steps:
+#      - name: Get build binary
+#        uses: actions/cache/restore@v3
+#        with:
+#          path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
+#          key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
+#
+#      - name: Get baseline files
+#        run: |
+#          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
+#          aws s3 ls "$BUCKET/filtered_results.json" || RESULT=$( echo $? )
+#          if [[ $RESULT -eq 0 ]]; then
+#            aws s3 cp "$BUCKET/filtered_results.json" "/tmp/filtered_results.json"
+#            echo "baseline_file=/tmp/filtered_results.json" >> $GITHUB_ENV
+#            echo "create_baseline_from=filtered" >> $GITHUB_ENV
+#          else
+#            echo "[DEBUG] - Filtered baseline file not found in the bucket"
+#            aws s3 ls "$BUCKET/results.json" || RESULT=$( echo $? )
+#            if [[ $RESULT -eq 0 ]]; then
+#              aws s3 cp "$BUCKET/results.json" "/tmp/results.json"
+#              echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
+#              echo "create_baseline_from=standard" >> $GITHUB_ENV
+#            else
+#              echo "[DEBUG] - Standard baseline file not found in the bucket"
+#              echo "baseline_file=" >> $GITHUB_ENV
+#              echo "create_baseline_from=" >> $GITHUB_ENV
+#            fi
+#          fi
+#
+#      - uses: actions/setup-java@v3
+#        with:
+#          distribution: 'zulu'
+#          java-version: 8
+#
 #      - name: Pipeline scan
 #        uses: veracode/Veracode-pipeline-scan-action@v1.0.3
 #        with:
