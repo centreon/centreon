@@ -436,6 +436,7 @@ jobs:
     needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
+      fail-fast: false
       matrix:
         os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
@@ -456,6 +457,7 @@ jobs:
     needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
     strategy:
+      fail-fast: false
       matrix:
         os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
@@ -475,6 +477,7 @@ jobs:
     needs: [get-version, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
     strategy:
+      fail-fast: false
       matrix:
         os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
