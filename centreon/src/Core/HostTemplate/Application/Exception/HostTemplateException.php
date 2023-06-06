@@ -106,7 +106,7 @@ class HostTemplateException extends \Exception
     {
         return new self(
             sprintf(
-                _("The %s does not exist with id(s) '%s'"),
+                _("The %s does not exist with ID(s) '%s'"),
                 $propertieName,
                 implode(',', $propertieValues)
             ),

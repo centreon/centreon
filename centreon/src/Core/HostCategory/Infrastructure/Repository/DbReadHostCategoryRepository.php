@@ -297,7 +297,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
      */
     public function findById(int $hostCategoryId): ?HostCategory
     {
-        $this->info('Get a host category with id #' . $hostCategoryId);
+        $this->info('Get a host category with ID #' . $hostCategoryId);
 
         $request = $this->translateDbName(
             'SELECT hc.hc_id, hc.hc_name, hc.hc_alias, hc.hc_activate, hc.hc_comment

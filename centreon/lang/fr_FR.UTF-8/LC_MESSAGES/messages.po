@@ -17661,5 +17661,5 @@ msgstr "La notification #%d doit avoir au moins un utilisateur"
 msgid "Error while linking host categories to a host template"
 msgstr "Erreur lors de la liaison de catégories d'hôte à un modèle d'hôte"
 
-msgid "The %s does not exist with id(s) '%s'"
-msgstr "Le champ %s n'existe pas avec le(s) id(s) '%s'"
+msgid "The %s does not exist with ID(s) '%s'"
+msgstr "Le champ %s n'existe pas avec le(s) ID(s) '%s'"

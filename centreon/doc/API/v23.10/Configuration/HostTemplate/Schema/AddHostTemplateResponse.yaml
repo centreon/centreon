@@ -54,7 +54,7 @@ properties:
   max_check_attemps:
     type: integer
     nullable: true
-    description: "Define the number of times that the monitoring engine will retry the host check command if it returns any non-OK state"
+    description: "Define the number of times that the monitoring engine will retry the host check command if it returns any non-UP state"
   check_interval:
     type: integer
     nullable: true
