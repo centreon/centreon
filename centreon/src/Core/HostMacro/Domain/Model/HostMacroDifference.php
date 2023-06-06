@@ -24,6 +24,14 @@ declare(strict_types=1);
 namespace Core\HostMacro\Domain\Model;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 
+/**
+ * Compare $afterMacros to $directMacros, $inheritedHostMacros and $inheritedCommandMacros
+ * to determine witch afterMacros were added, updated, deleted or are unchanged.
+ *
+ * Require and return arrays with macro names as keys.
+ *
+ * TODO : link to confluence doc ?
+ */
 final class HostMacroDifference
 {
     /** @var array<string,HostMacro> */
@@ -33,127 +41,128 @@ final class HostMacroDifference
     private array $addedMacros = [];
 
     /** @var array<string,HostMacro> */
-    private array $commonMacros = [];
+    private array $unchangedMacros = [];
 
     /** @var array<string,HostMacro> */
     private array $updatedMacros = [];
 
     /**
-     * Compare $afterMacros to $directMacros, $inheritedHostMacros and $inheritedCommandMacros
-     * and determine with ones had been added, updated, deleted.
-     *
-     * Require and return arrays with macro names as keys.
-     *
      * @param array<string,HostMacro> $directMacros
      * @param array<string,HostMacro> $inheritedHostMacros
      * @param array<string,CommandMacro> $inheritedCommandMacros
      * @param array<string,HostMacro> $afterMacros
+     *
+     * @return array{
+     *  added:array<string,HostMacro>,
+     *  updated:array<string,HostMacro>,
+     *  removed:array<string,HostMacro>,
+     *  unchanged:array<string,HostMacro>
+     * }
      */
-    public function __construct(array $directMacros, array $inheritedHostMacros, array $inheritedCommandMacros, array $afterMacros)
+    public function compute(array $directMacros, array $inheritedHostMacros, array $inheritedCommandMacros, array $afterMacros): array
     {
-        foreach ($afterMacros as $macro) {
-            $directMacroMatch = $directMacros[$macro->getName()] ?? null;
-            $inheritedMacroMatch = $inheritedHostMacros[$macro->getName()] ?? null;
-            $commandMacroMatch = $inheritedCommandMacros[$macro->getName()] ?? null;
+        foreach ($afterMacros as $macroName => $macro) {
+            $directMacroMatch = $directMacros[$macroName]
+                ?? null;
+            $inheritedMacroMatch = $inheritedHostMacros[$macroName]
+                ?? null;
+            $commandMacroMatch = $inheritedCommandMacros[$macroName]
+                ?? null;
 
-            if (! $directMacroMatch && ! $inheritedMacroMatch && ! $commandMacroMatch) {
-                // macro does not exist
-                $this->addedMacros[$macro->getName()] = $macro;
+            if ($directMacroMatch && $inheritedMacroMatch) {
+                if ($this->isIdenticalToInheritedMacro($macro, $inheritedMacroMatch)) {
+                    $this->removedMacros[$macroName] = $macro;
+                } else if (! $this->isIdenticalTODirectMacro($macro, $directMacroMatch)) {
+                    $this->updatedMacros[$macroName] = $macro;
+                } else {
+                    $this->unchangedMacros[$macroName] = $macro;
+                }
+
+                continue;
+            }
+
+            if ($directMacroMatch && $commandMacroMatch) {
+                if ($this->isIdenticalToCommandMacro($macro)) {
+                    $this->removedMacros[$macroName] = $macro;
+                } else if (! $this->isIdenticalToDirectMacro($macro, $directMacroMatch)) {
+                    $this->updatedMacros[$macroName] = $macro;
+                } else {
+                    $this->unchangedMacros[$macroName] = $macro;
+                }
+
+                continue;
+            }
+
+            if ($directMacroMatch) {
+                if (! $this->isIdenticalToDirectMacro($macro, $directMacroMatch)) {
+                    $this->updatedMacros[$macroName] = $macro;
+                } else {
+                    $this->unchangedMacros[$macroName] = $macro;
+                }
+
+                continue;
+            }
+
+            if ($inheritedMacroMatch) {
+                if (! $this->isIdenticalToInheritedMacro($macro, $inheritedMacroMatch)) {
+                    $this->addedMacros[$macroName] = $macro;
+                } else {
+                    $this->unchangedMacros[$macroName] = $macro;
+                }
 
                 continue;
             }
 
             if ($commandMacroMatch) {
-                // macro inherited from command
-                if ($directMacroMatch && $macro->getValue() === '' && ! $macro->isPassword()) {
-                    // macro has revert to command macro settings => will be deleted
-
-                    continue;
+                if (! $this->isIdenticalToCommandMacro($macro)) {
+                    $this->addedMacros[$macroName] = $macro;
+                } else {
+                    $this->unchangedMacros[$macroName] = $macro;
                 }
-                if (! $directMacroMatch && ($macro->getValue() !== '' || $macro->isPassword())) {
-                    // macro differs from command macro settings
-                    $this->addedMacros[$macro->getName()] = $macro;
-
-                    continue;
-                }
-            }
-
-            if (
-                $directMacroMatch
-                && (
-                    $directMacroMatch->getValue() !== $macro->getValue()
-                    || $directMacroMatch->isPassword() !== $macro->isPassword()
-                    || $directMacroMatch->getDescription() !== $macro->getDescription()
-                )
-            ) {
-                if (
-                    $inheritedMacroMatch
-                    && $inheritedMacroMatch->getValue() === $macro->getValue()
-                    && $inheritedMacroMatch->isPassword() === $macro->isPassword()
-                    && $inheritedMacroMatch->getDescription() === $macro->getDescription()
-                ) {
-                    // macro has revert to inherited settings => will be deleted
-
-                    continue;
-                }
-
-                // macro has changed from custom settings
-                $this->updatedMacros[$macro->getName()] = $macro;
 
                 continue;
             }
 
-            if (
-                $inheritedMacroMatch
-                && ! $directMacroMatch
-                && (
-                    $inheritedMacroMatch->getValue() !== $macro->getValue()
-                    || $inheritedMacroMatch->isPassword() !== $macro->isPassword()
-                )
-            ) {
-                // macro has changed from inherited settings
-                $this->addedMacros[$macro->getName()] = $macro;
+            // Macro doesn't match any previously known macros
+            $this->addedMacros[$macroName] = $macro;
 
-                continue;
-            }
-
-            // macro is unchanged
-            $this->commonMacros[$macro->getName()] = $macro;
         }
 
-        $this->removedMacros = array_diff_key(
+        $extraRemovedMacros = array_diff_key(
             $directMacros,
             $this->addedMacros,
             $this->updatedMacros,
-            $this->commonMacros
+            $this->unchangedMacros
+        );
+        $this->removedMacros = array_merge($this->removedMacros, $extraRemovedMacros);
+
+        return [
+            'added' => $this->addedMacros,
+            'updated' => $this->updatedMacros,
+            'removed' => $this->removedMacros,
+            'unchanged' => $this->unchangedMacros,
+        ];
+    }
+
+    private function isIdenticalToInheritedMacro(HostMacro $macro, HostMacro $existingMacro): bool
+    {
+        return (bool) (
+            $macro->getValue() === $existingMacro->getValue()
+            && $macro->isPassword() === $existingMacro->isPassword()
         );
     }
 
-    /**
-     * @return array<string,HostMacro>
-     */
-    public function getAdded(): array {
-        return $this->addedMacros;
+    private function isIdenticalToCommandMacro(HostMacro $macro): bool
+    {
+        return (bool) ($macro->getValue() === '' && $macro->isPassword() === false);
     }
 
-    /**
-     * @return array<string,HostMacro>
-     */
-    public function getUpdated(): array {
-        return $this->updatedMacros;
-    }
-
-    /**
-     * @return array<string,HostMacro>
-     */
-    public function getRemoved(): array {
-        return $this->removedMacros;
-    }
-
-    /**
-     * @return array<string,HostMacro>
-     */
-    public function getCommon(): array {
-        return $this->commonMacros;
+    private function isIdenticalToDirectMacro(HostMacro $macro, HostMacro $existingMacro): bool
+    {
+        return (bool) (
+            $macro->getValue() === $existingMacro->getValue()
+            && $macro->isPassword() === $existingMacro->isPassword()
+            && $macro->getDescription() === $existingMacro->getDescription()
+        );
     }
 }

@@ -1,7 +1,7 @@
-PatchHostTemplate:
+PartialUpdateHostTemplate:
   methods: PATCH
   path: /configuration/hosts/templates/{hostTemplateId}
   requirements:
     hostTemplateId: '\d+'
-  controller: 'Core\HostTemplate\Infrastructure\API\PatchHostTemplate\PatchHostTemplateController'
+  controller: 'Core\HostTemplate\Infrastructure\API\PartialUpdateHostTemplate\PartialUpdateHostTemplateController'
   condition: "request.attributes.get('version') >= 23.10"

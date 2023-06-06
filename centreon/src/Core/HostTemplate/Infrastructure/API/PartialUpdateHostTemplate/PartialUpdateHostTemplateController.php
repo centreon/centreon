@@ -21,27 +21,27 @@
 
 declare(strict_types=1);
 
-namespace Core\HostTemplate\Infrastructure\API\PatchHostTemplate;
+namespace Core\HostTemplate\Infrastructure\API\PartialUpdateHostTemplate;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
-use Core\HostTemplate\Application\UseCase\PatchHostTemplate\PatchHostTemplate;
-use Core\HostTemplate\Application\UseCase\PatchHostTemplate\PatchHostTemplateRequest;
+use Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate\PartialUpdateHostTemplate;
+use Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate\PartialUpdateHostTemplateRequest;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-final class PatchHostTemplateController extends AbstractController
+final class PartialUpdateHostTemplateController extends AbstractController
 {
     use LoggerTrait;
 
     /**
      * @param Request $request
-     * @param PatchHostTemplate $useCase
+     * @param PartialUpdateHostTemplate $useCase
      * @param DefaultPresenter $presenter
      * @param int $hostTemplateId
      *
@@ -51,7 +51,7 @@ final class PatchHostTemplateController extends AbstractController
      */
     public function __invoke(
         Request $request,
-        PatchHostTemplate $useCase,
+        PartialUpdateHostTemplate $useCase,
         DefaultPresenter $presenter,
         int $hostTemplateId,
     ): Response {
@@ -63,10 +63,13 @@ final class PatchHostTemplateController extends AbstractController
              *      macros?:array<array{name:string,value:string|null,is_password:bool,description:string|null}>
              * } $data
              */
-            $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PatchHostTemplateSchema.json');
+            $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateHostTemplateSchema.json');
 
-            $dto = new PatchHostTemplateRequest();
-            $dto->macros = $data['macros'] ?? null;
+            $dto = new PartialUpdateHostTemplateRequest();
+
+            if (\array_key_exists('macros', $data)) {
+                $dto->macros = $data['macros'];
+            }
 
             $useCase($dto, $presenter, $hostTemplateId);
         } catch (\InvalidArgumentException $ex) {
@@ -74,7 +77,7 @@ final class PatchHostTemplateController extends AbstractController
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse(HostTemplateException::patchHostTemplate()));
+            $presenter->setResponseStatus(new ErrorResponse(HostTemplateException::partialUpdateHostTemplate()));
         }
 
         return $presenter->show();

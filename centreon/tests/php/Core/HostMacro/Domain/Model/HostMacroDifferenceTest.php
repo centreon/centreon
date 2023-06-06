@@ -135,25 +135,25 @@ it('should compute macros has expected', function (): void {
         $this->hostMacroN->getName() => $this->hostMacroN,
     ];
     $removedMacros = [
-        $this->hostMacroC->getName() => $this->hostMacroC,
         $this->hostMacroL->getName() => $this->hostMacroL,
         $this->hostMacroO->getName() => $this->hostMacroO,
+        $this->hostMacroC->getName() => $this->hostMacroC,
     ];
     $updatedMacros = [
         $this->hostMacroE_edit->getName() => $this->hostMacroE_edit,
         $this->hostMacroF_edit->getName() => $this->hostMacroF_edit,
         $this->hostMacroG_edit->getName() => $this->hostMacroG_edit,
     ];
-    $commonMacros = [
+    $unchangedMacros = [
         $this->hostMacroA->getName() => $this->hostMacroA,
         $this->hostMacroB->getName() => $this->hostMacroB,
         $this->hostMacroH_edit->getName() => $this->hostMacroH_edit,
         $this->hostMacroK_edit->getName() => $this->hostMacroK_edit,
     ];
 
-    $macrosDiff = new HostMacroDifference($directMacros, $inheritedMacros, $commandMacros, $afterMacros);
-    expect($macrosDiff->getAdded())->toBe($addedMacros)
-        ->and($macrosDiff->getUpdated())->toBe($updatedMacros)
-        ->and($macrosDiff->getRemoved())->tobe($removedMacros)
-        ->and($macrosDiff->getCommon())->toBe($commonMacros);
+    $macrosDiff = (new HostMacroDifference())->compute($directMacros, $inheritedMacros, $commandMacros, $afterMacros);
+    expect($macrosDiff['added'])->toBe($addedMacros)
+        ->and($macrosDiff['updated'])->toBe($updatedMacros)
+        ->and($macrosDiff['removed'])->tobe($removedMacros)
+        ->and($macrosDiff['unchanged'])->toBe($unchangedMacros);
  });

@@ -21,21 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\HostTemplate\Application\UseCase\PatchHostTemplate;
+namespace Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
+use Core\Common\Application\Type\NoValue;
+use Core\Host\Domain\Model\HostInheritance;
 use Core\HostMacro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\HostMacro\Domain\Model\HostMacro;
@@ -44,7 +46,7 @@ use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 
-final class PatchHostTemplate
+final class PartialUpdateHostTemplate
 {
     use LoggerTrait;
 
@@ -60,10 +62,10 @@ final class PatchHostTemplate
 
     /**
      * @param PresenterInterface $presenter
-     * @param PatchHostTemplateRequest $request
+     * @param PartialUpdateHostTemplateRequest $request
      * @param int $hostTemplateId
      */
-    public function __invoke(PatchHostTemplateRequest $request, PresenterInterface $presenter, int $hostTemplateId): void
+    public function __invoke(PartialUpdateHostTemplateRequest $request, PresenterInterface $presenter, int $hostTemplateId): void
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE)) {
@@ -88,22 +90,34 @@ final class PatchHostTemplate
                 return;
             }
 
-            $this->updateProperties($request, $hostTemplate);
+            if ($hostTemplate->isLocked()) {
+                $this->error(
+                    'Host template is locked, partial update refused.',
+                    ['host_template_id' => $hostTemplateId]
+                );
+                $presenter->setResponseStatus(
+                    new InvalidArgumentResponse(HostTemplateException::hostIsLocked($hostTemplateId))
+                );
+
+                return;
+            }
+
+            $this->updatePropertiesInTransaction($request, $hostTemplate);
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse(HostTemplateException::patchHostTemplate()));
+            $presenter->setResponseStatus(new ErrorResponse(HostTemplateException::partialUpdateHostTemplate()));
             $this->error($ex->getMessage());
         }
     }
 
     /**
-     * @param PatchHostTemplateRequest $request
+     * @param PartialUpdateHostTemplateRequest $request
      * @param HostTemplate $hostTemplate
      *
      * @throws \Throwable
      */
-    private function updateProperties(PatchHostTemplateRequest $request, HostTemplate $hostTemplate): void
+    private function updatePropertiesInTransaction(PartialUpdateHostTemplateRequest $request, HostTemplate $hostTemplate): void
     {
         try {
             $this->dataStorageEngine->startTransaction();
@@ -112,7 +126,7 @@ final class PatchHostTemplate
 
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {
-            $this->error("Rollback of 'Patch Host Template' transaction.");
+            $this->error("Rollback of 'PartialUpdateHostTemplate' transaction.");
             $this->dataStorageEngine->rollbackTransaction();
 
             throw $ex;
@@ -120,19 +134,19 @@ final class PatchHostTemplate
     }
 
     /**
-     * @param PatchHostTemplateRequest $request
+     * @param PartialUpdateHostTemplateRequest $request
      * @param HostTemplate $hostTemplate
      *
      * @throws \Throwable
      */
-    private function updateMacros(PatchHostTemplateRequest $request, HostTemplate $hostTemplate): void
+    private function updateMacros(PartialUpdateHostTemplateRequest $request, HostTemplate $hostTemplate): void
     {
         $this->info(
-            'Patch Host Template: update macros',
+            'PartialUpdateHostTemplate: update macros',
             ['host_template' => $hostTemplate, 'macros' => $request->macros]
         );
 
-        if ($request->macros === null) {
+        if ($request->macros instanceOf NoValue) {
             $this->info('Macros not provided, nothing to update');
 
             return;
@@ -145,38 +159,18 @@ final class PatchHostTemplate
          */
         [$directMacros, $inheritedMacros, $commandMacros] = $this->findOriginalMacros($hostTemplate);
 
-        $macros = [];
-        foreach ($request->macros as $data) {
-            $macroName = strtoupper($data['name']);
-            // Note: do not handle vault at the moment
-            $macroValue = $data['value'] ?? '';
-            if ($data['is_password'] && $data['value'] === null) {
-                // retrieve actual password value
-                $macroValue = isset($directMacros[$macroName])
-                    ? $directMacros[$macroName]->getValue()
-                    : (isset($inheritedMacros[$macroName]) ? $inheritedMacros[$macroName]->getValue() : '');
-            }
+        $macros = $this->createMacros($request->macros, $hostTemplate->getId(), $directMacros, $inheritedMacros);
 
-            $macro = new HostMacro(
-                $hostTemplate->getId(),
-                $data['name'],
-                $macroValue,
-            );
-            $macro->setIsPassword($data['is_password']);
-            $macro->setDescription($data['description'] ?? '');
+        $hostMacroDifference = new HostMacroDifference();
+        $macrosDifference = $hostMacroDifference->compute($directMacros, $inheritedMacros, $commandMacros, $macros);
 
-            $macros[$macro->getName()] = $macro;
-        }
-
-        $macrosDifference = new HostMacroDifference($directMacros, $inheritedMacros, $commandMacros, $macros);
-
-        foreach ($macrosDifference->getRemoved() as $macro) {
+        foreach ($macrosDifference['removed'] as $macro) {
             $this->writeHostMacroRepository->delete($macro);
         }
 
-        $updatedMacros = $macrosDifference->getUpdated();
-        $addedMacros = $macrosDifference->getAdded();
-        $commonMacros = $macrosDifference->getCommon();
+        $updatedMacros = $macrosDifference['updated'];
+        $addedMacros = $macrosDifference['added'];
+        $unchangedMacros = $macrosDifference['unchanged'];
         $order = 0;
         foreach ($macros as $macro) {
             if (isset($updatedMacros[$macro->getName()])) {
@@ -200,7 +194,7 @@ final class PatchHostTemplate
 
                 continue;
             }
-            if (isset($commonMacros[$macro->getName()])) {
+            if (isset($unchangedMacros[$macro->getName()])) {
                 if (
                     isset($directMacros[$macro->getName()])
                     && $directMacros[$macro->getName()]->getOrder() !== $order
@@ -212,6 +206,51 @@ final class PatchHostTemplate
                 ++$order;
             }
         }
+    }
+
+    /**
+     * Create macros object from the request dto.
+     * Retrieve original value if macro is of type password.
+     *
+     * @param array<array{name:string,value:string|null,is_password:bool,description:string|null}> $requestedMacros
+     * @param int $hostTemplateId
+     * @param array<string,HostMacro> $directMacros
+     * @param array<string,HostMacro> $inheritedMacros
+     *
+     * @throws \Throwable
+     *
+     * @return array<string,HostMacro>
+     */
+    private function createMacros(
+        array $requestedMacros,
+        int $hostTemplateId,
+        array $directMacros,
+        array $inheritedMacros
+    ): array {
+        $macros = [];
+        foreach ($requestedMacros as $data) {
+            $macroName = mb_strtoupper($data['name']);
+            // Note: do not handle vault at the moment
+            $macroValue = $data['value'] ?? '';
+            if ($data['is_password'] && $data['value'] === null) {
+                // retrieve actual password value
+                $macroValue = isset($directMacros[$macroName])
+                    ? $directMacros[$macroName]->getValue()
+                    : (isset($inheritedMacros[$macroName]) ? $inheritedMacros[$macroName]->getValue() : '');
+            }
+
+            $macro = new HostMacro(
+                $hostTemplateId,
+                $data['name'],
+                $macroValue,
+            );
+            $macro->setIsPassword($data['is_password']);
+            $macro->setDescription($data['description'] ?? '');
+
+            $macros[$macro->getName()] = $macro;
+        }
+
+        return $macros;
     }
 
     /**
@@ -230,10 +269,9 @@ final class PatchHostTemplate
      */
     private function findOriginalMacros(HostTemplate $hostTemplate): array
     {
-        $inheritanceLineIds = array_merge(
-            [$hostTemplate->getId()],
-            $this->readHostTemplateRepository->findInheritanceLine($hostTemplate->getId())
-        );
+        $templateParents = $this->readHostTemplateRepository->findParents($hostTemplate->getId());
+        $hostInheritance = new HostInheritance();
+        $inheritanceLineIds = $hostInheritance::findInheritanceLine($hostTemplate->getId(), $templateParents);
 
         $existingHostMacros = $this->readHostMacroRepository->findByHostIds($inheritanceLineIds);
         /** @var array<string,HostMacro> */

@@ -31,6 +31,8 @@ class CommandMacro
     public const MAX_NAME_LENGTH = 255,
         MAX_DESCRIPTION_LENGTH = 65535;
 
+    private string $shortName;
+
     private string $description = '';
 
     /**
@@ -47,12 +49,12 @@ class CommandMacro
         private readonly CommandMacroType $type,
         private string $name,
     ) {
-        $shortName = (new \ReflectionClass($this))->getShortName();
+        $this->shortName = (new \ReflectionClass($this))->getShortName();
 
-        Assertion::positiveInt($commandId, "{$shortName}::commandId");
+        Assertion::positiveInt($commandId, "{$this->shortName}::commandId");
 
-        Assertion::notEmptyString($this->name, "{$shortName}::name");
-        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
+        Assertion::notEmptyString($this->name, "{$this->shortName}::name");
+        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$this->shortName}::name");
     }
 
     public function getCommandId(): int
@@ -77,10 +79,8 @@ class CommandMacro
 
     public function setDescription(string $description): void
     {
-        $shortName = (new \ReflectionClass($this))->getShortName();
-
         $description = trim($description);
-        Assertion::maxLength($description, self::MAX_DESCRIPTION_LENGTH, "{$shortName}::description");
+        Assertion::maxLength($description, self::MAX_DESCRIPTION_LENGTH, "{$this->shortName}::description");
         $this->description = $description;
     }
 }

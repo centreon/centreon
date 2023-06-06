@@ -32,6 +32,7 @@ class HostMacro
         MAX_VALUE_LENGTH = 4096,
         MAX_DESCRIPTION_LENGTH = 65535;
 
+    private string $shortName;
     private bool $isPassword = false;
 
     private string $description = '';
@@ -50,15 +51,15 @@ class HostMacro
         private string $name,
         private string $value,
     ) {
-        $shortName = (new \ReflectionClass($this))->getShortName();
+        $this->shortName = (new \ReflectionClass($this))->getShortName();
 
-        Assertion::positiveInt($hostId, "{$shortName}::hostId");
+        Assertion::positiveInt($hostId, "{$this->shortName}::hostId");
 
-        $this->name = strtoupper($name);
-        Assertion::notEmptyString($this->name, "{$shortName}::name");
-        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
+        $this->name = mb_strtoupper($name);
+        Assertion::notEmptyString($this->name, "{$this->shortName}::name");
+        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$this->shortName}::name");
 
-        Assertion::maxLength($this->value, self::MAX_VALUE_LENGTH, "{$shortName}::value");
+        Assertion::maxLength($this->value, self::MAX_VALUE_LENGTH, "{$this->shortName}::value");
     }
 
     public function getHostId(): int
@@ -93,10 +94,8 @@ class HostMacro
 
     public function setDescription(string $description): void
     {
-        $shortName = (new \ReflectionClass($this))->getShortName();
-
         $description = trim($description);
-        Assertion::maxLength($description, self::MAX_DESCRIPTION_LENGTH, "{$shortName}::description");
+        Assertion::maxLength($description, self::MAX_DESCRIPTION_LENGTH, "{$this->shortName}::description");
         $this->description = $description;
     }
 
@@ -107,9 +106,7 @@ class HostMacro
 
     public function setOrder(int $order): void
     {
-        $shortName = (new \ReflectionClass($this))->getShortName();
-
-        Assertion::min($order, 0, "{$shortName}::order");
+        Assertion::min($order, 0, "{$this->shortName}::order");
         $this->order = $order;
     }
 }

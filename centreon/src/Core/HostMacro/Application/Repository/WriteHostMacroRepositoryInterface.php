@@ -37,7 +37,7 @@ interface WriteHostMacroRepositoryInterface
     public function add(HostMacro $macro): void;
 
     /**
-     * Add host's macros.
+     * Update host's macros.
      *
      * @param HostMacro $macro
      *

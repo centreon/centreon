@@ -54,9 +54,9 @@ class HostTemplateException extends \Exception
     /**
      * @return self
      */
-    public static function patchHostTemplate(): self
+    public static function partialUpdateHostTemplate(): self
     {
-        return new self(_('Error while patching a host template'));
+        return new self(_('Error while partially updating a host template'));
     }
 
     /**

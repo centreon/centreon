@@ -51,16 +51,16 @@ interface ReadHostTemplateRepositoryInterface
     public function findById(int $hostTemplateId): ?HostTemplate;
 
     /**
-     * Retrieve template ids of a host template, ordered by inheritance priority.
-     * This is a recursive method.
+     * Retrieve all parent template ids of a host template.
+     * (Sorted by child_id and order).
      *
      * @param int $hostTemplateId
      *
      * @throws \Throwable
      *
-     * @return int[]
+     * @return array<array{parent_id:int,child_id:int,order:int}>
      */
-    public function findInheritanceLine(int $hostTemplateId): array;
+    public function findParents(int $hostTemplateId): array;
 
     /**
      * Determine if a host template exists by its ID.

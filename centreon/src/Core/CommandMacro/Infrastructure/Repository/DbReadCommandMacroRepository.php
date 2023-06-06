@@ -47,7 +47,7 @@ class DbReadCommandMacroRepository extends AbstractRepositoryRDB implements Read
      */
     public function findByCommandIdAndType(int $commandId, CommandMacroType $type): array
     {
-        $this->info('Get command macros by command id and type',['command_id' => $commandId, 'type' => $type]);
+        $this->info('Get command macros by command ID and type',['command_id' => $commandId, 'type' => $type]);
 
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'

@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "title": "Patch a host template",
+    "title": "Partial update of a host template",
     "type": "object",
     "additionalProperties": false,
     "properties": {

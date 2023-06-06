@@ -18,11 +18,11 @@ delete:
 patch:
   tags:
     - Host template
-  summary: "Patch a host template configuration"
+  summary: "Partially update a host template configuration"
   description: |
-    Patch a host template configuration.
+    Partially update a host template configuration.
 
-    This endpoint do no handle all host template properties.
+    This endpoint does not handle all host template properties.
 
     The following host template properties are supported in version 23.10 and above:
       - macros
@@ -33,7 +33,7 @@ patch:
     content:
       application/json:
         schema:
-          $ref: 'Schema/PatchHostTemplateRequest.yaml'
+          $ref: 'Schema/PartialUpdateHostTemplateRequest.yaml'
   responses:
     '204':
       $ref: '../../Common/Response/NoContent.yaml'

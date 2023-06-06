@@ -21,10 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\HostTemplate\Application\UseCase\PatchHostTemplate;
+namespace Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate;
 
-final class PatchHostTemplateRequest
+use Core\Common\Application\Type\NoValue;
+
+final class PartialUpdateHostTemplateRequest
 {
-    /** @var null|array<array{name:string,value:string|null,is_password:bool,description:null|string}> */
-    public ?array $macros = null;
+    /**
+     * @param NoValue|array<array{name:string,value:string|null,is_password:bool,description:null|string}> $macros
+     */
+    public function __construct(
+        public NoValue|array $macros = new NoValue(),
+    ) {
+    }
 }

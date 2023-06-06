@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\HostTemplate\Application\UseCase\PatchHostTemplate;
+namespace Tests\Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
@@ -37,8 +37,8 @@ use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\HostMacro\Domain\Model\HostMacro;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
-use Core\HostTemplate\Application\UseCase\PatchHostTemplate\PatchHostTemplate;
-use Core\HostTemplate\Application\UseCase\PatchHostTemplate\PatchHostTemplateRequest;
+use Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate\PartialUpdateHostTemplate;
+use Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate\PartialUpdateHostTemplateRequest;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -58,7 +58,7 @@ beforeEach(function () {
     $this->hostTemplateId = 1;
     $this->checkCommandId = 1;
 
-    $this->useCase = new PatchHostTemplate(
+    $this->useCase = new PartialUpdateHostTemplate(
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
         $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
         $this->readCommandMacroRepository = $this->createMock(ReadCommandMacroRepositoryInterface::class),
@@ -80,10 +80,10 @@ beforeEach(function () {
         $this->macroB->getName() => $this->macroB,
     ];
     $this->inheritanceLineIds = [
-        $this->hostTemplateId
+        ['parent_id' => 2, 'child_id' => 1, 'order' => 1],
     ];
 
-    $this->request = new PatchHostTemplateRequest();
+    $this->request = new PartialUpdateHostTemplateRequest();
     $this->request->macros = [
         [
             'name' =>   $this->macroA->getName(),
@@ -130,7 +130,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe(HostTemplateException::patchHostTemplate()->getMessage());
+        ->toBe(HostTemplateException::partialUpdateHostTemplate()->getMessage());
 });
 
 it('should present a NotFoundResponse when the host template does not exist', function () {
@@ -170,7 +170,7 @@ it('should present a NoContentResponse on success', function () {
         ->willReturn($this->checkCommandId);
     $this->readHostTemplateRepository
         ->expects($this->once())
-        ->method('findInheritanceLine')
+        ->method('findParents')
         ->willReturn($this->inheritanceLineIds);
     $this->readHostMacroRepository
         ->expects($this->once())
