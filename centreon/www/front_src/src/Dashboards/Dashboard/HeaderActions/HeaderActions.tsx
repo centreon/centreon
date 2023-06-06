@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import ShareIcon from '@mui/icons-material/Share';
 import { Typography } from '@mui/material';
 
-import { Modal, Button } from '@centreon/ui/components';
+import { Modal, Button, IconButton } from '@centreon/ui/components';
 
 import {
   labelExit,
@@ -16,16 +17,20 @@ import {
   labelLeaveEditionModeChangesNotSaved,
   labelQuitDashboardChangesNotSaved,
   labelExitDashboard
-} from './translatedLabels';
+} from '../translatedLabels';
 import {
   dashboardAtom,
   isEditingAtom,
   switchPanelsEditionModeDerivedAtom
-} from './atoms';
-import useDashboardSaveBlocker from './useDashboardSaveBlocker';
-import { PanelDetails } from './models';
-import { formatPanel } from './useDashboardDetails';
-import useDashboardDirty from './useDashboardDirty';
+} from '../atoms';
+import useDashboardSaveBlocker from '../useDashboardSaveBlocker';
+import { PanelDetails } from '../models';
+import { formatPanel } from '../useDashboardDetails';
+import useDashboardDirty from '../useDashboardDirty';
+import { isShareModalOpenAtom } from '../../atoms';
+import { Share } from '../../Share';
+
+import { useStyles } from './HeaderActions.styles';
 
 interface HeaderActionsProps {
   id?: number;
@@ -38,6 +43,7 @@ const HeaderActions = ({
   name,
   panels
 }: HeaderActionsProps): JSX.Element => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const [isAskingCancelConfirmation, setIsAskingCancelConfirmation] =
@@ -48,6 +54,7 @@ const HeaderActions = ({
     switchPanelsEditionModeDerivedAtom
   );
   const setDashboard = useSetAtom(dashboardAtom);
+  const setIsShareDialogOpen = useSetAtom(isShareModalOpenAtom);
 
   const { blocked, blockNavigation, proceedNavigation } =
     useDashboardSaveBlocker({ id, name });
@@ -95,6 +102,8 @@ const HeaderActions = ({
 
   const savePanels = (): void => undefined;
 
+  const openShareModal = (): void => setIsShareDialogOpen(true);
+
   useEffect(() => {
     if (!blocked) {
       return;
@@ -120,20 +129,24 @@ const HeaderActions = ({
 
   if (!isEditing) {
     return (
-      <Button
-        data-testid="edit_dashboard"
-        icon={<EditOutlinedIcon />}
-        iconVariant="start"
-        variant="ghost"
-        onClick={startEditing}
-      >
-        {t(labelEditDashboard)}
-      </Button>
+      <div className={classes.headerActions}>
+        <Button
+          data-testid="edit_dashboard"
+          icon={<EditOutlinedIcon />}
+          iconVariant="start"
+          variant="ghost"
+          onClick={startEditing}
+        >
+          {t(labelEditDashboard)}
+        </Button>
+        <IconButton icon={<ShareIcon />} onClick={openShareModal} />
+        <Share />
+      </div>
     );
   }
 
   return (
-    <>
+    <div className={classes.headerActions}>
       <Button
         data-testid="cancel_dashboard"
         variant="ghost"
@@ -158,7 +171,7 @@ const HeaderActions = ({
           onConfirm={savePanels}
         />
       </Modal>
-    </>
+    </div>
   );
 };
 

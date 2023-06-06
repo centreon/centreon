@@ -7,7 +7,7 @@ import useUserDashboardPermissions from '../useUserDashboardPermissions';
 
 import Layout from './Layout';
 import useDashboardDetails from './useDashboardDetails';
-import HeaderActions from './HeaderActions';
+import HeaderActions from './HeaderActions/HeaderActions';
 
 const Dashboard = (): JSX.Element => {
   const { dashboard, panels } = useDashboardDetails();
@@ -21,18 +21,14 @@ const Dashboard = (): JSX.Element => {
 
   return (
     <TiledListingPage>
-      <Header
-        nav={
-          canEdit && (
-            <HeaderActions
-              id={dashboard?.id}
-              name={dashboard?.name}
-              panels={panels}
-            />
-          )
-        }
-        title={dashboard?.name || ''}
-      />
+      <Header title={dashboard?.name || ''} />
+      {canEdit && (
+        <HeaderActions
+          id={dashboard?.id}
+          name={dashboard?.name}
+          panels={panels}
+        />
+      )}
       <Layout />
     </TiledListingPage>
   );

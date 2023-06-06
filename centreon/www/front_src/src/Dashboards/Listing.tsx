@@ -11,20 +11,22 @@ import { CircularProgress } from '@mui/material';
 import {
   TiledListingActions,
   TiledListingContent,
-  TiledListingList
+  TiledListingList,
+  useInfiniteScrollListing
 } from '@centreon/ui';
 import { Button, DataTable } from '@centreon/ui/components';
 
 import routeMap from '../reactRoutes/routeMap';
 
-import useDashboards from './useDashboards';
 import {
   labelCreateADashboard,
   labelNoDashboardsFound
 } from './translatedLabels';
-import { deleteDialogStateAtom, openDialogAtom } from './atoms';
+import { deleteDialogStateAtom, openDialogAtom, pageAtom } from './atoms';
 import { Dashboard } from './models';
 import useUserDashboardPermissions from './useUserDashboardPermissions';
+import { dashboardListDecoder } from './api/decoders';
+import { dashboardsEndpoint } from './api/endpoints';
 
 const emptyListStateLabels = {
   actions: {
@@ -35,7 +37,17 @@ const emptyListStateLabels = {
 
 const Listing = (): ReactElement => {
   const { t } = useTranslation();
-  const { dashboards, elementRef, isLoading } = useDashboards();
+
+  const {
+    elements: dashboards,
+    elementRef,
+    isLoading
+  } = useInfiniteScrollListing<Dashboard>({
+    decoder: dashboardListDecoder,
+    endpoint: dashboardsEndpoint,
+    pageAtom,
+    queryKeyName: 'dashboards'
+  });
   const { hasEditPermission, canCreateOrManagerDashboards } =
     useUserDashboardPermissions();
 
