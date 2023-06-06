@@ -1,6 +1,6 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 
-import MultiCheckbox from '.';
+import CheckboxGroup from '.';
 
 const options = ['ok', 'warning', 'critical', 'unknown'];
 
@@ -8,12 +8,12 @@ const values = ['ok', 'critical'];
 
 export default {
   argTypes: {},
-  component: MultiCheckbox,
+  component: CheckboxGroup,
   title: 'Checkbox/Multi'
-} as ComponentMeta<typeof MultiCheckbox>;
+} as ComponentMeta<typeof CheckboxGroup>;
 
-const Template: ComponentStory<typeof MultiCheckbox> = (args) => (
-  <MultiCheckbox {...args} />
+const Template: ComponentStory<typeof CheckboxGroup> = (args) => (
+  <CheckboxGroup {...args} />
 );
 
 export const Playground = Template.bind({});
@@ -23,9 +23,9 @@ Playground.args = {
   values
 };
 
-export const Horisontal = Template.bind({});
+export const Horizontal = Template.bind({});
 
-Horisontal.args = {
+Horizontal.args = {
   options,
   row: true,
   values

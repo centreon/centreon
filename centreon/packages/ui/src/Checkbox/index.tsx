@@ -1,2 +1,2 @@
-export { default as MultiCheckbox } from './Multi';
-export { default as Checkbox } from './Single';
+export { default as CheckboxGroup } from './CheckboxGroup';
+export { default as Checkbox } from './Checkbox';

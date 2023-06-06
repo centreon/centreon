@@ -5,12 +5,12 @@ import { equals, includes, path, split } from 'ramda';
 
 import { Box, Typography } from '@mui/material';
 
-import { MultiCheckbox as MultiCheckboxComponent } from '../../Checkbox';
+import { CheckboxGroup as CheckboxGroupComponent } from '../../Checkbox';
 import { useMemoComponent } from '../..';
 
 import { InputPropsWithoutGroup } from './models';
 
-const MultiCheckbox = ({
+const CheckboxGroup = ({
   checkbox,
   fieldName,
   additionalLabel,
@@ -58,7 +58,7 @@ const MultiCheckbox = ({
     ) : (
       <Box>
         {additionalLabel && <Typography>{additionalLabel}</Typography>}
-        <MultiCheckboxComponent
+        <CheckboxGroupComponent
           dataTestId={dataTestId || ''}
           disabled={disabled}
           labelPlacement={checkbox?.labelPlacement || 'end'}
@@ -73,4 +73,4 @@ const MultiCheckbox = ({
   });
 };
 
-export default MultiCheckbox;
+export default CheckboxGroup;

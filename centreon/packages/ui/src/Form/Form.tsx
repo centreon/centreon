@@ -18,7 +18,7 @@ export enum GroupDirection {
 
 export type FormProps<T> = {
   Buttons?: React.ComponentType;
-  areGoupsOpen?: boolean;
+  areGroupsOpen?: boolean;
   children?: JSX.Element;
   className?: string;
   groupDirection?: GroupDirection;
@@ -37,7 +37,7 @@ const Form = <T extends object>({
   children,
   className,
   groupsClassName,
-  areGoupsOpen,
+  areGroupsOpen,
   initialValues,
   validate,
   validationSchema,
@@ -56,7 +56,7 @@ const Form = <T extends object>({
     return (
       <Inputs
         isLoading
-        areGoupsOpen={areGoupsOpen}
+        areGroupsOpen={areGroupsOpen}
         groups={groups}
         groupsClassName={groupsClassName}
         inputs={inputs}
@@ -77,7 +77,7 @@ const Form = <T extends object>({
         {children}
         <div className={cx(className, classes.form)}>
           <Inputs
-            areGoupsOpen={areGoupsOpen}
+            areGroupsOpen={areGroupsOpen}
             groupDirection={groupDirection}
             groups={groups}
             groupsClassName={groupsClassName}

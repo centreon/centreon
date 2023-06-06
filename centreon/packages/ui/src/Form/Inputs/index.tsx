@@ -18,7 +18,7 @@ import TextInput from './Text';
 import ConnectedAutocomplete from './ConnectedAutocomplete';
 import FieldsTable from './FieldsTable/FieldsTable';
 import Grid from './Grid';
-import MultiCheckbox from './MultiCheckbox';
+import CheckboxGroup from './CheckboxGroup';
 import Checkbox from './Checkbox';
 import Custom from './Custom';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -69,8 +69,8 @@ export const getInput = R.cond<
     R.always(Checkbox)
   ],
   [
-    R.equals(InputType.MultiCheckbox) as (b: InputType) => boolean,
-    R.always(MultiCheckbox)
+    R.equals(InputType.CheckboxGroup) as (b: InputType) => boolean,
+    R.always(CheckboxGroup)
   ]
 ]);
 
@@ -111,7 +111,7 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
 }));
 
 interface Props {
-  areGoupsOpen?: boolean;
+  areGroupsOpen?: boolean;
   groupDirection?: GroupDirection;
   groups?: Array<Group>;
   groupsClassName?: string;
@@ -127,7 +127,7 @@ const Inputs = ({
   isCollapsible,
   groupDirection,
   groupsClassName,
-  areGoupsOpen
+  areGroupsOpen
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ groupDirection });
   const { t } = useTranslation();
@@ -194,7 +194,7 @@ const Inputs = ({
           ? R.find(R.propEq('name', groupName), groups)
           : ({} as Group);
 
-        const isFirstElement = areGoupsOpen || R.equals(index, 0);
+        const isFirstElement = areGroupsOpen || R.equals(index, 0);
 
         return (
           <Fragment key={groupName}>

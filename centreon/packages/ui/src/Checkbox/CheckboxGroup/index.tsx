@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { FormGroup } from '@mui/material';
 
-import SingleCheckbox, { LabelPlacement } from '../Single';
+import Checkbox, { LabelPlacement } from '../Checkbox';
 
 interface Props {
   dataTestId?: string;
@@ -27,7 +27,7 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const MultiCheckbox = ({
+const CheckboxGroup = ({
   options,
   values,
   row = false,
@@ -46,7 +46,7 @@ const MultiCheckbox = ({
     >
       {options.map((value) => {
         return (
-          <SingleCheckbox
+          <Checkbox
             checked={includes(value, values)}
             className={classes.checkbox}
             disabled={disabled}
@@ -61,4 +61,4 @@ const MultiCheckbox = ({
   );
 };
 
-export default MultiCheckbox;
+export default CheckboxGroup;

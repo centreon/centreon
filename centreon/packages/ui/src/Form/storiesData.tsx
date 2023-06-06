@@ -240,7 +240,7 @@ export const basicFormInputs: Array<InputProps> = [
           },
           fieldName: 'notifications.hostevents',
           label: 'host events',
-          type: InputType.MultiCheckbox
+          type: InputType.CheckboxGroup
         }
       ]
     },

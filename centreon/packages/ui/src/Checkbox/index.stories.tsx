@@ -2,16 +2,16 @@ import { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import MailIcon from '@mui/icons-material/MailOutline';
 
-import SingleCheckbox from '.';
+import Checkbox from './Checkbox';
 
 export default {
   argTypes: {},
-  component: SingleCheckbox,
+  component: Checkbox,
   title: 'Checkbox/Single'
-} as ComponentMeta<typeof SingleCheckbox>;
+} as ComponentMeta<typeof Checkbox>;
 
-const Template: ComponentStory<typeof SingleCheckbox> = (args) => (
-  <SingleCheckbox {...args} />
+const Template: ComponentStory<typeof Checkbox> = (args) => (
+  <Checkbox {...args} />
 );
 
 export const Playground = Template.bind({});

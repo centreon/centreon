@@ -94,7 +94,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
             fieldName: 'hostGroups.events',
             getDisabled: (values) => isEmpty(values.hostGroups.ids),
             label: 'Host groups events',
-            type: InputType.MultiCheckbox
+            type: InputType.CheckboxGroup
           },
           {
             dataTestId: 'include Services',
@@ -120,7 +120,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
               not(values.hostGroups?.extra?.includeServices.checked),
             hideInput: (values) => isEmpty(values.hostGroups.ids),
             label: 'Events',
-            type: InputType.MultiCheckbox
+            type: InputType.CheckboxGroup
           }
         ],
         gridTemplateColumns: handleGridTemplate(panelWidth)
@@ -158,7 +158,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
             fieldName: 'serviceGroups.events',
             getDisabled: (values) => isEmpty(values.serviceGroups.ids),
             label: 'Service groups events',
-            type: InputType.MultiCheckbox
+            type: InputType.CheckboxGroup
           }
         ],
         gridTemplateColumns: handleGridTemplate(panelWidth)

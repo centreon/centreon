@@ -63,7 +63,7 @@ interface Props {
   onChange?: () => void;
 }
 
-const SingleCheckbox = ({
+const Checkbox = ({
   Icon,
   checked,
   label,
@@ -104,4 +104,4 @@ const SingleCheckbox = ({
   );
 };
 
-export default SingleCheckbox;
+export default Checkbox;
