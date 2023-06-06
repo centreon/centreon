@@ -20,11 +20,11 @@ Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
-  cy.get('iframe#main-content')
+  return cy
+    .get('iframe#main-content')
     .its('0.contentDocument.body')
-    .should('not.be.empty');
-
-  return cy.get('iframe#main-content').its('0.contentDocument.body');
+    .should('not.be.empty')
+    .then(cy.wrap);
 });
 
 Cypress.Commands.add(

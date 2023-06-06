@@ -226,14 +226,10 @@ Feature:
 
   Scenario: Host group update with unknown fields for the Cloud platform
     Given I am logged in
-    And the following CLAPI import data:
-    """
-    HG;ADD;Test Host Group;Alias Test host group
-    """
     When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
     """
     {
-        "name": "Test Host Group",
+        "name": "test-update",
         "notes": "test-notes"
     }
     """
@@ -241,7 +237,7 @@ Feature:
     When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
     """
     {
-        "name": "Test Host Group",
+        "name": "test-update",
         "notes_url": "test-notes_url"
     }
     """
@@ -249,7 +245,7 @@ Feature:
     When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
     """
     {
-        "name": "Test Host Group",
+        "name": "test-update",
         "action_url": "test-action_url"
     }
     """
@@ -257,7 +253,7 @@ Feature:
     When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
     """
     {
-        "name": "Test Host Group",
+        "name": "test-update",
         "icon_map_id": 1
     }
     """
@@ -265,7 +261,7 @@ Feature:
     When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
     """
     {
-        "name": "Test Host Group",
+        "name": "test-update",
         "rrd": 88
     }
     """
@@ -273,7 +269,7 @@ Feature:
     When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
     """
     {
-        "name": "Test Host Group",
+        "name": "test-update",
         "comment": "test-comment"
     }
     """
