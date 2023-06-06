@@ -33,7 +33,7 @@ export const labelExpandInformationPanel = 'Expand information panel';
 export const labelTypeYourTextHere = 'Type your text here';
 
 export const labelActiveOrInactive = 'Active / Inactive';
-export const labelChangeName = 'Change the name';
+export const labelChangeName = 'Edit name';
 export const labelNotificationName = 'Notification name';
 export const labelRequired = 'Required';
 

@@ -15602,8 +15602,8 @@ msgstr "Tapez votre texte ici"
 msgid "Active / Inactive"
 msgstr "Actif / Inactif"
 
-msgid "Change the name"
-msgstr "Changer le nom"
+msgid "Edit name"
+msgstr "Modifier le nom"
 
 msgid "Notification name"
 msgstr "Nom de la notification"
