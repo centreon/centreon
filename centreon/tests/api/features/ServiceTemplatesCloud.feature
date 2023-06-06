@@ -25,8 +25,7 @@ Feature:
         "note": "note",
         "note_url": "note_url",
         "action_url": "action url",
-        "severity_id": null,
-        "is_locked": false
+        "severity_id": null
     }
     """
     Then the response code should be 201

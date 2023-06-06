@@ -55,8 +55,7 @@ Feature:
         "icon_id": 1,
         "icon_alternative": "icon_alternative",
         "severity_id": null,
-        "is_activated": true,
-        "is_locked": false
+        "is_activated": true
     }
     """
     Then the response code should be 201
