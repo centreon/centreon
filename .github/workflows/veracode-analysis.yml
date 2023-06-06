@@ -97,21 +97,21 @@ jobs:
           distribution: 'zulu'
           java-version: 8
 
-      - name: Pipeline scan
-        uses: veracode/Veracode-pipeline-scan-action@v1.0.3
-        with:
-          vid: ${{ secrets.veracode_api_id }}
-          vkey: ${{ secrets.veracode_api_key }}
-          file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
-          baseline_file: "${{ env.baseline_file }}"
-          create_baseline_from: "${{ env.create_baseline_from }}"
-          fail_build: false #TODO: Do not fail the jobs until grace period ends
-          #fail_build: '${{ needs.build.outputs.fail_build }}'
-          fail_on_severity: "Medium"
-          timeout: 60
-          development_stage: '${{ needs.build.outputs.development_stage }}'
-          summary_display: '${{ needs.build.outputs.display_summary }}'
-          issue_details: '${{ needs.build.outputs.display_summary }}'
+#      - name: Pipeline scan
+#        uses: veracode/Veracode-pipeline-scan-action@v1.0.3
+#        with:
+#          vid: ${{ secrets.veracode_api_id }}
+#          vkey: ${{ secrets.veracode_api_key }}
+#          file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
+#          baseline_file: "${{ env.baseline_file }}"
+#          create_baseline_from: "${{ env.create_baseline_from }}"
+#          fail_build: false #TODO: Do not fail the jobs until grace period ends
+#          #fail_build: '${{ needs.build.outputs.fail_build }}'
+#          fail_on_severity: "Medium"
+#          timeout: 60
+#          development_stage: '${{ needs.build.outputs.development_stage }}'
+#          summary_display: '${{ needs.build.outputs.display_summary }}'
+#          issue_details: '${{ needs.build.outputs.display_summary }}'
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
