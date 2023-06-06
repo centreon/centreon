@@ -172,3 +172,17 @@ jobs:
           continue-on-error: 'true'
           deleteincompletescan: 1
           scanpollinginterval: 60 # time between two checks / 0.2.5
+
+#      - name: Promote sandbox scan to policy
+#        #if: '!cancelled()'
+#        #if: '!cancelled()' && github.ref_name == 'develop' # TODO to revert before merge
+#        env:
+#          VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
+#          VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
+#        uses: veracode/veracode-sandboxes-helper@v1.0.0
+#        with:
+#          activity: "promote-latest-scan"
+#          app-name: "${{ inputs.module_name }}"
+#          #sandbox-name: "${{ github.ref_name }}-${{ github.sha }}" # TODO to revert before merge
+#          sandbox-name: "fake_develop-${{ github.sha }}"
+#          delete-on-promote: 'true'
