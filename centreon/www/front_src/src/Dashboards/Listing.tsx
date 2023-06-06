@@ -85,8 +85,8 @@ const Listing = (): ReactElement => {
           {!hasDashboards ? (
             <DataTable.EmptyState
               aria-label="create"
+              canCreate={isEitherCreatorOrAdministrator}
               data-testid="create-dashboard"
-              displayCreateButton={isEitherCreatorOrAdministrator}
               labels={emptyListStateLabels}
               onCreate={createDashboard}
             />

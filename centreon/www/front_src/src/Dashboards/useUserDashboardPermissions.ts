@@ -14,11 +14,11 @@ const useUserDashboardPermissions = (): useUserDashboardPermissionsState => {
   const { dashboard: globalRoles } = useAtomValue(userAtom);
 
   const isEitherCreatorOrAdministrator =
-    globalRoles.createRole || globalRoles.administrateRole;
+    globalRoles.createDashboards || globalRoles.manageAllDashboards;
 
   const getHasEditPermission = (dashboard: Dashboard): boolean => {
     return (
-      globalRoles.administrateRole ||
+      globalRoles.manageAllDashboards ||
       (isEitherCreatorOrAdministrator &&
         equals(dashboard.ownRole, DashboardRole.editor))
     );

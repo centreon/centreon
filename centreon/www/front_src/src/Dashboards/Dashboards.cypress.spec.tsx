@@ -32,10 +32,10 @@ const initializeAndMount = ({
   store.set(userAtom, {
     alias: 'admin',
     dashboard: {
-      administrateRole: canAdministrateDashboard,
-      createRole: canCreateDashboard,
+      createDashboards: canCreateDashboard,
       globalUserRole: globalRole,
-      viewRole: canViewDashboard
+      manageAllDashboards: canAdministrateDashboard,
+      viewDashboards: canViewDashboard
     },
     isExportButtonEnabled: true,
     locale: 'en',

@@ -12,20 +12,20 @@ import { PlatformInstallationStatus } from './models';
 
 const dashboardDecoder = JsonDecoder.object<DashboardRolesAndPermissions>(
   {
-    administrateRole: JsonDecoder.boolean,
-    createRole: JsonDecoder.boolean,
+    createDashboards: JsonDecoder.boolean,
     globalUserRole: JsonDecoder.enumeration<DashboardGlobalRole>(
       DashboardGlobalRole,
       'DashboardGlobalRole'
     ),
-    viewRole: JsonDecoder.boolean
+    manageAllDashboards: JsonDecoder.boolean,
+    viewDashboards: JsonDecoder.boolean
   },
   'Dashboard roles and permissions',
   {
-    administrateRole: 'administrate_role',
-    createRole: 'create_role',
+    createDashboards: 'create_role',
     globalUserRole: 'global_user_role',
-    viewRole: 'view_role'
+    manageAllDashboards: 'administrate_role',
+    viewDashboards: 'view_role'
   }
 );
 

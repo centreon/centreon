@@ -12,10 +12,10 @@ export enum DashboardGlobalRole {
 }
 
 export interface DashboardRolesAndPermissions {
-  administrateRole: boolean;
-  createRole: boolean;
+  createDashboards: boolean;
   globalUserRole: DashboardGlobalRole;
-  viewRole: boolean;
+  manageAllDashboards: boolean;
+  viewDashboards: boolean;
 }
 
 export interface User {
