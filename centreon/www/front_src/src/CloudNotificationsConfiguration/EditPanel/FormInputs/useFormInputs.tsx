@@ -86,9 +86,9 @@ const useFormInputs = ({ panelWidth }: Props): object => {
           },
           {
             checkbox: {
+              direction: 'horizontal',
               labelPlacement: 'top',
-              options: hostEvents,
-              row: true
+              options: hostEvents
             },
             dataTestId: 'Host groups events',
             fieldName: 'hostGroups.events',
@@ -110,9 +110,9 @@ const useFormInputs = ({ panelWidth }: Props): object => {
           },
           {
             checkbox: {
+              direction: 'horizontal',
               labelPlacement: 'top',
-              options: serviceEvents,
-              row: true
+              options: serviceEvents
             },
             dataTestId: 'Extra events services',
             fieldName: 'hostGroups.extra.eventsServices',
@@ -150,9 +150,9 @@ const useFormInputs = ({ panelWidth }: Props): object => {
           },
           {
             checkbox: {
+              direction: 'horizontal',
               labelPlacement: 'top',
-              options: serviceEvents,
-              row: true
+              options: serviceEvents
             },
             dataTestId: 'Service groups events',
             fieldName: 'serviceGroups.events',
@@ -225,7 +225,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
               columns: [
                 {
                   checkbox: {
-                    row: true
+                    direction: 'horizontal'
                   },
                   dataTestId: 'Email',
                   fieldName: 'messages.channel',
@@ -234,7 +234,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
                 },
                 {
                   checkbox: {
-                    row: true
+                    direction: 'horizontal'
                   },
                   dataTestId: 'SMS',
                   fieldName: 'sms.channel',
@@ -244,7 +244,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
                 },
                 {
                   checkbox: {
-                    row: true
+                    direction: 'horizontal'
                   },
                   dataTestId: 'Slack',
                   fieldName: 'slack.channel',

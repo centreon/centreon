@@ -1,4 +1,4 @@
-import { includes } from 'ramda';
+import { equals, includes } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { FormGroup } from '@mui/material';
@@ -7,11 +7,11 @@ import Checkbox, { LabelPlacement } from '../Checkbox';
 
 interface Props {
   dataTestId?: string;
+  direction?: 'horizontal' | 'vertical';
   disabled?: boolean;
   labelPlacement?: LabelPlacement;
-  onChange?: () => void;
+  onChange?: (e) => void;
   options: Array<string>;
-  row?: boolean;
   values: Array<string>;
 }
 
@@ -30,13 +30,15 @@ const useStyles = makeStyles()((theme) => ({
 const CheckboxGroup = ({
   options,
   values,
-  row = false,
+  direction = 'vertical',
   onChange,
   labelPlacement = 'end',
   disabled = false,
   dataTestId
 }: Props): JSX.Element => {
   const { classes } = useStyles();
+
+  const row = equals(direction, 'vertical');
 
   return (
     <FormGroup

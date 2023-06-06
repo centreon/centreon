@@ -221,7 +221,7 @@ export const basicFormInputs: Array<InputProps> = [
       columns: [
         {
           checkbox: {
-            row: true
+            direction: 'horizontal'
           },
           fieldName: 'notifications.channels',
           label: 'channels',
@@ -234,9 +234,9 @@ export const basicFormInputs: Array<InputProps> = [
         },
         {
           checkbox: {
+            direction: 'horizontal',
             labelPlacement: 'top',
-            options: ['ok', 'warning', 'critical', 'unknown'],
-            row: true
+            options: ['ok', 'warning', 'critical', 'unknown']
           },
           fieldName: 'notifications.hostevents',
           label: 'host events',

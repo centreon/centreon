@@ -38,9 +38,9 @@ export interface InputProps {
   };
   change?: ({ setFieldValue, value }) => void;
   checkbox?: {
+    direction?: 'horizontal' | 'vertical';
     labelPlacement?: LabelPlacement;
     options?: Array<string>;
-    row?: boolean;
   };
   connectedAutocomplete?: {
     additionalConditionParameters: Array<ConditionsSearchParameter>;

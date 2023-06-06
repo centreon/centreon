@@ -26,16 +26,16 @@ Playground.args = {
 export const Horizontal = Template.bind({});
 
 Horizontal.args = {
+  direction: 'horizontal',
   options,
-  row: true,
   values
 };
 
 export const LabelOnTop = Template.bind({});
 
 LabelOnTop.args = {
+  direction: 'horizontal',
   labelPlacement: 'top',
   options,
-  row: true,
   values
 };

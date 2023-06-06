@@ -60,7 +60,7 @@ interface Props {
   disabled?: boolean;
   label: string;
   labelPlacement?: LabelPlacement;
-  onChange?: () => void;
+  onChange?: (e) => void;
 }
 
 const Checkbox = ({

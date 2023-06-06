@@ -60,10 +60,10 @@ const CheckboxGroup = ({
         {additionalLabel && <Typography>{additionalLabel}</Typography>}
         <CheckboxGroupComponent
           dataTestId={dataTestId || ''}
+          direction={checkbox?.direction}
           disabled={disabled}
           labelPlacement={checkbox?.labelPlacement || 'end'}
-          options={checkbox?.options}
-          row={checkbox?.row || false}
+          options={checkbox?.options as Array<string>}
           values={value}
           onChange={handleChange}
         />
