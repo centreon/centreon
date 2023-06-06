@@ -203,7 +203,9 @@ class CentreonDB extends \PDO
             );
         } catch (Exception $e) {
             if (php_sapi_name() !== "cli") {
-                $this->displayConnectionErrorPage($e->getMessage());
+                $this->displayConnectionErrorPage(
+                    $e->getCode() === 2002 ? "Unable to connect to database" : $e->getMessage()
+                );
             } else {
                 throw new Exception($e->getMessage());
             }
