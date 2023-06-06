@@ -135,13 +135,20 @@ jobs:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
 
-      - name: DEBUG - Check location
-        run: |
-          ls -la
-          ls -la /tmp
-          echo "current branch name ${{ github.base_ref }}"
+      - name: Delete sandbox scan
+        continue-on-error: true
+        env:
+          VERACODE_API_ID: '${{ secrets.VERACODE_API_ID }}'
+          VERACODE_API_SECRET: '${{ secrets.VERACODE_API_SECRET }}'
+        uses: veracode/veracode-sandboxes-helper@v1.0.0
+        with:
+          activity: "remove-sandbox"
+          app-name: "${{ inputs.module_name }}"
+          #sandbox-name: "${{ github.ref_name }}" # TODO to revert before merge
+          sandbox-name: "fake_develop"
 
       - name: Run a sandbox scan
+        #continue-on-error: true
         uses: veracode/veracode-uploadandscan-action@master
         with:
           appname: "${{ inputs.module_name }}"
@@ -161,14 +168,10 @@ jobs:
           deleteincompletescan: 1
           scanpollinginterval: 60 # time between two checks / 0.2.5
 
-  promote-scan-to-policy:
-    needs: [build, policy-scan]
-    name: Promote sandbox scan as policy scan
-    #if: github.ref_name == 'develop' # TODO to revert before merge
-    runs-on: ubuntu-latest
-
-    steps:
       - name: Promote sandbox scan to policy
+        if: '!cancelled()'
+        #if: '!cancelled()' && github.ref_name == 'develop' # TODO to revert before merge
+        continue-on-error: true
         env:
           VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
           VERACODE_API_SECRET: ${{ secrets.VERACODE_API_KEY }}
