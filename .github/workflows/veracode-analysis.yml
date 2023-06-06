@@ -125,6 +125,7 @@ jobs:
   policy-scan:
     needs: [build]
     name: Run a sandbox scan
+    # only stable and unstable maintenances branches will produce a report
     if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -152,4 +153,4 @@ jobs:
           includenewmodules: 'true'
           scanallnonfataltoplevelmodules: 'true'
           deleteincompletescan: 1
-          scanpollinginterval: 60 # time between two checks / 0.2.5
+          scanpollinginterval: 60 # time between two checks in seconds / [30 to 120]
