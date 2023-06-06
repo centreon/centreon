@@ -308,7 +308,7 @@ it('should present a ConflictResponse when the command ID is not valid', functio
 
     $this->commandRepository
         ->expects($this->once())
-        ->method('exists')
+        ->method('existsByIdAndCommandType')
         ->with($request->commandId)
         ->willReturn(false);
 
@@ -362,14 +362,16 @@ it('should present a ConflictResponse when the event handler ID is not valid', f
         ->willReturn(true);
 
     $this->commandRepository
-        ->expects($this->exactly(2))
+        ->expects($this->once())
+        ->method('existsByIdAndCommandType')
+        ->with($request->commandId)
+        ->willReturn(true);
+
+    $this->commandRepository
+        ->expects($this->once())
         ->method('exists')
-        ->will($this->returnValueMap(
-            [
-                [$request->commandId, true],
-                [$request->eventHandlerId, false]
-            ]
-        ));
+        ->with($request->eventHandlerId)
+        ->willReturn(false);
 
     ($this->useCase)($request, $this->presenter);
     expect($this->presenter->response)
@@ -427,14 +429,16 @@ it('should present a ConflictResponse when the time period ID is not valid', fun
         ->willReturn(true);
 
     $this->commandRepository
-        ->expects($this->exactly(2))
+        ->expects($this->once())
+        ->method('existsByIdAndCommandType')
+        ->with($request->commandId)
+        ->willReturn(true);
+
+    $this->commandRepository
+        ->expects($this->once())
         ->method('exists')
-        ->will($this->returnValueMap(
-            [
-                [$request->commandId, true],
-                [$request->eventHandlerId, true]
-            ]
-        ));
+        ->with($request->eventHandlerId)
+        ->willReturn(true);
 
     $this->timePeriodRepository
         ->expects($this->once())
@@ -499,14 +503,16 @@ it('should present a ConflictResponse when the notification time period ID is no
         ->willReturn(true);
 
     $this->commandRepository
-        ->expects($this->exactly(2))
+        ->expects($this->once())
+        ->method('existsByIdAndCommandType')
+        ->with($request->commandId)
+        ->willReturn(true);
+
+    $this->commandRepository
+        ->expects($this->once())
         ->method('exists')
-        ->will($this->returnValueMap(
-            [
-                [$request->commandId, true],
-                [$request->eventHandlerId, true]
-            ]
-        ));
+        ->with($request->eventHandlerId)
+        ->willReturn(true);
 
     $this->timePeriodRepository
         ->expects($this->exactly(2))
@@ -576,14 +582,16 @@ it('should present a ConflictResponse when the icon ID is not valid', function (
         ->willReturn(true);
 
     $this->commandRepository
-        ->expects($this->exactly(2))
+        ->expects($this->once())
+        ->method('existsByIdAndCommandType')
+        ->with($request->commandId)
+        ->willReturn(true);
+
+    $this->commandRepository
+        ->expects($this->once())
         ->method('exists')
-        ->will($this->returnValueMap(
-            [
-                [$request->commandId, true],
-                [$request->eventHandlerId, true]
-            ]
-        ));
+        ->with($request->eventHandlerId)
+        ->willReturn(true);
 
     $this->timePeriodRepository
         ->expects($this->exactly(2))
@@ -659,14 +667,16 @@ it('should present an InvalidArgumentResponse when data are not valid', function
         ->willReturn(true);
 
     $this->commandRepository
-        ->expects($this->exactly(2))
+        ->expects($this->once())
+        ->method('existsByIdAndCommandType')
+        ->with($request->commandId)
+        ->willReturn(true);
+
+    $this->commandRepository
+        ->expects($this->once())
         ->method('exists')
-        ->will($this->returnValueMap(
-            [
-                [$request->commandId, true],
-                [$request->eventHandlerId, true]
-            ]
-        ));
+        ->with($request->eventHandlerId)
+        ->willReturn(true);
 
     $this->timePeriodRepository
         ->expects($this->exactly(2))

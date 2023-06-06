@@ -159,9 +159,9 @@ class ServiceTemplate
         }
 
         Assertion::unauthorizedCharacters(
-            $this->name,
+            $this->alias,
             MonitoringServer::ILLEGAL_CHARACTERS,
-            "{$className}::name"
+            "{$className}::alias"
         );
 
         // Assertions on ForeignKeys
