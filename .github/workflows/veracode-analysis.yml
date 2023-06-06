@@ -145,6 +145,7 @@ jobs:
     name: Run a sandbox scan
     #if: needs.build.outputs.development_stage != 'Development' # TODO to revert before merge
     runs-on: ubuntu-latest
+    continue-on-error: 'true'
 
     steps:
       - name: Get build binary
@@ -169,7 +170,6 @@ jobs:
           scantimeout: 60
           includenewmodules: 'true'
           scanallnonfataltoplevelmodules: 'true'
-          continue-on-error: 'true'
           deleteincompletescan: 1
           scanpollinginterval: 60 # time between two checks / 0.2.5
 
