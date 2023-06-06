@@ -122,19 +122,11 @@ jobs:
 #          aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
 #          aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
 
-  policy-scan:
-    needs: [build]
-    name: Run a sandbox scan
-    #if: needs.build.outputs.development_stage != 'Development' # TODO to revert before merge
+  clean-sandbox:
+    name: Clean old sandbox scan
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get build binary
-        uses: actions/cache/restore@v3
-        with:
-          path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
-          key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
-
       - name: Delete sandbox scan
         continue-on-error: true
         env:
@@ -147,8 +139,20 @@ jobs:
           #sandbox-name: "${{ github.ref_name }}" # TODO to revert before merge
           sandbox-name: "fake_develop"
 
+  policy-scan:
+    needs: [build, clean-sandbox]
+    name: Run a sandbox scan
+    #if: needs.build.outputs.development_stage != 'Development' # TODO to revert before merge
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get build binary
+        uses: actions/cache/restore@v3
+        with:
+          path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
+          key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
+
       - name: Run a sandbox scan
-        #continue-on-error: true
         uses: veracode/veracode-uploadandscan-action@master
         with:
           appname: "${{ inputs.module_name }}"
@@ -169,9 +173,8 @@ jobs:
           scanpollinginterval: 60 # time between two checks / 0.2.5
 
       - name: Promote sandbox scan to policy
-        if: '!cancelled()'
+        #if: '!cancelled()'
         #if: '!cancelled()' && github.ref_name == 'develop' # TODO to revert before merge
-        continue-on-error: true
         env:
           VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
           VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
