@@ -20,8 +20,6 @@ declare module '@mui/material/styles' {
       listingHeader: string;
       paper: string;
     };
-    header: TypeHeader;
-    layout: TypeLayout;
     pending: {
       contrastText: string;
       main: string;
