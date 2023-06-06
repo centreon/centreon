@@ -168,6 +168,18 @@ it(
 
 
 it(
+    "should throw an exception when name contains illegal characters",
+    fn() => (new NewServiceTemplate('fake_name' . MonitoringServer::ILLEGAL_CHARACTERS[0], 'fake_alias'))
+)->throws(
+    AssertionException::class,
+    AssertionException::unauthorizedCharacters(
+        'fake_name' . MonitoringServer::ILLEGAL_CHARACTERS[0],
+        MonitoringServer::ILLEGAL_CHARACTERS[0],
+        'NewServiceTemplate::name'
+    )->getMessage()
+);
+
+it(
     "should throw an exception when alias contains illegal characters",
     fn() => (new NewServiceTemplate('fake_name', 'fake_alias' . MonitoringServer::ILLEGAL_CHARACTERS[0]))
 )->throws(

@@ -150,6 +150,11 @@ class ServiceTemplate
                 if ($propertyValue === null) {
                     throw AssertionException::notNull($className . '::' . $field);
                 }
+                Assertion::unauthorizedCharacters(
+                    $propertyValue,
+                    MonitoringServer::ILLEGAL_CHARACTERS,
+                    $className . '::' . $field
+                );
             }
             if ($propertyValue !== null) {
                 $this->{$field} = trim($propertyValue);
@@ -157,12 +162,6 @@ class ServiceTemplate
                 Assertion::maxLength($this->{$field}, $limitation, "{$className}::{$field}");
             }
         }
-
-        Assertion::unauthorizedCharacters(
-            $this->alias,
-            MonitoringServer::ILLEGAL_CHARACTERS,
-            "{$className}::alias"
-        );
 
         // Assertions on ForeignKeys
         $foreignKeys = [

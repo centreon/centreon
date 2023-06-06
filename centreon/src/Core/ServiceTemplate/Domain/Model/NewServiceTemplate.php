@@ -151,6 +151,11 @@ class NewServiceTemplate
         $name = trim($name);
         Assertion::notEmptyString($name, $this->className . '::name');
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, $this->className . '::name');
+        Assertion::unauthorizedCharacters(
+            $name,
+            MonitoringServer::ILLEGAL_CHARACTERS,
+            $this->className . '::name'
+        );
         $this->name = $name;
     }
 
