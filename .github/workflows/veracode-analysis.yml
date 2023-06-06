@@ -176,6 +176,6 @@ jobs:
         with:
           activity: "promote-latest-scan"
           app-name: "${{ inputs.module_name }}"
-          #sandboxname: "${{ github.ref_name }}" # TODO to revert before merge
-          sandboxname: "fake_develop"
+          #sandbox-name: "${{ github.ref_name }}" # TODO to revert before merge
+          sandbox-name: "fake_develop"
           delete-on-promote: 'true'
