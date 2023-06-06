@@ -100,8 +100,8 @@ jobs:
 #      - name: Pipeline scan
 #        uses: veracode/Veracode-pipeline-scan-action@v1.0.3
 #        with:
-#          vid: ${{ secrets.veracode_api_id }}
-#          vkey: ${{ secrets.veracode_api_key }}
+#          vid: '${{ secrets.veracode_api_id }}'
+#          vkey: '${{ secrets.veracode_api_key }}'
 #          file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
 #          baseline_file: "${{ env.baseline_file }}"
 #          create_baseline_from: "${{ env.create_baseline_from }}"
@@ -138,8 +138,8 @@ jobs:
       - name: Delete sandbox scan
         continue-on-error: true
         env:
-          VERACODE_API_ID: '${{ secrets.VERACODE_API_ID }}'
-          VERACODE_API_SECRET: '${{ secrets.VERACODE_API_SECRET }}'
+          VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
+          VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
         uses: veracode/veracode-sandboxes-helper@v1.0.0
         with:
           activity: "remove-sandbox"
@@ -154,8 +154,8 @@ jobs:
           appname: "${{ inputs.module_name }}"
           version: "${{ inputs.major_version }}.${{ inputs.minor_version }}"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
-          vid: ${{ secrets.VERACODE_API_ID }}
-          vkey: ${{ secrets.VERACODE_API_KEY }}
+          vid: '${{ secrets.veracode_api_id }}'
+          vkey: '${{ secrets.veracode_api_key }}'
           createprofile: true
           createsandbox: true
           #sandboxname: "${{ github.ref_name }}" # TODO to revert before merge
@@ -173,8 +173,8 @@ jobs:
         #if: '!cancelled()' && github.ref_name == 'develop' # TODO to revert before merge
         continue-on-error: true
         env:
-          VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
-          VERACODE_API_SECRET: ${{ secrets.VERACODE_API_KEY }}
+          VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
+          VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
         uses: veracode/veracode-sandboxes-helper@v1.0.0
         with:
           activity: "promote-latest-scan"
