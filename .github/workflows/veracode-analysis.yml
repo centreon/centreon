@@ -145,7 +145,7 @@ jobs:
     name: Run a sandbox scan
     #if: needs.build.outputs.development_stage != 'Development' # TODO to revert before merge
     runs-on: ubuntu-latest
-    continue-on-error: 'true'
+    continue-on-error: true
 
     steps:
       - name: Get build binary
@@ -158,14 +158,14 @@ jobs:
         uses: veracode/veracode-uploadandscan-action@master
         with:
           appname: "${{ inputs.module_name }}"
-          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}-${{ github.sha }}"
+          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_sha-${{ github.sha }}"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           vid: '${{ secrets.veracode_api_id }}'
           vkey: '${{ secrets.veracode_api_key }}'
           createprofile: true
           createsandbox: true
           #sandboxname: "${{ github.ref_name }}-${{ github.sha }}" # TODO to revert before merge
-          sandboxname: "dev-23.10.x"
+          sandboxname: "${{ github.ref_name }}"
           criticality: "High"
           scantimeout: 60
           includenewmodules: 'true'
