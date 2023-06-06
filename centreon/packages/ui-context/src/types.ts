@@ -5,8 +5,22 @@ export enum ListingVariant {
   extended = 'extended'
 }
 
+export enum DashboardGlobalRole {
+  administrator = 'administrator',
+  creator = 'creator',
+  viewer = 'viewer'
+}
+
+export interface DashboardRolesAndPermissions {
+  administrateRole: boolean;
+  createRole: boolean;
+  globalUserRole: DashboardGlobalRole;
+  viewRole: boolean;
+}
+
 export interface User {
   alias: string;
+  dashboard: DashboardRolesAndPermissions;
   default_page?: string | null;
   isExportButtonEnabled: boolean;
   locale: string;

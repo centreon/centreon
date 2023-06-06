@@ -24,6 +24,7 @@ import {
 } from './translatedLabels';
 import { deleteDialogStateAtom, openDialogAtom } from './atoms';
 import { Dashboard } from './models';
+import useUserDashboardPermissions from './useUserDashboardPermissions';
 
 const emptyListStateLabels = {
   actions: {
@@ -35,6 +36,8 @@ const emptyListStateLabels = {
 const Listing = (): ReactElement => {
   const { t } = useTranslation();
   const { dashboards, elementRef, isLoading } = useDashboards();
+  const { getHasEditPermission, isEitherCreatorOrAdministrator } =
+    useUserDashboardPermissions();
 
   const [, setDeleteDialogState] = useAtom(deleteDialogStateAtom);
   const openDialog = useSetAtom(openDialogAtom);
@@ -65,7 +68,7 @@ const Listing = (): ReactElement => {
   return (
     <TiledListingList>
       <TiledListingActions>
-        {hasDashboards && (
+        {hasDashboards && isEitherCreatorOrAdministrator && (
           <Button
             aria-label="create"
             data-testid="create-dashboard"
@@ -83,6 +86,7 @@ const Listing = (): ReactElement => {
             <DataTable.EmptyState
               aria-label="create"
               data-testid="create-dashboard"
+              displayCreateButton={isEitherCreatorOrAdministrator}
               labels={emptyListStateLabels}
               onCreate={createDashboard}
             />
@@ -92,9 +96,9 @@ const Listing = (): ReactElement => {
 
               return (
                 <DataTable.Item
-                  hasActions
                   hasCardAction
                   description={dashboard.description ?? undefined}
+                  hasActions={getHasEditPermission(dashboard)}
                   key={dashboard.id}
                   ref={isLastElement ? elementRef : undefined}
                   title={dashboard.name}
