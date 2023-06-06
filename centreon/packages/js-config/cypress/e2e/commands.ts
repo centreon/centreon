@@ -21,7 +21,7 @@ Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
 
 Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
   return cy
-    .get('iframe#main-content')
+    .get('iframe#main-content', { timeout: 10000 })
     .its('0.contentDocument.body')
     .should('not.be.empty')
     .then(cy.wrap);
