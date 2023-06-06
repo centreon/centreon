@@ -302,9 +302,9 @@ if ($o == "w") {
         $userAcl = new CentreonACL($userId, $userIsAdmin);
 
         if (
-            ! checkResourcesRelations($userAcl, $default_dt['host_relation'], 'hosts')
-            || ! checkResourcesRelations($userAcl, $default_dt['hostgroup_relation'], 'hostgroups')
-            || ! checkResourcesRelations($userAcl, $default_dt['svcgroup_relation'], 'servicegroups')
+            ! checkResourcesRelations($userAcl, $relations['hosts'], 'hosts')
+            || ! checkResourcesRelations($userAcl, $relations['hostgroups'], 'hostgroups')
+            || ! checkResourcesRelations($userAcl, $relations['servicegroups'], 'servicegroups')
         ) {
             $form->addElement('text', 'msgacl', _("error"), 'error');
             $form->freeze();
