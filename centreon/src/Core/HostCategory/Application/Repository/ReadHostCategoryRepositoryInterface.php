@@ -54,7 +54,7 @@ interface ReadHostCategoryRepositoryInterface
     public function findAllByAccessGroups(array $accessGroups, ?RequestParametersInterface $requestParameters): array;
 
     /**
-     * Check existance of a host category.
+     * Check existence of a host category.
      *
      * @param int $hostCategoryId
      *
@@ -65,7 +65,7 @@ interface ReadHostCategoryRepositoryInterface
     public function exists(int $hostCategoryId): bool;
 
     /**
-     * Check existance of a host category by access groups.
+     * Check existence of a host category by access groups.
      *
      * @param int $hostCategoryId
      * @param AccessGroup[] $accessGroups
@@ -77,7 +77,7 @@ interface ReadHostCategoryRepositoryInterface
     public function existsByAccessGroups(int $hostCategoryId, array $accessGroups): bool;
 
     /**
-     * Check existance of a list of host categories.
+     * Check existence of a list of host categories.
      * Return the ids of the existing categories.
      *
      * @param int[] $hostCategoryIds
@@ -89,7 +89,7 @@ interface ReadHostCategoryRepositoryInterface
     public function exist(array $hostCategoryIds): array;
 
     /**
-     * Check existance of a list of host categories by access groups.
+     * Check existence of a list of host categories by access groups.
      * Return the ids of the existing categories.
      *
      * @param int[] $hostCategoryIds
@@ -102,7 +102,7 @@ interface ReadHostCategoryRepositoryInterface
     public function existByAccessGroups(array $hostCategoryIds, array $accessGroups): array;
 
     /**
-     * Check existance of a host category by name.
+     * Check existence of a host category by name.
      *
      * @param TrimmedString $hostCategoryName
      *

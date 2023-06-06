@@ -2,7 +2,7 @@ type: object
 properties:
   id:
     type: integer
-    description: "Host template id"
+    description: "Host template ID"
     example: 1
   name:
     type: string

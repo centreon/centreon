@@ -245,7 +245,7 @@ final class AddHostTemplate
     }
 
     /**
-     * Assert category ids are valid.
+     * Assert category IDs are valid.
      *
      * @param int[] $categoryIds
      */
