@@ -1,10 +1,15 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkServicesAreMonitored } from '../../../commons';
+import {
+  checkServicesAreMonitored,
+  submitResultsViaClapi,
+  updateFixturesResult
+} from '../../../commons';
 import {
   actionBackgroundColors,
   insertDtResources,
   secondServiceInDtName,
+  serviceInAcknowledgementName,
   serviceInDtName,
   tearDownResource
 } from '../common';
@@ -16,7 +21,7 @@ const addSecondsToStringTime = ({ time, secondsToAdd }): string => {
 
   date.setSeconds(date.getSeconds() + secondsToAdd);
 
-  const updatedTimeString = date.toLocaleTimeString([], {
+  const updatedTimeString = date.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit'
   });
@@ -43,8 +48,16 @@ beforeEach(() => {
   }).as('getTimezonesList');
   cy.intercept({
     method: 'GET',
+    url: '/centreon/api/latest/monitoring/hosts/*/services/*/acknowledgements?limit=1'
+  }).as('getAckToolTip');
+  cy.intercept({
+    method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/monitoring/resources/acknowledge'
+  }).as('postAcknowledgments');
 });
 
 Given('a user authenticated in a Centreon server', () => {
@@ -55,6 +68,8 @@ Given('a user authenticated in a Centreon server', () => {
 });
 
 Given('the platform is configured with at least one resource', () => {
+  cy.reload();
+
   insertDtResources();
 
   checkServicesAreMonitored([
@@ -63,8 +78,21 @@ Given('the platform is configured with at least one resource', () => {
     },
     {
       name: secondServiceInDtName
+    },
+    {
+      name: serviceInAcknowledgementName
     }
   ]);
+
+  cy.get('[aria-label="Add columns"]').click();
+
+  cy.get('li[role="menuitem"][value="State"]').click();
+
+  cy.get('[aria-label="Add columns"]').click();
+
+  cy.getByLabel({ label: 'State filter' }).click();
+
+  cy.get('[data-value="all"]').click();
 });
 
 When('user cliks on Timezone field in his profile menu', () => {
@@ -150,10 +178,6 @@ When('the user creates a downtime on a resource', () => {
     rootItemNumber: 1
   });
 
-  cy.getByLabel({ label: 'State filter' }).click();
-
-  cy.get('[data-value="all"]').click();
-
   cy.contains(serviceInDtName)
     .parent()
     .parent()
@@ -191,21 +215,21 @@ Then(
   () => {
     cy.contains(serviceInDtName).parent().click();
 
-    cy.get('p[data-testid="To_date"]').then(($toDate) => {
+    cy.get('p[data-testid="From_date"]').then(($toDate) => {
       const toDate = $toDate[0].textContent;
 
       const timeRegex = /(\d{1,2}:\d{2} [AP]M)$/;
 
       const extractedTime = toDate?.match(timeRegex);
 
-      const Totime = extractedTime ? extractedTime[0] : '';
+      const fromTime = extractedTime ? extractedTime[0] : '';
 
       cy.getTimeFromHeader().then((localTime: string) => {
-        expect(
-          addSecondsToStringTime({ secondsToAdd: 3600, time: localTime })
-        ).to.equal(Totime);
+        expect(localTime).to.equal(fromTime);
       });
     });
+
+    cy.logout();
 
     tearDownResource();
   }
@@ -217,38 +241,84 @@ When('the user creates an acknowledgement on a resource', () => {
     rootItemNumber: 1
   });
 
-  cy.getByLabel({ label: 'State filter' }).click();
+  updateFixturesResult().then((submitResult) => {
+    submitResultsViaClapi(submitResult).then(() => {
+      cy.waitUntil(
+        () => {
+          return cy
+            .refreshListing()
+            .then(() => cy.contains(serviceInAcknowledgementName))
+            .parent()
+            .parent()
+            .then((val) => {
+              return val.children()[7].textContent === 'submit_status_2';
+            });
+        },
+        {
+          timeout: 30000
+        }
+      );
+    });
+  });
 
-  cy.get('[data-value="all"]').click();
-
-  cy.contains(serviceInDtName)
+  cy.contains(serviceInAcknowledgementName)
     .parent()
     .parent()
     .find('input[type="checkbox"]:first')
     .click();
 
-  cy.getByTestId({ testId: 'Multiple Set Downtime' }).last().click();
+  cy.getByLabel({ label: 'Acknowledge' }).last().click();
 
-  cy.getByLabel({ label: 'Set downtime' }).last().click();
+  cy.get('button').contains('Acknowledge').click();
 
-  cy.wait('@postSaveDowntime').then(() => {
-    cy.contains('Downtime command sent').should('have.length', 1);
+  cy.wait('@postAcknowledgments').then(() => {
+    cy.contains('Acknowledge command sent').should('have.length', 1);
   });
 
   cy.waitUntil(
     () => {
       return cy
         .refreshListing()
-        .then(() => cy.contains(serviceInDtName))
+        .then(() => cy.contains(serviceInAcknowledgementName))
         .parent()
         .then((val) => {
           return (
-            val.css('background-color') === actionBackgroundColors.inDowntime
+            val.css('background-color') === actionBackgroundColors.acknowledge
           );
         });
     },
     {
-      timeout: 15000
+      timeout: 30000
     }
   );
 });
+
+Then(
+  'date and time fields of acknowledge resource should be based on the custom timezone of the user',
+  () => {
+    cy.get(`span[aria-label="${serviceInAcknowledgementName} Acknowledged"]`)
+      .trigger('mouseover')
+      .wait('@getAckToolTip');
+
+    cy.get('div[role="tooltip"]')
+      .eq(1)
+      .find('td')
+      .eq(1)
+      .then(($date) => {
+        console.log($date[0].textContent);
+        const toDate = $date[0].textContent;
+
+        const timeRegex = /(\d{1,2}:\d{2} [AP]M)$/;
+
+        const extractedTime = toDate?.match(timeRegex);
+
+        const time = extractedTime ? extractedTime[0] : '';
+
+        cy.getTimeFromHeader().then((localTime: string) => {
+          expect(localTime).to.equal(time);
+        });
+      });
+
+    tearDownResource();
+  }
+);
