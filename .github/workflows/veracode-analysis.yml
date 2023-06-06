@@ -126,7 +126,6 @@ jobs:
     needs: [build]
     name: Run a sandbox scan
     #if: needs.build.outputs.development_stage != 'Development' # TODO to revert before merge
-    if: github.base_ref == 'MON-19351-sandbox-scan'
     runs-on: ubuntu-latest
 
     steps:
@@ -137,10 +136,10 @@ jobs:
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
 
       - name: DEBUG - Check location
-        run: ls -la
-
-      - name: DEBUG - Check location tmp
-        run: ls -la /tmp
+        run: |
+          ls -la
+          ls -la /tmp
+          echo "current branch name ${{ github.base_ref }}"
 
       - name: Run a sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
@@ -162,14 +161,10 @@ jobs:
           deleteincompletescan: 1
           scanpollinginterval: 60 # time between two checks / 0.2.5
 
-      - name: DEBUG - Check branch ref name
-        run: echo "current branch name ${{ github.base_ref }}"
-
   promote-scan-to-policy:
     needs: [build, policy-scan]
     name: Promote sandbox scan as policy scan
     #if: github.ref_name == 'develop' # TODO to revert before merge
-    if: github.base_ref == 'MON-19351-sandbox-scan'
     runs-on: ubuntu-latest
 
     steps:
