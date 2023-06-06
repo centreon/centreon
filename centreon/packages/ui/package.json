@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "23.10.21",
+  "version": "23.10.23",
   "description": "Centreon UI Components",
   "scripts": {
     "eslint": "eslint ./src --ext .js,.jsx,.ts,.tsx --max-warnings 0",
