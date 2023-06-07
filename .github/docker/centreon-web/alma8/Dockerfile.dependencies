@@ -1,4 +1,8 @@
-FROM almalinux:9 AS web_fresh
+ARG VERSION
+
+FROM almalinux:8 AS web_fresh
+
+ARG VERSION
 
 RUN bash -e <<EOF
 
@@ -8,11 +12,11 @@ RUN bash -e <<EOF
 
 dnf install -y dnf-plugins-core
 
-dnf config-manager --set-enabled crb
+dnf config-manager --set-enabled powertools
 
 dnf install -y epel-release
 
-dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/23.10/el9/centreon-23.10.repo
+dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el8/centreon-${VERSION}.repo
 dnf config-manager --set-enabled 'centreon*'
 
 #############################
@@ -79,7 +83,10 @@ dnf install -y libfaketime
 # install php dependencies #
 ############################
 
-dnf module enable -y php:8.1
+dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
+dnf module reset -y php
+dnf module install -y php:remi-8.1
+
 dnf install -y \
   php-common \
   php-cli \
@@ -102,11 +109,10 @@ dnf install -y \
 #################################
 
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
-  | bash -s -- --os-type=rhel --skip-check-installed --os-version=9 --mariadb-server-version="mariadb-10.5"
+  | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.5"
 dnf install -y mariadb-server mariadb
 
 echo "[server]
-skip-grant-tables
 log_output=FILE
 general_log_file        = /var/lib/mysql/queries.log
 general_log             = 0
@@ -159,4 +165,4 @@ dnf clean all --enablerepo=*
 
 EOF
 
-COPY --chmod=755 ./.github/docker/init/* /etc/init.d/
+COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/

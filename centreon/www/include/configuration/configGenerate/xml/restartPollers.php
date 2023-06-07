@@ -168,10 +168,11 @@ try {
     /*  Set new error handler */
     set_error_handler($log_error);
 
-    if (defined('_CENTREON_VARLIB_')) {
-        $centcore_pipe = _CENTREON_VARLIB_ . '/centcore.cmd';
+    $centcoreDirectory = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ : '/var/lib/centreon';
+    if (is_dir($centcoreDirectory . '/centcore')) {
+        $centcorePipe = $centcoreDirectory . '/centcore/' . microtime(true) . '-externalcommand.cmd';
     } else {
-        $centcore_pipe = '/var/lib/centreon/centcore.cmd';
+        $centcorePipe = $centcoreDirectory . '/centcore.cmd';
     }
 
     $stdout = "";
@@ -214,7 +215,7 @@ try {
     $commandGenerator = $container->get(EngineCommandGenerator::class);
     foreach ($poller as $host) {
         if ($ret["restart_mode"] == 1) {
-            if ($fh = @fopen($centcore_pipe, 'a+')) {
+            if ($fh = @fopen($centcorePipe, 'a+')) {
                 $reloadCommand = ($commandGenerator !== null)
                     ? $commandGenerator->getEngineCommand('RELOAD')
                     : 'RELOAD';
@@ -233,7 +234,7 @@ try {
                 . $host["name"] . "\n"
             );
         } elseif ($ret["restart_mode"] == 2) {
-            if ($fh = @fopen($centcore_pipe, 'a+')) {
+            if ($fh = @fopen($centcorePipe, 'a+')) {
                 $restartCommand = ($commandGenerator !== null)
                     ? $commandGenerator->getEngineCommand('RESTART')
                     : 'RESTART';
