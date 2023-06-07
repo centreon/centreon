@@ -41,7 +41,7 @@ export interface DashboardDetails extends NamedEntity {
   createdAt: string;
   createdBy: NamedEntity;
   description: string | null;
-  panels: Array<PanelDetails>;
+  panels?: Array<PanelDetails>;
   updatedAt: string;
   updatedBy: NamedEntity;
 }

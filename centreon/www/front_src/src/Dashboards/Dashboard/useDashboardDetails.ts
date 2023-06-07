@@ -47,8 +47,14 @@ export const routerParams = {
 const getPanels = (dashboard?: DashboardDetails): Array<PanelDetails> =>
   propOr([] as Array<PanelDetails>, 'panels', dashboard);
 
-const useDashboardDetails = (): UseDashboardDetailsState => {
-  const { dashboardId } = routerParams.useParams();
+type UseDashboardDetailsProps = {
+  dashboardId: string | null;
+};
+
+const useDashboardDetails = ({
+  dashboardId
+}: UseDashboardDetailsProps): UseDashboardDetailsState => {
+  if (!dashboardId) throw new Error('dashboardId is required');
 
   const setDashboard = useSetAtom(dashboardAtom);
 
