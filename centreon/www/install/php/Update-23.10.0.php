@@ -44,7 +44,7 @@ try {
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();
     }
-
+    $errorMessage = "Unable to Delete nagios_path_img from options table";
     $removeNagiosPathImg($pearDB);
 
     $pearDB->commit();
