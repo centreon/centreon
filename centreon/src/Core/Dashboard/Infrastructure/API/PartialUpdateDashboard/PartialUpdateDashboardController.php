@@ -57,7 +57,9 @@ final class PartialUpdateDashboardController extends AbstractController
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         try {
-            $useCase($dashboardId, $this->getPartialUpdateDashboardRequest($request), $presenter);
+            $partialUpdateDashboardRequest = $this->getPartialUpdateDashboardRequest($request);
+
+            $useCase($dashboardId, $partialUpdateDashboardRequest, $presenter);
         } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
