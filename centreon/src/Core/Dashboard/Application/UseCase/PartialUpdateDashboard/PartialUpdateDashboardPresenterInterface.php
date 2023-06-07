@@ -21,11 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboards;
+namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard;
 
-final class FindDashboardsUserDto
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface PartialUpdateDashboardPresenterInterface
 {
-    public int $id = 0;
-
-    public string $name = '';
+    public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void;
 }

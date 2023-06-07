@@ -317,6 +317,47 @@ class Assertion
     }
 
     /**
+     * Assert that string value is a valid JSON string.
+     *
+     * @param string $value Value to test
+     * @param string|null $propertyPath Property's path (ex: Host::name)
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public static function jsonString(string $value, ?string $propertyPath = null): void
+    {
+        try {
+            json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            throw AssertionException::invalidJsonString($propertyPath);
+        }
+    }
+
+    /**
+     * Assert that the value can be encoded to a valid JSON string.
+     *
+     * @param mixed $value Value to test
+     * @param string|null $propertyPath Property's path (ex: Host::name)
+     * @param int|null $maxLength
+     *
+     * @throws AssertionException
+     */
+    public static function jsonEncodable(mixed $value, ?string $propertyPath = null, ?int $maxLength = null): void
+    {
+        try {
+            $json = json_encode($value, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
+            if (null !== $maxLength) {
+                $length = \mb_strlen($json, 'utf8');
+                if ($length > $maxLength) {
+                    throw AssertionException::maxLength('<JSON>', $length, $maxLength, $propertyPath);
+                }
+            }
+        } catch (\JsonException) {
+            throw AssertionException::notJsonEncodable($propertyPath);
+        }
+    }
+
+    /**
      * Make a string version of a value.
      *
      * Copied from {@see \Assert\Assertion::stringify()}.

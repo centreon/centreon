@@ -21,11 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\UpdateDashboard;
+namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request;
 
-final class UpdateDashboardRequest
+final class PanelRequestDto
 {
-    public string $name = '';
-
-    public string $description = '';
+    /**
+     * @param int|null $id
+     * @param string $name
+     * @param PanelLayoutRequestDto $layout
+     * @param string $widgetType
+     * @param array<mixed> $widgetSettings
+     */
+    public function __construct(
+        public ?int $id = null,
+        public string $name = '',
+        public PanelLayoutRequestDto $layout = new PanelLayoutRequestDto(),
+        public string $widgetType = '',
+        public array $widgetSettings = [],
+    ) {
+    }
 }

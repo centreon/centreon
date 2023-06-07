@@ -21,19 +21,31 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Dashboard\Application\UseCase\UpdateDashboard;
+namespace Core\Dashboard\Application\Repository;
 
-use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Dashboard\Application\UseCase\UpdateDashboard\UpdateDashboardPresenterInterface;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Dashboard\Domain\Model\DashboardPanel;
 
-class UpdateDashboardPresenterStub implements UpdateDashboardPresenterInterface
+interface ReadDashboardPanelRepositoryInterface
 {
-    public ResponseStatusInterface|NoContentResponse $data;
+    /**
+     * Find all panels IDs of a specific dashboard.
+     *
+     * @param int $dashboardId
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findPanelIdsByDashboardId(int $dashboardId): array;
 
-    public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void
-    {
-        $this->data = $data;
-    }
+    /**
+     * Find all panels of a specific dashboard.
+     *
+     * @param int $dashboardId
+     *
+     * @throws \Throwable
+     *
+     * @return DashboardPanel[]
+     */
+    public function findPanelsByDashboardId(int $dashboardId): array;
 }

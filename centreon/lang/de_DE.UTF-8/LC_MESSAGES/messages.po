@@ -15418,6 +15418,9 @@ msgstr ""
 # msgid "Error while updating a dashboard"
 # msgstr ""
 
+# msgid "Error while trying to update a dashboard panel which belongs to another"
+# msgstr ""
+
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
 #msgid "Unblock"
 #msgstr ""

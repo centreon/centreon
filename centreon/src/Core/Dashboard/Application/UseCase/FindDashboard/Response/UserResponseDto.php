@@ -21,29 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboards;
+namespace Core\Dashboard\Application\UseCase\FindDashboard\Response;
 
-use DateTimeImmutable;
-
-final class FindDashboardDto
+final class UserResponseDto
 {
-    public int $id = 0;
-
-    public string $name = '';
-
-    public string $description = '';
-
-    public ?FindDashboardsUserDto $createdBy = null;
-
-    public ?FindDashboardsUserDto $updatedBy = null;
-
-    public DateTimeImmutable $createdAt;
-
-    public DateTimeImmutable $updatedAt;
-
-    public function __construct()
-    {
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+    public function __construct(
+        public int $id = 0,
+        public string $name = '',
+    ) {
     }
 }

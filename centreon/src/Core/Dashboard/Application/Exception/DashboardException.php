@@ -88,4 +88,12 @@ class DashboardException extends \Exception
     {
         return new self(_('Error while updating a dashboard'));
     }
+
+    /**
+     * @return self
+     */
+    public static function errorTryingToUpdateAPanelWhichDoesNotBelongsToTheDashboard(): self
+    {
+        return new self(_('Error while trying to update a dashboard panel which belongs to another'));
+    }
 }

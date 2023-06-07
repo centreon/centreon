@@ -21,12 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\UpdateDashboard;
+namespace Core\Dashboard\Application\UseCase\FindDashboards\Response;
 
-use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-
-interface UpdateDashboardPresenterInterface
+final class UserResponseDto
 {
-    public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void;
+    public function __construct(
+        public int $id = 0,
+        public string $name = '',
+    ) {
+    }
 }

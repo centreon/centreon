@@ -21,11 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\AddDashboard;
+namespace Tests\Core\Dashboard\Application\UseCase\PartialUpdateDashboard;
 
-final class AddDashboardUserDto
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardPresenterInterface;
+
+class PartialUpdateDashboardPresenterStub implements PartialUpdateDashboardPresenterInterface
 {
-    public int $id = 0;
+    public ResponseStatusInterface|NoContentResponse $data;
 
-    public string $name = '';
+    public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void
+    {
+        $this->data = $data;
+    }
 }

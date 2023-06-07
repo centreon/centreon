@@ -20,3 +20,22 @@ CREATE TABLE IF NOT EXISTS `dashboard` (
     FOREIGN KEY (`updated_by`)
     REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_panel` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `dashboard_id` INT UNSIGNED NOT NULL,
+  `name` VARCHAR(200) NOT NULL,
+  `widget_type` VARCHAR(200) NOT NULL,
+  `widget_settings` text NOT NULL,
+  `layout_x` smallint(6) NOT NULL,
+  `layout_y` smallint(6) NOT NULL,
+  `layout_width` smallint(6) NOT NULL,
+  `layout_height` smallint(6) NOT NULL,
+  `layout_min_width` smallint(6) NOT NULL,
+  `layout_min_height` smallint(6) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `name_index` (`name`),
+  CONSTRAINT `parent_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
