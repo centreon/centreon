@@ -48,14 +48,12 @@ const getPanels = (dashboard?: DashboardDetails): Array<PanelDetails> =>
   propOr([] as Array<PanelDetails>, 'panels', dashboard);
 
 type UseDashboardDetailsProps = {
-  dashboardId: string | null;
+  dashboardId: string;
 };
 
 const useDashboardDetails = ({
   dashboardId
 }: UseDashboardDetailsProps): UseDashboardDetailsState => {
-  if (!dashboardId) throw new Error('dashboardId is required');
-
   const setDashboard = useSetAtom(dashboardAtom);
 
   const { data: dashboard } = useFetchQuery({

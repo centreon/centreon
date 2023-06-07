@@ -10,7 +10,9 @@ import HeaderActions from './HeaderActions';
 
 const Dashboard = (): ReactElement => {
   const { dashboardId } = routerParams.useParams();
-  const { dashboard, panels } = useDashboardDetails({ dashboardId });
+  const { dashboard, panels } = useDashboardDetails({
+    dashboardId: dashboardId as string
+  });
 
   return (
     <PageLayout>

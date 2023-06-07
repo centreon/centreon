@@ -38,7 +38,7 @@ const MenuButton = ({
 
     setIsMenuOpen(!isMenuOpen);
     onClick?.(!isMenuOpen);
-    onOpen?.();
+    if (!isMenuOpen) onOpen?.();
   };
 
   return (
