@@ -109,7 +109,10 @@ final class AddHostTemplate
                 $hostCategories = $this->readHostCategoryRepository->findByHost($hostTemplateId);
             } else {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-                $hostCategories = $this->readHostCategoryRepository->findByHostAndAccessGroups($hostTemplateId, $accessGroups);
+                $hostCategories = $this->readHostCategoryRepository->findByHostAndAccessGroups(
+                    $hostTemplateId,
+                    $accessGroups
+                );
             }
 
             $presenter->presentResponse(AddHostTemplateFactory::createResponse($hostTemplate, $hostCategories));
@@ -223,8 +226,11 @@ final class AddHostTemplate
      *
      * @throws HostTemplateException
      */
-    private function assertIsValidCommand(?int $commandId, ?CommandType $commandType = null, ?string $propertyName = null): void
-    {
+    private function assertIsValidCommand(
+        ?int $commandId,
+        ?CommandType $commandType = null,
+        ?string $propertyName = null
+    ): void {
         if ($commandId === null) {
             return;
         }
@@ -293,6 +299,8 @@ final class AddHostTemplate
 
         $newHostTemplate = NewHostTemplateFactory::create($request, $inheritanceMode);
 
+        $this->info('AddHostTemplate: Adding new host template', ['host_template' => $newHostTemplate]);
+
         return $this->writeHostTemplateRepository->add($newHostTemplate);
     }
 
@@ -310,6 +318,11 @@ final class AddHostTemplate
         }
 
         $this->assertAreValidCategories($dto->categories);
+
+        $this->info(
+            'AddHostTemplate: Linking host categories',
+            ['host_template_id' => $hostTemplateId, 'category_ids' => $dto->categories]
+        );
 
         $this->writeHostCategoryRepository->linkToHost($hostTemplateId, $dto->categories);
     }
