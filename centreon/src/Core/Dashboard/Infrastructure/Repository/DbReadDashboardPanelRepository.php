@@ -29,6 +29,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
 use Core\Dashboard\Domain\Model\DashboardPanel;
+use Core\Infrastructure\Common\Repository\RepositoryException;
 
 /**
  * @phpstan-type DashboardPanelResultSet array{
@@ -129,9 +130,8 @@ class DbReadDashboardPanelRepository extends AbstractRepositoryDRB implements Re
      *
      * @phpstan-param DashboardPanelResultSet $result
      *
+     * @throws RepositoryException
      * @throws AssertionFailedException
-     * @throws \JsonException
-     * @throws \TypeError
      *
      * @return DashboardPanel
      */
@@ -154,8 +154,7 @@ class DbReadDashboardPanelRepository extends AbstractRepositoryDRB implements Re
     /**
      * @param string $settings
      *
-     * @throws \TypeError
-     * @throws \JsonException
+     * @throws RepositoryException
      *
      * @return array<mixed>
      */
@@ -164,11 +163,16 @@ class DbReadDashboardPanelRepository extends AbstractRepositoryDRB implements Re
         if ('' === $settings) {
             return [];
         }
-        $array = json_decode($settings, true, 512, JSON_THROW_ON_ERROR);
-        if (\is_array($array)) {
-            return $array;
+
+        try {
+            $array = json_decode($settings, true, 512, JSON_THROW_ON_ERROR);
+            if (\is_array($array)) {
+                return $array;
+            }
+        } catch (\JsonException $ex) {
+            throw new RepositoryException('Dashboard widget settings could not be JSON decoded.', $ex->getCode(), $ex);
         }
 
-        throw new \TypeError('Widget settings is not stored as a valid JSON string in a valid "array" form.');
+        throw new RepositoryException('Dashboard widget settings are not stored as a valid JSON string in a valid "array" form.');
     }
 }

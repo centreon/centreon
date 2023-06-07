@@ -29,6 +29,7 @@ use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Domain\Model\DashboardPanel;
 use Core\Dashboard\Domain\Model\NewDashboardPanel;
+use Core\Infrastructure\Common\Repository\RepositoryException;
 
 class DbWriteDashboardPanelRepository extends AbstractRepositoryDRB implements WriteDashboardPanelRepositoryInterface
 {
@@ -60,7 +61,7 @@ class DbWriteDashboardPanelRepository extends AbstractRepositoryDRB implements W
      * {@inheritDoc}
      *
      * @throws \PDOException
-     * @throws \JsonException
+     * @throws RepositoryException
      */
     public function addPanel(int $dashboardId, NewDashboardPanel $newPanel): int
     {
@@ -134,7 +135,7 @@ class DbWriteDashboardPanelRepository extends AbstractRepositoryDRB implements W
      * @param int $dashboardId
      * @param DashboardPanel|NewDashboardPanel $panel
      *
-     * @throws \JsonException
+     * @throws RepositoryException
      */
     private function bindValuesOfPanel(
         \PDOStatement $statement,
@@ -160,12 +161,16 @@ class DbWriteDashboardPanelRepository extends AbstractRepositoryDRB implements W
     /**
      * @param array<mixed> $widgetSettings
      *
-     * @throws \JsonException
+     * @throws RepositoryException
      *
      * @return string
      */
     private function encodeToJson(array $widgetSettings): string
     {
-        return json_encode($widgetSettings, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
+        try {
+            return json_encode($widgetSettings, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
+        } catch (\JsonException $ex) {
+            throw new RepositoryException('Dashboard widget settings could not be JSON encoded.', $ex->getCode(), $ex);
+        }
     }
 }
