@@ -72,6 +72,7 @@ class EasyVistaRestProvider extends AbstractProvider
         $this->default_data['protocol'] = 'https';
         $this->default_data['account'] = '';
         $this->default_data['token'] = '';
+        $this->default_data['use_token'] = 1;
         $this->default_data['timeout'] = 60;
 
         $this->default_data['clones']['mappingTicket'] = [
@@ -202,8 +203,9 @@ class EasyVistaRestProvider extends AbstractProvider
         $this->checkFormValue('api_path', 'Please set "API path" value');
         $this->checkFormValue('protocol', 'Please set "Protocol" value');
         $this->checkFormValue('account', 'Please set "Account" value');
-        $this->checkFormValue('token', 'Please set "Token" value');
+        $this->checkFormValue('token', 'Please set "Token or Password" value');
         $this->checkFormInteger('timeout', '"Timeout" must be an integer');
+        $this->checkFormInteger('use_token', '"Use token" must be an integer');
 
         $this->checkLists();
 
@@ -234,12 +236,14 @@ class EasyVistaRestProvider extends AbstractProvider
             $this->getFormValue('api_path') . '" />';
         $protocol_html = '<input size="50" name="protocol" type="text" value="' .
             $this->getFormValue('protocol') . '" />';
-        $account_token_html = '<input size="50" name="account" type="text" value="' .
+        $account_html = '<input size="50" name="account" type="text" value="' .
             $this->getFormValue('account') . '" autocomplete="off" />';
-        $account_token_html = '<input size="50" name="token" type="token" value="' .
+        $token_html = '<input size="50" name="token" type="token" value="' .
             $this->getFormValue('token') . '" autocomplete="off" />';
         $timeout_html = '<input size="50" name="timeout" type="text" value="' .
             $this->getFormValue('timeout') . '" :>';
+        $use_token_html = '<input size="50" name="use_token" type="text" value="' .
+            $this->getFormValue('use_token') . '" :>';
 
         // this array is here to link a label with the html code that we've wrote above
         $array_form = array(
@@ -257,15 +261,19 @@ class EasyVistaRestProvider extends AbstractProvider
             ),
             'account' => array(
                 'label' => _('Account') . $this->required_field,
-                'html' => $account_token_html
+                'html' => $account_html
             ),
             'token' => array(
-                'label' => _('Token') . $this->required_field,
-                'html' => $account_token_html
+                'label' => _('Bearer token or account password') . $this->required_field,
+                'html' => $token_html
             ),
             'timeout' => array(
                 'label' => _('Timeout'),
                 'html' => $timeout_html
+            ),
+            'use_token' => array(
+                'label' => _('Use token'),
+                'html' => $use_token_html
             ),
             //we add a key to our array
             'mappingTicketLabel' => array(
@@ -331,6 +339,7 @@ class EasyVistaRestProvider extends AbstractProvider
         $this->save_config['simple']['account'] = $this->submitted_config['account'];
         $this->save_config['simple']['token'] = $this->submitted_config['token'];
         $this->save_config['simple']['timeout'] = $this->submitted_config['timeout'];
+        $this->save_config['simple']['use_token'] = $this->submitted_config['use_token'];
 
         // saves the ticket arguments
         $this->save_config['clones']['mappingTicket'] = $this->getCloneSubmitted('mappingTicket', ['Arg', 'Value']);
@@ -562,9 +571,12 @@ class EasyVistaRestProvider extends AbstractProvider
             . $this->getFormValue('api_path') . $info['query_endpoint'];
 
         $info['headers'] = [
-            "content-type: application/json",
-            "Authorization: Bearer " . $this->getFormValue('token')
+            "content-type: application/json"
         ];
+
+        if ($this->getFormValue(('use_token') == 1)) {
+            array_push($info['headers'], "Authorization: Bearer " . $this->getFormValue('token'));
+        }
 
         // initiate our curl options
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
@@ -573,7 +585,10 @@ class EasyVistaRestProvider extends AbstractProvider
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_POST, $info['method']);
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->getFormValue('timeout'));
-        // curl_setopt($curl, CURLOPT_USERPWD, $this->getFormValue('username') . ":" . $this->getFormValue('password'));
+
+        if ($this->getFormValue('use_token') != 1) {
+            curl_setopt($curl, CURLOPT_USERPWD, $this->getFormValue('account') . ":" . $this->getFormValue('token'));
+        }
 
         // add postData if needed
         if ($info['method'] == "POST") {
@@ -633,7 +648,8 @@ class EasyVistaRestProvider extends AbstractProvider
             'requests' => [
                 [
                     'catalog_guid' => $ticketArguments[$this->internal_arg_name[self::ARG_CATALOG_GUID]],
-                    'catalog_code' => $ticketArguments[$this->internal_arg_name[self::ARG_CATALOG_CODE]]
+                    'catalog_code' => $ticketArguments[$this->internal_arg_name[self::ARG_CATALOG_CODE]],
+                    'title' => $ticketArguments[$this->internal_arg_name[self::ARG_TITLE]]
                 ]
             ]
         ];
@@ -694,7 +710,9 @@ class EasyVistaRestProvider extends AbstractProvider
         
 // fwrite($file, print_r("\n info \n",true));
 // fwrite($file, print_r(json_encode($info['data']),true));
-        $ticketId=$this->curlQuery($info);
+        $result=$this->curlQuery($info);
+        preg_match('~' . $this->getFormValue('address') . $this->getFormValue('api_path') . $info['query_endpoint'] . '/(.*)$~', $result['HREF'], $match);
+        $ticketId=$match[1];
 // fclose($file);
 
         // return 1234;

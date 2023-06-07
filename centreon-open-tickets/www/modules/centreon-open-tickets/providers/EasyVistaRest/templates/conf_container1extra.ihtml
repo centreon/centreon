@@ -37,13 +37,21 @@
 </tr>
 <tr class="list_two">
     <td class="FormRowField">
+        {$form.use_token.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.use_token.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
         {$form.protocol.label}
     </td>
     <td class="FormRowValue">
         {$form.protocol.html}
     </td>
 </tr>
-<tr class="list_one">
+<tr class="list_two">
     <td class="FormRowField">
         {$form.timeout.label}
     </td>
@@ -51,7 +59,7 @@
         {$form.timeout.html}
     </td>
 </tr>
-<tr class="list_two">
+<tr class="list_one">
     <td class="FormRowField">
         {$form.mappingTicket.label}
     </td>
