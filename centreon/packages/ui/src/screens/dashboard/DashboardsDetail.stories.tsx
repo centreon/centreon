@@ -20,14 +20,8 @@ const meta: Meta = {
 
 export default meta;
 
-interface dashboardItem {
-  description: string;
-  id: number;
-  name: string;
-}
-
 const DefaultView = (args): ReactElement => {
-  const { data, title, actions, list, form, deleteConfirmation } = args;
+  const { data } = args;
 
   return (
     <PageLayout>
