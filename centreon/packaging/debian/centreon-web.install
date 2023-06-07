@@ -34,6 +34,6 @@ api/*                                           usr/share/centreon/api
 
 tmpl/install/centreon.cron => etc/cron.d/centreon
 tmpl/install/centstorage.cron => etc/cron.d/centstorage
-packaging/src/php-fpm.conf => etc/php/8.1/fpm/pool.d/centreon.conf
+packaging/src/php-fpm.conf => etc/php/8.0/fpm/pool.d/centreon.conf
 packaging/src/php-fpm-systemd.conf => etc/default/centreon.conf
-packaging/src/php.ini => etc/php/8.1/mods-available/centreon.ini
+packaging/src/php.ini => etc/php/8.0/mods-available/centreon.ini
