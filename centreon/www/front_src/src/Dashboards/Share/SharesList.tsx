@@ -1,21 +1,20 @@
 import { atom, useAtom } from 'jotai';
-import { equals, dec, head } from 'ramda';
+import { equals, dec } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Box, CircularProgress } from '@mui/material';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { CircularProgress } from '@mui/material';
 
-import { SelectField, useInfiniteScrollListing } from '@centreon/ui';
-import { IconButton, List, Modal } from '@centreon/ui/components';
+import { useInfiniteScrollListing } from '@centreon/ui';
+import { List, Modal } from '@centreon/ui/components';
 
 import { dashboardShareListDecoder } from '../api/decoders';
 import { getDashboardSharesEndpoint } from '../api/endpoints';
 import { selectedDashboardShareAtom } from '../atoms';
-import { DashboardRole } from '../models';
 import { labelSave } from '../Dashboard/translatedLabels';
 import { labelCancel } from '../translatedLabels';
 
 import useShareForm from './useShareForm';
+import UserRoleItem from './UserRoleItem';
 
 const pageAtom = atom(1);
 
@@ -52,39 +51,16 @@ const SharesList = (): JSX.Element => {
             const isLastElement = equals(index, dec(dashboardShares.length));
 
             return (
-              <List.Item
-                action={
-                  <Box sx={{ columnGap: 2, display: 'flex' }}>
-                    <SelectField
-                      options={[
-                        {
-                          id: DashboardRole.editor,
-                          name: DashboardRole.editor
-                        },
-                        {
-                          id: DashboardRole.viewer,
-                          name: DashboardRole.viewer
-                        }
-                      ]}
-                      selectedOptionId={dashboardShare.role}
-                      sx={{ width: 85 }}
-                      onChange={handleChange(getInputName(index))}
-                    />
-                    <IconButton
-                      icon={<DeleteOutlineIcon />}
-                      onClick={removeContact(dashboardShare.id)}
-                    />
-                  </Box>
-                }
+              <UserRoleItem
+                change={handleChange(getInputName(index))}
+                elementRef={isLastElement ? elementRef : undefined}
+                email={dashboardShare.email}
+                fullname={dashboardShare.fullname}
+                id={dashboardShare.id}
                 key={dashboardShare.id}
-                ref={isLastElement ? elementRef : undefined}
-              >
-                <List.Avatar>{head(dashboardShare.fullname)}</List.Avatar>
-                <List.ItemText
-                  primaryText={dashboardShare.fullname}
-                  secondaryText={dashboardShare.email}
-                />
-              </List.Item>
+                remove={removeContact(dashboardShare.id)}
+                role={dashboardShare.role}
+              />
             );
           })}
           {isLoading && <CircularProgress />}
