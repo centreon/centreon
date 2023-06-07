@@ -24,7 +24,7 @@ export const Default: Story = {
         <Menu.Item isActive isDisabled>
           Menu Item
         </Menu.Item>
-        <Menu.Item>Menu Item</Menu.Item>
+        <Menu.Item isDisabled>Menu Item</Menu.Item>
         <Menu.Item>Menu Item</Menu.Item>
         <Menu.Divider />
         <Menu.Item>Add item...</Menu.Item>
@@ -56,7 +56,7 @@ export const WithCustomActionButton: Story = {
         <Menu.Item isActive isDisabled>
           Menu Item
         </Menu.Item>
-        <Menu.Item>Menu Item</Menu.Item>
+        <Menu.Item isDisabled>Menu Item</Menu.Item>
         <Menu.Item>Menu Item</Menu.Item>
         <Menu.Divider />
         <Menu.Item>
