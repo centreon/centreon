@@ -29,4 +29,4 @@ export const deleteDialogStateAtom = atom<{
   open: false
 });
 
-export const isShareModalOpenAtom = atom(false);
+export const selectedDashboardShareAtom = atom<number | undefined>(undefined);

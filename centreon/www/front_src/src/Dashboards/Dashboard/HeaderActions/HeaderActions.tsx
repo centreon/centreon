@@ -27,7 +27,7 @@ import useDashboardSaveBlocker from '../useDashboardSaveBlocker';
 import { PanelDetails } from '../models';
 import { formatPanel } from '../useDashboardDetails';
 import useDashboardDirty from '../useDashboardDirty';
-import { isShareModalOpenAtom } from '../../atoms';
+import { selectedDashboardShareAtom } from '../../atoms';
 import { Share } from '../../Share';
 
 import { useStyles } from './HeaderActions.styles';
@@ -54,7 +54,7 @@ const HeaderActions = ({
     switchPanelsEditionModeDerivedAtom
   );
   const setDashboard = useSetAtom(dashboardAtom);
-  const setIsShareDialogOpen = useSetAtom(isShareModalOpenAtom);
+  const setSelectedDashboardShareAtom = useSetAtom(selectedDashboardShareAtom);
 
   const { blocked, blockNavigation, proceedNavigation } =
     useDashboardSaveBlocker({ id, name });
@@ -102,7 +102,7 @@ const HeaderActions = ({
 
   const savePanels = (): void => undefined;
 
-  const openShareModal = (): void => setIsShareDialogOpen(true);
+  const openShareModal = (): void => setSelectedDashboardShareAtom(id);
 
   useEffect(() => {
     if (!blocked) {

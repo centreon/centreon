@@ -1,23 +1,35 @@
+import { Suspense } from 'react';
+
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { Modal } from '@centreon/ui/components';
-import { useFetchQuery } from '@centreon/ui';
 
-import { isShareModalOpenAtom } from '../atoms';
+import { selectedDashboardShareAtom } from '../atoms';
 
 import { labelDashboardAccessRights } from './translatedLabels';
+import SharesList from './SharesList';
+import Skeleton from './Skeleton';
 
 export const Share = (): JSX.Element => {
   const { t } = useTranslation();
 
-  const [isShareModalOpen, setIsShareModalOpen] = useAtom(isShareModalOpenAtom);
+  const [selectedDashboardShare, setSelectedDashboardShare] = useAtom(
+    selectedDashboardShareAtom
+  );
 
-  const closeModal = (): void => setIsShareModalOpen(false);
+  const closeModal = (): void => setSelectedDashboardShare(undefined);
 
   return (
-    <Modal open={isShareModalOpen} onClose={closeModal}>
+    <Modal
+      open={Boolean(selectedDashboardShare)}
+      size="medium"
+      onClose={closeModal}
+    >
       <Modal.Header>{t(labelDashboardAccessRights)}</Modal.Header>
+      <Suspense fallback={<Skeleton />}>
+        <SharesList />
+      </Suspense>
     </Modal>
   );
 };

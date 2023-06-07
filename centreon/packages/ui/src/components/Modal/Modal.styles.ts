@@ -31,7 +31,9 @@ const useStyles = makeStyles()((theme) => ({
       color: theme.palette.text.secondary,
       margin: theme.spacing(1, 0, 1, 0),
       width: '90%'
-    }
+    },
+    maxHeight: '70vh',
+    overflowY: 'auto'
   },
   modalCloseButton: {
     position: 'absolute',

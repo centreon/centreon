@@ -23,3 +23,15 @@ export interface SelectedDashboard {
   dashboard: Dashboard | null;
   variant: FormVariant;
 }
+
+export enum ContactType {
+  contact = 'contact',
+  contactGroup = 'contact_group'
+}
+
+export interface DashboardShare extends NamedEntity {
+  email?: string;
+  fullname: string;
+  role: DashboardRole;
+  type: ContactType;
+}

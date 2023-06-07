@@ -2,7 +2,13 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
-import { DashboardRole, Dashboard, NamedEntity } from '../models';
+import {
+  DashboardRole,
+  Dashboard,
+  NamedEntity,
+  DashboardShare,
+  ContactType
+} from '../models';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
@@ -38,4 +44,25 @@ export const dashboardListDecoder = buildListingDecoder({
   entityDecoder: dashboardDecoder,
   entityDecoderName: 'Dashboard Listing',
   listingDecoderName: 'Dashboards'
+});
+
+const dashboardShareDecoder = JsonDecoder.object<DashboardShare>(
+  {
+    email: JsonDecoder.optional(JsonDecoder.string),
+    fullname: JsonDecoder.string,
+    id: JsonDecoder.number,
+    name: JsonDecoder.string,
+    role: JsonDecoder.enumeration<DashboardRole>(
+      DashboardRole,
+      'DashboardRole'
+    ),
+    type: JsonDecoder.enumeration<ContactType>(ContactType, 'ContactType')
+  },
+  'Dashboard Share'
+);
+
+export const dashboardShareListDecoder = buildListingDecoder({
+  entityDecoder: dashboardShareDecoder,
+  entityDecoderName: 'Dashboard share listing',
+  listingDecoderName: 'Dashboard shares'
 });
