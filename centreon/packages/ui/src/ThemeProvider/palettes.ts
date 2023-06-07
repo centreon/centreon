@@ -17,12 +17,7 @@ declare module '@mui/material/styles/createPalette' {
 
 declare module '@mui/material/styles' {
   interface Palette {
-    background: {
-      default: string;
-      listingHeader: string;
-      panelGroups: string;
-      paper: string;
-    };
+    background: TypeBackground;
     header: TypeHeader;
     layout: TypeLayout;
     menu: TypeMenu;
@@ -52,6 +47,7 @@ declare module '@mui/material/styles' {
   }
 
   interface TypeBackground {
+    default: string;
     listingHeader: string;
     panel: string;
     panelGroups: string;
