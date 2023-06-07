@@ -74,7 +74,7 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
      */
     public function add(NewHostTemplate $hostTemplate): int
     {
-        $this->debug('Add host template ', ['host_template' => $hostTemplate]);
+        $this->debug('Add host template');
 
         $alreadyInTransaction = $this->db->inTransaction();
         if (! $alreadyInTransaction) {
@@ -89,6 +89,8 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
             if (! $alreadyInTransaction) {
                 $this->db->commit();
             }
+
+            $this->debug('Host template added with ID '. $hostTemplateId);
 
             return $hostTemplateId;
         } catch (\Throwable $ex) {

@@ -27,18 +27,20 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Option\Option;
 use Centreon\Domain\Option\OptionService;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
-use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
-use Core\Common\Domain\CommandType;
 use Core\Common\Domain\YesNoDefault;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Domain\Model\HostEvent;
 use Core\Host\Domain\Model\SnmpVersion;
+use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
+use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
+use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
@@ -48,6 +50,7 @@ use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateRequest
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateResponse;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
@@ -93,6 +96,7 @@ beforeEach(function (): void {
     $this->request->iconAlternative = 'iconAlternative-value';
     $this->request->comment = 'comment-value';
     $this->request->isActivated = false;
+    $this->request->categories = [12, 13];
 
     $this->presenter = new AddHostTemplatePresenterStub(
         $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
@@ -106,6 +110,10 @@ beforeEach(function (): void {
         $this->readHostSeverityRepository = $this->createMock(ReadHostSeverityRepositoryInterface::class),
         $this->readTimezoneRepository = $this->createMock(ReadTimezoneRepositoryInterface::class),
         $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
+        $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->optionService = $this->createMock(OptionService::class),
         $this->user = $this->createMock(ContactInterface::class),
     );
@@ -155,6 +163,11 @@ beforeEach(function (): void {
         false,
         true,
     );
+
+    $this->categories = [
+        $this->categoryA = new HostCategory(12, 'cat-name-A', 'cat-alias-A'),
+        $this->categoryB = new HostCategory(12, 'cat-name-B', 'cat-alias-B'),
+    ];
 });
 
 it('should present an ErrorResponse when a generic exception is thrown', function (): void {
@@ -453,6 +466,71 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
         ->toBe(AssertionException::notEmptyString('NewHostTemplate::alias')->getMessage());
 });
 
+it('should present a ConflictResponse when a host category ID is not valid', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('existsByName')
+        ->willReturn(false);
+    $this->readHostSeverityRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readTimezoneRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readTimePeriodRepository
+        ->expects($this->atMost(2))
+        ->method('exists')
+        ->willReturnMap(
+            [
+                [$this->request->checkTimeperiodId, true],
+                [$this->request->notificationTimeperiodId, true],
+            ]
+        );
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('existsByIdAndCommandType')
+        ->willReturn(true);
+    $this->readViewImgRepository
+        ->expects($this->once())
+        ->method('existsOne')
+        ->willReturn(true);
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn([12]);
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->response)
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->response->getMessage())
+        ->toBe(
+            HostTemplateException::idsDoNotExist(
+                'categories',
+                [$this->request->categories[1]]
+            )->getMessage()
+        );
+});
+
 it('should present an ErrorResponse if the newly created host template cannot be retrieved', function (): void {
     $this->user
         ->expects($this->once())
@@ -500,6 +578,23 @@ it('should present an ErrorResponse if the newly created host template cannot be
         ->expects($this->once())
         ->method('add')
         ->willReturn(1);
+
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn([12, 13]);
+    $this->writeHostCategoryRepository
+        ->expects($this->once())
+        ->method('linkToHost');
+
+    $this->writeHostTemplateRepository
+        ->expects($this->once())
+        ->method('add')
+        ->willReturn(1);
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -513,7 +608,7 @@ it('should present an ErrorResponse if the newly created host template cannot be
         ->toBe(HostTemplateException::errorWhileRetrievingObject()->getMessage());
 });
 
-it('should return created object on success', function (): void {
+it('should return created object on success (with admin user)', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -559,11 +654,29 @@ it('should return created object on success', function (): void {
     $this->writeHostTemplateRepository
         ->expects($this->once())
         ->method('add')
-        ->willReturn(1);
+        ->willReturn($this->hostTemplate->getId());
+
+    $this->user
+        ->expects($this->atLeast(2))
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn([12, 13]);
+    $this->writeHostCategoryRepository
+        ->expects($this->once())
+        ->method('linkToHost');
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
         ->willReturn($this->hostTemplate);
+
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findByHost')
+        ->willReturn($this->categories);
 
     ($this->useCase)($this->request, $this->presenter);
 
@@ -646,5 +759,172 @@ it('should return created object on success', function (): void {
         ->and($response->comment)
         ->toBe($this->hostTemplate->getComment())
         ->and($response->isActivated)
-        ->toBe($this->hostTemplate->isActivated());
+        ->toBe($this->hostTemplate->isActivated())
+        ->and($response->categories)
+        ->toBe(array_map(
+            (fn($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
+            $this->categories
+        ));
+});
+
+it('should return created object on success (with non-admin user)', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('existsByName')
+        ->willReturn(false);
+    $this->readHostSeverityRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readTimezoneRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readTimePeriodRepository
+        ->expects($this->atMost(2))
+        ->method('exists')
+        ->willReturnMap(
+            [
+                [$this->request->checkTimeperiodId, true],
+                [$this->request->notificationTimeperiodId, true],
+            ]
+        );
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('existsByIdAndCommandType')
+        ->willReturn(true);
+    $this->readViewImgRepository
+        ->expects($this->once())
+        ->method('existsOne')
+        ->willReturn(true);
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
+
+    $this->writeHostTemplateRepository
+        ->expects($this->once())
+        ->method('add')
+        ->willReturn($this->hostTemplate->getId());
+
+    $this->user
+        ->expects($this->atLeast(2))
+        ->method('isAdmin')
+        ->willReturn(false);
+    $this->readAccessGroupRepository
+        ->expects($this->atLeast(2))
+        ->method('findByContact');
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('existByAccessGroups')
+        ->willReturn([12, 13]);
+    $this->writeHostCategoryRepository
+        ->expects($this->once())
+        ->method('linkToHost');
+
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->hostTemplate);
+
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findByHostAndAccessGroups')
+        ->willReturn($this->categories);
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->response)->toBeInstanceOf(AddHostTemplateResponse::class);
+    expect($this->presenter->response->id)->toBe($this->hostTemplate->getId());
+
+    $response = $this->presenter->response;
+    expect($response->name)
+        ->toBe($this->hostTemplate->getName())
+        ->and($response->alias)
+        ->toBe($this->hostTemplate->getAlias())
+        ->and($response->snmpVersion)
+        ->toBe($this->hostTemplate->getSnmpVersion()->value)
+        ->and($response->snmpCommunity)
+        ->toBe($this->hostTemplate->getSnmpCommunity())
+        ->and($response->timezoneId)
+        ->toBe($this->hostTemplate->getTimezoneId())
+        ->and($response->severityId)
+        ->toBe($this->hostTemplate->getSeverityId())
+        ->and($response->checkCommandId)
+        ->toBe($this->hostTemplate->getCheckCommandId())
+        ->and($response->checkCommandArgs)
+        ->toBe($this->hostTemplate->getCheckCommandArgs())
+        ->and($response->checkTimeperiodId)
+        ->toBe($this->hostTemplate->getCheckTimeperiodId())
+        ->and($response->maxCheckAttempts)
+        ->toBe($this->hostTemplate->getMaxCheckAttempts())
+        ->and($response->normalCheckInterval)
+        ->toBe($this->hostTemplate->getNormalCheckInterval())
+        ->and($response->retryCheckInterval)
+        ->toBe($this->hostTemplate->getRetryCheckInterval())
+        ->and($response->activeCheckEnabled)
+        ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getActiveCheckEnabled()))
+        ->and($response->passiveCheckEnabled)
+        ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getPassiveCheckEnabled()))
+        ->and($response->notificationEnabled)
+        ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getNotificationEnabled()))
+        ->and($response->notificationOptions)
+        ->toBe(HostEventConverter::toBitFlag($this->hostTemplate->getNotificationOptions()))
+        ->and($response->notificationInterval)
+        ->toBe($this->hostTemplate->getNotificationInterval())
+        ->and($response->notificationTimeperiodId)
+        ->toBe($this->hostTemplate->getNotificationTimeperiodId())
+        ->and($response->addInheritedContactGroup)
+        ->toBe($this->hostTemplate->addInheritedContactGroup())
+        ->and($response->addInheritedContact)
+        ->toBe($this->hostTemplate->addInheritedContact())
+        ->and($response->firstNotificationDelay)
+        ->toBe($this->hostTemplate->getFirstNotificationDelay())
+        ->and($response->recoveryNotificationDelay)
+        ->toBe($this->hostTemplate->getRecoveryNotificationDelay())
+        ->and($response->acknowledgementTimeout)
+        ->toBe($this->hostTemplate->getAcknowledgementTimeout())
+        ->and($response->freshnessChecked)
+        ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getFreshnessChecked()))
+        ->and($response->freshnessThreshold)
+        ->toBe($this->hostTemplate->getFreshnessThreshold())
+        ->and($response->flapDetectionEnabled)
+        ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getFlapDetectionEnabled()))
+        ->and($response->lowFlapThreshold)
+        ->toBe($this->hostTemplate->getLowFlapThreshold())
+        ->and($response->highFlapThreshold)
+        ->toBe($this->hostTemplate->getHighFlapThreshold())
+        ->and($response->eventHandlerEnabled)
+        ->toBe(YesNoDefaultConverter::toInt($this->hostTemplate->getEventHandlerEnabled()))
+        ->and($response->eventHandlerCommandId)
+        ->toBe($this->hostTemplate->getEventHandlerCommandId())
+        ->and($response->eventHandlerCommandArgs)
+        ->toBe($this->hostTemplate->getEventHandlerCommandArgs())
+        ->and($response->noteUrl)
+        ->toBe($this->hostTemplate->getNoteUrl())
+        ->and($response->note)
+        ->toBe($this->hostTemplate->getNote())
+        ->and($response->actionUrl)
+        ->toBe($this->hostTemplate->getActionUrl())
+        ->and($response->iconId)
+        ->toBe($this->hostTemplate->getIconId())
+        ->and($response->iconAlternative)
+        ->toBe($this->hostTemplate->getIconAlternative())
+        ->and($response->comment)
+        ->toBe($this->hostTemplate->getComment())
+        ->and($response->isActivated)
+        ->toBe($this->hostTemplate->isActivated())
+        ->and($response->categories)
+        ->toBe(array_map(
+            (fn($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
+            $this->categories
+        ));
 });
