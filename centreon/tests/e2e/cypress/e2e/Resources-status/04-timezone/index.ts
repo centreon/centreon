@@ -16,6 +16,14 @@ import {
 
 const chosenTZ = 'Africa/Casablanca';
 
+const extract12hFormatFromTimeString = (dateTime: string): string => {
+  const timeRegex = /(\d{1,2}:\d{2} [AP]M)$/;
+
+  const extractedTime = dateTime?.match(timeRegex);
+
+  return extractedTime ? extractedTime[0] : '';
+};
+
 before(() => {
   cy.startWebContainer();
 });
@@ -37,6 +45,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/monitoring/hosts/*/services/*/acknowledgements?limit=1'
   }).as('getAckToolTip');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_configuration_service&action=list&e=enable&page_limit=60&page=1'
+  }).as('getServices');
   cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
@@ -203,16 +215,10 @@ Then(
     cy.contains(serviceInDtName).parent().click();
 
     cy.get('p[data-testid="From_date"]').then(($toDate) => {
-      const toDate = $toDate[0].textContent;
-
-      const timeRegex = /(\d{1,2}:\d{2} [AP]M)$/;
-
-      const extractedTime = toDate?.match(timeRegex);
-
-      const fromTime = extractedTime ? extractedTime[0] : '';
+      const toDate = $toDate[0].textContent || '';
 
       cy.getTimeFromHeader().then((localTime: string) => {
-        expect(localTime).to.equal(fromTime);
+        expect(localTime).to.equal(extract12hFormatFromTimeString(toDate));
       });
     });
 
@@ -292,16 +298,81 @@ Then(
       .find('td')
       .eq(1)
       .then(($date) => {
-        const toDate = $date[0].textContent;
-
-        const timeRegex = /(\d{1,2}:\d{2} [AP]M)$/;
-
-        const extractedTime = toDate?.match(timeRegex);
-
-        const time = extractedTime ? extractedTime[0] : '';
+        const toDate = $date[0].textContent || '';
 
         cy.getTimeFromHeader().then((localTime: string) => {
-          expect(localTime).to.equal(time);
+          expect(localTime).to.equal(extract12hFormatFromTimeString(toDate));
+        });
+      });
+
+    tearDownResource();
+  }
+);
+
+When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
+  cy.navigateTo({
+    page: 'Downtimes',
+    rootItemNumber: 1,
+    subMenu: 'Downtimes'
+  }).wait('@getTimeZone');
+
+  cy.getIframeBody().contains('Add a downtime').click();
+
+  cy.wait('@getTimeZone');
+
+  cy.getIframeBody().find('label[for="service"]').click();
+
+  cy.getIframeBody().find('.select2-container').eq(2).click();
+
+  cy.wait('@getServices');
+
+  cy.getIframeBody()
+    .find('ul[id="select2-service_id-results"] li')
+    .contains(serviceInDtName)
+    .eq(0)
+    .click();
+
+  cy.getIframeBody()
+    .find('input[name="submitA"]')
+    .eq(0)
+    .contains('Save')
+    .click()
+    .wait('@getTimeZone');
+});
+
+Then(
+  'date and time fields should be based on the custom timezone of the user in Monitoring>Downtime',
+  () => {
+    cy.waitUntil(
+      () => {
+        return cy
+          .reload()
+          .then(() =>
+            cy.getIframeBody().find('.ListTable tr:not(.ListHeader)').first()
+          )
+          .children()
+          .then((val) => {
+            return val.text().trim() !== 'No downtime scheduled';
+          });
+      },
+      {
+        timeout: 15000
+      }
+    );
+
+    cy.wait('@getTimeZone');
+
+    cy.getIframeBody()
+      .find('.ListTable tr:not(.ListHeader) td')
+      .eq(3)
+      .then(($el) => {
+        const dtTime = $el[0].textContent || '';
+        cy.getTimeFromHeader().then((localTime: string) => {
+          const formatedDtTime = new Date(dtTime).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit'
+          });
+          expect(localTime).to.equal(formatedDtTime);
         });
       });
 
