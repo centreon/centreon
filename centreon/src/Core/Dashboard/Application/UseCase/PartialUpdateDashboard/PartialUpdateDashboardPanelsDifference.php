@@ -35,39 +35,66 @@ use Core\Dashboard\Domain\Model\NewDashboardPanel;
 final class PartialUpdateDashboardPanelsDifference
 {
     /** @var array<NewDashboardPanel> */
-    private readonly array $panelsToCreate;
+    private ?array $panelsToCreate = null;
 
     /** @var array<DashboardPanel> */
-    private readonly array $panelsToUpdate;
+    private ?array $panelsToUpdate = null;
 
     /** @var array<int> */
-    private readonly array $panelIdsToDelete;
+    private ?array $panelIdsToDelete = null;
 
     /**
      * @param array<int> $panelIdsFromRepository
      * @param array<PanelRequestDto> $panelsFromRequest
      *
-     * @throws DashboardException|AssertionFailedException
+     * @throws DashboardException
      */
-    public function __construct(array $panelIdsFromRepository, array $panelsFromRequest)
-    {
-        [$this->panelsToCreate, $this->panelsToUpdate, $this->panelIdsToDelete]
-            = $this->compute($panelIdsFromRepository, $panelsFromRequest);
+    public function __construct(
+        private readonly array $panelIdsFromRepository,
+        private readonly array $panelsFromRequest
+    ) {
+        foreach ($this->panelsFromRequest as $dtoPanel) {
+            if ($dtoPanel->id && ! \in_array($dtoPanel->id, $this->panelIdsFromRepository, true)) {
+                throw DashboardException::errorTryingToUpdateAPanelWhichDoesNotBelongsToTheDashboard();
+            }
+        }
     }
 
     /**
-     * @return array<NewDashboardPanel>
+     * @throws AssertionFailedException
+     *
+     * @return list<NewDashboardPanel>
      */
     public function getPanelsToCreate(): array
     {
+        if (null === $this->panelsToCreate) {
+            $this->panelsToCreate = [];
+            foreach ($this->panelsFromRequest as $dtoPanel) {
+                if (empty($dtoPanel->id)) {
+                    $this->panelsToCreate[] = $this->createNewDashboardPanel($dtoPanel);
+                }
+            }
+        }
+
         return $this->panelsToCreate;
     }
 
     /**
-     * @return array<DashboardPanel>
+     * @throws AssertionFailedException
+     *
+     * @return list<DashboardPanel>
      */
     public function getPanelsToUpdate(): array
     {
+        if (null === $this->panelsToUpdate) {
+            $this->panelsToUpdate = [];
+            foreach ($this->panelsFromRequest as $dtoPanel) {
+                if (\in_array($dtoPanel->id, $this->panelIdsFromRepository, true)) {
+                    $this->panelsToUpdate[] = $this->createDashboardPanel($dtoPanel->id, $dtoPanel);
+                }
+            }
+        }
+
         return $this->panelsToUpdate;
     }
 
@@ -76,55 +103,28 @@ final class PartialUpdateDashboardPanelsDifference
      */
     public function getPanelIdsToDelete(): array
     {
+        if (null === $this->panelIdsToDelete) {
+            $this->panelIdsToDelete = [];
+            $panelDtoIds = array_map(
+                static fn(PanelRequestDto $dtoPanel): ?int => $dtoPanel->id,
+                $this->panelsFromRequest
+            );
+            foreach ($this->panelIdsFromRepository as $id) {
+                if (! \in_array($id, $panelDtoIds, true)) {
+                    $this->panelIdsToDelete[] = $id;
+                }
+            }
+        }
+
         return $this->panelIdsToDelete;
-    }
-
-    /**
-     * @param array<int> $panelIdsFromRepository
-     * @param array<PanelRequestDto> $panelsFromRequest
-     *
-     * @throws DashboardException|AssertionFailedException
-     *
-     * @return array{
-     *     array<NewDashboardPanel>,
-     *     array<DashboardPanel>,
-     *     array<int>
-     * }
-     */
-    private function compute(array $panelIdsFromRepository, array $panelsFromRequest): array
-    {
-        $panelsToCreate = [];
-        $panelsToUpdate = [];
-        $panelIdsToDelete = [];
-
-        $panelsFromRequestById = [];
-        foreach ($panelsFromRequest as $dtoPanel) {
-            if (empty($dtoPanel->id)) {
-                $panelsToCreate[] = $this->createNewDashboardPanel($dtoPanel);
-                continue;
-            }
-
-            $panelsFromRequestById[$dtoPanel->id] = $dtoPanel;
-            if (! \in_array($dtoPanel->id, $panelIdsFromRepository, true)) {
-                throw DashboardException::errorTryingToUpdateAPanelWhichDoesNotBelongsToTheDashboard();
-            }
-        }
-
-        foreach ($panelIdsFromRepository as $id) {
-            if (\array_key_exists($id, $panelsFromRequestById)) {
-                $panelsToUpdate[] = $this->createDashboardPanel($id, $panelsFromRequestById[$id]);
-            } else {
-                $panelIdsToDelete[] = $id;
-            }
-        }
-
-        return [$panelsToCreate, $panelsToUpdate, $panelIdsToDelete];
     }
 
     /**
      * @param PanelRequestDto $dtoPanel
      *
      * @throws AssertionFailedException
+     *
+     * @return NewDashboardPanel
      */
     private function createNewDashboardPanel(PanelRequestDto $dtoPanel): NewDashboardPanel
     {
