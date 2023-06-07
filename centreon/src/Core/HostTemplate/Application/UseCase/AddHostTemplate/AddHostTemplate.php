@@ -90,8 +90,8 @@ final class AddHostTemplate
             try {
                 $this->dataStorageEngine->startTransaction();
 
-                $hostTemplateId = $this->handleHostTemplate($request);
-                $this->handleHostCategories($request, $hostTemplateId);
+                $hostTemplateId = $this->createHostTemplate($request);
+                $this->linkHostCategories($request, $hostTemplateId);
 
                 $this->dataStorageEngine->commitTransaction();
             } catch (\Throwable $ex) {
@@ -248,6 +248,9 @@ final class AddHostTemplate
      * Assert category IDs are valid.
      *
      * @param int[] $categoryIds
+     *
+     * @throws HostTemplateException
+     * @throws \Throwable
      */
     private function assertAreValidCategories(array $categoryIds): void
     {
@@ -266,11 +269,13 @@ final class AddHostTemplate
     /**
      * @param AddHostTemplateRequest $request
      *
+     * @throws AssertionFailedException
+     * @throws HostTemplateException
      * @throws \Throwable
      *
      * @return int
      */
-    private function handleHostTemplate(AddHostTemplateRequest $request): int
+    private function createHostTemplate(AddHostTemplateRequest $request): int
     {
         $this->assertIsValidName($request->name);
         $this->assertIsValidSeverity($request->severityId);
@@ -295,9 +300,10 @@ final class AddHostTemplate
      * @param AddHostTemplateRequest $dto
      * @param int $hostTemplateId
      *
+     * @throws HostTemplateException
      * @throws \Throwable
      */
-    private function handleHostCategories(AddHostTemplateRequest $dto, int $hostTemplateId): void
+    private function linkHostCategories(AddHostTemplateRequest $dto, int $hostTemplateId): void
     {
         if ($dto->categories === []) {
             return;
