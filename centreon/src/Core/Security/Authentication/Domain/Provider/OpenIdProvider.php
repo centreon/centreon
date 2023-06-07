@@ -422,7 +422,7 @@ class OpenIdProvider implements OpenIdProviderInterface
     {
         try {
             $tokenParts = explode(".", $token);
-            return json_decode($this->urlSafeTokenDecode($tokenParts[1]));
+            return json_decode($this->urlSafeTokenDecode($tokenParts[1]), true);
         } catch (Throwable $ex) {
             $this->error(
                 SSOAuthenticationException::unableToDecodeIdToken()->getMessage(),

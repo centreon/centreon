@@ -28,10 +28,6 @@ const Tooltip = ({
 }: TooltipProps): ReactElement => {
   const { classes } = useStyles();
 
-  // useEffect(() => {
-  //   console.log('Tooltip', isOpen);
-  // }, [isOpen]);
-
   return (
     <MuiTooltip
       arrow={hasCaret}

@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkIfConfigurationIsExported } from '../../Poller-configuration/common';
+import { checkIfConfigurationIsExported } from '../../../commons';
 import {
   checkPlatformVersion,
   dateBeforeLogin,

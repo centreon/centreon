@@ -33,7 +33,7 @@ const useStyles = makeStyles<StylesProps>()(
       height: '100%'
     },
     container: {
-      backgroundColor: theme.palette.background.default,
+      backgroundColor: theme.palette.background.panel,
       borderTopRightRadius: 0,
       display: 'grid',
       gridTemplate: 'auto auto 1fr / 1fr',
@@ -85,6 +85,7 @@ export interface Tab {
 }
 
 export interface Props {
+  className?: string;
   header: React.ReactElement;
   headerBackgroundColor?: string;
   labelClose?: string;
@@ -111,11 +112,12 @@ const Panel = React.forwardRef(
       width = 550,
       minWidth = 550,
       headerBackgroundColor,
-      onResize
+      onResize,
+      className
     }: Props,
     ref
   ): JSX.Element => {
-    const { classes } = useStyles({
+    const { classes, cx } = useStyles({
       hasTabs: !isEmpty(tabs),
       headerBackgroundColor,
       width
@@ -179,7 +181,7 @@ const Panel = React.forwardRef(
           exit: 50
         }}
       >
-        <Paper className={classes.container} elevation={2}>
+        <Paper className={cx(classes.container, className)} elevation={2}>
           {!isNil(onResize) && (
             <div className={classes.dragger} role="none" onMouseDown={resize} />
           )}

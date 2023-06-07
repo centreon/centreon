@@ -1,0 +1,14 @@
+{
+    "extends": "@tsconfig/node16/tsconfig.json",
+    "compilerOptions": {
+        "sourceMap": true,
+        "allowJs": true,
+        "strictNullChecks": false,
+        "declaration": false,
+        "esModuleInterop": true,
+        "types": [
+            "@types/jest",
+            "node"
+        ]
+    }
+}

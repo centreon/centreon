@@ -59,7 +59,7 @@ class UserInformationFetcher implements AttributePathFetcherInterface
 
 
         try {
-            return $this->attributePathRepository->getData($url, $accessToken, $configuration);
+            return $this->attributePathRepository->getData($url, $accessToken, $configuration, $endpoint->getType());
         } catch (InvalidResponseException) {
             throw SSOAuthenticationException::requestForUserInformationFail();
         } catch (InvalidStatusCodeException $invalidStatusCodeException) {

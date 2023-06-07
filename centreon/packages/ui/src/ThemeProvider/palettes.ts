@@ -20,6 +20,7 @@ declare module '@mui/material/styles' {
     background: {
       default: string;
       listingHeader: string;
+      panelGroups: string;
       paper: string;
     };
     header: TypeHeader;
@@ -52,6 +53,8 @@ declare module '@mui/material/styles' {
 
   interface TypeBackground {
     listingHeader: string;
+    panel: string;
+    panelGroups: string;
   }
 
   interface TypeLayout {
@@ -146,6 +149,8 @@ export const lightPalette: PaletteOptions = {
   background: {
     default: '#F4F4F4',
     listingHeader: '#666666',
+    panel: '#EDEDED',
+    panelGroups: '#F5F5F5',
     paper: '#FFFFFF'
   },
   divider: '#E3E3E3',
@@ -273,6 +278,8 @@ export const darkPalette: PaletteOptions = {
   background: {
     default: '#4a4a4a',
     listingHeader: '#666666',
+    panel: '#4a4a4a',
+    panelGroups: '#252525',
     paper: '#212121'
   },
   divider: '#666666',

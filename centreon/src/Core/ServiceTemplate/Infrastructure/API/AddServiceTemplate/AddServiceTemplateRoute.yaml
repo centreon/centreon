@@ -1,0 +1,5 @@
+AddServiceTemplate:
+  methods: POST
+  path: /configuration/services/templates
+  controller: 'Core\ServiceTemplate\Infrastructure\API\AddServiceTemplate\AddServiceTemplateController'
+  condition: "request.attributes.get('version') >= 23.10"

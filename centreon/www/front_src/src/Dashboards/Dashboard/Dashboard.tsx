@@ -1,28 +1,27 @@
-import { FC } from 'react';
-
-import { makeStyles } from 'tss-react/mui';
+import { TiledListingPage } from '@centreon/ui';
+import { Header } from '@centreon/ui/components';
 
 import Layout from './Layout';
-import Toolbar from './Toolbar';
+import useDashboardDetails from './useDashboardDetails';
+import HeaderActions from './HeaderActions';
 
-const useStyles = makeStyles()((theme) => ({
-  toolbarContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '90vh',
-    padding: theme.spacing(0, 3),
-    rowGap: theme.spacing(2)
-  }
-}));
-
-const Dashboard: FC = () => {
-  const { classes } = useStyles();
+const Dashboard = (): JSX.Element => {
+  const { dashboard, panels } = useDashboardDetails();
 
   return (
-    <div className={classes.toolbarContainer}>
-      <Toolbar />
+    <TiledListingPage>
+      <Header
+        nav={
+          <HeaderActions
+            id={dashboard?.id}
+            name={dashboard?.name}
+            panels={panels}
+          />
+        }
+        title={dashboard?.name || ''}
+      />
       <Layout />
-    </div>
+    </TiledListingPage>
   );
 };
 
