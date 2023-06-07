@@ -22,19 +22,7 @@ export const Default: Story = {
     label:
       'Qui deserunt pariatur quis. Duis nisi velit culpa labore ipsum reprehenderit sunt laborum anim sint quis magna consequat amet. Voluptate tempor nostrud eiusmod enim qui reprehenderit.'
   },
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  play: async ({ args, canvasElement, step }) => {
-    // FIXME
-    // const canvas = within(canvasElement);
-    // const paragraph = canvas.getByTestId('paragraph');
-    // await userEvent.hover(paragraph);
-    // await new Promise((resolve) => setTimeout(resolve, 500));
-    // const tooltip = await within(
-    //   canvasElement.parentNode as HTMLElement
-    // ).getByRole('tooltip');
-    // await expect(tooltip).toBeDefined();
-  },
-  render: ({ label, children, ...args }) => {
+  render: ({ label, ...args }) => {
     const [labelValue, setLabelValue] = useState(label);
     useEffect(() => setLabelValue(label), [label]);
 
@@ -60,7 +48,7 @@ export const AsMultiLine: Story = {
   args: {
     ...Default.args
   },
-  render: ({ label, children, ...args }) => {
+  render: ({ label, ...args }) => {
     const [labelValue, setLabelValue] = useState(label);
     useEffect(() => setLabelValue(label), [label]);
 
