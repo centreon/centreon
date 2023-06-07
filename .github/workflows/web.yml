@@ -9,9 +9,9 @@ on:
   schedule:
     - cron: '0 3 * * *'
   pull_request:
-    # paths:
-    #   - "centreon/**"
-    #   - "!centreon/packages/**"
+    paths:
+      - "centreon/**"
+      - "!centreon/packages/**"
   push:
     branches:
       - develop
@@ -151,104 +151,104 @@ jobs:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
-  # frontend-web-lint:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+  frontend-web-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - uses: ./.github/actions/frontend-lint
-  #       with:
-  #         frontend_directory: ${{ env.base_directory }}
-  #         module_name: centreon
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.base_directory }}
+          module_name: centreon
 
-  # frontend-widgets-lint:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+  frontend-widgets-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - uses: ./.github/actions/frontend-lint
-  #       with:
-  #         frontend_directory: ${{ env.widgets_directory }}
-  #         module_name: centreon-widgets
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.widgets_directory }}
+          module_name: centreon-widgets
 
-  # frontend-unit-test:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+  frontend-unit-test:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - uses: pnpm/action-setup@v2
-  #       with:
-  #         version: 7
-  #         run_install: false
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+          run_install: false
 
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 17
-  #         cache: pnpm
-  #         cache-dependency-path: centreon
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
+          cache: pnpm
+          cache-dependency-path: centreon
 
-  #     - name: Install dependencies
-  #       run: pnpm install --frozen-lockfile
-  #       working-directory: centreon
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: centreon
 
-  #     - name: Unit test
-  #       run: pnpm t --silent --reporter=jest-junit
-  #       working-directory: centreon
+      - name: Unit test
+        run: pnpm t --silent --reporter=jest-junit
+        working-directory: centreon
 
-  #     - if: failure()
-  #       uses: ./.github/actions/publish-report
-  #       with:
-  #         path: "centreon/junit.xml"
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path: "centreon/junit.xml"
 
-  # frontend-component-test:
-  #   needs: [changes]
-  #   if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
-  #   uses: ./.github/workflows/cypress-component-parallelization.yml
-  #   with:
-  #     name: component
-  #     module_name: centreon
-  #     specs_path: www/**
+  frontend-component-test:
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    uses: ./.github/workflows/cypress-component-parallelization.yml
+    with:
+      name: component
+      module_name: centreon
+      specs_path: www/**
 
-  # backend-unit-test:
-  #   runs-on: ubuntu-22.04
-  #   needs: [changes]
-  #   if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+  backend-unit-test:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Setup PHP
-  #       uses: shivammathur/setup-php@v2
-  #       with:
-  #         php-version: 8.1
-  #         coverage: none
-  #       env:
-  #         runner: ubuntu-22.04
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
 
-  #     - name: Install dependencies
-  #       uses: ramsey/composer-install@v2
-  #       with:
-  #         working-directory: centreon
-  #         composer-options: "--optimize-autoloader"
+      - name: Install dependencies
+        uses: ramsey/composer-install@v2
+        with:
+          working-directory: centreon
+          composer-options: "--optimize-autoloader"
 
-  #     - name: Unit test
-  #       run: XDEBUG_MODE=coverage composer run-script test:ci
-  #       working-directory: centreon
+      - name: Unit test
+        run: XDEBUG_MODE=coverage composer run-script test:ci
+        working-directory: centreon
 
-  #     - if: failure()
-  #       uses: ./.github/actions/publish-report
-  #       with:
-  #         path: "centreon/build/phpunit.xml"
-  #         format: "php-junit"
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          path: "centreon/build/phpunit.xml"
+          format: "php-junit"
 
   package:
     needs:
@@ -256,13 +256,13 @@ jobs:
         get-version,
         translation-build,
         backend-dependencies,
-        #backend-unit-test,
+        backend-unit-test,
         frontend-web-build,
-        #frontend-web-lint,
+        frontend-web-lint,
         frontend-widgets-build,
-        #frontend-widgets-lint,
-        #frontend-unit-test,
-        #frontend-component-test,
+        frontend-widgets-lint,
+        frontend-unit-test,
+        frontend-component-test,
       ]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 

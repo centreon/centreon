@@ -6,9 +6,9 @@ concurrency:
 
 on:
   workflow_dispatch:
-  #pull_request:
-  #  paths:
-  #    - ".github/docker/openid/**"
+  pull_request:
+    paths:
+      - ".github/docker/openid/**"
   push:
     branches:
       - develop
