@@ -21,25 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\ServiceTemplate\Application\Repository;
+namespace Core\PerformanceGraph\Application\Repository;
 
-use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
-
-interface WriteServiceTemplateRepositoryInterface
+interface ReadPerformanceGraphRepositoryInterface
 {
     /**
-     * Delete a service template by ID.
+     *  Indicates whether the performance graph already exists.
      *
-     * @param int $serviceTemplateId
+     * @param int $performanceGraphId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
      */
-    public function deleteById(int $serviceTemplateId): void;
-
-    /**
-     * Add a new service template.
-     *
-     * @param NewServiceTemplate $newServiceTemplate
-     *
-     * @return int
-     */
-    public function add(NewServiceTemplate $newServiceTemplate): int;
+    public function exists(int $performanceGraphId): bool;
 }

@@ -317,6 +317,35 @@ class Assertion
     }
 
     /**
+     * @param string $value Value to test
+     * @param string $unauthorizedCharacters List of non-authorized characters
+     * @param string|null $propertyPath Property's path (ex: Host::name)
+     *
+     * @throws \Assert\AssertionFailedException
+     */
+    public static function unauthorizedCharacters(
+        string $value,
+        string $unauthorizedCharacters,
+        ?string $propertyPath = null
+    ): void {
+        if ($unauthorizedCharacters !== '' && $value !== '') {
+            $unauthorizedCharactersFound = array_unique(
+                array_intersect(
+                    mb_str_split($value),
+                    mb_str_split($unauthorizedCharacters)
+                )
+            );
+            if ($unauthorizedCharactersFound !== []) {
+                throw AssertionException::unauthorizedCharacters(
+                    $value,
+                    implode('', $unauthorizedCharactersFound),
+                    $propertyPath
+                );
+            }
+        }
+    }
+
+    /**
      * Make a string version of a value.
      *
      * Copied from {@see \Assert\Assertion::stringify()}.

@@ -17619,8 +17619,8 @@ msgstr "[%s] (%s) devait être une instance de la classe '%s'"
 msgid "The service template '%s' is locked and cannot be deleted"
 msgstr "Le modèle de service '%s' est verrouillé et ne peut pas être supprimé"
 
-msgid "You are not allowed to delete this service template"
-msgstr "Vous n'êtes pas autorisé à supprimer ce modèle de service"
+msgid "You are not allowed to delete a service template"
+msgstr "Vous n'êtes pas autorisé à supprimer un modèle de service"
 
 msgid "Error while deleting the service template"
 msgstr "Erreur lors de la suppression du modèle de service"
@@ -17676,3 +17676,17 @@ msgstr "Vous n'êtes pas autorisé à lister les configurations de notifications
 msgid "Notification #%d should have at least one user"
 msgstr "La notification #%d doit avoir au moins un utilisateur"
 
+msgid "You are not allowed to add a service template"
+msgstr "Vous n'êtes pas autorisé à ajouter un modèle de service"
+
+msgid "Error while adding the service template"
+msgstr "Erreur lors de l'ajout du modèle de service"
+
+msgid "Error while retrieving a service template"
+msgstr "Erreur lors de la récupération d'un modèle de service"
+
+msgid "The service template name '%s' already exists"
+msgstr "Le nom du modèle de service '%s' existe déjà"
+
+msgid "[%s] The value contains unauthorized characters: %s"
+msgstr "[%s] La valeur contient des caractères non autorisés : %s"

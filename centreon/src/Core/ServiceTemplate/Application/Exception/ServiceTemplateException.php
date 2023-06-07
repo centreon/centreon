@@ -25,12 +25,22 @@ namespace Core\ServiceTemplate\Application\Exception;
 
 class ServiceTemplateException extends \Exception
 {
+    public const CODE_CONFLICT = 1;
+
     /**
      * @return self
      */
     public static function accessNotAllowed(): self
     {
         return new self(_('You are not allowed to access service templates'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function addNotAllowed(): self
+    {
+        return new self(_('You are not allowed to add a service template'));
     }
 
     /**
@@ -53,7 +63,17 @@ class ServiceTemplateException extends \Exception
      */
     public static function deleteNotAllowed(): self
     {
-        return new self(_('You are not allowed to delete this service template'));
+        return new self(_('You are not allowed to delete a service template'));
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function errorWhileAdding(\Throwable $ex): self
+    {
+        return new self(_('Error while adding the service template'), 0, $ex);
     }
 
     /**
@@ -67,6 +87,14 @@ class ServiceTemplateException extends \Exception
     }
 
     /**
+     * @return self
+     */
+    public static function errorWhileRetrieving(): self
+    {
+        return new self(_('Error while retrieving a service template'));
+    }
+
+    /**
      * @param \Throwable $ex
      *
      * @return self
@@ -74,5 +102,38 @@ class ServiceTemplateException extends \Exception
     public static function errorWhileSearching(\Throwable $ex): self
     {
         return new self(_('Error while searching for service templates'), 0, $ex);
+    }
+
+    /**
+     * @param string $propertyName
+     * @param int $propertyValue
+     *
+     * @return self
+     */
+    public static function idDoesNotExist(string $propertyName, int $propertyValue): self
+    {
+        return new self(
+            sprintf(
+                _("The %s with value '%d' does not exist"),
+                $propertyName,
+                $propertyValue
+            ),
+            self::CODE_CONFLICT
+        );
+    }
+
+    /**
+     * @param string $serviceTemplateName
+     *
+     * @return self
+     */
+    public static function nameAlreadyExists(string $serviceTemplateName): self
+    {
+        return new self(
+            sprintf(
+                _('The service template name \'%s\' already exists'),
+                $serviceTemplateName
+            )
+        );
     }
 }
