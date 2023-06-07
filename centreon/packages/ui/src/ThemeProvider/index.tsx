@@ -5,12 +5,12 @@ import { CSSInterpolation } from 'tss-react';
 import { equals } from 'ramda';
 
 import {
-  ThemeProvider as MuiThemeProvider,
-  Theme,
-  StyledEngineProvider,
+  ButtonProps,
   createTheme,
   InputBaseProps,
-  ButtonProps
+  StyledEngineProvider,
+  Theme,
+  ThemeProvider as MuiThemeProvider
 } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
@@ -177,6 +177,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
           padding: 0;
           width: 100%;
           height: 100%;
+          text-rendering: optimizeLegibility;
         }
         body {
           background-color: ${theme.palette.background.paper};
@@ -205,7 +206,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
         @font-face {
           font-family: 'Roboto';
           font-style: normal;
-          font-weight: 600;
+          font-weight: 700;
           src: local('Roboto'), local('Roboto-Bold'), url(${RobotoBoldWoff2}) format('woff2');
         }
       `

@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import { AreaIndicator } from '../AreaIndicator';
+import { Default as DefaultPageHeaderStory } from '../../Header/PageHeader/PageHeader.stories';
 
 import { PageLayout } from './index';
 
@@ -58,5 +59,23 @@ export const FixedHeader: Story = {
       </>
     ),
     variant: 'fixed-header'
+  }
+};
+
+export const DefaultWithPageHeader: Story = {
+  args: {
+    children: (
+      <>
+        <PageLayout.Header>
+          {/* eslint-disable react/jsx-pascal-case */}
+          {/* @ts-expect-error storybook story render method not being recognised */}
+          <DefaultPageHeaderStory.render {...DefaultPageHeaderStory.args} />
+        </PageLayout.Header>
+        <PageLayout.Body>
+          <AreaIndicator height="100vh" name="body" />
+        </PageLayout.Body>
+      </>
+    ),
+    variant: 'default'
   }
 };

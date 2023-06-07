@@ -4,8 +4,8 @@ module.exports = {
   ...baseConfig,
   moduleNameMapper: {
     '\\.(s?css|png|svg)$': 'identity-obj-proxy',
-    '^react($|/.+)': '<rootDir>/../../node_modules/react$1',
-    '^@centreon/ui/fonts(.*)$': '<rootDir>/public/fonts$1'
+    '^@centreon/ui/fonts(.*)$': '<rootDir>/public/fonts$1',
+    '^react($|/.+)': '<rootDir>/../../node_modules/react$1'
   },
   reporters: ['default', ['jest-junit', { outputName: 'junit.xml' }]],
   roots: ['<rootDir>/src/', '<rootDir>/test/'],

@@ -11,11 +11,11 @@ import {
   DashboardForm,
   DashboardFormProps,
   DataTable,
-  Header,
-  Modal
+  Modal,
+  PageHeader,
+  PageLayout
 } from '../../components';
 import { Default as DashboardFormDefaultStory } from '../../components/Form/Dashboard/DashboardForm.stories';
-import { PageLayout } from '../../components/Layout/PageLayout';
 
 const meta: Meta = {
   args: {
@@ -134,7 +134,11 @@ const DefaultView = (args): JSX.Element => {
   return (
     <PageLayout>
       <PageLayout.Header>
-        <Header title={title} />
+        <PageHeader>
+          <PageHeader.Main>
+            <PageHeader.Title title={title} />
+          </PageHeader.Main>
+        </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
         <PageLayout.Actions>

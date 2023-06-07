@@ -6,9 +6,13 @@ export const useStyles = makeStyles()((theme) => ({
       left: theme.spacing(10)
     },
     '& label:first-of-type': {
+      border: '1px dashed #9747FF7F',
+      borderRadius: '4px',
+      color: '#9747FFFF',
       fontSize: '0.75rem',
       fontWeight: 500,
       left: theme.spacing(1),
+      padding: theme.spacing(0.125, 1),
       position: 'absolute',
       top: theme.spacing(0.75)
     },
@@ -22,8 +26,6 @@ export const useStyles = makeStyles()((theme) => ({
     },
 
     backgroundColor: '#9747FF19',
-    borderRadius: '4px',
-    color: '#9747FFFF',
     minHeight: theme.spacing(4),
 
     position: 'relative'
