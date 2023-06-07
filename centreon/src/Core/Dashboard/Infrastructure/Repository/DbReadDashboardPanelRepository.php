@@ -56,6 +56,9 @@ class DbReadDashboardPanelRepository extends AbstractRepositoryDRB implements Re
         $this->db = $db;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function findPanelIdsByDashboardId(int $dashboardId): array
     {
         $sql = <<<'SQL'
@@ -80,6 +83,9 @@ class DbReadDashboardPanelRepository extends AbstractRepositoryDRB implements Re
         return $ids;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function findPanelsByDashboardId(int $dashboardId): array
     {
         $sql = <<<'SQL'
