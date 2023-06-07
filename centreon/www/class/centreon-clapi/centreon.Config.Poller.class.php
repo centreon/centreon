@@ -129,7 +129,7 @@ class CentreonConfigPoller
             return;
         } else {
             print "ERROR: Unknown poller...\n";
-            $this->getPollerList($this->format);
+            $this->getPollerList('');
             exit(1);
         }
     }
@@ -489,7 +489,7 @@ class CentreonConfigPoller
                 foreach (glob($Nagioscfg["cfg_dir"] . '/*.{json,cfg}', GLOB_BRACE) as $file) {
                     //handle path traversal vulnerability
                     if (strpos($file, '..') !== false) {
-                        throw new Exception('Path traversal found');
+                        throw new \Exception('Path traversal found');
                     }
                     @chown($file, $apacheUser);
                     @chgrp($file, $apacheUser);
@@ -497,7 +497,7 @@ class CentreonConfigPoller
                 foreach (glob($Nagioscfg["cfg_dir"] . "/*.DEBUG") as $file) {
                     //handle path traversal vulnerability
                     if (strpos($file, '..') !== false) {
-                        throw new Exception('Path traversal found');
+                        throw new \Exception('Path traversal found');
                     }
                     @chown($file, $apacheUser);
                     @chgrp($file, $apacheUser);
@@ -546,7 +546,7 @@ class CentreonConfigPoller
                     foreach (glob(rtrim($centreonBrokerDirCfg, "/") . "/" . "/*.{xml,json,cfg}", GLOB_BRACE) as $file) {
                         //handle path traversal vulnerability
                         if (strpos($file, '..') !== false) {
-                            throw new Exception('Path traversal found');
+                            throw new \Exception('Path traversal found');
                         }
                         @chown($file, $apacheUser);
                         @chgrp($file, $apacheUser);
@@ -684,7 +684,7 @@ class CentreonConfigPoller
         $filename = "{$trapdPath}/{$pollerId}/centreontrapd.sdb";
         //handle path traversal vulnerability
         if (strpos($filename, '..') !== false) {
-            throw new Exception('Path traversal found');
+            throw new \Exception('Path traversal found');
         }
         passthru("$centreonDir/bin/generateSqlLite '{$pollerId}' '{$filename}' 2>&1");
         exec("echo 'SYNCTRAP:" . $pollerId . "' >> " . $this->getCentcorePipe(), $stdout, $return);
@@ -709,8 +709,8 @@ class CentreonConfigPoller
 
     /**
      *
-     * @param type $poller
-     * @return type
+     * @param string $poller
+     * @return int
      */
     private function getPollerId($poller)
     {

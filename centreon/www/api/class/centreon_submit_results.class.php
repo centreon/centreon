@@ -116,9 +116,9 @@ class CentreonSubmitResults extends CentreonWebService
     {
         parent::__construct();
         if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
-            $this->centcore_file = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
+            $this->centcoreFile = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
         } else {
-            $this->centcore_file = _CENTREON_VARLIB_ . '/centcore.cmd';
+            $this->centcoreFile = _CENTREON_VARLIB_ . '/centcore.cmd';
         }
         $this->pearDBC = new CentreonDB('centstorage');
         $this->getPollers();
