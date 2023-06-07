@@ -11,7 +11,7 @@ env:
   directory: "centreon/packages/ui"
   centreon_directory: "centreon"
   package: "ui"
-  base_branch: develop
+  base_branch: dev-23.04.x
 
 jobs:
   lint:
