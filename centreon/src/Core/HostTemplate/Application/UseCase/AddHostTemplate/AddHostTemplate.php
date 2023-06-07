@@ -91,6 +91,7 @@ final class AddHostTemplate
                 $this->dataStorageEngine->startTransaction();
 
                 $hostTemplateId = $this->createHostTemplate($request);
+
                 $this->linkHostCategories($request, $hostTemplateId);
 
                 $this->dataStorageEngine->commitTransaction();
@@ -298,10 +299,11 @@ final class AddHostTemplate
             : 0;
 
         $newHostTemplate = NewHostTemplateFactory::create($request, $inheritanceMode);
+        $hostTemplateId =  $this->writeHostTemplateRepository->add($newHostTemplate);
 
-        $this->info('AddHostTemplate: Adding new host template', ['host_template' => $newHostTemplate]);
+        $this->info('AddHostTemplate: Adding new host template', ['host_template_id' => $hostTemplateId]);
 
-        return $this->writeHostTemplateRepository->add($newHostTemplate);
+        return $hostTemplateId;
     }
 
     /**
