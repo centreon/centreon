@@ -29,6 +29,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
@@ -212,8 +213,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        service_normal_check_interval,
                        service_notification_interval,
                        service_notification_options,
-                       service_notifications_enabled,
-                       service_passive_checks_enabled,
                        service_recovery_notification_delay,
                        service_retry_check_interval,
                        service_template_model_stm_id,
@@ -259,6 +258,32 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
+     * @inheritDoc
+     */
+    public function exists(int $serviceTemplateId): bool
+    {
+        $request = $this->translateDbName('SELECT 1 FROM `:db`.service WHERE service_id = :id');
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByName(TrimmedString $serviceTemplateName): bool
+    {
+        $request = $this->translateDbName('SELECT 1 FROM `:db`.service WHERE service_description = :name');
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':name', (string) $serviceTemplateName);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
      * @param _ServiceTemplate $data
      *
      * @throws AssertionFailedException
@@ -273,6 +298,10 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             $commandArguments = [];
             if ($arguments !== null && preg_match_all($commandSplitPattern, $arguments, $result)) {
                 $commandArguments = $result[1];
+            }
+
+            foreach ($commandArguments as $index => $argument) {
+                $commandArguments[$index] = str_replace(['#BR#', '#T#', '#R#'], ["\n", "\t", "\r"], $argument);
             }
 
             return $commandArguments;
@@ -296,7 +325,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             $this->createYesNoDefault($data['service_event_handler_enabled']),
             $this->createYesNoDefault($data['service_flap_detection_enabled']),
             $this->createYesNoDefault($data['service_notifications_enabled']),
-            $data['service_description'],
             $data['service_comment'],
             $data['esi_notes'],
             $data['esi_notes_url'],

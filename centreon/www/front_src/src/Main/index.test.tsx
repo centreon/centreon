@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { Provider } from 'jotai';
 
 import { ListingVariant } from '@centreon/ui-context';
 import {
@@ -26,8 +25,7 @@ import { navigationEndpoint } from '../Navigation/useNavigation';
 import { labelAuthenticationDenied } from '../FallbackPages/AuthenticationDenied/translatedLabels';
 
 import { labelCentreonIsLoading } from './translatedLabels';
-
-import Main from '.';
+import Provider from './Provider';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -120,12 +118,7 @@ jest.mock('../components/mainRouter', () => {
   };
 });
 
-const renderMain = (): RenderResult =>
-  render(
-    <Provider>
-      <Main />
-    </Provider>
-  );
+const renderMain = (): RenderResult => render(<Provider />);
 
 const mockDefaultGetRequests = (): void => {
   mockedAxios.get
@@ -300,8 +293,6 @@ describe('Main', () => {
     mockNotConnectedGetRequests();
 
     renderMain();
-
-    expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(

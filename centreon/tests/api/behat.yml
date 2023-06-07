@@ -150,6 +150,10 @@ default:
       paths: [ "%paths.base%/features/ServiceSeverity.feature" ]
       contexts:
         - Centreon\Test\Behat\Api\Context\ApiContext
+    notification:
+      paths: [ "%paths.base%/features/Notification.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\CloudPlatformContext
     host_templates:
       paths: [ "%paths.base%/features/HostTemplate.feature" ]
       contexts:

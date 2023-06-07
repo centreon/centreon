@@ -303,6 +303,7 @@ class Resource
 
         if ($this->getLastStatusChange() !== null) {
             $result = CentreonDuration::toString(time() - $this->getLastStatusChange()->getTimestamp());
+            $result = $result !== false ? $result : null;
         }
 
         return $result;
@@ -317,6 +318,7 @@ class Resource
 
         if ($this->getLastCheck() !== null) {
             $result = CentreonDuration::toString(time() - $this->getLastCheck()->getTimestamp());
+            $result = $result !== false ? $result : null;
         }
 
         return $result;

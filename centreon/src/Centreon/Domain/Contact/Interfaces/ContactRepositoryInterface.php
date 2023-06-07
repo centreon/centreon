@@ -81,4 +81,13 @@ interface ContactRepositoryInterface
      * @return Contact|null
      */
     public function findByAuthenticationToken(string $token): ?Contact;
+
+    /**
+     * Check existence of provided users
+     * Return an array of the existing user IDs out of the provided ones.
+     *
+     * @param int[] $userIds
+     * @return int[]
+     */
+    public function exist(array $userIds): array;
 }

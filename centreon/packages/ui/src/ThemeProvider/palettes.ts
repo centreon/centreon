@@ -18,6 +18,7 @@ declare module '@mui/material/styles' {
     background: {
       default: string;
       listingHeader: string;
+      panelGroups: string;
       paper: string;
     };
     pending: {
@@ -35,8 +36,6 @@ declare module '@mui/material/styles' {
     warning: string;
   }
   interface PaletteOptions {
-    header: TypeHeader;
-    layout: TypeLayout;
     pending: {
       contrastText: string;
       main: string;
@@ -46,34 +45,8 @@ declare module '@mui/material/styles' {
 
   interface TypeBackground {
     listingHeader: string;
-  }
-
-  interface TypeLayout {
-    body: {
-      background: string;
-    };
-    header: {
-      background: string;
-      border: string;
-    };
-  }
-
-  interface TypeHeader {
-    page: {
-      action: {
-        background: {
-          active: string;
-          default: string;
-        };
-        color: {
-          active: string;
-          default: string;
-        };
-      };
-      border: string;
-      description: string;
-      title: string;
-    };
+    panel: string;
+    panelGroups: string;
   }
 }
 
@@ -109,6 +82,8 @@ export const lightPalette: PaletteOptions = {
   background: {
     default: '#F4F4F4',
     listingHeader: '#666666',
+    panel: '#EDEDED',
+    panelGroups: '#F5F5F5',
     paper: '#FFFFFF'
   },
   divider: '#E3E3E3',
@@ -116,35 +91,9 @@ export const lightPalette: PaletteOptions = {
     contrastText: '#000',
     main: '#FF4A4A'
   },
-  header: {
-    page: {
-      action: {
-        background: {
-          active: '#1975D10F',
-          default: '#FFFFFF00'
-        },
-        color: {
-          active: '#1976D2',
-          default: '#696969'
-        }
-      },
-      border: '#4A4A4A',
-      description: '#4A4A4A',
-      title: '#000000'
-    }
-  },
   info: {
     contrastText: '#000',
     main: '#1588D1'
-  },
-  layout: {
-    body: {
-      background: '#F6F6F6'
-    },
-    header: {
-      background: '#FFFFFF',
-      border: '#E3E3E3'
-    }
   },
   mode: ThemeMode.light,
   pending: {
@@ -204,6 +153,8 @@ export const darkPalette: PaletteOptions = {
   background: {
     default: '#4a4a4a',
     listingHeader: '#666666',
+    panel: '#4a4a4a',
+    panelGroups: '#252525',
     paper: '#212121'
   },
   divider: '#666666',

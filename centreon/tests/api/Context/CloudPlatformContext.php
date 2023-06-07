@@ -23,9 +23,7 @@ declare(strict_types=1);
 
 namespace Centreon\Test\Api\Context;
 
-use Centreon\Test\Behat\Api\Context\ApiContext;
-
-class CloudPlatformContext extends ApiContext
+class CloudPlatformContext extends FeatureFlagContext
 {
     /**
      * Launch Centreon Web container with the environment variable IS_CLOUD_PLATFORM=1.
