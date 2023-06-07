@@ -158,10 +158,9 @@ class EasyVistaRestProvider extends AbstractProvider
         </td>
     </tr>
     <tr>
-        <td class="FormRowField" style="padding-left:15px;">{$custom_message.label}</td>
-        <td class="FormRowValue" style="padding-left:15px;">
-        <textarea id="custom_message" name="custom_message" cols="50" rows="6"></textarea>
-    </td>
+        <td class="FormRowField" style="padding-left:15px;">Use hostgroup name as CI</td>
+        <td class="FormRowField" style="padding-left:15px;"><input id="ci_type_selector" type="checkbox"></input></td>
+    </tr>
     </tr>
     {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/groups.ihtml"}
     {include file="file:$centreon_open_tickets_path/providers/EasyVistaRest/templates/handle_ci.ihtml"}
@@ -684,7 +683,7 @@ class EasyVistaRestProvider extends AbstractProvider
         }
 
         foreach ($ticketArguments as $id => $value) {
-            // $id is structure is "{$select.u_my_custom_field_name.value}" we keep "u_my_custom_field_name"
+            // $id is structure is "{$select.e_my_custom_field_name.value}" we keep "e_my_custom_field_name"
             if (preg_match('/.*\.(e_.*)\.[id|value|placeholder].*/', $id, $match)) {
                 $info['data']['requests'][0][$match[1]] = $value;
             }
