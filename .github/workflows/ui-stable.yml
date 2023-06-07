@@ -24,18 +24,6 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  clean-up-npm-beta-tag:
-    runs-on: ubuntu-22.04
-    if: github.event.pull_request.merged == true
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: ./.github/actions/clean-up-npm-tag
-        with:
-          package: ui
-          npm_token: ${{ secrets.NPM_TOKEN }}
-
   publish-new-npm-version:
     runs-on: ubuntu-22.04
     if: ${{ github.event.pull_request.merged == true }}

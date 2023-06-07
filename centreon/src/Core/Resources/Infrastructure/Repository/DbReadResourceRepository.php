@@ -49,9 +49,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      */
     private array $resources = [];
 
-    private const RESOURCE_TYPE_SERVICE = 0,
-                  RESOURCE_TYPE_HOST = 1,
-                  RESOURCE_TYPE_METASERVICE = 2;
+    private const RESOURCE_TYPE_HOST = 1;
 
     /**
      * @var ResourceTypeInterface[]
@@ -72,7 +70,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         'alias' => 'resources.alias',
         'fqdn' => 'resources.address',
         'type' => 'resources.type',
-        'h.name' => 'parent_resource.name',
+        'h.name' => 'CASE WHEN resources.type = 1 THEN resources.name ELSE resources.parent_name END',
         'h.alias' => 'parent_resource.alias',
         'h.address' => 'parent_resource.address',
         's.description' => 'resources.type IN (0,2) AND resources.name',
@@ -606,13 +604,23 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $sqlStatuses = [];
         if (! empty($filter->getStatuses())) {
             foreach ($filter->getStatuses() as $status) {
-                if (array_key_exists($status, ResourceFilter::MAP_STATUS_SERVICE)) {
-                    $sqlStatuses[] = '(resources.type = ' . self::RESOURCE_TYPE_SERVICE
-                        . ' OR resources.type = ' . self::RESOURCE_TYPE_METASERVICE
-                        . ') AND resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status];
-                } elseif (array_key_exists($status, ResourceFilter::MAP_STATUS_HOST)) {
-                    $sqlStatuses[] = 'resources.type = ' . self::RESOURCE_TYPE_HOST
-                        . ' AND resources.status = ' . ResourceFilter::MAP_STATUS_HOST[$status];
+                switch ($status) {
+                    case ResourceFilter::STATUS_PENDING:
+                        $sqlStatuses[] = "resources.status = " . ResourceFilter::MAP_STATUS_SERVICE[$status];
+                        break;
+                    case ResourceFilter::STATUS_OK:
+                    case ResourceFilter::STATUS_WARNING:
+                    case ResourceFilter::STATUS_UNKNOWN:
+                    case ResourceFilter::STATUS_CRITICAL:
+                        $sqlStatuses[] = 'resources.type != ' . self::RESOURCE_TYPE_HOST
+                            . ' AND resources.status = ' . ResourceFilter::MAP_STATUS_SERVICE[$status];
+                        break;
+                    case ResourceFilter::STATUS_UP:
+                    case ResourceFilter::STATUS_DOWN:
+                    case ResourceFilter::STATUS_UNREACHABLE:
+                        $sqlStatuses[] = "resources.type = " . self::RESOURCE_TYPE_HOST
+                            . " AND resources.status = '" . ResourceFilter::MAP_STATUS_HOST[$status] . "'";
+                        break;
                 }
             }
 

@@ -29,6 +29,7 @@ use Core\Security\ProviderConfiguration\Domain\Exception\Http\InvalidResponseExc
 use Core\Security\ProviderConfiguration\Domain\Exception\Http\InvalidStatusCodeException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Repository\ReadAttributePathRepositoryInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,10 +60,10 @@ class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInte
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function getData(string $url, string $token, Configuration $configuration): array
+    public function getData(string $url, string $token, Configuration $configuration, string $endpointType): array
     {
         try {
-            $response = $this->getResponseOrFail($url, $token, $configuration);
+            $response = $this->getResponseOrFail($url, $token, $configuration, $endpointType);
             $this->statusCodeIsValidOrFail($response);
 
             return $this->getContentOrFail($response);
@@ -80,19 +81,26 @@ class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInte
      * @throws TransportExceptionInterface
      * @throws Exception
      */
-    private function getResponseOrFail(string $url, string $token, Configuration $configuration): ResponseInterface
-    {
+    private function getResponseOrFail(
+        string $url,
+        string $token,
+        Configuration $configuration,
+        string $endpointType
+    ): ResponseInterface {
         $customConfiguration = $configuration->getCustomConfiguration();
         $headers = ["Authorization" => "Bearer " . trim($token)];
-        $body = [
-            "token" => $token,
-            "client_id" => $customConfiguration->getClientId(),
-            "client_secret" => $customConfiguration->getClientSecret()
-        ];
-        $options = ["headers" => $headers, "body" => $body, "verify_peer" => $customConfiguration->verifyPeer()];
+        $options = ["verify_peer" => $customConfiguration->verifyPeer(), "headers" => $headers];
+        if ($endpointType !== Endpoint::CUSTOM) {
+            $body = [
+                "token" => $token,
+                "client_id" => $customConfiguration->getClientId(),
+                "client_secret" => $customConfiguration->getClientSecret()
+            ];
+            $options['body'] = $body;
+        }
 
         try {
-            $response = $this->client->request("POST", $url, $options);
+            $response = $this->client->request($this->getHttpMethodFromEndpointType($endpointType), $url, $options);
         } catch (Exception) {
             throw new InvalidResponseException();
         }
@@ -130,5 +138,16 @@ class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInte
         }
 
         return $content;
+    }
+
+    /**
+     * Get the HTTP Method from Endpoint Type
+     *
+     * @param string $endpointType
+     * @return string
+     */
+    private function getHttpMethodFromEndpointType(string $endpointType): string
+    {
+        return $endpointType === Endpoint::INTROSPECTION ? "POST" : "GET";
     }
 }

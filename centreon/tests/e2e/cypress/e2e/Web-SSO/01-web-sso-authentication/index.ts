@@ -1,5 +1,9 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+before(() => {
+  cy.startWebContainer();
+});
+
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
@@ -49,3 +53,7 @@ Then(
       .should('eq', 200);
   }
 );
+
+after(() => {
+  cy.stopWebContainer();
+});

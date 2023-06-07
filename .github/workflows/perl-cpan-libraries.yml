@@ -28,6 +28,8 @@ jobs:
 
   package:
     needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -49,6 +51,7 @@ jobs:
             "Crypt::Argon2",
             "Crypt::Blowfish_PP",
             "DateTime::Format::Duration::ISO8601",
+            "DBD::Sybase",
             "Device::Modbus",
             "Device::Modbus::RTU::Client",
             "Device::Modbus::TCP::Client",
@@ -128,6 +131,8 @@ jobs:
             build_deb: "false"
           - name: "DateTime::Format::Duration::ISO8601"
             rpm_provides: "perl(DateTime-Format-Duration-ISO8601)"
+          - name: "DBD::Sybase"
+            build_deb: "false"
           - name: "Device::Modbus::RTU::Client"
             version: "0.022"
           - name: "Device::Modbus::TCP::Client"
@@ -171,7 +176,7 @@ jobs:
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
           yum config-manager --set-enabled powertools || true # alma 8
-          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel libffi-devel perl-DBI.x86_64 perl-Net-Pcap.x86_64
+          yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel libffi-devel perl-DBI perl-Net-Pcap freetds freetds-devel
         shell: bash
 
       - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file == '' }}
@@ -200,6 +205,8 @@ jobs:
 
           cpanm Module::Build::Tiny
           cpanm Module::Install
+
+          export SYBASE="/usr"
 
           gem install fpm
           fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_PROVIDES$PACKAGE_VERSION ${{ matrix.name }}
@@ -263,6 +270,7 @@ jobs:
 
   sign-rpm:
     needs: [package]
+
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -313,8 +321,10 @@ jobs:
 
   deliver-rpm:
     needs: [get-version, sign-rpm]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [el8, el9]
@@ -335,8 +345,10 @@ jobs:
 
   deliver-deb:
     needs: [get-version, download-and-cache-deb]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [bullseye]
@@ -353,4 +365,26 @@ jobs:
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  promote:
+    needs: [get-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el8, el9, bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Promote ${{ matrix.distrib }} to stable
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module: percl-cpan-libraries
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}

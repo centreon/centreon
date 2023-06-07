@@ -1912,6 +1912,7 @@ CREATE TABLE `topology` (
   `topology_group` int(11) DEFAULT NULL,
   `topology_url` varchar(255) DEFAULT NULL,
   `topology_url_opt` varchar(255) DEFAULT NULL,
+  `topology_url_substitute` varchar(255) DEFAULT null,
   `topology_popup` enum('0','1') DEFAULT NULL,
   `topology_modules` enum('0','1') DEFAULT NULL,
   `topology_show` enum('0','1') DEFAULT '1',

@@ -46,6 +46,7 @@ beforeEach(function () {
     $this->openIdProviderResponse->isActive = true;
     $this->openIdProviderResponse->isForced = true;
     $this->openIdProviderResponse->redirectUrl = null;
+    $this->openIdProviderResponse->connectionScopes = ['openid', 'offline_access'];
 
     $this->presenter = new OpenIdProviderPresenter($this->urlGenerator);
 });
@@ -62,14 +63,14 @@ it('presents properly response data', function () {
     $this->urlGenerator
         ->expects($this->once())
         ->method('generate')
-        ->willReturn('/redirection_uri');
+        ->willReturn('redirection_uri');
 
     $presentedData = $this->presenter->present($this->openIdProviderResponse);
     expect($presentedData['id'])->toBe(1);
     expect($presentedData['type'])->toBe('openid');
     expect($presentedData['name'])->toBe('openid');
     expect($presentedData['authentication_uri'])->toMatch(
-        '/^\/oauth2\/authorization\?client_id=client1&response_type=code&redirect_uri=\/redirection_uri&state=/'
+        '/^\/oauth2\/authorization\?client_id=client1&response_type=code&redirect_uri=redirection_uri&state=/'
     );
     expect($presentedData['is_active'])->toBe(true);
     expect($presentedData['is_forced'])->toBe(true);

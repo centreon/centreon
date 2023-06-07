@@ -13,7 +13,7 @@ env:
   directory: "centreon/packages/ui-context"
   centreon_directory: "centreon"
   package: 'ui-context'
-  base_branch: develop
+  base_branch: dev-23.04.x
 
 jobs:
   lint:
