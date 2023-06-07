@@ -360,29 +360,31 @@
       /* Prepare threshold */
       if (this.settings.threshold && dataRaw.metrics.length === 1) {
         nbPoints = dataRaw.metrics[0].data.length;
-        if (dataRaw.metrics[0].warn) {
-          data.colors.warn = '#ff9a13';
-          data.types.warn = 'line';
-          data.names.warn = 'Warning';
-          thresholdData = Array.apply(null, Array(nbPoints))
+        if (nbPoints > 1) {
+          if (dataRaw.metrics[0].warn) {
+            data.colors.warn = '#ff9a13';
+            data.types.warn = 'line';
+            data.names.warn = 'Warning';
+            thresholdData = Array.apply(null, Array(nbPoints))
+                .map(function () {
+                  return dataRaw.metrics[0].warn;
+                });
+            thresholdData.unshift('warn');
+            data.columns.push(thresholdData);
+            data.regions.warn = [{style: 'dashed'}];
+          }
+          if (dataRaw.metrics[0].crit) {
+            data.colors.crit = '#e00b3d';
+            data.types.crit = 'line';
+            data.names.crit = 'Critical';
+            thresholdData = Array.apply(null, Array(nbPoints))
               .map(function () {
-                return dataRaw.metrics[0].warn;
+                return dataRaw.metrics[0].crit;
               });
-          thresholdData.unshift('warn');
-          data.columns.push(thresholdData);
-          data.regions.warn = [{style: 'dashed'}];
-        }
-        if (dataRaw.metrics[0].crit) {
-          data.colors.crit = '#e00b3d';
-          data.types.crit = 'line';
-          data.names.crit = 'Critical';
-          thresholdData = Array.apply(null, Array(nbPoints))
-            .map(function () {
-              return dataRaw.metrics[0].crit;
-            });
-          thresholdData.unshift('crit');
-          data.columns.push(thresholdData);
-          data.regions.crit = [{style: 'dashed'}];
+            thresholdData.unshift('crit');
+            data.columns.push(thresholdData);
+            data.regions.crit = [{style: 'dashed'}];
+          }
         }
       }
 
