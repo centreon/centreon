@@ -338,7 +338,7 @@ describe('Dashboard', () => {
   });
 
   describe('Shares', () => {
-    it('displays the list of users role when the corresponding button is clicked', () => {
+    it('displays the list of user roles when the corresponding button is clicked', () => {
       initializeBlocker();
       initializeAndMount(editorRoles);
 
