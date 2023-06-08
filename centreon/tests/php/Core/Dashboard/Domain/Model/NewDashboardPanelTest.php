@@ -64,7 +64,6 @@ it('should return properly set dashboard panel instance', function (): void {
 
 foreach (
     [
-        'name',
         'widgetType',
     ] as $field
 ) {

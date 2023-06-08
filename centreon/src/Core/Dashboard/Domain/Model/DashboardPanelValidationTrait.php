@@ -42,7 +42,6 @@ trait DashboardPanelValidationTrait
     {
         $shortName = (new \ReflectionClass($this))->getShortName();
         Assertion::maxLength($name, DashboardPanel::MAX_NAME_LENGTH, $shortName . '::name');
-        Assertion::notEmptyString($name, $shortName . '::name');
     }
 
     /**
