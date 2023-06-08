@@ -15418,7 +15418,7 @@ msgstr ""
 # msgid "Error while updating a dashboard"
 # msgstr ""
 
-# msgid "Error while trying to update a dashboard panel which belongs to another"
+# msgid "Error while trying to update a dashboard panel which belongs to another dashboard"
 # msgstr ""
 
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
