@@ -52,7 +52,6 @@ class LogoutSessionController extends AbstractController
         LogoutSessionPresenterInterface $presenter,
     ): object {
         $useCase($request->cookies->get('PHPSESSID'), $presenter);
-        $redirect = $this->getBaseUrl() . '/login';
-        return $this->redirect($redirect);
+        return $this->redirect($this->getBaseUrl() . '/login');
     }
 }
