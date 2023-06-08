@@ -55,6 +55,8 @@ mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WIT
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
 service mysql stop
+
+sed -i 's#severity=error#severity=debug#' /etc/default/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 
 EOF
