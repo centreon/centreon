@@ -94,7 +94,8 @@ Feature:
         "note_url": "noteUrl-value",
         "note": "note-value",
         "action_url": "actionUrl-value",
-        "categories": [2]
+        "categories": [2],
+        "templates": []
       }
       """
     Then the response code should be "201"
@@ -118,7 +119,8 @@ Feature:
             "id": 2,
             "name": "host-cat1"
           }
-        ]
+        ],
+        "templates": []
       }
       """
 
@@ -160,7 +162,27 @@ Feature:
         "note_url": "noteUrl-value",
         "note": "note-value",
         "action_url": "actionUrl-value",
-        "categories": [2]
+        "categories": [2],
+        "templates": []
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
+      """
+      {
+        "name": "  host template name B  ",
+        "alias": "  host-template-alias  ",
+        "snmp_version": "2c",
+        "snmp_community": "   snmpCommunity-value",
+        "timezone_id": 1,
+        "severity_id": 1,
+        "check_timeperiod_id": 1,
+        "note_url": "noteUrl-value",
+        "note": "note-value",
+        "action_url": "actionUrl-value",
+        "categories": [],
+        "templates": [999]
       }
       """
     Then the response code should be "409"
@@ -184,14 +206,15 @@ Feature:
         "note_url": "noteUrl-value",
         "note": "note-value",
         "action_url": "actionUrl-value",
-        "categories": [2]
+        "categories": [2],
+        "templates": [15]
       }
       """
     Then the response code should be "201"
     And the JSON should be equal to:
       """
       {
-        "id": 17,
+        "id": 18,
         "name": "host_template_name_B",
         "alias": "host-template-alias",
         "snmp_version": "2c",
@@ -208,10 +231,15 @@ Feature:
             "id": 2,
             "name": "host-cat1"
           }
+        ],
+        "templates": [
+          {
+            "id": 15,
+            "name": "host_template_name_A"
+          }
         ]
       }
       """
-
   Scenario: Host template patching
     Given I am logged in
     And the following CLAPI import data:
