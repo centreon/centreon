@@ -21,21 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\AddDashboard;
+namespace Core\Dashboard\Application\Rights;
 
-use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
-
-final class AddDashboardResponse
+interface DashboardRightsInterface
 {
-    public function __construct(
-        public int $id = 0,
-        public string $name = '',
-        public string $description = '',
-        public ?UserResponseDto $createdBy = null,
-        public ?UserResponseDto $updatedBy = null,
-        public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
-        public \DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
-        public string $ownRole = '',
-    ) {
-    }
+    public function canCreate(): bool;
+
+    public function canAccess(): bool;
+
+    public function hasAdminRole(): bool;
+
+    public function hasCreatorRole(): bool;
+
+    public function hasViewerRole(): bool;
 }
