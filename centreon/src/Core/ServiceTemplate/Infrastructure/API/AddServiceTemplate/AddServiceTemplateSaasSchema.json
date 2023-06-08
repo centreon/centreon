@@ -1,0 +1,54 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add a service template",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "alias"
+    ],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "alias": {
+            "type": "string"
+        },
+        "service_template_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "check_timeperiod_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "note": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "note_url": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "action_url": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "severity_id": {
+             "type": [
+                "null",
+                "integer"
+            ]
+        }
+    }
+}

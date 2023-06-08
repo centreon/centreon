@@ -15766,7 +15766,7 @@ msgstr ""
 # msgid "The service template '%s' is locked and cannot be deleted"
 # msgstr ""
 
-# msgid "You are not allowed to delete this service template"
+# msgid "You are not allowed to delete a service template"
 # msgstr ""
 
 # msgid "Error while deleting the service template"
@@ -15813,3 +15813,24 @@ msgstr ""
 
 # msgid "If you leave {{dashboardName}}, your changes will not be saved."
 # msgstr ""
+
+#  msgid "You are not allowed to add a service template"
+#  msgstr ""
+
+#  msgid "Error while adding the service template"
+#  msgstr ""
+
+#  msgid "Error while retrieving a service template"
+#  msgstr ""
+
+#  msgid "The service template name '%s' already exists"
+#  msgstr ""
+
+#  msgid "[%s] The value contains unauthorized characters: %s"
+#  msgstr ""
+
+#  msgid "Error while linking host categories to a host template"
+#  msgstr ""
+
+#  msgid "The %s does not exist with id(s) '%s'"
+#  msgstr ""

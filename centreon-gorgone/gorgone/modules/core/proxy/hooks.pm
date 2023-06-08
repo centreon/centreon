@@ -496,7 +496,7 @@ sub broadcast {
         $options{gorgone}->send_internal_message(
             identity => 'gorgone-proxy-' . $pool_id,
             action => $options{action},
-            data => $options{data},
+            raw_data_ref => $options{frame}->getRawData(),
             token => $options{token}
         );
     }
@@ -505,7 +505,7 @@ sub broadcast {
         $options{gorgone}->send_internal_message(
             identity => 'gorgone-proxy-httpserver',
             action => $options{action},
-            data => $options{data},
+            raw_data_ref => $options{frame}->getRawData(),
             token => $options{token}
         );
     }

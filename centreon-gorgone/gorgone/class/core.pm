@@ -620,7 +620,6 @@ sub broadcast_run {
             action => $options{action},
             logger => $self->{logger},
             frame => $options{frame},
-            data => $options{data},
             token => $options{token}
         );
     }
@@ -805,7 +804,7 @@ sub check_external_rotate_keys {
         }
         next if ($self->{identity_infos}->{$id}->{ctime} > ($time - $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_rotation}));
 
-        $self->{logger}->writeLogDebug('[core] rotate external key for ' . $id);
+        $self->{logger}->writeLogDebug('[core] rotate external key for ' . pack('H*', $id));
 
         ($rv, $key) = gorgone::standard::library::generate_symkey(
             keysize => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_keysize}

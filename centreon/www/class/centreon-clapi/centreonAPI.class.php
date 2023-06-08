@@ -696,20 +696,6 @@ class CentreonAPI
 
     /**
      *
-     * Check that parameters are not empty
-     * @param varchar $str
-     */
-    private function checkParameters($str)
-    {
-        if (!isset($this->options["v"]) || $this->options["v"] == "") {
-            print "No options defined.\n";
-            $this->return_code = 1;
-            return 1;
-        }
-    }
-
-    /**
-     *
      * Init XML Flow
      */
     public function initXML()

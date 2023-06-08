@@ -21,7 +21,7 @@ Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
 
 Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
   return cy
-    .get('iframe#main-content')
+    .get('iframe#main-content', { timeout: 10000 })
     .its('0.contentDocument.body')
     .should('not.be.empty')
     .then(cy.wrap);
@@ -263,7 +263,7 @@ Cypress.Commands.add(
   'startWebContainer',
   ({
     name = Cypress.env('dockerName'),
-    os = 'alma9',
+    os = Cypress.env('WEB_IMAGE_OS'),
     useSlim = true,
     version = Cypress.env('WEB_IMAGE_VERSION')
   }: StartWebContainerProps = {}): Cypress.Chainable => {

@@ -12,9 +12,8 @@
     "eslint:fix": "pnpm eslint --fix"
   },
   "devDependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^16.0.3",
-    "@centreon/js-config": "^23.10.0",
-    "@cypress/webpack-preprocessor": "^5.15.5",
+    "@badeball/cypress-cucumber-preprocessor": "^17.2.1",
+    "@cypress/webpack-preprocessor": "^5.17.1",
     "@swc/core": "^1.2.203",
     "@types/cypress": "^1.1.3",
     "@types/cypress-cucumber-preprocessor": "^4.0.1",
