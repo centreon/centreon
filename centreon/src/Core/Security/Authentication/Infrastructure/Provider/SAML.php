@@ -144,6 +144,12 @@ class SAML implements ProviderAuthenticationInterface
             throw $ex;
         }
 
+        $this->loginLogger->info(
+            Provider::SAML . ' User information: ',
+            json_encode($this->auth->getAttributes())
+        );
+        $this->info('User information: ', $this->auth->getAttributes());
+
         $attrs = $this->auth->getAttribute($customConfiguration->getUserIdAttribute());
         if ($attrs === null) {
             throw InvalidUserIdAttributeException::create();
