@@ -22,7 +22,7 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
         x,
         y
       },
-      name,
+      name: name || '',
       widget_settings: (options || {}) as {
         [key: string]: unknown;
       },
