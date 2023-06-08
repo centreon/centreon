@@ -30,7 +30,6 @@ use Core\CommandMacro\Domain\Model\CommandMacro;
  *
  * Require and return arrays with macro names as keys.
  *
- * TODO : link to confluence doc ?
  */
 final class HostMacroDifference
 {
