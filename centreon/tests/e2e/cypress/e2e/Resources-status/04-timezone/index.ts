@@ -24,6 +24,16 @@ const extract12hFormatFromTimeString = (dateTime: string): string => {
   return extractedTime ? extractedTime[0] : '';
 };
 
+const roundTimes = (date: Date): Date => {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    date.getHours(),
+    Math.ceil(date.getMinutes())
+  );
+};
+
 before(() => {
   cy.startWebContainer();
 });
@@ -217,8 +227,18 @@ Then(
     cy.get('p[data-testid="From_date"]').then(($toDate) => {
       const toDate = $toDate[0].textContent || '';
 
+      const formatedDate = roundTimes(new Date(toDate)).toLocaleTimeString(
+        'en-US',
+        {
+          hour: 'numeric',
+          minute: '2-digit'
+        }
+      );
+
       cy.getTimeFromHeader().then((localTime: string) => {
-        expect(localTime).to.equal(extract12hFormatFromTimeString(toDate));
+        expect(localTime).to.equal(
+          extract12hFormatFromTimeString(formatedDate)
+        );
       });
     });
 
@@ -368,10 +388,13 @@ Then(
       .then(($el) => {
         const dtTime = $el[0].textContent || '';
         cy.getTimeFromHeader().then((localTime: string) => {
-          const formatedDtTime = new Date(dtTime).toLocaleTimeString('en-US', {
+          const roundedDateTime = roundTimes(new Date(dtTime));
+
+          const formatedDtTime = roundedDateTime.toLocaleTimeString('en-US', {
             hour: 'numeric',
             minute: '2-digit'
           });
+
           expect(localTime).to.equal(formatedDtTime);
         });
       });
@@ -379,3 +402,7 @@ Then(
     tearDownResource();
   }
 );
+
+after(() => {
+  cy.stopWebContainer();
+});
