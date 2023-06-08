@@ -85,7 +85,8 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
                 'min_height' => $panel->layout->minHeight,
             ],
             'widget_type' => $panel->widgetType,
-            'widget_settings' => $panel->widgetSettings,
+            // Enforce stdClass in order to be sure that any array will be a JSON object "{...}"
+            'widget_settings' => (object) $panel->widgetSettings,
         ];
     }
 }
