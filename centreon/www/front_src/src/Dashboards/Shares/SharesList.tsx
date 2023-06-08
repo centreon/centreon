@@ -2,7 +2,7 @@ import { atom, useAtom } from 'jotai';
 import { equals, dec } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { CircularProgress, Typography } from '@mui/material';
+import { CircularProgress } from '@mui/material';
 
 import { useInfiniteScrollListing } from '@centreon/ui';
 import { List, Modal } from '@centreon/ui/components';
