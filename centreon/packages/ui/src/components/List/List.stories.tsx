@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import { Meta, StoryObj } from '@storybook/react';
 
 import DeleteIcon from '@mui/icons-material/Delete';
