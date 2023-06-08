@@ -53,7 +53,6 @@ sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 
 rm -f /etc/init.d/cbd
 rm -f /etc/init.d/centengine
-rm -f /etc/init.d/mysql
 
 EOF
 
