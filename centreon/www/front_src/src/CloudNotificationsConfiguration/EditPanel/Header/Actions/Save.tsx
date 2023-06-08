@@ -18,7 +18,7 @@ import {
 } from '@centreon/ui';
 
 import { EditedNotificationIdAtom, panelModeAtom } from '../../atom';
-import { isPanelOpenAtom } from '../../../atom';
+import { isPanelOpenAtom, reloadAtom } from '../../../atom';
 import {
   labelSave,
   labelSuccessfulEditNotification,
@@ -47,6 +47,7 @@ const SaveAction = (): JSX.Element => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const panelMode = useAtomValue(panelModeAtom);
   const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
+  const setReload = useSetAtom(reloadAtom);
   const setPanelOpen = useSetAtom(isPanelOpenAtom);
 
   const { isMutating, mutateAsync } = useMutationQuery({
@@ -74,6 +75,7 @@ const SaveAction = (): JSX.Element => {
       showSuccessMessage(t(labelMessage));
       setDialogOpen(false);
       setPanelOpen(false);
+      setReload(true);
     });
   };
 

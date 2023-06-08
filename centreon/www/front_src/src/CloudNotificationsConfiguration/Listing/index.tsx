@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useAtom, useSetAtom, useAtomValue } from 'jotai';
 import { prop } from 'ramda';
@@ -12,7 +12,9 @@ import {
   sortOrderAtom,
   sortFieldAtom,
   panelWidthStorageAtom,
-  selectedRowsAtom
+  selectedRowsAtom,
+  notificationsNamesAtom,
+  reloadAtom
 } from '../atom';
 import { EditedNotificationIdAtom, panelModeAtom } from '../EditPanel/atom';
 import { PanelMode } from '../EditPanel/models';
@@ -36,13 +38,29 @@ const NotificationsListing = (): JSX.Element => {
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
+  const [reload, setReload] = useAtom(reloadAtom);
   const [isPannelOpen, setIsPannelOpen] = useAtom(isPanelOpenAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const setLimit = useSetAtom(limitAtom);
   const setEditedNotificationId = useSetAtom(EditedNotificationIdAtom);
   const setPanelMode = useSetAtom(panelModeAtom);
+  const setNotificationsNames = useSetAtom(notificationsNamesAtom);
 
-  const { loading, data: listingData } = useLoadingNotifications();
+  const { loading, data: listingData, refetch } = useLoadingNotifications();
+
+  useEffect(() => {
+    if (reload === true) {
+      refetch();
+      setReload(false);
+    }
+  }, [reload]);
+
+  useEffect(() => {
+    if (listingData) {
+      const names = listingData.result.map((item) => item.name);
+      setNotificationsNames(names);
+    }
+  }, [listingData]);
 
   const changeSort = ({ sortOrder, sortField }): void => {
     setSortf(sortField);

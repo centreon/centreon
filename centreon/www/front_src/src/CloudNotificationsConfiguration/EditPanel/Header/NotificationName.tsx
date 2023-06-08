@@ -1,15 +1,22 @@
 import { useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { path } from 'ramda';
+import { equals, path } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import { Typography, Box } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 import { IconButton, TextField } from '@centreon/ui';
 
-import { labelChangeName, labelNotificationName } from '../../translatedLabels';
+import {
+  labelChangeName,
+  labelNotificationName,
+  labelName
+} from '../../translatedLabels';
+import { panelModeAtom } from '../atom';
+import { PanelMode } from '../models';
 
 import useStyles from './Header.styles';
 
@@ -18,6 +25,7 @@ const NotificationName = (): JSX.Element => {
   const { t } = useTranslation();
 
   const [nameChange, setNameChange] = useState(false);
+  const panelMode = useAtomValue(panelModeAtom);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = event.target;
@@ -36,12 +44,12 @@ const NotificationName = (): JSX.Element => {
 
   return (
     <Box className={classes.title}>
-      {nameChange ? (
+      {nameChange || equals(panelMode, PanelMode.Create) ? (
         <TextField
           required
           dataTestId={labelNotificationName}
           error={error as string | undefined}
-          placeholder={t(labelNotificationName) as string}
+          label={t(labelName) as string}
           value={notificationName}
           onBlur={handleBlur('name')}
           onChange={handleChange}

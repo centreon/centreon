@@ -1,4 +1,6 @@
-import { isEmpty, not } from 'ramda';
+import { useEffect } from 'react';
+
+import { isEmpty } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
@@ -6,7 +8,7 @@ import { Box, Theme } from '@mui/material';
 
 import { useFetchQuery, PageSkeleton } from '@centreon/ui';
 
-import { isPanelOpenAtom } from './atom';
+import { isPanelOpenAtom, reloadAtom } from './atom';
 import EmptyNotificationsPage from './EmptyNotificationsPage';
 import ListingPage from './ListingPage';
 import { NotificationsListingType } from './models';
@@ -21,9 +23,10 @@ const useStyle = makeStyles()((theme: Theme) => ({
 
 export const NotificationsPage = (): JSX.Element => {
   const { classes } = useStyle();
+  const reload = useAtomValue(reloadAtom);
   const isOpen = useAtomValue(isPanelOpenAtom);
 
-  const { data, isLoading } = useFetchQuery<NotificationsListingType>({
+  const { data, isLoading, refetch } = useFetchQuery<NotificationsListingType>({
     decoder: listingDecoder,
     getEndpoint: () => buildNotificationsEndpoint({}),
     getQueryKey: () => ['notificationsListing'],
@@ -31,17 +34,28 @@ export const NotificationsPage = (): JSX.Element => {
       suspense: false
     }
   });
+
+  useEffect(() => {
+    if (reload === true) {
+      refetch();
+    }
+  }, [reload]);
+
   if (isLoading) {
     return <PageSkeleton />;
   }
 
+  if (isOpen || !isEmpty(data?.result)) {
+    return (
+      <Box className={classes.box}>
+        <ListingPage />
+      </Box>
+    );
+  }
+
   return (
     <Box className={classes.box}>
-      {isEmpty(data?.result) && not(isOpen) ? (
-        <EmptyNotificationsPage />
-      ) : (
-        <ListingPage />
-      )}
+      <EmptyNotificationsPage />
     </Box>
   );
 };

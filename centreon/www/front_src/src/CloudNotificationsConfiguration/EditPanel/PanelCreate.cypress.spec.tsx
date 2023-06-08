@@ -101,10 +101,7 @@ describe('Panel : Creation mode', () => {
   it('Confirms that the notification name is correctly initialized with the default value', () => {
     cy.findByTestId(labelChangeName).click();
 
-    cy.findByPlaceholderText(labelNotificationName).should(
-      'have.value',
-      'Notification #1'
-    );
+    cy.findByPlaceholderText(labelNotificationName).should('have.value', '');
 
     cy.matchImageSnapshot();
   });
