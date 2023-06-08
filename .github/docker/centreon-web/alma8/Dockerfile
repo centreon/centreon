@@ -5,6 +5,15 @@ FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${VERSION} AS web_fresh
 
 ARG VERSION
 
+RUN bash -e <<EOF
+
+rm -f /etc/init.d/cbd
+rm -f /etc/init.d/centengine
+
+EOF
+
+COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
+
 COPY *.rpm /tmp/rpms-centreon/
 
 RUN bash -e <<EOF
@@ -22,8 +31,6 @@ chown apache:apache /var/log/php-fpm/centreon-error.log
 dnf clean all --enablerepo=*
 
 EOF
-
-COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint/container.sh /usr/share/centreon/container.sh
 COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint/container.d/* /usr/share/centreon/container.d/
@@ -50,9 +57,6 @@ mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPT
 centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
 service mysql stop
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
-
-rm -f /etc/init.d/cbd
-rm -f /etc/init.d/centengine
 
 EOF
 
