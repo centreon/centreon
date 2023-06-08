@@ -5,12 +5,7 @@ FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${VERSION} AS web_fresh
 
 ARG VERSION
 
-RUN bash -e <<EOF
-
-rm -f /etc/init.d/cbd
-rm -f /etc/init.d/centengine
-
-EOF
+COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 

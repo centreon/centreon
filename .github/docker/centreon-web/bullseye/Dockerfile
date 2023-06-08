@@ -7,12 +7,7 @@ ARG VERSION
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN bash -e <<EOF
-
-rm -f /etc/init.d/cbd
-rm -f /etc/init.d/centengine
-
-EOF
+COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
