@@ -145,8 +145,8 @@ class SAML implements ProviderAuthenticationInterface
         }
 
         $this->loginLogger->info(
-            Provider::SAML . ' User information: ',
-            json_encode($this->auth->getAttributes())
+            Provider::SAML , 
+            'User information: ' . json_encode($this->auth->getAttributes())
         );
         $this->info('User information: ', $this->auth->getAttributes());
 
