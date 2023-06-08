@@ -47,14 +47,14 @@ const UserRoleItem = ({
         action={
           <Box sx={{ columnGap: 2, display: 'flex' }}>
             <SelectField
-              dataTestId="role"
+              dataTestId="change_role"
               options={options}
               selectedOptionId={role}
               sx={{ width: 85 }}
               onChange={change}
             />
             <IconButton
-              data-testid="remove"
+              data-testid="remove_user"
               icon={<DeleteOutlineIcon />}
               onClick={remove}
             />

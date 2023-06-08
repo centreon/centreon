@@ -337,7 +337,7 @@ describe('Dashboard', () => {
     });
   });
 
-  describe.only('Shares', () => {
+  describe('Shares', () => {
     it('displays the list of users role when the corresponding button is clicked', () => {
       initializeBlocker();
       initializeAndMount(editorRoles);
@@ -355,8 +355,10 @@ describe('Dashboard', () => {
             cy.findByText(email).should('be.visible');
           }
 
-          cy.findAllByTestId(`role`).eq(index).should('have.value', role);
-          cy.findAllByTestId('remove').eq(index).should('be.visible');
+          cy.findAllByTestId('change_role')
+            .eq(index)
+            .should('have.value', role);
+          cy.findAllByTestId('remove_user').eq(index).should('be.visible');
         });
       });
     });
@@ -367,13 +369,36 @@ describe('Dashboard', () => {
 
       cy.findByLabelText(labelShareTheDashboard).click();
 
-      cy.findAllByTestId(`role`)
+      cy.findAllByTestId('change_role')
         .eq(0)
         .should('have.value', DashboardRole.viewer);
-      cy.findAllByTestId(`role`).eq(0).select(DashboardRole.editor);
-      cy.findAllByTestId(`role`)
+
+      cy.findAllByTestId('change_role').eq(0).parent().click();
+      cy.get('[data-value="editor"]').click();
+
+      cy.findAllByTestId('change_role')
         .eq(0)
         .should('have.value', DashboardRole.editor);
+    });
+
+    it('removes a user from the list when when the corresponding button is clicked', () => {
+      initializeBlocker();
+      initializeAndMount(editorRoles);
+
+      cy.findByLabelText(labelShareTheDashboard).click();
+
+      cy.findByText('Walter Sobchak').should('be.visible');
+
+      cy.findAllByTestId('remove_user').eq(0).click();
+
+      cy.findByText('Walter Sobchak').should('not.exist');
+    });
+
+    it('does not display the share button when the user has only the viewer role', () => {
+      initializeBlocker();
+      initializeAndMount(viewerRoles);
+
+      cy.findByLabelText(labelShareTheDashboard).should('not.exist');
     });
   });
 });
