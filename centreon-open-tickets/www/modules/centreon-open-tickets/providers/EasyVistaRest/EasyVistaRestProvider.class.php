@@ -511,51 +511,7 @@ class EasyVistaRestProvider extends AbstractProvider
 
     public static function test($info)
     {
-        // this is called through our javascript code. Those parameters are already checked in JS code.
-        // but since this function is public, we check again because anyone could use this function
-        if (
-            !isset($info['address'])
-            || !isset($info['api_path'])
-            || !isset($info['user_token'])
-            || !isset($info['app_token'])
-            || !isset($info['protocol'])
-        ) {
-                throw new \Exception('missing arguments', 13);
-        }
-
-        // check if php curl is installed
-        if (!extension_loaded("curl")) {
-            throw new \Exception("couldn't find php curl", 10);
-        }
-
-        $curl = curl_init();
-
-        $apiAddress = $info['protocol'] . '://' . $info['address'] . $info['api_path'] . '/initSession';
-        $info['method'] = 0;
-        // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $info['app_token'],
-            'Authorization: user_token ' . $info['user_token'],
-            'Content-Type: application/json'
-        );
-
-        // initiate our curl options
-        curl_setopt($curl, CURLOPT_URL, $apiAddress);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $info['headers']);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_POST, $info['method']);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $info['timeout']);
-        // execute curl and get status information
-        $curlResult = curl_exec($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-        if ($httpCode > 301) {
-            throw new Exception('curl result: ' . $curlResult . '|| HTTP return code: ' . $httpCode, 11);
-        }
-
-        return true;
+        // not implemented because there's no known url to test the api connection
     }
 
     protected function curlQuery($info)
@@ -591,7 +547,7 @@ class EasyVistaRestProvider extends AbstractProvider
         }
 
         // add postData if needed
-        if ($info['method'] == "POST") {
+        if (!empty($info['data'])) {
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($info['data']));
         }
 
@@ -725,6 +681,9 @@ class EasyVistaRestProvider extends AbstractProvider
         $info['query_endpoint'] = '/requests/' . $ticketId;
         $info['method'] = 0;
         $info['custom_request'] = 'PUT';
+        $info['data'] = [
+            'closed' => []
+        ];
 
         try {
             $this->curlQuery($info);
