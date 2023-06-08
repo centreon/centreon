@@ -9,20 +9,24 @@ import IconClose from '@mui/icons-material/Close';
 
 import Severity from './Severity';
 
-const useStyles = makeStyles()({
+const useStyles = makeStyles()((theme) => ({
   alertIcon: {
-    paddingTop: '10px'
+    paddingTop: theme.spacing(1.25)
   },
   closeIcon: {
     fontSize: 20,
     opacity: 0.9
   },
   message: {
+    '& a': {
+      color: theme.palette.primary.main,
+      textDecoration: 'none'
+    },
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center'
   }
-});
+}));
 
 export interface SnackbarProps {
   id: string | number;
@@ -69,7 +73,7 @@ const Snackbar = React.forwardRef(
           severity={severity}
           variant="filled"
         >
-          {message}
+          <div dangerouslySetInnerHTML={{ __html: message }} />
         </Alert>
       </SnackbarContent>
     );
