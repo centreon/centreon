@@ -16271,7 +16271,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Dashboard access rights"
 # msgstr ""
 
-# msgid "Users roles"
+# msgid "User roles"
 # msgstr ""
 
 # msgid "Share the dashboard"
