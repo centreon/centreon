@@ -28,7 +28,7 @@ import { PanelDetails } from '../models';
 import { formatPanel } from '../useDashboardDetails';
 import useDashboardDirty from '../useDashboardDirty';
 import { selectedDashboardShareAtom } from '../../atoms';
-import { Share } from '../../Share';
+import { Shares } from '../../Shares';
 
 import { useStyles } from './HeaderActions.styles';
 
@@ -140,7 +140,7 @@ const HeaderActions = ({
           {t(labelEditDashboard)}
         </Button>
         <IconButton icon={<ShareIcon />} onClick={openShareModal} />
-        <Share />
+        <Shares />
       </div>
     );
   }

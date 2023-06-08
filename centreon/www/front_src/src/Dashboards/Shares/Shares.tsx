@@ -11,7 +11,7 @@ import { labelDashboardAccessRights } from './translatedLabels';
 import SharesList from './SharesList';
 import Skeleton from './Skeleton';
 
-export const Share = (): JSX.Element => {
+export const Shares = (): JSX.Element => {
   const { t } = useTranslation();
 
   const [selectedDashboardShare, setSelectedDashboardShare] = useAtom(
