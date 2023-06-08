@@ -16292,3 +16292,9 @@ msgstr ""
 
 #  msgid "[%s] The value contains unauthorized characters: %s"
 #  msgstr ""
+
+#  msgid "Error while linking host categories to a host template"
+#  msgstr ""
+
+#  msgid "The %s does not exist with id(s) '%s'"
+#  msgstr ""

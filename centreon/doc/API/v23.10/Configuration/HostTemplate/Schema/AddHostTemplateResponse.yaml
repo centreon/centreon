@@ -2,7 +2,7 @@ type: object
 properties:
   id:
     type: integer
-    description: "Host template id"
+    description: "Host template ID"
     example: 1
   name:
     type: string
@@ -54,7 +54,7 @@ properties:
   max_check_attemps:
     type: integer
     nullable: true
-    description: "Define the number of times that the monitoring engine will retry the host check command if it returns any non-OK state"
+    description: "Define the number of times that the monitoring engine will retry the host check command if it returns any non-UP state"
   check_interval:
     type: integer
     nullable: true
@@ -240,3 +240,16 @@ properties:
   is_locked:
     type: boolean
     description: "Indicates whether the configuration is locked for editing or not"
+  categories:
+    type: array
+    items:
+     type: object
+     properties:
+      id:
+       type: integer
+       description: "Define a host category ID that is associated with this host template"
+       example: 1
+      name:
+       type: string
+       description: "Define a host category name that is associated with this host template"
+       example: 'host-category-name'

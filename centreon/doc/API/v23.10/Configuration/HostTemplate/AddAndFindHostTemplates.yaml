@@ -64,7 +64,7 @@ post:
         application/json:
           schema:
             type: object
-            $ref: 'Schema/HostTemplate.yaml'
+            $ref: 'Schema/AddHostTemplateResponse.yaml'
     '400':
       $ref: '../../Common/Response/BadRequest.yaml'
     '403':
