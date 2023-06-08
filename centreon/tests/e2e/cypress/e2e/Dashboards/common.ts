@@ -27,7 +27,7 @@ const deleteAllDashboards = (): Cypress.Chainable => {
   return cy.getByLabel({ label: 'delete', tag: 'button' }).each((element) => {
     cy.wrap(element).click();
     cy.getByLabel({ label: 'confirm', tag: 'button' }).click();
-    cy.wait('@listAllDashboards');
+    cy.wait('@listAllDashboardsOnFirstPage');
   });
 };
 

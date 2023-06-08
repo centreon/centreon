@@ -14,10 +14,8 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/configuration/dashboards?page=1&limit=100'
-  }).as('listAllDashboards');
+  }).as('listAllDashboardsOnFirstPage');
 });
-
-// To refine
 Given('a user with access to the dashboards library', () => {
   cy.visit(`${Cypress.config().baseUrl}/centreon/monitoring/resources`);
 });
@@ -52,15 +50,18 @@ When('the user clicks on the dashboard they want to select', () => {
     .click();
 });
 
-Then('they are redirected to the information page for that dashboard', () => {
-  cy.url().should(
-    'not.eq',
-    `${Cypress.config().baseUrl}/centreon/home/dashboards`
-  );
-  cy.getByLabel({ label: 'Breadcrumb' }).contains('Dashboard (beta)').click();
+Then(
+  'they are redirected to the information page describing that dashboard',
+  () => {
+    cy.url().should(
+      'not.eq',
+      `${Cypress.config().baseUrl}/centreon/home/dashboards`
+    );
+    cy.getByLabel({ label: 'Breadcrumb' }).contains('Dashboard (beta)').click();
 
-  deleteAllDashboards();
-});
+    deleteAllDashboards();
+  }
+);
 
 Given('a non-empty library of dashboards that does not fit on one page', () => {
   insertDashboardList('dashboards/navigation/02-morethanonepage.json');
@@ -73,26 +74,28 @@ When(
     cy.getByLabel({ label: 'view', tag: 'button' })
       .contains('dashboard-to-locate')
       .should('not.exist');
-    cy.get('[class*="MuiBox-root"]').scrollTo('bottom', {
-      ensureScrollable: false
-    });
+
+    cy.get('[data-variant="grid"]').parent().parent().scrollTo('bottom');
+
+    cy.request(
+      'GET',
+      '/centreon/api/latest/configuration/dashboards?page=2&limit=100'
+    );
   }
 );
 
 Then(
-  'the elements of the library displayed on the screen progressively change',
+  'the elements of the library displayed on the screen progressively change and the dashboard to locate ends up appearing',
   () => {
     cy.getByLabel({ label: 'view', tag: 'button' })
       .contains('dashboard-name-0')
       .should('not.be.visible');
+
+    cy.getByLabel({ label: 'view', tag: 'button' })
+      .contains('dashboard-to-locate')
+      .should('exist');
   }
 );
-
-Then('the dashboard ends up appearing', () => {
-  cy.getByLabel({ label: 'view', tag: 'button' })
-    .contains('dashboard-to-locate')
-    .should('exist');
-});
 
 When(
   'the user clicks on the dashboard they wanted to find at the bottom of the library',
@@ -103,12 +106,21 @@ When(
   }
 );
 
-Then('they are redirected to the page for that dashboard', () => {
+Then('they are redirected to the page describing that dashboard', () => {
   cy.url().should(
     'not.eq',
     `${Cypress.config().baseUrl}/centreon/home/dashboards`
   );
   cy.getByLabel({ label: 'Breadcrumb' }).contains('Dashboard (beta)').click();
-
+  cy.request(
+    'GET',
+    '/centreon/api/latest/configuration/dashboards?page=2&limit=100'
+  );
+  cy.getByLabel({ label: 'delete', tag: 'button' }).click();
+  cy.getByLabel({ label: 'confirm', tag: 'button' }).click();
+  cy.request(
+    'GET',
+    '/centreon/api/latest/configuration/dashboards?page=1&limit=100'
+  );
   deleteAllDashboards();
 });
