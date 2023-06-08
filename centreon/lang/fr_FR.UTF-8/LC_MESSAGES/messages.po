@@ -17680,7 +17680,7 @@ msgid "Dashboard access rights"
 msgstr "Droits d'accès au tableau de bord"
 
 msgid "Users roles"
-msgstr "Rôle utilisateurs"
+msgstr "Rôles utilisateur"
 
 msgid "Share the dashboard"
 msgstr "Partager le tableau de bord"
