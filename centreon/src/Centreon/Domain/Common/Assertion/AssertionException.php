@@ -48,6 +48,9 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const VALUE_EMPTY = Assert::VALUE_EMPTY;
     public const VALUE_NULL = Assert::VALUE_NULL;
 
+    // Error codes of Centreon assertion start from 1000
+    public const INVALID_CHARACTERS = 1003;
+
     /**
      * The extended constructor is here only to enforce the types used
      * and set a default `int $code = 0` for child classes.
@@ -66,6 +69,32 @@ class AssertionException extends \Assert\InvalidArgumentException
         array $constraints = []
     ) {
         parent::__construct($message, $code, $propertyPath, $value, $constraints);
+    }
+
+    /**
+     * Exception when the value contains unauthorized characters.
+     *
+     * @param string $value Tested value
+     * @param string $unauthorizedCharacters List of unauthorized characters found in the value
+     * @param string|null $propertyPath Property's path (ex: Host::name)
+     *
+     * @return self
+     */
+    public static function unauthorizedCharacters(
+        string $value,
+        string $unauthorizedCharacters,
+        ?string $propertyPath = null
+    ): self {
+        return new self(
+            sprintf(
+                _('[%s] The value contains unauthorized characters: %s'),
+                $propertyPath,
+                $unauthorizedCharacters,
+            ),
+            self::INVALID_CHARACTERS,
+            $propertyPath,
+            $value
+        );
     }
 
     /**

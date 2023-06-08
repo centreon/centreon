@@ -209,6 +209,11 @@ $failDataProvider = [
         AssertionException::maxLength('<JSON>', 10, 5, $propertyPath)->getMessage(),
         AssertionException::INVALID_MAX_LENGTH,
     ],
+    "unauthorisedCharacters('new bad string!', '!&#@')" => [
+        fn() => Assertion::unauthorizedCharacters('new bad string!', '!&#@', $propertyPath),
+        AssertionException::unauthorizedCharacters('new bad string!', '!', $propertyPath)->getMessage(),
+        AssertionException::INVALID_CHARACTERS
+    ],
 ];
 
 // We use a custom data provider with a loop to avoid pest from auto-evaluating the closure from the dataset.
@@ -359,6 +364,12 @@ $successDataProvider = [
     'arrayJsonEncodable("foo")' => [
         fn() => Assertion::jsonEncodable('foo', $propertyPath),
     ],
+    "unauthorisedCharacters('new bad string!', '&#@')" => [
+        fn() => Assertion::unauthorizedCharacters('new bad string!', '&#@', $propertyPath),
+    ],
+    "unauthorisedCharacters('new bad string!&#@', '')" => [
+        fn() => Assertion::unauthorizedCharacters('new bad string!&#@', '', $propertyPath),
+    ]
 ];
 
 // We use a custom data provider with a loop to avoid pest from auto-evaluating the closure from the dataset.

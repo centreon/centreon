@@ -36,8 +36,10 @@ if [ "$1" = "configure" ] ; then
     /usr/share/centreon/bin/generateSqlLite \
     /usr/share/centreon/bin/import-mysql-indexes \
     /usr/share/centreon/bin/logAnalyserBroker \
+    /usr/share/centreon/cron/centAcl.php \
     /usr/share/centreon/cron/centreon-backup.pl \
     /usr/share/centreon/cron/dashboardBuilder \
+    /usr/share/centreon/cron/downtimeManager.php \
     /usr/share/centreon/cron/eventReportBuilder \
     /usr/share/centreon/vendor/enshrined/svg-sanitize/src/svg-scanner.php \
     /usr/share/centreon/www/install/tools/migration/logsMigration.pl

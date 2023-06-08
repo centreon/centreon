@@ -16,19 +16,36 @@ const checkIfSystemUserRoot = (): Cypress.Chainable => {
 };
 
 const installCentreon = (version: string): Cypress.Chainable => {
-  cy.execInContainer({
-    command: `bash -e <<EOF
-      dnf config-manager --set-disabled 'centreon-*-unstable*' 'mariadb*'
-      dnf install -y centreon-web-${version}
-      echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
-      service mysql start
-      mkdir -p /run/php-fpm
-      /usr/sbin/php-fpm
-      httpd -k start
-      mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
-EOF`,
-    name: Cypress.env('dockerName')
-  });
+  if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+    cy.execInContainer({
+      command: `bash -e <<EOF
+        dnf config-manager --set-disabled 'centreon-*-unstable*' 'mariadb*'
+        dnf install -y centreon-web-${version}
+        echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
+        service mysql start
+        mkdir -p /run/php-fpm
+        /usr/sbin/php-fpm
+        httpd -k start
+        mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
+  EOF`,
+      name: Cypress.env('dockerName')
+    });
+  } else {
+    cy.execInContainer({
+      command: `bash -e <<EOF
+        mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak
+        apt-get update
+        apt-get install -y centreon-web-${version}
+        echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
+        service mysql start
+        mkdir -p /run/php
+        /usr/sbin/php-fpm8.1
+        apache2ctl start
+        mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
+  EOF`,
+      name: Cypress.env('dockerName')
+    });
+  }
 
   cy.intercept({
     method: 'GET',
