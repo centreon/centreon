@@ -7,7 +7,8 @@ import {
   labelRequired,
   labelChooseAtLeastOneResource,
   labelChooseAtleastOneUser,
-  labelMessageFieldShouldNotBeEmpty
+  labelMessageFieldShouldNotBeEmpty,
+  labelThisNameAlreadyExists
 } from '../translatedLabels';
 import { notificationsNamesAtom } from '../atom';
 
@@ -42,7 +43,7 @@ const useValidationSchema = (): object => {
       messages: messagesSchema,
       name: Yup.string()
         .required(t(labelRequired) as string)
-        .notOneOf(notificationsNames, 'This name already exists'),
+        .notOneOf(notificationsNames, t(labelThisNameAlreadyExists) as string),
       serviceGroups: resourceSchema('hostGroups.ids'),
       users: Yup.array().min(1, t(labelChooseAtleastOneUser) as string)
     },

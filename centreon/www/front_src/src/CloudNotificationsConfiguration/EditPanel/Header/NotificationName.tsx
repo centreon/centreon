@@ -47,6 +47,7 @@ const NotificationName = (): JSX.Element => {
       {nameChange || equals(panelMode, PanelMode.Create) ? (
         <TextField
           required
+          ariaLabel={labelNotificationName}
           dataTestId={labelNotificationName}
           error={error as string | undefined}
           label={t(labelName) as string}

@@ -6,7 +6,6 @@ import {
   labelDuplicate,
   labelActiveOrInactive,
   labelChangeName,
-  labelNotificationName,
   labelSearchHostGroups,
   labelSearchServiceGroups,
   labelDoYouWantToConfirmAction,
@@ -14,7 +13,9 @@ import {
   labelConfirmAddNotification,
   labelClosePanel,
   labelDoYouWantToQuitWithoutSaving,
-  labelYourFormHasUnsavedChanges
+  labelYourFormHasUnsavedChanges,
+  labelNotificationName,
+  labelSubject
 } from '../translatedLabels';
 
 import { notificationtEndpoint } from './api/endpoints';
@@ -98,10 +99,11 @@ describe('Panel : Creation mode', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the notification name is correctly initialized with the default value', () => {
-    cy.findByTestId(labelChangeName).click();
+  it('Confirms that the notification name is required and initialized with an empty value', () => {
+    cy.findByTestId(labelChangeName).should('not.exist');
 
-    cy.findByPlaceholderText(labelNotificationName).should('have.value', '');
+    cy.findByLabelText(labelNotificationName).should('have.value', '');
+    cy.findByLabelText(labelNotificationName).should('have.attr', 'required');
 
     cy.matchImageSnapshot();
   });
@@ -109,6 +111,7 @@ describe('Panel : Creation mode', () => {
   it('Confirms that the Save button is correctly activated when all required fields are filled, and the form is error-free, allowing the user to save the form data', () => {
     cy.findByLabelText(labelSave).should('be.disabled');
 
+    cy.findByLabelText(labelNotificationName).type('notification#1');
     cy.findByLabelText(labelSearchHostGroups).click();
     cy.waitForRequest('@getHostsGroupsEndpoint');
     cy.findByText('Firewall').click();
@@ -122,6 +125,7 @@ describe('Panel : Creation mode', () => {
     cy.findByText('Guest').click();
 
     cy.findByTestId('EmailBody').type('Bonjour');
+    cy.findByLabelText(labelSubject).type('subject');
 
     cy.findByLabelText(labelSave).should('not.be.disabled');
 
@@ -133,6 +137,7 @@ describe('Panel : Creation mode', () => {
     cy.waitForRequest('@getHostsGroupsEndpoint');
     cy.findByText('Firewall').click();
 
+    cy.findAllByLabelText(labelNotificationName).type('Notification1');
     cy.findByLabelText(labelSearchServiceGroups).click();
     cy.waitForRequest('@getServiceGroupsEndpoint');
     cy.findByText('MySQL-Servers').click();
@@ -142,6 +147,7 @@ describe('Panel : Creation mode', () => {
     cy.findByText('Guest').click();
 
     cy.findByTestId('EmailBody').type('Bonjour');
+    cy.findByLabelText(labelSubject).type('subject');
 
     cy.findByLabelText(labelSave).click();
 
@@ -156,6 +162,7 @@ describe('Panel : Creation mode', () => {
     cy.waitForRequest('@getHostsGroupsEndpoint');
     cy.findByText('Firewall').click();
 
+    cy.findAllByLabelText(labelNotificationName).type('Notification1');
     cy.findByLabelText(labelSearchServiceGroups).click();
     cy.waitForRequest('@getServiceGroupsEndpoint');
     cy.findByText('MySQL-Servers').click();
@@ -165,6 +172,7 @@ describe('Panel : Creation mode', () => {
     cy.findByText('Guest').click();
 
     cy.findByTestId('EmailBody').type('Bonjour');
+    cy.findByLabelText(labelSubject).type('subject');
 
     cy.findByLabelText(labelSave).click();
 
