@@ -19,3 +19,5 @@ export const panelWidthStorageAtom = atomWithStorage(
 );
 
 export const selectedRowsAtom = atom<Array<NotificationsType>>([]);
+export const notificationsNamesAtom = atom<Array<string>>([]);
+export const reloadAtom = atom<boolean>(false);
