@@ -379,6 +379,8 @@ describe('Dashboard', () => {
       cy.findAllByTestId('change_role')
         .eq(0)
         .should('have.value', DashboardRole.editor);
+
+      cy.matchImageSnapshot();
     });
 
     it('removes a user from the list when when the corresponding button is clicked', () => {
@@ -392,6 +394,8 @@ describe('Dashboard', () => {
       cy.findAllByTestId('remove_user').eq(0).click();
 
       cy.findByText('Walter Sobchak').should('not.exist');
+
+      cy.matchImageSnapshot();
     });
 
     it('does not display the share button when the user has only the viewer role', () => {
@@ -399,6 +403,8 @@ describe('Dashboard', () => {
       initializeAndMount(viewerRoles);
 
       cy.findByLabelText(labelShareTheDashboard).should('not.exist');
+
+      cy.matchImageSnapshot();
     });
   });
 });
