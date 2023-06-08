@@ -87,3 +87,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create-issues: ${{ env.publish }}
+          recursive: true
