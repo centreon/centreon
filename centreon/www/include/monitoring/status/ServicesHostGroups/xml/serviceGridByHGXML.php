@@ -44,13 +44,11 @@ include_once _CENTREON_PATH_ . "www/class/centreonService.class.php";
 // Create XML Request Objects
 CentreonSession::start(1);
 $obj = new CentreonXMLBGRequest($dependencyInjector, session_id(), 1, 1, 0, 1);
-$svcObj = new CentreonService($obj->DB);
 
 if (!isset($obj->session_id) || !CentreonSession::checkSession($obj->session_id, $obj->DB)) {
     print "Bad Session ID";
     exit();
 }
-
 $statusService = isset($statusService) ? $statusService : null;
 $statusFilter = isset($statusFilter) ? $statusFilter : null;
 
@@ -98,68 +96,79 @@ $queryValues = [];
 $filterRq2 = '';
 
 //Get Host status
-$rq1 = "SELECT SQL_CALC_FOUND_ROWS DISTINCT
+$rq1 = <<<SQL
+    SELECT SQL_CALC_FOUND_ROWS DISTINCT
     hg.name AS alias, h.host_id id, h.name AS host_name, hgm.hostgroup_id, h.state hs, h.icon_image
-    FROM hostgroups hg, hosts_hostgroups hgm, hosts h ";
+    FROM hosts h
+    INNER JOIN hosts_hostgroups hgm
+      ON hgm.host_id = h.host_id
+    INNER JOIN hostgroups hg
+      ON hg.hostgroup_id = hgm.hostgroup_id
+    SQL;
 
 if (!$obj->is_admin) {
-    $rq1 .= ", centreon_acl ";
-}
-$rq1 .= "WHERE h.host_id = hgm.host_id " .
-    "AND hgm.hostgroup_id = hg.hostgroup_id " .
-    "AND h.enabled = '1' " .
-    "AND h.name NOT LIKE '\_Module\_%' ";
+    $rq1 .= <<<SQL
 
-if (!$obj->is_admin) {
-    $rq1 .= $obj->access->queryBuilder("AND", "h.host_id", "centreon_acl.host_id") .
-        $obj->access->queryBuilder("AND", "group_id", $grouplistStr) . " " .
-        $obj->access->queryBuilder("AND", "hg.name", $obj->access->getHostGroupsString("NAME"));
+    INNER JOIN centreon_acl
+      ON centreon_acl.host_id = h.host_id
+      AND centreon_acl.group_id IN ({$grouplistStr})
+      AND hg.name IN ({$obj->access->getHostGroupsString("NAME")})
+    SQL;
 }
+$rq1 .= <<<SQL
+
+    WHERE h.enabled = '1'
+      AND h.name NOT LIKE '\_Module\_%'
+    SQL;
+
 if ($instance !== -1) {
     $rq1 .= " AND h.instance_id = :instance ";
-    $queryValues['instance'] = [
-        PDO::PARAM_INT => (int)$instance
-    ];
+    $queryValues['instance'] = [PDO::PARAM_INT => (int)$instance];
 }
 if (substr($o, -3) === '_pb') {
-    $rq1 .= " AND h.host_id IN (" .
-        "SELECT s.host_id FROM services s " .
-        "WHERE s.state != 0 AND s.state != 4 AND s.enabled = 1)";
+    $rq1 .= <<<SQL
+
+    AND h.host_id IN (
+        SELECT s.host_id
+        FROM services s
+        WHERE s.state != 0 AND s.state != 4 AND s.enabled = 1
+    )
+    SQL;
     $filterRq2 = " AND s.state != 0 AND s.state != 4";
 } elseif (substr($o, -6) === '_ack_0') {
-    $rq1 .= " AND h.host_id IN (" .
-        "SELECT s.host_id FROM services s " .
-        "WHERE s.acknowledged = 0 AND s.state != 0 AND s.state != 4 AND s.enabled = 1)";
+    $rq1 .= <<<SQL
+    
+    AND h.host_id IN (
+        SELECT s.host_id
+        FROM services s
+        WHERE s.acknowledged = 0 AND s.state != 0 AND s.state != 4 AND s.enabled = 1
+    )
+    SQL;
     $filterRq2 =  " AND s.state != 0 AND s.state != 4 AND s.acknowledged = 0";
 } elseif (substr($o, -6) === '_ack_1') {
-    $rq1 .= " AND h.host_id IN (" .
-        "SELECT s.host_id FROM services s " .
-        "WHERE s.acknowledged = 1 AND s.state != 0 AND s.state != 4 AND s.enabled = 1)";
+    $rq1 .= <<<SQL
+    
+    AND h.host_id IN (
+        SELECT s.host_id
+        FROM services s
+        WHERE s.acknowledged = 1 AND s.state != 0 AND s.state != 4 AND s.enabled = 1
+    )
+    SQL;
     $filterRq2 = " AND s.acknowledged = 1";
 }
 if ($search != "") {
     $rq1 .= " AND h.name LIKE :search";
-    $queryValues['search'] = [
-        PDO::PARAM_STR => "%" . $search . "%"
-    ];
+    $queryValues['search'] = [PDO::PARAM_STR => "%" . $search . "%"];
 }
 if ($hostgroup !== "") {
     $rq1 .= " AND hg.name LIKE :hgName";
-    $queryValues['hgName'] = [
-        PDO::PARAM_STR => $hostgroup
-    ];
+    $queryValues['hgName'] = [PDO::PARAM_STR => $hostgroup];
 }
 $rq1 .= " AND h.enabled = 1 ORDER BY :sort_type, host_name " . $order;
 $rq1 .= " LIMIT :numLimit, :limit";
-$queryValues['sort_type'] = [
-    PDO::PARAM_STR => $sort_type
-];
-$queryValues['numLimit'] = [
-    PDO::PARAM_INT => (int)($num * $limit)
-];
-$queryValues['limit'] = [
-    PDO::PARAM_INT => (int)$limit
-];
+$queryValues['sort_type'] = [PDO::PARAM_STR => $sort_type];
+$queryValues['numLimit'] = [PDO::PARAM_INT => (int)($num * $limit)];
+$queryValues['limit'] = [PDO::PARAM_INT => (int)$limit];
 
 $dbResult = $obj->DBC->prepare($rq1);
 foreach ($queryValues as $bindId => $bindData) {
@@ -189,32 +198,38 @@ $dbResult->closeCursor();
 $queryValues = [];
 
 // Get Services status
-$rq2 = "SELECT DISTINCT s.service_id, h.name as host_name, s.description, s.state svcs, " .
-    "(CASE s.state WHEN 0 THEN 3 WHEN 2 THEN 0 WHEN 3 THEN 2 ELSE s.state END) AS tri " .
-    "FROM services s, hosts h ";
+$rq2 = <<<SQL
+    SELECT DISTINCT s.service_id, h.name as host_name, s.description, s.state svcs,
+                    (CASE s.state WHEN 0 THEN 3 WHEN 2 THEN 0 WHEN 3 THEN 2 ELSE s.state END) AS tri
+    FROM services s
+    INNER JOIN hosts h
+        ON h.host_id = s.host_id
+    SQL;
+
 if (!$obj->is_admin) {
-    $rq2 .= ", centreon_acl ";
+    $rq2 .= <<<SQL
+    
+    INNER JOIN centreon_acl
+        ON centreon_acl.host_id = h.host_id
+        AND centreon_acl.service_id = s.service_id
+        AND centreon_acl.group_id IN ({$grouplistStr})
+    SQL;
 }
-$rq2 .= "WHERE h.host_id = s.host_id " .
-    "AND h.name NOT LIKE '\_Module\_%' " .
-    "AND h.enabled = '1' " .
-    "AND s.enabled = '1' ";
-$rq2 .= $obj->access->queryBuilder("AND", "h.host_id", "centreon_acl.host_id") .
-    $obj->access->queryBuilder("AND", "s.service_id", "centreon_acl.service_id") .
-    $obj->access->queryBuilder("AND", "group_id", $grouplistStr) .
-    $filterRq2;
+$rq2 .= <<<SQL
+    
+    WHERE h.name NOT LIKE '\_Module\_%'
+        AND h.enabled = '1'
+        AND s.enabled = '1'
+        {$filterRq2}
+    SQL;
 
 if ($search != "") {
     $rq2 .= " AND h.name LIKE :search";
-    $queryValues[":search"] = [
-        PDO::PARAM_STR => "%" . $search . "%"
-    ];
+    $queryValues[":search"] = [PDO::PARAM_STR => "%" . $search . "%"];
 }
 if ($instance != -1) {
     $rq2 .= " AND h.instance_id = :instance ";
-    $queryValues[":instance"] = [
-        PDO::PARAM_INT => $instance
-    ];
+    $queryValues[":instance"] = [PDO::PARAM_INT => $instance];
 }
 $rq2 .= " ORDER BY tri ASC, s.description ASC";
 
@@ -234,9 +249,10 @@ while ($ndo = $dbResult->fetch()) {
         $tabService[$ndo["host_name"]] = [];
     }
     if (!isset($tabService[$ndo["host_name"]])) {
-        $tabService[$ndo["host_name"]] = array("tab_svc" => []);
+        $tabService[$ndo["host_name"]] = ["tab_svc" => []];
     }
-    $tabService[$ndo["host_name"]]["tab_svc"][$ndo["description"]] = $ndo["svcs"];
+    $tabService[$ndo["host_name"]]["tab_svc"][$ndo["description"]]['service_name'] = $ndo["svcs"];
+    $tabService[$ndo["host_name"]]["tab_svc"][$ndo["description"]]['service_id'] = $ndo["service_id"];
     $tabHost[$ndo["host_name"]] = $ndo["service_id"];
 }
 $dbResult->closeCursor();
@@ -274,11 +290,11 @@ if (isset($tab_finalH)) {
                 $obj->XML->writeAttribute("class", $obj->getNextLineClass());
                 if (isset($tabService[$host_name]["tab_svc"])) {
                     foreach ($tabService[$host_name]["tab_svc"] as $svc => $state) {
-                        $serviceId = $svcObj->getServiceId($svc, $host_name);
+                        $serviceId = $state['service_id'];
                         $obj->XML->startElement("svc");
                         $obj->XML->writeElement("sn", CentreonUtils::escapeSecure($svc));
                         $obj->XML->writeElement("snl", CentreonUtils::escapeSecure(urlencode($svc)));
-                        $obj->XML->writeElement("sc", $obj->colorService[$state]);
+                        $obj->XML->writeElement("sc", $obj->colorService[$state['service_name']]);
                         $obj->XML->writeElement("svc_id", $serviceId);
                         $obj->XML->writeElement(
                             "s_details_uri",

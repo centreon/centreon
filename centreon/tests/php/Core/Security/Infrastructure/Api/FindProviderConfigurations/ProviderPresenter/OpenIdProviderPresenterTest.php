@@ -39,6 +39,7 @@ beforeEach(function () {
     $this->openIdProviderResponse->clientId = 'client1';
     $this->openIdProviderResponse->isActive = true;
     $this->openIdProviderResponse->isForced = true;
+    $this->openIdProviderResponse->redirectUrl = null;
 
     $this->presenter = new OpenIdProviderPresenter($this->urlGenerator);
 });

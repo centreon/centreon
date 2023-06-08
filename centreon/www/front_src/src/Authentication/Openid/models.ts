@@ -33,6 +33,7 @@ export interface OpenidConfiguration {
   isActive: boolean;
   isForced: boolean;
   loginClaim?: string | null;
+  redirectUrl?: string | null;
   tokenEndpoint: string | null;
   trustedClientAddresses: Array<string>;
   userinfoEndpoint?: string | null;
@@ -59,6 +60,7 @@ export interface OpenidConfigurationToAPI {
   is_active: boolean;
   is_forced: boolean;
   login_claim?: string | null;
+  redirect_url?: string | null;
   token_endpoint: string | null;
   trusted_client_addresses: Array<string>;
   userinfo_endpoint?: string | null;

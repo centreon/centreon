@@ -87,10 +87,10 @@ class DbResourceFactory
             ->setPassiveChecks((int) $record['passive_checks_enabled'] === 1)
             ->setActiveChecks((int) $record['active_checks_enabled'] === 1)
             ->setNotificationEnabled((int) $record['notifications_enabled'] === 1)
-            ->setLastCheck(self::createDateTimeFromTimestamp((int) $record['last_check']))
+            ->setLastCheck(self::createDateTimeFromTimestamp(is_numeric($record['last_check']) ? (int) $record['last_check'] : null))
             ->setInformation($record['output'])
             ->setMonitoringServerName($record['monitoring_server_name'])
-            ->setLastStatusChange(self::createDateTimeFromTimestamp((int) $record['last_status_change']))
+            ->setLastStatusChange(self::createDateTimeFromTimestamp(is_numeric($record['last_status_change']) ? (int) $record['last_status_change'] : null))
             ->setHasGraph((int) $record['has_graph'] === 1)
             ->setSeverityLevel((int) $record['severity_level']);
 

@@ -1,5 +1,5 @@
 ---
-name: Sync next major stable and dev version branches
+name: Sync stable and dev version branches
 
 on:
   pull_request_target:
@@ -11,14 +11,15 @@ on:
 
 jobs:
   main:
-    name: Create PR Release to Main
-    runs-on: [self-hosted, common]
+    name: Sync Stable Branches
+    runs-on: ubuntu-22.04
     if: github.event.pull_request.merged == true
     steps:
       - name: git checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
       - name: Sync Branches
         id: release

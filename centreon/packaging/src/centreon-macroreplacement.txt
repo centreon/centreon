@@ -35,4 +35,4 @@ s:@CENTREON_GROUP@:centreon:g
 s:@NAGIOS_VAR@:/var/log/nagios:g
 s:@CENTREONTRAPD_BINDIR@:/usr/share/centreon/bin:g
 s:@BIN_RRDTOOL@:/usr/bin/rrdtool:g
-s:@PHPFPM_VARDIR@:/var:g
+s:@PHPFPM_LOGFILE@:/var/log/php-fpm/centreon-error.log:g

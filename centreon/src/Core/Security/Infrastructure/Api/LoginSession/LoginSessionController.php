@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Core\Security\Infrastructure\Api\LoginSession;
 
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Centreon\Application\Controller\AbstractController;
 use Core\Security\Application\UseCase\LoginSession\LoginSession;
@@ -45,7 +47,16 @@ class LoginSessionController extends AbstractController
         LoginSessionPresenterInterface $presenter,
         SessionInterface $session,
     ): object {
-        $this->validateDataSent($request, __DIR__ . '/LoginSessionSchema.json');
+
+        try {
+            $this->validateDataSent($request, __DIR__ . '/LoginSessionSchema.json');
+        } catch (\InvalidArgumentException $ex) {
+            $presenter->setResponseStatus(new InvalidArgumentResponse($ex->getMessage()));
+            return $presenter->show();
+        } catch (\Throwable $ex) {
+            $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
+            return $presenter->show();
+        }
 
         $loginSessionRequest = $this->createLoginSessionRequest($request);
 
@@ -74,8 +85,8 @@ class LoginSessionController extends AbstractController
         $requestData = json_decode((string) $request->getContent(), true);
 
         $loginSessionRequest = new LoginSessionRequest();
-        $loginSessionRequest->login = $requestData['login'];
-        $loginSessionRequest->password = $requestData['password'];
+        $loginSessionRequest->login =  (string) ($requestData['login']?? '');
+        $loginSessionRequest->password = (string) ($requestData['password']?? '');
         $loginSessionRequest->baseUri = $this->getBaseUri();
         $referer = $request->headers->get('referer');
         if ($referer !== null) {

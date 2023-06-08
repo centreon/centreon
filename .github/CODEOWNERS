@@ -35,3 +35,6 @@ tsconfig.json       @centreon/centreon-frontend
 *.ts                @centreon/centreon-frontend
 *.tsx               @centreon/centreon-frontend
 *.jsx               @centreon/centreon-frontend
+
+*.pm            @centreon/perl-reviewers
+*.pl            @centreon/perl-reviewers

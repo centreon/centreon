@@ -7,12 +7,14 @@ import { labelActionNotPermitted } from '../../translatedLabels';
 type Props = {
   label: string;
   permitted: boolean;
+  testId: string;
 } & Pick<MenuItemProps, 'onClick' | 'disabled'>;
 
 const ActionMenuItem = ({
   permitted,
   label,
   onClick,
+  testId,
   disabled,
 }: Props): JSX.Element => {
   const { t } = useTranslation();
@@ -22,7 +24,7 @@ const ActionMenuItem = ({
   return (
     <Tooltip title={title}>
       <div>
-        <MenuItem disabled={disabled} onClick={onClick}>
+        <MenuItem data-testid={testId} disabled={disabled} onClick={onClick}>
           {t(label)}
         </MenuItem>
       </div>

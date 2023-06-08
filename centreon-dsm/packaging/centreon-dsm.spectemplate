@@ -80,8 +80,8 @@ rm -rf $RPM_BUILD_ROOT
 # Install daemon starting script
 %{__install} -d -m 0755 %buildroot%{_unitdir}
 %{__install} -d -m 0755 %buildroot%{_sysconfdir}/sysconfig
-%{__install} -m 0755 centreon-dsm/libinstall/redhat/dsmd.systemd %buildroot%{_unitdir}/dsmd.service
-%{__install} -m 0644 centreon-dsm/libinstall/redhat/dsmd.sysconfig %buildroot%{_sysconfdir}/sysconfig/dsmd
+%{__install} -m 0755 centreon-dsm/libinstall/systemd/dsmd.systemd %buildroot%{_unitdir}/dsmd.service
+%{__install} -m 0644 centreon-dsm/libinstall/systemd/dsmd.sysconfig %buildroot%{_sysconfdir}/sysconfig/dsmd
 
 %clean
 rm -rf $RPM_BUILD_ROOT

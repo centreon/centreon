@@ -454,7 +454,7 @@ function multipleContactInDB($contacts = array(), $nbrDup = array())
                         "WHERE contact_contact_id = '" . (int)$key . "'";
                     $dbResult = $pearDB->query($query);
                     $fields["contact_svNotifCmds"] = "";
-                    $query = "INSERT INTO contact_servicecommands_relation 
+                    $query = "INSERT INTO contact_servicecommands_relation
                          VALUES (:contact_id, :command_command_id)";
                     $statement = $pearDB->prepare($query);
                     while ($serviceCmd = $dbResult->fetch()) {
@@ -1141,6 +1141,9 @@ function sanitizeFormContactParameters(array $ret): array
 {
     global $encryptType, $dependencyInjector;
     $bindParams = [];
+    $bindParams[':contact_host_notification_options'] = [\PDO::PARAM_STR => null];
+    $bindParams[':contact_service_notification_options'] = [\PDO::PARAM_STR => null];
+
     foreach ($ret as $inputName => $inputValue) {
         switch ($inputName) {
             case 'timeperiod_tp_id':
@@ -1168,17 +1171,13 @@ function sanitizeFormContactParameters(array $ret): array
                 break;
             case 'contact_hostNotifOpts':
                 $inputValue = filter_var(implode(",", array_keys($inputValue)), FILTER_SANITIZE_STRING);
-                if (empty($inputValue)) {
-                    $bindParams[':contact_host_notification_options'] = [\PDO::PARAM_STR => null];
-                } else {
+                if (! empty($inputValue)) {
                     $bindParams[':contact_host_notification_options'] = [\PDO::PARAM_STR => $inputValue];
                 }
                 break;
             case 'contact_svNotifOpts':
                 $inputValue = filter_var(implode(",", array_keys($inputValue)), FILTER_SANITIZE_STRING);
-                if (empty($inputValue)) {
-                    $bindParams[':contact_service_notification_options'] = [\PDO::PARAM_STR => null];
-                } else {
+                if (! empty($inputValue)) {
                     $bindParams[':contact_service_notification_options'] = [\PDO::PARAM_STR => $inputValue];
                 }
                 break;

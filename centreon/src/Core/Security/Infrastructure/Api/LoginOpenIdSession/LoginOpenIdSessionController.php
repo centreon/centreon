@@ -74,8 +74,8 @@ class LoginOpenIdSessionController extends AbstractController
     private function createLoginOpenIdSessionRequest(Request $request): LoginOpenIdSessionRequest
     {
         $loginOpenIdSessionRequest = new LoginOpenIdSessionRequest();
-        $loginOpenIdSessionRequest->authorizationCode = $request->query->get('code');
-        $loginOpenIdSessionRequest->clientIp = $request->getClientIp();
+        $loginOpenIdSessionRequest->authorizationCode = $request->query->get('code', '');
+        $loginOpenIdSessionRequest->clientIp = $request->getClientIp() ?: '';
 
         return $loginOpenIdSessionRequest;
     }

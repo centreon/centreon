@@ -51,6 +51,7 @@ import {
   getData,
   useRequest,
   LoadingSkeleton,
+  SelectEntry,
 } from '@centreon/ui';
 
 import {
@@ -464,13 +465,13 @@ const Filter = (): JSX.Element => {
     applyFilter(updatedFilter);
   };
 
-  const translatedOptions = [
+  const translatedOptions: Array<SelectEntry> = [
     unhandledProblemsFilter,
     resourceProblemsFilter,
     allFilter,
-  ].map(({ id, name }) => ({ id, name: t(name) }));
+  ].map(({ id, name }) => ({ id, name: t(name), testId: `Filter ${name}` }));
 
-  const customFilterOptions = isEmpty(customFilters)
+  const customFilterOptions: Array<SelectEntry> = isEmpty(customFilters)
     ? []
     : [
         {
@@ -481,7 +482,7 @@ const Filter = (): JSX.Element => {
         ...customFilters,
       ];
 
-  const options = [
+  const options: Array<SelectEntry> = [
     { id: '', name: t(labelNewFilter) },
     ...translatedOptions,
     ...customFilterOptions,
@@ -539,7 +540,7 @@ const Filter = (): JSX.Element => {
             <Suspense fallback={<FilterLoadingSkeleton />}>
               <SelectFilter
                 ariaLabel={t(labelStateFilter)}
-                options={options.map(pick(['id', 'name', 'type']))}
+                options={options.map(pick(['id', 'name', 'type', 'testId']))}
                 selectedOptionId={
                   canDisplaySelectedFilter ? currentFilter.id : ''
                 }

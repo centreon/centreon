@@ -174,18 +174,27 @@ const SaveFilterMenu = (): JSX.Element => {
         onClose={closeSaveFilterMenu}
       >
         <MenuItem
+          data-testid="Filter Save as new"
           disabled={!canSaveFilterAsNew}
           onClick={openCreateFilterDialog}
         >
           {t(labelSaveAsNew)}
         </MenuItem>
-        <MenuItem disabled={!canSaveFilter} onClick={updateFilter}>
+        <MenuItem
+          data-testid="Filter Save"
+          disabled={!canSaveFilter}
+          onClick={updateFilter}
+        >
           <div className={classes.save}>
             <span>{t(labelSave)}</span>
             {sendingUpdateFilterRequest && <CircularProgress size={15} />}
           </div>
         </MenuItem>
-        <MenuItem disabled={isEmpty(customFilters)} onClick={openEditPanel}>
+        <MenuItem
+          data-testid="Filter Edit filters"
+          disabled={isEmpty(customFilters)}
+          onClick={openEditPanel}
+        >
           {t(labelEditFilters)}
         </MenuItem>
       </Menu>

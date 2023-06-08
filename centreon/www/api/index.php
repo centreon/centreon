@@ -38,7 +38,7 @@ require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
 require_once dirname(__FILE__) . '/class/webService.class.php';
 require_once dirname(__FILE__) . '/interface/di.interface.php';
 
-use Core\Security\Authentication\Domain\Exception\AuthenticationException;
+use Core\Security\Domain\Authentication\AuthenticationException;
 
 error_reporting(-1);
 ini_set('display_errors', 0);
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     try {
         $authenticateApiUseCase->execute($request, $response);
     } catch (AuthenticationException $ex) {
-        CentreonWebService::sendResult('Invalid credentials', 401);
+        CentreonWebService::sendResult('Authentication failed', 401);
     }
     $userAccessesStatement = $pearDB->prepare(
         "SELECT contact_admin, reach_api, reach_api_rt FROM contact WHERE contact_alias = :alias"

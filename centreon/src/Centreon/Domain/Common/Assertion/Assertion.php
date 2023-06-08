@@ -211,7 +211,7 @@ class Assertion
         Assert::notEmpty(
             $value,
             function (array $parameters) {
-                return AssertionException::notEmpty($parameters['propertyPath']);
+                return AssertionException::notEmpty($parameters['propertyPath'])->getMessage();
             },
             $propertyPath
         );
@@ -229,7 +229,7 @@ class Assertion
         Assert::notNull(
             $value,
             function (array $parameters) {
-                return AssertionException::notNull($parameters['propertyPath']);
+                return AssertionException::notNull($parameters['propertyPath'])->getMessage();
             },
             $propertyPath
         );
@@ -278,33 +278,59 @@ class Assertion
                     $parameters['value'],
                     $parameters['choices'],
                     $parameters['propertyPath']
-                );
+                )->getMessage();
             },
             $propertyPath
         );
     }
 
     /**
-     * Assert that a value match a regex
+     * Assert that a value match a regex.
      *
      * @param mixed $value
      * @param string $pattern
      * @param string|null $propertyPath
-     * @return void
+     *
+     * @throws \Assert\AssertionFailedException
      */
-    public static function regex(mixed $value, string $pattern, string $propertyPath = null): void
+    public static function regex(mixed $value, string $pattern, ?string $propertyPath = null): void
     {
-        Assert::regex(
-            $value,
-            $pattern,
-            function (array $parameters) {
-                return AssertionException::matchRegex(
-                    $parameters['value'],
-                    $parameters['pattern'],
-                    $parameters['propertyPath']
-                )->getMessage();
-            },
-            $propertyPath
-        );
+        if (! \is_string($value) || ! \preg_match($pattern, $value)) {
+            throw AssertionException::matchRegex(self::stringify($value), $pattern, $propertyPath);
+        }
+    }
+
+    /**
+     * Make a string version of a value.
+     *
+     * Copied from {@see \Assert\Assertion::stringify()}.
+     *
+     * @param mixed $value
+     */
+    private static function stringify(mixed $value): string
+    {
+        $result = \gettype($value);
+
+        if (\is_bool($value)) {
+            $result = $value ? '<TRUE>' : '<FALSE>';
+        } elseif (\is_scalar($value)) {
+            $val = (string) $value;
+
+            if (\mb_strlen($val) > 100) {
+                $val = \mb_substr($val, 0, 97) . '...';
+            }
+
+            $result = $val;
+        } elseif (\is_array($value)) {
+            $result = '<ARRAY>';
+        } elseif (\is_object($value)) {
+            $result = \get_debug_type($value);
+        } elseif (\is_resource($value)) {
+            $result = \get_resource_type($value);
+        } elseif (null === $value) {
+            $result = '<NULL>';
+        }
+
+        return $result;
     }
 }

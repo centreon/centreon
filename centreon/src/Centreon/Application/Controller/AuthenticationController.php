@@ -39,7 +39,7 @@ use Security\Infrastructure\Authentication\API\Model_2110\ApiAuthenticationFacto
  */
 class AuthenticationController extends AbstractController
 {
-    private const INVALID_CREDENTIALS_MESSAGE = 'Invalid credentials';
+    private const INVALID_CREDENTIALS_MESSAGE = 'Authentication failed';
 
     /**
      * Entry point used to identify yourself and retrieve an authentication token.

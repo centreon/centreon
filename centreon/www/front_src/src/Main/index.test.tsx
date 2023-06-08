@@ -151,16 +151,13 @@ const mockRedirectFromLoginPageGetRequests = (): void => {
       },
     })
     .mockResolvedValueOnce({
+      data: retrievedUser,
+    })
+    .mockResolvedValueOnce({
       data: retrievedTranslations,
     })
     .mockResolvedValueOnce({
-      data: retrievedWeb,
-    })
-    .mockResolvedValueOnce({
       data: retrievedProvidersConfiguration,
-    })
-    .mockResolvedValueOnce({
-      data: retrievedUser,
     })
     .mockResolvedValueOnce({
       data: retrievedTranslations,
@@ -267,6 +264,35 @@ describe('Main', () => {
     window.history.pushState({}, '', '/');
   });
 
+  it('redirects the user to his default page when the current location is the login page and the user is connected', async () => {
+    window.history.pushState({}, '', '/login');
+    mockRedirectFromLoginPageGetRequests();
+
+    renderMain();
+
+    expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        webVersionsEndpoint,
+        cancelTokenRequestParam,
+      );
+    });
+
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledWith(
+        aclEndpoint,
+        cancelTokenRequestParam,
+      );
+    });
+
+    await waitFor(() => {
+      expect(window.location.href).toBe(
+        'http://localhost/monitoring/resources',
+      );
+    });
+  });
+
   it('displays the login page when the path is "/login" and the user is not connected', async () => {
     window.history.pushState({}, '', '/login');
     mockNotConnectedGetRequests();
@@ -314,13 +340,6 @@ describe('Main', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         webVersionsEndpoint,
-        cancelTokenRequestParam,
-      );
-    });
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        userEndpoint,
         cancelTokenRequestParam,
       );
     });
@@ -438,35 +457,6 @@ describe('Main', () => {
       internalTranslationEndpoint,
       cancelTokenRequestParam,
     );
-  });
-
-  it('redirects the user to his default page when the current location is the login page and the user is connected', async () => {
-    window.history.pushState({}, '', '/login');
-    mockRedirectFromLoginPageGetRequests();
-
-    renderMain();
-
-    expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        webVersionsEndpoint,
-        cancelTokenRequestParam,
-      );
-    });
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        aclEndpoint,
-        cancelTokenRequestParam,
-      );
-    });
-
-    await waitFor(() => {
-      expect(window.location.href).toBe(
-        'http://localhost/monitoring/resources',
-      );
-    });
   });
 
   it('displays a message when the authentication from an external provider fails ', () => {

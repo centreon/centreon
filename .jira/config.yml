@@ -1,0 +1,12 @@
+deployments:
+  environmentMapping:
+    development:
+      - ".*-development"
+      - "development"
+    testing:
+      - ".*-testing"
+      - "testing"
+    production:
+      - ".*-production"
+      - "production"
+      

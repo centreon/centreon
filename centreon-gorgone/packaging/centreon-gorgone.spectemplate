@@ -1,5 +1,5 @@
 Name:       centreon-gorgone
-Version:    22.04.1
+Version:    22.04.2
 Release:    %{PACKAGE_RELEASE}%{?dist}
 Summary:    Perl daemon task handlers
 Group:      Applications/System

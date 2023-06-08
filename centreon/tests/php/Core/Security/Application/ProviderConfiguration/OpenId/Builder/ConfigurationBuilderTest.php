@@ -108,3 +108,29 @@ it('should return a Configuration when all mandatory parameters are present', fu
     $configuration = ConfigurationBuilder::create($request, $contactTemplate, $contactGroup, []);
     expect($configuration)->toBeInstanceOf(Configuration::class);
 });
+
+it('should sanitize endpoint definitions when they contain extra spaces and/or slashe', function () {
+    $request = new UpdateOpenIdConfigurationRequest();
+    $request->clientId = "clientId";
+    $request->clientSecret = "clientSecret";
+    $request->baseUrl = "   http://127.0.0.1/openid";
+    $request->authorizationEndpoint = "//authorize  ";
+    $request->tokenEndpoint = "  / token";
+    $request->isActive = true;
+    $request->introspectionTokenEndpoint = '/introspect /';
+    $request->isAutoImportEnabled = true;
+    $request->userNameBindAttribute = 'name';
+    $request->emailBindAttribute = 'email';
+    $request->endSessionEndpoint = ' // logout';
+    $request->userInformationEndpoint = '   userinfo';
+    $contactTemplate = new ContactTemplate(1, 'contact_template');
+    $contactGroup = new ContactGroup(1, 'contact_group');
+    $configuration = ConfigurationBuilder::create($request, $contactTemplate, $contactGroup, []);
+
+    expect($configuration->getBaseUrl())->toBe('http://127.0.0.1/openid');
+    expect($configuration->getAuthorizationEndpoint())->toBe('/authorize');
+    expect($configuration->getTokenEndpoint())->toBe('/token');
+    expect($configuration->getIntrospectionTokenEndpoint())->toBe('/introspect');
+    expect($configuration->getEndSessionEndpoint())->toBe('/logout');
+    expect($configuration->getUserInformationEndpoint())->toBe('/userinfo');
+});

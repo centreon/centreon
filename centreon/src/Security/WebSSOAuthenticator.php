@@ -30,7 +30,9 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Menu\MenuService;
 use Centreon\Domain\Menu\Model\Page;
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
+use Centreon\Domain\Platform\Interfaces\PlatformRepositoryInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Centreon\Domain\VersionHelper;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Application\ProviderConfiguration\WebSSO\Repository\ReadWebSSOConfigurationRepositoryInterface;
@@ -67,6 +69,8 @@ class WebSSOAuthenticator extends AbstractAuthenticator
     use HttpUrlTrait;
     use LoggerTrait;
 
+    private const MINIMUM_SUPPORTED_VERSION = "22.04";
+
     /**
      * @param Container $dependencyInjector
      * @param ReadWebSSOConfigurationRepositoryInterface $webSSOReadRepository
@@ -91,7 +95,8 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         private OptionServiceInterface $optionService,
         private AuthenticationRepositoryInterface $authenticationRepository,
         private Security $security,
-        private MenuService $menuService
+        private MenuService $menuService,
+        private PlatformRepositoryInterface $platformRepository,
     ) {
 
     }
@@ -101,8 +106,12 @@ class WebSSOAuthenticator extends AbstractAuthenticator
      */
     public function supports(Request $request): bool
     {
+        $webVersion = $this->platformRepository->getWebVersion();
         // We skip all API calls
-        if ($request->headers->has('X-Auth-Token')) {
+        if (
+            $request->headers->has('X-Auth-Token')
+            || VersionHelper::compare($webVersion, self::MINIMUM_SUPPORTED_VERSION, VersionHelper::LT)
+        ) {
             return false;
         }
 

@@ -101,7 +101,8 @@ beforeEach(function () {
         ->setContactTemplate(new ContactTemplate(1, 'contact_template'))
         ->setAutoImportEnabled(false)
         ->setContactGroup($this->contactGroup)
-        ->setClaimName('groups');
+        ->setClaimName('groups')
+        ->setRedirectUrl(null);
 });
 
 it('expects to return an error message in presenter when no provider configuration are found', function () {
