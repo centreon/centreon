@@ -16298,3 +16298,12 @@ msgstr ""
 
 #  msgid "The %s does not exist with id(s) '%s'"
 #  msgstr ""
+
+#  msgid "Error while partially updating a host template"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write actions on host templates"
+#  msgstr ""
+
+#  msgid "Host template #%d not found"
+#  msgstr ""
