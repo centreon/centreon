@@ -15478,3 +15478,12 @@ msgstr ""
 
 # msgid "If you leave {{dashboardName}}, your changes will not be saved."
 # msgstr ""
+
+# msgid "Dashboard access rights"
+# msgstr ""
+
+# msgid "Users roles"
+# msgstr ""
+
+# msgid "Share the dashboard"
+# msgstr ""

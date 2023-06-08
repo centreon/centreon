@@ -17676,3 +17676,11 @@ msgstr "Vous n'êtes pas autorisé à lister les configurations de notifications
 msgid "Notification #%d should have at least one user"
 msgstr "La notification #%d doit avoir au moins un utilisateur"
 
+msgid "Dashboard access rights"
+msgstr "Droits d'accès au tableau de bord"
+
+msgid "Users roles"
+msgstr "Rôles utilisateurs"
+
+msgid "Share the dashboard"
+msgstr "Partager le tableau de bord"
