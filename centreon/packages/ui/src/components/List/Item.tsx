@@ -10,7 +10,7 @@ type ItemProps = {
 export const Item = forwardRef(
   ({ action, children }: ItemProps, ref?: ForwardedRef<HTMLLIElement>) => {
     return (
-      <ListItem ref={ref} secondaryAction={action}>
+      <ListItem disableGutters ref={ref} secondaryAction={action}>
         {children}
       </ListItem>
     );

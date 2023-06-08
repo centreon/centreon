@@ -53,7 +53,11 @@ const UserRoleItem = ({
               sx={{ width: 85 }}
               onChange={change}
             />
-            <IconButton icon={<DeleteOutlineIcon />} onClick={remove} />
+            <IconButton
+              data-testid="remove"
+              icon={<DeleteOutlineIcon />}
+              onClick={remove}
+            />
           </Box>
         }
         key={id}

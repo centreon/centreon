@@ -2,7 +2,7 @@ import { atom, useAtom } from 'jotai';
 import { equals, dec } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Typography } from '@mui/material';
 
 import { useInfiniteScrollListing } from '@centreon/ui';
 import { List, Modal } from '@centreon/ui/components';
@@ -15,6 +15,7 @@ import { labelCancel } from '../translatedLabels';
 
 import useShareForm from './useShareForm';
 import UserRoleItem from './UserRoleItem';
+import { labelUsersRoles } from './translatedLabels';
 
 const pageAtom = atom(1);
 
@@ -46,6 +47,7 @@ const SharesList = (): JSX.Element => {
   return (
     <>
       <Modal.Body>
+        <strong>{t(labelUsersRoles)}</strong>
         <List>
           {values.map((dashboardShare, index) => {
             const isLastElement = equals(index, dec(dashboardShares.length));

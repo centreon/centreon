@@ -29,6 +29,7 @@ import { formatPanel } from '../useDashboardDetails';
 import useDashboardDirty from '../useDashboardDirty';
 import { selectedDashboardShareAtom } from '../../atoms';
 import { Shares } from '../../Shares';
+import { labelShareTheDashboard } from '../../translatedLabels';
 
 import { useStyles } from './HeaderActions.styles';
 
@@ -139,7 +140,12 @@ const HeaderActions = ({
         >
           {t(labelEditDashboard)}
         </Button>
-        <IconButton icon={<ShareIcon />} onClick={openShareModal} />
+        <IconButton
+          aria-label={t(labelShareTheDashboard) as string}
+          data-testid={labelShareTheDashboard}
+          icon={<ShareIcon />}
+          onClick={openShareModal}
+        />
         <Shares />
       </div>
     );

@@ -7,7 +7,7 @@ type AvatarProps = {
 };
 export const Avatar = ({ children }: AvatarProps): JSX.Element => {
   return (
-    <ListItemAvatar>
+    <ListItemAvatar data-element="avatar">
       <MUIAvatar>{children}</MUIAvatar>
     </ListItemAvatar>
   );

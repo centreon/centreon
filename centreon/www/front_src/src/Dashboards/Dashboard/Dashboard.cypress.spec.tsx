@@ -13,8 +13,12 @@ import {
 } from '@centreon/ui-context';
 
 import { federatedWidgetsAtom } from '../../federatedModules/atoms';
-import { dashboardsEndpoint } from '../api/endpoints';
+import {
+  dashboardsEndpoint,
+  getDashboardSharesEndpoint
+} from '../api/endpoints';
 import { DashboardRole } from '../models';
+import { labelShareTheDashboard } from '../translatedLabels';
 
 import { router } from './useDashboardSaveBlocker';
 import {
@@ -141,6 +145,15 @@ const initializeAndMount = ({
         ...dashboardDetails,
         own_role: ownRole
       }
+    });
+  });
+
+  cy.fixture('Dashboards/Dashboard/shares.json').then((shares) => {
+    cy.interceptAPIRequest({
+      alias: 'getDashboardShares',
+      method: Method.GET,
+      path: getDashboardSharesEndpoint(1),
+      response: shares
     });
   });
 
@@ -321,6 +334,46 @@ describe('Dashboard', () => {
       cy.waitForRequest('@getDashboardDetails');
 
       cy.contains(labelEditDashboard).should('be.visible');
+    });
+  });
+
+  describe.only('Shares', () => {
+    it('displays the list of users role when the corresponding button is clicked', () => {
+      initializeBlocker();
+      initializeAndMount(editorRoles);
+
+      cy.findByLabelText(labelShareTheDashboard).click();
+
+      cy.fixture('Dashboards/Dashboard/shares.json').then((shares) => {
+        shares.result.forEach(({ fullname, email, role }, index) => {
+          cy.get('[data-element="avatar"]')
+            .contains(fullname[0])
+            .should('be.visible');
+          cy.findByText(fullname).should('be.visible');
+
+          if (email) {
+            cy.findByText(email).should('be.visible');
+          }
+
+          cy.findAllByTestId(`role`).eq(index).should('have.value', role);
+          cy.findAllByTestId('remove').eq(index).should('be.visible');
+        });
+      });
+    });
+
+    it('changes a user role when a new role is selected for a user and the corresponding button is clicked', () => {
+      initializeBlocker();
+      initializeAndMount(editorRoles);
+
+      cy.findByLabelText(labelShareTheDashboard).click();
+
+      cy.findAllByTestId(`role`)
+        .eq(0)
+        .should('have.value', DashboardRole.viewer);
+      cy.findAllByTestId(`role`).eq(0).select(DashboardRole.editor);
+      cy.findAllByTestId(`role`)
+        .eq(0)
+        .should('have.value', DashboardRole.editor);
     });
   });
 });
