@@ -71,7 +71,7 @@ export const basicFormWithHorizontalGroups = (): JSX.Element => (
     <Form<BasicForm>
       {...mandatoryProps}
       groupDirection={GroupDirection.Horizontal}
-      groups={basicFormGroups}
+      groups={basicFormGroups.filter((group) => group.order !== 3)}
     />
   </Paper>
 );

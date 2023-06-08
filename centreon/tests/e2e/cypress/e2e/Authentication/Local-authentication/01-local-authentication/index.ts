@@ -3,7 +3,6 @@ import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   getUserContactId,
-  removeContact,
   initializeConfigACLAndGetLoginPage,
   millisecondsValueForSixMonth,
   millisecondsValueForFourHour,

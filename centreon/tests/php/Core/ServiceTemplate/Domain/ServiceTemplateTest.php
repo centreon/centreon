@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\ServiceTemplate\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Core\ServiceTemplate\Domain\Model\NotificationType;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 
@@ -44,7 +45,6 @@ foreach (
         'name' => ServiceTemplate::MAX_NAME_LENGTH,
         'alias' => ServiceTemplate::MAX_ALIAS_LENGTH,
         'comment' => ServiceTemplate::MAX_COMMENT_LENGTH,
-        'description' => ServiceTemplate::MAX_DESCRIPTION_LENGTH,
         'note' => ServiceTemplate::MAX_NOTES_LENGTH,
         'noteUrl' => ServiceTemplate::MAX_NOTES_URL_LENGTH,
     ] as $field => $length
@@ -102,6 +102,7 @@ foreach (
 
 foreach (
     [
+        'id',
         'serviceTemplateParentId',
         'commandId',
         'eventHandlerId',
@@ -147,4 +148,36 @@ it(
         NotificationType::class,
         'ServiceTemplate::notificationTypes'
     )->getMessage()
+);
+
+it(
+    "should throw an exception when name contains illegal characters",
+    fn() => (new ServiceTemplate(1, 'fake_name' . MonitoringServer::ILLEGAL_CHARACTERS[0], 'fake_alias'))
+)->throws(
+    AssertionException::class,
+    AssertionException::unauthorizedCharacters(
+        'fake_name' . MonitoringServer::ILLEGAL_CHARACTERS[0],
+        MonitoringServer::ILLEGAL_CHARACTERS[0],
+        'ServiceTemplate::name'
+    )->getMessage()
+);
+
+it(
+    "should throw an exception when alias contains illegal characters",
+    fn() => (new ServiceTemplate(1, 'fake_name', 'fake_alias' . MonitoringServer::ILLEGAL_CHARACTERS[0]))
+)->throws(
+    AssertionException::class,
+    AssertionException::unauthorizedCharacters(
+        'fake_alias' . MonitoringServer::ILLEGAL_CHARACTERS[0],
+        MonitoringServer::ILLEGAL_CHARACTERS[0],
+        'ServiceTemplate::alias'
+    )->getMessage()
+);
+
+it(
+    "should remove spaces that are too long in the alias",
+    function () {
+        $serviceTemplate = new ServiceTemplate(1, 'fake_name', '   fake   alias       ok    ');
+        expect($serviceTemplate->getAlias())->toBe('fake alias ok');
+    }
 );

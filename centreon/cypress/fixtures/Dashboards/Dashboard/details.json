@@ -1,0 +1,37 @@
+{
+  "id": 1,
+  "name": "My Dashboard",
+  "description": "my description",
+  "created_at": "",
+  "updated_at": "",
+  "created_by": {
+    "id": 1,
+    "name": "Arnaud"
+  },
+  "updated_by": {
+    "id": 1,
+    "name": "Arnaud"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "name": "My widget",
+      "widget_type": "/widgets/text",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 3,
+        "height": 3,
+        "min_width": 3,
+        "min_height": 3
+      },
+      "widget_settings": {
+        "service": {
+          "id": 1,
+          "name": "Server"
+        },
+        "input": "This is an input"
+      }
+    }
+  ]
+}

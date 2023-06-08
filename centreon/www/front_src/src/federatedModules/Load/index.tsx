@@ -1,7 +1,7 @@
 import { lazy, Suspense, useMemo } from 'react';
 
 import { importRemote } from '@module-federation/utilities';
-import { isEmpty, isNil } from 'ramda';
+import { equals, isEmpty, isNil } from 'ramda';
 
 import { MenuSkeleton, PageSkeleton } from '@centreon/ui';
 
@@ -37,7 +37,7 @@ export const Remote = ({
   const Component = useMemo(
     () =>
       lazy(() =>
-        window.Cypress
+        equals(window.Cypress?.testingType, 'component')
           ? import(`www/widgets/src/${moduleFederationName}`)
           : importRemote({
               bustRemoteEntryCache: false,

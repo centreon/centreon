@@ -223,6 +223,31 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function exist(array $userIds): array
+    {
+        $bind = [];
+        foreach($userIds as $key => $userId) {
+            $bind[":user_$key"] = $userId;
+        }
+        if ($bind === []) {
+            return [];
+        }
+        $request = $this->translateDbName(
+           'SELECT contact_id FROM `:db`.contact
+            WHERE contact_id IN ( ' . implode(', ', array_keys($bind)) . ')'
+        );
+        $statement = $this->db->prepare($request);
+        foreach ($bind as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, 0);
+    }
+
+    /**
      * Find and add all topology rules defined by all menus access defined for this contact.
      * The purpose is to limit access to the API based on menus access.
      *
@@ -442,7 +467,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 $page->setUrlOptions($contact['topology_url_opt']);
             }
         }
-        $contact = (new Contact())
+        $contactObj = (new Contact())
             ->setId((int) $contact['contact_id'])
             ->setName($contact['contact_name'])
             ->setAlias($contact['contact_alias'])
@@ -464,16 +489,16 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
             ->setTheme($contact['contact_theme'])
             ->setUserInterfaceDensity($contact['user_interface_density']);
 
-        if ($contact->isAdmin()) {
-            $contact
+        if ($contactObj->isAdmin()) {
+            $contactObj
                 ->setAccessToApiConfiguration(true)
                 ->setAccessToApiRealTime(true);
         }
 
-        $this->addActionRules($contact);
-        $this->addTopologyRules($contact);
+        $this->addActionRules($contactObj);
+        $this->addTopologyRules($contactObj);
 
-        return $contact;
+        return $contactObj;
     }
 
     /**

@@ -45,6 +45,7 @@ const Layout = (): JSX.Element => {
         return (
           <DashboardLayout.Item
             header={isEditing ? <PanelHeader id={i} /> : undefined}
+            id={i}
             key={i}
           >
             <DashboardPanel id={i} />
