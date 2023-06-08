@@ -16,22 +16,24 @@ import {
 
 const chosenTZ = 'Africa/Casablanca';
 
-const extract12hFormatFromTimeString = (dateTime: string): string => {
-  const timeRegex = /(\d{1,2}:\d{2} [AP]M)$/;
-
-  const extractedTime = dateTime?.match(timeRegex);
-
-  return extractedTime ? extractedTime[0] : '';
-};
-
-const roundTimes = (date: Date): Date => {
+const roundDateTime = (date: Date): string => {
   return new Date(
     date.getFullYear(),
     date.getMonth(),
     date.getDate(),
     date.getHours(),
     Math.ceil(date.getMinutes())
-  );
+  ).toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+};
+
+const covert12hFormatToDate = (timeString: string): Date => {
+  const dateString = 'June 8, 2023';
+  const dateTimeString = `${dateString} ${timeString}`;
+
+  return new Date(dateTimeString);
 };
 
 before(() => {
@@ -152,7 +154,9 @@ Then('timezone information are updated on the banner', () => {
           minute: '2-digit',
           timeZone: chosenTZ
         });
-        expect(localTime).to.equal(timeofTZ);
+        expect(roundDateTime(covert12hFormatToDate(localTime))).to.equal(
+          timeofTZ
+        );
       });
     });
 });
@@ -225,20 +229,14 @@ Then(
     cy.contains(serviceInDtName).parent().click();
 
     cy.get('p[data-testid="From_date"]').then(($toDate) => {
-      const toDate = $toDate[0].textContent || '';
-
-      const formatedDate = roundTimes(new Date(toDate)).toLocaleTimeString(
-        'en-US',
-        {
-          hour: 'numeric',
-          minute: '2-digit'
-        }
-      );
-
       cy.getTimeFromHeader().then((localTime: string) => {
-        expect(localTime).to.equal(
-          extract12hFormatFromTimeString(formatedDate)
+        const toDate = $toDate[0].textContent || '';
+        const formatedDate = roundDateTime(new Date(toDate));
+        const formatedLocalTime = roundDateTime(
+          covert12hFormatToDate(localTime)
         );
+
+        expect(formatedLocalTime).to.equal(formatedDate);
       });
     });
 
@@ -321,7 +319,9 @@ Then(
         const toDate = $date[0].textContent || '';
 
         cy.getTimeFromHeader().then((localTime: string) => {
-          expect(localTime).to.equal(extract12hFormatFromTimeString(toDate));
+          expect(roundDateTime(covert12hFormatToDate(localTime))).to.equal(
+            roundDateTime(new Date(toDate))
+          );
         });
       });
 
@@ -388,14 +388,12 @@ Then(
       .then(($el) => {
         const dtTime = $el[0].textContent || '';
         cy.getTimeFromHeader().then((localTime: string) => {
-          const roundedDateTime = roundTimes(new Date(dtTime));
+          const roundedDateTime = roundDateTime(new Date(dtTime));
+          const formatedLocalTime = roundDateTime(
+            covert12hFormatToDate(localTime)
+          );
 
-          const formatedDtTime = roundedDateTime.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit'
-          });
-
-          expect(localTime).to.equal(formatedDtTime);
+          expect(formatedLocalTime).to.equal(roundedDateTime);
         });
       });
 
