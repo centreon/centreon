@@ -148,7 +148,10 @@ class HostTemplateException extends \Exception
      */
     public static function nameAlreadyExists(string $formatedName, string $originalName = 'undefined'): self
     {
-        return new self(sprintf(_('The name %s (original name: %s) already exists'), $formatedName, $originalName), self::CODE_CONFLICT);
+        return new self(
+            sprintf(_('The name %s (original name: %s) already exists'), $formatedName, $originalName),
+            self::CODE_CONFLICT
+        );
     }
 
     /**
@@ -167,6 +170,14 @@ class HostTemplateException extends \Exception
     public static function hostIsLocked(int $hostTemplateId): self
     {
         return new self(sprintf(_('Host template #%d is locked (edition and deletion not allowed)'), $hostTemplateId));
+    }
+
+    /**
+     * @return self
+     */
+    public static function circularTemplateInheritance(): self
+    {
+        return new self(_('Circular template inheritance not allowed'), self::CODE_CONFLICT);
     }
 }
 
