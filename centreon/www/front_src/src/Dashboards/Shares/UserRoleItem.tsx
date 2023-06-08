@@ -25,9 +25,10 @@ interface Props {
   change: ((e: ChangeEvent<HTMLInputElement>) => void) &
     ((event: SelectChangeEvent<unknown>, child: ReactNode) => void);
   elementRef?: (props) => void;
-  email?: string;
-  fullname: string;
+  email: string | null;
+  fullname: string | null;
   id: number;
+  name: string;
   remove: () => void;
   role: DashboardRole;
 }
@@ -39,7 +40,8 @@ const UserRoleItem = ({
   id,
   elementRef,
   fullname,
-  email
+  email,
+  name
 }: Props): JSX.Element => {
   return useMemoComponent({
     Component: (
@@ -63,8 +65,11 @@ const UserRoleItem = ({
         key={id}
         ref={elementRef}
       >
-        <List.Avatar>{head(fullname)}</List.Avatar>
-        <List.ItemText primaryText={fullname} secondaryText={email} />
+        <List.Avatar>{head(fullname || name)}</List.Avatar>
+        <List.ItemText
+          primaryText={fullname || name}
+          secondaryText={email || undefined}
+        />
       </List.Item>
     ),
     memoProps: [id, role, email, fullname]

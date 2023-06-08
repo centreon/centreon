@@ -30,8 +30,8 @@ export enum ContactType {
 }
 
 export interface DashboardShare extends NamedEntity {
-  email?: string;
-  fullname: string;
+  email: string | null;
+  fullname: string | null;
   role: DashboardRole;
   type: ContactType;
 }

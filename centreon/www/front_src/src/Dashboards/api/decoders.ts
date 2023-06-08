@@ -48,8 +48,8 @@ export const dashboardListDecoder = buildListingDecoder({
 
 const dashboardShareDecoder = JsonDecoder.object<DashboardShare>(
   {
-    email: JsonDecoder.optional(JsonDecoder.string),
-    fullname: JsonDecoder.string,
+    email: JsonDecoder.nullable(JsonDecoder.string),
+    fullname: JsonDecoder.nullable(JsonDecoder.string),
     id: JsonDecoder.number,
     name: JsonDecoder.string,
     role: JsonDecoder.enumeration<DashboardRole>(
