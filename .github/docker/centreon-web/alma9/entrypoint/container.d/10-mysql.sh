@@ -1,10 +1,10 @@
 #!/bin/sh
 
 # Delete ib_logfiles to avoid read/rebuild time on startup (~9s)
-rm -f /var/lib/mysql/ib_logfile*
+#rm -f /var/lib/mysql/ib_logfile*
 
 # Start database server.
-service mysql start
+systemctl start mysql
 
 # Wait for the database to be up and running.
 while true ; do
