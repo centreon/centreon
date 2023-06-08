@@ -9,8 +9,6 @@ COPY *.rpm /tmp/rpms-centreon/
 
 RUN bash -e <<EOF
 
-rm -f /etc/init.d/mysql
-
 rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm
 dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
 
@@ -32,7 +30,7 @@ COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /us
 
 RUN <<EOF
 
-systemctl start mysql
+service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 
 cd /usr/share/centreon/www/install/steps/process
@@ -48,7 +46,7 @@ rm -rf /usr/share/centreon/www/install
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-systemctl stop mysql
+service mysql stop
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 
 rm -f /etc/init.d/cbd
@@ -66,11 +64,11 @@ COPY ./.github/docker/centreon-web/sql /tmp/sql
 
 RUN bash -e <<EOF
 
-systemctl start mysql
+service mysql start
 mysql centreon < /tmp/sql/standard.sql
 mysql centreon < /tmp/sql/media.sql
 mysql centreon < /tmp/sql/openldap.sql
 centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-systemctl stop mysql
+service mysql stop
 
 EOF
