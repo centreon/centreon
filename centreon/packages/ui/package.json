@@ -70,6 +70,7 @@
     "@vitejs/plugin-react-swc": "^3.3.0",
     "axios-mock-adapter": "^1.21.4",
     "cypress": "^12.8.0",
+    "dompurify": "^2.4.1",
     "identity-obj-proxy": "^3.0.0",
     "jest-transform-stub": "^2.0.0",
     "mochawesome": "^7.1.3",

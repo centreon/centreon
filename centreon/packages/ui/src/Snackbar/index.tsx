@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useSnackbar, SnackbarContent } from 'notistack';
 import { isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
+import DOMPurify from 'dompurify';
 
 import { IconButton, Alert } from '@mui/material';
 import IconClose from '@mui/icons-material/Close';
@@ -57,6 +58,8 @@ const Snackbar = React.forwardRef(
       closeSnackbar(id);
     };
 
+    const sanitizedMessage = DOMPurify.sanitize(message);
+
     return (
       <SnackbarContent ref={ref}>
         <Alert
@@ -74,7 +77,7 @@ const Snackbar = React.forwardRef(
           severity={severity}
           variant="filled"
         >
-          <div dangerouslySetInnerHTML={{ __html: message }} />
+          <div dangerouslySetInnerHTML={{ __html: sanitizedMessage }} />
         </Alert>
       </SnackbarContent>
     );
