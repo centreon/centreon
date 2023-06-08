@@ -17679,7 +17679,7 @@ msgstr "La notification #%d doit avoir au moins un utilisateur"
 msgid "Dashboard access rights"
 msgstr "Droits d'accès au tableau de bord"
 
-msgid "Users roles"
+msgid "User roles"
 msgstr "Rôles utilisateur"
 
 msgid "Share the dashboard"
