@@ -9,9 +9,9 @@ on:
   schedule:
     - cron: '0 3 * * *'
   pull_request:
-    paths:
-      - "centreon/**"
-      - "!centreon/packages/**"
+    # paths:
+    #   - "centreon/**"
+    #   - "!centreon/packages/**"
   push:
     branches:
       - develop

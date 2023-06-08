@@ -9,6 +9,8 @@ COPY *.rpm /tmp/rpms-centreon/
 
 RUN bash -e <<EOF
 
+dnf install -y python3
+
 rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm
 dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb
 
@@ -20,6 +22,8 @@ chown apache:apache /var/log/php-fpm/centreon-error.log
 dnf clean all --enablerepo=*
 
 EOF
+
+COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint/container.sh /usr/share/centreon/container.sh
 COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint/container.d/* /usr/share/centreon/container.d/
@@ -46,6 +50,10 @@ mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPT
 centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
 service mysql stop
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+
+rm -f /etc/init.d/cbd
+rm -f /etc/init.d/centengine
+rm -f /etc/init.d/mysql
 
 EOF
 
