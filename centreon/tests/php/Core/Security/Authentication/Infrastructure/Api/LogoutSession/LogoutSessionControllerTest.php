@@ -26,18 +26,13 @@ namespace Tests\Core\Security\Authentication\Infrastructure\Api\LogoutSession;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\InputBag;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSession;
 use Core\Security\Authentication\Infrastructure\Api\LogoutSession\LogoutSessionController;
 use Core\Security\Authentication\Infrastructure\Api\LogoutSession\LogoutSessionPresenter;
 use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Core\Infrastructure\Common\Api\HttpUrlTrait;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\ServerBag;
 
 class LogoutSessionControllerTest extends TestCase
 {
