@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 
-import { ListItemAvatar, Avatar as MUIAvatar } from '@mui/material';
+import { ListItemAvatar, Avatar as MuiAvatar } from '@mui/material';
 
 type AvatarProps = {
   children: ReactElement | string;
@@ -8,7 +8,7 @@ type AvatarProps = {
 export const Avatar = ({ children }: AvatarProps): JSX.Element => {
   return (
     <ListItemAvatar data-element="avatar">
-      <MUIAvatar>{children}</MUIAvatar>
+      <MuiAvatar>{children}</MuiAvatar>
     </ListItemAvatar>
   );
 };

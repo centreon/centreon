@@ -77,8 +77,8 @@ const UserRoleItem = ({
         key={id}
         ref={elementRef}
       >
-        <List.Avatar>{head(fullname || name)}</List.Avatar>
-        <List.ItemText
+        <List.Item.Avatar>{head(fullname || name)}</List.Item.Avatar>
+        <List.Item.Text
           primaryText={fullname || name}
           secondaryText={email || undefined}
         />

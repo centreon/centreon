@@ -15,7 +15,7 @@ import { labelCancel } from '../translatedLabels';
 
 import useShareForm from './useShareForm';
 import UserRoleItem from './UserRoleItem';
-import { labelUsersRoles } from './translatedLabels';
+import { labelUserRoles } from './translatedLabels';
 
 export const pageAtom = atom(1);
 
@@ -58,7 +58,7 @@ const SharesList = ({ id }: Props): JSX.Element => {
   return (
     <>
       <Modal.Body>
-        <strong>{t(labelUsersRoles)}</strong>
+        <strong>{t(labelUserRoles)}</strong>
         <List>
           {values.map((dashboardShare, index) => {
             const isLastElement = equals(index, dec(dashboardShares.length));
