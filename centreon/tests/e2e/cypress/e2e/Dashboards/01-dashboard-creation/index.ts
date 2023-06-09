@@ -2,12 +2,6 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
 import { loginAsAdminViaApiV2 } from '../../../commons';
 
-before(() => {
-  cy.startWebContainer({
-    version: 'develop'
-  });
-});
-
 beforeEach(() => {
   loginAsAdminViaApiV2();
   cy.intercept({
