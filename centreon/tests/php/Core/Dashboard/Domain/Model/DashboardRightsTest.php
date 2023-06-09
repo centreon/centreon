@@ -31,8 +31,7 @@ beforeEach(function (): void {
     $this->createContact = function (bool $viewer, bool $creator, bool $admin, bool $superAdmin) {
         $contact = $this->createMock(ContactInterface::class);
 
-        $contact->expects($this->atLeast(1))
-            ->method('isAdmin')->willReturn($superAdmin);
+        $contact->expects($this->never())->method('isAdmin');
 
         $contact->expects($this->atLeast($viewer || $creator || $admin ? 1 : 0))
             ->method('hasTopologyRole')
@@ -140,10 +139,10 @@ it(
             )
         );
 
-        expect($rights->canCreate())->toBeTrue()
-            ->and($rights->canAccess())->toBeTrue()
-            ->and($rights->hasAdminRole())->toBeTrue()
-            ->and($rights->hasCreatorRole())->toBeTrue()
-            ->and($rights->hasViewerRole())->toBeTrue();
+        expect($rights->canCreate())->toBeFalse()
+            ->and($rights->canAccess())->toBeFalse()
+            ->and($rights->hasAdminRole())->toBeFalse()
+            ->and($rights->hasCreatorRole())->toBeFalse()
+            ->and($rights->hasViewerRole())->toBeFalse();
     }
 );
