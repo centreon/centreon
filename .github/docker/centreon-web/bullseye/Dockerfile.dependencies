@@ -39,10 +39,11 @@ apt-get update
 #############################
 
 apt-get install -y \
+apt-transport-https \
   ca-certificates \
-  apt-transport-https \
-  software-properties-common \
   curl \
+  python3 \
+  software-properties-common \
   sudo
 
 #############################
@@ -145,5 +146,7 @@ apt-get install -y \
 apt-get clean
 
 EOF
+
+COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/

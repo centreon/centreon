@@ -7,10 +7,6 @@ ARG VERSION
 
 ENV DEBIAN_FRONTEND noninteractive
 
-COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
-
-COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
-
 COPY *.deb /tmp/debs-centreon/
 
 RUN <<EOF

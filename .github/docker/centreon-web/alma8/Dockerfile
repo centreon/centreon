@@ -5,15 +5,9 @@ FROM ${REGISTRY_URL}/centreon-web-dependencies-alma8:${VERSION} AS web_fresh
 
 ARG VERSION
 
-COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
-
-COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
-
 COPY *.rpm /tmp/rpms-centreon/
 
 RUN bash -e <<EOF
-
-dnf install -y python3
 
 rm -f /tmp/rpms-centreon/centreon-${VERSION}*.rpm /tmp/rpms-centreon/centreon-central-${VERSION}*.rpm
 dnf install --nogpgcheck -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb

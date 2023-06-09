@@ -5,10 +5,6 @@ FROM ${REGISTRY_URL}/centreon-web-dependencies-alma9:${VERSION} AS web_fresh
 
 ARG VERSION
 
-COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
-
-COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
-
 COPY *.rpm /tmp/rpms-centreon/
 
 RUN bash -e <<EOF
