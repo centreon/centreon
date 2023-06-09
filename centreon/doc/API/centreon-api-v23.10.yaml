@@ -8,7 +8,7 @@ info:
     + Added host group endpoints (GET, PUT)
     + Added notification endpoint (POST)
     + Added service templates endpoints (GET)
-    + Add host template endpoints (POST, DELETE)
+    + Add host template endpoints (POST, DELETE, PATCH)
     +
     # Updated features
     + Updated host template endpoint (GET)

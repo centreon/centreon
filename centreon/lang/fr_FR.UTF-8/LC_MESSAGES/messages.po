@@ -17801,3 +17801,12 @@ msgstr "Erreur lors de la liaison de catégories d'hôte à un modèle d'hôte"
 
 msgid "The %s does not exist with ID(s) '%s'"
 msgstr "Le champ %s n'existe pas avec le(s) ID(s) '%s'"
+
+msgid "Error while partially updating a host template"
+msgstr "Erreur lors de la modification partielle d'un modèle d'hôte"
+
+msgid "You are not allowed to perform write actions on host templates"
+msgstr "Vous n'êtes pas autorisé à effectuer des actions d'écriture sur les modèles d'hôte"
+
+msgid "Host template #%d not found"
+msgstr "Modèle d'hôte #%d introuvable"
