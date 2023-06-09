@@ -7,8 +7,13 @@ export const useStyles = makeStyles()((theme) => ({
     height: '100%'
   },
   pageLayoutActions: {
+    '& > span': {
+      display: 'flex',
+      gap: theme.spacing(0.5)
+    },
+
     display: 'flex',
-    gap: theme.spacing(0.5),
+    justifyContent: 'space-between',
     paddingBottom: theme.spacing(2.5)
   },
   pageLayoutBody: {

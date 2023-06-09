@@ -1,7 +1,11 @@
 import { useEffect } from 'react';
 
 import { atom, useAtom } from 'jotai';
-import { generatePath, useNavigate } from 'react-router-dom';
+import {
+  createSearchParams,
+  generatePath,
+  useNavigate
+} from 'react-router-dom';
 
 import { Dashboard, isDashboard } from '../../api/models';
 import { useCreateDashboard } from '../../api/useCreateDashboard';
@@ -69,7 +73,10 @@ const useDashboardForm = (): UseDashboardForm => {
 
   const navigate = useNavigate();
   const navigateToDashboard = (dashboardId: string | number): void =>
-    navigate(generatePath(routeMap.dashboard, { dashboardId }));
+    navigate({
+      pathname: generatePath(routeMap.dashboard, { dashboardId }),
+      search: createSearchParams({ view: 'edit' }).toString()
+    });
 
   const submit = async (dashboard: Dashboard): Promise<void> => {
     setDialogState({ ...dialogState, isOpen: false });

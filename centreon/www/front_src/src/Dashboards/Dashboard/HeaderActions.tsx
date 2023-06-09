@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useSearchParams } from 'react-router-dom';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Typography } from '@mui/material';
@@ -22,7 +23,6 @@ import {
   isEditingAtom,
   switchPanelsEditionModeDerivedAtom
 } from './atoms';
-import useDashboardSaveBlocker from './useDashboardSaveBlocker';
 import { PanelDetails } from './models';
 import { formatPanel } from './useDashboardDetails';
 import useDashboardDirty from './useDashboardDirty';
@@ -49,20 +49,43 @@ const HeaderActions = ({
   );
   const setDashboard = useSetAtom(dashboardAtom);
 
-  const { blocked, blockNavigation, proceedNavigation } =
-    useDashboardSaveBlocker({ id, name });
+  // const { blocked, blockNavigation, proceedNavigation } =
+  //   useDashboardSaveBlocker({ id, name });
+
+  const blocked = false;
+  const blockNavigation = () => {};
+  const proceedNavigation = () => {};
 
   const dirty = useDashboardDirty(
     (panels || []).map((panel) => formatPanel({ panel, staticPanel: false }))
   );
 
-  const startEditing = (): void => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const startEditing = useCallback(() => {
     switchPanelsEditionMode(true);
-  };
+    if (searchParams.get('view') !== 'edit') {
+      searchParams.set('view', 'edit');
+      setSearchParams(searchParams);
+    }
+  }, [searchParams, setSearchParams]);
+
+  const stopEditing = useCallback(() => {
+    switchPanelsEditionMode(false);
+    if (searchParams.get('view') !== 'default') {
+      searchParams.set('view', 'default');
+      setSearchParams(searchParams);
+    }
+  }, [searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (searchParams.get('view') === 'edit') startEditing();
+    if (searchParams.get('view') === 'default') stopEditing();
+  }, []);
 
   const askCancelConfirmation = (): void => {
     if (!dirty) {
-      switchPanelsEditionMode(false);
+      stopEditing();
 
       return;
     }
@@ -89,7 +112,7 @@ const HeaderActions = ({
     setDashboard({
       layout: panels?.map((panel) => formatPanel({ panel })) || []
     });
-    switchPanelsEditionMode(false);
+    stopEditing();
     closeAskCancelConfirmationAndProceed();
   };
 

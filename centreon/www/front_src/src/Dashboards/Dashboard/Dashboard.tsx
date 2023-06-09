@@ -1,11 +1,19 @@
 import React, { ReactElement } from 'react';
 
+import { useAtomValue } from 'jotai';
+
 import {
   Settings as SettingsIcon,
   Share as ShareIcon
 } from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
 
-import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
+import {
+  Button,
+  IconButton,
+  PageHeader,
+  PageLayout
+} from '@centreon/ui/components';
 
 import { DashboardsQuickAccessMenu } from '../components/DashboardsQuickAccessMenu/DashboardsQuickAccessMenu';
 import { DashboardFormModal } from '../components/DashboardFormModal/DashboardFormModal';
@@ -17,6 +25,7 @@ import { useDashboardAccessRights } from '../components/DashboardAccessRightsMod
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
 import HeaderActions from './HeaderActions';
+import { isEditingAtom } from './atoms';
 
 const Dashboard = (): ReactElement => {
   const { dashboardId } = routerParams.useParams();
@@ -25,6 +34,8 @@ const Dashboard = (): ReactElement => {
   });
   const { editDashboard } = useDashboardForm();
   const { editAccessRights } = useDashboardAccessRights();
+
+  const isEditing = useAtomValue(isEditingAtom);
 
   return (
     <PageLayout>
@@ -50,22 +61,41 @@ const Dashboard = (): ReactElement => {
       </PageLayout.Header>
       <PageLayout.Body>
         <PageLayout.Actions>
-          <IconButton
-            aria-label="edit"
-            data-testid="edit"
-            icon={<SettingsIcon />}
-            size="small"
-            variant="ghost"
-            onClick={editDashboard(dashboard as DashboardType)}
-          />
-          <IconButton
-            aria-label="share"
-            data-testid="share"
-            icon={<ShareIcon />}
-            size="small"
-            variant="ghost"
-            onClick={editAccessRights(dashboard)}
-          />
+          <span>
+            {!isEditing && (
+              <>
+                <IconButton
+                  aria-label="edit"
+                  data-testid="edit"
+                  icon={<SettingsIcon />}
+                  size="small"
+                  variant="ghost"
+                  onClick={editDashboard(dashboard as DashboardType)}
+                />
+                <IconButton
+                  aria-label="share"
+                  data-testid="share"
+                  icon={<ShareIcon />}
+                  size="small"
+                  variant="ghost"
+                  onClick={editAccessRights(dashboard)}
+                />
+              </>
+            )}
+          </span>
+          <span>
+            {isEditing && (
+              <Button
+                aria-label="create"
+                data-testid="create-dashboard"
+                icon={<AddIcon />}
+                iconVariant="start"
+                size="small"
+              >
+                Add a panel
+              </Button>
+            )}
+          </span>
         </PageLayout.Actions>
 
         <Layout />
