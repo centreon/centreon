@@ -4,9 +4,7 @@ import { deleteAllDashboards, insertDashboardList } from '../common';
 import { loginAsAdminViaApiV2 } from '../../../commons';
 
 before(() => {
-  cy.startWebContainer({
-    version: 'develop'
-  });
+  cy.startWebContainer();
 });
 
 beforeEach(() => {
