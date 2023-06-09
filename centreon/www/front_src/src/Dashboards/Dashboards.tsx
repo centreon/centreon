@@ -1,41 +1,25 @@
 import { ReactElement, Suspense, useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 
-import {
-  DashboardForm,
-  DashboardFormLabels,
-  DashboardResource,
-  Modal,
-  PageHeader,
-  PageLayout
-} from '@centreon/ui/components';
+import { Modal, PageHeader, PageLayout } from '@centreon/ui/components';
 
 import {
   labelCancel,
-  labelCreate,
-  labelCreateDashboard,
   labelDashboards,
   labelDelete,
   labelDeleteDashboard,
-  labelDescription,
   labelDescriptionDeleteDashboardPartOne,
-  labelDescriptionDeleteDashboardPartTwo,
-  labelName,
-  labelUpdate,
-  labelUpdateDashboard
+  labelDescriptionDeleteDashboardPartTwo
 } from './translatedLabels';
 import { ListingSkeleton } from './ListingSkeleton';
-import {
-  closeDialogAtom,
-  deleteDialogStateAtom,
-  isDialogOpenAtom,
-  selectedDashboardAtom
-} from './atoms';
+import { deleteDialogStateAtom } from './atoms';
 import useSubmitDashboard from './useSubmitDashboard';
 import Listing from './Listing';
 import useRemoveDashboard from './useRemoveDashboard';
+import { DashboardFormModal } from './components/DashboardFormModal/DashboardFormModal';
+import { DashboardAccessRightsModal } from './components/DashboardAccessRightsModal/DashboardAccessRightsModal';
 
 import { ModalActionsLabels } from 'packages/ui/src/components/Modal/ModalActions';
 
@@ -45,18 +29,13 @@ const Dashboards = (): ReactElement => {
   const [deleteDialogState, setDeleteDialogState] = useAtom(
     deleteDialogStateAtom
   );
-  const isDialogOpen = useAtomValue(isDialogOpenAtom);
-  const selectedDashboard = useAtomValue(selectedDashboardAtom);
-  const closeDialog = useSetAtom(closeDialogAtom);
-
   const { submit } = useSubmitDashboard();
   const { remove: removeDashboard } = useRemoveDashboard();
 
   const labels = useMemo(
     (): {
       deleteConfirmation: { actions: ModalActionsLabels };
-      form: DashboardFormLabels;
-      modalTitle: { create: string; delete: string; update: string };
+      modalTitle: { delete: string };
     } => ({
       deleteConfirmation: {
         actions: {
@@ -64,23 +43,8 @@ const Dashboards = (): ReactElement => {
           confirm: t(labelDelete)
         }
       },
-      form: {
-        actions: {
-          cancel: t(labelCancel),
-          submit: {
-            create: t(labelCreate),
-            update: t(labelUpdate)
-          }
-        },
-        entity: {
-          description: t(labelDescription),
-          name: t(labelName)
-        }
-      },
       modalTitle: {
-        create: t(labelCreateDashboard),
-        delete: t(labelDeleteDashboard),
-        update: t(labelUpdateDashboard)
+        delete: t(labelDeleteDashboard)
       }
     }),
     []
@@ -100,22 +64,8 @@ const Dashboards = (): ReactElement => {
           <Listing />
         </Suspense>
       </PageLayout.Body>
-      <Modal open={isDialogOpen} onClose={closeDialog}>
-        <Modal.Header>
-          {labels.modalTitle[selectedDashboard?.variant ?? 'create']}
-        </Modal.Header>
-        <Modal.Body>
-          <DashboardForm
-            labels={labels.form}
-            resource={
-              (selectedDashboard?.dashboard as DashboardResource) || undefined
-            }
-            variant={selectedDashboard?.variant}
-            onCancel={closeDialog}
-            onSubmit={submit}
-          />
-        </Modal.Body>
-      </Modal>
+      <DashboardFormModal />
+      <DashboardAccessRightsModal />
       <Modal
         open={deleteDialogState.open}
         onClose={() =>

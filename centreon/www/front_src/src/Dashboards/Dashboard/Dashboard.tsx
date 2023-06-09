@@ -1,8 +1,18 @@
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 
-import { Add as AddIcon, Share as ShareIcon } from '@mui/icons-material';
+import {
+  Settings as SettingsIcon,
+  Share as ShareIcon
+} from '@mui/icons-material';
 
-import { Button, Menu, PageHeader, PageLayout } from '@centreon/ui/components';
+import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
+
+import { DashboardsQuickAccessMenu } from '../components/DashboardsQuickAccessMenu/DashboardsQuickAccessMenu';
+import { DashboardFormModal } from '../components/DashboardFormModal/DashboardFormModal';
+import { useDashboardForm } from '../components/DashboardFormModal/useDashboardForm';
+import { Dashboard as DashboardType } from '../api/models';
+import { DashboardAccessRightsModal } from '../components/DashboardAccessRightsModal/DashboardAccessRightsModal';
+import { useDashboardAccessRights } from '../components/DashboardAccessRightsModal/useDashboardAccessRights';
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
@@ -13,6 +23,8 @@ const Dashboard = (): ReactElement => {
   const { dashboard, panels } = useDashboardDetails({
     dashboardId: dashboardId as string
   });
+  const { editDashboard } = useDashboardForm();
+  const { editAccessRights } = useDashboardAccessRights();
 
   return (
     <PageLayout>
@@ -20,24 +32,7 @@ const Dashboard = (): ReactElement => {
         <PageHeader>
           <PageHeader.Main>
             <PageHeader.Menu>
-              <Menu>
-                <Menu.Button />
-                <Menu.Items>
-                  <Menu.Item isActive isDisabled>
-                    {dashboard?.name || ''}
-                  </Menu.Item>
-                  <Menu.Divider />
-                  <Menu.Item>
-                    <Button
-                      icon={<AddIcon />}
-                      iconVariant="start"
-                      variant="ghost"
-                    >
-                      Add item
-                    </Button>
-                  </Menu.Item>
-                </Menu.Items>
-              </Menu>
+              <DashboardsQuickAccessMenu dashboard={dashboard} />
             </PageHeader.Menu>
             <PageHeader.Title
               description={dashboard?.description || ''}
@@ -55,18 +50,28 @@ const Dashboard = (): ReactElement => {
       </PageLayout.Header>
       <PageLayout.Body>
         <PageLayout.Actions>
-          <Button
-            icon={<ShareIcon />}
-            iconVariant="start"
+          <IconButton
+            aria-label="edit"
+            data-testid="edit"
+            icon={<SettingsIcon />}
             size="small"
             variant="ghost"
-          >
-            Share
-          </Button>
+            onClick={editDashboard(dashboard as DashboardType)}
+          />
+          <IconButton
+            aria-label="share"
+            data-testid="share"
+            icon={<ShareIcon />}
+            size="small"
+            variant="ghost"
+            onClick={editAccessRights(dashboard)}
+          />
         </PageLayout.Actions>
 
         <Layout />
       </PageLayout.Body>
+      <DashboardFormModal />
+      <DashboardAccessRightsModal />
     </PageLayout>
   );
 };

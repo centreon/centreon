@@ -1,7 +1,7 @@
 import 'ulog';
 import { useEffect } from 'react';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, UseMutationResult } from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
 import anylogger from 'anylogger';
 import { includes } from 'ramda';
@@ -29,12 +29,10 @@ export interface UseMutationQueryProps<T> {
 
 const log = anylogger('API Request');
 
-export interface UseMutationQueryState<T> {
+export type UseMutationQueryState<T> = {
   isError: boolean;
   isMutating: boolean;
-  mutate: (payload) => void;
-  mutateAsync: (payload) => Promise<T | ResponseError>;
-}
+} & UseMutationResult<T | ResponseError>;
 
 const useMutationQuery = <T extends object>({
   getEndpoint,
@@ -84,10 +82,9 @@ const useMutationQuery = <T extends object>({
   }, [queryData.data]);
 
   return {
+    ...queryData,
     isError: (queryData.data as ResponseError | undefined)?.isError || false,
-    isMutating: queryData.isLoading,
-    mutate: queryData.mutate,
-    mutateAsync: queryData.mutateAsync
+    isMutating: queryData.isLoading
   };
 };
 

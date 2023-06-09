@@ -6,16 +6,16 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Typography } from '@mui/material';
 
-import { Modal, Button } from '@centreon/ui/components';
+import { Button, Modal } from '@centreon/ui/components';
 
 import {
-  labelExit,
-  labelExitEditionMode,
   labelEditDashboard,
-  labelSave,
+  labelExit,
+  labelExitDashboard,
+  labelExitEditionMode,
   labelLeaveEditionModeChangesNotSaved,
   labelQuitDashboardChangesNotSaved,
-  labelExitDashboard
+  labelSave
 } from './translatedLabels';
 import {
   dashboardAtom,
@@ -124,6 +124,7 @@ const HeaderActions = ({
         data-testid="edit_dashboard"
         icon={<EditOutlinedIcon />}
         iconVariant="start"
+        size="small"
         variant="ghost"
         onClick={startEditing}
       >
@@ -136,6 +137,7 @@ const HeaderActions = ({
     <>
       <Button
         data-testid="cancel_dashboard"
+        size="small"
         variant="ghost"
         onClick={askCancelConfirmation}
       >

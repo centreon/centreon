@@ -1,8 +1,8 @@
 import { ReactElement, useMemo } from 'react';
 
-import { dec, equals, gt } from 'ramda';
+import { gt } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import { generatePath, useNavigate } from 'react-router-dom';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -17,8 +17,10 @@ import {
   labelCreateADashboard,
   labelNoDashboardsFound
 } from './translatedLabels';
-import { deleteDialogStateAtom, openDialogAtom } from './atoms';
+import { deleteDialogStateAtom } from './atoms';
 import { Dashboard } from './models';
+import { useDashboardForm } from './components/DashboardFormModal/useDashboardForm';
+import { useDashboardAccessRights } from './components/DashboardAccessRightsModal/useDashboardAccessRights';
 
 const emptyListStateLabels = {
   actions: {
@@ -32,26 +34,14 @@ const Listing = (): ReactElement => {
   const { dashboards, elementRef, isLoading } = useDashboards();
 
   const [, setDeleteDialogState] = useAtom(deleteDialogStateAtom);
-  const openDialog = useSetAtom(openDialogAtom);
+
+  const { createDashboard, editDashboard } = useDashboardForm();
+  const { editAccessRights } = useDashboardAccessRights();
 
   const hasDashboards = useMemo(
     () => gt(dashboards.length, 0),
     [dashboards.length]
   );
-
-  const createDashboard = (): void => {
-    openDialog({
-      dashboard: null,
-      variant: 'create'
-    });
-  };
-
-  const editDashboard = (dashboard: Dashboard) => (): void => {
-    openDialog({
-      dashboard,
-      variant: 'update'
-    });
-  };
 
   const navigate = useNavigate();
   const navigateToDashboard = (dashboard: Dashboard) => (): void =>
@@ -83,21 +73,19 @@ const Listing = (): ReactElement => {
           />
         ) : (
           dashboards.map((dashboard, index) => {
-            const isLastElement = equals(index, dec(dashboards.length));
-
             return (
               <DataTable.Item
                 hasActions
                 hasCardAction
                 description={dashboard.description ?? undefined}
                 key={dashboard.id}
-                ref={isLastElement ? elementRef : undefined}
                 title={dashboard.name}
                 onClick={navigateToDashboard(dashboard)}
                 onDelete={() =>
                   setDeleteDialogState({ item: dashboard, open: true })
                 }
                 onEdit={editDashboard(dashboard)}
+                onEditAccessRights={editAccessRights(dashboard)}
               />
             );
           })
