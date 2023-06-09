@@ -25,7 +25,7 @@ export interface UseMutationQueryProps<T> {
   getEndpoint: (payload) => string;
   httpCodesBypassErrorSnackbar?: Array<number>;
   method: Method;
-  onError?: (error: unknown, variables: void, context: unknown) => unknown;
+  onError?: (error, variables, context) => unknown;
   onMutate?: (variables) => unknown;
 }
 

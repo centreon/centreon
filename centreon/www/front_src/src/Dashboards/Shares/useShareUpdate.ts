@@ -43,6 +43,12 @@ const useShareUpdate = (dashboardId?: number): UseUpdateSharesState => {
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () => getDashboardSharesEndpoint(dashboardId),
     method: Method.PUT,
+    onError: (_, __, context) => {
+      queryClient.setQueryData(
+        ['dashboard_shares', page],
+        context.previousSharesListing
+      );
+    },
     onMutate: async (variables: Array<DashboardShareToAPI>) => {
       await queryClient.cancelQueries({ queryKey: ['dashboard_shares'] });
       const previousSharesListing = queryClient.getQueriesData([
@@ -62,6 +68,10 @@ const useShareUpdate = (dashboardId?: number): UseUpdateSharesState => {
         meta: previousSharesListing.meta,
         result: shares
       });
+
+      return {
+        previousSharesListing
+      };
     }
   });
 
