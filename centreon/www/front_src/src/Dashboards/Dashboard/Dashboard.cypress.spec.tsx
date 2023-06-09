@@ -10,10 +10,9 @@ import {
   ListingVariant,
   userAtom
 } from '@centreon/ui-context';
-
-import { DashboardRole } from '../models';
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
+import { DashboardRole } from '../models';
 import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 
 import { router } from './useDashboardSaveBlocker';
