@@ -7,7 +7,7 @@ import Severity from './Severity';
 import Snackbar from '.';
 
 interface ShowMessageProps {
-  message: string;
+  message: string | JSX.Element;
   severity: Severity;
 }
 
