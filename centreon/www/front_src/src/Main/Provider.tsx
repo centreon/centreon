@@ -70,8 +70,10 @@ const Provider = (): JSX.Element | null => {
 
   return (
     <Module maxSnackbars={2} seedName="centreon" store={store}>
-      <RouterProvider router={router} />
-      <ReactQueryDevtools />
+      <>
+        <RouterProvider router={router} />
+        <ReactQueryDevtools />
+      </>
     </Module>
   );
 };
