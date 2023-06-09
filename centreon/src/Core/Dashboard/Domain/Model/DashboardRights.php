@@ -25,9 +25,8 @@ namespace Core\Dashboard\Domain\Model;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Dashboard\Application\Rights\DashboardRightsInterface;
 
-class DashboardRights implements DashboardRightsInterface
+class DashboardRights
 {
     private const ROLE_VIEWER = Contact::ROLE_HOME_DASHBOARD_VIEWER;
     private const ROLE_CREATOR = Contact::ROLE_HOME_DASHBOARD_CREATOR;
