@@ -1,4 +1,5 @@
 sleep 10
+
 su - apache -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
 curl http://localhost/centreon/api/latest/platform/versions
 curl http://localhost/centreon/login
