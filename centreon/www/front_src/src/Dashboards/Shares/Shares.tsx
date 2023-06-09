@@ -11,7 +11,11 @@ import { labelDashboardAccessRights } from './translatedLabels';
 import SharesList from './SharesList';
 import Skeleton from './Skeleton';
 
-export const Shares = (): JSX.Element => {
+interface Props {
+  id?: number;
+}
+
+export const Shares = ({ id }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const [selectedDashboardShare, setSelectedDashboardShare] = useAtom(
@@ -28,7 +32,7 @@ export const Shares = (): JSX.Element => {
     >
       <Modal.Header>{t(labelDashboardAccessRights)}</Modal.Header>
       <Suspense fallback={<Skeleton />}>
-        <SharesList />
+        <SharesList id={id} />
       </Suspense>
     </Modal>
   );

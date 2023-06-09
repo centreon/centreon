@@ -25,6 +25,8 @@ export interface UseMutationQueryProps<T> {
   getEndpoint: (payload) => string;
   httpCodesBypassErrorSnackbar?: Array<number>;
   method: Method;
+  onError?: (error: unknown, variables: void, context: unknown) => unknown;
+  onMutate?: (variables) => unknown;
 }
 
 const log = anylogger('API Request');
@@ -43,7 +45,9 @@ const useMutationQuery = <T extends object>({
   defaultFailureMessage,
   fetchHeaders,
   httpCodesBypassErrorSnackbar = [],
-  method
+  method,
+  onMutate,
+  onError
 }: UseMutationQueryProps<T>): UseMutationQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
 
@@ -61,7 +65,11 @@ const useMutationQuery = <T extends object>({
         isMutation: true,
         method,
         payload
-      })
+      }),
+    {
+      onError,
+      onMutate
+    }
   );
 
   const manageError = (): void => {

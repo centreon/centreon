@@ -4,6 +4,7 @@ import { head } from 'ramda';
 
 import { Box, SelectChangeEvent } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import RotateRightIcon from '@mui/icons-material/RotateRight';
 
 import { IconButton, List } from '@centreon/ui/components';
 import { SelectField, useMemoComponent } from '@centreon/ui';
@@ -28,20 +29,22 @@ interface Props {
   email: string | null;
   fullname: string | null;
   id: number;
+  isRemoved: boolean;
   name: string;
-  remove: () => void;
   role: DashboardRole;
+  toggle: () => void;
 }
 
 const UserRoleItem = ({
   role,
   change,
-  remove,
+  toggle,
   id,
   elementRef,
   fullname,
   email,
-  name
+  name,
+  isRemoved
 }: Props): JSX.Element => {
   return useMemoComponent({
     Component: (
@@ -50,16 +53,25 @@ const UserRoleItem = ({
           <Box sx={{ columnGap: 2, display: 'flex' }}>
             <SelectField
               dataTestId="change_role"
+              disabled={isRemoved}
               options={options}
               selectedOptionId={role}
               sx={{ width: 85 }}
               onChange={change}
             />
-            <IconButton
-              data-testid="remove_user"
-              icon={<DeleteOutlineIcon />}
-              onClick={remove}
-            />
+            {isRemoved ? (
+              <IconButton
+                data-testid="add_user"
+                icon={<RotateRightIcon />}
+                onClick={toggle}
+              />
+            ) : (
+              <IconButton
+                data-testid="remove_user"
+                icon={<DeleteOutlineIcon />}
+                onClick={toggle}
+              />
+            )}
           </Box>
         }
         key={id}
@@ -72,7 +84,7 @@ const UserRoleItem = ({
         />
       </List.Item>
     ),
-    memoProps: [id, role, email, fullname]
+    memoProps: [id, role, email, fullname, isRemoved]
   });
 };
 

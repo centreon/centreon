@@ -35,3 +35,13 @@ export interface DashboardShare extends NamedEntity {
   role: DashboardRole;
   type: ContactType;
 }
+
+export interface DashboardShareForm extends DashboardShare {
+  isRemoved: boolean;
+}
+
+export interface DashboardShareToAPI {
+  id: number;
+  role: DashboardRole;
+  type: ContactType;
+}

@@ -6,3 +6,15 @@ export const useListStyles = makeStyles()({
     overflowY: 'auto'
   }
 });
+
+export const useListItemTextStyles = makeStyles()((theme) => ({
+  disabled: {
+    color: theme.palette.action.disabled
+  }
+}));
+
+export const useListItemAvatarStyles = makeStyles()((theme) => ({
+  disabled: {
+    backgroundColor: theme.palette.action.disabled
+  }
+}));

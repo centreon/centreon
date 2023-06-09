@@ -1,38 +1,66 @@
 import { FormikHandlers, useFormik } from 'formik';
-import { propEq, reject } from 'ramda';
+import { lensPath, set } from 'ramda';
 
-import { DashboardShare } from '../models';
+import { DashboardShare, DashboardShareForm } from '../models';
+
+import useShareUpdate from './useShareUpdate';
 
 interface UseShareFormProps {
+  id?: number;
   shares: Array<DashboardShare>;
+}
+
+interface ToggleContactProps {
+  id: number;
+  value: boolean;
 }
 
 interface UseShareFormState extends Pick<FormikHandlers, 'handleChange'> {
   dirty: boolean;
   getInputName: (index: number) => string;
-  removeContact: (id: number) => () => void;
-  values: Array<DashboardShare>;
+  submitForm: () => Promise<void>;
+  toggleContact: (props: ToggleContactProps) => () => void;
+  values: Array<DashboardShareForm>;
 }
 
-const useShareForm = ({ shares }: UseShareFormProps): UseShareFormState => {
-  const { handleChange, values, setValues, dirty } = useFormik<
-    Array<DashboardShare>
+const formatSharesToFormValues = (
+  shares: Array<DashboardShare>
+): Array<DashboardShareForm> =>
+  shares.map((share) => ({
+    ...share,
+    isRemoved: false
+  }));
+
+const useShareForm = ({
+  shares,
+  id: dashboardId
+}: UseShareFormProps): UseShareFormState => {
+  const { updateShares } = useShareUpdate(dashboardId);
+
+  const { handleChange, values, setValues, dirty, submitForm } = useFormik<
+    Array<DashboardShareForm>
   >({
-    initialValues: shares,
-    onSubmit: () => undefined
+    enableReinitialize: true,
+    initialValues: formatSharesToFormValues(shares),
+    onSubmit: (formValues) => updateShares(formValues)
   });
 
   const getInputName = (index: number): string => `${index}.role`;
 
-  const removeContact = (id: number) => (): void => {
-    setValues((currentValues) => reject(propEq('id', id), currentValues));
-  };
+  const toggleContact =
+    ({ id, value }: ToggleContactProps) =>
+    (): void => {
+      setValues((currentValues) =>
+        set(lensPath([id, 'isRemoved']), !value, currentValues)
+      );
+    };
 
   return {
     dirty,
     getInputName,
     handleChange,
-    removeContact,
+    submitForm,
+    toggleContact,
     values
   };
 };
