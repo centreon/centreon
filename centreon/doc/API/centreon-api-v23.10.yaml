@@ -456,7 +456,7 @@ paths:
   /configuration/services/templates:
     $ref: "v23.10/Configuration/ServiceTemplate/AddOneAndFindServiceTemplates.yaml"
   /configuration/services/templates/{service_template_id}:
-    $ref: "v23.10/Configuration/ServiceTemplate/DeleteServiceTemplate.yaml"
+    $ref: "v23.10/Configuration/ServiceTemplate/PartialUpdateAndDeleteServiceTemplate.yaml"
   /monitoring/services/categories:
     get:
       tags:

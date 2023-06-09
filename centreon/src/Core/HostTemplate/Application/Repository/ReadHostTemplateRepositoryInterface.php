@@ -63,6 +63,15 @@ interface ReadHostTemplateRepositoryInterface
     public function findParents(int $hostTemplateId): array;
 
     /**
+     * Find all existing host templates ids.
+     *
+     * @param list<int> $hostTemplateIds
+     *
+     * @return list<int>
+     */
+    public function findAllExistingIds(array $hostTemplateIds): array;
+
+    /**
      * Determine if a host template exists by its ID.
      *
      * @param int $hostTemplateId

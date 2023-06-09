@@ -314,7 +314,6 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
     public function findParents(int $hostTemplateId): array
     {
         $this->info('Find parents IDs of host template with ID #' . $hostTemplateId);
-
         $request = $this->translateDbName(
             <<<'SQL'
                 WITH RECURSIVE parents AS (
@@ -334,6 +333,38 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $statement->execute();
 
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllExistingIds(array $hostTemplateIds): array
+    {
+        if ($hostTemplateIds === []) {
+            return [];
+        }
+
+        $hostTemplateIdsFound = [];
+        $concatenator = new SqlConcatenator();
+
+        $request = $this->translateDbName(<<<'SQL'
+            SELECT host_id
+            FROM `:db`.host
+            WHERE host_register = '0'
+                AND host_id IN (:host_ids)
+            SQL
+        );
+        $concatenator->defineSelect($request);
+        $concatenator->storeBindValueMultiple(':host_ids', $hostTemplateIds, \PDO::PARAM_INT);
+        $statement = $this->db->prepare((string) $concatenator);
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        while (($id = $statement->fetchColumn()) !== false) {
+            $hostTemplateIdsFound[] = (int) $id;
+        }
+
+        return $hostTemplateIdsFound;
     }
 
     /**

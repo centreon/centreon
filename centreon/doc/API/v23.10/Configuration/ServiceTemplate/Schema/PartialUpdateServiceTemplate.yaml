@@ -1,0 +1,8 @@
+type: object
+properties:
+  host_templates:
+    type: array
+    items:
+      type: integer
+      description: "Host template ID"
+    example: [ 1, 2 ]
