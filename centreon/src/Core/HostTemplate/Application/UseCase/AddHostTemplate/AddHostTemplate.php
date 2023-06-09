@@ -341,19 +341,20 @@ final class AddHostTemplate
      */
     private function linkHostCategories(AddHostTemplateRequest $dto, int $hostTemplateId): void
     {
-        if ($dto->categories === []) {
+        $categoryIds = array_unique($dto->categories);
+        if ($categoryIds === []) {
 
             return;
         }
 
-        $this->assertAreValidCategories($dto->categories);
+        $this->assertAreValidCategories($categoryIds);
 
         $this->info(
             'AddHostTemplate: Linking host categories',
-            ['host_template_id' => $hostTemplateId, 'category_ids' => $dto->categories]
+            ['host_template_id' => $hostTemplateId, 'category_ids' => $categoryIds]
         );
 
-        $this->writeHostCategoryRepository->linkToHost($hostTemplateId, $dto->categories);
+        $this->writeHostCategoryRepository->linkToHost($hostTemplateId, $categoryIds);
     }
 
     /**
@@ -365,19 +366,21 @@ final class AddHostTemplate
      */
     private function linkParentTemplates(AddHostTemplateRequest $dto, int $hostTemplateId): void
     {
-        if ($dto->templates === []) {
+        $parentTemplateIds = array_unique($dto->templates);
+
+        if ($parentTemplateIds === []) {
 
             return;
         }
 
-        $this->assertAreValidTemplates($dto->templates, $hostTemplateId);
+        $this->assertAreValidTemplates($parentTemplateIds, $hostTemplateId);
 
         $this->info(
             'AddHostTemplate: Linking parent templates',
-            ['host_template_id' => $hostTemplateId, 'template_ids' => $dto->templates]
+            ['host_template_id' => $hostTemplateId, 'template_ids' => $parentTemplateIds]
         );
 
-        foreach ($dto->templates as $order => $templateId) {
+        foreach ($parentTemplateIds as $order => $templateId) {
             $this->writeHostTemplateRepository->addParent($hostTemplateId, $templateId, $order);
         }
     }

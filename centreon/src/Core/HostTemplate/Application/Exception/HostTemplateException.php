@@ -177,7 +177,7 @@ class HostTemplateException extends \Exception
      */
     public static function circularTemplateInheritance(): self
     {
-        return new self(_('Circular template inheritance not allowed'), self::CODE_CONFLICT);
+        return new self(_('Circular inheritance not allowed'), self::CODE_CONFLICT);
     }
 }
 

@@ -17810,3 +17810,6 @@ msgstr "Vous n'êtes pas autorisé à effectuer des actions d'écriture sur les 
 
 msgid "Host template #%d not found"
 msgstr "Modèle d'hôte #%d introuvable"
+
+msgid "Circular inheritance not allowed"
+msgstr "Héritage circulaire non autorisé"

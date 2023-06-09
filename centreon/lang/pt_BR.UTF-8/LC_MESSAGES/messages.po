@@ -16307,3 +16307,6 @@ msgstr ""
 
 #  msgid "Host template #%d not found"
 #  msgstr ""
+
+#  msgid "Circular inheritance not allowed"
+#  msgstr ""

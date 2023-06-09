@@ -431,6 +431,9 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         return (bool) $statement->fetchColumn();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function findNamesByIds(array $hostTemplateIds): array
     {
         $this->info('Find names for host templates', ['host_template_ids' => $hostTemplateIds]);
@@ -458,8 +461,9 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
         $nameById = [];
         foreach ($results as $row) {
-            $nameById[$row['host_id']] = $row['host_name'];
+            $nameById[(int) $row['host_id']] = $row['host_name'];
         }
+
         return $nameById;
     }
 
