@@ -3,6 +3,8 @@ import { isEmpty } from 'ramda';
 
 import { Typography, Button, List, ListItem } from '@mui/material';
 
+import FederatedComponent from '../../../components/FederatedComponents';
+
 import ExportConfiguration from './ExportConfiguration';
 
 const useStyles = makeStyles()((theme) => ({
@@ -99,6 +101,7 @@ export const PollerSubMenu = ({
           <ExportConfiguration closeSubMenu={closeSubMenu} />
         </ListItem>
       )}
+      <FederatedComponent path="/cloud-extensions" />
     </List>
   );
 };
