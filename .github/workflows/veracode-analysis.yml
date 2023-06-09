@@ -74,7 +74,7 @@ jobs:
       - name : Publish router
         if: github.ref_name == 'develop'
         run: |
-          if [[ '${{ env.github.ref_name }}' == 'develop' ]]; then
+          if [[ "${{ env.github.ref_name }}" == 'develop' ]]; then
             echo "publish=true" >> GITHUB_ENV
           else
             echo "publish=false" >> GITHUB_ENV
