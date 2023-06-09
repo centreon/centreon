@@ -86,6 +86,7 @@ class AddHostTemplateOnPremPresenter extends AbstractPresenter implements AddHos
                         'comment' => $this->emptyStringAsNull($response->comment),
                         'is_activated' => $response->isActivated,
                         'is_locked' => $response->isLocked,
+                        'categories' => $response->categories,
                     ]
                 )
             );

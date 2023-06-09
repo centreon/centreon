@@ -38,7 +38,11 @@ When('the administrator activates autologin on the platform', () => {
   cy.getIframeBody().find('#Form #enableAutoLogin').should('be.checked');
 
   cy.getIframeBody().find('#submitGeneralOptionsForm').click({ force: true });
-  cy.getIframeBody().find('#submitGeneralOptionsForm').reload();
+
+  cy.get('iframe#main-content')
+    .its('0.contentDocument.body')
+    .find('input[type="button"]')
+    .should('have.value', 'Modify');
 });
 
 Then(

@@ -73,6 +73,12 @@
                 "null",
                 "boolean"
             ]
+        },
+        "categories": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
         }
     }
 }
