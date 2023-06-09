@@ -410,7 +410,7 @@ jobs:
 
       - name: Setup docker slim
         run: |
-          wget -q https://downloads.dockerslim.com/releases/1.40.1/dist_linux.tar.gz
+          wget -q https://downloads.dockerslim.com/releases/1.40.2/dist_linux.tar.gz
           tar -xf dist_linux.tar.gz
           mv dist_linux/docker-slim /usr/local/bin/
           mv dist_linux/slim-sensor /usr/local/bin/
@@ -421,6 +421,7 @@ jobs:
         run: |
           slim build --show-clogs --show-blogs \
             --include-shell \
+            --include-new=false \
             --http-probe-off \
             --exec-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/exec.txt \
             --include-path-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-path.txt \

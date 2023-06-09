@@ -54,7 +54,6 @@ rm -rf /usr/share/centreon/www/install
 mysql -pcentreon -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY '' WITH GRANT OPTION"
 mysql -e "GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-centreon -d -u admin -p Centreon\!2021 -a CFGMOVE -v 1
 service mysql stop
 
 sed -i 's#severity=error#severity=debug#' /etc/default/gorgoned
@@ -77,7 +76,6 @@ mysql centreon < /tmp/sql/standard.sql
 mysql centreon < /tmp/sql/media.sql
 mysql centreon < /tmp/sql/openldap.sql
 centreon -d -u admin -p Centreon\!2021 -a POLLERGENERATE -v 1
-centreon -d -u admin -p Centreon\!2021 -a CFGMOVE -v 1
 service mysql stop
 
 EOF
