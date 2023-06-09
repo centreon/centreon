@@ -106,7 +106,7 @@ Given('the platform is configured with at least one resource', () => {
   cy.get('[data-value="all"]').click();
 });
 
-When('user cliks on Timezone field in his profile menu', () => {
+When('the user cliks on Timezone field in his profile menu', () => {
   cy.navigateTo({
     page: 'My Account',
     rootItemNumber: 4,
@@ -122,7 +122,7 @@ When('user cliks on Timezone field in his profile menu', () => {
   cy.get('@timezoneInput').click().wait('@getTimezonesList');
 });
 
-When('user selects a Timezone \\/ Location', () => {
+When('the user selects a Timezone \\/ Location', () => {
   cy.getIframeBody()
     .find('input[class="select2-search__field"]')
     .clear()
@@ -136,7 +136,7 @@ When('user selects a Timezone \\/ Location', () => {
     .click();
 });
 
-When('user saves the form', () => {
+When('the user saves the form', () => {
   cy.getIframeBody()
     .find('input[name="submitC"]')
     .eq(0)
