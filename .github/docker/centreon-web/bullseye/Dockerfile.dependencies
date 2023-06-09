@@ -51,12 +51,12 @@ apt-get install -y \
 #############################
 
 apt-get install -y \
-  perl \
   libdbi-perl \
   libnet-curl-perl \
   libnet-http-perl \
   libwww-perl \
-  libxml-libxml-perl
+  libxml-libxml-perl \
+  perl
 
 #############################
 # install test dependencies #
