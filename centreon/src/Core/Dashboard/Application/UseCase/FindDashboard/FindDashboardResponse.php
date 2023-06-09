@@ -23,25 +23,30 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboard;
 
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\PanelResponseDto;
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto;
+
 final class FindDashboardResponse
 {
-    public int $id = 0;
-
-    public string $name = '';
-
-    public string $description = '';
-
-    public ?FindDashboardUserDto $createdBy = null;
-
-    public ?FindDashboardUserDto $updatedBy = null;
-
-    public \DateTimeImmutable $createdAt;
-
-    public \DateTimeImmutable $updatedAt;
-
-    public function __construct()
-    {
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+    /**
+     * @param int $id
+     * @param string $name
+     * @param string $description
+     * @param UserResponseDto|null $createdBy
+     * @param UserResponseDto|null $updatedBy
+     * @param \DateTimeImmutable $createdAt
+     * @param \DateTimeImmutable $updatedAt
+     * @param array<PanelResponseDto> $panels
+     */
+    public function __construct(
+        public int $id = 0,
+        public string $name = '',
+        public string $description = '',
+        public ?UserResponseDto $createdBy = null,
+        public ?UserResponseDto $updatedBy = null,
+        public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
+        public \DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
+        public array $panels = [],
+    ) {
     }
 }

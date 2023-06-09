@@ -5,16 +5,16 @@ import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/modul
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
 import { unstable_Blocker } from 'react-router-dom';
 
-import { Method, TestQueryProvider } from '@centreon/ui';
 import {
   DashboardGlobalRole,
   ListingVariant,
   userAtom
 } from '@centreon/ui-context';
 
-import { federatedWidgetsAtom } from '../../federatedModules/atoms';
-import { dashboardsEndpoint } from '../api/endpoints';
 import { DashboardRole } from '../models';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+
+import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 
 import { router } from './useDashboardSaveBlocker';
 import {
@@ -22,10 +22,13 @@ import {
   labelExit,
   labelExitDashboard,
   labelExitEditionMode,
-  labelLeaveEditionModeChangesNotSaved
+  labelLeaveEditionModeChangesNotSaved,
+  labelSave,
+  labelYourDashboardHasBeenSaved
 } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 import { dashboardAtom } from './atoms';
+import { getDashboardEndpoint } from './api/endpoints';
 
 import Dashboard from '.';
 
@@ -136,7 +139,7 @@ const initializeAndMount = ({
     cy.interceptAPIRequest({
       alias: 'getDashboardDetails',
       method: Method.GET,
-      path: `${dashboardsEndpoint}/1`,
+      path: getDashboardEndpoint('1'),
       response: {
         ...dashboardDetails,
         own_role: ownRole
@@ -144,14 +147,23 @@ const initializeAndMount = ({
     });
   });
 
+  cy.interceptAPIRequest({
+    alias: 'patchDashboardDetails',
+    method: Method.PATCH,
+    path: getDashboardEndpoint('1'),
+    statusCode: 201
+  });
+
   cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });
 
   cy.mount({
     Component: (
       <TestQueryProvider>
-        <Provider store={store}>
-          <Dashboard />
-        </Provider>
+        <SnackbarProvider>
+          <Provider store={store}>
+            <Dashboard />
+          </Provider>
+        </SnackbarProvider>
       </TestQueryProvider>
     )
   });
@@ -284,6 +296,32 @@ describe('Dashboard', () => {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         expect(proceed).to.have.been.calledOnce;
       });
+  });
+
+  it('saves the dashboard when the corresponding button is clicked and the dashboard is changed', () => {
+    initializeBlocker();
+    const store = initializeAndMount();
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.contains(labelEditDashboard).click();
+
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.fixture('Dashboards/Dashboard/updatedLayout.json').then((panels) => {
+      store.set(dashboardAtom, {
+        layout: panels
+      });
+    });
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@patchDashboardDetails');
+
+    cy.contains(labelYourDashboardHasBeenSaved).should('be.visible');
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.matchImageSnapshot();
   });
 
   describe('Roles', () => {

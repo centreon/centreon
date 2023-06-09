@@ -96,7 +96,13 @@ abstract class AbstractController extends AbstractFOSRestController
         if (!is_array($receivedData)) {
             throw new \InvalidArgumentException('Error when decoding your sent data');
         }
-        $receivedData = Validator::arrayToObjectRecursive($receivedData);
+
+        if (\array_is_list($receivedData)){
+            $receivedData = array_map(Validator::arrayToObjectRecursive(...), $receivedData);
+        } else {
+            $receivedData = Validator::arrayToObjectRecursive($receivedData);
+        }
+
         $validator = new Validator();
         $validator->validate(
             $receivedData,

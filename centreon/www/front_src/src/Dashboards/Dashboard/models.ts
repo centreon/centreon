@@ -11,6 +11,7 @@ export interface PanelConfiguration {
 export type Layout = Array<ReactGridLayout.Layout>;
 
 export interface Panel extends ReactGridLayout.Layout {
+  name: string;
   options?: object;
   panelConfiguration: PanelConfiguration;
 }
@@ -36,6 +37,21 @@ export interface PanelDetails extends NamedEntity {
 
 export interface DashboardDetails extends CentreonDashboard {
   panels: Array<PanelDetails>;
+}
+
+export interface PanelDetailsToAPI extends NamedEntity {
+  layout: {
+    height: number;
+    min_height: number;
+    min_width: number;
+    width: number;
+    x: number;
+    y: number;
+  };
+  widget_settings: {
+    [key: string]: unknown;
+  };
+  widget_type: string;
 }
 
 export interface QuitWithoutSavedDashboard extends Dashboard {

@@ -311,6 +311,34 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
+    public function findParents(int $hostTemplateId): array
+    {
+        $this->info('Find parents IDs of host template with ID #' . $hostTemplateId);
+
+        $request = $this->translateDbName(
+            <<<'SQL'
+                WITH RECURSIVE parents AS (
+                    SELECT * FROM `:db`.`host_template_relation`
+                    WHERE `host_host_id` = :hostTemplateId
+                    UNION
+                    SELECT rel.* FROM `:db`.`host_template_relation` AS rel, parents AS p
+                    WHERE rel.`host_host_id` = p.`host_tpl_id`
+                )
+                SELECT `host_host_id` AS child_id, `host_tpl_id` AS parent_id, `order`
+                FROM parents
+                ORDER BY `child_id`, `order`;
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function exists(int $hostTemplateId): bool
     {
         $this->info('Check existence of host template with ID #' . $hostTemplateId);
