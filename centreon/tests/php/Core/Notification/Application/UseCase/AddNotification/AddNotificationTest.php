@@ -522,4 +522,3 @@ it('should return created object on success', function (): void {
             $this->resources
         ));
 });
-

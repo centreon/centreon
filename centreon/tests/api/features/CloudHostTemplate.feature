@@ -78,12 +78,13 @@ Feature:
     """
     HC;ADD;severity1;host-severity-alias
     HC;setseverity;severity1;42;logos/logo-centreon-colors.png
+    HC;ADD;host-cat1;host-cat1-alias
     """
 
     When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
       """
       {
-        "name": "  host template name  ",
+        "name": "  host template name A  ",
         "alias": "  host-template-alias  ",
         "snmp_version": "2c",
         "snmp_community": "   snmpCommunity-value",
@@ -92,7 +93,8 @@ Feature:
         "check_timeperiod_id": 1,
         "note_url": "noteUrl-value",
         "note": "note-value",
-        "action_url": "actionUrl-value"
+        "action_url": "actionUrl-value",
+        "categories": [2]
       }
       """
     Then the response code should be "201"
@@ -100,7 +102,7 @@ Feature:
       """
       {
         "id": 15,
-        "name": "host_template_name",
+        "name": "host_template_name_A",
         "alias": "host-template-alias",
         "snmp_version": "2c",
         "snmp_community": "snmpCommunity-value",
@@ -110,15 +112,102 @@ Feature:
         "note_url": "noteUrl-value",
         "note": "note-value",
         "action_url": "actionUrl-value",
-        "is_locked": false
+        "is_locked": false,
+        "categories": [
+          {
+            "id": 2,
+            "name": "host-cat1"
+          }
+        ]
       }
       """
 
     When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
       """
       {
-        "name": "host_template name",
+        "name": "host_template name A",
         "alias": "host-template-alias"
       }
       """
     Then the response code should be "409"
+
+    Given the following CLAPI import data:
+      """
+      HC;ADD;host-cat2;host-cat2-alias
+      CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
+      CONTACT;setparam;ala;reach_api;1
+      ACLMENU;add;ACL Menu test;my alias
+      ACLMENU;grantrw;ACL Menu test;1;Configuration;Hosts;Templates
+      ACLRESOURCE;add;ACL Resource test;my alias
+      ACLRESOURCE;addfilter_hostcategory;ACL Resource test;host-cat2
+      ACLGROUP;add;ACL Group test;my alias
+      ACLGROUP;addmenu;ACL Group test;ACL Menu test
+      ACLGROUP;addresource;ACL Group test;ACL Resource test
+      ACLGROUP;addcontact;ACL Group test;ala
+      """
+    And I am logged in with "ala"/"Centreon@2022"
+
+    When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
+      """
+      {
+        "name": "  host template name B  ",
+        "alias": "  host-template-alias  ",
+        "snmp_version": "2c",
+        "snmp_community": "   snmpCommunity-value",
+        "timezone_id": 1,
+        "severity_id": 1,
+        "check_timeperiod_id": 1,
+        "note_url": "noteUrl-value",
+        "note": "note-value",
+        "action_url": "actionUrl-value",
+        "categories": [2]
+      }
+      """
+    Then the response code should be "409"
+
+    Given the following CLAPI import data:
+      """
+      ACLRESOURCE;addfilter_hostcategory;ACL Resource test;host-cat1
+      """
+    And I am logged in with "ala"/"Centreon@2022"
+
+    When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
+      """
+      {
+        "name": "  host template name B  ",
+        "alias": "  host-template-alias  ",
+        "snmp_version": "2c",
+        "snmp_community": "   snmpCommunity-value",
+        "timezone_id": 1,
+        "severity_id": 1,
+        "check_timeperiod_id": 1,
+        "note_url": "noteUrl-value",
+        "note": "note-value",
+        "action_url": "actionUrl-value",
+        "categories": [2]
+      }
+      """
+    Then the response code should be "201"
+    And the JSON should be equal to:
+      """
+      {
+        "id": 17,
+        "name": "host_template_name_B",
+        "alias": "host-template-alias",
+        "snmp_version": "2c",
+        "snmp_community": "snmpCommunity-value",
+        "timezone_id": 1,
+        "severity_id": 1,
+        "check_timeperiod_id": 1,
+        "note_url": "noteUrl-value",
+        "note": "note-value",
+        "action_url": "actionUrl-value",
+        "is_locked": false,
+        "categories": [
+          {
+            "id": 2,
+            "name": "host-cat1"
+          }
+        ]
+      }
+      """

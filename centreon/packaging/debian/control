@@ -125,8 +125,10 @@ Architecture: all
 Depends:
     ${misc:Depends},
     lsb-release,
+    centreon-broker (>= ${centreon:version}~),
     centreon-web-common (>= ${centreon:version}~),
     centreon-gorgone (>= ${centreon:version}~),
+    centreon-broker (<< ${centreon:versionThreshold}~),
     centreon-web-common (<< ${centreon:versionThreshold}~),
     centreon-gorgone (<< ${centreon:versionThreshold}~),
     php8.1-curl,

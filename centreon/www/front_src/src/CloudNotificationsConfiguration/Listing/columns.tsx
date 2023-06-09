@@ -13,8 +13,8 @@ import {
 } from '../translatedLabels';
 
 import { FormatChannels, formatResourcesForListing } from './utils';
-import Actions from './Actions';
-import ActionActivate from './Actions/ActivateAction';
+import Actions from './Actions/RowActions';
+import ActionActivate from './Actions/RowActions/Activate';
 
 const useListingColumns = (): Array<Column> => {
   const { t } = useTranslation();
