@@ -62,8 +62,6 @@ jobs:
 
   sca-scan:
     needs: [build]
-    name
-
     runs-on: ubuntu-latest
     name: Run an SCA scan
 
