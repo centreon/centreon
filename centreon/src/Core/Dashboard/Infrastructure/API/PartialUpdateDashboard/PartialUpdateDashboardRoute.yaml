@@ -1,7 +1,7 @@
-UpdateDashboard:
-  methods: PUT
+PartialUpdateDashboard:
+  methods: PATCH
   path: /configuration/dashboards/{dashboardId}
   requirements:
     dashboardId: '\d+'
-  controller: 'Core\Dashboard\Infrastructure\API\UpdateDashboard\UpdateDashboardController'
+  controller: 'Core\Dashboard\Infrastructure\API\PartialUpdateDashboard\PartialUpdateDashboardController'
   condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.dashboard')"

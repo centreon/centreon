@@ -224,8 +224,8 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      *
      * @phpstan-param DashboardResultSet $result
      *
-     * @throws \ValueError
      * @throws AssertionFailedException
+     * @throws \ValueError
      *
      * @return Dashboard
      */
@@ -279,8 +279,8 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      * @param SqlConcatenator $concatenator
      * @param int $dashboardId
      *
-     * @throws \PDOException
      * @throws AssertionFailedException
+     * @throws \PDOException
      *
      * @return Dashboard|null
      */

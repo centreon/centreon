@@ -15,7 +15,9 @@ default:
       contexts:
         - Centreon\Test\Api\Context\RealTimeCategoryContext
     dashboard:
-      paths: [ "%paths.base%/features/Dashboard.feature" ]
+      paths:
+        - "%paths.base%/features/Dashboard.OpenApiDoc.feature"
+        - "%paths.base%/features/Dashboard.JsonSchema.feature"
       contexts:
         - Centreon\Test\Api\Context\FeatureFlagContext
     host_category:

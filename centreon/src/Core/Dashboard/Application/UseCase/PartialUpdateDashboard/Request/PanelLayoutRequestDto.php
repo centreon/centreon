@@ -21,11 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboard;
+namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard\Request;
 
-final class FindDashboardUserDto
+final class PanelLayoutRequestDto
 {
-    public int $id = 0;
-
-    public string $name = '';
+    public function __construct(
+        public int $posX = 0,
+        public int $posY = 0,
+        public int $width = 0,
+        public int $height = 0,
+        public int $minWidth = 0,
+        public int $minHeight = 0,
+    ) {
+    }
 }

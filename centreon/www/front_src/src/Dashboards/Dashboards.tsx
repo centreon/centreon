@@ -22,6 +22,7 @@ import {
   labelDescription,
   labelDescriptionDeleteDashboardPartOne,
   labelDescriptionDeleteDashboardPartTwo,
+  labelLoading,
   labelName,
   labelUpdate,
   labelUpdateDashboard
@@ -61,7 +62,8 @@ const Dashboards = (): ReactElement => {
       deleteConfirmation: {
         actions: {
           cancel: t(labelCancel),
-          confirm: t(labelDelete)
+          confirm: t(labelDelete),
+          loading: t(labelLoading)
         }
       },
       form: {
