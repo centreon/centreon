@@ -58,7 +58,14 @@ const Snackbar = React.forwardRef(
       closeSnackbar(id);
     };
 
-    const sanitizedMessage = DOMPurify.sanitize(message);
+    const formatedMessage =
+      typeof message === 'string' ? (
+        <div
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(message) }}
+        />
+      ) : (
+        message
+      );
 
     return (
       <SnackbarContent ref={ref}>
@@ -77,7 +84,7 @@ const Snackbar = React.forwardRef(
           severity={severity}
           variant="filled"
         >
-          <div dangerouslySetInnerHTML={{ __html: sanitizedMessage }} />
+          {formatedMessage}
         </Alert>
       </SnackbarContent>
     );
