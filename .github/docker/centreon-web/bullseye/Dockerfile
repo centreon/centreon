@@ -58,6 +58,7 @@ service mysql stop
 
 sed -i 's#severity=error#severity=debug#' /etc/default/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 EOF
 
