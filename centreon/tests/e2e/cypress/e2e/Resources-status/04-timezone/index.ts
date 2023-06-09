@@ -29,8 +29,14 @@ const roundDateTime = (date: Date): string => {
   });
 };
 
-const covert12hFormatToDate = (timeString: string): Date => {
-  const dateString = 'June 8, 2023';
+const convert12hFormatToDate = (timeString: string): Date => {
+  const currentDate = new Date();
+  const dateString = currentDate.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
   const dateTimeString = `${dateString} ${timeString}`;
 
   return new Date(dateTimeString);
@@ -154,7 +160,7 @@ Then('timezone information are updated on the banner', () => {
           minute: '2-digit',
           timeZone: chosenTZ
         });
-        expect(roundDateTime(covert12hFormatToDate(localTime))).to.equal(
+        expect(roundDateTime(convert12hFormatToDate(localTime))).to.equal(
           timeofTZ
         );
       });
@@ -233,7 +239,7 @@ Then(
         const toDate = $toDate[0].textContent || '';
         const formatedDate = roundDateTime(new Date(toDate));
         const formatedLocalTime = roundDateTime(
-          covert12hFormatToDate(localTime)
+          convert12hFormatToDate(localTime)
         );
 
         expect(formatedLocalTime).to.equal(formatedDate);
@@ -319,7 +325,7 @@ Then(
         const toDate = $date[0].textContent || '';
 
         cy.getTimeFromHeader().then((localTime: string) => {
-          expect(roundDateTime(covert12hFormatToDate(localTime))).to.equal(
+          expect(roundDateTime(convert12hFormatToDate(localTime))).to.equal(
             roundDateTime(new Date(toDate))
           );
         });
@@ -390,7 +396,7 @@ Then(
         cy.getTimeFromHeader().then((localTime: string) => {
           const roundedDateTime = roundDateTime(new Date(dtTime));
           const formatedLocalTime = roundDateTime(
-            covert12hFormatToDate(localTime)
+            convert12hFormatToDate(localTime)
           );
 
           expect(formatedLocalTime).to.equal(roundedDateTime);
