@@ -24,7 +24,7 @@ export const Default: Story = {
     <List>
       {sampleData.map(({ primary }, index) => (
         <List.Item key={`${primary}_${index}`}>
-          <List.ItemText primaryText={primary} />
+          <List.Item.Text primaryText={primary} />
         </List.Item>
       ))}
     </List>
@@ -36,7 +36,7 @@ export const withAction: Story = {
     <List>
       {sampleData.map(({ icon, primary }, index) => (
         <List.Item action={icon} key={`${primary}_${index}`}>
-          <List.ItemText primaryText={primary} />
+          <List.Item.Text primaryText={primary} />
         </List.Item>
       ))}
     </List>
@@ -48,7 +48,7 @@ export const withSecondaryText: Story = {
     <List>
       {sampleData.map(({ primary, secondary }, index) => (
         <List.Item key={`${primary}_${index}`}>
-          <List.ItemText primaryText={primary} secondaryText={secondary} />
+          <List.Item.Text primaryText={primary} secondaryText={secondary} />
         </List.Item>
       ))}
     </List>
@@ -61,7 +61,7 @@ export const withSmallContainer: Story = {
       <List>
         {sampleData.map(({ icon, primary, secondary }, index) => (
           <List.Item action={icon} key={`${primary}_${index}`}>
-            <List.ItemText primaryText={primary} secondaryText={secondary} />
+            <List.Item.Text primaryText={primary} secondaryText={secondary} />
           </List.Item>
         ))}
       </List>

@@ -1,13 +1,13 @@
 import { ListItemText } from '@mui/material';
 
-type ItemTextProps = {
+type TextProps = {
   primaryText: string;
   secondaryText?: string;
 };
 
-export const ItemText = ({
+export const Text = ({
   primaryText,
   secondaryText
-}: ItemTextProps): JSX.Element => {
+}: TextProps): JSX.Element => {
   return <ListItemText primary={primaryText} secondary={secondaryText} />;
 };
