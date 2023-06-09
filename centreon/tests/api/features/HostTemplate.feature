@@ -379,5 +379,68 @@ Feature:
       }
       """
 
+  Scenario: Host template patching
+    Given I am logged in
+    And the following CLAPI import data:
+      """
+      HTPL;ADD;htpl-name-1;htpl-alias-1;;;;
+      """
 
+    When I send a GET request to '/api/latest/configuration/hosts/templates?search={"name":{"$lk":"htpl-%"}}'
+    And I store response values in:
+      | name           | path         |
+      | hostTemplateId | result[0].id |
 
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/99' with body:
+      """
+      {}
+      """
+    Then the response code should be "404"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {}
+      """
+    Then the response code should be "204"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "macros": [
+          {
+            "name": "nameA",
+            "value": "valueA",
+            "is_password": false,
+            "description": "some text"
+          },
+          {
+            "name": "nameB",
+            "value": "valueB",
+            "is_password": true,
+            "description": null
+          }
+        ]
+      }
+      """
+    Then the response code should be "204"
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "macros": [
+          {
+            "name": "nameA",
+            "value": "valueA",
+            "is_password": false,
+            "description": "some text"
+          },
+          {
+            "name": "nameC",
+            "value": "valueC",
+            "is_password": true,
+            "description": null
+          }
+        ]
+      }
+      """
+    Then the response code should be "204"
+    # TODO : complete with GET /hosts/template/<hostTemplateId>

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -312,9 +312,9 @@ final class SqlConcatenator implements \Stringable
         $param = ':' . ltrim($param, ':');
         $names = [];
 
-        for ($i = 1, $nb = \count($values); $i <= $nb; $i++) {
-            $names[] = $name = "{$param}_{$i}";
-            $this->bindValues[$name] = [$values[$i - 1], $type];
+        for ($num = 1, $count = \count($values); $num <= $count; $num++) {
+            $names[] = $name = "{$param}_{$num}";
+            $this->bindValues[$name] = [$values[$num - 1], $type];
         }
 
         $this->bindArrayReplacements[$param] = implode(', ', $names);
@@ -390,7 +390,7 @@ final class SqlConcatenator implements \Stringable
             array_keys($this->bindArrayReplacements)
         );
 
-        return preg_replace($patterns, $this->bindArrayReplacements, $sql);
+        return (string) preg_replace($patterns, $this->bindArrayReplacements, $sql);
     }
 
     /**
@@ -491,7 +491,7 @@ final class SqlConcatenator implements \Stringable
             if ($string instanceof \Stringable) {
                 $sanitized[] = $string;
             } elseif ('' !== $string) {
-                $sanitized[] = preg_replace($regex, '', $string);
+                $sanitized[] = (string) preg_replace($regex, '', $string);
             }
         }
 

@@ -32,15 +32,13 @@ const Panel: FC<Props> = ({ id }) => {
 
   return useMemoComponent({
     Component: (
-      <div>
-        <FederatedComponent
-          isFederatedWidget
-          id={id}
-          panelOptions={panelOptions}
-          path={panelConfigurations.path}
-          setPanelOptions={changePanelOptions}
-        />
-      </div>
+      <FederatedComponent
+        isFederatedWidget
+        id={id}
+        panelOptions={panelOptions}
+        path={panelConfigurations.path}
+        setPanelOptions={changePanelOptions}
+      />
     ),
     memoProps: [id, panelOptions]
   });

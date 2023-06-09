@@ -11,7 +11,8 @@ import { useStyles } from './DashboardForm.styles';
 import {
   labelMustBeAtLeast,
   labelMustBeMost,
-  labelRequired
+  labelRequired,
+  labelCharacters
 } from './translatedLabels';
 import {
   DashboardFormActions,
@@ -43,7 +44,7 @@ const DashboardForm = ({
 
   const formProps = useMemo<FormProps<DashboardResource>>(
     () => ({
-      initialValues: resource ?? { name: '' },
+      initialValues: resource ?? { description: null, name: '' },
       inputs: [
         {
           fieldName: 'name',
@@ -55,7 +56,7 @@ const DashboardForm = ({
         {
           fieldName: 'description',
           group: 'main',
-          label: labels?.entity?.description,
+          label: labels?.entity?.description || '',
           text: {
             multilineRows: 3
           },
@@ -65,9 +66,12 @@ const DashboardForm = ({
       submit: (values, bag) => onSubmit?.(values, bag),
       validationSchema: Yup.object().shape({
         description: Yup.string()
-          .label(labels?.entity?.description)
-          .max(180, ({ max, label }) => t(labelMustBeMost, { label, max }))
-          .optional()
+          .label(labels?.entity?.description || '')
+          .max(
+            180,
+            (p) =>
+              `${p.label} ${t(labelMustBeMost)} ${p.max} ${t(labelCharacters)}`
+          )
           .nullable(),
         name: Yup.string()
           .label(labels?.entity?.name)

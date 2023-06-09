@@ -1,0 +1,23 @@
+type: object
+
+properties:
+
+  name:
+    type: string
+    maxLength: 200
+    description: "Dashboard name"
+    example: "my dashboard"
+
+  description:
+    type: string
+    nullable: true
+    maxLength: 65535
+    description: "Description about this dashboard"
+    example: "my description"
+
+  panels:
+    type: array
+    items:
+      allOf:
+        - $ref: 'Panel/DashboardPanel.WithoutId.yaml'
+        - $ref: 'Panel/DashboardPanel.IdOptional.yaml'
