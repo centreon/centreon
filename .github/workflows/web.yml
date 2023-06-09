@@ -421,7 +421,6 @@ jobs:
         run: |
           slim build --show-clogs --show-blogs \
             --include-shell \
-            --include-new=false \
             --http-probe-off \
             --exec-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/exec.txt \
             --include-path-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-path.txt \

@@ -230,7 +230,11 @@ Then('the line disappears from the listing', () => {
       return cy
         .reload()
         .then(() =>
-          cy.getIframeBody().find('.ListTable tr:not(.ListHeader)').first()
+          cy
+            .get('iframe#main-content')
+            .its('0.contentDocument.body')
+            .find('.ListTable tr:not(.ListHeader)')
+            .first()
         )
         .children()
         .then((val) => {
@@ -347,7 +351,11 @@ Then('the lines disappears from the listing', () => {
       return cy
         .reload()
         .then(() =>
-          cy.getIframeBody().find('.ListTable tr:not(.ListHeader)').first()
+          cy
+            .get('iframe#main-content')
+            .its('0.contentDocument.body')
+            .find('.ListTable tr:not(.ListHeader)')
+            .first()
         )
         .children()
         .then((val) => {
