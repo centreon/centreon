@@ -6,12 +6,12 @@ import { DashboardShare, DashboardShareForm } from '../models';
 import useShareUpdate from './useShareUpdate';
 
 interface UseShareFormProps {
-  id?: number;
+  dashboardId?: number;
   shares: Array<DashboardShare>;
 }
 
 interface ToggleContactProps {
-  id: number;
+  index: number;
   value: boolean;
 }
 
@@ -33,7 +33,7 @@ const formatSharesToFormValues = (
 
 const useShareForm = ({
   shares,
-  id: dashboardId
+  dashboardId
 }: UseShareFormProps): UseShareFormState => {
   const { updateShares } = useShareUpdate(dashboardId);
 
@@ -48,10 +48,10 @@ const useShareForm = ({
   const getInputName = (index: number): string => `${index}.role`;
 
   const toggleContact =
-    ({ id, value }: ToggleContactProps) =>
+    ({ index, value }: ToggleContactProps) =>
     (): void => {
       setValues((currentValues) =>
-        set(lensPath([id, 'isRemoved']), !value, currentValues)
+        set(lensPath([index, 'isRemoved']), !value, currentValues)
       );
     };
 

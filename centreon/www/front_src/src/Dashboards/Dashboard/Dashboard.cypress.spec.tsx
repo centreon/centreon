@@ -393,7 +393,9 @@ describe('Dashboard', () => {
 
       cy.findAllByTestId('remove_user').eq(0).click();
 
-      cy.findByText('Walter Sobchak').should('not.exist');
+      cy.findByText('Walter Sobchak').should('be.visible');
+      cy.findAllByTestId('change_role').eq(0).should('be.disabled');
+      cy.findByTestId('add_user').should('be.visible');
 
       cy.matchImageSnapshot();
     });

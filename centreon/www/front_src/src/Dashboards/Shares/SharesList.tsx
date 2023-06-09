@@ -51,7 +51,7 @@ const SharesList = ({ id }: Props): JSX.Element => {
     dirty,
     submitForm
   } = useShareForm({
-    id,
+    dashboardId: id,
     shares: dashboardShares
   });
 
@@ -74,7 +74,7 @@ const SharesList = ({ id }: Props): JSX.Element => {
                 key={dashboardShare.id}
                 role={dashboardShare.role}
                 toggle={toggleContact({
-                  id: dashboardShare.id,
+                  index,
                   value: dashboardShare.isRemoved
                 })}
               />
