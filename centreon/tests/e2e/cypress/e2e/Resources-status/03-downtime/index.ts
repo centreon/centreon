@@ -227,13 +227,12 @@ Then('the user confirms the cancellation of the downtime', () => {
 Then('the line disappears from the listing', () => {
   cy.waitUntil(
     () => {
-      cy.contains('Search').click();
-
-      cy.wait('@getTimeZone');
-
       return cy
-        .getIframeBody()
-        .first()
+        .reload()
+        .wait('@getTimeZone')
+        .then(() =>
+          cy.getIframeBody().find('.ListTable tr:not(.ListHeader)').first()
+        )
         .children()
         .then((val) => {
           return val.text().trim() === 'No downtime scheduled';
@@ -346,13 +345,12 @@ Then(
 Then('the lines disappears from the listing', () => {
   cy.waitUntil(
     () => {
-      cy.contains('Search').click();
-
-      cy.wait('@getTimeZone');
-
       return cy
-        .getIframeBody()
-        .first()
+        .reload()
+        .wait('@getTimeZone')
+        .then(() =>
+          cy.getIframeBody().find('.ListTable tr:not(.ListHeader)').first()
+        )
         .children()
         .then((val) => {
           return val.text().trim() === 'No downtime scheduled';
