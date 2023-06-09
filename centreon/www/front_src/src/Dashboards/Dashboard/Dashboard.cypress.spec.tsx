@@ -299,7 +299,7 @@ describe('Dashboard', () => {
 
   it('saves the dashboard when the corresponding button is clicked and the dashboard is changed', () => {
     initializeBlocker();
-    const store = initializeAndMount();
+    const store = initializeAndMount({});
 
     cy.waitForRequest('@getDashboardDetails');
 
