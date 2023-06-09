@@ -17704,7 +17704,7 @@ msgid "Error while updating a dashboard"
 msgstr "Erreur lors de la mise à jour d'un tableau de bord"
 
 msgid "Error while trying to update a dashboard panel which belongs to another dashboard"
-msgstr "Erreur lors d'une tentative de mise à jour d'un panneau d'un tableau de bord qui appartient à un autre tableau de bord"
+msgstr "Erreur lors d'une tentative de mise à jour d'un panneau de tableau de bord qui appartient à un autre tableau de bord"
 
 msgid "Error while searching for host templates"
 msgstr "Erreur lors de la recherche des modèles d'hôtes"
