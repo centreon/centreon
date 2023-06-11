@@ -5,7 +5,7 @@ Feature: Timezone in monitoring
 
 Background:
     Given a user authenticated in a Centreon server
-    And the platform is configured with at least one resource
+#     And the platform is configured with at least one resource
 
 Scenario: Configuring timezone in user's profile
    When the user clicks on Timezone field in his profile menu

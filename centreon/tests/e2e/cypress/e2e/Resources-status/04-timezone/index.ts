@@ -38,7 +38,9 @@ const calculateMinuteInterval = (startDate: Date, endDate: Date): number => {
 };
 
 before(() => {
-  cy.startWebContainer();
+  cy.startWebContainer({
+    version: 'MON-19301-profile-timezone-automated'
+  });
 });
 
 beforeEach(() => {
@@ -68,12 +70,12 @@ beforeEach(() => {
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/monitoring/resources/hosts/*'
-  }).as('getMonitoredHost');
+    url: '/centreon/api/latest/monitoring/resources*'
+  }).as('getMonitoredResource');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/monitoring/hosts/*/services/*/metrics/performance'
-  }).as('getPerformanceMetric');
+    url: '/centreon/api/latest/monitoring/hosts/*/services/*/metrics/performance*'
+  }).as('getMonitoredMetrics');
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/acknowledge'
@@ -425,6 +427,10 @@ When('the user opens a chart from resource status detail panel', () => {
     rootItemNumber: 1
   });
 
+  cy.getByLabel({ label: 'State filter' }).click();
+
+  cy.get('[data-value="all"]').click();
+
   cy.waitUntil(
     () => {
       return cy
@@ -433,6 +439,7 @@ When('the user opens a chart from resource status detail panel', () => {
         .parent()
         .parent()
         .find('.MuiChip-label')
+        .eq(0)
         .then((val) => {
           return val[0].textContent === 'Up';
         });
@@ -445,32 +452,25 @@ When('the user opens a chart from resource status detail panel', () => {
   cy.contains(hostInAcknowledgementName)
     .parent()
     .click()
-    .wait('@getMonitoredHost');
+    .wait('@getMonitoredResource');
 
   cy.getByLabel({ label: 'Graph', tag: 'button' })
+    .eq(2)
     .click()
-    .wait('@getPerformanceMetric');
+    .wait('@getMonitoredResource');
 });
 
 When(
   'the user selects a date and time in the graph tab of detail panel',
   () => {
-    cy.getByLabel({ label: 'Last day' }).click().wait('@getPerformanceMetric');
+    cy.getByLabel({ label: 'Last day' }).click().wait('@getMonitoredMetrics');
   }
 );
 
 Then(
   'the time window of the chart is based on the custom timezone of the user',
   () => {
-    cy.get('.visx-group').then(($graph) => {
-      const graphRect = $graph[0].getBoundingClientRect();
-      const farLeftX = graphRect.left + 10;
-      const farLeftY = graphRect.top + 10;
-      cy.get('body').trigger('mousemove', {
-        clientX: farLeftX,
-        clientY: farLeftY
-      });
-    });
+    cy.get('.visx-group').eq(0).trigger('mouseover', 0, 400);
   }
 );
 
