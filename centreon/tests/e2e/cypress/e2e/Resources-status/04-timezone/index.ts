@@ -7,6 +7,7 @@ import {
 } from '../../../commons';
 import {
   actionBackgroundColors,
+  hostInAcknowledgementName,
   insertDtResources,
   secondServiceInDtName,
   serviceInAcknowledgementName,
@@ -65,6 +66,14 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/monitoring/resources/hosts/*'
+  }).as('getMonitoredHost');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/monitoring/hosts/*/services/*/metrics/performance'
+  }).as('getPerformanceMetric');
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/acknowledge'
@@ -407,6 +416,61 @@ Then(
       });
 
     tearDownResource();
+  }
+);
+
+When('the user opens a chart from resource status detail panel', () => {
+  cy.navigateTo({
+    page: 'Resources Status',
+    rootItemNumber: 1
+  });
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains(hostInAcknowledgementName))
+        .parent()
+        .parent()
+        .find('.MuiChip-label')
+        .then((val) => {
+          return val[0].textContent === 'Up';
+        });
+    },
+    {
+      timeout: 15000
+    }
+  );
+
+  cy.contains(hostInAcknowledgementName)
+    .parent()
+    .click()
+    .wait('@getMonitoredHost');
+
+  cy.getByLabel({ label: 'Graph', tag: 'button' })
+    .click()
+    .wait('@getPerformanceMetric');
+});
+
+When(
+  'the user selects a date and time in the graph tab of detail panel',
+  () => {
+    cy.getByLabel({ label: 'Last day' }).click().wait('@getPerformanceMetric');
+  }
+);
+
+Then(
+  'the time window of the chart is based on the custom timezone of the user',
+  () => {
+    cy.get('.visx-group').then(($graph) => {
+      const graphRect = $graph[0].getBoundingClientRect();
+      const farLeftX = graphRect.left + 10;
+      const farLeftY = graphRect.top + 10;
+      cy.get('body').trigger('mousemove', {
+        clientX: farLeftX,
+        clientY: farLeftY
+      });
+    });
   }
 );
 
