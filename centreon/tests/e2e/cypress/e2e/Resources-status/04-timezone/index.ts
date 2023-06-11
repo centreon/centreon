@@ -22,7 +22,8 @@ const roundDateTime = (date: Date): string => {
     date.getMonth(),
     date.getDate(),
     date.getHours(),
-    Math.ceil(date.getMinutes())
+    Math.ceil(date.getMinutes()),
+    Math.ceil(date.getSeconds()) - 10
   ).toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit'
