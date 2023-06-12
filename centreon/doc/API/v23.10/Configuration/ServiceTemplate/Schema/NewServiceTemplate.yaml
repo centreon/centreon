@@ -245,6 +245,13 @@ properties:
     description: "Severity ID."
     minimum: 1
     nullable: true
+  host_templates:
+    type: array
+    descriptions: "IDs of host templates linked to this service template."
+    items:
+      type: integer
+      description: "Host template ID"
+    example: [ 1, 2 ]
   is_activated:
     type: boolean
     description: "Indicates whether the service template is activated or not"
