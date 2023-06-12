@@ -236,5 +236,15 @@ properties:
     description: "Indicates whether the host template is activated or not"
   categories:
     type: array
+    items:
+      type: integer
     description: "Define the host category IDs that should be associated with this host template"
     example: [1, 15, 8]
+  templates:
+    type: array
+    items:
+      type: integer
+    description: |
+      Define the parent host templates IDs that should be associated with this host template.
+      The order of the IDs determine the inheritance priority order.
+    example: [3, 12]

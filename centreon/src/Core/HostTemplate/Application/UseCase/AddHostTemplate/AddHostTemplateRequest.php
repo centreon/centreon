@@ -105,4 +105,7 @@ final class AddHostTemplateRequest
 
     /** @var int[] */
     public array $categories = [];
+
+    /** @var int[] */
+    public array $templates = [];
 }

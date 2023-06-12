@@ -393,6 +393,36 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
+    public function exist(array $hostTemplateIds): array
+    {
+        $this->info('Check existence of host templates', ['host_template_ids' => $hostTemplateIds]);
+
+        if ($hostTemplateIds === []) {
+            return [];
+        }
+
+        $concatenator = new SqlConcatenator();
+        $concatenator
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT `host_id` FROM `:db`.`host`
+                    SQL
+            )
+            ->appendWhere('host_id IN (:host_template_ids)')
+            ->appendWhere('host_register = :hostTemplateType')
+            ->storeBindValueMultiple(':host_template_ids', $hostTemplateIds, \PDO::PARAM_INT)
+            ->storeBindValue(':hostTemplateType', HostType::Template->value, \PDO::PARAM_STR);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function existsByName(string $hostTemplateName): bool
     {
         $this->info('Check existence of host template with name #' . $hostTemplateName);
@@ -430,6 +460,42 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNamesByIds(array $hostTemplateIds): array
+    {
+        $this->info('Find names for host templates', ['host_template_ids' => $hostTemplateIds]);
+
+        if ($hostTemplateIds === []) {
+            return [];
+        }
+
+        $concatenator = new SqlConcatenator();
+        $concatenator
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT `host_id`, `host_name` FROM `:db`.`host`
+                    SQL
+            )
+            ->appendWhere('host_id IN (:host_template_ids)')
+            ->appendWhere('host_register = :hostTemplateType')
+            ->storeBindValueMultiple(':host_template_ids', $hostTemplateIds, \PDO::PARAM_INT)
+            ->storeBindValue(':hostTemplateType', HostType::Template->value, \PDO::PARAM_STR);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $nameById = [];
+        foreach ($results as $row) {
+            $nameById[(int) $row['host_id']] = $row['host_name'];
+        }
+
+        return $nameById;
     }
 
     /**
