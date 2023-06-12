@@ -427,35 +427,35 @@ When('the user opens a chart from resource status detail panel', () => {
     rootItemNumber: 1
   });
 
-  cy.getByLabel({ label: 'State filter' }).click();
-
-  cy.get('[data-value="all"]').click();
-
-  cy.waitUntil(
-    () => {
-      return cy
-        .refreshListing()
-        .then(() => cy.contains(hostInAcknowledgementName))
-        .parent()
-        .parent()
-        .find('.MuiChip-label')
-        .eq(0)
-        .then((val) => {
-          return val[0].textContent === 'Up';
-        });
-    },
-    {
-      timeout: 15000
-    }
-  );
+  updateFixturesResult().then((submitResult) => {
+    submitResultsViaClapi(submitResult).then(() => {
+      cy.waitUntil(
+        () => {
+          return cy
+            .refreshListing()
+            .then(() => cy.contains(hostInAcknowledgementName))
+            .parent()
+            .parent()
+            .find('.MuiChip-label')
+            .eq(0)
+            .then((val) => {
+              return val[0].textContent === 'Up';
+            });
+        },
+        {
+          timeout: 15000
+        }
+      );
+    });
+  });
 
   cy.contains(hostInAcknowledgementName)
     .parent()
     .click()
     .wait('@getMonitoredResource');
 
-  cy.getByLabel({ label: 'Graph', tag: 'button' })
-    .eq(2)
+  cy.getByLabel({ label: 'Graph' })
+    .contains('Graph')
     .click()
     .wait('@getMonitoredResource');
 });
@@ -470,10 +470,15 @@ When(
 Then(
   'the time window of the chart is based on the custom timezone of the user',
   () => {
-    cy.get('.visx-group').eq(0).trigger('mouseover', 0, 400);
+    cy.getTimeFromHeader().then((time) => {
+      cy.get('.visx-axis-bottom')
+        .find('g')
+        .last()
+        .should('contain.text', time.split(':')[0]);
+    });
   }
 );
 
 after(() => {
-  cy.stopWebContainer();
+  // cy.stopWebContainer();
 });

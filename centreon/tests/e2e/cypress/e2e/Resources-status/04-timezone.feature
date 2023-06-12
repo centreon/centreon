@@ -5,7 +5,7 @@ Feature: Timezone in monitoring
 
 Background:
     Given a user authenticated in a Centreon server
-#     And the platform is configured with at least one resource
+    And the platform is configured with at least one resource
 
 Scenario: Configuring timezone in user's profile
    When the user clicks on Timezone field in his profile menu
@@ -24,10 +24,10 @@ Scenario: Configuring timezone in user's profile
 #   When the user creates a downtime on a resource in Monitoring>Downtime
 #   Then date and time fields should be based on the custom timezone of the user in Monitoring>Downtime
 
-# Scenario: User can set a acknowledgement with a custom timezone in Monitoring>Resource Status
-#   Given a user with a custom timezone set in his profile
-#   When the user creates an acknowledgement on a resource
-#   Then date and time fields of acknowledge resource should be based on the custom timezone of the user
+Scenario: User can set a acknowledgement with a custom timezone in Monitoring>Resource Status
+  Given a user with a custom timezone set in his profile
+  When the user creates an acknowledgement on a resource
+  Then date and time fields of acknowledge resource should be based on the custom timezone of the user
 
 Scenario: User can visualize charts in detail panel with a custom timezone
   Given a user with a custom timezone set in his profile
