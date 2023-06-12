@@ -61,3 +61,19 @@ get:
       $ref: '../../Common/Response/NotFound.yaml'
     '500':
       $ref: '../../Common/Response/InternalServerError.yaml'
+
+delete:
+  tags:
+    - Notification
+  summary: "Delete a notification"
+  description: |
+    Delete a notification
+
+    `Since Centreon web 23.10`
+  parameters:
+    - $ref: 'QueryParameter/NotificationId.yaml'
+  responses:
+    '204': { $ref: '../../Common/Response/NoContent.yaml' }
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }

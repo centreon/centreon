@@ -59,4 +59,13 @@ interface WriteNotificationRepositoryInterface
      * @throws \Throwable
      */
     public function addUsers(int $notificationId, array $userIds): void;
+
+    /**
+     * Delete a notification
+     *
+     * @param int $notificationId
+     *
+     * @throws \Throwable
+     */
+    public function delete(int $notificationId):void;
 }
