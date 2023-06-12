@@ -5,6 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 import { FormikValues, useFormikContext } from 'formik';
 import { or, equals } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Box } from '@mui/material';
 import SaveIcon from '@mui/icons-material/SaveOutlined';
@@ -18,7 +19,7 @@ import {
 } from '@centreon/ui';
 
 import { EditedNotificationIdAtom, panelModeAtom } from '../../atom';
-import { isPanelOpenAtom, reloadAtom } from '../../../atom';
+import { isPanelOpenAtom } from '../../../atom';
 import {
   labelSave,
   labelSuccessfulEditNotification,
@@ -43,11 +44,11 @@ const SaveAction = (): JSX.Element => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
   const { values, isValid, dirty } = useFormikContext<FormikValues>();
+  const queryClient = useQueryClient();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const panelMode = useAtomValue(panelModeAtom);
   const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
-  const setReload = useSetAtom(reloadAtom);
   const setPanelOpen = useSetAtom(isPanelOpenAtom);
 
   const { isMutating, mutateAsync } = useMutationQuery({
@@ -75,7 +76,8 @@ const SaveAction = (): JSX.Element => {
       showSuccessMessage(t(labelMessage));
       setDialogOpen(false);
       setPanelOpen(false);
-      setReload(true);
+      queryClient.invalidateQueries(['notificationsListing']);
+      queryClient.invalidateQueries(['notifications']);
     });
   };
 

@@ -13,8 +13,7 @@ import {
   sortFieldAtom,
   panelWidthStorageAtom,
   selectedRowsAtom,
-  notificationsNamesAtom,
-  reloadAtom
+  notificationsNamesAtom
 } from '../atom';
 import { EditedNotificationIdAtom, panelModeAtom } from '../EditPanel/atom';
 import { PanelMode } from '../EditPanel/models';
@@ -38,7 +37,6 @@ const NotificationsListing = (): JSX.Element => {
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
-  const [reload, setReload] = useAtom(reloadAtom);
   const [isPannelOpen, setIsPannelOpen] = useAtom(isPanelOpenAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const setLimit = useSetAtom(limitAtom);
@@ -49,11 +47,8 @@ const NotificationsListing = (): JSX.Element => {
   const { loading, data: listingData, refetch } = useLoadingNotifications();
 
   useEffect(() => {
-    if (reload) {
-      refetch();
-      setReload(false);
-    }
-  }, [reload]);
+    refetch();
+  }, []);
 
   useEffect(() => {
     if (listingData) {
