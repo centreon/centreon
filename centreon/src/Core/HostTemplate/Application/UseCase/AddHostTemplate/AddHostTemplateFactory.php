@@ -33,13 +33,17 @@ final class AddHostTemplateFactory
     /**
      * @param HostTemplate $hostTemplate
      * @param HostCategory[] $hostCategories
+     * @param array<array{id:int,name:string}> $parentTemplates
      *
      * @throws \Throwable
      *
      * @return AddHostTemplateResponse
      */
-    public static function createResponse(HostTemplate $hostTemplate, array $hostCategories): AddHostTemplateResponse
-    {
+    public static function createResponse(
+        HostTemplate $hostTemplate,
+        array $hostCategories,
+        array $parentTemplates,
+    ): AddHostTemplateResponse {
         $dto = new AddHostTemplateResponse();
 
         $dto->id = $hostTemplate->getId();
@@ -86,6 +90,11 @@ final class AddHostTemplateFactory
         $dto->categories = array_map(
             fn(HostCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
             $hostCategories
+        );
+
+        $dto->templates = array_map(
+            fn($template) => ['id' => $template['id'], 'name' => $template['name']],
+            $parentTemplates
         );
 
         return $dto;

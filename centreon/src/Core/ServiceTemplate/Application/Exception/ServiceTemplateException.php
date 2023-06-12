@@ -95,6 +95,14 @@ class ServiceTemplateException extends \Exception
     }
 
     /**
+     * @return self
+     */
+    public static function errorWhileUpdating(): self
+    {
+        return new self(_('Error while updating a service template'));
+    }
+
+    /**
      * @param \Throwable $ex
      *
      * @return self
@@ -123,6 +131,24 @@ class ServiceTemplateException extends \Exception
     }
 
     /**
+     * @param string $propertyName
+     * @param list<int> $propertyValue
+     *
+     * @return self
+     */
+    public static function idsDoesNotExist(string $propertyName, array $propertyValue): self
+    {
+        return new self(
+            sprintf(
+                _('The %s does not exist with id(s) \'%s\''),
+                $propertyName,
+                implode(',', $propertyValue)
+            ),
+            self::CODE_CONFLICT
+        );
+    }
+
+    /**
      * @param string $serviceTemplateName
      *
      * @return self
@@ -135,5 +161,13 @@ class ServiceTemplateException extends \Exception
                 $serviceTemplateName
             )
         );
+    }
+
+    /**
+     * @return self
+     */
+    public static function updateNotAllowed(): self
+    {
+        return new self(_('You are not allowed to update a service template'));
     }
 }

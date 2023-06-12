@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -41,10 +42,12 @@ final class FindDashboard
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
+        private readonly ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly ContactInterface $contact
-    ) {
+    )
+    {
     }
 
     /**
@@ -64,21 +67,21 @@ final class FindDashboard
 
             if ($response instanceof FindDashboardResponse) {
                 $this->info('Find dashboard', ['id' => $dashboardId]);
-                $presenter->presentResponse($response);
             } elseif ($response instanceof NotFoundResponse) {
                 $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
-                $presenter->presentResponse($response);
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to see the dashboard",
                     ['user_id' => $this->contact->getId()]
                 );
-                $presenter->presentResponse($response);
             }
+
+            $presenter->presentResponse($response);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(DashboardException::errorWhileRetrieving()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
+
     }
 
     /**
@@ -130,33 +133,19 @@ final class FindDashboard
     /**
      * @param Dashboard $dashboard
      *
+     * @throws \Throwable
+     *
      * @return FindDashboardResponse
      */
     private function createResponse(Dashboard $dashboard): FindDashboardResponse
     {
         $contactIds = $this->extractAllContactIdsFromDashboard($dashboard);
-        $contactNames = $this->readContactRepository->findNamesByIds(...$contactIds);
 
-        $response = new FindDashboardResponse();
-
-        $response->id = $dashboard->getId();
-        $response->name = $dashboard->getName();
-        $response->description = $dashboard->getDescription();
-        $response->createdAt = $dashboard->getCreatedAt();
-        $response->updatedAt = $dashboard->getUpdatedAt();
-
-        if (null !== ($contactId = $dashboard->getCreatedBy())) {
-            $response->createdBy = new FindDashboardUserDto();
-            $response->createdBy->id = $contactId;
-            $response->createdBy->name = $contactNames[$contactId]['name'] ?? '';
-        }
-        if (null !== ($contactId = $dashboard->getCreatedBy())) {
-            $response->updatedBy = new FindDashboardUserDto();
-            $response->updatedBy->id = $contactId;
-            $response->updatedBy->name = $contactNames[$contactId]['name'] ?? '';
-        }
-
-        return $response;
+        return FindDashboardFactory::createResponse(
+            dashboard: $dashboard,
+            contactNames: $this->readContactRepository->findNamesByIds(...$contactIds),
+            panels: $this->readDashboardPanelRepository->findPanelsByDashboardId($dashboard->getId())
+        );
     }
 
     /**
