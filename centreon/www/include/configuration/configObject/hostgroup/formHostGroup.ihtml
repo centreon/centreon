@@ -72,7 +72,7 @@
             <tr class="list_two">
                 <td class="FormRowField"><img class="helpTooltip" name="icon_image"> {$form.hg_icon_image.label}</td>
                 <td class="FormRowValue"><p class="oreonbutton">{$form.hg_icon_image.html}&nbsp;&nbsp;<img
-                        id='hg_icon_image_img' src='./img/blank.gif'></p></td>
+                        id='hg_icon_image_img' src='./img/blank.gif' class="img_box" ></p></td>
             </tr>
             <tr class="list_one">
                 <td class="FormRowField"><img class="helpTooltip" name="statusmap_image">

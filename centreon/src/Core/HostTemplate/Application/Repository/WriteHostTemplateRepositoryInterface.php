@@ -42,4 +42,15 @@ interface WriteHostTemplateRepositoryInterface
      * @return int
      */
     public function add(NewHostTemplate $hostTemplate): int;
+
+    /**
+     * Link a parent template to a child host(or another hostTemplate).
+     *
+     * @param int $childId host or host template to be linked as a child
+     * @param int $parentId host template to be linked as a parent
+     * @param int $order order of inheritance of the parent
+     *
+     * @throws \Throwable
+     */
+    public function addParent(int $childId, int $parentId, int $order): void;
 }

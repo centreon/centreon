@@ -20,6 +20,9 @@ on:
       environment:
         description: "environment deployed"
         value: ${{ jobs.get-version.outputs.environment }}
+      dockerize_matrix:
+        description: "matrix to use for dockerize job"
+        value: ${{ jobs.get-version.outputs.dockerize_matrix }}
 jobs:
   get-version:
     runs-on: ubuntu-22.04
@@ -29,6 +32,7 @@ jobs:
       release: ${{ steps.get_version.outputs.release }}
       stability: ${{ steps.get_version.outputs.stability }}
       environment: ${{ steps.get_version.outputs.env }}
+      dockerize_matrix: ${{ steps.get_version.outputs.dockerize_matrix }}
 
     steps:
       - uses: actions/checkout@v3
@@ -111,5 +115,10 @@ jobs:
           esac
           echo "stability=$STABILITY" >> $GITHUB_OUTPUT
           echo "env=$MAJOR-$ENV" >> $GITHUB_OUTPUT
-          echo "GH_ENV: $ENV"
+
+          DOCKERIZE_MATRIX='["alma9"]'
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            DOCKERIZE_MATRIX='["alma8","alma9","bullseye"]'
+          fi
+          echo "dockerize_matrix=$DOCKERIZE_MATRIX" >> $GITHUB_OUTPUT
         shell: bash

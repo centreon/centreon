@@ -153,6 +153,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                     ON sc.sc_id = scr.sc_id
                     AND sc.level IS NOT NULL
                 WHERE service.service_id = :id
+                    AND service.service_register = '0'
             SQL;
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
@@ -262,7 +263,13 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     public function exists(int $serviceTemplateId): bool
     {
-        $request = $this->translateDbName('SELECT 1 FROM `:db`.service WHERE service_id = :id');
+        $request = $this->translateDbName(<<<'SQL'
+            SELECT 1
+            FROM `:db`.service
+            WHERE service_id = :id
+                AND service_register = '0'
+            SQL
+        );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
         $statement->execute();
@@ -275,7 +282,13 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     public function existsByName(TrimmedString $serviceTemplateName): bool
     {
-        $request = $this->translateDbName('SELECT 1 FROM `:db`.service WHERE service_description = :name');
+        $request = $this->translateDbName(<<<'SQL'
+            SELECT 1
+            FROM `:db`.service
+            WHERE service_description = :name
+                AND service_register = '0'
+            SQL
+        );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':name', (string) $serviceTemplateName);
         $statement->execute();

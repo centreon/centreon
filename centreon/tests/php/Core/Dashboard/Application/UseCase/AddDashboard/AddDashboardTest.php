@@ -40,7 +40,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
-    $this->presenter = new AddDashboardPresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $this->presenter = new AddDashboardPresenterStub();
     $this->useCase = new AddDashboard(
         $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class),
         $this->writeDashboardRepository = $this->createMock(WriteDashboardRepositoryInterface::class),

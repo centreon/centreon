@@ -41,7 +41,7 @@ beforeEach(function (): void {
     $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class);
     $this->contact = $this->createMock(ContactInterface::class);
 
-    $this->presenter = new FindDashboardsPresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $this->presenter = new FindDashboardsPresenterStub();
     $this->useCase = new FindDashboards(
         $this->readDashboardRepository,
         $this->createMock(ReadAccessGroupRepositoryInterface::class),

@@ -33,7 +33,7 @@ class CloudPlatformContext extends FeatureFlagContext
     public function aRunningCloudPlatformInstanceOfCentreonApi(): void
     {
         $this->aRunningInstanceOfCentreonApi();
-        $this->setEnvironmentVariableInsideTheContainer(['IS_CLOUD_PLATFORM' => 1]);
+        $this->setEnvironmentVariableInsideTheContainer(['IS_CLOUD_PLATFORM' => true]);
     }
 
     /**
@@ -50,24 +50,23 @@ class CloudPlatformContext extends FeatureFlagContext
     protected function setEnvironmentVariableInsideTheContainer(array $envars): void
     {
         $centreonDir = '/usr/share/centreon';
-        $envvarsExported = var_export($envars, true);
+        $envVarsExported = var_export($envars, true);
 
         $phpScript = <<<PHP
-            \$php = '{$centreonDir}/.env.local.php';
-            \$env = '{$centreonDir}/.env';
-            if (is_file(\$php)){
-                \$a = require \$php;
-            }else{
-                is_file(\$env) ?: throw new Exception("\$env Not Found.");
-                \$a = [];
-                foreach (file(\$env) as \$l){
-                    if (preg_match('!^([^#]+?)=(.+)$!', trim(\$l), \$m)){
-                        \$a[\$m[1]] = \$m[2];
-                    }
-                }
+            require_once '{$centreonDir}/vendor/autoload.php';
+            require_once '{$centreonDir}/config/centreon.config.php';
+
+            use Symfony\Component\Dotenv\Dotenv;
+
+            \$env = new \Utility\EnvironmentFileManager(_CENTREON_PATH_);
+            \$env->load();
+            foreach({$envVarsExported} as \$envVarKey => \$envVarValue) {
+                \$env->add(\$envVarKey, \$envVarValue);
             }
-            \$a = array_merge(\$a, {$envvarsExported});
-            file_put_contents(\$php, "<?php return ".var_export(\$a,true).";");
+            \$env->add('IS_CLOUD_PLATFORM', true);
+            \$env->save();
+
+            (new Dotenv())->bootEnv('{$centreonDir}/.env', 'dev', ['test'], true);
             PHP;
 
         // We MUST remove the linefeed (\n) to be a valid oneline command.
@@ -76,6 +75,21 @@ class CloudPlatformContext extends FeatureFlagContext
         // Do not forget to escape special chars !
         $this->container->execute(
             'php -r ' . escapeshellarg($phpOneline) . ' 2>&1',
+            $this->webService
+        );
+
+        $result = $this->container->execute(
+            'ps aux | grep -E "[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx" | grep -v root | head -1 | cut -d\  -f1',
+            $this->webService
+        );
+        if (!isset($result['output'])) {
+            throw new \Exception('Cannot get apache user');
+        }
+        $apacheUser = $result['output'];
+
+        // Reload symfony cache to use updated environment variables
+        $this->container->execute(
+            'su ' . $apacheUser . ' -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"',
             $this->webService
         );
     }

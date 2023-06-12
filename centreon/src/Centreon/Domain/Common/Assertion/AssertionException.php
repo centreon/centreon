@@ -35,6 +35,8 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const INVALID_INSTANCE_OF = Assert::INVALID_INSTANCE_OF;
     public const INVALID_IP = Assert::INVALID_IP;
     public const INVALID_IP_OR_DOMAIN = 1002;
+    public const INVALID_ARRAY_JSON_ENCODABLE = 1004;
+    public const INVALID_JSON_STRING = Assert::INVALID_JSON_STRING;
     public const INVALID_MAX = Assert::INVALID_MAX;
     public const INVALID_MAX_DATE = 1001;
     public const INVALID_MAX_LENGTH = Assert::INVALID_MAX_LENGTH;
@@ -503,6 +505,44 @@ class AssertionException extends \Assert\InvalidArgumentException
             self::INVALID_IP,
             $propertyPath,
             $value
+        );
+    }
+
+    /**
+     * Exception when the value is not a valid JSON string.
+     *
+     * @param string|null $propertyPath Property's path (ex: Host::name)
+     *
+     * @return self
+     */
+    public static function invalidJsonString(?string $propertyPath = null): self
+    {
+        return new self(
+            sprintf(
+                _('[%s] The value is not a valid JSON string'),
+                $propertyPath
+            ),
+            self::INVALID_JSON_STRING,
+            $propertyPath
+        );
+    }
+
+    /**
+     * Exception when the value is not encodable to a valid JSON string.
+     *
+     * @param string|null $propertyPath Property's path (ex: Host::name)
+     *
+     * @return self
+     */
+    public static function notJsonEncodable(?string $propertyPath = null): self
+    {
+        return new self(
+            sprintf(
+                _('[%s] The value cannot be encoded to a valid JSON string'),
+                $propertyPath
+            ),
+            self::INVALID_ARRAY_JSON_ENCODABLE,
+            $propertyPath
         );
     }
 }

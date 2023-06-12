@@ -4,6 +4,9 @@ inputs:
   name:
     description: "test name"
     required: true
+  web_image_os:
+    description: "Web image operating system"
+    required: true
   web_image_version:
     description: "Web image version"
     required: true
@@ -47,6 +50,7 @@ runs:
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@v5
       env:
+        CYPRESS_WEB_IMAGE_OS: ${{ inputs.web_image_os }}
         CYPRESS_WEB_IMAGE_VERSION: ${{ inputs.web_image_version }}
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
       with:

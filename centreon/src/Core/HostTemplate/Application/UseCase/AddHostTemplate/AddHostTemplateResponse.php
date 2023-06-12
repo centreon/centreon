@@ -23,9 +23,6 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application\UseCase\AddHostTemplate;
 
-use Core\Common\Application\Converter\YesNoDefaultConverter;
-use Core\Common\Domain\YesNoDefault;
-
 final class AddHostTemplateResponse
 {
     public int $id = 0;
@@ -109,4 +106,10 @@ final class AddHostTemplateResponse
     public bool $isActivated = true;
 
     public bool $isLocked = false;
+
+    /** @var array<array{id:int,name:string}> */
+    public array $categories = [];
+
+    /** @var array<array{id:int,name:string}> */
+    public array $templates = [];
 }
