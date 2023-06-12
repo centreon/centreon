@@ -3,13 +3,7 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import { loginAsAdminViaApiV2 } from '../../../commons';
 
 before(() => {
-  cy.startWebContainer({
-    version: 'develop'
-  });
-  cy.execInContainer({
-    command: "sed -i 's@0@1@' /usr/share/centreon/config/features.json",
-    name: 'centreon-dev'
-  });
+  cy.startWebContainer();
 });
 
 beforeEach(() => {
