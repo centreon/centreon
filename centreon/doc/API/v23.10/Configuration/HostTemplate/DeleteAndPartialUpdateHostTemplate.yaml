@@ -44,5 +44,7 @@ patch:
       $ref: '../../Common/Response/Forbidden.yaml'
     '404':
       $ref: '../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../Common/Response/Conflict.yaml'
     '500':
       $ref: '../../Common/Response/InternalServerError.yaml'
