@@ -99,15 +99,10 @@ abstract class AbstractController extends AbstractFOSRestController
      */
     protected function validateDataSent(Request $request, string $jsonValidationFile): void
     {
-        $receivedData = json_decode((string) $request->getContent(), true);
-        if (!is_array($receivedData)) {
+        // We want to enforce the decoding as possible objects.
+        $receivedData = json_decode((string) $request->getContent(), false);
+        if (!is_array($receivedData) && ! ($receivedData instanceof \stdClass)) {
             throw new \InvalidArgumentException('Error when decoding your sent data');
-        }
-
-        if (\array_is_list($receivedData)){
-            $receivedData = array_map(Validator::arrayToObjectRecursive(...), $receivedData);
-        } else {
-            $receivedData = Validator::arrayToObjectRecursive($receivedData);
         }
 
         $validator = new Validator();
