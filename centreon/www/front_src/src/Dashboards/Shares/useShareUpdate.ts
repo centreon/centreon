@@ -17,7 +17,7 @@ import {
   DashboardShareToAPI
 } from '../models';
 
-import { labelUserRolesIsUpdated } from './translatedLabels';
+import { labelUserRolesAreUpdated } from './translatedLabels';
 import { pageAtom } from './SharesList';
 
 interface UseUpdateSharesState {
@@ -79,7 +79,7 @@ const useShareUpdate = (dashboardId?: number): UseUpdateSharesState => {
     const formattedShares = formatSharesToAPI(newShares);
 
     mutateAsync(formattedShares).then(() => {
-      showSuccessMessage(t(labelUserRolesIsUpdated));
+      showSuccessMessage(t(labelUserRolesAreUpdated));
       queryClient.invalidateQueries({
         queryKey: ['dashboard_shares']
       });
