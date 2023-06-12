@@ -15822,3 +15822,6 @@ msgstr ""
 
 # msgid "Share the dashboard"
 # msgstr ""
+
+# msgid "User roles are updated"
+# msgstr ""
