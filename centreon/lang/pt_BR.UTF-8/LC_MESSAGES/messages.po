@@ -16205,6 +16205,9 @@ msgstr ""
 # msgid "Error while updating a dashboard"
 # msgstr ""
 
+# msgid "Error while trying to update a dashboard panel which belongs to another dashboard"
+# msgstr ""
+
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
 #msgid "Unblock"
 #msgstr ""
@@ -16278,6 +16281,9 @@ msgstr ""
 # msgid "If you leave {{dashboardName}}, your changes will not be saved."
 # msgstr ""
 
+# msgid "Your dashboard has been saved"
+# msgstr ""
+
 #  msgid "You are not allowed to add a service template"
 #  msgstr ""
 
@@ -16297,4 +16303,16 @@ msgstr ""
 #  msgstr ""
 
 #  msgid "The %s does not exist with id(s) '%s'"
+#  msgstr ""
+
+#  msgid "Error while partially updating a host template"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write actions on host templates"
+#  msgstr ""
+
+#  msgid "Host template #%d not found"
+#  msgstr ""
+
+#  msgid "Circular inheritance not allowed"
 #  msgstr ""

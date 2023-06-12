@@ -17703,6 +17703,9 @@ msgstr "Erreur durant la suppression d'un tableau de bord"
 msgid "Error while updating a dashboard"
 msgstr "Erreur lors de la mise à jour d'un tableau de bord"
 
+msgid "Error while trying to update a dashboard panel which belongs to another dashboard"
+msgstr "Erreur lors d'une tentative de mise à jour d'un panneau de tableau de bord qui appartient à un autre tableau de bord"
+
 msgid "Error while searching for host templates"
 msgstr "Erreur lors de la recherche des modèles d'hôtes"
 
@@ -17772,6 +17775,9 @@ msgstr "Si vous quittez le mode édition, vos changements ne seront pas sauvegar
 msgid "If you leave {{dashboardName}}, your changes will not be saved."
 msgstr "Si vous quittez {{dashboardName}}, vos changements ne seront pas sauvegardés."
 
+msgid "Your dashboard has been saved"
+msgstr "Votre tableau de bord a été sauvegardé"
+
 msgid "Unable to parse authorization url"
 msgstr "Impossible d'analyser l'URL d'autorisation"
 
@@ -17801,3 +17807,15 @@ msgstr "Erreur lors de la liaison de catégories d'hôte à un modèle d'hôte"
 
 msgid "The %s does not exist with ID(s) '%s'"
 msgstr "Le champ %s n'existe pas avec le(s) ID(s) '%s'"
+
+msgid "Error while partially updating a host template"
+msgstr "Erreur lors de la modification partielle d'un modèle d'hôte"
+
+msgid "You are not allowed to perform write actions on host templates"
+msgstr "Vous n'êtes pas autorisé à effectuer des actions d'écriture sur les modèles d'hôte"
+
+msgid "Host template #%d not found"
+msgstr "Modèle d'hôte #%d introuvable"
+
+msgid "Circular inheritance not allowed"
+msgstr "Héritage circulaire non autorisé"

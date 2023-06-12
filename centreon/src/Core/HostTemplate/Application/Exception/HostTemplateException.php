@@ -64,6 +64,14 @@ class HostTemplateException extends \Exception
     /**
      * @return self
      */
+    public static function partialUpdateHostTemplate(): self
+    {
+        return new self(_('Error while partially updating a host template'));
+    }
+
+    /**
+     * @return self
+     */
     public static function accessNotAllowed(): self
     {
         return new self(_('You are not allowed to access host templates'));
@@ -83,6 +91,24 @@ class HostTemplateException extends \Exception
     public static function addNotAllowed(): self
     {
         return new self(_('You are not allowed to add host templates'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function writeActionsNotAllowed(): self
+    {
+        return new self(_('You are not allowed to perform write actions on host templates'));
+    }
+
+    /**
+     * @param int $hostTemplateId
+     *
+     * @return self
+     */
+    public static function notFound(int $hostTemplateId): self
+    {
+        return new self(sprintf(_('Host template #%d not found'), $hostTemplateId));
     }
 
     /**
@@ -122,7 +148,10 @@ class HostTemplateException extends \Exception
      */
     public static function nameAlreadyExists(string $formatedName, string $originalName = 'undefined'): self
     {
-        return new self(sprintf(_('The name %s (original name: %s) already exists'), $formatedName, $originalName), self::CODE_CONFLICT);
+        return new self(
+            sprintf(_('The name %s (original name: %s) already exists'), $formatedName, $originalName),
+            self::CODE_CONFLICT
+        );
     }
 
     /**
@@ -141,6 +170,14 @@ class HostTemplateException extends \Exception
     public static function hostIsLocked(int $hostTemplateId): self
     {
         return new self(sprintf(_('Host template #%d is locked (edition and deletion not allowed)'), $hostTemplateId));
+    }
+
+    /**
+     * @return self
+     */
+    public static function circularTemplateInheritance(): self
+    {
+        return new self(_('Circular inheritance not allowed'), self::CODE_CONFLICT);
     }
 }
 

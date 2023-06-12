@@ -109,4 +109,7 @@ final class AddHostTemplateResponse
 
     /** @var array<array{id:int,name:string}> */
     public array $categories = [];
+
+    /** @var array<array{id:int,name:string}> */
+    public array $templates = [];
 }
