@@ -870,6 +870,14 @@ form#AjaxBankBasic {
     height: 12px;
 }
 
+.img_box {
+    margin: 0px;
+    padding: 0px;
+    width: 26px;
+    height: 26px;
+    position: absolute;
+}
+
 /* ------- END : Table -----------*/
 
 
