@@ -27,12 +27,14 @@ const PageContainer = styled('div')(() => ({
 }));
 
 interface IsAllowedPageProps {
-  allowedPages: Array<string | Array<string>>;
-  path: string;
+  allowedPages?: Array<string | Array<string>>;
+  path?: string;
 }
 
 const isAllowedPage = ({ path, allowedPages }: IsAllowedPageProps): boolean =>
-  flatten(allowedPages).some((allowedPage) => path.includes(allowedPage));
+  flatten(allowedPages || []).some((allowedPage) =>
+    path?.includes(allowedPage)
+  );
 
 const getExternalPageRoutes = ({
   allowedPages,

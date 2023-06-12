@@ -23,12 +23,46 @@ declare(strict_types=1);
 
 namespace Core\ServiceTemplate\Application\Repository;
 
+use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
+
 interface WriteServiceTemplateRepositoryInterface
 {
     /**
      * Delete a service template by ID.
      *
      * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
      */
     public function deleteById(int $serviceTemplateId): void;
+
+    /**
+     * Add a new service template.
+     *
+     * @param NewServiceTemplate $newServiceTemplate
+     *
+     * @throws \Throwable
+     *
+     * @return int
+     */
+    public function add(NewServiceTemplate $newServiceTemplate): int;
+
+    /**
+     * Link the service template to host templates.
+     *
+     * @param int $serviceTemplateId
+     * @param list<int> $hostTemplateIds
+     *
+     * @throws \Throwable
+     */
+    public function linkToHostTemplates(int $serviceTemplateId, array $hostTemplateIds): void;
+
+    /**
+     * Unlink all host templates from the service template.
+     *
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     */
+    public function unlinkHostTemplates(int $serviceTemplateId): void;
 }

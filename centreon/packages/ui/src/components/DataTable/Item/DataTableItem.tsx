@@ -59,6 +59,7 @@ const DataTableItem = forwardRef(
           <MuiCardActions>
             <IconButton
               aria-label="edit"
+              data-testid="edit"
               icon={<EditIcon />}
               size="small"
               variant="primary"
@@ -66,6 +67,7 @@ const DataTableItem = forwardRef(
             />
             <IconButton
               aria-label="delete"
+              data-testid="delete"
               icon={<DeleteIcon />}
               size="small"
               variant="ghost"

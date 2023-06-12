@@ -66,7 +66,6 @@ beforeEach(closure: function (): void {
         YesNoDefault::No,
         YesNoDefault::Default,
         YesNoDefault::Yes,
-        'description',
         'comment',
         'note',
         'note_url',

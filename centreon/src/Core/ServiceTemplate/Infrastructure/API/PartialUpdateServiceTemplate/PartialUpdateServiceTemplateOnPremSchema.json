@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Partial update of a service template on an 'on premise' platform",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "host_templates": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        }
+    }
+}

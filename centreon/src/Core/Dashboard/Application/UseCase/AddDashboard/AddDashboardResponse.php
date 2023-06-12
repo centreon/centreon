@@ -23,25 +23,18 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\AddDashboard;
 
+use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
+
 final class AddDashboardResponse
 {
-    public int $id = 0;
-
-    public string $name = '';
-
-    public string $description = '';
-
-    public ?AddDashboardUserDto $createdBy = null;
-
-    public ?AddDashboardUserDto $updatedBy = null;
-
-    public \DateTimeImmutable $createdAt;
-
-    public \DateTimeImmutable $updatedAt;
-
-    public function __construct()
-    {
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+    public function __construct(
+        public int $id = 0,
+        public string $name = '',
+        public string $description = '',
+        public ?UserResponseDto $createdBy = null,
+        public ?UserResponseDto $updatedBy = null,
+        public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
+        public \DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
+    ) {
     }
 }

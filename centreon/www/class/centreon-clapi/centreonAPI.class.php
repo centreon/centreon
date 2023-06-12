@@ -559,7 +559,8 @@ class CentreonAPI
 
             $passwordExpirationDelay = $securityPolicy['password_expiration']['expiration_delay'];
             if (
-                $passwordExpirationDelay !== null
+                $row['contact_auth_type'] !== \CentreonAuth::AUTH_TYPE_LDAP
+                && $passwordExpirationDelay !== null
                 && (int) $row['password_creation'] + (int) $passwordExpirationDelay < time()
                 // Do not check expiration for excluded users of local security policy
                 && !in_array($row['contact_alias'], $securityPolicy['password_expiration']['excluded_users'])
@@ -691,20 +692,6 @@ class CentreonAPI
     {
         $res = explode("=", $str);
         return $res[1];
-    }
-
-    /**
-     *
-     * Check that parameters are not empty
-     * @param varchar $str
-     */
-    private function checkParameters($str)
-    {
-        if (!isset($this->options["v"]) || $this->options["v"] == "") {
-            print "No options defined.\n";
-            $this->return_code = 1;
-            return 1;
-        }
     }
 
     /**

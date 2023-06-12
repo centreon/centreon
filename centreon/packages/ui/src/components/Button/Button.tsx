@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useMemo } from 'react';
+import { ReactElement, ReactNode, useMemo } from 'react';
 
 import { Button as MuiButton } from '@mui/material';
 
@@ -64,8 +64,8 @@ const Button = ({
       type={type}
       variant={muiVariantMap[variant]}
       onClick={(e) => onClick?.(e)}
-      {...attr}
       {...MuiOverrideProps}
+      {...attr}
     >
       {children}
     </MuiButton>

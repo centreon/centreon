@@ -11,12 +11,41 @@ Feature:
     Given I am logged in
     And the following CLAPI import data:
     """
-    STPL;ADD;service-name-1;service-alias-1;;;;
     CONTACT;ADD;test;test;test@localhost.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;test;reach_api;1
     """
 
-    When I send a GET request to '/api/latest/configuration/services/templates?search={"name": "service-name-1"}'
+    When I send a POST request to '/api/latest/configuration/services/templates' with body:
+    """
+    {
+        "name": "service template test",
+        "alias": "service template alias",
+        "service_template_id": 1,
+        "check_timeperiod_id": 1,
+        "note": "note",
+        "note_url": "note_url",
+        "action_url": "action url",
+        "severity_id": null
+    }
+    """
+    Then the response code should be 201
+    And the JSON should be equal to:
+    """
+    {
+        "id": 27,
+        "name": "service template test",
+        "alias": "service template alias",
+        "service_template_id": 1,
+        "check_timeperiod_id": 1,
+        "note": "note",
+        "note_url": "note_url",
+        "action_url": "action url",
+        "severity_id": null,
+        "is_locked": false
+    }
+    """
+
+    When I send a GET request to '/api/latest/configuration/services/templates?search={"name": "service template test"}'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
@@ -24,13 +53,13 @@ Feature:
         "result": [
             {
                 "id": 27,
-                "name": "service-name-1",
-                "alias": "service-alias-1",
-                "service_template_id": null,
-                "check_timeperiod_id": null,
-                "note": null,
-                "note_url": null,
-                "action_url": null,
+                "name": "service template test",
+                "alias": "service template alias",
+                "service_template_id": 1,
+                "check_timeperiod_id": 1,
+                "note": "note",
+                "note_url": "note_url",
+                "action_url": "action url",
                 "severity_id": null,
                 "is_locked": false
             }
@@ -40,7 +69,7 @@ Feature:
             "limit": 10,
             "search": {
                 "$and": {
-                    "name": "service-name-1"
+                    "name": "service template test"
                 }
             },
             "sort_by": {},
@@ -48,6 +77,14 @@ Feature:
         }
     }
     """
+
+    When I send a PATCH request to '/api/latest/configuration/services/templates/27' with body:
+    """
+    {
+        "host_templates": [2, 3]
+    }
+    """
+    Then the response code should be "204"
 
     Given I am logged in with "test"/"Centreon@2022"
     When I send a DELETE request to '/api/v23.10/configuration/services/templates/27'
@@ -57,7 +94,7 @@ Feature:
     Then I send a DELETE request to '/api/v23.10/configuration/services/templates/27'
     Then the response code should be "204"
 
-    When I send a GET request to '/api/v23.10/configuration/services/templates?search={"name": "service-name-1"}'
+    When I send a GET request to '/api/v23.10/configuration/services/templates?search={"name": "service template test"}'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
@@ -68,7 +105,7 @@ Feature:
             "limit": 10,
             "search": {
                 "$and": {
-                    "name": "service-name-1"
+                    "name": "service template test"
                 }
             },
             "sort_by": {},

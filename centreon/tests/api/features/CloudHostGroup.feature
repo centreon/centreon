@@ -15,13 +15,16 @@ Feature:
     """
 
     When I send a GET request to '/api/latest/configuration/hosts/groups?search={"name": {"$eq": "Test Host Group"}}'
+    And I store response values in:
+      | name        | path         |
+      | hostGroupId | result[0].id |
     Then the response code should be "200"
     And the JSON should be equal to:
     """
     {
         "result": [
             {
-                "id": 62,
+                "id": <hostGroupId>,
                 "name": "Test Host Group",
                 "alias": "Alias Test host group",
                 "icon_id": null,
@@ -49,11 +52,14 @@ Feature:
         "name": "test-add"
     }
     """
+    And I store response values in:
+      | name        | path |
+      | hostGroupId | id   |
     Then the response code should be "201"
     And the JSON should be equal to:
     """
     {
-        "id": 62,
+        "id": <hostGroupId>,
         "name": "test-add",
         "alias": null,
         "icon_id": null,
@@ -61,7 +67,7 @@ Feature:
         "is_activated": true
     }
     """
-    When I send a PUT request to '/api/latest/configuration/hosts/groups/62' with body:
+    When I send a PUT request to '/api/latest/configuration/hosts/groups/<hostGroupId>' with body:
     """
     { "name": "test-update" }
     """

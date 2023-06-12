@@ -4,7 +4,14 @@ const {
   addMatchImageSnapshotPlugin
 } = require('@simonsmith/cypress-image-snapshot/plugin');
 
-module.exports = ({ webpackConfig, cypressFolder, specPattern, env, useVite = false }) => {
+module.exports = ({
+  webpackConfig,
+  cypressFolder,
+  specPattern,
+  env,
+  useVite = false,
+  excludeSpecPattern
+}) => {
   const mainCypressFolder = cypressFolder || 'cypress';
 
   return defineConfig({
@@ -14,6 +21,7 @@ module.exports = ({ webpackConfig, cypressFolder, specPattern, env, useVite = fa
         framework: 'react',
         webpackConfig
       },
+      excludeSpecPattern,
       setupNodeEvents: (on, config) => {
         addMatchImageSnapshotPlugin(on, config);
       },

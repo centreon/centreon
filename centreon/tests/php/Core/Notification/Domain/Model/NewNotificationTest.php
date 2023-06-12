@@ -77,4 +77,3 @@ it('should throw an exception when notification name is too long', function (): 
         'NewNotification::name'
     )->getMessage()
 );
-

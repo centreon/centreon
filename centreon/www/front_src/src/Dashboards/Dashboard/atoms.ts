@@ -15,10 +15,16 @@ import {
   reject,
   set
 } from 'ramda';
+import { atomWithStorage } from 'jotai/utils';
 
 import { getColumnsFromScreenSize } from '@centreon/ui';
 
-import { Panel, Dashboard, PanelConfiguration } from './models';
+import {
+  Panel,
+  Dashboard,
+  PanelConfiguration,
+  QuitWithoutSavedDashboard
+} from './models';
 
 export const dashboardAtom = atom<Dashboard>({
   layout: []
@@ -219,3 +225,26 @@ export const duplicatePanelDerivedAtom = atom(
     });
   }
 );
+
+export const switchPanelsEditionModeDerivedAtom = atom(
+  null,
+  (_, setAtom, isEditing: boolean) => {
+    setAtom(isEditingAtom, isEditing);
+    setAtom(dashboardAtom, (currentDashboard): Dashboard => {
+      const newLayout = map<Panel, Panel>(
+        set(lensProp('static'), !isEditing),
+        currentDashboard.layout
+      );
+
+      return {
+        layout: newLayout
+      };
+    });
+  }
+);
+
+export const quitWithoutSavedDashboardAtom =
+  atomWithStorage<QuitWithoutSavedDashboard | null>(
+    'centreon-quit-without-saved-dashboard',
+    null
+  );

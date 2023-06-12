@@ -50,7 +50,6 @@ import {
   labelFixed,
   labelForcedCheck,
   labelHostsDenied,
-  labelInvalidFormat,
   labelMoreActions,
   labelNotify,
   labelOk,
@@ -59,7 +58,6 @@ import {
   labelRefresh,
   labelSetDowntime,
   labelSetDowntimeOnServices,
-  labelStartTime,
   labelSubmit,
   labelSubmitStatus,
   labelUnknown,
@@ -517,49 +515,6 @@ describe(Actions, () => {
       expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeDisabled()
     );
   });
-
-  const invalidDateTestCases = [
-    ['start', labelStartTime],
-    ['end', labelEndTime]
-  ];
-
-  it.each(invalidDateTestCases)(
-    'cannot send a downtime request when the Downtime action is clicked and the %p time input has an invalid format',
-    async (_, label) => {
-      const {
-        getByLabelText,
-        getAllByText,
-        findByText,
-        getByText,
-        findAllByText
-      } = renderActions();
-
-      const selectedResources = [host];
-
-      act(() => {
-        context.setSelectedResources?.(selectedResources);
-      });
-
-      await findAllByText(labelSetDowntime);
-
-      fireEvent.click(head(getAllByText(labelSetDowntime)) as HTMLElement);
-
-      await findByText(labelDowntimeByAdmin);
-
-      userEvent.type(
-        getByLabelText(label).querySelector('input') as HTMLElement,
-        '{selectall}{backspace}'
-      );
-
-      await waitFor(() => {
-        expect(
-          last(getAllByText(labelSetDowntime)) as HTMLElement
-        ).toBeDisabled();
-      });
-
-      expect(getByText(labelInvalidFormat)).toBeInTheDocument();
-    }
-  );
 
   it('sends a downtime request when Resources are selected and the Downtime action is clicked and confirmed', async () => {
     const { findAllByText, getAllByText } = renderActions();
