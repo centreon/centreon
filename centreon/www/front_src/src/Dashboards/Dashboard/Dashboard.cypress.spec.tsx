@@ -5,7 +5,7 @@ import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/modul
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
 import { unstable_Blocker } from 'react-router-dom';
 
-import { Method, TestQueryProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   DashboardGlobalRole,
   ListingVariant,
@@ -19,6 +19,7 @@ import {
 } from '../api/endpoints';
 import { DashboardRole } from '../models';
 import { labelShareTheDashboard } from '../translatedLabels';
+import { labelUserRolesIsUpdated } from '../Shares/translatedLabels';
 
 import { router } from './useDashboardSaveBlocker';
 import {
@@ -26,7 +27,8 @@ import {
   labelExit,
   labelExitDashboard,
   labelExitEditionMode,
-  labelLeaveEditionModeChangesNotSaved
+  labelLeaveEditionModeChangesNotSaved,
+  labelSave
 } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 import { dashboardAtom } from './atoms';
@@ -157,15 +159,24 @@ const initializeAndMount = ({
     });
   });
 
+  cy.interceptAPIRequest({
+    alias: 'putDashboardShares',
+    method: Method.PUT,
+    path: getDashboardSharesEndpoint(1),
+    statusCode: 204
+  });
+
   cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });
 
   cy.mount({
     Component: (
-      <TestQueryProvider>
-        <Provider store={store}>
-          <Dashboard />
-        </Provider>
-      </TestQueryProvider>
+      <SnackbarProvider>
+        <TestQueryProvider>
+          <Provider store={store}>
+            <Dashboard />
+          </Provider>
+        </TestQueryProvider>
+      </SnackbarProvider>
     )
   });
 
@@ -337,7 +348,7 @@ describe('Dashboard', () => {
     });
   });
 
-  describe('Shares', () => {
+  describe.only('Shares', () => {
     it('displays the list of user roles when the corresponding button is clicked', () => {
       initializeBlocker();
       initializeAndMount(editorRoles);
@@ -383,7 +394,7 @@ describe('Dashboard', () => {
       cy.matchImageSnapshot();
     });
 
-    it('removes a user from the list when when the corresponding button is clicked', () => {
+    it('removes a user from the list when the corresponding button is clicked', () => {
       initializeBlocker();
       initializeAndMount(editorRoles);
 
@@ -407,6 +418,22 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelShareTheDashboard).should('not.exist');
 
       cy.matchImageSnapshot();
+    });
+
+    it('updates the list of user roles when the list is updated and the corresponding button is clicked', () => {
+      initializeBlocker();
+      initializeAndMount(editorRoles);
+
+      cy.findByLabelText(labelShareTheDashboard).click();
+
+      cy.findAllByTestId('change_role').eq(0).parent().click();
+      cy.get('[data-value="editor"]').click();
+
+      cy.findByLabelText(labelSave).click();
+
+      cy.waitForRequest('@putDashboardShares');
+
+      cy.contains(labelUserRolesIsUpdated).should('be.visible');
     });
   });
 });

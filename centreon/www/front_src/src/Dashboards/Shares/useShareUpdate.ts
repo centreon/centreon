@@ -79,10 +79,10 @@ const useShareUpdate = (dashboardId?: number): UseUpdateSharesState => {
     const formattedShares = formatSharesToAPI(newShares);
 
     mutateAsync(formattedShares).then(() => {
+      showSuccessMessage(t(labelUserRolesIsUpdated));
       queryClient.invalidateQueries({
         queryKey: ['dashboard_shares']
       });
-      showSuccessMessage(t(labelUserRolesIsUpdated));
     });
   };
 
