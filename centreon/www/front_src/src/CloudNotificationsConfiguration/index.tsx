@@ -36,7 +36,7 @@ export const NotificationsPage = (): JSX.Element => {
   });
 
   useEffect(() => {
-    if (reload === true) {
+    if (reload) {
       refetch();
     }
   }, [reload]);
