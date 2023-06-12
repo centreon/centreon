@@ -21,8 +21,6 @@ dnf clean all --enablerepo=*
 
 EOF
 
-COPY ./centreon-gorgone/gorgone/class/core.pm /usr/share/perl5/vendor_perl/gorgone/class/core.pm
-
 COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint/container.sh /usr/share/centreon/container.sh
 COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint/container.d/* /usr/share/centreon/container.d/
 COPY --chmod=755 ./.github/docker/centreon-web/alma9/scripts/autoinstall.php /usr/share/centreon/
@@ -50,7 +48,6 @@ service mysql stop
 
 sed -i 's#severity=error#severity=info#' /etc/sysconfig/gorgoned
 sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
-#sed -i 's#enable: true#enable: false#' /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
 
 EOF
 
