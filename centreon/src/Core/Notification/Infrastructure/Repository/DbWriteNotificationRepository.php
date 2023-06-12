@@ -142,7 +142,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':notifiction_id', $notificationId, \PDO::PARAM_INT);
+        $statement->bindValue(':notification_id', $notificationId, \PDO::PARAM_INT);
         $statement->execute();
     }
 }

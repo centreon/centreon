@@ -23,14 +23,15 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\API\DeleteNotification;
 
-use Centreon\Application\Controller\AbstractController;
-use Core\Notification\Application\DeleteNotification\DeleteNotification;
 use Symfony\Component\HttpFoundation\Response;
+
+use Centreon\Application\Controller\AbstractController;
+use Core\Notification\Application\UseCase\DeleteNotification\DeleteNotification;
 
 final class DeleteNotificationController extends AbstractController
 {
     /**
-     * @param integer $notificationId
+     * @param int $notificationId
      * @param DeleteNotification $useCase
      * @param DeleteNotificationPresenter $presenter
      *
