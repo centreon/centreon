@@ -36,8 +36,8 @@ jobs:
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
+      veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
+      veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB }}
 
   package:
     needs: [get-version]
