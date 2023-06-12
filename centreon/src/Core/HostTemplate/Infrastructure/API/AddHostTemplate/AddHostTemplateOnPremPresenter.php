@@ -87,6 +87,7 @@ class AddHostTemplateOnPremPresenter extends AbstractPresenter implements AddHos
                         'is_activated' => $response->isActivated,
                         'is_locked' => $response->isLocked,
                         'categories' => $response->categories,
+                        'templates' => $response->templates,
                     ]
                 )
             );
