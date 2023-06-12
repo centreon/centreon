@@ -45,13 +45,13 @@ Then(
 );
 
 When('they fill in the name field', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-1');
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-without-desc');
 });
 
 Then('they are allowed to create the dashboard', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).should(
     'have.value',
-    'dashboard-1'
+    'dashboard-without-desc'
   );
 
   cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
@@ -59,20 +59,16 @@ Then('they are allowed to create the dashboard', () => {
 
 When('they save the dashboard', () => {
   cy.getByLabel({ label: 'submit', tag: 'button' }).click();
-  cy.reload();
 });
 
 Then('the newly created dashboard appears in the dashboards library', () => {
   cy.getByLabel({ label: 'view', tag: 'button' }).should(
     'contain.text',
-    'dashboard-1'
+    'dashboard-without-desc'
   );
 
-  cy.getByLabel({ label: 'delete', tag: 'button' }).each((element) => {
-    cy.wrap(element).click();
-    cy.getByLabel({ label: 'confirm', tag: 'button' }).click();
-    cy.wait('@listAllDashboards');
-  });
+  cy.getByLabel({ label: 'delete', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
 });
 
 Given(
@@ -84,7 +80,7 @@ Given(
 );
 
 When('they fill in the name and description fields and save', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-1');
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-with-desc');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
     'My First Dashboard :)'
   );
@@ -95,8 +91,10 @@ Then(
   'the newly created dashboard appears in the dashboards library with its name and description',
   () => {
     cy.getByLabel({ label: 'view', tag: 'button' })
-      .should('contain.text', 'dashboard-1')
+      .should('contain.text', 'dashboard-with-desc')
       .should('contain.text', 'My First Dashboard :)');
+    cy.getByLabel({ label: 'delete', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
   }
 );
 
@@ -119,7 +117,6 @@ When('they leave the creation form without saving the dashboard', () => {
 Then(
   'the dashboard has not been created when they are redirected back on the dashboards library',
   () => {
-    cy.reload();
     cy.getByLabel({ label: 'view', tag: 'button' }).should('not.exist');
   }
 );
