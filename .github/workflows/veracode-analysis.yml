@@ -115,7 +115,7 @@ jobs:
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
-        if: needs.build.outputs.development_stage != 'Development'
+        #if: needs.build.outputs.development_stage != 'Development'
         run: |
           mv *results.json /tmp
           BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
