@@ -23,12 +23,12 @@ const insertDashboard = (dashboardBody: Dashboard): Cypress.Chainable => {
   });
 };
 
-const deleteAllDashboards = (): Cypress.Chainable => {
+const deleteAllDashboardsOnPage = (): Cypress.Chainable => {
   return cy.getByLabel({ label: 'delete', tag: 'button' }).each((element) => {
     cy.wrap(element).click();
-    cy.getByLabel({ label: 'confirm', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
     cy.wait('@listAllDashboardsOnFirstPage');
   });
 };
 
-export { insertDashboardList, deleteAllDashboards };
+export { insertDashboardList, deleteAllDashboardsOnPage };
