@@ -19,7 +19,7 @@ import {
 } from '../api/endpoints';
 import { DashboardRole } from '../models';
 import { labelShareTheDashboard } from '../translatedLabels';
-import { labelUserRolesIsUpdated } from '../Shares/translatedLabels';
+import { labelUserRolesAreUpdated } from '../Shares/translatedLabels';
 
 import { router } from './useDashboardSaveBlocker';
 import {
@@ -433,7 +433,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@putDashboardShares');
 
-      cy.contains(labelUserRolesIsUpdated).should('be.visible');
+      cy.contains(labelUserRolesAreUpdated).should('be.visible');
     });
   });
 });
