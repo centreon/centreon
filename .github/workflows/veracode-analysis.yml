@@ -73,23 +73,15 @@ jobs:
       - name: Get baseline files
         run: |
           BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
-          aws s3 ls "$BUCKET/filtered_results.json" || RESULT=$( echo $? )
+          aws s3 ls "$BUCKET/results.json" || RESULT=$( echo $? )
           if [[ $RESULT -eq 0 ]]; then
-            aws s3 cp "$BUCKET/filtered_results.json" "/tmp/filtered_results.json"
-            echo "baseline_file=/tmp/filtered_results.json" >> $GITHUB_ENV
-            echo "create_baseline_from=filtered" >> $GITHUB_ENV
+            aws s3 cp "$BUCKET/results.json" "/tmp/results.json"
+            echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
+            echo "create_baseline_from=standard" >> $GITHUB_ENV
           else
-            echo "[DEBUG] - Filtered baseline file not found in the bucket"
-            aws s3 ls "$BUCKET/results.json" || RESULT=$( echo $? )
-            if [[ $RESULT -eq 0 ]]; then
-              aws s3 cp "$BUCKET/results.json" "/tmp/results.json"
-              echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
-              echo "create_baseline_from=standard" >> $GITHUB_ENV
-            else
-              echo "[DEBUG] - Standard baseline file not found in the bucket"
-              echo "baseline_file=" >> $GITHUB_ENV
-              echo "create_baseline_from=" >> $GITHUB_ENV
-            fi
+            echo "[DEBUG] - Standard baseline file not found in the bucket"
+            echo "baseline_file=" >> $GITHUB_ENV
+            echo "create_baseline_from=" >> $GITHUB_ENV
           fi
 
       - uses: actions/setup-java@v3
@@ -107,7 +99,7 @@ jobs:
           create_baseline_from: "${{ env.create_baseline_from }}"
           fail_build: false #TODO: Do not fail the jobs until grace period ends
           #fail_build: '${{ needs.build.outputs.fail_build }}'
-          fail_on_severity: "Medium"
+          fail_on_severity: "'Very High','High'"
           timeout: 60
           development_stage: '${{ needs.build.outputs.development_stage }}'
           summary_display: '${{ needs.build.outputs.display_summary }}'
