@@ -1,6 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { deleteAllDashboards, insertDashboardList } from '../common';
+import { insertDashboardList } from '../common';
 import { loginAsAdminViaApiV2 } from '../../../commons';
 
 before(() => {
@@ -18,6 +18,7 @@ beforeEach(() => {
     url: '/centreon/api/latest/configuration/dashboards?page=1&limit=100'
   }).as('listAllDashboardsOnFirstPage');
 });
+
 Given('a user with access to the dashboards library', () => {
   cy.visit(`${Cypress.config().baseUrl}/centreon/monitoring/resources`);
 });
@@ -61,7 +62,10 @@ Then(
     );
     cy.getByLabel({ label: 'Breadcrumb' }).contains('Dashboard (beta)').click();
 
-    deleteAllDashboards();
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: 'DELETE FROM dashboard'
+    });
   }
 );
 
@@ -78,11 +82,6 @@ When(
       .should('not.exist');
 
     cy.get('[data-variant="grid"]').parent().parent().scrollTo('bottom');
-
-    cy.request(
-      'GET',
-      '/centreon/api/latest/configuration/dashboards?page=2&limit=100'
-    );
   }
 );
 
@@ -113,16 +112,10 @@ Then('they are redirected to the page describing that dashboard', () => {
     'not.eq',
     `${Cypress.config().baseUrl}/centreon/home/dashboards`
   );
+
   cy.getByLabel({ label: 'Breadcrumb' }).contains('Dashboard (beta)').click();
-  cy.request(
-    'GET',
-    '/centreon/api/latest/configuration/dashboards?page=2&limit=100'
-  );
-  cy.getByLabel({ label: 'delete', tag: 'button' }).click();
-  cy.getByLabel({ label: 'confirm', tag: 'button' }).click();
-  cy.request(
-    'GET',
-    '/centreon/api/latest/configuration/dashboards?page=1&limit=100'
-  );
-  deleteAllDashboards();
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: 'DELETE FROM dashboard'
+  });
 });
