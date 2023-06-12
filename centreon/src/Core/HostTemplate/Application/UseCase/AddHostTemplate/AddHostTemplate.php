@@ -93,6 +93,7 @@ final class AddHostTemplate
                 $hostTemplateId = $this->createHostTemplate($request);
 
                 $this->linkHostCategories($request, $hostTemplateId);
+                $this->linkParentTemplates($request, $hostTemplateId);
 
                 $this->dataStorageEngine->commitTransaction();
             } catch (\Throwable $ex) {
@@ -115,8 +116,11 @@ final class AddHostTemplate
                     $accessGroups
                 );
             }
+            $parentTemplates = $this->findParentTemplates($request->templates);
 
-            $presenter->presentResponse(AddHostTemplateFactory::createResponse($hostTemplate, $hostCategories));
+            $presenter->presentResponse(
+                AddHostTemplateFactory::createResponse($hostTemplate, $hostCategories, $parentTemplates)
+            );
         } catch (AssertionFailedException|\ValueError $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -274,6 +278,28 @@ final class AddHostTemplate
     }
 
     /**
+     * Assert template IDs are valid.
+     *
+     * @param int[] $templateIds
+     * @param int $hostTemplateId
+     *
+     * @throws HostTemplateException
+     * @throws \Throwable
+     */
+    private function assertAreValidTemplates(array $templateIds, int $hostTemplateId): void
+    {
+        if (in_array($hostTemplateId, $templateIds, true)) {
+            throw HostTemplateException::circularTemplateInheritance();
+        }
+
+        $validTemplateIds = $this->readHostTemplateRepository->exist($templateIds);
+
+        if ([] !== ($invalidIds = array_diff($templateIds, $validTemplateIds))) {
+            throw HostTemplateException::idsDoNotExist('templates', $invalidIds);
+        }
+    }
+
+    /**
      * @param AddHostTemplateRequest $request
      *
      * @throws AssertionFailedException
@@ -299,7 +325,7 @@ final class AddHostTemplate
             : 0;
 
         $newHostTemplate = NewHostTemplateFactory::create($request, $inheritanceMode);
-        $hostTemplateId =  $this->writeHostTemplateRepository->add($newHostTemplate);
+        $hostTemplateId = $this->writeHostTemplateRepository->add($newHostTemplate);
 
         $this->info('AddHostTemplate: Adding new host template', ['host_template_id' => $hostTemplateId]);
 
@@ -315,17 +341,70 @@ final class AddHostTemplate
      */
     private function linkHostCategories(AddHostTemplateRequest $dto, int $hostTemplateId): void
     {
-        if ($dto->categories === []) {
+        $categoryIds = array_unique($dto->categories);
+        if ($categoryIds === []) {
+
             return;
         }
 
-        $this->assertAreValidCategories($dto->categories);
+        $this->assertAreValidCategories($categoryIds);
 
         $this->info(
             'AddHostTemplate: Linking host categories',
-            ['host_template_id' => $hostTemplateId, 'category_ids' => $dto->categories]
+            ['host_template_id' => $hostTemplateId, 'category_ids' => $categoryIds]
         );
 
-        $this->writeHostCategoryRepository->linkToHost($hostTemplateId, $dto->categories);
+        $this->writeHostCategoryRepository->linkToHost($hostTemplateId, $categoryIds);
+    }
+
+    /**
+     * @param AddHostTemplateRequest $dto
+     * @param int $hostTemplateId
+     *
+     * @throws HostTemplateException
+     * @throws \Throwable
+     */
+    private function linkParentTemplates(AddHostTemplateRequest $dto, int $hostTemplateId): void
+    {
+        $parentTemplateIds = array_unique($dto->templates);
+
+        if ($parentTemplateIds === []) {
+
+            return;
+        }
+
+        $this->assertAreValidTemplates($parentTemplateIds, $hostTemplateId);
+
+        $this->info(
+            'AddHostTemplate: Linking parent templates',
+            ['host_template_id' => $hostTemplateId, 'template_ids' => $parentTemplateIds]
+        );
+
+        foreach ($parentTemplateIds as $order => $templateId) {
+            $this->writeHostTemplateRepository->addParent($hostTemplateId, $templateId, $order);
+        }
+    }
+
+    /**
+     * @param int[] $templateIds
+     *
+     * @throws HostTemplateException
+     * @throws \Throwable
+     *
+     * @return array<array{id:int,name:string}>
+     */
+    private function findParentTemplates(array $templateIds): array
+    {
+        $templateNames = $this->readHostTemplateRepository->findNamesByIds($templateIds);
+
+        $parentTemplates = [];
+        foreach ($templateIds as $templateId) {
+            $parentTemplates[] = [
+                'id' => $templateId,
+                'name' => $templateNames[$templateId],
+            ];
+        }
+
+        return $parentTemplates;
     }
 }

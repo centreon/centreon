@@ -23,8 +23,15 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboards;
 
+use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponseDto;
+
 final class FindDashboardsResponse
 {
-    /** @var FindDashboardDto[] */
-    public array $dashboards = [];
+    /**
+     * @param DashboardResponseDto[] $dashboards
+     */
+    public function __construct(
+        public array $dashboards = [],
+    ) {
+    }
 }

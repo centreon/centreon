@@ -253,3 +253,16 @@ properties:
        type: string
        description: "Define a host category name that is associated with this host template"
        example: 'host-category-name'
+  templates:
+    type: array
+    items:
+     type: object
+     properties:
+      id:
+       type: integer
+       description: "Define a parent host template ID that is associated with this host template"
+       example: 1
+      name:
+       type: string
+       description: "Define a parent host template name that is associated with this host template"
+       example: 'parent-template-name'
