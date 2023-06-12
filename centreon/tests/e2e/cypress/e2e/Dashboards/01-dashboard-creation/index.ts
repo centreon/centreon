@@ -4,6 +4,10 @@ import { loginAsAdminViaApiV2 } from '../../../commons';
 
 before(() => {
   cy.startWebContainer();
+  cy.execInContainer({
+    command: `sed -i 's@0@1@' /usr/share/centreon/config/features.json`,
+    name: Cypress.env('dockerName')
+  });
 });
 
 beforeEach(() => {
