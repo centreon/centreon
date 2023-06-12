@@ -1221,8 +1221,6 @@ sub periodic_exec {
     if (defined($gorgone->{external_socket})) {
         $gorgone->router_external_event();
     }
-    #$gorgone->check_exit_modules();
-    #$gorgone->{listener}->check();
 }
 
 sub run {
