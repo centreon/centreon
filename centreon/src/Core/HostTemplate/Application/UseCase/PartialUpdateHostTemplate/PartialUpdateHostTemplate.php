@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
@@ -38,6 +39,8 @@ use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Type\NoValue;
 use Core\Host\Domain\Model\HostInheritance;
+use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
+use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostMacro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\HostMacro\Domain\Model\HostMacro;
@@ -45,16 +48,25 @@ use Core\HostMacro\Domain\Model\HostMacroDifference;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Utility\Difference\BasicDifference;
 
 final class PartialUpdateHostTemplate
 {
     use LoggerTrait;
+
+    /** @var AccessGroup[] */
+    private array $accessGroups = [];
 
     public function __construct(
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
         private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
+        private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
+        private readonly WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
     ) {
@@ -102,9 +114,21 @@ final class PartialUpdateHostTemplate
                 return;
             }
 
+            if (! $this->user->isAdmin()) {
+                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+            }
+
             $this->updatePropertiesInTransaction($request, $hostTemplate);
 
             $presenter->setResponseStatus(new NoContentResponse());
+        } catch (HostTemplateException $ex) {
+            $presenter->setResponseStatus(
+                match ($ex->getCode()) {
+                    HostTemplateException::CODE_CONFLICT => new ConflictResponse($ex),
+                    default => new ErrorResponse($ex),
+                }
+            );
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(new ErrorResponse(HostTemplateException::partialUpdateHostTemplate()));
             $this->error($ex->getMessage());
@@ -123,6 +147,7 @@ final class PartialUpdateHostTemplate
             $this->dataStorageEngine->startTransaction();
 
             $this->updateMacros($request, $hostTemplate);
+            $this->updateCategories($request, $hostTemplate);
 
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {
@@ -143,7 +168,7 @@ final class PartialUpdateHostTemplate
     {
         $this->info(
             'PartialUpdateHostTemplate: update macros',
-            ['host_template' => $hostTemplate, 'macros' => $request->macros]
+            ['host_template_id' => $hostTemplate->getId(), 'macros' => $request->macros]
         );
 
         if ($request->macros instanceOf NoValue) {
@@ -307,5 +332,65 @@ final class PartialUpdateHostTemplate
         }
 
         return [$directMacros, $inheritedMacros, $commandMacros];
+    }
+
+    private function updateCategories(PartialUpdateHostTemplateRequest $request, HostTemplate $hostTemplate): void
+    {
+        $this->info(
+            'PartialUpdateHostTemplate: update categories',
+            ['host_template_id' => $hostTemplate->getId(), 'categories' => $request->categories]
+        );
+
+        if ($request->categories instanceOf NoValue) {
+            $this->info('Categories not provided, nothing to update');
+
+            return;
+        }
+
+        $categoryIds = array_unique($request->categories);
+
+        $this->assertAreValidCategories($categoryIds);
+
+        if ($this->user->isAdmin()) {
+            $originalCategories = $this->readHostCategoryRepository->findByHost($hostTemplate->getId());
+        } else {
+            $originalCategories = $this->readHostCategoryRepository->findByHostAndAccessGroups(
+                $hostTemplate->getId(),
+                $this->accessGroups
+            );
+        }
+
+        $originalCategoryIds = array_map((fn($category) => $category->getId()), $originalCategories);
+
+        $categoryDiff = new BasicDifference($originalCategoryIds, $categoryIds);
+        /** @var int[] $addedCategories */
+        $addedCategories = $categoryDiff->getAdded();
+        /** @var int[] $removedCategories */
+        $removedCategories = $categoryDiff->getRemoved();
+
+        $this->writeHostCategoryRepository->linkToHost($hostTemplate->getId(), $addedCategories);
+        $this->writeHostCategoryRepository->unlinkFromHost($hostTemplate->getId(), $removedCategories);
+    }
+
+    /**
+     * Assert category IDs are valid.
+     *
+     * @param int[] $categoryIds
+     *
+     * @throws HostTemplateException
+     * @throws \Throwable
+     */
+    private function assertAreValidCategories(array $categoryIds): void
+    {
+        if ($this->user->isAdmin()) {
+            $validCategoryIds = $this->readHostCategoryRepository->exist($categoryIds);
+        } else {
+            $validCategoryIds
+                = $this->readHostCategoryRepository->existByAccessGroups($categoryIds, $this->accessGroups);
+        }
+
+        if ([] !== ($invalidIds = array_diff($categoryIds, $validCategoryIds))) {
+            throw HostTemplateException::idsDoNotExist('categories', $invalidIds);
+        }
     }
 }
