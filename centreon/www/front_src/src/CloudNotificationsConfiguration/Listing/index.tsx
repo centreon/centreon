@@ -49,7 +49,7 @@ const NotificationsListing = (): JSX.Element => {
   const { loading, data: listingData, refetch } = useLoadingNotifications();
 
   useEffect(() => {
-    if (reload === true) {
+    if (reload) {
       refetch();
       setReload(false);
     }
