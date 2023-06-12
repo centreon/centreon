@@ -348,7 +348,7 @@ describe('Dashboard', () => {
     });
   });
 
-  describe.only('Shares', () => {
+  describe('Shares', () => {
     it('displays the list of user roles when the corresponding button is clicked', () => {
       initializeBlocker();
       initializeAndMount(editorRoles);
