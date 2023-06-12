@@ -215,7 +215,7 @@ Then('the user selects the checkbox and clicks on the "Cancel" action', () => {
 
   cy.getIframeBody().find('form input[name="submit2"]').as('cancelButton');
 
-  cy.get('@cancelButton').first().trigger('click');
+  cy.get('@cancelButton').first().click();
 });
 
 Then('the user confirms the cancellation of the downtime', () => {
