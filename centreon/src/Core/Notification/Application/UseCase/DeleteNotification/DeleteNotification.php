@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\DeleteNotification;
+namespace Core\Notification\Application\UseCase\DeleteNotification;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
