@@ -1,6 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { insertDashboardList } from '../common';
 import { loginAsAdminViaApiV2 } from '../../../commons';
 
 before(() => {
@@ -43,7 +42,7 @@ Then(
 );
 
 Given('a non-empty list of dashboards that fits on one page', () => {
-  insertDashboardList('dashboards/navigation/01-onepage.json');
+  cy.insertDashboardList('dashboards/navigation/01-onepage.json');
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
 });
 
@@ -70,7 +69,7 @@ Then(
 );
 
 Given('a non-empty library of dashboards that does not fit on one page', () => {
-  insertDashboardList('dashboards/navigation/02-morethanonepage.json');
+  cy.insertDashboardList('dashboards/navigation/02-morethanonepage.json');
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
 });
 
@@ -112,7 +111,6 @@ Then(
       `${Cypress.config().baseUrl}/centreon/home/dashboards`
     );
 
-    cy.getByLabel({ label: 'Breadcrumb' }).contains('Dashboard (beta)').click();
     cy.requestOnDatabase({
       database: 'centreon',
       query: 'DELETE FROM dashboard'
