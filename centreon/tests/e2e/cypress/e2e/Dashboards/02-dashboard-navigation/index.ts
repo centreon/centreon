@@ -24,7 +24,7 @@ Given('a user with access to the dashboards library', () => {
 });
 
 When(
-  'they access the dashboard listing page on a platform with no dashboards',
+  'the user accesses the dashboard listing page on a platform with no dashboards',
   () => {
     cy.navigateTo({
       page: 'Dashboard (beta)',
@@ -34,7 +34,7 @@ When(
 );
 
 Then(
-  'a special message and a button to create a new dashboard are displayed instead of the dashboards',
+  'a message and a button to create a new dashboard are displayed instead of the dashboards',
   () => {
     cy.get('body').should('contain.text', 'No dashboards found');
     cy.getByLabel({ label: 'view', tag: 'button' }).should('not.exist');
@@ -54,7 +54,7 @@ When('the user clicks on the dashboard they want to select', () => {
 });
 
 Then(
-  'they are redirected to the information page describing that dashboard',
+  'the user is redirected to the information page for this dashboard',
   () => {
     cy.url().should(
       'not.eq',
@@ -98,24 +98,24 @@ Then(
   }
 );
 
-When(
-  'the user clicks on the dashboard they wanted to find at the bottom of the library',
+When('the user clicks on the dashboard that just appeared', () => {
+  cy.getByLabel({ label: 'view', tag: 'button' })
+    .contains('dashboard-to-locate')
+    .click();
+});
+
+Then(
+  'the user is redirected to the information page for that dashboard',
   () => {
-    cy.getByLabel({ label: 'view', tag: 'button' })
-      .contains('dashboard-to-locate')
-      .click();
+    cy.url().should(
+      'not.eq',
+      `${Cypress.config().baseUrl}/centreon/home/dashboards`
+    );
+
+    cy.getByLabel({ label: 'Breadcrumb' }).contains('Dashboard (beta)').click();
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: 'DELETE FROM dashboard'
+    });
   }
 );
-
-Then('they are redirected to the page describing that dashboard', () => {
-  cy.url().should(
-    'not.eq',
-    `${Cypress.config().baseUrl}/centreon/home/dashboards`
-  );
-
-  cy.getByLabel({ label: 'Breadcrumb' }).contains('Dashboard (beta)').click();
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: 'DELETE FROM dashboard'
-  });
-});
