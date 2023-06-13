@@ -43,7 +43,7 @@ const RegularLine = ({
     curve: Curve.curveLinear,
     data: timeSeries,
     defined: (value): boolean => !isNil(value[metric]),
-    opacity: highlight === false ? 0.3 : 1,
+    opacity: !highlight ? 0.3 : 1,
     stroke: lineColor,
     strokeWidth: isHighlighted,
     unit,
