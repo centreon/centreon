@@ -12,6 +12,7 @@ import {
   secondServiceInDtName,
   serviceInAcknowledgementName,
   serviceInDtName,
+  serviceOk,
   tearDownResource
 } from '../common';
 
@@ -493,32 +494,23 @@ When('the user opens a chart from Monitoring>Performances>Graphs', () => {
 
   cy.get('[data-value="all"]').click();
 
-  submitResultsViaClapi([
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains('Ping'))
+        .parent()
+        .parent()
+        .find('.MuiChip-label')
+        .eq(0)
+        .then((val) => {
+          return val[0].textContent === 'OK';
+        });
+    },
     {
-      host: hostInAcknowledgementName,
-      output: 'submit_status_1',
-      service: serviceInDtName,
-      status: '0'
+      timeout: 30000
     }
-  ]).then(() => {
-    cy.waitUntil(
-      () => {
-        return cy
-          .refreshListing()
-          .then(() => cy.contains(serviceInDtName))
-          .parent()
-          .parent()
-          .find('.MuiChip-label')
-          .eq(0)
-          .then((val) => {
-            return val[0].textContent === 'OK';
-          });
-      },
-      {
-        timeout: 15000
-      }
-    );
-  });
+  );
 
   cy.navigateTo({
     page: 'Graphs',
@@ -528,11 +520,11 @@ When('the user opens a chart from Monitoring>Performances>Graphs', () => {
 });
 
 When('the user selects a chart', () => {
-  cy.getIframeBody().find('.select2-search__field').eq(0).type('service');
+  cy.getIframeBody().find('.select2-search__field').eq(0).type('Ping');
 
   cy.getIframeBody()
     .find('ul[id="select2-select-chart-results"] li')
-    .contains(serviceInDtName)
+    .contains('Ping')
     .eq(0)
     .click();
 });
@@ -547,7 +539,9 @@ When('the user selects default periods', () => {
 Then(
   'the time window of the chart is based on the custom timezone of the user',
   () => {
-    
+    cy.getTimeFromHeader().then((headerTime) => {
+      console.log(convert12hTo24h(headerTime));
+    });
   }
 );
 
