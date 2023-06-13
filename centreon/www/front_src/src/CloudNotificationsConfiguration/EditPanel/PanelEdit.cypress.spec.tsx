@@ -23,8 +23,10 @@ import {
   labelMessageFieldShouldNotBeEmpty,
   labelDoYouWantToConfirmAction,
   labelConfirmEditNotification,
-  labelSuccessfulEditNotification
+  labelSuccessfulEditNotification,
+  labelThisNameAlreadyExists
 } from '../translatedLabels';
+import { notificationsNamesAtom } from '../atom';
 
 import { notificationtEndpoint } from './api/endpoints';
 import { PanelMode } from './models';
@@ -77,13 +79,18 @@ describe('Edit Panel', () => {
     const editedNotification = renderHook(() =>
       useSetAtom(EditedNotificationIdAtom)
     );
+    const notificationsNames = renderHook(() =>
+      useSetAtom(notificationsNamesAtom)
+    );
 
     const setPanelMode = panelMode.result.current;
     const setEditedNotification = editedNotification.result.current;
+    const setNotificationsNames = notificationsNames.result.current;
 
     act(() => {
       setEditedNotification(1);
       setPanelMode(PanelMode.Edit);
+      setNotificationsNames(['Notification1', 'notification2']);
     });
   });
 
@@ -109,14 +116,11 @@ describe('Edit Panel', () => {
     cy.findByTestId(labelChangeName).click();
     cy.findByText(labelChangeName).should('not.exist');
 
-    cy.findByPlaceholderText(labelNotificationName).should(
+    cy.findByLabelText(labelNotificationName).should(
       'have.value',
       notificationName
     );
-    cy.findByPlaceholderText(labelNotificationName).should(
-      'have.attr',
-      'required'
-    );
+    cy.findByLabelText(labelNotificationName).should('have.attr', 'required');
 
     cy.matchImageSnapshot();
   });
@@ -126,10 +130,24 @@ describe('Edit Panel', () => {
 
     cy.findByTestId(labelChangeName).click();
 
-    cy.findByPlaceholderText(labelNotificationName).clear();
+    cy.findByLabelText(labelNotificationName).clear();
     cy.clickOutside();
 
     cy.findByText(labelRequired).should('be.visible');
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('Ensures that the form handles an existing name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
+    cy.waitForRequest('@listingRequest');
+
+    cy.findByTestId(labelChangeName).click();
+
+    cy.findByLabelText(labelNotificationName).clear().type('Notification1');
+    cy.clickOutside();
+
+    cy.findByText(labelThisNameAlreadyExists).should('be.visible');
     cy.findByLabelText(labelSave).should('be.disabled');
 
     cy.matchImageSnapshot();
@@ -361,6 +379,18 @@ describe('Edit Panel', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByLabelText(labelSubject).should('have.value', 'Notification');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('Validates that when the Subject field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
+    cy.waitForRequest('@listingRequest');
+
+    cy.findByLabelText(labelSubject).clear();
+    cy.clickOutside();
+
+    cy.findByText(labelRequired).should('be.visible');
+    cy.findByLabelText(labelSave).should('be.disabled');
 
     cy.matchImageSnapshot();
   });
