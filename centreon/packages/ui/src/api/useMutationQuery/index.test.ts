@@ -115,4 +115,27 @@ describe('useFetchQuery', () => {
       expect(mockedShowErrorMessage).not.toHaveBeenCalled();
     });
   });
+
+  it('calls the `onMutate` callback when the mutation has been successfully sent', async () => {
+    fetchMock.once(JSON.stringify({}));
+    const onMutate = jest.fn();
+
+    const { result } = renderMutationQuery<User>({
+      getEndpoint: () => '/endpoint',
+      method: Method.POST,
+      optimisticUI: {
+        onMutate,
+        queryKeyToInvalidate: ['key']
+      }
+    });
+
+    result.current.mutate(user);
+
+    await waitFor(() => {
+      expect(onMutate).toHaveBeenCalledWith({
+        email: 'john@doe.com',
+        name: 'John Doe'
+      });
+    });
+  });
 });

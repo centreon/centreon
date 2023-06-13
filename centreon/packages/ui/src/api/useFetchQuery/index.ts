@@ -58,9 +58,8 @@ const useFetchQuery = <T extends object>({
 }: UseFetchQueryProps<T>): UseFetchQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
 
-  const queryData = useQuery<T | ResponseError, Error>(
-    getQueryKey(),
-    ({ signal }): Promise<T | ResponseError> =>
+  const queryData = useQuery<T | ResponseError, Error>({
+    queryFn: ({ signal }): Promise<T | ResponseError> =>
       customFetch<T>({
         catchError,
         decoder,
@@ -69,10 +68,9 @@ const useFetchQuery = <T extends object>({
         headers: new Headers(fetchHeaders),
         signal
       }),
-    {
-      ...queryOptions
-    }
-  );
+    queryKey: getQueryKey(),
+    ...queryOptions
+  });
 
   const queryClient = useQueryClient();
 

@@ -1,10 +1,10 @@
-import { useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useQueryClient } from '@tanstack/react-query';
+import { propEq, reject } from 'ramda';
 
 import {
   Method,
-  ResponseError,
+  useListingMutation,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
@@ -25,36 +25,54 @@ interface UseRemoveDashboardState {
 const useRemoveDashboard = (): UseRemoveDashboardState => {
   const { t } = useTranslation();
 
+  const [page, setPage] = useAtom(pageAtom);
   const setDeleteDialogState = useSetAtom(deleteDialogStateAtom);
-  const setPage = useSetAtom(pageAtom);
+
+  const { showSuccessMessage, showErrorMessage } = useSnackbar();
+
+  const { applyListingMutation, rollBackListingMutation } =
+    useListingMutation();
 
   const { mutateAsync, isMutating } = useMutationQuery({
     getEndpoint: (payload) => `${dashboardsEndpoint}/${payload?.id}`,
-    method: Method.DELETE
+    method: Method.DELETE,
+    optimisticUI: {
+      onError: (_, __, context) => {
+        displayErrorMessage();
+        rollBackListingMutation({
+          context,
+          page,
+          queryKey: ['dashboards']
+        });
+      },
+      onMutate: (variables) => {
+        showSuccessMessage(t(labelDashboardDeleted));
+        setDeleteDialogState({ item: null, open: false });
+        setPage(1);
+
+        return applyListingMutation({
+          getNewData: (previousListing) => {
+            const newListing = {
+              meta: previousListing.meta,
+              result: reject(propEq('id', variables.id), previousListing.result)
+            };
+
+            return newListing;
+          },
+          page,
+          queryKey: ['dashboards']
+        });
+      },
+      queryKeyToInvalidate: ['dashboards']
+    }
   });
-
-  const queryClient = useQueryClient();
-
-  const { showSuccessMessage, showErrorMessage } = useSnackbar();
 
   const displayErrorMessage = (): void => {
     showErrorMessage(t(labelFailedToDeleteDashboard));
   };
 
   const remove = (values: Dashboard): void => {
-    mutateAsync(values)
-      .then((response) => {
-        if ((response as ResponseError).isError) {
-          displayErrorMessage();
-
-          return;
-        }
-        showSuccessMessage(t(labelDashboardDeleted));
-        setDeleteDialogState({ item: null, open: false });
-        setPage(1);
-        queryClient.invalidateQueries({ queryKey: ['dashboards'] });
-      })
-      .catch(displayErrorMessage);
+    mutateAsync(values);
   };
 
   return {

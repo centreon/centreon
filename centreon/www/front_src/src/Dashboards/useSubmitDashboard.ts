@@ -1,12 +1,11 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals } from 'ramda';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { append, equals, findIndex, lensPath, propEq, set } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { FormikHelpers } from 'formik';
-import { useQueryClient } from '@tanstack/react-query';
 
 import {
   Method,
-  ResponseError,
+  useListingMutation,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
@@ -38,24 +37,63 @@ interface UseSubmitDashboardState {
 const useSubmitDashboard = (): UseSubmitDashboardState => {
   const { t } = useTranslation();
 
+  const [page, setPage] = useAtom(pageAtom);
   const selectedDashboardVariant = useAtomValue(selectedDashboardVariantAtom);
   const selectedDashboard = useAtomValue(selectedDashboardAtom);
   const closeDialog = useSetAtom(closeDialogAtom);
-  const setPage = useSetAtom(pageAtom);
-
-  const queryClient = useQueryClient();
 
   const isUpdateVariant = equals(
     selectedDashboardVariant,
     'update' as FormVariant
   );
 
+  const { applyListingMutation, rollBackListingMutation } =
+    useListingMutation();
+
   const { mutateAsync, isMutating } = useMutationQuery<Dashboard>({
     getEndpoint: () =>
       isUpdateVariant
         ? `${dashboardsEndpoint}/${selectedDashboard?.dashboard?.id}`
         : dashboardsEndpoint,
-    method: isUpdateVariant ? Method.PUT : Method.POST
+    method: isUpdateVariant ? Method.PUT : Method.POST,
+    optimisticUI: {
+      onError: (_, __, context) => {
+        displayErrorMessage();
+        rollBackListingMutation({
+          context,
+          page,
+          queryKey: ['dashboards']
+        });
+      },
+      onMutate: (variables) => {
+        return applyListingMutation({
+          getNewData: (previousListing) => {
+            const index = findIndex(
+              propEq('id', variables.id),
+              previousListing.result
+            );
+            const newListing = {
+              meta: previousListing.meta,
+              result: isUpdateVariant
+                ? set(lensPath([index]), variables, previousListing.result)
+                : append(variables, previousListing.result)
+            };
+
+            return newListing;
+          },
+          page,
+          queryKey: ['dashboards']
+        });
+      },
+      onSuccess: () => {
+        showSuccessMessage(
+          t(isUpdateVariant ? labelDashboardUpdated : labelDashboardCreated)
+        );
+        closeDialog();
+        setPage(1);
+      },
+      queryKeyToInvalidate: ['dashboards']
+    }
   });
 
   const { showSuccessMessage, showErrorMessage } = useSnackbar();
@@ -76,22 +114,7 @@ const useSubmitDashboard = (): UseSubmitDashboardState => {
       name: values.name
     };
 
-    mutateAsync(normalizedValues)
-      .then((response) => {
-        if ((response as ResponseError).isError) {
-          displayErrorMessage();
-
-          return;
-        }
-        showSuccessMessage(
-          t(isUpdateVariant ? labelDashboardUpdated : labelDashboardCreated)
-        );
-        closeDialog();
-        setPage(1);
-        queryClient.invalidateQueries({ queryKey: ['dashboards'] });
-      })
-      .catch(displayErrorMessage)
-      .finally(() => setSubmitting(false));
+    mutateAsync(normalizedValues).finally(() => setSubmitting(false));
   };
 
   return {

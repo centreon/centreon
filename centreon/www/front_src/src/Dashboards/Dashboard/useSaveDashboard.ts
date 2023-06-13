@@ -1,6 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
@@ -38,8 +37,6 @@ const useSaveDashboard = (): UseSaveDashboardState => {
   const { t } = useTranslation();
   const { dashboardId } = routerParams.useParams();
 
-  const queryClient = useQueryClient();
-
   const dashboard = useAtomValue(dashboardAtom);
   const switchPanelsEditionMode = useSetAtom(
     switchPanelsEditionModeDerivedAtom
@@ -49,17 +46,18 @@ const useSaveDashboard = (): UseSaveDashboardState => {
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () => getDashboardEndpoint(dashboardId),
-    method: Method.PATCH
+    method: Method.PATCH,
+    optimisticUI: {
+      onSuccess: () => {
+        showSuccessMessage(t(labelYourDashboardHasBeenSaved));
+        switchPanelsEditionMode(false);
+      },
+      queryKeyToInvalidate: ['dashboard', dashboardId]
+    }
   });
 
   const saveDashboard = (): void => {
-    mutateAsync({ panels: formatPanelsToAPI(dashboard.layout) }).then(() => {
-      showSuccessMessage(t(labelYourDashboardHasBeenSaved));
-      switchPanelsEditionMode(false);
-      queryClient.invalidateQueries({
-        queryKey: ['dashboard', dashboardId]
-      });
-    });
+    mutateAsync({ panels: formatPanelsToAPI(dashboard.layout) });
   };
 
   return { saveDashboard };

@@ -1,7 +1,12 @@
 import 'ulog';
-import { useEffect } from 'react';
+import { startTransition, useEffect } from 'react';
 
-import { useMutation } from '@tanstack/react-query';
+import {
+  QueryClient,
+  QueryKey,
+  useMutation,
+  useQueryClient
+} from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
 import anylogger from 'anylogger';
 import { includes } from 'ramda';
@@ -17,6 +22,19 @@ export enum Method {
   PUT = 'PUT'
 }
 
+interface OptimisticUIProps<T> {
+  onError?: (error, variables, context) => void;
+  onMutate?: (variables) => unknown;
+  onSettled?: (
+    data: T | ResponseError | undefined,
+    error: unknown,
+    variables: void,
+    context: unknown
+  ) => unknown;
+  onSuccess?: (data, variables, context) => void;
+  queryKeyToInvalidate: QueryKey;
+}
+
 export interface UseMutationQueryProps<T> {
   catchError?: (props: CatchErrorProps) => void;
   decoder?: JsonDecoder.Decoder<T>;
@@ -25,6 +43,7 @@ export interface UseMutationQueryProps<T> {
   getEndpoint: (payload) => string;
   httpCodesBypassErrorSnackbar?: Array<number>;
   method: Method;
+  optimisticUI?: OptimisticUIProps<T>;
 }
 
 const log = anylogger('API Request');
@@ -34,6 +53,7 @@ export interface UseMutationQueryState<T> {
   isMutating: boolean;
   mutate: (payload) => void;
   mutateAsync: (payload) => Promise<T | ResponseError>;
+  queryClient: QueryClient;
 }
 
 const useMutationQuery = <T extends object>({
@@ -43,12 +63,15 @@ const useMutationQuery = <T extends object>({
   defaultFailureMessage,
   fetchHeaders,
   httpCodesBypassErrorSnackbar = [],
-  method
+  method,
+  optimisticUI
 }: UseMutationQueryProps<T>): UseMutationQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
 
-  const queryData = useMutation<T | ResponseError>(
-    (payload): Promise<T | ResponseError> =>
+  const queryClient = useQueryClient();
+
+  const queryData = useMutation<T | ResponseError>({
+    mutationFn: (payload): Promise<T | ResponseError> =>
       customFetch<T>({
         catchError,
         decoder,
@@ -61,8 +84,20 @@ const useMutationQuery = <T extends object>({
         isMutation: true,
         method,
         payload
-      })
-  );
+      }),
+    onError: optimisticUI?.onError,
+    onMutate: optimisticUI?.onMutate,
+    onSettled: optimisticUI?.onSettled,
+    onSuccess: (data, variables, context) => {
+      startTransition(() => {
+        queryClient.invalidateQueries({
+          queryKey: optimisticUI?.queryKeyToInvalidate
+        });
+      });
+
+      optimisticUI?.onSuccess?.(data, variables, context);
+    }
+  });
 
   const manageError = (): void => {
     const data = queryData.data as ResponseError | undefined;
@@ -87,7 +122,8 @@ const useMutationQuery = <T extends object>({
     isError: (queryData.data as ResponseError | undefined)?.isError || false,
     isMutating: queryData.isLoading,
     mutate: queryData.mutate,
-    mutateAsync: queryData.mutateAsync
+    mutateAsync: queryData.mutateAsync,
+    queryClient
   };
 };
 
