@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Dashboard\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
@@ -33,7 +34,6 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
 /**
@@ -57,82 +57,162 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         $this->db = $db;
     }
 
-    public function findByRequestParameter(?RequestParametersInterface $requestParameters): array
-    {
-        $concatenator = $this->getFindDashboardConcatenator();
-
-        return $this->retrieveDashboards($concatenator, $requestParameters);
-    }
-
-    public function findByRequestParameterAndAccessGroups(
-        array $accessGroups,
-        ?RequestParametersInterface $requestParameters
-    ): array {
-        if ([] === $accessGroups) {
-            return [];
-        }
-
-        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
-        $concatenator = $this->getFindDashboardConcatenator($accessGroupIds);
-
-        return $this->retrieveDashboards($concatenator, $requestParameters);
-    }
-
     /**
      * @inheritDoc
      */
     public function existsOne(int $dashboardId): bool
     {
-        $concatenator = $this->getFindDashboardConcatenator();
+        $query = <<<'SQL'
+            SELECT
+                1
+            FROM
+                `:db`.`dashboard` d
+            WHERE
+                d.id = :dashboard_id
+            SQL;
 
-        return $this->existsDashboard($concatenator, $dashboardId);
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    public function findOne(int $dashboardId): ?Dashboard
+    {
+        $query = <<<'SQL'
+            SELECT
+                d.id,
+                d.name,
+                d.description,
+                d.created_by,
+                d.updated_by,
+                d.created_at,
+                d.updated_at
+            FROM
+                `:db`.`dashboard` d
+            WHERE
+                d.id = :dashboard_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        /** @var null|false|DashboardResultSet $data */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $data ? $this->createDashboardFromArray($data) : null;
     }
 
     /**
      * @inheritDoc
      */
-    public function existsOneByAccessGroups(int $dashboardId, array $accessGroups): bool
+    public function existsOneByContact(int $dashboardId, ContactInterface $contact): bool
     {
-        if ([] === $accessGroups) {
-            return false;
-        }
+        $query = <<<'SQL'
+            SELECT
+                1
+            FROM `:db`.`dashboard` d
+            LEFT JOIN (
+                SELECT DISTINCT dcgr.`dashboard_id` as `id`
+                FROM `:db`.`dashboard_contactgroup_relation` dcgr
+                INNER JOIN `:db`.`contactgroup` cg ON cg.`cg_id`=dcgr.`contactgroup_id`
+                INNER JOIN `:db`.`contactgroup_contact_relation` cgcr ON cg.`cg_id`=cgcr.`contactgroup_cg_id`
+                WHERE dcgr.`dashboard_id` = :dashboard_id
+                  AND cgcr.`contact_contact_id` = :contact_id
+            ) has_contactgroup_share USING (`id`)
+            LEFT JOIN (
+                SELECT dcr.`dashboard_id` as `id`
+                FROM `:db`.`dashboard_contact_relation` dcr
+                WHERE dcr.`dashboard_id` = :dashboard_id
+                  AND dcr.`contact_id` = :contact_id
+            ) has_contact_share USING (`id`)
+            WHERE
+                d.id = :dashboard_id
+                AND (has_contact_share.id IS NOT NULL OR has_contactgroup_share.id IS NOT NULL)
+            SQL;
 
-        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
-        $concatenator = $this->getFindDashboardConcatenator($accessGroupIds);
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
+        $statement->bindValue(':contact_id', $contact->getId(), \PDO::PARAM_INT);
+        $statement->execute();
 
-        return $this->existsDashboard($concatenator, $dashboardId);
+        return (bool) $statement->fetchColumn();
     }
 
-    public function findOne(int $dashboardId): ?Dashboard
+    public function findOneByContact(int $dashboardId, ContactInterface $contact): ?Dashboard
     {
-        $concatenator = $this->getFindDashboardConcatenator();
+        $query = <<<'SQL'
+            SELECT
+                d.id,
+                d.name,
+                d.description,
+                d.created_by,
+                d.updated_by,
+                d.created_at,
+                d.updated_at
+            FROM `:db`.`dashboard` d
+            LEFT JOIN (
+                SELECT DISTINCT dcgr.`dashboard_id` as `id`
+                FROM `:db`.`dashboard_contactgroup_relation` dcgr
+                INNER JOIN `:db`.`contactgroup` cg ON cg.`cg_id`=dcgr.`contactgroup_id`
+                INNER JOIN `:db`.`contactgroup_contact_relation` cgcr ON cg.`cg_id`=cgcr.`contactgroup_cg_id`
+                WHERE dcgr.`dashboard_id` = :dashboard_id
+                  AND cgcr.`contact_contact_id` = :contact_id
+            ) has_contactgroup_share USING (`id`)
+            LEFT JOIN (
+                SELECT dcr.`dashboard_id` as `id`
+                FROM `:db`.`dashboard_contact_relation` dcr
+                WHERE dcr.`dashboard_id` = :dashboard_id
+                  AND dcr.`contact_id` = :contact_id
+            ) has_contact_share USING (`id`)
+            WHERE
+                d.id = :dashboard_id
+                AND (has_contact_share.id IS NOT NULL OR has_contactgroup_share.id IS NOT NULL)
+            SQL;
 
-        return $this->retrieveDashboard($concatenator, $dashboardId);
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
+        $statement->bindValue(':contact_id', $contact->getId(), \PDO::PARAM_INT);
+        $statement->execute();
+
+        /** @var null|false|DashboardResultSet $data */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $data ? $this->createDashboardFromArray($data) : null;
     }
 
-    public function findOneByAccessGroups(int $dashboardId, array $accessGroups): ?Dashboard
-    {
-        if ([] === $accessGroups) {
-            return null;
-        }
+    public function findByRequestParameter(
+        ?RequestParametersInterface $requestParameters
+    ): array {
+        return $this->findDashboards(
+            $this->getFindDashboardConcatenator(null),
+            $requestParameters
+        );
+    }
 
-        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
-        $concatenator = $this->getFindDashboardConcatenator($accessGroupIds);
-
-        return $this->retrieveDashboard($concatenator, $dashboardId);
+    public function findByRequestParameterAndContact(
+        ?RequestParametersInterface $requestParameters,
+        ContactInterface $contact
+    ): array {
+        return $this->findDashboards(
+            $this->getFindDashboardConcatenator($contact->getId()),
+            $requestParameters
+        );
     }
 
     /**
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
      *
-     * @throws AssertionFailedException
      * @throws RequestParametersTranslatorException
      * @throws \PDOException
+     * @throws AssertionFailedException
      *
      * @return list<Dashboard>
      */
-    private function retrieveDashboards(
+    private function findDashboards(
         SqlConcatenator $concatenator,
         ?RequestParametersInterface $requestParameters
     ): array {
@@ -166,12 +246,7 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
         return $dashboards;
     }
 
-    /**
-     * @param list<int> $accessGroupIds
-     *
-     * @return SqlConcatenator
-     */
-    private function getFindDashboardConcatenator(array $accessGroupIds = []): SqlConcatenator
+    private function getFindDashboardConcatenator(?int $contactId): SqlConcatenator
     {
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
@@ -198,25 +273,32 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
                     SQL
             );
 
-        if ([] !== $accessGroupIds) {
-            // At this stage of the development, we consider everybody can see all dashboards.
-            // The ACL schema + filtering will be done in a future feature.
+        if ($contactId) {
+            $concatenator->appendJoins(
+                <<<'SQL'
+                    LEFT JOIN (
+                        SELECT DISTINCT dcgr.`dashboard_id` as `id`
+                        FROM `:db`.`dashboard_contactgroup_relation` dcgr
+                        INNER JOIN `:db`.`contactgroup` cg ON cg.`cg_id`=dcgr.`contactgroup_id`
+                        INNER JOIN `:db`.`contactgroup_contact_relation` cgcr ON cg.`cg_id`=cgcr.`contactgroup_cg_id`
+                        WHERE cgcr.`contact_contact_id` = :contact_id
+                    ) has_contactgroup_share USING (`id`)
+                    LEFT JOIN (
+                        SELECT dcr.`dashboard_id` as `id`
+                        FROM `:db`.`dashboard_contact_relation` dcr
+                        WHERE dcr.`contact_id` = :contact_id
+                    ) has_contact_share USING (`id`)
+                    SQL
+            );
+            $concatenator->appendWhere(
+                <<<'SQL'
+                    WHERE (has_contact_share.id IS NOT NULL OR has_contactgroup_share.id IS NOT NULL)
+                    SQL
+            );
+            $concatenator->storeBindValue(':contact_id', $contactId, \PDO::PARAM_INT);
         }
 
         return $concatenator;
-    }
-
-    /**
-     * @param list<AccessGroup> $accessGroups
-     *
-     * @return list<int>
-     */
-    private function accessGroupsToIds(array $accessGroups): array
-    {
-        return array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
-            $accessGroups
-        );
     }
 
     /**
@@ -224,8 +306,8 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      *
      * @phpstan-param DashboardResultSet $result
      *
-     * @throws AssertionFailedException
      * @throws \ValueError
+     * @throws AssertionFailedException
      *
      * @return Dashboard
      */
@@ -240,70 +322,5 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
             createdAt: $this->timestampToDateTimeImmutable($result['created_at']),
             updatedAt: $this->timestampToDateTimeImmutable($result['updated_at'])
         );
-    }
-
-    /**
-     * @param SqlConcatenator $concatenator
-     * @param int $dashboardId
-     *
-     * @throws \PDOException
-     *
-     * @return bool
-     */
-    private function existsDashboard(SqlConcatenator $concatenator, int $dashboardId): bool
-    {
-        $concatenator
-            // We override the select because we just need to get the ID to check the existence.
-            ->defineSelect(
-                <<<'SQL'
-                    SELECT 1
-                    SQL
-            )
-            // We add the filtering by dashboard id.
-            ->appendWhere(
-                <<<'SQL'
-                    WHERE d.id = :dashboard_id
-                    SQL
-            )
-            ->storeBindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
-
-        // Prepare SQL + bind values
-        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
-        $concatenator->bindValuesToStatement($statement);
-        $statement->execute();
-
-        return (bool) $statement->fetchColumn();
-    }
-
-    /**
-     * @param SqlConcatenator $concatenator
-     * @param int $dashboardId
-     *
-     * @throws AssertionFailedException
-     * @throws \PDOException
-     *
-     * @return Dashboard|null
-     */
-    private function retrieveDashboard(SqlConcatenator $concatenator, int $dashboardId): ?Dashboard
-    {
-        // We add the filtering by dashboard id.
-        $concatenator
-            ->appendWhere(
-                <<<'SQL'
-                    WHERE d.id = :dashboard_id
-                    SQL
-            )
-            ->storeBindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
-
-        // Prepare SQL + bind values
-        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
-        $concatenator->bindValuesToStatement($statement);
-        $statement->execute();
-
-        // Retrieve the first row
-        /** @var null|false|DashboardResultSet $data */
-        $data = $statement->fetch(\PDO::FETCH_ASSOC);
-
-        return $data ? $this->createDashboardFromArray($data) : null;
     }
 }

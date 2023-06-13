@@ -24,28 +24,30 @@ declare(strict_types=1);
 namespace Tests\Core\Dashboard\Application\UseCase\AddDashboard;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\WriteDashboardRelationRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboard;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardRequest;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardResponse;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Dashboard\Domain\Model\DashboardRights;
 
 beforeEach(function (): void {
     $this->presenter = new AddDashboardPresenterStub();
     $this->useCase = new AddDashboard(
         $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class),
         $this->writeDashboardRepository = $this->createMock(WriteDashboardRepositoryInterface::class),
-        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->contact = $this->createMock(ContactInterface::class)
+        $this->writeDashboardRelationRepository = $this->createMock(WriteDashboardRelationRepositoryInterface::class),
+        $this->createMock(DataStorageEngineInterface::class),
+        $this->rights = $this->createMock(DashboardRights::class),
+        $this->contact = $this->createMock(ContactInterface::class),
     );
 
     $this->testedAddDashboardRequest = new AddDashboardRequest();
@@ -65,10 +67,8 @@ beforeEach(function (): void {
 it(
     'should present an ErrorResponse when a generic exception is thrown',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willThrowException(new \Exception());
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willThrowException(new \Exception());
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
@@ -82,7 +82,8 @@ it(
 it(
     'should present an ErrorResponse with a custom message when a DashboardException is thrown',
     function (): void {
-        $this->contact->expects($this->once())->method('isAdmin')
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')
             ->willThrowException(new DashboardException($msg = uniqid('fake message ', true)));
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
@@ -97,7 +98,8 @@ it(
 it(
     'should present a InvalidArgumentResponse when a model field value is not valid',
     function (): void {
-        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
 
         $this->testedAddDashboardRequest->name = '';
         $expectedException = AssertionException::notEmptyString('NewDashboard::name');
@@ -112,18 +114,39 @@ it(
 );
 
 it(
-    'should present an ErrorResponse if the newly created dashboard cannot be retrieved',
+    'should present an ErrorResponse if the newly created dashboard cannot be retrieved as ADMIN',
     function (): void {
-        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
-        $this->contact->expects($this->atLeastOnce())->method('getId')->willReturn(1);
-        $this->writeDashboardRepository
-            ->expects($this->once())
-            ->method('add')
-            ->willReturn($this->testedDashboard->getId());
-        $this->readDashboardRepository
-            ->expects($this->once())
-            ->method('findOne')
-            ->willReturn(null); // the failure
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())
+            ->method('getId')->willReturn(1);
+        $this->writeDashboardRepository->expects($this->once())
+            ->method('add')->willReturn($this->testedDashboard->getId());
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOne')->willReturn(null); // the failure
+
+        ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
+
+        expect($this->presenter->data)
+            ->toBeInstanceOf(ErrorResponse::class)
+            ->and($this->presenter->data->getMessage())
+            ->toBe(DashboardException::errorWhileRetrievingJustCreated()->getMessage());
+    }
+);
+
+it(
+    'should present an ErrorResponse if the newly created dashboard cannot be retrieved as CREATOR',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canCreate')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())
+            ->method('getId')->willReturn(1);
+        $this->writeDashboardRepository->expects($this->once())
+            ->method('add')->willReturn($this->testedDashboard->getId());
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOneByContact')->willReturn(null); // the failure
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
@@ -137,18 +160,10 @@ it(
 it(
     'should present a ForbiddenResponse when the user does not have the correct role',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_HOME_DASHBOARD_WRITE, false],
-                ]
-            );
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canCreate')->willReturn(false);
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
@@ -160,18 +175,16 @@ it(
 );
 
 it(
-    'should present a AddDashboardResponse as admin',
+    'should present a AddDashboardResponse as ADMIN',
     function (): void {
-        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
-        $this->contact->expects($this->atLeastOnce())->method('getId')->willReturn(1);
-        $this->writeDashboardRepository
-            ->expects($this->once())
-            ->method('add')
-            ->willReturn($this->testedDashboard->getId());
-        $this->readDashboardRepository
-            ->expects($this->once())
-            ->method('findOne')
-            ->willReturn($this->testedDashboard);
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())
+            ->method('getId')->willReturn(1);
+        $this->writeDashboardRepository->expects($this->once())
+            ->method('add')->willReturn($this->testedDashboard->getId());
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOne')->willReturn($this->testedDashboard);
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
@@ -190,54 +203,18 @@ it(
 );
 
 it(
-    'should present a ForbiddenResponse as allowed READ user',
+    'should present a AddDashboardResponse as allowed CREATOR user',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_HOME_DASHBOARD_READ, true],
-                    [Contact::ROLE_HOME_DASHBOARD_WRITE, false],
-                ]
-            );
-
-        ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
-
-        expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class);
-    }
-);
-
-it(
-    'should present a AddDashboardResponse as allowed READ_WRITE user',
-    function (): void {
-        $this->contact->expects($this->once())->method('isAdmin')->willReturn(false);
-        $this->contact->expects($this->atLeastOnce())->method('getId')->willReturn(1);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_HOME_DASHBOARD_READ, false],
-                    [Contact::ROLE_HOME_DASHBOARD_WRITE, true],
-                ]
-            );
-        $this->readAccessGroupRepository
-            ->expects($this->once())
-            ->method('findByContact')
-            ->willReturn([]);
-        $this->writeDashboardRepository
-            ->expects($this->once())
-            ->method('add')
-            ->willReturn($this->testedDashboard->getId());
-        $this->readDashboardRepository
-            ->expects($this->once())
-            ->method('findOneByAccessGroups')
-            ->willReturn($this->testedDashboard);
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canCreate')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())
+            ->method('getId')->willReturn(1);
+        $this->writeDashboardRepository->expects($this->once())
+            ->method('add')->willReturn($this->testedDashboard->getId());
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOneByContact')->willReturn($this->testedDashboard);
 
         ($this->useCase)($this->testedAddDashboardRequest, $this->presenter);
 
@@ -254,3 +231,4 @@ it(
             );
     }
 );
+
