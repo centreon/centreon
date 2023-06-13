@@ -21,6 +21,8 @@ dnf clean all --enablerepo=*
 
 EOF
 
+COPY ./centreon-gorgone/gorgone /usr/share/perl5/vendor_perl/gorgone
+
 COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint/container.sh /usr/share/centreon/container.sh
 COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint/container.d/* /usr/share/centreon/container.d/
 COPY --chmod=755 ./.github/docker/centreon-web/alma8/scripts/autoinstall.php /usr/share/centreon/
