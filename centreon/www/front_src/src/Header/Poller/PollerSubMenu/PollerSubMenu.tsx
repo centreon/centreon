@@ -101,7 +101,9 @@ export const PollerSubMenu = ({
           <ExportConfiguration closeSubMenu={closeSubMenu} />
         </ListItem>
       )}
-      <FederatedComponent path="/cloud-extensions" />
+      <ListItem className={classes.listItem}>
+        <FederatedComponent path="/cloud-extensions" />
+      </ListItem>
     </List>
   );
 };
