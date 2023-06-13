@@ -60,7 +60,7 @@ final class DeleteNotification
      * @param int $notificationId
      * @param DeleteNotificationPresenterInterface $presenter
      */
-    public function __invoke(int $notificationId, DeleteNotificationPresenterInterface $presenter)
+    public function __invoke(int $notificationId, DeleteNotificationPresenterInterface $presenter): void
     {
         try {
             if ($this->contactCanExecuteUseCase()) {
