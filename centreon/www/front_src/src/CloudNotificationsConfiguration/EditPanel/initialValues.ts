@@ -58,7 +58,7 @@ export const emptyInitialValues = {
       }
     },
     ids: [],
-    type: 'Host groups'
+    type: ResourcesTypeEnum.HG
   },
   isActivated: true,
   messages: {
@@ -66,11 +66,11 @@ export const emptyInitialValues = {
     message: emptyEmail,
     subject: ''
   },
-  name: 'Notification #1',
+  name: '',
   serviceGroups: {
     events: [],
     ids: [],
-    type: 'Service groups'
+    type: ResourcesTypeEnum.SG
   },
   slack: {
     channel: {

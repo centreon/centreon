@@ -2,7 +2,7 @@ import { isNil } from 'ramda';
 
 import { baseEndpoint } from '../../../api/endpoint';
 
-export const notificationListingEndpoint = `${baseEndpoint}/notifications`;
+export const notificationListingEndpoint = `${baseEndpoint}/configuration/notifications`;
 
 interface Props {
   id?: number | null;
