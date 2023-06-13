@@ -25,13 +25,18 @@ namespace Tests\Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
+use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
+use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
+use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostMacro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\HostMacro\Domain\Model\HostMacro;
@@ -42,6 +47,7 @@ use Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate\PartialUpdat
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function () {
     $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
@@ -63,10 +69,16 @@ beforeEach(function () {
         $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
         $this->readCommandMacroRepository = $this->createMock(ReadCommandMacroRepositoryInterface::class),
         $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class),
+        $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
+        $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class),
+        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
     );
 
+    $this->request = new PartialUpdateHostTemplateRequest();
+
+    // Settup macros
     $this->macroA = new HostMacro($this->hostTemplateId, 'macroNameA', 'macroValueA');
     $this->macroA->setOrder(0);
     $this->macroB = new HostMacro($this->hostTemplateId, 'macroNameB', 'macroValueB');
@@ -83,7 +95,6 @@ beforeEach(function () {
         ['parent_id' => 2, 'child_id' => 1, 'order' => 1],
     ];
 
-    $this->request = new PartialUpdateHostTemplateRequest();
     $this->request->macros = [
         [
             'name' =>   $this->macroA->getName(),
@@ -98,6 +109,12 @@ beforeEach(function () {
             'description' =>  null
         ],
     ];
+
+    // Settup categories
+    $this->categoryA = new HostCategory(1, 'cat-name-A', 'cat-alias-A');
+    $this->categoryB = new HostCategory(2, 'cat-name-B', 'cat-alias-B');
+
+    $this->request->categories = [$this->categoryB->getId()];
 
 });
 
@@ -151,6 +168,82 @@ it('should present a NotFoundResponse when the host template does not exist', fu
         ->toBe('Host template not found');
 });
 
+it('should present a InvalidArgumentResponse when the host template is locked', function () {
+    $hostTemplate = new HostTemplate(id: 1, name: 'tpl-name', alias: 'tpl-alias', isLocked: true);
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($hostTemplate);
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(InvalidArgumentResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(HostTemplateException::hostIsLocked($hostTemplate->getId())->getMessage());
+});
+
+it('should present a ConflictResponse when a host category does not exist', function () {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->hostTemplate);
+    $this->hostTemplate
+        ->expects($this->atLeastOnce())
+        ->method('getId')
+        ->willReturn($this->hostTemplateId);
+    $this->hostTemplate
+        ->expects($this->atLeastOnce())
+        ->method('getCheckCommandId')
+        ->willReturn($this->checkCommandId);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findParents')
+        ->willReturn($this->inheritanceLineIds);
+    $this->readHostMacroRepository
+        ->expects($this->once())
+        ->method('findByHostIds')
+        ->willReturn($this->hostMacros);
+    $this->readCommandMacroRepository
+        ->expects($this->once())
+        ->method('findByCommandIdAndType')
+        ->willReturn($this->commandMacros);
+
+    $this->writeHostMacroRepository
+        ->expects($this->once())
+        ->method('delete');
+    $this->writeHostMacroRepository
+        ->expects($this->once())
+        ->method('add');
+    $this->writeHostMacroRepository
+        ->expects($this->once())
+        ->method('update');
+
+    $this->user
+        ->expects($this->atLeast(2))
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn([]);
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(HostTemplateException::idsDoNotExist('categories', $this->request->categories)->getMessage());
+});
+
 it('should present a NoContentResponse on success', function () {
     $this->user
         ->expects($this->once())
@@ -190,6 +283,27 @@ it('should present a NoContentResponse on success', function () {
     $this->writeHostMacroRepository
         ->expects($this->once())
         ->method('update');
+
+    $this->user
+        ->expects($this->atLeast(3))
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn([$this->categoryB->getId()]);
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findByHost')
+        ->willReturn([$this->categoryA]);
+
+    $this->writeHostCategoryRepository
+        ->expects($this->once())
+        ->method('linkToHost');
+
+    $this->writeHostCategoryRepository
+        ->expects($this->once())
+        ->method('unlinkFromHost');
 
     ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
 

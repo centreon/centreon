@@ -103,23 +103,19 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     ehi.ehi_icon_image_alt,
                     hcr.hostcategories_hc_id as severity_id
                 FROM `:db`.host h
-                LEFT JOIN `:db`.extended_host_information ehi ON h.host_id = ehi.host_host_id
-                LEFT JOIN `:db`.hostcategories_relation hcr ON h.host_id = hcr.host_host_id
+                LEFT JOIN `:db`.extended_host_information ehi
+                    ON h.host_id = ehi.host_host_id
+                LEFT JOIN `:db`.hostcategories_relation hcr
+                    ON hcr.host_host_id = h.host_id
+                LEFT JOIN `:db`.hostcategories hc
+                    ON hc.hc_id = hcr.hostcategories_hc_id
+                    AND hc.level IS NOT NULL
                 SQL
         );
 
         // Filter on host templates
         $concatenator->appendWhere('h.host_register = :hostTemplateType');
         $concatenator->storeBindValue(':hostTemplateType', HostType::Template->value, \PDO::PARAM_STR);
-        // Filter on host severity
-        $concatenator->appendWhere(
-            <<<'SQL'
-                (
-                    hcr.hostcategories_hc_id IS NULL
-                    OR hcr.hostcategories_hc_id IN (SELECT hc_id FROM `:db`.hostcategories WHERE level IS NOT NULL)
-                )
-                SQL
-        );
 
         // Settup for search, pagination, order
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
@@ -243,14 +239,15 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     ehi.ehi_icon_image_alt,
                     hcr.hostcategories_hc_id as severity_id
                 FROM `:db`.host h
-                LEFT JOIN `:db`.extended_host_information ehi ON h.host_id = ehi.host_host_id
-                LEFT JOIN `:db`.hostcategories_relation hcr ON h.host_id = hcr.host_host_id
+                LEFT JOIN `:db`.extended_host_information ehi
+                    ON h.host_id = ehi.host_host_id
+                LEFT JOIN `:db`.hostcategories_relation hcr
+                    ON hcr.host_host_id = h.host_id
+                LEFT JOIN `:db`.hostcategories hc
+                    ON hc.hc_id = hcr.hostcategories_hc_id
+                    AND hc.level IS NOT NULL
                 WHERE h.host_id = :hostTemplateId
                     AND h.host_register = :hostTemplateType
-                    AND (
-                        hcr.hostcategories_hc_id IS NULL
-                        OR hcr.hostcategories_hc_id IN (SELECT hc_id FROM `:db`.hostcategories WHERE level IS NOT NULL)
-                    )
                 SQL
         );
         $statement = $this->db->prepare($request);
