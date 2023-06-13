@@ -61,7 +61,7 @@ interface WriteNotificationRepositoryInterface
     public function addUsers(int $notificationId, array $userIds): void;
 
     /**
-     * Delete a notification
+     * Delete a notification.
      *
      * @param int $notificationId
      *

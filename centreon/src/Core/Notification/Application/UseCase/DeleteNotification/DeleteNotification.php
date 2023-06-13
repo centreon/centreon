@@ -29,8 +29,8 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{
     ErrorResponse,
     ForbiddenResponse,
-    NotFoundResponse,
     NoContentResponse,
+    NotFoundResponse,
     ResponseStatusInterface,
 };
 use Core\Notification\Application\Exception\NotificationException;
@@ -38,7 +38,6 @@ use Core\Notification\Application\Repository\{
     ReadNotificationRepositoryInterface,
     WriteNotificationRepositoryInterface,
 };
-use Core\Notification\Application\UseCase\DeleteNotification\DeleteNotificationPresenterInterface;
 
 final class DeleteNotification
 {
