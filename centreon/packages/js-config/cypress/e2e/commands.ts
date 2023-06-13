@@ -346,6 +346,39 @@ Cypress.Commands.add(
   }
 );
 
+interface Dashboard {
+  description?: string;
+  name: string;
+}
+
+Cypress.Commands.add(
+  'insertDashboardList',
+  (fixtureFile: string): Cypress.Chainable => {
+    return cy.fixture(fixtureFile).then((dashboardList) => {
+      cy.wrap(
+        Promise.all(
+          dashboardList.map((dashboardBody: Dashboard) =>
+            cy.insertDashboard({ ...dashboardBody })
+          )
+        )
+      );
+    });
+  }
+);
+
+Cypress.Commands.add(
+  'insertDashboard',
+  (dashboardBody: Dashboard): Cypress.Chainable => {
+    return cy.request({
+      body: {
+        ...dashboardBody
+      },
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/dashboards'
+    });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -363,6 +396,8 @@ declare global {
       getIframeBody: () => Cypress.Chainable;
       getWebVersion: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
+      insertDashboard: (dashboard: Dashboard) => Cypress.Chainable;
+      insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
       loginByTypeOfUser: ({
         jsonName = 'admin',
         loginViaApi = false
