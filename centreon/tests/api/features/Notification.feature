@@ -639,7 +639,7 @@ Feature:
     When I send a DELETE request to '/api/latest/configuration/notifications/1'
     Then the response code should be "403"
 
-  Scenario: Delete notification definition with id that does not exist
+  Scenario: Delete notification definition with ID that does not exist
     Given the following CLAPI import data:
     """
     CONTACT;ADD;test-user;test-user;test-user@localservice.com;Centreon@2022;0;1;en_US;local
