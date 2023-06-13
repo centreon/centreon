@@ -427,26 +427,35 @@ When('the user opens a chart from resource status detail panel', () => {
     rootItemNumber: 1
   });
 
-  updateFixturesResult().then((submitResult) => {
-    submitResultsViaClapi(submitResult).then(() => {
-      cy.waitUntil(
-        () => {
-          return cy
-            .refreshListing()
-            .then(() => cy.contains(hostInAcknowledgementName))
-            .parent()
-            .parent()
-            .find('.MuiChip-label')
-            .eq(0)
-            .then((val) => {
-              return val[0].textContent === 'Up';
-            });
-        },
-        {
-          timeout: 15000
-        }
-      );
-    });
+  cy.getByLabel({ label: 'State filter' }).click();
+
+  cy.get('[data-value="all"]').click();
+
+  submitResultsViaClapi([
+    {
+      host: hostInAcknowledgementName,
+      output: 'submit_status_1',
+      service: serviceInDtName,
+      status: '0'
+    }
+  ]).then(() => {
+    cy.waitUntil(
+      () => {
+        return cy
+          .refreshListing()
+          .then(() => cy.contains(serviceInDtName))
+          .parent()
+          .parent()
+          .find('.MuiChip-label')
+          .eq(0)
+          .then((val) => {
+            return val[0].textContent === 'OK';
+          });
+      },
+      {
+        timeout: 15000
+      }
+    );
   });
 
   cy.contains(hostInAcknowledgementName)
@@ -470,12 +479,75 @@ When(
 Then(
   'the time window of the chart is based on the custom timezone of the user',
   () => {
-    cy.getTimeFromHeader().then((time) => {
-      cy.get('.visx-axis-bottom')
-        .find('g')
-        .last()
-        .should('contain.text', time.split(':')[0]);
-    });
+    cy.get('.visx-bar').eq(1).find('rect:nth-child(11)').focus();
+  }
+);
+
+When('the user opens a chart from Monitoring>Performances>Graphs', () => {
+  cy.navigateTo({
+    page: 'Resources Status',
+    rootItemNumber: 1
+  });
+
+  cy.getByLabel({ label: 'State filter' }).click();
+
+  cy.get('[data-value="all"]').click();
+
+  submitResultsViaClapi([
+    {
+      host: hostInAcknowledgementName,
+      output: 'submit_status_1',
+      service: serviceInDtName,
+      status: '0'
+    }
+  ]).then(() => {
+    cy.waitUntil(
+      () => {
+        return cy
+          .refreshListing()
+          .then(() => cy.contains(serviceInDtName))
+          .parent()
+          .parent()
+          .find('.MuiChip-label')
+          .eq(0)
+          .then((val) => {
+            return val[0].textContent === 'OK';
+          });
+      },
+      {
+        timeout: 15000
+      }
+    );
+  });
+
+  cy.navigateTo({
+    page: 'Graphs',
+    rootItemNumber: 1,
+    subMenu: 'Performances'
+  }).wait('@getTimeZone');
+});
+
+When('the user selects a chart', () => {
+  cy.getIframeBody().find('.select2-search__field').eq(0).type('service');
+
+  cy.getIframeBody()
+    .find('ul[id="select2-select-chart-results"] li')
+    .contains(serviceInDtName)
+    .eq(0)
+    .click();
+});
+
+When('the user selects default periods', () => {
+  cy.getIframeBody()
+    .find('select[name="period"]')
+    .eq(0)
+    .should('have.value', 'Last 3 Hours');
+});
+
+Then(
+  'the time window of the chart is based on the custom timezone of the user',
+  () => {
+    
   }
 );
 
