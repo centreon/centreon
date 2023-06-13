@@ -25,7 +25,7 @@ Given(
   }
 );
 
-When('they open the form to create a new dashboard', () => {
+When('the user opens the form to create a new dashboard', () => {
   cy.getByLabel({ label: 'create', tag: 'button' }).click();
 });
 
@@ -44,11 +44,11 @@ Then(
   }
 );
 
-When('they fill in the name field', () => {
+When('the user fills in the name field', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-without-desc');
 });
 
-Then('they are allowed to create the dashboard', () => {
+Then('the user is allowed to create the dashboard', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).should(
     'have.value',
     'dashboard-without-desc'
@@ -57,7 +57,7 @@ Then('they are allowed to create the dashboard', () => {
   cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
 });
 
-When('they save the dashboard', () => {
+When('the user saves the dashboard', () => {
   cy.getByLabel({ label: 'submit', tag: 'button' }).click();
 });
 
@@ -79,7 +79,7 @@ Given(
   }
 );
 
-When('they fill in the name and description fields and save', () => {
+When('the user fills in the name and description fields and save', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-with-desc');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
     'My First Dashboard :)'
@@ -110,23 +110,26 @@ Given(
   }
 );
 
-When('they leave the creation form without saving the dashboard', () => {
+When('the user leaves the creation form without saving the dashboard', () => {
   cy.getByLabel({ label: 'cancel', tag: 'button' }).click();
 });
 
 Then(
-  'the dashboard has not been created when they are redirected back on the dashboards library',
+  'the dashboard has not been created when the user is redirected back on the dashboards library',
   () => {
     cy.getByLabel({ label: 'view', tag: 'button' }).should('not.exist');
   }
 );
 
-When('they open the form to create a new dashboard for the second time', () => {
-  cy.getByLabel({ label: 'create', tag: 'button' }).click();
-});
+When(
+  'the user opens the form to create a new dashboard for the second time',
+  () => {
+    cy.getByLabel({ label: 'create', tag: 'button' }).click();
+  }
+);
 
 Then(
-  'the information they filled in the first creation form has not been saved',
+  'the information the user filled in the first creation form has not been saved',
   () => {
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
       'not.contain.text',

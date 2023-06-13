@@ -5,21 +5,21 @@ Feature: Create a new dashboard
   
 Scenario: Create a new dashboard with name only
   Given a user with dashboard edition rights on the dashboard listing page
-  When they open the form to create a new dashboard 
+  When the user opens the form to create a new dashboard 
   Then the creation form is displayed and contains the fields to create a dashboard
-  When they fill in the name field
-  Then they are allowed to create the dashboard
-  When they save the dashboard
+  When the user fills in the name field
+  Then the user is allowed to create the dashboard
+  When the user saves the dashboard
   Then the newly created dashboard appears in the dashboards library
 
 Scenario: Create a new dashboard with name and description
   Given a user with dashboard edition rights on the dashboard creation form
-  When they fill in the name and description fields and save
+  When the user fills in the name and description fields and save
   Then the newly created dashboard appears in the dashboards library with its name and description
 
 Scenario: Cancel a creation form
   Given a user with dashboard edition rights who is about to create a dashboard
-  When they leave the creation form without saving the dashboard
-  Then the dashboard has not been created when they are redirected back on the dashboards library 
-  When they open the form to create a new dashboard for the second time
-  Then the information they filled in the first creation form has not been saved
+  When the user leaves the creation form without saving the dashboard
+  Then the dashboard has not been created when the user is redirected back on the dashboards library 
+  When the user opens the form to create a new dashboard for the second time
+  Then the information the user filled in the first creation form has not been saved
