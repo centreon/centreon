@@ -74,7 +74,7 @@ class NotificationException extends \Exception
 
     public static function deleteNotAllowed(): self
     {
-        return new self(_('You are not allowed to delete a notification'));
+        return new self(_('You are not allowed to delete a notification configuration'));
     }
 
     public static function errorWhileDeletingObject(): self
