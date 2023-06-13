@@ -360,7 +360,10 @@ final class PartialUpdateHostTemplate
             );
         }
 
-        $originalCategoryIds = array_map((fn($category) => $category->getId()), $originalCategories);
+        $originalCategoryIds = array_map(
+            static fn(HostCategory $category): int => $category->getId(),
+            $originalCategories
+        );
 
         $categoryDiff = new BasicDifference($originalCategoryIds, $categoryIds);
         /** @var int[] $addedCategories */
