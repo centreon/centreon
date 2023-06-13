@@ -367,9 +367,7 @@ final class PartialUpdateHostTemplate
         );
 
         $categoryDiff = new BasicDifference($originalCategoryIds, $categoryIds);
-        /** @var int[] $addedCategories */
         $addedCategories = $categoryDiff->getAdded();
-        /** @var int[] $removedCategories */
         $removedCategories = $categoryDiff->getRemoved();
 
         $this->writeHostCategoryRepository->linkToHost($hostTemplate->getId(), $addedCategories);
