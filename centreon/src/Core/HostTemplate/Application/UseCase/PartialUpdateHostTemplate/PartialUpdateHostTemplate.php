@@ -41,6 +41,7 @@ use Core\Common\Application\Type\NoValue;
 use Core\Host\Domain\Model\HostInheritance;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
+use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostMacro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\HostMacro\Domain\Model\HostMacro;
