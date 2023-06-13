@@ -95,7 +95,7 @@ const ExternalComponent = (tooltipData): JSX.Element => {
 
   return (
     <>
-      Je suis un composant externe.
+      External component
       <br />
       <br />
       {format({
