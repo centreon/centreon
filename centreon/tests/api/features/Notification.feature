@@ -586,7 +586,7 @@ Feature:
     When I send a DELETE request to '/api/latest/configuration/notifications/1'
     Then the response should be "204"
 
-  Scenario: Delete notification definition as a use with insufficient rights
+  Scenario: Delete notification definition as a user with insufficient rights
     Given the following CLAPI import data:
     """
     CONTACT;ADD;test-user;test-user;test-user@localservice.com;Centreon@2022;0;1;en_US;local
