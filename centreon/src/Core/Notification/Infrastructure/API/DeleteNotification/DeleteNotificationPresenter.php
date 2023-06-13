@@ -30,6 +30,9 @@ use Core\Notification\Application\UseCase\DeleteNotification\DeleteNotificationP
 
 final class DeleteNotificationPresenter extends AbstractPresenter implements DeleteNotificationPresenterInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function presentResponse(NoContentResponse|ResponseStatusInterface $data): void
     {
         if ($data instanceof NoContentResponse) {
