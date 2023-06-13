@@ -5,7 +5,7 @@ import { FormikHelpers } from 'formik';
 
 import {
   Method,
-  useListingMutation,
+  useOptimisticListingMutation,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
@@ -48,7 +48,7 @@ const useSubmitDashboard = (): UseSubmitDashboardState => {
   );
 
   const { applyListingMutation, rollBackListingMutation } =
-    useListingMutation();
+    useOptimisticListingMutation();
 
   const { mutateAsync, isMutating } = useMutationQuery<Dashboard>({
     getEndpoint: () =>

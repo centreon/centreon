@@ -124,7 +124,7 @@ export { default as Responsive } from './Responsive';
 export { default as useFetchQuery } from './api/useFetchQuery';
 export { default as useMutationQuery, Method } from './api/useMutationQuery';
 export { default as QueryProvider } from './api/QueryProvider';
-export { default as useListingMutation } from './api/useListingMutation';
+export { default as useOptimisticListingMutation } from './api/useOptimisticListingMutation';
 export {
   default as FileDropZone,
   transformFileListToArray

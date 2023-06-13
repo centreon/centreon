@@ -4,7 +4,7 @@ import { propEq, reject } from 'ramda';
 
 import {
   Method,
-  useListingMutation,
+  useOptimisticListingMutation,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
@@ -31,7 +31,7 @@ const useRemoveDashboard = (): UseRemoveDashboardState => {
   const { showSuccessMessage, showErrorMessage } = useSnackbar();
 
   const { applyListingMutation, rollBackListingMutation } =
-    useListingMutation();
+    useOptimisticListingMutation();
 
   const { mutateAsync, isMutating } = useMutationQuery({
     getEndpoint: (payload) => `${dashboardsEndpoint}/${payload?.id}`,
