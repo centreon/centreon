@@ -5,24 +5,24 @@ import Switch from '@mui/material/Switch';
 
 import { dateFormat } from './models';
 
-import AwesomeTimePeriod from '.';
+import TimePeriod from '.';
 
-const meta: Meta<typeof AwesomeTimePeriod> = {
-  component: AwesomeTimePeriod,
+const meta: Meta<typeof TimePeriod> = {
+  component: TimePeriod,
   tags: ['autodocs']
 };
 
 export default meta;
 
-type Story = StoryObj<typeof AwesomeTimePeriod>;
+type Story = StoryObj<typeof TimePeriod>;
 
 const Template: Story = {
-  render: (args) => <AwesomeTimePeriod {...args} />
+  render: (args) => <TimePeriod {...args} />
 };
 
 const TemplateWithExternalComponent: Story = {
   render: (args) => (
-    <AwesomeTimePeriod {...args} renderExternalComponent={<Switch />} />
+    <TimePeriod {...args} renderExternalComponent={<Switch />} />
   )
 };
 
@@ -81,7 +81,7 @@ const args = {
   ]
 };
 
-export const TimePeriod: Story = {
+export const BasicTimePeriod: Story = {
   ...Template,
   argTypes
 };

@@ -21,7 +21,7 @@ import {
   EndStartInterval,
   TimePeriod
 } from './models';
-import useAwesomeTimePeriod from './useAwesomeTimePeriod';
+import useTimePeriod from './useTimePeriod';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(utcPlugin);
@@ -39,7 +39,7 @@ export interface Props {
   renderExternalComponent?: ReactNode;
 }
 
-const AwesomeTimePeriod = ({
+const TimePeriod = ({
   extraTimePeriods,
   disabled = false,
   getParameters,
@@ -49,7 +49,7 @@ const AwesomeTimePeriod = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles({ disabled });
 
-  useAwesomeTimePeriod({
+  useTimePeriod({
     adjustTimePeriodData,
     getIsError,
     getParameters
@@ -75,4 +75,4 @@ const AwesomeTimePeriod = ({
     </div>
   );
 };
-export default AwesomeTimePeriod;
+export default TimePeriod;

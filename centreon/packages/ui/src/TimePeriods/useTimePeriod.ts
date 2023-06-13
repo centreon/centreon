@@ -12,7 +12,7 @@ import {
 
 import { Props } from '.';
 
-const useAwesomeTimePeriod = ({
+const useTimePeriod = ({
   getParameters,
   getIsError,
   adjustTimePeriodData
@@ -46,4 +46,4 @@ const useAwesomeTimePeriod = ({
   }, [errorTimePeriod]);
 };
 
-export default useAwesomeTimePeriod;
+export default useTimePeriod;

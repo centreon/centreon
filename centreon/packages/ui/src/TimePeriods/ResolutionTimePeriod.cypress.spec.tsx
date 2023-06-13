@@ -11,7 +11,7 @@ import { userAtom } from '@centreon/ui-context';
 
 import { retrievedUser } from './mockedData';
 
-import AwesomeTimePeriod from '.';
+import TimePeriod from '.';
 
 dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
@@ -52,7 +52,7 @@ data.forEach((item) =>
       cy.mount({
         Component: (
           <Provider store={store}>
-            <AwesomeTimePeriod renderExternalComponent={<Switch />} />
+            <TimePeriod renderExternalComponent={<Switch />} />
           </Provider>
         )
       });

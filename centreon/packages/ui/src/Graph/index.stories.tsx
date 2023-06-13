@@ -9,7 +9,7 @@ import Tooltip from '@mui/material/Tooltip';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
-import AwesomeTimePeriod from '../TimePeriods';
+import TimePeriod from '../TimePeriods';
 
 import { dateTimeFormat } from './common';
 import {
@@ -215,7 +215,7 @@ const GraphAndTimePeriod = (args): JSX.Element => {
 
   return (
     <>
-      <AwesomeTimePeriod
+      <TimePeriod
         adjustTimePeriodData={adjustedTimePeriodInterval}
         getParameters={getParameters}
         renderExternalComponent={
