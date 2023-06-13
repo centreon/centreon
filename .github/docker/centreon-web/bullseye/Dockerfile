@@ -25,7 +25,7 @@ apt-get clean
 
 EOF
 
-COPY ./centreon-gorgone/gorgone /usr/share/perl5/gorgone
+COPY ./centreon-gorgone/gorgone/ /usr/share/perl5/gorgone/
 
 COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint/container.sh /usr/share/centreon/container.sh
 COPY --chmod=755 ./.github/docker/centreon-web/bullseye/entrypoint/container.d/* /usr/share/centreon/container.d/
