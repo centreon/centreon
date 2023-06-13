@@ -33,11 +33,12 @@ properties:
           nullable: true
           description: "Macro description"
           example: "Some text to describe the macro"
-    categories:
-      type: array
-      description: |
-        Define the host category IDs that should be associated with this host template
-        In the case of non-admin users, only categories the user has access to will be accepted and their association updated.
-      items:
-        type: integer
-      example: [1, 15, 8]
+  categories:
+    type: array
+    description: |
+      Define the host category IDs that should be associated with this host template
+
+      In the case of non-admin users, only categories the user has access to will be accepted and their association to the host template created or deleted.
+    items:
+      type: integer
+    example: [1, 15, 8]
