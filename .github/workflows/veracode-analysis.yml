@@ -72,16 +72,25 @@ jobs:
 
       - name: Get baseline files
         run: |
-          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
-          aws s3 ls "$BUCKET/results.json" || RESULT=$( echo $? )
+          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}"
+          aws s3 ls "$BUCKET/${{ github.base_ref || github.ref_name }}/results.json" || RESULT=$( echo $? )
           if [[ $RESULT -eq 0 ]]; then
-            aws s3 cp "$BUCKET/results.json" "/tmp/results.json"
+            aws s3 cp "$BUCKET/${{ github.base_ref || github.ref_name }}/results.json" "/tmp/results.json"
             echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
             echo "create_baseline_from=standard" >> $GITHUB_ENV
           else
-            echo "[DEBUG] - Standard baseline file not found in the bucket"
-            echo "baseline_file=" >> $GITHUB_ENV
-            echo "create_baseline_from=" >> $GITHUB_ENV
+            echo "[DEBUG] - Baseline file not found for branch ${{ github.base_ref || github.ref_name }}"
+            echo "[DEBUG] - Using dev-22.04.x's Baseline file"
+            aws s3 ls "$BUCKET/dev-22.04.x/results.json" || RESULT=$( echo $? )
+            if [[ $RESULT -eq 0 ]]; then
+              aws s3 cp "$BUCKET/dev-22.04.x/results.json" "/tmp/results.json"
+              echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
+              echo "create_baseline_from=standard" >> $GITHUB_ENV
+            else
+              echo "[DEBUG] - dev-22.04.x's baseline file not found in the bucket"
+              echo "baseline_file=" >> $GITHUB_ENV
+              echo "create_baseline_from=" >> $GITHUB_ENV
+            fi
           fi
 
       - uses: actions/setup-java@v3
