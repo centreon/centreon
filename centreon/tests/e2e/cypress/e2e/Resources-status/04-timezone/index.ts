@@ -12,7 +12,6 @@ import {
   secondServiceInDtName,
   serviceInAcknowledgementName,
   serviceInDtName,
-  serviceOk,
   tearDownResource
 } from '../common';
 
@@ -477,13 +476,6 @@ When(
   }
 );
 
-Then(
-  'the time window of the chart is based on the custom timezone of the user',
-  () => {
-    cy.get('.visx-bar').eq(1).find('rect:nth-child(11)').focus();
-  }
-);
-
 When('the user opens a chart from Monitoring>Performances>Graphs', () => {
   cy.navigateTo({
     page: 'Resources Status',
@@ -533,14 +525,22 @@ When('the user selects default periods', () => {
   cy.getIframeBody()
     .find('select[name="period"]')
     .eq(0)
-    .should('have.value', 'Last 3 Hours');
+    .should('have.value', '3h');
 });
 
 Then(
   'the time window of the chart is based on the custom timezone of the user',
   () => {
     cy.getTimeFromHeader().then((headerTime) => {
-      console.log(convert12hTo24h(headerTime));
+      cy.getIframeBody()
+        .find('.c3-axis.c3-axis-x')
+        .find('tspan')
+        .last()
+        .invoke('text')
+        .then((timeTick) => {
+          const headerTime24h = convert12hTo24h(headerTime);
+          console.log(timeTick, headerTime24h);
+        });
     });
   }
 );
