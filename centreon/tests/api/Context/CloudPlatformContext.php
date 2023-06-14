@@ -89,7 +89,8 @@ class CloudPlatformContext extends FeatureFlagContext
 
         // Reload symfony cache to use updated environment variables
         $this->container->execute(
-            'su ' . $apacheUser . ' -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"',
+            'su ' . $apacheUser
+                . ' -s /bin/bash -c "/usr/share/centreon/bin/console cache:pool:clear cache.global_clearer"',
             $this->webService
         );
     }
