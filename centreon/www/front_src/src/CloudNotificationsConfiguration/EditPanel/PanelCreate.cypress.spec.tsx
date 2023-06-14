@@ -18,7 +18,12 @@ import {
   labelSubject
 } from '../translatedLabels';
 
-import { notificationtEndpoint } from './api/endpoints';
+import {
+  hostsGroupsEndpoint,
+  notificationtEndpoint,
+  serviceGroupsEndpoint,
+  usersEndpoint
+} from './api/endpoints';
 import {
   usersResponse,
   hostGroupsResponse,
@@ -50,21 +55,21 @@ const initialize = (): void => {
   cy.interceptAPIRequest({
     alias: 'getHostsGroupsEndpoint',
     method: Method.GET,
-    path: '**hosts/groups**',
+    path: `${hostsGroupsEndpoint}**`,
     response: hostGroupsResponse
   });
 
   cy.interceptAPIRequest({
     alias: 'getServiceGroupsEndpoint',
     method: Method.GET,
-    path: '**services/groups**',
+    path: `${serviceGroupsEndpoint}**`,
     response: serviceGroupsResponse
   });
 
   cy.interceptAPIRequest({
     alias: 'getUsersEndpoint',
     method: Method.GET,
-    path: '**users**',
+    path: `${usersEndpoint}**`,
     response: usersResponse
   });
 
