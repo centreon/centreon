@@ -69,7 +69,7 @@ default:
         - "%paths.base%/features/ConfigurationUsers.OpenApiDoc.feature"
         - "%paths.base%/features/ConfigurationUsers.JsonSchema.feature"
       contexts:
-        - Centreon\Test\Behat\Api\Context\ApiContext
+        - Centreon\Test\Api\Context\FeatureFlagContext
     check:
       paths: [ "%paths.base%/features/Check.feature" ]
       contexts:

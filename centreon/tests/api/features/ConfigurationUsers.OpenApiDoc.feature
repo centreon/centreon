@@ -82,3 +82,49 @@ Feature:
     """
     Then the response code should be "204"
 
+    When I send a GET request to '/api/latest/configuration/users/current/parameters'
+    Then the response code should be "200"
+    And the JSON nodes should be equal to:
+      | theme                  | "dark"     |
+      | user_interface_density | "extended" |
+
+  Scenario: Check for missing dashboard permissions with the CREATOR role
+    Given I am logged in
+    """
+    CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
+    CONTACT;setparam;usr-creator;reach_api;1
+    ACLMENU;add;name-creator-ACLMENU;alias-creator-ACLMENU
+    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboard;Creator;
+    ACLGROUP;add;name-creator-ACLGROUP;alias-creator-ACLGROUP
+    ACLGROUP;addmenu;name-creator-ACLGROUP;name-creator-ACLMENU
+    ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;
+    """
+    Given I am logged in with "usr-creator"/"Centreon@2023"
+
+    When I send a GET request to '/api/latest/configuration/users/current/parameters'
+    Then the response code should be "200"
+    And the JSON node "name" should be equal to "usr-creator"
+    And the JSON node "dashboard" should not exist
+
+  Scenario: Check for presence of dashboard permissions with the CREATOR role
+    Given I am logged in
+    """
+    CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
+    CONTACT;setparam;usr-creator;reach_api;1
+    ACLMENU;add;name-creator-ACLMENU;alias-creator-ACLMENU
+    ACLMENU;grantrw;name-creator-ACLMENU;0;Home;Dashboard;Creator;
+    ACLGROUP;add;name-creator-ACLGROUP;alias-creator-ACLGROUP
+    ACLGROUP;addmenu;name-creator-ACLGROUP;name-creator-ACLMENU
+    ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;
+    """
+    Given I am logged in with "usr-creator"/"Centreon@2023"
+    And a feature flag "dashboard" of bitmask 3
+
+    When I send a GET request to '/api/latest/configuration/users/current/parameters'
+    Then the response code should be "200"
+    And the JSON nodes should be equal to:
+      | name                              | "usr-creator"  |
+      | dashboard.global_user_role        | "creator"      |
+      | dashboard.view_dashboards         | true           |
+      | dashboard.create_dashboards       | true           |
+      | dashboard.administrate_dashboards | false          |

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\User\Application\UseCase\FindCurrentUserParameters;
 
+use Core\User\Application\UseCase\FindCurrentUserParameters\Response\DashboardPermissionsResponseDto;
 use Core\User\Domain\Model\UserInterfaceDensity;
 use Core\User\Domain\Model\UserTheme;
 
@@ -41,7 +42,7 @@ final class FindCurrentUserParametersResponse
         public UserTheme $theme = UserTheme::Light,
         public UserInterfaceDensity $userInterfaceDensity = UserInterfaceDensity::Compact,
         public ?string $defaultPage = null,
-    )
-    {
+        public DashboardPermissionsResponseDto $dashboardPermissions = new DashboardPermissionsResponseDto(),
+    ) {
     }
 }

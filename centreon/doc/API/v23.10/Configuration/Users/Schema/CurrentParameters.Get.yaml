@@ -57,3 +57,24 @@ properties:
     nullable: true
     description: Default page for the current user
     example: '/main.php?p=60901'
+
+  dashboard:
+    type: object
+    nullable: true
+    properties:
+      global_user_role:
+        type: string
+        enum: [ viewer, creator, administrator ]
+        description: The current user role as a string.
+
+      view_dashboards:
+        type: boolean
+        description: The current user has the Viewer role
+
+      create_dashboards:
+        type: boolean
+        description: The current user has the Creator role
+
+      administrate_dashboards:
+        type: boolean
+        description: The current user has the Administrator role

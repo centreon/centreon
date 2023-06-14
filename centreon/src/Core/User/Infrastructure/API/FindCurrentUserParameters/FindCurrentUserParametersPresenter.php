@@ -24,17 +24,30 @@ declare(strict_types=1);
 namespace Core\User\Infrastructure\API\FindCurrentUserParameters;
 
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParametersPresenterInterface;
 use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParametersResponse;
 
 class FindCurrentUserParametersPresenter extends DefaultPresenter
     implements FindCurrentUserParametersPresenterInterface
 {
+    private bool $hasDashboardFlag;
+
+    public function __construct(
+        PresenterFormatterInterface $presenterFormatter,
+        FeatureFlags $flags
+    ) {
+        parent::__construct($presenterFormatter);
+
+        $this->hasDashboardFlag = $flags->isEnabled('dashboard');
+    }
+
     public function presentResponse(ResponseStatusInterface|FindCurrentUserParametersResponse $data): void
     {
         if ($data instanceof FindCurrentUserParametersResponse) {
-            $this->present([
+            $array = [
                 'id' => $data->id,
                 'name' => $data->name,
                 'alias' => $data->alias,
@@ -47,7 +60,18 @@ class FindCurrentUserParametersPresenter extends DefaultPresenter
                 'theme' => $data->theme->value,
                 'user_interface_density' => $data->userInterfaceDensity->value,
                 'default_page' => $data->defaultPage,
-            ]);
+            ];
+
+            if ($this->hasDashboardFlag && $data->dashboardPermissions->globalRole) {
+                $array['dashboard'] = [
+                    'global_user_role' => $data->dashboardPermissions->globalRole->value,
+                    'view_dashboards' => $data->dashboardPermissions->hasViewerRole,
+                    'create_dashboards' => $data->dashboardPermissions->hasCreatorRole,
+                    'administrate_dashboards' => $data->dashboardPermissions->hasAdminRole,
+                ];
+            }
+
+            $this->present($array);
         } else {
             $this->setResponseStatus($data);
         }

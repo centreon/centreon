@@ -25,7 +25,6 @@ namespace Core\User\Infrastructure\API\FindCurrentUserParameters;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParameters;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -43,8 +42,7 @@ final class FindCurrentUserParametersController extends AbstractController
     public function __invoke(
         FindCurrentUserParameters $useCase,
         FindCurrentUserParametersPresenter $presenter,
-    ): Response
-    {
+    ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         /** @var Contact $user */

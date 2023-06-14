@@ -27,6 +27,8 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Menu\Model\Page;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Configuration\User\Exception\UserException;
+use Core\Dashboard\Domain\Model\DashboardGlobalRole;
+use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParameters;
 use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParametersResponse;
 use Core\User\Domain\Model\UserInterfaceDensity;
@@ -34,7 +36,9 @@ use Core\User\Domain\Model\UserTheme;
 
 beforeEach(function (): void {
     $this->presenter = new FindCurrentUserParametersPresenterStub();
-    $this->useCase = new FindCurrentUserParameters();
+    $this->useCase = new FindCurrentUserParameters(
+        $this->rights = $this->createMock(DashboardRights::class)
+    );
     $this->randomInt = static fn(): int => random_int(1, 1_000_000);
     $this->randomBool = static fn(): bool => (bool) random_int(0, 1);
     $this->randomString = static fn(): string => 'panel-' . mb_substr(md5(random_bytes(10)), 0, 6);
@@ -58,7 +62,6 @@ it(
 it(
     'should present a valid response when the user is retrieved',
     function (): void {
-
         $contact = $this->createMock(Contact::class);
         $contact->method('hasRole')->willReturn($isExportButtonEnabled = true);
         $contact->method('getId')->willReturn($id = ($this->randomInt)());
@@ -89,6 +92,35 @@ it(
             ->and($this->presenter->data->isExportButtonEnabled)->toBe($isExportButtonEnabled)
             ->and($this->presenter->data->theme)->toBe($theme)
             ->and($this->presenter->data->userInterfaceDensity)->toBe($uiDensity)
-            ->and($this->presenter->data->defaultPage)->toBe($defaultPage);
+            ->and($this->presenter->data->defaultPage)->toBe($defaultPage)
+            ->and($this->presenter->data->dashboardPermissions->hasViewerRole)->toBeFalse()
+            ->and($this->presenter->data->dashboardPermissions->hasCreatorRole)->toBeFalse()
+            ->and($this->presenter->data->dashboardPermissions->hasAdminRole)->toBeFalse()
+            ->and($this->presenter->data->dashboardPermissions->globalRole)->toBeNull();
     }
+);
+
+it(
+    'should present a valid dashboard permission dto in the response',
+    function ($globalRole): void {
+        $contact = $this->createMock(Contact::class);
+
+        $this->rights->method('hasViewerRole')->willReturn($hasViewerRole = ($this->randomBool)());
+        $this->rights->method('hasCreatorRole')->willReturn($hasCreatorRole = ($this->randomBool)());
+        $this->rights->method('hasAdminRole')->willReturn($hasAdminRole = ($this->randomBool)());
+        $this->rights->method('getGlobalRole')->willReturn(DashboardGlobalRole::from($globalRole));
+
+        ($this->useCase)($contact, $this->presenter);
+
+        expect($this->presenter->data)->toBeInstanceOf(FindCurrentUserParametersResponse::class)
+            ->and($this->presenter->data->dashboardPermissions->hasViewerRole)->toBe($hasViewerRole)
+            ->and($this->presenter->data->dashboardPermissions->hasCreatorRole)->toBe($hasCreatorRole)
+            ->and($this->presenter->data->dashboardPermissions->hasAdminRole)->toBe($hasAdminRole)
+            ->and($this->presenter->data->dashboardPermissions->globalRole->value)->toBe($globalRole);
+    }
+)->with(
+    array_map(
+        static fn(DashboardGlobalRole $role): string => $role->value,
+        DashboardGlobalRole::cases()
+    )
 );

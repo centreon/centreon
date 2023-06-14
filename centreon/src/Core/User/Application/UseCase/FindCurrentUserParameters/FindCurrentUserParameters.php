@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Configuration\User\Exception\UserException;
+use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\User\Domain\Model\UserInterfaceDensity;
 use Core\User\Domain\Model\UserTheme;
 
@@ -34,15 +35,15 @@ final class FindCurrentUserParameters
 {
     use LoggerTrait;
 
-    public function __construct()
-    {
+    public function __construct(
+        private readonly DashboardRights $rights
+    ) {
     }
 
     public function __invoke(
         Contact $user,
         FindCurrentUserParametersPresenterInterface $presenter
-    ): void
-    {
+    ): void {
         try {
             $response = $this->createResponse($user);
 
@@ -72,12 +73,16 @@ final class FindCurrentUserParameters
             ?? UserInterfaceDensity::Compact;
         $dto->defaultPage = $user->getDefaultPage()?->getRedirectionUri();
 
+        $dto->dashboardPermissions->globalRole = $this->rights->getGlobalRole();
+        $dto->dashboardPermissions->hasViewerRole = $this->rights->hasViewerRole();
+        $dto->dashboardPermissions->hasCreatorRole = $this->rights->hasCreatorRole();
+        $dto->dashboardPermissions->hasAdminRole = $this->rights->hasAdminRole();
+
         return $dto;
     }
 
     private function hasExportButtonRole(Contact $user): bool
     {
-
         return $user->isAdmin() || $user->hasRole(Contact::ROLE_GENERATE_CONFIGURATION);
     }
 }
