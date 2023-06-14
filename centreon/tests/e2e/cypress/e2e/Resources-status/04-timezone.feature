@@ -8,7 +8,7 @@ Background:
     And the platform is configured with at least one resource
 
 Scenario: Configuring timezone in user's profile
-   When the user cliks on Timezone field in his profile menu
+   When the user clicks on Timezone field in his profile menu
    And the user selects a Timezone / Location
    And the user saves the form
    Then timezone information are updated on the banner
