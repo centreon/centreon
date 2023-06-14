@@ -3,11 +3,11 @@ import * as React from 'react';
 import { useSnackbar, SnackbarContent } from 'notistack';
 import { isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-import sanitizeHtml from 'sanitize-html';
-import ReactHtmlParser from 'react-html-parser';
 
 import { IconButton, Alert } from '@mui/material';
 import IconClose from '@mui/icons-material/Close';
+
+import { useSanitizedHTML } from '../utils';
 
 import Severity from './Severity';
 
@@ -43,6 +43,7 @@ const Snackbar = React.forwardRef(
   ): JSX.Element => {
     const { classes } = useStyles();
     const { closeSnackbar } = useSnackbar();
+    const Message = useSanitizedHTML({ initialContent: message });
     const timeoutId = React.useRef<number | undefined>();
 
     React.useEffect((): void => {
@@ -58,14 +59,8 @@ const Snackbar = React.forwardRef(
       closeSnackbar(id);
     };
 
-    const sanitizedMessage = sanitizeHtml(message);
-
     const formatedMessage =
-      typeof message === 'string' ? (
-        <div>{ReactHtmlParser(sanitizedMessage)}</div>
-      ) : (
-        message
-      );
+      typeof message === 'string' ? <div>{Message}</div> : message;
 
     return (
       <SnackbarContent ref={ref}>
