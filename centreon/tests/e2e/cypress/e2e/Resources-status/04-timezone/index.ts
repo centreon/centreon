@@ -106,7 +106,7 @@ Given('the platform is configured with at least one resource', () => {
   cy.get('[data-value="all"]').click();
 });
 
-When('the user cliks on Timezone field in his profile menu', () => {
+When('the user clicks on Timezone field in his profile menu', () => {
   cy.navigateTo({
     page: 'My Account',
     rootItemNumber: 4,
