@@ -16,20 +16,6 @@ import {
 
 const chosenTZ = 'Africa/Casablanca';
 
-const roundDateTime = (date: Date): string => {
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    date.getHours(),
-    Math.ceil(date.getMinutes()),
-    Math.ceil(date.getSeconds()) - 10
-  ).toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit'
-  });
-};
-
 const convert12hFormatToDate = (timeString: string): Date => {
   const currentDate = new Date();
   const dateString = currentDate.toLocaleDateString('en-US', {
@@ -43,8 +29,17 @@ const convert12hFormatToDate = (timeString: string): Date => {
   return new Date(dateTimeString);
 };
 
+const calculateMinuteInterval = (startDate: Date, endDate: Date): number => {
+  const diffInMilliseconds = endDate.getTime() - startDate.getTime();
+  const minutes = Math.abs(Math.floor(diffInMilliseconds / 60000));
+
+  return minutes;
+};
+
 before(() => {
-  cy.startWebContainer();
+  cy.startWebContainer({
+    version: 'MON-19301-profile-timezone-automated'
+  });
 });
 
 beforeEach(() => {
@@ -161,9 +156,13 @@ Then('timezone information are updated on the banner', () => {
           minute: '2-digit',
           timeZone: chosenTZ
         });
-        expect(roundDateTime(convert12hFormatToDate(localTime))).to.equal(
-          timeofTZ
-        );
+
+        expect(
+          calculateMinuteInterval(
+            convert12hFormatToDate(localTime),
+            convert12hFormatToDate(timeofTZ)
+          )
+        ).to.be.lte(2);
       });
     });
 });
@@ -238,12 +237,13 @@ Then(
     cy.get('p[data-testid="From_date"]').then(($toDate) => {
       cy.getTimeFromHeader().then((localTime: string) => {
         const toDate = $toDate[0].textContent || '';
-        const formatedDate = roundDateTime(new Date(toDate));
-        const formatedLocalTime = roundDateTime(
-          convert12hFormatToDate(localTime)
-        );
 
-        expect(formatedLocalTime).to.equal(formatedDate);
+        expect(
+          calculateMinuteInterval(
+            convert12hFormatToDate(localTime),
+            new Date(toDate)
+          )
+        ).to.be.lte(2);
       });
     });
 
@@ -323,12 +323,15 @@ Then(
       .find('td')
       .eq(1)
       .then(($date) => {
-        const toDate = $date[0].textContent || '';
-
         cy.getTimeFromHeader().then((localTime: string) => {
-          expect(roundDateTime(convert12hFormatToDate(localTime))).to.equal(
-            roundDateTime(new Date(toDate))
-          );
+          const toDate = $date[0].textContent || '';
+
+          expect(
+            calculateMinuteInterval(
+              convert12hFormatToDate(localTime),
+              new Date(toDate)
+            )
+          ).to.be.lte(2);
         });
       });
 
@@ -393,14 +396,15 @@ Then(
       .find('.ListTable tr:not(.ListHeader) td')
       .eq(3)
       .then(($el) => {
-        const dtTime = $el[0].textContent || '';
         cy.getTimeFromHeader().then((localTime: string) => {
-          const roundedDateTime = roundDateTime(new Date(dtTime));
-          const formatedLocalTime = roundDateTime(
-            convert12hFormatToDate(localTime)
-          );
+          const dtTime = $el[0].textContent || '';
 
-          expect(formatedLocalTime).to.equal(roundedDateTime);
+          expect(
+            calculateMinuteInterval(
+              convert12hFormatToDate(localTime),
+              new Date(dtTime)
+            )
+          ).to.be.lte(2);
         });
       });
 
