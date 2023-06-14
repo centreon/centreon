@@ -35,6 +35,7 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Domain\CommandType;
 use Core\Common\Domain\TrimmedString;
+use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
@@ -57,6 +58,7 @@ final class AddServiceTemplate
         private readonly ReadCommandRepositoryInterface $commandRepository,
         private readonly ReadTimePeriodRepositoryInterface $timePeriodRepository,
         private readonly ReadViewImgRepositoryInterface $imageRepository,
+        private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly OptionService $optionService,
         private readonly ContactInterface $user
     ) {
@@ -96,6 +98,7 @@ final class AddServiceTemplate
             $this->assertIsValidTimePeriod($request->checkTimePeriodId);
             $this->assertIsValidNotificationTimePeriod($request->notificationTimePeriodId);
             $this->assertIsValidIcon($request->iconId);
+            $this->assertIsValidHostTemplates($request->hostTemplateIds);
             $newServiceTemplate = $this->createNewServiceTemplate($request);
             $newServiceTemplateId = $this->writeServiceTemplateRepository->add($newServiceTemplate);
             $this->info('New service template created', ['service_template_id' => $newServiceTemplateId]);
@@ -268,6 +271,22 @@ final class AddServiceTemplate
     }
 
     /**
+     * @param list<int> $hostTemplateIds
+     *
+     * @throws ServiceTemplateException
+     */
+    private function assertIsValidHostTemplates(array $hostTemplateIds): void
+    {
+        if (! empty($hostTemplateIds)) {
+            $hostTemplateIds = array_unique($hostTemplateIds);
+            $hostTemplateIdsFound = $this->readHostTemplateRepository->findAllExistingIds($hostTemplateIds);
+            if ([] !== ($diff = array_diff($hostTemplateIds, $hostTemplateIdsFound))) {
+                throw ServiceTemplateException::idsDoesNotExist('host_templates', $diff);
+            }
+        }
+    }
+
+    /**
      * @param ServiceTemplate $serviceTemplate
      *
      * @return AddServiceTemplateResponse
@@ -305,6 +324,7 @@ final class AddServiceTemplate
         $response->checkTimePeriodId = $serviceTemplate->getCheckTimePeriodId();
         $response->iconId = $serviceTemplate->getIconId();
         $response->severityId = $serviceTemplate->getSeverityId();
+        $response->hostTemplateIds = $serviceTemplate->getHostTemplateIds();
         $response->maxCheckAttempts = $serviceTemplate->getMaxCheckAttempts();
         $response->normalCheckInterval = $serviceTemplate->getNormalCheckInterval();
         $response->retryCheckInterval = $serviceTemplate->getRetryCheckInterval();

@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
+use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\NewDashboard;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -84,8 +85,8 @@ final class AddDashboard
     /**
      * @param AddDashboardRequest $request
      *
-     * @throws DashboardException
      * @throws \Throwable
+     * @throws DashboardException
      *
      * @return AddDashboardResponse
      */
@@ -102,8 +103,8 @@ final class AddDashboard
     /**
      * @param AddDashboardRequest $request
      *
-     * @throws DashboardException
      * @throws \Throwable
+     * @throws DashboardException
      *
      * @return AddDashboardResponse
      */
@@ -162,11 +163,11 @@ final class AddDashboard
         $response->createdAt = $dashboard->getCreatedAt();
         $response->updatedAt = $dashboard->getUpdatedAt();
 
-        $response->createdBy = new AddDashboardUserDto();
+        $response->createdBy = new UserResponseDto();
         $response->createdBy->id = $this->contact->getId();
         $response->createdBy->name = $this->contact->getName();
 
-        $response->updatedBy = new AddDashboardUserDto();
+        $response->updatedBy = new UserResponseDto();
         $response->updatedBy->id = $this->contact->getId();
         $response->updatedBy->name = $this->contact->getName();
 

@@ -67,8 +67,8 @@ const Button = ({
       type={type}
       variant={muiVariantMap[variant]}
       onClick={(e) => onClick?.(e)}
-      {...attr}
       {...MuiOverrideProps}
+      {...attr}
     >
       {children}
     </MuiButton>
