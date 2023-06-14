@@ -35,6 +35,12 @@
                     }
                 }
             }
+        },
+        "categories": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
         }
     }
 }

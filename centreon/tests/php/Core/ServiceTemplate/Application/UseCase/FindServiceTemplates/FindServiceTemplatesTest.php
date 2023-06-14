@@ -55,6 +55,7 @@ beforeEach(closure: function (): void {
         ['a', 'b'],
         ['c', 'd'],
         [NotificationType::Unknown],
+        [2, 3],
         true,
         true,
         true,
