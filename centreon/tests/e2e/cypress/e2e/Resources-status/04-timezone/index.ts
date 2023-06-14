@@ -66,14 +66,6 @@ beforeEach(() => {
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
   cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/monitoring/resources*'
-  }).as('getMonitoredResource');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/monitoring/hosts/*/services/*/metrics/performance*'
-  }).as('getMonitoredMetrics');
-  cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/acknowledge'
   }).as('postAcknowledgments');
