@@ -1,0 +1,7 @@
+PartialUpdateServiceTemplate:
+  methods: PATCH
+  path: /configuration/services/templates/{serviceTemplateId}
+  requirements:
+    serviceTemplateId: '\d+'
+  controller: 'Core\ServiceTemplate\Infrastructure\API\PartialUpdateServiceTemplate\PartialUpdateServiceTemplateController'
+  condition: "request.attributes.get('version') >= 23.10"

@@ -59,7 +59,11 @@ class CentreonResultsAcceptor extends CentreonConfigurationObjects
     public function __construct()
     {
         parent::__construct();
-        $this->centcore_file = _CENTREON_VARLIB_ . '/centcore.cmd';
+        if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
+            $this->centcore_file = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
+        } else {
+            $this->centcore_file = _CENTREON_VARLIB_ . '/centcore.cmd';
+        }
         $this->pearDBC = new CentreonDB('centstorage');
         $this->getPollers();
         $this->pipeOpened = 0;

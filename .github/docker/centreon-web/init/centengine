@@ -1,0 +1,42 @@
+#!/bin/sh
+
+service_start() {
+    systemctl start centengine
+}
+
+service_stop() {
+    systemctl stop centengine
+}
+
+service_restart() {
+    systemctl restart centengine
+}
+
+service_reload() {
+    systemctl reload centengine
+}
+
+case "$1" in
+    start)
+	service_start
+	;;
+
+    stop)
+	service_stop
+	;;
+
+    restart)
+	service_restart
+	;;
+
+    reload)
+	service_reload
+	;;
+
+    *)
+        echo "centenginedevscript: invalid argument"
+	exit 3
+	;;
+esac
+
+exit 0

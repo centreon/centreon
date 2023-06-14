@@ -1,0 +1,42 @@
+#!/bin/sh
+
+service_start() {
+    systemctl start cbd
+}
+
+service_stop() {
+    systemctl stop cbd
+}
+
+service_restart() {
+    systemctl restart cbd
+}
+
+service_reload() {
+    systemctl reload cbd
+}
+
+case "$1" in
+    start)
+	service_start
+	;;
+
+    stop)
+	service_stop
+	;;
+
+    restart)
+	service_restart
+	;;
+
+    reload)
+	service_reload
+	;;
+
+    *)
+	echo "cbddevscript: invalid arguent"
+	exit 3
+	;;
+esac
+
+exit 0

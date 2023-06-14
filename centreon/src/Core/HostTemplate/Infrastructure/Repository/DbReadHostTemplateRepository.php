@@ -103,23 +103,19 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     ehi.ehi_icon_image_alt,
                     hcr.hostcategories_hc_id as severity_id
                 FROM `:db`.host h
-                LEFT JOIN `:db`.extended_host_information ehi ON h.host_id = ehi.host_host_id
-                LEFT JOIN `:db`.hostcategories_relation hcr ON h.host_id = hcr.host_host_id
+                LEFT JOIN `:db`.extended_host_information ehi
+                    ON h.host_id = ehi.host_host_id
+                LEFT JOIN `:db`.hostcategories_relation hcr
+                    ON hcr.host_host_id = h.host_id
+                LEFT JOIN `:db`.hostcategories hc
+                    ON hc.hc_id = hcr.hostcategories_hc_id
+                    AND hc.level IS NOT NULL
                 SQL
         );
 
         // Filter on host templates
         $concatenator->appendWhere('h.host_register = :hostTemplateType');
         $concatenator->storeBindValue(':hostTemplateType', HostType::Template->value, \PDO::PARAM_STR);
-        // Filter on host severity
-        $concatenator->appendWhere(
-            <<<'SQL'
-                (
-                    hcr.hostcategories_hc_id IS NULL
-                    OR hcr.hostcategories_hc_id IN (SELECT hc_id FROM `:db`.hostcategories WHERE level IS NOT NULL)
-                )
-                SQL
-        );
 
         // Settup for search, pagination, order
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
@@ -243,14 +239,15 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     ehi.ehi_icon_image_alt,
                     hcr.hostcategories_hc_id as severity_id
                 FROM `:db`.host h
-                LEFT JOIN `:db`.extended_host_information ehi ON h.host_id = ehi.host_host_id
-                LEFT JOIN `:db`.hostcategories_relation hcr ON h.host_id = hcr.host_host_id
+                LEFT JOIN `:db`.extended_host_information ehi
+                    ON h.host_id = ehi.host_host_id
+                LEFT JOIN `:db`.hostcategories_relation hcr
+                    ON hcr.host_host_id = h.host_id
+                LEFT JOIN `:db`.hostcategories hc
+                    ON hc.hc_id = hcr.hostcategories_hc_id
+                    AND hc.level IS NOT NULL
                 WHERE h.host_id = :hostTemplateId
                     AND h.host_register = :hostTemplateType
-                    AND (
-                        hcr.hostcategories_hc_id IS NULL
-                        OR hcr.hostcategories_hc_id IN (SELECT hc_id FROM `:db`.hostcategories WHERE level IS NOT NULL)
-                    )
                 SQL
         );
         $statement = $this->db->prepare($request);
@@ -311,6 +308,65 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
+    public function findParents(int $hostTemplateId): array
+    {
+        $this->info('Find parents IDs of host template with ID #' . $hostTemplateId);
+        $request = $this->translateDbName(
+            <<<'SQL'
+                WITH RECURSIVE parents AS (
+                    SELECT * FROM `:db`.`host_template_relation`
+                    WHERE `host_host_id` = :hostTemplateId
+                    UNION
+                    SELECT rel.* FROM `:db`.`host_template_relation` AS rel, parents AS p
+                    WHERE rel.`host_host_id` = p.`host_tpl_id`
+                )
+                SELECT `host_host_id` AS child_id, `host_tpl_id` AS parent_id, `order`
+                FROM parents
+                ORDER BY `child_id`, `order`;
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllExistingIds(array $hostTemplateIds): array
+    {
+        if ($hostTemplateIds === []) {
+            return [];
+        }
+
+        $hostTemplateIdsFound = [];
+        $concatenator = new SqlConcatenator();
+
+        $request = $this->translateDbName(<<<'SQL'
+            SELECT host_id
+            FROM `:db`.host
+            WHERE host_register = '0'
+                AND host_id IN (:host_ids)
+            SQL
+        );
+        $concatenator->defineSelect($request);
+        $concatenator->storeBindValueMultiple(':host_ids', $hostTemplateIds, \PDO::PARAM_INT);
+        $statement = $this->db->prepare((string) $concatenator);
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        while (($id = $statement->fetchColumn()) !== false) {
+            $hostTemplateIdsFound[] = (int) $id;
+        }
+
+        return $hostTemplateIdsFound;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function exists(int $hostTemplateId): bool
     {
         $this->info('Check existence of host template with ID #' . $hostTemplateId);
@@ -329,6 +385,36 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exist(array $hostTemplateIds): array
+    {
+        $this->info('Check existence of host templates', ['host_template_ids' => $hostTemplateIds]);
+
+        if ($hostTemplateIds === []) {
+            return [];
+        }
+
+        $concatenator = new SqlConcatenator();
+        $concatenator
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT `host_id` FROM `:db`.`host`
+                    SQL
+            )
+            ->appendWhere('host_id IN (:host_template_ids)')
+            ->appendWhere('host_register = :hostTemplateType')
+            ->storeBindValueMultiple(':host_template_ids', $hostTemplateIds, \PDO::PARAM_INT)
+            ->storeBindValue(':hostTemplateType', HostType::Template->value, \PDO::PARAM_STR);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     /**
@@ -371,6 +457,42 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findNamesByIds(array $hostTemplateIds): array
+    {
+        $this->info('Find names for host templates', ['host_template_ids' => $hostTemplateIds]);
+
+        if ($hostTemplateIds === []) {
+            return [];
+        }
+
+        $concatenator = new SqlConcatenator();
+        $concatenator
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT `host_id`, `host_name` FROM `:db`.`host`
+                    SQL
+            )
+            ->appendWhere('host_id IN (:host_template_ids)')
+            ->appendWhere('host_register = :hostTemplateType')
+            ->storeBindValueMultiple(':host_template_ids', $hostTemplateIds, \PDO::PARAM_INT)
+            ->storeBindValue(':hostTemplateType', HostType::Template->value, \PDO::PARAM_STR);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $nameById = [];
+        foreach ($results as $row) {
+            $nameById[(int) $row['host_id']] = $row['host_name'];
+        }
+
+        return $nameById;
     }
 
     /**

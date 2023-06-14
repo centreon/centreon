@@ -54,6 +54,9 @@ class NewServiceTemplate
     /** @var NotificationType[] */
     private array $notificationTypes = [];
 
+    /** @var list<int> */
+    private array $hostTemplateIds = [];
+
     private bool $isContactAdditiveInheritance = false;
 
     private bool $isContactGroupAdditiveInheritance = false;
@@ -916,5 +919,26 @@ class NewServiceTemplate
     public function getAcknowledgementTimeout(): ?int
     {
         return $this->acknowledgementTimeout;
+    }
+
+    /**
+     * @param list<int> $hostTemplateIds
+     *
+     * @throws AssertionFailedException
+     */
+    public function setHostTemplateIds(array $hostTemplateIds): void
+    {
+        foreach ($hostTemplateIds as $hostTemplateId) {
+            Assertion::positiveInt($hostTemplateId, $this->className . '::hostTemplateIds');
+        }
+        $this->hostTemplateIds = $hostTemplateIds;
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getHostTemplateIds(): array
+    {
+        return $this->hostTemplateIds;
     }
 }

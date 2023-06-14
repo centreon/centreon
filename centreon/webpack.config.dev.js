@@ -57,6 +57,10 @@ const modules = [
   {
     getDirectoryPath: getWidgetsDirectoryPath,
     name: ''
+  },
+  {
+    getDirectoryPath: getModuleDirectoryPath,
+    name: 'centreon-cloud-extensions'
   }
 ];
 
