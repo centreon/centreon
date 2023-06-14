@@ -71,4 +71,14 @@ class NotificationException extends \Exception
     {
         return new self(sprintf(_('Notification #%d should have at least one user'), $notificationId));
     }
+
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete a notification configuration'));
+    }
+
+    public static function errorWhileDeletingObject(): self
+    {
+        return new self(_('Error while deleting a notification configuration'));
+    }
 }

@@ -249,6 +249,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/notifications:
     $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
+  /configuration/notifications/{notification_id}:
+    $ref: "./v23.10/Configuration/Notification/Notification.yaml"
   /configuration/hosts/templates:
     $ref: './v23.10/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
