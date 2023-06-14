@@ -60,6 +60,7 @@ class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostT
                         'action_url' => $this->emptyStringAsNull($response->actionUrl),
                         'is_locked' => $response->isLocked,
                         'categories' => $response->categories,
+                        'templates' => $response->templates,
                     ]
                 )
             );

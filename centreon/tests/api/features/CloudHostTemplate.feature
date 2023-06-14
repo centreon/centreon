@@ -94,7 +94,8 @@ Feature:
         "note_url": "noteUrl-value",
         "note": "note-value",
         "action_url": "actionUrl-value",
-        "categories": [2]
+        "categories": [2],
+        "templates": []
       }
       """
     Then the response code should be "201"
@@ -118,7 +119,8 @@ Feature:
             "id": 2,
             "name": "host-cat1"
           }
-        ]
+        ],
+        "templates": []
       }
       """
 
@@ -160,7 +162,27 @@ Feature:
         "note_url": "noteUrl-value",
         "note": "note-value",
         "action_url": "actionUrl-value",
-        "categories": [2]
+        "categories": [2],
+        "templates": []
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
+      """
+      {
+        "name": "  host template name B  ",
+        "alias": "  host-template-alias  ",
+        "snmp_version": "2c",
+        "snmp_community": "   snmpCommunity-value",
+        "timezone_id": 1,
+        "severity_id": 1,
+        "check_timeperiod_id": 1,
+        "note_url": "noteUrl-value",
+        "note": "note-value",
+        "action_url": "actionUrl-value",
+        "categories": [],
+        "templates": [999]
       }
       """
     Then the response code should be "409"
@@ -184,14 +206,15 @@ Feature:
         "note_url": "noteUrl-value",
         "note": "note-value",
         "action_url": "actionUrl-value",
-        "categories": [2]
+        "categories": [2],
+        "templates": [15]
       }
       """
     Then the response code should be "201"
     And the JSON should be equal to:
       """
       {
-        "id": 17,
+        "id": 18,
         "name": "host_template_name_B",
         "alias": "host-template-alias",
         "snmp_version": "2c",
@@ -208,6 +231,140 @@ Feature:
             "id": 2,
             "name": "host-cat1"
           }
+        ],
+        "templates": [
+          {
+            "id": 15,
+            "name": "host_template_name_A"
+          }
         ]
       }
       """
+
+  Scenario: Host template partial update
+    # TODO : complete 204 result with GET /hosts/template/<hostTemplateId> to check results
+    Given I am logged in
+    And the following CLAPI import data:
+      """
+      HTPL;ADD;htpl-name-1;htpl-alias-1;;;;
+      """
+
+    When I send a GET request to '/api/latest/configuration/hosts/templates?search={"name":{"$lk":"htpl-%"}}'
+    And I store response values in:
+      | name           | path         |
+      | hostTemplateId | result[0].id |
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/99' with body:
+      """
+      {}
+      """
+    Then the response code should be "404"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {}
+      """
+    Then the response code should be "204"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "macros": [
+          {
+            "name": "nameA",
+            "value": "valueA",
+            "is_password": false,
+            "description": "some text"
+          },
+          {
+            "name": "nameB",
+            "value": "valueB",
+            "is_password": true,
+            "description": null
+          }
+        ]
+      }
+      """
+    Then the response code should be "204"
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "macros": [
+          {
+            "name": "nameA",
+            "value": "valueA",
+            "is_password": false,
+            "description": "some text"
+          },
+          {
+            "name": "nameC",
+            "value": "valueC",
+            "is_password": true,
+            "description": null
+          }
+        ]
+      }
+      """
+    Then the response code should be "204"
+
+    Given the following CLAPI import data:
+      """
+      HC;ADD;severity1;host-severity-alias
+      HC;setseverity;severity1;42;logos/logo-centreon-colors.png
+      HC;ADD;host-cat1;host-cat1-alias
+      """
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "categories": []
+      }
+      """
+    Then the response code should be "204"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "categories": [2]
+      }
+      """
+    Then the response code should be "204"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "categories": [1]
+      }
+      """
+    Then the response code should be "409"
+
+    Given the following CLAPI import data:
+      """
+      HC;ADD;host-cat2;host-cat2-alias
+      CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
+      CONTACT;setparam;ala;reach_api;1
+      ACLMENU;add;ACL Menu test;my alias
+      ACLMENU;grantrw;ACL Menu test;1;Configuration;Hosts;Templates
+      ACLRESOURCE;add;ACL Resource test;my alias
+      ACLRESOURCE;addfilter_hostcategory;ACL Resource test;host-cat2
+      ACLGROUP;add;ACL Group test;my alias
+      ACLGROUP;addmenu;ACL Group test;ACL Menu test
+      ACLGROUP;addresource;ACL Group test;ACL Resource test
+      ACLGROUP;addcontact;ACL Group test;ala
+      """
+    And I am logged in with "ala"/"Centreon@2022"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "categories": [2]
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "categories": [3]
+      }
+      """
+    Then the response code should be "204"

@@ -84,6 +84,7 @@ export type Props = {
   error?: string;
   externalValueForAutoSize?: string;
   open?: boolean;
+  required?: boolean;
   size?: SizeVariant;
   transparent?: boolean;
   value?: string;
@@ -108,6 +109,7 @@ const TextField = forwardRef(
       externalValueForAutoSize,
       autoSizeCustomPadding,
       defaultValue,
+      required = false,
       ...rest
     }: Props,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -182,6 +184,7 @@ const TextField = forwardRef(
               ...rest.InputProps
             }}
             className={classes.textField}
+            required={required}
             sx={{
               width: autoSize ? width : undefined,
               ...rest?.sx
