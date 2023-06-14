@@ -1,21 +1,39 @@
 import { useState } from 'react';
 
-import { or } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
+import { makeStyles } from 'tss-react/mui';
 
-import { Box } from '@mui/material';
+import { Box, alpha } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 
 import {
   IconButton,
   ResponseError,
   useMutationQuery,
-  useSnackbar
+  useSnackbar,
+  ConfirmDialog
 } from '@centreon/ui';
 
-import DeleteDialog from '../Dialogs/DeleteDialog';
-import { labelDelete } from '../translatedLabels';
+import {
+  labelDelete,
+  labelCancel,
+  labelDeleteNotification,
+  labelDeleteNotificationWarning
+} from '../translatedLabels';
+
+const useStyles = makeStyles()((theme) => ({
+  confirmButtons: {
+    '&:hover': {
+      background: alpha(theme.palette.error.main, 0.8)
+    },
+    background: theme.palette.error.main,
+    color: theme.palette.common.white
+  },
+  paper: {
+    width: theme.spacing(60)
+  }
+}));
 
 interface Props {
   fetchMethod?;
@@ -36,6 +54,7 @@ const DeleteButton = ({
   fetchPayload,
   notificationName
 }: Props): JSX.Element => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
   const queryClient = useQueryClient();
@@ -72,10 +91,20 @@ const DeleteButton = ({
       >
         <DeleteIcon />
       </IconButton>
-      <DeleteDialog
-        isMutating={isMutating}
-        notificationName={or(notificationName, '')}
+
+      <ConfirmDialog
+        confirmDisabled={isMutating}
+        dialogConfirmButtonClassName={classes.confirmButtons}
+        dialogPaperClassName={classes.paper}
+        labelCancel={t(labelCancel)}
+        labelConfirm={t(labelDelete)}
+        labelMessage={
+          notificationName && `${t(labelDelete)} « ${notificationName} ».`
+        }
+        labelSecondMessage={t(labelDeleteNotificationWarning)}
+        labelTitle={t(labelDeleteNotification)}
         open={dialogOpen}
+        submitting={isMutating}
         onCancel={onCancel}
         onConfirm={onConfirm}
       />
