@@ -67,6 +67,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  *      event_handler_command_id: int|null,
  *      event_handler_command_args: list<string>|null,
  *      graph_template_id: int|null,
+ *      host_templates: list<int>|null,
  *      note: string|null,
  *      note_url: string|null,
  *      action_url: string|null,
@@ -161,6 +162,7 @@ class AddServiceTemplateController extends AbstractController
         $dto->eventHandlerId = $request['event_handler_command_id'] ?? null;
         $dto->eventHandlerArguments = $request['event_handler_command_args'] ?? [];
         $dto->graphTemplateId = $request['graph_template_id'] ?? null;
+        $dto->hostTemplateIds = $request['host_templates'] ?? [];
         $dto->note = $request['note'];
         $dto->noteUrl = $request['note_url'];
         $dto->actionUrl = $request['action_url'];
