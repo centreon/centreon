@@ -1217,6 +1217,10 @@ sub check_exit_modules {
 sub periodic_exec {
     $gorgone->check_exit_modules();
     $gorgone->{listener}->check();
+    $gorgone->router_internal_event();
+    if (defined($gorgone->{external_socket})) {
+        $gorgone->router_external_event();
+    }
 }
 
 sub run {

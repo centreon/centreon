@@ -1,4 +1,4 @@
-# 
+#
 # Copyright 2019 Centreon (http://www.centreon.com/)
 #
 # Centreon is a full-fledged industry-strength solution that meets
@@ -220,6 +220,7 @@ sub send_internal_action {
             json_encode => defined($options->{data_noencode}) ? undef : 1
         );
     }
+    $self->{logger}->writeLogDebug("[$self->{module_id}]$self->{container} internal message: $options->{message}");
 
     my $socket = defined($options->{socket}) ? $options->{socket} : $self->{internal_socket};
     if ($self->{internal_crypt}->{enabled} == 1) {
@@ -227,7 +228,7 @@ sub send_internal_action {
 
         my $key = $self->{internal_crypt}->{core_keys}->[0];
         if ($self->{fork} == 0) {
-            if (!defined($self->{internal_crypt}->{identity_keys}->{$identity}) || 
+            if (!defined($self->{internal_crypt}->{identity_keys}->{$identity}) ||
                 (time() - $self->{internal_crypt}->{identity_keys}->{$identity}->{ctime}) > ($self->{internal_crypt}->{rotation})) {
                 my ($rv, $genkey) = gorgone::standard::library::generate_symkey(
                     keysize => $self->get_core_config(name => 'internal_com_keysize')
@@ -256,6 +257,11 @@ sub send_internal_action {
     }
 
     $socket->send($options->{message}, ZMQ_DONTWAIT);
+    if ($socket->has_error) {
+        $self->{logger}->writeLogError(
+            "[$self->{module_id}]$self->{container} Cannot send message: " . $socket->last_strerror
+        );
+    }
     $self->event(socket => $socket);
 }
 

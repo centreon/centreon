@@ -1,3 +1,3 @@
 #!/bin/sh
 
-apache2ctl start
+systemctl start apache2

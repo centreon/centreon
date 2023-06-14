@@ -84,7 +84,9 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         try {
             $hostTemplateId = $this->addTemplateBasicInformations($hostTemplate);
             $this->addExtendedInformations($hostTemplateId, $hostTemplate);
-            $this->addSeverity($hostTemplateId, $hostTemplate);
+            if ($hostTemplate->getSeverityId() !== null) {
+                $this->addSeverity($hostTemplateId, $hostTemplate);
+            }
 
             if (! $alreadyInTransaction) {
                 $this->db->commit();
