@@ -15659,6 +15659,8 @@ msgstr "Souhaitez-vous quitter le formulaire sans enregistrer les modifications 
 msgid "Your form has unsaved changes"
 msgstr "Votre formulaire comporte des modifications non enregistrées"
 
+msgid "This name already exists"
+msgstr "Ce nom existe déjà"
 
 #: api/platform
 msgid "Unable to convert in remote server, no Central to link provided"
@@ -17816,3 +17818,6 @@ msgstr "Vous n'êtes pas autorisé à effectuer des actions d'écriture sur les 
 
 msgid "Host template #%d not found"
 msgstr "Modèle d'hôte #%d introuvable"
+
+msgid "Circular inheritance not allowed"
+msgstr "Héritage circulaire non autorisé"

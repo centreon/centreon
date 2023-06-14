@@ -288,6 +288,84 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
     }
 
     /**
+     * @inheritDoc
+     */
+    public function linkToHostTemplates(int $serviceTemplateId, array $hostTemplateIds): void
+    {
+        if ([] === $hostTemplateIds) {
+            return;
+        }
+
+        $request = $this->translateDbName(<<<'SQL'
+            INSERT INTO `:db`.host_service_relation
+                (host_host_id, service_service_id)
+                VALUES (:host_id, :service_template_id)
+            SQL
+        );
+
+        $alreadyInTransaction = $this->db->inTransaction();
+
+        try {
+            if (! $alreadyInTransaction) {
+                $this->db->beginTransaction();
+            }
+            $statement = $this->db->prepare($request);
+
+            $hostTemplateId = null;
+            $statement->bindParam(':service_template_id', $serviceTemplateId, \PDO::PARAM_INT);
+            $statement->bindParam(':host_id', $hostTemplateId, \PDO::PARAM_INT);
+
+            foreach ($hostTemplateIds as $hostTemplateId) {
+                $statement->execute();
+            }
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function unlinkHostTemplates(int $serviceTemplateId): void
+    {
+        $alreadyInTransaction = $this->db->inTransaction();
+
+        try {
+            if (! $alreadyInTransaction) {
+                $this->db->beginTransaction();
+            }
+
+            $request = $this->translateDbName(<<<'SQL'
+                DELETE FROM `:db`.host_service_relation
+                    WHERE service_service_id = :service_template_id
+                    AND host_host_id IS NOT NULL
+                SQL
+            );
+            $statement = $this->db->prepare($request);
+            $statement->bindValue(':service_template_id', $serviceTemplateId, \PDO::PARAM_INT);
+            $statement->execute();
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
      * @param int $serviceTemplateId
      * @param NewServiceTemplate $serviceTemplate
      */
@@ -329,7 +407,7 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
 
     /**
      * @param int $serviceTemplateId
-     * @param \Core\ServiceTemplate\Domain\Model\NewServiceTemplate $serviceTemplate
+     * @param NewServiceTemplate $serviceTemplate
      */
     private function linkSeverity(int $serviceTemplateId, NewServiceTemplate $serviceTemplate): void
     {

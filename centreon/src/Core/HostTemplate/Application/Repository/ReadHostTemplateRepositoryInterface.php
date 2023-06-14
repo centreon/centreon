@@ -63,19 +63,44 @@ interface ReadHostTemplateRepositoryInterface
     public function findParents(int $hostTemplateId): array;
 
     /**
+     * Find all existing host templates ids.
+     *
+     * @param list<int> $hostTemplateIds
+     *
+     * @return list<int>
+     */
+    public function findAllExistingIds(array $hostTemplateIds): array;
+
+    /**
      * Determine if a host template exists by its ID.
      *
      * @param int $hostTemplateId
+     *
+     * @throws \Throwable
      *
      * @return bool
      */
     public function exists(int $hostTemplateId): bool;
 
     /**
+     * Check existence of a list of host templates.
+     * Return the ids of the existing templates.
+     *
+     * @param int[] $hostTemplateIds
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function exist(array $hostTemplateIds): array;
+
+    /**
      * Determine if a host template exists by its name.
      * (include both host templates and hosts names).
      *
      * @param string $hostTemplateName
+     *
+     * @throws \Throwable
      *
      * @return bool
      */
@@ -87,7 +112,21 @@ interface ReadHostTemplateRepositoryInterface
      *
      * @param int $hostTemplateId
      *
+     * @throws \Throwable
+     *
      * @return bool
      */
     public function isLocked(int $hostTemplateId): bool;
+
+    /**
+     * Retrieve the name of a list of template ids.
+     * Return an array with ids as keys.
+     *
+     * @param int[] $templateIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int,string>
+     */
+    public function findNamesByIds(array $templateIds): array;
 }

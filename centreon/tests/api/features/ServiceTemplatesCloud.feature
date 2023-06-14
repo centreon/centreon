@@ -78,6 +78,14 @@ Feature:
     }
     """
 
+    When I send a PATCH request to '/api/latest/configuration/services/templates/27' with body:
+    """
+    {
+        "host_templates": [2, 3]
+    }
+    """
+    Then the response code should be "204"
+
     Given I am logged in with "test"/"Centreon@2022"
     When I send a DELETE request to '/api/v23.10/configuration/services/templates/27'
     Then the response code should be "403"

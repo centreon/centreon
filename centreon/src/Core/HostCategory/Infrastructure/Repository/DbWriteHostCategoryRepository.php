@@ -30,6 +30,7 @@ use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostCategory\Domain\Model\NewHostCategory;
+use Utility\SqlConcatenator;
 
 class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements WriteHostCategoryRepositoryInterface
 {
@@ -154,6 +155,36 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
             $statement->bindValue($key, $value, \PDO::PARAM_INT);
         }
         $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function unlinkFromHost(int $hostId, array $categoryIds): void
+    {
+        $this->info('Unlinking host categories from host/host template', [
+            'host_id' => $hostId, 'category_ids' => $categoryIds,
+        ]);
+
+        if ($categoryIds === []) {
+            return;
+        }
+
+        $concatenator = new SqlConcatenator();
+        $concatenator
+            ->appendWhere('host_host_id = :host_id')
+            ->appendWhere('hostcategories_hc_id in (:category_ids)')
+            ->storeBindValue(':host_id', $hostId, \PDO::PARAM_INT)
+            ->storeBindValueMultiple(':category_ids', $categoryIds, \PDO::PARAM_INT);
+
+        $statement = $this->db->prepare($this->translateDbName(
+            'DELETE FROM `:db`.`hostcategories_relation`'
+            . $concatenator->__toString()
+        ));
+
+        $concatenator->bindValuesToStatement($statement);
 
         $statement->execute();
     }

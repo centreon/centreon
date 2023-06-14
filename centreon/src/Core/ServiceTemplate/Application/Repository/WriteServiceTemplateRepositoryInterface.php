@@ -31,6 +31,8 @@ interface WriteServiceTemplateRepositoryInterface
      * Delete a service template by ID.
      *
      * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
      */
     public function deleteById(int $serviceTemplateId): void;
 
@@ -39,7 +41,28 @@ interface WriteServiceTemplateRepositoryInterface
      *
      * @param NewServiceTemplate $newServiceTemplate
      *
+     * @throws \Throwable
+     *
      * @return int
      */
     public function add(NewServiceTemplate $newServiceTemplate): int;
+
+    /**
+     * Link the service template to host templates.
+     *
+     * @param int $serviceTemplateId
+     * @param list<int> $hostTemplateIds
+     *
+     * @throws \Throwable
+     */
+    public function linkToHostTemplates(int $serviceTemplateId, array $hostTemplateIds): void;
+
+    /**
+     * Unlink all host templates from the service template.
+     *
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     */
+    public function unlinkHostTemplates(int $serviceTemplateId): void;
 }

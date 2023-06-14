@@ -1,39 +1,19 @@
 #!/bin/sh
 
-pidfile='/var/run/centengine.pid'
-
 service_start() {
-    echo "centenginedevscript: starting centengine"
-    if [ \! -f "$pidfile" ] ; then
-        pid=`su - centreon-engine -c "/usr/sbin/centengine /etc/centreon-engine/centengine.cfg > /dev/null 2>&1 & echo \\$!"`
-        echo "$pid" > "$pidfile"
-        echo "centenginedevscript: centengine started with pid $pid"
-    else
-	    echo "centenginedevscript: centengine is already started"
-    fi
+    systemctl start centengine
 }
 
 service_stop() {
-    if [ -f "$pidfile" ] ; then
-        echo "centenginedevscript: stopping centengine"
-        kill -TERM `cat "$pidfile"`
-        while ps -p `cat "$pidfile"` > /dev/null; do sleep 1; done
-        rm -f "$pidfile"
-        echo "centenginedevscript: centengine stopped"
-    else
-	    echo "centenginedevscript: centengine is already stopped"
-    fi
+    systemctl stop centengine
 }
 
 service_restart() {
-    service_stop
-    service_start
+    systemctl restart centengine
 }
 
 service_reload() {
-    echo "centenginedevscript: reloading centengine"
-    kill -HUP `cat "$pidfile"`
-    echo "centenginedevscript: centengine reloaded"
+    systemctl reload centengine
 }
 
 case "$1" in
