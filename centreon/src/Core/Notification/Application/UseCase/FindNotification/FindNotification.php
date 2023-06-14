@@ -75,12 +75,12 @@ final class FindNotification
                 return;
             }
             $this->info('Retrieving details for notification', [
-                "notification_id" => $notificationId
+                'notification_id' => $notificationId,
             ]);
 
             if (($notification = $this->notificationRepository->findById($notificationId)) === null) {
                 $this->info('Notification not found', [
-                    "notification_id" => $notificationId
+                    'notification_id' => $notificationId,
                 ]);
                 $presenter->presentResponse(new NotFoundResponse(_('Notification')));
             } else {
@@ -88,12 +88,17 @@ final class FindNotification
                 $notifiedUsers = $this->notificationRepository->findUsersByNotificationId($notificationId);
                 $notificationResources = $this->findResourcesByNotificationId($notificationId);
 
-                $presenter->presentResponse($this->createResponse($notification, $notificationMessages, $notifiedUsers, $notificationResources));
+                $presenter->presentResponse($this->createResponse(
+                    $notification,
+                    $notificationMessages,
+                    $notifiedUsers,
+                    $notificationResources
+                ));
             }
         } catch (\Throwable $ex) {
             $this->error('Unable to retrieve notification details',[
                 'notification_id' => $notificationId,
-                'trace' => (string) $ex
+                'trace' => (string) $ex,
             ]);
             $presenter->presentResponse(new ErrorResponse(NotificationException::errorWhileRetrievingObject()));
         }
@@ -126,12 +131,13 @@ final class FindNotification
     }
 
     /**
-     * create FindNotificationResponse Dto
+     * create FindNotificationResponse Dto.
      *
      * @param Notification $notification
      * @param NotificationMessage[] $notificationMessages
      * @param ConfigurationUser[] $notifiedUsers
      * @param NotificationResource[] $notificationResources
+     *
      * @return FindNotificationResponse
      */
     private function createResponse(

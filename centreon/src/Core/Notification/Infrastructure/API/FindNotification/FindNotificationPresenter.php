@@ -31,7 +31,6 @@ use Core\Notification\Application\UseCase\FindNotification\FindNotificationRespo
 
 class FindNotificationPresenter extends AbstractPresenter implements FindNotificationPresenterInterface
 {
-
     public function __construct(
         protected PresenterFormatterInterface $presenterFormatter
     ) {
@@ -53,7 +52,7 @@ class FindNotificationPresenter extends AbstractPresenter implements FindNotific
                 'is_activated' => $response->isActivated,
                 'messages' => $response->messages,
                 'users' => $response->users,
-                'resources' => $response->resources
+                'resources' => $response->resources,
             ]);
         }
     }
