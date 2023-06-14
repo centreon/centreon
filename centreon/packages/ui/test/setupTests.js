@@ -1,9 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-undef */
-// FIXME: testing library setup
-// import '@testing-library/jest-dom';
-// import '@testing-library/react';
-// import '@testing-library/jest-dom/extend-expect';
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import fetchMock from 'jest-fetch-mock';
