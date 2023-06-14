@@ -17821,3 +17821,9 @@ msgstr "Modèle d'hôte #%d introuvable"
 
 msgid "Circular inheritance not allowed"
 msgstr "Héritage circulaire non autorisé"
+
+msgid "You are not allowed to delete a notification configuration"
+msgstr "Vous n'êtes pas autorisé à supprimer une configuration de notification"
+
+msgid "Error while deleting a notification configuration"
+msgstr "Erreur lors de la suppression de la configuration de notification"
