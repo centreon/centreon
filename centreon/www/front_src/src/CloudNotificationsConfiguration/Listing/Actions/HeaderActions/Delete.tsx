@@ -1,62 +1,32 @@
-import { useState } from 'react';
-
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 import { useAtomValue } from 'jotai';
-import { isEmpty } from 'ramda';
 
-import { Box } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/DeleteOutline';
+import { Method } from '@centreon/ui';
 
-import { IconButton } from '@centreon/ui';
-
+import DeleteButton from '../../../Actions/DeleteButton';
 import { selectedRowsAtom } from '../../../atom';
-import DeleteDialog from '../../Dialogs/DeleteDialog';
-import { labelDelete } from '../../../translatedLabels';
-
-const useStyle = makeStyles()((theme) => ({
-  icon: {
-    color: theme.palette.text.secondary
-  }
-}));
+import {
+  labelFailedToDeleteNotifications,
+  labelNotificationsSuccessfullyDeleted
+} from '../../../translatedLabels';
+import { notificationtEndpoint } from '../../../EditPanel/api/endpoints';
 
 const DeleteAction = (): JSX.Element => {
-  const { classes } = useStyle();
+  const selectedRows = useAtomValue(selectedRowsAtom);
 
-  const { t } = useTranslation();
+  const getEndpoint = (): string => `${notificationtEndpoint({})}/_delete`;
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const selected = useAtomValue(selectedRowsAtom);
-
-  const onClick = (): void => {
-    setDialogOpen(true);
-  };
-
-  const onCancel = (): void => {
-    setDialogOpen(false);
-  };
-
-  const onConfirm = (): void => {
-    setDialogOpen(false);
+  const payload = {
+    ids: selectedRows?.map((notification) => notification.id)
   };
 
   return (
-    <Box>
-      <IconButton
-        ariaLabel={t(labelDelete)}
-        className={classes.icon}
-        disabled={isEmpty(selected)}
-        title={t(labelDelete)}
-        onClick={onClick}
-      >
-        <DeleteIcon />
-      </IconButton>
-      <DeleteDialog
-        open={dialogOpen}
-        onCancel={onCancel}
-        onConfirm={onConfirm}
-      />
-    </Box>
+    <DeleteButton
+      fetchMethod={Method.POST}
+      fetchPayload={payload}
+      getEndpoint={getEndpoint}
+      labelFailed={labelFailedToDeleteNotifications}
+      labelSuccess={labelNotificationsSuccessfullyDeleted}
+    />
   );
 };
 

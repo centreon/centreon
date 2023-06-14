@@ -10,7 +10,7 @@ import {
   labelDelete,
   labelDeleteNotification,
   labelDeleteNotificationWarning
-} from '../../translatedLabels';
+} from '../translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
   confirmButtons: {
@@ -26,7 +26,8 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 interface Props {
-  notificationName: string;
+  isMutating: boolean;
+  notificationName?: string;
   onCancel: () => void;
   onConfirm: () => void;
   open: boolean;
@@ -36,21 +37,26 @@ const DeleteDialog = ({
   notificationName,
   open,
   onCancel,
-  onConfirm
+  onConfirm,
+  isMutating
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
   return (
     <ConfirmDialog
+      confirmDisabled={isMutating}
       dialogConfirmButtonClassName={classes.confirmButtons}
       dialogPaperClassName={classes.paper}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDelete)}
-      labelMessage={`${t(labelDelete)} < ${notificationName} >`}
+      labelMessage={
+        notificationName && `${t(labelDelete)} « ${notificationName} ». `
+      }
       labelSecondMessage={t(labelDeleteNotificationWarning)}
       labelTitle={t(labelDeleteNotification)}
       open={open}
+      submitting={isMutating}
       onCancel={onCancel}
       onConfirm={onConfirm}
     />
