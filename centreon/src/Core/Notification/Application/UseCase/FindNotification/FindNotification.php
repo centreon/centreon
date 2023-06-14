@@ -74,7 +74,14 @@ final class FindNotification
 
                 return;
             }
-            if(($notification = $this->notificationRepository->findById($notificationId)) == null) {
+            $this->info('Retrieving details for notification', [
+                "notification_id" => $notificationId
+            ]);
+
+            if (($notification = $this->notificationRepository->findById($notificationId)) === null) {
+                $this->info('Notification not found', [
+                    "notification_id" => $notificationId
+                ]);
                 $presenter->presentResponse(new NotFoundResponse(_('Notification')));
             } else {
                 $notificationMessages = $this->notificationRepository->findMessagesByNotificationId($notificationId);
@@ -84,7 +91,11 @@ final class FindNotification
                 $presenter->presentResponse($this->createResponse($notification, $notificationMessages, $notifiedUsers, $notificationResources));
             }
         } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(_('Bad things happens')));
+            $this->error('Unable to retrieve notification details',[
+                'notification_id' => $notificationId,
+                'trace' => (string) $ex
+            ]);
+            $presenter->presentResponse(new ErrorResponse(NotificationException::errorWhileRetrievingObject()));
         }
     }
 

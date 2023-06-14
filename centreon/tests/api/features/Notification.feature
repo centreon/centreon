@@ -543,14 +543,22 @@ Feature:
             "id": 1,
             "name": "24x7"
         },
+        "is_activated": true,
+        "messages": [
+            {
+                "channel": "Slack",
+                "subject": "Hello world !",
+                "message": "just a small message"
+            }
+        ],
         "users": [
             {
                 "id": 20,
-                "name": "ala"
+                "name": "user-name1"
             },
             {
                 "id": 21,
-                "name": "user-name1"
+                "name": "user-name2"
             }
         ],
         "resources": [
@@ -578,18 +586,14 @@ Feature:
                     {
                         "id": 1,
                         "name": "service-grp1"
+                    },
+                    {
+                        "id": 2,
+                        "name": "service-grp2"
                     }
                 ]
             }
-        ],
-        "messages": [
-            {
-                "channel": "Slack",
-                "subject": "Hello world !",
-                "message": "just a small message"
-            }
-        ],
-        "is_activated": true
+        ]
       }
     """
 
@@ -645,21 +649,30 @@ Feature:
       """
     Then the response code should be "201"
 
+    Given I am logged in with "test-user"/"Centreon@2022"
     When I send a GET request to '/api/latest/configuration/notifications/1'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
-      {
+    {
         "id": 1,
         "name": "notification-name",
         "timeperiod": {
             "id": 1,
             "name": "24x7"
         },
+        "is_activated": false,
+        "messages": [
+            {
+                "channel": "Slack",
+                "subject": "Hello world !",
+                "message": "just a small message"
+            }
+        ],
         "users": [
             {
                 "id": 20,
-                "name": "ala"
+                "name": "test-user"
             },
             {
                 "id": 21,
@@ -675,10 +688,7 @@ Feature:
                         "id": 56,
                         "name": "Printers"
                     }
-                ],
-                "extra": {
-                    "event_services": 2
-                }
+                ]
             },
             {
                 "type": "servicegroup",
@@ -690,16 +700,8 @@ Feature:
                     }
                 ]
             }
-        ],
-        "messages": [
-            {
-                "channel": "Slack",
-                "subject": "Hello world !",
-                "message": "just a small message"
-            }
-        ],
-        "is_activated": false
-      }
+        ]
+    }
     """
 
 Scenario: Notification listing as non-admin without sufficient rights
