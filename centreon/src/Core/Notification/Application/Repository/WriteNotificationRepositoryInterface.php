@@ -67,5 +67,5 @@ interface WriteNotificationRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function delete(int $notificationId):void;
+    public function delete(int $notificationId): void;
 }
