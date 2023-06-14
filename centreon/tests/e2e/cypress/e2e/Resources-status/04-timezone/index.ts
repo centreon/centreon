@@ -421,70 +421,11 @@ Then(
   }
 );
 
-When('the user opens a chart from resource status detail panel', () => {
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
-
-  cy.getByLabel({ label: 'State filter' }).click();
-
-  cy.get('[data-value="all"]').click();
-
-  submitResultsViaClapi([
-    {
-      host: hostInAcknowledgementName,
-      output: 'submit_status_1',
-      service: serviceInDtName,
-      status: '0'
-    }
-  ]).then(() => {
-    cy.waitUntil(
-      () => {
-        return cy
-          .refreshListing()
-          .then(() => cy.contains(serviceInDtName))
-          .parent()
-          .parent()
-          .find('.MuiChip-label')
-          .eq(0)
-          .then((val) => {
-            return val[0].textContent === 'OK';
-          });
-      },
-      {
-        timeout: 15000
-      }
-    );
-  });
-
-  cy.contains(hostInAcknowledgementName)
-    .parent()
-    .click()
-    .wait('@getMonitoredResource');
-
-  cy.getByLabel({ label: 'Graph' })
-    .contains('Graph')
-    .click()
-    .wait('@getMonitoredResource');
-});
-
-When(
-  'the user selects a date and time in the graph tab of detail panel',
-  () => {
-    cy.getByLabel({ label: 'Last day' }).click().wait('@getMonitoredMetrics');
-  }
-);
-
 When('the user opens a chart from Monitoring>Performances>Graphs', () => {
   cy.navigateTo({
     page: 'Resources Status',
     rootItemNumber: 1
   });
-
-  cy.getByLabel({ label: 'State filter' }).click();
-
-  cy.get('[data-value="all"]').click();
 
   cy.waitUntil(
     () => {
@@ -538,13 +479,17 @@ Then(
         .last()
         .invoke('text')
         .then((timeTick) => {
-          const headerTime24h = convert12hTo24h(headerTime);
-          console.log(timeTick, headerTime24h);
+          expect(
+            calculateMinuteInterval(
+              convert12hFormatToDate(timeTick),
+              convert12hFormatToDate(headerTime)
+            )
+          ).to.be.lte(10);
         });
     });
   }
 );
 
 after(() => {
-  // cy.stopWebContainer();
+  cy.stopWebContainer();
 });
