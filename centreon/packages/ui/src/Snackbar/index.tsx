@@ -1,10 +1,10 @@
-/* eslint-disable react/no-danger */
 import * as React from 'react';
 
 import { useSnackbar, SnackbarContent } from 'notistack';
 import { isNil, not } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-import DOMPurify from 'dompurify';
+import sanitizeHtml from 'sanitize-html';
+import ReactHtmlParser from 'react-html-parser';
 
 import { IconButton, Alert } from '@mui/material';
 import IconClose from '@mui/icons-material/Close';
@@ -58,11 +58,11 @@ const Snackbar = React.forwardRef(
       closeSnackbar(id);
     };
 
+    const sanitizedMessage = sanitizeHtml(message);
+
     const formatedMessage =
       typeof message === 'string' ? (
-        <div
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(message) }}
-        />
+        <div>{ReactHtmlParser(sanitizedMessage)}</div>
       ) : (
         message
       );
