@@ -172,3 +172,7 @@ default:
       paths: [ "%paths.base%/features/ServiceTemplatesCloud.feature" ]
       contexts:
       - Centreon\Test\Api\Context\CloudPlatformContext
+    command:
+      paths: [ "%paths.base%/features/Command.feature" ]
+      contexts:
+      - Centreon\Test\Behat\Api\Context\ApiContext

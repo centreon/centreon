@@ -21,10 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\CommandMacro\Domain\Model;
+namespace Core\Command\Application\Exception;
 
-enum CommandMacroType: string
+final class CommandException extends \Exception
 {
-    case Host = '1';
-    case Service = '2';
+    /**
+     * @return self
+     */
+    public static function accessNotAllowed(): self
+    {
+        return new self(_('You are not allowed to access service templates'));
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function errorWhileSearching(\Throwable $ex): self
+    {
+        return new self(_('Error while searching for commands'), 0, $ex);
+    }
 }

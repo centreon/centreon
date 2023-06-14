@@ -21,13 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Domain;
+namespace Core\Command\Application\UseCase\FindCommands;
 
-enum CommandType: int
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface FindCommandsPresenterInterface
 {
-    case Notification = 1;
-    case Check = 2;
-    case Miscellaneous = 3;
-
-    // Note: exist case Discovery = 4 for autodiscovery only
+    public function presentResponse(FindCommandsResponse|ResponseStatusInterface $response): void;
 }
