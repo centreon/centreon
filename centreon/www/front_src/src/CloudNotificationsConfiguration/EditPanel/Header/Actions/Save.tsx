@@ -5,6 +5,7 @@ import { makeStyles } from 'tss-react/mui';
 import { FormikValues, useFormikContext } from 'formik';
 import { or, equals } from 'ramda';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Box } from '@mui/material';
 import SaveIcon from '@mui/icons-material/SaveOutlined';
@@ -43,6 +44,7 @@ const SaveAction = (): JSX.Element => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
   const { values, isValid, dirty } = useFormikContext<FormikValues>();
+  const queryClient = useQueryClient();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const panelMode = useAtomValue(panelModeAtom);
@@ -74,6 +76,8 @@ const SaveAction = (): JSX.Element => {
       showSuccessMessage(t(labelMessage));
       setDialogOpen(false);
       setPanelOpen(false);
+      queryClient.invalidateQueries(['notificationsListing']);
+      queryClient.invalidateQueries(['notifications']);
     });
   };
 

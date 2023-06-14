@@ -10,7 +10,7 @@
 /etc/sudoers
 /etc/sudoers.d
 /etc/pam.d
-/usr/libexec/sudo
+/usr/lib/sudo
 /var/www/html
 /usr/lib/apache2/modules
 /var/lib/php/sessions

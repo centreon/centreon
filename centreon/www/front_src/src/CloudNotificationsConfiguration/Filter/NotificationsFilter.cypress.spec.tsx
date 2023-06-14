@@ -35,7 +35,7 @@ const initialize = (): void => {
 
   const search = {
     regex: {
-      fields: ['name', 'resources', 'channels', 'users'],
+      fields: ['name'],
       value: searchValue
     }
   };
@@ -70,12 +70,7 @@ describe('Filter', () => {
         {
           key: 'search',
           value: {
-            $or: [
-              { name: { $rg: 'foobar' } },
-              { resources: { $rg: 'foobar' } },
-              { channels: { $rg: 'foobar' } },
-              { users: { $rg: 'foobar' } }
-            ]
+            $or: [{ name: { $rg: 'foobar' } }]
           }
         }
       ],
