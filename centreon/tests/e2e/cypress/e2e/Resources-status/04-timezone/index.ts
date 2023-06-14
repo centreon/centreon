@@ -7,7 +7,6 @@ import {
 } from '../../../commons';
 import {
   actionBackgroundColors,
-  hostInAcknowledgementName,
   insertDtResources,
   secondServiceInDtName,
   serviceInAcknowledgementName,
@@ -38,9 +37,7 @@ const calculateMinuteInterval = (startDate: Date, endDate: Date): number => {
 };
 
 before(() => {
-  cy.startWebContainer({
-    version: 'MON-19301-profile-timezone-automated'
-  });
+  cy.startWebContainer();
 });
 
 beforeEach(() => {

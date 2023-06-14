@@ -26,7 +26,6 @@ interface Filter {
 
 const serviceInAcknowledgementName = 'service_test_ack';
 const serviceInDtName = 'service_test_dt';
-const serviceOk = 'service_test_ok';
 const secondServiceInDtName = 'service_test_dt_2';
 const hostInAcknowledgementName = 'test_host';
 const hostChildInAcknowledgementName = 'test_host_ack';
@@ -289,7 +288,6 @@ export {
   hostChildInAcknowledgementName,
   serviceInDtName,
   secondServiceInDtName,
-  serviceOk,
   insertResourceFixtures,
   setUserFilter,
   deleteUserFilter,
