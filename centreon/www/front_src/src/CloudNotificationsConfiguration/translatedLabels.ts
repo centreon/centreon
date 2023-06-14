@@ -60,10 +60,10 @@ export const labelDoYouWantToQuitWithoutSaving =
 export const labelYourFormHasUnsavedChanges = 'Your form has unsaved changes';
 export const labelThisNameAlreadyExists = 'This name already exists';
 export const labelNotificationSuccessfullyDeleted =
-  'Notification successfully deleted';
+  'Notification deleted successfully';
 export const labelNotificationsSuccessfullyDeleted =
-  'Notifications successfully deleted';
+  'Selected notifications have been deleted successfully';
 export const labelFailedToDeleteNotification =
   'Failed to delete the notification';
 export const labelFailedToDeleteNotifications =
-  'Failed to delete the notifications';
+  'Failed to delete the selected notifications';
