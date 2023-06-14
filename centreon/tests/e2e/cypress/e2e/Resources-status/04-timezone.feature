@@ -28,3 +28,10 @@ Scenario: User can set a acknowledgement with a custom timezone in Monitoring>Re
   Given a user with a custom timezone set in his profile
   When the user creates an acknowledgement on a resource
   Then date and time fields of acknowledge resource should be based on the custom timezone of the user
+
+Scenario: User can visualize charts in Legacy Monitoring>Performances>Graphs
+  Given a user with a custom timezone set in his profile
+  When the user opens a chart from Monitoring>Performances>Graphs
+  And the user selects a chart
+  And the user selects default periods
+  Then the time window of the chart is based on the custom timezone of the user

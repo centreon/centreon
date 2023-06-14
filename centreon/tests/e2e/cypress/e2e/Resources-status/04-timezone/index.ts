@@ -410,6 +410,75 @@ Then(
   }
 );
 
+When('the user opens a chart from Monitoring>Performances>Graphs', () => {
+  cy.navigateTo({
+    page: 'Resources Status',
+    rootItemNumber: 1
+  });
+
+  cy.waitUntil(
+    () => {
+      return cy
+        .refreshListing()
+        .then(() => cy.contains('Ping'))
+        .parent()
+        .parent()
+        .find('.MuiChip-label')
+        .eq(0)
+        .then((val) => {
+          return val[0].textContent === 'OK';
+        });
+    },
+    {
+      timeout: 30000
+    }
+  );
+
+  cy.navigateTo({
+    page: 'Graphs',
+    rootItemNumber: 1,
+    subMenu: 'Performances'
+  }).wait('@getTimeZone');
+});
+
+When('the user selects a chart', () => {
+  cy.getIframeBody().find('.select2-search__field').eq(0).type('Ping');
+
+  cy.getIframeBody()
+    .find('ul[id="select2-select-chart-results"] li')
+    .contains('Ping')
+    .eq(0)
+    .click();
+});
+
+When('the user selects default periods', () => {
+  cy.getIframeBody()
+    .find('select[name="period"]')
+    .eq(0)
+    .should('have.value', '3h');
+});
+
+Then(
+  'the time window of the chart is based on the custom timezone of the user',
+  () => {
+    cy.getTimeFromHeader().then((headerTime) => {
+      cy.getIframeBody()
+        .find('.c3-axis.c3-axis-x')
+        .find('tspan')
+        .last()
+        .invoke('text')
+        .then((timeTick) => {
+          expect(
+            calculateMinuteInterval(
+              convert12hFormatToDate(timeTick),
+              convert12hFormatToDate(headerTime)
+            )
+          ).to.be.lte(10);
+        });
+    });
+  }
+);
+
 after(() => {
   cy.stopWebContainer();
 });
