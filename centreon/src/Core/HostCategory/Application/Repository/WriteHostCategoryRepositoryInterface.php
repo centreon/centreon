@@ -57,7 +57,7 @@ interface WriteHostCategoryRepositoryInterface
     public function update(HostCategory $hostCategory): void;
 
     /**
-     * Link a list of categories to a host(or hostTemplate).
+     * Link a list of categories to a host (or hostTemplate).
      *
      * @param int $hostId
      * @param int[] $categoryIds
@@ -65,4 +65,14 @@ interface WriteHostCategoryRepositoryInterface
      * @throws \Throwable
      */
     public function linkToHost(int $hostId, array $categoryIds): void;
+
+    /**
+     * Unlink a list of categories to a host (or hostTemplate).
+     *
+     * @param int $hostId
+     * @param int[] $categoryIds
+     *
+     * @throws \Throwable
+     */
+    public function unlinkFromHost(int $hostId, array $categoryIds): void;
 }

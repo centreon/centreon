@@ -81,7 +81,8 @@ use Utility\SqlConcatenator;
  *     esi_notes: string|null,
  *     esi_notes_url: string|null,
  *     graph_id: int|null,
- *     severity_id: int|null
+ *     severity_id: int|null,
+ *     host_template_ids: string|null
  * }
  */
 class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements ReadServiceTemplateRepositoryInterface
@@ -143,7 +144,8 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        esi.esi_notes,
                        esi.esi_notes_url,
                        esi.graph_id,
-                       scr.sc_id as severity_id
+                       scr.sc_id as severity_id,
+                       GROUP_CONCAT(hsr.host_host_id) AS host_template_ids
                 FROM `:db`.service
                 LEFT JOIN `:db`.extended_service_information esi
                     ON esi.service_service_id = service.service_id
@@ -152,8 +154,11 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                 LEFT JOIN `:db`.service_categories sc
                     ON sc.sc_id = scr.sc_id
                     AND sc.level IS NOT NULL
+                LEFT JOIN `centreon`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
                 WHERE service.service_id = :id
                     AND service.service_register = '0'
+                GROUP BY service.service_id
             SQL;
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
@@ -226,7 +231,8 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        esi.esi_notes,
                        esi.esi_notes_url,
                        esi.graph_id,
-                       scr.sc_id as severity_id
+                       scr.sc_id as severity_id,
+                       group_concat(hsr.host_host_id) AS host_template_ids
                 FROM `:db`.service
                 LEFT JOIN `:db`.extended_service_information esi
                     ON esi.service_service_id = service.service_id
@@ -235,10 +241,13 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                 LEFT JOIN `:db`.service_categories sc
                     ON sc.sc_id = scr.sc_id
                     AND sc.level IS NOT NULL
+                LEFT JOIN `centreon`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
             SQL;
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
         $sqlConcatenator->appendWhere("service_register = '0'");
+        $sqlConcatenator->appendGroupBy('service.service_id');
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
         $sql = $sqlConcatenator->__toString();
         $statement = $this->db->prepare($this->translateDbName($sql));
@@ -320,6 +329,13 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             return $commandArguments;
         };
 
+        $hostTemplateIds = $data['host_template_ids'] !== null
+            ? array_map(
+                fn (mixed $hostTemplateId): int => (int) $hostTemplateId,
+                explode(',', $data['host_template_ids'])
+            )
+            : [];
+
         return new ServiceTemplate(
             (int) $data['service_id'],
             $data['service_description'],
@@ -327,6 +343,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             $extractCommandArgument($data['command_command_id_arg']),
             $extractCommandArgument($data['command_command_id_arg2']),
             $this->createNotificationType($data['service_notification_options']),
+            $hostTemplateIds,
             $data['contact_additive_inheritance'] === 1,
             $data['cg_additive_inheritance'] === 1,
             $data['service_activate'] === '1',

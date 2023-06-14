@@ -26,6 +26,7 @@ patch:
 
     The following host template properties are supported in version 23.10 and above:
       - macros
+      - categories
   parameters:
     - $ref: 'QueryParameter/HostTemplateId.yaml'
   requestBody:
@@ -43,5 +44,7 @@ patch:
       $ref: '../../Common/Response/Forbidden.yaml'
     '404':
       $ref: '../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../Common/Response/Conflict.yaml'
     '500':
       $ref: '../../Common/Response/InternalServerError.yaml'

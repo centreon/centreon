@@ -247,7 +247,9 @@ Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
     return cy
-      .exec(`docker image inspect ${image} || docker pull ${image}`)
+      .exec(`docker image inspect ${image} || docker pull ${image}`, {
+        timeout: 120000
+      })
       .task('startContainer', { image, name, portBindings });
   }
 );

@@ -240,7 +240,9 @@ Feature:
         ]
       }
       """
-  Scenario: Host template patching
+
+  Scenario: Host template partial update
+    # TODO : complete 204 result with GET /hosts/template/<hostTemplateId> to check results
     Given I am logged in
     And the following CLAPI import data:
       """
@@ -304,4 +306,65 @@ Feature:
       }
       """
     Then the response code should be "204"
-# TODO : complete with GET /hosts/template/<hostTemplateId>
+
+    Given the following CLAPI import data:
+      """
+      HC;ADD;severity1;host-severity-alias
+      HC;setseverity;severity1;42;logos/logo-centreon-colors.png
+      HC;ADD;host-cat1;host-cat1-alias
+      """
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "categories": []
+      }
+      """
+    Then the response code should be "204"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "categories": [2]
+      }
+      """
+    Then the response code should be "204"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "categories": [1]
+      }
+      """
+    Then the response code should be "409"
+
+    Given the following CLAPI import data:
+      """
+      HC;ADD;host-cat2;host-cat2-alias
+      CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
+      CONTACT;setparam;ala;reach_api;1
+      ACLMENU;add;ACL Menu test;my alias
+      ACLMENU;grantrw;ACL Menu test;1;Configuration;Hosts;Templates
+      ACLRESOURCE;add;ACL Resource test;my alias
+      ACLRESOURCE;addfilter_hostcategory;ACL Resource test;host-cat2
+      ACLGROUP;add;ACL Group test;my alias
+      ACLGROUP;addmenu;ACL Group test;ACL Menu test
+      ACLGROUP;addresource;ACL Group test;ACL Resource test
+      ACLGROUP;addcontact;ACL Group test;ala
+      """
+    And I am logged in with "ala"/"Centreon@2022"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "categories": [2]
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "categories": [3]
+      }
+      """
+    Then the response code should be "204"

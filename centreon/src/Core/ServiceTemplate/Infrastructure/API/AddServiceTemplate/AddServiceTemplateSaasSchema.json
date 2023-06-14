@@ -49,6 +49,12 @@
                 "null",
                 "integer"
             ]
+        },
+        "host_templates": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
         }
     }
 }
