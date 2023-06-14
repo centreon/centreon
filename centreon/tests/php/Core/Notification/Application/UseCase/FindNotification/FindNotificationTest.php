@@ -234,5 +234,4 @@ it('should present a FindNotificationResponse when everything is ok', function (
         ->and($this->presenter->response->resources[0]['events'])->toBe(NotificationHostEventConverter::toBit(NotificationHostEvent::Unreachable))
         ->and($this->presenter->response->resources[0]['ids'][0]['id'])->toBe(1)
         ->and($this->presenter->response->resources[0]['ids'][0]['name'])->toBe('hostgroup-resource');
-
 });

@@ -57,10 +57,10 @@ final class FindNotification
     }
 
     /**
-     * @param integer $notificationId
+     * @param int $notificationId
      * @param FindNotificationPresenterInterface $presenter
      */
-    public function __invoke(int $notificationId, FindNotificationPresenterInterface $presenter)
+    public function __invoke(int $notificationId, FindNotificationPresenterInterface $presenter): void
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE)) {

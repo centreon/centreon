@@ -23,10 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotification;
 
+use Core\Notification\Domain\Model\NotificationHostEvent;
+use Core\Notification\Domain\Model\NotificationServiceEvent;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
+use Core\Notification\Domain\Model\NotificationResource;
 
-class FindNotificationResponse
+final class FindNotificationResponse
 {
     public int $id = 0;
 
@@ -59,8 +62,10 @@ class FindNotificationResponse
      * @var array<array{
      *  type: string,
      *  events: int,
-     *  ids: int[],
-     *  event_services?: int
+     *  ids: array<array{id: int, name: string}>,
+     *  extra?: array{
+     *   event_services: int
+     *  }
      * }>
      */
     public array $resources = [];
