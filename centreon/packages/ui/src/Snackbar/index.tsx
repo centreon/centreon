@@ -43,7 +43,7 @@ const Snackbar = React.forwardRef(
   ): JSX.Element => {
     const { classes } = useStyles();
     const { closeSnackbar } = useSnackbar();
-    const Message = useSanitizedHTML({ initialContent: message });
+    const sanitizedMessage = useSanitizedHTML({ initialContent: message });
     const timeoutId = React.useRef<number | undefined>();
 
     React.useEffect((): void => {
@@ -60,7 +60,7 @@ const Snackbar = React.forwardRef(
     };
 
     const formatedMessage =
-      typeof message === 'string' ? <div>{Message}</div> : message;
+      typeof message === 'string' ? <div>{sanitizedMessage}</div> : message;
 
     return (
       <SnackbarContent ref={ref}>
