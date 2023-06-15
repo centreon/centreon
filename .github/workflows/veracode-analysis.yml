@@ -157,7 +157,7 @@ jobs:
         uses: veracode/veracode-uploadandscan-action@master
         with:
           appname: "centreon-web" # TODO to revert before merge
-          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_sha-${{ github.sha }}"
+          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           vid: '${{ secrets.veracode_api_id }}'
           vkey: '${{ secrets.veracode_api_key }}'
