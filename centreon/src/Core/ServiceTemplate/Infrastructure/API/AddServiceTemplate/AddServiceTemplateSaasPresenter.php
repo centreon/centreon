@@ -55,6 +55,7 @@ class AddServiceTemplateSaasPresenter extends AbstractPresenter implements AddSe
                         'note_url' => $response->noteUrl,
                         'action_url' => $response->actionUrl,
                         'severity_id' => $response->severityId,
+                        'host_templates' => $response->hostTemplateIds,
                         'is_locked' => $response->isLocked,
                     ]
                 )

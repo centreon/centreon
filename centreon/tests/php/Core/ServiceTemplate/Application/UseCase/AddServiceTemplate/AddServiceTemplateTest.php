@@ -28,6 +28,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
@@ -38,6 +39,7 @@ use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTempla
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplate;
+use PHPUnit\Framework\TestCase;
 use Tests\Core\ServiceTemplate\Infrastructure\API\AddServiceTemplate\AddServiceTemplatePresenterStub;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 
@@ -49,6 +51,7 @@ beforeEach(closure: function (): void {
     $this->commandRepository = $this->createMock(ReadCommandRepositoryInterface::class);
     $this->timePeriodRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class);
     $this->imageRepository = $this->createMock(ReadViewImgRepositoryInterface::class);
+    $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
     $this->optionService = $this->createMock(OptionService::class);
     $this->user = $this->createMock(ContactInterface::class);
     $this->presenter = new AddServiceTemplatePresenterStub(
@@ -63,6 +66,7 @@ beforeEach(closure: function (): void {
         $this->commandRepository,
         $this->timePeriodRepository,
         $this->imageRepository,
+        $this->readHostTemplateRepository,
         $this->optionService,
         $this->user
     );
@@ -96,6 +100,7 @@ function createAddServiceTemplateRequest(): AddServiceTemplateRequest
     $request->recoveryNotificationDelay = null;
     $request->firstNotificationDelay = null;
     $request->acknowledgementTimeout = null;
+    $request->hostTemplateIds = [];
 
     return $request;
 }
@@ -617,6 +622,98 @@ it('should present a ConflictResponse when the icon ID is not valid', function (
             ServiceTemplateException::idDoesNotExist(
                 'icon_id',
                 $request->iconId
+            )->getMessage()
+        );
+});
+
+it('should present a ConflictResponse when the host template IDs are not valid', function () {
+    $request = new AddServiceTemplateRequest();
+    $request->name = 'fake_name';
+    $request->severityId = 1;
+    $request->graphTemplateId = 1;
+    $request->serviceTemplateParentId = 1;
+    $request->commandId = 1;
+    $request->eventHandlerId = 12;
+    $request->checkTimePeriodId = 13;
+    $request->notificationTimePeriodId = 14;
+    $request->iconId = 15;
+    $request->hostTemplateIds = [2, 3];
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturnMap(
+            [
+                [Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true],
+            ]
+        );
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('existsByName')
+        ->with($request->name)
+        ->willReturn(false);
+
+    $this->serviceSeverityRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->with($request->severityId)
+        ->willReturn(true);
+
+    $this->performanceGraphRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->with($request->graphTemplateId)
+        ->willReturn(true);
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->with($request->serviceTemplateParentId)
+        ->willReturn(true);
+
+    $this->commandRepository
+        ->expects($this->once())
+        ->method('existsByIdAndCommandType')
+        ->with($request->commandId)
+        ->willReturn(true);
+
+    $this->commandRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->with($request->eventHandlerId)
+        ->willReturn(true);
+
+    $this->timePeriodRepository
+        ->expects($this->exactly(2))
+        ->method('exists')
+        ->will($this->returnValueMap(
+            [
+                [$request->checkTimePeriodId, true],
+                [$request->notificationTimePeriodId, true]
+            ]
+        ));
+
+    $this->imageRepository
+        ->expects($this->once())
+        ->method('existsOne')
+        ->with($request->iconId)
+        ->willReturn(true);
+
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findAllExistingIds')
+        ->with($request->hostTemplateIds)
+        ->willReturn([$request->hostTemplateIds[0]]);
+
+    ($this->useCase)($request, $this->presenter);
+    expect($this->presenter->response)
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->response->getMessage())
+        ->toBe(
+            ServiceTemplateException::idsDoesNotExist(
+                'host_templates',
+                [$request->hostTemplateIds[1]]
             )->getMessage()
         );
 });

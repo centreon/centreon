@@ -52,6 +52,7 @@ class ServiceTemplate
      * @param list<mixed> $commandArguments
      * @param list<mixed> $eventHandlerArguments
      * @param NotificationType[] $notificationTypes
+     * @param list<int> $hostTemplateIds
      * @param bool $contactAdditiveInheritance
      * @param bool $contactGroupAdditiveInheritance
      * @param bool $isActivated
@@ -96,6 +97,7 @@ class ServiceTemplate
         array $commandArguments = [],
         array $eventHandlerArguments = [],
         private array $notificationTypes = [],
+        private array $hostTemplateIds = [],
         private bool $contactAdditiveInheritance = false,
         private bool $contactGroupAdditiveInheritance = false,
         private bool $isActivated = true,
@@ -180,6 +182,11 @@ class ServiceTemplate
                 Assertion::positiveInt($propertyValue, "{$className}::{$propertyName}");
             }
         }
+
+        foreach ($this->hostTemplateIds as $hostTemplateId) {
+            Assertion::positiveInt($hostTemplateId, $className . '::hostTemplateIds');
+        }
+
         $properties = [
             'maxCheckAttempts',
             'normalCheckInterval',
@@ -541,5 +548,13 @@ class ServiceTemplate
     public static function formatName(string $name): string
     {
         return (string) preg_replace('/\s{2,}/', ' ', $name);
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getHostTemplateIds(): array
+    {
+        return $this->hostTemplateIds;
     }
 }
