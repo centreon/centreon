@@ -151,9 +151,10 @@ it('should compute macros has expected', function (): void {
         $this->hostMacroK_edit->getName() => $this->hostMacroK_edit,
     ];
 
-    $macrosDiff = (new HostMacroDifference())->compute($directMacros, $inheritedMacros, $commandMacros, $afterMacros);
-    expect($macrosDiff['added'])->toBe($addedMacros)
-        ->and($macrosDiff['updated'])->toBe($updatedMacros)
-        ->and($macrosDiff['removed'])->tobe($removedMacros)
-        ->and($macrosDiff['unchanged'])->toBe($unchangedMacros);
+    $macrosDiff = new HostMacroDifference();
+    $macrosDiff->compute($directMacros, $inheritedMacros, $commandMacros, $afterMacros);
+    expect($macrosDiff->addedMacros)->toBe($addedMacros)
+        ->and($macrosDiff->updatedMacros)->toBe($updatedMacros)
+        ->and($macrosDiff->removedMacros)->tobe($removedMacros)
+        ->and($macrosDiff->unchangedMacros)->toBe($unchangedMacros);
  });
