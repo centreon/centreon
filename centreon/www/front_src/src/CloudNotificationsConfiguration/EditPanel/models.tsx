@@ -47,7 +47,7 @@ export interface ResourceExtraType {
 
 export interface ResourceType {
   events: number;
-  extra?: ResourceExtraType; // traité plus tard
+  extra?: ResourceExtraType;
   ids: Array<ResourceIdsType>;
   type: ResourcesTypeEnum;
 }

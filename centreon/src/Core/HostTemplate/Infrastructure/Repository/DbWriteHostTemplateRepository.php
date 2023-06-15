@@ -74,7 +74,7 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
      */
     public function add(NewHostTemplate $hostTemplate): int
     {
-        $this->debug('Add host template ', ['host_template' => $hostTemplate]);
+        $this->debug('Add host template');
 
         $alreadyInTransaction = $this->db->inTransaction();
         if (! $alreadyInTransaction) {
@@ -84,11 +84,15 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         try {
             $hostTemplateId = $this->addTemplateBasicInformations($hostTemplate);
             $this->addExtendedInformations($hostTemplateId, $hostTemplate);
-            $this->addSeverity($hostTemplateId, $hostTemplate);
+            if ($hostTemplate->getSeverityId() !== null) {
+                $this->addSeverity($hostTemplateId, $hostTemplate);
+            }
 
             if (! $alreadyInTransaction) {
                 $this->db->commit();
             }
+
+            $this->debug('Host template added with ID '. $hostTemplateId);
 
             return $hostTemplateId;
         } catch (\Throwable $ex) {
@@ -100,6 +104,26 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
 
             throw $ex;
         }
+    }
+
+    public function addParent(int $childId, int $parentId, int $order): void
+    {
+        $this->info('Add a parent tempalte to a host/host template', [
+            'child_id' => $childId, 'parent_id' => $parentId, 'order' => $order,
+        ]);
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                INSERT INTO `:db`.`host_template_relation` (`host_tpl_id`, `host_host_id`, `order`)
+                VALUES (:parent_id, :child_id, :order)
+                SQL
+        ));
+
+        $statement->bindValue(':child_id', $childId, \PDO::PARAM_INT);
+        $statement->bindValue(':parent_id', $parentId, \PDO::PARAM_INT);
+        $statement->bindValue(':order', $order, \PDO::PARAM_INT);
+
+        $statement->execute();
     }
 
     private function addTemplateBasicInformations(NewHostTemplate $hostTemplate): int

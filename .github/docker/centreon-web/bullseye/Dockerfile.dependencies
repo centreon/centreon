@@ -39,10 +39,11 @@ apt-get update
 #############################
 
 apt-get install -y \
-  ca-certificates \
   apt-transport-https \
-  software-properties-common \
+  ca-certificates \
   curl \
+  python3 \
+  software-properties-common \
   sudo
 
 #############################
@@ -50,12 +51,12 @@ apt-get install -y \
 #############################
 
 apt-get install -y \
-  perl \
   libdbi-perl \
   libnet-curl-perl \
   libnet-http-perl \
   libwww-perl \
-  libxml-libxml-perl
+  libxml-libxml-perl \
+  perl
 
 #############################
 # install test dependencies #
@@ -145,5 +146,7 @@ apt-get install -y \
 apt-get clean
 
 EOF
+
+COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/

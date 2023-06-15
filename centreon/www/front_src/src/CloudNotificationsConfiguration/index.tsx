@@ -1,4 +1,4 @@
-import { isEmpty, not } from 'ramda';
+import { isEmpty } from 'ramda';
 import { useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
@@ -31,17 +31,22 @@ export const NotificationsPage = (): JSX.Element => {
       suspense: false
     }
   });
+
   if (isLoading) {
     return <PageSkeleton />;
   }
 
+  if (isOpen || !isEmpty(data?.result)) {
+    return (
+      <Box className={classes.box}>
+        <ListingPage />
+      </Box>
+    );
+  }
+
   return (
     <Box className={classes.box}>
-      {isEmpty(data?.result) && not(isOpen) ? (
-        <EmptyNotificationsPage />
-      ) : (
-        <ListingPage />
-      )}
+      <EmptyNotificationsPage />
     </Box>
   );
 };

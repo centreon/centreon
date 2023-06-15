@@ -90,6 +90,7 @@ class FindServiceTemplatesOnPremPresenter extends AbstractPresenter implements F
                     'icon_id' => $dto->iconId,
                     'icon_alternative' => $dto->iconAlternativeText,
                     'severity_id' => $dto->severityId,
+                    'host_templates' => $dto->hostTemplateIds,
                     'is_activated' => $dto->isActivated,
                     'is_locked' => $dto->isLocked,
                 ];
