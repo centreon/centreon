@@ -214,8 +214,6 @@ it('should present a FindNotificationResponse when everything is ok', function (
         $this->readAccessGroupRepository,
     ))(1, $this->presenter);
 
-    var_dump($this->presenter->response);
-
     expect($this->presenter->response)
         ->toBeInstanceOf(FindNotificationResponse::class)
         ->and($this->presenter->response->id)->toBe(1)
