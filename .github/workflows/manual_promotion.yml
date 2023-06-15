@@ -1,4 +1,4 @@
-name: manual promote
+name: manual promotion
 
 on:
   workflow_dispatch:
@@ -7,17 +7,18 @@ on:
       - temp-MON-19351-sandbox-scan
 
 jobs:
-  veracode-sandbox-task-deletion:
+  veracode-sandbox-task-promotion:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Delete Scan
+      - name: Promote Scan
         env:
           VERACODE_API_ID: '${{ secrets.VERACODE_API_ID }}'
           VERACODE_API_SECRET: '${{ secrets.VERACODE_API_KEY }}'
 
         uses: veracode/veracode-sandboxes-helper@v1.0.0
         with:
-          activity: "remove-sandbox"
+          activity: "promote-latest-scan"
           app-name: "centreon-web"
           sandbox-name: "fake_develop"
+          delete-on-promote: true
