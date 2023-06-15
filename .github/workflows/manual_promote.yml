@@ -1,13 +1,17 @@
-on: 
-   workflow_dispatch:
+name: manual promote
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - temp-MON-19351-sandbox-scan
 
 jobs:
   veracode-sandbox-task:
     runs-on: ubuntu-latest
-    name: Pull Request Review Submitted
 
     steps:
-      - name: Promote Scan on Approval
+      - name: Promote Scan
         env:
           VERACODE_API_ID: '${{ secrets.VERACODE_API_ID }}'
           VERACODE_API_SECRET: '${{ secrets.VERACODE_API_KEY }}'
@@ -15,6 +19,6 @@ jobs:
         uses: veracode/veracode-sandboxes-helper@v1.0.0
         with:
           activity: "promote-latest-scan"
-          app-name: "centreon-test"
+          app-name: "centreon-web"
           sandbox-name: "fake_develop"
           delete-on-promote: true
