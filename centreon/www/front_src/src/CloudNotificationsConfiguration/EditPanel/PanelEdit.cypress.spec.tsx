@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react-hooks/dom';
-import { useSetAtom } from 'jotai';
+import { Provider, createStore, useSetAtom } from 'jotai';
 
 import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
 
@@ -35,14 +35,21 @@ import { listNotificationResponse } from './testUtils';
 
 import Form from '.';
 
+const store = createStore();
+store.set(panelModeAtom, PanelMode.Edit);
+store.set(EditedNotificationIdAtom, 1);
+store.set(notificationsNamesAtom, ['Notification1', 'notification2']);
+
 const PanelWithQueryProvider = (): JSX.Element => {
   return (
     <div style={{ height: '100vh' }}>
-      <TestQueryProvider>
-        <SnackbarProvider>
-          <Form />
-        </SnackbarProvider>
-      </TestQueryProvider>
+      <Provider store={store}>
+        <TestQueryProvider>
+          <SnackbarProvider>
+            <Form />
+          </SnackbarProvider>
+        </TestQueryProvider>
+      </Provider>
     </div>
   );
 };
@@ -70,26 +77,6 @@ const initialize = (): void => {
 };
 
 describe('Edit Panel', () => {
-  before(() => {
-    const panelMode = renderHook(() => useSetAtom(panelModeAtom));
-    const editedNotification = renderHook(() =>
-      useSetAtom(EditedNotificationIdAtom)
-    );
-    const notificationsNames = renderHook(() =>
-      useSetAtom(notificationsNamesAtom)
-    );
-
-    const setPanelMode = panelMode.result.current;
-    const setEditedNotification = editedNotification.result.current;
-    const setNotificationsNames = notificationsNames.result.current;
-
-    act(() => {
-      setEditedNotification(1);
-      setPanelMode(PanelMode.Edit);
-      setNotificationsNames(['Notification1', 'notification2']);
-    });
-  });
-
   beforeEach(initialize);
 
   it('Ensures that the header section displays all the expected actions', () => {
