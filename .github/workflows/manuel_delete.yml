@@ -7,11 +7,11 @@ on:
       - temp-MON-19351-sandbox-scan
 
 jobs:
-  veracode-sandbox-task:
+  veracode-sandbox-task-deletion:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Promote Scan
+      - name: Delete Scan
         env:
           VERACODE_API_ID: '${{ secrets.VERACODE_API_ID }}'
           VERACODE_API_SECRET: '${{ secrets.VERACODE_API_KEY }}'

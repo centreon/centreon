@@ -7,7 +7,7 @@ on:
       - temp-MON-19351-sandbox-scan
 
 jobs:
-  veracode-sandbox-task:
+  veracode-sandbox-task-promotion:
     runs-on: ubuntu-latest
 
     steps:
