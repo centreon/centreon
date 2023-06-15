@@ -13,7 +13,6 @@ import { labelDuplicate } from '../../../translatedLabels';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
-    color: theme.palette.text.secondary,
     fontSize: theme.spacing(2)
   }
 }));
@@ -43,7 +42,7 @@ const DuplicateAction = (): JSX.Element => {
         title={t(labelDuplicate)}
         onClick={onClick}
       >
-        <DuplicateIcon className={classes.icon} />
+        <DuplicateIcon className={classes.icon} color="disabled" />
       </IconButton>
       <DuplicateDialog
         open={dialogOpen}

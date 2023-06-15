@@ -1,4 +1,6 @@
 import { useAtomValue } from 'jotai';
+import { isEmpty } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Method } from '@centreon/ui';
 
@@ -10,7 +12,15 @@ import {
 } from '../../../translatedLabels';
 import { notificationtEndpoint } from '../../../EditPanel/api/endpoints';
 
+const useStyle = makeStyles()((theme) => ({
+  icon: {
+    color: theme.palette.text.secondary
+  }
+}));
+
 const DeleteAction = (): JSX.Element => {
+  const { classes } = useStyle();
+
   const selectedRows = useAtomValue(selectedRowsAtom);
 
   const getEndpoint = (): string => `${notificationtEndpoint({})}/_delete`;
@@ -21,11 +31,13 @@ const DeleteAction = (): JSX.Element => {
 
   return (
     <DeleteButton
+      className={classes.icon}
+      disabled={isEmpty(selectedRows)}
       fetchMethod={Method.POST}
-      fetchPayload={payload}
       getEndpoint={getEndpoint}
       labelFailed={labelFailedToDeleteNotifications}
       labelSuccess={labelNotificationsSuccessfullyDeleted}
+      payload={payload}
     />
   );
 };

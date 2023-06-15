@@ -12,7 +12,8 @@ import {
   ResponseError,
   useMutationQuery,
   useSnackbar,
-  ConfirmDialog
+  ConfirmDialog,
+  Method
 } from '@centreon/ui';
 
 import {
@@ -36,13 +37,16 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 interface Props {
-  fetchMethod?;
-  fetchPayload?;
-  getEndpoint?;
-  labelFailed?;
-  labelSuccess?;
-  notificationName?;
-  onSuccess?;
+  className?: string;
+  disabled?: boolean;
+  fetchMethod: Method;
+  getEndpoint: () => string;
+  iconClassName?: string;
+  labelFailed: string;
+  labelSuccess: string;
+  notificationName?: string;
+  onSuccess?: () => void;
+  payload?: { ids: Array<number | string> };
 }
 
 const DeleteButton = ({
@@ -51,8 +55,11 @@ const DeleteButton = ({
   labelSuccess,
   labelFailed,
   fetchMethod,
-  fetchPayload,
-  notificationName
+  payload,
+  notificationName,
+  disabled = false,
+  iconClassName,
+  className
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -70,7 +77,7 @@ const DeleteButton = ({
   const onCancel = (): void => setDialogOpen(false);
 
   const onConfirm = (): void => {
-    mutateAsync(fetchPayload || {}).then((response) => {
+    mutateAsync(payload || {}).then((response) => {
       if ((response as ResponseError).isError) {
         return;
       }
@@ -85,11 +92,12 @@ const DeleteButton = ({
     <Box>
       <IconButton
         ariaLabel={t(labelDelete) as string}
-        disabled={false}
+        className={className}
+        disabled={disabled}
         title={t(labelDelete) as string}
         onClick={onClick}
       >
-        <DeleteIcon />
+        <DeleteIcon className={iconClassName} />
       </IconButton>
 
       <ConfirmDialog
