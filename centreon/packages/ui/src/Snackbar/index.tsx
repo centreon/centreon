@@ -7,7 +7,7 @@ import { makeStyles } from 'tss-react/mui';
 import { IconButton, Alert } from '@mui/material';
 import IconClose from '@mui/icons-material/Close';
 
-import { useSanitizedHTML } from '../utils';
+import { sanitizedHTML } from '../utils';
 
 import Severity from './Severity';
 
@@ -43,7 +43,6 @@ const Snackbar = React.forwardRef(
   ): JSX.Element => {
     const { classes } = useStyles();
     const { closeSnackbar } = useSnackbar();
-    const sanitizedMessage = useSanitizedHTML({ initialContent: message });
     const timeoutId = React.useRef<number | undefined>();
 
     React.useEffect((): void => {
@@ -58,6 +57,7 @@ const Snackbar = React.forwardRef(
       }
       closeSnackbar(id);
     };
+    const sanitizedMessage = sanitizedHTML({ initialContent: message });
 
     const formatedMessage =
       typeof message === 'string' ? <div>{sanitizedMessage}</div> : message;

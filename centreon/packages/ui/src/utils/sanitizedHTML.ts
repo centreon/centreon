@@ -6,7 +6,7 @@ interface UseSanitizedHTMLProps {
   sanitizeOptions?: IOptions;
 }
 
-const useSanitizedHTML = ({
+const sanitizedHTML = ({
   initialContent,
   sanitizeOptions = {}
 }: UseSanitizedHTMLProps): JSX.Element => {
@@ -15,4 +15,4 @@ const useSanitizedHTML = ({
   return ReactHtmlParser(sanitizedContent);
 };
 
-export default useSanitizedHTML;
+export default sanitizedHTML;
