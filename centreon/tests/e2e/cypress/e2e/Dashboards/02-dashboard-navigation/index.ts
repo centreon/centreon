@@ -80,7 +80,10 @@ When(
       .contains('dashboard-to-locate')
       .should('not.exist');
 
-    cy.get('[data-variant="grid"]').parent().parent().scrollTo('bottom');
+    cy.get('[data-variant="grid"]')
+      .parent()
+      .parent()
+      .scrollTo('bottom', { duration: 200 });
   }
 );
 
