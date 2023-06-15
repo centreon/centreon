@@ -89,7 +89,16 @@ When(
     cy.get('[data-variant="grid"]')
       .parent()
       .parent()
-      .scrollTo(0, 660, { duration: 200 });
+      .scrollTo('bottom', { duration: 200 });
+
+    cy.getByLabel({ label: 'view', tag: 'button' })
+      .contains('dashboard-name-96')
+      .should('be.visible');
+
+    cy.get('[data-variant="grid"]')
+      .parent()
+      .parent()
+      .scrollTo('bottom', { duration: 200 });
   }
 );
 
