@@ -7,22 +7,28 @@ import { makeStyles } from 'tss-react/mui';
 import { IconButton, Alert } from '@mui/material';
 import IconClose from '@mui/icons-material/Close';
 
+import { sanitizedHTML } from '../utils';
+
 import Severity from './Severity';
 
-const useStyles = makeStyles()({
+const useStyles = makeStyles()((theme) => ({
   alertIcon: {
-    paddingTop: '10px'
+    paddingTop: theme.spacing(1.25)
   },
   closeIcon: {
     fontSize: 20,
     opacity: 0.9
   },
   message: {
+    '& a': {
+      color: theme.palette.primary.main,
+      textDecoration: 'none'
+    },
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center'
   }
-});
+}));
 
 export interface SnackbarProps {
   id: string | number;
@@ -51,6 +57,10 @@ const Snackbar = React.forwardRef(
       }
       closeSnackbar(id);
     };
+    const sanitizedMessage = sanitizedHTML({ initialContent: message });
+
+    const formatedMessage =
+      typeof message === 'string' ? <div>{sanitizedMessage}</div> : message;
 
     return (
       <SnackbarContent ref={ref}>
@@ -69,7 +79,7 @@ const Snackbar = React.forwardRef(
           severity={severity}
           variant="filled"
         >
-          {message}
+          {formatedMessage}
         </Alert>
       </SnackbarContent>
     );
