@@ -80,6 +80,10 @@ When(
       .contains('dashboard-to-locate')
       .should('not.exist');
 
+    cy.getByLabel({ label: 'view', tag: 'button' })
+      .contains('dashboard-name-0')
+      .should('be.visible');
+
     cy.get('[data-variant="grid"]').parent().parent().scroll('bottom');
   }
 );
