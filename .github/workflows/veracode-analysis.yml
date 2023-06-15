@@ -132,7 +132,7 @@ jobs:
         env:
           VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
           VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
-        uses: veracode/veracode-sandboxes-helper@v1.0.0
+        uses: lerer/veracode-sandboxes-helper@v1.0.1
         with:
           activity: "remove-sandbox"
           app-name: "centreon-web" # TODO to revert before merge
@@ -177,7 +177,7 @@ jobs:
         env:
           VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
           VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
-        uses: veracode/veracode-sandboxes-helper@v1.0.0
+        uses: lerer/veracode-sandboxes-helper@v1.0.1
         with:
           activity: "promote-latest-scan"
           app-name: "centreon-web" # TODO to revert before merge
