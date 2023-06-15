@@ -67,8 +67,8 @@ class FindNotificationPresenter extends AbstractPresenter implements FindNotific
                 : NotificationServiceEventConverter::toBitFlags($resource['events']);
 
             if (array_key_exists('extra', $resource)) {
-                $resources[$index]['extra']['service_events'] = NotificationServiceEventConverter::toBitFlags(
-                    $resource['extra']['service_events']
+                $resources[$index]['extra']['event_services'] = NotificationServiceEventConverter::toBitFlags(
+                    $resource['extra']['event_services']
                 );
             }
 

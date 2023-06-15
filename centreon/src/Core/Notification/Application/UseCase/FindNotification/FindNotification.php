@@ -190,7 +190,7 @@ final class FindNotification
                 && ! empty($resource->getServiceEvents())
             ) {
                 $responseResource['extra'] = [
-                    'service_events' => $resource->getServiceEvents(),
+                    'event_services' => $resource->getServiceEvents(),
                 ];
             }
             $response->resources[] = $responseResource;

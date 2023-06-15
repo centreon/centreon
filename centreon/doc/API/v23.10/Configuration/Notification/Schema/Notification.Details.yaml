@@ -74,8 +74,11 @@ properties:
                 type: string
                 description: "name of the resource"
                 example: "My Hostgroup"
-        event_services:
-          type: array
-          items:
-            type: number
+        extra:
+          type: object
+          properties:
+            event_services:
+              type: array
+              items:
+                type: number
 
