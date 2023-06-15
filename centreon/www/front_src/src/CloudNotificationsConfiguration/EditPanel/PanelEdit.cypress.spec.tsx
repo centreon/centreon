@@ -1,5 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks/dom';
-import { Provider, createStore, useSetAtom } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
 
