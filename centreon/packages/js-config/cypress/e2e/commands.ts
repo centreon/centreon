@@ -66,23 +66,6 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
-  'scroll',
-  {
-    prevSubject: 'element'
-  },
-  (
-    subject,
-    position: Cypress.PositionType,
-    options?: Partial<Cypress.ScrollToOptions>
-  ) => {
-    return cy.wrap(subject).scrollTo(position, {
-      ...options,
-      duration: 200
-    });
-  }
-);
-
-Cypress.Commands.add(
   'moveSortableElement',
   {
     prevSubject: 'element'
@@ -401,10 +384,6 @@ declare global {
         rootItemNumber,
         subMenu
       }: NavigateToProps) => Cypress.Chainable;
-      scroll: (
-        position: Cypress.PositionType,
-        options?: Partial<Cypress.ScrollToOptions>
-      ) => Cypress.Chainable;
       startContainer: ({
         name,
         image
