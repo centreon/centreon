@@ -32,7 +32,7 @@ const dashboardDecoder = JsonDecoder.object<DashboardRolesAndPermissions>(
 export const userDecoder = JsonDecoder.object<User>(
   {
     alias: JsonDecoder.string,
-    dashboard: dashboardDecoder,
+    dashboard: JsonDecoder.optional(JsonDecoder.nullable(dashboardDecoder)),
     default_page: JsonDecoder.optional(
       JsonDecoder.nullable(JsonDecoder.string)
     ),
