@@ -22,6 +22,8 @@ on:
         required: true
       veracode_api_key:
         required: true
+      veracode_srcclr_token:
+        required: true
 
 jobs:
   build:
@@ -185,3 +187,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           #create-issues: ${{ env.publish }}
           recursive: true
+          fail-on-cvss: 7
