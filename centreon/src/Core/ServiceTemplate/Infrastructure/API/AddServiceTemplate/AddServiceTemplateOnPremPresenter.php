@@ -80,6 +80,7 @@ class AddServiceTemplateOnPremPresenter extends AbstractPresenter implements Add
                         'icon_id' => $response->iconId,
                         'icon_alternative' => $response->iconAlternativeText,
                         'severity_id' => $response->severityId,
+                        'host_templates' => $response->hostTemplateIds,
                         'is_activated' => $response->isActivated,
                         'is_locked' => $response->isLocked,
                     ]
