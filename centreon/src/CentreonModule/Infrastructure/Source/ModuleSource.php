@@ -290,7 +290,7 @@ class ModuleSource extends SourceAbstract
         return [
             'required' => true,
             'expiration_date' => $this->license->getLicenseExpiration($slug),
-            'host_usage' => $this->hostUsage(),
+            'host_usage' => $this->getHostUsage(),
             'is_valid' => $license->validate(),
             'host_limit' => $licenseInFileData['licensing']['hosts']
         ];
@@ -301,7 +301,7 @@ class ModuleSource extends SourceAbstract
      *
      * @return int|null
      */
-    private function hostUsage(): ?int
+    private function getHostUsage(): ?int
     {
         $database = new \CentreonDB();
         $request = <<<SQL
