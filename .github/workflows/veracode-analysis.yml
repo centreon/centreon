@@ -79,6 +79,7 @@ jobs:
             echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
             echo "create_baseline_from=standard" >> $GITHUB_ENV
           else
+            RESULT=0
             echo "[DEBUG] - Baseline file not found for branch ${{ github.base_ref || github.ref_name }}"
             echo "[DEBUG] - Using develop's Baseline file"
             aws s3 ls "$BUCKET/develop/results.json" || RESULT=$( echo $? )
