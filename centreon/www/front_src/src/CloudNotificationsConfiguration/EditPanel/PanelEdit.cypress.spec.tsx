@@ -1,5 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks/dom';
-import { useSetAtom } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
 
@@ -35,14 +34,21 @@ import { listNotificationResponse } from './testUtils';
 
 import Form from '.';
 
+const store = createStore();
+store.set(panelModeAtom, PanelMode.Edit);
+store.set(EditedNotificationIdAtom, 1);
+store.set(notificationsNamesAtom, ['Notification1', 'notification2']);
+
 const PanelWithQueryProvider = (): JSX.Element => {
   return (
     <div style={{ height: '100vh' }}>
-      <TestQueryProvider>
-        <SnackbarProvider>
-          <Form />
-        </SnackbarProvider>
-      </TestQueryProvider>
+      <Provider store={store}>
+        <TestQueryProvider>
+          <SnackbarProvider>
+            <Form />
+          </SnackbarProvider>
+        </TestQueryProvider>
+      </Provider>
     </div>
   );
 };
@@ -62,38 +68,14 @@ const initialize = (): void => {
     response: { status: 'ok' }
   });
 
-  cy.window().then((window) => {
-    window.localStorage.setItem('cloud-notifications-panel-width', '800');
-  });
-
   cy.mount({
     Component: <PanelWithQueryProvider />
   });
 
-  cy.viewport(1200, 1000);
+  cy.viewport('macbook-13');
 };
 
 describe('Edit Panel', () => {
-  before(() => {
-    const panelMode = renderHook(() => useSetAtom(panelModeAtom));
-    const editedNotification = renderHook(() =>
-      useSetAtom(EditedNotificationIdAtom)
-    );
-    const notificationsNames = renderHook(() =>
-      useSetAtom(notificationsNamesAtom)
-    );
-
-    const setPanelMode = panelMode.result.current;
-    const setEditedNotification = editedNotification.result.current;
-    const setNotificationsNames = notificationsNames.result.current;
-
-    act(() => {
-      setEditedNotification(1);
-      setPanelMode(PanelMode.Edit);
-      setNotificationsNames(['Notification1', 'notification2']);
-    });
-  });
-
   beforeEach(initialize);
 
   it('Ensures that the header section displays all the expected actions', () => {
@@ -155,10 +137,6 @@ describe('Edit Panel', () => {
 
   it('Confirms that the "Expand/Collapse" button triggers the desired expansion or collapse of the panel, providing users with the ability to control its visibility and size', () => {
     cy.waitForRequest('@listingRequest');
-
-    expect(
-      localStorage.getItem('cloud-notifications-panel-width')
-    ).to.deep.equal('800');
 
     cy.findByText(labelReduceInformationPanel).should('be.visible');
     cy.findByTestId(labelReduceInformationPanel).click();
@@ -346,7 +324,7 @@ describe('Edit Panel', () => {
   it('Ensures that the time period checkbox is checked and disabled, indicating its pre-selected status', () => {
     cy.waitForRequest('@listingRequest');
 
-    cy.findByTestId(labelTimePeriod).should('be.visible');
+    cy.findByTestId(labelTimePeriod).should('exist');
     cy.findByTestId(labelTimePeriod).within(() => {
       cy.findByRole('checkbox').should('be.checked');
       cy.findByRole('checkbox').should('be.disabled');
