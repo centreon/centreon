@@ -41,7 +41,7 @@ Then(
   }
 );
 
-Given('a non-empty list of dashboards that fits on one page', () => {
+Given('a non-empty list of dashboards that fits on a single page', () => {
   cy.insertDashboardList('dashboards/navigation/01-onepage.json');
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
 });
@@ -59,7 +59,6 @@ Then(
       'not.eq',
       `${Cypress.config().baseUrl}/centreon/home/dashboards`
     );
-    cy.getByLabel({ label: 'Breadcrumb' }).contains('Dashboard (beta)').click();
 
     cy.requestOnDatabase({
       database: 'centreon',
@@ -68,10 +67,13 @@ Then(
   }
 );
 
-Given('a non-empty library of dashboards that does not fit on one page', () => {
-  cy.insertDashboardList('dashboards/navigation/02-morethanonepage.json');
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-});
+Given(
+  'a non-empty library of dashboards that does not fit on a single page',
+  () => {
+    cy.insertDashboardList('dashboards/navigation/02-morethanonepage.json');
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  }
+);
 
 When(
   'the user scrolls down on the page to look for a dashboard at the end of the dashboards library',
