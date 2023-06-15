@@ -291,7 +291,7 @@ class ModuleSource extends SourceAbstract
             'required' => true,
             'expiration_date' => $this->license->getLicenseExpiration($slug),
             'host_usage' => $this->hostUsage(),
-            'valid' => $license->validate(),
+            'is_valid' => $license->validate(),
             'host_limit' => $licenseInFileData['licensing']['hosts']
         ];
     }
