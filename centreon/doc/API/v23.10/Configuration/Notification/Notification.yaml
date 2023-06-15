@@ -1,0 +1,19 @@
+get:
+  tags:
+    - Notification
+  summary: "Get the details of a notification"
+  description: |
+    Get the details of a notification
+
+    This endpoint is accessible for SaaS platforms only
+  parameters:
+    - $ref: 'QueryParameter/NotificationId.yaml'
+  responses:
+    '200':
+      $ref: 'Schema/Notification.Details.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

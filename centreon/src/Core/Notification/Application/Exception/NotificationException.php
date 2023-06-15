@@ -71,4 +71,9 @@ class NotificationException extends \Exception
     {
         return new self(sprintf(_('Notification #%d should have at least one user'), $notificationId));
     }
+
+    public static function listOneNotAllowed(): self
+    {
+        return new self(_('You are not allowed to display the details of the notification'));
+    }
 }
