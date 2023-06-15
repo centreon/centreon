@@ -79,7 +79,7 @@ const Threshold = (args): JSX.Element => {
             { type: ThresholdType.basic },
             {
               factors: {
-                currentFactorMultiplication,
+                currentFactorMultiplication: 2.5,
                 simulatedFactorMultiplication: 1.5
               },
               getCountDisplayedCircles,
@@ -122,7 +122,7 @@ const GraphAndCLS = (args): JSX.Element => {
     setTimeout(() => {
       setLoading(false);
       setData(dataLastDay as unknown as GraphData);
-    }, 1000);
+    }, 100000);
   }, []);
 
   return (
@@ -257,7 +257,7 @@ const GraphAndTimePeriod = (args): JSX.Element => {
 const GraphAndExclusionPeriod = (args): JSX.Element => {
   const [dataExclusionPeriods, setDataExclusionPeriods] = useState<
     Array<GraphData>
-  >([]);
+  >([exclusionPeriodFirstPeriod as unknown as GraphData]);
 
   const handleClick = (data): void => {
     setDataExclusionPeriods([...dataExclusionPeriods, data]);
@@ -270,14 +270,11 @@ const GraphAndExclusionPeriod = (args): JSX.Element => {
         aria-label="outlined primary button group"
         variant="contained"
       >
-        <Button onClick={(): void => handleClick(exclusionPeriodFirstPeriod)}>
+        <Button onClick={(): void => handleClick(exclusionPeriodSecondPeriod)}>
           first
         </Button>
-        <Button onClick={(): void => handleClick(exclusionPeriodSecondPeriod)}>
-          second
-        </Button>
         <Button onClick={(): void => handleClick(exclusionPeriodThirdPeriod)}>
-          third
+          second
         </Button>
       </ButtonGroup>
       <WrapperGraph
