@@ -122,19 +122,13 @@ jobs:
 #          aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
 #          aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
 
-  policy-scan:
-    name: Run a sandbox scan
-    needs: [build]
-    #if: needs.build.outputs.development_stage != 'Development' # TODO to revert before merge
+  clean-sandbox:
+    name: Clean old sandbox scan
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     steps:
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
       - name: Delete sandbox scan
+        continue-on-error: true
         env:
           VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
           VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
@@ -145,13 +139,21 @@ jobs:
           #sandbox-name: "${{ github.ref_name }}" # TODO to revert before merge
           sandbox-name: "fake_develop"
 
+  policy-scan:
+    needs: [build, clean-sandbox]
+    name: Run a sandbox scan
+    #if: needs.build.outputs.development_stage != 'Development' # TODO to revert before merge
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
       - name: Get build binary
         uses: actions/cache/restore@v3
         with:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
 
-      - name: Sandbox scan
+      - name: Run a sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
         with:
           appname: "centreon-web" # TODO to revert before merge
