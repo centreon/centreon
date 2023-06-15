@@ -83,10 +83,13 @@ When(
       .should('not.exist');
 
     cy.getByLabel({ label: 'view', tag: 'button' })
-      .contains('dashboard-name-99')
-      .should('exist');
+      .contains('dashboard-name-0')
+      .should('be.visible');
 
-    cy.get('[data-variant="grid"]').parent().parent().scroll('bottom');
+    cy.get('[data-variant="grid"]')
+      .parent()
+      .parent()
+      .scrollTo(0, 660, { duration: 200 });
   }
 );
 
