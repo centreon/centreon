@@ -50,7 +50,7 @@ interface Random {
 
 const Threshold = (args): JSX.Element => {
   const [currentFactorMultiplication, setCurrentFactorMultiplication] =
-    useState<number>();
+    useState<number>(2.5);
   const [countedCircles, setCountedCircles] = useState<number>();
 
   const getRandomInt = ({ min, max }: Random): number => {
@@ -79,7 +79,7 @@ const Threshold = (args): JSX.Element => {
             { type: ThresholdType.basic },
             {
               factors: {
-                currentFactorMultiplication: 2.5,
+                currentFactorMultiplication,
                 simulatedFactorMultiplication: 1.5
               },
               getCountDisplayedCircles,
