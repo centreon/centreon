@@ -1,40 +1,138 @@
-import { prop } from 'ramda';
+import { equals, isNil } from 'ramda';
 
-import { getTime } from '../../../timeSeries/index';
+import { displayArea } from '../../../helpers/index';
+import {
+  PatternThreshold,
+  ThresholdType,
+  VariationThreshold
+} from '../../../models';
 import { TimeValue } from '../../../timeSeries/models';
 
 import BasicThreshold from './BasicThreshold';
-import { ThresholdLinesModel } from './models';
+import Circle from './Circle';
+import ThresholdWithPatternLines from './ThresholdWithPatternLines';
+import ThresholdWithVariation from './ThresholdWithVariation';
+import { WrapperThresholdLinesModel } from './models';
+import useScaleThreshold from './useScaleThreshold';
 
-const ThresholdLines = ({
-  dataY0,
-  dataY1,
+interface Props extends WrapperThresholdLinesModel {
+  graphHeight: number;
+  timeSeries: Array<TimeValue>;
+}
+
+const WrapperThresholdLines = ({
+  areaThresholdLines,
+  graphHeight,
+  leftScale,
+  lines,
+  rightScale,
   timeSeries,
-  xScale,
-  graphHeight
-}: ThresholdLinesModel): JSX.Element => {
-  const { lineColor: lineColorY0, metric: metricY0, yScale: y0Scale } = dataY0;
-  const { lineColor: lineColorY1, metric: metricY1, yScale: y1Scale } = dataY1;
+  xScale
+}: Props): JSX.Element | null => {
+  const data = useScaleThreshold({
+    areaThresholdLines,
+    leftScale,
+    lines,
+    rightScale,
+    xScale
+  });
 
-  const getX = (timeValue: TimeValue): number =>
-    xScale(getTime(timeValue)) as number;
+  if (!data) {
+    return null;
+  }
 
-  const getY0 = (timeValue: TimeValue): number =>
-    y0Scale(prop(metricY0, timeValue)) ?? null;
-  const getY1 = (timeValue: TimeValue): number =>
-    y1Scale(prop(metricY1, timeValue)) ?? null;
+  const { getX, getY0, getY1, lineColorY0, lineColorY1, ...rest } = data;
+
+  const commonProps = {
+    fillAboveArea: lineColorY0,
+    fillBelowArea: lineColorY1,
+    getX,
+    graphHeight,
+    timeSeries
+  };
+
+  const thresholdLines = areaThresholdLines?.map((item, index) => {
+    const { type } = item;
+
+    if (equals(type, ThresholdType.basic)) {
+      return [
+        {
+          Component: BasicThreshold,
+          key: index,
+          props: { ...commonProps, getY0, getY1 }
+        }
+      ];
+    }
+    if (equals(type, ThresholdType.variation)) {
+      const dataVariation = item as VariationThreshold;
+      if (!rest?.getY0Variation || !rest.getY1Variation || !rest.getYOrigin) {
+        return null;
+      }
+
+      return [
+        {
+          Component: ThresholdWithVariation,
+          key: index,
+          props: {
+            factors: dataVariation.factors,
+            ...commonProps,
+            ...rest
+          }
+        },
+        {
+          Component: Circle,
+          key: 'circle',
+          props: {
+            ...rest,
+            getCountDisplayedCircles: dataVariation?.getCountDisplayedCircles,
+            getX,
+            timeSeries
+          }
+        }
+      ];
+    }
+    if (equals(type, ThresholdType.pattern)) {
+      const dataPattern = item as PatternThreshold;
+
+      if (!displayArea(dataPattern?.data)) {
+        return null;
+      }
+
+      const { data: pattern } = dataPattern;
+
+      return pattern.map((element, ind) => ({
+        Component: ThresholdWithPatternLines,
+        key: ind,
+        props: {
+          data: element,
+          graphHeight,
+          key: ind,
+          leftScale,
+          orientation: dataPattern?.orientation,
+          rightScale,
+          xScale
+        }
+      }));
+    }
+
+    return null;
+  });
+
+  const filteredThresholdLines = thresholdLines?.filter((item) => !isNil(item));
+
+  if (!filteredThresholdLines) {
+    return null;
+  }
 
   return (
-    <BasicThreshold
-      fillAboveArea={lineColorY1}
-      fillBelowArea={lineColorY0}
-      getX={getX}
-      getY0={getY0}
-      getY1={getY1}
-      graphHeight={graphHeight}
-      timeSeries={timeSeries}
-    />
+    <g>
+      {filteredThresholdLines.map((element) =>
+        element?.map(({ Component, props, key }) => (
+          <Component {...props} id={key} key={key} />
+        ))
+      )}
+    </g>
   );
 };
 
-export default ThresholdLines;
+export default WrapperThresholdLines;

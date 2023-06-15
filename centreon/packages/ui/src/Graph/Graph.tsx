@@ -10,13 +10,13 @@ import Grids from './BasicComponents/Grids';
 import Lines from './BasicComponents/Lines';
 import LoadingProgress from './BasicComponents/LoadingProgress';
 import useFilterLines from './BasicComponents/useFilterLines';
-import { margin } from './common';
 import { useStyles } from './Graph.styles';
 import Header from './Header';
 import InteractionWithGraph from './InteractiveComponents';
 import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import Legend from './Legend';
+import { margin } from './common';
 import {
   Data,
   GlobalAreaLines,
@@ -26,6 +26,7 @@ import {
 } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
 import { useIntersection } from './useGraphIntersection';
+import { canDisplayThreshold } from './BasicComponents/Lines/Threshold/models';
 
 interface Props extends GraphProps {
   graphData: Data;
@@ -63,7 +64,7 @@ const Graph = ({
   const { title, timeSeries, baseAxis, lines } = graphData;
 
   const { displayedLines, newLines } = useFilterLines({
-    displayThreshold: shapeLines?.areaThresholdLines?.display,
+    displayThreshold: canDisplayThreshold(shapeLines?.areaThresholdLines),
     lines
   });
 

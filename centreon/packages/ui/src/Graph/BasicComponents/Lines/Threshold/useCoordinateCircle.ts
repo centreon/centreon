@@ -1,38 +1,25 @@
 import { useEffect } from 'react';
 
-import { isNil, prop } from 'ramda';
+import { isNil } from 'ramda';
 
-import {
-  checkArePointsOnline,
-  getVariationEnvelopThresholdData
-} from './helpers';
+import { checkArePointsOnline } from './helpers';
 import { Circle, Point } from './models';
 
 const useCoordinateCircle = ({
   timeSeries,
-  dataYOrigin,
-  dataY0,
-  dataY1,
-  factors,
-  xScale,
+  getX,
+  getY0Variation,
+  getY1Variation,
+  getYOrigin,
   getCountDisplayedCircles
 }: Circle): Array<Point> => {
-  const { metric: metricYOrigin, yScale } = dataYOrigin;
-
   const getCoordinate = (): Array<Point | null> => {
-    const { getX, getY0, getY1 } = getVariationEnvelopThresholdData({
-      dataY0,
-      dataY1,
-      factors,
-      xScale
-    });
-
     return timeSeries.map((timeValue) => {
       const x = getX(timeValue);
-      const y = yScale(prop(metricYOrigin, timeValue));
+      const y = getYOrigin(timeValue);
 
-      const y0 = getY0(timeValue);
-      const y1 = getY1(timeValue);
+      const y0 = getY0Variation(timeValue);
+      const y1 = getY1Variation(timeValue);
 
       return checkArePointsOnline({
         pointLower: { x, y: y0 },

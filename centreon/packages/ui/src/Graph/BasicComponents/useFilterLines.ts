@@ -4,12 +4,13 @@ import { useAtom } from 'jotai';
 import { equals, propEq, reject } from 'ramda';
 
 import { linesGraphAtom } from '../graphAtoms';
+import { Line } from '../timeSeries/models';
+
 import {
   findLineOfOriginMetricThreshold,
   lowerLineName,
   upperLineName
-} from '../helpers';
-import { Line } from '../timeSeries/models';
+} from './Lines/Threshold/models';
 
 interface UseFilterLines {
   displayThreshold?: boolean;

@@ -24,14 +24,14 @@ import {
 } from './helpers/doc';
 import annotationData from './mockedData/annotationData.json';
 import exclusionPeriodFirstPeriod from './mockedData/exclusionPeriodFirstPeriod.json';
-import exclusionPeriodFourthPeriod from './mockedData/exclusionPeriodFourthPeriod.json';
 import exclusionPeriodSecondPeriod from './mockedData/exclusionPeriodSecondPeriod.json';
+import exclusionPeriodThirdPeriod from './mockedData/exclusionPeriodThirdPeriod.json';
 import dataLastDayForword from './mockedData/lastDayForward.json';
 import dataLastDay from './mockedData/lastDayThreshold.json';
 import dataLastMonth from './mockedData/lastMonth.json';
 import dataLastWeek from './mockedData/lastWeek.json';
 import dataZoomPreview from './mockedData/zoomPreview.json';
-import { GraphData, Interval, TooltipData } from './models';
+import { GraphData, Interval, ThresholdType, TooltipData } from './models';
 
 import WrapperGraph from './index';
 
@@ -75,14 +75,17 @@ const Threshold = (args): JSX.Element => {
         {...args}
         data={dataLastDay}
         shapeLines={{
-          areaThresholdLines: {
-            display: true,
-            factors: {
-              currentFactorMultiplication,
-              simulatedFactorMultiplication: 1.5
-            },
-            getCountDisplayedCircles
-          }
+          areaThresholdLines: [
+            { type: ThresholdType.basic },
+            {
+              factors: {
+                currentFactorMultiplication,
+                simulatedFactorMultiplication: 1.5
+              },
+              getCountDisplayedCircles,
+              type: ThresholdType.variation
+            }
+          ]
         }}
       />
     </>
@@ -112,13 +115,13 @@ const ExternalComponent = (tooltipData): JSX.Element => {
 };
 
 const GraphAndCLS = (args): JSX.Element => {
-  const [data, setData] = useState();
+  const [data, setData] = useState<GraphData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-      setData(dataLastDay);
+      setData(dataLastDay as unknown as GraphData);
     }, 1000);
   }, []);
 
@@ -127,7 +130,7 @@ const GraphAndCLS = (args): JSX.Element => {
       {...args}
       data={data}
       loading={loading}
-      shapeLines={{ areaThresholdLines: { display: true } }}
+      shapeLines={{ areaThresholdLines: [{ type: ThresholdType.basic }] }}
     />
   );
 };
@@ -160,8 +163,8 @@ const TimePeriodSwitch = ({
 
 const GraphAndTimePeriod = (args): JSX.Element => {
   const [currentData, setCurrentData] = useState<GraphData>();
-  const [start, setStart] = useState();
-  const [end, setEnd] = useState();
+  const [start, setStart] = useState<string>();
+  const [end, setEnd] = useState<string>();
   const [displayAnnotation, setDisplayAnnotation] = useState();
   const [adjustedTimePeriodInterval, setAdjustedTimePeriodInterval] =
     useState<Interval>();
@@ -176,28 +179,28 @@ const GraphAndTimePeriod = (args): JSX.Element => {
       return;
     }
     if (start.includes(lastDayForwardDate)) {
-      setCurrentData(dataLastDayForword);
+      setCurrentData(dataLastDayForword as unknown as GraphData);
 
       return;
     }
 
     if (start.includes(`${defaultStart.split('T')[0]}`)) {
-      setCurrentData(dataLastDay);
+      setCurrentData(dataLastDay as unknown as GraphData);
 
       return;
     }
     if (start.includes(defaultLast7days.split('T')[0])) {
-      setCurrentData(dataLastWeek);
+      setCurrentData(dataLastWeek as unknown as GraphData);
 
       return;
     }
     if (start.includes(defaultLastMonth.split('T')[0])) {
-      setCurrentData(dataLastMonth);
+      setCurrentData(dataLastMonth as unknown as GraphData);
 
       return;
     }
     if (start.includes(zoomPreviewDate)) {
-      setCurrentData(dataZoomPreview);
+      setCurrentData(dataZoomPreview as unknown as GraphData);
     }
   }, [start, end, adjustedTimePeriodInterval]);
 
@@ -228,6 +231,7 @@ const GraphAndTimePeriod = (args): JSX.Element => {
         annotationEvent={annotationEventData}
         end={end}
         loading={false}
+        shapeLines={{ areaThresholdLines: [{ type: ThresholdType.basic }] }}
         start={start}
         timeShiftZones={{ enable: true, getInterval }}
         tooltip={{
@@ -251,7 +255,9 @@ const GraphAndTimePeriod = (args): JSX.Element => {
 };
 
 const GraphAndExclusionPeriod = (args): JSX.Element => {
-  const [dataExclusionPeriods, setDataExclusionPeriods] = useState([]);
+  const [dataExclusionPeriods, setDataExclusionPeriods] = useState<
+    Array<GraphData>
+  >([]);
 
   const handleClick = (data): void => {
     setDataExclusionPeriods([...dataExclusionPeriods, data]);
@@ -270,7 +276,7 @@ const GraphAndExclusionPeriod = (args): JSX.Element => {
         <Button onClick={(): void => handleClick(exclusionPeriodSecondPeriod)}>
           second
         </Button>
-        <Button onClick={(): void => handleClick(exclusionPeriodFourthPeriod)}>
+        <Button onClick={(): void => handleClick(exclusionPeriodThirdPeriod)}>
           third
         </Button>
       </ButtonGroup>
@@ -278,10 +284,16 @@ const GraphAndExclusionPeriod = (args): JSX.Element => {
         {...args}
         data={dataLastDay as unknown as GraphData}
         shapeLines={{
-          areaThresholdLines: {
-            dataExclusionPeriods,
-            display: true
-          }
+          areaThresholdLines: [
+            {
+              type: ThresholdType.basic
+            },
+            {
+              data: dataExclusionPeriods,
+              orientation: ['diagonal'],
+              type: ThresholdType.pattern
+            }
+          ]
         }}
       />
     </>
@@ -290,14 +302,18 @@ const GraphAndExclusionPeriod = (args): JSX.Element => {
 
 const Template: Story = {
   render: (args) => (
-    <WrapperGraph {...args} data={dataLastDay as unknown as GraphData} />
+    <WrapperGraph
+      {...args}
+      data={dataLastDay as unknown as GraphData}
+      shapeLines={{
+        areaThresholdLines: [
+          {
+            type: ThresholdType.basic
+          }
+        ]
+      }}
+    />
   )
-};
-
-export const Graph: Story = {
-  ...Template,
-  argTypes,
-  args: argumentsData
 };
 
 const WithTimePeriod = {
@@ -308,22 +324,27 @@ const GraphWithExclusionPeriod: Story = {
   render: (args) => <GraphAndExclusionPeriod {...args} />
 };
 
+const GraphWithEnvelopVariation: Story = {
+  render: (args) => <Threshold {...args} />
+};
+
+const GraphWithCLS: Story = {
+  render: (args) => <GraphAndCLS {...args} />
+};
+
+export const Graph: Story = {
+  ...Template,
+  argTypes,
+  args: argumentsData
+};
+
 export const GraphWithTimePeriod: Story = {
   ...WithTimePeriod,
   args: {
     end: defaultEnd,
     height: 500,
-    shapeLines: {
-      areaThresholdLines: {
-        display: true
-      }
-    },
     start: defaultStart
   }
-};
-
-const GraphWithEnvelopVariation: Story = {
-  render: (args) => <Threshold {...args} />
 };
 
 export const WithEnvelopVariation: Story = {
@@ -331,11 +352,6 @@ export const WithEnvelopVariation: Story = {
   args: {
     end: defaultEnd,
     height: 500,
-    shapeLines: {
-      areaThresholdLines: {
-        display: true
-      }
-    },
     start: defaultStart
   }
 };
@@ -347,10 +363,6 @@ export const withExclusionPeriods: Story = {
     height: 500,
     start: defaultStart
   }
-};
-
-const GraphWithCLS: Story = {
-  render: (args) => <GraphAndCLS {...args} />
 };
 
 export const withCLS: Story = {

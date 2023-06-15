@@ -20,7 +20,7 @@ dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 
 interface Props extends Partial<GraphProps> {
-  data: GraphData;
+  data?: GraphData;
   end: string;
   legend: LegendModel;
   loading: boolean;

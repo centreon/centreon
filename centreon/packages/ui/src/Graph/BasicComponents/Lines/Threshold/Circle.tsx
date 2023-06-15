@@ -5,22 +5,20 @@ import { Circle } from './models';
 import useCoordinateCircle from './useCoordinateCircle';
 
 const Circle = ({
-  dataY0,
-  dataY1,
-  dataYOrigin,
-  xScale,
-  factors,
+  getY0Variation,
+  getY1Variation,
+  getYOrigin,
   timeSeries,
+  getX,
   getCountDisplayedCircles
 }: Circle): JSX.Element | null => {
   const coordinates = useCoordinateCircle({
-    dataY0,
-    dataY1,
-    dataYOrigin,
-    factors,
     getCountDisplayedCircles,
-    timeSeries,
-    xScale
+    getX,
+    getY0Variation,
+    getY1Variation,
+    getYOrigin,
+    timeSeries
   });
 
   if (isEmpty(coordinates) || isNil(coordinates)) {

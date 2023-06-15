@@ -4,32 +4,29 @@ import { equals, isEmpty, isNil } from 'ramda';
 interface InitialValue {
   section: string;
   sectionDescription?: string;
-  type: string;
+  type?: string;
 }
 
 const getInitialValue = ({ section, type }: InitialValue): string => `
   <details>
-  <summary>${section} ${getCustomText(type)}</summary>
+  <summary>${section}${type && getCustomText(type)}</summary>
   >`;
 
 interface Prop {
   description: string;
-  type: string;
+  type?: string;
 }
 
 interface Section {
   description?: string;
   name: string;
   props: Array<Record<string, Prop>>;
-  type: string;
+  type?: string;
 }
 
 interface Description {
   sections: Array<Section>;
 }
-
-export const defaultBaseUrl =
-  'http://localhost:3000/centreon/api/latest/monitoring/hosts/151/services/1160/metrics/performance';
 
 export const defaultStart = new Date(
   dayjs(Date.now()).subtract(24, 'hour').toDate().getTime()
@@ -50,17 +47,25 @@ export const lastDayForwardDate = '2023-06-07';
 export const getCustomText = (text: string): string =>
   `<span style="color:#1EA7FD;fontSize:12px">(${text})</span>`;
 
-export const getBodyDescription = ({ key, description, type }): string =>
-  `<strong>${key}</strong> : ${description} ${getCustomText(type)} <br>`;
+export const getBodyDescription = ({ key, description, type }): string => {
+  const body = !type
+    ? `${description} <br>`
+    : `${description} ${getCustomText(type)} <br>`;
+  if (!key) {
+    return body;
+  }
+
+  return `<strong>${key}</strong> : ${body}`;
+};
 
 export const getDescription = ({ sections }: Description): string => {
   const descriptionBody = sections.map((item) => {
-    const { name, props, type: typeSection } = item;
+    const { name, props } = item;
 
     if (isNil(props) || isEmpty(props)) {
       return `${getInitialValue({
         section: name,
-        type: typeSection
+        type: item?.type
       })}<br></details>`;
     }
 
@@ -78,7 +83,7 @@ export const getDescription = ({ sections }: Description): string => {
       }
 
       return `${body}</details>`;
-    }, getInitialValue({ section: name, type: typeSection }));
+    }, getInitialValue({ section: name, type: item?.type }));
 
     return formattedProps as string;
   });
@@ -194,9 +199,6 @@ export const argTypes = {
     }),
     table: {
       category: 'Graph data'
-    },
-    type: {
-      required: true
     }
   },
   displayAnchor: {
@@ -335,63 +337,73 @@ export const argTypes = {
           name: 'areaThresholdLines',
           props: [
             {
-              display: {
-                description:
-                  'display or not the area threshold lines , if not the component will display the corresponding graph according to the data (regular area lines)',
-                type: 'boolean'
-              }
-            },
-            {
-              displayCircles: {
-                description: 'display or not the circles',
-                type: 'boolean'
-              }
-            },
-            {
-              factors: {
+              '': {
                 description: getDescription({
                   sections: [
                     {
-                      name: 'details',
+                      name: 'object',
                       props: [
                         {
-                          currentFactorMultiplication: {
+                          type: {
                             description:
-                              'the variant to calculate the envelope variation',
-                            type: 'number'
+                              'should be variation to render threshold of type variation'
                           }
                         },
                         {
-                          simulatedFactorMultiplication: {
+                          factors: {
                             description:
-                              'the simulated factor of envelope variation',
-                            type: 'number'
+                              'an object of currentFactorMultiplication (the variant to calculate the envelope variation) and the simulatedFactorMultiplication -number-) (the simulated factor of envelope variation -number-) useful for envelopVariation formula',
+                            type: 'required'
+                          }
+                        },
+                        {
+                          getCountDisplayedCircles: {
+                            description:
+                              'callback return the counted circles out of the envelope variation depends on mouse position relative to time value (t)',
+                            type: '(data:number) => void'
                           }
                         }
                       ],
-                      type: 'object'
+                      type: 'render threshold of type variation'
+                    },
+                    {
+                      name: 'object',
+                      props: [
+                        {
+                          type: {
+                            description:
+                              'should be variation to render threshold of type pattern'
+                          }
+                        },
+                        {
+                          data: {
+                            description:
+                              'array of graph data ,showing threshold with Patter lines',
+                            type: 'required'
+                          }
+                        }
+                      ],
+                      type: 'render threshold of type pattern'
+                    },
+                    {
+                      name: 'object',
+                      props: [
+                        {
+                          type: {
+                            description:
+                              'should be variation to render threshold of type basic'
+                          }
+                        }
+                      ],
+                      type: 'render threshold of type basic'
                     }
                   ]
                 }),
-                type: 'if the object is provided, the envelope variation of the graph is displayed according to the factors provided'
-              }
-            },
-            {
-              getCountDisplayedCircles: {
-                description:
-                  'callback return the counted circles out of the envelope variation depends on mouse position relative to time value (t)',
-                type: '() => void'
-              }
-            },
-            {
-              dataExclusionPeriods: {
-                description:
-                  'array of graph data ,showing threshold with Patter lines',
-                type: 'if the object is provided , the thresholds with pattern lines will be displayed'
+                type: 'Array of types data (basic | variation | pattern) to render thresholds (can mix multiple)'
               }
             }
           ],
-          type: 'object'
+          type: 'array'
         }
       ]
     }),
@@ -516,27 +528,8 @@ export const argTypes = {
 };
 
 export const args = {
-  axis: {
-    axisYLeft: { displayUnit: true },
-    axisYRight: { displayUnit: true }
-  },
-  displayAnchor: true,
   end: defaultEnd,
   height: 500,
   loading: false,
-  shapeLines: {
-    areaRegularLines: {
-      display: true
-    },
-    areaStackedLines: {
-      display: true
-    },
-    areaThresholdLines: {
-      display: true
-    }
-  },
-  start: defaultStart,
-  zoomPreview: {
-    enable: true
-  }
+  start: defaultStart
 };

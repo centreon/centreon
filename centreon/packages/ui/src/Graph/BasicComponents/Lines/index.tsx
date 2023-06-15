@@ -1,7 +1,7 @@
 import { MutableRefObject } from 'react';
 
 import { ScaleLinear } from 'd3-scale';
-import { isEmpty, isNil } from 'ramda';
+import { isNil } from 'ramda';
 
 import RegularAnchorPoint from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
 import { displayArea } from '../../helpers/index';
@@ -13,12 +13,11 @@ import RegularLine from './RegularLines';
 import useRegularLines from './RegularLines/useRegularLines';
 import StackedLines from './StackedLines';
 import useStackedLines from './StackedLines/useStackedLines';
-import ThresholdLines from './Threshold';
-import AwesomeCircles from './Threshold/Circle';
-import ThresholdWithPatternLines from './Threshold/ThresholdWithPatternLines';
-import ThresholdWithVariation from './Threshold/ThresholdWithVariation';
-import { Data } from './Threshold/models';
-import useDataThreshold from './Threshold/useDataThreshold';
+import WrapperThresholdLines from './Threshold';
+import {
+  canDisplayThreshold,
+  requiredNumberLinesThreshold
+} from './Threshold/models';
 
 interface Props extends GlobalAreaLines {
   displayAnchor: boolean;
@@ -53,28 +52,9 @@ const Lines = ({
 
   const { regularLines } = useRegularLines({ lines: displayedLines });
 
-  const displayEnvelopeThreshold =
-    !isNil(areaThresholdLines?.factors?.currentFactorMultiplication) &&
-    !isNil(areaThresholdLines?.factors?.simulatedFactorMultiplication);
-
-  const displayCircles = areaThresholdLines?.displayCircles ?? true;
-
-  const currentFactorMultiplication = areaThresholdLines?.factors
-    ?.currentFactorMultiplication as number;
-
-  const simulatedFactorMultiplication = areaThresholdLines?.factors
-    ?.simulatedFactorMultiplication as number;
-
-  const getCountDisplayedCircles = areaThresholdLines?.getCountDisplayedCircles;
-
-  const dataExclusionPeriods = areaThresholdLines?.dataExclusionPeriods;
-
-  const { dataY0, dataY1, dataYOrigin, displayThreshold } = useDataThreshold({
-    display: areaThresholdLines?.display ?? false,
-    leftScale,
-    lines: displayedLines,
-    rightScale
-  });
+  const displayThresholdArea =
+    displayedLines?.length >= requiredNumberLinesThreshold &&
+    canDisplayThreshold(areaThresholdLines);
 
   const displayAreaRegularLines =
     (areaRegularLines?.display ?? true) && displayArea(regularLines);
@@ -115,57 +95,16 @@ const Lines = ({
         </>
       )}
 
-      {displayThreshold && (
-        <>
-          <ThresholdLines
-            dataY0={dataY0 as Data}
-            dataY1={dataY1 as Data}
-            graphHeight={height}
-            timeSeries={timeSeries}
-            xScale={xScale}
-          />
-          {displayEnvelopeThreshold && (
-            <ThresholdWithVariation
-              dataY0={dataY0 as Data}
-              dataY1={dataY1 as Data}
-              factors={{
-                currentFactorMultiplication,
-                simulatedFactorMultiplication
-              }}
-              graphHeight={height}
-              timeSeries={timeSeries}
-              xScale={xScale}
-            />
-          )}
-          {displayEnvelopeThreshold && displayCircles && (
-            <AwesomeCircles
-              dataY0={dataY0 as Data}
-              dataY1={dataY1 as Data}
-              dataYOrigin={dataYOrigin as Data}
-              factors={{
-                currentFactorMultiplication,
-                simulatedFactorMultiplication
-              }}
-              getCountDisplayedCircles={getCountDisplayedCircles}
-              timeSeries={timeSeries}
-              xScale={xScale}
-            />
-          )}
-
-          {dataExclusionPeriods?.map((item, index) => (
-            <ThresholdWithPatternLines
-              data={item}
-              display={
-                !isNil(dataExclusionPeriods) && !isEmpty(dataExclusionPeriods)
-              }
-              graphHeight={height}
-              key={item.times[index]}
-              leftScale={leftScale}
-              rightScale={rightScale}
-              xScale={xScale}
-            />
-          ))}
-        </>
+      {displayThresholdArea && (
+        <WrapperThresholdLines
+          areaThresholdLines={areaThresholdLines}
+          graphHeight={height}
+          leftScale={leftScale}
+          lines={displayedLines}
+          rightScale={rightScale}
+          timeSeries={timeSeries}
+          xScale={xScale}
+        />
       )}
 
       {displayAreaRegularLines

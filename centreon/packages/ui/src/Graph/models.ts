@@ -96,17 +96,40 @@ export interface Area {
   display: boolean;
 }
 
-export interface ThresholdArea extends Area {
-  dataExclusionPeriods?: Array<GraphData>;
+export type PatternOrientation =
+  | 'diagonal'
+  | 'diagonalRightToLeft'
+  | 'horizontal'
+  | 'vertical';
+
+export enum ThresholdType {
+  basic = 'basic',
+  pattern = 'pattern',
+  variation = 'variation'
+}
+
+export interface PatternThreshold {
+  data: Array<GraphData>;
+  orientation?: Array<PatternOrientation>;
+  type: ThresholdType.pattern;
+}
+export interface VariationThreshold {
   displayCircles?: boolean;
-  factors?: FactorsVariation;
+  factors: FactorsVariation;
   getCountDisplayedCircles?: (value: number) => void;
+  type: ThresholdType.variation;
+}
+
+export interface BasicThreshold {
+  type: ThresholdType.basic;
 }
 
 export interface GlobalAreaLines {
   areaRegularLines?: Area;
   areaStackedLines?: Area;
-  areaThresholdLines?: ThresholdArea;
+  areaThresholdLines?: Array<
+    PatternThreshold | VariationThreshold | BasicThreshold
+  >;
 }
 export interface LegendModel {
   display?: boolean;

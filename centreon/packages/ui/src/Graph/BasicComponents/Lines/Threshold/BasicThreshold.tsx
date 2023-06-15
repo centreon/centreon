@@ -1,5 +1,4 @@
 import { curveBasis } from '@visx/curve';
-import { ScaleLinear } from 'd3-scale';
 import { Threshold } from '@visx/threshold';
 
 import { TimeValue } from '../../../timeSeries/models';
@@ -8,11 +7,11 @@ interface Props {
   fillAboveArea: string;
   fillBelowArea: string;
   fillOpacity?: number;
-  getX: ScaleLinear<number, number>;
-  getY0: ScaleLinear<number, number>;
-  getY1: ScaleLinear<number, number>;
+  getX: (timeValue: TimeValue) => number;
+  getY0: (timeValue: TimeValue) => number;
+  getY1: (timeValue: TimeValue) => number;
   graphHeight: number;
-  id?: string;
+  id: string;
   timeSeries: Array<TimeValue>;
 }
 
@@ -23,7 +22,7 @@ const BasicThreshold = ({
   graphHeight,
   timeSeries,
   fillOpacity = 0.1,
-  id = 'threshold',
+  id,
   fillAboveArea,
   fillBelowArea
 }: Props): JSX.Element => {

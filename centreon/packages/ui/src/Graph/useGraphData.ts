@@ -10,7 +10,7 @@ interface GraphDataResult {
 }
 
 interface Props {
-  data: GraphData;
+  data?: GraphData;
   end?: string;
   start?: string;
 }
