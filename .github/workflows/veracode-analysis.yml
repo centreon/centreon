@@ -138,7 +138,7 @@ jobs:
         env:
           VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
           VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
-        uses: lerer/veracode-sandboxes-helper@v1.0.1
+        uses: veracode/veracode-sandboxes-helper@v1.0.0
         with:
           activity: "remove-sandbox"
           app-name: "centreon-web" # TODO to revert before merge
@@ -169,13 +169,12 @@ jobs:
           deleteincompletescan: 1
           scanpollinginterval: 60 # time between two checks in seconds / [30 to 120]
 
-
       - name: Promote sandbox scan to policy
         #if: '!cancelled()' && github.ref_name == 'develop' # TODO to revert before merge
         env:
           VERACODE_API_ID: '${{ secrets.veracode_api_id }}'
           VERACODE_API_SECRET: '${{ secrets.veracode_api_key }}'
-        uses: lerer/veracode-sandboxes-helper@v1.0.1
+        uses: veracode/veracode-sandboxes-helper@v1.0.0
         with:
           activity: "promote-latest-scan"
           app-name: "centreon-web" # TODO to revert before merge
