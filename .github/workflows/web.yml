@@ -83,7 +83,7 @@ jobs:
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
       veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB }}
+      veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
 
   frontend-build:
     needs: [get-version]
