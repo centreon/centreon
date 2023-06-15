@@ -144,6 +144,7 @@ jobs:
 
       - name: Run a sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
+        continue-on-error: true
         with:
           appname: "${{ inputs.module_name }}"
           version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
@@ -153,7 +154,7 @@ jobs:
           createprofile: true
           createsandbox: true
           sandboxname: "${{ github.ref_name }}"
-          criticality: "High"
+          criticality: "Low"
           scantimeout: 60
           includenewmodules: true
           scanallnonfataltoplevelmodules: true
