@@ -17822,5 +17822,5 @@ msgstr "Modèle d'hôte #%d introuvable"
 msgid "Circular inheritance not allowed"
 msgstr "Héritage circulaire non autorisé"
 
-msgid "You are not allowed to display notification details"
-msgstr "Vous êtes pas autorisé à afficher les détails de la notification"
+msgid "You are not allowed to display the details of the notification"
+msgstr "Vous n'êtes pas autorisé à afficher les détails de la notification"

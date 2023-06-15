@@ -488,7 +488,7 @@ Feature:
     When I send a GET request to '/api/latest/configuration/notifications'
     Then the response code should be "403"
 
-  Scenario: Notification detail as admin
+  Scenario: Notification details as admin
     Given I am logged in
     And a feature flag "notification" of bitmask 2
     And the following CLAPI import data:

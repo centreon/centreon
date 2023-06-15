@@ -98,13 +98,13 @@ final class FindNotification
                 ));
             }
         } catch (AssertionFailedException $ex) {
-            $this->error('An error occured while retrieving natification details',[
+            $this->error('An error occurred while retrieving the details of the notification',[
                 'notification_id' => $notificationId,
                 'trace' => (string) $ex,
             ]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex->getMessage()));
         } catch (\Throwable $ex) {
-            $this->error('Unable to retrieve notification details',[
+            $this->error('Unable to retrieve the details of the notification',[
                 'notification_id' => $notificationId,
                 'trace' => (string) $ex,
             ]);

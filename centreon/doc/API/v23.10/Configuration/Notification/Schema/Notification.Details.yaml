@@ -2,7 +2,7 @@ type: object
 properties:
   id:
     type: integer
-    description: "id of notification"
+    description: "ID of the notification"
     example: 1
   name:
     type: string
@@ -13,11 +13,11 @@ properties:
     properties:
       id:
         type: integer
-        description: "id of the timeperiod"
+        description: "ID of the timeperiod"
         example: 1
       name:
         type: string
-        description: "Name of timeperiod"
+        description: "Name of the timeperiod"
         example: "24x7"
   is_activated:
     type: boolean
@@ -30,7 +30,7 @@ properties:
       properties:
         channel:
           type: string
-          description: "Channel use to send notification"
+          description: "Channel used to send the notification"
         subject:
           type: string
           description: "Subject of the message"
@@ -44,7 +44,7 @@ properties:
       properties:
         id:
           type: integer
-          description: "id of the user"
+          description: "ID of the user"
         name:
           type: string
           description: "name of the user"
@@ -55,7 +55,7 @@ properties:
       properties:
         type:
           type: string
-          description: "Type of Resource"
+          description: "Type of resource"
           example: "hostgroup"
         events:
           type: number
@@ -68,7 +68,7 @@ properties:
             properties:
               id:
                 type: number
-                description: "id of the resource"
+                description: "ID of the resource"
                 example: 1
               name:
                 type: string

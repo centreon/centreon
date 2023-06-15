@@ -118,7 +118,7 @@ it('should present an error response when something unhandled occurs', function 
         ->toBe(NotificationException::errorWhileRetrievingObject()->getMessage());
 });
 
-it('should get the resources with ACL Calculation when the user is not admin', function (): void {
+it('should get the resources with ACL calculation when the user is not admin', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
@@ -161,7 +161,7 @@ it('should get the resources with ACL Calculation when the user is not admin', f
     ))(1, $this->presenter);
 });
 
-it('should present a FindNotificationResponse when everything is ok', function (): void {
+it('should present a FindNotificationResponse when everything is OK', function (): void {
     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );

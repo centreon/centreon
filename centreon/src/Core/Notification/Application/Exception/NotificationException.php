@@ -74,6 +74,6 @@ class NotificationException extends \Exception
 
     public static function listOneNotAllowed(): self
     {
-        return new self(_('You are not allowed to display notification details'));
+        return new self(_('You are not allowed to display the details of the notification'));
     }
 }

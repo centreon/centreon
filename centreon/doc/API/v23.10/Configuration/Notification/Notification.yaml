@@ -1,9 +1,9 @@
 get:
   tags:
     - Notification
-  summary: "Get a notification details"
+  summary: "Get the details of a notification"
   description: |
-    Get a notification details
+    Get the details of a notification
 
     This endpoint is accessible for SaaS platforms only
   parameters:
