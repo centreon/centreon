@@ -32,24 +32,25 @@ final class HostInheritance {
      * Return an ordered line of inheritance for a host template.
      * (This is a recursive method).
      *
-     * @param int $hostTemplateId
+     * @param int $hostId
      * @param array<array{parent_id:int,child_id:int,order:int}> $parents
      *
      * @return int[]
      */
-    public static function findInheritanceLine(int $hostTemplateId, array $parents): array
+    public static function findInheritanceLine(int $hostId, array $parents): array
     {
         $inheritanceLine = [];
-
-        $directParents = array_filter($parents, (fn($row) => $row['child_id'] === $hostTemplateId));
+        $directParents = array_filter($parents, (fn($row) => $row['child_id'] === $hostId));
+        usort($directParents, (fn($a, $b) => $a['order'] <=> $b['order']));
 
         foreach ($directParents as $parent) {
             $inheritanceLine = array_merge(
                 $inheritanceLine,
+                [$parent['parent_id']],
                 self::findInheritanceLine($parent['parent_id'], $parents)
             );
         }
 
-        return array_unique(array_merge([$hostTemplateId], $inheritanceLine));
+        return array_unique($inheritanceLine);
     }
 }

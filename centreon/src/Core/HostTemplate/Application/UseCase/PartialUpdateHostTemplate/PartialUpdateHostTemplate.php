@@ -49,6 +49,7 @@ use Core\HostMacro\Domain\Model\HostMacroDifference;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
+use Core\HostTemplate\Domain\Model\MacroManagement;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\Difference\BasicDifference;
@@ -185,103 +186,41 @@ final class PartialUpdateHostTemplate
          */
         [$directMacros, $inheritedMacros, $commandMacros] = $this->findOriginalMacros($hostTemplate);
 
-        $macros = $this->createMacros($request->macros, $hostTemplate->getId(), $directMacros, $inheritedMacros);
-
-        $hostMacroDifference = new HostMacroDifference();
-        $macrosDifference = $hostMacroDifference->compute($directMacros, $inheritedMacros, $commandMacros, $macros);
-
-        foreach ($macrosDifference['removed'] as $macro) {
-            $this->writeHostMacroRepository->delete($macro);
-        }
-
-        $updatedMacros = $macrosDifference['updated'];
-        $addedMacros = $macrosDifference['added'];
-        $unchangedMacros = $macrosDifference['unchanged'];
-        $order = 0;
-        foreach ($macros as $macro) {
-            if (isset($updatedMacros[$macro->getName()])) {
-                $macro->setOrder($order);
-                $this->writeHostMacroRepository->update($macro);
-                ++$order;
-
-                continue;
-            }
-            if (isset($addedMacros[$macro->getName()])) {
-                $macro->setOrder($order);
-                if ($macro->getDescription() === '') {
-                    $macro->setDescription(
-                        isset($commandMacros[$macro->getName()])
-                        ? $commandMacros[$macro->getName()]->getDescription()
-                        : ''
-                    );
-                }
-                $this->writeHostMacroRepository->add($macro);
-                ++$order;
-
-                continue;
-            }
-            if (isset($unchangedMacros[$macro->getName()])) {
-                if (
-                    isset($directMacros[$macro->getName()])
-                    && $directMacros[$macro->getName()]->getOrder() !== $order
-                ) {
-                    // macro is the same but its order has changed
-                    $macro->setOrder($order);
-                    $this->writeHostMacroRepository->update($macro);
-                }
-                ++$order;
-            }
-        }
-    }
-
-    /**
-     * Create macros object from the request dto.
-     * Retrieve original value if macro is of type password.
-     *
-     * @param array<array{name:string,value:string|null,is_password:bool,description:string|null}> $requestedMacros
-     * @param int $hostTemplateId
-     * @param array<string,HostMacro> $directMacros
-     * @param array<string,HostMacro> $inheritedMacros
-     *
-     * @throws \Throwable
-     *
-     * @return array<string,HostMacro>
-     */
-    private function createMacros(
-        array $requestedMacros,
-        int $hostTemplateId,
-        array $directMacros,
-        array $inheritedMacros
-    ): array {
         $macros = [];
-        foreach ($requestedMacros as $data) {
-            $macroName = mb_strtoupper($data['name']);
-            // Note: do not handle vault at the moment
-            $macroValue = $data['value'] ?? '';
-            if ($data['is_password'] && $data['value'] === null) {
-                // retrieve actual password value
-                $macroValue = isset($directMacros[$macroName])
-                    ? $directMacros[$macroName]->getValue()
-                    : (isset($inheritedMacros[$macroName]) ? $inheritedMacros[$macroName]->getValue() : '');
-            }
-
-            $macro = new HostMacro(
-                $hostTemplateId,
-                $data['name'],
-                $macroValue,
-            );
-            $macro->setIsPassword($data['is_password']);
-            $macro->setDescription($data['description'] ?? '');
-
+        foreach ($request->macros as $data) {
+            $macro = HostMacroFactory::create($data, $hostTemplate->getId(), $directMacros, $inheritedMacros);
             $macros[$macro->getName()] = $macro;
         }
 
-        return $macros;
+        $macrosDiff = new HostMacroDifference();
+        $macrosDiff->compute($directMacros, $inheritedMacros, $commandMacros, $macros);
+
+        MacroManagement::setOrder($macrosDiff, $macros, $directMacros);
+
+        foreach ($macrosDiff->removedMacros as $macro) {
+            $this->writeHostMacroRepository->delete($macro);
+        }
+
+        foreach ($macrosDiff->updatedMacros as $macro) {
+            $this->writeHostMacroRepository->update($macro);
+        }
+
+        foreach ($macrosDiff->addedMacros as $macro) {
+            if ($macro->getDescription() === '') {
+                $commandMacro = $commandMacros[$macro->getName()] ?? null;
+                $macro->setDescription(
+                    $commandMacro ? $commandMacro->getDescription() : ''
+                );
+            }
+            $this->writeHostMacroRepository->add($macro);
+        }
     }
 
     /**
      * Find macros of a host template:
-     * macros linked directly, macros linked through template inheritance, macros linked through command inheritance.
+     *  - macros linked directly,
+     *  - macros linked through template inheritance,
+     *  - macros linked through command inheritance.
      *
      * @param HostTemplate $hostTemplate
      *
@@ -296,26 +235,15 @@ final class PartialUpdateHostTemplate
     private function findOriginalMacros(HostTemplate $hostTemplate): array
     {
         $templateParents = $this->readHostTemplateRepository->findParents($hostTemplate->getId());
-        $hostInheritance = new HostInheritance();
-        $inheritanceLineIds = $hostInheritance::findInheritanceLine($hostTemplate->getId(), $templateParents);
+        $inheritanceLine = HostInheritance::findInheritanceLine($hostTemplate->getId(), $templateParents);
+        $existingHostMacros
+            = $this->readHostMacroRepository->findByHostIds(array_merge([$hostTemplate->getId()], $inheritanceLine));
 
-        $existingHostMacros = $this->readHostMacroRepository->findByHostIds($inheritanceLineIds);
-        /** @var array<string,HostMacro> */
-        $inheritedMacros = [];
-        /** @var array<string,HostMacro> */
-        $directMacros = [];
-        foreach ($inheritanceLineIds as $id) {
-            foreach ($existingHostMacros as $macro) {
-                if ($macro->getHostId() === $hostTemplate->getId()) {
-                    $directMacros[$macro->getName()] = $macro;
-                } else if (
-                    ! isset($inheritedMacros[$macro->getName()])
-                    && $macro->getHostId() === $id
-                ) {
-                    $inheritedMacros[$macro->getName()] = $macro;
-                }
-            }
-        }
+        [$directMacros, $inheritedMacros] = MacroManagement::resolveInheritanceForHostMacro(
+            $existingHostMacros,
+            $inheritanceLine,
+            $hostTemplate->getId()
+        );
 
         /** @var array<string,CommandMacro> */
         $commandMacros = [];
@@ -325,11 +253,7 @@ final class PartialUpdateHostTemplate
                 CommandMacroType::Host
             );
 
-            foreach ($existingCommandMacros as $macro) {
-                if (! isset($commandMacros[$macro->getName()])) {
-                    $commandMacros[$macro->getName()] = $macro;
-                }
-            }
+            $commandMacros = MacroManagement::resolveInheritanceForCommandMacro($existingCommandMacros);
         }
 
         return [$directMacros, $inheritedMacros, $commandMacros];
