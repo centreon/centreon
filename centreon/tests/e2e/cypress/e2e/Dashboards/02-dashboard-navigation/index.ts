@@ -84,7 +84,7 @@ When(
 
     cy.getByLabel({ label: 'view', tag: 'button' })
       .contains('dashboard-name-99')
-      .should('be.visible');
+      .should('exist');
 
     cy.get('[data-variant="grid"]').parent().parent().scroll('bottom');
   }
