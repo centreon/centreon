@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\User\Application\UseCase\FindCurrentUserParameters;
 
 use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Configuration\User\Exception\UserException;
@@ -36,16 +37,15 @@ final class FindCurrentUserParameters
     use LoggerTrait;
 
     public function __construct(
+        private readonly ContactInterface $user,
         private readonly DashboardRights $rights
     ) {
     }
 
-    public function __invoke(
-        Contact $user,
-        FindCurrentUserParametersPresenterInterface $presenter
-    ): void {
+    public function __invoke(FindCurrentUserParametersPresenterInterface $presenter): void
+    {
         try {
-            $response = $this->createResponse($user);
+            $response = $this->createResponse($this->user);
 
             $presenter->presentResponse($response);
         } catch (\Throwable $ex) {
@@ -54,7 +54,7 @@ final class FindCurrentUserParameters
         }
     }
 
-    public function createResponse(Contact $user): FindCurrentUserParametersResponse
+    public function createResponse(ContactInterface $user): FindCurrentUserParametersResponse
     {
         $dto = new FindCurrentUserParametersResponse();
 
@@ -81,7 +81,7 @@ final class FindCurrentUserParameters
         return $dto;
     }
 
-    private function hasExportButtonRole(Contact $user): bool
+    private function hasExportButtonRole(ContactInterface $user): bool
     {
         return $user->isAdmin() || $user->hasRole(Contact::ROLE_GENERATE_CONFIGURATION);
     }

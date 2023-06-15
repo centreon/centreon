@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\User\Application\UseCase\FindCurrentUserParameters;
 
 use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Model\Page;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Configuration\User\Exception\UserException;
@@ -37,6 +38,7 @@ use Core\User\Domain\Model\UserTheme;
 beforeEach(function (): void {
     $this->presenter = new FindCurrentUserParametersPresenterStub();
     $this->useCase = new FindCurrentUserParameters(
+        $this->contact = $this->createMock(ContactInterface::class),
         $this->rights = $this->createMock(DashboardRights::class)
     );
     $this->randomInt = static fn(): int => random_int(1, 1_000_000);
@@ -47,10 +49,9 @@ beforeEach(function (): void {
 it(
     'should present an ErrorResponse when an exception is thrown',
     function (): void {
-        $contact = $this->createMock(Contact::class);
-        $contact->method('getId')->willThrowException($ex = new \Exception());
+        $this->contact->method('getId')->willThrowException($ex = new \Exception());
 
-        ($this->useCase)($contact, $this->presenter);
+        ($this->useCase)($this->presenter);
 
         expect($this->presenter->data)
             ->toBeInstanceOf(ErrorResponse::class)
@@ -62,23 +63,22 @@ it(
 it(
     'should present a valid response when the user is retrieved',
     function (): void {
-        $contact = $this->createMock(Contact::class);
-        $contact->method('hasRole')->willReturn($isExportButtonEnabled = true);
-        $contact->method('getId')->willReturn($id = ($this->randomInt)());
-        $contact->method('getName')->willReturn($name = ($this->randomString)());
-        $contact->method('getAlias')->willReturn($alias = ($this->randomString)());
-        $contact->method('getEmail')->willReturn($email = ($this->randomString)());
-        $contact->method('getTimezone')->willReturn($timezone = new \DateTimeZone('UTC'));
-        $contact->method('getLocale')->willReturn($locale = ($this->randomString)());
-        $contact->method('isAdmin')->willReturn($isAdmin = ($this->randomBool)());
-        $contact->method('isUsingDeprecatedPages')->willReturn($useDeprecatedPages = ($this->randomBool)());
-        $contact->method('getTheme')->willReturn(($theme = UserTheme::Light)->value);
-        $contact->method('getUserInterfaceDensity')->willReturn(($uiDensity = UserInterfaceDensity::Compact)->value);
-        $contact->method('getDefaultPage')->willReturn($page = $this->createMock(Page::class));
+        $this->contact->method('hasRole')->willReturn($isExportButtonEnabled = true);
+        $this->contact->method('getId')->willReturn($id = ($this->randomInt)());
+        $this->contact->method('getName')->willReturn($name = ($this->randomString)());
+        $this->contact->method('getAlias')->willReturn($alias = ($this->randomString)());
+        $this->contact->method('getEmail')->willReturn($email = ($this->randomString)());
+        $this->contact->method('getTimezone')->willReturn($timezone = new \DateTimeZone('UTC'));
+        $this->contact->method('getLocale')->willReturn($locale = ($this->randomString)());
+        $this->contact->method('isAdmin')->willReturn($isAdmin = ($this->randomBool)());
+        $this->contact->method('isUsingDeprecatedPages')->willReturn($useDeprecatedPages = ($this->randomBool)());
+        $this->contact->method('getTheme')->willReturn(($theme = UserTheme::Light)->value);
+        $this->contact->method('getUserInterfaceDensity')->willReturn(($uiDensity = UserInterfaceDensity::Compact)->value);
+        $this->contact->method('getDefaultPage')->willReturn($page = $this->createMock(Page::class));
 
         $page->method('getRedirectionUri')->willReturn($defaultPage = ($this->randomString)());
 
-        ($this->useCase)($contact, $this->presenter);
+        ($this->useCase)($this->presenter);
 
         expect($this->presenter->data)->toBeInstanceOf(FindCurrentUserParametersResponse::class)
             ->and($this->presenter->data->id)->toBe($id)
@@ -103,14 +103,12 @@ it(
 it(
     'should present a valid dashboard permission dto in the response',
     function ($globalRole): void {
-        $contact = $this->createMock(Contact::class);
-
         $this->rights->method('hasViewerRole')->willReturn($hasViewerRole = ($this->randomBool)());
         $this->rights->method('hasCreatorRole')->willReturn($hasCreatorRole = ($this->randomBool)());
         $this->rights->method('hasAdminRole')->willReturn($hasAdminRole = ($this->randomBool)());
         $this->rights->method('getGlobalRole')->willReturn(DashboardGlobalRole::from($globalRole));
 
-        ($this->useCase)($contact, $this->presenter);
+        ($this->useCase)($this->presenter);
 
         expect($this->presenter->data)->toBeInstanceOf(FindCurrentUserParametersResponse::class)
             ->and($this->presenter->data->dashboardPermissions->hasViewerRole)->toBe($hasViewerRole)

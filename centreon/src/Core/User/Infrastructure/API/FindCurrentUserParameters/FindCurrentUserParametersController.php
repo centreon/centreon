@@ -45,10 +45,7 @@ final class FindCurrentUserParametersController extends AbstractController
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        /** @var Contact $user */
-        $user = $this->getUser();
-
-        $useCase($user, $presenter);
+        $useCase($presenter);
 
         return $presenter->show();
     }
