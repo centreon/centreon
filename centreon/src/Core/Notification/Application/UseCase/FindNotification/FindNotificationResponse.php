@@ -60,38 +60,12 @@ final class FindNotificationResponse
     /**
      * @var array<array{
      *  type: string,
-     *  events: int,
+     *  events: NotificationServiceEvent|NotificationHostEvent[],
      *  ids: array<array{id: int, name: string}>,
      *  extra?: array{
-     *   event_services: int
+     *   event_services: NotificationServiceEvent[]
      *  }
      * }>
      */
     public array $resources = [];
-
-    /**
-     * @param NotificationHostEvent[]|NotificationServiceEvent[] $enums
-     *
-     * @return int
-     */
-    public function convertHostEventsToBitFlags(array $enums): int
-    {
-        /**
-         * @var NotificationHostEvent[] $enums
-         */
-        return NotificationHostEventConverter::toBitFlags($enums);
-    }
-
-    /**
-     * @param NotificationServiceEvent[]|NotificationHostEvent[] $enums
-     *
-     * @return int
-     */
-    public function convertServiceEventsToBitFlags(array $enums): int
-    {
-        /**
-         * @var NotificationServiceEvent[] $enums
-         */
-        return NotificationServiceEventConverter::toBitFlags($enums);
-    }
 }

@@ -26,8 +26,11 @@ namespace Core\Notification\Infrastructure\API\FindNotification;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Notification\Application\Converter\NotificationHostEventConverter;
+use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\UseCase\FindNotification\FindNotificationPresenterInterface;
 use Core\Notification\Application\UseCase\FindNotification\FindNotificationResponse;
+use Core\Notification\Domain\Model\NotificationResource;
 
 class FindNotificationPresenter extends AbstractPresenter implements FindNotificationPresenterInterface
 {
@@ -52,8 +55,25 @@ class FindNotificationPresenter extends AbstractPresenter implements FindNotific
                 'is_activated' => $response->isActivated,
                 'messages' => $response->messages,
                 'users' => $response->users,
-                'resources' => $response->resources,
+                'resources' => $this->formatResource($response->resources),
             ]);
         }
+    }
+
+    private function formatResource(array $resources) {
+        foreach ($resources as $index => $resource) {
+            $resources[$index]['events'] = $resource["type"] === NotificationResource::HOSTGROUP_RESOURCE_TYPE
+                ? NotificationHostEventConverter::toBitFlags($resource['events'])
+                : NotificationServiceEventConverter::toBitFlags($resource['events']);
+
+            if (array_key_exists('extra', $resource)) {
+                $resource[$index]['extra']['service_events'] = NotificationServiceEventConverter::toBitFlags(
+                    $resource['extra']['service_events']
+                );
+            }
+
+        }
+
+        return $resources;
     }
 }

@@ -23,11 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotification;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
@@ -95,6 +97,12 @@ final class FindNotification
                     $notificationResources
                 ));
             }
+        } catch (AssertionFailedException $ex) {
+            $this->error('An error occured while retrieving natification details',[
+                'notification_id' => $notificationId,
+                'trace' => (string) $ex,
+            ]);
+            $presenter->presentResponse(new InvalidArgumentResponse($ex->getMessage()));
         } catch (\Throwable $ex) {
             $this->error('Unable to retrieve notification details',[
                 'notification_id' => $notificationId,
@@ -171,9 +179,7 @@ final class FindNotification
         foreach ($notificationResources as $resource) {
             $responseResource = [
                 'type' => $resource->getType(),
-                'events' => $resource->getType() === NotificationResource::HOSTGROUP_RESOURCE_TYPE
-                    ? $response->convertHostEventsToBitFlags($resource->getEvents())
-                    : $response->convertServiceEventsToBitFlags($resource->getEvents()),
+                'events' => $resource->getEvents(),
                 'ids' => array_map(
                     static fn ($resource): array => ['id' => $resource->getId(), 'name' => $resource->getName()],
                     $resource->getResources()
@@ -184,7 +190,7 @@ final class FindNotification
                 && ! empty($resource->getServiceEvents())
             ) {
                 $responseResource['extra'] = [
-                    'event_services' => $response->convertServiceEventsToBitFlags($resource->getServiceEvents()),
+                    'event_services' => $resource->getServiceEvents(),
                 ];
             }
             $response->resources[] = $responseResource;

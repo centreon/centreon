@@ -23,9 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Notification\Application\UseCase\FindNotification;
 
+use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Contact;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
@@ -123,12 +126,6 @@ it('should get the resources with ACL Calculation when the user is not admin', f
     $notification = new Notification(1, 'notification', new ConfigurationTimePeriod(1, '24x7'), false);
     $notificationMessage = new NotificationMessage(NotificationChannel::from('Slack'), 'Message subject', 'Message content');
     $notificationUser = new ConfigurationUser(3, 'test-user');
-    $notificationResource = new NotificationResource(
-        NotificationResource::HOSTGROUP_RESOURCE_TYPE,
-        NotificationHostEvent::class,
-        [new ConfigurationResource(1, 'hostgroup-resource')],
-        NotificationHostEventConverter::fromBitFlags(4)
-    );
 
     $this->notificationRepository
         ->expects($this->once())
@@ -170,7 +167,11 @@ it('should present a FindNotificationResponse when everything is ok', function (
     );
 
     $notification = new Notification(1, 'notification', new ConfigurationTimePeriod(1, '24x7'), false);
-    $notificationMessage = new NotificationMessage(NotificationChannel::from('Slack'), 'Message subject', 'Message content');
+    $notificationMessage = new NotificationMessage(
+        NotificationChannel::from('Slack'),
+        'Message subject',
+        'Message content'
+    );
     $notificationUser = new ConfigurationUser(3, 'test-user');
     $notificationResource = new NotificationResource(
         NotificationResource::HOSTGROUP_RESOURCE_TYPE,
@@ -231,7 +232,7 @@ it('should present a FindNotificationResponse when everything is ok', function (
         ->and($this->presenter->response->users[0]['name'])->toBe('test-user')
         ->and($this->presenter->response->resources)->toBeArray()
         ->and($this->presenter->response->resources[0]['type'])->toBe(NotificationResource::HOSTGROUP_RESOURCE_TYPE)
-        ->and($this->presenter->response->resources[0]['events'])->toBe(NotificationHostEventConverter::toBit(NotificationHostEvent::Unreachable))
+        ->and($this->presenter->response->resources[0]['events'])->toBe([NotificationHostEvent::Unreachable])
         ->and($this->presenter->response->resources[0]['ids'][0]['id'])->toBe(1)
         ->and($this->presenter->response->resources[0]['ids'][0]['name'])->toBe('hostgroup-resource');
 });
