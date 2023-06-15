@@ -51,11 +51,12 @@ jobs:
             echo "development_stage=Release" >> $GITHUB_OUTPUT
             echo "display_summary=false" >> $GITHUB_OUTPUT
           elif [[ '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'unstable' ]]; then
-            echo "fail_build=true" >> $GITHUB_OUTPUT
+            echo "fail_build=false" >> $GITHUB_OUTPUT
             echo "development_stage=Testing" >> $GITHUB_OUTPUT
-            echo "display_summary=true" >> $GITHUB_OUTPUT
+            echo "display_summary=false" >> $GITHUB_OUTPUT
           else
-            echo "fail_build=true" >> $GITHUB_OUTPUT
+            echo "[DEBUG] - Grace period enabled"
+            echo "fail_build=false" >> $GITHUB_OUTPUT
             echo "development_stage=Development" >> $GITHUB_OUTPUT
             echo "display_summary=true" >> $GITHUB_OUTPUT
           fi
@@ -110,8 +111,7 @@ jobs:
           file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           baseline_file: "${{ env.baseline_file }}"
           create_baseline_from: "${{ env.create_baseline_from }}"
-          fail_build: false #TODO: Do not fail the jobs until grace period ends
-          #fail_build: '${{ needs.build.outputs.fail_build }}'
+          fail_build: '${{ needs.build.outputs.fail_build }}'
           fail_on_severity: "'Very High','High'"
           timeout: 60
           development_stage: '${{ needs.build.outputs.development_stage }}'
@@ -146,7 +146,7 @@ jobs:
         uses: veracode/veracode-uploadandscan-action@master
         with:
           appname: "${{ inputs.module_name }}"
-          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_sha-${{ github.sha }}"
+          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_sha-${{ github.run_id }}"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           vid: '${{ secrets.veracode_api_id }}'
           vkey: '${{ secrets.veracode_api_key }}'
@@ -162,8 +162,8 @@ jobs:
 
   sca-scan:
     needs: [build]
-    runs-on: ubuntu-latest
     name: Run a SCA scan
+    runs-on: ubuntu-latest
     continue-on-error: true
 
     steps:
