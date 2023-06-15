@@ -348,6 +348,14 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
+  return cy.get('header div[data-cy="clock"]').then(($time) => {
+    const localTime = $time.children()[1].textContent;
+
+    return localTime;
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -363,6 +371,7 @@ declare global {
       ) => Cypress.Chainable;
       executeCommandsViaClapi: (fixtureFile: string) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
+      getTimeFromHeader: () => Cypress.Chainable;
       getWebVersion: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       loginByTypeOfUser: ({
