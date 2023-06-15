@@ -157,3 +157,31 @@ jobs:
           scanallnonfataltoplevelmodules: true
           deleteincompletescan: 1
           scanpollinginterval: 60 # time between two checks in seconds / [30 to 120]
+
+  sca-scan:
+    needs: [build]
+    runs-on: ubuntu-latest
+    name: Run a SCA scan
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name : Publish router
+        if: github.ref_name == 'develop'
+        run: |
+          if [[ "${{ env.github.ref_name }}" == 'develop' ]]; then
+            echo "publish=true" >> GITHUB_ENV
+          else
+            echo "publish=false" >> GITHUB_ENV
+          fi
+
+      - name: Run Veracode SCA
+        env:
+          SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
+        uses: veracode/veracode-sca@v1.09
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          #create-issues: ${{ env.publish }}
+          recursive: true
