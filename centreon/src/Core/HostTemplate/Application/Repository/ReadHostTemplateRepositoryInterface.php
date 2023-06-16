@@ -52,7 +52,6 @@ interface ReadHostTemplateRepositoryInterface
 
     /**
      * Retrieve all parent template ids of a host template.
-     * (Sorted by child_id and order).
      *
      * @param int $hostTemplateId
      *
