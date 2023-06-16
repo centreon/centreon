@@ -14,13 +14,16 @@ const useUserDashboardPermissions = (): useUserDashboardPermissionsState => {
   const { dashboard: globalPermissions } = useAtomValue(userAtom);
 
   const canCreateOrManagerDashboards =
-    globalPermissions.createDashboards || globalPermissions.manageAllDashboards;
+    globalPermissions?.createDashboards ||
+    globalPermissions?.manageAllDashboards ||
+    false;
 
   const hasEditPermission = (dashboard: Dashboard): boolean => {
     return (
-      globalPermissions.manageAllDashboards ||
-      (globalPermissions.createDashboards &&
-        equals(dashboard.ownRole, DashboardRole.editor))
+      globalPermissions?.manageAllDashboards ||
+      (globalPermissions?.createDashboards &&
+        equals(dashboard.ownRole, DashboardRole.editor)) ||
+      false
     );
   };
 
