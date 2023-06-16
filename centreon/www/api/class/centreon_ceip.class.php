@@ -209,7 +209,7 @@ class CentreonCeip extends CentreonWebService
             $licenseInformation = [];
             foreach ($centreonModules as $module) {
                 $licenseObject->setProduct($module);
-                $isLicenseValid = $licenseObject->validate(false);
+                $isLicenseValid = $licenseObject->validate();
                 if ($isLicenseValid && !empty($licenseObject->getData())) {
                     $licenseInformation[$module] = $licenseObject->getData();
                     $licenseClientName = $licenseInformation[$module]['client']['name'];
