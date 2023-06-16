@@ -45,6 +45,8 @@ final class CommandTypeConverter
     /**
      * @param int $commandType
      *
+     * @throws \RangeException
+     *
      * @return CommandType
      */
     public static function fromInt(int $commandType): CommandType

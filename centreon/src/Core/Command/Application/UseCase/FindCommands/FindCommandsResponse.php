@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Command\Application\UseCase\FindCommands;
 
-class FindCommandsResponse
+final class FindCommandsResponse
 {
     /** @var CommandDto[] */
     public array $commands = [];

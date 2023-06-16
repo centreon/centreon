@@ -117,6 +117,12 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
         RequestParametersInterface $requestParameters,
         array $commandTypes
     ): array {
+        $commands = [];
+
+        if ([] === $commandTypes) {
+            return $commands;
+        }
+
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator->setConcordanceArray([
@@ -127,8 +133,6 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
         ]);
 
         $sqlTranslator->addNormalizer('is_locked', new BoolToIntegerNormalizer());
-
-        $commands = [];
 
         $request = <<<'SQL'
             SELECT
@@ -144,7 +148,17 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
 
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
+        $sqlConcatenator->appendWhere('command_type IN (:command_type)');
+        $sqlConcatenator->storeBindValueMultiple(
+            ':command_type',
+            array_map(
+                fn (CommandType $commandType): int => CommandTypeConverter::toInt($commandType),
+                $commandTypes
+            ),
+            \PDO::PARAM_INT
+        );
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
+        $rs = (string) $sqlConcatenator;
         $statement = $this->db->prepare($this->translateDbName((string) $sqlConcatenator));
         $sqlTranslator->bindSearchValues($statement);
         $sqlConcatenator->bindValuesToStatement($statement);
