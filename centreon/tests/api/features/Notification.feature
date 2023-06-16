@@ -692,3 +692,68 @@ Feature:
       """
     When I send a DELETE request to '/api/latest/configuration/notifications/2'
     Then the response should be "404"
+
+  Scenario: Delete multiple notification definitions as admin user
+    Given I am logged in
+    And a feature flag "notification" of bitmask 2
+    And the following CLAPI import data:
+    """
+    SG;ADD;service-grp1;service-grp1-alias
+    SG;ADD;service-grp2;service-grp2-alias
+    CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
+    CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
+    """
+    And I send a POST request to '/api/latest/configuration/notifications' with body:
+      """
+      {
+        "name": "notification-name",
+        "timeperiod": 2,
+        "resources": [
+          {
+            "type": "hostgroup",
+            "events": 5,
+            "ids": [53,56],
+            "extra": {"event_services": 2}
+          },
+          {
+            "type": "servicegroup",
+            "events": 5,
+            "ids": [1,2]
+          }
+        ],
+        "messages": [
+          {
+            "channel": "Slack",
+            "subject": "Hello world !",
+            "message": "just a small message"
+          }
+        ],
+        "users": [20,21],
+        "is_activated": true
+      }
+      """
+
+      When I send a POST request to '/api/latest/configuration/notifications/_delete' with body:
+      """
+      {
+        "ids": [1, 2]
+      }
+      """
+      Then the response should be "207"
+      And the JSON should be equal to:
+      """
+        {
+          "results": [
+            {
+              "href": "/configuration/notifications/1",
+              "status": 204,
+              "message": null
+            },
+            {
+              "href": "/configuration/notifications/2",
+              "status": 404,
+              "message": "Notification not found"
+            }
+          ]
+        }
+      """
