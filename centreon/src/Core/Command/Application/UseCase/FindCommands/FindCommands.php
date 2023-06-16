@@ -114,6 +114,7 @@ final class FindCommands
                 CommandType::Notification,
                 CommandType::Check,
                 CommandType::Miscellaneous,
+                CommandType::Discovery,
             ];
         }
         $commandsTypes = [];
@@ -137,6 +138,13 @@ final class FindCommands
             || $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_RW)
         ) {
             $commandsTypes[] = CommandType::Miscellaneous;
+        }
+
+        if (
+            $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_COMMANDS_DISCOVERY_R)
+            || $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_COMMANDS_DISCOVERY_RW)
+        ) {
+            $commandsTypes[] = CommandType::Discovery;
         }
 
         return $commandsTypes;
