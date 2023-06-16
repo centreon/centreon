@@ -36,6 +36,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class DeleteNotificationsPresenter extends AbstractPresenter implements DeleteNotificationsPresenterInterface
 {
+    /**
+     * @param RequestParametersInterface $requestParameters
+     * @param PresenterFormatterInterface $presenterFormatter
+     */
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter
@@ -49,34 +53,27 @@ final class DeleteNotificationsPresenter extends AbstractPresenter implements De
     public function presentResponse(DeleteNotificationsResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof DeleteNotificationsResponse) {
-            $results = array_map(function (DeleteNotificationsStatusResponse $notificationDto) {
-                return [
-                    'href' => $notificationDto->href,
-                    'status' => $this->enumToIntConverter($notificationDto->status),
-                    'message' => $notificationDto->message
-                ];
-            }, $response->results);
+            $multiStatusResponse = [
+                'results' => array_map(function (DeleteNotificationsStatusResponse $notificationDto) {
+                    return [
+                        'href' => $notificationDto->href,
+                        'status' => $this->enumToIntConverter($notificationDto->status),
+                        'message' => $notificationDto->message
+                    ];
+                }, $response->results)
+            ];
 
-            $meta = $this->requestParameters->toArray();
-
-
-            // $resp = [
-            //     'toto' => array_map(function (DeleteNotificationsStatusResponse $notificationDto) {
-            //         return [
-            //             'href' => $notificationDto->href,
-            //             'status' => $this->enumToIntConverter($notificationDto->status),
-            //             'message' => $notificationDto->message
-            //         ];
-            //     }, $response->results),
-            //     'meta' => $this->requestParameters->toArray()
-            // ];
-
-            $this->present(new MultiStatusResponse($results, $meta));
+            $this->present(new MultiStatusResponse($multiStatusResponse));
         } else {
             $this->setResponseStatus($response);
         }
     }
 
+    /**
+     * @param ResponseCode $code
+     *
+     * @return int
+     */
     private function enumToIntConverter(ResponseCode $code): int
     {
         return match ($code) {

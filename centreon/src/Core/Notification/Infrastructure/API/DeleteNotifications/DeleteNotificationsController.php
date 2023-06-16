@@ -23,13 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\API\DeleteNotifications;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Notification\Application\UseCase\DeleteNotifications\DeleteNotifications;
-use Core\Notification\Application\UseCase\DeleteNotifications\DeleteNotificationsRequest;
+use Core\Notification\Application\UseCase\DeleteNotifications\{DeleteNotifications, DeleteNotificationsRequest};
+use Symfony\Component\HttpFoundation\{Request, Response};
 
 final class DeleteNotificationsController extends AbstractController
 {

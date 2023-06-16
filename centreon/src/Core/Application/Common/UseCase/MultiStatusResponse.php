@@ -25,7 +25,7 @@ namespace Core\Application\Common\UseCase;
 
 class MultiStatusResponse implements ResponseStatusInterface
 {
-    public function __construct(public readonly array $results, public readonly array $meta)
+    public function __construct(private readonly array $results)
     {
     }
 
@@ -35,5 +35,10 @@ class MultiStatusResponse implements ResponseStatusInterface
     public function getMessage(): string
     {
         return 'Multi-status';
+    }
+
+    public function getPayload(): array
+    {
+        return $this->results;
     }
 }

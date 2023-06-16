@@ -153,7 +153,9 @@ class JsonFormatter implements PresenterFormatterInterface
         if (is_object($data)) {
             if ($data instanceof \Generator) {
                 $data = iterator_to_array($data);
-            } elseif ($data instanceof CreatedResponse) {
+            } else if ($data instanceof CreatedResponse) {
+                $data = $data->getPayload();
+            } else if ($data instanceof MultiStatusResponse) {
                 $data = $data->getPayload();
             }
         }
