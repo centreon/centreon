@@ -24,22 +24,25 @@ declare(strict_types=1);
 namespace Core\Notification\Application\UseCase\DeleteNotifications;
 
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Notification\Domain\Model\ResponseCode;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\{
+    ErrorResponse,
+    ForbiddenResponse,
+    NoContentResponse,
+    NotFoundResponse,
+    ResponseStatusInterface
+};
 use Core\Notification\Application\Exception\NotificationException;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
-use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
+use Core\Notification\Application\Repository\{
+    ReadNotificationRepositoryInterface,
+    WriteNotificationRepositoryInterface
+};
+use Core\Notification\Domain\Model\ResponseCode;
 
 final class DeleteNotifications
 {
     use LoggerTrait;
-
     public const HREF = '/configuration/notifications/';
 
     /**
@@ -95,6 +98,7 @@ final class DeleteNotifications
 
     /**
      * @param int $notificationId
+     *
      * @return ResponseStatusInterface
      */
     private function deleteNotification(int $notificationId): ResponseStatusInterface
@@ -121,6 +125,7 @@ final class DeleteNotifications
     /**
      * @param ResponseStatusInterface $statusResponse
      * @param int $notificationId
+     *
      * @return DeleteNotificationsStatusResponse
      */
     private function createStatusResonseDto(

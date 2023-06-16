@@ -23,27 +23,23 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\API\DeleteNotifications;
 
-use Core\Notification\Domain\Model\ResponseCode;
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\Common\UseCase\MultiStatusResponse;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Application\Common\UseCase\{AbstractPresenter, MultiStatusResponse, ResponseStatusInterface};
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Notification\Application\UseCase\DeleteNotifications\DeleteNotificationsResponse;
-use Core\Notification\Application\UseCase\DeleteNotifications\DeleteNotificationsStatusResponse;
-use Core\Notification\Application\UseCase\DeleteNotifications\DeleteNotificationsPresenterInterface;
+use Core\Notification\Application\UseCase\DeleteNotifications\{
+    DeleteNotificationsPresenterInterface,
+    DeleteNotificationsResponse,
+    DeleteNotificationsStatusResponse
+};
+use Core\Notification\Domain\Model\ResponseCode;
 use Symfony\Component\HttpFoundation\Response;
 
 final class DeleteNotificationsPresenter extends AbstractPresenter implements DeleteNotificationsPresenterInterface
 {
     /**
-     * @param RequestParametersInterface $requestParameters
      * @param PresenterFormatterInterface $presenterFormatter
      */
-    public function __construct(
-        private readonly RequestParametersInterface $requestParameters,
-        protected PresenterFormatterInterface $presenterFormatter
-    ) {
+    public function __construct(protected PresenterFormatterInterface $presenterFormatter)
+    {
         parent::__construct($presenterFormatter);
     }
 
@@ -58,9 +54,9 @@ final class DeleteNotificationsPresenter extends AbstractPresenter implements De
                     return [
                         'href' => $notificationDto->href,
                         'status' => $this->enumToIntConverter($notificationDto->status),
-                        'message' => $notificationDto->message
+                        'message' => $notificationDto->message,
                     ];
-                }, $response->results)
+                }, $response->results),
             ];
 
             $this->present(new MultiStatusResponse($multiStatusResponse));
