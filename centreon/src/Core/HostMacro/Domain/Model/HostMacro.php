@@ -33,6 +33,7 @@ class HostMacro
         MAX_DESCRIPTION_LENGTH = 65535;
 
     private string $shortName;
+
     private bool $isPassword = false;
 
     private string $description = '';
