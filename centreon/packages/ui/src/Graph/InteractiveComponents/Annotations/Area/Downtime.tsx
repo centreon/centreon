@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@mui/material';
 
-import IconDowntime from '../../../icons/Downtime';
+import IconDowntime from '../../../Icons/Downtime';
 import { labelDowntime } from '../../../translatedLabels';
 import EventAnnotations from '../EventAnnotations';
 import { Args } from '../models';
