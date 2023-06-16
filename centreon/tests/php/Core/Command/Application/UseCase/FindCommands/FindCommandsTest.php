@@ -56,7 +56,7 @@ it('should present a ForbiddenResponse when the user has insufficient rights', f
         ->willReturn(false);
 
     $this->contact
-        ->expects($this->atMost(6))
+        ->expects($this->atMost(8))
         ->method('hasTopologyRole')
         ->willReturnMap(
             [
@@ -66,6 +66,8 @@ it('should present a ForbiddenResponse when the user has insufficient rights', f
                 [Contact::ROLE_CONFIGURATION_COMMANDS_NOTIFICATIONS_RW, false],
                 [Contact::ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_R, false],
                 [Contact::ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_RW, false],
+                [Contact::ROLE_CONFIGURATION_COMMANDS_DISCOVERY_R, false],
+                [Contact::ROLE_CONFIGURATION_COMMANDS_DISCOVERY_RW, false],
             ]
         );
 
