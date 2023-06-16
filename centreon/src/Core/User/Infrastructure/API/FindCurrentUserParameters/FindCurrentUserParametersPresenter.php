@@ -62,13 +62,15 @@ class FindCurrentUserParametersPresenter extends DefaultPresenter
                 'default_page' => $data->defaultPage,
             ];
 
-            if ($this->hasDashboardFlag && $data->dashboardPermissions->globalRole) {
-                $array['dashboard'] = [
-                    'global_user_role' => $data->dashboardPermissions->globalRole->value,
-                    'view_dashboards' => $data->dashboardPermissions->hasViewerRole,
-                    'create_dashboards' => $data->dashboardPermissions->hasCreatorRole,
-                    'administrate_dashboards' => $data->dashboardPermissions->hasAdminRole,
-                ];
+            if ($this->hasDashboardFlag) {
+                $array['dashboard'] = $data->dashboardPermissions->globalRole
+                    ? [
+                        'global_user_role' => $data->dashboardPermissions->globalRole->value,
+                        'view_dashboards' => $data->dashboardPermissions->hasViewerRole,
+                        'create_dashboards' => $data->dashboardPermissions->hasCreatorRole,
+                        'administrate_dashboards' => $data->dashboardPermissions->hasAdminRole,
+                    ]
+                    : null;
             }
 
             $this->present($array);

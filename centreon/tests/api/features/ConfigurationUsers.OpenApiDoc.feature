@@ -88,8 +88,9 @@ Feature:
       | theme                  | "dark"     |
       | user_interface_density | "extended" |
 
-  Scenario: Check for missing dashboard permissions with the CREATOR role
+  Scenario: Check for undefined dashboard permissions with the CREATOR role + the dashboard feature flag OFF
     Given I am logged in
+    And the following CLAPI import data:
     """
     CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-creator;reach_api;1
@@ -100,14 +101,33 @@ Feature:
     ACLGROUP;setcontact;name-creator-ACLGROUP;usr-creator;
     """
     Given I am logged in with "usr-creator"/"Centreon@2023"
+    And a feature flag "dashboard" of bitmask 0
 
     When I send a GET request to '/api/latest/configuration/users/current/parameters'
     Then the response code should be "200"
-    And the JSON node "name" should be equal to "usr-creator"
+    And the JSON nodes should be equal to:
+      | name                              | "usr-creator"  |
     And the JSON node "dashboard" should not exist
 
-  Scenario: Check for presence of dashboard permissions with the CREATOR role
+  Scenario: Check for nullable dashboard permissions with the NO role + the dashboard feature flag ON
     Given I am logged in
+    And the following CLAPI import data:
+    """
+    CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
+    CONTACT;setparam;usr-creator;reach_api;1
+    """
+    Given I am logged in with "usr-creator"/"Centreon@2023"
+    And a feature flag "dashboard" of bitmask 3
+
+    When I send a GET request to '/api/latest/configuration/users/current/parameters'
+    Then the response code should be "200"
+    And the JSON nodes should be equal to:
+      | name                              | "usr-creator"  |
+      | dashboard                         | null           |
+
+  Scenario: Check for presence of dashboard permissions with the CREATOR role + the dashboard feature flag ON
+    Given I am logged in
+    And the following CLAPI import data:
     """
     CONTACT;ADD;usr-creator;usr-creator;usr-creator@centreon.test;Centreon@2023;0;1;en_US;local
     CONTACT;setparam;usr-creator;reach_api;1
