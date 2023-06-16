@@ -15,7 +15,7 @@ import {
   selectedRowsAtom,
   notificationsNamesAtom
 } from '../atom';
-import { EditedNotificationIdAtom, panelModeAtom } from '../EditPanel/atom';
+import { editedNotificationIdAtom, panelModeAtom } from '../EditPanel/atom';
 import { PanelMode } from '../EditPanel/models';
 
 import Actions from './Actions/HeaderActions';
@@ -40,7 +40,7 @@ const NotificationsListing = (): JSX.Element => {
   const [isPannelOpen, setIsPannelOpen] = useAtom(isPanelOpenAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const setLimit = useSetAtom(limitAtom);
-  const setEditedNotificationId = useSetAtom(EditedNotificationIdAtom);
+  const setEditedNotificationId = useSetAtom(editedNotificationIdAtom);
   const setPanelMode = useSetAtom(panelModeAtom);
   const setNotificationsNames = useSetAtom(notificationsNamesAtom);
 

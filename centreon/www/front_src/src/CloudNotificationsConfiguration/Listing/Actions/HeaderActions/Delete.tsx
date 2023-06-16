@@ -10,7 +10,7 @@ import {
   labelFailedToDeleteNotifications,
   labelNotificationsSuccessfullyDeleted
 } from '../../../translatedLabels';
-import { notificationtEndpoint } from '../../../EditPanel/api/endpoints';
+import { notificationEndpoint } from '../../../EditPanel/api/endpoints';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
@@ -23,7 +23,7 @@ const DeleteAction = (): JSX.Element => {
 
   const selectedRows = useAtomValue(selectedRowsAtom);
 
-  const getEndpoint = (): string => `${notificationtEndpoint({})}/_delete`;
+  const getEndpoint = (): string => `${notificationEndpoint({})}/_delete`;
 
   const payload = {
     ids: selectedRows?.map((notification) => notification.id)

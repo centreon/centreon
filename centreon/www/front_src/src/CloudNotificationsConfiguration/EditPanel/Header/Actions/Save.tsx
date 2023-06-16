@@ -18,7 +18,7 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
-import { EditedNotificationIdAtom, panelModeAtom } from '../../atom';
+import { editedNotificationIdAtom, panelModeAtom } from '../../atom';
 import { isPanelOpenAtom } from '../../../atom';
 import {
   labelSave,
@@ -28,7 +28,7 @@ import {
   labelConfirmEditNotification,
   labelDoYouWantToConfirmAction
 } from '../../../translatedLabels';
-import { notificationtEndpoint } from '../../api/endpoints';
+import { notificationEndpoint } from '../../api/endpoints';
 import { adaptNotifications } from '../../api/adapters';
 import { PanelMode } from '../../models';
 
@@ -48,14 +48,14 @@ const SaveAction = (): JSX.Element => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const panelMode = useAtomValue(panelModeAtom);
-  const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
+  const editedNotificationId = useAtomValue(editedNotificationIdAtom);
   const setPanelOpen = useSetAtom(isPanelOpenAtom);
 
   const { isMutating, mutateAsync } = useMutationQuery({
     getEndpoint: () =>
       equals(panelMode, PanelMode.Create)
-        ? notificationtEndpoint({})
-        : notificationtEndpoint({ id: editedNotificationId }),
+        ? notificationEndpoint({})
+        : notificationEndpoint({ id: editedNotificationId }),
     method: equals(panelMode, PanelMode.Create) ? Method.POST : Method.PUT
   });
 

@@ -7,7 +7,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { labelAdd } from '../../../translatedLabels';
 import { isPanelOpenAtom } from '../../../atom';
 import {
-  EditedNotificationIdAtom,
+  editedNotificationIdAtom,
   panelModeAtom
 } from '../../../EditPanel/atom';
 import { PanelMode } from '../../../EditPanel/models';
@@ -16,7 +16,7 @@ const AddAction = (): JSX.Element => {
   const { t } = useTranslation();
   const setIsPannelOpen = useSetAtom(isPanelOpenAtom);
   const setPanelMode = useSetAtom(panelModeAtom);
-  const setEditedNotificationId = useSetAtom(EditedNotificationIdAtom);
+  const setEditedNotificationId = useSetAtom(editedNotificationIdAtom);
 
   const handleClick = (): void => {
     setEditedNotificationId(null);

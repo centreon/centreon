@@ -11,9 +11,9 @@ import useStyles from './Form.styles';
 import useFormInputs from './FormInputs/useFormInputs';
 import { emptyInitialValues, getInitialValues } from './initialValues';
 import useValidationSchema from './validationSchema';
-import { EditedNotificationIdAtom, panelModeAtom } from './atom';
+import { editedNotificationIdAtom, panelModeAtom } from './atom';
 import { PanelMode } from './models';
-import { notificationtEndpoint } from './api/endpoints';
+import { notificationEndpoint } from './api/endpoints';
 import { notificationdecoder } from './api/decoders';
 import ReducePanel from './ReducePanel';
 import Header from './Header';
@@ -23,14 +23,14 @@ const Form = (): JSX.Element => {
 
   const panelMode = useAtomValue(panelModeAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
-  const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
+  const editedNotificationId = useAtomValue(editedNotificationIdAtom);
 
   const { inputs, basicFormGroups } = useFormInputs({ panelWidth });
   const { validationSchema } = useValidationSchema();
 
   const { data, isLoading } = useFetchQuery({
     decoder: notificationdecoder,
-    getEndpoint: () => notificationtEndpoint({ id: editedNotificationId }),
+    getEndpoint: () => notificationEndpoint({ id: editedNotificationId }),
     getQueryKey: () => ['notification', editedNotificationId],
     queryOptions: {
       enabled: equals(panelMode, PanelMode.Edit),

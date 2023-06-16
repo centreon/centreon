@@ -27,16 +27,16 @@ import {
 } from '../translatedLabels';
 import { notificationsNamesAtom } from '../atom';
 
-import { notificationtEndpoint } from './api/endpoints';
+import { notificationEndpoint } from './api/endpoints';
 import { PanelMode } from './models';
-import { EditedNotificationIdAtom, panelModeAtom } from './atom';
+import { editedNotificationIdAtom, panelModeAtom } from './atom';
 import { listNotificationResponse } from './testUtils';
 
 import Form from '.';
 
 const store = createStore();
 store.set(panelModeAtom, PanelMode.Edit);
-store.set(EditedNotificationIdAtom, 1);
+store.set(editedNotificationIdAtom, 1);
 store.set(notificationsNamesAtom, ['Notification1', 'notification2']);
 
 const PanelWithQueryProvider = (): JSX.Element => {
@@ -57,14 +57,14 @@ const initialize = (): void => {
   cy.interceptAPIRequest({
     alias: 'listingRequest',
     method: Method.GET,
-    path: notificationtEndpoint({ id: 1 }),
+    path: notificationEndpoint({ id: 1 }),
     response: listNotificationResponse
   });
 
   cy.interceptAPIRequest({
     alias: 'editNotificationRequest',
     method: Method.PUT,
-    path: notificationtEndpoint({ id: 1 }),
+    path: notificationEndpoint({ id: 1 }),
     response: { status: 'ok' }
   });
 

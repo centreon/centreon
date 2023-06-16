@@ -7,7 +7,7 @@ import {
   labelFailedToDeleteNotification,
   labelNotificationSuccessfullyDeleted
 } from '../../../translatedLabels';
-import { notificationtEndpoint } from '../../../EditPanel/api/endpoints';
+import { notificationEndpoint } from '../../../EditPanel/api/endpoints';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
@@ -22,7 +22,7 @@ const useStyle = makeStyles()((theme) => ({
 const DeleteAction = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useStyle();
 
-  const getEndpoint = (): string => notificationtEndpoint({ id: row.id });
+  const getEndpoint = (): string => notificationEndpoint({ id: row.id });
 
   return (
     <DeleteButton

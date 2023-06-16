@@ -10,8 +10,8 @@ import {
   labelFailedToDeleteNotification,
   labelNotificationSuccessfullyDeleted
 } from '../../../translatedLabels';
-import { EditedNotificationIdAtom } from '../../atom';
-import { notificationtEndpoint } from '../../api/endpoints';
+import { editedNotificationIdAtom } from '../../atom';
+import { notificationEndpoint } from '../../api/endpoints';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
@@ -23,11 +23,11 @@ const useStyle = makeStyles()((theme) => ({
 const DeleteAction = (): JSX.Element => {
   const { classes } = useStyle();
 
-  const notificationId = useAtomValue(EditedNotificationIdAtom);
+  const notificationId = useAtomValue(editedNotificationIdAtom);
   const setPanelOpen = useSetAtom(isPanelOpenAtom);
 
   const getEndpoint = (): string =>
-    notificationtEndpoint({ id: notificationId });
+    notificationEndpoint({ id: notificationId });
 
   const onSuccess = (): void => {
     setPanelOpen(false);
