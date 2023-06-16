@@ -29,36 +29,28 @@ use Core\CommandMacro\Domain\Model\CommandMacro;
  * to determine witch afterMacros were added, updated, deleted or are unchanged.
  *
  * Require and return arrays with macro names as keys.
- *
  */
 final class HostMacroDifference
 {
     /** @var array<string,HostMacro> */
-    private array $removedMacros = [];
+    public array $removedMacros = [];
 
     /** @var array<string,HostMacro> */
-    private array $addedMacros = [];
+    public array $addedMacros = [];
 
     /** @var array<string,HostMacro> */
-    private array $unchangedMacros = [];
+    public array $unchangedMacros = [];
 
     /** @var array<string,HostMacro> */
-    private array $updatedMacros = [];
+    public array $updatedMacros = [];
 
     /**
      * @param array<string,HostMacro> $directMacros
      * @param array<string,HostMacro> $inheritedHostMacros
      * @param array<string,CommandMacro> $inheritedCommandMacros
      * @param array<string,HostMacro> $afterMacros
-     *
-     * @return array{
-     *  added:array<string,HostMacro>,
-     *  updated:array<string,HostMacro>,
-     *  removed:array<string,HostMacro>,
-     *  unchanged:array<string,HostMacro>
-     * }
      */
-    public function compute(array $directMacros, array $inheritedHostMacros, array $inheritedCommandMacros, array $afterMacros): array
+    public function compute(array $directMacros, array $inheritedHostMacros, array $inheritedCommandMacros, array $afterMacros): void
     {
         foreach ($afterMacros as $macroName => $macro) {
             $directMacroMatch = $directMacros[$macroName]
@@ -71,7 +63,7 @@ final class HostMacroDifference
             if ($directMacroMatch && $inheritedMacroMatch) {
                 if ($this->isIdenticalToInheritedMacro($macro, $inheritedMacroMatch)) {
                     $this->removedMacros[$macroName] = $macro;
-                } else if (! $this->isIdenticalTODirectMacro($macro, $directMacroMatch)) {
+                } elseif (! $this->isIdenticalToDirectMacro($macro, $directMacroMatch)) {
                     $this->updatedMacros[$macroName] = $macro;
                 } else {
                     $this->unchangedMacros[$macroName] = $macro;
@@ -83,7 +75,7 @@ final class HostMacroDifference
             if ($directMacroMatch && $commandMacroMatch) {
                 if ($this->isIdenticalToCommandMacro($macro)) {
                     $this->removedMacros[$macroName] = $macro;
-                } else if (! $this->isIdenticalToDirectMacro($macro, $directMacroMatch)) {
+                } elseif (! $this->isIdenticalToDirectMacro($macro, $directMacroMatch)) {
                     $this->updatedMacros[$macroName] = $macro;
                 } else {
                     $this->unchangedMacros[$macroName] = $macro;
@@ -134,13 +126,6 @@ final class HostMacroDifference
             $this->unchangedMacros
         );
         $this->removedMacros = array_merge($this->removedMacros, $extraRemovedMacros);
-
-        return [
-            'added' => $this->addedMacros,
-            'updated' => $this->updatedMacros,
-            'removed' => $this->removedMacros,
-            'unchanged' => $this->unchangedMacros,
-        ];
     }
 
     private function isIdenticalToInheritedMacro(HostMacro $macro, HostMacro $existingMacro): bool
