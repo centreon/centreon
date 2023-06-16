@@ -13,7 +13,6 @@ post:
         schema:
           $ref: "Schema/Notifications.Delete.yaml"
   responses:
-    '204': { $ref: '../../Common/Response/NoContent.yaml' }
+    '207': { $ref: '../../Common/Response/MultiStatus.yaml' }
     '403': { $ref: '../../Common/Response/Forbidden.yaml' }
-    '404': { $ref: '../../Common/Response/NotFound.yaml' }
     '500': { $ref: '../../Common/Response/InternalServerError.yaml' }

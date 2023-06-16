@@ -1,0 +1,23 @@
+description: |
+  Indicates that there might be a mixture of responses
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              href:
+                type: string
+                example: "/path/to/entity/1"
+              status:
+                type: integer
+                format: int64
+                example: 404
+              message:
+                type: string
+                nullable: true
+                example: "Not found"

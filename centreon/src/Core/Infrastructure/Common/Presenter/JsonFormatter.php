@@ -30,6 +30,7 @@ use Core\Application\Common\UseCase\{BodyResponseInterface,
     ErrorResponse,
     ForbiddenResponse,
     InvalidArgumentResponse,
+    MultiStatusResponse,
     NoContentResponse,
     NotFoundResponse,
     PaymentRequiredResponse,
@@ -84,6 +85,8 @@ class JsonFormatter implements PresenterFormatterInterface
                     return $this->generateJsonResponse($data, Response::HTTP_CREATED, $headers);
                 case $data instanceof NoContentResponse:
                     return $this->generateJsonResponse(null, Response::HTTP_NO_CONTENT, $headers);
+                case $data instanceof MultiStatusResponse:
+                    return $this->generateJsonResponse($data, Response::HTTP_MULTI_STATUS, $headers);
                 default:
                     return $this->generateJsonResponse($data, Response::HTTP_OK, $headers);
             }
