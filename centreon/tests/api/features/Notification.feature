@@ -757,3 +757,188 @@ Feature:
           ]
         }
       """
+
+  Scenario: Delete multiple notfication definitions as an admin user sending invalid request body
+    Given I am logged in
+    And a feature flag "notification" of bitmask 2
+    And the following CLAPI import data:
+    """
+    SG;ADD;service-grp1;service-grp1-alias
+    SG;ADD;service-grp2;service-grp2-alias
+    CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
+    CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
+    """
+    And I send a POST request to '/api/latest/configuration/notifications' with body:
+      """
+      {
+        "name": "notification-name",
+        "timeperiod": 2,
+        "resources": [
+          {
+            "type": "hostgroup",
+            "events": 5,
+            "ids": [53,56],
+            "extra": {"event_services": 2}
+          },
+          {
+            "type": "servicegroup",
+            "events": 5,
+            "ids": [1,2]
+          }
+        ],
+        "messages": [
+          {
+            "channel": "Slack",
+            "subject": "Hello world !",
+            "message": "just a small message"
+          }
+        ],
+        "users": [20,21],
+        "is_activated": true
+      }
+      """
+
+      When I send a POST request to '/api/latest/configuration/notifications/_delete' with body:
+      """
+      {
+        "ids": 1
+      }
+      """
+      Then the response should be "400"
+      And the JSON should be equal to:
+      """
+      {
+        "code": 400,
+        "message": "[ids] Integer value found, but an array is required\n"
+      }
+      """
+
+  Scenario: Delete multiple notification definitions as a non-admin user with sufficient rights
+    Given the following CLAPI import data:
+    """
+    CONTACT;ADD;test-user;test-user;test-user@localservice.com;Centreon@2022;0;1;en_US;local
+    CONTACT;setparam;test-user;reach_api;1
+    ACLMENU;add;ACL Menu test;my alias
+    ACLMENU;GRANTRW;ACL Menu test;1;Configuration;Notifications;
+    ACLRESOURCE;add;ACL Resource test;my alias
+    ACLRESOURCE;grant_hostgroup;ACL Resource test;Linux-Servers
+    ACLRESOURCE;grant_hostgroup;ACL Resource test;Printers
+    ACLGROUP;add;ACL Group test;my alias
+    ACLGROUP;addmenu;ACL Group test;ACL Menu test
+    ACLGROUP;addresource;ACL Group test;ACL Resource test
+    ACLGROUP;addcontact;ACL Group test;test-user
+    SG;ADD;service-grp1;service-grp1-alias
+    ACLRESOURCE;grant_servicegroup;ACL Resource test;service-grp1
+    SG;ADD;service-grp2;service-grp2-alias
+    CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
+    CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
+    """
+    And I am logged in with "test-user"/"Centreon@2022"
+    And a feature flag "notification" of bitmask 2
+    And I send a POST request to '/api/latest/configuration/notifications' with body:
+      """
+      {
+        "name": "notification-name",
+        "timeperiod": 2,
+        "resources": [
+          {
+            "type": "hostgroup",
+            "events": 5,
+            "ids": [53,56],
+            "extra": {"event_services": 2}
+          },
+          {
+            "type": "servicegroup",
+            "events": 5,
+            "ids": [1,2]
+          }
+        ],
+        "messages": [
+          {
+            "channel": "Slack",
+            "subject": "Hello world !",
+            "message": "just a small message"
+          }
+        ],
+        "users": [20,21],
+        "is_activated": true
+      }
+      """
+    And I send a POST request to '/api/latest/configuration/notifications' with body:
+      """
+      {
+        "name": "notification-name-2",
+        "timeperiod": 2,
+        "resources": [
+          {
+            "type": "hostgroup",
+            "events": 5,
+            "ids": [53],
+            "extra": {"event_services": 2}
+          },
+          {
+            "type": "servicegroup",
+            "events": 5,
+            "ids": [1]
+          }
+        ],
+        "messages": [
+          {
+            "channel": "Slack",
+            "subject": "Hello world !",
+            "message": "just a small message"
+          }
+        ],
+        "users": [20],
+        "is_activated": true
+      }
+      """
+
+    When I send a POST request to '/api/latest/configuration/notifications/_delete' with body:
+      """
+      {
+        "ids": [1, 2]
+      }
+      """
+      Then the response should be "207"
+      And the JSON should be equal to:
+      """
+        {
+          "results": [
+            {
+              "href": "/configuration/notifications/1",
+              "status": 204,
+              "message": null
+            },
+            {
+              "href": "/configuration/notifications/2",
+              "status": 204,
+              "message": null
+            }
+          ]
+        }
+      """
+
+  Scenario: Delete multiple notification definitions as a non-admin user without sufficient rights
+    Given the following CLAPI import data:
+    """
+    CONTACT;ADD;test-user;test-user;test-user@localservice.com;Centreon@2022;0;1;en_US;local
+    CONTACT;setparam;test-user;reach_api;1
+    """
+    And I am logged in with "test-user"/"Centreon@2022"
+    And a feature flag "notification" of bitmask 2
+
+    When I send a POST request to '/api/latest/configuration/notifications/_delete' with body:
+    """
+    {
+      "ids": [1, 2]
+    }
+    """
+    Then the response should be "403"
+    And the JSON should be equal to:
+    """
+    {
+      "code": 403,
+      "message": "You are not allowed to delete a notification configuration"
+    }
+    """
