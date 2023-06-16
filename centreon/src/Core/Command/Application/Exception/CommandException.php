@@ -30,7 +30,7 @@ final class CommandException extends \Exception
      */
     public static function accessNotAllowed(): self
     {
-        return new self(_('You are not allowed to access service templates'));
+        return new self(_('You are not allowed to access commands'));
     }
 
     /**
