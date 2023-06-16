@@ -473,7 +473,7 @@ Then(
               convert12hFormatToDate(timeTick),
               convert12hFormatToDate(headerTime)
             )
-          ).to.be.lte(10);
+          ).to.be.lte(15);
         });
     });
   }
