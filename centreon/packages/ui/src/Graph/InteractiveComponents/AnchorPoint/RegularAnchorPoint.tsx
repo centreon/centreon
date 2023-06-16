@@ -5,19 +5,15 @@ import { bisectDate, getDates } from '../../timeSeries';
 import { TimeValue } from '../../timeSeries/models';
 
 import useTickGraph from './useTickGraph';
+import { GetYAnchorPoint } from './models';
 
 import AnchorPoint from '.';
 
 interface Props {
   areaColor: string;
-  graphHeight: number;
-  graphWidth: number;
   lineColor: string;
   metric: string;
-  positionX?: number;
-  positionY?: number;
   timeSeries: Array<TimeValue>;
-  timeTick?: Date;
   transparency: number;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
@@ -28,7 +24,7 @@ const getYAnchorPoint = ({
   timeSeries,
   yScale,
   metric
-}: Pick<Props, 'timeTick' | 'timeSeries' | 'yScale' | 'metric'>): number => {
+}: GetYAnchorPoint): number => {
   const index = bisectDate(getDates(timeSeries), timeTick);
   const timeValue = timeSeries[index];
 
@@ -42,10 +38,9 @@ const RegularAnchorPoint = ({
   timeSeries,
   areaColor,
   transparency,
-  lineColor,
-  ...rest
+  lineColor
 }: Props): JSX.Element | null => {
-  const { timeTick, positionX, positionY } = useTickGraph({
+  const { timeTick } = useTickGraph({
     timeSeries,
     xScale
   });
@@ -71,12 +66,9 @@ const RegularAnchorPoint = ({
     <AnchorPoint
       areaColor={areaColor}
       lineColor={lineColor}
-      positionX={positionX}
-      positionY={positionY}
       transparency={transparency}
       x={xAnchorPoint}
       y={yAnchorPoint}
-      {...rest}
     />
   );
 };

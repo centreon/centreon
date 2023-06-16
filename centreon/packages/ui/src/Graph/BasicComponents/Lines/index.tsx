@@ -3,6 +3,7 @@ import { MutableRefObject } from 'react';
 import { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
 
+import GuidingLines from '../../InteractiveComponents/AnchorPoint/GuidingLines';
 import RegularAnchorPoint from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
 import { displayArea } from '../../helpers/index';
 import { GlobalAreaLines } from '../../models';
@@ -107,6 +108,15 @@ const Lines = ({
         />
       )}
 
+      {displayAnchor && (
+        <GuidingLines
+          graphHeight={height}
+          graphWidth={width}
+          timeSeries={timeSeries}
+          xScale={xScale}
+        />
+      )}
+
       {displayAreaRegularLines
         ? regularLines.map(
             ({
@@ -136,8 +146,6 @@ const Lines = ({
                   {displayAnchor && (
                     <RegularAnchorPoint
                       areaColor={areaColor}
-                      graphHeight={height}
-                      graphWidth={width}
                       lineColor={lineColor}
                       metric={metric}
                       timeSeries={timeSeries}
