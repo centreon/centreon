@@ -12,7 +12,9 @@ import {
   prop,
   propEq,
   reject,
-  sortBy
+  sortBy,
+  compose,
+  toLower
 } from 'ramda';
 
 import { linesGraphAtom } from '../graphAtoms';
@@ -52,7 +54,8 @@ const useLegend = ({ lines }: Props): LegendActions => {
       { ...getLineByMetric(metric), highlight: true }
     ];
 
-    const sortedData = sortBy(prop('name'), data);
+    const sortedData = sortBy(compose(toLower, prop('name')), data);
+
     setLines(sortedData);
   };
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { prop, sortBy } from 'ramda';
+import { compose, prop, sortBy, toLower } from 'ramda';
 
 import { adjustGraphData } from './helpers';
 import { Data, GraphData } from './models';
@@ -24,7 +24,7 @@ const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
     const { title } = dataToAdjust.global;
 
     const newLineData = adjustGraphData(dataToAdjust).lines;
-    const sortedLines = sortBy(prop('name'), newLineData);
+    const sortedLines = sortBy(compose(toLower, prop('name')), newLineData);
 
     setAdjustedData({
       baseAxis,

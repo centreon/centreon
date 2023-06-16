@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useAtom } from 'jotai';
-import { equals, propEq, reject } from 'ramda';
+import { compose, equals, prop, propEq, reject, sortBy, toLower } from 'ramda';
 
 import { linesGraphAtom } from '../graphAtoms';
 import { Line } from '../timeSeries/models';
@@ -49,7 +49,9 @@ const useFilterLines = ({
       return;
     }
 
-    setLinesGraph(filterLines());
+    const sortedLines = sortBy(compose(toLower, prop('name')), filteredLines);
+
+    setLinesGraph(sortedLines);
   }, [lines, displayThreshold]);
 
   return { displayedLines, newLines: linesGraph ?? lines };
