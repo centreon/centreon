@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Host\Domain\Model;
 
-
 /**
  * This class purpose is to sort the parents of a host (or host template).
  */
@@ -41,7 +40,10 @@ final class HostInheritance {
     {
         $inheritanceLine = [];
         $directParents = array_filter($parents, (fn($row) => $row['child_id'] === $hostId));
-        usort($directParents, (fn($a, $b) => $a['order'] <=> $b['order']));
+        usort(
+            $directParents,
+            (static fn(array $parentA, array $parentB): int => $parentA['order'] <=> $parentB['order'])
+        );
 
         foreach ($directParents as $parent) {
             $inheritanceLine = array_merge(

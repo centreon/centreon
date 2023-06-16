@@ -32,7 +32,7 @@ use Core\Host\Domain\Model\HostEvent;
 use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostMacro\Domain\Model\HostMacro;
 use Core\HostMacro\Domain\Model\HostMacroDifference;
-use Core\HostTemplate\Domain\Model\MacroManagement;
+use Core\HostTemplate\Domain\Model\MacroManager;
 use Core\HostTemplate\Domain\Model\NewHostTemplate;
 
 it('should resolve host macro inheritance', function (): void {
@@ -49,7 +49,7 @@ it('should resolve host macro inheritance', function (): void {
     ];
 
     [$directMacros, $inheritedMacros]
-        = MacroManagement::resolveInheritanceForHostMacro($macros, $templateInheritanceLine, $templateId);
+        = MacroManager::resolveInheritanceForHostMacro($macros, $templateInheritanceLine, $templateId);
 
     expect($directMacros)->toBe([
         $macroA->getName() => $macroA,
@@ -71,7 +71,7 @@ it('should resolve command macro inheritance', function (): void {
         $macroC2 = new CommandMacro(1, CommandMacroType::Host, 'macroC'),
     ];
 
-    $commandMacros = MacroManagement::resolveInheritanceForCommandMacro($macros);
+    $commandMacros = MacroManager::resolveInheritanceForCommandMacro($macros);
 
     expect($commandMacros)->toBe([
         $macroA->getName() => $macroA,
@@ -122,7 +122,7 @@ it('should set macros order property', function (): void {
         $macroE->getName() => $macroE,
     ];
 
-    MacroManagement::setOrder($macrosDiff, $macros, $directMacros);
+    MacroManager::setOrder($macrosDiff, $macros, $directMacros);
 
     expect($macroA->getOrder())->toBe(0)
         ->and($macroB->getOrder())->toBe(1)

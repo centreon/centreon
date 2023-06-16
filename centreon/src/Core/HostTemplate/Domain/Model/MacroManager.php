@@ -31,7 +31,7 @@ use Core\HostMacro\Domain\Model\HostMacroDifference;
 /**
  * This class provide methods to help manipulate macros linked to a host template.
  */
-class MacroManagement
+class MacroManager
 {
     /**
      * Return two arrays:
@@ -106,7 +106,7 @@ class MacroManagement
      *
      * @throws AssertionFailedException
      */
-    public static function setOrder(HostMacroDifference &$macrosDiff, array $macros, array $directMacros): void
+    public static function setOrder(HostMacroDifference $macrosDiff, array $macros, array $directMacros): void
     {
         $order = 0;
         foreach ($macros as $macroName => $macro) {
@@ -119,17 +119,17 @@ class MacroManagement
 
                 continue;
             }
-            if (isset($macrosDiff->unchangedMacros[$macroName])) {
-                if (isset($directMacros[$macroName])) {
-                    if ($directMacros[$macroName]->getOrder() !== $order) {
-                        // macro is the same but its order has changed
-                        $macro->setOrder($order);
+            if (
+                isset($macrosDiff->unchangedMacros[$macroName], $directMacros[$macroName])
+            ) {
+                if ($directMacros[$macroName]->getOrder() !== $order) {
+                    // macro is the same but its order has changed
+                    $macro->setOrder($order);
 
-                        unset($macrosDiff->unchangedMacros[$macroName]);
-                        $macrosDiff->updatedMacros[$macroName] = $macro;
-                    }
-                    ++$order;
+                    unset($macrosDiff->unchangedMacros[$macroName]);
+                    $macrosDiff->updatedMacros[$macroName] = $macro;
                 }
+                ++$order;
             }
         }
     }

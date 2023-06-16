@@ -49,7 +49,7 @@ use Core\HostMacro\Domain\Model\HostMacroDifference;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
-use Core\HostTemplate\Domain\Model\MacroManagement;
+use Core\HostTemplate\Domain\Model\MacroManager;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\Difference\BasicDifference;
@@ -195,7 +195,7 @@ final class PartialUpdateHostTemplate
         $macrosDiff = new HostMacroDifference();
         $macrosDiff->compute($directMacros, $inheritedMacros, $commandMacros, $macros);
 
-        MacroManagement::setOrder($macrosDiff, $macros, $directMacros);
+        MacroManager::setOrder($macrosDiff, $macros, $directMacros);
 
         foreach ($macrosDiff->removedMacros as $macro) {
             $this->writeHostMacroRepository->delete($macro);
@@ -239,7 +239,7 @@ final class PartialUpdateHostTemplate
         $existingHostMacros
             = $this->readHostMacroRepository->findByHostIds(array_merge([$hostTemplate->getId()], $inheritanceLine));
 
-        [$directMacros, $inheritedMacros] = MacroManagement::resolveInheritanceForHostMacro(
+        [$directMacros, $inheritedMacros] = MacroManager::resolveInheritanceForHostMacro(
             $existingHostMacros,
             $inheritanceLine,
             $hostTemplate->getId()
@@ -253,7 +253,7 @@ final class PartialUpdateHostTemplate
                 CommandMacroType::Host
             );
 
-            $commandMacros = MacroManagement::resolveInheritanceForCommandMacro($existingCommandMacros);
+            $commandMacros = MacroManager::resolveInheritanceForCommandMacro($existingCommandMacros);
         }
 
         return [$directMacros, $inheritedMacros, $commandMacros];
