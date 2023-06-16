@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { makeStyles } from 'tss-react/mui';
+import { isEmpty, length, propEq } from 'ramda';
 
 import { Box, alpha } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
@@ -20,7 +21,8 @@ import {
   labelDelete,
   labelCancel,
   labelDeleteNotification,
-  labelDeleteNotificationWarning
+  labelDeleteNotificationWarning,
+  labelUnableToDeleteCertainNotifications
 } from '../translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
@@ -63,7 +65,8 @@ const DeleteButton = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const { showSuccessMessage } = useSnackbar();
+  const { showSuccessMessage, showErrorMessage, showWarningMessage } =
+    useSnackbar();
   const queryClient = useQueryClient();
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -78,10 +81,36 @@ const DeleteButton = ({
 
   const onConfirm = (): void => {
     mutateAsync(payload || {}).then((response) => {
-      if ((response as ResponseError).isError) {
+      const {
+        isError,
+        statusCode,
+        message,
+        additionalInformation: data
+      } = response as ResponseError;
+
+      if (isError) {
         return;
       }
-      showSuccessMessage(t(labelSuccess));
+
+      if (statusCode === 207) {
+        const deletedNotifications = data.filter(propEq('status', 204));
+
+        if (isEmpty(deletedNotifications)) {
+          showErrorMessage(t(labelFailed));
+          setDialogOpen(false);
+
+          return;
+        }
+
+        if (length(deletedNotifications) < length(data)) {
+          showWarningMessage(labelUnableToDeleteCertainNotifications);
+          setDialogOpen(false);
+
+          return;
+        }
+      }
+
+      showSuccessMessage(message || t(labelSuccess));
       setDialogOpen(false);
       onSuccess?.();
       queryClient.invalidateQueries(['notifications']);
