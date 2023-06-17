@@ -1,12 +1,27 @@
 import { equals } from 'ramda';
 
-import { TestQueryProvider, Method } from '@centreon/ui';
+import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+
+import {
+  labelCancel,
+  labelDelete,
+  labelDeleteNotification,
+  labelDeleteNotificationWarning,
+  labelFailedToDeleteNotifications,
+  labelNotificationSuccessfullyDeleted,
+  labelNotificationsSuccessfullyDeleted,
+  labelUnableToDeleteCertainNotifications
+} from '../translatedLabels';
+import { notificationEndpoint } from '../EditPanel/api/endpoints';
 
 import { buildNotificationsEndpoint } from './api/endpoints';
 import {
   defaultQueryParams,
   getListingColumns,
-  getListingResponse
+  getListingResponse,
+  multipleNotificationsSuccessResponse,
+  multipleNotificationsWarningResponse,
+  multipleNotificationsfailedResponse
 } from './testUtils';
 
 import Listing from '.';
@@ -14,7 +29,9 @@ import Listing from '.';
 const ListingWithQueryProvider = (): JSX.Element => {
   return (
     <TestQueryProvider>
-      <Listing />
+      <SnackbarProvider>
+        <Listing />
+      </SnackbarProvider>
     </TestQueryProvider>
   );
 };
@@ -110,6 +127,16 @@ const initializeSorting = (): void => {
   cy.render(ListingWithQueryProvider);
 };
 
+const mockedBulkDelete = (response): void => {
+  cy.interceptAPIRequest({
+    alias: 'deleteNotificationtsRequest',
+    method: Method.POST,
+    path: `${notificationEndpoint({})}/_delete`,
+    response,
+    statusCode: 207
+  });
+};
+
 describe('Notifications Listing', () => {
   beforeEach(initialize);
 
@@ -173,6 +200,153 @@ describe('Notifications Listing', () => {
     });
 
     cy.contains('notification0').should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+});
+
+describe('Listing header: Delete button', () => {
+  beforeEach(() => {
+    cy.interceptAPIRequest({
+      alias: 'defaultRequest',
+      method: Method.GET,
+      path: buildNotificationsEndpoint(defaultQueryParams),
+      response: getListingResponse({})
+    });
+    cy.render(ListingWithQueryProvider);
+  });
+  it('Verify that the delete button is disabled when no row is selected and enabled when one or more rows are selected', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findByTestId('delete multiple notification').should('be.disabled');
+    cy.findByLabelText('Select row 1').click();
+    cy.findByLabelText('Select row 2').click();
+    cy.findByLabelText('Select row 3').click();
+    cy.findByTestId('delete multiple notification').should('not.be.disabled');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('Verify that a confirmation dialog is displayed upon clicking the delete button', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findByTestId('delete multiple notification').click();
+
+    cy.findByText(labelDeleteNotification);
+    cy.findByText(labelDeleteNotificationWarning);
+    cy.findByText(labelDelete);
+    cy.findByText(labelCancel);
+
+    cy.matchImageSnapshot();
+  });
+  it('Confirm that a success message is displayed after a successful deletion', () => {
+    mockedBulkDelete(multipleNotificationsSuccessResponse);
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findByTestId('delete multiple notification').click();
+    cy.findByText(labelDelete).click();
+
+    cy.waitForRequest('@deleteNotificationtsRequest');
+    cy.findByText(labelNotificationsSuccessfullyDeleted);
+
+    cy.waitForRequest('@defaultRequest');
+
+    cy.matchImageSnapshot();
+  });
+  it('Verify that a warning message is displayed if the deletion of some notifications fails', () => {
+    mockedBulkDelete(multipleNotificationsWarningResponse);
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findByTestId('delete multiple notification').click();
+    cy.findByText(labelDelete).click();
+
+    cy.waitForRequest('@deleteNotificationtsRequest');
+    cy.findByText(labelUnableToDeleteCertainNotifications);
+
+    cy.waitForRequest('@defaultRequest');
+
+    cy.matchImageSnapshot();
+  });
+  it('Ensure that an error message is displayed if the deletion of all notifications fails', () => {
+    mockedBulkDelete(multipleNotificationsfailedResponse);
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findByTestId('delete multiple notification').click();
+    cy.findByText(labelDelete).click();
+
+    cy.waitForRequest('@deleteNotificationtsRequest');
+    cy.findByText(labelFailedToDeleteNotifications);
+
+    cy.matchImageSnapshot();
+  });
+});
+
+describe('Listing row actions: Delete button', () => {
+  beforeEach(() => {
+    cy.interceptAPIRequest({
+      alias: 'defaultRequest',
+      method: Method.GET,
+      path: buildNotificationsEndpoint(defaultQueryParams),
+      response: getListingResponse({})
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'deleteNotificationtRequest',
+      method: Method.DELETE,
+      path: notificationEndpoint({ id: 1 }),
+      response: undefined,
+      statusCode: 204
+    });
+
+    cy.render(ListingWithQueryProvider);
+  });
+
+  it('Confirm the display of a confirmation dialog containing the notification name upon clicking the delete button', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    const message = `${labelDelete} « notification0 ».`;
+
+    cy.findAllByTestId('delete a notification').eq(0).click();
+    cy.findByText(message);
+    cy.findByText(labelDeleteNotification);
+    cy.findByText(labelDeleteNotificationWarning);
+
+    cy.matchImageSnapshot();
+  });
+
+  it('Ensure that a success message is shown after successful deletion', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByTestId('delete a notification').eq(1).click();
+    cy.findByLabelText(labelDelete).click();
+
+    cy.waitForRequest('@deleteNotificationtRequest');
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findByText(labelNotificationSuccessfullyDeleted);
+
+    cy.matchImageSnapshot();
+  });
+
+  it('Verify that an error message is displayed upon failed deletion', () => {
+    cy.interceptAPIRequest({
+      alias: 'deleteNotificationtRequest',
+      method: Method.DELETE,
+      path: notificationEndpoint({ id: 1 }),
+      response: {
+        code: 'ok',
+        message: 'internal server error'
+      },
+      statusCode: 500
+    });
+
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByTestId('delete a notification').eq(1).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.waitForRequest('@deleteNotificationtRequest');
+
+    cy.findByText('internal server error');
 
     cy.matchImageSnapshot();
   });

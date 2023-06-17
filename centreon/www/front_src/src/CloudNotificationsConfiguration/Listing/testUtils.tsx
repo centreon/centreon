@@ -132,3 +132,63 @@ export const defaultQueryParams = {
   sort: { name: 'asc' },
   total: 0
 };
+
+export const multipleNotificationsSuccessResponse = {
+  results: [
+    {
+      href: '/configuration/notification/1',
+      message: null,
+      status: 204
+    },
+    {
+      href: '/configuration/notification/2',
+      message: null,
+      status: 204
+    },
+    {
+      href: '/configuration/notification/3',
+      message: null,
+      status: 204
+    }
+  ]
+};
+
+export const multipleNotificationsWarningResponse = {
+  results: [
+    {
+      href: '/configuration/notification/1',
+      message: null,
+      status: 204
+    },
+    {
+      href: '/configuration/notification/2',
+      message: null,
+      status: 204
+    },
+    {
+      href: '/configuration/notification/3',
+      message: 'not found',
+      status: 404
+    }
+  ]
+};
+
+export const multipleNotificationsfailedResponse = {
+  results: [
+    {
+      href: '/configuration/notification/1',
+      message: 'internal server error',
+      status: 500
+    },
+    {
+      href: '/configuration/notification/2',
+      message: 'internal server error',
+      status: 500
+    },
+    {
+      href: '/configuration/notification/3',
+      message: 'not found',
+      status: 404
+    }
+  ]
+};

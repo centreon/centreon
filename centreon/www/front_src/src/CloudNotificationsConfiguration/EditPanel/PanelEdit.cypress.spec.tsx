@@ -23,7 +23,10 @@ import {
   labelDoYouWantToConfirmAction,
   labelConfirmEditNotification,
   labelSuccessfulEditNotification,
-  labelThisNameAlreadyExists
+  labelThisNameAlreadyExists,
+  labelDeleteNotification,
+  labelDeleteNotificationWarning,
+  labelNotificationSuccessfullyDeleted
 } from '../translatedLabels';
 import { notificationsNamesAtom } from '../atom';
 
@@ -66,6 +69,14 @@ const initialize = (): void => {
     method: Method.PUT,
     path: notificationEndpoint({ id: 1 }),
     response: { status: 'ok' }
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'deleteNotificationtRequest',
+    method: Method.DELETE,
+    path: notificationEndpoint({ id: 1 }),
+    response: undefined,
+    statusCode: 204
   });
 
   cy.mount({
@@ -424,6 +435,59 @@ describe('Edit Panel : Confirm Dialog', () => {
     });
 
     cy.findByText(labelSuccessfulEditNotification).should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+});
+
+describe('Edit Panel: Delete button', () => {
+  beforeEach(initialize);
+
+  it('Confirm the display of a confirmation dialog containing the notification name upon clicking the delete button', () => {
+    cy.waitForRequest('@listingRequest');
+
+    const message = `${labelDelete} « Notifications 1 ».`;
+    cy.findByTestId('delete a notification').click();
+    cy.findByText(message);
+    cy.findByText(labelDeleteNotification);
+    cy.findByText(labelDeleteNotificationWarning);
+
+    cy.matchImageSnapshot();
+  });
+  it('Ensure that a success message is shown after successful deletion', () => {
+    cy.waitForRequest('@listingRequest');
+
+    cy.waitForRequest('@listingRequest');
+
+    cy.findByTestId('delete a notification').click();
+    cy.findByLabelText(labelDelete).click();
+
+    cy.waitForRequest('@deleteNotificationtRequest');
+    cy.waitForRequest('@listingRequest');
+
+    cy.findByText(labelNotificationSuccessfullyDeleted);
+
+    cy.matchImageSnapshot();
+  });
+  it('Verify that an error message is displayed upon failed deletion', () => {
+    cy.interceptAPIRequest({
+      alias: 'deleteNotificationtRequest',
+      method: Method.DELETE,
+      path: notificationEndpoint({ id: 1 }),
+      response: {
+        code: 'ok',
+        message: 'internal server error'
+      },
+      statusCode: 500
+    });
+
+    cy.waitForRequest('@listingRequest');
+
+    cy.findByTestId('delete a notification').click();
+    cy.findByLabelText(labelDelete).click();
+    cy.waitForRequest('@deleteNotificationtRequest');
+
+    cy.findByText('internal server error');
 
     cy.matchImageSnapshot();
   });
