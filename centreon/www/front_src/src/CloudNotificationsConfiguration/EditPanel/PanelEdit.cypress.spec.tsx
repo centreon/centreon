@@ -92,7 +92,7 @@ describe('Edit Panel', () => {
   it('Ensures that the header section displays all the expected actions', () => {
     cy.waitForRequest('@listingRequest');
 
-    cy.findByLabelText(labelDelete).should('be.visible');
+    cy.findByLabelText('delete a notification').should('be.visible');
     cy.findByLabelText(labelSave).should('be.visible');
     cy.findByLabelText(labelDuplicate).should('be.visible');
     cy.findByLabelText(labelActiveOrInactive).should('be.visible');
