@@ -31,6 +31,7 @@ const DeleteAction = (): JSX.Element => {
 
   return (
     <DeleteButton
+      ariaLabel="delete multiple notification"
       className={classes.icon}
       disabled={isEmpty(selectedRows)}
       fetchMethod={Method.POST}

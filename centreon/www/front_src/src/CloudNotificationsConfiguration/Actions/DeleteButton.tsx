@@ -39,6 +39,7 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 interface Props {
+  ariaLabel?: string;
   className?: string;
   disabled?: boolean;
   fetchMethod: Method;
@@ -61,7 +62,8 @@ const DeleteButton = ({
   notificationName,
   disabled = false,
   iconClassName,
-  className
+  className,
+  ariaLabel
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -120,7 +122,7 @@ const DeleteButton = ({
   return (
     <Box>
       <IconButton
-        ariaLabel={t(labelDelete) as string}
+        ariaLabel={ariaLabel}
         className={className}
         disabled={disabled}
         title={t(labelDelete) as string}

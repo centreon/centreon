@@ -26,6 +26,7 @@ const DeleteAction = ({ row }: ComponentColumnProps): JSX.Element => {
 
   return (
     <DeleteButton
+      ariaLabel="delete a notification"
       fetchMethod={Method.DELETE}
       getEndpoint={getEndpoint}
       iconClassName={classes.icon}
