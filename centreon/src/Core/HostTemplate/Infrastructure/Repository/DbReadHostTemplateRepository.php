@@ -322,7 +322,6 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                 )
                 SELECT `host_host_id` AS child_id, `host_tpl_id` AS parent_id, `order`
                 FROM parents
-                ORDER BY `child_id`, `order`;
                 SQL
         );
         $statement = $this->db->prepare($request);
