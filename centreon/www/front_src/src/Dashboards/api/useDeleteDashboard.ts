@@ -8,12 +8,12 @@ import {
 
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
-import { Dashboard, resource, UpdateDashboardDto } from './models';
+import { Dashboard, DeleteDashboardDto, resource } from './models';
 import { dashboardsEndpoint } from './endpoints';
 
-type UseUpdateDashboard<
-  TData extends Dashboard = Dashboard,
-  TVariables extends UpdateDashboardDto = UpdateDashboardDto,
+type UseDeleteDashboard<
+  TData extends null = null,
+  TVariables extends DeleteDashboardDto = DeleteDashboardDto,
   TError = ResponseError
 > = {
   mutate: (
@@ -25,8 +25,10 @@ type UseUpdateDashboard<
   'mutate' | 'mutateAsync'
 >;
 
-const useUpdateDashboard = (): UseUpdateDashboard => {
-  const [resourceId, setResourceId] = useState<string | null>(null);
+const useDeleteDashboard = (): UseDeleteDashboard => {
+  const [resourceId, setResourceId] = useState<DeleteDashboardDto['id'] | null>(
+    null
+  );
 
   const {
     mutateAsync,
@@ -35,7 +37,7 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
     ...mutationData
   } = useMutationQuery<Dashboard>({
     getEndpoint: () => `${dashboardsEndpoint}/${resourceId}`,
-    method: Method.PATCH
+    method: Method.DELETE
   });
 
   const queryClient = useQueryClient();
@@ -45,35 +47,26 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
     });
 
   const mutate = async (
-    variables: UpdateDashboardDto,
-    options?: MutateOptions<Dashboard, unknown, UpdateDashboardDto>
+    variables: DeleteDashboardDto,
+    options?: MutateOptions<Dashboard, unknown, DeleteDashboardDto>
   ): Promise<Dashboard | ResponseError> => {
     const { onSettled, ...restOptions } = options || {};
 
     const onSettledWithInvalidateQueries = (
-      data: Dashboard | undefined,
+      data: undefined,
       error: ResponseError | null,
-      vars: UpdateDashboardDto
+      vars: DeleteDashboardDto
     ): void => {
       invalidateQueries();
       onSettled?.(data, error, vars, undefined);
     };
 
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    const {
-      id,
-      createdAt,
-      updatedAt,
-      createdBy,
-      updatedBy,
-      ...apiAllowedVariables
-    } = variables as any;
-    /* eslint-enable @typescript-eslint/no-unused-vars */
+    const { id } = variables;
 
     setResourceId(id);
 
-    return mutateAsync(apiAllowedVariables, {
-      mutationKey: [resource.dashboards, 'update', resourceId],
+    return mutateAsync(null, {
+      mutationKey: [resource.dashboards, 'delete', resourceId],
       onSettled: onSettledWithInvalidateQueries,
       ...restOptions
     });
@@ -85,4 +78,4 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
   };
 };
 
-export { useUpdateDashboard };
+export { useDeleteDashboard };

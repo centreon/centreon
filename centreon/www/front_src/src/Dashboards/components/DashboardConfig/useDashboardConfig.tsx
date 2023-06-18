@@ -91,11 +91,7 @@ const useDashboardConfig = (): UseDashboardConfig => {
   };
 
   useEffect(() => {
-    if (statusCreateMutation !== 'idle')
-      setDialogState({ ...dialogState, status: statusCreateMutation });
-
-    if (statusUpdateMutation !== 'idle')
-      setDialogState({ ...dialogState, status: statusUpdateMutation });
+    setDialogState({ ...dialogState, status: statusUpdateMutation });
 
     if (statusCreateMutation === 'success') resetCreateMutation();
     if (statusUpdateMutation === 'success') resetUpdateMutation();
