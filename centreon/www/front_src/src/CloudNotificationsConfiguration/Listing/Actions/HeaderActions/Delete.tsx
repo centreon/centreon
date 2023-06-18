@@ -2,6 +2,8 @@ import { useAtomValue } from 'jotai';
 import { isEmpty } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
+import { Box } from '@mui/system';
+
 import { Method } from '@centreon/ui';
 
 import DeleteButton from '../../../Actions/DeleteButton';
@@ -20,7 +22,6 @@ const useStyle = makeStyles()((theme) => ({
 
 const DeleteAction = (): JSX.Element => {
   const { classes } = useStyle();
-
   const selectedRows = useAtomValue(selectedRowsAtom);
 
   const getEndpoint = (): string => `${notificationEndpoint({})}/_delete`;
@@ -29,11 +30,12 @@ const DeleteAction = (): JSX.Element => {
     ids: selectedRows?.map((notification) => notification.id)
   };
 
-  return (
+  return isEmpty(selectedRows) ? (
+    <Box />
+  ) : (
     <DeleteButton
       ariaLabel="delete multiple notification"
       className={classes.icon}
-      disabled={isEmpty(selectedRows)}
       fetchMethod={Method.POST}
       getEndpoint={getEndpoint}
       labelFailed={labelFailedToDeleteNotifications}

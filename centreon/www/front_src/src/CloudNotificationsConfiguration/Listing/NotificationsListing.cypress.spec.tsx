@@ -215,14 +215,14 @@ describe('Listing header: Delete button', () => {
     });
     cy.render(ListingWithQueryProvider);
   });
-  it('Verify that the delete button is disabled when no row is selected and enabled when one or more rows are selected', () => {
+  it('Ensure that the delete button remains hidden when no rows are selected, and that it becomes visible when one or more rows are selected', () => {
     cy.waitForRequest('@defaultRequest');
 
-    cy.findByTestId('delete multiple notification').should('be.disabled');
+    cy.findByTestId('delete multiple notification').should('not.exist');
     cy.findByLabelText('Select row 1').click();
     cy.findByLabelText('Select row 2').click();
     cy.findByLabelText('Select row 3').click();
-    cy.findByTestId('delete multiple notification').should('not.be.disabled');
+    cy.findByTestId('delete multiple notification').should('be.visible');
 
     cy.matchImageSnapshot();
   });
