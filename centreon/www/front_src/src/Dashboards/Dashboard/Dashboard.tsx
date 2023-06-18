@@ -15,12 +15,12 @@ import {
   PageLayout
 } from '@centreon/ui/components';
 
-import { DashboardsQuickAccessMenu } from '../components/DashboardsQuickAccessMenu/DashboardsQuickAccessMenu';
-import { DashboardFormModal } from '../components/DashboardFormModal/DashboardFormModal';
-import { useDashboardForm } from '../components/DashboardFormModal/useDashboardForm';
+import { DashboardsQuickAccessMenu } from '../components/DashboardsQuickAccess/DashboardsQuickAccessMenu';
+import { DashboardConfigModal } from '../components/DashboardConfig/DashboardConfigModal';
+import { useDashboardConfig } from '../components/DashboardConfig/useDashboardConfig';
 import { Dashboard as DashboardType } from '../api/models';
-import { DashboardAccessRightsModal } from '../components/DashboardAccessRightsModal/DashboardAccessRightsModal';
-import { useDashboardAccessRights } from '../components/DashboardAccessRightsModal/useDashboardAccessRights';
+import { DashboardAccessRightsModal } from '../components/DashboardAccessRights/DashboardAccessRightsModal';
+import { useDashboardAccessRights } from '../components/DashboardAccessRights/useDashboardAccessRights';
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
@@ -32,7 +32,7 @@ const Dashboard = (): ReactElement => {
   const { dashboard, panels } = useDashboardDetails({
     dashboardId: dashboardId as string
   });
-  const { editDashboard } = useDashboardForm();
+  const { editDashboard } = useDashboardConfig();
   const { editAccessRights } = useDashboardAccessRights();
 
   const isEditing = useAtomValue(isEditingAtom);
@@ -100,7 +100,7 @@ const Dashboard = (): ReactElement => {
 
         <Layout />
       </PageLayout.Body>
-      <DashboardFormModal />
+      <DashboardConfigModal />
       <DashboardAccessRightsModal />
     </PageLayout>
   );

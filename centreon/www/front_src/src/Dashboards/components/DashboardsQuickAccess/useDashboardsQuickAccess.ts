@@ -4,11 +4,11 @@ import { dashboardListDecoder } from '../../api/decoders';
 import { dashboardsEndpoint } from '../../api/endpoints';
 import { Dashboard, resource } from '../../api/models';
 
-type UseDashboardsQuickAccessMenu = {
+type UseDashboardsQuickAccess = {
   dashboards: Array<Dashboard>;
 };
 
-const useDashboardsQuickAccessMenu = (): UseDashboardsQuickAccessMenu => {
+const useDashboardsQuickAccess = (): UseDashboardsQuickAccess => {
   // TODO use a `useListDashboards` hook
   const { data, isLoading } = useFetchQuery({
     decoder: dashboardListDecoder,
@@ -26,4 +26,4 @@ const useDashboardsQuickAccessMenu = (): UseDashboardsQuickAccessMenu => {
   };
 };
 
-export { useDashboardsQuickAccessMenu };
+export { useDashboardsQuickAccess };

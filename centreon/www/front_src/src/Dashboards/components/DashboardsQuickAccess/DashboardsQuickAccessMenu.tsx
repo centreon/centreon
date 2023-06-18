@@ -10,9 +10,9 @@ import { Button, Menu } from '@centreon/ui/components';
 import { DashboardDetails } from '../../Dashboard/models';
 import routeMap from '../../../reactRoutes/routeMap';
 import { labelCreateADashboard } from '../../translatedLabels';
-import { useDashboardForm } from '../DashboardFormModal/useDashboardForm';
+import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 
-import { useDashboardsQuickAccessMenu } from './useDashboardsQuickAccessMenu';
+import { useDashboardsQuickAccess } from './useDashboardsQuickAccess';
 
 type DashboardsQuickAccessMenuProps = {
   dashboard?: DashboardDetails;
@@ -22,9 +22,9 @@ const DashboardsQuickAccessMenu = ({
   dashboard
 }: DashboardsQuickAccessMenuProps): ReactElement => {
   const { t } = useTranslation();
-  const { dashboards } = useDashboardsQuickAccessMenu();
+  const { dashboards } = useDashboardsQuickAccess();
 
-  const { createDashboard } = useDashboardForm();
+  const { createDashboard } = useDashboardConfig();
 
   const navigate = useNavigate();
   const navigateToDashboard = (dashboardId: string | number) => (): void =>

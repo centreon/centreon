@@ -33,7 +33,8 @@ const useCreateDashboard = (): UseCreateDashboard => {
   } = useMutationQuery<Dashboard>({
     decoder: dashboardDecoder,
     getEndpoint: () => dashboardsEndpoint,
-    method: Method.POST
+    method: Method.POST,
+    mutationKey: [resource.dashboards, 'create']
   });
 
   const queryClient = useQueryClient();

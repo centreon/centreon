@@ -1,7 +1,11 @@
 import 'ulog';
 import { useEffect } from 'react';
 
-import { useMutation, UseMutationResult } from '@tanstack/react-query';
+import {
+  useMutation,
+  UseMutationOptions,
+  UseMutationResult
+} from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
 import anylogger from 'anylogger';
 import { includes } from 'ramda';
@@ -17,7 +21,7 @@ export enum Method {
   PUT = 'PUT'
 }
 
-export interface UseMutationQueryProps<T> {
+export type UseMutationQueryProps<T> = {
   catchError?: (props: CatchErrorProps) => void;
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
@@ -25,7 +29,7 @@ export interface UseMutationQueryProps<T> {
   getEndpoint: (payload) => string;
   httpCodesBypassErrorSnackbar?: Array<number>;
   method: Method;
-}
+} & Omit<UseMutationOptions<T>, 'mutationFn'>;
 
 const log = anylogger('API Request');
 

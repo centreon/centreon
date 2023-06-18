@@ -11,15 +11,14 @@ import {
   labelDelete,
   labelDeleteDashboard,
   labelDescriptionDeleteDashboardPartOne,
-  labelDescriptionDeleteDashboardPartTwo,
+  labelDescriptionDeleteDashboardPartTwo
 } from './translatedLabels';
 import { ListingSkeleton } from './ListingSkeleton';
 import { deleteDialogStateAtom } from './atoms';
-import useSubmitDashboard from './useSubmitDashboard';
 import Listing from './Listing';
 import useRemoveDashboard from './useRemoveDashboard';
-import { DashboardFormModal } from './components/DashboardFormModal/DashboardFormModal';
-import { DashboardAccessRightsModal } from './components/DashboardAccessRightsModal/DashboardAccessRightsModal';
+import { DashboardConfigModal } from './components/DashboardConfig/DashboardConfigModal';
+import { DashboardAccessRightsModal } from './components/DashboardAccessRights/DashboardAccessRightsModal';
 
 import { ModalActionsLabels } from 'packages/ui/src/components/Modal/ModalActions';
 
@@ -29,7 +28,6 @@ const Dashboards = (): ReactElement => {
   const [deleteDialogState, setDeleteDialogState] = useAtom(
     deleteDialogStateAtom
   );
-  const { submit } = useSubmitDashboard();
   const { remove: removeDashboard } = useRemoveDashboard();
 
   const labels = useMemo(
@@ -64,7 +62,7 @@ const Dashboards = (): ReactElement => {
           <Listing />
         </Suspense>
       </PageLayout.Body>
-      <DashboardFormModal />
+      <DashboardConfigModal />
       <DashboardAccessRightsModal />
       <Modal
         open={deleteDialogState.open}

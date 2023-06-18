@@ -36,9 +36,8 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
     ...mutationData
   } = useMutationQuery<Dashboard>({
     decoder: dashboardDecoder,
-    getEndpoint: (dashboard: UpdateDashboardDto) =>
-      `${dashboardsEndpoint}/${resourceId}`,
-    method: Method.PUT
+    getEndpoint: () => `${dashboardsEndpoint}/${resourceId}`,
+    method: Method.PATCH
   });
 
   const queryClient = useQueryClient();
@@ -76,6 +75,7 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
     setResourceId(id);
 
     return mutateAsync(apiAllowedVariables, {
+      mutationKey: [resource.dashboards, 'update', resourceId],
       onSettled: onSettledWithInvalidateQueries,
       ...restOptions
     });
