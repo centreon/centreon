@@ -1,28 +1,15 @@
-import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
-
-import { dashboardListDecoder } from '../../api/decoders';
-import { dashboardsEndpoint } from '../../api/endpoints';
-import { Dashboard, resource } from '../../api/models';
+import { Dashboard, isDashboardList } from '../../api/models';
+import { useListDashboards } from '../../api/useListDashboards';
 
 type UseDashboardsQuickAccess = {
   dashboards: Array<Dashboard>;
 };
 
 const useDashboardsQuickAccess = (): UseDashboardsQuickAccess => {
-  // TODO use a `useListDashboards` hook
-  const { data, isLoading } = useFetchQuery({
-    decoder: dashboardListDecoder,
-    getEndpoint: (params) =>
-      buildListingEndpoint({
-        baseEndpoint: dashboardsEndpoint,
-        parameters: { limit: 100, page: 1 }
-      }),
-    getQueryKey: () => [resource.dashboards, 1],
-    isPaginated: false
-  });
+  const { data } = useListDashboards();
 
   return {
-    dashboards: data?.result || []
+    dashboards: isDashboardList(data) ? data.result : []
   };
 };
 

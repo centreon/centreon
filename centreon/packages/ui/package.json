@@ -37,8 +37,7 @@
     ".": "./src/index.ts",
     "./components": "./src/components/index.ts",
     "./fonts/*": "./public/fonts/*",
-    "./test/testRenderer": "./test/testRenderer.tsx",
-    "./api/*": "./src/api/*"
+    "./test/testRenderer": "./test/testRenderer.tsx"
   },
   "files": [
     "package.json",
