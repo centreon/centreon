@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
+import { ComponentStory } from '@storybook/react';
 import { makeStyles } from 'tss-react/mui';
 
 import { Theme } from '@mui/material';
@@ -13,7 +13,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
   }
 }));
 
-export default {
+const meta = {
   argTypes: {
     labelLoading: { control: 'text' },
     labelSave: { control: 'text' },
@@ -26,8 +26,13 @@ export default {
 
   component: ButtonSave,
 
+  parameters: {
+    chromatic: { delay: 300 }
+  },
   title: 'Button/Save'
-} as ComponentMeta<typeof ButtonSave>;
+};
+
+export default meta;
 
 const TemplateButtonSave: ComponentStory<typeof ButtonSave> = (args) => (
   <ButtonSave {...args} />
@@ -42,7 +47,7 @@ export const loading = (): JSX.Element => <ButtonSave loading />;
 export const succeeded = (): JSX.Element => <ButtonSave succeeded />;
 
 export const normalWithText = (): JSX.Element => (
-  <ButtonSave labelSave="Save" />
+  <ButtonSave labelSave="Save" size="medium" />
 );
 
 export const largeWithText = (): JSX.Element => (
@@ -50,7 +55,7 @@ export const largeWithText = (): JSX.Element => (
 );
 
 export const loadingWithTextAndMediumSize = (): JSX.Element => (
-  <ButtonSave loading labelLoading="Loading" />
+  <ButtonSave loading labelLoading="Loading" size="medium" />
 );
 
 export const succeededWithText = (): JSX.Element => (

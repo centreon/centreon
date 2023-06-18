@@ -25,6 +25,7 @@ import {
 } from './atoms';
 import { PanelDetails } from './models';
 import { formatPanel } from './useDashboardDetails';
+import useSaveDashboard from './useSaveDashboard';
 import useDashboardDirty from './useDashboardDirty';
 
 interface HeaderActionsProps {
@@ -55,6 +56,8 @@ const HeaderActions = ({
   const blocked = false;
   const blockNavigation = () => {};
   const proceedNavigation = () => {};
+
+  const { saveDashboard } = useSaveDashboard();
 
   const dirty = useDashboardDirty(
     (panels || []).map((panel) => formatPanel({ panel, staticPanel: false }))
@@ -116,7 +119,15 @@ const HeaderActions = ({
     closeAskCancelConfirmationAndProceed();
   };
 
-  const savePanels = (): void => undefined;
+  const saveAndProceed = (): void => {
+    saveDashboard();
+    setIsAskingCancelConfirmation(false);
+    switchPanelsEditionMode(false);
+
+    if (blocked) {
+      proceedNavigation?.();
+    }
+  };
 
   useEffect(() => {
     if (!blocked) {
@@ -159,12 +170,21 @@ const HeaderActions = ({
   return (
     <>
       <Button
+        aria-label={t(labelExit) as string}
         data-testid="cancel_dashboard"
         size="small"
         variant="ghost"
         onClick={askCancelConfirmation}
       >
         {t(labelExit)}
+      </Button>
+      <Button
+        aria-label={t(labelSave) as string}
+        data-testid="save_dashboard"
+        disabled={!dirty}
+        onClick={saveAndProceed}
+      >
+        {t(labelSave)}
       </Button>
       <Modal
         open={isAskingCancelConfirmation}
@@ -180,7 +200,7 @@ const HeaderActions = ({
             confirm: t(labelSave)
           }}
           onCancel={cancelEditing}
-          onConfirm={savePanels}
+          onConfirm={saveAndProceed}
         />
       </Modal>
     </>

@@ -28,7 +28,7 @@ use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardPresenterInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardResponse;
-use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardUserDto;
+use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -88,11 +88,11 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
     }
 
     /**
-     * @param ?AddDashboardUserDto $dto
+     * @param ?UserResponseDto $dto
      *
      * @return null|array{id: int, name: string}
      */
-    private function userToOptionalArray(?AddDashboardUserDto $dto): ?array
+    private function userToOptionalArray(?UserResponseDto $dto): ?array
     {
         return $dto ? [
             'id' => $dto->id,

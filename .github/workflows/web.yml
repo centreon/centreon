@@ -6,6 +6,8 @@ concurrency:
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'
   pull_request:
     paths:
       - "centreon/**"
@@ -72,6 +74,19 @@ jobs:
     uses: ./.github/workflows/get-version.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
+
+  veracode-analysis:
+    needs: [get-version]
+    uses: ./.github/workflows/veracode-analysis.yml
+    with:
+      module_directory: centreon
+      module_name: centreon-web
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+    secrets:
+      veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
+      veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
 
   frontend-web-build:
     needs: [get-version]
@@ -307,21 +322,40 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [package, get-version]
+    needs: [get-version, package]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
+    env:
+      project: centreon-web
     strategy:
+      fail-fast: false
       matrix:
-        os: [alma9]
-        include:
-          - project: centreon-web
-          - os: alma9
-            distrib: el9
-            package_extension: rpm
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
+
+      - name: Generate information according to matrix os
+        id: matrix_include
+        run: |
+          if [ "${{ matrix.os }}" = "alma8" ]; then
+            DISTRIB=el8
+            PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.os }}" = "alma9" ]; then
+            DISTRIB=el9
+            PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.os }}" = "bullseye" ]; then
+            DISTRIB=bullseye
+            PACKAGE_EXTENSION=deb
+          else
+            echo "::error::${{ matrix.os }} is not managed"
+            exit 1
+          fi
+
+          echo "distrib=$DISTRIB" >> $GITHUB_OUTPUT
+          echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Login to registry
         uses: docker/login-action@v2
@@ -330,18 +364,18 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name: Restore ${{ matrix.package_extension }} files
+      - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache@v3
         with:
-          path: ./*.${{ matrix.package_extension }}
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          path: ./*.${{ steps.matrix_include.outputs.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
           fail-on-cache-miss: true
 
       - uses: docker/setup-buildx-action@v2
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_fresh
           context: .
           build-args: |
@@ -349,11 +383,11 @@ jobs:
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_fresh
           context: .
           build-args: |
@@ -361,11 +395,11 @@ jobs:
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_standard
           context: .
           build-args: |
@@ -373,11 +407,11 @@ jobs:
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_standard
           context: .
           build-args: |
@@ -385,11 +419,11 @@ jobs:
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
         run: |
-          wget -q https://downloads.dockerslim.com/releases/1.40.0/dist_linux.tar.gz
+          wget -q https://downloads.dockerslim.com/releases/1.40.2/dist_linux.tar.gz
           tar -xf dist_linux.tar.gz
           mv dist_linux/docker-slim /usr/local/bin/
           mv dist_linux/slim-sensor /usr/local/bin/
@@ -398,29 +432,33 @@ jobs:
 
       - name: Build and push slim images
         run: |
-          for IMAGE_SUFFIX in "" "-fresh"; do
-            slim build --show-clogs --show-blogs \
-              --include-shell \
-              --http-probe-off \
-              --exec-file .github/docker/slim-configuration/exec.txt \
-              --include-path-file .github/docker/slim-configuration/include-path.txt \
-              --include-bin-file .github/docker/slim-configuration/include-bin.txt \
-              --path-perms-file .github/docker/slim-configuration/path-perms.txt \
-              --tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} \
-              ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-            docker tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-            docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-          done
+          slim build --show-clogs --show-blogs \
+            --include-shell \
+            --http-probe-off \
+            --exec-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/exec.txt \
+            --include-path-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-path.txt \
+            --include-bin-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-bin.txt \
+            --path-perms-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/path-perms.txt \
+            --tag ${{ env.project }}-slim-${{ matrix.os }} \
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ env.project }}-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
   api-integration-test:
-    needs: [dockerize, changes]
+    needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
       module_name: centreon
       image_name: centreon-web
+      os: ${{ matrix.os }}
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
@@ -429,13 +467,19 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
-    needs: [dockerize, changes]
+    needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+
     uses: ./.github/workflows/behat-test.yml
     with:
       name: legacy-e2e
       module_name: centreon
       image_name: centreon-web
+      os: ${{ matrix.os }}
       features_path: features
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
@@ -445,14 +489,20 @@ jobs:
   e2e-test:
     needs: [get-version, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
     with:
       name: e2e
       module_name: centreon
       image_name: centreon-web
+      os: ${{ matrix.os }}
       features_path: tests/e2e/cypress/e2e
       major_version: ${{ needs.get-version.outputs.major_version }}
-      package_cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-el9
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
       package_directory: centreon/tests/e2e/cypress/fixtures/rpms
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}

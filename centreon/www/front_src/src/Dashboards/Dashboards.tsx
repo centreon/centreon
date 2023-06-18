@@ -11,7 +11,7 @@ import {
   labelDelete,
   labelDeleteDashboard,
   labelDescriptionDeleteDashboardPartOne,
-  labelDescriptionDeleteDashboardPartTwo
+  labelDescriptionDeleteDashboardPartTwo,
 } from './translatedLabels';
 import { ListingSkeleton } from './ListingSkeleton';
 import { deleteDialogStateAtom } from './atoms';

@@ -31,6 +31,7 @@ export const formatPanel = ({
   i: `${panel.id}`,
   minH: panel.layout.minHeight,
   minW: panel.layout.minWidth,
+  name: panel.name,
   options: panel.widgetSettings,
   panelConfiguration: {
     path: panel.widgetType

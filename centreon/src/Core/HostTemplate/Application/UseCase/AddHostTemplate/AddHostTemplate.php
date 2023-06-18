@@ -28,21 +28,21 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Option\OptionService;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
-use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\CommandType;
-use Core\Host\Application\Converter\HostEventConverter;
-use Core\Host\Domain\Model\SnmpVersion;
+use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
+use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
-use Core\HostTemplate\Domain\Model\NewHostTemplate;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
@@ -59,6 +59,10 @@ final class AddHostTemplate
         private readonly ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private readonly ReadTimezoneRepositoryInterface $readTimezoneRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
+        private readonly WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly OptionService $optionService,
         private readonly ContactInterface $user
     ) {
@@ -83,30 +87,40 @@ final class AddHostTemplate
                 return;
             }
 
-            $this->assertIsValidName($request->name);
-            $this->assertIsValidSeverity($request->severityId);
-            $this->assertIsValidTimezone($request->timezoneId);
-            $this->assertIsValidTimePeriod($request->checkTimeperiodId, 'checkTimeperiodId');
-            $this->assertIsValidTimePeriod($request->notificationTimeperiodId, 'notificationTimeperiodId');
-            $this->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
-            $this->assertIsValidCommand($request->eventHandlerCommandId, null, 'eventHandlerCommandId');
-            $this->assertIsValidIcon($request->iconId);
+            try {
+                $this->dataStorageEngine->startTransaction();
 
-            $newHostTemplate = $this->createNewHostTemplate($request);
+                $hostTemplateId = $this->createHostTemplate($request);
 
-            $hostTemplateId = $this->writeHostTemplateRepository->add($newHostTemplate);
+                $this->linkHostCategories($request, $hostTemplateId);
+                $this->linkParentTemplates($request, $hostTemplateId);
 
-            $hostTemplate = $this->readHostTemplateRepository->findById($hostTemplateId);
+                $this->dataStorageEngine->commitTransaction();
+            } catch (\Throwable $ex) {
+                $this->error("Rollback of 'Add Host Template' transaction.");
+                $this->dataStorageEngine->rollbackTransaction();
 
-            if (! $hostTemplate) {
-                $presenter->presentResponse(
-                    new ErrorResponse(HostTemplateException::errorWhileRetrievingObject())
-                );
-
-                return;
+                throw $ex;
             }
 
-            $presenter->presentResponse($this->createResponse($hostTemplate));
+            $hostTemplate = $this->readHostTemplateRepository->findById($hostTemplateId);
+            if (! $hostTemplate) {
+                throw HostTemplateException::errorWhileRetrievingObject();
+            }
+            if ($this->user->isAdmin()) {
+                $hostCategories = $this->readHostCategoryRepository->findByHost($hostTemplateId);
+            } else {
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $hostCategories = $this->readHostCategoryRepository->findByHostAndAccessGroups(
+                    $hostTemplateId,
+                    $accessGroups
+                );
+            }
+            $parentTemplates = $this->findParentTemplates($request->templates);
+
+            $presenter->presentResponse(
+                AddHostTemplateFactory::createResponse($hostTemplate, $hostCategories, $parentTemplates)
+            );
         } catch (AssertionFailedException|\ValueError $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -217,8 +231,11 @@ final class AddHostTemplate
      *
      * @throws HostTemplateException
      */
-    private function assertIsValidCommand(?int $commandId, ?CommandType $commandType = null, ?string $propertyName = null): void
-    {
+    private function assertIsValidCommand(
+        ?int $commandId,
+        ?CommandType $commandType = null,
+        ?string $propertyName = null
+    ): void {
         if ($commandId === null) {
             return;
         }
@@ -238,105 +255,156 @@ final class AddHostTemplate
         }
     }
 
-    private function createNewHostTemplate(AddHostTemplateRequest $request): NewHostTemplate
+    /**
+     * Assert category IDs are valid.
+     *
+     * @param int[] $categoryIds
+     *
+     * @throws HostTemplateException
+     * @throws \Throwable
+     */
+    private function assertAreValidCategories(array $categoryIds): void
     {
-        $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
-        $inheritanceMode = isset($inheritanceMode['inheritance_mode'])
-            ? $inheritanceMode['inheritance_mode']->getValue()
-            : 0;
-
-        return new NewHostTemplate(
-            $request->name,
-            $request->alias,
-            $request->snmpVersion === ''
-                ? null
-                : SnmpVersion::from($request->snmpVersion),
-            $request->snmpCommunity,
-            $request->timezoneId,
-            $request->severityId,
-            $request->checkCommandId,
-            $request->checkCommandArgs,
-            $request->checkTimeperiodId,
-            $request->maxCheckAttempts,
-            $request->normalCheckInterval,
-            $request->retryCheckInterval,
-            YesNoDefaultConverter::fromScalar($request->activeCheckEnabled),
-            YesNoDefaultConverter::fromScalar($request->passiveCheckEnabled),
-            YesNoDefaultConverter::fromScalar($request->notificationEnabled),
-            $request->notificationOptions === null
-                ? []
-                : HostEventConverter::fromBitFlag($request->notificationOptions),
-            $request->notificationInterval,
-            $request->notificationTimeperiodId,
-            $inheritanceMode === '1' ? $request->addInheritedContactGroup : false,
-            $inheritanceMode === '1' ? $request->addInheritedContact : false,
-            $request->firstNotificationDelay,
-            $request->recoveryNotificationDelay,
-            $request->acknowledgementTimeout,
-            YesNoDefaultConverter::fromScalar($request->freshnessChecked),
-            $request->freshnessThreshold,
-            YesNoDefaultConverter::fromScalar($request->flapDetectionEnabled),
-            $request->lowFlapThreshold,
-            $request->highFlapThreshold,
-            YesNoDefaultConverter::fromScalar($request->eventHandlerEnabled),
-            $request->eventHandlerCommandId,
-            $request->eventHandlerCommandArgs,
-            $request->noteUrl,
-            $request->note,
-            $request->actionUrl,
-            $request->iconId,
-            $request->iconAlternative,
-            $request->comment,
-            $request->isActivated,
-        );
-    }
-
-    private function createResponse(?HostTemplate $hostTemplate): AddHostTemplateResponse
-    {
-        $response = new AddHostTemplateResponse();
-        if ($hostTemplate !== null) {
-                $response->id = $hostTemplate->getId();
-                $response->name = $hostTemplate->getName();
-                $response->alias = $hostTemplate->getAlias();
-                $response->snmpVersion = $hostTemplate->getSnmpVersion()?->value;
-                $response->snmpCommunity = $hostTemplate->getSnmpCommunity();
-                $response->timezoneId = $hostTemplate->getTimezoneId();
-                $response->severityId = $hostTemplate->getSeverityId();
-                $response->checkCommandId = $hostTemplate->getCheckCommandId();
-                $response->checkCommandArgs = $hostTemplate->getCheckCommandArgs();
-                $response->checkTimeperiodId = $hostTemplate->getCheckTimeperiodId();
-                $response->maxCheckAttempts = $hostTemplate->getMaxCheckAttempts();
-                $response->normalCheckInterval = $hostTemplate->getNormalCheckInterval();
-                $response->retryCheckInterval = $hostTemplate->getRetryCheckInterval();
-                $response->activeCheckEnabled = YesNoDefaultConverter::toInt($hostTemplate->getActiveCheckEnabled());
-                $response->passiveCheckEnabled = YesNoDefaultConverter::toInt($hostTemplate->getPassiveCheckEnabled());
-                $response->notificationEnabled = YesNoDefaultConverter::toInt($hostTemplate->getNotificationEnabled());
-                $response->notificationOptions = HostEventConverter::toBitFlag($hostTemplate->getNotificationOptions());
-                $response->notificationInterval = $hostTemplate->getNotificationInterval();
-                $response->notificationTimeperiodId = $hostTemplate->getNotificationTimeperiodId();
-                $response->addInheritedContactGroup = $hostTemplate->addInheritedContactGroup();
-                $response->addInheritedContact = $hostTemplate->addInheritedContact();
-                $response->firstNotificationDelay = $hostTemplate->getFirstNotificationDelay();
-                $response->recoveryNotificationDelay = $hostTemplate->getRecoveryNotificationDelay();
-                $response->acknowledgementTimeout = $hostTemplate->getAcknowledgementTimeout();
-                $response->freshnessChecked = YesNoDefaultConverter::toInt($hostTemplate->getFreshnessChecked());
-                $response->freshnessThreshold = $hostTemplate->getFreshnessThreshold();
-                $response->flapDetectionEnabled = YesNoDefaultConverter::toInt($hostTemplate->getFlapDetectionEnabled());
-                $response->lowFlapThreshold = $hostTemplate->getLowFlapThreshold();
-                $response->highFlapThreshold = $hostTemplate->getHighFlapThreshold();
-                $response->eventHandlerEnabled = YesNoDefaultConverter::toInt($hostTemplate->getEventHandlerEnabled());
-                $response->eventHandlerCommandId = $hostTemplate->getEventHandlerCommandId();
-                $response->eventHandlerCommandArgs = $hostTemplate->getEventHandlerCommandArgs();
-                $response->noteUrl = $hostTemplate->getNoteUrl();
-                $response->note = $hostTemplate->getNote();
-                $response->actionUrl = $hostTemplate->getActionUrl();
-                $response->iconId = $hostTemplate->getIconId();
-                $response->iconAlternative = $hostTemplate->getIconAlternative();
-                $response->comment = $hostTemplate->getComment();
-                $response->isActivated = $hostTemplate->isActivated();
-                $response->isLocked = $hostTemplate->isLocked();
+        if ($this->user->isAdmin()) {
+            $validCategoryIds = $this->readHostCategoryRepository->exist($categoryIds);
+        } else {
+            $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+            $validCategoryIds = $this->readHostCategoryRepository->existByAccessGroups($categoryIds, $accessGroups);
         }
 
-        return $response;
+        if ([] !== ($invalidIds = array_diff($categoryIds, $validCategoryIds))) {
+            throw HostTemplateException::idsDoNotExist('categories', $invalidIds);
+        }
+    }
+
+    /**
+     * Assert template IDs are valid.
+     *
+     * @param int[] $templateIds
+     * @param int $hostTemplateId
+     *
+     * @throws HostTemplateException
+     * @throws \Throwable
+     */
+    private function assertAreValidTemplates(array $templateIds, int $hostTemplateId): void
+    {
+        if (in_array($hostTemplateId, $templateIds, true)) {
+            throw HostTemplateException::circularTemplateInheritance();
+        }
+
+        $validTemplateIds = $this->readHostTemplateRepository->exist($templateIds);
+
+        if ([] !== ($invalidIds = array_diff($templateIds, $validTemplateIds))) {
+            throw HostTemplateException::idsDoNotExist('templates', $invalidIds);
+        }
+    }
+
+    /**
+     * @param AddHostTemplateRequest $request
+     *
+     * @throws AssertionFailedException
+     * @throws HostTemplateException
+     * @throws \Throwable
+     *
+     * @return int
+     */
+    private function createHostTemplate(AddHostTemplateRequest $request): int
+    {
+        $this->assertIsValidName($request->name);
+        $this->assertIsValidSeverity($request->severityId);
+        $this->assertIsValidTimezone($request->timezoneId);
+        $this->assertIsValidTimePeriod($request->checkTimeperiodId, 'checkTimeperiodId');
+        $this->assertIsValidTimePeriod($request->notificationTimeperiodId, 'notificationTimeperiodId');
+        $this->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
+        $this->assertIsValidCommand($request->eventHandlerCommandId, null, 'eventHandlerCommandId');
+        $this->assertIsValidIcon($request->iconId);
+
+        $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
+        $inheritanceMode = isset($inheritanceMode['inheritance_mode'])
+            ? (int) $inheritanceMode['inheritance_mode']->getValue()
+            : 0;
+
+        $newHostTemplate = NewHostTemplateFactory::create($request, $inheritanceMode);
+        $hostTemplateId = $this->writeHostTemplateRepository->add($newHostTemplate);
+
+        $this->info('AddHostTemplate: Adding new host template', ['host_template_id' => $hostTemplateId]);
+
+        return $hostTemplateId;
+    }
+
+    /**
+     * @param AddHostTemplateRequest $dto
+     * @param int $hostTemplateId
+     *
+     * @throws HostTemplateException
+     * @throws \Throwable
+     */
+    private function linkHostCategories(AddHostTemplateRequest $dto, int $hostTemplateId): void
+    {
+        $categoryIds = array_unique($dto->categories);
+        if ($categoryIds === []) {
+
+            return;
+        }
+
+        $this->assertAreValidCategories($categoryIds);
+
+        $this->info(
+            'AddHostTemplate: Linking host categories',
+            ['host_template_id' => $hostTemplateId, 'category_ids' => $categoryIds]
+        );
+
+        $this->writeHostCategoryRepository->linkToHost($hostTemplateId, $categoryIds);
+    }
+
+    /**
+     * @param AddHostTemplateRequest $dto
+     * @param int $hostTemplateId
+     *
+     * @throws HostTemplateException
+     * @throws \Throwable
+     */
+    private function linkParentTemplates(AddHostTemplateRequest $dto, int $hostTemplateId): void
+    {
+        $parentTemplateIds = array_unique($dto->templates);
+
+        if ($parentTemplateIds === []) {
+
+            return;
+        }
+
+        $this->assertAreValidTemplates($parentTemplateIds, $hostTemplateId);
+
+        $this->info(
+            'AddHostTemplate: Linking parent templates',
+            ['host_template_id' => $hostTemplateId, 'template_ids' => $parentTemplateIds]
+        );
+
+        foreach ($parentTemplateIds as $order => $templateId) {
+            $this->writeHostTemplateRepository->addParent($hostTemplateId, $templateId, $order);
+        }
+    }
+
+    /**
+     * @param int[] $templateIds
+     *
+     * @throws HostTemplateException
+     * @throws \Throwable
+     *
+     * @return array<array{id:int,name:string}>
+     */
+    private function findParentTemplates(array $templateIds): array
+    {
+        $templateNames = $this->readHostTemplateRepository->findNamesByIds($templateIds);
+
+        $parentTemplates = [];
+        foreach ($templateIds as $templateId) {
+            $parentTemplates[] = [
+                'id' => $templateId,
+                'name' => $templateNames[$templateId],
+            ];
+        }
+
+        return $parentTemplates;
     }
 }

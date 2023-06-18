@@ -73,6 +73,18 @@
                 "null",
                 "boolean"
             ]
+        },
+        "categories": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        },
+        "templates": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
         }
     }
 }

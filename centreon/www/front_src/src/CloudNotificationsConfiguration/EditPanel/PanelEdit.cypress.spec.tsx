@@ -1,5 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks/dom';
-import { useSetAtom } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
 
@@ -23,8 +22,10 @@ import {
   labelMessageFieldShouldNotBeEmpty,
   labelDoYouWantToConfirmAction,
   labelConfirmEditNotification,
-  labelSuccessfulEditNotification
+  labelSuccessfulEditNotification,
+  labelThisNameAlreadyExists
 } from '../translatedLabels';
+import { notificationsNamesAtom } from '../atom';
 
 import { notificationtEndpoint } from './api/endpoints';
 import { PanelMode } from './models';
@@ -33,14 +34,21 @@ import { listNotificationResponse } from './testUtils';
 
 import Form from '.';
 
+const store = createStore();
+store.set(panelModeAtom, PanelMode.Edit);
+store.set(EditedNotificationIdAtom, 1);
+store.set(notificationsNamesAtom, ['Notification1', 'notification2']);
+
 const PanelWithQueryProvider = (): JSX.Element => {
   return (
     <div style={{ height: '100vh' }}>
-      <TestQueryProvider>
-        <SnackbarProvider>
-          <Form />
-        </SnackbarProvider>
-      </TestQueryProvider>
+      <Provider store={store}>
+        <TestQueryProvider>
+          <SnackbarProvider>
+            <Form />
+          </SnackbarProvider>
+        </TestQueryProvider>
+      </Provider>
     </div>
   );
 };
@@ -60,33 +68,14 @@ const initialize = (): void => {
     response: { status: 'ok' }
   });
 
-  cy.window().then((window) => {
-    window.localStorage.setItem('cloud-notifications-panel-width', '800');
-  });
-
   cy.mount({
     Component: <PanelWithQueryProvider />
   });
 
-  cy.viewport(1200, 1000);
+  cy.viewport('macbook-13');
 };
 
 describe('Edit Panel', () => {
-  before(() => {
-    const panelMode = renderHook(() => useSetAtom(panelModeAtom));
-    const editedNotification = renderHook(() =>
-      useSetAtom(EditedNotificationIdAtom)
-    );
-
-    const setPanelMode = panelMode.result.current;
-    const setEditedNotification = editedNotification.result.current;
-
-    act(() => {
-      setEditedNotification(1);
-      setPanelMode(PanelMode.Edit);
-    });
-  });
-
   beforeEach(initialize);
 
   it('Ensures that the header section displays all the expected actions', () => {
@@ -109,14 +98,11 @@ describe('Edit Panel', () => {
     cy.findByTestId(labelChangeName).click();
     cy.findByText(labelChangeName).should('not.exist');
 
-    cy.findByPlaceholderText(labelNotificationName).should(
+    cy.findByLabelText(labelNotificationName).should(
       'have.value',
       notificationName
     );
-    cy.findByPlaceholderText(labelNotificationName).should(
-      'have.attr',
-      'required'
-    );
+    cy.findByLabelText(labelNotificationName).should('have.attr', 'required');
 
     cy.matchImageSnapshot();
   });
@@ -126,7 +112,7 @@ describe('Edit Panel', () => {
 
     cy.findByTestId(labelChangeName).click();
 
-    cy.findByPlaceholderText(labelNotificationName).clear();
+    cy.findByLabelText(labelNotificationName).clear();
     cy.clickOutside();
 
     cy.findByText(labelRequired).should('be.visible');
@@ -135,12 +121,22 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the "Expand/Collapse" button triggers the desired expansion or collapse of the panel, providing users with the ability to control its visibility and size', () => {
+  it('Ensures that the form handles an existing name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
     cy.waitForRequest('@listingRequest');
 
-    expect(
-      localStorage.getItem('cloud-notifications-panel-width')
-    ).to.deep.equal('800');
+    cy.findByTestId(labelChangeName).click();
+
+    cy.findByLabelText(labelNotificationName).clear().type('Notification1');
+    cy.clickOutside();
+
+    cy.findByText(labelThisNameAlreadyExists).should('be.visible');
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('Confirms that the "Expand/Collapse" button triggers the desired expansion or collapse of the panel, providing users with the ability to control its visibility and size', () => {
+    cy.waitForRequest('@listingRequest');
 
     cy.findByText(labelReduceInformationPanel).should('be.visible');
     cy.findByTestId(labelReduceInformationPanel).click();
@@ -328,7 +324,7 @@ describe('Edit Panel', () => {
   it('Ensures that the time period checkbox is checked and disabled, indicating its pre-selected status', () => {
     cy.waitForRequest('@listingRequest');
 
-    cy.findByTestId(labelTimePeriod).should('be.visible');
+    cy.findByTestId(labelTimePeriod).should('exist');
     cy.findByTestId(labelTimePeriod).within(() => {
       cy.findByRole('checkbox').should('be.checked');
       cy.findByRole('checkbox').should('be.disabled');
@@ -361,6 +357,18 @@ describe('Edit Panel', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.findByLabelText(labelSubject).should('have.value', 'Notification');
+
+    cy.matchImageSnapshot();
+  });
+
+  it('Validates that when the Subject field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
+    cy.waitForRequest('@listingRequest');
+
+    cy.findByLabelText(labelSubject).clear();
+    cy.clickOutside();
+
+    cy.findByText(labelRequired).should('be.visible');
+    cy.findByLabelText(labelSave).should('be.disabled');
 
     cy.matchImageSnapshot();
   });

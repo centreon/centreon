@@ -126,6 +126,8 @@ final class FindServiceTemplates
             $dto->retryCheckInterval = $serviceTemplate->getRetryCheckInterval();
             $dto->serviceTemplateId = $serviceTemplate->getServiceTemplateParentId();
             $dto->severityId = $serviceTemplate->getSeverityId();
+            $dto->hostTemplateIds = $serviceTemplate->getHostTemplateIds();
+
             $response->serviceTemplates[] = $dto;
         }
 

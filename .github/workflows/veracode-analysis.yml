@@ -72,21 +72,23 @@ jobs:
 
       - name: Get baseline files
         run: |
-          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
-          aws s3 ls "$BUCKET/filtered_results.json" || RESULT=$( echo $? )
+          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}"
+          aws s3 ls "$BUCKET/${{ github.base_ref || github.ref_name }}/results.json" || RESULT=$( echo $? )
           if [[ $RESULT -eq 0 ]]; then
-            aws s3 cp "$BUCKET/filtered_results.json" "/tmp/filtered_results.json"
-            echo "baseline_file=/tmp/filtered_results.json" >> $GITHUB_ENV
-            echo "create_baseline_from=filtered" >> $GITHUB_ENV
+            aws s3 cp "$BUCKET/${{ github.base_ref || github.ref_name }}/results.json" "/tmp/results.json"
+            echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
+            echo "create_baseline_from=standard" >> $GITHUB_ENV
           else
-            echo "[DEBUG] - Filtered baseline file not found in the bucket"
-            aws s3 ls "$BUCKET/results.json" || RESULT=$( echo $? )
+            RESULT=0
+            echo "[DEBUG] - Baseline file not found for branch ${{ github.base_ref || github.ref_name }}"
+            echo "[DEBUG] - Using develop's Baseline file"
+            aws s3 ls "$BUCKET/develop/results.json" || RESULT=$( echo $? )
             if [[ $RESULT -eq 0 ]]; then
-              aws s3 cp "$BUCKET/results.json" "/tmp/results.json"
+              aws s3 cp "$BUCKET/develop/results.json" "/tmp/results.json"
               echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
               echo "create_baseline_from=standard" >> $GITHUB_ENV
             else
-              echo "[DEBUG] - Standard baseline file not found in the bucket"
+              echo "[DEBUG] - develop's baseline file not found in the bucket"
               echo "baseline_file=" >> $GITHUB_ENV
               echo "create_baseline_from=" >> $GITHUB_ENV
             fi
@@ -97,22 +99,17 @@ jobs:
           distribution: 'zulu'
           java-version: 8
 
-      - name: DEBUG location
-        run: |
-          ls -la
-          ls -la /tmp
-
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.3
         with:
-          vid: ${{ secrets.veracode_api_id }}
-          vkey: ${{ secrets.veracode_api_key }}
+          vid: '${{ secrets.veracode_api_id }}'
+          vkey: '${{ secrets.veracode_api_key }}'
           file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           baseline_file: "${{ env.baseline_file }}"
           create_baseline_from: "${{ env.create_baseline_from }}"
           fail_build: false #TODO: Do not fail the jobs until grace period ends
           #fail_build: '${{ needs.build.outputs.fail_build }}'
-          fail_on_severity: "Medium"
+          fail_on_severity: "'Very High','High'"
           timeout: 60
           development_stage: '${{ needs.build.outputs.development_stage }}'
           summary_display: '${{ needs.build.outputs.display_summary }}'
@@ -126,3 +123,36 @@ jobs:
           BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
           aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
           aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
+
+  policy-scan:
+    needs: [build]
+    name: Run a sandbox scan
+    # only stable and unstable maintenances branches will produce a report
+    if: needs.build.outputs.development_stage != 'Development'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - name: Get build binary
+        uses: actions/cache/restore@v3
+        with:
+          path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
+          key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
+
+      - name: Run a sandbox scan
+        uses: veracode/veracode-uploadandscan-action@master
+        with:
+          appname: "${{ inputs.module_name }}"
+          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_sha-${{ github.sha }}"
+          filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
+          vid: '${{ secrets.veracode_api_id }}'
+          vkey: '${{ secrets.veracode_api_key }}'
+          createprofile: true
+          createsandbox: true
+          sandboxname: "${{ github.ref_name }}"
+          criticality: "High"
+          scantimeout: 60
+          includenewmodules: true
+          scanallnonfataltoplevelmodules: true
+          deleteincompletescan: 1
+          scanpollinginterval: 60 # time between two checks in seconds / [30 to 120]

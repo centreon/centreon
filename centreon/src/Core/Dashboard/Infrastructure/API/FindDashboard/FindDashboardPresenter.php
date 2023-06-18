@@ -26,7 +26,8 @@ namespace Core\Dashboard\Infrastructure\API\FindDashboard;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
-use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardUserDto;
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\PanelResponseDto;
+use Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
@@ -45,6 +46,7 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
                 'updated_by' => $this->userToOptionalArray($data->updatedBy),
                 'created_at' => $this->formatDateToIso8601($data->createdAt),
                 'updated_at' => $this->formatDateToIso8601($data->updatedAt),
+                'panels' => array_map($this->panelToArray(...), $data->panels),
             ]);
         } else {
             $this->setResponseStatus($data);
@@ -52,15 +54,39 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
     }
 
     /**
-     * @param ?FindDashboardUserDto $dto
+     * @param ?UserResponseDto $dto
      *
-     * @return null|array{id: int, name: string}
+     * @return null|array<scalar>
      */
-    private function userToOptionalArray(?FindDashboardUserDto $dto): ?array
+    private function userToOptionalArray(?UserResponseDto $dto): ?array
     {
         return $dto ? [
             'id' => $dto->id,
             'name' => $dto->name,
         ] : null;
+    }
+
+    /**
+     * @param PanelResponseDto $panel
+     *
+     * @return array<mixed>
+     */
+    private function panelToArray(PanelResponseDto $panel): array
+    {
+        return [
+            'id' => $panel->id,
+            'name' => $panel->name,
+            'layout' => [
+                'x' => $panel->layout->posX,
+                'y' => $panel->layout->posY,
+                'width' => $panel->layout->width,
+                'height' => $panel->layout->height,
+                'min_width' => $panel->layout->minWidth,
+                'min_height' => $panel->layout->minHeight,
+            ],
+            'widget_type' => $panel->widgetType,
+            // Enforce stdClass in order to be sure that any array will be a JSON object "{...}"
+            'widget_settings' => (object) $panel->widgetSettings,
+        ];
     }
 }

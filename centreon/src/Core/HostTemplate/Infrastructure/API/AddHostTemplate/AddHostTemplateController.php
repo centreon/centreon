@@ -118,7 +118,9 @@ final class AddHostTemplateController extends AbstractController
              *     icon_id?: null|int,
              *     icon_alternative?: string,
              *     comment?: string,
-             *     is_activated?: bool
+             *     is_activated?: bool,
+             *     categories?: int[],
+             *     templates?: int[]
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostTemplateOnPremSchema.json');
@@ -162,6 +164,8 @@ final class AddHostTemplateController extends AbstractController
             $dto->iconAlternative = $data['icon_alternative'] ?? '';
             $dto->comment = $data['comment'] ?? '';
             $dto->isActivated = $data['is_activated'] ?? true;
+            $dto->categories = $data['categories'] ?? [];
+            $dto->templates = $data['templates'] ?? [];
 
             $useCase($dto, $presenter);
         } catch (\InvalidArgumentException $ex) {
@@ -201,7 +205,9 @@ final class AddHostTemplateController extends AbstractController
              *     note_url?: string,
              *     note?: string,
              *     action_url?: string,
-             *     is_activated?: bool
+             *     is_activated?: bool,
+             *     categories?: int[],
+             *     templates?: int[]
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostTemplateSaasSchema.json');
@@ -218,6 +224,8 @@ final class AddHostTemplateController extends AbstractController
             $dto->note = $data['note'] ?? '';
             $dto->actionUrl = $data['action_url'] ?? '';
             $dto->isActivated = $data['is_activated'] ?? true;
+            $dto->categories = $data['categories'] ?? [];
+            $dto->templates = $data['templates'] ?? [];
 
             $useCase($dto, $presenter);
         } catch (\InvalidArgumentException $ex) {

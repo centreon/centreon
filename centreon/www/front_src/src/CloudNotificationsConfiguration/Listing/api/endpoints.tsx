@@ -3,7 +3,7 @@ import type { ListingParameters } from '@centreon/ui';
 
 import { baseEndpoint } from '../../../api/endpoint';
 
-export const notificationListingEndpoint = `${baseEndpoint}/notifications`;
+export const notificationListingEndpoint = `${baseEndpoint}/configuration/notifications`;
 
 const buildNotificationsEndpoint = (parameters: ListingParameters): string => {
   return buildListingEndpoint({
