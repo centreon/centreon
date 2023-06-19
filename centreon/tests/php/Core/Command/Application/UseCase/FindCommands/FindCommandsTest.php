@@ -80,7 +80,7 @@ it('should present a ForbiddenResponse when the user has insufficient rights', f
 });
 
 it(
-    'should present a ErrorResponse when an exception of type RequestParametersTranslatorException is thrown',
+    'should present an ErrorResponse when an exception of type RequestParametersTranslatorException is thrown',
     function (): void {
         $this->contact
             ->expects($this->once())
@@ -104,7 +104,7 @@ it(
 );
 
 it(
-    'should present a ErrorResponse when an exception of type Exception is thrown',
+    'should present an ErrorResponse when an exception of type Exception is thrown',
     function (): void {
         $this->contact
             ->expects($this->once())
