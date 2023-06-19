@@ -68,7 +68,7 @@ jobs:
           coverage: none
         env:
           COMPOSER_TOKEN: ${{ secrets.composer_token }}
-          runner: ubuntu-22.04
+          runner: self-hosted
 
       - name: Setup docker compose
         run: |
