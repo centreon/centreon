@@ -3,11 +3,11 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import { loginAsAdminViaApiV2 } from '../../../commons';
 
 before(() => {
-  cy.startWebContainer();
-  cy.execInContainer({
+  cy.startWebContainer({ version: 'develop' });
+  /* cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 1@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
-  });
+  }); */
 });
 
 beforeEach(() => {
@@ -62,6 +62,7 @@ When('the user saves the dashboard', () => {
 });
 
 Then('the newly created dashboard appears in the dashboards library', () => {
+  cy.contains('Dashboards').should('be.visible');
   cy.getByLabel({ label: 'view', tag: 'button' }).should(
     'contain.text',
     'dashboard-without-desc'
@@ -90,6 +91,7 @@ When('the user fills in the name and description fields and save', () => {
 Then(
   'the newly created dashboard appears in the dashboards library with its name and description',
   () => {
+    cy.contains('Dashboards').should('be.visible');
     cy.getByLabel({ label: 'view', tag: 'button' })
       .should('contain.text', 'dashboard-with-desc')
       .should('contain.text', 'My First Dashboard :)');
@@ -117,6 +119,7 @@ When('the user leaves the creation form without saving the dashboard', () => {
 Then(
   'the dashboard has not been created when the user is redirected back on the dashboards library',
   () => {
+    cy.contains('Dashboards').should('be.visible');
     cy.getByLabel({ label: 'view', tag: 'button' }).should('not.exist');
   }
 );
