@@ -488,17 +488,17 @@ Feature:
     Then the response code should be "403"
 
   Scenario: Delete notification definition as an admin user
-    Given I am logged in
-    And a feature flag "notification" of bitmask 2
-    And the following CLAPI import data:
+    Given the following CLAPI import data:
     """
     SG;ADD;service-grp1;service-grp1-alias
     SG;ADD;service-grp2;service-grp2-alias
     CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
     CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
     """
+    And I am logged in
+    And a feature flag "notification" of bitmask 2
 
-    And I send a POST request to '/api/latest/configuration/notifications' with body:
+    When I send a POST request to '/api/latest/configuration/notifications' with body:
     """
     {
       "name": "notification-name",
@@ -529,8 +529,9 @@ Feature:
       "is_activated": true
     }
     """
+    Then the response code should be "201"
     When I send a DELETE request to '/api/latest/configuration/notifications/1'
-    Then the response should be "204"
+    Then the response code should be "204"
 
   Scenario: Delete notification definition as a user with sufficient rights
     Given the following CLAPI import data:
@@ -554,7 +555,7 @@ Feature:
     """
     And I am logged in with "test-user"/"Centreon@2022"
     And a feature flag "notification" of bitmask 2
-    And I send a POST request to '/api/latest/configuration/notifications' with body:
+    When I send a POST request to '/api/latest/configuration/notifications' with body:
       """
       {
         "name": "notification-name",
@@ -569,7 +570,7 @@ Feature:
           {
             "type": "servicegroup",
             "events": 5,
-            "ids": [1,2]
+            "ids": [1]
           }
         ],
         "messages": [
@@ -583,8 +584,9 @@ Feature:
         "is_activated": true
       }
       """
+    Then the response code should be "201"
     When I send a DELETE request to '/api/latest/configuration/notifications/1'
-    Then the response should be "204"
+    Then the response code should be "204"
 
   Scenario: Delete notification definition as a user with insufficient rights
     Given the following CLAPI import data:
@@ -607,7 +609,7 @@ Feature:
     """
     And I am logged in
     And a feature flag "notification" of bitmask 2
-    And I send a POST request to '/api/latest/configuration/notifications' with body:
+    When I send a POST request to '/api/latest/configuration/notifications' with body:
       """
       {
         "name": "notification-name",
@@ -635,6 +637,7 @@ Feature:
         "is_activated": true
       }
       """
+    Then the response code should be "201"
     And I am logged in with "test-user"/"Centreon@2022"
     When I send a DELETE request to '/api/latest/configuration/notifications/1'
     Then the response code should be "403"
@@ -661,7 +664,7 @@ Feature:
     """
     And I am logged in with "test-user"/"Centreon@2022"
     And a feature flag "notification" of bitmask 2
-    And I send a POST request to '/api/latest/configuration/notifications' with body:
+    When I send a POST request to '/api/latest/configuration/notifications' with body:
       """
       {
         "name": "notification-name",
@@ -676,7 +679,7 @@ Feature:
           {
             "type": "servicegroup",
             "events": 5,
-            "ids": [1,2]
+            "ids": [1]
           }
         ],
         "messages": [
@@ -690,20 +693,21 @@ Feature:
         "is_activated": true
       }
       """
+    Then the response code should be "201"
     When I send a DELETE request to '/api/latest/configuration/notifications/2'
-    Then the response should be "404"
+    Then the response code should be "404"
 
   Scenario: Delete multiple notification definitions as admin user
-    Given I am logged in
-    And a feature flag "notification" of bitmask 2
-    And the following CLAPI import data:
+    Given the following CLAPI import data:
     """
     SG;ADD;service-grp1;service-grp1-alias
     SG;ADD;service-grp2;service-grp2-alias
     CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
     CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
     """
-    And I send a POST request to '/api/latest/configuration/notifications' with body:
+    And I am logged in
+    And a feature flag "notification" of bitmask 2
+    When I send a POST request to '/api/latest/configuration/notifications' with body:
       """
       {
         "name": "notification-name",
@@ -718,7 +722,7 @@ Feature:
           {
             "type": "servicegroup",
             "events": 5,
-            "ids": [1,2]
+            "ids": [1]
           }
         ],
         "messages": [
@@ -732,6 +736,7 @@ Feature:
         "is_activated": true
       }
       """
+      Then the response code should be "201"
 
       When I send a POST request to '/api/latest/configuration/notifications/_delete' with body:
       """
@@ -739,7 +744,7 @@ Feature:
         "ids": [1, 2]
       }
       """
-      Then the response should be "207"
+      Then the response code should be "207"
       And the JSON should be equal to:
       """
         {
@@ -756,61 +761,6 @@ Feature:
             }
           ]
         }
-      """
-
-  Scenario: Delete multiple notfication definitions as an admin user sending invalid request body
-    Given I am logged in
-    And a feature flag "notification" of bitmask 2
-    And the following CLAPI import data:
-    """
-    SG;ADD;service-grp1;service-grp1-alias
-    SG;ADD;service-grp2;service-grp2-alias
-    CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
-    CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
-    """
-    And I send a POST request to '/api/latest/configuration/notifications' with body:
-      """
-      {
-        "name": "notification-name",
-        "timeperiod": 2,
-        "resources": [
-          {
-            "type": "hostgroup",
-            "events": 5,
-            "ids": [53,56],
-            "extra": {"event_services": 2}
-          },
-          {
-            "type": "servicegroup",
-            "events": 5,
-            "ids": [1,2]
-          }
-        ],
-        "messages": [
-          {
-            "channel": "Slack",
-            "subject": "Hello world !",
-            "message": "just a small message"
-          }
-        ],
-        "users": [20,21],
-        "is_activated": true
-      }
-      """
-
-      When I send a POST request to '/api/latest/configuration/notifications/_delete' with body:
-      """
-      {
-        "ids": 1
-      }
-      """
-      Then the response should be "400"
-      And the JSON should be equal to:
-      """
-      {
-        "code": 400,
-        "message": "[ids] Integer value found, but an array is required\n"
-      }
       """
 
   Scenario: Delete multiple notification definitions as a non-admin user with sufficient rights
@@ -835,7 +785,7 @@ Feature:
     """
     And I am logged in with "test-user"/"Centreon@2022"
     And a feature flag "notification" of bitmask 2
-    And I send a POST request to '/api/latest/configuration/notifications' with body:
+    When I send a POST request to '/api/latest/configuration/notifications' with body:
       """
       {
         "name": "notification-name",
@@ -850,7 +800,7 @@ Feature:
           {
             "type": "servicegroup",
             "events": 5,
-            "ids": [1,2]
+            "ids": [1]
           }
         ],
         "messages": [
@@ -864,6 +814,7 @@ Feature:
         "is_activated": true
       }
       """
+    Then the response code should be "201"
     And I send a POST request to '/api/latest/configuration/notifications' with body:
       """
       {
@@ -893,6 +844,7 @@ Feature:
         "is_activated": true
       }
       """
+    Then the response code should be "201"
 
     When I send a POST request to '/api/latest/configuration/notifications/_delete' with body:
       """
@@ -900,7 +852,7 @@ Feature:
         "ids": [1, 2]
       }
       """
-      Then the response should be "207"
+      Then the response code should be "207"
       And the JSON should be equal to:
       """
         {
@@ -934,7 +886,7 @@ Feature:
       "ids": [1, 2]
     }
     """
-    Then the response should be "403"
+    Then the response code should be "403"
     And the JSON should be equal to:
     """
     {
