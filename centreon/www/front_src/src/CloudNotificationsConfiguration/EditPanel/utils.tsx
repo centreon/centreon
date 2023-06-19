@@ -59,24 +59,20 @@ const formatMessages = ({ messages, messageType }): object => {
 const formatResource = ({ resources, resourceType }): object => {
   const resource = resources.find((elm) => equals(elm.type, resourceType));
 
-  if (!isNil(resource?.extra)) {
-    return {
-      ...resource,
-      events: formatEvents(resource.events, hostEvents),
-      extra: {
-        eventsServices: formatEvents(
-          resource.extra.eventsServices,
-          serviceEvents
-        ),
-        includeServices: {
-          checked: true,
-          label: 'Include services for these hosts'
-        }
+  return {
+    ...resource,
+    events: formatEvents(resource.events, hostEvents),
+    extra: {
+      eventsServices: formatEvents(
+        resource?.extra ? resource.extra.eventsServices : 0,
+        serviceEvents
+      ),
+      includeServices: {
+        checked: !isNil(resource?.extra),
+        label: 'Include services for these hosts'
       }
-    };
-  }
-
-  return { ...resource, events: formatEvents(resource.events, serviceEvents) };
+    }
+  };
 };
 
 export {
