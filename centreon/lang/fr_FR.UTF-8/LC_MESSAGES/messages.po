@@ -15665,16 +15665,16 @@ msgstr "Ce nom existe déjà"
 msgid "Notification deleted successfully"
 msgstr "La notification a été supprimée avec succès"
 
-msgid "Selected notifications have been deleted successfully"
+msgid "The selected notifications have been deleted successfully"
 msgstr "Les notifications sélectionnées ont été supprimées avec succès"
 
 msgid "Failed to delete the notification"
-msgstr "La notification a été supprimée avec succès"
+msgstr "La notification n'a pas pu être supprimée"
 
 msgid "Failed to delete the selected notifications"
 msgstr "Échec de la suppression des notifications sélectionnées"
 
-msgid "Unable to delete certain notifications"
+msgid "Unable to delete some notifications"
 msgstr "La suppression de certaines notifications a échoué"
 
 #: api/platform

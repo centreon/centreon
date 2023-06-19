@@ -34,7 +34,7 @@ const DeleteAction = (): JSX.Element => {
     <Box />
   ) : (
     <DeleteButton
-      ariaLabel="delete multiple notification"
+      ariaLabel="delete multiple notifications"
       className={classes.icon}
       fetchMethod={Method.POST}
       getEndpoint={getEndpoint}

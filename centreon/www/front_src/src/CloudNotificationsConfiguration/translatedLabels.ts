@@ -62,10 +62,10 @@ export const labelThisNameAlreadyExists = 'This name already exists';
 export const labelNotificationSuccessfullyDeleted =
   'Notification deleted successfully';
 export const labelNotificationsSuccessfullyDeleted =
-  'Selected notifications have been deleted successfully';
+  'The selected notifications have been deleted successfully';
 export const labelFailedToDeleteNotification =
   'Failed to delete the notification';
 export const labelFailedToDeleteNotifications =
   'Failed to delete the selected notifications';
 export const labelUnableToDeleteCertainNotifications =
-  'Unable to delete certain notifications';
+  'Unable to delete some notifications';
