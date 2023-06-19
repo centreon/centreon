@@ -5,7 +5,7 @@ content:
     schema:
       type: object
       properties:
-        result:
+        results:
           type: array
           items:
             type: object
