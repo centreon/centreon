@@ -101,7 +101,7 @@ final class AddHostTemplateFactory
         );
 
         $dto->macros = array_map(
-            static function (HostMacro $macro) {
+            static function (HostMacro $macro): array {
                 return [
                     'name' => $macro->getName(),
                     'value' => $macro->getValue(),

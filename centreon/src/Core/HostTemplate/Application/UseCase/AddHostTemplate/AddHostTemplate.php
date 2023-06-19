@@ -286,7 +286,7 @@ final class AddHostTemplate
      * macros linked through template inheritance, macros linked through command inheritance.
      *
      * @param int $hostTemplateId
-     * @param int $checkCommandId
+     * @param ?int $checkCommandId
      *
      * @throws \Throwable
      *
@@ -301,13 +301,13 @@ final class AddHostTemplate
         $inheritanceLine = HostInheritance::findInheritanceLine($hostTemplateId, $templateParents);
         $existingHostMacros = $this->readHostMacroRepository->findByHostIds($inheritanceLine);
 
-        [$directMacros, $inheritedMacros] = MacroManager::resolveInheritanceForHostMacro(
+        [, $inheritedMacros] = MacroManager::resolveInheritanceForHostMacro(
             $existingHostMacros,
             $inheritanceLine,
             $hostTemplateId
         );
 
-        /** @var array<string,CommandMacro> */
+        /** @var array<string,CommandMacro> $commandMacros */
         $commandMacros = [];
         if ($checkCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(

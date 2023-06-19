@@ -59,13 +59,13 @@ class AddHostTemplateValidation
      *
      * @param string $name
      *
-     * @throws HostTemplateException
+     * @throws HostTemplateException|\Throwable
      */
     public function assertIsValidName(string $name): void
     {
         $formattedName = HostTemplate::formatName($name);
         if ($this->readHostTemplateRepository->existsByName($formattedName)) {
-            $this->error('Host template name already exists', ['name' => $name, 'formattedName' => $formattedName]);
+            $this->error('Host template name already exists', compact('name', 'formattedName'));
 
             throw HostTemplateException::nameAlreadyExists($formattedName, $name);
         }
@@ -76,7 +76,7 @@ class AddHostTemplateValidation
      *
      * @param ?int $iconId
      *
-     * @throws HostTemplateException
+     * @throws HostTemplateException|\Throwable
      */
     public function assertIsValidIcon(?int $iconId): void
     {
@@ -93,7 +93,7 @@ class AddHostTemplateValidation
      * @param ?int $timePeriodId
      * @param ?string $propertyName
      *
-     * @throws HostTemplateException
+     * @throws HostTemplateException|\Throwable
      */
     public function assertIsValidTimePeriod(?int $timePeriodId, ?string $propertyName = null): void
     {
@@ -109,7 +109,7 @@ class AddHostTemplateValidation
      *
      * @param ?int $severityId
      *
-     * @throws HostTemplateException
+     * @throws HostTemplateException|\Throwable
      */
     public function assertIsValidSeverity(?int $severityId): void
     {
