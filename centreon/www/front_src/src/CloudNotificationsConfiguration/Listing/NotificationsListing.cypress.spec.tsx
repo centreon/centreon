@@ -28,7 +28,7 @@ const initialize = (): void => {
   });
 
   cy.interceptAPIRequest({
-    alias: 'secondePageRequest',
+    alias: 'secondPageRequest',
     method: Method.GET,
     path: buildNotificationsEndpoint({
       ...defaultQueryParams,
@@ -50,7 +50,7 @@ const initialize = (): void => {
   });
 
   cy.interceptAPIRequest({
-    alias: 'ListingWithLimit',
+    alias: 'listingWithLimit',
     method: Method.GET,
     path: buildNotificationsEndpoint({
       ...defaultQueryParams,
@@ -129,7 +129,7 @@ describe('Notifications Listing', () => {
 
     cy.waitForRequestAndVerifyQueries({
       queries: [{ key: 'limit', value: '20' }],
-      requestAlias: 'ListingWithLimit'
+      requestAlias: 'listingWithLimit'
     });
 
     cy.get('#Rows\\ per\\ page').click();
@@ -140,6 +140,8 @@ describe('Notifications Listing', () => {
       requestAlias: 'defaultRequest'
     });
 
+    cy.contains('notification0').should('be.visible');
+
     cy.matchImageSnapshot();
   });
 
@@ -149,7 +151,7 @@ describe('Notifications Listing', () => {
     cy.findByLabelText('Next page').click();
     cy.waitForRequestAndVerifyQueries({
       queries: [{ key: 'page', value: '2' }],
-      requestAlias: 'secondePageRequest'
+      requestAlias: 'secondPageRequest'
     });
 
     cy.findByLabelText('Previous page').click();
@@ -169,6 +171,8 @@ describe('Notifications Listing', () => {
       queries: [{ key: 'page', value: '1' }],
       requestAlias: 'defaultRequest'
     });
+
+    cy.contains('notification0').should('be.visible');
 
     cy.matchImageSnapshot();
   });
@@ -196,6 +200,8 @@ describe('column sorting', () => {
         queries: [{ key: 'sort_by', value: { [sortBy]: 'asc' } }],
         requestAlias: `dataToListingTableAsc${label}`
       });
+
+      cy.contains('notification0').should('be.visible');
 
       cy.matchImageSnapshot(
         `column sorting --  executes a listing request with sorty_by param when the ${label} column is clicked`

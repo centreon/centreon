@@ -48,6 +48,9 @@ const useDashboards = (): UseDashboardState => {
     action: () => {
       setPage((currentPage) => currentPage + 1);
     },
+    intersectionObserverOptions: {
+      threshold: 0.5
+    },
     loading: !equals(fetchStatus, 'idle'),
     maxPage,
     page
