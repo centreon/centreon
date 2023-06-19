@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
 
+import { ScaleLinear } from 'd3-scale';
+
 import { Line, Metric, TimeValue } from './timeSeries/models';
 import {
   AxisX,
@@ -79,10 +81,15 @@ export interface GraphHeader {
   extraComponent?: ReactNode;
 }
 
+export interface DisplayAnchor {
+  displayGuidingLines?: boolean;
+  displayTooltipsGuidingLines?: boolean;
+}
+
 export interface GraphProps {
   annotationEvent?: AnnotationEvent;
   axis?: Axis;
-  displayAnchor?: boolean;
+  displayAnchor?: DisplayAnchor;
   header?: GraphHeader;
   height?: number;
   loading: boolean;
@@ -134,4 +141,10 @@ export interface GlobalAreaLines {
 export interface LegendModel {
   display?: boolean;
   renderExtraComponent?: ReactNode;
+}
+
+export interface GetDate {
+  positionX: number;
+  timeSeries: Array<TimeValue>;
+  xScale: ScaleLinear<number, number>;
 }

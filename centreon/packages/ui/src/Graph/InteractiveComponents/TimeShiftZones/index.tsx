@@ -60,6 +60,7 @@ const TimeShiftZones = ({
         <TimeShiftIcon
           Icon={Icon}
           ariaLabel={ariaLabelIcon}
+          directionHovered={directionHovered}
           xIcon={xIcon}
           yIcon={yIcon}
         />

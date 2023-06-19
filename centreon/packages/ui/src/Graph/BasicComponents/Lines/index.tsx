@@ -6,7 +6,7 @@ import { isNil } from 'ramda';
 import GuidingLines from '../../InteractiveComponents/AnchorPoint/GuidingLines';
 import RegularAnchorPoint from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
 import { displayArea } from '../../helpers/index';
-import { GlobalAreaLines } from '../../models';
+import { DisplayAnchor, GlobalAreaLines } from '../../models';
 import { getStackedYScale, getUnits, getYScale } from '../../timeSeries';
 import { Line, TimeValue } from '../../timeSeries/models';
 
@@ -21,7 +21,7 @@ import {
 } from './Threshold/models';
 
 interface Props extends GlobalAreaLines {
-  displayAnchor: boolean;
+  displayAnchor?: DisplayAnchor;
   displayedLines: Array<Line>;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
   height: number;
@@ -65,8 +65,9 @@ const Lines = ({
     rightScale
   });
 
+  const displayGuidingLines = displayAnchor?.displayGuidingLines ?? true;
   const commonStackedLinesProps = {
-    displayAnchor,
+    displayAnchor: displayGuidingLines,
     graphHeight: height,
     graphSvgRef,
     graphWidth: width,
@@ -76,6 +77,15 @@ const Lines = ({
 
   return (
     <g>
+      {displayGuidingLines && (
+        <GuidingLines
+          graphHeight={height}
+          graphWidth={width}
+          timeSeries={timeSeries}
+          xScale={xScale}
+        />
+      )}
+
       {(areaStackedLines?.display ?? true) && (
         <>
           {displayArea(stackedLinesData.lines) && (
@@ -108,15 +118,6 @@ const Lines = ({
         />
       )}
 
-      {displayAnchor && (
-        <GuidingLines
-          graphHeight={height}
-          graphWidth={width}
-          timeSeries={timeSeries}
-          xScale={xScale}
-        />
-      )}
-
       {displayAreaRegularLines
         ? regularLines.map(
             ({
@@ -143,7 +144,7 @@ const Lines = ({
 
               return (
                 <g key={metric}>
-                  {displayAnchor && (
+                  {displayGuidingLines && (
                     <RegularAnchorPoint
                       areaColor={areaColor}
                       lineColor={lineColor}

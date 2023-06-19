@@ -201,13 +201,38 @@ export const argTypes = {
       category: 'Graph data'
     }
   },
+
   displayAnchor: {
-    control: 'boolean',
-    description:
-      'displays or not the timing, circle, vertical and horizontal line for each point of the corresponding graph (line) according to the interaction of the mouse with the graph',
+    control: 'object',
+    description: getDescription({
+      sections: [
+        {
+          name: '',
+          props: [
+            {
+              displayGuidingLines: {
+                description: 'displays the guiding lines',
+                type: 'boolean'
+              }
+            },
+            {
+              displayTooltipsGuidingLines: {
+                description:
+                  'displays the tooltips (labels) on the axis bottom/left/right',
+                type: 'boolean'
+              }
+            }
+          ],
+          type: 'object'
+        }
+      ]
+    }),
     table: {
       category: 'Graph interaction',
-      type: { summary: 'boolean' }
+      type: {
+        summary:
+          'displays or not the guiding lines and the dots for each point of the corresponding graph (line) according to the interaction of the mouse with the graph'
+      }
     }
   },
   end: {

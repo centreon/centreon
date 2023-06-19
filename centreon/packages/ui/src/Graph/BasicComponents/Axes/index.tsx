@@ -61,7 +61,7 @@ const Axes = ({
       {axisLeft.displayUnit && <UnitLabel unit={firstUnit} x={-4} />}
 
       <Axis.AxisLeft
-        numTicks={axisLeft.numTicks}
+        numTicks={axisLeft?.numTicks}
         orientation="left"
         scale={leftScale}
         tickFormat={axisLeft.tickFormat}
@@ -72,7 +72,7 @@ const Axes = ({
       {displayAxisRight && (
         <Axis.AxisRight
           left={width}
-          numTicks={axisRight.numTicks}
+          numTicks={axisRight?.numTicks}
           orientation="right"
           scale={rightScale}
           tickFormat={axisRight.tickFormat}

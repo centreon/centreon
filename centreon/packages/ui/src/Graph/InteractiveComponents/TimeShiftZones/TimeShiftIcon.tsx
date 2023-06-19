@@ -5,11 +5,14 @@ import { makeStyles } from 'tss-react/mui';
 
 import { useMemoComponent } from '@centreon/ui';
 
+import { TimeShiftDirection } from './models';
+
 export const timeShiftIconSize = 20;
 
 interface Props {
   Icon: ReactNode;
   ariaLabel: string;
+  directionHovered: TimeShiftDirection;
   xIcon: number;
   yIcon: number;
 }
@@ -24,7 +27,8 @@ const TimeShiftIcon = ({
   xIcon,
   yIcon,
   Icon,
-  ariaLabel
+  ariaLabel,
+  directionHovered
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -51,7 +55,7 @@ const TimeShiftIcon = ({
         </svg>
       </g>
     ),
-    memoProps: [xIcon, ariaLabel]
+    memoProps: [xIcon, ariaLabel, directionHovered]
   });
 };
 

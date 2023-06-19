@@ -40,7 +40,7 @@ const RegularAnchorPoint = ({
   transparency,
   lineColor
 }: Props): JSX.Element | null => {
-  const { timeTick } = useTickGraph({
+  const { tickAxisBottom: timeTick } = useTickGraph({
     timeSeries,
     xScale
   });

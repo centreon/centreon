@@ -4,15 +4,12 @@ import { all, isNil, map, not, nth, path, pipe, prop } from 'ramda';
 
 import StackedAnchorPoint from '../../../InteractiveComponents/AnchorPoint/StackedAnchorPoint';
 import { StackValue } from '../../../InteractiveComponents/AnchorPoint/models';
-import useTickGraph from '../../../InteractiveComponents/AnchorPoint/useTickGraph';
 import { getFillColor } from '../../../common';
 import { getTime } from '../../../timeSeries';
 import { Line, TimeValue } from '../../../timeSeries/models';
 
 interface Props {
   displayAnchor: boolean;
-  graphHeight: number;
-  graphWidth: number;
   lines: Array<Line>;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
@@ -24,15 +21,8 @@ const StackLines = ({
   lines,
   yScale,
   xScale,
-  displayAnchor,
-  graphHeight,
-  graphWidth
+  displayAnchor
 }: Props): JSX.Element => {
-  const { timeTick, positionX, positionY } = useTickGraph({
-    timeSeries,
-    xScale
-  });
-
   return (
     <Shape.AreaStack
       curve={Curve.curveLinear}
@@ -60,13 +50,9 @@ const StackLines = ({
               {displayAnchor && (
                 <StackedAnchorPoint
                   areaColor={areaColor}
-                  graphHeight={graphHeight}
-                  graphWidth={graphWidth}
                   lineColor={lineColor}
-                  positionX={positionX}
-                  positionY={positionY}
                   stackValues={stack as unknown as Array<StackValue>}
-                  timeTick={timeTick}
+                  timeSeries={timeSeries}
                   transparency={transparency}
                   xScale={xScale}
                   yScale={yScale}

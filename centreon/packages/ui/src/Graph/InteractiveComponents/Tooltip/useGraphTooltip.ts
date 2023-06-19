@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 
-import { ScaleLinear } from 'd3-scale';
 import { Event, Tooltip } from '@visx/visx';
+import { ScaleLinear } from 'd3-scale';
 import { useAtomValue } from 'jotai';
 
-import { getTimeValue } from '../../timeSeries';
-import { eventMouseUpAtom } from '../interactionWithGraphAtoms';
+import { getDate } from '../../helpers/index';
 import { TimeValue } from '../../timeSeries/models';
 import { applyingZoomAtomAtom } from '../ZoomPreview/zoomPreviewAtoms';
+import { eventMouseUpAtom } from '../interactionWithGraphAtoms';
 
 import { GraphTooltip, width } from './models';
 
@@ -36,16 +36,6 @@ const useGraphTooltip = ({
   const mouseUpEvent = useAtomValue(eventMouseUpAtom);
   const isZoomApplied = useAtomValue(applyingZoomAtomAtom);
 
-  const getDate = (positionX): Date => {
-    const { timeTick } = getTimeValue({
-      timeSeries,
-      x: positionX,
-      xScale
-    });
-
-    return new Date(timeTick);
-  };
-
   useEffect(() => {
     if (!mouseUpEvent || isZoomApplied) {
       return;
@@ -59,7 +49,7 @@ const useGraphTooltip = ({
     const displayLeft = graphWidth - x < tooltipWidth;
 
     showTooltip({
-      tooltipData: getDate(x),
+      tooltipData: getDate({ positionX: x, timeSeries, xScale }),
       tooltipLeft: displayLeft ? x - tooltipWidth : x,
       tooltipTop: y
     });

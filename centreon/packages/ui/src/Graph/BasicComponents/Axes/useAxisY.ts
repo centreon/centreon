@@ -10,8 +10,8 @@ import { Data, LabelProps } from './models';
 
 interface AxisYData {
   displayUnit: boolean;
-  numTicks: number;
-  tickFormat: Axis.TickFormatter<unknown>;
+  numTicks?: number;
+  tickFormat: (value: unknown) => string;
   tickLabelProps: Axis.TickLabelProps<unknown>;
 }
 
@@ -25,8 +25,8 @@ interface AxisY {
 }
 
 interface Props {
-  data: Data;
-  graphHeight: number;
+  data: Omit<Data, 'timeSeries'>;
+  graphHeight?: number;
 }
 
 const useAxisY = ({ data, graphHeight }: Props): AxisY => {
@@ -35,7 +35,7 @@ const useAxisY = ({ data, graphHeight }: Props): AxisY => {
   const { lines } = data;
   const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
 
-  const numTicks = Math.ceil(graphHeight / 30);
+  const numTicks = graphHeight && Math.ceil(graphHeight / 30);
 
   const hasMoreThanTwoUnits = !isNil(thirdUnit);
   const hasTwoUnits = !isNil(secondUnit) && !hasMoreThanTwoUnits;

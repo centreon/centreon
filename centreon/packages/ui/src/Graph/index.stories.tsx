@@ -102,7 +102,7 @@ const ExternalComponent = (tooltipData): JSX.Element => {
       <br />
       <br />
       {format({
-        date: new Date(data),
+        date: data,
         formatString: dateTimeFormat
       })}
       <br />

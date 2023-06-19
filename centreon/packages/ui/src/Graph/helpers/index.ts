@@ -3,8 +3,8 @@ import { gt, gte, isEmpty, isNil, prop, propEq, reject, sortBy } from 'ramda';
 
 import { LinesData } from '../BasicComponents/Lines/models';
 import { dateFormat, timeFormat } from '../common';
-import { GraphData, GraphInterval } from '../models';
-import { getLineData, getTimeSeries } from '../timeSeries';
+import { GetDate, GraphData, GraphInterval } from '../models';
+import { getLineData, getTimeSeries, getTimeValue } from '../timeSeries';
 
 export const adjustGraphData = (graphData: GraphData): LinesData => {
   const lines = getLineData(graphData);
@@ -46,3 +46,13 @@ export const truncate = (content?: string): string => {
 
 export const displayArea = (data: unknown): boolean =>
   !isEmpty(data) && !isNil(data);
+
+export const getDate = ({ positionX, xScale, timeSeries }: GetDate): Date => {
+  const { timeTick } = getTimeValue({
+    timeSeries,
+    x: positionX,
+    xScale
+  });
+
+  return new Date(timeTick);
+};

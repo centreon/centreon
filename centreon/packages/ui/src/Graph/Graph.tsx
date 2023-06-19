@@ -8,11 +8,13 @@ import { ClickAwayListener, Skeleton } from '@mui/material';
 import Axes from './BasicComponents/Axes';
 import Grids from './BasicComponents/Grids';
 import Lines from './BasicComponents/Lines';
+import { canDisplayThreshold } from './BasicComponents/Lines/Threshold/models';
 import LoadingProgress from './BasicComponents/LoadingProgress';
 import useFilterLines from './BasicComponents/useFilterLines';
 import { useStyles } from './Graph.styles';
 import Header from './Header';
 import InteractionWithGraph from './InteractiveComponents';
+import TooltipAnchorPoint from './InteractiveComponents/AnchorPoint/TooltipAnchorPoint';
 import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
 import Legend from './Legend';
@@ -26,7 +28,6 @@ import {
 } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
 import { useIntersection } from './useGraphIntersection';
-import { canDisplayThreshold } from './BasicComponents/Lines/Threshold/models';
 
 interface Props extends GraphProps {
   graphData: Data;
@@ -42,7 +43,7 @@ const Graph = ({
   width,
   shapeLines,
   axis,
-  displayAnchor = true,
+  displayAnchor,
   loading,
   zoomPreview,
   graphInterval,
@@ -119,7 +120,7 @@ const Graph = ({
   return (
     <>
       <Header
-        displayTimeTick={displayAnchor}
+        displayTimeTick={displayAnchor?.displayGuidingLines ?? true}
         header={header}
         timeSeries={timeSeries}
         title={title}
@@ -185,10 +186,23 @@ const Graph = ({
           {displayTooltip && (
             <GraphTooltip {...tooltip} {...graphTooltipData} />
           )}
+          {(displayAnchor?.displayTooltipsGuidingLines ?? true) && (
+            <TooltipAnchorPoint
+              baseAxis={baseAxis}
+              graphHeight={graphHeight}
+              graphWidth={graphWidth}
+              leftScale={leftScale}
+              lines={displayedLines}
+              rightScale={rightScale}
+              timeSeries={timeSeries}
+              xScale={xScale}
+            />
+          )}
+
           {displayLegend && (
             <Legend
               base={baseAxis}
-              displayAnchor={displayAnchor}
+              displayAnchor={displayAnchor?.displayGuidingLines ?? true}
               lines={newLines}
               renderExtraComponent={legend?.renderExtraComponent}
               timeSeries={timeSeries}

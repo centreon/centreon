@@ -28,12 +28,14 @@ const Header = ({
   const { classes } = useStyles();
   const { toDateTime } = useLocaleDateTimeFormat();
 
-  const { timeTick } = useTickGraph({
+  const { tickAxisBottom } = useTickGraph({
     timeSeries,
     xScale
   });
   const time =
-    displayTimeTick && !isNil(timeTick) ? toDateTime(timeTick) : null;
+    displayTimeTick && !isNil(tickAxisBottom)
+      ? toDateTime(tickAxisBottom)
+      : null;
 
   const displayTitle = header?.displayTitle ?? true;
 

@@ -4,24 +4,43 @@ import { ScaleLinear } from 'd3-scale';
 import { useAtomValue } from 'jotai';
 import { isEmpty, isNil, not } from 'ramda';
 
+import useAxisY from '../../BasicComponents/Axes/useAxisY';
 import { margin } from '../../common';
 import { getMetrics, getTimeValue } from '../../timeSeries';
-import { TimeValue } from '../../timeSeries/models';
+import { Line, TimeValue } from '../../timeSeries/models';
 import { mousePositionAtom, timeValueAtom } from '../interactionWithGraphAtoms';
 
 interface AnchorPointResult {
   positionX?: number;
   positionY?: number;
-  timeTick: Date | null;
+  tickAxisBottom: Date | null;
+  tickAxisLeft: string | null;
+  tickAxisRight: string | null;
 }
 
 interface Props {
+  baseAxis?: number;
+  leftScale?: ScaleLinear<number, number>;
+  lines?: Array<Line>;
+  rightScale?: ScaleLinear<number, number>;
   timeSeries: Array<TimeValue>;
   xScale: ScaleLinear<number, number>;
 }
 
-const useTickGraph = ({ timeSeries, xScale }: Props): AnchorPointResult => {
-  const [timeTick, setTimeTick] = useState<Date | null>(null);
+const useTickGraph = ({
+  timeSeries,
+  xScale,
+  leftScale,
+  rightScale,
+  lines = [],
+  baseAxis = 1000
+}: Props): AnchorPointResult => {
+  const [tickAxisBottom, setTickAxisBottom] = useState<Date | null>(null);
+  const [tickAxisLeft, setTickAxisLeft] = useState<string | null>(null);
+  const [tickAxisRight, setTickAxisRight] = useState<string | null>(null);
+
+  const { axisRight, axisLeft } = useAxisY({ data: { baseAxis, lines } });
+
   const mousePosition = useAtomValue(mousePositionAtom);
   const timeValueData = useAtomValue(timeValueAtom);
 
@@ -34,7 +53,9 @@ const useTickGraph = ({ timeSeries, xScale }: Props): AnchorPointResult => {
 
   useEffect(() => {
     if (!mousePosition) {
-      setTimeTick(null);
+      setTickAxisBottom(null);
+      setTickAxisLeft(null);
+      setTickAxisRight(null);
 
       return;
     }
@@ -45,13 +66,29 @@ const useTickGraph = ({ timeSeries, xScale }: Props): AnchorPointResult => {
       ? new Date(mousePositionTimeTick)
       : null;
 
-    setTimeTick(timeTickValue);
+    setTickAxisBottom(timeTickValue);
+
+    const valueTickAxisLeft = leftScale?.invert(positionY);
+    const formattedTickAxisLeft = axisLeft?.tickFormat?.(valueTickAxisLeft);
+
+    setTickAxisLeft(formattedTickAxisLeft);
+
+    if (!axisRight.display) {
+      setTickAxisRight(null);
+
+      return;
+    }
+    const valueTickAxisRight = rightScale?.invert(positionY);
+    const formattedTickAxisRight = axisRight?.tickFormat?.(valueTickAxisRight);
+    setTickAxisRight(formattedTickAxisRight);
   }, [mousePosition]);
 
   return {
     positionX,
     positionY,
-    timeTick
+    tickAxisBottom,
+    tickAxisLeft,
+    tickAxisRight
   };
 };
 export default useTickGraph;
