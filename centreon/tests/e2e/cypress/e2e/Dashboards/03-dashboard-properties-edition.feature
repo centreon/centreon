@@ -18,3 +18,10 @@ Scenario: Cancel an update form
   Then the dashboard has not been edited and features its former values
   When the user opens the form to update the dashboard for the second time
   Then the information the user filled in the first update form has not been saved
+
+Scenario: Empty a dashboard's name field
+  Given a user with dashboard edition rights in a dashboard update form
+  When the user sets an empty name for this dashboard 
+  Then the user cannot save the dashboard in its current state
+  When the user enters a new name for this dashboard 
+  Then the user can now save the dashboard

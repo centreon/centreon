@@ -135,5 +135,38 @@ Then(
       'not.contain.text',
       'dashboard-cancel-update-changes'
     );
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: 'DELETE FROM dashboard'
+    });
   }
 );
+
+Given('a user with dashboard edition rights in a dashboard update form', () => {
+  cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.contains('dashboard-to-edit')
+    .parent()
+    .find('button[aria-label="edit"]')
+    .click();
+});
+
+When('the user sets an empty name for this dashboard', () => {
+  cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
+});
+
+Then('the user cannot save the dashboard in its current state', () => {
+  cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.disabled');
+});
+
+When('the user enters a new name for this dashboard', () => {
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-update-name');
+});
+
+Then('the user can now save the dashboard', () => {
+  cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: 'DELETE FROM dashboard'
+  });
+});
