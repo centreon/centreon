@@ -24,11 +24,12 @@ declare(strict_types=1);
 namespace Tests\Core\Notification\Application\UseCase\DeleteNotifications;
 
 use Centreon\Domain\Contact\Contact;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\MultiStatusResponse;
+use Core\Infrastructure\Common\Repository\RepositoryException;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\DeleteNotifications\DeleteNotifications;
 use Core\Notification\Application\UseCase\DeleteNotifications\DeleteNotificationsRequest;
@@ -36,7 +37,6 @@ use Core\Notification\Application\UseCase\DeleteNotifications\DeleteNotification
 beforeEach(function () {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new DeleteNotificationsPresenterStub($this->presenterFormatter);
-    $this->readRepository = $this->createMock(ReadNotificationRepositoryInterface::class);
     $this->writeRepository = $this->createMock(WriteNotificationRepositoryInterface::class);
 });
 
@@ -44,12 +44,40 @@ it('should present a ForbiddenResponse when the user doesn\'t have access to end
     $contact = (new Contact())->setAdmin(false)->setId(1);
     $request = new DeleteNotificationsRequest();
     $request->ids = [1, 2];
-    (new DeleteNotifications($contact, $this->readRepository, $this->writeRepository)) ($request, $this->presenter);
+    (new DeleteNotifications($contact, $this->writeRepository)) ($request, $this->presenter);
 
     expect($this->presenter->response)
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($this->presenter->response->getMessage())
         ->toBe(NotificationException::deleteNotAllowed()->getMessage());
+});
+
+it('should present an an Error Response when an unhandled error occured', function () {
+    $contact = (new Contact())->setAdmin(false)->setId(1)->setTopologyRules(
+        [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
+    );
+
+    $request = new DeleteNotificationsRequest();
+    $request->ids = [1, 2];
+
+    $this->writeRepository
+        ->expects($this->any())
+        ->method('delete')
+        ->with(1)
+        ->willReturn(1);
+
+    $this->writeRepository
+        ->expects($this->any())
+        ->method('delete')
+        ->with(2)
+        ->willThrowException(new \Exception());
+
+    (new DeleteNotifications($contact, $this->writeRepository)) ($request, $this->presenter);
+
+    expect($this->presenter->response)
+        ->toBeInstanceOf(ErrorResponse::class)
+        ->and($this->presenter->response->getMessage())
+        ->toBe(NotificationException::errorWhileDeletingObject()->getMessage());
 });
 
 it('should present a Multi-Status Response when a bulk delete action is executed', function () {
@@ -60,24 +88,24 @@ it('should present a Multi-Status Response when a bulk delete action is executed
     $request = new DeleteNotificationsRequest();
     $request->ids = [1, 2, 3];
 
-    $this->readRepository
+    $this->writeRepository
         ->expects($this->any())
-        ->method('exists')
+        ->method('delete')
         ->with(1)
-        ->willReturn(true);
+        ->willReturn(1);
 
-    $this->readRepository
+    $this->writeRepository
         ->expects($this->any())
-        ->method('exists')
+        ->method('delete')
         ->with(2)
-        ->willReturn(false);
+        ->willReturn(0);
 
-    $this->readRepository
+    $this->writeRepository
         ->expects($this->any())
-        ->method('exists')
-        ->willThrowException(new \Exception());
+        ->method('delete')
+        ->willThrowException(new RepositoryException());
 
-    (new DeleteNotifications($contact, $this->readRepository, $this->writeRepository)) ($request, $this->presenter);
+    (new DeleteNotifications($contact, $this->writeRepository)) ($request, $this->presenter);
 
     expect($this->presenter->response)->toBeInstanceOf(MultiStatusResponse::class);
 });

@@ -81,20 +81,6 @@ final class DeleteNotifications
                 }
 
                 $response->results = $results;
-
-                // foreach ($request->ids as $notificationId) {
-                //     try {
-                //         $statusResponse = $this->deleteNotification($notificationId);
-                //     } catch (\Throwable $ex) {
-                //         $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-                //         $statusResponse = new ErrorResponse(NotificationException::errorWhileDeletingObject());
-                //         continue;
-                //     }
-
-                //     $responseStatusDto = $this->createStatusResonseDto($statusResponse, $notificationId);
-                //     $results[] = $responseStatusDto;
-                // }
-                // $response->results = $results;
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to delete notifications",
