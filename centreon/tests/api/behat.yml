@@ -64,14 +64,12 @@ default:
       paths: [ "%paths.base%/features/UserFilter.feature" ]
       contexts:
         - Centreon\Test\Api\Context\UserFilterContext
-    user_parameters:
-      paths: [ "%paths.base%/features/UserParameters.feature" ]
+    users_configuration:
+      paths:
+        - "%paths.base%/features/ConfigurationUsers.OpenApiDoc.feature"
+        - "%paths.base%/features/ConfigurationUsers.JsonSchema.feature"
       contexts:
-        - Centreon\Test\Api\Context\UserParametersContext
-    user_configuration:
-      paths: [ "%paths.base%/features/ConfigurationUsers.feature" ]
-      contexts:
-        - Centreon\Test\Behat\Api\Context\ApiContext
+        - Centreon\Test\Api\Context\FeatureFlagContext
     check:
       paths: [ "%paths.base%/features/Check.feature" ]
       contexts:

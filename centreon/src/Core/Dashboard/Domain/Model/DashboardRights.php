@@ -63,4 +63,14 @@ class DashboardRights
             || $this->contact->hasTopologyRole(self::ROLE_CREATOR)
             || $this->contact->hasTopologyRole(self::ROLE_VIEWER);
     }
+
+    public function getGlobalRole(): ?DashboardGlobalRole
+    {
+        return match (true) {
+            $this->hasAdminRole() => DashboardGlobalRole::Administrator,
+            $this->hasCreatorRole() => DashboardGlobalRole::Creator,
+            $this->hasViewerRole() => DashboardGlobalRole::Viewer,
+            default => null,
+        };
+    }
 }
