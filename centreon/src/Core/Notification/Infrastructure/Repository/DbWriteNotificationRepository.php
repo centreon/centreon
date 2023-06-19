@@ -26,6 +26,7 @@ namespace Core\Notification\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Infrastructure\Common\Repository\RepositoryException;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
 use Core\Notification\Domain\Model\NewNotification;
 
@@ -132,7 +133,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
-    public function delete(int $notificationId): void
+    public function delete(int $notificationId): int
     {
         $this->info('Deleting notification', ['id' => $notificationId]);
 
@@ -140,9 +141,14 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
             DELETE FROM `:db`.`notification`
             WHERE `id` = :notification_id
             SQL;
+        try {
+            $statement = $this->db->prepare($this->translateDbName($request));
+            $statement->bindValue(':notification_id', $notificationId, \PDO::PARAM_INT);
+            $statement->execute();
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':notification_id', $notificationId, \PDO::PARAM_INT);
-        $statement->execute();
+            return $statement->rowCount();
+        } catch (\Exception $ex) {
+            throw new RepositoryException($ex->getMessage());
+        }
     }
 }

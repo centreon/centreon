@@ -33,11 +33,9 @@ use Core\Application\Common\UseCase\{
     NotFoundResponse,
     ResponseStatusInterface
 };
+use Core\Infrastructure\Common\Repository\RepositoryException;
 use Core\Notification\Application\Exception\NotificationException;
-use Core\Notification\Application\Repository\{
-    ReadNotificationRepositoryInterface,
-    WriteNotificationRepositoryInterface
-};
+use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
 use Core\Notification\Domain\Model\ResponseCode;
 
 final class DeleteNotifications
@@ -47,12 +45,10 @@ final class DeleteNotifications
 
     /**
      * @param ContactInterface $contact
-     * @param ReadNotificationRepositoryInterface $readRepository
      * @param WriteNotificationRepositoryInterface $writeRepository
      */
     public function __construct(
         private readonly ContactInterface $contact,
-        private readonly ReadNotificationRepositoryInterface $readRepository,
         private readonly WriteNotificationRepositoryInterface $writeRepository
     ) {
     }
@@ -69,18 +65,36 @@ final class DeleteNotifications
             if ($this->contactCanExecuteUseCase()) {
                 $response = new DeleteNotificationsResponse();
                 $results = [];
+
                 foreach ($request->ids as $notificationId) {
                     try {
                         $statusResponse = $this->deleteNotification($notificationId);
-                    } catch (\Throwable $ex) {
+                        $responseStatusDto = $this->createStatusResonseDto($statusResponse, $notificationId);
+                        $results[] = $responseStatusDto;
+                    } catch (RepositoryException $ex) {
                         $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
                         $statusResponse = new ErrorResponse(NotificationException::errorWhileDeletingObject());
+                        $responseStatusDto = $this->createStatusResonseDto($statusResponse, $notificationId);
+                        $results[] = $responseStatusDto;
+                        continue;
                     }
-
-                    $responseStatusDto = $this->createStatusResonseDto($statusResponse, $notificationId);
-                    $results[] = $responseStatusDto;
                 }
+
                 $response->results = $results;
+
+                // foreach ($request->ids as $notificationId) {
+                //     try {
+                //         $statusResponse = $this->deleteNotification($notificationId);
+                //     } catch (\Throwable $ex) {
+                //         $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+                //         $statusResponse = new ErrorResponse(NotificationException::errorWhileDeletingObject());
+                //         continue;
+                //     }
+
+                //     $responseStatusDto = $this->createStatusResonseDto($statusResponse, $notificationId);
+                //     $results[] = $responseStatusDto;
+                // }
+                // $response->results = $results;
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to delete notifications",
@@ -103,9 +117,7 @@ final class DeleteNotifications
      */
     private function deleteNotification(int $notificationId): ResponseStatusInterface
     {
-        if ($this->readRepository->exists($notificationId)) {
-            $this->writeRepository->delete($notificationId);
-
+        if ($this->writeRepository->delete($notificationId) === 1) {
             return new NoContentResponse();
         }
 
