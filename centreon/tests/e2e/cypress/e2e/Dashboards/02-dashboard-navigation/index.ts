@@ -42,7 +42,7 @@ Then(
 );
 
 Given('a non-empty list of dashboards that fits on a single page', () => {
-  cy.insertDashboardList('dashboards/navigation/01-onepage.json');
+  cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
 });
 
@@ -70,7 +70,9 @@ Then(
 Given(
   'a non-empty library of dashboards that does not fit on a single page',
   () => {
-    cy.insertDashboardList('dashboards/navigation/02-morethanonepage.json');
+    cy.insertDashboardList(
+      'dashboards/navigation/dashboards-more-than-a-single-page.json'
+    );
     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
   }
 );
