@@ -26,7 +26,7 @@ When(
   'the user accesses the dashboard listing page on a platform with no dashboards',
   () => {
     cy.navigateTo({
-      page: 'Dashboard (beta)',
+      page: 'Dashboard',
       rootItemNumber: 0
     });
   }
