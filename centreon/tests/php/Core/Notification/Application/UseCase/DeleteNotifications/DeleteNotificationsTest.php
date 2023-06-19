@@ -89,23 +89,36 @@ it('should present a Multi-Status Response when a bulk delete action is executed
     $request->ids = [1, 2, 3];
 
     $this->writeRepository
-        ->expects($this->any())
+        ->expects($this->exactly(3))
         ->method('delete')
-        ->with(1)
-        ->willReturn(1);
-
-    $this->writeRepository
-        ->expects($this->any())
-        ->method('delete')
-        ->with(2)
-        ->willReturn(0);
-
-    $this->writeRepository
-        ->expects($this->any())
-        ->method('delete')
-        ->willThrowException(new RepositoryException());
+        ->will($this->onConsecutiveCalls(1, 0, 1));
 
     (new DeleteNotifications($contact, $this->writeRepository)) ($request, $this->presenter);
 
-    expect($this->presenter->response)->toBeInstanceOf(MultiStatusResponse::class);
+    $expectedResult = [
+        'results' => [
+            [
+                'href' => '/configuration/notifications/1',
+                'status' => 204,
+                'message' => null
+            ],
+            [
+                'href' => '/configuration/notifications/2',
+                'status' => 404,
+                'message' => 'Notification not found'
+            ],
+            [
+                'href' => '/configuration/notifications/3',
+                'status' => 204,
+                'message' => null
+            ]
+        ]
+    ];
+
+    expect($this->presenter->response)
+        ->toBeInstanceOf(MultiStatusResponse::class)
+        ->and($this->presenter->response->getPayload())
+        ->toBeArray()
+        ->and($this->presenter->response->getPayload())
+        ->toBe($expectedResult);
 });
