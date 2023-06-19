@@ -44,7 +44,7 @@ export const adaptNotifications = ({
     {
       events: adaptEvents(hostGroups.events),
       extra: {
-        eventsServices: adaptEvents(hostGroups?.extra?.eventsServices)
+        event_services: adaptEvents(hostGroups?.extra?.eventsServices)
       },
       ids: adpatIds(hostGroups.ids),
       type: hostGroups.type
