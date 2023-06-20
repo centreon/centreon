@@ -750,12 +750,12 @@ Feature:
         {
           "results": [
             {
-              "href": "/configuration/notifications/1",
+              "href": "/centreon/api/latest/configuration/notifications/1",
               "status": 204,
               "message": null
             },
             {
-              "href": "/configuration/notifications/2",
+              "href": "/centreon/api/latest/configuration/notifications/2",
               "status": 404,
               "message": "Notification not found"
             }
@@ -858,12 +858,12 @@ Feature:
         {
           "results": [
             {
-              "href": "/configuration/notifications/1",
+              "href": "/centreon/api/latest/configuration/notifications/1",
               "status": 204,
               "message": null
             },
             {
-              "href": "/configuration/notifications/2",
+              "href": "/centreon/api/latest/configuration/notifications/2",
               "status": 204,
               "message": null
             }
