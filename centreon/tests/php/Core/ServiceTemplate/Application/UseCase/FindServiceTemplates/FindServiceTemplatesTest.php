@@ -34,8 +34,8 @@ use Core\ServiceTemplate\Application\UseCase\FindServiceTemplates\FindServiceTem
 use Core\ServiceTemplate\Application\UseCase\FindServiceTemplates\FindServiceTemplates;
 use Core\ServiceTemplate\Application\UseCase\FindServiceTemplates\ServiceTemplateDto;
 use Core\ServiceTemplate\Domain\Model\NotificationType;
-use Tests\Core\ServiceTemplate\Infrastructure\API\FindServiceTemplates\FindServiceTemplatesPresenterStub;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
+use Tests\Core\ServiceTemplate\Infrastructure\API\FindServiceTemplates\FindServiceTemplatesPresenterStub;
 
 beforeEach(closure: function (): void {
     $this->repository = $this->createMock(ReadServiceTemplateRepositoryInterface::class);
@@ -56,6 +56,7 @@ beforeEach(closure: function (): void {
         ['c', 'd'],
         [NotificationType::Unknown],
         [2, 3],
+        [5, 6],
         true,
         true,
         true,
@@ -108,10 +109,10 @@ beforeEach(closure: function (): void {
     $this->serviceTemplateDto->passiveCheck = $this->serviceTemplateFound->getPassiveCheck();
     $this->serviceTemplateDto->volatility = $this->serviceTemplateFound->getVolatility();
     $this->serviceTemplateDto->notificationsEnabled = $this->serviceTemplateFound->getNotificationsEnabled();
-    $this->serviceTemplateDto->isContactAdditiveInheritance =
-        $this->serviceTemplateFound->isContactAdditiveInheritance();
-    $this->serviceTemplateDto->isContactGroupAdditiveInheritance =
-        $this->serviceTemplateFound->isContactGroupAdditiveInheritance();
+    $this->serviceTemplateDto->isContactAdditiveInheritance
+        = $this->serviceTemplateFound->isContactAdditiveInheritance();
+    $this->serviceTemplateDto->isContactGroupAdditiveInheritance
+        = $this->serviceTemplateFound->isContactGroupAdditiveInheritance();
     $this->serviceTemplateDto->notificationInterval = $this->serviceTemplateFound->getNotificationInterval();
     $this->serviceTemplateDto->notificationTimePeriodId = $this->serviceTemplateFound->getNotificationTimePeriodId();
     $this->serviceTemplateDto->notificationTypes = $this->serviceTemplateFound->getNotificationTypes();
@@ -135,9 +136,11 @@ beforeEach(closure: function (): void {
     $this->serviceTemplateDto->severityId = $this->serviceTemplateFound->getSeverityId();
     $this->serviceTemplateDto->isActivated = $this->serviceTemplateFound->isActivated();
     $this->serviceTemplateDto->isLocked = $this->serviceTemplateFound->isLocked();
+    $this->serviceTemplateDto->hostTemplateIds = $this->serviceTemplateFound->getHostTemplateIds();
+    $this->serviceTemplateDto->serviceCategoriesIds = $this->serviceTemplateFound->getServiceCategoryIds();
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $this->user
         ->expects($this->atMost(2))
         ->method('hasTopologyRole')
@@ -156,7 +159,7 @@ it('should present an ErrorResponse when an exception is thrown', function () {
         ->toBe(ServiceTemplateException::errorWhileSearching(new \Exception())->getMessage());
 });
 
-it('should present a ForbiddenResponse when the user has insufficient rights', function () {
+it('should present a ForbiddenResponse when the user has insufficient rights', function (): void {
     $this->user
         ->expects($this->atMost(2))
         ->method('hasTopologyRole')
@@ -175,7 +178,7 @@ it('should present a ForbiddenResponse when the user has insufficient rights', f
         ->toBe(ServiceTemplateException::accessNotAllowed()->getMessage());
 });
 
-it('should present a FindServiceTemplatesResponse when user has read-only rights', closure: function () {
+it('should present a FindServiceTemplatesResponse when user has read-only rights', closure: function (): void {
     $this->user
         ->expects($this->atMost(2))
         ->method('hasTopologyRole')
@@ -196,8 +199,8 @@ it('should present a FindServiceTemplatesResponse when user has read-only rights
     expect($this->presenter->response)->toBeInstanceOf(FindServiceTemplateResponse::class);
 });
 
-it('should present a FindHostTemplatesResponse when user has read-write rights', function () {
-        $this->user
+it('should present a FindHostTemplatesResponse when user has read-write rights', function (): void {
+    $this->user
         ->expects($this->atMost(2))
         ->method('hasTopologyRole')
         ->willReturnMap(
@@ -217,8 +220,8 @@ it('should present a FindHostTemplatesResponse when user has read-write rights',
     expect($this->presenter->response)->toBeInstanceOf(FindServiceTemplateResponse::class);
 });
 
-it('should present a FindHostTemplatesResponse when user has read or write rights', function () {
-        $this->user
+it('should present a FindHostTemplatesResponse when user has read or write rights', function (): void {
+    $this->user
         ->expects($this->atMost(2))
         ->method('hasTopologyRole')
         ->willReturnMap(
@@ -278,4 +281,6 @@ it('should present a FindHostTemplatesResponse when user has read or write right
     expect($dto->severityId)->toBe($this->serviceTemplateFound->getSeverityId());
     expect($dto->isActivated)->toBe($this->serviceTemplateFound->isActivated());
     expect($dto->isLocked)->toBe($this->serviceTemplateFound->isLocked());
+    expect($dto->hostTemplateIds)->toBe($this->serviceTemplateFound->getHostTemplateIds());
+    expect($dto->serviceCategoriesIds)->toBe($this->serviceTemplateFound->getServiceCategoryIds());
 });

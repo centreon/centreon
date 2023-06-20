@@ -127,6 +127,7 @@ final class FindServiceTemplates
             $dto->serviceTemplateId = $serviceTemplate->getServiceTemplateParentId();
             $dto->severityId = $serviceTemplate->getSeverityId();
             $dto->hostTemplateIds = $serviceTemplate->getHostTemplateIds();
+            $dto->serviceCategoriesIds = $serviceTemplate->getServiceCategoryIds();
 
             $response->serviceTemplates[] = $dto;
         }

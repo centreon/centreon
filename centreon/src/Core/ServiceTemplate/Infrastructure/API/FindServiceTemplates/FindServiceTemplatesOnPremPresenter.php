@@ -44,6 +44,9 @@ class FindServiceTemplatesOnPremPresenter extends AbstractPresenter implements F
         parent::__construct($presenterFormatter);
     }
 
+    /**
+     * @param ResponseStatusInterface|FindServiceTemplateResponse $response
+     */
     public function presentResponse(ResponseStatusInterface|FindServiceTemplateResponse $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
@@ -91,6 +94,7 @@ class FindServiceTemplatesOnPremPresenter extends AbstractPresenter implements F
                     'icon_alternative' => $dto->iconAlternativeText,
                     'severity_id' => $dto->severityId,
                     'host_templates' => $dto->hostTemplateIds,
+                    'service_categories' => $dto->serviceCategoriesIds,
                     'is_activated' => $dto->isActivated,
                     'is_locked' => $dto->isLocked,
                 ];

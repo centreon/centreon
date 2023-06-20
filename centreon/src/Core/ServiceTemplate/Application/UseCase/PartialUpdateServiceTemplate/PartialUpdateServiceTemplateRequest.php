@@ -30,8 +30,12 @@ final class PartialUpdateServiceTemplateRequest
     /** @var array<int>|NoValue */
     public array|NoValue $hostTemplates;
 
+    /** @var array<int>|NoValue */
+    public array|NoValue $serviceCategories;
+
     public function __construct(public int $id)
     {
         $this->hostTemplates = new NoValue();
+        $this->serviceCategories = new NoValue();
     }
 }

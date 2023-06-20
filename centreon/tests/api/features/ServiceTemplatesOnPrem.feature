@@ -171,6 +171,7 @@ Feature:
                     3,
                     11
                 ],
+                "service_categories": [],
                 "is_activated": true,
                 "is_locked": false
             }
@@ -192,7 +193,8 @@ Feature:
     When I send a PATCH request to '/api/latest/configuration/services/templates/27' with body:
     """
     {
-        "host_templates": [2, 3]
+        "host_templates": [2, 3],
+        "service_categories": [1, 4]
     }
     """
     Then the response code should be "204"
@@ -251,6 +253,10 @@ Feature:
                 "host_templates": [
                     2,
                     3
+                ],
+                "service_categories": [
+                    1,
+                    4
                 ],
                 "is_activated": true,
                 "is_locked": false
