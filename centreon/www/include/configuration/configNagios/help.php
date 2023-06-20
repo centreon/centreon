@@ -424,7 +424,7 @@ $help["soft_state_dependencies"] = dgettext(
 $help["service_check_timeout"] = dgettext(
     "help",
     "This is the maximum number of seconds that Monitoring Engine will allow service checks to run. " .
-    "If checks exceed this limit, they are killed and a UNKNOWN state is returned. A timeout error will " .
+    "If checks exceed this limit, they are killed and an UNKNOWN state is returned. A timeout error will " .
     "also be logged. This option is meant to be used as a last ditch mechanism to kill off plugins " .
     "which are misbehaving and not exiting in a timely manner. It should be set to something high " .
     "(like 60 seconds or more), so that each service check normally finishes executing within this " .
