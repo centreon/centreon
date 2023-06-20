@@ -3,11 +3,11 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import { loginAsAdminViaApiV2 } from '../../../commons';
 
 before(() => {
-  cy.startWebContainer();
-  cy.execInContainer({
+  cy.startWebContainer({ version: 'develop' });
+  /* cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 1@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
-  });
+  }); */
 });
 
 beforeEach(() => {
@@ -48,7 +48,7 @@ Given('a non-empty list of dashboards that fits on a single page', () => {
 
 When('the user clicks on the dashboard they want to select', () => {
   cy.getByLabel({ label: 'view', tag: 'button' })
-    .contains('dashboard-to-locate')
+    .contains('dashboard-to-locate-name')
     .click();
 });
 
@@ -81,7 +81,7 @@ When(
   'the user scrolls down on the page to look for a dashboard at the end of the dashboards library',
   () => {
     cy.getByLabel({ label: 'view', tag: 'button' })
-      .contains('dashboard-to-locate')
+      .contains('dashboard-to-locate-name')
       .should('not.exist');
 
     cy.getByLabel({ label: 'view', tag: 'button' })
@@ -112,14 +112,14 @@ Then(
       .should('not.be.visible');
 
     cy.getByLabel({ label: 'view', tag: 'button' })
-      .contains('dashboard-to-locate')
+      .contains('dashboard-to-locate-name')
       .should('exist');
   }
 );
 
 When('the user clicks on the dashboard that just appeared', () => {
   cy.getByLabel({ label: 'view', tag: 'button' })
-    .contains('dashboard-to-locate')
+    .contains('dashboard-to-locate-name')
     .click();
 });
 

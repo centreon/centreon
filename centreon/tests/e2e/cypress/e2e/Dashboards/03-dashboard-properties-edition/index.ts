@@ -27,7 +27,7 @@ Given(
 );
 
 When('the user selects the properties of the dashboard', () => {
-  cy.contains('dashboard-to-edit')
+  cy.contains('dashboard-to-edit-name')
     .parent()
     .find('button[aria-label="edit"]')
     .click();
@@ -39,12 +39,12 @@ Then(
     cy.contains('Update dashboard').should('be.visible');
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
       'have.value',
-      'dashboard-to-edit'
+      'dashboard-to-edit-name'
     );
 
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).should(
       'contain.text',
-      'dashboard-to-edit'
+      'dashboard-to-edit-description'
     );
 
     cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.disabled');
@@ -77,7 +77,8 @@ Then(
   'the dashboard is listed in the dashboards library with its new name and description',
   () => {
     cy.contains('Dashboards').should('be.visible');
-    cy.contains('dashboard-edit').parent().should('exist');
+    cy.contains('Update dashboard').should('not.exist');
+    cy.contains('dashboard-edited').parent().should('exist');
     cy.requestOnDatabase({
       database: 'centreon',
       query: 'DELETE FROM dashboard'
@@ -90,7 +91,7 @@ Given(
   () => {
     cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-    cy.contains('dashboard-to-edit')
+    cy.contains('dashboard-to-edit-name')
       .parent()
       .find('button[aria-label="edit"]')
       .click();
@@ -111,13 +112,14 @@ When('the user leaves the update form without saving', () => {
 
 Then('the dashboard has not been edited and features its former values', () => {
   cy.contains('dashboard-cancel-update-changes').should('not.exist');
-  cy.contains('dashboard-to-edit').parent().should('exist');
+  cy.contains('dashboard-to-edit-name').parent().should('exist');
+  cy.contains('dashboard-to-edit-description').parent().should('exist');
 });
 
 When(
   'the user opens the form to update the dashboard for the second time',
   () => {
-    cy.contains('dashboard-to-edit')
+    cy.contains('dashboard-to-edit-name')
       .parent()
       .find('button[aria-label="edit"]')
       .click();
@@ -142,10 +144,10 @@ Then(
   }
 );
 
-Given('a user with dashboard edition rights in a dashboard update form', () => {
+Given('a user with dashboard update rights in a dashboard update form', () => {
   cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-  cy.contains('dashboard-to-edit')
+  cy.contains('dashboard-to-edit-name')
     .parent()
     .find('button[aria-label="edit"]')
     .click();
@@ -170,3 +172,40 @@ Then('the user can now save the dashboard', () => {
     query: 'DELETE FROM dashboard'
   });
 });
+
+Given(
+  'a user with dashboard update rights in the update form of a dashboard with description',
+  () => {
+    cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.contains('dashboard-to-edit-name')
+      .parent()
+      .find('button[aria-label="edit"]')
+      .click();
+  }
+);
+
+When('the user sets an empty description for this dashboard', () => {
+  cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
+});
+
+Then('the user can save the dashboard with an empty description', () => {
+  cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
+});
+
+When('the user saves the dashboard with the description field empty', () => {
+  cy.getByLabel({ label: 'submit', tag: 'button' }).click();
+});
+
+Then(
+  'the dashboard is listed in the dashboard library with only its name',
+  () => {
+    cy.contains('dashboard-to-edit-name').parent().should('exist');
+    cy.contains('dashboard-to-edit-description').parent().should('not.exist');
+
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: 'DELETE FROM dashboard'
+    });
+  }
+);

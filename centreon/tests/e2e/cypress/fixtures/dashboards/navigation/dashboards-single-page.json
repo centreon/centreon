@@ -12,11 +12,11 @@
         "description":"dashboard-description-2" 
     },
     {
-        "name": "dashboard-to-edit",
-        "description":"dashboard-to-edit" 
+        "name": "dashboard-to-edit-name",
+        "description":"dashboard-to-edit-description" 
     },
     {
-        "name": "dashboard-to-locate",
-        "description": "dashboard-to-locate"
+        "name": "dashboard-to-locate-name",
+        "description": "dashboard-to-locate-description"
     }
 ]

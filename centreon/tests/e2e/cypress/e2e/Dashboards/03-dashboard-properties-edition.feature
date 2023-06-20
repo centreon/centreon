@@ -20,8 +20,15 @@ Scenario: Cancel an update form
   Then the information the user filled in the first update form has not been saved
 
 Scenario: Empty a dashboard's name field
-  Given a user with dashboard edition rights in a dashboard update form
+  Given a user with dashboard update rights in a dashboard update form
   When the user sets an empty name for this dashboard 
   Then the user cannot save the dashboard in its current state
   When the user enters a new name for this dashboard 
   Then the user can now save the dashboard
+
+Scenario: Empty a dashboard's description field
+  Given a user with dashboard update rights in the update form of a dashboard with description
+  When the user sets an empty description for this dashboard 
+  Then the user can save the dashboard with an empty description
+  When the user saves the dashboard with the description field empty
+  Then the dashboard is listed in the dashboard library with only its name
