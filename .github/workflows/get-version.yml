@@ -101,7 +101,7 @@ jobs:
               STABILITY="pkgtest"
               ;;
             *)
-              STABILITY="canary"
+              STABILITY="stable"
               ;;
           esac
           echo "stability=$STABILITY" >> $GITHUB_OUTPUT
