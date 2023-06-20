@@ -1,4 +1,5 @@
 import { equals } from 'ramda';
+import { Provider, createStore } from 'jotai';
 
 import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
 
@@ -26,13 +27,17 @@ import {
 
 import Listing from '.';
 
+const store = createStore();
+
 const ListingWithQueryProvider = (): JSX.Element => {
   return (
-    <TestQueryProvider>
-      <SnackbarProvider>
-        <Listing />
-      </SnackbarProvider>
-    </TestQueryProvider>
+    <Provider store={store}>
+      <TestQueryProvider>
+        <SnackbarProvider>
+          <Listing />
+        </SnackbarProvider>
+      </TestQueryProvider>
+    </Provider>
   );
 };
 
@@ -143,7 +148,7 @@ describe('Notifications Listing', () => {
   it('displays the first page of the notifications listing', () => {
     cy.waitForRequest('@defaultRequest');
 
-    cy.contains('notification0').should('be.visible');
+    cy.contains('notification1').should('be.visible');
 
     cy.matchImageSnapshot();
   });
@@ -167,7 +172,7 @@ describe('Notifications Listing', () => {
       requestAlias: 'defaultRequest'
     });
 
-    cy.contains('notification0').should('be.visible');
+    cy.contains('notification1').should('be.visible');
 
     cy.matchImageSnapshot();
   });
@@ -199,7 +204,7 @@ describe('Notifications Listing', () => {
       requestAlias: 'defaultRequest'
     });
 
-    cy.contains('notification0').should('be.visible');
+    cy.contains('notification1').should('be.visible');
 
     cy.matchImageSnapshot();
   });
@@ -215,19 +220,19 @@ describe('Listing header: Delete button', () => {
     });
     cy.render(ListingWithQueryProvider);
   });
-  it('Ensure that the Delete button remains hidden when no rows are selected, and that it becomes visible when one or more rows are selected', () => {
+  it('disables the Delete button when no rows are selected, and displays it when one or more rows are selected', () => {
     cy.waitForRequest('@defaultRequest');
 
-    cy.findByTestId('delete multiple notifications').should('not.exist');
+    cy.findByTestId('delete multiple notifications').should('be.disabled');
     cy.findByLabelText('Select row 1').click();
     cy.findByLabelText('Select row 2').click();
     cy.findByLabelText('Select row 3').click();
-    cy.findByTestId('delete multiple notifications').should('be.visible');
+    cy.findByTestId('delete multiple notifications').should('not.be.disabled');
 
     cy.matchImageSnapshot();
   });
 
-  it('Check that a confirmation dialog is displayed upon clicking the Delete button', () => {
+  it('displays a confirmation dialog upon clicking the Delete button', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.findByTestId('delete multiple notifications').click();
@@ -239,7 +244,7 @@ describe('Listing header: Delete button', () => {
 
     cy.matchImageSnapshot();
   });
-  it('Confirm that a success message is displayed after a successful deletion', () => {
+  it('displays a success message after a successful deletion', () => {
     mockedBulkDelete(multipleNotificationsSuccessResponse);
     cy.waitForRequest('@defaultRequest');
 
@@ -253,11 +258,11 @@ describe('Listing header: Delete button', () => {
 
     cy.matchImageSnapshot();
   });
-  it('Check that a warning message is displayed if the deletion of some notifications fails', () => {
+  it('displays a warning message containing the names of the notifications that failed to be deleted if the deletion of some notifications fails', () => {
     mockedBulkDelete(multipleNotificationsWarningResponse);
     cy.waitForRequest('@defaultRequest');
 
-    const warningMessage = `${labelFailedToDeleteNotifications}: `;
+    const warningMessage = `${labelFailedToDeleteNotifications}: notification1, notification2`;
 
     cy.findByTestId('delete multiple notifications').click();
     cy.findByText(labelDelete).click();
@@ -269,7 +274,7 @@ describe('Listing header: Delete button', () => {
 
     cy.matchImageSnapshot();
   });
-  it('Ensure that an error message is displayed if the deletion of all notifications fails', () => {
+  it('displays an error message if the deletion of all notifications fails', () => {
     mockedBulkDelete(multipleNotificationsfailedResponse);
     cy.waitForRequest('@defaultRequest');
 
@@ -303,10 +308,10 @@ describe('Listing row actions: Delete button', () => {
     cy.render(ListingWithQueryProvider);
   });
 
-  it('Confirm the display of a confirmation dialog containing the notification name upon clicking the Delete button', () => {
+  it('displays a confirmation dialog containing the notification name upon clicking the Delete button', () => {
     cy.waitForRequest('@defaultRequest');
 
-    const message = `${labelDelete} « notification0 ».`;
+    const message = `${labelDelete} « notification1 ».`;
 
     cy.findAllByTestId('delete a notification').eq(0).click();
     cy.findByText(message);
@@ -316,10 +321,10 @@ describe('Listing row actions: Delete button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Ensure that a success message is shown after successful deletion', () => {
+  it('displays a success message after successful deletion', () => {
     cy.waitForRequest('@defaultRequest');
 
-    cy.findAllByTestId('delete a notification').eq(1).click();
+    cy.findAllByTestId('delete a notification').eq(0).click();
     cy.findByLabelText(labelDelete).click();
 
     cy.waitForRequest('@deleteNotificationtRequest');
@@ -330,7 +335,7 @@ describe('Listing row actions: Delete button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Check that an error message is displayed upon failed deletion', () => {
+  it('displays an error message upon failed deletion', () => {
     cy.interceptAPIRequest({
       alias: 'deleteNotificationtRequest',
       method: Method.DELETE,
@@ -344,7 +349,7 @@ describe('Listing row actions: Delete button', () => {
 
     cy.waitForRequest('@defaultRequest');
 
-    cy.findAllByTestId('delete a notification').eq(1).click();
+    cy.findAllByTestId('delete a notification').eq(0).click();
     cy.findByLabelText(labelDelete).click();
     cy.waitForRequest('@deleteNotificationtRequest');
 
@@ -377,7 +382,7 @@ describe('column sorting', () => {
         requestAlias: `dataToListingTableAsc${label}`
       });
 
-      cy.contains('notification0').should('be.visible');
+      cy.contains('notification1').should('be.visible');
 
       cy.matchImageSnapshot(
         `column sorting --  executes a listing request with sorty_by param when the ${label} column is clicked`

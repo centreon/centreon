@@ -443,7 +443,7 @@ describe('Edit Panel : Confirm Dialog', () => {
 describe('Edit Panel: Delete button', () => {
   beforeEach(initialize);
 
-  it('Confirm the display of a confirmation dialog containing the notification name upon clicking the Delete button', () => {
+  it('displays a confirmation dialog containing the notification name upon clicking the Delete button', () => {
     cy.waitForRequest('@listingRequest');
 
     const message = `${labelDelete} « Notifications 1 ».`;
@@ -454,7 +454,7 @@ describe('Edit Panel: Delete button', () => {
 
     cy.matchImageSnapshot();
   });
-  it('Ensure that a success message is shown after successful deletion', () => {
+  it('displays a success message after successful deletion', () => {
     cy.waitForRequest('@listingRequest');
 
     cy.waitForRequest('@listingRequest');
@@ -469,7 +469,7 @@ describe('Edit Panel: Delete button', () => {
 
     cy.matchImageSnapshot();
   });
-  it('Check that an error message is displayed upon failed deletion', () => {
+  it('displays an error message upon failed deletion', () => {
     cy.interceptAPIRequest({
       alias: 'deleteNotificationtRequest',
       method: Method.DELETE,
