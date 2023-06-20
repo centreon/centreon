@@ -40,6 +40,7 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
     use PresenterTrait;
     use LoggerTrait;
     private const ROUTE_NAME = 'FindDashboard';
+    private const ROUTE_DASHBOARD_ID = 'dashboardId';
 
     /**
      * @param PresenterFormatterInterface $presenterFormatter
@@ -74,7 +75,7 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
 
             try {
                 $this->setResponseHeaders([
-                    'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $data->id]),
+                    'Location' => $this->router->generate(self::ROUTE_NAME, [self::ROUTE_DASHBOARD_ID => $data->id]),
                 ]);
             } catch (\Throwable $ex) {
                 $this->error('Impossible to generate the location header', [
