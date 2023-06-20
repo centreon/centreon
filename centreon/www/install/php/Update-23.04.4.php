@@ -24,7 +24,7 @@ $centreonLog = new CentreonLog();
 
 //error specific content
 $versionOfTheUpgrade = 'UPGRADE - 23.04.4: ';
-$errorMessage = '';
+$errorMessage = 'Unable to add column topology_url_substitute to topology';
 
 $addTopologyUrlSubstituteColumn = function(CentreonDB $pearDB) {
     if (! $pearDB->isColumnExist('topology', 'topology_url_substitute')) {
