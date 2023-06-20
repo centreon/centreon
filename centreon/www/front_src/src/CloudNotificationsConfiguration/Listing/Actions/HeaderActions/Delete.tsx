@@ -2,14 +2,12 @@ import { useAtomValue } from 'jotai';
 import { isEmpty } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Box } from '@mui/system';
-
 import { Method } from '@centreon/ui';
 
 import DeleteButton from '../../../Actions/DeleteButton';
 import { selectedRowsAtom } from '../../../atom';
 import {
-  labelFailedToDeleteNotifications,
+  labelFailedToDeleteSelectedNotifications,
   labelNotificationsSuccessfullyDeleted
 } from '../../../translatedLabels';
 import { notificationEndpoint } from '../../../EditPanel/api/endpoints';
@@ -30,15 +28,14 @@ const DeleteAction = (): JSX.Element => {
     ids: selectedRows?.map((notification) => notification.id)
   };
 
-  return isEmpty(selectedRows) ? (
-    <Box />
-  ) : (
+  return (
     <DeleteButton
       ariaLabel="delete multiple notifications"
       className={classes.icon}
+      disabled={isEmpty(selectedRows)}
       fetchMethod={Method.POST}
       getEndpoint={getEndpoint}
-      labelFailed={labelFailedToDeleteNotifications}
+      labelFailed={labelFailedToDeleteSelectedNotifications}
       labelSuccess={labelNotificationsSuccessfullyDeleted}
       payload={payload}
     />

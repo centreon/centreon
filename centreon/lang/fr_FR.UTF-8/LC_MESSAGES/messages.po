@@ -15674,8 +15674,8 @@ msgstr "La notification n'a pas pu être supprimée"
 msgid "Failed to delete the selected notifications"
 msgstr "Échec de la suppression des notifications sélectionnées"
 
-msgid "Unable to delete some notifications"
-msgstr "La suppression de certaines notifications a échoué"
+msgid "Failed to delete notifications"
+msgstr "Échec de la suppression des notifications"
 
 #: api/platform
 msgid "Unable to convert in remote server, no Central to link provided"

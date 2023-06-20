@@ -8,9 +8,9 @@ import {
   labelDeleteNotification,
   labelDeleteNotificationWarning,
   labelFailedToDeleteNotifications,
+  labelFailedToDeleteSelectedNotifications,
   labelNotificationSuccessfullyDeleted,
-  labelNotificationsSuccessfullyDeleted,
-  labelUnableToDeleteCertainNotifications
+  labelNotificationsSuccessfullyDeleted
 } from '../translatedLabels';
 import { notificationEndpoint } from '../EditPanel/api/endpoints';
 
@@ -129,7 +129,7 @@ const initializeSorting = (): void => {
 
 const mockedBulkDelete = (response): void => {
   cy.interceptAPIRequest({
-    alias: 'deleteNotificationtsRequest',
+    alias: 'deleteNotificationsRequest',
     method: Method.POST,
     path: `${notificationEndpoint({})}/_delete`,
     response,
@@ -246,7 +246,7 @@ describe('Listing header: Delete button', () => {
     cy.findByTestId('delete multiple notifications').click();
     cy.findByText(labelDelete).click();
 
-    cy.waitForRequest('@deleteNotificationtsRequest');
+    cy.waitForRequest('@deleteNotificationsRequest');
     cy.findByText(labelNotificationsSuccessfullyDeleted);
 
     cy.waitForRequest('@defaultRequest');
@@ -257,11 +257,13 @@ describe('Listing header: Delete button', () => {
     mockedBulkDelete(multipleNotificationsWarningResponse);
     cy.waitForRequest('@defaultRequest');
 
+    const warningMessage = `${labelFailedToDeleteNotifications}: `;
+
     cy.findByTestId('delete multiple notifications').click();
     cy.findByText(labelDelete).click();
 
-    cy.waitForRequest('@deleteNotificationtsRequest');
-    cy.findByText(labelUnableToDeleteCertainNotifications);
+    cy.waitForRequest('@deleteNotificationsRequest');
+    cy.findByText(warningMessage);
 
     cy.waitForRequest('@defaultRequest');
 
@@ -274,8 +276,8 @@ describe('Listing header: Delete button', () => {
     cy.findByTestId('delete multiple notifications').click();
     cy.findByText(labelDelete).click();
 
-    cy.waitForRequest('@deleteNotificationtsRequest');
-    cy.findByText(labelFailedToDeleteNotifications);
+    cy.waitForRequest('@deleteNotificationsRequest');
+    cy.findByText(labelFailedToDeleteSelectedNotifications);
 
     cy.matchImageSnapshot();
   });

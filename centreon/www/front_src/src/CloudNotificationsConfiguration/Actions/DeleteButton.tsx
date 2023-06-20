@@ -3,7 +3,16 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { makeStyles } from 'tss-react/mui';
-import { isEmpty, length, propEq } from 'ramda';
+import {
+  includes,
+  isEmpty,
+  last,
+  length,
+  propEq,
+  split,
+  complement
+} from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { Box, alpha } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
@@ -22,8 +31,9 @@ import {
   labelCancel,
   labelDeleteNotification,
   labelDeleteNotificationWarning,
-  labelUnableToDeleteCertainNotifications
+  labelFailedToDeleteNotifications
 } from '../translatedLabels';
+import { selectedRowsAtom } from '../atom';
 
 const useStyles = makeStyles()((theme) => ({
   confirmButtons: {
@@ -69,9 +79,11 @@ const DeleteButton = ({
   const { t } = useTranslation();
   const { showSuccessMessage, showErrorMessage, showWarningMessage } =
     useSnackbar();
-  const queryClient = useQueryClient();
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const selectedRows = useAtomValue(selectedRowsAtom);
+
+  const queryClient = useQueryClient();
   const { isMutating, mutateAsync } = useMutationQuery({
     defaultFailureMessage: t(labelFailed) as string,
     getEndpoint,
@@ -95,17 +107,29 @@ const DeleteButton = ({
       }
 
       if (statusCode === 207) {
-        const deletedNotifications = data.filter(propEq('status', 204));
+        const successfullResponses = data.filter(propEq('status', 204));
+        const failedResponsesIds = data
+          .filter(complement(propEq('status', 204)))
+          .map((item) => item.href)
+          .map((item) => parseInt(last(split('/', item)) as string, 10));
 
-        if (isEmpty(deletedNotifications)) {
+        if (isEmpty(successfullResponses)) {
           showErrorMessage(t(labelFailed));
           setDialogOpen(false);
 
           return;
         }
 
-        if (length(deletedNotifications) < length(data)) {
-          showWarningMessage(labelUnableToDeleteCertainNotifications);
+        if (length(successfullResponses) < length(data)) {
+          const failedResponsesName = selectedRows
+            .filter((item) => includes(item.id, failedResponsesIds))
+            .map((item) => item.name);
+
+          showWarningMessage(
+            `${labelFailedToDeleteNotifications}: ${failedResponsesName.join(
+              ', '
+            )}`
+          );
           setDialogOpen(false);
 
           return;
