@@ -34,7 +34,6 @@ $addTopologyUrlSubstituteColumn = function(CentreonDB $pearDB) {
 
 try {
     $addTopologyUrlSubstituteColumn($pearDB);
-    // Transactional queries
 } catch (\Exception $e) {
     $centreonLog->insertLog(
         4,
