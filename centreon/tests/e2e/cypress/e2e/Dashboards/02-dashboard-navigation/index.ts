@@ -1,21 +1,29 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { loginAsAdminViaApiV2 } from '../../../commons';
-
 before(() => {
   cy.startWebContainer();
   cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 1@' /usr/share/centreon/config/features.json`,
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-configuration-creator.json'
+  );
 });
 
 beforeEach(() => {
-  loginAsAdminViaApiV2();
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/configuration/dashboards?page=1&limit=100'
-  }).as('listAllDashboardsOnFirstPage');
+  }).as('listAllDashboards');
+  cy.loginByTypeOfUser({
+    jsonName: 'user-dashboard-creator',
+    loginViaApi: false
+  });
 });
 
 Given('a user with access to the dashboards library', () => {
