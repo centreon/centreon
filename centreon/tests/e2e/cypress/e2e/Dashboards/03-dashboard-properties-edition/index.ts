@@ -16,12 +16,12 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/dashboards?page=1&limit=100'
   }).as('listAllDashboards');
+  cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
 });
 
 Given(
   'a user with update rights on a dashboard featured in the dashboards library',
   () => {
-    cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
   }
 );
@@ -79,17 +79,12 @@ Then(
     cy.contains('Dashboards').should('be.visible');
     cy.contains('Update dashboard').should('not.exist');
     cy.contains('dashboard-edited').parent().should('exist');
-    cy.requestOnDatabase({
-      database: 'centreon',
-      query: 'DELETE FROM dashboard'
-    });
   }
 );
 
 Given(
   'a user with dashboard update rights who is about to update a dashboard with new values',
   () => {
-    cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
     cy.contains('dashboard-to-edit-name')
       .parent()
@@ -137,15 +132,10 @@ Then(
       'not.contain.text',
       'dashboard-cancel-update-changes'
     );
-    cy.requestOnDatabase({
-      database: 'centreon',
-      query: 'DELETE FROM dashboard'
-    });
   }
 );
 
 Given('a user with dashboard update rights in a dashboard update form', () => {
-  cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
   cy.contains('dashboard-to-edit-name')
     .parent()
@@ -167,16 +157,11 @@ When('the user enters a new name for this dashboard', () => {
 
 Then('the user can now save the dashboard', () => {
   cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: 'DELETE FROM dashboard'
-  });
 });
 
 Given(
   'a user with dashboard update rights in the update form of a dashboard with description',
   () => {
-    cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
     cy.contains('dashboard-to-edit-name')
       .parent()
@@ -200,12 +185,16 @@ When('the user saves the dashboard with the description field empty', () => {
 Then(
   'the dashboard is listed in the dashboard library with only its name',
   () => {
+    cy.contains('Dashboards').should('be.visible');
+    cy.contains('Update dashboard').should('not.exist');
     cy.contains('dashboard-to-edit-name').parent().should('exist');
     cy.contains('dashboard-to-edit-description').parent().should('not.exist');
-
-    cy.requestOnDatabase({
-      database: 'centreon',
-      query: 'DELETE FROM dashboard'
-    });
   }
 );
+
+afterEach(() => {
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: 'DELETE FROM dashboard'
+  });
+});
