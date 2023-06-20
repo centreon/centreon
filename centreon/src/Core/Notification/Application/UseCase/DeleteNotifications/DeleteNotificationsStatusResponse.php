@@ -27,7 +27,7 @@ use Core\Notification\Domain\Model\ResponseCode;
 
 final class DeleteNotificationsStatusResponse
 {
-    public string $href = '';
+    public int $id = 0;
 
     public ResponseCode $status = ResponseCode::OK;
 

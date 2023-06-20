@@ -33,7 +33,6 @@ use Core\Application\Common\UseCase\{
     NotFoundResponse,
     ResponseStatusInterface
 };
-use Core\Infrastructure\Common\Repository\RepositoryException;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
 use Core\Notification\Domain\Model\ResponseCode;
@@ -41,7 +40,6 @@ use Core\Notification\Domain\Model\ResponseCode;
 final class DeleteNotifications
 {
     use LoggerTrait;
-    public const HREF = '/configuration/notifications/';
 
     /**
      * @param ContactInterface $contact
@@ -76,7 +74,6 @@ final class DeleteNotifications
                         $statusResponse = new ErrorResponse(NotificationException::errorWhileDeletingObject());
                         $responseStatusDto = $this->createStatusResonseDto($statusResponse, $notificationId);
                         $results[] = $responseStatusDto;
-                        continue;
                     }
                 }
 
@@ -103,6 +100,7 @@ final class DeleteNotifications
      */
     private function deleteNotification(int $notificationId): ResponseStatusInterface
     {
+        $this->info('Deleting notification', ['id' => $notificationId]);
         if ($this->writeRepository->delete($notificationId) === 1) {
             return new NoContentResponse();
         }
@@ -131,7 +129,7 @@ final class DeleteNotifications
         int $notificationId
     ): DeleteNotificationsStatusResponse {
         $responseStatusDto = new DeleteNotificationsStatusResponse();
-        $responseStatusDto->href = self::HREF . $notificationId;
+        $responseStatusDto->id = $notificationId;
         if ($statusResponse instanceof NoContentResponse) {
             $responseStatusDto->status = ResponseCode::OK;
             $responseStatusDto->message = null;

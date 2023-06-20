@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\API\DeleteNotifications;
 
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{AbstractPresenter, MultiStatusResponse, ResponseStatusInterface};
+use Core\Infrastructure\Common\Api\Router;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\UseCase\DeleteNotifications\{
     DeleteNotificationsPresenterInterface,
@@ -35,11 +37,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class DeleteNotificationsPresenter extends AbstractPresenter implements DeleteNotificationsPresenterInterface
 {
+    use LoggerTrait;
+
+    private const ROUTE_NAME = 'DeleteNotification';
+
     /**
      * @param PresenterFormatterInterface $presenterFormatter
      */
-    public function __construct(protected PresenterFormatterInterface $presenterFormatter)
-    {
+    public function __construct(
+        protected PresenterFormatterInterface $presenterFormatter,
+        private readonly Router $router
+    ) {
         parent::__construct($presenterFormatter);
     }
 
@@ -52,7 +60,7 @@ final class DeleteNotificationsPresenter extends AbstractPresenter implements De
             $multiStatusResponse = [
                 'results' => array_map(function (DeleteNotificationsStatusResponse $notificationDto) {
                     return [
-                        'href' => $notificationDto->href,
+                        'href' => $this->getDeletedNotificationHref($notificationDto->id),
                         'status' => $this->enumToIntConverter($notificationDto->status),
                         'message' => $notificationDto->message,
                     ];
@@ -77,5 +85,26 @@ final class DeleteNotificationsPresenter extends AbstractPresenter implements De
             ResponseCode::NotFound => Response::HTTP_NOT_FOUND,
             ResponseCode::Error => Response::HTTP_INTERNAL_SERVER_ERROR
         };
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return string|null
+     */
+    private function getDeletedNotificationHref(int $id): ?string
+    {
+        try {
+            return  $this->router->generate(self::ROUTE_NAME, ['notificationId' => $id]);
+        } catch (\Throwable $ex) {
+            $this->error('Impossible to generate the deleted entity route', [
+                'message' => $ex->getMessage(),
+                'trace' => $ex->getTraceAsString(),
+                'route' => self::ROUTE_NAME,
+                'payload' => $id,
+            ]);
+
+            return null;
+        }
     }
 }

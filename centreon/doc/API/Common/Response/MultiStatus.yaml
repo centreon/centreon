@@ -12,6 +12,7 @@ content:
             properties:
               href:
                 type: string
+                nullable: true
                 example: "/path/to/entity/1"
               status:
                 type: integer
