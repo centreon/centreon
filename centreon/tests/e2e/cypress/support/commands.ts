@@ -144,7 +144,11 @@ Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
       return cy.exec('npx wait-on http://0.0.0.0:8080/health/ready');
     })
     .then(() => {
-      cy.exec('docker network inspect bridge');
+      cy.exec(
+        'docker inspect -f "{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}" e2e-tests-openid-centreon'
+      ).then(({ stdout }) => {
+        cy.log(stdout);
+      });
     });
 });
 
