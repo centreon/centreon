@@ -78,7 +78,13 @@ sub createTables {
                 type => 1, db => 'centstorage', sql => [ ["[CREATE] add table [centreon_acl]", $structure] ], actions => defined($action) ? [$action] : []
             };
     } elsif (defined($action)) {
-        push @{$etl->{run}->{schedule}->{import}->{actions}}, $action;
+        if ($options->{rebuild} == 1 && $options->{nopurge} == 0) {
+            push @{$etl->{run}->{schedule}->{import}->{actions}}, {
+                type => 1, db => 'centstorage', sql => [ ["[TRUNCATE] table [centreon_acl]", 'TRUNCATE table centreon_acl'] ], actions => defined($action) ? [$action] : []
+            };
+        } else {
+            push @{$etl->{run}->{schedule}->{import}->{actions}}, $action;
+        }
     }
 
     my $tables = join('|', @$notTimedTables);
@@ -180,7 +186,7 @@ sub extractCentreonDB {
     my $bi = $utils->buildCliMysqlArgs($etl->{run}->{dbbi}->{centreon});
 
     my $cmd = sprintf(
-        "mysqldump --replace --skip-add-drop-table --skip-add-locks --skip-comments %s '%s' %s | mysql --force %s '%s'",
+        "mysqldump --skip-add-drop-table --skip-add-locks --skip-comments %s '%s' %s | mysql --force %s '%s'",
         $mon,
         $etl->{run}->{dbmon}->{centreon}->{db},
         $tables,
@@ -188,8 +194,17 @@ sub extractCentreonDB {
         $etl->{run}->{dbbi}->{centreon}->{db}
     );
 
-    push @{$etl->{run}->{schedule}->{import}->{actions}}, 
-        { type => 2, message => '[LOAD] import table [' . $tables . ']', command => $cmd };
+    push @{$etl->{run}->{schedule}->{import}->{actions}}, {
+        type => 1,
+        db => 'centreon',
+        sql => [
+            [ '[DROPDB] database ' . $etl->{run}->{dbbi}->{centreon}->{db}, "DROP DATABASE `$etl->{run}->{dbbi}->{centreon}->{db}`" ],
+            [ '[CREATEDB] database ' . $etl->{run}->{dbbi}->{centreon}->{db}, "CREATE DATABASE `$etl->{run}->{dbbi}->{centreon}->{db}`" ],
+        ],
+        actions => [
+            { type => 2, message => '[LOAD] import table [' . $tables . ']', command => $cmd }
+        ]
+    };
 }
 
 sub dataBin {
