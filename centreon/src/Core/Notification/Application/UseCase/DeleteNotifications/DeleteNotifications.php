@@ -71,7 +71,7 @@ final class DeleteNotifications
                         $statusResponse = $this->deleteNotification($notificationId);
                         $responseStatusDto = $this->createStatusResonseDto($statusResponse, $notificationId);
                         $results[] = $responseStatusDto;
-                    } catch (RepositoryException $ex) {
+                    } catch (\Throwable $ex) {
                         $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
                         $statusResponse = new ErrorResponse(NotificationException::errorWhileDeletingObject());
                         $responseStatusDto = $this->createStatusResonseDto($statusResponse, $notificationId);
