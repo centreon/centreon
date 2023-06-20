@@ -72,7 +72,6 @@ jobs:
   frontend-build:
     needs: [get-version]
     runs-on: ubuntu-22.04
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -88,7 +87,6 @@ jobs:
   backend-dependencies:
     needs: [get-version]
     runs-on: ubuntu-22.04
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -100,7 +98,6 @@ jobs:
 
   translation-build:
     needs: [get-version]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     runs-on: ubuntu-22.04
     container:
