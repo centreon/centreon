@@ -30,10 +30,12 @@ final class PartialUpdateHostTemplateRequest
     /**
      * @param NoValue|array<array{name:string,value:string|null,is_password:bool,description:null|string}> $macros
      * @param NoValue|int[] $categories
+     * @param NoValue|int[] $templates
      */
     public function __construct(
         public NoValue|array $macros = new NoValue(),
         public NoValue|array $categories = new NoValue(),
+        public NoValue|array $templates = new NoValue(),
     ) {
     }
 }

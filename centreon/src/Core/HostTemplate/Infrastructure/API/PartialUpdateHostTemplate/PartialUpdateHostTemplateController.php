@@ -61,7 +61,8 @@ final class PartialUpdateHostTemplateController extends AbstractController
             /**
              * @var array{
              *      macros?:array<array{name:string,value:string|null,is_password:bool,description:string|null}>,
-             *      categories?: int[]
+             *      categories?: int[],
+             *      templates?: int[]
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateHostTemplateSchema.json');
@@ -74,6 +75,10 @@ final class PartialUpdateHostTemplateController extends AbstractController
 
             if (\array_key_exists('categories', $data)) {
                 $dto->categories = $data['categories'];
+            }
+
+            if (\array_key_exists('templates', $data)) {
+                $dto->templates = $data['templates'];
             }
 
             $useCase($dto, $presenter, $hostTemplateId);

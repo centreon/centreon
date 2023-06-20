@@ -106,9 +106,12 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function addParent(int $childId, int $parentId, int $order): void
     {
-        $this->info('Add a parent tempalte to a host/host template', [
+        $this->info('Add a parent template to a host/host template', [
             'child_id' => $childId, 'parent_id' => $parentId, 'order' => $order,
         ]);
 
@@ -122,6 +125,25 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         $statement->bindValue(':child_id', $childId, \PDO::PARAM_INT);
         $statement->bindValue(':parent_id', $parentId, \PDO::PARAM_INT);
         $statement->bindValue(':order', $order, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteParents(int $childId): void
+    {
+        $this->info('Remove parent templates from a host/host template', ['child_id' => $childId]);
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE FROM `:db`.`host_template_relation`
+                WHERE `host_host_id` = :child_id
+                SQL
+        ));
+
+        $statement->bindValue(':child_id', $childId, \PDO::PARAM_INT);
 
         $statement->execute();
     }
