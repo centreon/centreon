@@ -30,8 +30,6 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Severity\RealTime\Domain\Model\Severity;
 use Centreon\Domain\Repository\RepositoryException;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
@@ -178,6 +176,15 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             ON `instances`.instance_id = `resources`.poller_id";
 
         /**
+         * Resource tag filter by name
+         * - servicegroups
+         * - hostgroups
+         * - servicecategories
+         * - hostcategories
+         */
+        $request .= $this->addResourceTagsSubRequest($filter, $collector);
+
+        /**
          * Handle search values
          */
         $searchSubRequest = null;
@@ -230,15 +237,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
          * Severity filter (levels and/or names)
          */
         $request .= $this->addSeveritySubRequest($filter, $collector);
-
-        /**
-         * Resource tag filter by name
-         * - servicegroups
-         * - hostgroups
-         * - servicecategories
-         * - hostcategories
-         */
-        $request .= $this->addResourceTagsSubRequest($filter, $collector);
 
         /**
          * Handle sort parameters
@@ -667,54 +665,100 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $searchedTagNames = [];
         $searchedTagTypes = [];
         $searchedTags = [];
+        $includeHostResourceType = false;
+        $includeServiceResourceType = false;
+        $searchedTags = [];
 
         if (! empty($filter->getHostgroupNames())) {
+            $includeHostResourceType = true;
             $searchedTagTypes[] = Tag::HOST_GROUP_TYPE_ID;
-            foreach ($filter->getHostgroupNames() as $hostgroupName) {
-                $searchedTagNames[] = $hostgroupName;
+            foreach ($filter->getHostgroupNames() as $hostGroupName) {
+                $searchedTags[Tag::HOST_GROUP_TYPE_ID][] = $hostGroupName;
+                $searchedTagNames[] = $hostGroupName;
             }
         }
 
         if (! empty($filter->getServicegroupNames())) {
+            $includeServiceResourceType = true;
             $searchedTagTypes[] = Tag::SERVICE_GROUP_TYPE_ID;
-            foreach ($filter->getServicegroupNames() as $servicegroupName) {
-                $searchedTagNames[] = $servicegroupName;
+            foreach ($filter->getServicegroupNames() as $serviceGroupName) {
+                $searchedTags[Tag::SERVICE_GROUP_TYPE_ID][] = $serviceGroupName;
+                $searchedTagNames[] = $serviceGroupName;
             }
         }
 
         if (! empty($filter->getServiceCategoryNames())) {
+            $includeServiceResourceType = true;
             $searchedTagTypes[] = Tag::SERVICE_CATEGORY_TYPE_ID;
             foreach ($filter->getServiceCategoryNames() as $serviceCategoryName) {
+                $searchedTags[Tag::SERVICE_CATEGORY_TYPE_ID][] = $serviceCategoryName;
                 $searchedTagNames[] = $serviceCategoryName;
             }
         }
 
         if (! empty($filter->getHostCategoryNames())) {
+            $includeHostResourceType = true;
             $searchedTagTypes[] = Tag::HOST_CATEGORY_TYPE_ID;
             foreach ($filter->getHostCategoryNames() as $hostCategoryName) {
+                $searchedTags[Tag::HOST_CATEGORY_TYPE_ID][] = $hostCategoryName;
                 $searchedTagNames[] = $hostCategoryName;
             }
         }
 
         if (! empty($searchedTagNames)) {
-            foreach ($searchedTagNames as $index => $name) {
-                $key = ":tagName_{$index}";
-                $searchedTags[] = $key;
-                $collector->addValue($key, $name, \PDO::PARAM_STR);
+            $subRequest = ' INNER JOIN (';
+            $intersectRequest = '';
+            $index = 1;
+            foreach ($searchedTags as $type => $names) {
+                $tagKeys = [];
+                foreach ($names as $name) {
+                    $key = ":tagName_{$index}";
+                    $index++;
+                    $tagKeys[] = $key;
+                    $collector->addValue($key, $name, \PDO::PARAM_STR);
+                }
+                $literalTagKeys = implode(', ', $tagKeys);
+
+                if ($intersectRequest !== '') {
+                    $intersectRequest .= ' INTERSECT ';
+                }
+
+                if (
+                    $type === Tag::HOST_GROUP_TYPE_ID
+                    || $type === Tag::HOST_CATEGORY_TYPE_ID
+                ) {
+                    $intersectRequest .= <<<"SQL"
+                        SELECT resources.resource_id
+                        FROM `:dbstg`.`resources` resources
+                        LEFT JOIN `:dbstg`.`resources` parent_resource
+                            ON parent_resource.id = resources.parent_id
+                        LEFT JOIN `:dbstg`.resources_tags AS rtags
+                          ON rtags.resource_id = parent_resource.resource_id
+                        INNER JOIN `:dbstg`.tags
+                            ON tags.tag_id = rtags.tag_id
+                        WHERE tags.name IN ($literalTagKeys)
+                        AND tags.type = $type
+                    SQL;
+                } else {
+                    $intersectRequest .= <<<"SQL"
+                        SELECT rtags.resource_id
+                        FROM `:dbstg`.resources_tags AS rtags
+                        INNER JOIN `:dbstg`.tags
+                            ON tags.tag_id = rtags.tag_id
+                        WHERE tags.name IN ($literalTagKeys)
+                        AND tags.type = $type
+                    SQL;
+                }
             }
 
-            $subRequest = ' AND
-                EXISTS (
-                    SELECT 1 FROM `:dbstg`.resources_tags AS rtags
-                    WHERE (rtags.resource_id = resources.resource_id OR rtags.resource_id = parent_resource.resource_id)
-                    AND EXISTS (
-                        SELECT 1 FROM `:dbstg`.tags
-                        WHERE tags.tag_id = rtags.tag_id AND tags.name IN (' . implode(', ', $searchedTags) . ')
-                        AND tags.type IN (' . implode(', ', $searchedTagTypes) . ')
-                        LIMIT 1
-                    )
-                    LIMIT 1
-                )';
+            $subRequest .= $intersectRequest . ') AS tag ON tag.resource_id = resources.resource_id';
+
+            if (
+                $includeHostResourceType
+                && ! $includeServiceResourceType
+            ) {
+                $subRequest .= ' OR tag.resource_id = parent_resource.resource_id';
+            }
         }
 
         return $subRequest;
