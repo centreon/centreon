@@ -100,7 +100,7 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
-        uses: veracode/Veracode-pipeline-scan-action@v1.0.3
+        uses: veracode/Veracode-pipeline-scan-action@v1.0.8
         with:
           vid: '${{ secrets.veracode_api_id }}'
           vkey: '${{ secrets.veracode_api_key }}'
