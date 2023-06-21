@@ -32,6 +32,8 @@ jobs:
         run: |
           ${{ steps.get_actionlint.outputs.executable }} \
           -ignore 'label "common" is unknown' \
+          -ignore 'label "docker" is unknown' \
+          -ignore 'label "cache" is unknown' \
           -ignore 'label "veracode" is unknown' \
           -ignore '"github.head_ref" is potentially untrusted' \
           -shellcheck= \

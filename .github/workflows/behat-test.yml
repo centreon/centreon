@@ -20,6 +20,10 @@ on:
         required: false
         type: string
         default: behat.yml
+      install_browser:
+        type: boolean
+        required: false
+        default: true
     secrets:
       registry_username:
         required: true
@@ -46,7 +50,7 @@ jobs:
 
   behat-test-run:
     needs: [behat-test-list]
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, docker, cache]
     strategy:
       fail-fast: false
       matrix:
@@ -71,7 +75,19 @@ jobs:
           coverage: none
         env:
           COMPOSER_TOKEN: ${{ secrets.composer_token }}
-          runner: ubuntu-22.04
+          runner: self-hosted
+
+      - if: ${{ inputs.install_browser == true }}
+        name: Install chrome dependencies
+        run: |
+          sudo apt update
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
+        shell: bash
+
+      - if: ${{ inputs.install_browser == true }}
+        name: Install chomedriver
+        uses: nanasess/setup-chromedriver@v1
 
       - name: Setup docker compose
         run: |
