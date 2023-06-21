@@ -27,11 +27,15 @@ use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
+use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
@@ -39,6 +43,7 @@ use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotification;
 use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotificationRequest;
 use Core\Notification\Domain\Model\ConfigurationTimePeriod;
 use Core\Notification\Domain\Model\Notification;
+use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Tests\Core\Notification\Infrastructure\API\UpdateNotification\UpdateNotificationPresenterStub;
 
@@ -48,6 +53,7 @@ beforeEach(function():void {
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->contactRepository = $this->createMock(ContactRepositoryInterface::class);
     $this->resourceRepositoryProvider = $this->createMock(NotificationResourceRepositoryProviderInterface::class);
+    $this->resourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
     $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new UpdateNotificationPresenterStub($this->presenterFormatter);
@@ -174,4 +180,72 @@ it('should present an InvalidArgumentResponse when a message has an empty subjec
     expect($this->presenter->responseStatus)->toBeInstanceOf(InvalidArgumentResponse::class)
         ->and($this->presenter->responseStatus?->getMessage())
         ->toBe(AssertionException::notEmptyString('NotificationMessage::subject')->getMessage());
+});
+
+it('should present a no content response when everything is ok', function (): void {
+    $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
+        [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
+    );
+    $request = new UpdateNotificationRequest();
+    $request->id = 1;
+    $request->name = 'notification';
+    $request->messages = [
+        [
+            "channel" => "Email",
+            "subject" => "Subject",
+            "message" => "This is my message"
+        ]
+    ];
+    $request->resources = [
+        [
+            "type" => "hostgroup",
+            "events" => 3,
+            "ids" => [1,2,3],
+            "includeServiceEvents" => 0
+        ]
+    ];
+    $request->users = [1];
+
+    $this->readNotificationRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->with($request->id)
+        ->willReturn(true);
+
+    $this->resourceRepositoryProvider
+        ->expects($this->atLeast(2))
+        ->method('getRepository')
+        ->willReturn($this->resourceRepository);
+    $this->resourceRepository
+        ->expects($this->atLeast(1))
+        ->method('eventEnum')
+        ->willReturn(NotificationHostEvent::class);
+    $this->resourceRepository
+        ->expects($this->atLeast(1))
+        ->method('eventEnumConverter')
+        ->willReturn(NotificationHostEventConverter::class);
+    $this->resourceRepository
+        ->expects($this->atLeast(1))
+        ->method('resourceType')
+        ->willReturn('hostgroup');
+    $this->resourceRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn([1,2,3]);
+    $this->contactRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn([1]);
+
+    (new UpdateNotification(
+        $this->readNotificationRepository,
+        $this->writeNotificationRepository,
+        $this->readAccessGroupRepository,
+        $this->contactRepository,
+        $this->resourceRepositoryProvider,
+        $this->dataStorageEngine,
+        $contact
+    ))($request, $this->presenter);
+
+    expect($this->presenter->responseStatus)->toBeInstanceOf(NoContentResponse::class);
 });

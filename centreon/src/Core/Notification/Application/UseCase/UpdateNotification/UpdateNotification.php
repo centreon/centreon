@@ -117,7 +117,7 @@ final class UpdateNotification
         } catch (\Throwable $ex) {
             $this->error("Unable to update notification configuration", ['trace' => (string) $ex]);
             $presenter->presentResponse(
-                new ErrorResponse("Unable to update notification configuration")
+                new ErrorResponse($ex->getMessage())
             );
         }
     }
