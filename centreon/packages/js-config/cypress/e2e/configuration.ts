@@ -46,6 +46,7 @@ export default ({
       dockerName: dockerName || 'centreon-dev'
     },
     execTimeout: 60000,
+    experimentalMemoryManagement: true,
     reporter: 'mochawesome',
     reporterOptions: {
       html: false,
