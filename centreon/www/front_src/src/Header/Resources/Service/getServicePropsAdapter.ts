@@ -1,19 +1,20 @@
+import type { CounterProps, SelectEntry, SubMenuProps } from '@centreon/ui';
 import { SeverityCode } from '@centreon/ui';
-import type { SelectEntry, SubMenuProps, CounterProps } from '@centreon/ui';
 
+import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
+import type { ServiceStatusResponse } from '../../api/decoders';
 import {
-  getServiceResourcesUrl,
   criticalCriterias,
-  warningCriterias,
-  unknownCriterias,
+  getResourcesUrl,
+  getServiceResourcesUrl,
+  getStatusCriterias,
   okCriterias,
   pendingCriterias,
   unhandledStateCriterias,
-  serviceCriteria
+  unknownCriterias,
+  warningCriterias
 } from '../getResourcesUrl';
-import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
 import type { Adapter } from '../useResourceCounters';
-import type { ServiceStatusResponse } from '../../api/decoders';
 import {
   formatCount,
   formatUnhandledOverTotal,
@@ -21,17 +22,17 @@ import {
 } from '../utils';
 
 import {
-  labelCriticalStatusServices,
-  labelWarningStatusServices,
-  labelUnknownStatusServices,
-  labelOkStatusServices,
   labelAll,
   labelCritical,
-  labelWarning,
-  labelPending,
-  labelUnknown,
+  labelCriticalStatusServices,
   labelOk,
-  labelServices
+  labelOkStatusServices,
+  labelPending,
+  labelServices,
+  labelUnknown,
+  labelUnknownStatusServices,
+  labelWarning,
+  labelWarningStatusServices
 } from './translatedLabels';
 
 export interface ServicesPropsAdapterOutput {
@@ -53,6 +54,13 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   t,
   data
 }) => {
+  const resourceTypeCriterias = {
+    name: 'resource_types',
+    value: []
+  };
+  const statusCriterias = { name: 'statuses', value: [] };
+  const stateCriterias = { name: 'states', value: [] };
+
   const changeFilterAndNavigate = getNavigationFunction({
     applyFilter,
     navigate,
@@ -60,69 +68,99 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   });
 
   const unhandledCriticalServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
     states: unhandledStateCriterias.value,
     statuses: criticalCriterias.value as Array<SelectEntry>
   });
 
   const unhandledCriticalServicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc_unhandled&statusFilter=critical&search='
-    : getServiceResourcesUrl({
+    : getResourcesUrl({
+        resourceTypeCriterias,
         stateCriterias: unhandledStateCriterias,
         statusCriterias: criticalCriterias
       });
 
   const unhandledWarningServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
     states: unhandledStateCriterias.value,
     statuses: warningCriterias.value as Array<SelectEntry>
   });
 
   const unhandledWarningServicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc_unhandled&statusFilter=warning&search='
-    : getServiceResourcesUrl({
+    : getResourcesUrl({
+        resourceTypeCriterias,
         stateCriterias: unhandledStateCriterias,
         statusCriterias: warningCriterias
       });
 
   const unhandledUnknownServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
     states: unhandledStateCriterias.value,
     statuses: unknownCriterias.value as Array<SelectEntry>
   });
 
   const unhandledUnknownServicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc_unhandled&statusFilter=unknown&search='
-    : getServiceResourcesUrl({
+    : getResourcesUrl({
+        resourceTypeCriterias,
         stateCriterias: unhandledStateCriterias,
         statusCriterias: unknownCriterias
       });
 
   const okServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
     statuses: okCriterias.value as Array<SelectEntry>
   });
 
   const okServicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc&statusFilter=ok&search='
-    : getServiceResourcesUrl({ statusCriterias: okCriterias });
+    : getResourcesUrl({
+        resourceTypeCriterias,
+        stateCriterias,
+        statusCriterias: okCriterias
+      });
 
   const servicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value
+    statuses: [
+      ...okCriterias.value,
+      ...pendingCriterias.value,
+      ...unknownCriterias.value,
+      ...warningCriterias.value
+    ] as Array<SelectEntry>
   });
 
+  console.log(
+    '---*****',
+    [
+      ...okCriterias.value,
+      ...pendingCriterias.value,
+      ...unknownCriterias.value,
+      ...warningCriterias.value
+    ],
+    'url',
+    getResourcesUrl({
+      resourceTypeCriterias,
+      stateCriterias,
+      statusCriterias: getStatusCriterias([
+        ...okCriterias.value,
+        ...pendingCriterias.value,
+        ...unknownCriterias.value,
+        ...warningCriterias.value
+      ])
+    })
+  );
+
+  // le cas all ? all states?
   const servicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc&statusFilter=&search='
     : getServiceResourcesUrl();
-
   const pendingServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
     statuses: pendingCriterias.value as Array<SelectEntry>
   });
 
   const pendingServicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc&statusFilter=pending&search='
-    : getServiceResourcesUrl({
+    : getResourcesUrl({
+        resourceTypeCriterias,
+        stateCriterias,
         statusCriterias: pendingCriterias
       });
 
