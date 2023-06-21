@@ -178,7 +178,40 @@ runs:
     - name: Promote DEB package to stable
       if: ${{ startsWith(inputs.distrib, 'el') }}
       run: |
+        set -x
+        echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
+        echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+        echo "[DEBUG] - Repository name: ${{ inputs.repository_name }}"
 
+        if [[ "${{ inputs.repository_name }}" == "standard" ]]; then
+          ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
+        else
+          echo "Invalid repository name: ${{ inputs.repository_name }}"
+          exit 1
+        fi
+
+        echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
+        SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*${{ inputs.major_version }}.${{ inputs.minor_version }}*.deb | jq -r '.[].path')
+
+        if [[ ${SRC_PATHS[@]} ]]; then
+          for SRC_PATH in ${SRC_PATHS[@]}; do
+            echo "[DEBUG] - Source path found: $SRC_PATH"
+          done
+        else
+          echo "[DEBUG] - No source path found."
+          continue
+        fi
+
+        echo "[DEBUG] - Build target path."
+        TARGET_PATH="$ROOT_REPO_PATH-${{ inputs.stability }}/pool/"
+        echo "[DEBUG] - Target path: $TARGET_PATH"
+
+        echo "[DEBUG] - Promoting DEB testing artifacts to stable."
+        for ARTIFACT in ${SRC_PATHS[@]}; do
+          echo "[DEBUG] - Promoting $ARTIFACT to stable."
+          #jf rt cp $ARTIFACT $TARGET_PATH --flat=true
+        done
       shell: bash
 
     - name: Promote DEB package to stable on Nexus
