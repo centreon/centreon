@@ -35,6 +35,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import CloseIcon from '@mui/icons-material/Close';
 import {
+  Box,
   CircularProgress,
   ClickAwayListener,
   MenuItem,
@@ -85,6 +86,7 @@ import {
   setNewFilterDerivedAtom
 } from './filterAtoms';
 import useFilterByModule from './useFilterByModule';
+import SearchHelp from './SearchHelp';
 
 const renderClearFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
@@ -568,20 +570,23 @@ const Filter = (): JSX.Element => {
           </Suspense>
           <ClickAwayListener onClickAway={closeSuggestionPopover}>
             <div data-testid={labelSearchBar}>
-              <SearchField
-                fullWidth
-                EndAdornment={renderClearFilter(clearFilter)}
-                inputRef={searchRef as RefObject<HTMLInputElement>}
-                placeholder={t(labelSearch)}
-                value={search}
-                onBlur={blurInput}
-                onChange={prepareSearch}
-                onClick={(): void => {
-                  setCursorPosition(searchRef?.current?.selectionStart || 0);
-                }}
-                onFocus={(): void => setIsSearchFieldFocused(true)}
-                onKeyDown={inputKey}
-              />
+              <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
+                <SearchField
+                  fullWidth
+                  EndAdornment={renderClearFilter(clearFilter)}
+                  inputRef={searchRef as RefObject<HTMLInputElement>}
+                  placeholder={t(labelSearch)}
+                  value={search}
+                  onBlur={blurInput}
+                  onChange={prepareSearch}
+                  onClick={(): void => {
+                    setCursorPosition(searchRef?.current?.selectionStart || 0);
+                  }}
+                  onFocus={(): void => setIsSearchFieldFocused(true)}
+                  onKeyDown={inputKey}
+                />
+                <SearchHelp />
+              </Box>
               <Popper
                 anchorEl={autocompleteAnchor}
                 className={classes.autocompletePopper}
