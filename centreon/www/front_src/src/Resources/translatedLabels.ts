@@ -287,3 +287,4 @@ export const labelForcedCheckDescription =
 export const labelForcedCheckCommandSent =
   'Forced check command sent ! Please refresh the listing to update the data.';
 export const labelUnit = 'Unit';
+export const labelHowToUseTheSearchbar = 'How to use the search bar ?';
