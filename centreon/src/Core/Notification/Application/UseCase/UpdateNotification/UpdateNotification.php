@@ -72,7 +72,7 @@ final class UpdateNotification
                 "User doesn't have sufficient rights to add notifications",
                 ['user_id' => $this->user->getId()]
             );
-            $presenter->presentResponse(new ForbiddenResponse(NotificationException::addNotAllowed()));
+            $presenter->presentResponse(new ForbiddenResponse(NotificationException::updateNotAllowed()));
 
             return;
         }
