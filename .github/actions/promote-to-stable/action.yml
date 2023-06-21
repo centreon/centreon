@@ -137,6 +137,11 @@ runs:
             continue
           fi
 
+          echo "[DEBUG] - Build target path."
+          TARGET_PATH="/srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS"
+          #TARGET_PATH="/srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/canary/$ARCH/RPMS"
+          echo "[DEBUG] - Target path: $TARGET_PATH"
+
         done
 
       shell: bash
