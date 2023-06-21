@@ -120,6 +120,14 @@ runs:
         eval `ssh-agent`
         ssh-add - <<< "${{ inputs.yum_repo_key }}"
 
+        # Promote testing packages to stable.
+        for ARCH in "noarch" "x86_64"; do
+          echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
+
+          # Check if there are testing packages to promote.
+          DIR_RETURN_CODE=$(ssh -q -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" dir /srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}**/*${{ inputs.major_version }}.${{ inputs.minor_version }}-1/*.rpm &> /dev/null && echo "yes" || echo "no")
+
+        done
 
       shell: bash
 
