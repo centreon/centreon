@@ -38,7 +38,7 @@ const useCreateDashboard = (): UseCreateDashboard => {
   });
 
   const queryClient = useQueryClient();
-  const invalidateQueries = (resourceId: string | number): Promise<void> =>
+  const invalidateQueries = (): Promise<void> =>
     queryClient.invalidateQueries({
       queryKey: [resource.dashboards]
     });
@@ -54,7 +54,7 @@ const useCreateDashboard = (): UseCreateDashboard => {
       error: ResponseError | null,
       vars: CreateDashboardDto
     ): void => {
-      invalidateQueries(data?.id || '');
+      invalidateQueries();
       onSettled?.(data, error, vars, undefined);
     };
 

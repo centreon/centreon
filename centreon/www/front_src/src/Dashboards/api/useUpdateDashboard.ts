@@ -60,6 +60,7 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
     };
 
     /* eslint-disable @typescript-eslint/no-unused-vars */
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     const {
       id,
       createdAt,
@@ -69,6 +70,7 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
       ...apiAllowedVariables
     } = variables as any;
     /* eslint-enable @typescript-eslint/no-unused-vars */
+    /* eslint-enable @typescript-eslint/no-explicit-any */
 
     setResourceId(id);
 

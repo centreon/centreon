@@ -35,6 +35,7 @@ const useDashboardAccessRights = (): UseDashboardAccessRights => {
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const submit = async (dashboard: Dashboard): Promise<void> => {
     setDialogState({ ...dialogState, isOpen: false });
   };

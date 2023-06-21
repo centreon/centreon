@@ -13,6 +13,7 @@ import {
 import { useDashboardAccessRights } from './useDashboardAccessRights';
 
 const DashboardAccessRightsModal = (): ReactElement => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { isDialogOpen, closeDialog, dashboard, submit, status } =
     useDashboardAccessRights();
 

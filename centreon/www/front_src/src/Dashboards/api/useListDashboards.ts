@@ -35,7 +35,7 @@ type UseListDashboards<
 const useListDashboards = (
   props?: UseListDashboardProps
 ): UseListDashboards => {
-  const { options, params } = props || {};
+  const { params } = props || {};
 
   const { data, ...queryData } = useFetchQuery<List<Dashboard>>({
     decoder: dashboardListDecoder,
