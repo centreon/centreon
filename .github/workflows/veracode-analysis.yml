@@ -184,3 +184,4 @@ jobs:
           create-issues: true
           fail-on-cvss: 7
           debug: true
+          recursive: true
