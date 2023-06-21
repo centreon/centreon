@@ -123,7 +123,7 @@ const useStyles = makeStyles()((theme) => ({
   searchbarContainer: {
     alignItems: 'center',
     display: 'flex',
-    gap: 1
+    gap: theme.spacing(0.5)
   }
 }));
 
