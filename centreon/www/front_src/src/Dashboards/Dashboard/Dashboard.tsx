@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import {
   Settings as SettingsIcon,
@@ -26,8 +27,11 @@ import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
 import HeaderActions from './HeaderActions';
 import { isEditingAtom } from './atoms';
+import { labelAddAWidget } from './translatedLabels';
 
 const Dashboard = (): ReactElement => {
+  const { t } = useTranslation();
+
   const { dashboardId } = routerParams.useParams();
   const { dashboard, panels } = useDashboardDetails({
     dashboardId: dashboardId as string
@@ -86,13 +90,13 @@ const Dashboard = (): ReactElement => {
           <span>
             {isEditing && (
               <Button
-                aria-label="create"
-                data-testid="create-dashboard"
+                aria-label="add widget"
+                data-testid="add-widget"
                 icon={<AddIcon />}
                 iconVariant="start"
                 size="small"
               >
-                Add a panel
+                {t(labelAddAWidget)}
               </Button>
             )}
           </span>
