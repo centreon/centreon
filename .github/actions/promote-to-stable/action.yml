@@ -89,6 +89,7 @@ runs:
             echo "[DEBUG] - Promoting $ARTIFACT to stable on artifactory."
             #jf rt cp $ARTIFACT $TARGET_PATH --flat=true
           done
+        done
       shell: bash
 
     - name: Promote RPM packages to stable on yum.centreon.com
