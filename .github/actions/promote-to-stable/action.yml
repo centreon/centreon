@@ -148,7 +148,7 @@ runs:
             #ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" cp $ARTIFACT $TARGET_PATH/
 
             METADATAS="METADATAS /srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH"
-            INVALIDATION_PATHS="$INVALIDATION_PATHS /ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/*"
+            INVALIDATION_PATHS="$INVALIDATION_PATHS /$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/*"
           done
         done
 
