@@ -176,7 +176,7 @@ runs:
       shell: bash
 
     - name: Promote DEB package to stable
-      if: ${{ startsWith(inputs.distrib, 'el') }}
+      if: ${{ startsWith(inputs.distrib, 'bullseye') }}
       run: |
         set -x
         echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
