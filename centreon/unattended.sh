@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Define all supported constants
-OPTIONS="hst:v:r:l:"
+OPTIONS="hst:v:r:l:p:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
 declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1)
@@ -26,26 +26,25 @@ wizard_autoplay=${ENV_WIZARD_AUTOPLAY:-"false"} #Default the install wizard is n
 central_ip=${ENV_CENTRAL_IP:-$default_ip}       #Default central ip is the first of hostname -I
 
 function genpasswd() {
-  local _pwd
+	local _pwd
 
-  PWD_LOWER=$(cat /dev/urandom | tr -dc 'a-z' | head -c4)
-  PWD_UPPER=$(cat /dev/urandom | tr -dc 'A-Z' | head -c4)
-  PWD_DIGIT=$(cat /dev/urandom | tr -dc '0-9' | head -c4)
-  PWD_SPECIAL=$(cat /dev/urandom | tr -dc '\!\@\$\*\?' | head -c4)
+	PWD_LOWER=$(cat /dev/urandom | tr -dc 'a-z' | head -c4)
+	PWD_UPPER=$(cat /dev/urandom | tr -dc 'A-Z' | head -c4)
+	PWD_DIGIT=$(cat /dev/urandom | tr -dc '0-9' | head -c4)
+	PWD_SPECIAL=$(cat /dev/urandom | tr -dc '\!\@\$\*\?' | head -c4)
 
-  _pwd="$PWD_LOWER$PWD_UPPER$PWD_DIGIT$PWD_SPECIAL"
-  _pwd=$(echo $_pwd |fold -w 1 |shuf |tr -d '\n')
+	_pwd="$PWD_LOWER$PWD_UPPER$PWD_DIGIT$PWD_SPECIAL"
+	_pwd=$(echo $_pwd |fold -w 1 |shuf |tr -d '\n')
 
-  echo "Random password generated for user [$1] is [$_pwd]" >>$tmp_passwords_file
+	echo "Random password generated for user [$1] is [$_pwd]" >>$tmp_passwords_file
 
-  if [ $? -ne 0 ]; then
-    echo "ERROR: Cannot save the random password to [$tmp_passwords_file]"
-    exit 1
-  fi
+	if [ $? -ne 0 ]; then
+		echo "ERROR: Cannot save the random password to [$tmp_passwords_file]"
+		exit 1
+	fi
 
-  #return the generated password
-  echo $_pwd
-
+	#return the generated password
+	echo $_pwd
 }
 
 CENTREON_MAJOR_VERSION=$version
@@ -58,6 +57,7 @@ PHP_ETC="/etc/php.d/"
 # Variables dynamically set
 detected_os_release=
 detected_os_version=
+centreon_admin_password=
 
 # Variables will be defined later according to the target system OS
 BASE_PACKAGES=
@@ -80,7 +80,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <23.04> (default: 23.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-h (show this help output)]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <23.04> (default: 23.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)]"
 	echo
 	echo Example:
 	echo
@@ -184,11 +184,8 @@ function parse_subcommand_options() {
 		    wizard_autoplay="true"
 			log "INFO" "The installation wizard will be executed by the script"
 			;;
-		u)
-			api_login=$OPTARG
-			;;
 		p)
-			api_password=$OPTARG
+			centreon_admin_password=$OPTARG
 			;;
 		\?)
 			log "ERROR" "Invalid option: -"$OPTARG""
@@ -308,14 +305,14 @@ function set_centreon_repos() {
 #
 function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
+
 	curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version="mariadb-10.5"
 	if [ $? -ne 0 ]; then
 		error_and_exit "Could not install the repository"
 	else
 		log "INFO" "Successfully installed MariaDB repository"
 	fi
-	rm -f -y /etc/yum.repos.d/mariadb.repo.* > /dev/null 2>&1
-
+	rm -f /etc/yum.repos.d/mariadb.repo.old_* > /dev/null 2>&1
 }
 #========= end of function set_mariadb_repos()
 
@@ -419,16 +416,16 @@ function set_required_prerequisite() {
     esac
 
 	log "INFO" "Installing packages ${BASE_PACKAGES[@]}"
-	$PKG_MGR -y -q install ${BASE_PACKAGES[@]}
+	$PKG_MGR -q install -y ${BASE_PACKAGES[@]}
 
 	log "INFO" "Updating package gnutls"
-	$PKG_MGR -y -q update gnutls
+	$PKG_MGR -q update -y gnutls
 
 	set_centreon_repos
 	if [ "$topology" == "central" ]; then
 		set_mariadb_repos
 		log "INFO" "Installing glibc langpack for Centreon UI translation"
-		$PKG_MGR -y -q install glibc-langpack-fr glibc-langpack-es glibc-langpack-pt glibc-langpack-de
+		$PKG_MGR-q install -y glibc-langpack-fr glibc-langpack-es glibc-langpack-pt glibc-langpack-de > /dev/null 2>&1
 	fi
 }
 #========= end of function set_required_prerequisite()
@@ -656,7 +653,7 @@ function setup_before_installation() {
 
 #========= begin of function install_wizard_post()
 # execute a post request of the install wizard
-# - session coocky
+# - session cookie
 # - php command
 # - request body
 function install_wizard_post() {
@@ -685,9 +682,107 @@ function play_install_wizard() {
 	install_wizard_post ${sessionID} "generationCache.php"
 	install_wizard_post ${sessionID} "process_step8.php" 'modules%5B%5D=centreon-license-manager&modules%5B%5D=centreon-pp-manager&modules%5B%5D=centreon-autodiscovery-server&widgets%5B%5D=engine-status&widgets%5B%5D=global-health&widgets%5B%5D=graph-monitoring&widgets%5B%5D=grid-map&widgets%5B%5D=host-monitoring&widgets%5B%5D=hostgroup-monitoring&widgets%5B%5D=httploader&widgets%5B%5D=live-top10-cpu-usage&widgets%5B%5D=live-top10-memory-usage&widgets%5B%5D=service-monitoring&widgets%5B%5D=servicegroup-monitoring&widgets%5B%5D=tactical-overview&widgets%5B%5D=single-metric'
 	install_wizard_post ${sessionID} "process_step9.php" 'send_statistics=1'
-
 }
 #========= end of function play_install_wizard()
+
+#========= begin of function play_update_api()
+function play_update_api () {
+	log "INFO" "Install jq binary"
+	$PKG_MGR -q install -y jq > /dev/null 2>&1
+
+	log "INFO" "Update Centreon using API"
+
+	# Define temporary files
+	api_output="/tmp/unattended.sh_api_output"
+	api_return_code="/tmp/unattended.sh_api_return_code"
+	api_error_message="/tmp/unattended.sh_api_error_message"
+	api_error_keys="/tmp/unattended.sh_api_error_keys"
+
+	#
+	# Log in to Centreon API to get token
+	#
+	curl "${central_ip}/centreon/api/latest/login" \
+	--silent \
+	--insecure \
+	--request POST \
+	--header 'Content-Type: application/json' \
+	--data "{\"security\": {\"credentials\": {\"login\": \"admin\",\"password\": \"${centreon_admin_password}\"}}}" \
+	--output ${api_output} \
+	--write-out %{http_code} \
+	> ${api_return_code} 2> ${api_error_message}
+
+	# Analyse result
+	errorLevel=$?
+	httpResponse=$(cat ${api_return_code})
+	message=$(cat ${api_output})
+	if [ -f ${api_output} ];then
+		jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
+		hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+	else
+		hasErrors=0
+	fi
+
+	if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+		error_and_exit "API connection error (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
+	else
+		token=$(echo $message | sed 's/.*{"token":"\(.*\)"}}/\1/g')
+		if [ -z "${token}" ]; then
+			error_and_exit "Unable to extract token from message: $message"
+		fi
+	fi
+
+	# Clean files
+	rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
+
+	#
+	# Call update API
+	#
+	curl "${central_ip}/centreon/api/latest/platform/updates"  \
+	--silent \
+	--insecure \
+	--request PATCH \
+	--header "X-AUTH-TOKEN: ${token}" \
+	--header 'Content-Type: application/json' \
+	--data '{"components":[{"name":"centreon-web"}]}' \
+	--output ${api_output} \
+	--write-out %{http_code} \
+	> ${api_return_code} 2> ${api_error_message}
+
+	errorLevel=$?
+	httpResponse=$(cat ${api_return_code})
+	message=$(cat ${api_output})
+	if [ -f ${api_output} ];then
+		jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
+		hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+	else
+		hasErrors=0
+	fi
+
+	if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+		error_and_exit "Error during update (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
+	else
+		log "INFO" "Update complete"
+		log "DEBUG" "(errorLevel $errorLevel, http response code $httpResponse, message: $message)"
+	fi
+
+	# Clean files
+	rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
+}
+#========= end of function play_update_api()
+
+#========= begin of function play_update()
+function play_update() {
+	if [ -z "${centreon_admin_password}" ]; then
+		error_and_exit "Centreon admin password is not defined"
+	fi
+
+	if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
+		error_and_exit "Your Centreon version is not supported for silent update, please connect to UI and perform update manually."
+	else
+		play_update_api
+	fi
+}
+#========= end of function play_update()
 
 #========= begin of function install_central()
 # install the Centreon Central
@@ -786,6 +881,16 @@ function update_after_installation() {
 }
 #========= end of function update_after_installation()
 
+#========= begin of function test_password_policy()
+function test_password_policy() {
+	if [[ ${#centreon_admin_password} -ge 12 && "${centreon_admin_password}" == *[A-Z]* && "${centreon_admin_password}" == *[a-z]* && "${centreon_admin_password}" == *[0-9]* && "${centreon_admin_password}" == *[\!@#$%^\&*()\\[\]{}\-_+=~\`\|\:\;\"\'\<\>\,\.\/\?]* ]]; then
+        log "INFO" "Password is complient with Centreon security policy"
+    else
+        error_and_exit "Password is not complient with Centreon security policy ([A-Z][a-z][0-9][\!@#$%^\&*()\\[\]{}\-_+=~\`\|\:\;\"\'\<\>\,\.\/\?]{12,})"
+    fi
+}
+#========= end of function test_password_policy()
+
 #####################################################
 ################ MAIN SCRIPT EXECUTION ##############
 
@@ -821,19 +926,25 @@ install)
 esac
 
 # Set MariaDB password from ENV or random password if not defined
-mariadb_root_password=${ENV_MARIADB_ROOT_PASSWD:-"$(genpasswd "MariaDB user: root")"}
+if [ "$operation" == "install" ]; then
+	mariadb_root_password=${ENV_MARIADB_ROOT_PASSWD:-"$(genpasswd "MariaDB user: root")"}
 
-if [ "$wizard_autoplay" == "true" ]; then
-	# Set from ENV or random MariaDB centreon password
-	mariadb_centreon_password=${ENV_MARIADB_CENTREON_PASSWD:-"$(genpasswd "MariaDB user: centreon")"}
-	# Set from ENV or random Centreon admin password
-	centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user: admin")"}
-	# Set from ENV or Administrator first name
-	centreon_admin_firstname=${ENV_CENTREON_ADMIN_FIRSTNAME:-"John"}
-	# Set from ENV or Administrator last name
-	centreon_admin_lastname=${ENV_CENTREON_ADMIN_LASTNAME:-"Doe"}
-	# Set from ENV or Administrator e-mail
-	centreon_admin_email=${ENV_CENTREON_ADMIN_EMAIL:-"admin@admin.tld"}
+	if [ "$wizard_autoplay" == "true" ]; then
+		# Set from ENV or random MariaDB centreon password
+		mariadb_centreon_password=${ENV_MARIADB_CENTREON_PASSWD:-"$(genpasswd "MariaDB user: centreon")"}
+		# Generate random password if Centreon admin password is empty
+		if [ -z "${centreon_admin_password}" ]; then
+			centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user: admin")"}
+		else
+			test_password_policy
+		fi
+		# Set from ENV or Administrator first name
+		centreon_admin_firstname=${ENV_CENTREON_ADMIN_FIRSTNAME:-"John"}
+		# Set from ENV or Administrator last name
+		centreon_admin_lastname=${ENV_CENTREON_ADMIN_LASTNAME:-"Doe"}
+		# Set from ENV or Administrator e-mail
+		centreon_admin_email=${ENV_CENTREON_ADMIN_EMAIL:-"admin@admin.tld"}
+	fi
 fi
 
 ## Display all configured parameters
@@ -860,6 +971,7 @@ case $operation in
 install)
 	setup_before_installation
 	case $topology in
+
 	central)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
 		install_central
@@ -887,10 +999,11 @@ install)
 
 update)
 	case $topology in
+
 	central)
 		update_centreon_packages
 		if [ "$wizard_autoplay" == "true" ]; then
-			play_update_wizard
+			play_update
 			restart_centreon_process
 			log "INFO" "Log in to Centreon web interface via the URL: http://$central_ip/centreon"
 		else
@@ -902,14 +1015,16 @@ update)
 		CENTREON_DOC_URL=""
 		update_centreon_packages
 		restart_centreon_process
-		log "INFO" "Centreon [$topology] successfully updated !"
 		;;
 	esac
+
+	log "INFO" "Centreon [$topology] successfully updated !"
 	;;
+
 esac
 
 ## Major change - remind it again (in case of log level is ERROR)
-if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ]; then
+if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ] && [ "$operation" = "install" ]; then
 	# Move the tmp file to the dest file
 	mv $tmp_passwords_file $passwords_file
 	echo
@@ -924,6 +1039,9 @@ if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ]; then
 	echo
 	echo "Please save them securely and then delete this file!"
 	echo
+fi
+if [ -e $tmp_passwords_file ] && [ "$operation" = "update" ]; then
+	rm -f $tmp_passwords_file
 fi
 
 exit 0
