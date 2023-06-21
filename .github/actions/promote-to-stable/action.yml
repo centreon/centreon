@@ -142,6 +142,15 @@ runs:
           #TARGET_PATH="/srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/canary/$ARCH/RPMS"
           echo "[DEBUG] - Target path: $TARGET_PATH"
 
+          echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
+          for ARTIFACT in ${SRC_PATHS[@]}; do
+            ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET_PATH"
+            #ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" cp $ARTIFACT $TARGET_PATH/
+
+            METADATAS="METADATAS /srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH"
+            INVALIDATION_PATHS=$INVALIDATION_PATHS /ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/*"
+          done
+
         done
 
       shell: bash
