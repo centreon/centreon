@@ -75,7 +75,7 @@ const useDashboardConfig = (): UseDashboardConfig => {
   const navigateToDashboard = (dashboardId: string | number): void =>
     navigate({
       pathname: generatePath(routeMap.dashboard, { dashboardId }),
-      search: createSearchParams({ view: 'edit' }).toString()
+      search: createSearchParams({ edit: 'true' }).toString()
     });
 
   const submit = async (dashboard: Dashboard): Promise<void> => {

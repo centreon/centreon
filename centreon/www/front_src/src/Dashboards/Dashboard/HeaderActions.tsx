@@ -34,6 +34,7 @@ interface HeaderActionsProps {
   panels?: Array<PanelDetails>;
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const HeaderActions = ({
   id,
   name,
@@ -50,11 +51,16 @@ const HeaderActions = ({
   );
   const setDashboard = useSetAtom(dashboardAtom);
 
+  /**
+   * TODO useDashboardSaveBlocker issue with default router behaviour
+   * re-enable when fixed and widget edition is implemented
+   */
   // const { blocked, blockNavigation, proceedNavigation } =
   //   useDashboardSaveBlocker({ id, name });
-
   const blocked = false;
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type,@typescript-eslint/no-empty-function
   const blockNavigation = () => {};
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type,@typescript-eslint/no-empty-function
   const proceedNavigation = () => {};
 
   const { saveDashboard } = useSaveDashboard();
@@ -67,24 +73,24 @@ const HeaderActions = ({
 
   const startEditing = useCallback(() => {
     switchPanelsEditionMode(true);
-    if (searchParams.get('view') !== 'edit') {
-      searchParams.set('view', 'edit');
+    if (searchParams.get('edit') !== 'true') {
+      searchParams.set('edit', 'true');
       setSearchParams(searchParams);
     }
   }, [searchParams, setSearchParams]);
 
   const stopEditing = useCallback(() => {
     switchPanelsEditionMode(false);
-    if (searchParams.get('view') !== 'default') {
-      searchParams.set('view', 'default');
+    if (searchParams.get('edit') !== null) {
+      searchParams.delete('edit');
       setSearchParams(searchParams);
     }
   }, [searchParams, setSearchParams]);
 
   useEffect(() => {
-    if (searchParams.get('view') === 'edit') startEditing();
-    if (searchParams.get('view') === 'default') stopEditing();
-  }, []);
+    if (searchParams.get('edit') === 'true') startEditing();
+    if (searchParams.get('edit') === null) stopEditing();
+  }, [searchParams]);
 
   const askCancelConfirmation = (): void => {
     if (!dirty) {
@@ -182,6 +188,8 @@ const HeaderActions = ({
         aria-label={t(labelSave) as string}
         data-testid="save_dashboard"
         disabled={!dirty}
+        size="small"
+        variant="ghost"
         onClick={saveAndProceed}
       >
         {t(labelSave)}
