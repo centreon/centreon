@@ -3,6 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 export const useStyles = makeStyles()((theme) => ({
   pageLayout: {
     display: 'grid',
+    gridTemplateRows: 'min-content',
     overflow: 'hidden'
   },
   pageLayoutActions: {
@@ -20,6 +21,7 @@ export const useStyles = makeStyles()((theme) => ({
       backgroundColor: theme.palette.layout.body.background
     },
     display: 'grid',
+    gridTemplateRows: 'min-content',
     overflow: 'hidden',
     padding: theme.spacing(3, 3, 5)
   },
