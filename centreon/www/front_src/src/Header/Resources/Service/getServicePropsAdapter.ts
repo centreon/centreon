@@ -6,8 +6,6 @@ import type { ServiceStatusResponse } from '../../api/decoders';
 import {
   criticalCriterias,
   getResourcesUrl,
-  getServiceResourcesUrl,
-  getStatusCriterias,
   okCriterias,
   pendingCriterias,
   unhandledStateCriterias,
@@ -58,8 +56,14 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
     name: 'resource_types',
     value: []
   };
-  const statusCriterias = { name: 'statuses', value: [] };
   const stateCriterias = { name: 'states', value: [] };
+
+  const allStatusesServicesCriterias = [
+    ...okCriterias.value,
+    ...pendingCriterias.value,
+    ...unknownCriterias.value,
+    ...warningCriterias.value
+  ] as Array<SelectEntry>;
 
   const changeFilterAndNavigate = getNavigationFunction({
     applyFilter,
@@ -119,39 +123,19 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       });
 
   const servicesCriterias = getDefaultCriterias({
-    statuses: [
-      ...okCriterias.value,
-      ...pendingCriterias.value,
-      ...unknownCriterias.value,
-      ...warningCriterias.value
-    ] as Array<SelectEntry>
+    statuses: allStatusesServicesCriterias
   });
 
-  console.log(
-    '---*****',
-    [
-      ...okCriterias.value,
-      ...pendingCriterias.value,
-      ...unknownCriterias.value,
-      ...warningCriterias.value
-    ],
-    'url',
-    getResourcesUrl({
-      resourceTypeCriterias,
-      stateCriterias,
-      statusCriterias: getStatusCriterias([
-        ...okCriterias.value,
-        ...pendingCriterias.value,
-        ...unknownCriterias.value,
-        ...warningCriterias.value
-      ])
-    })
-  );
-
-  // le cas all ? all states?
   const servicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc&statusFilter=&search='
-    : getServiceResourcesUrl();
+    : getResourcesUrl({
+        resourceTypeCriterias,
+        stateCriterias,
+        statusCriterias: {
+          name: 'statuses',
+          value: allStatusesServicesCriterias
+        }
+      });
   const pendingServicesCriterias = getDefaultCriterias({
     statuses: pendingCriterias.value as Array<SelectEntry>
   });
