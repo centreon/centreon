@@ -44,6 +44,17 @@ interface ReadNotificationRepositoryInterface
     public function findById(int $notificationId): ?Notification;
 
     /**
+     * Find one notification by its name.
+     *
+     * @param TrimmedString $notificationName
+     *
+     * @throws \Throwable
+     *
+     * @return Notification|null
+     */
+    public function findByName(TrimmedString $notificationName): ?Notification;
+
+    /**
      * Find notification message for a notification.
      *
      * @param int $notificationId

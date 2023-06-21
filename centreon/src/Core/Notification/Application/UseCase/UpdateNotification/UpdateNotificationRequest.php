@@ -21,41 +21,38 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Domain\Model;
+namespace Core\Notification\Application\UseCase\UpdateNotification;
 
-use Centreon\Domain\Common\Assertion\Assertion;
-
-class ConfigurationTimePeriod
+final class UpdateNotificationRequest
 {
-    public const ALL_TIME_PERIOD = '24x7';
+    public int $id = 0;
+
+    public string $name = '';
 
     /**
-     * @throws \Assert\AssertionFailedException
-     */
-    public function __construct(
-        private readonly int $id,
-        private readonly string $name
-    ) {
-        Assertion::positiveInt($id, 'timePeriod::id');
-    }
-
-    /**
-     * Get the timeperiod id.
+     * User IDs
      *
-     * @return int
+     * @var int[]
      */
-    public function getId(): int
-    {
-        return $this->id;
-    }
+    public array $users = [];
 
     /**
-     * Get the timeperiod name.
-     *
-     * @return string
+     * @var array<array{
+     *    type:string,
+     *    ids:int[],
+     *    events:int,
+     *    includeServiceEvents:int
+     * }> $resources
      */
-    public function getName(): string
-    {
-        return $this->name;
-    }
+    public array $resources = [];
+
+    /** @var array<array{
+     *     channel:string,
+     *     subject:string,
+     *     message:string
+     * }> $messages
+     */
+    public array $messages = [];
+
+    public bool $isActivated = true;
 }

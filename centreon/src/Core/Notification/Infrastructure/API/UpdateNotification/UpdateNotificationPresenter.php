@@ -21,41 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Domain\Model;
+namespace Core\Notification\Infrastructure\API\UpdateNotification;
 
-use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotificationPresenterInterface;
 
-class ConfigurationTimePeriod
+class UpdateNotificationPresenter extends DefaultPresenter implements UpdateNotificationPresenterInterface
 {
-    public const ALL_TIME_PERIOD = '24x7';
-
-    /**
-     * @throws \Assert\AssertionFailedException
-     */
-    public function __construct(
-        private readonly int $id,
-        private readonly string $name
-    ) {
-        Assertion::positiveInt($id, 'timePeriod::id');
-    }
-
-    /**
-     * Get the timeperiod id.
-     *
-     * @return int
-     */
-    public function getId(): int
+    public function presentResponse(NoContentResponse|ResponseStatusInterface $response): void
     {
-        return $this->id;
-    }
-
-    /**
-     * Get the timeperiod name.
-     *
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
+        if ($response instanceof NoContentResponse) {
+            $this->present($response);
+        } else {
+            $this->setResponseStatus($response);
+        }
     }
 }

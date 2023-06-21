@@ -342,6 +342,64 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
     }
 
     /**
+     * @inheritDoc
+     */
+    public function deleteByNotificationIdAndResourcesId(int $notificationId, array $resourcesIds): void
+    {
+        $resetEventStatement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.notification SET
+                    servicegroup_events = 0
+                WHERE id = :notificationId
+                SQL
+        ));
+        $resetEventStatement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $resetEventStatement->execute();
+
+        $bindValues = [];
+        foreach($resourcesIds as $resourceId) {
+            $bindValues[':resource_id' . $resourceId] = $resourceId;
+        }
+        $serviceGroupsIds = implode(', ', array_keys($bindValues));
+
+        $deleteStatement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                DELETE FROM `:db`.notification_sg_relation
+                WHERE sg_id IN ($serviceGroupsIds)
+                SQL
+        ));
+        foreach($bindValues as $token => $resourceId) {
+            $deleteStatement->bindValue($token, $resourceId, \PDO::PARAM_INT);
+        }
+        $deleteStatement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteAllByNotification(int $notificationId): void
+    {
+        $resetEventStatement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.notification SET
+                    servicegroup_events = 0
+                WHERE id = :notificationId
+                SQL
+        ));
+        $resetEventStatement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $resetEventStatement->execute();
+
+        $deleteStatement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                DELETE FROM `:db`.notification_sg_relation
+                WHERE notification_id = :notificationId
+                SQL
+        ));
+        $deleteStatement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $deleteStatement->execute();
+    }
+
+    /**
      * Retrieve events by Notification Id.
      *
      * @param int $notificationId

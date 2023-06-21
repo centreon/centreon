@@ -83,6 +83,36 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     /**
      * {@inheritDoc}
      */
+    public function findByName(TrimmedString $notificationName): ?Notification
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            'SELECT id, name, timeperiod_id, tp_name, is_activated
+            FROM `:db`.notification
+            INNER JOIN timeperiod ON timeperiod_id = tp_id
+            WHERE name = :notificationName'
+        ));
+        $statement->bindValue(':notificationName', $notificationName, \PDO::PARAM_STR);
+        $statement->execute();
+
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+        if ($result === false) {
+            return null;
+        }
+
+        /**
+         * @var array{id:int,name:string,timeperiod_id:int,tp_name:string,is_activated:int} $result
+         */
+        return new Notification(
+            $result['id'],
+            $result['name'],
+            new ConfigurationTimePeriod($result['timeperiod_id'], $result['tp_name']),
+            (bool) $result['is_activated'],
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function findMessagesByNotificationId(int $notificationId): array
     {
         $this->info('Get all notification messages for notification with ID #' . $notificationId);
