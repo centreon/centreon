@@ -131,7 +131,7 @@ jobs:
     needs: [build]
     name: Run a sandbox scan
     # only stable and unstable maintenances branches will produce a report
-    #if: needs.build.outputs.development_stage != 'Development'
+    if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
     continue-on-error: true
 
@@ -175,8 +175,8 @@ jobs:
       - name: Run SCA scan and publish results
         env:
           SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
-          SRCCLR_WORKSPACE_SLUG: "jppFX1y"
-          SRCCLR_REGION: "ER"
+          #SRCCLR_WORKSPACE_SLUG: "jppFX1y"
+          #SRCCLR_REGION: "ER"
 
         uses: veracode/veracode-sca@v1.09
         with:
