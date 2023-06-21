@@ -62,7 +62,8 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
     ...okCriterias.value,
     ...pendingCriterias.value,
     ...unknownCriterias.value,
-    ...warningCriterias.value
+    ...warningCriterias.value,
+    ...criticalCriterias.value
   ] as Array<SelectEntry>;
 
   const changeFilterAndNavigate = getNavigationFunction({
