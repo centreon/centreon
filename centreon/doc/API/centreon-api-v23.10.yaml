@@ -250,7 +250,7 @@ paths:
   /configuration/notifications:
     $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
   /configuration/notifications/{notification_id}:
-    $ref: "./v23.10/Configuration/Notification/EnableAndDisableNotification.yaml"
+    $ref: "./v23.10/Configuration/Notification/PartialUpdateNotification.yaml"
   /configuration/hosts/templates:
     $ref: './v23.10/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:

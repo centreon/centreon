@@ -16,7 +16,7 @@ patch:
     content:
       application/json:
         schema:
-          $ref: 'Schema/Notification.Enable.Disable.yaml'
+          $ref: 'Schema/PartialUpdateNotificationRequest.yaml'
   responses:
     '204': { $ref: '../../Common/Response/NoContent.yaml' }
     '400': { $ref: '../../Common/Response/BadRequest.yaml' }
