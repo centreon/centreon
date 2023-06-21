@@ -1,26 +1,25 @@
-/* eslint-disable import/no-unresolved */
+/* eslint-disable import/no-unresolved,@typescript-eslint/no-unused-vars */
 
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
-import { unstable_Blocker } from 'react-router-dom';
 
+// import { unstable_Blocker } from 'react-router-dom';
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 
-import { router } from './useDashboardSaveBlocker';
-import {
-  labelEditDashboard,
-  labelExit,
-  labelExitDashboard,
-  labelExitEditionMode,
-  labelLeaveEditionModeChangesNotSaved,
-  labelSave,
-  labelYourDashboardHasBeenSaved
-} from './translatedLabels';
-import { routerParams } from './useDashboardDetails';
-import { dashboardAtom } from './atoms';
+// import { router } from './useDashboardSaveBlocker';
+// import {
+//   labelEditDashboard,
+//   labelExit,
+//   labelExitDashboard,
+//   labelExitEditionMode,
+//   labelLeaveEditionModeChangesNotSaved,
+//   labelSave,
+//   labelYourDashboardHasBeenSaved
+// } from './translatedLabels';
+import { routerParams } from './useDashboardDetails'; // import { dashboardAtom } from './atoms';
 import { getDashboardEndpoint } from './api/endpoints';
 
 import Dashboard from '.';
@@ -43,23 +42,23 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
   return store;
 };
 
-const initializeBlocker = (isNavigationBlocked = false): unstable_Blocker => {
-  const useBlockerResult: unstable_Blocker = {
-    location: {
-      hash: '',
-      key: '5nvxpbdafa',
-      pathname: '/dashboards/1',
-      search: '',
-      state: null
-    },
-    proceed: cy.stub(),
-    reset: cy.stub(),
-    state: isNavigationBlocked ? 'blocked' : 'unblocked'
-  };
-  cy.stub(router, 'useBlocker').returns(useBlockerResult);
-
-  return useBlockerResult;
-};
+// const initializeBlocker = (isNavigationBlocked = false): unstable_Blocker => {
+//   const useBlockerResult: unstable_Blocker = {
+//     location: {
+//       hash: '',
+//       key: '5nvxpbdafa',
+//       pathname: '/dashboards/1',
+//       search: '',
+//       state: null
+//     },
+//     proceed: cy.stub(),
+//     reset: cy.stub(),
+//     state: isNavigationBlocked ? 'blocked' : 'unblocked'
+//   };
+//   cy.stub(router, 'useBlocker').returns(useBlockerResult);
+//
+//   return useBlockerResult;
+// };
 
 const initializeAndMount = (): ReturnType<typeof createStore> => {
   const store = initializeWidgets();
@@ -99,8 +98,11 @@ const initializeAndMount = (): ReturnType<typeof createStore> => {
   return store;
 };
 
+// FIXME the `unstable_Blocker` is conflicting with the default behavior of react-router-dom, feature has been disabled for now
+/*
 describe('Dashboard', () => {
   it('cancels the dashboard changes when the "Cancel" button is clicked in the confirmation modal', () => {
+
     initializeBlocker();
     const store = initializeAndMount();
 
@@ -252,3 +254,4 @@ describe('Dashboard', () => {
     cy.matchImageSnapshot();
   });
 });
+ */
