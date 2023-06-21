@@ -2,24 +2,24 @@ import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Container, Box } from '@mui/material';
+import { Link, Box } from '@mui/material';
 
 import { PersistentTooltip } from '@centreon/ui';
 
 import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
-import { labelSearchHelp } from '../translatedLabels';
+import {
+  labelHowToUseTheSearchbar,
+  labelSearchHelp
+} from '../translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
-    color: theme.palette.common.black,
-    margin: theme.spacing(1, 0)
+    margin: theme.spacing(0.75, 0),
+    marginRight: theme.spacing(2)
   },
   link: {
     color: theme.palette.primary.main,
     textDecoration: 'none'
-  },
-  title: {
-    marginBottom: theme.spacing(1)
   }
 }));
 
@@ -32,23 +32,16 @@ const SearchHelp = (): JSX.Element => {
 
   return (
     <PersistentTooltip labelSearchHelp={t(labelSearchHelp)}>
-      <Container className={classes.container}>
-        <Box className={classes.title}>
-          More informations about how to use the searchbar?
-        </Box>
-        <Box>
-          click{' '}
-          <a
-            className={classes.link}
-            href={docsURL}
-            rel="noreferrer"
-            target="_blank"
-          >
-            here
-          </a>{' '}
-          to access the documentation
-        </Box>
-      </Container>
+      <Box className={classes.container}>
+        <Link
+          className={classes.link}
+          href={docsURL}
+          rel="noreferrer"
+          target="_blank"
+        >
+          {t(labelHowToUseTheSearchbar)}
+        </Link>
+      </Box>
     </PersistentTooltip>
   );
 };
