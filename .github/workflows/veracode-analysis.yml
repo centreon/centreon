@@ -175,8 +175,8 @@ jobs:
       - name: Run SCA scan and publish results
         env:
           SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
-          #SRCCLR_WORKSPACE_SLUG: "jppFX1y"
-          #SRCCLR_REGION: "ER"
+          SRCCLR_WORKSPACE_SLUG: "jppFX1y"
+          SRCCLR_REGION: "ER"
 
         uses: veracode/veracode-sca@v1.09
         with:
