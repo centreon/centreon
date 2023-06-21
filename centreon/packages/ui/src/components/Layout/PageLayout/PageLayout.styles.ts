@@ -2,9 +2,8 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useStyles = makeStyles()((theme) => ({
   pageLayout: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%'
+    display: 'grid',
+    overflow: 'hidden'
   },
   pageLayoutActions: {
     '& > span': {
@@ -20,7 +19,9 @@ export const useStyles = makeStyles()((theme) => ({
     '&[data-has-background="true"]': {
       backgroundColor: theme.palette.layout.body.background
     },
-    padding: theme.spacing(3, 4, 5)
+    display: 'grid',
+    overflow: 'hidden',
+    padding: theme.spacing(3, 3, 5)
   },
   pageLayoutHeader: {
     '[data-variant="fixed-header"] &': {
@@ -32,6 +33,6 @@ export const useStyles = makeStyles()((theme) => ({
       zIndex: `calc(${theme.zIndex.mobileStepper} - 100)`
     },
 
-    padding: theme.spacing(5, 4, 0)
+    padding: theme.spacing(5, 3, 0)
   }
 }));
