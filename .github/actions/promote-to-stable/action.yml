@@ -25,6 +25,9 @@ inputs:
   stability:
     description: "The package stability (stable, testing, unstable)"
     required: true
+  repository_name:
+    description: "The repository name"
+    required: true
   yum_repo_url:
     description: "The legacy yum repo url"
     required: true
