@@ -5,11 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { PageHeader, PageLayout } from '@centreon/ui/components';
 
 import { labelDashboards } from './translatedLabels';
-import { ListingSkeleton } from './ListingSkeleton';
-import Listing from './Listing';
+import { DashboardsOverviewSkeleton } from './components/DashboardsOverview/DashboardsOverviewSkeleton';
 import { DashboardConfigModal } from './components/DashboardConfig/DashboardConfigModal';
 import { DashboardAccessRightsModal } from './components/DashboardAccessRights/DashboardAccessRightsModal';
 import { DashboardDeleteConfirmationModal } from './components/DashboardDelete/DashboardDeleteConfirmationModal';
+import { DashboardsOverview } from './components/DashboardsOverview/DashboardsOverview';
 
 const DashboardsPage = (): ReactElement => {
   const { t } = useTranslation();
@@ -24,8 +24,8 @@ const DashboardsPage = (): ReactElement => {
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <Suspense fallback={<ListingSkeleton />}>
-          <Listing />
+        <Suspense fallback={<DashboardsOverviewSkeleton />}>
+          <DashboardsOverview />
         </Suspense>
       </PageLayout.Body>
       <DashboardConfigModal />

@@ -3,9 +3,9 @@ import { ReactElement } from 'react';
 
 import { DataTable } from '@centreon/ui/components';
 
-const tiles = Array(5).fill(0);
+const tiles = Array(3).fill(0);
 
-const ListingSkeleton = (): ReactElement => {
+const DashboardsOverviewSkeleton = (): ReactElement => {
   return (
     <DataTable>
       {tiles.map((_, index) => (
@@ -15,4 +15,4 @@ const ListingSkeleton = (): ReactElement => {
   );
 };
 
-export { ListingSkeleton };
+export { DashboardsOverviewSkeleton };

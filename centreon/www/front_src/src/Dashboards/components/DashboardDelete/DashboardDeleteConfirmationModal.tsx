@@ -29,7 +29,6 @@ const DashboardDeleteConfirmationModal = (): ReactElement => {
   const onError = (): void => showErrorMessage(labels.status.error);
 
   useEffect(() => {
-    console.log({ status });
     if (status === 'success') onSuccess();
     if (status === 'error') onError();
   }, [status]);

@@ -1,54 +1,55 @@
 import { ReactElement, useMemo } from 'react';
 
-import { gt } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { generatePath, useNavigate } from 'react-router-dom';
 
 import AddIcon from '@mui/icons-material/Add';
-import { CircularProgress } from '@mui/material';
 
 import { Button, DataTable, PageLayout } from '@centreon/ui/components';
 
-import routeMap from '../reactRoutes/routeMap';
-
-import useDashboards from './useDashboards';
+import { useDashboardAccessRights } from '../DashboardAccessRights/useDashboardAccessRights';
+import { useDashboardDelete } from '../DashboardDelete/useDashboardDelete';
+import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import {
   labelCreateADashboard,
   labelNoDashboardsFound
-} from './translatedLabels';
-import { Dashboard } from './models';
-import { useDashboardConfig } from './components/DashboardConfig/useDashboardConfig';
-import { useDashboardAccessRights } from './components/DashboardAccessRights/useDashboardAccessRights';
-import { useDashboardDelete } from './components/DashboardDelete/useDashboardDelete';
+} from '../../translatedLabels';
+import { Dashboard } from '../../api/models';
+import routeMap from '../../../reactRoutes/routeMap';
 
-const emptyListStateLabels = {
-  actions: {
-    create: labelCreateADashboard
-  },
-  title: labelNoDashboardsFound
-};
+import { useDashboardsOverview } from './useDashboardsOverview';
 
-const Listing = (): ReactElement => {
+const DashboardsOverview = (): ReactElement => {
   const { t } = useTranslation();
-  const { dashboards, elementRef, isLoading } = useDashboards();
 
+  const { isEmptyList, dashboards } = useDashboardsOverview();
   const { createDashboard, editDashboard } = useDashboardConfig();
   const { deleteDashboard } = useDashboardDelete();
   const { editAccessRights } = useDashboardAccessRights();
-
-  const hasDashboards = useMemo(
-    () => gt(dashboards.length, 0),
-    [dashboards.length]
-  );
 
   const navigate = useNavigate();
   const navigateToDashboard = (dashboard: Dashboard) => (): void =>
     navigate(generatePath(routeMap.dashboard, { dashboardId: dashboard.id }));
 
+  const labels = useMemo(
+    () => ({
+      actions: {
+        create: t(labelCreateADashboard)
+      },
+      emptyState: {
+        actions: {
+          create: t(labelCreateADashboard)
+        },
+        title: t(labelNoDashboardsFound)
+      }
+    }),
+    []
+  );
+
   return (
     <>
       <PageLayout.Actions>
-        {hasDashboards && (
+        {!isEmptyList && (
           <Button
             aria-label="create"
             data-testid="create-dashboard"
@@ -56,17 +57,17 @@ const Listing = (): ReactElement => {
             iconVariant="start"
             onClick={createDashboard}
           >
-            {t(labelCreateADashboard)}
+            {labels.actions.create}
           </Button>
         )}
       </PageLayout.Actions>
 
-      <DataTable isEmpty={!hasDashboards}>
-        {!hasDashboards ? (
+      <DataTable isEmpty={isEmptyList}>
+        {isEmptyList ? (
           <DataTable.EmptyState
             aria-label="create"
             data-testid="create-dashboard"
-            labels={emptyListStateLabels}
+            labels={labels.emptyState}
             onCreate={createDashboard}
           />
         ) : (
@@ -85,13 +86,8 @@ const Listing = (): ReactElement => {
           ))
         )}
       </DataTable>
-      {isLoading && (
-        <div>
-          <CircularProgress />
-        </div>
-      )}
     </>
   );
 };
 
-export default Listing;
+export { DashboardsOverview };
