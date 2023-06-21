@@ -31,7 +31,7 @@ jobs:
     needs: [cypress-component-test-list]
     runs-on: [self-hosted, docker, cache]
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         spec: ${{ fromJson(needs.cypress-component-test-list.outputs.specs) }}
     name: ${{ matrix.spec }}
@@ -39,6 +39,13 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
+
+      - name: Install pre-requisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+        shell: bash
+
       - name: Cypress component testing
         uses: ./.github/actions/web-frontend-component-test
         with:
