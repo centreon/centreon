@@ -119,7 +119,12 @@ const useStyles = makeStyles()((theme) => ({
     gridTemplateColumns: 'auto 175px auto 1fr',
     width: '100%'
   },
-  loader: { display: 'flex', justifyContent: 'center' }
+  loader: { display: 'flex', justifyContent: 'center' },
+  searchbarContainer: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: 1
+  }
 }));
 
 const SaveFilter = lazy(() => import('./Save'));
@@ -570,7 +575,7 @@ const Filter = (): JSX.Element => {
           </Suspense>
           <ClickAwayListener onClickAway={closeSuggestionPopover}>
             <div data-testid={labelSearchBar}>
-              <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
+              <Box className={classes.searchbarContainer}>
                 <SearchField
                   fullWidth
                   EndAdornment={renderClearFilter(clearFilter)}
