@@ -35,7 +35,7 @@ const TooltipAnchorPoint = ({
     timeSeries,
     xScale
   });
-  const { classes } = useStyles({
+  const { classes, cx } = useStyles({
     tooltipLeftAxisX,
     tooltipLeftAxisYLeft,
     tooltipLeftAxisYRight,
@@ -47,17 +47,19 @@ const TooltipAnchorPoint = ({
   return (
     <>
       {tooltipDataAxisYLeft && (
-        <Paper className={classes.tooltipAxisLeftY}>
+        <Paper className={cx(classes.tooltipAxis, classes.tooltipAxisLeftY)}>
           <Typography variant="caption">{tooltipDataAxisYLeft}</Typography>
         </Paper>
       )}
       {tooltipDataAxisX && (
-        <Paper className={classes.tooltipAxisBottom}>
+        <Paper className={cx(classes.tooltipAxis, classes.tooltipAxisBottom)}>
           <Typography variant="caption">{tooltipDataAxisX}</Typography>
         </Paper>
       )}
       {tooltipDataAxisYRight && (
-        <Paper className={classes.tooltipLeftAxisRightY}>
+        <Paper
+          className={cx(classes.tooltipAxis, classes.tooltipLeftAxisRightY)}
+        >
           <Typography variant="caption">{tooltipDataAxisYRight}</Typography>
         </Paper>
       )}

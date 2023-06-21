@@ -26,7 +26,7 @@ const GuidingLines = ({
         from={{ x: positionX, y: 0 }}
         pointerEvents="none"
         stroke={grey[400]}
-        strokeDasharray="5,2"
+        strokeDasharray="2 4"
         strokeWidth={1}
         to={{ x: positionX, y: graphHeight }}
       />
@@ -34,7 +34,7 @@ const GuidingLines = ({
         from={{ x: 0, y: positionY }}
         pointerEvents="none"
         stroke={grey[400]}
-        strokeDasharray="5,2"
+        strokeDasharray="2 4"
         strokeWidth={1}
         to={{ x: graphWidth, y: positionY }}
       />

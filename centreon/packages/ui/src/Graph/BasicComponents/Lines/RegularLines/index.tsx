@@ -37,15 +37,13 @@ const RegularLine = ({
   transparency,
   graphHeight
 }: Props): JSX.Element => {
-  const isHighlighted = highlight ? 3 : 1;
-
   const props = {
     curve: Curve.curveLinear,
     data: timeSeries,
     defined: (value): boolean => !isNil(value[metric]),
-    opacity: !highlight ? 1 : 3,
+    opacity: 1,
     stroke: lineColor,
-    strokeWidth: isHighlighted,
+    strokeWidth: !highlight ? 1 : 2,
     unit,
     x: (timeValue): number => xScale(getTime(timeValue)) as number,
     y: (timeValue): number => yScale(prop(metric, timeValue)) ?? null

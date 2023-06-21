@@ -21,31 +21,37 @@ export const useStyles = makeStyles<StylesProps>()(
       tooltipTopAxisYRight
     }
   ) => ({
-    tooltipAxisBottom: {
-      backgroundColor: theme.palette.background.listingHeader,
-      color: theme.palette.common.white,
-      left: tooltipLeftAxisX ?? 0,
-      minWidth: theme.spacing(5.5),
+    tooltipAxis: {
+      '& > span': {
+        fontSize: 'inherit',
+        fontWeight: 'inherit',
+        lineHeight: 'inherit'
+      },
+      backgroundColor: theme.palette.background.tooltip,
+      border: 'unset',
+      borderRadius: theme.spacing(0.25),
+      color: theme.palette.primary.contrastText,
+      fontSize: '10px',
+      fontWeight: 500,
+      letterSpacing: '0.15px',
+      lineHeight: '100%',
+      padding: theme.spacing(0.375, 0.5),
       position: 'absolute',
       textAlign: 'center',
+      transform: 'translate(-50%, -50%)',
+      transformOrigin: 'center center',
+      transition: 'unset'
+    },
+    tooltipAxisBottom: {
+      left: tooltipLeftAxisX ?? 0,
       top: tooltipTopAxisX ?? 0
     },
     tooltipAxisLeftY: {
-      backgroundColor: theme.palette.background.listingHeader,
-      color: theme.palette.common.white,
       left: tooltipLeftAxisYLeft ?? 0,
-      minWidth: theme.spacing(3),
-      position: 'absolute',
-      textAlign: 'center',
       top: tooltipTopAxisYLeft ?? 0
     },
     tooltipLeftAxisRightY: {
-      backgroundColor: theme.palette.background.listingHeader,
-      color: theme.palette.common.white,
       left: tooltipLeftAxisYRight ?? 0,
-      minWidth: theme.spacing(3),
-      position: 'absolute',
-      textAlign: 'center',
       top: tooltipTopAxisYRight ?? 0
     }
   })

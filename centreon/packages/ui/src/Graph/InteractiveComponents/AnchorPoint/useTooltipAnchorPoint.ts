@@ -64,8 +64,8 @@ const useTooltipAnchorPoint = ({
 
     showTooltipAxisX({
       tooltipData: dataAxisX,
-      tooltipLeft: positionX + margin.left / 2,
-      tooltipTop: graphHeight + margin.top / 2
+      tooltipLeft: positionX + margin.left,
+      tooltipTop: graphHeight + margin.top
     });
   }, [positionX, positionY, tickAxisBottom]);
 
@@ -75,8 +75,8 @@ const useTooltipAnchorPoint = ({
     }
     showTooltipAxisYLeft({
       tooltipData: tickAxisLeft,
-      tooltipLeft: 40,
-      tooltipTop: positionY + margin.top / 2
+      tooltipLeft: margin.left,
+      tooltipTop: positionY + margin.top
     });
   }, [tickAxisLeft, positionX, positionY]);
 
@@ -86,8 +86,8 @@ const useTooltipAnchorPoint = ({
     }
     showTooltipAxisYRight({
       tooltipData: tickAxisRight,
-      tooltipLeft: graphWidth ? graphWidth + 40 : 0,
-      tooltipTop: positionY + margin.top / 2
+      tooltipLeft: graphWidth ? graphWidth + margin.left : 0,
+      tooltipTop: positionY + margin.top
     });
   }, [positionX, positionY, tickAxisRight]);
 
