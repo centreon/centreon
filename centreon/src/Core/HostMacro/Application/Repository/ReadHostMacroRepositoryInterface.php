@@ -37,4 +37,15 @@ interface ReadHostMacroRepositoryInterface
      * @return HostMacro[]
      */
     public function findByHostIds(array $hostIds): array;
+
+    /**
+     * Find macros by host (or host template) ID.
+     *
+     * @param int $hostId
+     *
+     * @throws \Throwable
+     *
+     * @return HostMacro[]
+     */
+    public function findByHostId(int $hostId): array;
 }
