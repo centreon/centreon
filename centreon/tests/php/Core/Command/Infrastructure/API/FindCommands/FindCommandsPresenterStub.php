@@ -21,21 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate;
+namespace Tests\Core\Command\Infrastructure\API\FindCommands;
 
-use Core\Common\Application\Type\NoValue;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Command\Application\UseCase\FindCommands\FindCommandsPresenterInterface;
+use Core\Command\Application\UseCase\FindCommands\FindCommandsResponse;
 
-final class PartialUpdateHostTemplateRequest
+class FindCommandsPresenterStub extends AbstractPresenter implements FindCommandsPresenterInterface
 {
-    /**
-     * @param NoValue|array<array{name:string,value:string|null,is_password:bool,description:null|string}> $macros
-     * @param NoValue|int[] $categories
-     * @param NoValue|int[] $templates
-     */
-    public function __construct(
-        public NoValue|array $macros = new NoValue(),
-        public NoValue|array $categories = new NoValue(),
-        public NoValue|array $templates = new NoValue(),
-    ) {
+    public FindCommandsResponse|ResponseStatusInterface $response;
+
+    public function presentResponse(ResponseStatusInterface|FindCommandsResponse $response): void
+    {
+        $this->response = $response;
     }
 }

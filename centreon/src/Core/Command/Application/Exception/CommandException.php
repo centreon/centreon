@@ -21,21 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate;
+namespace Core\Command\Application\Exception;
 
-use Core\Common\Application\Type\NoValue;
-
-final class PartialUpdateHostTemplateRequest
+final class CommandException extends \Exception
 {
     /**
-     * @param NoValue|array<array{name:string,value:string|null,is_password:bool,description:null|string}> $macros
-     * @param NoValue|int[] $categories
-     * @param NoValue|int[] $templates
+     * @return self
      */
-    public function __construct(
-        public NoValue|array $macros = new NoValue(),
-        public NoValue|array $categories = new NoValue(),
-        public NoValue|array $templates = new NoValue(),
-    ) {
+    public static function accessNotAllowed(): self
+    {
+        return new self(_('You are not allowed to access commands'));
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function errorWhileSearching(\Throwable $ex): self
+    {
+        return new self(_('Error while searching for commands'), 0, $ex);
     }
 }

@@ -25,6 +25,7 @@ patch:
     This endpoint does not handle all host template properties.
 
     The following host template properties are supported in version 23.10 and above:
+      - templates
       - macros
       - categories
   parameters:
