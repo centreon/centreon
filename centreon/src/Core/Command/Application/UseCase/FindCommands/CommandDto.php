@@ -21,21 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate;
+namespace Core\Command\Application\UseCase\FindCommands;
 
-use Core\Common\Application\Type\NoValue;
+use Core\Command\Domain\Model\CommandType;
 
-final class PartialUpdateHostTemplateRequest
+class CommandDto
 {
-    /**
-     * @param NoValue|array<array{name:string,value:string|null,is_password:bool,description:null|string}> $macros
-     * @param NoValue|int[] $categories
-     * @param NoValue|int[] $templates
-     */
-    public function __construct(
-        public NoValue|array $macros = new NoValue(),
-        public NoValue|array $categories = new NoValue(),
-        public NoValue|array $templates = new NoValue(),
-    ) {
-    }
+    public int $id = 0;
+
+    public string $name = '';
+
+    public string $commandLine = '';
+
+    public CommandType $type = CommandType::Check;
+
+    public bool $isShellEnabled = false;
+
+    public bool $isActivated = true;
+
+    public bool $isLocked = false;
 }
