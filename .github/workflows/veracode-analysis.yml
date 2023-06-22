@@ -171,14 +171,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name : debug root location
+        run : |
+          ls -la
+          ls -la "./${{ inputs.module_directory }}"
+
+
       - name: Run SCA scan and publish results
         env:
           SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
-          SRCCLR_REGION: "ER"
+          #SRCCLR_REGION: "ER"
 
         uses: veracode/veracode-sca@v1.09
         with:
-          #fail-on-cvss: 7
-          recursive: true
+          fail-on-cvss: 7
+          #recursive: true
           debug: true
-          path: "./${{ inputs.module_directory }}/"
+          path: "./${{ inputs.module_directory }}"
