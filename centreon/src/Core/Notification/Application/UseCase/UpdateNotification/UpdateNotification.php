@@ -130,13 +130,16 @@ final class UpdateNotification
      */
     private function updateResources(int $notificationId, array $resources): void
     {
-        foreach ($resources as $resourceType => $resource) {
-            $repository = $this->resourceRepositoryProvider->getRepository($resourceType);
+        foreach ($this->resourceRepositoryProvider->getRepositories() as $repository) {
             if(! $this->user->isAdmin()) {
                 $this->deleteResourcesForUserWithACL($repository, $notificationId);
             }else {
                 $repository->deleteAllByNotification($notificationId);
             }
+        }
+
+        foreach ($resources as $resourceType => $resource) {
+            $repository = $this->resourceRepositoryProvider->getRepository($resourceType);
             $repository->add($notificationId, $resource);
         }
     }
