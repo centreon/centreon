@@ -184,6 +184,7 @@ jobs:
 
         uses: veracode/veracode-sca@v1.09
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           fail-on-cvss: 7
           #recursive: true
           debug: true
