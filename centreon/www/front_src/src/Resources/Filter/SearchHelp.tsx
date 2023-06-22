@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -26,18 +28,26 @@ const useStyles = makeStyles()((theme) => ({
 const SearchHelp = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+
+  const [openTooltip, setOpenTooltip] = useState(false);
   const platform = useAtomValue(platformVersionsAtom);
 
   const docsURL = `https://docs.centreon.com/docs/${platform?.web.major}.${platform?.web.minor}/alerts-notifications/resources-status/#search-bar`;
 
   return (
-    <PersistentTooltip labelSearchHelp={t(labelSearchHelp)}>
+    <PersistentTooltip
+      closeTooltip={() => setOpenTooltip(false)}
+      labelSearchHelp={t(labelSearchHelp)}
+      openTooltip={openTooltip}
+      toggleTooltip={() => setOpenTooltip((prevState) => !prevState)}
+    >
       <Box className={classes.container}>
         <Link
           className={classes.link}
           href={docsURL}
           rel="noreferrer"
           target="_blank"
+          onClick={() => setOpenTooltip(false)}
         >
           {t(labelHowToUseTheSearchbar)}
         </Link>

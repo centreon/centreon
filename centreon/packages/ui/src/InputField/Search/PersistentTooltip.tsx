@@ -1,4 +1,4 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 
 import { isNil, cond, T } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -57,6 +57,10 @@ const PersistentTooltip = ({
 
     closeTooltipProp?.();
   };
+
+  useEffect(() => {
+    setOpen(openTooltip as boolean);
+  }, [openTooltip]);
 
   const title = (
     <>
