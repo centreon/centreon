@@ -29,8 +29,8 @@ interface UseFormState {
   dialogOpen: boolean;
   isMutating: boolean;
   labelConfirm: string;
-  setDialogOpen: any;
-  submit: (values: any) => void;
+  setDialogOpen;
+  submit: (values) => void;
 }
 
 const useForm = (): UseFormState => {
