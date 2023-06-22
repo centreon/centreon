@@ -162,9 +162,9 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
-                DELETE FROM `:db`.notification_message
-                WHERE notification_id = :notificationId
-            SQL
+                    DELETE FROM `:db`.notification_message
+                    WHERE notification_id = :notificationId
+                SQL
         ));
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $statement->execute();
@@ -177,9 +177,9 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
-                DELETE FROM `:db`.notification_user_relation
-                WHERE notification_id = :notificationId
-            SQL
+                    DELETE FROM `:db`.notification_user_relation
+                    WHERE notification_id = :notificationId
+                SQL
         ));
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $statement->execute();

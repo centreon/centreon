@@ -36,14 +36,12 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
+use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
-use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotificationRequest;
-use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\UseCase\UpdateNotification\Factory\NotificationFactory;
 use Core\Notification\Application\UseCase\UpdateNotification\Factory\NotificationMessageFactory;
 use Core\Notification\Application\UseCase\UpdateNotification\Factory\NotificationResourceFactory;
-use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotificationPresenterInterface;
 use Core\Notification\Application\UseCase\UpdateNotification\Validator\NotificationUserValidator;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationMessage;
@@ -78,7 +76,7 @@ final class UpdateNotification
         }
         try {
             $this->info('Update notification', ['request' => $request]);
-            if($this->readNotificationRepository->exists($request->id) === false) {
+            if ($this->readNotificationRepository->exists($request->id) === false) {
                 $presenter->presentResponse(new NotFoundResponse('Notification'));
 
                 return;
@@ -109,13 +107,13 @@ final class UpdateNotification
 
                 throw $ex;
             }
-        } catch (NotificationException | AssertionFailedException | \ValueError $ex) {
-            $this->error("Unable to update notification configuration", ['trace' => (string) $ex]);
+        } catch (NotificationException|AssertionFailedException|\ValueError $ex) {
+            $this->error('Unable to update notification configuration', ['trace' => (string) $ex]);
             $presenter->presentResponse(
                 new InvalidArgumentResponse($ex->getMessage())
             );
         } catch (\Throwable $ex) {
-            $this->error("Unable to update notification configuration", ['trace' => (string) $ex]);
+            $this->error('Unable to update notification configuration', ['trace' => (string) $ex]);
             $presenter->presentResponse(
                 new ErrorResponse($ex->getMessage())
             );
@@ -131,7 +129,7 @@ final class UpdateNotification
     private function updateResources(int $notificationId, array $resources): void
     {
         foreach ($this->resourceRepositoryProvider->getRepositories() as $repository) {
-            if(! $this->user->isAdmin()) {
+            if (! $this->user->isAdmin()) {
                 $this->deleteResourcesForUserWithACL($repository, $notificationId);
             }else {
                 $repository->deleteAllByNotification($notificationId);
@@ -182,6 +180,4 @@ final class UpdateNotification
             $repository->deleteByNotificationIdAndResourcesId($notificationId, $existingResourcesIds);
         }
     }
-
-
 }

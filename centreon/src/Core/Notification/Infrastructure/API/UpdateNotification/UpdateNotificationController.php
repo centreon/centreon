@@ -60,7 +60,7 @@ final class UpdateNotificationController extends AbstractController
              *         message:string
              *     }>,
              *     is_activated?: bool,
-             * } $data
+             * } $dataSent
              */
             $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateNotificationSchema.json');
 
@@ -75,10 +75,26 @@ final class UpdateNotificationController extends AbstractController
     }
 
     /**
-     * Undocumented function
+     * Create DTO.
      *
-     * @param integer $notificationId
-     * @param array $dataSent
+     * @param int $notificationId
+     * @param array{
+     *     name: string,
+     *     timeperiod: int,
+     *     users: int[],
+     *     resources: array<array{
+     *         type:string,
+     *         ids:int[],
+     *         events:int,
+     *         extra?:array{event_services?: int}
+     *     }>,
+     *     messages: array<array{
+     *         channel:string,
+     *         subject:string,
+     *         message:string
+     *     }>,
+     *     is_activated?: bool,
+     * } $dataSent
      */
     public function createUpdateNotificationRequest(int $notificationId, array $dataSent): UpdateNotificationRequest
     {

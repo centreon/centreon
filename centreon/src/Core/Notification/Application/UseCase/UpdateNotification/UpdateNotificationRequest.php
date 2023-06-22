@@ -30,7 +30,7 @@ final class UpdateNotificationRequest
     public string $name = '';
 
     /**
-     * User IDs
+     * User IDs.
      *
      * @var int[]
      */

@@ -40,11 +40,13 @@ final class NotificationFactory
     }
 
     /**
-     * Create an instance of Notification
+     * Create an instance of Notification.
      *
      * @param UpdateNotificationRequest $request
-     * @return Notification
+     *
      * @throws NotificationException
+     *
+     * @return Notification
      */
     public function create(UpdateNotificationRequest $request): Notification
     {
@@ -62,6 +64,7 @@ final class NotificationFactory
      * Validate that a notification with this name doesn't already exist.
      *
      * @param string $name
+     * @param int $id
      *
      * @throws NotificationException
      */
@@ -69,7 +72,10 @@ final class NotificationFactory
     {
         $notification = $this->repository->findByName(new TrimmedString($name));
         if ($notification !== null && $notification->getId() !== $id) {
-            $this->error('Notification name already exists for another notification', ['name' => $name, 'existing_notification_id' => $notification->getId()]);
+            $this->error(
+                'Notification name already exists for another notification',
+                ['name' => $name, 'existing_notification_id' => $notification->getId()]
+            );
 
             throw NotificationException::nameAlreadyExists();
         }

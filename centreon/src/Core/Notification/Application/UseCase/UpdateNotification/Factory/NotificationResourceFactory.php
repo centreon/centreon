@@ -29,8 +29,8 @@ use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
-use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Domain\Model\ConfigurationResource;
+use Core\Notification\Domain\Model\NotificationResource;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Utility\Difference\BasicDifference;
 

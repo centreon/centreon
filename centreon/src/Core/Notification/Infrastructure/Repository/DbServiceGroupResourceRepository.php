@@ -28,9 +28,9 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
+use Core\Notification\Domain\Model\ConfigurationResource;
 use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Domain\Model\NotificationServiceEvent;
-use Core\Notification\Domain\Model\ConfigurationResource;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
@@ -357,7 +357,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         $resetEventStatement->execute();
 
         $bindValues = [];
-        foreach($resourcesIds as $resourceId) {
+        foreach ($resourcesIds as $resourceId) {
             $bindValues[':resource_id' . $resourceId] = $resourceId;
         }
         $serviceGroupsIds = implode(', ', array_keys($bindValues));
@@ -365,10 +365,10 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         $deleteStatement = $this->db->prepare($this->translateDbName(
             <<<SQL
                 DELETE FROM `:db`.notification_sg_relation
-                WHERE sg_id IN ($serviceGroupsIds)
+                WHERE sg_id IN ({$serviceGroupsIds})
                 SQL
         ));
-        foreach($bindValues as $token => $resourceId) {
+        foreach ($bindValues as $token => $resourceId) {
             $deleteStatement->bindValue($token, $resourceId, \PDO::PARAM_INT);
         }
         $deleteStatement->execute();
@@ -390,7 +390,7 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
         $resetEventStatement->execute();
 
         $deleteStatement = $this->db->prepare($this->translateDbName(
-            <<<SQL
+            <<<'SQL'
                 DELETE FROM `:db`.notification_sg_relation
                 WHERE notification_id = :notificationId
                 SQL

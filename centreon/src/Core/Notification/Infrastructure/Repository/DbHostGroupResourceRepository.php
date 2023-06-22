@@ -29,9 +29,9 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
+use Core\Notification\Domain\Model\ConfigurationResource;
 use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\ConfigurationResource;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\SqlConcatenator;
 
@@ -363,18 +363,18 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         $resetEventStatement->execute();
 
         $bindValues = [];
-        foreach($resourcesIds as $resourceId) {
+        foreach ($resourcesIds as $resourceId) {
             $bindValues[':resource_id' . $resourceId] = $resourceId;
         }
         $hostGroupsIds = implode(', ', array_keys($bindValues));
 
         $deleteStatement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                DELETE FROM `:db`.notification_hg_relation
-                WHERE hg_id IN ($hostGroupsIds)
-            SQL
+                    DELETE FROM `:db`.notification_hg_relation
+                    WHERE hg_id IN ({$hostGroupsIds})
+                SQL
         ));
-        foreach($bindValues as $token => $resourceId) {
+        foreach ($bindValues as $token => $resourceId) {
             $deleteStatement->bindValue($token, $resourceId, \PDO::PARAM_INT);
         }
         $deleteStatement->execute();
@@ -397,10 +397,10 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         $resetEventStatement->execute();
 
         $deleteStatement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                DELETE FROM `:db`.notification_hg_relation
-                WHERE notification_id = :notificationId
-            SQL
+            <<<'SQL'
+                    DELETE FROM `:db`.notification_hg_relation
+                    WHERE notification_id = :notificationId
+                SQL
         ));
         $deleteStatement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $deleteStatement->execute();
