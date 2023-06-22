@@ -17827,3 +17827,9 @@ msgstr "Vous n'êtes pas autorisé à supprimer une configuration de notificatio
 
 msgid "Error while deleting a notification configuration"
 msgstr "Erreur lors de la suppression de la configuration de notification"
+
+msgid "You are not allowed to access commands"
+msgstr "Vous n'êtes pas autorisé à accéder aux commandes"
+
+msgid "Error while searching for commands"
+msgstr "Erreur lors de la recherche de commandes"

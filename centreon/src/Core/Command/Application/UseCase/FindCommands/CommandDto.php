@@ -21,10 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\CommandMacro\Domain\Model;
+namespace Core\Command\Application\UseCase\FindCommands;
 
-enum CommandMacroType: string
+use Core\Command\Domain\Model\CommandType;
+
+class CommandDto
 {
-    case Host = '1';
-    case Service = '2';
+    public int $id = 0;
+
+    public string $name = '';
+
+    public string $commandLine = '';
+
+    public CommandType $type = CommandType::Check;
+
+    public bool $isShellEnabled = false;
+
+    public bool $isActivated = true;
+
+    public bool $isLocked = false;
 }

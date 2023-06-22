@@ -21,10 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\CommandMacro\Domain\Model;
+namespace Tests\Core\Command\Infrastructure\API\FindCommands;
 
-enum CommandMacroType: string
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Command\Application\UseCase\FindCommands\FindCommandsPresenterInterface;
+use Core\Command\Application\UseCase\FindCommands\FindCommandsResponse;
+
+class FindCommandsPresenterStub extends AbstractPresenter implements FindCommandsPresenterInterface
 {
-    case Host = '1';
-    case Service = '2';
+    public FindCommandsResponse|ResponseStatusInterface $response;
+
+    public function presentResponse(ResponseStatusInterface|FindCommandsResponse $response): void
+    {
+        $this->response = $response;
+    }
 }
