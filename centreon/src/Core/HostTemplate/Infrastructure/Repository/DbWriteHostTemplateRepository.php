@@ -111,10 +111,6 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
      */
     public function addParent(int $childId, int $parentId, int $order): void
     {
-        $this->info('Add a parent template to a host/host template', [
-            'child_id' => $childId, 'parent_id' => $parentId, 'order' => $order,
-        ]);
-
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 INSERT INTO `:db`.`host_template_relation` (`host_tpl_id`, `host_host_id`, `order`)
@@ -134,8 +130,6 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
      */
     public function deleteParents(int $childId): void
     {
-        $this->info('Remove parent templates from a host/host template', ['child_id' => $childId]);
-
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 DELETE FROM `:db`.`host_template_relation`

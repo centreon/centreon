@@ -350,10 +350,14 @@ final class PartialUpdateHostTemplate
 
         $this->assertAreValidTemplates($parentTemplateIds, $hostTemplateId);
 
+        $this->info('Remove parent templates from a host template', ['child_id' => $hostTemplateId]);
         $this->writeHostTemplateRepository->deleteParents($hostTemplateId);
 
         foreach ($parentTemplateIds as $order => $templateId) {
-                $this->writeHostTemplateRepository->addParent($hostTemplateId, $templateId, $order);
+            $this->info('Add a parent template to a host template', [
+                'child_id' => $hostTemplateId, 'parent_id' => $templateId, 'order' => $order,
+            ]);
+            $this->writeHostTemplateRepository->addParent($hostTemplateId, $templateId, $order);
         }
     }
 
