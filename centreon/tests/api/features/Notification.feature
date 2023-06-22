@@ -814,7 +814,7 @@ Scenario: Notification Update as admin
     """
     {
       "name": "notification-name-updated",
-      "timeperiod": 1,
+      "timeperiod_id": 1,
       "resources": [
         {
           "type": "hostgroup",
@@ -845,7 +845,68 @@ Scenario: Notification Update as admin
 
     When I send a GET request to '/api/latest/configuration/notifications/1'
     Then the response code should be "200"
-    And the JSON node "name" should be equal to "notification-name-updated"
+    And the JSON should be equal to:
+    """
+    {
+          "id": 1,
+          "name": "notification-name-updated",
+          "timeperiod": {
+              "id": 1,
+              "name": "24x7"
+          },
+          "is_activated": true,
+          "messages": [
+              {
+                  "channel": "Slack",
+                  "subject": "Hello world !",
+                  "message": "just a small message"
+              }
+          ],
+          "users": [
+              {
+                  "id": 20,
+                  "name": "user-name1"
+              },
+              {
+                  "id": 21,
+                  "name": "user-name2"
+              }
+          ],
+          "resources": [
+              {
+                  "type": "hostgroup",
+                  "events": 5,
+                  "ids": [
+                      {
+                          "id": 53,
+                          "name": "Linux-Servers"
+                      },
+                      {
+                          "id": 56,
+                          "name": "Printers"
+                      }
+                  ],
+                  "extra": {
+                      "event_services": 2
+                  }
+              },
+              {
+                  "type": "servicegroup",
+                  "events": 5,
+                  "ids": [
+                      {
+                          "id": 1,
+                          "name": "service-grp1"
+                      },
+                      {
+                          "id": 2,
+                          "name": "service-grp2"
+                      }
+                  ]
+              }
+          ]
+      }
+    """
 
 Scenario: Notification Update as non-admin
     Given the following CLAPI import data:
@@ -904,13 +965,13 @@ Scenario: Notification Update as non-admin
     """
       {
         "name": "notification-name-updated",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
             "events": 5,
             "ids": [56]
-          },
+          }
         ],
         "messages": [
           {
@@ -925,32 +986,52 @@ Scenario: Notification Update as non-admin
     """
 
     Then the response code should be "204"
-    When I send a GET request to '/api/latest/configuration/notifications/1' with body:
+    When I send a GET request to '/api/latest/configuration/notifications/1'
+    Then the response code should be "200"
+    And the JSON should be equal to:
     """
       {
-        "name": "notification-name-updated",
-        "timeperiod": 2,
-        "resources": [
-          {
-            "type": "hostgroup",
-            "events": 5,
-            "ids": [56]
+          "id": 1,
+          "name": "notification-name-updated",
+          "timeperiod": {
+              "id": 1,
+              "name": "24x7"
           },
-          {
-            "type": "servicegroup",
-            "events": 0,
-            "ids": []
-          },
-        ],
-        "messages": [
-          {
-            "channel": "Slack",
-            "subject": "Hello world !",
-            "message": "just a small message"
-          }
-        ],
-        "users": [20,21],
-        "is_activated": true
+          "is_activated": true,
+          "messages": [
+              {
+                  "channel": "Slack",
+                  "subject": "Hello world !",
+                  "message": "just a small message"
+              }
+          ],
+          "users": [
+              {
+                  "id": 20,
+                  "name": "test-user"
+              },
+              {
+                  "id": 21,
+                  "name": "user-name1"
+              }
+          ],
+          "resources": [
+              {
+                  "type": "hostgroup",
+                  "events": 5,
+                  "ids": [
+                      {
+                          "id": 56,
+                          "name": "Printers"
+                      }
+                  ]
+              },
+              {
+                  "type": "servicegroup",
+                  "events": 5,
+                  "ids": []
+              }
+          ]
       }
     """
 
