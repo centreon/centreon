@@ -53,4 +53,13 @@ interface WriteHostTemplateRepositoryInterface
      * @throws \Throwable
      */
     public function addParent(int $childId, int $parentId, int $order): void;
+
+    /**
+     * Unlink parent templates from a child host(or another host template).
+     *
+     * @param int $childId host or host template to be unlinked as a child
+     *
+     * @throws \Throwable
+     */
+    public function deleteParents(int $childId): void;
 }
