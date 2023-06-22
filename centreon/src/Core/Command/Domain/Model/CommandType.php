@@ -21,10 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\CommandMacro\Domain\Model;
+namespace Core\Command\Domain\Model;
 
-enum CommandMacroType: string
+enum CommandType
 {
-    case Host = '1';
-    case Service = '2';
+    case Notification;
+    case Check;
+    case Miscellaneous;
+    case Discovery;
 }

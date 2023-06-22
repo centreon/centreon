@@ -17824,3 +17824,9 @@ msgstr "Modèle d'hôte #%d introuvable"
 
 msgid "Circular inheritance not allowed"
 msgstr "Héritage circulaire non autorisé"
+
+msgid "You are not allowed to access commands"
+msgstr "Vous n'êtes pas autorisé à accéder aux commandes"
+
+msgid "Error while searching for commands"
+msgstr "Erreur lors de la recherche de commandes"
