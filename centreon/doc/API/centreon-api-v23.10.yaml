@@ -54,6 +54,7 @@ tags:
   - name: Administration
   - name: Authentication
     description: "Login and logout endpoints to retrieve authentication token"
+  - name: Command
   - name: Downtime
   - name: Gorgone
   - name: Host
@@ -247,6 +248,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/commands:
+    $ref: "./v23.10/Configuration/Command/FindCommands.yaml"
   /configuration/notifications:
     $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
   /configuration/hosts/templates:

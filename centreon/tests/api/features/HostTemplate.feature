@@ -150,7 +150,21 @@ Feature:
         "comment": "comment-value",
         "is_activated": false,
         "categories": [2],
-        "templates": []
+        "templates": [],
+        "macros": [
+          {
+            "name": "nameA",
+            "value": "valueA",
+            "is_password": false,
+            "description": "some text"
+          },
+          {
+            "name": "nameB",
+            "value": "valueB",
+            "is_password": true,
+            "description": null
+          }
+        ]
       }
       """
     Then the response code should be "201"
@@ -203,7 +217,21 @@ Feature:
             "name": "host-cat1"
           }
         ],
-        "templates": []
+        "templates": [],
+        "macros": [
+          {
+            "name": "NAMEA",
+            "value": "valueA",
+            "is_password": false,
+            "description": "some text"
+          },
+          {
+            "name": "NAMEB",
+            "value": null,
+            "is_password": true,
+            "description": null
+          }
+        ]
       }
       """
 
@@ -232,6 +260,7 @@ Feature:
       """
     And I am logged in with "ala"/"Centreon@2022"
 
+    # use invalid category ID
     When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
       """
       {
@@ -279,6 +308,7 @@ Feature:
       """
     Then the response code should be "409"
 
+   # use invalid parent template ID
     When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
       """
       {
@@ -332,6 +362,7 @@ Feature:
       """
     And I am logged in with "ala"/"Centreon@2022"
 
+    # macro should not appear in response as they are inherited from parent template
     When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
       """
       {
@@ -374,7 +405,21 @@ Feature:
         "comment": "comment-value",
         "is_activated": false,
         "categories": [2],
-        "templates": [15]
+        "templates": [15],
+        "macros": [
+          {
+            "name": "nameA",
+            "value": "valueA",
+            "is_password": false,
+            "description": "some text"
+          },
+          {
+            "name": "nameB",
+            "value": "valueB",
+            "is_password": true,
+            "description": null
+          }
+        ]
       }
       """
     Then the response code should be "201"
@@ -432,7 +477,8 @@ Feature:
             "id": 15,
             "name": "host_template_name_A"
           }
-        ]
+        ],
+        "macros": []
       }
       """
 
@@ -564,3 +610,45 @@ Feature:
       """
     Then the response code should be "204"
 
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "templates": [99]
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "templates": [<hostTemplateId>]
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "templates": []
+      }
+      """
+    Then the response code should be "204"
+
+    When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
+      """
+      {
+      "name": "parent template name",
+      "alias": "parent-template-alias"
+      }
+      """
+    And I store response values in:
+      | name     | path |
+      | parentId | id   |
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+      "templates": [<parentId>]
+      }
+      """
+    Then the response code should be "204"

@@ -21,14 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Core\Host\Domain\Model;
+namespace Core\Host\Application;
+
+use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 
 /**
- * This class purpose is to sort the parents of a host (or host template).
+ * This class provide methods to help resolve and validate host inheritance.
  */
-final class HostInheritance {
+class InheritanceManager {
+    public function __construct(
+        private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
+    ) {
+    }
+
     /**
-     * Return an ordered line of inheritance for a host template.
+     * Return an ordered line of inheritance for a host or host template.
      * (This is a recursive method).
      *
      * @param int $hostId
@@ -54,5 +61,26 @@ final class HostInheritance {
         }
 
         return array_unique($inheritanceLine);
+    }
+
+    /**
+     * Return false if a circular inheritance is detected, true otherwise.
+     *
+     * @param int $hostId
+     * @param int[] $parents
+     *
+     * @return bool
+     */
+    public function isValidInheritanceTree(int $hostId, array $parents): bool
+    {
+        foreach ($parents as $templateId) {
+            $ancestors = $this->readHostTemplateRepository->findParents($templateId);
+            if (in_array($hostId, array_column($ancestors, 'parent_id'), true)) {
+
+                return false;
+            }
+        }
+
+        return true;
     }
 }
