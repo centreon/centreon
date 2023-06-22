@@ -180,4 +180,5 @@ jobs:
         with:
           #fail-on-cvss: 7
           recursive: true
-          path: "${{ inputs.module_directory }}"
+          debug: true
+          path: "./${{ inputs.module_directory }}/"
