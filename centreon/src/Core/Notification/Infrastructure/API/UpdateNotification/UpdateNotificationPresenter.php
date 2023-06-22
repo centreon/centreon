@@ -30,12 +30,8 @@ use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotificationP
 
 class UpdateNotificationPresenter extends DefaultPresenter implements UpdateNotificationPresenterInterface
 {
-    public function presentResponse(NoContentResponse|ResponseStatusInterface $response): void
+    public function presentResponse(ResponseStatusInterface $response): void
     {
-        if ($response instanceof NoContentResponse) {
-            $this->present($response);
-        } else {
-            $this->setResponseStatus($response);
-        }
+        $this->setResponseStatus($response);
     }
 }

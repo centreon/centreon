@@ -28,5 +28,6 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 
 interface UpdateNotificationPresenterInterface
 {
-    public function presentResponse(NoContentResponse|ResponseStatusInterface $response): void;
+    public function presentResponse(ResponseStatusInterface $response): void;
 }
+
