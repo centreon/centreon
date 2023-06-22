@@ -87,7 +87,6 @@ jobs:
 
   frontend-build:
     needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
     runs-on: ubuntu-22.04
 
     steps:
@@ -116,7 +115,6 @@ jobs:
 
   translation-build:
     needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
     runs-on: ubuntu-22.04
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-version.outputs.major_version }}
