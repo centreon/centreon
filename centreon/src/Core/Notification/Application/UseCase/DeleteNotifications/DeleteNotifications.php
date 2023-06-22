@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\DeleteNotification;
+namespace Core\Notification\Application\UseCase\DeleteNotifications;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
@@ -31,12 +31,13 @@ use Core\Application\Common\UseCase\{
     ForbiddenResponse,
     NoContentResponse,
     NotFoundResponse,
-    ResponseStatusInterface,
+    ResponseStatusInterface
 };
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
+use Core\Notification\Domain\Model\ResponseCode;
 
-final class DeleteNotification
+final class DeleteNotifications
 {
     use LoggerTrait;
 
@@ -51,14 +52,32 @@ final class DeleteNotification
     }
 
     /**
-     * @param int $notificationId
-     * @param DeleteNotificationPresenterInterface $presenter
+     * @param DeleteNotificationsRequest $request
+     * @param DeleteNotificationsPresenterInterface $presenter
      */
-    public function __invoke(int $notificationId, DeleteNotificationPresenterInterface $presenter): void
-    {
+    public function __invoke(
+        DeleteNotificationsRequest $request,
+        DeleteNotificationsPresenterInterface $presenter
+    ): void {
         try {
             if ($this->contactCanExecuteUseCase()) {
-                $response = $this->deleteNotification($notificationId);
+                $response = new DeleteNotificationsResponse();
+                $results = [];
+
+                foreach ($request->ids as $notificationId) {
+                    try {
+                        $statusResponse = $this->deleteNotification($notificationId);
+                        $responseStatusDto = $this->createStatusResonseDto($statusResponse, $notificationId);
+                        $results[] = $responseStatusDto;
+                    } catch (\Throwable $ex) {
+                        $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+                        $statusResponse = new ErrorResponse(NotificationException::errorWhileDeletingObject());
+                        $responseStatusDto = $this->createStatusResonseDto($statusResponse, $notificationId);
+                        $results[] = $responseStatusDto;
+                    }
+                }
+
+                $response->results = $results;
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to delete notifications",
@@ -77,12 +96,11 @@ final class DeleteNotification
     /**
      * @param int $notificationId
      *
-     * @throws \Throwable
-     *
      * @return ResponseStatusInterface
      */
     private function deleteNotification(int $notificationId): ResponseStatusInterface
     {
+        $this->info('Deleting notification', ['id' => $notificationId]);
         if ($this->writeRepository->delete($notificationId) === 1) {
             return new NoContentResponse();
         }
@@ -98,5 +116,31 @@ final class DeleteNotification
     private function contactCanExecuteUseCase(): bool
     {
         return $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE);
+    }
+
+    /**
+     * @param ResponseStatusInterface $statusResponse
+     * @param int $notificationId
+     *
+     * @return DeleteNotificationsStatusResponse
+     */
+    private function createStatusResonseDto(
+        ResponseStatusInterface $statusResponse,
+        int $notificationId
+    ): DeleteNotificationsStatusResponse {
+        $responseStatusDto = new DeleteNotificationsStatusResponse();
+        $responseStatusDto->id = $notificationId;
+        if ($statusResponse instanceof NoContentResponse) {
+            $responseStatusDto->status = ResponseCode::OK;
+            $responseStatusDto->message = null;
+        } else if ($statusResponse instanceof NotFoundResponse) {
+            $responseStatusDto->status = ResponseCode::NotFound;
+            $responseStatusDto->message = $statusResponse->getMessage();
+        } else {
+            $responseStatusDto->status = ResponseCode::Error;
+            $responseStatusDto->message = NotificationException::errorWhileDeletingObject()->getMessage();
+        }
+
+        return $responseStatusDto;
     }
 }

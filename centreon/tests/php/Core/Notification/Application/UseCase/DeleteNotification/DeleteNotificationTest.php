@@ -31,7 +31,6 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\UseCase\DeleteNotification\DeleteNotification;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
 use Tests\Core\Notification\Application\UseCase\DeleteNotification\DeleteNotificationPresenterStub;
 
@@ -39,13 +38,12 @@ use Tests\Core\Notification\Application\UseCase\DeleteNotification\DeleteNotific
 beforeEach(function () {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new DeleteNotificationPresenterStub($this->presenterFormatter);
-    $this->readRepository = $this->createMock(ReadNotificationRepositoryInterface::class);
     $this->writeRepository = $this->createMock(WriteNotificationRepositoryInterface::class);
 });
 
 it('should present a ForbiddenResponse when the user doesn\'t have access to endpoint', function () {
     $contact = (new Contact())->setAdmin(false)->setId(1);
-    (new DeleteNotification($contact, $this->readRepository, $this->writeRepository))(1, $this->presenter);
+    (new DeleteNotification($contact, $this->writeRepository))(1, $this->presenter);
 
     expect($this->presenter->data)
         ->toBeInstanceOf(ForbiddenResponse::class)
@@ -58,12 +56,12 @@ it('should present a NotFoundResponse when the notification to delete is not fou
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $this->readRepository
+    $this->writeRepository
         ->expects($this->once())
-        ->method('exists')
-        ->willReturn(false);
+        ->method('delete')
+        ->willReturn(0);
 
-    (new DeleteNotification($contact, $this->readRepository, $this->writeRepository))(1, $this->presenter);
+    (new DeleteNotification($contact, $this->writeRepository))(1, $this->presenter);
 
     expect($this->presenter->data)
         ->toBeInstanceOf(NotFoundResponse::class)
@@ -76,12 +74,12 @@ it('should present an ErrorResponse when an unhandled error occurs', function ()
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $this->readRepository
+    $this->writeRepository
         ->expects($this->once())
-        ->method('exists')
+        ->method('delete')
         ->willThrowException(new \Exception());
 
-    (new DeleteNotification($contact, $this->readRepository, $this->writeRepository))(1, $this->presenter);
+    (new DeleteNotification($contact, $this->writeRepository))(1, $this->presenter);
 
     expect($this->presenter->data)
         ->toBeInstanceOf(ErrorResponse::class)
@@ -94,12 +92,12 @@ it('should present a NoContentResponse when a notification is deleted', function
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
-    $this->readRepository
+    $this->writeRepository
         ->expects($this->once())
-        ->method('exists')
-        ->willReturn(true);
+        ->method('delete')
+        ->willReturn(1);
 
-    (new DeleteNotification($contact, $this->readRepository, $this->writeRepository))(1, $this->presenter);
+    (new DeleteNotification($contact, $this->writeRepository))(1, $this->presenter);
 
     expect($this->presenter->data)->toBeInstanceOf(NoContentResponse::class);
 });

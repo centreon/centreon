@@ -25,6 +25,7 @@ namespace Core\Notification\Application\Repository;
 
 use Core\Notification\Domain\Model\NewNotification;
 use Core\Notification\Domain\Model\NotificationMessage;
+use Core\Infrastructure\Common\Repository\RepositoryException;
 
 interface WriteNotificationRepositoryInterface
 {
@@ -65,7 +66,9 @@ interface WriteNotificationRepositoryInterface
      *
      * @param int $notificationId
      *
-     * @throws \Throwable
+     * @return int
+     *
+     * @throws \Throwable|RepositoryException
      */
-    public function delete(int $notificationId): void;
+    public function delete(int $notificationId): int;
 }
