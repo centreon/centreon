@@ -26,12 +26,21 @@ namespace Core\Notification\Application\UseCase\PartialUpdateNotification;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use CentreonMap\Common\Application\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\{
+    ErrorResponse,
+    ForbiddenResponse,
+    NoContentResponse,
+    NotFoundResponse,
+    ResponseStatusInterface
+};
+use Core\Common\Application\Type\NoValue;
 use Core\Notification\Application\Exception\NotificationException;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
-use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
+use Core\Notification\Application\Repository\{
+    ReadNotificationRepositoryInterface,
+    WriteNotificationRepositoryInterface
+};
+use Core\Notification\Domain\Model\Notification;
 
 final class PartialUpdateNotification
 {
@@ -41,11 +50,13 @@ final class PartialUpdateNotification
      * @param ContactInterface $contact
      * @param ReadNotificationRepositoryInterface $readRepository
      * @param WriteNotificationRepositoryInterface $writeRepository
+     * @param DataStorageEngineInterface $dataStorageEngine
      */
     public function __construct(
         private readonly ContactInterface $contact,
         private readonly ReadNotificationRepositoryInterface $readRepository,
-        private readonly WriteNotificationRepositoryInterface $writeRepository
+        private readonly WriteNotificationRepositoryInterface $writeRepository,
+        private readonly DataStorageEngineInterface $dataStorageEngine
     ) {
     }
 
@@ -86,18 +97,69 @@ final class PartialUpdateNotification
     }
 
     /**
+     * @param PartialUpdateNotificationRequest $request
      * @param int $notificationId
      *
-     * @throws \Throwable
-     *
      * @return ResponseStatusInterface
+     *
+     * @throws \Throwable
      */
     private function partiallyUpdateNotification(
-        PartialUpdateNotificationRequest $resuest,
+        PartialUpdateNotificationRequest $request,
         int $notificationId
     ): ResponseStatusInterface {
         if (!($notification = $this->readRepository->findById($notificationId))) {
-            $this->error('Notification not found', ['notififcation_id' => $notificationId])
+            $this->error('Notification not found', ['notification_id' => $notificationId]);
+
+            return new NotFoundResponse('Notification');
         }
+        $this->updatePropertiesInTransaction($request, $notification);
+
+        return new NoContentResponse();
+    }
+
+    /**
+     * @param PartialUpdateNotificationRequest $request
+     * @param Notification $notification
+     *
+     * @throws \Throwable
+     */
+    private function updatePropertiesInTransaction(
+        PartialUpdateNotificationRequest $request,
+        Notification $notification
+    ): void {
+        try {
+            $this->dataStorageEngine->startTransaction();
+            $this->updateIsActivated($request, $notification);
+            $this->dataStorageEngine->commitTransaction();
+        } catch (\Throwable $ex) {
+            $this->error('Rollback of \'PartialUpdateNotification\' transaction');
+            $this->dataStorageEngine->rollbackTransaction();
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @param PartialUpdateNotificationRequest $request
+     * @param Notification $notification
+     *
+     * @throws \Throwable
+     */
+    private function updateIsActivated(PartialUpdateNotificationRequest $request, Notification $notification): void
+    {
+        $this->info(
+            'PartialUpdateNotification: update is_activated',
+            ['notification_id' => $notification->getId(), 'is_activated' => $request->isActivated]
+        );
+
+        if ($request->isActivated instanceof NoValue) {
+            $this->info('is_activated property is not provided. Nothing to update');
+
+            return;
+        }
+        $notification->setIsActivated($request->isActivated);
+
+        $this->writeRepository->update($notification);
     }
 }

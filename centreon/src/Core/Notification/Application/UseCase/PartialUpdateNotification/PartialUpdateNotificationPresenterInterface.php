@@ -23,7 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\PartialUpdateNotification;
 
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
 interface PartialUpdateNotificationPresenterInterface
 {
-    
+    /**
+     * @param ResponseStatusInterface $response
+     */
+    public function presentResponse(ResponseStatusInterface $response): void;
 }

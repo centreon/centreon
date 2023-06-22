@@ -24,11 +24,15 @@ declare(strict_types=1);
 namespace Core\Notification\Infrastructure\API\PartialUpdateNotification;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Notification\Application\UseCase\PartialUpdateNotification\{
     PartialUpdateNotificationPresenterInterface as PresenterInterface
 };
 
 final class PartialUpdateNotificationPresenter extends AbstractPresenter implements PresenterInterface
 {
-
+    public function presentResponse(ResponseStatusInterface $response): void
+    {
+        // TODO: Implement presentResponse() method.
+    }
 }

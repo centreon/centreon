@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Notification\Application\Repository;
 
 use Core\Notification\Domain\Model\NewNotification;
+use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationMessage;
 
 interface WriteNotificationRepositoryInterface
@@ -59,4 +60,11 @@ interface WriteNotificationRepositoryInterface
      * @throws \Throwable
      */
     public function addUsers(int $notificationId, array $userIds): void;
+
+    /**
+     * Update a notification configuration.
+     *
+     * @param Notification $notification
+     */
+    public function update(Notification $notification): void;
 }
