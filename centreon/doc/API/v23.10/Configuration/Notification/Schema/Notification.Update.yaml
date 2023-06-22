@@ -1,0 +1,47 @@
+type: object
+properties:
+  name:
+    type: string
+    description: Name of the notification
+    example: "Notification-A"
+  is_activated:
+    type: boolean
+  timeperiod_id:
+    type: integer
+    description: Timeperiod during which the notification is sent
+  users:
+    description: Users to whom the notification is sent
+    type: array
+    items:
+      type: integer
+  messages:
+    type: array
+    items:
+      $ref: "Notification.Message.yaml"
+  resources:
+    type: array
+    description: |
+      Resource configurations that trigger a notification
+    items:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of the resources that trigger a notification
+        events:
+          type: integer
+          description: Bitmask of the events that trigger a notification for the resource type
+        ids:
+          type: array
+          description: list of resource IDs triggering a notification
+          items:
+            type: integer
+        extra:
+          type: object
+          properties:
+            event_services:
+              description: |
+                Bitmask of the service's events that trigger a notification
+                for the services linked to the resources defined above
+                (Only available for type hostgroup)
+              type: integer

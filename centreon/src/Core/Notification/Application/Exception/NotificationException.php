@@ -76,4 +76,9 @@ class NotificationException extends \Exception
     {
         return new self(_('You are not allowed to display the details of the notification'));
     }
+
+    public static function updateNotAllowed(): self
+    {
+        return new self(_('You are not allowed to update the notification configuration'));
+    }
 }

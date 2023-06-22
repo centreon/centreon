@@ -31,11 +31,11 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
+use Core\Notification\Domain\Model\ConfigurationTimePeriod;
+use Core\Notification\Domain\Model\ConfigurationUser;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationMessage;
-use Core\Notification\Domain\Model\ConfigurationTimePeriod;
-use Core\Notification\Domain\Model\ConfigurationUser;
 use Utility\SqlConcatenator;
 
 class DbReadNotificationRepository extends AbstractRepositoryRDB implements ReadNotificationRepositoryInterface
@@ -62,6 +62,36 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+        if ($result === false) {
+            return null;
+        }
+
+        /**
+         * @var array{id:int,name:string,timeperiod_id:int,tp_name:string,is_activated:int} $result
+         */
+        return new Notification(
+            $result['id'],
+            $result['name'],
+            new ConfigurationTimePeriod($result['timeperiod_id'], $result['tp_name']),
+            (bool) $result['is_activated'],
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function findByName(TrimmedString $notificationName): ?Notification
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            'SELECT id, name, timeperiod_id, tp_name, is_activated
+            FROM `:db`.notification
+            INNER JOIN timeperiod ON timeperiod_id = tp_id
+            WHERE name = :notificationName'
+        ));
+        $statement->bindValue(':notificationName', $notificationName, \PDO::PARAM_STR);
         $statement->execute();
 
         $result = $statement->fetch(\PDO::FETCH_ASSOC);
