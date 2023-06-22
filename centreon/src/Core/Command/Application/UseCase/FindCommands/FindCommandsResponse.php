@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\CommandMacro\Domain\Model;
+namespace Core\Command\Application\UseCase\FindCommands;
 
-enum CommandMacroType: string
+final class FindCommandsResponse
 {
-    case Host = '1';
-    case Service = '2';
+    /** @var CommandDto[] */
+    public array $commands = [];
 }
