@@ -37,7 +37,10 @@ import Form from '.';
 const store = createStore();
 store.set(panelModeAtom, PanelMode.Edit);
 store.set(EditedNotificationIdAtom, 1);
-store.set(notificationsNamesAtom, ['Notification1', 'notification2']);
+store.set(notificationsNamesAtom, [
+  { id: 1, name: 'Notification1' },
+  { id: 2, name: 'notification2' }
+]);
 
 const PanelWithQueryProvider = (): JSX.Element => {
   return (
