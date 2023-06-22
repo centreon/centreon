@@ -49,6 +49,11 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
     {
         $this->info('Get host macros',['host_ids' => $hostIds]);
 
+        if ($hostIds === []) {
+
+            return [];
+        }
+
         $concatenator = new SqlConcatenator();
         $concatenator
             ->defineSelect(
@@ -68,6 +73,46 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
 
         $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
         $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $macros = [];
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
+
+            /** @var array{
+             *    host_host_id:int,
+             *    host_macro_name:string,
+             *    host_macro_value:string,
+             *    is_password:int|null,
+             *    description:string|null,
+             *    macro_order:int
+             * } $result */
+            $macros[] = $this->createHostMacroFromArray($result);
+        }
+
+        return $macros;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostId(int $hostId): array
+    {
+        $this->info('Get host macros for a host/host template',['host_id' => $hostId]);
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    m.host_macro_name,
+                    m.host_macro_value,
+                    m.is_password,
+                    m.host_host_id,
+                    m.description,
+                    m.macro_order
+                FROM `:db`.on_demand_macro_host m
+                WHERE m.host_host_id = :host_id
+                SQL
+        ));
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
         $statement->execute();
 
         $macros = [];

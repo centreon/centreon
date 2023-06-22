@@ -21,13 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Common\Domain;
+namespace Core\Notification\Domain\Model;
 
-enum CommandType: int
+enum ResponseCode
 {
-    case Notification = 1;
-    case Check = 2;
-    case Miscellaneous = 3;
-
-    // Note: exist case Discovery = 4 for autodiscovery only
+    case OK;
+    case NotFound;
+    case Error;
 }

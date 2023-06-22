@@ -34,10 +34,7 @@ use Core\Application\Common\UseCase\{
     ResponseStatusInterface,
 };
 use Core\Notification\Application\Exception\NotificationException;
-use Core\Notification\Application\Repository\{
-    ReadNotificationRepositoryInterface,
-    WriteNotificationRepositoryInterface,
-};
+use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
 
 final class DeleteNotification
 {
@@ -45,12 +42,10 @@ final class DeleteNotification
 
     /**
      * @param ContactInterface $contact
-     * @param ReadNotificationRepositoryInterface $readRepository
      * @param WriteNotificationRepositoryInterface $writeRepository
      */
     public function __construct(
         private readonly ContactInterface $contact,
-        private readonly ReadNotificationRepositoryInterface $readRepository,
         private readonly WriteNotificationRepositoryInterface $writeRepository
     ) {
     }
@@ -86,11 +81,9 @@ final class DeleteNotification
      *
      * @return ResponseStatusInterface
      */
-    public function deleteNotification(int $notificationId): ResponseStatusInterface
+    private function deleteNotification(int $notificationId): ResponseStatusInterface
     {
-        if ($this->readRepository->exists($notificationId)) {
-            $this->writeRepository->delete($notificationId);
-
+        if ($this->writeRepository->delete($notificationId) === 1) {
             return new NoContentResponse();
         }
 
@@ -102,7 +95,7 @@ final class DeleteNotification
     /**
      * @return bool
      */
-    public function contactCanExecuteUseCase(): bool
+    private function contactCanExecuteUseCase(): bool
     {
         return $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE);
     }
