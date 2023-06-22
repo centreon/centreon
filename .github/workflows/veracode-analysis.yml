@@ -164,7 +164,6 @@ jobs:
   sca-scan:
     needs: [build]
     name: Run a SCA scan
-    #if: github.ref_name == 'develop'
     runs-on: ubuntu-latest
     continue-on-error: true
 
@@ -180,8 +179,6 @@ jobs:
         uses: veracode/veracode-sca@v1.09
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          create-issues: false
           #fail-on-cvss: 7
-          #debug: true
           recursive: true
           path: "${{ inputs.module_directory }}"
