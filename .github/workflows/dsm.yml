@@ -31,7 +31,6 @@ jobs:
 
   veracode-analysis:
     needs: [get-version]
-    if: ${{ needs.get-version.outputs.stability = 'stable' }}    
     uses: ./.github/workflows/veracode-analysis.yml
     with:
       module_directory: centreon-dsm
