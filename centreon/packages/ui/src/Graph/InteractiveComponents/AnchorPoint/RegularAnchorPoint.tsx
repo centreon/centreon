@@ -10,11 +10,9 @@ import { GetYAnchorPoint } from './models';
 import AnchorPoint from '.';
 
 interface Props {
-  areaColor: string;
   lineColor: string;
   metric: string;
   timeSeries: Array<TimeValue>;
-  transparency: number;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
 }
@@ -36,8 +34,6 @@ const RegularAnchorPoint = ({
   yScale,
   metric,
   timeSeries,
-  areaColor,
-  transparency,
   lineColor
 }: Props): JSX.Element | null => {
   const { tickAxisBottom: timeTick } = useTickGraph({
@@ -63,13 +59,7 @@ const RegularAnchorPoint = ({
   }
 
   return (
-    <AnchorPoint
-      areaColor={areaColor}
-      lineColor={lineColor}
-      transparency={transparency}
-      x={xAnchorPoint}
-      y={yAnchorPoint}
-    />
+    <AnchorPoint lineColor={lineColor} x={xAnchorPoint} y={yAnchorPoint} />
   );
 };
 

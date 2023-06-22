@@ -6,6 +6,9 @@ const useStyles = makeStyles()((theme) => ({
       '& .visx-axis-tick': {
         '& .visx-line': {
           stroke: theme.palette.text.primary
+        },
+        text: {
+          fill: theme.palette.text.primary
         }
       }
     },

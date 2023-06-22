@@ -10,11 +10,9 @@ import useTickGraph from './useTickGraph';
 import AnchorPoint from '.';
 
 interface Props {
-  areaColor: string;
   lineColor: string;
   stackValues: Array<StackValue>;
   timeSeries: Array<TimeValue>;
-  transparency: number;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
 }
@@ -25,8 +23,7 @@ interface GetYAnchorPoint {
 }
 
 const getStackedDates = (stackValues: Array<StackValue>): Array<Date> => {
-  const toTimeTick = (stackValue: StackValue): string =>
-    stackValue[2]?.data?.timeTick;
+  const toTimeTick = (stackValue): string => stackValue?.data?.timeTick;
 
   const toDate = (tick: string): Date => new Date(tick);
 
@@ -49,8 +46,6 @@ const StackedAnchorPoint = ({
   yScale,
   stackValues,
   timeSeries,
-  areaColor,
-  transparency,
   lineColor
 }: Props): JSX.Element | null => {
   const { tickAxisBottom: timeTick } = useTickGraph({
@@ -74,13 +69,7 @@ const StackedAnchorPoint = ({
   }
 
   return (
-    <AnchorPoint
-      areaColor={areaColor}
-      lineColor={lineColor}
-      transparency={transparency}
-      x={xAnchorPoint}
-      y={yAnchorPoint}
-    />
+    <AnchorPoint lineColor={lineColor} x={xAnchorPoint} y={yAnchorPoint} />
   );
 };
 
