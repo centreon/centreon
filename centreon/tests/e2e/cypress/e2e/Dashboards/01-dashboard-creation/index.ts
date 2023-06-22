@@ -1,6 +1,7 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { loginAsAdminViaApiV2 } from '../../../commons';
+import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 
 before(() => {
   cy.startWebContainer();
@@ -14,8 +15,19 @@ beforeEach(() => {
   loginAsAdminViaApiV2();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?page=1&limit=100'
+    url: '/centreon/api/latest/configuration/dashboards'
   }).as('listAllDashboards');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/dashboards'
+  }).as('createDashboard');
+});
+
+afterEach(() => {
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: 'DELETE FROM dashboard'
+  });
 });
 
 Given(
@@ -44,31 +56,53 @@ Then(
   }
 );
 
-When('the user fills in the name field', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-without-desc');
-});
-
-Then('the user is allowed to create the dashboard', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).should(
-    'have.value',
-    'dashboard-without-desc'
+When('the user fills in the required fields', () => {
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type(
+    dashboards.requiredOnly.name
   );
-
-  cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
 });
+
+Then(
+  'the user is allowed to create the dashboard with the required fields only',
+  () => {
+    cy.getByLabel({ label: 'Name', tag: 'input' }).should(
+      'have.value',
+      dashboards.requiredOnly.name
+    );
+
+    cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
+  }
+);
 
 When('the user saves the dashboard', () => {
   cy.getByLabel({ label: 'submit', tag: 'button' }).click();
+  cy.wait('@createDashboard');
 });
 
-Then('the newly created dashboard appears in the dashboards library', () => {
-  cy.getByLabel({ label: 'view', tag: 'button' }).should(
-    'contain.text',
-    'dashboard-without-desc'
-  );
+Then('the user is redirected to the newly created dashboard', () => {
+  cy.location('pathname')
+    .should('include', '/dashboards/')
+    .invoke('split', '/')
+    .should('not.be.empty')
+    .then(Cypress._.last)
+    .then(Number)
+    .should('not.be', 'dashboards')
+    .should('be.a', 'number'); // dashboard id
+});
 
-  cy.getByLabel({ label: 'delete', tag: 'button' }).click();
-  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+Then('the newly created dashboard detail page is in edit mode', () => {
+  cy.location('search').should('include', 'edit=true');
+});
+
+Then('the newly created dashboard has the required only dashboard data', () => {
+  cy.get('@createDashboard')
+    .its('response.body.name')
+    .should('eq', dashboards.requiredOnly.name);
+
+  cy.getByLabel({ label: 'page header title' }).should(
+    'contain.text',
+    dashboards.requiredOnly.name
+  );
 });
 
 Given(
@@ -79,22 +113,31 @@ Given(
   }
 );
 
-When('the user fills in the name and description fields and save', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-with-desc');
+When('the user fills in all the fields', () => {
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type(dashboards.default.name);
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-    'My First Dashboard :)'
+    dashboards.default.description
   );
-  cy.getByLabel({ label: 'submit', tag: 'button' }).click();
 });
 
 Then(
-  'the newly created dashboard appears in the dashboards library with its name and description',
+  'the newly created dashboard has the name and description the user filled in',
   () => {
-    cy.getByLabel({ label: 'view', tag: 'button' })
-      .should('contain.text', 'dashboard-with-desc')
-      .should('contain.text', 'My First Dashboard :)');
-    cy.getByLabel({ label: 'delete', tag: 'button' }).click();
-    cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+    cy.get('@createDashboard')
+      .its('response.body.name')
+      .should('eq', dashboards.default.name);
+    cy.get('@createDashboard')
+      .its('response.body.description')
+      .should('eq', dashboards.default.description);
+
+    cy.getByLabel({ label: 'page header title' }).should(
+      'contain.text',
+      dashboards.default.name
+    );
+    cy.getByLabel({ label: 'page header description' }).should(
+      'contain.text',
+      dashboards.default.description
+    );
   }
 );
 
@@ -103,9 +146,8 @@ Given(
   () => {
     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
     cy.getByLabel({ label: 'create', tag: 'button' }).click();
-    cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-cancel');
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      'My Cancelled Dashboard :('
+    cy.getByLabel({ label: 'Name', tag: 'input' }).type(
+      `${dashboards.default.name} to be cancelled`
     );
   }
 );
@@ -114,12 +156,18 @@ When('the user leaves the creation form without saving the dashboard', () => {
   cy.getByLabel({ label: 'cancel', tag: 'button' }).click();
 });
 
-Then(
-  'the dashboard has not been created when the user is redirected back on the dashboards library',
-  () => {
-    cy.getByLabel({ label: 'view', tag: 'button' }).should('not.exist');
-  }
-);
+Then('the dashboard has not been created', () => {
+  cy.get('@createDashboard').should('be.null');
+});
+
+Then('the user is on the dashboards overview page', () => {
+  cy.location('pathname')
+    .should('include', '/dashboards')
+    .invoke('split', '/')
+    .should('not.be.empty')
+    .then(Cypress._.last)
+    .should('eq', 'dashboards'); // dashboards overview
+});
 
 When(
   'the user opens the form to create a new dashboard for the second time',
@@ -128,16 +176,7 @@ When(
   }
 );
 
-Then(
-  'the information the user filled in the first creation form has not been saved',
-  () => {
-    cy.getByLabel({ label: 'Name', tag: 'input' }).should(
-      'not.contain.text',
-      'dashboard-cancel'
-    );
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).should(
-      'not.contain.text',
-      'My Cancelled Dashboard :('
-    );
-  }
-);
+Then('the form fields are empty', () => {
+  cy.getByLabel({ label: 'Name', tag: 'input' }).should('be.empty');
+  cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
+});
