@@ -176,22 +176,21 @@ jobs:
       - name: Preparing dependencies
         run: |
           cd ${{ inputs.module_directory }}
+          REINSTALL_PACKAGE_JSON='true'
+
           if [[ -f package-lock.json ]]; then
             echo "[DEBUG] - Found a package-lock.json"
-
             RESULT=0
-            SKIP_REINSTAL_PACKAGE='false'
             npm ci --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
             if [[ $RESULT -ne 0 ]]; then
-
               echo "[DEBUG] - Failure of '$ npm ci'. Deleting the package-lock.json"
               rm -f package-lock.json
             else
-              SKIP_REINSTAL_PACKAGE='true'
+              REINSTALL_PACKAGE_JSON='false'
             fi
           fi
 
-          if [[ -f package.json && SKIP_REINSTALL_PACKAGE != 'true' ]]; then
+          if [[ -f package.json && REINSTALL_PACKAGE_JSON != 'false' ]]; then
             echo "[DEBUG] - Found a package.json"
             RESULT=0
             npm i --package-lock-only --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
