@@ -1,0 +1,263 @@
+name: "promote testing to stable"
+description: "Promote testing packages to stable."
+inputs:
+  artifactory_token:
+    description: "Artifactory token"
+    required: true
+  module:
+    description: "Module"
+    required: true
+  distrib:
+    description: "The distribution used for packaging"
+    required: true
+  nexus_username:
+    description: "Artifact Manager technical username"
+    required: true
+  nexus_password:
+    description: "Artifact Manager technical password"
+    required: true
+  major_version:
+    description: "Centreon packaged major version"
+    required: true
+  minor_version:
+    description: "Centreon package minor version"
+    required: true
+  stability:
+    description: "The package stability (stable, testing, unstable)"
+    required: true
+  repository_name:
+    description: "The repository name"
+    required: true
+  yum_repo_url:
+    description: "The legacy yum repo url"
+    required: true
+  update_repo_path:
+    description: "The update repo script path"
+    required: true
+  cloudfront_id:
+    description: "The cloudfront ID for repo url"
+    required: true
+  yum_repo_address:
+    description: "The legacy yum repo address"
+    required: true
+  yum_repo_key:
+    description: "The repo key"
+    required: true
+  token_download_centreon_com:
+    description: "The token for download.centreon.com"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: jfrog/setup-jfrog-cli@v3
+      env:
+        JF_URL: https://centreon.jfrog.io
+        JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+
+    - name: Setup awscli
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        sudo unzip -q awscliv2.zip
+        sudo ./aws/install
+      shell: bash
+
+    - name: Promote RPM packages to stable
+      if: ${{ startsWith(inputs.distrib, 'el') }}
+      run: |
+        set -x
+        echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
+        echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+
+        for ARCH in "noarch" "x86_64"; do
+          echo "[DEBUG] - Get artifactory path of $ARCH testing artifacts to promote to stable."
+          SRC_PATHS=$(jf rt s --include-dirs rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}/*.rpm | jq -r '.[].path')
+
+          if [[ ${SRC_PATHS[@]} ]]; then
+            for SRC_PATH in ${SRC_PATHS[@]}; do
+              echo "[DEBUG] - Source path found: $SRC_PATH"
+            done
+          else
+            echo "[DEBUG] - No source path found."
+            continue
+          fi
+
+          echo "[DEBUG] - Build $ARCH artifactory target path."
+          TARGET_PATH="rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/"
+          echo "[DEBUG] - Target path: $TARGET_PATH"
+
+          echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
+          for ARTIFACT in ${SRC_PATHS[@]}; do
+            echo "[DEBUG] - Promoting $ARTIFACT to stable on artifactory."
+            #jf rt cp $ARTIFACT $TARGET_PATH --flat=true
+          done
+        done
+      shell: bash
+
+    - name: Promote RPM packages to stable on yum.centreon.com
+      if: ${{ startsWith(inputs.distrib, 'el') }}
+      run: |
+        set -x
+        echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
+        echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+        echo "[DEBUG] - Repository name: ${{ inputs.repository_name }}"
+
+        PROJECT_PATH="standard"
+        INVALIDATION_PATHS=""
+        METADATAS=""
+
+        # Handle repositories.
+        if [ "${{ inputs.repository_name }}" == "standard" ]; then
+          ROOT_REPO_PATH="standard"
+        else
+          echo "Invalid repository name: ${{ inputs.repository_name }}"
+          exit 1
+        fi
+
+        # Prepare ssh-key
+        eval `ssh-agent`
+        ssh-add - <<< "${{ inputs.yum_repo_key }}"
+
+        # Promote testing packages to stable.
+        for ARCH in "noarch" "x86_64"; do
+          echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
+
+          # Check if there are testing packages to promote.
+          DIR_RETURN_CODE=$(ssh -q -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" dir /srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}**/*${{ inputs.major_version }}.${{ inputs.minor_version }}-1/*.rpm &> /dev/null && echo "yes" || echo "no")
+
+          if [[ $DIR_RETURN_CODE == "yes" ]]; then
+            SRC_PATHS=$(ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" dir "/srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}**/*${{ inputs.major_version }}.${{ inputs.minor_version }}-1/*.rpm")
+            for SRC_PATH in ${SRC_PATHS[@]}; do
+              echo "[DEBUG] - Source path found: $SRC_PATH"
+            done
+          else
+            echo "[DEBUG] - No source path found."
+            continue
+          fi
+
+          echo "[DEBUG] - Build target path."
+          TARGET_PATH="/srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS"
+          #TARGET_PATH="/srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/canary/$ARCH/RPMS"
+          echo "[DEBUG] - Target path: $TARGET_PATH"
+
+          echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
+          for ARTIFACT in ${SRC_PATHS[@]}; do
+            ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET_PATH"
+            #ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" cp $ARTIFACT $TARGET_PATH/
+
+            METADATAS="METADATAS /srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH"
+            INVALIDATION_PATHS="$INVALIDATION_PATHS /$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/*"
+          done
+        done
+
+        # Update repository metadata
+        METADATAS=`echo "$METADATAS" | xargs -n1 | sort -u | xargs`
+        for METADATA in `echo $METADATAS`; do
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATA" 2>&-
+        done
+
+        # Invalidate cloudfront cache
+        ID="${{ inputs.cloudfront_id }}"
+        # Remove duplicated invalidation paths
+        INVALIDATION_PATHS=`echo "$INVALIDATION_PATHS" | xargs -n1 | sort -u | xargs`
+        ITERATIONS=1
+        for INVALIDATION_PATH in `echo $INVALIDATION_PATHS`; do
+          until aws cloudfront create-invalidation --distribution-id "$ID" --paths "$INVALIDATION_PATH"; do
+            if [ ${ITERATIONS} -eq 10 ]; then
+              return 0
+            fi
+            echo "couldn't invalidate cache, AWS quota might have been reached, retrying in 30 seconds..."
+            sleep 30s
+            ITERATIONS=$((ITERATIONS+1))
+          done
+        done
+      shell: bash
+
+    - name: Promote DEB package to stable
+      if: ${{ startsWith(inputs.distrib, 'bullseye') }}
+      run: |
+        set -x
+        echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
+        echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+        echo "[DEBUG] - Repository name: ${{ inputs.repository_name }}"
+
+        if [[ "${{ inputs.repository_name }}" == "standard" ]]; then
+          ROOT_REPO_PATH="apt-standard-${{ inputs.major_version }}"
+        else
+          echo "Invalid repository name: ${{ inputs.repository_name }}"
+          exit 1
+        fi
+
+        echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
+        SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*${{ inputs.major_version }}.${{ inputs.minor_version }}*.deb | jq -r '.[].path')
+
+        if [[ ${SRC_PATHS[@]} ]]; then
+          for SRC_PATH in ${SRC_PATHS[@]}; do
+            echo "[DEBUG] - Source path found: $SRC_PATH"
+          done
+        else
+          echo "[DEBUG] - No source path found."
+          continue
+        fi
+
+        echo "[DEBUG] - Build target path."
+        TARGET_PATH="$ROOT_REPO_PATH-${{ inputs.stability }}/pool/"
+        echo "[DEBUG] - Target path: $TARGET_PATH"
+
+        echo "[DEBUG] - Promoting DEB testing artifacts to stable."
+        for ARTIFACT in ${SRC_PATHS[@]}; do
+          echo "[DEBUG] - Promoting $ARTIFACT to stable."
+          #jf rt cp $ARTIFACT $TARGET_PATH --flat=true
+        done
+      shell: bash
+
+    - name: Promote DEB package to stable on Nexus
+      if: ${{ startsWith(inputs.distrib, 'bullseye') }}
+      run: |
+        set -x
+        echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
+        echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
+        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+        echo "[DEBUG] - Repository name: ${{ inputs.repository_name }}"
+
+        # Handle only onprem repositories, build root repo path and target path
+        if [[ "${{ inputs.repository_name }}" == "standard" ]]; then
+          ROOT_REPO_PATH="${{ inputs.major_version }}-testing"
+          TARGET_PATH="https://apt.centreon.com/repository/${{ inputs.major_version }}"
+          echo "[DEBUG] - Target path: $TARGET_PATH"
+        else
+          echo "Invalid repository name: ${{ inputs.repository_name }}"
+          exit 1
+        fi
+
+        echo "[DEBUG] - Target path: $TARGET_PATH"
+        echo "[DEBUG] - Root repo path: $ROOT_REPO_PATH"
+
+        # Promote testing packages to stable.
+        # Create dir to receive artifacts to promote
+        mkdir -p artifacts_to_promote
+        cd artifacts_to_promote
+
+        # Check if artifacts to promote
+        echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
+        SRC_PATHS=$(curl -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" "https://apt.centreon.com/service/rest/v1/search/assets?repository=${ROOT_REPO_PATH}&name=*${{ inputs.module }}*&version=${{ inputs.major_version }}.${{ inputs.minor_version }}-1" |jq -r '.items[].downloadUrl')
+
+        # Checking if there are testing packages to promote and download them.
+        if [[ ${SRC_PATHS[@]} ]]; then
+          for SRC_PATH in ${SRC_PATHS[@]}; do
+            echo "[DEBUG] - Source path found: $SRC_PATH"
+            echo "[DEBUG] - Fetching artifact from $SRC_PATH."
+            curl -JOs $SRC_PATH
+            FILENAME=$(basename $SRC_PATH)
+            echo "[DEBUG] - Promoting testing artifact $FILENAME to stable."
+            #curl -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILENAME" $TARGET_PATH
+            rm -f $FILENAME
+            sleep 2
+          done
+        else
+          echo "[DEBUG] - No source path found."
+        fi
+      shell: bash
