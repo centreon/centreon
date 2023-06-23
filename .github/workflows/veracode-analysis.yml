@@ -181,8 +181,7 @@ jobs:
           if [[ -f package-lock.json ]]; then
             echo "[DEBUG] - Found a 'package-lock.json'"
             RESULT=0
-            #npm ci --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
-            npm ci --force --omit=dev 1>/dev/null || RESULT=$( echo $? )
+            npm ci --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
             if [[ $RESULT -ne 0 ]]; then
               echo "[DEBUG] - Failure of '$ npm ci'. Deleting the 'package-lock.json' to generate a new one"
               rm -f package-lock.json
@@ -195,8 +194,7 @@ jobs:
           if [[ -f package.json && REINSTALL_PACKAGE_JSON != 'false' ]]; then
             echo "[DEBUG] - Found a 'package.json'"
             RESULT=0
-            #npm i --package-lock-only --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
-            npm i --package-lock-only --force --omit=dev 1>/dev/null || RESULT=$( echo $? )
+            npm i --package-lock-only --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
             if [[ $RESULT -ne 0 ]]; then
               echo "[DEBUG] - Failure of '$ npm install'. Deleting the 'package.json' to avoid analysis failure"
               rm -f package.json
@@ -220,6 +218,5 @@ jobs:
           create-issues: false
           fail-on-cvss: 8
           recursive: true
-          debug: true
-          #allow-dirty: true
+          allow-dirty: true
           path: "./${{ inputs.module_directory }}"
