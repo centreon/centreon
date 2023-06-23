@@ -182,7 +182,7 @@ jobs:
           SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
           SRCCLR_REGION: "ER"
 
-        uses: veracode/veracode-sca@v1.0.8
+        uses: veracode/veracode-sca@v1.09
         # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan ./centreon-dsm --debug
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
