@@ -194,7 +194,8 @@ jobs:
           if [[ -f package.json && REINSTALL_PACKAGE_JSON != 'false' ]]; then
             echo "[DEBUG] - Found a 'package.json'"
             RESULT=0
-            npm i --package-lock-only --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
+            #npm i --package-lock-only --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
+            npm i --package-lock-only --force --omit=dev 1>/dev/null || RESULT=$( echo $? )
             if [[ $RESULT -ne 0 ]]; then
               echo "[DEBUG] - Failure of '$ npm install'. Deleting the 'package.json' to avoid analysis failure"
               rm -f package.json
