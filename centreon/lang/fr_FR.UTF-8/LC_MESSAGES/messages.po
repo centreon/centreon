@@ -17539,9 +17539,6 @@ msgstr "Besoin d'aide pour l'utilisation de la barre de recherche ?"
 msgid "Find explanations and examples"
 msgstr "Trouvez des explications et des exemples"
 
-msgid "here"
-msgstr "ici"
-
 msgid "Developed by"
 msgstr "Développé par"
 
