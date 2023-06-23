@@ -175,6 +175,7 @@ jobs:
 
       - name: Preparing dependencies
         run: |
+          cd ${{ inputs.module_directory }}
           if [[ -f package-lock.json ]]; then
             echo "[DEBUG] - Found a package-lock.json"
 
