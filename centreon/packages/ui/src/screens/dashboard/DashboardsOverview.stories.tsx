@@ -62,7 +62,7 @@ const meta: Meta = {
   parameters: {
     layout: 'fullscreen'
   },
-  title: 'screens/Dashboards'
+  title: 'screens/Dashboards overview'
 };
 
 export default meta;

@@ -49,7 +49,7 @@ export const dashboardDetailsDecoder = JsonDecoder.object<DashboardDetails>(
       'CreatedBy By'
     ),
     description: JsonDecoder.nullable(JsonDecoder.string),
-    panels: panelsDetailsDecoder,
+    panels: JsonDecoder.optional(panelsDetailsDecoder),
     updatedAt: JsonDecoder.string,
     updatedBy: JsonDecoder.object<DashboardDetails['updatedBy']>(
       namedEntityDecoder,
