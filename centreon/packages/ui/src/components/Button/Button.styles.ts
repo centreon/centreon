@@ -36,6 +36,7 @@ const useStyles = makeStyles()((theme) => ({
       color: theme.palette.primary.main
     },
 
+    textWrap: 'noWrap',
     transition: 'unset'
   }
 }));

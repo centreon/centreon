@@ -16,6 +16,11 @@ const useStyles = makeStyles()((theme) => ({
       width: '100%'
     },
     display: 'flex'
+  },
+  dataTableScrollContainer: {
+    // FIXME the global -webkit-scrollbar styles are not optimal for this component in grid variant
+    height: '100%',
+    overflowY: 'auto'
   }
 }));
 

@@ -2,9 +2,9 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
-import { Dashboard } from '../models';
+import { Dashboard } from './models';
 
-const dashboardDecoder = JsonDecoder.object<Dashboard>(
+export const dashboardDecoder = JsonDecoder.object<Dashboard>(
   {
     createdAt: JsonDecoder.string,
     description: JsonDecoder.nullable(JsonDecoder.string),

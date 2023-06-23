@@ -1,12 +1,21 @@
 /* eslint-disable  @typescript-eslint/no-non-null-assertion */
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 
 import { Meta } from '@storybook/react';
 
-import { Add as AddIcon, Share as ShareIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Settings as SettingsIcon,
+  Share as ShareIcon
+} from '@mui/icons-material';
 
-import { Button, PageHeader, PageLayout } from '../../components';
-import { Menu } from '../../components/Menu';
+import {
+  Button,
+  IconButton,
+  Menu,
+  PageHeader,
+  PageLayout
+} from '../../components';
 
 const meta: Meta = {
   args: {
@@ -57,14 +66,20 @@ const DefaultView = (args): ReactElement => {
       </PageLayout.Header>
       <PageLayout.Body>
         <PageLayout.Actions>
-          <Button
-            icon={<ShareIcon />}
-            iconVariant="start"
+          <IconButton
+            aria-label="edit"
+            data-testid="edit"
+            icon={<SettingsIcon />}
             size="small"
             variant="ghost"
-          >
-            Share
-          </Button>
+          />
+          <IconButton
+            aria-label="share"
+            data-testid="share"
+            icon={<ShareIcon />}
+            size="small"
+            variant="ghost"
+          />
         </PageLayout.Actions>
       </PageLayout.Body>
     </PageLayout>

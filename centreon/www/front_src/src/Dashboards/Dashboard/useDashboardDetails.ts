@@ -6,10 +6,12 @@ import { propOr } from 'ramda';
 
 import { useFetchQuery } from '@centreon/ui';
 
+import { dashboardsEndpoint } from '../api/endpoints';
+import { resource } from '../api/models';
+
 import { dashboardDetailsDecoder } from './api/decoders';
 import { DashboardDetails, Panel, PanelDetails } from './models';
 import { dashboardAtom } from './atoms';
-import { getDashboardEndpoint } from './api/endpoints';
 
 interface UseDashboardDetailsState {
   dashboard?: DashboardDetails;
@@ -58,8 +60,8 @@ const useDashboardDetails = ({
 
   const { data: dashboard } = useFetchQuery({
     decoder: dashboardDetailsDecoder,
-    getEndpoint: () => getDashboardEndpoint(dashboardId),
-    getQueryKey: () => ['dashboard', dashboardId]
+    getEndpoint: () => `${dashboardsEndpoint}/${dashboardId}`,
+    getQueryKey: () => [resource.dashboards, dashboardId]
   });
 
   const panels = getPanels(dashboard);

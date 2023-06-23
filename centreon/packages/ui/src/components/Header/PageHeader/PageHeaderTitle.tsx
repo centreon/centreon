@@ -22,7 +22,9 @@ const PageHeaderTitle = ({
   return (
     <div className={classes.pageHeaderTitle}>
       <span>
-        <MuiTypography variant="h1">{title}</MuiTypography>
+        <MuiTypography aria-label="page header title" variant="h1">
+          {title}
+        </MuiTypography>
         {actions && (
           <div className={classes.pageHeaderTitleActions}>{actions}</div>
         )}
@@ -30,6 +32,7 @@ const PageHeaderTitle = ({
       {description && (
         <TextOverflowTooltip label={description}>
           <MuiTypography
+            aria-label="page header description"
             className={classes.pageHeaderTitleDescription}
             variant="body2"
           >
