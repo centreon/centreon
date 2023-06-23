@@ -186,7 +186,7 @@ jobs:
         # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan ./centreon-dsm --debug
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          create_issues: false
+          create-issues: false
           fail-on-cvss: 8
           #recursive: true
           debug: true
