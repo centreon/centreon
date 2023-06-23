@@ -587,7 +587,7 @@ Feature:
       "is_activated": true
     }
     """
-    Then the response code should be "400"
+    Then the response code should be "404"
 
   Scenario: Disable a notification as a non-admin user with sufficient rights
     Given the following CLAPI import data:
