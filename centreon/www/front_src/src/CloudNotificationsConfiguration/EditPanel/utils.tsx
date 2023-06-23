@@ -1,6 +1,6 @@
 import { equals, isNil } from 'ramda';
 
-import { ChannelsEnum, TimeperiodType } from '../models';
+import { ChannelsEnum, ResourcesTypeEnum, TimeperiodType } from '../models';
 
 import { EmailIcon } from './Channel/Icons';
 import { EventsType } from './models';
@@ -58,10 +58,13 @@ const formatMessages = ({ messages, messageType }): object => {
 
 const formatResource = ({ resources, resourceType }): object => {
   const resource = resources.find((elm) => equals(elm.type, resourceType));
+  const events = equals(resourceType, ResourcesTypeEnum.HG)
+    ? hostEvents
+    : serviceEvents;
 
   return {
     ...resource,
-    events: formatEvents(resource.events, hostEvents),
+    events: formatEvents(resource.events, events),
     extra: {
       eventsServices: formatEvents(
         resource?.extra ? resource.extra.eventsServices : 0,

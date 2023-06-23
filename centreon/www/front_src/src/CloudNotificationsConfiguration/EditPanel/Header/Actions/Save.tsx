@@ -24,10 +24,10 @@ const SaveAction = (): JSX.Element => {
   const { classes } = useStyle();
   const { t } = useTranslation();
 
-  const { isValid, dirty, submitForm } = useFormikContext<FormikValues>();
+  const { isSubmitting, isValid, dirty, submitForm } =
+    useFormikContext<FormikValues>();
 
-  const { isMutating, labelConfirm, setDialogOpen, dialogOpen } =
-    useFormSubmit();
+  const { labelConfirm, setDialogOpen, dialogOpen, test } = useFormSubmit();
 
   const onClick = (): void => setDialogOpen(true);
 
@@ -53,11 +53,11 @@ const SaveAction = (): JSX.Element => {
         />
       </IconButton>
       <ConfirmDialog
-        confirmDisabled={isMutating}
+        confirmDisabled={isSubmitting}
         labelMessage={t(labelConfirm)}
         labelTitle={t(labelDoYouWantToConfirmAction)}
         open={dialogOpen}
-        submitting={isMutating}
+        submitting={isSubmitting}
         onCancel={onCancel}
         onConfirm={onConfirm}
       />

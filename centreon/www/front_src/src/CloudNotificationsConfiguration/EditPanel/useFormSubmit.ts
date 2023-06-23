@@ -27,16 +27,22 @@ import { notificationtEndpoint } from './api/endpoints';
 
 interface UseFormState {
   dialogOpen: boolean;
-  isMutating: boolean;
   labelConfirm: string;
   setDialogOpen;
-  submit: (values) => void;
+  submit: (
+    values,
+    {
+      setSubmitting
+    }: {
+      setSubmitting;
+    }
+  ) => Promise<void>;
 }
 
 const useForm = (): UseFormState => {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
   const { showSuccessMessage } = useSnackbar();
+  const queryClient = useQueryClient();
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -48,7 +54,7 @@ const useForm = (): UseFormState => {
     ? labelConfirmAddNotification
     : labelConfirmEditNotification;
 
-  const { isMutating, mutateAsync } = useMutationQuery({
+  const { mutateAsync } = useMutationQuery({
     getEndpoint: () =>
       equals(panelMode, PanelMode.Create)
         ? notificationtEndpoint({})
@@ -56,27 +62,28 @@ const useForm = (): UseFormState => {
     method: equals(panelMode, PanelMode.Create) ? Method.POST : Method.PUT
   });
 
-  const submit = (values): void => {
+  const submit = (values, { setSubmitting }): Promise<void> => {
     const labelMessage = equals(panelMode, PanelMode.Create)
       ? labelSuccessfulNotificationAdded
       : labelSuccessfulEditNotification;
 
-    mutateAsync(adaptNotifications(values)).then((response) => {
-      const { isError } = response as ResponseError;
-      if (isError) {
-        return;
-      }
-      showSuccessMessage(t(labelMessage));
-      setDialogOpen(false);
-      setPanelOpen(false);
-      queryClient.invalidateQueries(['notificationsListing']);
-      queryClient.invalidateQueries(['notifications']);
-    });
+    return mutateAsync(adaptNotifications(values))
+      .then((response) => {
+        const { isError } = response as ResponseError;
+        if (isError) {
+          return;
+        }
+        showSuccessMessage(t(labelMessage));
+        setDialogOpen(false);
+        setPanelOpen(false);
+        queryClient.invalidateQueries(['notificationsListing']);
+        queryClient.invalidateQueries(['notifications']);
+      })
+      .finally(() => setSubmitting(false));
   };
 
   return {
     dialogOpen,
-    isMutating,
     labelConfirm,
     setDialogOpen,
     submit
