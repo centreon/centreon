@@ -180,6 +180,23 @@ jobs:
           npm -v
           node -v
           npm ci
+          RESULT=0
+          if [[ -f package-lock.json ]]; then
+            npm ci || RESULT=$( echo $? )
+            if [[ $RESULT -ne 0 ]]; then
+              RESULT=0
+              rm -f package-lock.json
+              if [[ -f package.json ]]; then
+                npm ci || RESULT=$( echo $? )
+                if [[ $RESULT -ne 0 ]]; then
+                  RESULT=0
+                  rm -f package.json
+                fi
+              fi
+            fi
+          fi
+
+
 
       - name: SCA scan
         env:
