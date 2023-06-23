@@ -186,7 +186,7 @@ jobs:
               echo "[DEBUG] - Failure of '$ npm ci'. Deleting the 'package-lock.json' to generate a new one"
               rm -f package-lock.json
             else
-              echo "[DEBUG] - 'package-lock.json' seems ready for the analysis"
+              echo "[DEBUG] - 'package-lock.json' seems ready for analysis"
               REINSTALL_PACKAGE_JSON='false'
             fi
           fi
@@ -199,11 +199,9 @@ jobs:
               echo "[DEBUG] - Failure of '$ npm install'. Deleting the 'package.json' to avoid analysis failure"
               rm -f package.json
             else
-              echo "[DEBUG] - 'package-lock.json' seems ready for the analysis"
+              echo "[DEBUG] - 'package-lock.json' seems ready for analysis"
             fi
           fi
-
-          find ./ -type f -name "package*.json"
 
       - name: SCA scan
         env:
@@ -217,6 +215,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create-issues: false
           fail-on-cvss: 8
-          recursive: true
           allow-dirty: true
           path: "./${{ inputs.module_directory }}"
