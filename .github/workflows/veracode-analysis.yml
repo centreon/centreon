@@ -173,7 +173,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: prepare dependencies
+      - name: Preparing dependencies
         run: |
           which node
           which npm
@@ -181,15 +181,23 @@ jobs:
           node -v
           npm ci
 
-          RESULT=0
           if [[ -f package-lock.json ]]; then
+            echo "[DEBUG] - Found a package-lock.json"
+
+            RESULT=0
             npm ci --legacy-peer-dep --omit=dev || RESULT=$( echo $? )
             if [[ $RESULT -ne 0 ]]; then
-              RESULT=0
+
+              echo "[DEBUG] - Failure of '$ npm ci'. Deleting the package-lock.json"
               rm -f package-lock.json
               if [[ -f package.json ]]; then
+
+                echo "[DEBUG] - Found a package.json"
+                RESULT=0
                 npm i --package-lock-only --legacy-peer-dep --omit=dev || RESULT=$( echo $? )
                 if [[ $RESULT -ne 0 ]]; then
+
+                  echo "[DEBUG] - Failure of '$ npm install'. Deleting the package.json"
                   RESULT=0
                   rm -f package.json
                 fi
