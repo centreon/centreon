@@ -106,7 +106,7 @@ Given(
         return Cypress.runner.stop();
       }
 
-      getCentreonStableMinorVersions(major_version).then(
+      return getCentreonStableMinorVersions(major_version).then(
         (stable_minor_versions) => {
           if (stable_minor_versions.length === 0) {
             cy.log(`centreon web is currently not available as stable`);
@@ -137,7 +137,7 @@ Given(
             }
           }
 
-          installCentreon(
+          return installCentreon(
             `${major_version}.${stable_minor_versions[minor_version_index]}`
           ).then(() => {
             return checkPlatformVersion(`${major_version}.0`).then(() =>

@@ -158,8 +158,8 @@ const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
       )} sh -c "rpm -qa |grep centreon-web |cut -d '-' -f3"`
     )
     .then(({ stdout }): Cypress.Chainable<null> | null => {
-      const isRoot = platformVersion === stdout;
-      if (isRoot) {
+      const isExpected = platformVersion === stdout;
+      if (isExpected) {
         return null;
       }
 
