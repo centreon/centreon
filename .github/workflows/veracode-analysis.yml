@@ -177,7 +177,8 @@ jobs:
           SRCCLR_REGION: "ER"
 
         uses: veracode/veracode-sca@v1.09
-        # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan ./centreon-dsm --debug
+        # This action is based on following command:
+        # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan "./${{ inputs.module_directory }}" --debug
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create-issues: false
