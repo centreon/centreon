@@ -1,9 +1,9 @@
 patch:
   tags:
     - Notification
-  summary: "Enable or disable a notification definition"
+  summary: "Partial update a notification definition"
   description: |
-    Enable or disable a notification definition
+    Partial update a notification definition
 
     This endpoint does not handle all notification properties.
 
