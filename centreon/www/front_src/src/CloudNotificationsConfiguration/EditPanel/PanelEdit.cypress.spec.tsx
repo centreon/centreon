@@ -38,8 +38,8 @@ const store = createStore();
 store.set(panelModeAtom, PanelMode.Edit);
 store.set(EditedNotificationIdAtom, 1);
 store.set(notificationsNamesAtom, [
-  { id: 1, name: 'Notification1' },
-  { id: 2, name: 'notification2' }
+  { id: 1, name: 'Notifications 1' },
+  { id: 2, name: 'Notifications 2' }
 ]);
 
 const PanelWithQueryProvider = (): JSX.Element => {
@@ -129,7 +129,7 @@ describe('Edit Panel', () => {
 
     cy.findByTestId(labelChangeName).click();
 
-    cy.findByLabelText(labelNotificationName).clear().type('Notification1');
+    cy.findByLabelText(labelNotificationName).clear().type('Notifications 2');
     cy.clickOutside();
 
     cy.findByText(labelThisNameAlreadyExists).should('be.visible');
