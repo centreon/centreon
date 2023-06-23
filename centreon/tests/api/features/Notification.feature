@@ -650,7 +650,7 @@ Feature:
     """
     Then the response code should be "204"
 
-  Scenario: Enable a notification as a non-admin use with insufficient rights
+  Scenario: Enable a notification as a non-admin user with insufficient rights
     Given the following CLAPI import data:
     """
     CONTACT;ADD;test-user;test-user;test-user@localservice.com;Centreon@2022;0;1;en_US;local
