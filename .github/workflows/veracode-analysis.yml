@@ -180,7 +180,7 @@ jobs:
 
             RESULT=0
             SKIP_REINSTAL_PACKAGE='false'
-            npm ci --legacy-peer-dep --omit=dev || RESULT=$( echo $? )
+            npm ci --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
             if [[ $RESULT -ne 0 ]]; then
 
               echo "[DEBUG] - Failure of '$ npm ci'. Deleting the package-lock.json"
@@ -193,7 +193,7 @@ jobs:
           if [[ -f package.json && SKIP_REINSTALL_PACKAGE != 'true' ]]; then
             echo "[DEBUG] - Found a package.json"
             RESULT=0
-            npm i --package-lock-only --legacy-peer-dep --omit=dev || RESULT=$( echo $? )
+            npm i --package-lock-only --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
             if [[ $RESULT -ne 0 ]]; then
 
               echo "[DEBUG] - Failure of '$ npm install'. Deleting the package.json"
