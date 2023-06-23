@@ -4,24 +4,29 @@ import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Link, Box } from '@mui/material';
+import { Link, Box, Typography } from '@mui/material';
 
 import { PersistentTooltip } from '@centreon/ui';
 
 import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
 import {
-  labelHowToUseTheSearchbar,
+  labelFindExplanationsAndExamples,
+  labelHere,
+  labelNeedHelpWithSearchBarUsage,
   labelSearchHelp
 } from '../translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
-    margin: theme.spacing(0.75, 0),
-    marginRight: theme.spacing(2)
+    color: theme.palette.common.black,
+    margin: theme.spacing(1, 0),
+    marginRight: theme.spacing(3)
   },
   link: {
-    color: theme.palette.primary.main,
-    textDecoration: 'none'
+    color: theme.palette.primary.main
+  },
+  title: {
+    marginBottom: theme.spacing(0.5)
   }
 }));
 
@@ -42,15 +47,21 @@ const SearchHelp = (): JSX.Element => {
       toggleTooltip={() => setOpenTooltip((prevState) => !prevState)}
     >
       <Box className={classes.container}>
-        <Link
-          className={classes.link}
-          href={docsURL}
-          rel="noreferrer"
-          target="_blank"
-          onClick={() => setOpenTooltip(false)}
-        >
-          {t(labelHowToUseTheSearchbar)}
-        </Link>
+        <Typography className={classes.title} variant="body2">
+          {t(labelNeedHelpWithSearchBarUsage)}
+        </Typography>
+        <Typography variant="body2">
+          {t(labelFindExplanationsAndExamples)}&nbsp;
+          <Link
+            className={classes.link}
+            href={docsURL}
+            rel="noreferrer"
+            target="_blank"
+            onClick={() => setOpenTooltip(false)}
+          >
+            {t(labelHere)}
+          </Link>
+        </Typography>
       </Box>
     </PersistentTooltip>
   );

@@ -10,7 +10,8 @@ import IconClose from '@mui/icons-material/HighlightOff';
 const useStyles = makeStyles()((theme) => ({
   buttonClose: {
     position: 'absolute',
-    right: theme.spacing(0.5)
+    right: theme.spacing(0.5),
+    top: '40%'
   },
   tooltip: {
     backgroundColor: theme.palette.common.white,
