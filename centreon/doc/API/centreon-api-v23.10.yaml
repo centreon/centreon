@@ -9,6 +9,7 @@ info:
     + Added notification endpoint (POST)
     + Added service templates endpoints (GET)
     + Add host template endpoints (POST, DELETE, PATCH)
+    + Add notification configuration endpoints (PATCH)
     +
     # Updated features
     + Updated host template endpoint (GET)

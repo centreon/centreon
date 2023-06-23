@@ -1,5 +1,5 @@
 type: object
-required: ["is_activated"]
+required: []
 properties:
   is_activated:
     type: boolean

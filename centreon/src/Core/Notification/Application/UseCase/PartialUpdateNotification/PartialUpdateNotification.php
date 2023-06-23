@@ -130,7 +130,7 @@ final class PartialUpdateNotification
     ): void {
         try {
             $this->dataStorageEngine->startTransaction();
-            $this->updateIsActivated($request, $notification);
+            $this->updateNotification($request, $notification);
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {
             $this->error('Rollback of \'PartialUpdateNotification\' transaction');
@@ -146,7 +146,7 @@ final class PartialUpdateNotification
      *
      * @throws \Throwable
      */
-    private function updateIsActivated(PartialUpdateNotificationRequest $request, Notification $notification): void
+    private function updateNotification(PartialUpdateNotificationRequest $request, Notification $notification): void
     {
         $this->info(
             'PartialUpdateNotification: update is_activated',
