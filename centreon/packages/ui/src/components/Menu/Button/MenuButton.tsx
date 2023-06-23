@@ -1,4 +1,4 @@
-import { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode, useCallback } from 'react';
 
 import {
   ArrowDropDown as ArrowDropDownIcon,
@@ -16,7 +16,7 @@ type MenuButtonProps = {
   children?: ReactNode;
   hasArrow?: boolean;
   isOpen?: boolean;
-  onClick?: (isOpen: boolean) => void;
+  onClick?: (args: { isOpen: boolean }) => void;
 } & Pick<ButtonProps, 'disabled' | 'size' | 'variant'> &
   AriaLabelingAttributes &
   DataTestAttributes;
@@ -33,13 +33,16 @@ const MenuButton = ({
 
   const { isMenuOpen, setIsMenuOpen, setAnchorEl, onOpen } = useMenu();
 
-  const onToggle = (e): void => {
-    setAnchorEl(e.currentTarget);
+  const onToggle = useCallback(
+    (e): void => {
+      setAnchorEl(e.currentTarget);
 
-    setIsMenuOpen(!isMenuOpen);
-    onClick?.(!isMenuOpen);
-    if (!isMenuOpen) onOpen?.();
-  };
+      setIsMenuOpen(!isMenuOpen);
+      onClick?.({ isOpen: !isMenuOpen });
+      if (!isMenuOpen) onOpen?.();
+    },
+    [isMenuOpen, onClick, onOpen]
+  );
 
   return (
     <Button

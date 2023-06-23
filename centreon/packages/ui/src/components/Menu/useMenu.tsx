@@ -55,7 +55,7 @@ type UseMenu = {
   onClose: (() => void) | null;
   onOpen: (() => void) | null;
   setAnchorEl: (event: null | HTMLElement) => void;
-  setIsMenuOpen: (isOpen: boolean) => void;
+  setIsMenuOpen: (isOpen: boolean | ((currentIsMenuOpen) => boolean)) => void;
 };
 
 const useMenu = (): UseMenu => {
