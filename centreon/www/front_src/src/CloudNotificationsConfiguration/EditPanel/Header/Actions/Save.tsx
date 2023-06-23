@@ -27,7 +27,7 @@ const SaveAction = (): JSX.Element => {
   const { isSubmitting, isValid, dirty, submitForm } =
     useFormikContext<FormikValues>();
 
-  const { labelConfirm, setDialogOpen, dialogOpen, test } = useFormSubmit();
+  const { labelConfirm, setDialogOpen, dialogOpen } = useFormSubmit();
 
   const onClick = (): void => setDialogOpen(true);
 
