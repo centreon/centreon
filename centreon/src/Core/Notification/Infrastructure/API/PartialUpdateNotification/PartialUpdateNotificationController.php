@@ -23,15 +23,15 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\API\PartialUpdateNotification;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Symfony\Component\HttpFoundation\{Request, Response};
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{ErrorResponse, InvalidArgumentResponse};
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\UseCase\PartialUpdateNotification\{
     PartialUpdateNotification,
     PartialUpdateNotificationRequest
 };
+use Symfony\Component\HttpFoundation\{Request, Response};
 
 final class PartialUpdateNotificationController extends AbstractController
 {

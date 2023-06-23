@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : user@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -100,15 +100,15 @@ final class PartialUpdateNotification
      * @param PartialUpdateNotificationRequest $request
      * @param int $notificationId
      *
-     * @return ResponseStatusInterface
-     *
      * @throws \Throwable
+     *
+     * @return ResponseStatusInterface
      */
     private function partiallyUpdateNotification(
         PartialUpdateNotificationRequest $request,
         int $notificationId
     ): ResponseStatusInterface {
-        if (!($notification = $this->readRepository->findById($notificationId))) {
+        if (! ($notification = $this->readRepository->findById($notificationId))) {
             $this->error('Notification not found', ['notification_id' => $notificationId]);
 
             return new NotFoundResponse('Notification');
