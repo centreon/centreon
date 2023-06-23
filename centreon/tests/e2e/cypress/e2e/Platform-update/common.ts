@@ -22,7 +22,7 @@ const getCentreonStableMinorVersions = (
     .exec(
       `docker exec -i ${Cypress.env(
         'dockerName'
-      )} sh -c "dnf --showduplicates list centreon-web | grep centreon-web | grep ${majorVersion} | cut -d ' ' -f2 | tr '\n' ' '"`
+      )} sh -c "dnf --showduplicates list centreon-web | grep centreon-web | grep ${majorVersion} | awk '{ print \\$2 }' | tr '\n' ' '"`
     )
     .then(({ stdout }): Cypress.Chainable<Array<string>> => {
       const stableVersions: Array<string> = [];
@@ -30,6 +30,7 @@ const getCentreonStableMinorVersions = (
       const versionsRegex = /\d+\.\d+\.(\d+)/g;
 
       [...stdout.matchAll(versionsRegex)].forEach((result) => {
+        cy.log(result[1]);
         stableVersions.push(result[1]);
       });
 

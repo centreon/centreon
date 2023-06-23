@@ -10,9 +10,8 @@ import {
   updatePlatformPackages
 } from '../common';
 
-before(() => {
+beforeEach(() => {
   cy.getWebVersion().then(({ major_version, minor_version }) => {
-    /*
     if (minor_version === '0') {
       cy.log(
         `current centreon web version is ${major_version}.${minor_version}, then update cannot be tested`
@@ -20,7 +19,6 @@ before(() => {
 
       return Cypress.runner.stop();
     }
-    */
 
     return cy
       .startContainer({
@@ -223,6 +221,6 @@ Then('Poller configuration should be fully generated', () => {
   checkIfConfigurationIsExported(dateBeforeLogin);
 });
 
-after(() => {
+afterEach(() => {
   cy.stopWebContainer();
 });
