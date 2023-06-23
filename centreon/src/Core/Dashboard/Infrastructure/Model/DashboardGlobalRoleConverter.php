@@ -21,11 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Domain\Model;
+namespace Core\Dashboard\Infrastructure\Model;
 
-enum DashboardGlobalRole: string
+use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
+
+class DashboardGlobalRoleConverter
 {
-    case Viewer = 'viewer';
-    case Creator = 'creator';
-    case Administrator = 'administrator';
+    public static function toString(DashboardGlobalRole $role): string
+    {
+        return match ($role) {
+            DashboardGlobalRole::Administrator => 'administrator',
+            DashboardGlobalRole::Creator => 'creator',
+            DashboardGlobalRole::Viewer => 'viewer',
+        };
+    }
 }

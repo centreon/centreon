@@ -28,6 +28,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsResponse;
 use Core\Dashboard\Application\UseCase\FindDashboards\Response\UserResponseDto;
+use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
@@ -56,7 +57,7 @@ final class FindDashboardsPresenter extends DefaultPresenter implements FindDash
                     'updated_by' => $this->userToOptionalArray($dashboard->updatedBy),
                     'created_at' => $this->formatDateToIso8601($dashboard->createdAt),
                     'updated_at' => $this->formatDateToIso8601($dashboard->updatedAt),
-                    'own_role' => $dashboard->ownRole,
+                    'own_role' => DashboardSharingRoleConverter::toString($dashboard->ownRole),
                 ];
             }
 

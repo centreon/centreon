@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardPresenterInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardResponse;
 use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
+use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -66,7 +67,7 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
                         'updated_by' => $this->userToOptionalArray($data->updatedBy),
                         'created_at' => $this->formatDateToIso8601($data->createdAt),
                         'updated_at' => $this->formatDateToIso8601($data->updatedAt),
-                        'own_role' => $data->ownRole,
+                        'own_role' => DashboardSharingRoleConverter::toString($data->ownRole),
                     ]
                 )
             );

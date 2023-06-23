@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\User\Domain\Model;
 
-enum UserTheme: string
+enum UserTheme
 {
-    case Light = 'light';
-    case Dark = 'dark';
+    case Light;
+    case Dark;
 }

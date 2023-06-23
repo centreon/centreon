@@ -31,7 +31,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
-use Core\Dashboard\Application\Repository\WriteDashboardRelationRepositoryInterface;
+use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboard;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardRequest;
@@ -44,7 +44,7 @@ beforeEach(function (): void {
     $this->useCase = new AddDashboard(
         $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class),
         $this->writeDashboardRepository = $this->createMock(WriteDashboardRepositoryInterface::class),
-        $this->writeDashboardRelationRepository = $this->createMock(WriteDashboardRelationRepositoryInterface::class),
+        $this->writeDashboardRelationRepository = $this->createMock(WriteDashboardShareRepositoryInterface::class),
         $this->createMock(DataStorageEngineInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),

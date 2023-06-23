@@ -25,9 +25,9 @@ namespace Core\Dashboard\Application\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardSharingRoles;
+use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
 
-interface ReadDashboardRelationRepositoryInterface
+interface ReadDashboardShareRepositoryInterface
 {
     /**
      * Retrieve the sharing roles of a dashboard.

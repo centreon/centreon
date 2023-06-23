@@ -28,15 +28,17 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Dashboard\Application\Repository\ReadDashboardRelationRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardContactGroupShare;
-use Core\Dashboard\Domain\Model\DashboardContactShare;
-use Core\Dashboard\Domain\Model\DashboardSharingRole;
-use Core\Dashboard\Domain\Model\DashboardSharingRoles;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
+use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
+use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
+use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
+use Core\Infrastructure\Common\Repository\RepositoryException;
 use Utility\SqlConcatenator;
 
-class DbReadDashboardRelationRepository extends AbstractRepositoryDRB implements ReadDashboardRelationRepositoryInterface
+class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements ReadDashboardShareRepositoryInterface
 {
     use LoggerTrait;
 
@@ -84,10 +86,11 @@ class DbReadDashboardRelationRepository extends AbstractRepositoryDRB implements
      * @param ContactInterface $contact
      * @param Dashboard ...$dashboards
      *
-     * @throws \PDOException
      * @throws AssertionFailedException
+     * @throws RepositoryException
+     * @throws \PDOException
      *
-     * @return array<int, array<DashboardContactGroupShare>>
+     * @return array<int, array<\Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare>>
      */
     private function getContactGroupShares(ContactInterface $contact, Dashboard ...$dashboards): array
     {
@@ -153,8 +156,9 @@ class DbReadDashboardRelationRepository extends AbstractRepositoryDRB implements
      * @param ContactInterface $contact
      * @param Dashboard ...$dashboards
      *
-     * @throws AssertionFailedException
      * @throws \PDOException
+     * @throws RepositoryException
+     * @throws AssertionFailedException
      *
      * @return array<int, DashboardContactShare>
      */
@@ -215,10 +219,18 @@ class DbReadDashboardRelationRepository extends AbstractRepositoryDRB implements
      *
      * @param string $role
      *
+     * @throws RepositoryException
+     *
      * @return DashboardSharingRole
      */
     private function stringToRole(string $role): DashboardSharingRole
     {
-        return DashboardSharingRole::from($role);
+        try {
+            return DashboardSharingRoleConverter::fromString($role);
+        } catch (\ValueError $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            throw new RepositoryException($ex->getMessage(), $ex->getCode(), $ex);
+        }
     }
 }

@@ -40,7 +40,7 @@ final class FindCurrentUserParametersResponse
         public bool $useDeprecatedPages = false,
         public bool $isExportButtonEnabled = false,
         public UserTheme $theme = UserTheme::Light,
-        public UserInterfaceDensity $userInterfaceDensity = UserInterfaceDensity::Compact,
+        public UserInterfaceDensity $userInterfaceDensity = UserInterfaceDensity::Extended,
         public ?string $defaultPage = null,
         public DashboardPermissionsResponseDto $dashboardPermissions = new DashboardPermissionsResponseDto(),
     ) {

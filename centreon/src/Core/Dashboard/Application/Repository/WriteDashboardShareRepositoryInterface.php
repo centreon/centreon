@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\Repository;
 
-use Core\Dashboard\Domain\Model\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
-interface WriteDashboardRelationRepositoryInterface
+interface WriteDashboardShareRepositoryInterface
 {
     /**
      * Create the share relation between a dashboard and a contact.

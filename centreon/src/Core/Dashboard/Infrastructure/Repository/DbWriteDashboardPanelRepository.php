@@ -170,6 +170,7 @@ class DbWriteDashboardPanelRepository extends AbstractRepositoryDRB implements W
         try {
             return json_encode($widgetSettings, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
         } catch (\JsonException $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             throw new RepositoryException('Dashboard widget settings could not be JSON encoded.', $ex->getCode(), $ex);
         }
     }
