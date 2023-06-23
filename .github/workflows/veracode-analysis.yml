@@ -171,12 +171,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name : debug root location
-        run : |
-          ls -la
-          ls -la "./${{ inputs.module_directory }}"
-
-
       - name: SCA scan
         env:
           SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
