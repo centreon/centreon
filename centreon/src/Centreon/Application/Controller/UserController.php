@@ -75,36 +75,6 @@ class UserController extends AbstractController
     }
 
     /**
-     * Entry point to get configured parameters for the current user
-     *
-     * @return View
-     */
-    public function getUserParameters(): View
-    {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-
-        /**
-         * @var Contact $user
-         */
-        $user = $this->getUser();
-
-        return $this->view([
-            'id' => $user->getId(),
-            'name' => $user->getName(),
-            'alias' => $user->getAlias(),
-            'email' => $user->getEmail(),
-            'timezone' => $user->getTimezone()->getName(),
-            'locale' => $user->getLocale(),
-            'is_admin' => $user->isAdmin(),
-            'use_deprecated_pages' => $user->isUsingDeprecatedPages(),
-            'is_export_button_enabled' => $this->getAuthorizationForRole(Contact::ROLE_GENERATE_CONFIGURATION),
-            'theme' => $user->getTheme(),
-            'user_interface_density' => $user->getUserInterfaceDensity(),
-            'default_page' => $user->getDefaultPage()?->getRedirectionUri()
-        ]);
-    }
-
-    /**
      * Get authorization for a specific role of the current user
      *
      * @param string $role
