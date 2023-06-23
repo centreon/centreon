@@ -175,12 +175,6 @@ jobs:
 
       - name: Preparing dependencies
         run: |
-          which node
-          which npm
-          npm -v
-          node -v
-          npm ci
-
           if [[ -f package-lock.json ]]; then
             echo "[DEBUG] - Found a package-lock.json"
 
