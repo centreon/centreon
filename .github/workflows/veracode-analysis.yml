@@ -183,5 +183,4 @@ jobs:
           create-issues: false
           fail-on-cvss: 8
           #recursive: true
-          debug: true
           path: "./${{ inputs.module_directory }}"
