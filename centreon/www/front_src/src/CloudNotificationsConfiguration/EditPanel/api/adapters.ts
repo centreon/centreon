@@ -55,6 +55,6 @@ export const adaptNotifications = ({
       type: serviceGroups.type
     }
   ],
-  timeperiod: 1,
+  timeperiod_id: 1,
   users: adpatIds(users)
 });
