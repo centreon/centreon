@@ -198,6 +198,8 @@ jobs:
             if [[ $RESULT -ne 0 ]]; then
               echo "[DEBUG] - Failure of '$ npm install'. Deleting the 'package.json' to avoid analysis failure"
               rm -f package.json
+            else
+              echo "[DEBUG] - 'package-lock.json' seems ready for the analysis"
             fi
           fi
 
