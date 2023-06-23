@@ -31,8 +31,11 @@ use Core\Notification\Application\UseCase\PartialUpdateNotification\{
 
 final class PartialUpdateNotificationPresenter extends AbstractPresenter implements PresenterInterface
 {
+    /**
+     * @inheritDoc
+     */
     public function presentResponse(ResponseStatusInterface $response): void
     {
-        // TODO: Implement presentResponse() method.
+        $this->setResponseStatus($response);
     }
 }
