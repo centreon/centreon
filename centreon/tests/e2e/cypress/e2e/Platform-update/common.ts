@@ -15,13 +15,35 @@ const checkIfSystemUserRoot = (): Cypress.Chainable => {
     });
 };
 
+const getCentreonStableMinorVersions = (
+  majorVersion: string
+): Cypress.Chainable => {
+  return cy
+    .exec(
+      `docker exec -i ${Cypress.env(
+        'dockerName'
+      )} sh -c "dnf --showduplicates list centreon-web | grep centreon-web | grep ${majorVersion} | cut -d ' ' -f2 | tr '\n' ' '"`
+    )
+    .then(({ stdout }): Cypress.Chainable<Array<string>> => {
+      const stableVersions: Array<string> = [];
+
+      const versionsRegex = /\d+\.\d+\.(\d+)/g;
+
+      [...stdout.matchAll(versionsRegex)].forEach((result) => {
+        stableVersions.push(result[1]);
+      });
+
+      return cy.wrap([...stableVersions].sort()); // remove duplicates and order
+    });
+};
+
 const installCentreon = (version: string): Cypress.Chainable => {
   cy.execInContainer({
     command: `bash -e <<EOF
       dnf config-manager --set-disabled 'centreon-*-unstable*' 'mariadb*'
       dnf install -y centreon-web-${version}
       echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
-      service mysql start
+      /etc/init.d/mysql start
       mkdir -p /run/php-fpm
       /usr/sbin/php-fpm
       httpd -k start
@@ -169,6 +191,7 @@ const insertResources = (): Cypress.Chainable => {
 
 export {
   checkIfSystemUserRoot,
+  getCentreonStableMinorVersions,
   installCentreon,
   updatePlatformPackages,
   checkPlatformVersion,
