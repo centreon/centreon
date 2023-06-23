@@ -144,16 +144,12 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        esi.esi_notes_url,
                        esi.graph_id,
                        severity.sc_id as severity_id,
-                       GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids,
-                       GROUP_CONCAT(DISTINCT category.sc_id) AS service_categories_ids
+                       GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
                 FROM `:db`.service
                 LEFT JOIN `:db`.extended_service_information esi
                     ON esi.service_service_id = service.service_id
                 LEFT JOIN `:db`.service_categories_relation scr
                     ON scr.service_service_id = service.service_id
-                LEFT JOIN `:db`.service_categories category
-                    ON category.sc_id = scr.sc_id
-                    AND category.level IS NULL
                 LEFT JOIN `:db`.service_categories severity
                     ON severity.sc_id = scr.sc_id
                     AND severity.level IS NOT NULL
@@ -238,16 +234,12 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        esi.esi_notes_url,
                        esi.graph_id,
                        severity.sc_id as severity_id,
-                       GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids,
-                       GROUP_CONCAT(DISTINCT category.sc_id) AS service_categories_ids
+                       GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
                 FROM `:db`.service
                 LEFT JOIN `:db`.extended_service_information esi
                     ON esi.service_service_id = service.service_id
                 LEFT JOIN `:db`.service_categories_relation scr
                     ON scr.service_service_id = service.service_id
-                LEFT JOIN `:db`.service_categories category
-                    ON category.sc_id = scr.sc_id
-                    AND category.level IS NULL
                 LEFT JOIN `:db`.service_categories severity
                     ON severity.sc_id = scr.sc_id
                     AND severity.level IS NOT NULL
@@ -349,13 +341,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             )
             : [];
 
-        $serviceCategoriesIds = $data['service_categories_ids'] !== null
-            ? array_map(
-                fn (mixed $serviceCategoryId): int => (int) $serviceCategoryId,
-                explode(',', $data['service_categories_ids'])
-            )
-            : [];
-
         return new ServiceTemplate(
             (int) $data['service_id'],
             $data['service_description'],
@@ -364,7 +349,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             $extractCommandArgument($data['command_command_id_arg2']),
             $this->createNotificationType($data['service_notification_options']),
             $hostTemplateIds,
-            $serviceCategoriesIds,
             $data['contact_additive_inheritance'] === 1,
             $data['cg_additive_inheritance'] === 1,
             $data['service_activate'] === '1',

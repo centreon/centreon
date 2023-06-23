@@ -110,7 +110,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                     ON arhr.acl_res_id = res.acl_res_id
                 INNER JOIN `:db`.acl_res_group_relations argr
                     ON res.acl_res_id = argr.acl_res_id
-                WHERE scr.sc_id = IN (:service_categories_ids)
+                WHERE scr.sc_id IN (:service_categories_ids)
                     AND sc.level IS NULL
                     AND argr.acl_group_id IN (:access_group_ids)
                 SQL
@@ -232,12 +232,6 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
             FROM `:db`.service_categories sc
             INNER JOIN `:db`.service_categories_relation scr
                 ON scr.sc_id = sc.sc_id
-            INNER JOIN `:db`.acl_resources_sc_relations arhr
-                ON sc.sc_id = arhr.sc_id
-            INNER JOIN `:db`.acl_resources res
-                ON arhr.acl_res_id = res.acl_res_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
             WHERE scr.service_service_id = :service_id
                 AND sc.level IS NULL
             SQL
@@ -282,15 +276,17 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
                     ON arhr.acl_res_id = res.acl_res_id
                 INNER JOIN `:db`.acl_res_group_relations argr
                     ON res.acl_res_id = argr.acl_res_id
-                WHERE scr.sc_id = :service_id
+                WHERE scr.service_service_id = :service_id
                     AND sc.level IS NULL
                     AND argr.acl_group_id IN (:access_group_ids)
+                GROUP BY sc.sc_id
                 SQL
             )
         );
         $sqlConcatenator->storeBindValue(':service_id', $serviceId, \PDO::PARAM_INT);
         $sqlConcatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT);
         $statement = $this->db->prepare((string) $sqlConcatenator);
+        $sqlConcatenator->bindValuesToStatement($statement);
         $statement->execute();
         $serviceCategories = [];
 

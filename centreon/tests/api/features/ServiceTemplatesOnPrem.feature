@@ -171,7 +171,6 @@ Feature:
                     3,
                     11
                 ],
-                "service_categories": [],
                 "is_activated": true,
                 "is_locked": false
             }
@@ -253,10 +252,6 @@ Feature:
                 "host_templates": [
                     2,
                     3
-                ],
-                "service_categories": [
-                    1,
-                    4
                 ],
                 "is_activated": true,
                 "is_locked": false

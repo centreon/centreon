@@ -53,7 +53,6 @@ class ServiceTemplate
      * @param list<mixed> $eventHandlerArguments
      * @param NotificationType[] $notificationTypes
      * @param list<int> $hostTemplateIds
-     * @param list<int> $serviceCategoryIds
      * @param bool $contactAdditiveInheritance
      * @param bool $contactGroupAdditiveInheritance
      * @param bool $isActivated
@@ -99,7 +98,6 @@ class ServiceTemplate
         array $eventHandlerArguments = [],
         private array $notificationTypes = [],
         private array $hostTemplateIds = [],
-        private array $serviceCategoryIds = [],
         private bool $contactAdditiveInheritance = false,
         private bool $contactGroupAdditiveInheritance = false,
         private bool $isActivated = true,
@@ -187,9 +185,6 @@ class ServiceTemplate
 
         foreach ($this->hostTemplateIds as $hostTemplateId) {
             Assertion::positiveInt($hostTemplateId, $className . '::hostTemplateIds');
-        }
-        foreach ($this->serviceCategoryIds as $serviceCategory) {
-            Assertion::positiveInt($serviceCategory, $className . '::serviceCategoryIds');
         }
 
         $properties = [
@@ -561,13 +556,5 @@ class ServiceTemplate
     public function getHostTemplateIds(): array
     {
         return $this->hostTemplateIds;
-    }
-
-    /**
-     * @return list<int>
-     */
-    public function getServiceCategoryIds(): array
-    {
-        return $this->serviceCategoryIds;
     }
 }

@@ -67,6 +67,10 @@ final class FindServiceTemplates
             }
 
             $serviceTemplates = $this->repository->findByRequestParameter($this->requestParameters);
+
+            if ($this->user->isAdmin()) {
+
+            }
             $presenter->presentResponse($this->createResponse($serviceTemplates));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
@@ -127,7 +131,6 @@ final class FindServiceTemplates
             $dto->serviceTemplateId = $serviceTemplate->getServiceTemplateParentId();
             $dto->severityId = $serviceTemplate->getSeverityId();
             $dto->hostTemplateIds = $serviceTemplate->getHostTemplateIds();
-            $dto->serviceCategoriesIds = $serviceTemplate->getServiceCategoryIds();
 
             $response->serviceTemplates[] = $dto;
         }

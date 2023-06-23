@@ -29,7 +29,6 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\NewServiceCategory;
-use Utility\SqlConcatenator;
 
 class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements WriteServiceCategoryRepositoryInterface
 {
@@ -141,17 +140,25 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
                 $this->db->beginTransaction();
             }
 
-            $request = $this->translateDbName(<<<'SQL'
+            $bindServiceCategoriesIds = [];
+            foreach ($serviceCategoriesIds as $index => $serviceCategoriesId) {
+                $bindServiceCategoriesIds[':service_categories_' . $index] = [\PDO::PARAM_INT => $serviceCategoriesId];
+            }
+            $serviceCategoriesFields = implode(',', array_keys($bindServiceCategoriesIds));
+
+            $request = $this->translateDbName(<<<"SQL"
                 DELETE FROM `:db`.service_categories_relation
                 WHERE service_service_id = :service_id
-                AND sc_id IN (:service_categories_ids)
+                AND sc_id IN ({$serviceCategoriesFields})
                 SQL
             );
-            $sqlConcatenator = new SqlConcatenator();
-            $sqlConcatenator->defineSelect($request);
-            $sqlConcatenator->storeBindValue(':service_id', $serviceId, \PDO::PARAM_INT);
-            $sqlConcatenator->storeBindValueMultiple(':service_categories_ids', $serviceCategoriesIds, \PDO::PARAM_INT);
-            $statement = $this->db->prepare((string) $sqlConcatenator);
+
+            $statement = $this->db->prepare($request);
+            $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+            foreach ($bindServiceCategoriesIds as $field => $details) {
+                $type = key($details);
+                $statement->bindValue($field, $details[$type], $type);
+            }
             $statement->execute();
 
             if (! $alreadyInTransaction) {

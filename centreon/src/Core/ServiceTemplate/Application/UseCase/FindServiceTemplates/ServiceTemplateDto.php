@@ -106,9 +106,6 @@ final class ServiceTemplateDto
     /** @var list<int> */
     public array $hostTemplateIds = [];
 
-    /** @var list<int> */
-    public array $serviceCategoriesIds = [];
-
     public int|null $recoveryNotificationDelay = null;
 
     public int|null $retryCheckInterval = null;

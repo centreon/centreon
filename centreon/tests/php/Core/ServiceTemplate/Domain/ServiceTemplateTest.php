@@ -129,7 +129,6 @@ foreach (
 foreach (
     [
         'hostTemplateIds',
-        'serviceCategoryIds',
     ] as $field
 ) {
     it(

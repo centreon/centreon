@@ -56,7 +56,6 @@ beforeEach(closure: function (): void {
         ['c', 'd'],
         [NotificationType::Unknown],
         [2, 3],
-        [5, 6],
         true,
         true,
         true,
@@ -137,7 +136,6 @@ beforeEach(closure: function (): void {
     $this->serviceTemplateDto->isActivated = $this->serviceTemplateFound->isActivated();
     $this->serviceTemplateDto->isLocked = $this->serviceTemplateFound->isLocked();
     $this->serviceTemplateDto->hostTemplateIds = $this->serviceTemplateFound->getHostTemplateIds();
-    $this->serviceTemplateDto->serviceCategoriesIds = $this->serviceTemplateFound->getServiceCategoryIds();
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
@@ -282,5 +280,4 @@ it('should present a FindHostTemplatesResponse when user has read or write right
     expect($dto->isActivated)->toBe($this->serviceTemplateFound->isActivated());
     expect($dto->isLocked)->toBe($this->serviceTemplateFound->isLocked());
     expect($dto->hostTemplateIds)->toBe($this->serviceTemplateFound->getHostTemplateIds());
-    expect($dto->serviceCategoriesIds)->toBe($this->serviceTemplateFound->getServiceCategoryIds());
 });
