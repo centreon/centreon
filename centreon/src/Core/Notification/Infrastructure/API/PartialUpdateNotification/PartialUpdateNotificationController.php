@@ -55,7 +55,7 @@ final class PartialUpdateNotificationController extends AbstractController
 
         try {
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateNotificationSchema.json');
-
+            /** @var array{is_activated?: bool} $requestDto */
             $requestDto = new PartialUpdateNotificationRequest();
 
             if (\array_key_exists('is_activated', $data)) {
