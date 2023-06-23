@@ -164,12 +164,22 @@ jobs:
   sca-scan:
     needs: [build]
     name: Run a SCA scan
+    # only stable and unstable maintenances branches will produce a report
+    if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
     continue-on-error: true
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: debud
+        run: |
+          which node
+          which npm
+          npm -v
+          node -v
+          npm ci
 
       - name: SCA scan
         env:
@@ -183,5 +193,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create-issues: false
           fail-on-cvss: 8
-          #recursive: true
           path: "./${{ inputs.module_directory }}"
