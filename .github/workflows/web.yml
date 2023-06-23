@@ -102,7 +102,6 @@ jobs:
 
   backend-dependencies:
     needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
     runs-on: ubuntu-22.04
 
     steps:
