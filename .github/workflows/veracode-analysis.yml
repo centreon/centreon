@@ -181,7 +181,8 @@ jobs:
           if [[ -f package-lock.json ]]; then
             echo "[DEBUG] - Found a 'package-lock.json'"
             RESULT=0
-            npm ci --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
+            #npm ci --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
+            npm ci --force --omit=dev 1>/dev/null || RESULT=$( echo $? )
             if [[ $RESULT -ne 0 ]]; then
               echo "[DEBUG] - Failure of '$ npm ci'. Deleting the 'package-lock.json' to generate a new one"
               rm -f package-lock.json
@@ -203,6 +204,8 @@ jobs:
               echo "[DEBUG] - 'package-lock.json' seems ready for the analysis"
             fi
           fi
+
+          find ./ -type f -name "package*.json"
 
       - name: SCA scan
         env:
