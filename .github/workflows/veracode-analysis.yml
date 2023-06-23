@@ -165,7 +165,7 @@ jobs:
     needs: [build]
     name: Run a SCA scan
     # only stable and unstable maintenances branches will produce a report
-    #if: needs.build.outputs.development_stage != 'Development'
+    if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
     continue-on-error: true
 
@@ -194,12 +194,13 @@ jobs:
           if [[ -f package.json && REINSTALL_PACKAGE_JSON != 'false' ]]; then
             echo "[DEBUG] - Found a 'package.json'"
             RESULT=0
+            echo "[DEBUG] - Generate a 'package-lock.json'"
             npm i --package-lock-only --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
             if [[ $RESULT -ne 0 ]]; then
               echo "[DEBUG] - Failure of '$ npm install'. Deleting the 'package.json' to avoid analysis failure"
               rm -f package.json
             else
-              echo "[DEBUG] - 'package-lock.json' seems ready for analysis"
+              echo "[DEBUG] - 'package-lock.json' ready for analysis"
             fi
           fi
 
