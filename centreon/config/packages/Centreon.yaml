@@ -41,6 +41,11 @@ services:
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
+    Core\Security\:
+        resource: '../../src/Core/Security/*'
+        bind:
+            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
+
     Logger:
         class: Centreon\Domain\Log\Logger
 
