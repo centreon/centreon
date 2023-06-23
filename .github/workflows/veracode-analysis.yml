@@ -180,14 +180,15 @@ jobs:
           npm -v
           node -v
           npm ci
+
           RESULT=0
           if [[ -f package-lock.json ]]; then
-            npm ci || RESULT=$( echo $? )
+            npm ci --legacy-peer-dep --omit=dev || RESULT=$( echo $? )
             if [[ $RESULT -ne 0 ]]; then
               RESULT=0
               rm -f package-lock.json
               if [[ -f package.json ]]; then
-                npm ci || RESULT=$( echo $? )
+                npm i --package-lock-only --legacy-peer-dep --omit=dev || RESULT=$( echo $? )
                 if [[ $RESULT -ne 0 ]]; then
                   RESULT=0
                   rm -f package.json
