@@ -142,7 +142,7 @@ jobs:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
 
-      - name: Run a sandbox scan
+      - name: Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
         continue-on-error: true
         with:
@@ -177,10 +177,10 @@ jobs:
           ls -la "./${{ inputs.module_directory }}"
 
 
-      - name: Run SCA scan and publish results
+      - name: SCA scan
         env:
           SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
-          #SRCCLR_REGION: "ER"
+          SRCCLR_REGION: "ER"
 
         uses: veracode/veracode-sca@v1.0.8
         # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan ./centreon-dsm --debug
