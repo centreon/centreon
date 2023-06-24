@@ -48,12 +48,7 @@ const useDeleteRequest = ({
 
   const onConfirm = (): void => {
     mutateAsync(payload || {}).then((response) => {
-      const {
-        isError,
-        statusCode,
-        message,
-        additionalInformation: data
-      } = response as ResponseError;
+      const { isError, statusCode, message, data } = response as ResponseError;
 
       if (isError) {
         return;
