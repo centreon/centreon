@@ -68,9 +68,6 @@ final class FindServiceTemplates
 
             $serviceTemplates = $this->repository->findByRequestParameter($this->requestParameters);
 
-            if ($this->user->isAdmin()) {
-
-            }
             $presenter->presentResponse($this->createResponse($serviceTemplates));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
