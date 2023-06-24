@@ -18,7 +18,7 @@ import {
 import { editedNotificationIdAtom, panelModeAtom } from '../EditPanel/atom';
 import { PanelMode } from '../EditPanel/models';
 
-import Actions from './Actions/HeaderActions';
+import { Actions } from './Header';
 import useListingColumns from './columns';
 import useLoadingNotifications from './useLoadNotifications';
 

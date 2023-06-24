@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -9,15 +8,10 @@ import { Box } from '@mui/material';
 import { IconButton } from '@centreon/ui';
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import DuplicateDialog from '../../../Dialogs/DuplicateDialog';
-import { labelDuplicate } from '../../../translatedLabels';
+import DuplicateDialog from '../../Dialogs/DuplicateDialog';
+import { labelDuplicate } from '../../translatedLabels';
 
-const useStyles = makeStyles()((theme) => ({
-  icon: {
-    color: theme.palette.primary.main,
-    fontSize: theme.spacing(2.25)
-  }
-}));
+import useStyles from './Actions.styles';
 
 const DuplicateAction = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useStyles();
@@ -41,7 +35,7 @@ const DuplicateAction = ({ row }: ComponentColumnProps): JSX.Element => {
         title={t(labelDuplicate)}
         onClick={onClick}
       >
-        <ContentCopyIcon className={classes.icon} color="primary" />
+        <ContentCopyIcon className={classes.duplicateicon} color="primary" />
       </IconButton>
       <DuplicateDialog
         open={dialogOpen}

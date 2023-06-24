@@ -16,7 +16,7 @@ import { PanelMode } from './models';
 import { notificationEndpoint } from './api/endpoints';
 import { notificationdecoder } from './api/decoders';
 import ReducePanel from './ReducePanel';
-import Header from './Header';
+import { Header } from './Header';
 
 const Form = (): JSX.Element => {
   const { classes } = useStyles();

@@ -11,8 +11,7 @@ import {
 } from '../translatedLabels';
 
 import { FormatChannels, formatResourcesForListing } from './utils';
-import Actions from './Actions/RowActions';
-import ActionActivate from './Actions/RowActions/Activate';
+import { Actions, Activate } from './Actions';
 
 export const defaultQueryParams = {
   limit: 10,
@@ -124,7 +123,7 @@ export const getListingColumns = (): Array<Column> => [
     type: ColumnType.component
   },
   {
-    Component: ActionActivate,
+    Component: Activate,
     clickable: true,
     disablePadding: false,
     id: 'isActivated',
