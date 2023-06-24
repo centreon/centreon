@@ -23,7 +23,7 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
 //error specific content
-$versionOfTheUpgrade = 'UPGRADE - 22.10.12: ';
+$versionOfTheUpgrade = 'UPGRADE - 22.10.10: ';
 $errorMessage = '';
 
 //Change the type of check_attempt and max_check_attempts columns from table resources
