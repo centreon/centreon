@@ -92,7 +92,7 @@ describe('Edit Panel', () => {
   it('Ensures that the header section displays all the expected actions', () => {
     cy.waitForRequest('@listingRequest');
 
-    cy.findByLabelText('delete a notification').should('be.visible');
+    cy.findByLabelText(labelDeleteNotification).should('be.visible');
     cy.findByLabelText(labelSave).should('be.visible');
     cy.findByLabelText(labelDuplicate).should('be.visible');
     cy.findByLabelText(labelActiveOrInactive).should('be.visible');
@@ -447,7 +447,7 @@ describe('Edit Panel: Delete button', () => {
     cy.waitForRequest('@listingRequest');
 
     const message = `${labelDelete} « Notifications 1 ».`;
-    cy.findByTestId('delete a notification').click();
+    cy.findByTestId(labelDeleteNotification).click();
     cy.findByText(message);
     cy.findByText(labelDeleteNotification);
     cy.findByText(labelDeleteNotificationWarning);
@@ -459,7 +459,7 @@ describe('Edit Panel: Delete button', () => {
 
     cy.waitForRequest('@listingRequest');
 
-    cy.findByTestId('delete a notification').click();
+    cy.findByTestId(labelDeleteNotification).click();
     cy.findByLabelText(labelDelete).click();
 
     cy.waitForRequest('@deleteNotificationtRequest');
@@ -483,7 +483,7 @@ describe('Edit Panel: Delete button', () => {
 
     cy.waitForRequest('@listingRequest');
 
-    cy.findByTestId('delete a notification').click();
+    cy.findByTestId(labelDeleteNotification).click();
     cy.findByLabelText(labelDelete).click();
     cy.waitForRequest('@deleteNotificationtRequest');
 
