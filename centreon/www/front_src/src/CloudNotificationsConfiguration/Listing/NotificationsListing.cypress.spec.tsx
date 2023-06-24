@@ -313,7 +313,7 @@ describe('Listing row actions: Delete button', () => {
 
     const message = `${labelDelete} « notification1 ».`;
 
-    cy.findAllByTestId('delete a notification').eq(0).click();
+    cy.findAllByTestId(labelDeleteNotification).eq(0).click();
     cy.findByText(message);
     cy.findByText(labelDeleteNotification);
     cy.findByText(labelDeleteNotificationWarning);
@@ -324,7 +324,7 @@ describe('Listing row actions: Delete button', () => {
   it('displays a success message after successful deletion', () => {
     cy.waitForRequest('@defaultRequest');
 
-    cy.findAllByTestId('delete a notification').eq(0).click();
+    cy.findAllByTestId(labelDeleteNotification).eq(0).click();
     cy.findByLabelText(labelDelete).click();
 
     cy.waitForRequest('@deleteNotificationtRequest');
@@ -349,7 +349,7 @@ describe('Listing row actions: Delete button', () => {
 
     cy.waitForRequest('@defaultRequest');
 
-    cy.findAllByTestId('delete a notification').eq(0).click();
+    cy.findAllByTestId(labelDeleteNotification).eq(0).click();
     cy.findByLabelText(labelDelete).click();
     cy.waitForRequest('@deleteNotificationtRequest');
 
