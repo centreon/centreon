@@ -312,7 +312,6 @@ describe('Listing row actions: Delete button', () => {
     cy.waitForRequest('@defaultRequest');
 
     const message = `${labelDelete} « notification1 ».`;
-
     cy.findAllByTestId(labelDeleteNotification).eq(0).click();
     cy.findByText(message);
     cy.findByText(labelDeleteNotification);
