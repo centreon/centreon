@@ -46,6 +46,7 @@ const DataTableItem = forwardRef(
     return (
       <MuiCard
         className={classes.dataTableItem}
+        data-item-title={title}
         ref={ref as RefObject<HTMLDivElement>}
         variant="outlined"
       >
