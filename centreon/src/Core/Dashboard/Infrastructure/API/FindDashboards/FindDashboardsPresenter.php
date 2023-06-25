@@ -56,6 +56,7 @@ final class FindDashboardsPresenter extends DefaultPresenter implements FindDash
                     'updated_by' => $this->userToOptionalArray($dashboard->updatedBy),
                     'created_at' => $this->formatDateToIso8601($dashboard->createdAt),
                     'updated_at' => $this->formatDateToIso8601($dashboard->updatedAt),
+                    'own_role' => $dashboard->ownRole,
                 ];
             }
 

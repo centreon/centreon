@@ -37,6 +37,7 @@ final class FindDashboardResponse
      * @param \DateTimeImmutable $createdAt
      * @param \DateTimeImmutable $updatedAt
      * @param array<PanelResponseDto> $panels
+     * @param string $ownRole
      */
     public function __construct(
         public int $id = 0,
@@ -47,6 +48,7 @@ final class FindDashboardResponse
         public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
         public \DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
         public array $panels = [],
+        public string $ownRole = '',
     ) {
     }
 }

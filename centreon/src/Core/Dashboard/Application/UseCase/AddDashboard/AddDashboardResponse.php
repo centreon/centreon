@@ -35,6 +35,7 @@ final class AddDashboardResponse
         public ?UserResponseDto $updatedBy = null,
         public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
         public \DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
+        public string $ownRole = '',
     ) {
     }
 }

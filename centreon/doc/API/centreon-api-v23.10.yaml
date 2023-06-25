@@ -1554,135 +1554,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/users:
-    get:
-      tags:
-      - User
-      summary: Get configured users
-      description: |
-        Get list of configured users
-
-        The available parameters to **search** / **sort_by** are:
-
-        * id
-        * alias
-        * name
-        * email
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Configuration.User'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './v23.10/Configuration/Users/Users.yaml'
   /configuration/users/current/parameters:
-    get:
-      tags:
-      - User
-      summary: "List user parameters"
-      description: "List configured parameters for the current user"
-      responses:
-        '200':
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    description: Contact ID
-                    example: 1
-                  name:
-                    type: string
-                    description: Name of the current user
-                    example: Administrator
-                  alias:
-                    type: string
-                    description: Alias of the current user
-                    example: admin
-                  email:
-                    type: string
-                    description: Email of the current user
-                    example: admin@localhost
-                  timezone:
-                    type: string
-                    description: Timezone for the current user
-                    example: Europe/Paris
-                  locale:
-                    type: string
-                    nullable: true
-                    description: Locale of the current user
-                    example: en_US
-                  is_admin:
-                    type: boolean
-                    description: If the current user is an administrator
-                    example: true
-                  use_deprecated_pages:
-                    type: boolean
-                    description: Indicates if user wants to use deprecated monitoring pages
-                    example: false
-                  theme:
-                    type: string
-                    description: Selected theme of the current user
-                    example: light
-                  user_interface_density:
-                    type: string
-                    description: Selected user interface density for the current user
-                    example: extended
-                    default: compact
-                  default_page:
-                    type: string
-                    nullable: true
-                    description: Default page for the current user
-                    example: '/main.php?p=60901'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    patch:
-      tags:
-      - User
-      summary: Update a user
-      description: |
-        Update a user
-
-        The available parameters to be updated are :
-
-        * theme
-        * user_interface_density
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                theme:
-                  type: string
-                  description: Theme
-                  enum: [ light, dark ]
-                  example: light
-                user_interface_density:
-                  type: string
-                  description: User interface view mode
-                  enum: [ compact, extended ]
-                  example: extended
-      responses:
-        204:
-          description: "User updated"
-        403:
-          $ref: '#/components/responses/Forbidden'
-        500:
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './v23.10/Configuration/Users/CurrentParameters.yaml'
   /configuration/contacts/templates:
     get:
       tags:
@@ -6396,25 +6270,6 @@ components:
           type: string
           description: "Time range for the day"
           example: "00:00-06:00,07:00-08:00"
-    Configuration.User:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: User id
-          example: 1
-        alias:
-          type: string
-          description: User alias / login
-          example: admin
-        email:
-          type: string
-          description: email address
-          example: root@localhost
-        is_admin:
-          type: boolean
-          description: is admin or not
-          example: true
     Configuration.Host.Category:
       type: object
       properties:

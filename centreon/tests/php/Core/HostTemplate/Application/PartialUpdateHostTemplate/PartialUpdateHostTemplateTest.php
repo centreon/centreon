@@ -34,6 +34,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
+use Core\Host\Application\InheritanceManager;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
@@ -42,6 +43,7 @@ use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\HostMacro\Domain\Model\HostMacro;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate\PartialUpdateHostTemplate;
 use Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate\PartialUpdateHostTemplateRequest;
 use Core\HostTemplate\Domain\Model\HostTemplate;
@@ -72,11 +74,17 @@ beforeEach(function () {
         $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
         $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class),
+        $this->inheritanceManager = $this->createMock(InheritanceManager::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
     );
 
     $this->request = new PartialUpdateHostTemplateRequest();
+
+    // Settup parent templates
+    $this->parentTemplates = [2, 3];
+    $this->request->templates = $this->parentTemplates;
 
     // Settup macros
     $this->macroA = new HostMacro($this->hostTemplateId, 'macroNameA', 'macroValueA');
@@ -92,7 +100,8 @@ beforeEach(function () {
         $this->macroB->getName() => $this->macroB,
     ];
     $this->inheritanceLineIds = [
-        ['parent_id' => 2, 'child_id' => 1, 'order' => 1],
+        ['child_id' => 1, 'parent_id' => $this->parentTemplates[0], 'order' => 0],
+        ['child_id' => $this->parentTemplates[0], 'parent_id' => $this->parentTemplates[1], 'order' => 1],
     ];
 
     $this->request->macros = [
@@ -187,15 +196,104 @@ it('should present a InvalidArgumentResponse when the host template is locked', 
         ->toBe(HostTemplateException::hostIsLocked($hostTemplate->getId())->getMessage());
 });
 
-it('should present a ConflictResponse when a host category does not exist', function () {
+it('should present a ConflictResponse when a parent template ID is not valid', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
         ->willReturn(true);
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
         ->willReturn($this->hostTemplate);
+
+    // Parent templates
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn([]);
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId );
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(
+            HostTemplateException::idsDoNotExist(
+                'templates',
+                 $this->request->templates
+            )->getMessage()
+        );
+});
+
+it('should present a ConflictResponse when a parent template create a circular inheritance', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->hostTemplate);
+
+    // Parent templates
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn($this->parentTemplates);
+    $this->inheritanceManager
+        ->expects($this->once())
+        ->method('isValidInheritanceTree')
+        ->willReturn(false);
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId );
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(
+            HostTemplateException::circularTemplateInheritance()->getMessage()
+        );
+});
+
+it('should present a ConflictResponse when a host category does not exist', function () {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->atLeast(2))
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->hostTemplate);
+
+    // Parent templates
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn($this->parentTemplates);
+    $this->inheritanceManager
+        ->expects($this->once())
+        ->method('isValidInheritanceTree')
+        ->willReturn(true);
+    $this->writeHostTemplateRepository
+        ->expects($this->once())
+        ->method('deleteParents');
+    $this->writeHostTemplateRepository
+        ->expects($this->exactly(2))
+        ->method('addParent');
+
+    // Macros
     $this->hostTemplate
         ->expects($this->atLeastOnce())
         ->method('getId')
@@ -216,7 +314,6 @@ it('should present a ConflictResponse when a host category does not exist', func
         ->expects($this->once())
         ->method('findByCommandIdAndType')
         ->willReturn($this->commandMacros);
-
     $this->writeHostMacroRepository
         ->expects($this->once())
         ->method('delete');
@@ -227,10 +324,7 @@ it('should present a ConflictResponse when a host category does not exist', func
         ->expects($this->once())
         ->method('update');
 
-    $this->user
-        ->expects($this->atLeast(2))
-        ->method('isAdmin')
-        ->willReturn(true);
+    // Categories
     $this->readHostCategoryRepository
         ->expects($this->once())
         ->method('exist')
@@ -249,10 +343,32 @@ it('should present a NoContentResponse on success', function () {
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+    $this->user
+        ->expects($this->atLeast(3))
+        ->method('isAdmin')
+        ->willReturn(true);
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
         ->willReturn($this->hostTemplate);
+
+    // Parent templates
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn($this->parentTemplates);
+    $this->inheritanceManager
+        ->expects($this->once())
+        ->method('isValidInheritanceTree')
+        ->willReturn(true);
+    $this->writeHostTemplateRepository
+        ->expects($this->once())
+        ->method('deleteParents');
+    $this->writeHostTemplateRepository
+        ->expects($this->exactly(2))
+        ->method('addParent');
+
+    // Macros
     $this->hostTemplate
         ->expects($this->atLeastOnce())
         ->method('getId')
@@ -273,7 +389,6 @@ it('should present a NoContentResponse on success', function () {
         ->expects($this->once())
         ->method('findByCommandIdAndType')
         ->willReturn($this->commandMacros);
-
     $this->writeHostMacroRepository
         ->expects($this->once())
         ->method('delete');
@@ -284,10 +399,7 @@ it('should present a NoContentResponse on success', function () {
         ->expects($this->once())
         ->method('update');
 
-    $this->user
-        ->expects($this->atLeast(3))
-        ->method('isAdmin')
-        ->willReturn(true);
+    // Categories
     $this->readHostCategoryRepository
         ->expects($this->once())
         ->method('exist')
@@ -296,11 +408,9 @@ it('should present a NoContentResponse on success', function () {
         ->expects($this->once())
         ->method('findByHost')
         ->willReturn([$this->categoryA]);
-
     $this->writeHostCategoryRepository
         ->expects($this->once())
         ->method('linkToHost');
-
     $this->writeHostCategoryRepository
         ->expects($this->once())
         ->method('unlinkFromHost');

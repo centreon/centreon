@@ -1,5 +1,7 @@
 import ReactGridLayout from 'react-grid-layout';
 
+import { NamedEntity, Dashboard as CentreonDashboard } from '../models';
+
 export interface PanelConfiguration {
   panelMinHeight?: number;
   panelMinWidth?: number;
@@ -18,11 +20,6 @@ export interface Dashboard {
   layout: Array<Panel>;
 }
 
-export interface NamedEntity {
-  id: number;
-  name: string;
-}
-
 export interface PanelDetails extends NamedEntity {
   layout: {
     height: number;
@@ -38,13 +35,8 @@ export interface PanelDetails extends NamedEntity {
   widgetType: string;
 }
 
-export interface DashboardDetails extends NamedEntity {
-  createdAt: string;
-  createdBy: NamedEntity;
-  description: string | null;
+export interface DashboardDetails extends CentreonDashboard {
   panels: Array<PanelDetails>;
-  updatedAt: string;
-  updatedBy: NamedEntity;
 }
 
 export interface PanelDetailsToAPI extends NamedEntity {
