@@ -416,6 +416,9 @@ class OpenIdProvider implements OpenIdProviderInterface
         return $this->idTokenPayload;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getAclConditionsMatches(): array
     {
         return $this->aclConditionsMatches;
