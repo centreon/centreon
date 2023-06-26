@@ -5,7 +5,7 @@
     "additionalProperties": false,
     "required": [
         "name",
-        "timeperiod",
+        "timeperiod_id",
         "users",
         "messages",
         "resources"
@@ -14,7 +14,7 @@
         "name": {
             "type": "string"
         },
-        "timeperiod": {
+        "timeperiod_id": {
             "type": "integer"
         },
         "users": {
