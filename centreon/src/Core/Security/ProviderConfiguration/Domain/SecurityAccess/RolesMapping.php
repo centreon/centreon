@@ -113,7 +113,7 @@ class RolesMapping implements SecurityAccessInterface
      * Validate roles mapping conditions
      *
      * @param array<mixed> $conditions
-     * @param string[] $configuredAuthorizedValues
+     * @param ACLConditions $aclConditions
      * @throws AclConditionsException
      */
     private function validateAclAttributeOrFail(array $conditions, ACLConditions $aclConditions): void
@@ -134,7 +134,7 @@ class RolesMapping implements SecurityAccessInterface
         }
         $configuredClaimValues = $aclConditions->getClaimValues();
         if ($aclConditions->onlyFirstRoleIsApplied() && ! empty($configuredClaimValues)) {
-            foreach($configuredClaimValues as $claimValue) {
+            foreach ($configuredClaimValues as $claimValue) {
                 if (in_array($claimValue, $conditions)) {
                     $this->conditionMatches = [$claimValue];
                     break;
