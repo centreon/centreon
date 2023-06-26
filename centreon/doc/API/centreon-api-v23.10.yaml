@@ -9,6 +9,7 @@ info:
     + Added notification endpoint (POST)
     + Added service templates endpoints (GET)
     + Add host template endpoints (POST, DELETE, PATCH)
+    + Add notification configuration endpoints (PATCH)
     +
     # Updated features
     + Updated host template endpoint (GET)
@@ -252,6 +253,8 @@ paths:
     $ref: "./v23.10/Configuration/Command/FindCommands.yaml"
   /configuration/notifications:
     $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
+  /configuration/notifications/{notification_id}:
+    $ref: "./v23.10/Configuration/Notification/PartialUpdateNotification.yaml"
   /configuration/hosts/templates:
     $ref: './v23.10/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
