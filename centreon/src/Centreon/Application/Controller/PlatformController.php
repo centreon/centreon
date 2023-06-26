@@ -78,7 +78,8 @@ class PlatformController extends AbstractController
                         return $this->extractVersion($version);
                     },
                     $widgetsVersion
-                )
+                ),
+                'is_cloud_platform' => $_SERVER['IS_CLOUD_PLATFORM'] || false
             ]
         );
     }
