@@ -51,4 +51,12 @@ interface SecurityAccessInterface
      * @see AttributePathFetcherInterface
      */
     public function validate(Configuration $configuration, array $identityProviderData): void;
+
+    /**
+     * Get the condition that has matched between IdP and OpenID Configuration.
+     * This allow application to be able to define ACLs for authenticated user
+     *
+     * @return string[]
+     */
+    public function getConditionMatches(): array;
 }
