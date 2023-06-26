@@ -55,7 +55,7 @@ interface WriteServiceTemplateRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function linkToHostTemplates(int $serviceTemplateId, array $hostTemplateIds): void;
+    public function linkToHosts(int $serviceTemplateId, array $hostTemplateIds): void;
 
     /**
      * Unlink all host templates from the service template.
@@ -64,5 +64,5 @@ interface WriteServiceTemplateRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function unlinkHostTemplates(int $serviceTemplateId): void;
+    public function unlinkHosts(int $serviceTemplateId): void;
 }
