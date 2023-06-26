@@ -28,8 +28,10 @@ import {
   SearchParameter
 } from '../../../../api/buildListingEndpoint/models';
 import useFetchQuery from '../../../../api/useFetchQuery';
+import { AutoCompleteChangeData } from '../../../../Form/Inputs/models';
 
 export interface ConnectedAutoCompleteFieldProps<TData> {
+  autocompleteChangeData?: AutoCompleteChangeData;
   conditionField?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
@@ -55,6 +57,7 @@ const ConnectedAutocompleteField = (
     getRenderedOptionText = (option): string => option.name?.toString(),
     getRequestHeaders,
     displayOptionThumbnail,
+    autocompleteChangeData,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -273,6 +276,13 @@ const ConnectedAutocompleteField = (
           : undefined
       );
     }, useDeepCompare([searchConditions]));
+
+    useEffect(() => {
+      if (!autocompleteChangeData) {
+        return;
+      }
+      setSearchParameter(undefined);
+    }, [autocompleteChangeData?.reason, autocompleteChangeData?.value]);
 
     useEffect(() => {
       if (!optionsOpen) {

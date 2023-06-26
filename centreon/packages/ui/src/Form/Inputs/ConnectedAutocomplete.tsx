@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
 import { equals, isEmpty, path, split } from 'ramda';
@@ -11,7 +11,12 @@ import {
 } from '../..';
 import MultiConnectedAutocompleteField from '../../InputField/Select/Autocomplete/Connected/Multi';
 
-import { InputPropsWithoutGroup, InputType } from './models';
+import {
+  AutoCompleteChangeData,
+  InputPropsWithoutGroup,
+  InputType,
+  Reason
+} from './models';
 
 const defaultFilterKey = 'name';
 
@@ -29,6 +34,8 @@ const ConnectedAutocomplete = ({
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
+  const [autocompleteChangeData, setAutocompleteChangeData] =
+    useState<AutoCompleteChangeData>();
   const { values, touched, errors, setFieldValue, setFieldTouched } =
     useFormikContext<FormikValues>();
 
@@ -55,7 +62,9 @@ const ConnectedAutocomplete = ({
   const fieldNamePath = split('.', fieldName);
 
   const changeAutocomplete = useCallback(
-    (_, value): void => {
+    (_, value, reason: Reason): void => {
+      setAutocompleteChangeData({ reason, value });
+
       if (change) {
         change({ setFieldValue, value });
 
@@ -104,6 +113,7 @@ const ConnectedAutocomplete = ({
   return useMemoComponent({
     Component: (
       <AutocompleteField
+        autocompleteChangeData={autocompleteChangeData}
         dataTestId={dataTestId}
         disableClearable={false}
         disabled={disabled}
