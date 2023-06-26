@@ -238,4 +238,6 @@
     --license-manager-error-message-color: var(--color-primary-dark);
     /* widget progress bar value color */
     --widget-progress-bar-value-color: var(--color-white);
+    /* bam acknowledge popup table */
+    --popup-th-color: var(--color-white);
 }

@@ -3012,3 +3012,8 @@ ul.module_list {
     font-size: 0;
 }
 
+/* popup tables of bam */
+.popup_volante table:nth-child(1) tr:nth-child(1) td {
+    color: var(--popup-th-color);
+    font-size: 13px;
+}
