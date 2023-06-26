@@ -122,6 +122,14 @@ jobs:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}
 
+      - if: ${{ inputs.package_extension == 'deb' }}
+        name: Upload package artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages-${{ inputs.package_extension }}
+          path: ./*.${{ inputs.package_extension }}
+          retention-days: 1
+
   sign:
     if: ${{ inputs.package_extension == 'rpm' }}
     needs: [package]
