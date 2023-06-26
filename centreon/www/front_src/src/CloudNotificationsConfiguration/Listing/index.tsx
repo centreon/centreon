@@ -52,7 +52,10 @@ const NotificationsListing = (): JSX.Element => {
 
   useEffect(() => {
     if (listingData) {
-      const names = listingData.result.map((item) => item.name);
+      const names = listingData.result.map((item) => ({
+        id: item.id,
+        name: item.name
+      }));
       setNotificationsNames(names);
     }
   }, [listingData]);
