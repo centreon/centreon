@@ -125,4 +125,15 @@ class Conditions implements SecurityAccessInterface
         $this->info("Conditions found", ["conditions" => $conditionMatches]);
         $this->loginLogger->info($scope, "Conditions found", $conditionMatches);
     }
+
+    /**
+     * Get the condition that has matched between IdP and OpenID Configuration.
+     * This allow application to be able to define ACLs or ContactGroups for authenticated user
+     *
+     * @return string[]
+     */
+    public function getConditionMatches(): array
+    {
+        return [];
+    }
 }

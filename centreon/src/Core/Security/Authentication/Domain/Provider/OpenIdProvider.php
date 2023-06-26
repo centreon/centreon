@@ -116,6 +116,11 @@ class OpenIdProvider implements OpenIdProviderInterface
     private array $connectionTokenResponseContent = [];
 
     /**
+     * @var string[]
+     */
+    private array $aclConditionsMatches = [];
+
+    /**
      * @param HttpClientInterface $client
      * @param UrlGeneratorInterface $router
      * @param ContactServiceInterface $contactService
@@ -409,6 +414,11 @@ class OpenIdProvider implements OpenIdProviderInterface
     public function getIdTokenPayload(): array
     {
         return $this->idTokenPayload;
+    }
+
+    public function getAclConditionsMatches(): array
+    {
+        return $this->aclConditionsMatches;
     }
 
     /**
@@ -717,6 +727,7 @@ class OpenIdProvider implements OpenIdProviderInterface
                 )
                 : $this->idTokenPayload
         );
+        $this->aclConditionsMatches = $this->rolesMapping->getConditionMatches();
 
         $this->groupsMapping->validate(
             $this->configuration,
