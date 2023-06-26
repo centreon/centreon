@@ -232,7 +232,7 @@ class OpenId implements ProviderAuthenticationInterface
      * @param array<string> $claims
      * @return array<int,AccessGroup>
      */
-    public function getUserAccessGroupsFromClaims(array $claims = []): array
+    public function getUserAccessGroupsFromClaims(array $claims): array
     {
         $userAccessGroups = [];
         /** @var CustomConfiguration $customConfiguration */
