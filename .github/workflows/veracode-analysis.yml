@@ -164,7 +164,7 @@ jobs:
   sca-scan:
     needs: [build]
     name: Run a SCA scan
-    # only stable and unstable maintenances branches will produce a report
+    # only stable and unstable maintenance branches will produce a report
     if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
     continue-on-error: true
