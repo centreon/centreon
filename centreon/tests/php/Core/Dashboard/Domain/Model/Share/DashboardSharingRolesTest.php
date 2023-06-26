@@ -21,13 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Dashboard\Domain\Model;
+namespace Tests\Core\Dashboard\Domain\Model\Share;
 
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardContactGroupShare;
-use Core\Dashboard\Domain\Model\DashboardContactShare;
-use Core\Dashboard\Domain\Model\DashboardSharingRole;
-use Core\Dashboard\Domain\Model\DashboardSharingRoles;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
+use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
+use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
+use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 
 beforeEach(function (): void {
     $this->testedDashboard = new Dashboard(
@@ -85,18 +86,17 @@ it(
         ?string $contactRole,
         array $contactGroupRoles
     ): void {
+        $toEnum = static fn(?string $string): ?DashboardSharingRole => $string
+            ? DashboardSharingRoleConverter::fromString($string)
+            : null;
+
         $sharingRoles = new DashboardSharingRoles(
             $this->testedDashboard,
-            $contactRole ? ($this->createContactShare)(DashboardSharingRole::from($contactRole)) : null,
-            ($this->createContactGroupShares)(
-                ...array_map(
-                    static fn(?string $string) => $string ? DashboardSharingRole::from($string) : null,
-                    $contactGroupRoles
-                )
-            ),
+            $contactRole ? ($this->createContactShare)($toEnum($contactRole)) : null,
+            ($this->createContactGroupShares)(...array_map($toEnum, $contactGroupRoles)),
         );
 
-        expect($sharingRoles->getTheMostPermissiveRole()?->value)->toBe($expected);
+        expect($sharingRoles->getTheMostPermissiveRole()?->name)->toBe($toEnum($expected)?->name);
     }
 )->with([
     [null, null, []],

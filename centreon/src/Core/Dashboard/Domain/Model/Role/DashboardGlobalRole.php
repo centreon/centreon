@@ -21,22 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboards\Response;
+namespace Core\Dashboard\Domain\Model\Role;
 
-use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
-use DateTimeImmutable;
-
-final class DashboardResponseDto
+enum DashboardGlobalRole
 {
-    public function __construct(
-        public int $id = 0,
-        public string $name = '',
-        public string $description = '',
-        public ?UserResponseDto $createdBy = null,
-        public ?UserResponseDto $updatedBy = null,
-        public DateTimeImmutable $createdAt = new \DateTimeImmutable(),
-        public DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
-        public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
-    ) {
-    }
+    case Viewer;
+    case Creator;
+    case Administrator;
 }

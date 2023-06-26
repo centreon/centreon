@@ -26,10 +26,11 @@ namespace Core\Dashboard\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Dashboard\Application\Repository\WriteDashboardRelationRepositoryInterface;
-use Core\Dashboard\Domain\Model\DashboardSharingRole;
+use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 
-class DbWriteDashboardRelationRepository extends AbstractRepositoryDRB implements WriteDashboardRelationRepositoryInterface
+class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements WriteDashboardShareRepositoryInterface
 {
     use LoggerTrait;
 
@@ -74,12 +75,12 @@ class DbWriteDashboardRelationRepository extends AbstractRepositoryDRB implement
     /**
      * We want to make the conversion between a role and its string table representation here.
      *
-     * @param DashboardSharingRole $role
+     * @param \Core\Dashboard\Domain\Model\Role\DashboardSharingRole $role
      *
      * @return string
      */
     private function roleToString(DashboardSharingRole $role): string
     {
-        return $role->value;
+        return DashboardSharingRoleConverter::toString($role);
     }
 }

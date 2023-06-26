@@ -31,11 +31,11 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
-use Core\Dashboard\Application\Repository\ReadDashboardRelationRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Dashboard\Domain\Model\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 final class FindDashboard
 {
@@ -44,7 +44,7 @@ final class FindDashboard
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
-        private readonly ReadDashboardRelationRepositoryInterface $readDashboardRelationRepository,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
@@ -136,7 +136,7 @@ final class FindDashboard
             $dashboard,
             $this->readContactRepository->findNamesByIds(...$contactIds),
             $this->readDashboardPanelRepository->findPanelsByDashboardId($dashboard->getId()),
-            $this->readDashboardRelationRepository->getOneSharingRoles($this->contact, $dashboard),
+            $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard),
             $defaultRole
         );
     }

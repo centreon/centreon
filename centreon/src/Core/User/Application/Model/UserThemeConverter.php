@@ -21,22 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindDashboards\Response;
+namespace Core\User\Application\Model;
 
-use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
-use DateTimeImmutable;
+use Core\User\Domain\Model\UserTheme;
 
-final class DashboardResponseDto
+final class UserThemeConverter
 {
-    public function __construct(
-        public int $id = 0,
-        public string $name = '',
-        public string $description = '',
-        public ?UserResponseDto $createdBy = null,
-        public ?UserResponseDto $updatedBy = null,
-        public DateTimeImmutable $createdAt = new \DateTimeImmutable(),
-        public DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
-        public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
-    ) {
+    public static function fromString(?string $string): UserTheme
+    {
+        return match ($string) {
+            // We consider this should NOT fail and because this is not critical, we rely on the default.
+            default => UserTheme::Light,
+            'dark' => UserTheme::Dark,
+        };
     }
 }
