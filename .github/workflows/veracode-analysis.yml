@@ -210,7 +210,7 @@ jobs:
           SRCCLR_REGION: "ER"
 
         uses: veracode/veracode-sca@v1.09
-        # This action is based on following command:
+        # This action is based on the following command:
         # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan "./${{ inputs.module_directory }}" --debug
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
