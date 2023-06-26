@@ -28,6 +28,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Notification\Application\Repository\WriteNotificationRepositoryInterface;
 use Core\Notification\Domain\Model\NewNotification;
+use Core\Notification\Domain\Model\Notification;
 
 class DbWriteNotificationRepository extends AbstractRepositoryRDB implements WriteNotificationRepositoryInterface
 {
@@ -125,6 +126,33 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
         foreach ($bindedValues as $key => $value) {
             $statement->bindValue($key, $value, \PDO::PARAM_INT);
         }
+
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(Notification $notification): void
+    {
+        $this->info('Updating a notification configuration');
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                UPDATE notification
+                SET
+                    name = :name,
+                    timeperiod_id = :timeperiodId,
+                    is_activated = :isActivated
+                WHERE
+                    id = :notificationId
+                SQL
+        ));
+
+        $statement->bindValue(':name', $notification->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':timeperiodId', $notification->getTimePeriod()->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(':isActivated', $notification->isActivated(), \PDO::PARAM_BOOL);
+        $statement->bindValue(':notificationId', $notification->getId(), \PDO::PARAM_INT);
 
         $statement->execute();
     }
