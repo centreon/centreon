@@ -229,4 +229,9 @@ interface ContactInterface
      * @return string|null
      */
     public function getTheme(): ?string;
+
+    /**
+     * @return string|null
+     */
+    public function getUserInterfaceDensity(): ?string;
 }

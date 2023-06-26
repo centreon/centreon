@@ -27,6 +27,8 @@ use Core\Dashboard\Application\UseCase\FindDashboard\Response\PanelResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardPanel;
+use Core\Dashboard\Domain\Model\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\DashboardSharingRoles;
 
 final class FindDashboardFactory
 {
@@ -34,11 +36,19 @@ final class FindDashboardFactory
      * @param Dashboard $dashboard
      * @param array<int, array{id: int, name: string}> $contactNames
      * @param array<DashboardPanel> $panels
+     * @param DashboardSharingRoles $sharingRoles
+     * @param DashboardSharingRole $defaultRole
      *
      * @return FindDashboardResponse
      */
-    public static function createResponse(Dashboard $dashboard, array $contactNames, array $panels): FindDashboardResponse
-    {
+    public static function createResponse(
+        Dashboard $dashboard,
+        array $contactNames,
+        array $panels,
+        DashboardSharingRoles $sharingRoles,
+        DashboardSharingRole $defaultRole
+    ): FindDashboardResponse {
+        $ownRole = $defaultRole->getTheMostPermissiveOfBoth($sharingRoles->getTheMostPermissiveRole());
         $response = new FindDashboardResponse();
 
         $response->id = $dashboard->getId();
@@ -46,6 +56,7 @@ final class FindDashboardFactory
         $response->description = $dashboard->getDescription();
         $response->createdAt = $dashboard->getCreatedAt();
         $response->updatedAt = $dashboard->getUpdatedAt();
+        $response->ownRole = $ownRole->value;
 
         if (null !== ($contactId = $dashboard->getCreatedBy())) {
             $response->createdBy = new UserResponseDto();
