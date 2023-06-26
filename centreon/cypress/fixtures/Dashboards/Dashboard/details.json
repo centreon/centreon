@@ -33,5 +33,6 @@
         "input": "This is an input"
       }
     }
-  ]
+  ],
+  "own_role": "viewer"
 }

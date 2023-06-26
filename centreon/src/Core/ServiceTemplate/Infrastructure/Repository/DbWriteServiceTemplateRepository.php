@@ -299,7 +299,7 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
     /**
      * @inheritDoc
      */
-    public function linkToHostTemplates(int $serviceTemplateId, array $hostTemplateIds): void
+    public function linkToHosts(int $serviceTemplateId, array $hostTemplateIds): void
     {
         if ([] === $hostTemplateIds) {
             return;
@@ -343,7 +343,7 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
     /**
      * @inheritDoc
      */
-    public function unlinkHostTemplates(int $serviceTemplateId): void
+    public function unlinkHosts(int $serviceTemplateId): void
     {
         $alreadyInTransaction = $this->db->inTransaction();
 

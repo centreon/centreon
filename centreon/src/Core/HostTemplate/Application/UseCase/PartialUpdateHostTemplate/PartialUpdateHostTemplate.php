@@ -38,7 +38,7 @@ use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Type\NoValue;
-use Core\Host\Domain\Model\HostInheritance;
+use Core\Host\Application\InheritanceManager;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
@@ -48,6 +48,7 @@ use Core\HostMacro\Domain\Model\HostMacro;
 use Core\HostMacro\Domain\Model\HostMacroDifference;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\HostTemplate\Domain\Model\MacroManager;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -69,6 +70,8 @@ final class PartialUpdateHostTemplate
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
+        private readonly InheritanceManager $inheritanceManager,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
     ) {
@@ -148,6 +151,8 @@ final class PartialUpdateHostTemplate
         try {
             $this->dataStorageEngine->startTransaction();
 
+            // Note: parent templates must be updated before macros for macro inheritance resolution
+            $this->updateParentTemplates($request, $hostTemplate->getId());
             $this->updateMacros($request, $hostTemplate);
             $this->updateCategories($request, $hostTemplate);
 
@@ -235,7 +240,7 @@ final class PartialUpdateHostTemplate
     private function findOriginalMacros(HostTemplate $hostTemplate): array
     {
         $templateParents = $this->readHostTemplateRepository->findParents($hostTemplate->getId());
-        $inheritanceLine = HostInheritance::findInheritanceLine($hostTemplate->getId(), $templateParents);
+        $inheritanceLine = InheritanceManager::findInheritanceLine($hostTemplate->getId(), $templateParents);
         $existingHostMacros
             = $this->readHostMacroRepository->findByHostIds(array_merge([$hostTemplate->getId()], $inheritanceLine));
 
@@ -317,6 +322,72 @@ final class PartialUpdateHostTemplate
 
         if ([] !== ($invalidIds = array_diff($categoryIds, $validCategoryIds))) {
             throw HostTemplateException::idsDoNotExist('categories', $invalidIds);
+        }
+    }
+
+    /**
+     * @param PartialUpdateHostTemplateRequest $dto
+     * @param int $hostTemplateId
+     *
+     * @throws HostTemplateException
+     * @throws \Throwable
+     */
+    private function updateParentTemplates(PartialUpdateHostTemplateRequest $dto, int $hostTemplateId): void
+    {
+        $this->info(
+            'PartialUpdateHostTemplate: Update parent templates',
+            ['host_template_id' => $hostTemplateId, 'template_ids' => $dto->templates]
+        );
+
+        if ($dto->templates instanceOf NoValue) {
+            $this->info('Parent templates not provided, nothing to update');
+
+            return;
+        }
+
+        /** @var int[] $parentTemplateIds */
+        $parentTemplateIds = array_unique($dto->templates);
+
+        $this->assertAreValidTemplates($parentTemplateIds, $hostTemplateId);
+
+        $this->info('Remove parent templates from a host template', ['child_id' => $hostTemplateId]);
+        $this->writeHostTemplateRepository->deleteParents($hostTemplateId);
+
+        foreach ($parentTemplateIds as $order => $templateId) {
+            $this->info('Add a parent template to a host template', [
+                'child_id' => $hostTemplateId, 'parent_id' => $templateId, 'order' => $order,
+            ]);
+            $this->writeHostTemplateRepository->addParent($hostTemplateId, $templateId, $order);
+        }
+    }
+
+    /**
+     * Assert template IDs are valid.
+     *
+     * @param int[] $templateIds
+     * @param int $hostTemplateId
+     *
+     * @throws HostTemplateException
+     * @throws \Throwable
+     */
+    private function assertAreValidTemplates(array $templateIds, int $hostTemplateId): void
+    {
+        if ($templateIds === []) {
+
+            return;
+        }
+
+        $validTemplateIds = $this->readHostTemplateRepository->exist($templateIds);
+
+        if ([] !== ($invalidIds = array_diff($templateIds, $validTemplateIds))) {
+            throw HostTemplateException::idsDoNotExist('templates', $invalidIds);
+        }
+
+        if (
+            in_array($hostTemplateId, $templateIds, true)
+            || false === $this->inheritanceManager->isValidInheritanceTree($hostTemplateId, $templateIds)
+        ) {
+            throw HostTemplateException::circularTemplateInheritance();
         }
     }
 }
