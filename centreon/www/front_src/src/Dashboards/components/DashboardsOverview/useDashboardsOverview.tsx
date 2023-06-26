@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useListDashboards } from '../../api/useListDashboards';
 import { Dashboard, isDashboardList } from '../../api/models';
@@ -13,14 +13,16 @@ const useDashboardsOverview = (): UseDashboardsOverview => {
   const { data, isLoading } = useListDashboards();
 
   const dashboards = useRef<Array<Dashboard>>([]);
+  const [isEmptyList, setIsEmptyList] = useState<boolean>(true);
 
   useEffect(() => {
     dashboards.current = isDashboardList(data) ? data.result : [];
+    setIsEmptyList(dashboards.current.length === 0);
   }, [data]);
 
   return {
     dashboards: dashboards.current,
-    isEmptyList: dashboards.current.length === 0,
+    isEmptyList,
     isLoading
   };
 };

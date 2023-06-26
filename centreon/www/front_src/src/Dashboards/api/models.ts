@@ -55,6 +55,7 @@ export const isDashboard = (value: unknown): value is Dashboard =>
   (value as Dashboard).id !== undefined;
 
 export const isDashboardList = (value: unknown): value is List<Dashboard> =>
+  value !== undefined &&
   Array.isArray((value as List<Dashboard>).result) &&
   (value as List<Dashboard>).result.every(isDashboard);
 

@@ -3,6 +3,7 @@
 import { createStore, Provider } from 'jotai';
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
+import { BrowserRouter } from 'react-router-dom';
 
 import {
   DashboardGlobalRole,
@@ -15,12 +16,11 @@ import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 // import { unstable_Blocker } from 'react-router-dom';
 // import { router } from './useDashboardSaveBlocker';
 import { DashboardRole } from '../api/models';
-import { getDashboardEndpoint } from '../api/endpoints';
+import { dashboardsEndpoint, getDashboardEndpoint } from '../api/endpoints';
 
 import { routerParams } from './useDashboardDetails';
 import { labelEditDashboard } from './translatedLabels';
-
-import Dashboard from '.';
+import { Dashboard } from './Dashboard';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
   const federatedWidgets = [
@@ -144,16 +144,27 @@ const initializeAndMount = ({
     statusCode: 201
   });
 
+  cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
+    cy.interceptAPIRequest({
+      alias: 'getDashboards',
+      method: Method.GET,
+      path: `${dashboardsEndpoint}?**`,
+      response: dashboards
+    });
+  });
+
   cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });
 
   cy.mount({
     Component: (
       <TestQueryProvider>
-        <SnackbarProvider>
-          <Provider store={store}>
-            <Dashboard />
-          </Provider>
-        </SnackbarProvider>
+        <BrowserRouter>
+          <SnackbarProvider>
+            <Provider store={store}>
+              <Dashboard />
+            </Provider>
+          </SnackbarProvider>
+        </BrowserRouter>
       </TestQueryProvider>
     )
   });
