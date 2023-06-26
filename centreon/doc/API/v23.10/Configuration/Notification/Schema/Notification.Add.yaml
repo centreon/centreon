@@ -6,7 +6,7 @@ properties:
     example: "Notification-A"
   is_activated:
     type: boolean
-  timeperiod:
+  timeperiod_id:
     type: integer
     description: Timeperiod during which the notification is sent
   users:
