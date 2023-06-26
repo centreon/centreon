@@ -24,30 +24,34 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\UseCase\AddDashboard;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\WriteDashboardRelationRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
-use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
-use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\NewDashboard;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\DashboardSharingRole;
 
 final class AddDashboard
 {
     use LoggerTrait;
 
+    private DashboardSharingRole $defaultSharingRoleOnCreate;
+
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly WriteDashboardRepositoryInterface $writeDashboardRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly WriteDashboardRelationRepositoryInterface $writeDashboardRelationRepository,
+        private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
     ) {
+        $this->defaultSharingRoleOnCreate = DashboardSharingRole::Editor;
     }
 
     public function __invoke(
@@ -55,10 +59,10 @@ final class AddDashboard
         AddDashboardPresenterInterface $presenter
     ): void {
         try {
-            if ($this->contact->isAdmin()) {
+            if ($this->rights->hasAdminRole()) {
                 $this->info('Add dashboard', ['request' => $request]);
                 $presenter->presentResponse($this->addDashboardAsAdmin($request));
-            } elseif ($this->contactCanPerformWriteOperations()) {
+            } elseif ($this->rights->canCreate()) {
                 $this->info('Add dashboard', ['request' => $request]);
                 $presenter->presentResponse($this->addDashboardAsContact($request));
             } else {
@@ -92,12 +96,12 @@ final class AddDashboard
      */
     private function addDashboardAsAdmin(AddDashboardRequest $request): AddDashboardResponse
     {
-        $newDashboard = $this->createNewDashboard($request);
-        $newDashboardId = $this->writeDashboardRepository->add($newDashboard);
+        $newDashboardId = $this->addDashboard($request);
+
         $dashboard = $this->readDashboardRepository->findOne($newDashboardId)
             ?? throw DashboardException::errorWhileRetrievingJustCreated();
 
-        return $this->createResponse($dashboard);
+        return AddDashboardFactory::createResponse($dashboard, $this->contact, $this->defaultSharingRoleOnCreate);
     }
 
     /**
@@ -110,67 +114,45 @@ final class AddDashboard
      */
     private function addDashboardAsContact(AddDashboardRequest $request): AddDashboardResponse
     {
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
-        $newDashboard = $this->createNewDashboard($request);
+        $newDashboardId = $this->addDashboard($request);
 
-        $newDashboardId = $this->writeDashboardRepository->add($newDashboard);
-
-        // Retrieve the Dashboard for the response.
-        $dashboard = $this->readDashboardRepository->findOneByAccessGroups($newDashboardId, $accessGroups)
+        $dashboard = $this->readDashboardRepository->findOneByContact($newDashboardId, $this->contact)
             ?? throw DashboardException::errorWhileRetrievingJustCreated();
 
-        return $this->createResponse($dashboard);
-    }
-
-    /**
-     * @return bool
-     */
-    private function contactCanPerformWriteOperations(): bool
-    {
-        return $this->contact->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_WRITE);
+        return AddDashboardFactory::createResponse($dashboard, $this->contact, $this->defaultSharingRoleOnCreate);
     }
 
     /**
      * @param AddDashboardRequest $request
      *
-     * @throws AssertionFailedException
+     * @throws \Throwable
+     * @throws DashboardException
      *
-     * @return NewDashboard
+     * @return int
      */
-    private function createNewDashboard(AddDashboardRequest $request): NewDashboard
+    private function addDashboard(AddDashboardRequest $request): int
     {
-        $dashboard = new NewDashboard(
-            $request->name,
-            $this->contact->getId()
-        );
-        $dashboard->setDescription($request->description);
+        $newDashboard = AddDashboardFactory::createNewDashboard($request, $this->contact);
 
-        return $dashboard;
-    }
+        try {
+            $this->dataStorageEngine->startTransaction();
 
-    /**
-     * @param Dashboard $dashboard
-     *
-     * @return AddDashboardResponse
-     */
-    private function createResponse(Dashboard $dashboard): AddDashboardResponse
-    {
-        $response = new AddDashboardResponse();
+            $newDashboardId = $this->writeDashboardRepository->add($newDashboard);
 
-        $response->id = $dashboard->getId();
-        $response->name = $dashboard->getName();
-        $response->description = $dashboard->getDescription();
-        $response->createdAt = $dashboard->getCreatedAt();
-        $response->updatedAt = $dashboard->getUpdatedAt();
+            $this->writeDashboardRelationRepository->createShareWithContact(
+                $this->contact->getId(),
+                $newDashboardId,
+                $this->defaultSharingRoleOnCreate
+            );
 
-        $response->createdBy = new UserResponseDto();
-        $response->createdBy->id = $this->contact->getId();
-        $response->createdBy->name = $this->contact->getName();
+            $this->dataStorageEngine->commitTransaction();
+        } catch (\Throwable $ex) {
+            $this->error("Rollback of 'Add Dashboard' transaction.");
+            $this->dataStorageEngine->rollbackTransaction();
 
-        $response->updatedBy = new UserResponseDto();
-        $response->updatedBy->id = $this->contact->getId();
-        $response->updatedBy->name = $this->contact->getName();
+            throw $ex;
+        }
 
-        return $response;
+        return $newDashboardId;
     }
 }

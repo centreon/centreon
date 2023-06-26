@@ -55,7 +55,7 @@ const useSubmitDashboard = (): UseSubmitDashboardState => {
       isUpdateVariant
         ? `${dashboardsEndpoint}/${selectedDashboard?.dashboard?.id}`
         : dashboardsEndpoint,
-    method: isUpdateVariant ? Method.PUT : Method.POST
+    method: isUpdateVariant ? Method.PATCH : Method.POST
   });
 
   const { showSuccessMessage, showErrorMessage } = useSnackbar();

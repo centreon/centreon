@@ -37,7 +37,7 @@ use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
-use Core\Host\Domain\Model\HostInheritance;
+use Core\Host\Application\InheritanceManager;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostMacro\Application\Repository\ReadHostMacroRepositoryInterface;
@@ -297,7 +297,7 @@ final class AddHostTemplate
     private function findAllInheritedMacros(int $hostTemplateId, ?int $checkCommandId): array
     {
         $templateParents = $this->readHostTemplateRepository->findParents($hostTemplateId);
-        $inheritanceLine = HostInheritance::findInheritanceLine($hostTemplateId, $templateParents);
+        $inheritanceLine = InheritanceManager::findInheritanceLine($hostTemplateId, $templateParents);
         $existingHostMacros = $this->readHostMacroRepository->findByHostIds($inheritanceLine);
 
         [, $inheritedMacros] = MacroManager::resolveInheritanceForHostMacro(
