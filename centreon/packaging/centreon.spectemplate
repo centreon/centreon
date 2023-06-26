@@ -80,7 +80,7 @@ BuildRequires: systemd
 Requires:   centreon-common = %{version}-%{release}
 Requires:   centreon-perl-libs = %{version}-%{release}
 Requires:   centreon-poller = %{version}-%{release}
-Requires:   centreon-broker-cbd = %{version}-%{release}
+Requires:   centreon-broker-cbd >= %{thismajor}, centreon-broker-cbd < %{nextmajor}
 Requires:   bc
 Requires:   cronie
 Requires:   initscripts
