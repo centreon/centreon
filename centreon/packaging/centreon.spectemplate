@@ -80,6 +80,7 @@ BuildRequires: systemd
 Requires:   centreon-common = %{version}-%{release}
 Requires:   centreon-perl-libs = %{version}-%{release}
 Requires:   centreon-poller = %{version}-%{release}
+Requires:   centreon-broker-cbd = %{version}-%{release}
 Requires:   bc
 Requires:   cronie
 Requires:   initscripts
@@ -226,9 +227,7 @@ License:    Apache-2.0
 Requires:   centreon-common = %{version}-%{release}
 Requires:   centreon-trap = %{version}-%{release}
 Requires:   centreon-engine >= %{thismajor}, centreon-engine < %{nextmajor}
-Requires:   centreon-broker >= %{thismajor}, centreon-broker < %{nextmajor}
 Requires:   centreon-broker-cbmod >= %{thismajor}, centreon-broker-cbmod < %{nextmajor}
-Requires:   centreon-broker-storage >= %{thismajor}, centreon-broker-storage < %{nextmajor}
 Requires:   centreon-connector >= %{thismajor}, centreon-connector < %{nextmajor}
 Requires:   centreon-gorgone-centreon-config >= %{thismajor}, centreon-gorgone-centreon-config < %{nextmajor}
 Requires:   perl-DBD-MySQL
