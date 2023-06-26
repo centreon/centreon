@@ -25,6 +25,7 @@ namespace Core\Dashboard\Domain\Model;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 
 class DashboardRights
 {

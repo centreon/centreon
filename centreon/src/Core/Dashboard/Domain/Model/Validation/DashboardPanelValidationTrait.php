@@ -21,17 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Domain\Model;
+namespace Core\Dashboard\Domain\Model\Validation;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Dashboard\Domain\Model\DashboardPanel;
 
 /**
  * This trait exists only here for DRY reasons.
  *
- * It gathers all the guard methods of common fields from {@see Dashboard} and {@see NewDashboard} entities.
+ * It gathers all the guard methods of common fields from {@see DashboardPanel} and {@see NewDashboardPanel} entities.
  */
-trait DashboardValidationTrait
+trait DashboardPanelValidationTrait
 {
     /**
      * @param string $name
@@ -41,43 +42,50 @@ trait DashboardValidationTrait
     private function ensureValidName(string $name): void
     {
         $shortName = (new \ReflectionClass($this))->getShortName();
-        Assertion::maxLength($name, Dashboard::MAX_NAME_LENGTH, $shortName . '::name');
-        Assertion::notEmptyString($name, $shortName . '::name');
+        Assertion::maxLength($name, DashboardPanel::MAX_NAME_LENGTH, $shortName . '::name');
     }
 
     /**
-     * @param string $description
+     * @param string $widgetType
      *
      * @throws AssertionFailedException
      */
-    private function ensureValidDescription(string $description): void
+    private function ensureValidWidgetType(string $widgetType): void
     {
         $shortName = (new \ReflectionClass($this))->getShortName();
-        Assertion::maxLength($description, Dashboard::MAX_DESCRIPTION_LENGTH, $shortName . '::description');
+        Assertion::maxLength($widgetType, DashboardPanel::MAX_WIDGET_TYPE_LENGTH, $shortName . '::widgetType');
+        Assertion::notEmptyString($widgetType, $shortName . '::widgetType');
     }
 
     /**
-     * @param int $value
+     * @param array<mixed> $widgetSettings
+     *
+     * @throws AssertionFailedException
+     */
+    private function ensureValidWidgetSettings(array $widgetSettings): void
+    {
+        $shortName = (new \ReflectionClass($this))->getShortName();
+        Assertion::jsonEncodable(
+            $widgetSettings,
+            $shortName . '::widgetType',
+            DashboardPanel::MAX_WIDGET_SETTINGS_LENGTH
+        );
+    }
+
+    /**
+     * @param int $integer
      * @param string $propertyName
      *
      * @throws AssertionFailedException
      */
-    private function ensurePositiveInt(int $value, string $propertyName): void
+    private function ensureValidSmallInteger(int $integer, string $propertyName): void
     {
         $shortName = (new \ReflectionClass($this))->getShortName();
-        Assertion::positiveInt($value, $shortName . '::' . $propertyName);
-    }
-
-    /**
-     * @param ?int $value
-     * @param string $propertyName
-     *
-     * @throws AssertionFailedException
-     */
-    private function ensureNullablePositiveInt(?int $value, string $propertyName): void
-    {
-        if (null !== $value) {
-            $this->ensurePositiveInt($value, $propertyName);
-        }
+        Assertion::range(
+            $integer,
+            DashboardPanel::MIN_SMALL_INTEGER,
+            DashboardPanel::MAX_SMALL_INTEGER,
+            $shortName . '::' . $propertyName
+        );
     }
 }

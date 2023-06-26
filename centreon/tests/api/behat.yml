@@ -16,8 +16,8 @@ default:
         - Centreon\Test\Api\Context\RealTimeCategoryContext
     dashboard:
       paths:
-        - "%paths.base%/features/Dashboard.OpenApiDoc.feature"
-        - "%paths.base%/features/Dashboard.JsonSchema.feature"
+        - "%paths.base%/features/DashboardWithOpenApi.feature"
+        - "%paths.base%/features/DashboardWithoutOpenApi.feature"
       contexts:
         - Centreon\Test\Api\Context\FeatureFlagContext
     host_category:
@@ -66,8 +66,8 @@ default:
         - Centreon\Test\Api\Context\UserFilterContext
     users_configuration:
       paths:
-        - "%paths.base%/features/ConfigurationUsers.OpenApiDoc.feature"
-        - "%paths.base%/features/ConfigurationUsers.JsonSchema.feature"
+        - "%paths.base%/features/ConfigurationUsersWithOpenApi.feature"
+        - "%paths.base%/features/ConfigurationUsersWithoutOpenApi.feature"
       contexts:
         - Centreon\Test\Api\Context\FeatureFlagContext
     check:

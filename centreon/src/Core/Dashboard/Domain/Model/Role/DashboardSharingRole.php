@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Domain\Model;
+namespace Core\Dashboard\Domain\Model\Role;
 
-enum DashboardSharingRole: string
+enum DashboardSharingRole
 {
-    case Viewer = 'viewer';
-    case Editor = 'editor';
+    case Viewer;
+    case Editor;
 
     /**
      * Simple Role comparison to check the role which has the most permissions.
@@ -50,7 +50,7 @@ enum DashboardSharingRole: string
      *
      * @param DashboardSharingRole|null $role
      *
-     * @return $this
+     * @return self
      */
     public function getTheMostPermissiveOfBoth(?self $role): self
     {

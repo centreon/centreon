@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\User\Domain\Model;
 
-enum UserInterfaceDensity: string
+enum UserInterfaceDensity
 {
-    case Compact = 'compact';
-    case Extended = 'extended';
+    case Compact;
+    case Extended;
 }

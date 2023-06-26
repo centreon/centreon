@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\User\Application\UseCase\FindCurrentUserParameters\Response;
 
-use Core\Dashboard\Domain\Model\DashboardGlobalRole;
+use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 
 final class DashboardPermissionsResponseDto
 {
