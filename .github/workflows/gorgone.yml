@@ -41,6 +41,7 @@ jobs:
     secrets:
       veracode_api_id: ${{ secrets.VERACODE_API_ID_GORG }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY_GORG }}
+      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
 
   package:
     needs: [get-version]
