@@ -16,6 +16,7 @@ import {
 } from '../../translatedLabels';
 import { Dashboard } from '../../api/models';
 import routeMap from '../../../reactRoutes/routeMap';
+import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
 
 import { useDashboardsOverview } from './useDashboardsOverview';
 
@@ -26,6 +27,8 @@ const DashboardsOverview = (): ReactElement => {
   const { createDashboard, editDashboard } = useDashboardConfig();
   const { deleteDashboard } = useDashboardDelete();
   const { editAccessRights } = useDashboardAccessRights();
+  const { hasEditPermission, canCreateOrManageDashboards } =
+    useDashboardUserPermissions();
 
   const navigate = useNavigate();
   const navigateToDashboard = (dashboard: Dashboard) => (): void =>
@@ -49,7 +52,7 @@ const DashboardsOverview = (): ReactElement => {
   return (
     <>
       <PageLayout.Actions>
-        {!isEmptyList && (
+        {!isEmptyList && canCreateOrManageDashboards && (
           <Button
             aria-label="create"
             data-testid="create-dashboard"
@@ -66,6 +69,7 @@ const DashboardsOverview = (): ReactElement => {
         {isEmptyList ? (
           <DataTable.EmptyState
             aria-label="create"
+            canCreate={canCreateOrManageDashboards}
             data-testid="create-dashboard"
             labels={labels.emptyState}
             onCreate={createDashboard}
@@ -73,9 +77,9 @@ const DashboardsOverview = (): ReactElement => {
         ) : (
           dashboards.map((dashboard) => (
             <DataTable.Item
-              hasActions
               hasCardAction
               description={dashboard.description ?? undefined}
+              hasActions={hasEditPermission(dashboard)}
               key={dashboard.id}
               title={dashboard.name}
               onClick={navigateToDashboard(dashboard)}

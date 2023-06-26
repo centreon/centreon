@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -22,8 +22,7 @@ import { useDashboardConfig } from '../components/DashboardConfig/useDashboardCo
 import { Dashboard as DashboardType } from '../api/models';
 import { DashboardAccessRightsModal } from '../components/DashboardAccessRights/DashboardAccessRightsModal';
 import { useDashboardAccessRights } from '../components/DashboardAccessRights/useDashboardAccessRights';
-
-import useUserDashboardPermissions from '../useUserDashboardPermissions';
+import { useDashboardUserPermissions } from '../components/DashboardUserPermissions/useDashboardUserPermissions';
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
@@ -43,7 +42,7 @@ const Dashboard = (): ReactElement => {
 
   const isEditing = useAtomValue(isEditingAtom);
 
-  const { hasEditPermission } = useUserDashboardPermissions();
+  const { hasEditPermission } = useDashboardUserPermissions();
 
   const canEdit = useMemo(
     () => dashboard && hasEditPermission(dashboard),
@@ -64,13 +63,13 @@ const Dashboard = (): ReactElement => {
             />
           </PageHeader.Main>
           <PageHeader.Actions>
-            canEdit && (
+            {canEdit && (
               <HeaderActions
                 id={dashboard?.id}
                 name={dashboard?.name}
                 panels={panels}
               />
-            )
+            )}
           </PageHeader.Actions>
         </PageHeader>
       </PageLayout.Header>
@@ -93,7 +92,7 @@ const Dashboard = (): ReactElement => {
                   icon={<ShareIcon />}
                   size="small"
                   variant="ghost"
-                  onClick={editAccessRights(dashboard)}
+                  onClick={editAccessRights(dashboard as DashboardType)}
                 />
               </>
             )}
@@ -121,4 +120,4 @@ const Dashboard = (): ReactElement => {
   );
 };
 
-export default Dashboard;
+export { Dashboard };

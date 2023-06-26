@@ -7,7 +7,7 @@ import { Add as AddIcon } from '@mui/icons-material';
 
 import { Button, Menu } from '@centreon/ui/components';
 
-import { DashboardDetails } from '../../Dashboard/models';
+import { Dashboard } from '../../api/models';
 import routeMap from '../../../reactRoutes/routeMap';
 import { labelCreateADashboard } from '../../translatedLabels';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
@@ -15,7 +15,7 @@ import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import { useDashboardsQuickAccess } from './useDashboardsQuickAccess';
 
 type DashboardsQuickAccessMenuProps = {
-  dashboard?: DashboardDetails;
+  dashboard?: Dashboard;
 };
 
 const DashboardsQuickAccessMenu = ({

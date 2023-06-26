@@ -9,6 +9,8 @@ import { Typography } from '@mui/material';
 
 import { Button, Modal } from '@centreon/ui/components';
 
+import { Dashboard, DashboardPanel } from '../api/models';
+
 import {
   labelEditDashboard,
   labelExit,
@@ -23,15 +25,14 @@ import {
   isEditingAtom,
   switchPanelsEditionModeDerivedAtom
 } from './atoms';
-import { PanelDetails } from './models';
 import { formatPanel } from './useDashboardDetails';
 import useSaveDashboard from './useSaveDashboard';
 import useDashboardDirty from './useDashboardDirty';
 
 interface HeaderActionsProps {
-  id?: number;
+  id?: Dashboard['id'];
   name?: string;
-  panels?: Array<PanelDetails>;
+  panels?: Array<DashboardPanel>;
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars */

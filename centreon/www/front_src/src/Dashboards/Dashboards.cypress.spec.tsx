@@ -1,4 +1,4 @@
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
@@ -8,7 +8,7 @@ import {
 } from '@centreon/ui-context';
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { DashboardRole } from './models';
+import { DashboardRole } from './api/models';
 import { dashboardsEndpoint } from './api/endpoints';
 
 import Dashboards from '.';

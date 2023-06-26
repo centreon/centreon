@@ -10,9 +10,10 @@ import {
   useFetchQuery
 } from '@centreon/ui';
 
-import { Dashboard, List, ListQueryParams, resource } from './models';
+import { Dashboard, resource } from './models';
 import { dashboardsEndpoint } from './endpoints';
 import { dashboardListDecoder } from './decoders';
+import { List, ListQueryParams } from './meta.models';
 
 type UseListDashboardProps<
   TQueryFnData extends List<Dashboard> = List<Dashboard>,

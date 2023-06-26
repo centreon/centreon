@@ -67,6 +67,7 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
       updatedAt,
       createdBy,
       updatedBy,
+      ownRole,
       ...apiAllowedVariables
     } = variables as any;
     /* eslint-enable @typescript-eslint/no-unused-vars */
