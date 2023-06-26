@@ -3,7 +3,7 @@ patch:
     - Notification
   summary: "Partial update a notification definition"
   description: |
-    Partial update a notification definition
+    Partial update of a notification definition
 
     This endpoint does not handle all notification properties.
 
