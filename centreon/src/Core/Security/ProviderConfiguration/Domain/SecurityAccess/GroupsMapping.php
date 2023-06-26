@@ -185,10 +185,7 @@ class GroupsMapping implements SecurityAccessInterface
     }
 
     /**
-     * Get the condition that has matched between IdP and OpenID Configuration.
-     * This allow application to be able to define ACLs or ContactGroups for authenticated user
-     *
-     * @return string[]
+     * @inheritDoc
      */
     public function getConditionMatches(): array
     {
