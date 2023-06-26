@@ -10,6 +10,7 @@ import { Button } from '../../Button';
 import { useStyles } from './DataTableEmptyState.styles';
 
 type ListEmptyStateProps = {
+  canCreate?: boolean;
   labels: {
     actions: {
       create: string;
@@ -21,7 +22,8 @@ type ListEmptyStateProps = {
 
 const DataTableEmptyState = ({
   labels,
-  onCreate
+  onCreate,
+  canCreate = true
 }: ListEmptyStateProps): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -30,14 +32,16 @@ const DataTableEmptyState = ({
     <div className={classes.dataTableEmptyState}>
       <MuiTypography variant="h2">{t(labels.title)}</MuiTypography>
       <div className={classes.actions}>
-        <Button
-          aria-label="create"
-          icon={<AddIcon />}
-          iconVariant="start"
-          onClick={() => onCreate?.()}
-        >
-          {t(labels.actions.create)}
-        </Button>
+        {canCreate && (
+          <Button
+            aria-label="create"
+            icon={<AddIcon />}
+            iconVariant="start"
+            onClick={() => onCreate?.()}
+          >
+            {t(labels.actions.create)}
+          </Button>
+        )}
       </div>
     </div>
   );

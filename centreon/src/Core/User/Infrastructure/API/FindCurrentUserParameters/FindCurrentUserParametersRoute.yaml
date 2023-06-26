@@ -1,0 +1,5 @@
+FindCurrentUserParameters:
+  methods: GET
+  path: /configuration/users/current/parameters
+  controller: 'Core\User\Infrastructure\API\FindCurrentUserParameters\FindCurrentUserParametersController'
+  condition: "request.attributes.get('version') >= 21.10"
