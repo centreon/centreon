@@ -22,7 +22,7 @@ Feature:
     """
     {
       "name": "notification-name",
-      "timeperiod": 2,
+      "timeperiod_id": 2,
       "resources": [
         {
           "type": "hostgroup",
@@ -139,7 +139,7 @@ Feature:
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -170,7 +170,7 @@ Feature:
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -270,7 +270,7 @@ Feature:
     """
     {
       "name": "notification-name",
-      "timeperiod": 1,
+      "timeperiod_id": 1,
       "resources": [
         {
           "type": "hostgroup",
@@ -366,7 +366,7 @@ Feature:
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -458,7 +458,7 @@ Feature:
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -503,7 +503,7 @@ Feature:
     """
     {
       "name": "notification-name",
-      "timeperiod": 1,
+      "timeperiod_id": 1,
       "resources": [
         {
           "type": "hostgroup",
@@ -623,7 +623,7 @@ Feature:
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -730,7 +730,7 @@ Scenario: Notification details as non-admin without sufficient rights
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -781,7 +781,7 @@ Scenario: Notification Update as admin
     """
     {
       "name": "notification-name",
-      "timeperiod": 1,
+      "timeperiod_id": 1,
       "resources": [
         {
           "type": "hostgroup",
@@ -934,7 +934,7 @@ Scenario: Notification Update as non-admin
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",

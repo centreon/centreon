@@ -2,7 +2,7 @@ import { T, always, cond, equals, map, pipe, sum } from 'ramda';
 
 import { EventsType } from '../models';
 
-const adpatIds = (data: Array<{ id: number; name: string }>): Array<number> =>
+const adaptIds = (data: Array<{ id: number; name: string }>): Array<number> =>
   map(({ id }) => id)(data);
 
 const getBinaryEquivalence = cond([
@@ -46,15 +46,15 @@ export const adaptNotifications = ({
       extra: {
         eventsServices: adaptEvents(hostGroups?.extra?.eventsServices)
       },
-      ids: adpatIds(hostGroups.ids),
+      ids: adaptIds(hostGroups.ids),
       type: hostGroups.type
     },
     {
       events: adaptEvents(serviceGroups.events),
-      ids: adpatIds(serviceGroups.ids),
+      ids: adaptIds(serviceGroups.ids),
       type: serviceGroups.type
     }
   ],
-  timeperiod: 1,
-  users: adpatIds(users)
+  timeperiod_id: 1,
+  users: adaptIds(users)
 });
