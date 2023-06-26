@@ -47,6 +47,7 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
                 'created_at' => $this->formatDateToIso8601($data->createdAt),
                 'updated_at' => $this->formatDateToIso8601($data->updatedAt),
                 'panels' => array_map($this->panelToArray(...), $data->panels),
+                'own_role' => $data->ownRole,
             ]);
         } else {
             $this->setResponseStatus($data);

@@ -66,6 +66,7 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
                         'updated_by' => $this->userToOptionalArray($data->updatedBy),
                         'created_at' => $this->formatDateToIso8601($data->createdAt),
                         'updated_at' => $this->formatDateToIso8601($data->updatedAt),
+                        'own_role' => $data->ownRole,
                     ]
                 )
             );
