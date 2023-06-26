@@ -51,6 +51,8 @@ declare module '@mui/material/styles' {
     listingHeader: string;
     panel: string;
     panelGroups: string;
+    paper: string;
+    tooltip: string;
   }
 
   interface TypeLayout {
@@ -147,7 +149,8 @@ export const lightPalette: PaletteOptions = {
     listingHeader: '#666666',
     panel: '#EDEDED',
     panelGroups: '#F5F5F5',
-    paper: '#FFFFFF'
+    paper: '#FFFFFF',
+    tooltip: '#434E5B'
   },
   divider: '#E3E3E3',
   error: {
@@ -276,7 +279,8 @@ export const darkPalette: PaletteOptions = {
     listingHeader: '#666666',
     panel: '#4a4a4a',
     panelGroups: '#252525',
-    paper: '#212121'
+    paper: '#212121',
+    tooltip: '#AAB4C0'
   },
   divider: '#666666',
   error: {

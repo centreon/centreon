@@ -5,8 +5,14 @@ import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/modul
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
 
 // import { unstable_Blocker } from 'react-router-dom';
+import {
+  DashboardGlobalRole,
+  ListingVariant,
+  userAtom
+} from '@centreon/ui-context';
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
+import { DashboardRole } from '../models';
 import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 
 // import { router } from './useDashboardSaveBlocker';
@@ -60,8 +66,70 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
 //   return useBlockerResult;
 // };
 
-const initializeAndMount = (): ReturnType<typeof createStore> => {
+interface InitializeAndMountProps {
+  canAdministrateDashboard?: boolean;
+  canCreateDashboard?: boolean;
+  canViewDashboard?: boolean;
+  globalRole?: DashboardGlobalRole;
+  ownRole?: DashboardRole;
+}
+
+const editorRoles = {
+  canAdministrateDashboard: false,
+  canCreateDashboard: true,
+  canViewDashboard: true,
+  globalRole: DashboardGlobalRole.creator,
+  ownRole: DashboardRole.editor
+};
+
+const viewerRoles = {
+  canAdministrateDashboard: false,
+  canCreateDashboard: false,
+  canViewDashboard: true,
+  globalRole: DashboardGlobalRole.viewer,
+  ownRole: DashboardRole.viewer
+};
+
+const viewerCreatorRoles = {
+  canAdministrateDashboard: false,
+  canCreateDashboard: true,
+  canViewDashboard: true,
+  globalRole: DashboardGlobalRole.creator,
+  ownRole: DashboardRole.viewer
+};
+
+const viewerAdministratorRoles = {
+  canAdministrateDashboard: true,
+  canCreateDashboard: true,
+  canViewDashboard: true,
+  globalRole: DashboardGlobalRole.administrator,
+  ownRole: DashboardRole.viewer
+};
+
+const initializeAndMount = ({
+  ownRole = DashboardRole.editor,
+  globalRole = DashboardGlobalRole.administrator,
+  canCreateDashboard = true,
+  canViewDashboard = true,
+  canAdministrateDashboard = true
+}: InitializeAndMountProps): ReturnType<typeof createStore> => {
   const store = initializeWidgets();
+
+  store.set(userAtom, {
+    alias: 'admin',
+    dashboard: {
+      createDashboards: canCreateDashboard,
+      globalUserRole: globalRole,
+      manageAllDashboards: canAdministrateDashboard,
+      viewDashboards: canViewDashboard
+    },
+    isExportButtonEnabled: true,
+    locale: 'en',
+    name: 'admin',
+    timezone: 'Europe/Paris',
+    use_deprecated_pages: false,
+    user_interface_density: ListingVariant.compact
+  });
 
   cy.viewport('macbook-13');
 
@@ -70,7 +138,10 @@ const initializeAndMount = (): ReturnType<typeof createStore> => {
       alias: 'getDashboardDetails',
       method: Method.GET,
       path: getDashboardEndpoint('1'),
-      response: dashboardDetails
+      response: {
+        ...dashboardDetails,
+        own_role: ownRole
+      }
     });
   });
 
@@ -98,13 +169,16 @@ const initializeAndMount = (): ReturnType<typeof createStore> => {
   return store;
 };
 
-// FIXME the `unstable_Blocker` is conflicting with the default behavior of react-router-dom, feature has been disabled for now
-/*
 describe('Dashboard', () => {
+
+
+  // FIXME the `unstable_Blocker` is conflicting with the default behavior of react-router-dom, feature has been disabled for now
+  /*
+
   it('cancels the dashboard changes when the "Cancel" button is clicked in the confirmation modal', () => {
 
     initializeBlocker();
-    const store = initializeAndMount();
+    const store = initializeAndMount({});
 
     cy.waitForRequest('@getDashboardDetails');
 
@@ -134,7 +208,7 @@ describe('Dashboard', () => {
 
   it('closes the cancel confirmation modal when the modal backdrop is clicked', () => {
     initializeBlocker();
-    const store = initializeAndMount();
+    const store = initializeAndMount({});
 
     cy.waitForRequest('@getDashboardDetails');
 
@@ -155,7 +229,7 @@ describe('Dashboard', () => {
   });
 
   it('displays the cancel confirmation modal when the user tries to navigate away from the dashboard', () => {
-    const store = initializeAndMount();
+    const store = initializeAndMount({});
 
     cy.waitForRequest('@getDashboardDetails');
 
@@ -176,7 +250,7 @@ describe('Dashboard', () => {
 
   it('does not display the cancel confirmation modal when the Exit button is clicked and the dashboard is not updated', () => {
     initializeBlocker();
-    initializeAndMount();
+    initializeAndMount({});
 
     cy.waitForRequest('@getDashboardDetails');
 
@@ -190,7 +264,7 @@ describe('Dashboard', () => {
   });
 
   it('does not display the cancel confirmation modal when the user tries to navigate away from the dashboard and the dashboard is not updated', () => {
-    initializeAndMount();
+    initializeAndMount({});
 
     cy.waitForRequest('@getDashboardDetails');
 
@@ -204,7 +278,7 @@ describe('Dashboard', () => {
   });
 
   it('proceeds the navigation when the corresponding button is clicked and the user tries to navigate away from the dashboard', () => {
-    const store = initializeAndMount();
+    const store = initializeAndMount({});
 
     cy.waitForRequest('@getDashboardDetails');
 
@@ -230,7 +304,7 @@ describe('Dashboard', () => {
 
   it('saves the dashboard when the corresponding button is clicked and the dashboard is changed', () => {
     initializeBlocker();
-    const store = initializeAndMount();
+    const store = initializeAndMount({});
 
     cy.waitForRequest('@getDashboardDetails');
 
@@ -253,5 +327,43 @@ describe('Dashboard', () => {
 
     cy.matchImageSnapshot();
   });
+  */
+  describe('Roles', () => {
+    it('has access to the dashboard edition features when the user has the editor role', () => {
+      initializeBlocker();
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.contains(labelEditDashboard).should('be.visible');
+    });
+
+    it('does not have access to the dashboard edition features when the user has the viewer role and the global viewer role', () => {
+      initializeBlocker();
+      initializeAndMount(viewerRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.contains(labelEditDashboard).should('not.exist');
+    });
+
+    it('does not have access to the dashboard edition features when the user has the viewer role and the global creator role', () => {
+      initializeBlocker();
+      initializeAndMount(viewerCreatorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.contains(labelEditDashboard).should('not.exist');
+    });
+
+    it('has access to the dashboard edition features when the user has the viewer role and the global administrator role', () => {
+      initializeBlocker();
+      initializeAndMount(viewerAdministratorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.contains(labelEditDashboard).should('be.visible');
+    });
+  });
 });
- */
+

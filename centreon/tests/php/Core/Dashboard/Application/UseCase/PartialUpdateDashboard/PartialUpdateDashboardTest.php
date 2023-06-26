@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\Core\Dashboard\Application\UseCase\PartialUpdateDashboard;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -38,8 +37,7 @@ use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardPanel;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Dashboard\Domain\Model\DashboardRights;
 
 beforeEach(function (): void {
     $this->presenter = new PartialUpdateDashboardPresenterStub();
@@ -48,8 +46,8 @@ beforeEach(function (): void {
         $this->writeDashboardRepository = $this->createMock(WriteDashboardRepositoryInterface::class),
         $this->readDashboardPanelRepository = $this->createMock(ReadDashboardPanelRepositoryInterface::class),
         $this->writeDashboardPanelRepository = $this->createMock(WriteDashboardPanelRepositoryInterface::class),
-        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->createMock(DataStorageEngineInterface::class),
+        $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class)
     );
 
@@ -70,14 +68,10 @@ beforeEach(function (): void {
 it(
     'should present an ErrorResponse when a generic exception is thrown',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
-        $this->readDashboardRepository
-            ->expects($this->once())
-            ->method('findOne')
-            ->willThrowException(new \Exception());
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOne')->willThrowException(new \Exception());
 
         ($this->useCase)($this->testedDashboardId, $this->testedPartialUpdateDashboardRequest, $this->presenter);
 
@@ -91,12 +85,9 @@ it(
 it(
     'should present an ErrorResponse with a custom message when a DashboardException is thrown',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
-        $this->readDashboardRepository
-            ->expects($this->once())
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->readDashboardRepository->expects($this->once())
             ->method('findOne')
             ->willThrowException(new DashboardException($msg = uniqid('fake message ', true)));
 
@@ -112,14 +103,10 @@ it(
 it(
     'should present an InvalidArgumentResponse when a model field value is not valid',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
-        $this->readDashboardRepository
-            ->expects($this->once())
-            ->method('findOne')
-            ->willReturn($this->testedDashboard);
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOne')->willReturn($this->testedDashboard);
 
         $this->testedPartialUpdateDashboardRequest->name = '';
         $expectedException = AssertionException::notEmptyString('Dashboard::name');
@@ -136,18 +123,10 @@ it(
 it(
     'should present a ForbiddenResponse when the user does not have the correct role',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_HOME_DASHBOARD_WRITE, false],
-                ]
-            );
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canAccess')->willReturn(false);
 
         ($this->useCase)($this->testedDashboardId, $this->testedPartialUpdateDashboardRequest, $this->presenter);
 
@@ -161,15 +140,14 @@ it(
 it(
     'should present a NoContentResponse as admin',
     function (): void {
-        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
-        $this->contact->expects($this->atLeastOnce())->method('getId')->willReturn(1);
-        $this->writeDashboardRepository
-            ->expects($this->once())
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())
+            ->method('getId')->willReturn(1);
+        $this->writeDashboardRepository->expects($this->once())
             ->method('update');
-        $this->readDashboardRepository
-            ->expects($this->once())
-            ->method('findOne')
-            ->willReturn($this->testedDashboard);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOne')->willReturn($this->testedDashboard);
 
         ($this->useCase)($this->testedDashboardId, $this->testedPartialUpdateDashboardRequest, $this->presenter);
 
@@ -186,8 +164,10 @@ it(
         $updatedAt = null;
         $updatedAtBeforeUseCase = $this->testedDashboardUpdatedAt->getTimestamp();
 
-        $this->contact->expects($this->once())->method('isAdmin')->willReturn(true);
-        $this->contact->expects($this->atLeastOnce())->method('getId')->willReturn(1);
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())
+            ->method('getId')->willReturn(1);
         $this->writeDashboardRepository
             ->expects($this->once())
             ->method('update')
@@ -213,21 +193,12 @@ it(
 );
 
 it(
-    'should present a ForbiddenResponse as allowed READ user',
+    'should present a ForbiddenResponse as not allowed user',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_HOME_DASHBOARD_READ, true],
-                    [Contact::ROLE_HOME_DASHBOARD_WRITE, false],
-                ]
-            );
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canAccess')->willReturn(false);
 
         ($this->useCase)($this->testedDashboardId, $this->testedPartialUpdateDashboardRequest, $this->presenter);
 
@@ -236,30 +207,39 @@ it(
 );
 
 it(
-    'should present a NoContentResponse as allowed READ_WRITE user',
+    'should present a NoContentResponse as allowed ADMIN user',
     function (): void {
-        $this->contact->expects($this->once())->method('isAdmin')->willReturn(false);
-        $this->contact->expects($this->atLeastOnce())->method('getId')->willReturn(1);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_HOME_DASHBOARD_READ, false],
-                    [Contact::ROLE_HOME_DASHBOARD_WRITE, true],
-                ]
-            );
-        $this->readAccessGroupRepository
-            ->expects($this->once())
-            ->method('findByContact')
-            ->willReturn([]);
-        $this->writeDashboardRepository
-            ->expects($this->once())
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())
+            ->method('getId')->willReturn(1);
+        $this->writeDashboardRepository->expects($this->once())
             ->method('update');
-        $this->readDashboardRepository
-            ->expects($this->once())
-            ->method('findOneByAccessGroups')
-            ->willReturn($this->testedDashboard);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOne')->willReturn($this->testedDashboard);
+
+        ($this->useCase)($this->testedDashboardId, $this->testedPartialUpdateDashboardRequest, $this->presenter);
+
+        /** @var NoContentResponse $presentedData */
+        $presentedData = $this->presenter->data;
+
+        expect($presentedData)->toBeInstanceOf(NoContentResponse::class);
+    }
+);
+
+it(
+    'should present a NoContentResponse as allowed SHARED user',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canAccess')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())
+            ->method('getId')->willReturn(1);
+        $this->writeDashboardRepository->expects($this->once())
+            ->method('update');
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOneByContact')->willReturn($this->testedDashboard);
 
         ($this->useCase)($this->testedDashboardId, $this->testedPartialUpdateDashboardRequest, $this->presenter);
 

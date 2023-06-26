@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,8 @@ import { Dashboard as DashboardType } from '../api/models';
 import { DashboardAccessRightsModal } from '../components/DashboardAccessRights/DashboardAccessRightsModal';
 import { useDashboardAccessRights } from '../components/DashboardAccessRights/useDashboardAccessRights';
 
+import useUserDashboardPermissions from '../useUserDashboardPermissions';
+
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
 import HeaderActions from './HeaderActions';
@@ -41,6 +43,13 @@ const Dashboard = (): ReactElement => {
 
   const isEditing = useAtomValue(isEditingAtom);
 
+  const { hasEditPermission } = useUserDashboardPermissions();
+
+  const canEdit = useMemo(
+    () => dashboard && hasEditPermission(dashboard),
+    [dashboard]
+  );
+
   return (
     <PageLayout>
       <PageLayout.Header>
@@ -55,11 +64,13 @@ const Dashboard = (): ReactElement => {
             />
           </PageHeader.Main>
           <PageHeader.Actions>
-            <HeaderActions
-              id={dashboard?.id}
-              name={dashboard?.name}
-              panels={panels}
-            />
+            canEdit && (
+              <HeaderActions
+                id={dashboard?.id}
+                name={dashboard?.name}
+                panels={panels}
+              />
+            )
           </PageHeader.Actions>
         </PageHeader>
       </PageLayout.Header>

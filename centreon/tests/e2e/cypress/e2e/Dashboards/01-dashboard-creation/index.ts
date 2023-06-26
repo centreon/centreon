@@ -6,13 +6,23 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 before(() => {
   cy.startWebContainer();
   cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 1@' /usr/share/centreon/config/features.json`,
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-configuration-creator.json'
+  );
+});
+
+after(() => {
+  cy.stopWebContainer();
 });
 
 beforeEach(() => {
-  loginAsAdminViaApiV2();
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/configuration/dashboards'
@@ -21,6 +31,10 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
+  cy.loginByTypeOfUser({
+    jsonName: 'user-dashboard-creator',
+    loginViaApi: false
+  });
 });
 
 afterEach(() => {
@@ -29,6 +43,7 @@ afterEach(() => {
     query: 'DELETE FROM dashboard'
   });
 });
+
 
 Given(
   'a user with dashboard edition rights on the dashboard listing page',
@@ -180,3 +195,5 @@ Then('the form fields are empty', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('be.empty');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
 });
+
+

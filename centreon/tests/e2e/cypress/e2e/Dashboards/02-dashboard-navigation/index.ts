@@ -6,17 +6,27 @@ import dashboardsOnePage from '../../../fixtures/dashboards/navigation/01-onepag
 before(() => {
   cy.startWebContainer();
   cy.execInContainer({
-    command: `sed -i 's@"dashboard": 0@"dashboard": 1@' /usr/share/centreon/config/features.json`,
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
+  cy.executeCommandsViaClapi(
+    'resources/clapi/config-ACL/dashboard-configuration-creator.json'
+  );
 });
 
 beforeEach(() => {
-  loginAsAdminViaApiV2();
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/configuration/dashboards*'
   }).as('listAllDashboards');
+  cy.loginByTypeOfUser({
+    jsonName: 'user-dashboard-creator',
+    loginViaApi: false
+  });
 });
 
 afterEach(() => {

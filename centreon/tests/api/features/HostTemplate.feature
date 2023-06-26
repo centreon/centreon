@@ -610,3 +610,45 @@ Feature:
       """
     Then the response code should be "204"
 
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "templates": [99]
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "templates": [<hostTemplateId>]
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "templates": []
+      }
+      """
+    Then the response code should be "204"
+
+    When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
+      """
+      {
+      "name": "parent template name",
+      "alias": "parent-template-alias"
+      }
+      """
+    And I store response values in:
+      | name     | path |
+      | parentId | id   |
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+      "templates": [<parentId>]
+      }
+      """
+    Then the response code should be "204"

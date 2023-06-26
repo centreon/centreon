@@ -1,6 +1,7 @@
 import { JsonDecoder } from 'ts.data.json';
 
 import { DashboardDetails, PanelDetails } from '../models';
+import { dashboardDecoderObject } from '../../api/decoders';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
@@ -42,24 +43,14 @@ const panelsDetailsDecoder = JsonDecoder.array(
 
 export const dashboardDetailsDecoder = JsonDecoder.object<DashboardDetails>(
   {
-    ...namedEntityDecoder,
-    createdAt: JsonDecoder.string,
-    createdBy: JsonDecoder.object<DashboardDetails['createdBy']>(
-      namedEntityDecoder,
-      'CreatedBy By'
-    ),
-    description: JsonDecoder.nullable(JsonDecoder.string),
-    panels: JsonDecoder.optional(panelsDetailsDecoder),
-    updatedAt: JsonDecoder.string,
-    updatedBy: JsonDecoder.object<DashboardDetails['updatedBy']>(
-      namedEntityDecoder,
-      'Updated By'
-    )
+    ...dashboardDecoderObject,
+    panels: panelsDetailsDecoder
   },
   'Dashboard Details',
   {
     createdAt: 'created_at',
     createdBy: 'created_by',
+    ownRole: 'own_role',
     updatedAt: 'updated_at',
     updatedBy: 'updated_by'
   }
