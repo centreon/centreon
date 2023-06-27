@@ -1,5 +1,7 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
+import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
+
 before(() => {
   cy.startWebContainer();
   cy.execInContainer({
@@ -46,7 +48,8 @@ Given(
 );
 
 When('the user selects the properties of the dashboard', () => {
-  cy.contains('dashboard-to-edit-name')
+  const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
+  cy.contains(dashboardToEdit.name)
     .parent()
     .find('button[aria-label="edit"]')
     .click();
@@ -55,15 +58,16 @@ When('the user selects the properties of the dashboard', () => {
 Then(
   'the update form is displayed and contains fields to update this dashboard',
   () => {
+    const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
     cy.contains('Update dashboard').should('be.visible');
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
       'have.value',
-      'dashboard-to-edit-name'
+      `${dashboardToEdit.name}`
     );
 
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).should(
       'contain.text',
-      'dashboard-to-edit-description'
+      `${dashboardToEdit.description}`
     );
 
     cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.disabled');
@@ -95,8 +99,11 @@ When('the user saves the dashboard with its new values', () => {
 Then(
   'the dashboard is listed in the dashboards library with its new name and description',
   () => {
+    const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
     cy.contains('Dashboards').should('be.visible');
     cy.contains('Update dashboard').should('not.exist');
+    cy.contains(dashboardToEdit.name).parent().should('not.exist');
+    cy.contains(dashboardToEdit.description).parent().should('not.exist');
     cy.contains('dashboard-edited').parent().should('exist');
   }
 );
@@ -104,8 +111,9 @@ Then(
 Given(
   'a user with dashboard update rights who is about to update a dashboard with new values',
   () => {
+    const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-    cy.contains('dashboard-to-edit-name')
+    cy.contains(dashboardToEdit.name)
       .parent()
       .find('button[aria-label="edit"]')
       .click();
@@ -125,15 +133,17 @@ When('the user leaves the update form without saving', () => {
 });
 
 Then('the dashboard has not been edited and features its former values', () => {
+  const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
   cy.contains('dashboard-cancel-update-changes').should('not.exist');
-  cy.contains('dashboard-to-edit-name').parent().should('exist');
-  cy.contains('dashboard-to-edit-description').parent().should('exist');
+  cy.contains(dashboardToEdit.name).parent().should('exist');
+  cy.contains(dashboardToEdit.description).parent().should('exist');
 });
 
 When(
   'the user opens the form to update the dashboard for the second time',
   () => {
-    cy.contains('dashboard-to-edit-name')
+    const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
+    cy.contains(dashboardToEdit.name)
       .parent()
       .find('button[aria-label="edit"]')
       .click();
@@ -155,8 +165,10 @@ Then(
 );
 
 Given('a user with dashboard update rights in a dashboard update form', () => {
+  const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
+
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-  cy.contains('dashboard-to-edit-name')
+  cy.contains(dashboardToEdit.name)
     .parent()
     .find('button[aria-label="edit"]')
     .click();
@@ -181,8 +193,9 @@ Then('the user can now save the dashboard', () => {
 Given(
   'a user with dashboard update rights in the update form of a dashboard with description',
   () => {
+    const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
     cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-    cy.contains('dashboard-to-edit-name')
+    cy.contains(dashboardToEdit.name)
       .parent()
       .find('button[aria-label="edit"]')
       .click();
@@ -204,9 +217,10 @@ When('the user saves the dashboard with the description field empty', () => {
 Then(
   'the dashboard is listed in the dashboard library with only its name',
   () => {
+    const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
     cy.contains('Dashboards').should('be.visible');
     cy.contains('Update dashboard').should('not.exist');
-    cy.contains('dashboard-to-edit-name').parent().should('exist');
-    cy.contains('dashboard-to-edit-description').parent().should('not.exist');
+    cy.contains(dashboardToEdit.name).parent().should('exist');
+    cy.contains(dashboardToEdit.description).parent().should('not.exist');
   }
 );
