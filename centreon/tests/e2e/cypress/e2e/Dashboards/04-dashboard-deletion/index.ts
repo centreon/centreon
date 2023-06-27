@@ -89,3 +89,25 @@ Then('the dashboard is not listed anymore in the dashboards library', () => {
     .contains(dashboardToDelete.description)
     .should('not.exist');
 });
+
+Given(
+  'a user with dashboard edition rights about to delete a dashboard',
+  () => {
+    const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.contains(dashboardToDelete.name)
+      .parent()
+      .find('button[aria-label="delete"]')
+      .click();
+  }
+);
+
+When('the user cancels their choice', () => {
+  cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+});
+
+Then('the dashboard is still listed in the dashboards library', () => {
+  const dashboardToDelete = dashboardsOnePage[dashboardsOnePage.length - 3];
+  cy.contains(dashboardToDelete.name).parent().should('exist');
+  cy.contains(dashboardToDelete.description).parent().should('exist');
+});

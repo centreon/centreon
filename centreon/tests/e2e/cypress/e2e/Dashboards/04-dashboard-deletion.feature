@@ -9,3 +9,8 @@ Scenario: Delete a dashboard on the dashboards library
   Then a confirmation pop-up appears
   When the user confirms the choice to delete the dashboard
   Then the dashboard is not listed anymore in the dashboards library
+
+Scenario: Cancel the deletion of a dashboard
+  Given a user with dashboard edition rights about to delete a dashboard
+  When the user cancels their choice
+  Then the dashboard is still listed in the dashboards library
