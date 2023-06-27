@@ -10,7 +10,8 @@ import { ThemeMode } from '@centreon/ui-context';
 
 import {
   labelWelcomeToTheNotifications,
-  labelCreateNotification
+  labelCreateNotification,
+  labelCreateNotificationForTheFirstTime
 } from '../translatedLabels';
 import Title from '../Title';
 import { isPanelOpenAtom } from '../atom';
@@ -66,6 +67,7 @@ const EmptyNotificationsPage = (): JSX.Element => {
         <Button
           className={classes.btn}
           color="primary"
+          data-testid={labelCreateNotificationForTheFirstTime}
           startIcon={<AddIcon />}
           variant="contained"
           onClick={(): void => setIsOpen(true)}

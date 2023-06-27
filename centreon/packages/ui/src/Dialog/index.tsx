@@ -28,12 +28,18 @@ const useStyles = makeStyles<StylesProps>()((theme, { contentWidth }) => ({
   }
 }));
 
+interface DialogDataTestId {
+  dataTestIdCanceledButton?: string;
+  dataTestIdConfirmButton?: string;
+}
+
 export type Props = {
   cancelDisabled?: boolean;
   children?: ReactNode;
   className?: string;
   confirmDisabled?: boolean;
   contentWidth?: number;
+  dataTestId?: DialogDataTestId;
   dialogActionsClassName?: string;
   dialogConfirmButtonClassName?: string;
   dialogContentClassName?: string;
@@ -62,6 +68,7 @@ const Dialog = ({
   confirmDisabled = false,
   cancelDisabled = false,
   submitting = false,
+  dataTestId,
   dialogPaperClassName,
   dialogTitleClassName,
   dialogContentClassName,
@@ -70,6 +77,12 @@ const Dialog = ({
   ...rest
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ contentWidth });
+
+  const dataTestIdConfirmButton =
+    dataTestId?.dataTestIdConfirmButton ?? labelConfirm;
+
+  const dataTestIdCanceledButton =
+    dataTestId?.dataTestIdCanceledButton ?? labelCancel;
 
   return (
     <MuiDialog
@@ -93,7 +106,12 @@ const Dialog = ({
       )}
       <DialogActions className={dialogActionsClassName}>
         {onCancel && (
-          <Button color="primary" disabled={cancelDisabled} onClick={onCancel}>
+          <Button
+            color="primary"
+            data-testid={dataTestIdCanceledButton}
+            disabled={cancelDisabled}
+            onClick={onCancel}
+          >
             {labelCancel}
           </Button>
         )}
@@ -101,6 +119,7 @@ const Dialog = ({
           aria-label={labelConfirm || ''}
           className={dialogConfirmButtonClassName}
           color="primary"
+          data-testid={dataTestIdConfirmButton}
           disabled={confirmDisabled}
           endIcon={submitting && <CircularProgress size={15} />}
           onClick={onConfirm}

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
-import { labelAdd } from '../../../translatedLabels';
+import { labelAdd, labelCreateNotification } from '../../../translatedLabels';
 import { isPanelOpenAtom } from '../../../atom';
 import {
   EditedNotificationIdAtom,
@@ -27,6 +27,7 @@ const AddAction = (): JSX.Element => {
   return (
     <Button
       color="primary"
+      data-testid={labelCreateNotification}
       startIcon={<AddIcon />}
       variant="contained"
       onClick={handleClick}

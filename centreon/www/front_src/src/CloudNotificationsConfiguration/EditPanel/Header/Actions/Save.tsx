@@ -26,7 +26,9 @@ import {
   labelSuccessfulNotificationAdded,
   labelConfirmAddNotification,
   labelConfirmEditNotification,
-  labelDoYouWantToConfirmAction
+  labelDoYouWantToConfirmAction,
+  labelCancelEditNotification,
+  labelCancelAddNotification
 } from '../../../translatedLabels';
 import { notificationtEndpoint } from '../../api/endpoints';
 import { adaptNotifications } from '../../api/adapters';
@@ -87,6 +89,10 @@ const SaveAction = (): JSX.Element => {
     ? labelConfirmAddNotification
     : labelConfirmEditNotification;
 
+  const labelCancel = equals(panelMode, PanelMode.Create)
+    ? labelCancelAddNotification
+    : labelCancelEditNotification;
+
   return (
     <Box>
       <IconButton
@@ -102,6 +108,10 @@ const SaveAction = (): JSX.Element => {
       </IconButton>
       <ConfirmDialog
         confirmDisabled={isMutating}
+        dataTestId={{
+          dataTestIdCanceledButton: labelCancel,
+          dataTestIdConfirmButton: labelConfirm
+        }}
         labelMessage={t(labelConfirm)}
         labelTitle={t(labelDoYouWantToConfirmAction)}
         open={dialogOpen}
