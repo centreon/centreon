@@ -11,6 +11,10 @@ before(() => {
   );
 });
 
+after(() => {
+  cy.stopWebContainer();
+});
+
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
@@ -18,13 +22,20 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?page=1&limit=100'
+    url: '/centreon/api/latest/configuration/dashboards?'
   }).as('listAllDashboards');
   cy.loginByTypeOfUser({
     jsonName: 'user-dashboard-creator',
     loginViaApi: false
   });
   cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
+});
+
+afterEach(() => {
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: 'DELETE FROM dashboard'
+  });
 });
 
 Given(
@@ -199,10 +210,3 @@ Then(
     cy.contains('dashboard-to-edit-description').parent().should('not.exist');
   }
 );
-
-afterEach(() => {
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: 'DELETE FROM dashboard'
-  });
-});
