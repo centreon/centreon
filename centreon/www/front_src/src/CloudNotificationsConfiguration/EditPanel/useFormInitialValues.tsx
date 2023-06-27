@@ -18,7 +18,7 @@ const useFormInitialValues = (): UseFormState => {
   const panelMode = useAtomValue(panelModeAtom);
   const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
 
-  const { data, isLoading: loading } = useFetchQuery({
+  const { data, isFetching } = useFetchQuery({
     decoder: notificationdecoder,
     getEndpoint: () => notificationtEndpoint({ id: editedNotificationId }),
     getQueryKey: () => ['notification', editedNotificationId],
@@ -33,7 +33,7 @@ const useFormInitialValues = (): UseFormState => {
       ? getInitialValues(data)
       : emptyInitialValues;
 
-  const isLoading = equals(panelMode, PanelMode.Edit) ? loading : false;
+  const isLoading = equals(panelMode, PanelMode.Edit) ? isFetching : false;
 
   return {
     initialValues,
