@@ -1,6 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { loginAsAdminViaApiV2 } from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 
 before(() => {
@@ -43,7 +42,6 @@ afterEach(() => {
     query: 'DELETE FROM dashboard'
   });
 });
-
 
 Given(
   'a user with dashboard edition rights on the dashboard listing page',
@@ -195,5 +193,3 @@ Then('the form fields are empty', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('be.empty');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
 });
-
-

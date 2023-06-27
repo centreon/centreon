@@ -1,19 +1,19 @@
 [
     {
         "name": "dashboard-name-0",
-        "description":"dashboard-description-0" 
+        "description":"dashboard-description-0"
     },
     {
         "name": "dashboard-name-1",
-        "description":"dashboard-description-1" 
+        "description":"dashboard-description-1"
     },
     {
         "name": "dashboard-to-delete-name",
-        "description":"dashboard-to-delete-description" 
+        "description":"dashboard-to-delete-description"
     },
     {
         "name": "dashboard-to-edit-name",
-        "description":"dashboard-to-edit-description" 
+        "description":"dashboard-to-edit-description"
     },
     {
         "name": "dashboard-to-locate-name",
