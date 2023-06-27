@@ -1,0 +1,9 @@
+type: object
+required:
+  - id
+
+properties:
+  id:
+    type: integer
+    description: "Dashboard panel ID"
+    example: 1

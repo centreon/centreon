@@ -1,16 +1,23 @@
+import { equals } from 'ramda';
 import { useAtom, useSetAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import { Box } from '@mui/material';
 
 import { Panel } from '@centreon/ui';
+import { ThemeMode } from '@centreon/ui-context';
 
 import { isPanelOpenAtom, panelWidthStorageAtom } from '../atom';
 
-import { Header } from './Header';
+import Form from './Form';
 
 const useStyle = makeStyles()((theme) => ({
-  pannel: {
+  panel: {
+    backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
+      ? theme.palette.common.black
+      : theme.palette.background.panel
+  },
+  panelContainer: {
     display: 'flex',
     flexDirection: 'row-reverse',
     height: `calc(100vh - ${theme.spacing(20)})`
@@ -25,10 +32,10 @@ const EditPanel = (): JSX.Element => {
   const handleClose = (): void => setIsPanelOpen(false);
 
   return (
-    <Box className={classes.pannel}>
+    <Box className={classes.panelContainer}>
       <Panel
-        header={<Header />}
-        selectedTab={<div />}
+        className={classes.panel}
+        selectedTab={<Form />}
         width={panelWidth}
         onClose={handleClose}
         onResize={setPanelWidth}

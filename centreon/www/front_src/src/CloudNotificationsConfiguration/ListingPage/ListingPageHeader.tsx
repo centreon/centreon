@@ -8,9 +8,12 @@ import Title from '../Title';
 const useStyle = makeStyles()((theme) => ({
   box: {
     alignItems: 'center',
+    borderBottom: `1px solid ${theme.palette.primary.main}`,
     display: 'flex',
-    justifyContent: 'space-between',
-    padding: theme.spacing(1, 0)
+    justifyContent: 'space-between'
+  },
+  title: {
+    borderBottom: 'none'
   }
 }));
 
@@ -19,7 +22,7 @@ const ListingPageHeader = (): JSX.Element => {
 
   return (
     <Box className={classes.box}>
-      <Title />
+      <Title className={classes.title} />
       <Filter />
     </Box>
   );

@@ -18,6 +18,7 @@ import { Group } from './Inputs/models';
 
 interface Props {
   children: React.ReactNode;
+  className?: string;
   defaultIsOpen?: boolean;
   group?: Group;
   hasGroupTitle: boolean;
@@ -50,9 +51,10 @@ const CollapsibleGroup = ({
   isCollapsible,
   group,
   hasGroupTitle,
-  defaultIsOpen = false
+  defaultIsOpen = false,
+  className
 }: Props): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
   const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(isCollapsible && defaultIsOpen);
@@ -60,6 +62,8 @@ const CollapsibleGroup = ({
   const toggle = (): void => {
     setIsOpen((currentIsOpen) => !currentIsOpen);
   };
+
+  const containerClassName = className || '';
 
   const CollapseIcon = isOpen ? ExpandMore : ChevronRightIcon;
   const ContainerComponent = useCallback(
@@ -72,13 +76,13 @@ const CollapsibleGroup = ({
           disableGutters
           disableRipple
           aria-label={group?.name}
-          className={classes.groupTitleContainer}
+          className={cx(classes.groupTitleContainer, containerClassName)}
           onClick={toggle}
         >
           {containerComponentChildren}
         </ListItemButton>
       ) : (
-        <Box className={classes.groupTitleContainer}>
+        <Box className={cx(classes.groupTitleContainer, containerClassName)}>
           {containerComponentChildren}
         </Box>
       ),
@@ -91,7 +95,9 @@ const CollapsibleGroup = ({
         <ContainerComponent>
           {isCollapsible && <CollapseIcon />}
           <div className={classes.groupTitleIcon}>
-            <Typography variant="h5">{t(group?.name as string)}</Typography>
+            <Typography className="groupText" variant="h5">
+              {t(group?.name as string)}
+            </Typography>
             {group?.EndIcon && (
               <Tooltip
                 classes={{

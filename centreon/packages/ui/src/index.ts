@@ -2,6 +2,8 @@ import type { Props as SingleAutocompleteFieldProps } from './InputField/Select/
 
 export { default as IconButton } from './Button/Icon';
 
+export { Checkbox, CheckboxGroup } from './Checkbox';
+
 export { default as SingleAutocompleteField } from './InputField/Select/Autocomplete';
 export type { SingleAutocompleteFieldProps };
 
@@ -137,8 +139,6 @@ export { RichTextEditor } from './RichTextEditor';
 export { default as ActionsList } from './ActionsList';
 
 export type { ResponseError, CatchErrorProps } from './api/customFetch';
-
-export * from './layout/TiledListingPage';
 
 export * from './utils';
 export { default as FluidTypography } from './Typography/FluidTypography';

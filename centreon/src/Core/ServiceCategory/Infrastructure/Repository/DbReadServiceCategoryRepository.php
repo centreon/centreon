@@ -34,6 +34,14 @@ use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInt
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Utility\SqlConcatenator;
 
+/**
+ * @phpstan-type _ServiceCategory array{
+ *      sc_id: int,
+ *      sc_name: string,
+ *      sc_description: string,
+ *      sc_activate: '0'|'1'
+ * }
+ */
 class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements ReadServiceCategoryRepositoryInterface
 {
     use LoggerTrait;
@@ -46,15 +54,95 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     /**
      * @inheritDoc
      */
+    public function findAllExistingIds(array $serviceCategoriesIds): array
+    {
+        if ($serviceCategoriesIds === []) {
+            return [];
+        }
+
+        $sqlConcatenator = new SqlConcatenator();
+        $sqlConcatenator->defineSelect(
+            $this->translateDbName(<<<'SQL'
+                SELECT sc.sc_id
+                FROM `:db`.service_categories sc
+                WHERE sc.sc_id IN (:service_categories_ids)
+                    AND sc.level IS NULL
+                SQL
+            )
+        );
+        $sqlConcatenator->storeBindValueMultiple(':service_categories_ids', $serviceCategoriesIds, \PDO::PARAM_INT);
+        $statement = $this->db->prepare((string) $sqlConcatenator);
+        $sqlConcatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $serviceCategoriesIdsFound = [];
+        while (($id = $statement->fetchColumn()) !== false) {
+            $serviceCategoriesIdsFound[] = (int) $id;
+        }
+
+        return $serviceCategoriesIdsFound;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAllExistingIdsByAccessGroups(array $serviceCategoriesIds, array $accessGroups): array
+    {
+        if ($serviceCategoriesIds === [] || $accessGroups === []) {
+            return [];
+        }
+
+        $accessGroupIds = array_map(
+            static fn($accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        $sqlConcatenator = new SqlConcatenator();
+        $sqlConcatenator->defineSelect(
+            $this->translateDbName(<<<'SQL'
+                SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
+                FROM `:db`.service_categories sc
+                INNER JOIN `:db`.service_categories_relation scr
+                    ON scr.sc_id = sc.sc_id
+                INNER JOIN `:db`.acl_resources_sc_relations arhr
+                    ON sc.sc_id = arhr.sc_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arhr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                WHERE scr.sc_id IN (:service_categories_ids)
+                    AND sc.level IS NULL
+                    AND argr.acl_group_id IN (:access_group_ids)
+                SQL
+            )
+        );
+        $sqlConcatenator->storeBindValueMultiple(':service_categories_ids', $serviceCategoriesIds, \PDO::PARAM_INT);
+        $sqlConcatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT);
+        $statement = $this->db->prepare((string) $sqlConcatenator);
+        $sqlConcatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        $serviceCategoriesIdsFound = [];
+        while (($id = $statement->fetchColumn()) !== false) {
+            $serviceCategoriesIdsFound[] = (int) $id;
+        }
+
+        return $serviceCategoriesIdsFound;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array
     {
         $this->info('Getting all service categories');
 
         $concatenator = new SqlConcatenator();
         $concatenator->withCalcFoundRows(true);
-        $concatenator->defineSelect(
-            'SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
-            FROM `:db`.service_categories sc'
+        $concatenator->defineSelect(<<<'SQL'
+            SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
+            FROM `:db`.service_categories sc
+            SQL
         );
 
         return $this->retrieveServiceCategories($concatenator, $requestParameters);
@@ -63,8 +151,10 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     /**
      * @inheritDoc
      */
-    public function findByRequestParameterAndAccessGroups(array $accessGroups, RequestParametersInterface $requestParameters): array
-    {
+    public function findByRequestParameterAndAccessGroups(
+        array $accessGroups,
+        RequestParametersInterface $requestParameters
+    ): array {
         $this->info('Getting all service categories by access groups');
 
         if ($accessGroups === []) {
@@ -112,10 +202,12 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     {
         $this->info('Get a service category with id #' . $serviceCategoryId);
 
-        $request = $this->translateDbName(
-            'SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
+        $request = $this->translateDbName(<<<'SQL'
+            SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
             FROM `:db`.service_categories sc
-            WHERE sc.sc_id = :serviceCategoryId'
+            WHERE sc.sc_id = :serviceCategoryId
+                AND sc.level IS NULL
+            SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':serviceCategoryId', $serviceCategoryId, \PDO::PARAM_INT);
@@ -126,8 +218,84 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
             return null;
         }
 
-        /** @var array{sc_id:int,sc_name:string,sc_description:string,sc_activate:'0'|'1'} $result */
+        /** @var _ServiceCategory $result */
         return $this->createServiceCategoryFromArray($result);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByService(int $serviceId): array
+    {
+        $request = $this->translateDbName(<<<'SQL'
+            SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
+            FROM `:db`.service_categories sc
+            INNER JOIN `:db`.service_categories_relation scr
+                ON scr.sc_id = sc.sc_id
+            WHERE scr.service_service_id = :service_id
+                AND sc.level IS NULL
+            SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+        $statement->execute();
+        $serviceCategories = [];
+
+        while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _ServiceCategory $result */
+            $serviceCategories[] = $this->createServiceCategoryFromArray($result);
+        }
+
+        return $serviceCategories;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByServiceAndAccessGroups(int $serviceId, array $accessGroups): array
+    {
+        if (empty($accessGroups)) {
+            return [];
+        }
+
+        $accessGroupIds = array_map(
+            static fn($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        $sqlConcatenator = new SqlConcatenator();
+        $sqlConcatenator->defineSelect(
+            $this->translateDbName(<<<'SQL'
+                SELECT sc.sc_id, sc.sc_name, sc.sc_description, sc.sc_activate
+                FROM `:db`.service_categories sc
+                INNER JOIN `:db`.service_categories_relation scr
+                    ON scr.sc_id = sc.sc_id
+                INNER JOIN `:db`.acl_resources_sc_relations arhr
+                    ON sc.sc_id = arhr.sc_id
+                INNER JOIN `:db`.acl_resources res
+                    ON arhr.acl_res_id = res.acl_res_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                WHERE scr.service_service_id = :service_id
+                    AND sc.level IS NULL
+                    AND argr.acl_group_id IN (:access_group_ids)
+                GROUP BY sc.sc_id
+                SQL
+            )
+        );
+        $sqlConcatenator->storeBindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+        $sqlConcatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT);
+        $statement = $this->db->prepare((string) $sqlConcatenator);
+        $sqlConcatenator->bindValuesToStatement($statement);
+        $statement->execute();
+        $serviceCategories = [];
+
+        while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var _ServiceCategory $result */
+            $serviceCategories[] = $this->createServiceCategoryFromArray($result);
+        }
+
+        return $serviceCategories;
     }
 
     /**
@@ -224,7 +392,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
-     * @param array{sc_id:int,sc_name:string,sc_description:string,sc_activate:'0'|'1'} $result
+     * @param _ServiceCategory $result
      *
      * @return ServiceCategory
      */
@@ -274,7 +442,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
 
         $serviceCategories = [];
         while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /** @var array{sc_id:int,sc_name:string,sc_description:string,sc_activate:'0'|'1'} $result */
+            /** @var _ServiceCategory $result */
             $serviceCategories[] = $this->createServiceCategoryFromArray($result);
         }
 

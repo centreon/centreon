@@ -25,18 +25,19 @@ namespace Core\ServiceTemplate\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Common\Domain\YesNoDefault;
+use Core\MonitoringServer\Model\MonitoringServer;
 
 class ServiceTemplate
 {
-    public const MAX_NAME_LENGTH = 255,
-                 MAX_ALIAS_LENGTH = 255,
-                 MAX_DESCRIPTION_LENGTH = 200,
-                 MAX_COMMENT_LENGTH = 65535,
-                 MAX_NOTES_LENGTH = 65535,
-                 MAX_NOTES_URL_LENGTH = 65535,
-                 MAX_ACTION_URL_LENGTH = 65535,
-                 MAX_ICON_ALT_LENGTH = 200;
+    public const MAX_NAME_LENGTH = NewServiceTemplate::MAX_NAME_LENGTH,
+                 MAX_ALIAS_LENGTH = NewServiceTemplate::MAX_ALIAS_LENGTH,
+                 MAX_COMMENT_LENGTH = NewServiceTemplate::MAX_COMMENT_LENGTH,
+                 MAX_NOTES_LENGTH = NewServiceTemplate::MAX_NOTES_LENGTH,
+                 MAX_NOTES_URL_LENGTH = NewServiceTemplate::MAX_NOTES_URL_LENGTH,
+                 MAX_ACTION_URL_LENGTH = NewServiceTemplate::MAX_ACTION_URL_LENGTH,
+                 MAX_ICON_ALT_LENGTH = NewServiceTemplate::MAX_ICON_ALT_LENGTH;
 
     /** @var list<string> */
     private array $commandArguments = [];
@@ -51,6 +52,7 @@ class ServiceTemplate
      * @param list<mixed> $commandArguments
      * @param list<mixed> $eventHandlerArguments
      * @param NotificationType[] $notificationTypes
+     * @param list<int> $hostTemplateIds
      * @param bool $contactAdditiveInheritance
      * @param bool $contactGroupAdditiveInheritance
      * @param bool $isActivated
@@ -62,7 +64,6 @@ class ServiceTemplate
      * @param YesNoDefault $eventHandlerEnabled
      * @param YesNoDefault $flapDetectionEnabled
      * @param YesNoDefault $notificationsEnabled
-     * @param string|null $description
      * @param string|null $comment
      * @param string|null $note
      * @param string|null $noteUrl
@@ -90,12 +91,13 @@ class ServiceTemplate
      * @throws AssertionFailedException
      */
     public function __construct(
-        private int $id,
+        private readonly int $id,
         private string $name,
         private string $alias,
         array $commandArguments = [],
         array $eventHandlerArguments = [],
         private array $notificationTypes = [],
+        private array $hostTemplateIds = [],
         private bool $contactAdditiveInheritance = false,
         private bool $contactGroupAdditiveInheritance = false,
         private bool $isActivated = true,
@@ -107,7 +109,6 @@ class ServiceTemplate
         private YesNoDefault $eventHandlerEnabled = YesNoDefault::Default,
         private YesNoDefault $flapDetectionEnabled = YesNoDefault::Default,
         private YesNoDefault $notificationsEnabled = YesNoDefault::Default,
-        private ?string $description = null,
         private ?string $comment = null,
         private ?string $note = null,
         private ?string $noteUrl = null,
@@ -139,14 +140,24 @@ class ServiceTemplate
                 'name' => self::MAX_NAME_LENGTH,
                 'alias' => self::MAX_ALIAS_LENGTH,
                 'comment' => self::MAX_COMMENT_LENGTH,
-                'description' => self::MAX_DESCRIPTION_LENGTH,
                 'note' => self::MAX_NOTES_LENGTH,
                 'noteUrl' => self::MAX_NOTES_URL_LENGTH,
                 'actionUrl' => self::MAX_ACTION_URL_LENGTH,
                 'iconAlternativeText' => self::MAX_ICON_ALT_LENGTH,
             ] as $field => $limitation
         ) {
-            $propertyValue = ${$field};
+            $propertyValue = $this->{$field};
+            if (in_array($field, ['name', 'alias'], true)) {
+                $propertyValue = preg_replace('/\s{2,}/', ' ', $propertyValue);
+                if ($propertyValue === null) {
+                    throw AssertionException::notNull($className . '::' . $field);
+                }
+                Assertion::unauthorizedCharacters(
+                    $propertyValue,
+                    MonitoringServer::ILLEGAL_CHARACTERS,
+                    $className . '::' . $field
+                );
+            }
             if ($propertyValue !== null) {
                 $this->{$field} = trim($propertyValue);
                 Assertion::notEmptyString($this->{$field}, "{$className}::{$field}");
@@ -166,11 +177,16 @@ class ServiceTemplate
             'severityId',
         ];
         foreach ($foreignKeys as $propertyName) {
-            $propertyValue = ${$propertyName};
+            $propertyValue = $this->{$propertyName};
             if ($propertyValue !== null) {
                 Assertion::positiveInt($propertyValue, "{$className}::{$propertyName}");
             }
         }
+
+        foreach ($this->hostTemplateIds as $hostTemplateId) {
+            Assertion::positiveInt($hostTemplateId, $className . '::hostTemplateIds');
+        }
+
         $properties = [
             'maxCheckAttempts',
             'normalCheckInterval',
@@ -184,7 +200,7 @@ class ServiceTemplate
             'highFlapThreshold',
         ];
         foreach ($properties as $propertyName) {
-            $propertyValue = ${$propertyName};
+            $propertyValue = $this->{$propertyName};
             if ($propertyValue !== null) {
                 Assertion::min($propertyValue, 0, "{$className}::{$propertyName}");
             }
@@ -204,7 +220,7 @@ class ServiceTemplate
             }
         }
 
-        foreach ($notificationTypes as $type) {
+        foreach ($this->notificationTypes as $type) {
             Assertion::isInstanceOf($type, NotificationType::class, "{$className}::notificationTypes");
         }
     }
@@ -234,7 +250,7 @@ class ServiceTemplate
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getCommandArguments(): array
     {
@@ -242,7 +258,7 @@ class ServiceTemplate
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getEventHandlerArguments(): array
     {
@@ -348,14 +364,6 @@ class ServiceTemplate
     /**
      * @return string|null
      */
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    /**
-     * @return string|null
-     */
     public function getComment(): ?string
     {
         return $this->comment;
@@ -452,6 +460,14 @@ class ServiceTemplate
     /**
      * @return int|null
      */
+    public function getSeverityId(): ?int
+    {
+        return $this->severityId;
+    }
+
+    /**
+     * @return int|null
+     */
     public function getMaxCheckAttempts(): ?int
     {
         return $this->maxCheckAttempts;
@@ -529,11 +545,16 @@ class ServiceTemplate
         return $this->acknowledgementTimeout;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getSeverityId(): ?int
+    public static function formatName(string $name): string
     {
-        return $this->severityId;
+        return (string) preg_replace('/\s{2,}/', ' ', $name);
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getHostTemplateIds(): array
+    {
+        return $this->hostTemplateIds;
     }
 }

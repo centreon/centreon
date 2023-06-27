@@ -35,14 +35,33 @@ interface WriteServiceCategoryRepositoryInterface
     public function deleteById(int $serviceCategoryId): void;
 
     /**
-     * Add a service category
-     * Return the id of the service category.
+     * Add a service category and return its id.
      *
      * @param NewServiceCategory $serviceCategory
      *
-     * @return int
-     *@throws \Throwable
+     * @throws \Throwable
      *
+     * @return int
      */
     public function add(NewServiceCategory $serviceCategory): int;
+
+    /**
+     * Link a service to a list of service categories.
+     *
+     * @param int $serviceId
+     * @param list<int> $serviceCategoriesIds
+     *
+     * @throws \Throwable
+     */
+    public function linkToService(int $serviceId, array $serviceCategoriesIds): void;
+
+    /**
+     * Unlink a service to a list of service categories.
+     *
+     * @param int $serviceId
+     * @param list<int> $serviceCategoriesIds
+     *
+     * @throws \Throwable
+     */
+    public function unlinkFromService(int $serviceId, array $serviceCategoriesIds): void;
 }

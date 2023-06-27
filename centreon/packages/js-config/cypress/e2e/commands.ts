@@ -21,7 +21,7 @@ Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
 
 Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
   return cy
-    .get('iframe#main-content')
+    .get('iframe#main-content', { timeout: 10000 })
     .its('0.contentDocument.body')
     .should('not.be.empty')
     .then(cy.wrap);
@@ -247,7 +247,9 @@ Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
     return cy
-      .exec(`docker image inspect ${image} || docker pull ${image}`)
+      .exec(`docker image inspect ${image} || docker pull ${image}`, {
+        timeout: 120000
+      })
       .task('startContainer', { image, name, portBindings });
   }
 );
@@ -263,7 +265,7 @@ Cypress.Commands.add(
   'startWebContainer',
   ({
     name = Cypress.env('dockerName'),
-    os = 'alma9',
+    os = Cypress.env('WEB_IMAGE_OS'),
     useSlim = true,
     version = Cypress.env('WEB_IMAGE_VERSION')
   }: StartWebContainerProps = {}): Cypress.Chainable => {
@@ -346,6 +348,47 @@ Cypress.Commands.add(
   }
 );
 
+interface Dashboard {
+  description?: string;
+  name: string;
+}
+
+Cypress.Commands.add(
+  'insertDashboardList',
+  (fixtureFile: string): Cypress.Chainable => {
+    return cy.fixture(fixtureFile).then((dashboardList) => {
+      cy.wrap(
+        Promise.all(
+          dashboardList.map((dashboardBody: Dashboard) =>
+            cy.insertDashboard({ ...dashboardBody })
+          )
+        )
+      );
+    });
+  }
+);
+
+Cypress.Commands.add(
+  'insertDashboard',
+  (dashboardBody: Dashboard): Cypress.Chainable => {
+    return cy.request({
+      body: {
+        ...dashboardBody
+      },
+      method: 'POST',
+      url: '/centreon/api/latest/configuration/dashboards'
+    });
+  }
+);
+
+Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
+  return cy.get('header div[data-cy="clock"]').then(($time) => {
+    const localTime = $time.children()[1].textContent;
+
+    return localTime;
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -361,8 +404,11 @@ declare global {
       ) => Cypress.Chainable;
       executeCommandsViaClapi: (fixtureFile: string) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
+      getTimeFromHeader: () => Cypress.Chainable;
       getWebVersion: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
+      insertDashboard: (dashboard: Dashboard) => Cypress.Chainable;
+      insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
       loginByTypeOfUser: ({
         jsonName = 'admin',
         loginViaApi = false

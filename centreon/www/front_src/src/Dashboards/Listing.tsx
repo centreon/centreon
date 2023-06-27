@@ -1,3 +1,4 @@
+// TODO merge cleanup
 import { ReactElement, useMemo } from 'react';
 
 import { dec, equals, gt } from 'ramda';

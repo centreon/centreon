@@ -17,6 +17,7 @@ import { buildNotificationsEndpoint } from './api/endpoints';
 interface LoadNotifications {
   data?: NotificationsListingType;
   loading: boolean;
+  refetch;
 }
 
 const useLoadingNotifications = (): LoadNotifications => {
@@ -29,12 +30,16 @@ const useLoadingNotifications = (): LoadNotifications => {
   const sort = { [sortField]: sortOrder };
   const search = {
     regex: {
-      fields: ['name', 'resources', 'channels', 'users'],
+      fields: ['name'],
       value: searchValue
     }
   };
 
-  const { data, isLoading: loading } = useFetchQuery<NotificationsListingType>({
+  const {
+    data,
+    isLoading: loading,
+    refetch
+  } = useFetchQuery<NotificationsListingType>({
     decoder: listingDecoder,
     getEndpoint: () => {
       return buildNotificationsEndpoint({
@@ -54,11 +59,12 @@ const useLoadingNotifications = (): LoadNotifications => {
     ],
     isPaginated: true,
     queryOptions: {
+      refetchOnMount: false,
       suspense: false
     }
   });
 
-  return { data, loading };
+  return { data, loading, refetch };
 };
 
 export default useLoadingNotifications;

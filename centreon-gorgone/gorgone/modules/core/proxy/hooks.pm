@@ -496,7 +496,7 @@ sub broadcast {
         $options{gorgone}->send_internal_message(
             identity => 'gorgone-proxy-' . $pool_id,
             action => $options{action},
-            data => $options{data},
+            raw_data_ref => $options{frame}->getRawData(),
             token => $options{token}
         );
     }
@@ -505,7 +505,7 @@ sub broadcast {
         $options{gorgone}->send_internal_message(
             identity => 'gorgone-proxy-httpserver',
             action => $options{action},
-            data => $options{data},
+            raw_data_ref => $options{frame}->getRawData(),
             token => $options{token}
         );
     }
@@ -567,17 +567,6 @@ sub pathway {
         }
 
         $first_target = $_ if (!defined($first_target));
-        if ($synctime_nodes->{$_}->{channel_read_stop} == 0) {
-            $synctime_nodes->{$_}->{channel_read_stop} = 1;
-            routing(
-                target => $_,
-                action => 'PROXYSTOPREADCHANNEL',
-                frame => gorgone::class::frame->new(data => { id => $_ }),
-                gorgone => $options{gorgone},
-                dbh => $options{dbh},
-                logger => $options{logger}
-            );
-        }
     }
 
     if (!defined($first_target)) {
@@ -1033,7 +1022,6 @@ sub register_nodes {
                 in_progress => 0,
                 in_progress_time => -1,
                 synctime_error => 0,
-                channel_read_stop => 0,
                 channel_ready => 0
             };
             get_sync_time(node_id => $node->{id}, dbh => $options{dbh});

@@ -8,14 +8,12 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/docker/Dockerfile.openid"
-      - ".github/docker/configs/openidrealm.json"
+      - ".github/docker/openid/**"
   push:
     branches:
       - develop
     paths:
-      - ".github/docker/Dockerfile.openid"
-      - ".github/docker/configs/openidrealm.json"
+      - ".github/docker/openid/**"
 
 jobs:
   get-version:
@@ -42,7 +40,7 @@ jobs:
 
       - uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.openid
+          file: .github/docker/openid/Dockerfile
           context: .
           pull: true
           push: true
