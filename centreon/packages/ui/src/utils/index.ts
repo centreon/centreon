@@ -1,4 +1,3 @@
-// TODO merge cleanup
 export * from './useLocaleDateTimeFormat';
 export * from './getNormalizedId';
 export * from './statuses';

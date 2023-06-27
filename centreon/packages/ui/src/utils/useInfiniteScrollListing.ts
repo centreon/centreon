@@ -1,4 +1,3 @@
-// TODO merge cleanup
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { equals, gte, isNil, reduce } from 'ramda';

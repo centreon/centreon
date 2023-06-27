@@ -1,3 +1,5 @@
+import { ReactElement } from 'react';
+
 import { ListItemText } from '@mui/material';
 
 type TextProps = {
@@ -8,6 +10,6 @@ type TextProps = {
 export const Text = ({
   primaryText,
   secondaryText
-}: TextProps): JSX.Element => {
+}: TextProps): ReactElement => {
   return <ListItemText primary={primaryText} secondary={secondaryText} />;
 };
