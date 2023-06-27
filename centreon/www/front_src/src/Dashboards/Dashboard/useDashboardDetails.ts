@@ -6,18 +6,20 @@ import { propOr } from 'ramda';
 
 import { useFetchQuery } from '@centreon/ui';
 
-import { dashboardDetailsDecoder } from './api/decoders';
-import { DashboardDetails, Panel, PanelDetails } from './models';
+import { dashboardsEndpoint } from '../api/endpoints';
+import { Dashboard, DashboardPanel, resource } from '../api/models';
+import { dashboardDecoder } from '../api/decoders';
+
+import { Panel } from './models';
 import { dashboardAtom } from './atoms';
-import { getDashboardEndpoint } from './api/endpoints';
 
 interface UseDashboardDetailsState {
-  dashboard?: DashboardDetails;
-  panels?: Array<PanelDetails>;
+  dashboard?: Dashboard;
+  panels?: Array<DashboardPanel>;
 }
 
 interface FormatPanelProps {
-  panel: PanelDetails;
+  panel: DashboardPanel;
   staticPanel?: boolean;
 }
 
@@ -44,18 +46,22 @@ export const routerParams = {
   useParams
 };
 
-const getPanels = (dashboard?: DashboardDetails): Array<PanelDetails> =>
-  propOr([] as Array<PanelDetails>, 'panels', dashboard);
+const getPanels = (dashboard?: Dashboard): Array<DashboardPanel> =>
+  propOr([] as Array<DashboardPanel>, 'panels', dashboard);
 
-const useDashboardDetails = (): UseDashboardDetailsState => {
-  const { dashboardId } = routerParams.useParams();
+type UseDashboardDetailsProps = {
+  dashboardId: string;
+};
 
+const useDashboardDetails = ({
+  dashboardId
+}: UseDashboardDetailsProps): UseDashboardDetailsState => {
   const setDashboard = useSetAtom(dashboardAtom);
 
   const { data: dashboard } = useFetchQuery({
-    decoder: dashboardDetailsDecoder,
-    getEndpoint: () => getDashboardEndpoint(dashboardId),
-    getQueryKey: () => ['dashboard', dashboardId]
+    decoder: dashboardDecoder,
+    getEndpoint: () => `${dashboardsEndpoint}/${dashboardId}`,
+    getQueryKey: () => [resource.dashboards, dashboardId]
   });
 
   const panels = getPanels(dashboard);

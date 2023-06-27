@@ -11,10 +11,8 @@ export const labelDescription = 'Description';
 export const labelCreateDashboard = 'Create dashboard';
 export const labelUpdateDashboard = 'Update dashboard';
 export const labelDeleteDashboard = 'Delete dashboard';
-// note: the full sentence is 'Are you sure you want to delete <strong>{{name}}</strong> ?'
-export const labelDescriptionDeleteDashboardPartOne =
-  'Are you sure you want to delete ';
-export const labelDescriptionDeleteDashboardPartTwo = ' ?';
+export const labelDescriptionDeleteDashboard =
+  'Are you sure you want to delete <strong>{{name}}</strong> ?';
 
 export const labelDashboardCreated = 'Dashboard created';
 export const labelDashboardUpdated = 'Dashboard updated';
@@ -22,4 +20,5 @@ export const labelDashboardDeleted = 'Dashboard deleted';
 export const labelFailedToCreateDashboard = 'Failed to create the dashboard';
 export const labelFailedToUpdateDashboard = 'Failed to update the dashboard';
 export const labelFailedToDeleteDashboard = 'Failed to delete the dashboard';
-export const labelLoading = 'Loading';
+
+export const labelEditAccessRights = 'Manage access rights';
