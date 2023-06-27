@@ -21,12 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Dashboard\Domain\Model;
+namespace Tests\Core\Dashboard\Domain\Model\Share;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardContactShare;
-use Core\Dashboard\Domain\Model\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
+use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 
 beforeEach(function (): void {
     $this->createDashboardContactShare = function (array $fields = []): DashboardContactShare {
@@ -43,7 +44,7 @@ beforeEach(function (): void {
             $fields['id'] ?? 1,
             $fields['name'] ?? 'contact-name',
             $fields['email'] ?? 'contact-email',
-            DashboardSharingRole::tryFrom($fields['role'] ?? '') ?? DashboardSharingRole::Viewer
+            DashboardSharingRoleConverter::fromString($fields['role'] ?? 'viewer')
         );
     };
 });
@@ -56,7 +57,7 @@ it(
         expect($share->getDashboard()->getId())->toBe(99)
             ->and($share->getContactId())->toBe(1)
             ->and($share->getContactName())->toBe('contact-name')
-            ->and($share->getRole())->toBe(DashboardSharingRole::Viewer);
+            ->and($share->getRole()->name)->toBe(DashboardSharingRole::Viewer->name);
     }
 );
 

@@ -21,10 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Domain\Model;
+namespace Core\Dashboard\Domain\Model\Share;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 class DashboardContactGroupShare
 {
@@ -32,7 +34,7 @@ class DashboardContactGroupShare
      * @param Dashboard $dashboard
      * @param int $contactGroupId
      * @param string $contactGroupName
-     * @param DashboardSharingRole $role
+     * @param \Core\Dashboard\Domain\Model\Role\DashboardSharingRole $role
      *
      * @throws AssertionFailedException
      */

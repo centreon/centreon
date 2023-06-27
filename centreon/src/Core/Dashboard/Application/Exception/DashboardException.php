@@ -94,6 +94,6 @@ class DashboardException extends \Exception
      */
     public static function errorTryingToUpdateAPanelWhichDoesNotBelongsToTheDashboard(): self
     {
-        return new self(_('Error while trying to update a dashboard panel which belongs to another dashboard'));
+        return new self(_('Error while trying to update a widget which belongs to another dashboard'));
     }
 }

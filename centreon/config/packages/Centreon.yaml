@@ -34,15 +34,6 @@ services:
 
     Core\:
         resource: '../../src/Core/*'
-        exclude:
-            - '../../src/Core/**/UseCase/**/*Response'
-            - '../../src/Core/**/UseCase/**/*Request'
-            - '../../src/Core/**/UseCase/**/*Dto'
-        bind:
-            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
-
-    Core\Security\:
-        resource: '../../src/Core/Security/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
