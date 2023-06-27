@@ -17705,8 +17705,8 @@ msgstr "Erreur durant la suppression d'un tableau de bord"
 msgid "Error while updating a dashboard"
 msgstr "Erreur lors de la mise à jour d'un tableau de bord"
 
-msgid "Error while trying to update a dashboard panel which belongs to another dashboard"
-msgstr "Erreur lors d'une tentative de mise à jour d'un panneau de tableau de bord qui appartient à un autre tableau de bord"
+msgid "Error while trying to update a widget which belongs to another dashboard"
+msgstr "Erreur lors d'une tentative de mise à jour d'un widget qui appartient à un autre tableau de bord"
 
 msgid "Error while searching for host templates"
 msgstr "Erreur lors de la recherche des modèles d'hôtes"
@@ -17827,3 +17827,15 @@ msgstr "Vous n'êtes pas autorisé à afficher les détails de la notification"
 
 msgid "You are not allowed to update the notification configuration"
 msgstr "Vous n'êtes pas autorisé à mettre à jour la configuration de la notification"
+
+msgid "You are not allowed to access commands"
+msgstr "Vous n'êtes pas autorisé à accéder aux commandes"
+
+msgid "Error while searching for commands"
+msgstr "Erreur lors de la recherche de commandes"
+
+msgid "You are not allowed to partially update a notification configuration"
+msgstr "Vous n'êtes pas autorisé à effectuer la modification partielle d'une configuration de notification"
+
+msgid "Error while partially updating a notification configuration"
+msgstr "Erreur lors de la modification partielle d'une configuration de notification"

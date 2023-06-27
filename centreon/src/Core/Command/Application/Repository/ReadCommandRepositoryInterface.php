@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Command\Application\Repository;
 
-use Core\Common\Domain\CommandType;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Command\Domain\Model\Command;
+use Core\Command\Domain\Model\CommandType;
 
 interface ReadCommandRepositoryInterface
 {
@@ -45,4 +47,17 @@ interface ReadCommandRepositoryInterface
      * @return bool
      */
     public function existsByIdAndCommandType(int $commandId, CommandType $commandType): bool;
+
+    /**
+     * Search for all commands based on request parameters and command types.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param CommandType[] $commandTypes
+     *
+     * @return Command[]
+     */
+    public function findByRequestParameterAndTypes(
+        RequestParametersInterface $requestParameters,
+        array $commandTypes
+    ): array;
 }

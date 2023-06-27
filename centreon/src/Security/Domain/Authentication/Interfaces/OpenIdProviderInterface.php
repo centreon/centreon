@@ -25,7 +25,6 @@ namespace Security\Domain\Authentication\Interfaces;
 
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Security\Domain\Authentication\Model\ProviderToken;
 
 interface OpenIdProviderInterface extends ProviderInterface
 {
@@ -70,4 +69,11 @@ interface OpenIdProviderInterface extends ProviderInterface
      * @return array<string,mixed>
      */
     public function getIdTokenPayload(): array;
+
+    /**
+     * Get ACL Conditions that has been matches
+     *
+     * @return string[]
+     */
+    public function getAclConditionsMatches(): array;
 }

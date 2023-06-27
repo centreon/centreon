@@ -79,6 +79,16 @@ class NotificationException extends \Exception
 
     public static function updateNotAllowed(): self
     {
-        return new self(_('You are not allowed to update the notification configuration'));
+       return new self(_('You are not allowed to update the notification configuration'));
+    }
+
+    public static function partialUpdateNotAllowed(): self
+    {
+        return new self(_('You are not allowed to partially update a notification configuration'));
+    }
+
+    public static function errorWhilePartiallyUpdatingObject(): self
+    {
+        return new self(_('Error while partially updating a notification configuration'));
     }
 }
