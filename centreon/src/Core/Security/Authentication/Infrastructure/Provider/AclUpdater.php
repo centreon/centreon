@@ -87,7 +87,7 @@ class AclUpdater implements AclUpdaterInterface
     }
 
     /**
-     * Delete and Insert Access Group:q!s for authenticated user
+     * Delete and Insert Access Groups for authenticated user
      *
      * @param ContactInterface $user
      * @param AccessGroup[] $userAccessGroups
