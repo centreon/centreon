@@ -8,3 +8,5 @@ www/include/common/javascript/marked.js
 www/include/common/javascript/jquery
 www/lib/wz_tooltip/wz_tooltip.js
 www/install/sql
+www/include/Administration/parameters/backup/formBackup.js
+bin/changeRrdDsName.pl

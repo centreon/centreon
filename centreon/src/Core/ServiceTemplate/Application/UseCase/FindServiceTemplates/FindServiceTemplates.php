@@ -67,6 +67,7 @@ final class FindServiceTemplates
             }
 
             $serviceTemplates = $this->repository->findByRequestParameter($this->requestParameters);
+
             $presenter->presentResponse($this->createResponse($serviceTemplates));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));

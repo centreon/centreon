@@ -7,3 +7,10 @@ properties:
       type: integer
       description: "Host template ID"
     example: [ 1, 2 ]
+  service_categories:
+    type: array
+    descriptions: "IDs of service categories linked to this service template."
+    items:
+      type: integer
+      description: "Service category ID"
+    example: [ 1, 2 ]

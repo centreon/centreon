@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboards;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
@@ -31,11 +30,11 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
-use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponseDto;
-use Core\Dashboard\Application\UseCase\FindDashboards\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 final class FindDashboards
 {
@@ -43,9 +42,10 @@ final class FindDashboards
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadContactRepositoryInterface $readContactRepository,
+        private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
     ) {
     }
@@ -53,12 +53,12 @@ final class FindDashboards
     public function __invoke(FindDashboardsPresenterInterface $presenter): void
     {
         try {
-            if ($this->contact->isAdmin()) {
+            if ($this->rights->hasAdminRole()) {
                 $this->info('Find dashboards', ['request' => $this->requestParameters->toArray()]);
                 $presenter->presentResponse($this->findDashboardAsAdmin());
-            } elseif ($this->contactCanExecuteThisUseCase()) {
+            } elseif ($this->rights->canAccess()) {
                 $this->info('Find dashboards', ['request' => $this->requestParameters->toArray()]);
-                $presenter->presentResponse($this->findDashboardAsContact());
+                $presenter->presentResponse($this->findDashboardAsViewer());
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to see dashboards",
@@ -80,8 +80,14 @@ final class FindDashboards
     private function findDashboardAsAdmin(): FindDashboardsResponse
     {
         $dashboards = $this->readDashboardRepository->findByRequestParameter($this->requestParameters);
+        $contactIds = $this->extractAllContactIdsFromDashboards($dashboards);
 
-        return $this->createResponse($dashboards);
+        return FindDashboardsFactory::createResponse(
+            $dashboards,
+            $this->readContactRepository->findNamesByIds(...$contactIds),
+            $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
+            DashboardSharingRole::Editor
+        );
     }
 
     /**
@@ -89,62 +95,20 @@ final class FindDashboards
      *
      * @return FindDashboardsResponse
      */
-    private function findDashboardAsContact(): FindDashboardsResponse
+    private function findDashboardAsViewer(): FindDashboardsResponse
     {
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
-        $dashboards = $this->readDashboardRepository->findByRequestParameterAndAccessGroups(
-            $accessGroups,
+        $dashboards = $this->readDashboardRepository->findByRequestParameterAndContact(
             $this->requestParameters,
+            $this->contact,
         );
-
-        return $this->createResponse($dashboards);
-    }
-
-    /**
-     * @return bool
-     */
-    private function contactCanExecuteThisUseCase(): bool
-    {
-        return $this->contact->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_READ)
-            || $this->contact->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_WRITE);
-    }
-
-    /**
-     * @param list<Dashboard> $dashboards
-     *
-     * @return FindDashboardsResponse
-     */
-    private function createResponse(array $dashboards): FindDashboardsResponse
-    {
-        $response = new FindDashboardsResponse();
-
         $contactIds = $this->extractAllContactIdsFromDashboards($dashboards);
-        $contactNames = $this->readContactRepository->findNamesByIds(...$contactIds);
 
-        foreach ($dashboards as $dashboard) {
-            $dto = new DashboardResponseDto();
-
-            $dto->id = $dashboard->getId();
-            $dto->name = $dashboard->getName();
-            $dto->description = $dashboard->getDescription();
-            $dto->createdAt = $dashboard->getCreatedAt();
-            $dto->updatedAt = $dashboard->getUpdatedAt();
-
-            if (null !== ($contactId = $dashboard->getCreatedBy())) {
-                $dto->createdBy = new UserResponseDto();
-                $dto->createdBy->id = $contactId;
-                $dto->createdBy->name = $contactNames[$contactId]['name'] ?? '';
-            }
-            if (null !== ($contactId = $dashboard->getCreatedBy())) {
-                $dto->updatedBy = new UserResponseDto();
-                $dto->updatedBy->id = $contactId;
-                $dto->updatedBy->name = $contactNames[$contactId]['name'] ?? '';
-            }
-
-            $response->dashboards[] = $dto;
-        }
-
-        return $response;
+        return FindDashboardsFactory::createResponse(
+            $dashboards,
+            $this->readContactRepository->findNamesByIds(...$contactIds),
+            $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
+            DashboardSharingRole::Viewer
+        );
     }
 
     /**

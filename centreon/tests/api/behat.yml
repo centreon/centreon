@@ -16,8 +16,8 @@ default:
         - Centreon\Test\Api\Context\RealTimeCategoryContext
     dashboard:
       paths:
-        - "%paths.base%/features/Dashboard.OpenApiDoc.feature"
-        - "%paths.base%/features/Dashboard.JsonSchema.feature"
+        - "%paths.base%/features/DashboardWithOpenApi.feature"
+        - "%paths.base%/features/DashboardWithoutOpenApi.feature"
       contexts:
         - Centreon\Test\Api\Context\FeatureFlagContext
     host_category:
@@ -64,14 +64,12 @@ default:
       paths: [ "%paths.base%/features/UserFilter.feature" ]
       contexts:
         - Centreon\Test\Api\Context\UserFilterContext
-    user_parameters:
-      paths: [ "%paths.base%/features/UserParameters.feature" ]
+    users_configuration:
+      paths:
+        - "%paths.base%/features/ConfigurationUsersWithOpenApi.feature"
+        - "%paths.base%/features/ConfigurationUsersWithoutOpenApi.feature"
       contexts:
-        - Centreon\Test\Api\Context\UserParametersContext
-    user_configuration:
-      paths: [ "%paths.base%/features/ConfigurationUsers.feature" ]
-      contexts:
-        - Centreon\Test\Behat\Api\Context\ApiContext
+        - Centreon\Test\Api\Context\FeatureFlagContext
     check:
       paths: [ "%paths.base%/features/Check.feature" ]
       contexts:
@@ -172,3 +170,7 @@ default:
       paths: [ "%paths.base%/features/ServiceTemplatesCloud.feature" ]
       contexts:
       - Centreon\Test\Api\Context\CloudPlatformContext
+    command:
+      paths: [ "%paths.base%/features/Command.feature" ]
+      contexts:
+      - Centreon\Test\Behat\Api\Context\ApiContext
