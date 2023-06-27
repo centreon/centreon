@@ -54,4 +54,11 @@ class Notification extends NewNotification
     {
         return $this->id;
     }
+
+    public function setIsActivated(bool $isActivated): self
+    {
+        $this->isActivated = $isActivated;
+
+        return $this;
+    }
 }

@@ -34,7 +34,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @phpstan-type _ServiceTemplate = array{
- *      host_templates: list<int>
+ *      host_templates: list<int>,
+ *      service_categories: list<int>
  * }
  */
 class PartialUpdateServiceTemplateController extends AbstractController
@@ -90,6 +91,9 @@ class PartialUpdateServiceTemplateController extends AbstractController
         $serviceTemplate = new PartialUpdateServiceTemplateRequest($serviceTemplateId);
         if (array_key_exists('host_templates', $request)) {
             $serviceTemplate->hostTemplates = $request['host_templates'];
+        }
+        if (array_key_exists('service_categories', $request)) {
+            $serviceTemplate->serviceCategories = $request['service_categories'];
         }
 
         return $serviceTemplate;

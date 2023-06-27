@@ -42,3 +42,11 @@ properties:
     items:
       type: integer
     example: [1, 15, 8]
+  templates:
+    type: array
+    items:
+      type: integer
+    description: |
+      Define the parent host templates IDs that should be associated with this host template.
+      The order of the IDs determine the inheritance priority order.
+    example: [3, 12]
