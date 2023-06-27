@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
 
-// import { expect } from '@storybook/jest';
 import { TextOverflowTooltip } from './TextOverflowTooltip';
 
 const meta: Meta<typeof TextOverflowTooltip> = {
