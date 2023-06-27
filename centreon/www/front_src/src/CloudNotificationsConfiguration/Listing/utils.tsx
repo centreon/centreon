@@ -1,7 +1,7 @@
 import { always, cond, equals, T } from 'ramda';
 
-import MailIcon from '@mui/icons-material/MailOutline';
-import SMSIcon from '@mui/icons-material/TextsmsOutlined';
+import MailIcon from '@mui/icons-material/LocalPostOfficeOutlined';
+import SmsIcon from '@mui/icons-material/TextsmsOutlined';
 import { Grid, Box } from '@mui/material';
 
 import type { ComponentColumnProps } from '@centreon/ui';
@@ -36,7 +36,7 @@ export const FormatChannel = ({ channel }: FormatChannelProps): JSX.Element => {
     case ChannelsEnum.Email:
       return <MailIcon fontSize="small" />;
     case ChannelsEnum.Sms:
-      return <SMSIcon fontSize="small" />;
+      return <SmsIcon fontSize="small" />;
     default:
       return <Box />;
   }

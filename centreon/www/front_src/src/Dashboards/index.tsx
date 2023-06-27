@@ -1,3 +1,3 @@
-import Dashboards from './Dashboards';
+import { DashboardsPage } from './DashboardsPage';
 
-export default Dashboards;
+export default DashboardsPage;

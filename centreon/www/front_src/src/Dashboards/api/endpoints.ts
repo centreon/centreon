@@ -1,5 +1,10 @@
-export const baseEndpoint = 'http://localhost:5005/centreon/api/latest';
+export const baseEndpoint = './api/latest';
 
 export const dashboardsEndpoint = `${baseEndpoint}/configuration/dashboards`;
-export const getDashboardSharesEndpoint = (id?: number): string =>
-  `${baseEndpoint}/configuration/dashboards/${id}/shares`;
+
+export const getDashboardEndpoint = (id?: string | number): string =>
+  `${dashboardsEndpoint}/${id}`;
+
+export const getDashboardAccessRightsEndpoint = (
+  id?: string | number
+): string => `${baseEndpoint}/configuration/dashboards/${id}/access_rights`;

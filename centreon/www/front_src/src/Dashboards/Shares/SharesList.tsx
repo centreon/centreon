@@ -1,5 +1,7 @@
+// TODO merge cleanup
+
 import { atom, useAtom } from 'jotai';
-import { equals, dec } from 'ramda';
+import { dec, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { CircularProgress } from '@mui/material';
@@ -7,12 +9,12 @@ import { CircularProgress } from '@mui/material';
 import { useInfiniteScrollListing } from '@centreon/ui';
 import { List, Modal } from '@centreon/ui/components';
 
-import { dashboardShareListDecoder } from '../api/decoders';
-import { getDashboardSharesEndpoint } from '../api/endpoints';
-import { selectedDashboardShareAtom } from '../atoms';
+import { dashboardAccessRightsListDecoder } from '../api/decoders';
+import { getDashboardAccessRightsEndpoint } from '../api/endpoints';
 import { labelSave } from '../Dashboard/translatedLabels';
 import { labelCancel } from '../translatedLabels';
 
+import { selectedDashboardShareAtom } from './atoms';
 import useShareForm from './useShareForm';
 import UserRoleItem from './UserRoleItem';
 import { labelUserRoles } from './translatedLabels';
@@ -35,8 +37,8 @@ const SharesList = ({ id }: Props): JSX.Element => {
     isLoading,
     elementRef
   } = useInfiniteScrollListing({
-    decoder: dashboardShareListDecoder,
-    endpoint: getDashboardSharesEndpoint(selectedDashboardShare),
+    decoder: dashboardAccessRightsListDecoder,
+    endpoint: getDashboardAccessRightsEndpoint(selectedDashboardShare),
     pageAtom,
     queryKeyName: 'dashboard_shares'
   });

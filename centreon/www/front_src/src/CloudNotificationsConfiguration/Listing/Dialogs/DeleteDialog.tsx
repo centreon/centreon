@@ -4,7 +4,6 @@ import { makeStyles } from 'tss-react/mui';
 import { alpha } from '@mui/material';
 
 import { ConfirmDialog } from '@centreon/ui';
-import type { ComponentColumnProps } from '@centreon/ui';
 
 import {
   labelCancel,
@@ -26,22 +25,29 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
+interface Props {
+  notificationName: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+  open: boolean;
+}
+
 const DeleteDialog = ({
-  row,
+  notificationName,
   open,
   onCancel,
   onConfirm
-}: ComponentColumnProps & { open: boolean }): JSX.Element => {
+}: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
   return (
     <ConfirmDialog
-      dialogConfirmBtnClassName={classes.confirmButtons}
+      dialogConfirmButtonClassName={classes.confirmButtons}
       dialogPaperClassName={classes.paper}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDelete)}
-      labelMessage={`${t(labelDelete)} < ${row?.name} >`}
+      labelMessage={`${t(labelDelete)} < ${notificationName} >`}
       labelSecondMessage={t(labelDeleteNotificationWarning)}
       labelTitle={t(labelDeleteNotification)}
       open={open}

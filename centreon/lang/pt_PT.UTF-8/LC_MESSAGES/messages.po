@@ -16187,6 +16187,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Error while updating a dashboard"
 # msgstr ""
 
+# msgid "Error while trying to update a widget which belongs to another dashboard"
+# msgstr ""
+
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:280
 #msgid "Do you really want to unblock this user?"
 #msgstr ""
@@ -16220,7 +16223,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "The service template '%s' is locked and cannot be deleted"
 # msgstr ""
 
-# msgid "You are not allowed to delete this service template"
+# msgid "You are not allowed to delete a service template"
 # msgstr ""
 
 # msgid "Error while deleting the service template"
@@ -16267,6 +16270,42 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "If you leave {{dashboardName}}, your changes will not be saved."
 # msgstr ""
+
+# msgid "Your dashboard has been saved"
+# msgstr ""
+
+#  msgid "You are not allowed to add a service template"
+#  msgstr ""
+
+#  msgid "Error while adding the service template"
+#  msgstr ""
+
+#  msgid "Error while retrieving a service template"
+#  msgstr ""
+
+#  msgid "The service template name '%s' already exists"
+#  msgstr ""
+
+#  msgid "[%s] The value contains unauthorized characters: %s"
+#  msgstr ""
+
+#  msgid "Error while linking host categories to a host template"
+#  msgstr ""
+
+#  msgid "The %s does not exist with id(s) '%s'"
+#  msgstr ""
+
+#  msgid "Error while partially updating a host template"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write actions on host templates"
+#  msgstr ""
+
+#  msgid "Host template #%d not found"
+#  msgstr ""
+
+#  msgid "Circular inheritance not allowed"
+#  msgstr ""
 
 # msgid "Dashboard access rights"
 # msgstr ""

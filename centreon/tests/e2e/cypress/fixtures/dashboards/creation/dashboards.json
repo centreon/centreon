@@ -1,0 +1,10 @@
+{
+  "default": {
+    "name": "dashboard default",
+    "description": "Dashboard with description"
+  },
+  "requiredOnly": {
+    "name": "dashboard with required props",
+    "description": null
+  }
+}

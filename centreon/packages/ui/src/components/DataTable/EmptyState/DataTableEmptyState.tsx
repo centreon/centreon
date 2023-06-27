@@ -29,7 +29,10 @@ const DataTableEmptyState = ({
   const { t } = useTranslation();
 
   return (
-    <div className={classes.dataTableEmptyState}>
+    <div
+      className={classes.dataTableEmptyState}
+      data-testid="data-table-empty-state"
+    >
       <MuiTypography variant="h2">{t(labels.title)}</MuiTypography>
       <div className={classes.actions}>
         {canCreate && (

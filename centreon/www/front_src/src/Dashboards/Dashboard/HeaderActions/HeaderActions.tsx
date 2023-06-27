@@ -1,49 +1,51 @@
-import { useEffect, useMemo, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useSearchParams } from 'react-router-dom';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import ShareIcon from '@mui/icons-material/Share';
 import { Typography } from '@mui/material';
 
-import { Modal, Button, IconButton } from '@centreon/ui/components';
+import { Button, IconButton, Modal } from '@centreon/ui/components';
 
-import {
-  labelExit,
-  labelExitEditionMode,
-  labelEditDashboard,
-  labelSave,
-  labelLeaveEditionModeChangesNotSaved,
-  labelQuitDashboardChangesNotSaved,
-  labelExitDashboard
-} from '../translatedLabels';
+import { Dashboard, DashboardPanel } from '../../api/models';
+import { formatPanel } from '../useDashboardDetails';
+import useDashboardDirty from '../useDashboardDirty';
+import { selectedDashboardShareAtom } from '../../Shares/atoms';
+import { Shares } from '../../Shares';
+import { labelShareTheDashboard } from '../../translatedLabels';
+import useSaveDashboard from '../useSaveDashboard';
 import {
   dashboardAtom,
   isEditingAtom,
   switchPanelsEditionModeDerivedAtom
 } from '../atoms';
-import useDashboardSaveBlocker from '../useDashboardSaveBlocker';
-import { PanelDetails } from '../models';
-import { formatPanel } from '../useDashboardDetails';
-import useDashboardDirty from '../useDashboardDirty';
-import { selectedDashboardShareAtom } from '../../atoms';
-import { Shares } from '../../Shares';
-import { labelShareTheDashboard } from '../../translatedLabels';
+import {
+  labelEditDashboard,
+  labelExit,
+  labelExitDashboard,
+  labelExitEditionMode,
+  labelLeaveEditionModeChangesNotSaved,
+  labelQuitDashboardChangesNotSaved,
+  labelSave
+} from '../translatedLabels';
 
 import { useStyles } from './HeaderActions.styles';
 
 interface HeaderActionsProps {
-  id?: number;
+  id?: Dashboard['id'];
   name?: string;
-  panels?: Array<PanelDetails>;
+  panels?: Array<DashboardPanel>;
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const HeaderActions = ({
   id,
   name,
   panels
-}: HeaderActionsProps): JSX.Element => {
+}: HeaderActionsProps): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -57,20 +59,51 @@ const HeaderActions = ({
   const setDashboard = useSetAtom(dashboardAtom);
   const setSelectedDashboardShareAtom = useSetAtom(selectedDashboardShareAtom);
 
-  const { blocked, blockNavigation, proceedNavigation } =
-    useDashboardSaveBlocker({ id, name });
+  /**
+   * TODO useDashboardSaveBlocker issue with default router behaviour
+   * re-enable when fixed and widget edition is implemented
+   */
+  // const { blocked, blockNavigation, proceedNavigation } =
+  //   useDashboardSaveBlocker({ id, name });
+  const blocked = false;
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type,@typescript-eslint/no-empty-function
+  const blockNavigation = () => {};
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type,@typescript-eslint/no-empty-function
+  const proceedNavigation = () => {};
+
+  const { saveDashboard } = useSaveDashboard();
 
   const dirty = useDashboardDirty(
+    // TODO merge cleanup
     (panels || []).map((panel) => formatPanel({ panel, staticPanel: false }))
   );
 
-  const startEditing = (): void => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const startEditing = useCallback(() => {
     switchPanelsEditionMode(true);
-  };
+    if (searchParams.get('edit') !== 'true') {
+      searchParams.set('edit', 'true');
+      setSearchParams(searchParams);
+    }
+  }, [searchParams, setSearchParams]);
+
+  const stopEditing = useCallback(() => {
+    switchPanelsEditionMode(false);
+    if (searchParams.get('edit') !== null) {
+      searchParams.delete('edit');
+      setSearchParams(searchParams);
+    }
+  }, [searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (searchParams.get('edit') === 'true') startEditing();
+    if (searchParams.get('edit') === null) stopEditing();
+  }, [searchParams]);
 
   const askCancelConfirmation = (): void => {
     if (!dirty) {
-      switchPanelsEditionMode(false);
+      stopEditing();
 
       return;
     }
@@ -97,11 +130,19 @@ const HeaderActions = ({
     setDashboard({
       layout: panels?.map((panel) => formatPanel({ panel })) || []
     });
-    switchPanelsEditionMode(false);
+    stopEditing();
     closeAskCancelConfirmationAndProceed();
   };
 
-  const savePanels = (): void => undefined;
+  const saveAndProceed = (): void => {
+    saveDashboard();
+    setIsAskingCancelConfirmation(false);
+    switchPanelsEditionMode(false);
+
+    if (blocked) {
+      proceedNavigation?.();
+    }
+  };
 
   const openShareModal = (): void => setSelectedDashboardShareAtom(id);
 
@@ -128,6 +169,7 @@ const HeaderActions = ({
     [blocked, isAskingCancelConfirmation, name]
   );
 
+  // TODO evaluate if we need styling here (the PageHeader component is already taking care of this)
   if (!isEditing) {
     return (
       <div className={classes.headerActions}>
@@ -135,6 +177,7 @@ const HeaderActions = ({
           data-testid="edit_dashboard"
           icon={<EditOutlinedIcon />}
           iconVariant="start"
+          size="small"
           variant="ghost"
           onClick={startEditing}
         >
@@ -146,6 +189,7 @@ const HeaderActions = ({
           icon={<ShareIcon />}
           onClick={openShareModal}
         />
+        {/* TODO merge cleanup */}
         <Shares id={id} />
       </div>
     );
@@ -154,11 +198,23 @@ const HeaderActions = ({
   return (
     <div className={classes.headerActions}>
       <Button
+        aria-label={t(labelExit) as string}
         data-testid="cancel_dashboard"
+        size="small"
         variant="ghost"
         onClick={askCancelConfirmation}
       >
         {t(labelExit)}
+      </Button>
+      <Button
+        aria-label={t(labelSave) as string}
+        data-testid="save_dashboard"
+        disabled={!dirty}
+        size="small"
+        variant="ghost"
+        onClick={saveAndProceed}
+      >
+        {t(labelSave)}
       </Button>
       <Modal
         open={isAskingCancelConfirmation}
@@ -174,11 +230,11 @@ const HeaderActions = ({
             confirm: t(labelSave)
           }}
           onCancel={cancelEditing}
-          onConfirm={savePanels}
+          onConfirm={saveAndProceed}
         />
       </Modal>
     </div>
   );
 };
 
-export default HeaderActions;
+export { HeaderActions };

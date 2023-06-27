@@ -14,8 +14,9 @@ export const searchAtom = atom<string>('');
 export const isPanelOpenAtom = atom<boolean>(false);
 
 export const panelWidthStorageAtom = atomWithStorage(
-  'centreon-cloud-notifications-width',
-  750
+  'cloud-notifications-panel-width',
+  800
 );
 
 export const selectedRowsAtom = atom<Array<NotificationsType>>([]);
+export const notificationsNamesAtom = atom<Array<string>>([]);

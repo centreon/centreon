@@ -32,24 +32,16 @@ const useStyle = makeStyles()((theme: Theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(3),
-    marginTop: theme.spacing(6)
+    marginTop: theme.spacing(8)
   },
   icon: {
-    marginBottom: theme.spacing(2)
+    marginBottom: theme.spacing(3)
   },
   text: {
-    fontWeight: theme.typography.fontWeightBold,
-    margin: theme.spacing(0, 3)
+    fontWeight: theme.typography.fontWeightBold
   },
   title: {
-    borderBottom: `1px solid ${
-      isDarkMode(theme)
-        ? theme.palette.common.black
-        : theme.palette.primary.dark
-    }`,
-    fontWeight: 'bold',
-    maxWidth: '90%',
-    paddingBottom: theme.spacing(0.75)
+    maxWidth: '90%'
   }
 }));
 
@@ -60,13 +52,15 @@ const EmptyNotificationsPage = (): JSX.Element => {
 
   return (
     <Box className={classes.container}>
-      <Title className={classes.title} />
+      <Box className={classes.title}>
+        <Title />
+      </Box>
       <Box className={classes.content}>
         <Box className={classes.icon}>
           <EmptyNotificationsIcon />
         </Box>
 
-        <Typography className={classes.text} variant="h5">
+        <Typography className={classes.text} variant="h4">
           {t(labelWelcomeToTheNotifications)}
         </Typography>
         <Button

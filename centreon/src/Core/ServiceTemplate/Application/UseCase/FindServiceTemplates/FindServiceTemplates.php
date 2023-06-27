@@ -67,6 +67,7 @@ final class FindServiceTemplates
             }
 
             $serviceTemplates = $this->repository->findByRequestParameter($this->requestParameters);
+
             $presenter->presentResponse($this->createResponse($serviceTemplates));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
@@ -126,6 +127,8 @@ final class FindServiceTemplates
             $dto->retryCheckInterval = $serviceTemplate->getRetryCheckInterval();
             $dto->serviceTemplateId = $serviceTemplate->getServiceTemplateParentId();
             $dto->severityId = $serviceTemplate->getSeverityId();
+            $dto->hostTemplateIds = $serviceTemplate->getHostTemplateIds();
+
             $response->serviceTemplates[] = $dto;
         }
 

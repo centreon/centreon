@@ -28,7 +28,8 @@ use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardPresenterInterface;
 use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardResponse;
-use Core\Dashboard\Application\UseCase\AddDashboard\AddDashboardUserDto;
+use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
+use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -39,6 +40,7 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
     use PresenterTrait;
     use LoggerTrait;
     private const ROUTE_NAME = 'FindDashboard';
+    private const ROUTE_DASHBOARD_ID = 'dashboardId';
 
     /**
      * @param PresenterFormatterInterface $presenterFormatter
@@ -66,13 +68,14 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
                         'updated_by' => $this->userToOptionalArray($data->updatedBy),
                         'created_at' => $this->formatDateToIso8601($data->createdAt),
                         'updated_at' => $this->formatDateToIso8601($data->updatedAt),
+                        'own_role' => DashboardSharingRoleConverter::toString($data->ownRole),
                     ]
                 )
             );
 
             try {
                 $this->setResponseHeaders([
-                    'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $data->id]),
+                    'Location' => $this->router->generate(self::ROUTE_NAME, [self::ROUTE_DASHBOARD_ID => $data->id]),
                 ]);
             } catch (\Throwable $ex) {
                 $this->error('Impossible to generate the location header', [
@@ -88,11 +91,11 @@ final class AddDashboardPresenter extends DefaultPresenter implements AddDashboa
     }
 
     /**
-     * @param ?AddDashboardUserDto $dto
+     * @param ?UserResponseDto $dto
      *
      * @return null|array{id: int, name: string}
      */
-    private function userToOptionalArray(?AddDashboardUserDto $dto): ?array
+    private function userToOptionalArray(?UserResponseDto $dto): ?array
     {
         return $dto ? [
             'id' => $dto->id,

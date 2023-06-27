@@ -24,15 +24,16 @@ declare(strict_types=1);
 namespace Tests\Core\ServiceTemplate\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Core\ServiceTemplate\Domain\Model\NotificationType;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 
 /**
  * @param $values*
  *
- * @return ServiceTemplate
- *
  * @throws \Assert\AssertionFailedException
+ *
+ * @return ServiceTemplate
  */
 function createServiceTemplate($values): ServiceTemplate
 {
@@ -44,7 +45,6 @@ foreach (
         'name' => ServiceTemplate::MAX_NAME_LENGTH,
         'alias' => ServiceTemplate::MAX_ALIAS_LENGTH,
         'comment' => ServiceTemplate::MAX_COMMENT_LENGTH,
-        'description' => ServiceTemplate::MAX_DESCRIPTION_LENGTH,
         'note' => ServiceTemplate::MAX_NOTES_LENGTH,
         'noteUrl' => ServiceTemplate::MAX_NOTES_URL_LENGTH,
     ] as $field => $length
@@ -54,7 +54,7 @@ foreach (
         fn() => (createServiceTemplate([$field => ' ']))
     )->throws(
         AssertionException::class,
-        AssertionException::notEmptyString("ServiceTemplate::$field")->getMessage()
+        AssertionException::notEmptyString("ServiceTemplate::{$field}")->getMessage()
     );
 
     $tooLongString = str_repeat('a', $length + 1);
@@ -68,7 +68,7 @@ foreach (
             $tooLongString,
             $length + 1,
             $length,
-            "ServiceTemplate::$field"
+            "ServiceTemplate::{$field}"
         )->getMessage()
     );
 }
@@ -84,7 +84,7 @@ foreach (
         'firstNotificationDelay',
         'acknowledgementTimeout',
         'lowFlapThreshold',
-        'highFlapThreshold'
+        'highFlapThreshold',
     ] as $field
 ) {
     it(
@@ -95,13 +95,14 @@ foreach (
         AssertionException::min(
             -1,
             0,
-            "ServiceTemplate::$field"
+            "ServiceTemplate::{$field}"
         )->getMessage()
     );
 }
 
 foreach (
     [
+        'id',
         'serviceTemplateParentId',
         'commandId',
         'eventHandlerId',
@@ -109,7 +110,7 @@ foreach (
         'checkTimePeriodId',
         'iconId',
         'graphTemplateId',
-        'severityId'
+        'severityId',
     ] as $field
 ) {
     it(
@@ -120,7 +121,25 @@ foreach (
         AssertionException::min(
             0,
             1,
-            "ServiceTemplate::$field"
+            "ServiceTemplate::{$field}"
+        )->getMessage()
+    );
+}
+
+foreach (
+    [
+        'hostTemplateIds',
+    ] as $field
+) {
+    it(
+        "should throw an exception when service template {$field} contains a list of integers less than 1",
+        fn() => (createServiceTemplate([$field => [0]]))
+    )->throws(
+        AssertionException::class,
+        AssertionException::min(
+            0,
+            1,
+            "ServiceTemplate::{$field}"
         )->getMessage()
     );
 }
@@ -128,7 +147,7 @@ foreach (
 foreach (['commandArguments', 'eventHandlerArguments'] as $field) {
     it(
         "should convert all argument values of the {$field} field to strings only if they are of scalar type",
-        function () use ($field) {
+        function () use ($field): void {
             $arguments = [1, 2, '3', new \Exception()];
             $serviceTemplate = new ServiceTemplate(1, 'fake_name', 'fake_alias', ...[$field => $arguments]);
             $methodName = 'get' . ucfirst($field);
@@ -138,8 +157,8 @@ foreach (['commandArguments', 'eventHandlerArguments'] as $field) {
 }
 
 it(
-    "should throw an exception when one of the arguments in the notification list is not of the correct type",
-    fn() => (new ServiceTemplate(1, 'fake_name', 'fake_alias', ...['notificationTypes' => ["fake"]]))
+    'should throw an exception when one of the arguments in the notification list is not of the correct type',
+    fn() => (new ServiceTemplate(1, 'fake_name', 'fake_alias', ...['notificationTypes' => ['fake']]))
 )->throws(
     AssertionException::class,
     AssertionException::badInstanceOfObject(
@@ -147,4 +166,36 @@ it(
         NotificationType::class,
         'ServiceTemplate::notificationTypes'
     )->getMessage()
+);
+
+it(
+    'should throw an exception when name contains illegal characters',
+    fn() => (new ServiceTemplate(1, 'fake_name' . MonitoringServer::ILLEGAL_CHARACTERS[0], 'fake_alias'))
+)->throws(
+    AssertionException::class,
+    AssertionException::unauthorizedCharacters(
+        'fake_name' . MonitoringServer::ILLEGAL_CHARACTERS[0],
+        MonitoringServer::ILLEGAL_CHARACTERS[0],
+        'ServiceTemplate::name'
+    )->getMessage()
+);
+
+it(
+    'should throw an exception when alias contains illegal characters',
+    fn() => (new ServiceTemplate(1, 'fake_name', 'fake_alias' . MonitoringServer::ILLEGAL_CHARACTERS[0]))
+)->throws(
+    AssertionException::class,
+    AssertionException::unauthorizedCharacters(
+        'fake_alias' . MonitoringServer::ILLEGAL_CHARACTERS[0],
+        MonitoringServer::ILLEGAL_CHARACTERS[0],
+        'ServiceTemplate::alias'
+    )->getMessage()
+);
+
+it(
+    'should remove spaces that are too long in the alias',
+    function (): void {
+        $serviceTemplate = new ServiceTemplate(1, 'fake_name', '   fake   alias       ok    ');
+        expect($serviceTemplate->getAlias())->toBe('fake alias ok');
+    }
 );

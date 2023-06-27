@@ -175,7 +175,12 @@ INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`,
 
 -- Add unified view page entry
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`) VALUES ('Resources Status', '/monitoring/resources', '1', '1', 2, 200, 1, 2);
-INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`, `topology_feature_flag`) VALUES ('Dashboard (beta)', '/home/dashboards', '1', '1', 1, 104, 1, 2, 'dashboard');
+
+-- Add dashboard page entry
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`, `topology_feature_flag`) VALUES ('Dashboard', '/home/dashboards', '1', '1', 1, 104, 1, 2, 'dashboard');
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Viewer', '/home/dashboards', '1', '0', 104, 10401, '0', 'dashboard');
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Creator', '/home/dashboards', '1', '0', 104, 10402, '0', 'dashboard');
+INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Administrator', '/home/dashboards', '1', '0', 104, 10403, '0', 'dashboard');
 
 -- Add password policy page
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_group`, `topology_order`) VALUES ('Authentication', '/administration/authentication', '1', '1', 5, 509, 1, 10);

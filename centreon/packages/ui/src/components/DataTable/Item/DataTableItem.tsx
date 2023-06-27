@@ -7,7 +7,11 @@ import {
   CardContent as MuiCardContent,
   Typography as MuiTypography
 } from '@mui/material';
-import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import {
+  Delete as DeleteIcon,
+  Settings as SettingsIcon,
+  Share as ShareIcon
+} from '@mui/icons-material';
 
 import { IconButton } from '../../Button';
 
@@ -20,6 +24,7 @@ export interface DataTableItemProps {
   onClick?: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
+  onEditAccessRights?: () => void;
   title: string;
 }
 
@@ -32,7 +37,8 @@ const DataTableItem = forwardRef(
       hasActions = false,
       onClick,
       onEdit,
-      onDelete
+      onDelete,
+      onEditAccessRights
     }: DataTableItemProps,
     ref
   ): ReactElement => {
@@ -58,22 +64,34 @@ const DataTableItem = forwardRef(
         </ActionArea>
         {hasActions && (
           <MuiCardActions>
-            <IconButton
-              aria-label="edit"
-              data-testid="edit"
-              icon={<EditIcon />}
-              size="small"
-              variant="primary"
-              onClick={() => onEdit?.()}
-            />
-            <IconButton
-              aria-label="delete"
-              data-testid="delete"
-              icon={<DeleteIcon />}
-              size="small"
-              variant="ghost"
-              onClick={() => onDelete?.()}
-            />
+            <span>
+              <IconButton
+                aria-label="delete"
+                data-testid="delete"
+                icon={<DeleteIcon />}
+                size="small"
+                variant="ghost"
+                onClick={() => onDelete?.()}
+              />
+            </span>
+            <span>
+              <IconButton
+                aria-label="edit access rights"
+                data-testid="edit-access-rights"
+                icon={<ShareIcon />}
+                size="small"
+                variant="primary"
+                onClick={() => onEditAccessRights?.()}
+              />
+              <IconButton
+                aria-label="edit"
+                data-testid="edit"
+                icon={<SettingsIcon />}
+                size="small"
+                variant="primary"
+                onClick={() => onEdit?.()}
+              />
+            </span>
           </MuiCardActions>
         )}
       </MuiCard>

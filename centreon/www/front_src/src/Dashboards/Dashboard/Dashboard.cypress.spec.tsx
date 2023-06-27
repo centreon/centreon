@@ -1,39 +1,38 @@
-/* eslint-disable import/no-unresolved */
+/* eslint-disable import/no-unresolved,@typescript-eslint/no-unused-vars */
+// TODO merge cleanup
 
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
-import { unstable_Blocker } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   DashboardGlobalRole,
   ListingVariant,
   userAtom
 } from '@centreon/ui-context';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import { federatedWidgetsAtom } from '../../federatedModules/atoms';
+// import { unstable_Blocker } from 'react-router-dom';
+// import { router } from './useDashboardSaveBlocker';
+import { DashboardRole } from '../api/models';
 import {
   dashboardsEndpoint,
-  getDashboardSharesEndpoint
+  getDashboardAccessRightsEndpoint,
+  getDashboardEndpoint
 } from '../api/endpoints';
-import { DashboardRole } from '../models';
 import { labelShareTheDashboard } from '../translatedLabels';
 import { labelUserRolesAreUpdated } from '../Shares/translatedLabels';
-
-import { router } from './useDashboardSaveBlocker';
 import {
   labelEditDashboard,
-  labelExit,
-  labelExitDashboard,
-  labelExitEditionMode,
-  labelLeaveEditionModeChangesNotSaved,
   labelSave
 } from './translatedLabels';
-import { routerParams } from './useDashboardDetails';
-import { dashboardAtom } from './atoms';
 
-import Dashboard from '.';
+import { routerParams } from './useDashboardDetails';
+import { Dashboard } from './Dashboard';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
   const federatedWidgets = [
@@ -53,23 +52,23 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
   return store;
 };
 
-const initializeBlocker = (isNavigationBlocked = false): unstable_Blocker => {
-  const useBlockerResult: unstable_Blocker = {
-    location: {
-      hash: '',
-      key: '5nvxpbdafa',
-      pathname: '/dashboards/1',
-      search: '',
-      state: null
-    },
-    proceed: cy.stub(),
-    reset: cy.stub(),
-    state: isNavigationBlocked ? 'blocked' : 'unblocked'
-  };
-  cy.stub(router, 'useBlocker').returns(useBlockerResult);
-
-  return useBlockerResult;
-};
+// const initializeBlocker = (isNavigationBlocked = false): unstable_Blocker => {
+//   const useBlockerResult: unstable_Blocker = {
+//     location: {
+//       hash: '',
+//       key: '5nvxpbdafa',
+//       pathname: '/dashboards/1',
+//       search: '',
+//       state: null
+//     },
+//     proceed: cy.stub(),
+//     reset: cy.stub(),
+//     state: isNavigationBlocked ? 'blocked' : 'unblocked'
+//   };
+//   cy.stub(router, 'useBlocker').returns(useBlockerResult);
+//
+//   return useBlockerResult;
+// };
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
@@ -142,7 +141,7 @@ const initializeAndMount = ({
     cy.interceptAPIRequest({
       alias: 'getDashboardDetails',
       method: Method.GET,
-      path: `${dashboardsEndpoint}/1`,
+      path: getDashboardEndpoint('1'),
       response: {
         ...dashboardDetails,
         own_role: ownRole
@@ -150,19 +149,35 @@ const initializeAndMount = ({
     });
   });
 
-  cy.fixture('Dashboards/Dashboard/shares.json').then((shares) => {
+  cy.interceptAPIRequest({
+    alias: 'patchDashboardDetails',
+    method: Method.PATCH,
+    path: getDashboardEndpoint('1'),
+    statusCode: 201
+  });
+
+  cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
     cy.interceptAPIRequest({
-      alias: 'getDashboardShares',
+      alias: 'getDashboards',
       method: Method.GET,
-      path: getDashboardSharesEndpoint(1),
+      path: `${dashboardsEndpoint}?**`,
+      response: dashboards
+    });
+  });
+
+  cy.fixture('Dashboards/Dashboard/accessRights.json').then((shares) => {
+    cy.interceptAPIRequest({
+      alias: 'getDashboardAccessRights',
+      method: Method.GET,
+      path: getDashboardAccessRightsEndpoint(1),
       response: shares
     });
   });
 
   cy.interceptAPIRequest({
-    alias: 'putDashboardShares',
+    alias: 'putDashboardAccessRights',
     method: Method.PUT,
-    path: getDashboardSharesEndpoint(1),
+    path: getDashboardAccessRightsEndpoint(1),
     statusCode: 204
   });
 
@@ -170,13 +185,15 @@ const initializeAndMount = ({
 
   cy.mount({
     Component: (
-      <SnackbarProvider>
-        <TestQueryProvider>
-          <Provider store={store}>
-            <Dashboard />
-          </Provider>
-        </TestQueryProvider>
-      </SnackbarProvider>
+      <TestQueryProvider>
+        <BrowserRouter>
+          <SnackbarProvider>
+            <Provider store={store}>
+              <Dashboard />
+            </Provider>
+          </SnackbarProvider>
+        </BrowserRouter>
+      </TestQueryProvider>
     )
   });
 
@@ -184,7 +201,11 @@ const initializeAndMount = ({
 };
 
 describe('Dashboard', () => {
+  // FIXME the `unstable_Blocker` is conflicting with the default behavior of react-router-dom, feature has been disabled for now
+  /*
+  describe('Unsaved changes navigation blocker', () => {
   it('cancels the dashboard changes when the "Cancel" button is clicked in the confirmation modal', () => {
+
     initializeBlocker();
     const store = initializeAndMount({});
 
@@ -310,9 +331,37 @@ describe('Dashboard', () => {
       });
   });
 
+  it('saves the dashboard when the corresponding button is clicked and the dashboard is changed', () => {
+    initializeBlocker();
+    const store = initializeAndMount({});
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.contains(labelEditDashboard).click();
+
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.fixture('Dashboards/Dashboard/updatedLayout.json').then((panels) => {
+      store.set(dashboardAtom, {
+        layout: panels
+      });
+    });
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@patchDashboardDetails');
+
+    cy.contains(labelYourDashboardHasBeenSaved).should('be.visible');
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.matchImageSnapshot();
+  });
+  });
+  */
+
   describe('Roles', () => {
     it('has access to the dashboard edition features when the user has the editor role', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
@@ -321,7 +370,7 @@ describe('Dashboard', () => {
     });
 
     it('does not have access to the dashboard edition features when the user has the viewer role and the global viewer role', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(viewerRoles);
 
       cy.waitForRequest('@getDashboardDetails');
@@ -330,7 +379,7 @@ describe('Dashboard', () => {
     });
 
     it('does not have access to the dashboard edition features when the user has the viewer role and the global creator role', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(viewerCreatorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
@@ -339,7 +388,7 @@ describe('Dashboard', () => {
     });
 
     it('has access to the dashboard edition features when the user has the viewer role and the global administrator role', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(viewerAdministratorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
@@ -348,14 +397,14 @@ describe('Dashboard', () => {
     });
   });
 
-  describe('Shares', () => {
+  describe('AccessRights', () => {
     it('displays the list of user roles when the corresponding button is clicked', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(editorRoles);
 
       cy.findByLabelText(labelShareTheDashboard).click();
 
-      cy.fixture('Dashboards/Dashboard/shares.json').then((shares) => {
+      cy.fixture('Dashboards/Dashboard/accessRights.json').then((shares) => {
         shares.result.forEach(({ fullname, email, role }, index) => {
           cy.get('[data-element="avatar"]')
             .contains(fullname[0])
@@ -375,7 +424,7 @@ describe('Dashboard', () => {
     });
 
     it('changes a user role when a new role is selected for a user and the corresponding button is clicked', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(editorRoles);
 
       cy.findByLabelText(labelShareTheDashboard).click();
@@ -395,7 +444,7 @@ describe('Dashboard', () => {
     });
 
     it('removes a user from the list when the corresponding button is clicked', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(editorRoles);
 
       cy.findByLabelText(labelShareTheDashboard).click();
@@ -412,7 +461,7 @@ describe('Dashboard', () => {
     });
 
     it('does not display the share button when the user has only the viewer role', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(viewerRoles);
 
       cy.findByLabelText(labelShareTheDashboard).should('not.exist');
@@ -421,7 +470,7 @@ describe('Dashboard', () => {
     });
 
     it('updates the list of user roles when the list is updated and the corresponding button is clicked', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(editorRoles);
 
       cy.findByLabelText(labelShareTheDashboard).click();
@@ -431,7 +480,7 @@ describe('Dashboard', () => {
 
       cy.findByLabelText(labelSave).click();
 
-      cy.waitForRequest('@putDashboardShares');
+      cy.waitForRequest('@putDashboardAccessRights');
 
       cy.contains(labelUserRolesAreUpdated).should('be.visible');
     });

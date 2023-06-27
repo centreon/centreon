@@ -1,19 +1,19 @@
-import { ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 
-import { List as MUIList } from '@mui/material';
+import { List as MuiList } from '@mui/material';
 
-import { useListStyles } from './List.styles';
+import { useStyles } from './List.styles';
 
 type Props = {
   children: ReactNode;
 };
 
-export const List = ({ children }: Props): JSX.Element => {
-  const { classes } = useListStyles();
+export const List = ({ children }: Props): ReactElement => {
+  const { classes } = useStyles();
 
   return (
-    <MUIList dense className={classes.list}>
+    <MuiList dense className={classes.list}>
       {children}
-    </MUIList>
+    </MuiList>
   );
 };

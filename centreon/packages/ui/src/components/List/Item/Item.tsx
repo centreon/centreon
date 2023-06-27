@@ -3,7 +3,7 @@ import { ForwardedRef, forwardRef, ReactElement } from 'react';
 import { ListItem } from '@mui/material';
 
 type ItemProps = {
-  action?: JSX.Element;
+  action?: ReactElement;
   children: ReactElement | Array<ReactElement>;
 };
 

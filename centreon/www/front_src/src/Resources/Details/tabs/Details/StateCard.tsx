@@ -32,15 +32,20 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
+interface ContentLine {
+  line: string;
+  testId?: string;
+}
+
 interface Props {
   chip: JSX.Element;
   commentLine: string;
-  contentLines: Array<string>;
+  contentLines: Array<ContentLine>;
   title: string;
 }
 
-const Line = (line): JSX.Element => (
-  <Typography component="p" key={line} variant="body2">
+const Line = ({ line, testId }: ContentLine): JSX.Element => (
+  <Typography component="p" data-testid={testId} key={line} variant="body2">
     {line}
   </Typography>
 );
@@ -73,7 +78,7 @@ const StateCard = ({
         >
           {t(labelComment)}
         </Typography>
-        <div className={classes.comment}>{Line(commentLine)}</div>
+        <div className={classes.comment}>{Line({ line: commentLine })}</div>
         <div className={classes.chip}>{chip}</div>
       </div>
     </Card>

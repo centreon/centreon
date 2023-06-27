@@ -71,4 +71,14 @@ class NotificationException extends \Exception
     {
         return new self(sprintf(_('Notification #%d should have at least one user'), $notificationId));
     }
+
+    public static function partialUpdateNotAllowed(): self
+    {
+        return new self(_('You are not allowed to partially update a notification configuration'));
+    }
+
+    public static function errorWhilePartiallyUpdatingObject(): self
+    {
+        return new self(_('Error while partially updating a notification configuration'));
+    }
 }

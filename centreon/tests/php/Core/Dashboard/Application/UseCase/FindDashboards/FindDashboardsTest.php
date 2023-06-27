@@ -23,31 +23,28 @@ declare(strict_types=1);
 
 namespace Tests\Core\Dashboard\Application\UseCase\FindDashboards;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboards;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsResponse;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Dashboard\Domain\Model\DashboardRights;
 
 beforeEach(function (): void {
-    $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class);
-    $this->contact = $this->createMock(ContactInterface::class);
-
-    $this->presenter = new FindDashboardsPresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $this->presenter = new FindDashboardsPresenterStub();
     $this->useCase = new FindDashboards(
-        $this->readDashboardRepository,
-        $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class),
+        $this->createMock(ReadDashboardShareRepositoryInterface::class),
         $this->createMock(RequestParametersInterface::class),
         $this->createMock(ReadContactRepositoryInterface::class),
-        $this->contact
+        $this->rights = $this->createMock(DashboardRights::class),
+        $this->contact = $this->createMock(ContactInterface::class)
     );
 
     $this->testedDashboard = new Dashboard(
@@ -64,14 +61,10 @@ beforeEach(function (): void {
 it(
     'should present an ErrorResponse when an exception is thrown',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
-        $this->readDashboardRepository
-            ->expects($this->once())
-            ->method('findByRequestParameter')
-            ->willThrowException(new \Exception());
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findByRequestParameter')->willThrowException(new \Exception());
 
         ($this->useCase)($this->presenter);
 
@@ -85,19 +78,10 @@ it(
 it(
     'should present a ForbiddenResponse when the user does not have the correct role',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_HOME_DASHBOARD_READ, false],
-                    [Contact::ROLE_HOME_DASHBOARD_WRITE, false],
-                ]
-            );
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canAccess')->willReturn(false);
 
         ($this->useCase)($this->presenter);
 
@@ -111,14 +95,10 @@ it(
 it(
     'should present a FindDashboardsResponse as admin',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(true);
-        $this->readDashboardRepository
-            ->expects($this->once())
-            ->method('findByRequestParameter')
-            ->willReturn([$this->testedDashboard]);
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findByRequestParameter')->willReturn([$this->testedDashboard]);
 
         ($this->useCase)($this->presenter);
 
@@ -140,25 +120,12 @@ it(
 );
 
 it(
-    'should present a FindDashboardsResponse as allowed READ user',
+    'should present a FindDashboardsResponse as allowed ADMIN user',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_HOME_DASHBOARD_READ, true],
-                    [Contact::ROLE_HOME_DASHBOARD_WRITE, false],
-                ]
-            );
-        $this->readDashboardRepository
-            ->expects($this->once())
-            ->method('findByRequestParameterAndAccessGroups')
-            ->willReturn([$this->testedDashboard]);
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findByRequestParameter')->willReturn([$this->testedDashboard]);
 
         ($this->useCase)($this->presenter);
 
@@ -176,27 +143,15 @@ it(
             ->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
     }
 );
-
 it(
-    'should present a FindDashboardsResponse as allowed READ_WRITE user',
+    'should present a FindDashboardsResponse as allowed VIEWER user',
     function (): void {
-        $this->contact
-            ->expects($this->once())
-            ->method('isAdmin')
-            ->willReturn(false);
-        $this->contact
-            ->expects($this->atMost(2))
-            ->method('hasTopologyRole')
-            ->willReturnMap(
-                [
-                    [Contact::ROLE_HOME_DASHBOARD_READ, true],
-                    [Contact::ROLE_HOME_DASHBOARD_WRITE, false],
-                ]
-            );
-        $this->readDashboardRepository
-            ->expects($this->once())
-            ->method('findByRequestParameterAndAccessGroups')
-            ->willReturn([$this->testedDashboard]);
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canAccess')->willReturn(true);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findByRequestParameterAndContact')->willReturn([$this->testedDashboard]);
 
         ($this->useCase)($this->presenter);
 

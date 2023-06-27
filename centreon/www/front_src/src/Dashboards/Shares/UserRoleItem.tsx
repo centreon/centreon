@@ -9,7 +9,7 @@ import RotateRightIcon from '@mui/icons-material/RotateRight';
 import { IconButton, List } from '@centreon/ui/components';
 import { SelectField, useMemoComponent } from '@centreon/ui';
 
-import { DashboardRole } from '../models';
+import { DashboardRole } from '../api/models';
 
 const options = [
   {
@@ -36,16 +36,16 @@ interface Props {
 }
 
 const UserRoleItem = ({
-  role,
-  change,
-  toggle,
-  id,
-  elementRef,
-  fullname,
-  email,
-  name,
-  isRemoved
-}: Props): JSX.Element => {
+                        role,
+                        change,
+                        toggle,
+                        id,
+                        elementRef,
+                        fullname,
+                        email,
+                        name,
+                        isRemoved
+                      }: Props): JSX.Element => {
   return useMemoComponent({
     Component: (
       <List.Item

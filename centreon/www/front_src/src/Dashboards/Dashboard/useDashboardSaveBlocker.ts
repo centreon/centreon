@@ -4,7 +4,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { unstable_useBlocker } from 'react-router-dom';
 import { equals } from 'ramda';
 
-import { NamedEntity } from '../models';
+import { NamedEntity } from '../api/models';
 
 import {
   dashboardAtom,
