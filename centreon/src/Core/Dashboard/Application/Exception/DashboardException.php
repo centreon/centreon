@@ -50,6 +50,21 @@ class DashboardException extends \Exception
     }
 
     /**
+     * @param int $dashboardId
+     *
+     * @return self
+     */
+    public static function dashboardAccessRightsNotAllowedForWriting(int $dashboardId): self
+    {
+        return new self(
+            sprintf(
+                _('You are not allowed to perform write operations on the dashboard #%d access rights'),
+                $dashboardId
+            )
+        );
+    }
+
+    /**
      * @return self
      */
     public static function errorWhileAdding(): self
@@ -95,5 +110,33 @@ class DashboardException extends \Exception
     public static function errorTryingToUpdateAPanelWhichDoesNotBelongsToTheDashboard(): self
     {
         return new self(_('Error while trying to update a widget which belongs to another dashboard'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileRetrievingJustCreatedShare(): self
+    {
+        return new self(_('Error while retrieving newly created dashboard share'));
+    }
+
+    /**
+     * @param int $contactGroupId
+     *
+     * @return self
+     */
+    public static function theContactGroupDoesNotExist(int $contactGroupId): self
+    {
+        return new self(sprintf(_("The contact group id #%d doesn't exist"), $contactGroupId));
+    }
+
+    /**
+     * @param int $contactId
+     *
+     * @return self
+     */
+    public static function theContactDoesNotExist(int $contactId): self
+    {
+        return new self(sprintf(_("The contact id #%d doesn't exist"), $contactId));
     }
 }

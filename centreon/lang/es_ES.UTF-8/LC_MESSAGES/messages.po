@@ -15732,6 +15732,9 @@ msgstr ""
 # msgid "You are not allowed to perform write operations on dashboards"
 # msgstr ""
 
+# msgid "You are not allowed to perform write operations on the dashboard #%d access rights"
+# msgstr ""
+
 # msgid "Error while retrieving a dashboard"
 # msgstr ""
 
@@ -15849,6 +15852,27 @@ msgstr ""
 
 #  msgid "Host template #%d not found"
 #  msgstr ""
+
+# msgid "The contact id #%d doesn't exist"
+# msgstr ""
+
+# msgid "Error while retrieving newly created dashboard share"
+# msgstr ""
+
+# msgid "Error while adding a dashboard share"
+# msgstr ""
+
+# msgid "Error while searching dashboard shares"
+# msgstr ""
+
+# msgid "Error while deleting a dashboard share"
+# msgstr ""
+
+# msgid "Dashboard share not found"
+# msgstr ""
+
+# msgid "Error while updating a dashboard share"
+# msgstr ""
 
 #  msgid "Circular inheritance not allowed"
 #  msgstr ""

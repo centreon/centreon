@@ -26,6 +26,8 @@ namespace Core\Dashboard\Domain\Model;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
 
 class DashboardRights
 {
@@ -45,6 +47,16 @@ class DashboardRights
     public function canAccess(): bool
     {
         return $this->hasViewerRole();
+    }
+
+    public function canDelete(DashboardSharingRoles $roles): bool
+    {
+        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+    }
+
+    public function canUpdate(DashboardSharingRoles $roles): bool
+    {
+        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
     }
 
     public function hasAdminRole(): bool

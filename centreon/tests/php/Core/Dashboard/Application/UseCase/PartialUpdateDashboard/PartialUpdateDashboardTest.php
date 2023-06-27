@@ -33,9 +33,11 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboard;
+use Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 
@@ -45,13 +47,14 @@ beforeEach(function (): void {
         $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class),
         $this->writeDashboardRepository = $this->createMock(WriteDashboardRepositoryInterface::class),
         $this->readDashboardPanelRepository = $this->createMock(ReadDashboardPanelRepositoryInterface::class),
+        $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
         $this->writeDashboardPanelRepository = $this->createMock(WriteDashboardPanelRepositoryInterface::class),
         $this->createMock(DataStorageEngineInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class)
     );
 
-    $this->testedPartialUpdateDashboardRequest = new \Core\Dashboard\Application\UseCase\PartialUpdateDashboard\PartialUpdateDashboardRequest();
+    $this->testedPartialUpdateDashboardRequest = new PartialUpdateDashboardRequest();
     $this->testedPartialUpdateDashboardRequest->name = 'updated-dashboard';
 
     $this->testedDashboard = new Dashboard(
@@ -228,6 +231,29 @@ it(
 );
 
 it(
+    'should present a ForbiddenResponse as NOT allowed SHARED user',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canAccess')->willReturn(true);
+        $this->contact->expects($this->atLeastOnce())
+            ->method('getId')->willReturn(1);
+        $this->rights->expects($this->once())
+            ->method('canUpdate')->willReturn(false);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOneByContact')->willReturn($this->testedDashboard);
+
+        ($this->useCase)($this->testedDashboardId, $this->testedPartialUpdateDashboardRequest, $this->presenter);
+
+        /** @var NoContentResponse $presentedData */
+        $presentedData = $this->presenter->data;
+
+        expect($presentedData)->toBeInstanceOf(ForbiddenResponse::class);
+    }
+);
+
+it(
     'should present a NoContentResponse as allowed SHARED user',
     function (): void {
         $this->rights->expects($this->once())
@@ -238,6 +264,8 @@ it(
             ->method('getId')->willReturn(1);
         $this->writeDashboardRepository->expects($this->once())
             ->method('update');
+        $this->rights->expects($this->once())
+            ->method('canUpdate')->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);
 
