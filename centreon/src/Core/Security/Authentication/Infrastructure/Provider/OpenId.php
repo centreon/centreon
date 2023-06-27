@@ -239,7 +239,7 @@ class OpenId implements ProviderAuthenticationInterface
         $customConfiguration = $this->provider->getConfiguration()->getCustomConfiguration();
         foreach ($customConfiguration->getACLConditions()->getRelations() as $authorizationRule) {
             $claimValue = $authorizationRule->getClaimValue();
-            if (!in_array($claimValue, $claims)) {
+            if (!in_array($claimValue, $this->provider->getAclConditionsMatches())) {
                 $this->info(
                     "Configured claim value not found in user claims",
                     ["claim_value" => $claimValue]
