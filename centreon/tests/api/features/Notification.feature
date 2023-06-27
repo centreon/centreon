@@ -1048,7 +1048,7 @@ Feature:
     """
     {
       "name": "notification-name",
-      "timeperiod": 2,
+      "timeperiod_id": 2,
       "resources": [
         {
           "type": "hostgroup",
@@ -1099,7 +1099,7 @@ Feature:
     """
     {
       "name": "notification-name",
-      "timeperiod": 2,
+      "timeperiod_id": 2,
       "resources": [
         {
           "type": "hostgroup",
@@ -1162,7 +1162,7 @@ Feature:
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -1222,7 +1222,7 @@ Feature:
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
