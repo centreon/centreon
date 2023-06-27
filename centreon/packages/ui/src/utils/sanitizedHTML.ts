@@ -15,4 +15,4 @@ const sanitizedHTML = ({
   return ReactHtmlParser(sanitizedContent);
 };
 
-export default sanitizedHTML;
+export { sanitizedHTML };
