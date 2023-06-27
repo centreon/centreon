@@ -20,8 +20,8 @@ import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 import { DashboardRole } from '../api/models';
 import {
   dashboardsEndpoint,
-  getDashboardEndpoint,
-  getDashboardSharesEndpoint
+  getDashboardAccessRightsEndpoint,
+  getDashboardEndpoint
 } from '../api/endpoints';
 import { labelShareTheDashboard } from '../translatedLabels';
 
@@ -160,11 +160,11 @@ const initializeAndMount = ({
     });
   });
 
-  cy.fixture('Dashboards/Dashboard/shares.json').then((shares) => {
+  cy.fixture('Dashboards/Dashboard/accessRights.json').then((shares) => {
     cy.interceptAPIRequest({
-      alias: 'getDashboardShares',
+      alias: 'getDashboardAccessRights',
       method: Method.GET,
-      path: getDashboardSharesEndpoint(1),
+      path: getDashboardAccessRightsEndpoint(1),
       response: shares
     });
   });
@@ -385,14 +385,14 @@ describe('Dashboard', () => {
     });
   });
 
-  describe('Shares', () => {
+  describe('AccessRights', () => {
     it('displays the list of user roles when the corresponding button is clicked', () => {
       // initializeBlocker();
       initializeAndMount(editorRoles);
 
       cy.findByLabelText(labelShareTheDashboard).click();
 
-      cy.fixture('Dashboards/Dashboard/shares.json').then((shares) => {
+      cy.fixture('Dashboards/Dashboard/accessRights.json').then((shares) => {
         shares.result.forEach(({ fullname, email, role }, index) => {
           cy.get('[data-element="avatar"]')
             .contains(fullname[0])

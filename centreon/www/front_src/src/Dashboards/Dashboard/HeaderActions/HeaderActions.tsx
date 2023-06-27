@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -45,7 +45,7 @@ const HeaderActions = ({
   id,
   name,
   panels
-}: HeaderActionsProps): JSX.Element => {
+}: HeaderActionsProps): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -235,4 +235,4 @@ const HeaderActions = ({
   );
 };
 
-export default HeaderActions;
+export { HeaderActions };

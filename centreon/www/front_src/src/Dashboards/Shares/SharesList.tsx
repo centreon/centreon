@@ -7,8 +7,8 @@ import { CircularProgress } from '@mui/material';
 import { useInfiniteScrollListing } from '@centreon/ui';
 import { List, Modal } from '@centreon/ui/components';
 
-import { dashboardShareListDecoder } from '../api/decoders';
-import { getDashboardSharesEndpoint } from '../api/endpoints';
+import { dashboardAccessRightsListDecoder } from '../api/decoders';
+import { getDashboardAccessRightsEndpoint } from '../api/endpoints';
 import { labelSave } from '../Dashboard/translatedLabels';
 import { labelCancel } from '../translatedLabels';
 
@@ -31,8 +31,8 @@ const SharesList = (): JSX.Element => {
     isLoading,
     elementRef
   } = useInfiniteScrollListing({
-    decoder: dashboardShareListDecoder,
-    endpoint: getDashboardSharesEndpoint(selectedDashboardShare),
+    decoder: dashboardAccessRightsListDecoder,
+    endpoint: getDashboardAccessRightsEndpoint(selectedDashboardShare),
     pageAtom,
     queryKeyName: 'dashboard_shares'
   });
