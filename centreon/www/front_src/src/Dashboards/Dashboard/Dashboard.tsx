@@ -26,9 +26,9 @@ import { useDashboardUserPermissions } from '../components/DashboardUserPermissi
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
-import HeaderActions from './HeaderActions';
 import { isEditingAtom } from './atoms';
 import { labelAddAWidget } from './translatedLabels';
+import { HeaderActions } from './HeaderActions/HeaderActions';
 
 const Dashboard = (): ReactElement => {
   const { t } = useTranslation();

@@ -5,7 +5,9 @@ import { JsonDecoder } from 'ts.data.json';
 import { buildListingDecoder } from '@centreon/ui';
 
 import {
+  ContactType,
   Dashboard,
+  DashboardAccessRights,
   DashboardPanel,
   DashboardRole,
   NamedEntity
@@ -82,6 +84,31 @@ export const dashboardDecoder = JsonDecoder.object<Dashboard>(
 
 export const dashboardListDecoder = buildListingDecoder({
   entityDecoder: dashboardDecoder,
-  entityDecoderName: 'Dashboard Listing',
+  entityDecoderName: 'Dashboard List',
   listingDecoderName: 'Dashboards'
+});
+
+/**
+ * dashboard access rights : entity
+ */
+
+const dashboardAccessRightsDecoder = JsonDecoder.object<DashboardAccessRights>(
+  {
+    email: JsonDecoder.nullable(JsonDecoder.string),
+    fullname: JsonDecoder.nullable(JsonDecoder.string),
+    id: JsonDecoder.number,
+    name: JsonDecoder.string,
+    role: JsonDecoder.enumeration<DashboardRole>(
+      DashboardRole,
+      'DashboardRole'
+    ),
+    type: JsonDecoder.enumeration<ContactType>(ContactType, 'ContactType')
+  },
+  'Dashboard AccessRights'
+);
+
+export const dashboardAccessRightsListDecoder = buildListingDecoder({
+  entityDecoder: dashboardAccessRightsDecoder,
+  entityDecoderName: 'Dashboard AccessRights List',
+  listingDecoderName: 'Dashboard AccessRights'
 });

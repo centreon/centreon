@@ -1,7 +1,9 @@
 /* eslint-disable import/no-unresolved,@typescript-eslint/no-unused-vars */
 
 import { createStore, Provider } from 'jotai';
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -16,7 +18,12 @@ import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 // import { unstable_Blocker } from 'react-router-dom';
 // import { router } from './useDashboardSaveBlocker';
 import { DashboardRole } from '../api/models';
-import { dashboardsEndpoint, getDashboardEndpoint } from '../api/endpoints';
+import {
+  dashboardsEndpoint,
+  getDashboardAccessRightsEndpoint,
+  getDashboardEndpoint
+} from '../api/endpoints';
+import { labelShareTheDashboard } from '../translatedLabels';
 
 import { routerParams } from './useDashboardDetails';
 import { labelEditDashboard } from './translatedLabels';
@@ -150,6 +157,15 @@ const initializeAndMount = ({
       method: Method.GET,
       path: `${dashboardsEndpoint}?**`,
       response: dashboards
+    });
+  });
+
+  cy.fixture('Dashboards/Dashboard/accessRights.json').then((shares) => {
+    cy.interceptAPIRequest({
+      alias: 'getDashboardAccessRights',
+      method: Method.GET,
+      path: getDashboardAccessRightsEndpoint(1),
+      response: shares
     });
   });
 
@@ -366,6 +382,77 @@ describe('Dashboard', () => {
       cy.waitForRequest('@getDashboardDetails');
 
       cy.contains(labelEditDashboard).should('be.visible');
+    });
+  });
+
+  describe('AccessRights', () => {
+    it('displays the list of user roles when the corresponding button is clicked', () => {
+      // initializeBlocker();
+      initializeAndMount(editorRoles);
+
+      cy.findByLabelText(labelShareTheDashboard).click();
+
+      cy.fixture('Dashboards/Dashboard/accessRights.json').then((shares) => {
+        shares.result.forEach(({ fullname, email, role }, index) => {
+          cy.get('[data-element="avatar"]')
+            .contains(fullname[0])
+            .should('be.visible');
+          cy.findByText(fullname).should('be.visible');
+
+          if (email) {
+            cy.findByText(email).should('be.visible');
+          }
+
+          cy.findAllByTestId('change_role')
+            .eq(index)
+            .should('have.value', role);
+          cy.findAllByTestId('remove_user').eq(index).should('be.visible');
+        });
+      });
+    });
+
+    it('changes a user role when a new role is selected for a user and the corresponding button is clicked', () => {
+      // initializeBlocker();
+      initializeAndMount(editorRoles);
+
+      cy.findByLabelText(labelShareTheDashboard).click();
+
+      cy.findAllByTestId('change_role')
+        .eq(0)
+        .should('have.value', DashboardRole.viewer);
+
+      cy.findAllByTestId('change_role').eq(0).parent().click();
+      cy.get('[data-value="editor"]').click();
+
+      cy.findAllByTestId('change_role')
+        .eq(0)
+        .should('have.value', DashboardRole.editor);
+
+      cy.matchImageSnapshot();
+    });
+
+    it('removes a user from the list when when the corresponding button is clicked', () => {
+      // initializeBlocker();
+      initializeAndMount(editorRoles);
+
+      cy.findByLabelText(labelShareTheDashboard).click();
+
+      cy.findByText('Walter Sobchak').should('be.visible');
+
+      cy.findAllByTestId('remove_user').eq(0).click();
+
+      cy.findByText('Walter Sobchak').should('not.exist');
+
+      cy.matchImageSnapshot();
+    });
+
+    it('does not display the share button when the user has only the viewer role', () => {
+      // initializeBlocker();
+      initializeAndMount(viewerRoles);
+
+      cy.findByLabelText(labelShareTheDashboard).should('not.exist');
+
+      cy.matchImageSnapshot();
     });
   });
 });

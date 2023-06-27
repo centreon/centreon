@@ -77,3 +77,19 @@ export type DashboardPanel = NamedEntity & {
   };
   widgetType: string;
 };
+
+/**
+ * dashboard access rights
+ */
+
+export enum ContactType {
+  contact = 'contact',
+  contactGroup = 'contact_group'
+}
+
+export type DashboardAccessRights = NamedEntity & {
+  email: string | null;
+  fullname: string | null;
+  role: DashboardRole;
+  type: ContactType;
+};
