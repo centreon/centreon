@@ -21,16 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\HostMacro\Domain\Model;
+namespace Core\Macro\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 
-class HostMacro
+class Macro
 {
     public const MAX_NAME_LENGTH = 255,
-        MAX_VALUE_LENGTH = 4096,
-        MAX_DESCRIPTION_LENGTH = 65535;
+                 MAX_VALUE_LENGTH = 4096,
+                 MAX_DESCRIPTION_LENGTH = 65535;
 
     private string $shortName;
 
@@ -41,31 +41,29 @@ class HostMacro
     private int $order = 0;
 
     /**
-     * @param int $hostId
+     * @param int $ownerId
      * @param string $name
      * @param string $value
      *
      * @throws AssertionFailedException
      */
     public function __construct(
-        private readonly int $hostId,
+        private readonly int $ownerId,
         private string $name,
-        private string $value,
+        private readonly string $value,
     ) {
         $this->shortName = (new \ReflectionClass($this))->getShortName();
 
-        Assertion::positiveInt($hostId, "{$this->shortName}::hostId");
-
-        $this->name = mb_strtoupper($name);
+        Assertion::positiveInt($ownerId, "{$this->shortName}::ownerId");
         Assertion::notEmptyString($this->name, "{$this->shortName}::name");
+        $this->name = mb_strtoupper($name);
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$this->shortName}::name");
-
         Assertion::maxLength($this->value, self::MAX_VALUE_LENGTH, "{$this->shortName}::value");
     }
 
-    public function getHostId(): int
+    public function getOwnerId(): int
     {
-        return $this->hostId;
+        return $this->ownerId;
     }
 
     public function getName(): string
@@ -93,6 +91,9 @@ class HostMacro
         return $this->description;
     }
 
+    /**
+     * @throws AssertionFailedException
+     */
     public function setDescription(string $description): void
     {
         $description = trim($description);
@@ -105,6 +106,9 @@ class HostMacro
         return $this->order;
     }
 
+    /**
+     * @throws AssertionFailedException
+     */
     public function setOrder(int $order): void
     {
         Assertion::min($order, 0, "{$this->shortName}::order");

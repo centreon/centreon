@@ -48,15 +48,15 @@ use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
-use Core\HostMacro\Application\Repository\ReadHostMacroRepositoryInterface;
-use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
-use Core\HostMacro\Domain\Model\HostMacro;
-use Core\HostMacro\Domain\Model\HostMacroDifference;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
-use Core\HostTemplate\Domain\Model\MacroManager;
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
+use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
+use Core\Macro\Domain\Model\MacroDifference;
+use Core\Macro\Domain\Model\MacroManager;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\Difference\BasicDifference;
@@ -389,8 +389,8 @@ final class PartialUpdateHostTemplate
         }
 
         /**
-         * @var array<string,HostMacro> $directMacros
-         * @var array<string,HostMacro> $inheritedMacros
+         * @var array<string,Macro> $directMacros
+         * @var array<string,Macro> $inheritedMacros
          * @var array<string,CommandMacro> $commandMacros
          */
         [$directMacros, $inheritedMacros, $commandMacros] = $this->findOriginalMacros($hostTemplate);
@@ -401,7 +401,7 @@ final class PartialUpdateHostTemplate
             $macros[$macro->getName()] = $macro;
         }
 
-        $macrosDiff = new HostMacroDifference();
+        $macrosDiff = new MacroDifference();
         $macrosDiff->compute($directMacros, $inheritedMacros, $commandMacros, $macros);
 
         MacroManager::setOrder($macrosDiff, $macros, $directMacros);
@@ -436,8 +436,8 @@ final class PartialUpdateHostTemplate
      * @throws \Throwable
      *
      * @return array{
-     *      array<string,HostMacro>,
-     *      array<string,HostMacro>,
+     *      array<string,Macro>,
+     *      array<string,Macro>,
      *      array<string,CommandMacro>
      * }
      */
@@ -448,7 +448,7 @@ final class PartialUpdateHostTemplate
         $existingHostMacros
             = $this->readHostMacroRepository->findByHostIds(array_merge([$hostTemplate->getId()], $inheritanceLine));
 
-        [$directMacros, $inheritedMacros] = MacroManager::resolveInheritanceForHostMacro(
+        [$directMacros, $inheritedMacros] = MacroManager::resolveInheritanceForMacro(
             $existingHostMacros,
             $inheritanceLine,
             $hostTemplate->getId()

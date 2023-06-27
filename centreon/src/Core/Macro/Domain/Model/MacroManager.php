@@ -21,12 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\HostTemplate\Domain\Model;
+namespace Core\Macro\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Core\CommandMacro\Domain\Model\CommandMacro;
-use Core\HostMacro\Domain\Model\HostMacro;
-use Core\HostMacro\Domain\Model\HostMacroDifference;
 
 /**
  * This class provide methods to help manipulate macros linked to a host template.
@@ -39,32 +37,32 @@ class MacroManager
      *  - the second is an array of the inherited macros
      * Both use the macro's name as key.
      *
-     * @param HostMacro[] $macros
+     * @param Macro[] $macros
      * @param int[] $inheritanceLine
      * @param int $childId
      *
      * @return array{
-     *      array<string,HostMacro>,
-     *      array<string,HostMacro>
+     *      array<string,Macro>,
+     *      array<string,Macro>
      * }
      */
-    public static function resolveInheritanceForHostMacro(array $macros, array $inheritanceLine, int $childId): array
+    public static function resolveInheritanceForMacro(array $macros, array $inheritanceLine, int $childId): array
     {
-        /** @var array<string,HostMacro> $directMacros */
+        /** @var array<string,Macro> $directMacros */
         $directMacros = [];
         foreach ($macros as $macro) {
-            if ($macro->getHostId() === $childId) {
+            if ($macro->getOwnerId() === $childId) {
                 $directMacros[$macro->getName()] = $macro;
             }
         }
 
-        /** @var array<string,HostMacro> $inheritedMacros */
+        /** @var array<string,Macro> $inheritedMacros */
         $inheritedMacros = [];
         foreach ($inheritanceLine as $parentId) {
             foreach ($macros as $macro) {
                 if (
                     ! isset($inheritedMacros[$macro->getName()])
-                    && $macro->getHostId() === $parentId
+                    && $macro->getOwnerId() === $parentId
                 ) {
                     $inheritedMacros[$macro->getName()] = $macro;
                 }
@@ -100,13 +98,13 @@ class MacroManager
      * Note: Order of macros seems to be only used in UI legacy configuration forms for display purposes.
      * It doesn't impact macros management.
      *
-     * @param HostMacroDifference $macrosDiff
-     * @param array<string,HostMacro> $macros
-     * @param array<string,HostMacro> $directMacros
+     * @param MacroDifference $macrosDiff
+     * @param array<string,Macro> $macros
+     * @param array<string,Macro> $directMacros
      *
      * @throws AssertionFailedException
      */
-    public static function setOrder(HostMacroDifference $macrosDiff, array $macros, array $directMacros): void
+    public static function setOrder(MacroDifference $macrosDiff, array $macros, array $directMacros): void
     {
         $order = 0;
         foreach ($macros as $macroName => $macro) {

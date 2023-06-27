@@ -21,7 +21,8 @@
 
 declare(strict_types=1);
 
-namespace Core\HostMacro\Domain\Model;
+namespace Core\Macro\Domain\Model;
+
 use Core\CommandMacro\Domain\Model\CommandMacro;
 
 /**
@@ -30,28 +31,32 @@ use Core\CommandMacro\Domain\Model\CommandMacro;
  *
  * Require and return arrays with macro names as keys.
  */
-final class HostMacroDifference
+final class MacroDifference
 {
-    /** @var array<string,HostMacro> */
+    /** @var array<string,Macro> */
     public array $removedMacros = [];
 
-    /** @var array<string,HostMacro> */
+    /** @var array<string,Macro> */
     public array $addedMacros = [];
 
-    /** @var array<string,HostMacro> */
+    /** @var array<string,Macro> */
     public array $unchangedMacros = [];
 
-    /** @var array<string,HostMacro> */
+    /** @var array<string,Macro> */
     public array $updatedMacros = [];
 
     /**
-     * @param array<string,HostMacro> $directMacros
-     * @param array<string,HostMacro> $inheritedHostMacros
+     * @param array<string,Macro> $directMacros
+     * @param array<string,Macro> $inheritedHostMacros
      * @param array<string,CommandMacro> $inheritedCommandMacros
-     * @param array<string,HostMacro> $afterMacros
+     * @param array<string,Macro> $afterMacros
      */
-    public function compute(array $directMacros, array $inheritedHostMacros, array $inheritedCommandMacros, array $afterMacros): void
-    {
+    public function compute(
+        array $directMacros,
+        array $inheritedHostMacros,
+        array $inheritedCommandMacros,
+        array $afterMacros,
+    ): void {
         foreach ($afterMacros as $macroName => $macro) {
             $directMacroMatch = $directMacros[$macroName]
                 ?? null;
@@ -116,7 +121,6 @@ final class HostMacroDifference
 
             // Macro doesn't match any previously known macros
             $this->addedMacros[$macroName] = $macro;
-
         }
 
         $extraRemovedMacros = array_diff_key(
@@ -128,25 +132,21 @@ final class HostMacroDifference
         $this->removedMacros = array_merge($this->removedMacros, $extraRemovedMacros);
     }
 
-    private function isIdenticalToInheritedMacro(HostMacro $macro, HostMacro $existingMacro): bool
+    private function isIdenticalToInheritedMacro(Macro $macro, Macro $existingMacro): bool
     {
-        return (bool) (
-            $macro->getValue() === $existingMacro->getValue()
-            && $macro->isPassword() === $existingMacro->isPassword()
-        );
+        return $macro->getValue() === $existingMacro->getValue()
+            && $macro->isPassword() === $existingMacro->isPassword();
     }
 
-    private function isIdenticalToCommandMacro(HostMacro $macro): bool
+    private function isIdenticalToCommandMacro(Macro $macro): bool
     {
-        return (bool) ($macro->getValue() === '' && $macro->isPassword() === false);
+        return $macro->getValue() === '' && $macro->isPassword() === false;
     }
 
-    private function isIdenticalToDirectMacro(HostMacro $macro, HostMacro $existingMacro): bool
+    private function isIdenticalToDirectMacro(Macro $macro, Macro $existingMacro): bool
     {
-        return (bool) (
-            $macro->getValue() === $existingMacro->getValue()
+        return $macro->getValue() === $existingMacro->getValue()
             && $macro->isPassword() === $existingMacro->isPassword()
-            && $macro->getDescription() === $existingMacro->getDescription()
-        );
+            && $macro->getDescription() === $existingMacro->getDescription();
     }
 }

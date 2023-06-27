@@ -24,58 +24,58 @@ declare(strict_types=1);
 namespace Tests\Core\HostMacro\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\HostMacro\Domain\Model\HostMacro;
+use Core\Macro\Domain\Model\Macro;
 
 it('should return properly set host macro instance', function (): void {
-    $macro = new HostMacro(1, 'macroName', 'macroValue');
+    $macro = new Macro(1, 'macroName', 'macroValue');
     $macro->setIsPassword(true);
     $macro->setDescription('macroDescription');
 
-    expect($macro->getHostId())->toBe(1)
+    expect($macro->getOwnerId())->toBe(1)
         ->and($macro->getName())->toBe('MACRONAME')
         ->and($macro->getValue())->toBe('macroValue');
 });
 
 it('should throw an exception when host macro name is empty', function (): void {
-    new HostMacro(1, '', 'macroValue');
+    new Macro(1, '', 'macroValue');
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmptyString('HostMacro::name')->getMessage()
+    AssertionException::notEmptyString('Macro::name')->getMessage()
 );
 
 it('should throw an exception when host macro name is too long', function (): void {
-    new HostMacro(1, str_repeat('a', HostMacro::MAX_NAME_LENGTH + 1), 'macroValue');
+    new Macro(1, str_repeat('a', Macro::MAX_NAME_LENGTH + 1), 'macroValue');
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::maxLength(
-        str_repeat('A', HostMacro::MAX_NAME_LENGTH + 1),
-        HostMacro::MAX_NAME_LENGTH + 1,
-        HostMacro::MAX_NAME_LENGTH,
-        'HostMacro::name'
+        str_repeat('A', Macro::MAX_NAME_LENGTH + 1),
+        Macro::MAX_NAME_LENGTH + 1,
+        Macro::MAX_NAME_LENGTH,
+        'Macro::name'
     )->getMessage()
 );
 
 it('should throw an exception when host macro value is too long', function (): void {
-    new HostMacro(1, 'macroName', str_repeat('a', HostMacro::MAX_VALUE_LENGTH + 1));
+    new Macro(1, 'macroName', str_repeat('a', Macro::MAX_VALUE_LENGTH + 1));
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::maxLength(
-        str_repeat('a', HostMacro::MAX_VALUE_LENGTH + 1),
-        HostMacro::MAX_VALUE_LENGTH + 1,
-        HostMacro::MAX_VALUE_LENGTH,
-        'HostMacro::value'
+        str_repeat('a', Macro::MAX_VALUE_LENGTH + 1),
+        Macro::MAX_VALUE_LENGTH + 1,
+        Macro::MAX_VALUE_LENGTH,
+        'Macro::value'
     )->getMessage()
 );
 
 it('should throw an exception when host macro description is too long', function (): void {
-    $macro = new HostMacro(1, 'macroName', 'macroValue');
-    $macro->setDescription(str_repeat('a', HostMacro::MAX_DESCRIPTION_LENGTH + 1));
+    $macro = new Macro(1, 'macroName', 'macroValue');
+    $macro->setDescription(str_repeat('a', Macro::MAX_DESCRIPTION_LENGTH + 1));
 })->throws(
     \Assert\InvalidArgumentException::class,
     AssertionException::maxLength(
-        str_repeat('a', HostMacro::MAX_DESCRIPTION_LENGTH + 1),
-        HostMacro::MAX_DESCRIPTION_LENGTH + 1,
-        HostMacro::MAX_DESCRIPTION_LENGTH,
-        'HostMacro::description'
+        str_repeat('a', Macro::MAX_DESCRIPTION_LENGTH + 1),
+        Macro::MAX_DESCRIPTION_LENGTH + 1,
+        Macro::MAX_DESCRIPTION_LENGTH,
+        'Macro::description'
     )->getMessage()
 );

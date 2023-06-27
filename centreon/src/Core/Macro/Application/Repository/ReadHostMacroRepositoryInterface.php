@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Core\HostMacro\Application\Repository;
+namespace Core\Macro\Application\Repository;
 
-use Core\HostMacro\Domain\Model\HostMacro;
+use Core\Macro\Domain\Model\Macro;
 
 interface ReadHostMacroRepositoryInterface
 {
@@ -34,7 +34,7 @@ interface ReadHostMacroRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return HostMacro[]
+     * @return Macro[]
      */
     public function findByHostIds(array $hostIds): array;
 
@@ -45,7 +45,7 @@ interface ReadHostMacroRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return HostMacro[]
+     * @return Macro[]
      */
     public function findByHostId(int $hostId): array;
 }

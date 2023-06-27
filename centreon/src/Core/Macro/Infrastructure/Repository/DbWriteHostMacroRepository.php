@@ -21,14 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\HostMacro\Infrastructure\Repository;
+namespace Core\Macro\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
-use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
-use Core\HostMacro\Domain\Model\HostMacro;
+use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
 
 class DbWriteHostMacroRepository extends AbstractRepositoryRDB implements WriteHostMacroRepositoryInterface
 {
@@ -45,7 +45,7 @@ class DbWriteHostMacroRepository extends AbstractRepositoryRDB implements WriteH
     /**
      * @inheritDoc
      */
-    public function add(HostMacro $macro): void
+    public function add(Macro $macro): void
     {
         $this->debug('Add host macro', ['macro' => $macro]);
 
@@ -57,7 +57,7 @@ class DbWriteHostMacroRepository extends AbstractRepositoryRDB implements WriteH
                 SQL
         ));
 
-        $statement->bindValue(':hostId', $macro->getHostId(), \PDO::PARAM_INT);
+        $statement->bindValue(':hostId', $macro->getOwnerId(), \PDO::PARAM_INT);
         $statement->bindValue(':macroName', '$_HOST' . $macro->getName() . '$', \PDO::PARAM_STR);
         $statement->bindValue(':macroValue', $macro->getValue(), \PDO::PARAM_STR);
         $statement->bindValue(':isPassword', $macro->isPassword() ? '1' : null, \PDO::PARAM_INT);
@@ -73,7 +73,7 @@ class DbWriteHostMacroRepository extends AbstractRepositoryRDB implements WriteH
     /**
      * @inheritDoc
      */
-    public function update(HostMacro $macro): void
+    public function update(Macro $macro): void
     {
         $this->debug('Update host macro', ['macro' => $macro]);
 
@@ -90,7 +90,7 @@ class DbWriteHostMacroRepository extends AbstractRepositoryRDB implements WriteH
                 SQL
         ));
 
-        $statement->bindValue(':hostId', $macro->getHostId(), \PDO::PARAM_INT);
+        $statement->bindValue(':hostId', $macro->getOwnerId(), \PDO::PARAM_INT);
         $statement->bindValue(':macroName', '$_HOST' . $macro->getName() . '$', \PDO::PARAM_STR);
         $statement->bindValue(':macroValue', $macro->getValue(), \PDO::PARAM_STR);
         $statement->bindValue(':isPassword', $macro->isPassword() ? '1' : null, \PDO::PARAM_INT);
@@ -106,7 +106,7 @@ class DbWriteHostMacroRepository extends AbstractRepositoryRDB implements WriteH
     /**
      * @inheritDoc
      */
-    public function delete(HostMacro $macro): void
+    public function delete(Macro $macro): void
     {
         $this->debug('Delete host macro', ['macro' => $macro]);
 
@@ -119,7 +119,7 @@ class DbWriteHostMacroRepository extends AbstractRepositoryRDB implements WriteH
                     AND `host_macro_name` = :macroName
                 SQL
         ));
-        $statement->bindValue(':hostId', $macro->getHostId(), \PDO::PARAM_INT);
+        $statement->bindValue(':hostId', $macro->getOwnerId(), \PDO::PARAM_INT);
         $statement->bindValue(':macroName', '$_HOST' . $macro->getName() . '$', \PDO::PARAM_STR);
         $statement->execute();
     }

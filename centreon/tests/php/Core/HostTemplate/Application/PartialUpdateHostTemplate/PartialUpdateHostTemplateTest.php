@@ -44,9 +44,6 @@ use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
-use Core\HostMacro\Application\Repository\ReadHostMacroRepositoryInterface;
-use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
-use Core\HostMacro\Domain\Model\HostMacro;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
@@ -56,6 +53,9 @@ use Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate\PartialUpdat
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
+use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function () {
@@ -191,9 +191,9 @@ beforeEach(function () {
     $this->request->templates = $this->parentTemplates;
 
     // Settup macros
-    $this->macroA = new HostMacro($this->hostTemplateId, 'macroNameA', 'macroValueA');
+    $this->macroA = new Macro($this->hostTemplateId, 'macroNameA', 'macroValueA');
     $this->macroA->setOrder(0);
-    $this->macroB = new HostMacro($this->hostTemplateId, 'macroNameB', 'macroValueB');
+    $this->macroB = new Macro($this->hostTemplateId, 'macroNameB', 'macroValueB');
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'commandMacroName');
     $this->commandMacros = [

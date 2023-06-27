@@ -21,36 +21,36 @@
 
 declare(strict_types=1);
 
-namespace Core\HostMacro\Application\Repository;
+namespace Core\Macro\Application\Repository;
 
-use Core\HostMacro\Domain\Model\HostMacro;
+use Core\Macro\Domain\Model\Macro;
 
 interface WriteHostMacroRepositoryInterface
 {
     /**
      * Add host's macros.
      *
-     * @param HostMacro $macro
+     * @param Macro $macro
      *
      * @throws \Throwable
      */
-    public function add(HostMacro $macro): void;
+    public function add(Macro $macro): void;
 
     /**
      * Update host's macros.
      *
-     * @param HostMacro $macro
+     * @param Macro $macro
      *
      * @throws \Throwable
      */
-    public function update(HostMacro $macro): void;
+    public function update(Macro $macro): void;
 
     /**
      * Delete host's macros.
      *
-     * @param HostMacro $macro
+     * @param Macro $macro
      *
      * @throws \Throwable
      */
-    public function delete(HostMacro $macro): void;
+    public function delete(Macro $macro): void;
 }

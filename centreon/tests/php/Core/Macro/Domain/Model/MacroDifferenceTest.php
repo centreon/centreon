@@ -25,61 +25,61 @@ namespace Tests\Core\HostMacro\Domain\Model;
 
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
-use Core\HostMacro\Domain\Model\HostMacro;
-use Core\HostMacro\Domain\Model\HostMacroDifference;
+use Core\Macro\Domain\Model\Macro;
+use Core\Macro\Domain\Model\MacroDifference;
 
 beforeEach(function (): void {
 
     // DIRECT MACROS - not changed
-    $this->hostMacroA = new HostMacro(1, 'NAMEA', 'valueA');
-    $this->hostMacroB = new HostMacro(1, 'NAMEB', 'valueB');
+    $this->hostMacroA = new Macro(1, 'NAMEA', 'valueA');
+    $this->hostMacroB = new Macro(1, 'NAMEB', 'valueB');
     // DIRECT MACROS - deleted
-    $this->hostMacroC = new HostMacro(1, 'NAMEC', 'valueC');
+    $this->hostMacroC = new Macro(1, 'NAMEC', 'valueC');
     // DIRECT MACROS - added
-    $this->hostMacroD = new HostMacro(1, 'NAMED', 'valueD');
+    $this->hostMacroD = new Macro(1, 'NAMED', 'valueD');
     // DIRECT MACROS - value changed => updated
-    $this->hostMacroE = new HostMacro(1, 'NAMEE', 'valueE');
-    $this->hostMacroE_edit = new HostMacro(1, 'NAMEE', 'valueE_edit');
+    $this->hostMacroE = new Macro(1, 'NAMEE', 'valueE');
+    $this->hostMacroE_edit = new Macro(1, 'NAMEE', 'valueE_edit');
     // DIRECT MACROS - description changed => updated
-    $this->hostMacroF = new HostMacro(1, 'NAMEF', 'valueF');
+    $this->hostMacroF = new Macro(1, 'NAMEF', 'valueF');
     $this->hostMacroF->setDescription('descriptionF');
-    $this->hostMacroF_edit = new HostMacro(1, 'NAMEF', 'valueF');
+    $this->hostMacroF_edit = new Macro(1, 'NAMEF', 'valueF');
     $this->hostMacroF_edit->setDescription('descriptionF_edit');
     // DIRECT MACROS - isPassword changed => updated
-    $this->hostMacroG = new HostMacro(1, 'NAMEG', 'valueG');
-    $this->hostMacroG_edit = new HostMacro(1, 'NAMEG', 'valueG');
+    $this->hostMacroG = new Macro(1, 'NAMEG', 'valueG');
+    $this->hostMacroG_edit = new Macro(1, 'NAMEG', 'valueG');
     $this->hostMacroG_edit->setIsPassword(true);
 
     // INHERITED MACROS - not changed
-    $this->hostMacroH = new HostMacro(2, 'NAMEH', 'valueH');
-    $this->hostMacroH_edit = new HostMacro(1, 'NAMEH', 'valueH');
+    $this->hostMacroH = new Macro(2, 'NAMEH', 'valueH');
+    $this->hostMacroH_edit = new Macro(1, 'NAMEH', 'valueH');
     // INHERITED MACROS - value changed => added
-    $this->hostMacroI = new HostMacro(2, 'NAMEI', 'valueI');
-    $this->hostMacroI_edit = new HostMacro(1, 'NAMEI', 'valueI_edit');
+    $this->hostMacroI = new Macro(2, 'NAMEI', 'valueI');
+    $this->hostMacroI_edit = new Macro(1, 'NAMEI', 'valueI_edit');
     // INHERITED MACROS - isPassword changed => added
-    $this->hostMacroJ = new HostMacro(2, 'NAMEJ', 'valueJ');
-    $this->hostMacroJ_edit = new HostMacro(1, 'NAMEJ', 'valueJ');
+    $this->hostMacroJ = new Macro(2, 'NAMEJ', 'valueJ');
+    $this->hostMacroJ_edit = new Macro(1, 'NAMEJ', 'valueJ');
     $this->hostMacroJ_edit->setIsPassword(true);
     // INHERITED MACROS - set description on unchanged inherited macro => common
-    $this->hostMacroK = new HostMacro(2, 'NAMEK', 'valueK');
-    $this->hostMacroK_edit = new HostMacro(1, 'NAMEK', 'valueK');
+    $this->hostMacroK = new Macro(2, 'NAMEK', 'valueK');
+    $this->hostMacroK_edit = new Macro(1, 'NAMEK', 'valueK');
     $this->hostMacroK_edit->setDescription('descriptionK');
     // INHERITED MACROS - value reverted to inherted => deleted
-    $this->hostMacroL_inherited = new HostMacro(2, 'NAMEL', 'valueL_inherit');
-    $this->hostMacroL = new HostMacro(1, 'NAMEL', 'valueL');
-    $this->hostMacroL_edit = new HostMacro(1, 'NAMEL', 'valueL_inherit');
+    $this->hostMacroL_inherited = new Macro(2, 'NAMEL', 'valueL_inherit');
+    $this->hostMacroL = new Macro(1, 'NAMEL', 'valueL');
+    $this->hostMacroL_edit = new Macro(1, 'NAMEL', 'valueL_inherit');
 
     // COMMAND MACROS - value is set => added
     $this->commandMacroM = new CommandMacro(1, CommandMacroType::Host, 'NAMEM');
-    $this->hostMacroM = new HostMacro(1, 'NAMEM', 'valueM');
+    $this->hostMacroM = new Macro(1, 'NAMEM', 'valueM');
     // COMMAND MACROS - isPassword is set => added
     $this->commandMacroN = new CommandMacro(1, CommandMacroType::Host, 'NAMEN');
-    $this->hostMacroN = new HostMacro(1, 'NAMEN', '');
+    $this->hostMacroN = new Macro(1, 'NAMEN', '');
     $this->hostMacroN->setIsPassword(true);
     // COMMAND MACROS - value is reverted/let to empty => deleted
     $this->commandMacroO = new CommandMacro(1, CommandMacroType::Host, 'NAMEO');
-    $this->hostMacroO = new HostMacro(1, 'NAMEO', 'valueO');
-    $this->hostMacroO_edit = new HostMacro(1, 'NAMEO', '');
+    $this->hostMacroO = new Macro(1, 'NAMEO', 'valueO');
+    $this->hostMacroO_edit = new Macro(1, 'NAMEO', '');
 
 });
 
@@ -151,7 +151,7 @@ it('should compute macros has expected', function (): void {
         $this->hostMacroK_edit->getName() => $this->hostMacroK_edit,
     ];
 
-    $macrosDiff = new HostMacroDifference();
+    $macrosDiff = new MacroDifference();
     $macrosDiff->compute($directMacros, $inheritedMacros, $commandMacros, $afterMacros);
     expect($macrosDiff->addedMacros)->toBe($addedMacros)
         ->and($macrosDiff->updatedMacros)->toBe($updatedMacros)
