@@ -296,7 +296,7 @@ const ConnectedAutocompleteField = (
       <AutocompleteField
         filterOptions={(opt): SelectEntry => opt}
         loading={isFetching}
-        open={open}
+        open={optionsOpen}
         options={options}
         renderOption={renderOptions}
         onClose={(): void => setOptionsOpen(false)}
