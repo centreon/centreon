@@ -93,7 +93,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it.only('Confirms that the notification name is properly rendered with the edited value', () => {
+  it('Confirms that the notification name is properly rendered with the edited value', () => {
     cy.waitForRequest('@listingRequest');
 
     const notificationName = 'Notifications 1';
