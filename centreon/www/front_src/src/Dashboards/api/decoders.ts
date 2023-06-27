@@ -1,20 +1,17 @@
 /* eslint-disable typescript-sort-keys/interface */
-// TODO merge cleanup
 
 import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
 import {
+  ContactType,
   Dashboard,
+  DashboardAccessRights,
   DashboardPanel,
   DashboardRole,
   NamedEntity
 } from './models';
-import {
-  DashboardShare,
-  ContactType
-} from '../models';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
@@ -87,11 +84,15 @@ export const dashboardDecoder = JsonDecoder.object<Dashboard>(
 
 export const dashboardListDecoder = buildListingDecoder({
   entityDecoder: dashboardDecoder,
-  entityDecoderName: 'Dashboard Listing',
+  entityDecoderName: 'Dashboard List',
   listingDecoderName: 'Dashboards'
 });
 
-const dashboardShareDecoder = JsonDecoder.object<DashboardShare>(
+/**
+ * dashboard access rights : entity
+ */
+
+const dashboardAccessRightsDecoder = JsonDecoder.object<DashboardAccessRights>(
   {
     email: JsonDecoder.nullable(JsonDecoder.string),
     fullname: JsonDecoder.nullable(JsonDecoder.string),
@@ -103,11 +104,11 @@ const dashboardShareDecoder = JsonDecoder.object<DashboardShare>(
     ),
     type: JsonDecoder.enumeration<ContactType>(ContactType, 'ContactType')
   },
-  'Dashboard Share'
+  'Dashboard AccessRights'
 );
 
-export const dashboardShareListDecoder = buildListingDecoder({
-  entityDecoder: dashboardShareDecoder,
-  entityDecoderName: 'Dashboard share listing',
-  listingDecoderName: 'Dashboard shares'
+export const dashboardAccessRightsListDecoder = buildListingDecoder({
+  entityDecoder: dashboardAccessRightsDecoder,
+  entityDecoderName: 'Dashboard AccessRights List',
+  listingDecoderName: 'Dashboard AccessRights'
 });

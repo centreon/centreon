@@ -1,5 +1,3 @@
-// TODO merge cleanup
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
@@ -10,11 +8,20 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import ShareIcon from '@mui/icons-material/Share';
 import { Typography } from '@mui/material';
 
-import { Button, Modal } from '@centreon/ui/components';
+import { Button, IconButton, Modal } from '@centreon/ui/components';
 
-import { Dashboard, DashboardPanel } from '../api/models';
-import { Modal, Button, IconButton } from '@centreon/ui/components';
-
+import { Dashboard, DashboardPanel } from '../../api/models';
+import { formatPanel } from '../useDashboardDetails';
+import useDashboardDirty from '../useDashboardDirty';
+import { selectedDashboardShareAtom } from '../../Shares/atoms';
+import { Shares } from '../../Shares';
+import { labelShareTheDashboard } from '../../translatedLabels';
+import useSaveDashboard from '../useSaveDashboard';
+import {
+  dashboardAtom,
+  isEditingAtom,
+  switchPanelsEditionModeDerivedAtom
+} from '../atoms';
 import {
   labelEditDashboard,
   labelExit,
@@ -23,23 +30,7 @@ import {
   labelLeaveEditionModeChangesNotSaved,
   labelQuitDashboardChangesNotSaved,
   labelSave
-} from './translatedLabels';
-import {
-  dashboardAtom,
-  isEditingAtom,
-  switchPanelsEditionModeDerivedAtom
-} from './atoms';
-import { formatPanel } from './useDashboardDetails';
-import useSaveDashboard from './useSaveDashboard';
-import useDashboardDirty from './useDashboardDirty';
-
-import useDashboardSaveBlocker from '../useDashboardSaveBlocker';
-import { PanelDetails } from '../models';
-import { formatPanel } from '../useDashboardDetails';
-import useDashboardDirty from '../useDashboardDirty';
-import { selectedDashboardShareAtom } from '../../atoms';
-import { Shares } from '../../Shares';
-import { labelShareTheDashboard } from '../../translatedLabels';
+} from '../translatedLabels';
 
 import { useStyles } from './HeaderActions.styles';
 
@@ -177,6 +168,7 @@ const HeaderActions = ({
     [blocked, isAskingCancelConfirmation, name]
   );
 
+  // TODO evaluate if we need styling here (the PageHeader component is already taking care of this)
   if (!isEditing) {
     return (
       <div className={classes.headerActions}>

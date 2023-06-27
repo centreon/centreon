@@ -1,5 +1,5 @@
 import { atom, useAtom } from 'jotai';
-import { equals, dec } from 'ramda';
+import { dec, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { CircularProgress } from '@mui/material';
@@ -9,10 +9,10 @@ import { List, Modal } from '@centreon/ui/components';
 
 import { dashboardShareListDecoder } from '../api/decoders';
 import { getDashboardSharesEndpoint } from '../api/endpoints';
-import { selectedDashboardShareAtom } from '../atoms';
 import { labelSave } from '../Dashboard/translatedLabels';
 import { labelCancel } from '../translatedLabels';
 
+import { selectedDashboardShareAtom } from './atoms';
 import useShareForm from './useShareForm';
 import UserRoleItem from './UserRoleItem';
 import { labelUserRoles } from './translatedLabels';

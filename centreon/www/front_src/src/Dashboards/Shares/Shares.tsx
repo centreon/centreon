@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Modal } from '@centreon/ui/components';
 
-import { selectedDashboardShareAtom } from '../atoms';
-
+import { selectedDashboardShareAtom } from './atoms';
 import { labelDashboardAccessRights } from './translatedLabels';
 import SharesList from './SharesList';
 import Skeleton from './Skeleton';

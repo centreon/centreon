@@ -1,7 +1,9 @@
 /* eslint-disable import/no-unresolved,@typescript-eslint/no-unused-vars */
-// TODO merge cleanup
+
 import { createStore, Provider } from 'jotai';
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -16,12 +18,11 @@ import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 // import { unstable_Blocker } from 'react-router-dom';
 // import { router } from './useDashboardSaveBlocker';
 import { DashboardRole } from '../api/models';
-import { dashboardsEndpoint, getDashboardEndpoint } from '../api/endpoints';
 import {
   dashboardsEndpoint,
+  getDashboardEndpoint,
   getDashboardSharesEndpoint
 } from '../api/endpoints';
-import { DashboardRole } from '../models';
 import { labelShareTheDashboard } from '../translatedLabels';
 
 import { routerParams } from './useDashboardDetails';
@@ -386,7 +387,7 @@ describe('Dashboard', () => {
 
   describe('Shares', () => {
     it('displays the list of user roles when the corresponding button is clicked', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(editorRoles);
 
       cy.findByLabelText(labelShareTheDashboard).click();
@@ -411,7 +412,7 @@ describe('Dashboard', () => {
     });
 
     it('changes a user role when a new role is selected for a user and the corresponding button is clicked', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(editorRoles);
 
       cy.findByLabelText(labelShareTheDashboard).click();
@@ -431,7 +432,7 @@ describe('Dashboard', () => {
     });
 
     it('removes a user from the list when when the corresponding button is clicked', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(editorRoles);
 
       cy.findByLabelText(labelShareTheDashboard).click();
@@ -446,7 +447,7 @@ describe('Dashboard', () => {
     });
 
     it('does not display the share button when the user has only the viewer role', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(viewerRoles);
 
       cy.findByLabelText(labelShareTheDashboard).should('not.exist');

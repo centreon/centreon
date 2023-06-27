@@ -1,22 +1,22 @@
 import { FormikHandlers, useFormik } from 'formik';
 import { propEq, reject } from 'ramda';
 
-import { DashboardShare } from '../models';
+import { DashboardAccessRights } from '../api/models';
 
 interface UseShareFormProps {
-  shares: Array<DashboardShare>;
+  shares: Array<DashboardAccessRights>;
 }
 
 interface UseShareFormState extends Pick<FormikHandlers, 'handleChange'> {
   dirty: boolean;
   getInputName: (index: number) => string;
   removeContact: (id: number) => () => void;
-  values: Array<DashboardShare>;
+  values: Array<DashboardAccessRights>;
 }
 
 const useShareForm = ({ shares }: UseShareFormProps): UseShareFormState => {
   const { handleChange, values, setValues, dirty } = useFormik<
-    Array<DashboardShare>
+    Array<DashboardAccessRights>
   >({
     initialValues: shares,
     onSubmit: () => undefined

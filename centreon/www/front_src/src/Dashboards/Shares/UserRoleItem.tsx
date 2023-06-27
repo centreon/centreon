@@ -8,7 +8,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { IconButton, List } from '@centreon/ui/components';
 import { SelectField, useMemoComponent } from '@centreon/ui';
 
-import { DashboardRole } from '../models';
+import { DashboardRole } from '../api/models';
 
 const options = [
   {
