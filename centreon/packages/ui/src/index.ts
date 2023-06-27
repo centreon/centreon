@@ -140,8 +140,6 @@ export { default as ActionsList } from './ActionsList';
 
 export type { ResponseError, CatchErrorProps } from './api/customFetch';
 
-export * from './layout/TiledListingPage';
-
 export * from './utils';
 export { default as FluidTypography } from './Typography/FluidTypography';
 export * from './Dashboard';
