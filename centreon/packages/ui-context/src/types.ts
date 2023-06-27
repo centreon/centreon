@@ -20,7 +20,7 @@ export interface DashboardRolesAndPermissions {
 
 export interface User {
   alias: string;
-  dashboard: DashboardRolesAndPermissions;
+  dashboard?: DashboardRolesAndPermissions | null;
   default_page?: string | null;
   isExportButtonEnabled: boolean;
   locale: string;

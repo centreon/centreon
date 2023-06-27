@@ -15555,6 +15555,113 @@ msgstr "par"
 msgid "Notification sent to"
 msgstr "Notification envoyée à"
 
+#: cloud notification configuration
+
+msgid "Notifications management"
+msgstr "Gestion des notifications"
+
+msgid "Welcome to the notifications interface"
+msgstr "Bienvenue dans l'interface de gestion des notifications"
+
+msgid "Create a notification"
+msgstr "Créer une notification"
+
+msgid "Channels"
+msgstr "Canaux"
+
+msgid "Select resources and events"
+msgstr "Sélectionner les ressources et les événements"
+
+msgid "Search host groups"
+msgstr "Rechercher les groupes d'hôtes"
+
+msgid "Select users"
+msgstr "Sélectionner les utilisateurs"
+
+msgid "Select time period / channels of notifications"
+msgstr "Sélectionner la période / les canaux de notifications"
+
+msgid "How many times would you like to duplicate selected notification?"
+msgstr "Combien de fois souhaitez-vous dupliquer la notification sélectionnée ?"
+
+msgid "Delete notification?"
+msgstr "Supprimer la notification?"
+
+msgid "This action cannot be undone"
+msgstr "Cette action est irréversible"
+
+msgid "Collapse information panel"
+msgstr "Réduire le panneau d'informations"
+
+msgid "Expand information panel"
+msgstr "Agrandir le panneau d'informations"
+
+msgid "Type your text here"
+msgstr "Tapez votre texte ici"
+
+msgid "Active / Inactive"
+msgstr "Actif / Inactif"
+
+msgid "Edit name"
+msgstr "Modifier le nom"
+
+msgid "Notification name"
+msgstr "Nom de la notification"
+
+msgid "The notification was successfully updated"
+msgstr "La notification a été mise à jour avec succès"
+
+msgid "The notification was successfully added"
+msgstr "La notification a été ajoutée avec succès"
+
+msgid "Do you want to confirm the action ?"
+msgstr "Souhaitez-vous confirmer l'action ?"
+
+msgid "Confirm notification creation"
+msgstr "Confirmer la création de la notification"
+
+msgid "Confirm notification update"
+msgstr "Confirmer la mise à jour de la notification"
+
+msgid "Choose at least 1 resource"
+msgstr "Veuillez sélectionner au moins 1 ressource"
+
+msgid "Choose at least 1 service group"
+msgstr "Veuillez sélectionner au moins 1 groupe de services"
+
+msgid "Choose at least 1 user"
+msgstr "Veuillez sélectionner au moins 1 utilisateur"
+
+msgid "The message field should not be empty!"
+msgstr "Le champ Message ne doit pas être vide !"
+
+msgid "Close the panel"
+msgstr "Fermer le panneau"
+
+msgid "Email template for the notification message"
+msgstr "Modèle d'email pour le message de notification"
+
+msgid "Subject"
+msgstr "Sujet"
+
+msgid "Notification channels"
+msgstr "Canaux de notification"
+
+msgid "Host groups"
+msgstr "Groupes d'hôtes "
+
+msgid "Search service groups"
+msgstr "Rechercher des groupes de service"
+
+msgid "Do you want to quit the form without saving the changes?"
+msgstr "Souhaitez-vous quitter le formulaire sans enregistrer les modifications ?"
+
+msgid "Your form has unsaved changes"
+msgstr "Votre formulaire comporte des modifications non enregistrées"
+
+msgid "This name already exists"
+msgstr "Ce nom existe déjà"
+
 #: api/platform
 msgid "Unable to convert in remote server, no Central to link provided"
 msgstr "Impossible de convertir en remote, aucun Central à lier renseigné"
@@ -17598,6 +17705,9 @@ msgstr "Erreur durant la suppression d'un tableau de bord"
 msgid "Error while updating a dashboard"
 msgstr "Erreur lors de la mise à jour d'un tableau de bord"
 
+msgid "Error while trying to update a widget which belongs to another dashboard"
+msgstr "Erreur lors d'une tentative de mise à jour d'un widget qui appartient à un autre tableau de bord"
+
 msgid "Error while searching for host templates"
 msgstr "Erreur lors de la recherche des modèles d'hôtes"
 
@@ -17619,8 +17729,8 @@ msgstr "[%s] (%s) devait être une instance de la classe '%s'"
 msgid "The service template '%s' is locked and cannot be deleted"
 msgstr "Le modèle de service '%s' est verrouillé et ne peut pas être supprimé"
 
-msgid "You are not allowed to delete this service template"
-msgstr "Vous n'êtes pas autorisé à supprimer ce modèle de service"
+msgid "You are not allowed to delete a service template"
+msgstr "Vous n'êtes pas autorisé à supprimer un modèle de service"
 
 msgid "Error while deleting the service template"
 msgstr "Erreur lors de la suppression du modèle de service"
@@ -17667,6 +17777,9 @@ msgstr "Si vous quittez le mode édition, vos changements ne seront pas sauvegar
 msgid "If you leave {{dashboardName}}, your changes will not be saved."
 msgstr "Si vous quittez {{dashboardName}}, vos changements ne seront pas sauvegardés."
 
+msgid "Your dashboard has been saved"
+msgstr "Votre tableau de bord a été sauvegardé"
+
 msgid "Unable to parse authorization url"
 msgstr "Impossible d'analyser l'URL d'autorisation"
 
@@ -17676,3 +17789,47 @@ msgstr "Vous n'êtes pas autorisé à lister les configurations de notifications
 msgid "Notification #%d should have at least one user"
 msgstr "La notification #%d doit avoir au moins un utilisateur"
 
+msgid "You are not allowed to add a service template"
+msgstr "Vous n'êtes pas autorisé à ajouter un modèle de service"
+
+msgid "Error while adding the service template"
+msgstr "Erreur lors de l'ajout du modèle de service"
+
+msgid "Error while retrieving a service template"
+msgstr "Erreur lors de la récupération d'un modèle de service"
+
+msgid "The service template name '%s' already exists"
+msgstr "Le nom du modèle de service '%s' existe déjà"
+
+msgid "[%s] The value contains unauthorized characters: %s"
+msgstr "[%s] La valeur contient des caractères non autorisés : %s"
+
+msgid "Error while linking host categories to a host template"
+msgstr "Erreur lors de la liaison de catégories d'hôte à un modèle d'hôte"
+
+msgid "The %s does not exist with ID(s) '%s'"
+msgstr "Le champ %s n'existe pas avec le(s) ID(s) '%s'"
+
+msgid "Error while partially updating a host template"
+msgstr "Erreur lors de la modification partielle d'un modèle d'hôte"
+
+msgid "You are not allowed to perform write actions on host templates"
+msgstr "Vous n'êtes pas autorisé à effectuer des actions d'écriture sur les modèles d'hôte"
+
+msgid "Host template #%d not found"
+msgstr "Modèle d'hôte #%d introuvable"
+
+msgid "Circular inheritance not allowed"
+msgstr "Héritage circulaire non autorisé"
+
+msgid "You are not allowed to access commands"
+msgstr "Vous n'êtes pas autorisé à accéder aux commandes"
+
+msgid "Error while searching for commands"
+msgstr "Erreur lors de la recherche de commandes"
+
+msgid "You are not allowed to partially update a notification configuration"
+msgstr "Vous n'êtes pas autorisé à effectuer la modification partielle d'une configuration de notification"
+
+msgid "Error while partially updating a notification configuration"
+msgstr "Erreur lors de la modification partielle d'une configuration de notification"

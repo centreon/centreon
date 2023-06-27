@@ -1,0 +1,20 @@
+sleep 10
+
+su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
+
+curl http://localhost/centreon/api/latest/platform/versions
+curl http://localhost/centreon/login
+
+centreon -d -u admin -p Centreon\!2021 -a APPLYCFG -v 1
+su - centreon-gorgone -s /bin/bash -c "sudo service centengine reload"
+
+systemctl stop php8.1-fpm
+systemctl stop apache2
+systemctl stop centengine
+systemctl stop cbd
+systemctl stop gorgoned
+service mysql stop
+
+rm -f /tmp/gorgone/*.ipc /val/log/centreon*/*.log
+
+sleep 5

@@ -32,8 +32,8 @@ final class FindServiceTemplatesController extends AbstractController
 {
     /**
      * @param FindServiceTemplates $useCase
-     * @param FindServiceTemplatesPresenterOnPrem $onPremPresenter
-     * @param FindServiceTemplatesPresenterSaas $saasPresenter
+     * @param FindServiceTemplatesOnPremPresenter $onPremPresenter
+     * @param FindServiceTemplatesSaasPresenter $saasPresenter
      * @param bool $isCloudPlatform
      *
      * @throws AccessDeniedException
@@ -42,8 +42,8 @@ final class FindServiceTemplatesController extends AbstractController
      */
     public function __invoke(
         FindServiceTemplates $useCase,
-        FindServiceTemplatesPresenterOnPrem $onPremPresenter,
-        FindServiceTemplatesPresenterSaas $saasPresenter,
+        FindServiceTemplatesOnPremPresenter $onPremPresenter,
+        FindServiceTemplatesSaasPresenter $saasPresenter,
         bool $isCloudPlatform,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();

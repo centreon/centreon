@@ -59,6 +59,19 @@ class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostT
                         'note' => $this->emptyStringAsNull($response->note),
                         'action_url' => $this->emptyStringAsNull($response->actionUrl),
                         'is_locked' => $response->isLocked,
+                        'categories' => $response->categories,
+                        'templates' => $response->templates,
+                        'macros' => array_map(
+                            function ($macro) {
+                                return [
+                                    'name' => $macro['name'],
+                                    'value' => $macro['isPassword'] ? null : $macro['value'],
+                                    'is_password' => $macro['isPassword'],
+                                    'description' => $this->emptyStringAsNull($macro['description']),
+                                ];
+                            },
+                            $response->macros
+                        ),
                     ]
                 )
             );

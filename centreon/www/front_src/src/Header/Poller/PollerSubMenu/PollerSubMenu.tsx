@@ -3,6 +3,8 @@ import { isEmpty } from 'ramda';
 
 import { Typography, Button, List, ListItem } from '@mui/material';
 
+import FederatedComponent from '../../../components/FederatedComponents';
+
 import ExportConfiguration from './ExportConfiguration';
 
 const useStyles = makeStyles()((theme) => ({
@@ -66,6 +68,7 @@ export const PollerSubMenu = ({
           return (
             <ListItem
               className={cx(classes.listItem, classes.pollerDetailRow)}
+              data-testid="pollerIssues"
               key={key}
             >
               <Typography className={classes.pollerDetailTitle} variant="body2">
@@ -99,6 +102,9 @@ export const PollerSubMenu = ({
           <ExportConfiguration closeSubMenu={closeSubMenu} />
         </ListItem>
       )}
+      <ListItem className={classes.listItem}>
+        <FederatedComponent path="/cloud-extensions" />
+      </ListItem>
     </List>
   );
 };

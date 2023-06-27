@@ -12,7 +12,7 @@
     "eslint:fix": "pnpm eslint --fix"
   },
   "devDependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^17.2.0",
+    "@badeball/cypress-cucumber-preprocessor": "^17.2.1",
     "@cypress/webpack-preprocessor": "^5.17.1",
     "@swc/core": "^1.2.203",
     "@types/cypress": "^1.1.3",

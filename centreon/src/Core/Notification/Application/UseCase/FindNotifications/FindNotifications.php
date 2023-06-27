@@ -249,6 +249,7 @@ final class FindNotifications
             $notificationDto = new NotificationDto();
             $notificationDto->id = $notification->getId();
             $notificationDto->name = $notification->getName();
+            $notificationDto->isActivated = $notification->isActivated();
             if (($usersCount = $notificationCounts->getUsersCountByNotificationId($notification->getId())) !== 0) {
                 $notificationDto->usersCount = $usersCount;
             }

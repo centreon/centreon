@@ -1,33 +1,26 @@
-/* eslint-disable import/no-unresolved */
+/* eslint-disable import/no-unresolved,@typescript-eslint/no-unused-vars */
 
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
-import { unstable_Blocker } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
-import { Method, TestQueryProvider } from '@centreon/ui';
 import {
   DashboardGlobalRole,
   ListingVariant,
   userAtom
 } from '@centreon/ui-context';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import { federatedWidgetsAtom } from '../../federatedModules/atoms';
-import { dashboardsEndpoint } from '../api/endpoints';
-import { DashboardRole } from '../models';
+// import { unstable_Blocker } from 'react-router-dom';
+// import { router } from './useDashboardSaveBlocker';
+import { DashboardRole } from '../api/models';
+import { dashboardsEndpoint, getDashboardEndpoint } from '../api/endpoints';
 
-import { router } from './useDashboardSaveBlocker';
-import {
-  labelEditDashboard,
-  labelExit,
-  labelExitDashboard,
-  labelExitEditionMode,
-  labelLeaveEditionModeChangesNotSaved
-} from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
-import { dashboardAtom } from './atoms';
-
-import Dashboard from '.';
+import { labelEditDashboard } from './translatedLabels';
+import { Dashboard } from './Dashboard';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
   const federatedWidgets = [
@@ -47,23 +40,23 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
   return store;
 };
 
-const initializeBlocker = (isNavigationBlocked = false): unstable_Blocker => {
-  const useBlockerResult: unstable_Blocker = {
-    location: {
-      hash: '',
-      key: '5nvxpbdafa',
-      pathname: '/dashboards/1',
-      search: '',
-      state: null
-    },
-    proceed: cy.stub(),
-    reset: cy.stub(),
-    state: isNavigationBlocked ? 'blocked' : 'unblocked'
-  };
-  cy.stub(router, 'useBlocker').returns(useBlockerResult);
-
-  return useBlockerResult;
-};
+// const initializeBlocker = (isNavigationBlocked = false): unstable_Blocker => {
+//   const useBlockerResult: unstable_Blocker = {
+//     location: {
+//       hash: '',
+//       key: '5nvxpbdafa',
+//       pathname: '/dashboards/1',
+//       search: '',
+//       state: null
+//     },
+//     proceed: cy.stub(),
+//     reset: cy.stub(),
+//     state: isNavigationBlocked ? 'blocked' : 'unblocked'
+//   };
+//   cy.stub(router, 'useBlocker').returns(useBlockerResult);
+//
+//   return useBlockerResult;
+// };
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
@@ -136,11 +129,27 @@ const initializeAndMount = ({
     cy.interceptAPIRequest({
       alias: 'getDashboardDetails',
       method: Method.GET,
-      path: `${dashboardsEndpoint}/1`,
+      path: getDashboardEndpoint('1'),
       response: {
         ...dashboardDetails,
         own_role: ownRole
       }
+    });
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'patchDashboardDetails',
+    method: Method.PATCH,
+    path: getDashboardEndpoint('1'),
+    statusCode: 201
+  });
+
+  cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
+    cy.interceptAPIRequest({
+      alias: 'getDashboards',
+      method: Method.GET,
+      path: `${dashboardsEndpoint}?**`,
+      response: dashboards
     });
   });
 
@@ -149,9 +158,13 @@ const initializeAndMount = ({
   cy.mount({
     Component: (
       <TestQueryProvider>
-        <Provider store={store}>
-          <Dashboard />
-        </Provider>
+        <BrowserRouter>
+          <SnackbarProvider>
+            <Provider store={store}>
+              <Dashboard />
+            </Provider>
+          </SnackbarProvider>
+        </BrowserRouter>
       </TestQueryProvider>
     )
   });
@@ -160,7 +173,11 @@ const initializeAndMount = ({
 };
 
 describe('Dashboard', () => {
+  // FIXME the `unstable_Blocker` is conflicting with the default behavior of react-router-dom, feature has been disabled for now
+  /*
+  describe('Unsaved changes navigation blocker', () => {
   it('cancels the dashboard changes when the "Cancel" button is clicked in the confirmation modal', () => {
+
     initializeBlocker();
     const store = initializeAndMount({});
 
@@ -286,9 +303,37 @@ describe('Dashboard', () => {
       });
   });
 
+  it('saves the dashboard when the corresponding button is clicked and the dashboard is changed', () => {
+    initializeBlocker();
+    const store = initializeAndMount({});
+
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.contains(labelEditDashboard).click();
+
+    cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.fixture('Dashboards/Dashboard/updatedLayout.json').then((panels) => {
+      store.set(dashboardAtom, {
+        layout: panels
+      });
+    });
+
+    cy.findByLabelText(labelSave).click();
+
+    cy.waitForRequest('@patchDashboardDetails');
+
+    cy.contains(labelYourDashboardHasBeenSaved).should('be.visible');
+    cy.waitForRequest('@getDashboardDetails');
+
+    cy.matchImageSnapshot();
+  });
+  });
+  */
+
   describe('Roles', () => {
     it('has access to the dashboard edition features when the user has the editor role', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
@@ -297,7 +342,7 @@ describe('Dashboard', () => {
     });
 
     it('does not have access to the dashboard edition features when the user has the viewer role and the global viewer role', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(viewerRoles);
 
       cy.waitForRequest('@getDashboardDetails');
@@ -306,7 +351,7 @@ describe('Dashboard', () => {
     });
 
     it('does not have access to the dashboard edition features when the user has the viewer role and the global creator role', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(viewerCreatorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
@@ -315,7 +360,7 @@ describe('Dashboard', () => {
     });
 
     it('has access to the dashboard edition features when the user has the viewer role and the global administrator role', () => {
-      initializeBlocker();
+      // initializeBlocker();
       initializeAndMount(viewerAdministratorRoles);
 
       cy.waitForRequest('@getDashboardDetails');

@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboard;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -31,9 +30,12 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
+use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 final class FindDashboard
 {
@@ -41,8 +43,10 @@ final class FindDashboard
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
+        private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
     ) {
     }
@@ -54,27 +58,26 @@ final class FindDashboard
     public function __invoke(int $dashboardId, FindDashboardPresenterInterface $presenter): void
     {
         try {
-            if ($this->contact->isAdmin()) {
+            if ($this->rights->hasAdminRole()) {
                 $response = $this->findDashboardAsAdmin($dashboardId);
-            } elseif ($this->contactCanExecuteThisUseCase()) {
-                $response = $this->findDashboardAsContact($dashboardId);
+            } elseif ($this->rights->canAccess()) {
+                $response = $this->findDashboardAsViewer($dashboardId);
             } else {
                 $response = new ForbiddenResponse(DashboardException::accessNotAllowed());
             }
 
             if ($response instanceof FindDashboardResponse) {
                 $this->info('Find dashboard', ['id' => $dashboardId]);
-                $presenter->presentResponse($response);
             } elseif ($response instanceof NotFoundResponse) {
                 $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
-                $presenter->presentResponse($response);
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to see the dashboard",
                     ['user_id' => $this->contact->getId()]
                 );
-                $presenter->presentResponse($response);
             }
+
+            $presenter->presentResponse($response);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(DashboardException::errorWhileRetrieving()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -96,7 +99,7 @@ final class FindDashboard
             return new NotFoundResponse('Dashboard');
         }
 
-        return $this->createResponse($dashboard);
+        return $this->createResponse($dashboard, DashboardSharingRole::Editor);
     }
 
     /**
@@ -106,57 +109,36 @@ final class FindDashboard
      *
      * @return FindDashboardResponse|NotFoundResponse
      */
-    private function findDashboardAsContact(int $dashboardId): FindDashboardResponse|NotFoundResponse
+    private function findDashboardAsViewer(int $dashboardId): FindDashboardResponse|NotFoundResponse
     {
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
-        $dashboard = $this->readDashboardRepository->findOneByAccessGroups($dashboardId, $accessGroups);
+        $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
 
         if (null === $dashboard) {
             return new NotFoundResponse('Dashboard');
         }
 
-        return $this->createResponse($dashboard);
-    }
-
-    /**
-     * @return bool
-     */
-    private function contactCanExecuteThisUseCase(): bool
-    {
-        return $this->contact->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_READ)
-            || $this->contact->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_WRITE);
+        return $this->createResponse($dashboard, DashboardSharingRole::Viewer);
     }
 
     /**
      * @param Dashboard $dashboard
+     * @param DashboardSharingRole $defaultRole
+     *
+     * @throws \Throwable
      *
      * @return FindDashboardResponse
      */
-    private function createResponse(Dashboard $dashboard): FindDashboardResponse
+    private function createResponse(Dashboard $dashboard, DashboardSharingRole $defaultRole): FindDashboardResponse
     {
         $contactIds = $this->extractAllContactIdsFromDashboard($dashboard);
-        $contactNames = $this->readContactRepository->findNamesByIds(...$contactIds);
 
-        $response = new FindDashboardResponse();
-
-        $response->id = $dashboard->getId();
-        $response->name = $dashboard->getName();
-        $response->description = $dashboard->getDescription();
-        $response->createdAt = $dashboard->getCreatedAt();
-        $response->updatedAt = $dashboard->getUpdatedAt();
-
-        if (null !== ($contactId = $dashboard->getCreatedBy())) {
-            $response->createdBy = new FindDashboardUserDto();
-            $response->createdBy->id = $contactId;
-            $response->createdBy->name = $contactNames[$contactId]['name'] ?? '';
-        }
-        if (null !== ($contactId = $dashboard->getCreatedBy())) {
-            $response->updatedBy = new FindDashboardUserDto();
-            $response->updatedBy->id = $contactId;
-            $response->updatedBy->name = $contactNames[$contactId]['name'] ?? '';
-        }
-
-        return $response;
+        return FindDashboardFactory::createResponse(
+            $dashboard,
+            $this->readContactRepository->findNamesByIds(...$contactIds),
+            $this->readDashboardPanelRepository->findPanelsByDashboardId($dashboard->getId()),
+            $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard),
+            $defaultRole
+        );
     }
 
     /**
