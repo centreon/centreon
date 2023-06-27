@@ -32,17 +32,19 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Application\Type\NoValue;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
+use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\PartialUpdateContactDashboardShare\PartialUpdateContactDashboardShare;
 use Core\Dashboard\Application\UseCase\PartialUpdateContactDashboardShare\PartialUpdateContactDashboardShareRequest;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 beforeEach(closure: function (): void {
     $this->presenter = new PartialUpdateContactDashboardSharePresenterStub();
     $this->useCase = new PartialUpdateContactDashboardShare(
         $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class),
+        $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
         $this->writeDashboardShareRepository = $this->createMock(WriteDashboardShareRepositoryInterface::class),
         $this->contactRepository = $this->createMock(ContactRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
@@ -169,6 +171,7 @@ it(
     function (): void {
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('canUpdateShare')->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);
         $this->contactRepository->expects($this->once())->method('findById')
@@ -184,6 +187,29 @@ it(
         );
 
         expect($this->presenter->data)->toBeInstanceOf(NoContentResponse::class);
+    }
+);
+
+it(
+    'should present a proper ForbiddenResponse as a user with NOT allowed ROLE',
+    function (): void {
+        $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('canUpdateShare')->willReturn(false);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOneByContact')->willReturn($this->testedDashboard);
+        $this->contactRepository->expects($this->once())->method('findById')
+            ->willReturn($this->testedContact);
+        $this->writeDashboardShareRepository->expects($this->never())->method('updateContactShare');
+
+        ($this->useCase)(
+            $this->testedDashboard->getId(),
+            $this->testedContact->getId(),
+            new PartialUpdateContactDashboardShareRequest(DashboardSharingRole::Viewer),
+            $this->presenter
+        );
+
+        expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class);
     }
 );
 

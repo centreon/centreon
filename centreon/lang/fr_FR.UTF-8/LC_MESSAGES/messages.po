@@ -17699,6 +17699,9 @@ msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les 
 msgid "You are not allowed to perform write operations on the dashboard #%d access rights"
 msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les droits d'accès du tableau de bord #%d"
 
+msgid "You are not allowed to perform read operations on the dashboard #%d access rights"
+msgstr "Vous n'êtes pas autorisé à faire des opérations de lecture sur les droits d'accès du tableau de bord #%d"
+
 msgid "Error while retrieving a dashboard"
 msgstr "Erreur durant la récupération d'un tableau de bord"
 

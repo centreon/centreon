@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
@@ -60,30 +61,28 @@ final class AddContactDashboardShare
     ): void {
         try {
             if ($this->rights->hasAdminRole()) {
-                $dashboard = $this->readDashboardRepository->findOne($dashboardId);
+                if ($dashboard = $this->readDashboardRepository->findOne($dashboardId)) {
+                    $response = $this->addContactShareAsAdmin($dashboard, $request);
+                } else {
+                    $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
+                    $response = new NotFoundResponse('Dashboard');
+                }
             } elseif ($this->rights->canAccess()) {
-                $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
+                if ($dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact)) {
+                    $response = $this->addContactShareAsContact($dashboard, $request);
+                } else {
+                    $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
+                    $response = new NotFoundResponse('Dashboard');
+                }
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to see dashboards",
                     ['user_id' => $this->contact->getId()]
                 );
-                $presenter->presentResponse(
-                    new ForbiddenResponse(DashboardException::accessNotAllowedForWriting())
-                );
-
-                return;
+                $response = new ForbiddenResponse(DashboardException::accessNotAllowedForWriting());
             }
 
-            if ($dashboard) {
-                $presenter->presentResponse(
-                    $this->addContactDashboardShare($dashboard, $request)
-                );
-            } else {
-                $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
-
-                $presenter->presentResponse(new NotFoundResponse('Dashboard'));
-            }
+            $presenter->presentResponse($response);
         } catch (AssertionFailedException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
@@ -105,16 +104,50 @@ final class AddContactDashboardShare
      *
      * @return AddContactDashboardShareResponse
      */
-    private function addContactDashboardShare(
+    private function addContactShareAsAdmin(
         Dashboard $dashboard,
-        AddContactDashboardShareRequest $request,
+        AddContactDashboardShareRequest $request
     ): AddContactDashboardShareResponse {
         $contact = $this->getContactById($request->id);
 
         $this->writeDashboardShareRepository->upsertShareWithContact(
             $contact->getId(),
             $dashboard->getId(),
-            $request->role,
+            $request->role
+        );
+
+        // We retrieve it from repository
+        $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($contact, $dashboard);
+
+        return $this->createResponse($sharingRoles);
+    }
+
+    /**
+     * @param Dashboard $dashboard
+     * @param AddContactDashboardShareRequest $request
+     *
+     * @throws \Throwable
+     * @throws DashboardException
+     *
+     * @return AddContactDashboardShareResponse|ResponseStatusInterface
+     */
+    private function addContactShareAsContact(
+        Dashboard $dashboard,
+        AddContactDashboardShareRequest $request
+    ): AddContactDashboardShareResponse|ResponseStatusInterface {
+        $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard);
+        if (! $this->rights->canCreateShare($sharingRoles)) {
+            return new ForbiddenResponse(
+                DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboard->getId())
+            );
+        }
+
+        $contact = $this->getContactById($request->id);
+
+        $this->writeDashboardShareRepository->upsertShareWithContact(
+            $contact->getId(),
+            $dashboard->getId(),
+            $request->role
         );
 
         // We retrieve it from repository

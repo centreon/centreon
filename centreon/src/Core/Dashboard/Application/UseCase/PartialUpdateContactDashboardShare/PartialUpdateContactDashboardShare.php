@@ -33,9 +33,11 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Application\Type\NoValue;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
@@ -46,6 +48,7 @@ final class PartialUpdateContactDashboardShare
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
         private readonly ContactRepositoryInterface $contactRepository,
         private readonly DashboardRights $rights,
@@ -62,41 +65,39 @@ final class PartialUpdateContactDashboardShare
         try {
             if ($this->rights->hasAdminRole()) {
                 $dashboard = $this->readDashboardRepository->findOne($dashboardId);
+                $contact = $this->contactRepository->findById($contactId);
+
+                if ($dashboard && $contact) {
+                    $response = $this->updateContactShareAsAdmin($dashboard, $contact, $request);
+                } elseif (null === $dashboard) {
+                    $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
+                    $response = new NotFoundResponse('Dashboard');
+                } elseif (null === $contact) {
+                    $this->warning('Contact (%s) not found', ['id' => $contactId]);
+                    $response = new NotFoundResponse('Contact');
+                }
             } elseif ($this->rights->canAccess()) {
                 $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
+                $contact = $this->contactRepository->findById($contactId);
+
+                if ($dashboard && $contact) {
+                    $response = $this->updateContactShareAsContact($dashboard, $contact, $request);
+                } elseif (null === $dashboard) {
+                    $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
+                    $response = new NotFoundResponse('Dashboard');
+                } elseif (null === $contact) {
+                    $this->warning('Contact (%s) not found', ['id' => $contactId]);
+                    $response = new NotFoundResponse('Contact');
+                }
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to see dashboards",
                     ['user_id' => $this->contact->getId()]
                 );
-                $presenter->presentResponse(
-                    new ForbiddenResponse(DashboardException::accessNotAllowedForWriting())
-                );
-
-                return;
+                $response = new ForbiddenResponse(DashboardException::accessNotAllowedForWriting());
             }
 
-            if (null === $dashboard) {
-                $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
-                $presenter->presentResponse(new NotFoundResponse('Dashboard'));
-
-                return;
-            }
-
-            $contact = $this->contactRepository->findById($contactId);
-
-            if (null === $contact) {
-                $this->warning('Contact (%s) not found', ['id' => $contactId]);
-                $presenter->presentResponse(new NotFoundResponse('Contact'));
-
-                return;
-            }
-
-            if ($this->updateContactShare($contact, $dashboard, $request)) {
-                $presenter->presentResponse(new NoContentResponse());
-            } else {
-                $presenter->presentResponse(new NotFoundResponse('Dashboard share'));
-            }
+            $presenter->presentResponse($response);
         } catch (AssertionFailedException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
@@ -109,19 +110,60 @@ final class PartialUpdateContactDashboardShare
         }
     }
 
-    private function updateContactShare(
-        Contact $contact,
+    /**
+     * @param Dashboard $dashboard
+     * @param Contact $contact
+     * @param PartialUpdateContactDashboardShareRequest $request
+     *
+     * @throws \Throwable
+     *
+     * @return ResponseStatusInterface
+     */
+    private function updateContactShareAsAdmin(
         Dashboard $dashboard,
+        Contact $contact,
         PartialUpdateContactDashboardShareRequest $request
-    ): bool {
+    ): ResponseStatusInterface {
         if (! ($request->role instanceof NoValue)) {
-            return $this->writeDashboardShareRepository->updateContactShare(
-                $contact->getId(),
-                $dashboard->getId(),
-                $request->role
+            $updated = $this->writeDashboardShareRepository->updateContactShare($contact->getId(), $dashboard->getId(), $request->role);
+
+            return $updated
+                ? new NoContentResponse()
+                : new NotFoundResponse('Dashboard share');
+        }
+
+        return new NoContentResponse();
+    }
+
+    /**
+     * @param Dashboard $dashboard
+     * @param Contact $contact
+     * @param PartialUpdateContactDashboardShareRequest $request
+     *
+     * @throws \Throwable
+     *
+     * @return ResponseStatusInterface
+     */
+    private function updateContactShareAsContact(
+        Dashboard $dashboard,
+        Contact $contact,
+        PartialUpdateContactDashboardShareRequest $request
+    ): ResponseStatusInterface {
+        $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard);
+        if (! $this->rights->canUpdateShare($sharingRoles)) {
+            return new ForbiddenResponse(
+                DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboard->getId())
             );
         }
 
-        return true;
+        if (! ($request->role instanceof NoValue)) {
+            $updated = $this->writeDashboardShareRepository->updateContactShare($contact->getId(), $dashboard->getId(), $request->role);
+
+            return $updated
+                ? new NoContentResponse()
+                : new NotFoundResponse('Dashboard share');
+        }
+
+        return new NoContentResponse();
     }
 }

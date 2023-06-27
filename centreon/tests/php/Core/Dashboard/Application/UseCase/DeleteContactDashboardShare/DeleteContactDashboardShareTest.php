@@ -31,14 +31,16 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
+use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\DeleteContactDashboardShare\DeleteContactDashboardShare;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 
 beforeEach(closure: function (): void {
     $this->presenter = new DeleteContactDashboardSharePresenterStub();
     $this->useCase = new DeleteContactDashboardShare(
+        $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
         $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class),
         $this->writeDashboardShareRepository = $this->createMock(WriteDashboardShareRepositoryInterface::class),
         $this->contactRepository = $this->createMock(ContactRepositoryInterface::class),
@@ -161,6 +163,7 @@ it(
     function (): void {
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('canDeleteShare')->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);
         $this->contactRepository->expects($this->once())->method('findById')
@@ -175,5 +178,27 @@ it(
         );
 
         expect($this->presenter->data)->toBeInstanceOf(NoContentResponse::class);
+    }
+);
+
+it(
+    'should present a proper ForbiddenResponse as a user with NOT allowed ROLE',
+    function (): void {
+        $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('canDeleteShare')->willReturn(false);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOneByContact')->willReturn($this->testedDashboard);
+        $this->contactRepository->expects($this->once())->method('findById')
+            ->willReturn($this->testedContact);
+        $this->writeDashboardShareRepository->expects($this->never())->method('deleteContactShare');
+
+        ($this->useCase)(
+            $this->testedDashboard->getId(),
+            $this->testedContact->getId(),
+            $this->presenter
+        );
+
+        expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class);
     }
 );

@@ -59,6 +59,26 @@ class DashboardRights
         return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
     }
 
+    public function canCreateShare(DashboardSharingRoles $roles): bool
+    {
+        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+    }
+
+    public function canDeleteShare(DashboardSharingRoles $roles): bool
+    {
+        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+    }
+
+    public function canUpdateShare(DashboardSharingRoles $roles): bool
+    {
+        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+    }
+
+    public function canAccessShare(DashboardSharingRoles $roles): bool
+    {
+        return null !== $roles->getTheMostPermissiveRole();
+    }
+
     public function hasAdminRole(): bool
     {
         return $this->contact->hasTopologyRole(self::ROLE_ADMIN);

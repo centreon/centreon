@@ -16181,6 +16181,9 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "You are not allowed to perform write operations on the dashboard #%d access rights"
 # msgstr ""
 
+# msgid "You are not allowed to perform read operations on the dashboard #%d access rights"
+# msgstr ""
+
 # msgid "Error while retrieving a dashboard"
 # msgstr ""
 

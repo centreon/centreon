@@ -54,6 +54,21 @@ class DashboardException extends \Exception
      *
      * @return self
      */
+    public static function dashboardAccessRightsNotAllowed(int $dashboardId): self
+    {
+        return new self(
+            sprintf(
+                _('You are not allowed to perform read operations on the dashboard #%d access rights'),
+                $dashboardId
+            )
+        );
+    }
+
+    /**
+     * @param int $dashboardId
+     *
+     * @return self
+     */
     public static function dashboardAccessRightsNotAllowedForWriting(int $dashboardId): self
     {
         return new self(

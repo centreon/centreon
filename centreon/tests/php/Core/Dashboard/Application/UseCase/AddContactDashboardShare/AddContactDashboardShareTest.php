@@ -176,6 +176,8 @@ it(
                     []
                 )
             );
+        $this->writeDashboardShareRepository->expects($this->once())
+            ->method('upsertShareWithContact');
 
         ($this->useCase)(
             $this->testedDashboard->getId(),
@@ -200,11 +202,12 @@ it(
         $role = DashboardSharingRoleConverter::fromString($roleString);
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('canCreateShare')->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);
         $this->contactRepository->expects($this->once())
             ->method('findById')->willReturn($this->testedContact);
-        $this->readDashboardShareRepository->expects($this->once())
+        $this->readDashboardShareRepository->expects($this->exactly(2))
             ->method('getOneSharingRoles')->willReturn(
                 new DashboardSharingRoles(
                     $this->testedDashboard,
@@ -218,6 +221,8 @@ it(
                     []
                 )
             );
+        $this->writeDashboardShareRepository->expects($this->once())
+            ->method('upsertShareWithContact');
 
         ($this->useCase)(
             $this->testedDashboard->getId(),
@@ -230,6 +235,31 @@ it(
             ->and($this->presenter->data->name)->toBe($this->testedContact->getName())
             ->and($this->presenter->data->email)->toBe($this->testedContact->getEmail())
             ->and($this->presenter->data->role->name)->toBe($role->name);
+    }
+)->with([
+    ['viewer'],
+    ['editor'],
+]);
+
+it(
+    'should present a ForbiddenResponse as a user with NOT allowed ROLE',
+    function (string $roleString): void {
+        $role = DashboardSharingRoleConverter::fromString($roleString);
+        $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('canCreateShare')->willReturn(false);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOneByContact')->willReturn($this->testedDashboard);
+        $this->writeDashboardShareRepository->expects($this->never())
+            ->method('upsertShareWithContact');
+
+        ($this->useCase)(
+            $this->testedDashboard->getId(),
+            new AddContactDashboardShareRequest($contactId = $this->testedContact->getId(), $role),
+            $this->presenter
+        );
+
+        expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class);
     }
 )->with([
     ['viewer'],

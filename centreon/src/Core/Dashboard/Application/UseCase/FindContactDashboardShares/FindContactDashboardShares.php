@@ -37,6 +37,7 @@ use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindContactDashboardShares\Response\ContactDashboardShareResponseDto;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 
 final class FindContactDashboardShares
 {
@@ -57,28 +58,28 @@ final class FindContactDashboardShares
     ): void {
         try {
             if ($this->rights->hasAdminRole()) {
-                $dashboard = $this->readDashboardRepository->findOne($dashboardId);
+                if ($dashboard = $this->readDashboardRepository->findOne($dashboardId)) {
+                    $response = $this->findContactSharesAsAdmin($dashboard);
+                } else {
+                    $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
+                    $response = new NotFoundResponse('Dashboard');
+                }
             } elseif ($this->rights->canAccess()) {
-                $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
+                if ($dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact)) {
+                    $response = $this->findContactSharesAsContact($dashboard);
+                } else {
+                    $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
+                    $response = new NotFoundResponse('Dashboard');
+                }
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to see dashboards",
                     ['user_id' => $this->contact->getId()]
                 );
-                $presenter->presentResponse(
-                    new ForbiddenResponse(DashboardException::accessNotAllowedForWriting())
-                );
-
-                return;
+                $response = new ForbiddenResponse(DashboardException::accessNotAllowedForWriting());
             }
 
-            if ($dashboard) {
-                $presenter->presentResponse($this->findContactDashboardShares($dashboard));
-            } else {
-                $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
-
-                $presenter->presentResponse(new NotFoundResponse('Dashboard'));
-            }
+            $presenter->presentResponse($response);
         } catch (AssertionFailedException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
@@ -98,12 +99,40 @@ final class FindContactDashboardShares
      *
      * @return FindContactDashboardSharesResponse
      */
-    private function findContactDashboardShares(Dashboard $dashboard): FindContactDashboardSharesResponse
+    private function findContactSharesAsAdmin(Dashboard $dashboard): FindContactDashboardSharesResponse
     {
         $shares = $this->readDashboardShareRepository
             ->findDashboardContactSharesByRequestParameter($dashboard, $this->requestParameters);
 
+        return $this->createResponse(...$shares);
+    }
+
+    /**
+     * @param Dashboard $dashboard
+     *
+     * @throws \Throwable
+     *
+     * @return FindContactDashboardSharesResponse|ForbiddenResponse
+     */
+    private function findContactSharesAsContact(Dashboard $dashboard): FindContactDashboardSharesResponse|ForbiddenResponse
+    {
+        $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard);
+        if (! $this->rights->canAccessShare($sharingRoles)) {
+            return new ForbiddenResponse(
+                DashboardException::dashboardAccessRightsNotAllowed($dashboard->getId())
+            );
+        }
+
+        $shares = $this->readDashboardShareRepository
+            ->findDashboardContactSharesByRequestParameter($dashboard, $this->requestParameters);
+
+        return $this->createResponse(...$shares);
+    }
+
+    private function createResponse(DashboardContactShare ...$shares): FindContactDashboardSharesResponse
+    {
         $response = new FindContactDashboardSharesResponse();
+
         foreach ($shares as $share) {
             $dto = new ContactDashboardShareResponseDto();
             $dto->id = $share->getContactId();

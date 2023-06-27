@@ -32,9 +32,12 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
+use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 
 final class DeleteContactDashboardShare
@@ -42,6 +45,7 @@ final class DeleteContactDashboardShare
     use LoggerTrait;
 
     public function __construct(
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
         private readonly ContactRepositoryInterface $contactRepository,
@@ -57,42 +61,28 @@ final class DeleteContactDashboardShare
     ): void {
         try {
             if ($this->rights->hasAdminRole()) {
-                $dashboard = $this->readDashboardRepository->findOne($dashboardId);
+                if ($dashboard = $this->readDashboardRepository->findOne($dashboardId)) {
+                    $response = $this->deleteContactShareAsAdmin($dashboard, $contactId);
+                } else {
+                    $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
+                    $response = new NotFoundResponse('Dashboard');
+                }
             } elseif ($this->rights->canAccess()) {
-                $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
+                if ($dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact)) {
+                    $response = $this->deleteContactShareAsContact($dashboard, $contactId);
+                } else {
+                    $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
+                    $response = new NotFoundResponse('Dashboard');
+                }
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to see dashboards",
                     ['user_id' => $this->contact->getId()]
                 );
-                $presenter->presentResponse(
-                    new ForbiddenResponse(DashboardException::accessNotAllowedForWriting())
-                );
-
-                return;
+                $response = new ForbiddenResponse(DashboardException::accessNotAllowedForWriting());
             }
 
-            if (null === $dashboard) {
-                $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
-                $presenter->presentResponse(new NotFoundResponse('Dashboard'));
-
-                return;
-            }
-
-            $contact = $this->contactRepository->findById($contactId);
-
-            if (null === $contact) {
-                $this->warning('Contact (%s) not found', ['id' => $contactId]);
-                $presenter->presentResponse(new NotFoundResponse('Contact'));
-
-                return;
-            }
-
-            if ($this->writeDashboardShareRepository->deleteContactShare($contact->getId(), $dashboard->getId())) {
-                $presenter->presentResponse(new NoContentResponse());
-            } else {
-                $presenter->presentResponse(new NotFoundResponse('Dashboard share'));
-            }
+            $presenter->presentResponse($response);
         } catch (AssertionFailedException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
@@ -103,5 +93,60 @@ final class DeleteContactDashboardShare
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->presentResponse(new ErrorResponse('Error while deleting a dashboard share'));
         }
+    }
+
+    /**
+     * @param Dashboard $dashboard
+     * @param int $contactId
+     *
+     * @throws \Throwable
+     *
+     * @return ResponseStatusInterface
+     */
+    private function deleteContactShareAsAdmin(Dashboard $dashboard, int $contactId): ResponseStatusInterface
+    {
+        $contact = $this->contactRepository->findById($contactId);
+        if (null === $contact) {
+            $this->warning('Contact (%s) not found', ['id' => $contactId]);
+
+            return new NotFoundResponse('Contact');
+        }
+
+        if (! $this->writeDashboardShareRepository->deleteContactShare($contact->getId(), $dashboard->getId())) {
+            return new NotFoundResponse('Dashboard share');
+        }
+
+        return new NoContentResponse();
+    }
+
+    /**
+     * @param Dashboard $dashboard
+     * @param int $contactId
+     *
+     * @throws \Throwable
+     *
+     * @return ResponseStatusInterface
+     */
+    private function deleteContactShareAsContact(Dashboard $dashboard, int $contactId): ResponseStatusInterface
+    {
+        $contact = $this->contactRepository->findById($contactId);
+        if (null === $contact) {
+            $this->warning('Contact (%s) not found', ['id' => $contactId]);
+
+            return new NotFoundResponse('Contact');
+        }
+
+        $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard);
+        if (! $this->rights->canDeleteShare($sharingRoles)) {
+            return new ForbiddenResponse(
+                DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboard->getId())
+            );
+        }
+
+        if (! $this->writeDashboardShareRepository->deleteContactShare($contact->getId(), $dashboard->getId())) {
+            return new NotFoundResponse('Dashboard share');
+        }
+
+        return new NoContentResponse();
     }
 }

@@ -138,6 +138,7 @@ it(
         $role = DashboardSharingRoleConverter::fromString($roleString);
         $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('canAccessShare')->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);
         $this->readDashboardShareRepository->expects($this->once())
@@ -163,6 +164,30 @@ it(
             ->and($this->presenter->data->shares[0]->name)->toBe($this->testedContact->getName())
             ->and($this->presenter->data->shares[0]->email)->toBe($this->testedContact->getEmail())
             ->and($this->presenter->data->shares[0]->role->name)->toBe($role->name);
+    }
+)->with([
+    ['viewer'],
+    ['editor'],
+]);
+
+it(
+    'should present a proper ForbiddenResponse as a user with NOT allowed ROLE',
+    function (string $roleString): void {
+        $role = DashboardSharingRoleConverter::fromString($roleString);
+        $this->rights->expects($this->once())->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())->method('canAccessShare')->willReturn(false);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOneByContact')->willReturn($this->testedDashboard);
+        $this->readDashboardShareRepository->expects($this->never())
+            ->method('findDashboardContactSharesByRequestParameter');
+
+        ($this->useCase)(
+            $this->testedDashboard->getId(),
+            $this->presenter
+        );
+
+        expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class);
     }
 )->with([
     ['viewer'],
