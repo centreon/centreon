@@ -14,10 +14,6 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
-  cy.intercept({
-    method: 'GET',
     url: '/centreon/api/latest/configuration/dashboards?page=1&limit=100'
   }).as('listAllDashboards');
   cy.loginByTypeOfUser({
@@ -63,10 +59,14 @@ When('the user clicks on the dashboard they want to select', () => {
 Then(
   'the user is redirected to the information page for this dashboard',
   () => {
-    cy.url().should(
-      'not.eq',
-      `${Cypress.config().baseUrl}/centreon/home/dashboards`
-    );
+    cy.location('pathname')
+      .should('include', '/dashboards/')
+      .invoke('split', '/')
+      .should('not.be.empty')
+      .then(Cypress._.last)
+      .then(Number)
+      .should('not.be', 'dashboards')
+      .should('be.a', 'number'); // dashboard id
 
     cy.requestOnDatabase({
       database: 'centreon',
@@ -134,10 +134,14 @@ When('the user clicks on the dashboard that just appeared', () => {
 Then(
   'the user is redirected to the information page for that dashboard',
   () => {
-    cy.url().should(
-      'not.eq',
-      `${Cypress.config().baseUrl}/centreon/home/dashboards`
-    );
+    cy.location('pathname')
+      .should('include', '/dashboards/')
+      .invoke('split', '/')
+      .should('not.be.empty')
+      .then(Cypress._.last)
+      .then(Number)
+      .should('not.be', 'dashboards')
+      .should('be.a', 'number'); // dashboard id
 
     cy.requestOnDatabase({
       database: 'centreon',
