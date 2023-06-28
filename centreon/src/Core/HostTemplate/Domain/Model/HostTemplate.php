@@ -31,6 +31,8 @@ use Core\Host\Domain\Model\SnmpVersion;
 
 class HostTemplate extends NewHostTemplate
 {
+    private string $shortName = '';
+
     /**
      * @param int $id
      * @param string $name
@@ -117,7 +119,9 @@ class HostTemplate extends NewHostTemplate
         bool $isActivated = true,
         bool $isLocked = false
     ) {
-        Assertion::positiveInt($id, 'HostTemplate::id');
+        $this->shortName = (new \ReflectionClass($this))->getShortName();
+
+        Assertion::positiveInt($id, '{$this->shortName}::id');
 
         parent::__construct(
             $name,
@@ -165,5 +169,350 @@ class HostTemplate extends NewHostTemplate
     public function getId(): int
     {
         return $this->id;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @throws AssertionFailedException
+     */
+    public function setName(string $name): void {
+        $this->name = $this->formatName($name);
+        Assertion::notEmptyString($this->name, "{$this->shortName}::name");
+        Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$this->shortName}::name");
+    }
+
+    /**
+     * @param string $alias
+     *
+     * @throws AssertionFailedException
+     */
+    public function setAlias(string $alias): void {
+        $this->alias = trim($alias);
+        Assertion::notEmptyString($this->alias, "{$this->shortName}::alias");
+        Assertion::maxLength($this->alias, self::MAX_ALIAS_LENGTH, "{$this->shortName}::alias");
+    }
+
+    /**
+     * @param string[] $checkCommandArgs
+     */
+    public function setCheckCommandArgs(array $checkCommandArgs): void{
+        $this->checkCommandArgs = array_map(trim(...), $checkCommandArgs);
+    }
+
+    /**
+     * @param string[] $eventHandlerCommandArgs
+     */
+    public function setEventHandlerCommandArgs(array $eventHandlerCommandArgs): void
+    {
+        $this->eventHandlerCommandArgs = array_map(trim(...), $eventHandlerCommandArgs);
+    }
+
+    /**
+     * @param SnmpVersion|null $snmpVersion
+     *
+     * @throws AssertionFailedException
+     */
+    public function setSnmpVersion(SnmpVersion|null $snmpVersion): void
+    {
+        $this->snmpVersion = $snmpVersion;
+    }
+
+    /**
+     * @param string $snmpCommunity
+     *
+     * @throws AssertionFailedException
+     */
+    public function setSnmpCommunity(string $snmpCommunity): void
+    {
+        $this->snmpCommunity = trim($snmpCommunity);
+        Assertion::maxLength($this->snmpCommunity, self::MAX_SNMP_COMMUNITY_LENGTH, "{$this->shortName}::snmpCommunity");
+    }
+
+    /**
+     * @param string $note
+     *
+     * @throws AssertionFailedException
+     */
+    public function setNote(string $note): void {
+        $this->note = trim($note);
+        Assertion::maxLength($this->note, self::MAX_NOTE_LENGTH, "{$this->shortName}::note");
+    }
+
+    /**
+     * @param string $noteUrl
+     *
+     * @throws AssertionFailedException
+     */
+    public function setNoteUrl(string $noteUrl): void {
+        $this->noteUrl = trim($noteUrl);
+        Assertion::maxLength($this->noteUrl, self::MAX_NOTE_URL_LENGTH, "{$this->shortName}::noteUrl");
+    }
+
+    /**
+     * @param string $actionUrl
+     *
+     * @throws AssertionFailedException
+     */
+    public function setActionUrl(string $actionUrl): void {
+        $this->actionUrl = trim($actionUrl);
+        Assertion::maxLength($this->actionUrl, self::MAX_ACTION_URL_LENGTH, "{$this->shortName}::actionUrl");
+    }
+
+    /**
+     * @param string $iconAlternative
+     *
+     * @throws AssertionFailedException
+     */
+    public function setIconAlternative(string $iconAlternative): void {
+        $this->iconAlternative = trim($iconAlternative);
+        Assertion::maxLength($this->iconAlternative, self::MAX_ICON_ALT_LENGTH, "{$this->shortName}::iconAlternative");
+    }
+
+    /**
+     * @param string $comment
+     *
+     * @throws AssertionFailedException
+     */
+    public function setComment(string $comment): void {
+        $this->comment = trim($comment);
+        Assertion::maxLength($this->comment, self::MAX_COMMENT_LENGTH, "{$this->shortName}::comment");
+    }
+
+    /**
+     * @param int|null $timezoneId
+     *
+     * @throws AssertionFailedException
+     */
+    public function setTimezoneId(int|null $timezoneId): void {
+        $this->timezoneId = $timezoneId;
+        if ($this->timezoneId !== null) {
+            Assertion::positiveInt($this->timezoneId, "{$this->shortName}::timezoneId");
+        }
+    }
+
+    /**
+     * @param int|null $severityId
+     *
+     * @throws AssertionFailedException
+     */
+    public function setSeverityId(int|null $severityId): void {
+        $this->severityId = $severityId;
+        if ($this->severityId !== null) {
+            Assertion::positiveInt($this->severityId, "{$this->shortName}::severityId");
+        }
+    }
+
+    /**
+     * @param int|null $checkCommandId
+     *
+     * @throws AssertionFailedException
+     */
+    public function setCheckCommandId(int|null $checkCommandId): void {
+        $this->checkCommandId = $checkCommandId;
+        if ($this->checkCommandId !== null) {
+            Assertion::positiveInt($this->checkCommandId, "{$this->shortName}::checkCommandId");
+        }
+    }
+
+    /**
+     * @param int|null $checkTimeperiodId
+     *
+     * @throws AssertionFailedException
+     */
+    public function setCheckTimeperiodId(int|null $checkTimeperiodId): void {
+        $this->checkTimeperiodId = $checkTimeperiodId;
+        if ($this->checkTimeperiodId !== null) {
+            Assertion::positiveInt($this->checkTimeperiodId, "{$this->shortName}::checkTimeperiodId");
+        }
+    }
+
+    /**
+     * @param int|null $notificationTimeperiodId
+     *
+     * @throws AssertionFailedException
+     */
+    public function setNotificationTimeperiodId(int|null $notificationTimeperiodId): void {
+        $this->notificationTimeperiodId = $notificationTimeperiodId;
+        if ($this->notificationTimeperiodId !== null) {
+            Assertion::positiveInt($this->notificationTimeperiodId, "{$this->shortName}::notificationTimeperiodId");
+        }
+    }
+
+    /**
+     * @param int|null $eventHandlerCommandId
+     *
+     * @throws AssertionFailedException
+     */
+    public function setEventHandlerCommandId(int|null $eventHandlerCommandId): void {
+        $this->eventHandlerCommandId = $eventHandlerCommandId;
+        if ($this->eventHandlerCommandId !== null) {
+            Assertion::positiveInt($this->eventHandlerCommandId, "{$this->shortName}::eventHandlerCommandId");
+        }
+    }
+
+    /**
+     * @param int|null $iconId
+     *
+     * @throws AssertionFailedException
+     */
+    public function setIconId(int|null $iconId): void {
+        $this->iconId = $iconId;
+        if ($this->iconId !== null) {
+            Assertion::positiveInt($this->iconId, "{$this->shortName}::iconId");
+        }
+    }
+
+    /**
+     * @param int|null $maxCheckAttempts
+     *
+     * @throws AssertionFailedException
+     */
+    public function setMaxCheckAttempts(int|null $maxCheckAttempts): void {
+        $this->maxCheckAttempts = $maxCheckAttempts;
+        Assertion::min($this->maxCheckAttempts ?? 0, 0, "{$this->shortName}::maxCheckAttempts");
+    }
+
+    /**
+     * @param int|null $normalCheckInterval
+     *
+     * @throws AssertionFailedException
+     */
+    public function setNormalCheckInterval(int|null $normalCheckInterval): void {
+        $this->normalCheckInterval = $normalCheckInterval;
+        Assertion::min($this->normalCheckInterval ?? 0, 0, "{$this->shortName}::normalCheckInterval");
+    }
+
+    /**
+     * @param int|null $retryCheckInterval
+     *
+     * @throws AssertionFailedException
+     */
+    public function setRetryCheckInterval(int|null $retryCheckInterval): void {
+        $this->retryCheckInterval = $retryCheckInterval;
+        Assertion::min($this->retryCheckInterval ?? 0, 0, "{$this->shortName}::retryCheckInterval");
+    }
+
+    /**
+     * @param int|null $notificationInterval
+     *
+     * @throws AssertionFailedException
+     */
+    public function setNotificationInterval(int|null $notificationInterval): void {
+        $this->notificationInterval = $notificationInterval;
+        Assertion::min($this->notificationInterval ?? 0, 0, "{$this->shortName}::notificationInterval");
+    }
+
+    /**
+     * @param int|null $firstNotificationDelay
+     *
+     * @throws AssertionFailedException
+     */
+    public function setFirstNotificationDelay(int|null $firstNotificationDelay): void {
+        $this->firstNotificationDelay = $firstNotificationDelay;
+        Assertion::min($this->firstNotificationDelay ?? 0, 0, "{$this->shortName}::firstNotificationDelay");
+    }
+
+    /**
+     * @param int|null $recoveryNotificationDelay
+     *
+     * @throws AssertionFailedException
+     */
+    public function setRecoveryNotificationDelay(int|null $recoveryNotificationDelay): void {
+        $this->recoveryNotificationDelay = $recoveryNotificationDelay;
+        Assertion::min($this->recoveryNotificationDelay ?? 0, 0, "{$this->shortName}::recoveryNotificationDelay");
+    }
+
+    /**
+     * @param int|null $acknowledgementTimeout
+     *
+     * @throws AssertionFailedException
+     */
+    public function setAcknowledgementTimeout(int|null $acknowledgementTimeout): void {
+        $this->acknowledgementTimeout = $acknowledgementTimeout;
+        Assertion::min($this->acknowledgementTimeout ?? 0, 0, "{$this->shortName}::acknowledgementTimeout");
+    }
+
+    /**
+     * @param int|null $freshnessThreshold
+     *
+     * @throws AssertionFailedException
+     */
+    public function setFreshnessThreshold(int|null $freshnessThreshold): void {
+        $this->freshnessThreshold = $freshnessThreshold;
+        Assertion::min($this->freshnessThreshold ?? 0, 0, "{$this->shortName}::freshnessThreshold");
+    }
+
+    /**
+     * @param int|null $lowFlapThreshold
+     *
+     * @throws AssertionFailedException
+     */
+    public function setLowFlapThreshold(int|null $lowFlapThreshold): void {
+        $this->lowFlapThreshold = $lowFlapThreshold;
+        Assertion::min($this->lowFlapThreshold ?? 0, 0, "{$this->shortName}::lowFlapThreshold");
+    }
+
+    /**
+     * @param int|null $highFlapThreshold
+     *
+     * @throws AssertionFailedException
+     */
+    public function setHighFlapThreshold(int|null $highFlapThreshold): void {
+        $this->highFlapThreshold = $highFlapThreshold;
+        Assertion::min($this->highFlapThreshold ?? 0, 0, "{$this->shortName}::highFlapThreshold");
+    }
+
+    /**
+     * @param HostEvent[] $notificationOptions
+     */
+    public function setNotificationOptions(array $notificationOptions): void
+    {
+        $this->notificationOptions = $notificationOptions;
+    }
+
+    public function setActiveCheckEnabled(YesNoDefault $activeCheckEnabled): void
+    {
+        $this->activeCheckEnabled = $activeCheckEnabled;
+    }
+
+    public function setPassiveCheckEnabled(YesNoDefault $passiveCheckEnabled): void
+    {
+        $this->passiveCheckEnabled = $passiveCheckEnabled;
+    }
+
+    public function setNotificationEnabled(YesNoDefault $notificationEnabled): void
+    {
+        $this->notificationEnabled = $notificationEnabled;
+    }
+
+    public function setFreshnessChecked(YesNoDefault $freshnessChecked): void
+    {
+        $this->freshnessChecked = $freshnessChecked;
+    }
+
+    public function setFlapDetectionEnabled(YesNoDefault $flapDetectionEnabled): void
+    {
+        $this->flapDetectionEnabled = $flapDetectionEnabled;
+    }
+
+    public function setEventHandlerEnabled(YesNoDefault $eventHandlerEnabled): void
+    {
+        $this->eventHandlerEnabled = $eventHandlerEnabled;
+    }
+
+    public function setAddInheritedContactGroup(bool $addInheritedContactGroup): void
+    {
+        $this->addInheritedContactGroup = $addInheritedContactGroup;
+    }
+
+    public function setAddInheritedContact(bool $addInheritedContact): void
+    {
+        $this->addInheritedContact = $addInheritedContact;
+    }
+
+    public function setIsActivated(bool $isActivated): void
+    {
+        $this->isActivated = $isActivated;
     }
 }
