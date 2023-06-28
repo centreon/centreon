@@ -27,8 +27,3 @@ get:
 
               is_cloud_platform:
                 type: boolean
-
-              feature_flags:
-                type: object
-                additionalProperties:
-                  type: boolean

@@ -43,7 +43,7 @@ class PlatformController extends AbstractController
 {
     public function __construct(
         private readonly PlatformServiceInterface $informationService,
-        private readonly FeatureFlags $flags
+        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -65,8 +65,7 @@ class PlatformController extends AbstractController
                 'web' => (object) $this->extractVersion($webVersion),
                 'modules' => (object) array_map($this->extractVersion(...), $modulesVersion),
                 'widgets' => (object) array_map($this->extractVersion(...), $widgetsVersion),
-                'is_cloud_platform' => $this->flags->isCloudPlatform(),
-                'feature_flags' => (object) array_filter($this->flags->getAll()),
+                'is_cloud_platform' => $this->isCloudPlatform,
             ]
         );
     }
