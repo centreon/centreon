@@ -106,8 +106,8 @@ jobs:
         uses: veracode/Veracode-pipeline-scan-action@v1.0.8
         continue-on-error: true
         with:
-          vid: '${{ secrets.veracode_api_id }}'
-          vkey: '${{ secrets.veracode_api_key }}'
+          vid: "vera01ei-${{ secrets.veracode_api_id }}"
+          vkey: "vera01es-${{ secrets.veracode_api_key }}"
           file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           baseline_file: "${{ env.baseline_file }}"
           create_baseline_from: "${{ env.create_baseline_from }}"
@@ -149,8 +149,8 @@ jobs:
           appname: "${{ inputs.module_name }}"
           version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
-          vid: '${{ secrets.veracode_api_id }}'
-          vkey: '${{ secrets.veracode_api_key }}'
+          vid: "vera01ei-${{ secrets.veracode_api_id }}"
+          vkey: "vera01es-${{ secrets.veracode_api_key }}"
           createprofile: true
           createsandbox: true
           sandboxname: "${{ github.ref_name }}"
