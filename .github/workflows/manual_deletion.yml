@@ -13,8 +13,8 @@ jobs:
     steps:
       - name: Delete Scan
         env:
-          VERACODE_API_ID: vera01ei-1b396cba555561a3184b997f1f12ec45
-          VERACODE_API_SECRET: vera01es-b8176cfe5a72ea4e21d4dcfed567785a8813baf379f09e64cb710e36f58611749bf4cf35ba7678a6693f85a209d92f415cf6ba7b3e59bf7008095fdd77889b35
+          VERACODE_API_ID: 1b396cba555561a3184b997f1f12ec45
+          VERACODE_API_SECRET: b8176cfe5a72ea4e21d4dcfed567785a8813baf379f09e64cb710e36f58611749bf4cf35ba7678a6693f85a209d92f415cf6ba7b3e59bf7008095fdd77889b35
 
         uses: sc979/veracode-sandboxes-helper@v0.1
         with:
