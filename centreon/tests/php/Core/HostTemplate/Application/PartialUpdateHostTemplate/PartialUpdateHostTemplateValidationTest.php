@@ -21,16 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\HostTemplate\Application\UseCase\AddHostTemplate;
+namespace Tests\Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
+use Core\Host\Application\InheritanceManager;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
-use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateValidation;
+use Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate\PartialUpdateHostTemplateValidation;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
@@ -39,7 +40,7 @@ use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 beforeEach(function (): void {
 
-    $this->validation = new AddHostTemplateValidation(
+    $this->validation = new PartialUpdateHostTemplateValidation(
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
         $this->readViewImgRepository = $this->createMock(ReadViewImgRepositoryInterface::class),
         $this->readTimePeriodRepository = $this->createMock(ReadTimePeriodRepositoryInterface::class),
@@ -47,8 +48,9 @@ beforeEach(function (): void {
         $this->readTimezoneRepository = $this->createMock(ReadTimezoneRepositoryInterface::class),
         $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
         $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
-        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->user = $this->createMock(ContactInterface::class)
+        $this->inheritanceManager = $this->createMock(InheritanceManager::class),
+        $this->user = $this->createMock(ContactInterface::class),
+        $this->accessGroup = []
     );
 });
 
@@ -157,9 +159,6 @@ it('throws an exception when category ID does not exist with non-admin user', fu
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
-    $this->readAccessGroupRepository
-        ->expects($this->once())
-        ->method('findByContact');
     $this->readHostCategoryRepository
         ->expects($this->once())
         ->method('existByAccessGroups')
@@ -169,13 +168,6 @@ it('throws an exception when category ID does not exist with non-admin user', fu
 })->throws(
     HostTemplateException::class,
     HostTemplateException::idsDoNotExist('categories', [1,3])->getMessage()
-);
-
-it('throws an exception when parent template ID create a circular inheritance', function (): void {
-    $this->validation->assertAreValidTemplates([1,3], 3);
-})->throws(
-    HostTemplateException::class,
-    HostTemplateException::circularTemplateInheritance()->getMessage()
 );
 
 it('throws an exception when parent template ID does not exist', function (): void {
@@ -188,4 +180,16 @@ it('throws an exception when parent template ID does not exist', function (): vo
 })->throws(
     HostTemplateException::class,
     HostTemplateException::idsDoNotExist('templates', [1,3])->getMessage()
+);
+
+it('throws an exception when parent template ID create a circular inheritance', function (): void {
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn([1, 3]);
+
+    $this->validation->assertAreValidTemplates([1,3], 3);
+})->throws(
+    HostTemplateException::class,
+    HostTemplateException::circularTemplateInheritance()->getMessage()
 );
