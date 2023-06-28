@@ -36,16 +36,16 @@ interface Props {
 }
 
 const UserRoleItem = ({
-                        role,
-                        change,
-                        toggle,
-                        id,
-                        elementRef,
-                        fullname,
-                        email,
-                        name,
-                        isRemoved
-                      }: Props): JSX.Element => {
+  role,
+  change,
+  toggle,
+  id,
+  elementRef,
+  fullname,
+  email,
+  name,
+  isRemoved
+}: Props): JSX.Element => {
   return useMemoComponent({
     Component: (
       <List.Item

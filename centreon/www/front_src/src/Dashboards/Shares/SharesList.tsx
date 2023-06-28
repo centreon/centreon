@@ -1,5 +1,3 @@
-// TODO merge cleanup
-
 import { atom, useAtom } from 'jotai';
 import { dec, equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +11,7 @@ import { dashboardAccessRightsListDecoder } from '../api/decoders';
 import { getDashboardAccessRightsEndpoint } from '../api/endpoints';
 import { labelSave } from '../Dashboard/translatedLabels';
 import { labelCancel } from '../translatedLabels';
+import { NamedEntity } from '../api/models';
 
 import { selectedDashboardShareAtom } from './atoms';
 import useShareForm from './useShareForm';
@@ -22,7 +21,7 @@ import { labelUserRoles } from './translatedLabels';
 export const pageAtom = atom(1);
 
 interface Props {
-  id?: number;
+  id?: NamedEntity['id'];
 }
 
 const SharesList = ({ id }: Props): JSX.Element => {

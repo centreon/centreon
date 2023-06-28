@@ -1,4 +1,3 @@
-// TODO merge cleanup
 import { Suspense } from 'react';
 
 import { useAtom } from 'jotai';
@@ -6,13 +5,15 @@ import { useTranslation } from 'react-i18next';
 
 import { Modal } from '@centreon/ui/components';
 
+import { NamedEntity } from '../api/models';
+
 import { selectedDashboardShareAtom } from './atoms';
 import { labelDashboardAccessRights } from './translatedLabels';
 import SharesList from './SharesList';
 import Skeleton from './Skeleton';
 
 interface Props {
-  id?: number;
+  id?: NamedEntity['id'];
 }
 
 export const Shares = ({ id }: Props): JSX.Element => {

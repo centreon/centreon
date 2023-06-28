@@ -74,7 +74,6 @@ const HeaderActions = ({
   const { saveDashboard } = useSaveDashboard();
 
   const dirty = useDashboardDirty(
-    // TODO merge cleanup
     (panels || []).map((panel) => formatPanel({ panel, staticPanel: false }))
   );
 
@@ -189,7 +188,6 @@ const HeaderActions = ({
           icon={<ShareIcon />}
           onClick={openShareModal}
         />
-        {/* TODO merge cleanup */}
         <Shares id={id} />
       </div>
     );

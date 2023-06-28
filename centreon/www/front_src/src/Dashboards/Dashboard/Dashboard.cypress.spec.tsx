@@ -1,5 +1,4 @@
 /* eslint-disable import/no-unresolved,@typescript-eslint/no-unused-vars */
-// TODO merge cleanup
 
 import { createStore, Provider } from 'jotai';
 // @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
@@ -26,11 +25,8 @@ import {
 } from '../api/endpoints';
 import { labelShareTheDashboard } from '../translatedLabels';
 import { labelUserRolesAreUpdated } from '../Shares/translatedLabels';
-import {
-  labelEditDashboard,
-  labelSave
-} from './translatedLabels';
 
+import { labelEditDashboard, labelSave } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 import { Dashboard } from './Dashboard';
 

@@ -1,15 +1,14 @@
-// TODO merge cleanup
-
 import { FormikHandlers, useFormik } from 'formik';
 import { lensPath, set } from 'ramda';
 
-import { DashboardShare, DashboardShareForm } from '../models';
+import { DashboardContactAccessRights } from '../api/models';
 
+import { DashboardShareForm } from './models';
 import useShareUpdate from './useShareUpdate';
 
 interface UseShareFormProps {
   dashboardId?: number;
-  shares: Array<DashboardShare>;
+  shares: Array<DashboardContactAccessRights>;
 }
 
 interface ToggleContactProps {
@@ -26,7 +25,7 @@ interface UseShareFormState extends Pick<FormikHandlers, 'handleChange'> {
 }
 
 const formatSharesToFormValues = (
-  shares: Array<DashboardShare>
+  shares: Array<DashboardContactAccessRights>
 ): Array<DashboardShareForm> =>
   shares.map((share) => ({
     ...share,

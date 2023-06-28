@@ -10,13 +10,10 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
-import { getDashboardSharesEndpoint } from '../api/endpoints';
-import {
-  DashboardShare,
-  DashboardShareForm,
-  DashboardShareToAPI
-} from '../models';
+import { getDashboardAccessRightsEndpoint } from '../api/endpoints';
+import { DashboardContactAccessRights } from '../api/models';
 
+import { DashboardShareForm, DashboardShareToAPI } from './models';
 import { labelUserRolesAreUpdated } from './translatedLabels';
 import { pageAtom } from './SharesList';
 
@@ -41,7 +38,7 @@ const useShareUpdate = (dashboardId?: number): UseUpdateSharesState => {
   const page = useAtomValue(pageAtom);
 
   const { mutateAsync } = useMutationQuery({
-    getEndpoint: () => getDashboardSharesEndpoint(dashboardId),
+    getEndpoint: () => getDashboardAccessRightsEndpoint(dashboardId),
     method: Method.PUT,
     onError: (_, __, context) => {
       queryClient.setQueryData(
@@ -53,7 +50,7 @@ const useShareUpdate = (dashboardId?: number): UseUpdateSharesState => {
       await queryClient.cancelQueries({ queryKey: ['dashboard_shares'] });
       const previousSharesListing = queryClient.getQueriesData([
         'dashboard_shares'
-      ])[0][1] as ListingModel<DashboardShare>;
+      ])[0][1] as ListingModel<DashboardContactAccessRights>;
 
       const previousShares = previousSharesListing.result;
 
