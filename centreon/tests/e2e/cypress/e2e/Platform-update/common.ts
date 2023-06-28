@@ -19,6 +19,12 @@ const getCentreonStableMinorVersions = (
   majorVersion: string
 ): Cypress.Chainable => {
   return cy
+    .execInContainer({
+      command: `bash -e <<EOF
+        dnf config-manager --set-disabled 'centreon-*-unstable*' 'mariadb*'
+EOF`,
+      name: Cypress.env('dockerName')
+    })
     .exec(
       `docker exec -i ${Cypress.env(
         'dockerName'
@@ -30,7 +36,7 @@ const getCentreonStableMinorVersions = (
       const versionsRegex = /\d+\.\d+\.(\d+)/g;
 
       [...stdout.matchAll(versionsRegex)].forEach((result) => {
-        cy.log(result[1]);
+        cy.log(`available version found : ${majorVersion}.${result[1]}`);
         stableVersions.push(result[1]);
       });
 
@@ -39,6 +45,7 @@ const getCentreonStableMinorVersions = (
 };
 
 const installCentreon = (version: string): Cypress.Chainable => {
+  cy.log(`installing version ${version}...`);
   cy.execInContainer({
     command: `bash -e <<EOF
       dnf config-manager --set-disabled 'centreon-*-unstable*' 'mariadb*'

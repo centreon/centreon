@@ -140,6 +140,10 @@ Given(
             }
           }
 
+          cy.log(
+            `${version_from_expression} version is ${minor_version_index}`
+          );
+
           return installCentreon(
             `${major_version}.${stable_minor_versions[minor_version_index]}`
           ).then(() => {
