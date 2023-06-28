@@ -91,7 +91,7 @@ runs:
         done
       shell: bash
 
-    - name: Promote DEB package to stable
+    - name: Promote DEB packages to stable
       if: ${{ startsWith(inputs.distrib, 'bullseye') }}
       run: |
         set -x
@@ -135,9 +135,11 @@ runs:
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
         echo "[DEBUG] - Repository name: ${{ inputs.repository_name }}"
+
         PROJECT_PATH="standard"
         INVALIDATION_PATHS=""
         METADATAS=""
+
         # Handle repositories.
         if [ "${{ inputs.repository_name }}" == "standard" ]; then
           ROOT_REPO_PATH="standard"
@@ -145,12 +147,15 @@ runs:
           echo "Invalid repository name: ${{ inputs.repository_name }}"
           exit 1
         fi
+
         # Prepare ssh-key
         eval `ssh-agent`
         ssh-add - <<< "${{ inputs.yum_repo_key }}"
+
         # Promote testing packages to stable.
         for ARCH in "noarch" "x86_64"; do
           echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
+
           # Check if there are testing packages to promote.
           DIR_RETURN_CODE=$(ssh -q -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" dir /srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}**/*${{ inputs.major_version }}.${{ inputs.minor_version }}-1/*.rpm &> /dev/null && echo "yes" || echo "no")
           if [[ $DIR_RETURN_CODE == "yes" ]]; then
@@ -178,11 +183,13 @@ runs:
           INVALIDATION_PATHS="$INVALIDATION_PATHS /$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/*"
 
         done
+
         # Update repository metadata
         METADATAS=`echo "$METADATAS" | xargs -n1 | sort -u | xargs`
         for METADATA in `echo $METADATAS`; do
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" "sh "${{ inputs.update_repo_path }}" $METADATA" 2>&-
         done
+
         # Invalidate cloudfront cache
         ID="${{ inputs.cloudfront_id }}"
         # Remove duplicated invalidation paths
@@ -198,6 +205,7 @@ runs:
             ITERATIONS=$((ITERATIONS+1))
           done
         done
+
       shell: bash
 
     - name: Promote DEB package to stable on Nexus
@@ -208,6 +216,7 @@ runs:
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
         echo "[DEBUG] - Repository name: ${{ inputs.repository_name }}"
+
         # Handle only onprem repositories, build root repo path and target path
         if [[ "${{ inputs.repository_name }}" == "standard" ]]; then
           ROOT_REPO_PATH="${{ inputs.major_version }}-testing"
@@ -217,12 +226,15 @@ runs:
           echo "Invalid repository name: ${{ inputs.repository_name }}"
           exit 1
         fi
+
         echo "[DEBUG] - Target path: $TARGET_PATH"
         echo "[DEBUG] - Root repo path: $ROOT_REPO_PATH"
+
         # Promote testing packages to stable.
         # Create dir to receive artifacts to promote
         mkdir -p artifacts_to_promote
         cd artifacts_to_promote
+
         # Check if artifacts to promote
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
         SRC_PATHS=$(curl -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" "https://apt.centreon.com/service/rest/v1/search/assets?repository=${ROOT_REPO_PATH}&name=*${{ inputs.module }}*&version=${{ inputs.major_version }}.${{ inputs.minor_version }}-1" |jq -r '.items[].downloadUrl')
@@ -234,11 +246,12 @@ runs:
             curl -JOs $SRC_PATH
             FILENAME=$(basename $SRC_PATH)
             echo "[DEBUG] - Promoting testing artifact $FILENAME to stable."
-            #curl --fail -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILENAME" $TARGET_PATH
+            #curl --fail -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILENAME" $TARGET_PATH/
             rm -f $FILENAME
             sleep 2
           done
         else
           echo "[DEBUG] - No source path found."
         fi
+        
       shell: bash
