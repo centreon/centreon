@@ -79,3 +79,31 @@ it('should throw an exception when host macro description is too long', function
         'Macro::description'
     )->getMessage()
 );
+
+it('should resolve macro inheritance', function (): void {
+    $templateId = 1;
+    $templateInheritanceLine= [2, 3, 4];
+    $macros = [
+        $macroA = new Macro(1, 'nameA', 'valueA'),
+        $macroB2 = new Macro(1, 'nameB', 'valueB-edited'),
+        $macroB1 = new Macro(4, 'nameB', 'valueB-original'),
+        $macroC = new Macro(2, 'nameC', 'valueC'),
+        $macroD = new Macro(3, 'nameD', 'valueD'),
+        $macroE2 = new Macro(3, 'nameE', 'valueE-edited'),
+        $macroE1 = new Macro(4, 'nameE', 'valueE-original'),
+    ];
+
+    [$directMacros, $inheritedMacros]
+        = Macro::resolveInheritance($macros, $templateInheritanceLine, $templateId);
+
+    expect($directMacros)->toBe([
+        $macroA->getName() => $macroA,
+        $macroB2->getName() => $macroB2,
+    ])
+    ->and($inheritedMacros)->toBe([
+        $macroC->getName() => $macroC,
+        $macroD->getName() => $macroD,
+        $macroE2->getName() => $macroE2,
+        $macroB1->getName() => $macroB1,
+    ]);
+});

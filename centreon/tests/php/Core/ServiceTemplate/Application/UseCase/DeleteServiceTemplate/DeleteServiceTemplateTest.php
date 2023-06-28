@@ -21,6 +21,8 @@
 
 declare(strict_types=1);
 
+namespace Tests\Core\ServiceTemplate\Application\UseCase\DeleteServiceTemplate;
+
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -32,8 +34,8 @@ use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\UseCase\DeleteServiceTemplate\DeleteServiceTemplate;
-use Tests\Core\ServiceTemplate\Infrastructure\API\DeleteServiceTemplate\DeleteServiceTemplatePresenterStub;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
+use Tests\Core\ServiceTemplate\Infrastructure\API\DeleteServiceTemplate\DeleteServiceTemplatePresenterStub;
 
 beforeEach(closure: function (): void {
     $this->readRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class);
@@ -55,7 +57,7 @@ beforeEach(closure: function (): void {
     );
 });
 
-it('should present a ForbiddenResponse when the user has insufficient rights', function () {
+it('should present a ForbiddenResponse when the user has insufficient rights', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -73,7 +75,7 @@ it('should present a ForbiddenResponse when the user has insufficient rights', f
         ->toBe(ServiceTemplateException::deleteNotAllowed()->getMessage());
 });
 
-it('should present a NotFoundResponse when the service template is not found', function () {
+it('should present a NotFoundResponse when the service template is not found', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -93,7 +95,7 @@ it('should present a NotFoundResponse when the service template is not found', f
         ->toBe((new NotFoundResponse('Service template'))->getMessage());
 });
 
-it('should present an ErrorResponse when the service template is locked', function () {
+it('should present an ErrorResponse when the service template is locked', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -113,7 +115,7 @@ it('should present an ErrorResponse when the service template is locked', functi
         ->toBe(ServiceTemplateException::cannotBeDelete($this->serviceTemplateLockedFound->getName())->getMessage());
 });
 
-it('should present a NoContentResponse when the service template has been deleted', function () {
+it('should present a NoContentResponse when the service template has been deleted', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -135,7 +137,7 @@ it('should present a NoContentResponse when the service template has been delete
     expect($this->presenter->response)->toBeInstanceOf(NoContentResponse::class);
 });
 
-it('should present an ErrorResponse when an exception is thrown', function () {
+it('should present an ErrorResponse when an exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -151,5 +153,5 @@ it('should present an ErrorResponse when an exception is thrown', function () {
     expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->response->getMessage())
-        ->toBe(ServiceTemplateException::errorWhileDeleting(new Exception())->getMessage());
+        ->toBe(ServiceTemplateException::errorWhileDeleting(new \Exception())->getMessage());
 });

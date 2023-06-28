@@ -26,19 +26,20 @@ namespace Core\ServiceTemplate\Domain\Model;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 
-class ParentServiceTemplate
+class ServiceTemplateInheritance
 {
     /**
+     * @param int $parentId
+     * @param int $childId
+     *
      * @throws AssertionFailedException
      */
     public function __construct(
         private readonly int $parentId,
         private readonly int $childId,
-        private readonly int $order
     ) {
         Assertion::positiveInt($parentId, 'ParentServiceTemplate::parentID');
         Assertion::positiveInt($childId, 'ParentServiceTemplate::childId');
-        Assertion::positiveInt($order, 'ParentServiceTemplate::order');
     }
 
     /**
@@ -58,10 +59,27 @@ class ParentServiceTemplate
     }
 
     /**
-     * @return int
+     * Return an ordered line of inheritance for a service template.
+     * (This is a recursive method).
+     *
+     * @param int $serviceId
+     * @param ServiceTemplateInheritance[] $parents
+     *
+     * @return int[]
      */
-    public function getOrder(): int
+    public static function createInheritanceLine(int $serviceId, array $parents): array
     {
-        return $this->order;
+        foreach ($parents as $index => $parent) {
+            if ($parent->getChildId() === $serviceId) {
+                unset($parents[$index]);
+
+                return array_merge(
+                    [$parent->getParentId()],
+                    self::createInheritanceLine($parent->getParentId(), $parents)
+                );
+            }
+        }
+
+        return [];
     }
 }

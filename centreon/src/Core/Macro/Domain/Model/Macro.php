@@ -92,6 +92,8 @@ class Macro
     }
 
     /**
+     * @param string $description
+     *
      * @throws AssertionFailedException
      */
     public function setDescription(string $description): void
@@ -107,11 +109,54 @@ class Macro
     }
 
     /**
+     * @param int $order
+     *
      * @throws AssertionFailedException
      */
     public function setOrder(int $order): void
     {
         Assertion::min($order, 0, "{$this->shortName}::order");
         $this->order = $order;
+    }
+
+    /**
+     * Return two arrays:
+     *  - the first is an array of the direct macros
+     *  - the second is an array of the inherited macros
+     * Both use the macro's name as key.
+     *
+     * @param Macro[] $macros
+     * @param int[] $inheritanceLine
+     * @param int $childId
+     *
+     * @return array{
+     *      array<string,Macro>,
+     *      array<string,Macro>
+     * }
+     */
+    public static function resolveInheritance(array $macros, array $inheritanceLine, int $childId): array
+    {
+        /** @var array<string,Macro> $directMacros */
+        $directMacros = [];
+        foreach ($macros as $macro) {
+            if ($macro->getOwnerId() === $childId) {
+                $directMacros[$macro->getName()] = $macro;
+            }
+        }
+
+        /** @var array<string,Macro> $inheritedMacros */
+        $inheritedMacros = [];
+        foreach ($inheritanceLine as $parentId) {
+            foreach ($macros as $macro) {
+                if (
+                    ! isset($inheritedMacros[$macro->getName()])
+                    && $macro->getOwnerId() === $parentId
+                ) {
+                    $inheritedMacros[$macro->getName()] = $macro;
+                }
+            }
+        }
+
+        return [$directMacros, $inheritedMacros];
     }
 }

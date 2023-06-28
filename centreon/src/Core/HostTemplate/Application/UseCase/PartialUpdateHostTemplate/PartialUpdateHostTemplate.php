@@ -448,7 +448,7 @@ final class PartialUpdateHostTemplate
         $existingHostMacros
             = $this->readHostMacroRepository->findByHostIds(array_merge([$hostTemplate->getId()], $inheritanceLine));
 
-        [$directMacros, $inheritedMacros] = MacroManager::resolveInheritanceForMacro(
+        [$directMacros, $inheritedMacros] = Macro::resolveInheritance(
             $existingHostMacros,
             $inheritanceLine,
             $hostTemplate->getId()

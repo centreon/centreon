@@ -300,7 +300,7 @@ final class AddHostTemplate
         $inheritanceLine = InheritanceManager::findInheritanceLine($hostTemplateId, $templateParents);
         $existingHostMacros = $this->readHostMacroRepository->findByHostIds($inheritanceLine);
 
-        [, $inheritedMacros] = MacroManager::resolveInheritanceForMacro(
+        [, $inheritedMacros] = Macro::resolveInheritance(
             $existingHostMacros,
             $inheritanceLine,
             $hostTemplateId
