@@ -1620,6 +1620,10 @@ paths:
     $ref: './v23.10/Configuration/Dashboard/DashboardShareContactGroups.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}:
     $ref: './v23.10/Configuration/Dashboard/DashboardShareContactGroup.yaml'
+  /configuration/dashboards/contacts:
+    $ref: './v23.10/Configuration/Dashboard/Contacts.yaml'
+  /configuration/dashboards/contactgroups:
+    $ref: './v23.10/Configuration/Dashboard/ContactGroups.yaml'
   /configuration/access-groups:
     get:
       tags:
