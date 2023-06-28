@@ -185,7 +185,7 @@ jobs:
         frontend-lint,
         frontend-unit-test,
       ]
-    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
       fail-fast: false
@@ -304,6 +304,7 @@ jobs:
   e2e-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - name: Checkout sources
@@ -342,6 +343,7 @@ jobs:
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -421,7 +423,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
@@ -461,7 +463,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
