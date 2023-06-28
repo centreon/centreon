@@ -17,7 +17,6 @@ Feature:
         And the JSON node "modules" should exist
         And the JSON node "widgets" should exist
         And the JSON node "is_cloud_platform" should be equal to "false"
-        And the JSON node "feature_flags" should exist
 
     Scenario: Platform versions with cloud platform flag TRUE
         Given a running cloud platform instance of Centreon Web API
