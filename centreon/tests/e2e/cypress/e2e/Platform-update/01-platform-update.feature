@@ -15,8 +15,7 @@ Scenario: Administrator performs a platform update procedure
 
   Examples:
       | version_from           |
+      | first minor            |
       | last stable            |
-#      | first minor            |
-#      | last stable            |
-#      | penultimate stable     |
-#      | antepenultimate stable |
+      | penultimate stable     |
+      | antepenultimate stable |

@@ -9,8 +9,6 @@ import {
   installCentreon,
   updatePlatformPackages
 } from '../common';
-import { insertResourceFixtures } from '../../Resources-status/common';
-import { submitResultsViaClapi } from '../../../commons';
 
 beforeEach(() => {
   cy.getWebVersion().then(({ major_version, minor_version }) => {
@@ -21,6 +19,11 @@ beforeEach(() => {
 
       return Cypress.runner.stop();
     }
+
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/include/common/userTimezone.php'
+    }).as('getTimeZone');
 
     return cy
       .startContainer({
@@ -140,9 +143,9 @@ Given(
           return installCentreon(
             `${major_version}.${stable_minor_versions[minor_version_index]}`
           ).then(() => {
-            return checkPlatformVersion(`${major_version}.${stable_minor_versions[minor_version_index]}`).then(() =>
-              cy.visit('/')
-            );
+            return checkPlatformVersion(
+              `${major_version}.${stable_minor_versions[minor_version_index]}`
+            ).then(() => cy.visit('/'));
           });
         }
       );
@@ -179,82 +182,80 @@ When('administrator runs the update procedure', () => {
 
   cy.wait('@getStep5').get('.btc.bt_success').eq(0).click();
 });
-/*
-const initializeResourceData = (): Cypress.Chainable => {
-  const files = [
-    'resources/clapi/host1/01-add.json',
-    'resources/clapi/service1/01-add.json',
-    'resources/clapi/service1/02-set-max-check.json',
-    'resources/clapi/service1/03-disable-active-check.json',
-    'resources/clapi/service1/04-enable-passive-check.json',
-    'resources/clapi/service2/01-add.json',
-    'resources/clapi/service2/02-set-max-check.json',
-    'resources/clapi/service2/03-disable-active-check.json',
-    'resources/clapi/service2/04-enable-passive-check.json',
-    'resources/clapi/service3/01-add.json',
-    'resources/clapi/service3/02-set-max-check.json',
-    'resources/clapi/service3/03-disable-active-check.json',
-    'resources/clapi/service3/04-enable-passive-check.json'
-  ];
-
-  return cy.wrap(Promise.all(files.map(insertFixture)));
-};
-*/
-/*
-const insertResourceFixtures = (): Cypress.Chainable => {
-  const dateBeforeLogin = new Date();
-
-  return loginAsAdminViaApiV2()
-    .then(initializeResourceData)
-    .then(applyConfigurationViaClapi)
-    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
-    .then(submitResultsViaClapi)
-    .then(checkThatFixtureServicesExistInDatabase);
-};
-*/
 
 Then(
   'monitoring should be up and running after update procedure is complete to current version',
   () => {
     cy.setUserTokenApiV1();
 
-    insertResourceFixtures();
+    cy.addTimePeriod({
+      name: '24/7'
+    })
+      .addCheckCommand({
+        command: 'echo "failure" && exit 2',
+        enableShell: true,
+        name: 'check_command'
+      })
+      .addHost({
+        checkCommand: 'check_command',
+        name: 'host1'
+      })
+      .addServiceTemplate({
+        name: 'serviceTemplate1'
+      })
+      .addService({
+        checkCommand: 'check_command',
+        host: 'host1',
+        name: 'service1',
+        template: 'serviceTemplate1'
+      })
+      .applyPollerConfiguration();
 
     cy.loginByTypeOfUser({
       jsonName: 'admin'
     });
 
-    //initializeResourceData();
-
     cy.url().should('include', '/monitoring/resources');
 
-    cy.get('[aria-label="State filter"]').click().get('[data-value="all"]').click();
+    cy.get('[aria-label="State filter"]')
+      .click()
+      .get('[data-value="all"]')
+      .click();
+
     cy.waitUntil(
       () => {
-        cy.get('[aria-label="Refresh"]').click().then(() => cy.contains('service_test_ok'));
+        cy.get('[aria-label="Refresh"]').click({ force: true });
+
+        return cy.get('#content').then(($el) => {
+          return $el.find(':contains("service1")').length > 0;
+        });
       },
       {
-        timeout: 15000
+        timeout: 20000
       }
     );
   }
 );
 
-Then(
-  'legacy services grid page should still work',
-  () => {
-    cy.waitUntil(
-      () => {
-        cy.visit('/centreon/main.php?p=20204&o=svcOV_pb').wait('@getTimeZone');
+Then('legacy services grid page should still work', () => {
+  cy.visit('/centreon/main.php?p=20204&o=svcOV_pb').wait('@getTimeZone');
 
-        return cy
-          .get('iframe#main-content')
-          .its('0.contentDocument.body')
-          .contains('test_host');
-      }
-    );
-  }
-);
+  cy.waitUntil(() => {
+    cy.get('iframe#main-content')
+      .its('0.contentDocument.body')
+      .find('select#typeDisplay2')
+      .select('All');
+
+    cy.getIframeBody().find('a#JS_monitoring_refresh').click({ force: true });
+
+    return cy
+      .getIframeBody()
+      .find('.ListTable tr:not(.ListHeader)')
+      .then(($el) => {
+        return $el.find(':contains("host1")').length > 0;
+      });
+  });
+});
 
 Given('a successfully updated platform', () => {
   cy.waitForContainerAndSetToken();

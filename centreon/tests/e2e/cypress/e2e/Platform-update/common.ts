@@ -43,6 +43,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
     command: `bash -e <<EOF
       dnf config-manager --set-disabled 'centreon-*-unstable*' 'mariadb*'
       dnf install -y centreon-web-${version}
+      dnf install -y centreon-broker-cbd
       echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
       /etc/init.d/mysql start
       mkdir -p /run/php-fpm
@@ -128,6 +129,16 @@ EOF`,
     .execInContainer({
       command: `bash -e <<EOF
       mysql -pcentreon centreon < /tmp/standard.sql
+EOF`,
+      name: Cypress.env('dockerName')
+    })
+    .setUserTokenApiV1()
+    .applyPollerConfiguration()
+    .execInContainer({
+      command: `bash -e <<EOF
+        /etc/init.d/cbd start
+        /etc/init.d/centengine start
+        su - centreon-gorgone -c "/usr/bin/perl /usr/bin/gorgoned --config=/etc/centreon-gorgone/config.yaml --logfile=/var/log/centreon-gorgone/gorgoned.log --severity=info" &
 EOF`,
       name: Cypress.env('dockerName')
     });
