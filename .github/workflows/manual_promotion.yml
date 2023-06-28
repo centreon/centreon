@@ -16,7 +16,7 @@ jobs:
           VERACODE_API_ID: '${{ secrets.VERACODE_API_ID }}'
           VERACODE_API_SECRET: '${{ secrets.VERACODE_API_KEY }}'
 
-        uses: veracode/veracode-sandboxes-helper@v1.0.0
+        uses: sc979/veracode-sandboxes-helper@main
         with:
           activity: "promote-latest-scan"
           app-name: "centreon-web"
