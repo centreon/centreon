@@ -86,8 +86,8 @@ jobs:
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       stability: ${{ needs.get-version.outputs.stability }}
     secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
+      veracode_api_id: vera01ei-1b396cba555561a3184b997f1f12ec45
+      veracode_api_key: vera01es-b8176cfe5a72ea4e21d4dcfed567785a8813baf379f09e64cb710e36f58611749bf4cf35ba7678a6693f85a209d92f415cf6ba7b3e59bf7008095fdd77889b35
 
   frontend-web-build:
     needs: [get-version]
