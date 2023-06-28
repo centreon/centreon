@@ -16,7 +16,7 @@ jobs:
           VERACODE_API_ID: '${{ secrets.VERACODE_API_ID }}'
           VERACODE_API_SECRET: '${{ secrets.VERACODE_API_KEY }}'
 
-        uses: sc979/veracode-sandboxes-helper@main
+        uses: sc979/veracode-sandboxes-helper@v0.1
         with:
           activity: "remove-sandbox"
           app-name: "centreon-web"
