@@ -37,7 +37,11 @@ const Option = forwardRef(
     const { classes } = useStyles();
 
     return (
-      <div className={classes.container} ref={ref as RefObject<HTMLDivElement>}>
+      <div
+        className={classes.container}
+        data-testid="listOptions"
+        ref={ref as RefObject<HTMLDivElement>}
+      >
         {!isNil(checkboxSelected) && (
           <Checkbox
             checked={checkboxSelected}
