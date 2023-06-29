@@ -59,6 +59,7 @@ final class FindContactDashboardShares
         try {
             if ($this->rights->hasAdminRole()) {
                 if ($dashboard = $this->readDashboardRepository->findOne($dashboardId)) {
+                    $this->info('Retrieve contact shares for dashboard', ['id' => $dashboardId]);
                     $response = $this->findContactSharesAsAdmin($dashboard);
                 } else {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
@@ -66,6 +67,7 @@ final class FindContactDashboardShares
                 }
             } elseif ($this->rights->canAccess()) {
                 if ($dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact)) {
+                    $this->info('Retrieve contact shares for dashboard', ['id' => $dashboardId]);
                     $response = $this->findContactSharesAsContact($dashboard);
                 } else {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);

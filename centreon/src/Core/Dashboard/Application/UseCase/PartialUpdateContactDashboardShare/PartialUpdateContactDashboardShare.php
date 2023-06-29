@@ -68,6 +68,7 @@ final class PartialUpdateContactDashboardShare
                 $contact = $this->contactRepository->findById($contactId);
 
                 if ($dashboard && $contact) {
+                    $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
                     $response = $this->updateContactShareAsAdmin($dashboard, $contact, $request);
                 } elseif (null === $dashboard) {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
@@ -81,6 +82,7 @@ final class PartialUpdateContactDashboardShare
                 $contact = $this->contactRepository->findById($contactId);
 
                 if ($dashboard && $contact) {
+                    $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
                     $response = $this->updateContactShareAsContact($dashboard, $contact, $request);
                 } elseif (null === $dashboard) {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
