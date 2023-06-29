@@ -28,6 +28,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Contact\Application\Repository\WriteContactGroupRepositoryInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
@@ -73,14 +74,20 @@ class AclUpdater implements AclUpdaterInterface
                 $this->updateAccessGroupsForUser($user, $userAccessGroups);
             }
 
-            if ($customConfiguration->getGroupsMapping()->isEnabled()) {
-                $this->updateContactGroupsForUser($user);
+            $groupMappings = $customConfiguration->getGroupsMapping();
+            if ($groupMappings->isEnabled()) {
+                $contactGroupRelations = $groupMappings->getContactGroupRelations();
+                $contactGroups = [];
+                foreach ($contactGroupRelations as $contactGroupRelation) {
+                    $contactGroups[] = $contactGroupRelation->getContactGroup();
+                }
+                $this->updateContactGroupsForUser($user, $contactGroups);
             }
         }
     }
 
     /**
-     * Delete and Insert Access Group:q!s for authenticated user
+     * Delete and Insert Access Groups for authenticated user
      *
      * @param ContactInterface $user
      * @param AccessGroup[] $userAccessGroups
@@ -110,12 +117,10 @@ class AclUpdater implements AclUpdaterInterface
      * Delete and Insert Contact Group for authenticated user
      *
      * @param ContactInterface $user
+     * @param ContactGroup[] $contactGroups
      */
-    private function updateContactGroupsForUser(ContactInterface $user): void
+    private function updateContactGroupsForUser(ContactInterface $user, array $contactGroups): void
     {
-        /** @phpstan-ignore-next-line */
-        $contactGroups = $this->provider->getUserContactGroups();
-
         try {
             $this->info('Updating user contact group', [
                 "user_id" => $user->getId(),
