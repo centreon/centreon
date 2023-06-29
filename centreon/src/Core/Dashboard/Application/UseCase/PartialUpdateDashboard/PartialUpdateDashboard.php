@@ -36,6 +36,7 @@ use Core\Common\Application\Type\NoValue;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
@@ -49,6 +50,7 @@ final class PartialUpdateDashboard
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly WriteDashboardRepositoryInterface $writeDashboardRepository,
         private readonly ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly WriteDashboardPanelRepositoryInterface $writeDashboardPanelRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly DashboardRights $rights,
@@ -129,15 +131,20 @@ final class PartialUpdateDashboard
      * @throws \Throwable
      * @throws DashboardException
      *
-     * @return NoContentResponse|NotFoundResponse
+     * @return NoContentResponse|NotFoundResponse|ForbiddenResponse
      */
     private function partialUpdateDashboardAsContact(
         int $dashboardId,
         PartialUpdateDashboardRequest $request
-    ): NoContentResponse|NotFoundResponse {
+    ): NoContentResponse|NotFoundResponse|ForbiddenResponse {
         $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
         if (null === $dashboard) {
             return new NotFoundResponse('Dashboard');
+        }
+
+        $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard);
+        if (! $this->rights->canUpdate($sharingRoles)) {
+            return new ForbiddenResponse(DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboardId));
         }
 
         $this->updateDashboardAndSave($dashboard, $request);

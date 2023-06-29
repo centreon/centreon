@@ -26,8 +26,11 @@ namespace Core\Dashboard\Infrastructure\Repository;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
@@ -48,6 +51,80 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
+    }
+
+    public function findDashboardContactSharesByRequestParameter(
+        Dashboard $dashboard,
+        RequestParametersInterface $requestParameters
+    ): array {
+        $requestParameters->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'c.contact_id',
+            'name' => 'c.contact_name',
+            'email' => 'c.contact_email',
+        ]);
+
+        $concatenator = (new SqlConcatenator())
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT
+                        c.`contact_id`,
+                        c.`contact_name`,
+                        c.`contact_email`,
+                        dcr.`role`
+                    SQL
+            )
+            ->defineFrom(
+                <<<'SQL'
+                    FROM `:db`.`dashboard_contact_relation` dcr
+                    SQL
+            )
+            ->defineJoins(
+                <<<'SQL'
+                    INNER JOIN `:db`.`contact` c ON c.`contact_id`=dcr.`contact_id`
+                    SQL
+            )
+            ->defineWhere(
+                <<<'SQL'
+                    WHERE dcr.`dashboard_id` = :dashboard_id
+                    SQL
+            )
+            ->storeBindValue(':dashboard_id', $dashboard->getId(), \PDO::PARAM_INT)
+            ->defineOrderBy(
+                <<<'SQL'
+                    ORDER BY c.`contact_name` ASC
+                    SQL
+            );
+
+        $sqlTranslator->translateForConcatenator($concatenator);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $sqlTranslator->bindSearchValues($statement);
+        $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        // Retrieve data
+        $shares = [];
+        foreach ($statement as $result) {
+            /** @var array{
+             *     contact_id: int,
+             *     contact_name: string,
+             *     contact_email: string,
+             *     role: string
+             * } $result
+             */
+            $shares[] = new DashboardContactShare(
+                $dashboard,
+                $result['contact_id'],
+                $result['contact_name'],
+                $result['contact_email'],
+                $this->stringToRole($result['role'])
+            );
+        }
+
+        return $shares;
     }
 
     public function getOneSharingRoles(ContactInterface $contact, Dashboard $dashboard): DashboardSharingRoles
@@ -90,7 +167,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      * @throws RepositoryException
      * @throws \PDOException
      *
-     * @return array<int, array<\Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare>>
+     * @return array<int, array<DashboardContactGroupShare>>
      */
     private function getContactGroupShares(ContactInterface $contact, Dashboard ...$dashboards): array
     {
@@ -227,7 +304,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     {
         try {
             return DashboardSharingRoleConverter::fromString($role);
-        } catch (\ValueError $ex) {
+        } catch (\InvalidArgumentException $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
             throw new RepositoryException($ex->getMessage(), $ex->getCode(), $ex);

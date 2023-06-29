@@ -1612,6 +1612,14 @@ paths:
     $ref: './v23.10/Configuration/Dashboard/Dashboards.yaml'
   /configuration/dashboards/{dashboard_id}:
     $ref: './v23.10/Configuration/Dashboard/Dashboard.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contacts:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContacts.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContact.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contactgroups:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContactGroups.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContactGroup.yaml'
   /configuration/access-groups:
     get:
       tags:
