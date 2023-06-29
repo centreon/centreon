@@ -165,7 +165,7 @@ runs:
             done
           else
             echo "[DEBUG] - No source path found."
-            continue 1
+            continue
           fi
           echo "[DEBUG] - Build target path."
           TARGET_PATH="/srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS"
