@@ -1,6 +1,8 @@
 import { ReactElement } from 'react';
 
-import { ListItemText } from '@mui/material';
+import { ListItemText as MuiListItemText } from '@mui/material';
+
+import { useStyles } from './ListItem.styles';
 
 type TextProps = {
   primaryText: string;
@@ -11,5 +13,13 @@ export const Text = ({
   primaryText,
   secondaryText
 }: TextProps): ReactElement => {
-  return <ListItemText primary={primaryText} secondary={secondaryText} />;
+  const { classes } = useStyles();
+
+  return (
+    <MuiListItemText
+      className={classes.text}
+      primary={primaryText}
+      secondary={secondaryText}
+    />
+  );
 };
