@@ -21,26 +21,26 @@ const getCentreonStableMinorVersions = (
   return cy
     .execInContainer({
       command: `bash -e <<EOF
-        dnf config-manager --set-disabled 'centreon-*-unstable*' 'mariadb*'
+        dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
 EOF`,
       name: Cypress.env('dockerName')
     })
     .exec(
       `docker exec -i ${Cypress.env(
         'dockerName'
-      )} sh -c "dnf --showduplicates list centreon-web | grep centreon-web | grep ${majorVersion} | awk '{ print \\$2 }' | tr '\n' ' '"`
+      )} sh -c "dnf --showduplicates list centreon-web | grep centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }' | tr '\n' ' '"`
     )
-    .then(({ stdout }): Cypress.Chainable<Array<string>> => {
-      const stableVersions: Array<string> = [];
+    .then(({ stdout }): Cypress.Chainable<Array<number>> => {
+      const stableVersions: Array<number> = [];
 
       const versionsRegex = /\d+\.\d+\.(\d+)/g;
 
       [...stdout.matchAll(versionsRegex)].forEach((result) => {
         cy.log(`available version found : ${majorVersion}.${result[1]}`);
-        stableVersions.push(result[1]);
+        stableVersions.push(Number(result[1]));
       });
 
-      return cy.wrap([...stableVersions].sort()); // remove duplicates and order
+      return cy.wrap([...new Set(stableVersions)].sort((a, b) => a - b)); // remove duplicates and order
     });
 };
 
@@ -48,7 +48,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
   cy.log(`installing version ${version}...`);
   cy.execInContainer({
     command: `bash -e <<EOF
-      dnf config-manager --set-disabled 'centreon-*-unstable*' 'mariadb*'
+      dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
       dnf install -y centreon-web-${version}
       dnf install -y centreon-broker-cbd
       echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
