@@ -36,9 +36,23 @@ $errorMessage = "Couldn't modify resources table";
 $alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED, 
     MODIFY max_check_attempts SMALLINT UNSIGNED";
 
+$modifyUniqueKeyInMetricsTable = function(CentreonDB $pearDBO) {
+    $showIndexesStatement = $pearDBO->query(
+        "SHOW INDEXES FROM `metrics` WHERE `Key_name`='index_id' AND `Column_name`='metric_name'"
+    );
+    if ($showIndexesStatement->rowCount() > 0) {
+        $pearDBO->query("ALTER TABLE `metrics` DROP INDEX IF EXISTS `index_id`");
+        $pearDBO->query("ALTER TABLE `metrics` ADD CONSTRAINT `index_id` UNIQUE (`metric_id`, `index_id`)");
+    }
+};
+
 try {
 
     $pearDBO->query($alterResourceTableStmnt);
+
+    $errorMessage = 'Impossible to modify index in metrics table';
+    $modifyUniqueKeyInMetricsTable($pearDBO);
+
     $errorMessage = '';
     // Transactional queries
     if (! $pearDB->inTransaction()) {

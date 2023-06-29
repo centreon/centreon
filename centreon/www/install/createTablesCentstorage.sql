@@ -219,7 +219,7 @@ CREATE TABLE `metrics` (
   `locked` enum('0','1') DEFAULT NULL,
   `to_delete` int(1) DEFAULT '0',
   PRIMARY KEY (`metric_id`),
-  UNIQUE KEY `index_id` (`index_id`,`metric_name`),
+  UNIQUE KEY `index_id` (`metric_id`, `index_id`),
   KEY `index` (`index_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
