@@ -6,10 +6,9 @@ info:
     + Added host severities endpoints (GET, PUT)
     + Added host categories endpoint (GET, PUT)
     + Added host group endpoints (GET, PUT)
-    + Added notification endpoint (POST)
-    + Added service templates endpoints (GET)
-    + Add host template endpoints (POST, DELETE, PATCH)
-    + Add notification configuration endpoints (PATCH)
+    + Added notification endpoints (POST, PATCH)
+    + Added service templates endpoints (GET, POST, DELETE, PATCH)
+    + Added host template endpoints (POST, DELETE, PATCH)
     +
     # Updated features
     + Updated host template endpoint (GET)

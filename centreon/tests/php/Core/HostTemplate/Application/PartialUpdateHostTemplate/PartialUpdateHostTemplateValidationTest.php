@@ -55,16 +55,27 @@ beforeEach(function (): void {
 });
 
 it('throws an exception when name is already used', function (): void {
+    $hostTemplate = new HostTemplate(id: 1, name: 'template name', alias: 'template alias');
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('existsByName')
         ->willReturn(true);
 
-    $this->validation->assertIsValidName('name test');
+    $this->validation->assertIsValidName('name test', $hostTemplate);
 })->throws(
     HostTemplateException::class,
     HostTemplateException::nameAlreadyExists(HostTemplate::formatName('name test'), 'name test')->getMessage()
 );
+
+it('does not throw an exception when name is identical to given hostTemplate', function (): void {
+    $hostTemplate = new HostTemplate(id: 1, name: 'name test', alias: 'alias test');
+    $this->readHostTemplateRepository
+        ->expects($this->exactly(0))
+        ->method('existsByName');
+
+    $this->validation->assertIsValidName('name test', $hostTemplate);
+});
 
 it('throws an exception when icon ID does not exist', function (): void {
     $this->readViewImgRepository

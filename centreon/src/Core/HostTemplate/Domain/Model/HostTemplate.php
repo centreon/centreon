@@ -171,6 +171,10 @@ class HostTemplate extends NewHostTemplate
         return $this->id;
     }
 
+    public function isNameIdentical(string $testName): bool {
+        return $this->name === HostTemplate::formatName($testName);
+    }
+
     /**
      * @param string $name
      *

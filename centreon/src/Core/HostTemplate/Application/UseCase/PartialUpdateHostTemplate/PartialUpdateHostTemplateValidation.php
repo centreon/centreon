@@ -75,8 +75,11 @@ class PartialUpdateHostTemplateValidation
      *
      * @throws HostTemplateException|\Throwable
      */
-    public function assertIsValidName(string $name): void
+    public function assertIsValidName(string $name, HostTemplate $hostTemplate): void
     {
+        if ($hostTemplate->isNameIdentical($name)) {
+            return;
+        }
         $formattedName = HostTemplate::formatName($name);
         if ($this->readHostTemplateRepository->existsByName($formattedName)) {
             $this->error('Host template name already exists', compact('name', 'formattedName'));

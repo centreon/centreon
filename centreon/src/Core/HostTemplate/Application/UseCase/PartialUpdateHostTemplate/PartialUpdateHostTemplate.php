@@ -194,11 +194,8 @@ final class PartialUpdateHostTemplate
             ? (int) $inheritanceMode['inheritance_mode']->getValue()
             : 0;
 
-        if (
-            ! $request->name instanceOf NoValue
-            && $hostTemplate->getName() !== HostTemplate::formatName($request->name)
-        ) {
-            $this->validation->assertIsValidName($request->name);
+        if (! $request->name instanceOf NoValue) {
+            $this->validation->assertIsValidName($request->name, $hostTemplate);
             $hostTemplate->setName($request->name);
         }
 
