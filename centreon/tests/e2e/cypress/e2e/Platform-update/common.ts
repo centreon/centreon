@@ -15,19 +15,51 @@ const checkIfSystemUserRoot = (): Cypress.Chainable => {
     });
 };
 
+const getCentreonStableMinorVersions = (
+  majorVersion: string
+): Cypress.Chainable => {
+  return cy
+    .execInContainer({
+      command: `bash -e <<EOF
+        dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
+EOF`,
+      name: Cypress.env('dockerName')
+    })
+    .exec(
+      `docker exec -i ${Cypress.env(
+        'dockerName'
+      )} sh -c "dnf --showduplicates list centreon-web | grep centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }' | tr '\n' ' '"`
+    )
+    .then(({ stdout }): Cypress.Chainable<Array<number>> => {
+      const stableVersions: Array<number> = [];
+
+      const versionsRegex = /\d+\.\d+\.(\d+)/g;
+
+      [...stdout.matchAll(versionsRegex)].forEach((result) => {
+        cy.log(`available version found : ${majorVersion}.${result[1]}`);
+        stableVersions.push(Number(result[1]));
+      });
+
+      return cy.wrap([...new Set(stableVersions)].sort((a, b) => a - b)); // remove duplicates and order
+    });
+};
+
 const installCentreon = (version: string): Cypress.Chainable => {
+  cy.log(`installing version ${version}...`);
+
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     cy.execInContainer({
       command: `bash -e <<EOF
-        dnf config-manager --set-disabled 'centreon-*-unstable*' 'mariadb*'
+        dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
         dnf install -y centreon-web-${version}
+        dnf install -y centreon-broker-cbd
         echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
-        service mysql start
+        /etc/init.d/mysql start
         mkdir -p /run/php-fpm
         /usr/sbin/php-fpm
         httpd -k start
         mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
-  EOF`,
+EOF`,
       name: Cypress.env('dockerName')
     });
   } else {
@@ -42,7 +74,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
         /usr/sbin/php-fpm8.1
         apache2ctl start
         mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
-  EOF`,
+EOF`,
       name: Cypress.env('dockerName')
     });
   }
@@ -124,6 +156,16 @@ const installCentreon = (version: string): Cypress.Chainable => {
       mysql -pcentreon centreon < /tmp/standard.sql
 EOF`,
       name: Cypress.env('dockerName')
+    })
+    .setUserTokenApiV1()
+    .applyPollerConfiguration()
+    .execInContainer({
+      command: `bash -e <<EOF
+        /etc/init.d/cbd start
+        /etc/init.d/centengine start
+        su - centreon-gorgone -c "/usr/bin/perl /usr/bin/gorgoned --config=/etc/centreon-gorgone/config.yaml --logfile=/var/log/centreon-gorgone/gorgoned.log --severity=info" &
+EOF`,
+      name: Cypress.env('dockerName')
     });
 };
 
@@ -153,8 +195,8 @@ const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
       )} sh -c "rpm -qa |grep centreon-web |cut -d '-' -f3"`
     )
     .then(({ stdout }): Cypress.Chainable<null> | null => {
-      const isRoot = platformVersion === stdout;
-      if (isRoot) {
+      const isExpected = platformVersion === stdout;
+      if (isExpected) {
         return null;
       }
 
@@ -186,6 +228,7 @@ const insertResources = (): Cypress.Chainable => {
 
 export {
   checkIfSystemUserRoot,
+  getCentreonStableMinorVersions,
   installCentreon,
   updatePlatformPackages,
   checkPlatformVersion,
