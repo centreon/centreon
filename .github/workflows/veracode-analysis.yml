@@ -218,3 +218,4 @@ jobs:
           fail-on-cvss: 8
           allow-dirty: true
           path: "./${{ inputs.module_directory }}"
+          debug: true
