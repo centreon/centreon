@@ -32,8 +32,6 @@ import {
   labelSave
 } from '../translatedLabels';
 
-import { useStyles } from './HeaderActions.styles';
-
 interface HeaderActionsProps {
   id?: Dashboard['id'];
   name?: string;
@@ -46,7 +44,6 @@ const HeaderActions = ({
   name,
   panels
 }: HeaderActionsProps): ReactElement => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const [isAskingCancelConfirmation, setIsAskingCancelConfirmation] =
@@ -171,7 +168,7 @@ const HeaderActions = ({
   // TODO evaluate if we need styling here (the PageHeader component is already taking care of this)
   if (!isEditing) {
     return (
-      <div className={classes.headerActions}>
+      <>
         <Button
           data-testid="edit_dashboard"
           icon={<EditOutlinedIcon />}
@@ -189,12 +186,12 @@ const HeaderActions = ({
           onClick={openShareModal}
         />
         <Shares id={id} />
-      </div>
+      </>
     );
   }
 
   return (
-    <div className={classes.headerActions}>
+    <>
       <Button
         aria-label={t(labelExit) as string}
         data-testid="cancel_dashboard"
@@ -231,7 +228,7 @@ const HeaderActions = ({
           onConfirm={saveAndProceed}
         />
       </Modal>
-    </div>
+    </>
   );
 };
 
