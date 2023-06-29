@@ -78,7 +78,7 @@ runs:
             done
           else
             echo "[DEBUG] - No source path found."
-            continue
+            exit 1
           fi
           echo "[DEBUG] - Build $ARCH artifactory target path."
           TARGET_PATH="rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/"
@@ -115,7 +115,7 @@ runs:
           done
         else
           echo "[DEBUG] - No source path found."
-          continue
+          exit 1
         fi
         echo "[DEBUG] - Build target path."
         TARGET_PATH="$ROOT_REPO_PATH-${{ inputs.stability }}/pool/"
@@ -165,7 +165,7 @@ runs:
             done
           else
             echo "[DEBUG] - No source path found."
-            continue
+            continue 1
           fi
           echo "[DEBUG] - Build target path."
           TARGET_PATH="/srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS"
