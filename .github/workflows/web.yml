@@ -103,6 +103,8 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
   frontend-lint:
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
     runs-on: ubuntu-22.04
 
     steps:
@@ -122,6 +124,8 @@ jobs:
           module_name: centreon-web
 
   frontend-unit-test:
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
     runs-on: ubuntu-22.04
 
     steps:
@@ -145,6 +149,8 @@ jobs:
           path: "centreon/junit.xml"
 
   backend-unit-test:
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
     runs-on: ubuntu-22.04
 
     steps:
