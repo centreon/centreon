@@ -85,6 +85,7 @@ runs:
           fi
 
           if [[ $PATHS_FOUND -eq 2 ]]; then
+            echo "[DEBUG] - No source path found in all architecture."
             exit 1
           fi
 
