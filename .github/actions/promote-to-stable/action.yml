@@ -86,7 +86,7 @@ runs:
           echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
           for ARTIFACT in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Promoting $ARTIFACT to stable on artifactory."
-            #jf rt cp $ARTIFACT $TARGET_PATH --flat=true
+            #jf rt copy $ARTIFACT $TARGET_PATH --flat=true
           done
         done
       shell: bash
@@ -115,7 +115,7 @@ runs:
           done
         else
           echo "[DEBUG] - No source path found."
-          exit 0
+          continue
         fi
         echo "[DEBUG] - Build target path."
         TARGET_PATH="$ROOT_REPO_PATH-${{ inputs.stability }}/pool/"
@@ -123,7 +123,7 @@ runs:
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
         for ARTIFACT in ${SRC_PATHS[@]}; do
           echo "[DEBUG] - Promoting $ARTIFACT to stable."
-          #jf rt cp $ARTIFACT $TARGET_PATH --flat=true
+          #jf rt copy $ARTIFACT $TARGET_PATH --flat=true
         done
       shell: bash
 
@@ -175,7 +175,6 @@ runs:
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET_PATH"
           for ARTIFACT in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Promoting $ARTIFACT to $TARGET_PATH."
-            ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET_PATH"
             #ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" cp $ARTIFACT $TARGET_PATH/
           done
 
