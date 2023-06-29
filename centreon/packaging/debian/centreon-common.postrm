@@ -9,10 +9,10 @@ case "$1" in
     purge)
         deluser centreon || true
         delgroup centreon || true
-        deluser centreon centreon-broker || :
-        deluser centreon-broker centreon || :
-        deluser centreon centreon-engine || :
-        deluser centreon-engine centreon || :
+        gpasswd --delete centreon centreon-broker > /dev/null 2>&1 || :
+        gpasswd --delete centreon-broker centreon > /dev/null 2>&1 || :
+        gpasswd --delete centreon centreon-engine > /dev/null 2>&1 || :
+        gpasswd --delete centreon-engine centreon > /dev/null 2>&1 || :
     ;;
 esac
 

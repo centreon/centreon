@@ -498,12 +498,12 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 %{_bindir}/getent group centreon &>/dev/null || %{_sbindir}/groupadd -r centreon
 %{_bindir}/getent passwd centreon &>/dev/null || %{_sbindir}/useradd -g centreon -m -d %{_localstatedir}/spool/centreon -r centreon 2> /dev/null
 if [ "$(getent passwd centreon-broker)" ]; then
-  %{_bindir}/usermod -a -G centreon-broker centreon
-  %{_bindir}/usermod -a -G centreon centreon-broker
+  %{_sbindir}/usermod -a -G centreon-broker centreon
+  %{_sbindir}/usermod -a -G centreon centreon-broker
 fi
 if [ "$(getent passwd centreon-engine)" ]; then
-  %{_bindir}/usermod -a -G centreon-engine centreon
-  %{_bindir}/usermod -a -G centreon centreon-engine
+  %{_sbindir}/usermod -a -G centreon-engine centreon
+  %{_sbindir}/usermod -a -G centreon centreon-engine
 fi
 
 %post common
@@ -521,10 +521,10 @@ fi
 if [ "$1" = 0 ]; then
     %{_sbindir}/userdel -r centreon 2> /dev/null
     %{_sbindir}/groupdel centreon
-    %{_sbindir}/deluser centreon centreon-broker || :
-    %{_sbindir}/deluser centreon-broker centreon || :
-    %{_sbindir}/deluser centreon centreon-engine || :
-    %{_sbindir}/deluser centreon-engine centreon || :
+    %{_bindir}/gpasswd --delete centreon centreon-broker > /dev/null 2>&1 || :
+    %{_bindir}/gpasswd --delete centreon-broker centreon > /dev/null 2>&1 || :
+    %{_bindir}/gpasswd --delete centreon centreon-engine > /dev/null 2>&1 || :
+    %{_bindir}/gpasswd --delete centreon-engine centreon > /dev/null 2>&1 || :
 fi
 
 ######################################################
