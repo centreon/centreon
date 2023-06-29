@@ -24,9 +24,10 @@ import {
   getDashboardEndpoint
 } from '../api/endpoints';
 import { labelShareTheDashboard } from '../translatedLabels';
+import { labelUserRolesAreUpdated } from '../Shares/translatedLabels';
 
+import { labelEditDashboard, labelSave } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
-import { labelEditDashboard } from './translatedLabels';
 import { Dashboard } from './Dashboard';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
@@ -167,6 +168,13 @@ const initializeAndMount = ({
       path: getDashboardAccessRightsEndpoint(1),
       response: shares
     });
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'putDashboardAccessRights',
+    method: Method.PUT,
+    path: getDashboardAccessRightsEndpoint(1),
+    statusCode: 204
   });
 
   cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });
@@ -431,7 +439,7 @@ describe('Dashboard', () => {
       cy.matchImageSnapshot();
     });
 
-    it('removes a user from the list when when the corresponding button is clicked', () => {
+    it('removes a user from the list when the corresponding button is clicked', () => {
       // initializeBlocker();
       initializeAndMount(editorRoles);
 
@@ -441,7 +449,9 @@ describe('Dashboard', () => {
 
       cy.findAllByTestId('remove_user').eq(0).click();
 
-      cy.findByText('Walter Sobchak').should('not.exist');
+      cy.findByText('Walter Sobchak').should('be.visible');
+      cy.findAllByTestId('change_role').eq(0).should('be.disabled');
+      cy.findByTestId('add_user').should('be.visible');
 
       cy.matchImageSnapshot();
     });
@@ -453,6 +463,22 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelShareTheDashboard).should('not.exist');
 
       cy.matchImageSnapshot();
+    });
+
+    it('updates the list of user roles when the list is updated and the corresponding button is clicked', () => {
+      // initializeBlocker();
+      initializeAndMount(editorRoles);
+
+      cy.findByLabelText(labelShareTheDashboard).click();
+
+      cy.findAllByTestId('change_role').eq(0).parent().click();
+      cy.get('[data-value="editor"]').click();
+
+      cy.findByLabelText(labelSave).click();
+
+      cy.waitForRequest('@putDashboardAccessRights');
+
+      cy.contains(labelUserRolesAreUpdated).should('be.visible');
     });
   });
 });

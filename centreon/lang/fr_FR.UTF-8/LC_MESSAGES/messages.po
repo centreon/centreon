@@ -17801,15 +17801,6 @@ msgstr "Erreur lors de la récupération d'un modèle de service"
 msgid "The service template name '%s' already exists"
 msgstr "Le nom du modèle de service '%s' existe déjà"
 
-msgid "Dashboard access rights"
-msgstr "Droits d'accès au tableau de bord"
-
-msgid "User roles"
-msgstr "Rôles utilisateur"
-
-msgid "Share the dashboard"
-msgstr "Partager le tableau de bord"
-
 msgid "[%s] The value contains unauthorized characters: %s"
 msgstr "[%s] La valeur contient des caractères non autorisés : %s"
 
@@ -17836,6 +17827,18 @@ msgstr "Vous n'êtes pas autorisé à accéder aux commandes"
 
 msgid "Error while searching for commands"
 msgstr "Erreur lors de la recherche de commandes"
+
+msgid "Dashboard access rights"
+msgstr "Droits d'accès au tableau de bord"
+
+msgid "User roles"
+msgstr "Rôles utilisateur"
+
+msgid "Share the dashboard"
+msgstr "Partager le tableau de bord"
+
+msgid "User roles are updated"
+msgstr "La liste des droits utilisateur a été modifiée"
 
 msgid "You are not allowed to partially update a notification configuration"
 msgstr "Vous n'êtes pas autorisé à effectuer la modification partielle d'une configuration de notification"

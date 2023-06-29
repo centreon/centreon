@@ -4,10 +4,10 @@ import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import {
+  Add as AddIcon,
   Settings as SettingsIcon,
   Share as ShareIcon
 } from '@mui/icons-material';
-import AddIcon from '@mui/icons-material/Add';
 
 import {
   Button,

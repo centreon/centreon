@@ -15526,3 +15526,15 @@ msgstr ""
 
 # msgid "Share the dashboard"
 # msgstr ""
+
+# msgid "Dashboard access rights"
+# msgstr ""
+
+# msgid "User roles"
+# msgstr ""
+
+# msgid "Share the dashboard"
+# msgstr ""
+
+# msgid "User roles are updated"
+# msgstr ""

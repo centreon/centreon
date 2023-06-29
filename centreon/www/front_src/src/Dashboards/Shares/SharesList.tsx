@@ -11,15 +11,20 @@ import { dashboardAccessRightsListDecoder } from '../api/decoders';
 import { getDashboardAccessRightsEndpoint } from '../api/endpoints';
 import { labelSave } from '../Dashboard/translatedLabels';
 import { labelCancel } from '../translatedLabels';
+import { NamedEntity } from '../api/models';
 
 import { selectedDashboardShareAtom } from './atoms';
 import useShareForm from './useShareForm';
 import UserRoleItem from './UserRoleItem';
 import { labelUserRoles } from './translatedLabels';
 
-const pageAtom = atom(1);
+export const pageAtom = atom(1);
 
-const SharesList = (): JSX.Element => {
+interface Props {
+  id?: NamedEntity['id'];
+}
+
+const SharesList = ({ id }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const [selectedDashboardShare, setSelectedDashboardShare] = useAtom(
@@ -39,10 +44,17 @@ const SharesList = (): JSX.Element => {
 
   const closeModal = (): void => setSelectedDashboardShare(undefined);
 
-  const { values, handleChange, getInputName, removeContact, dirty } =
-    useShareForm({
-      shares: dashboardShares
-    });
+  const {
+    values,
+    handleChange,
+    getInputName,
+    toggleContact,
+    dirty,
+    submitForm
+  } = useShareForm({
+    dashboardId: id,
+    shares: dashboardShares
+  });
 
   return (
     <>
@@ -59,9 +71,13 @@ const SharesList = (): JSX.Element => {
                 email={dashboardShare.email}
                 fullname={dashboardShare.fullname}
                 id={dashboardShare.id}
+                isRemoved={dashboardShare.isRemoved}
                 key={dashboardShare.id}
-                remove={removeContact(dashboardShare.id)}
                 role={dashboardShare.role}
+                toggle={toggleContact({
+                  index,
+                  value: dashboardShare.isRemoved
+                })}
               />
             );
           })}
@@ -75,6 +91,7 @@ const SharesList = (): JSX.Element => {
           confirm: t(labelSave)
         }}
         onCancel={closeModal}
+        onConfirm={submitForm}
       />
     </>
   );

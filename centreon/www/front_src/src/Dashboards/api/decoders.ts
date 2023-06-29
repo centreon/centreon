@@ -7,7 +7,7 @@ import { buildListingDecoder } from '@centreon/ui';
 import {
   ContactType,
   Dashboard,
-  DashboardAccessRights,
+  DashboardContactAccessRights,
   DashboardPanel,
   DashboardRole,
   NamedEntity
@@ -92,20 +92,21 @@ export const dashboardListDecoder = buildListingDecoder({
  * dashboard access rights : entity
  */
 
-const dashboardAccessRightsDecoder = JsonDecoder.object<DashboardAccessRights>(
-  {
-    email: JsonDecoder.nullable(JsonDecoder.string),
-    fullname: JsonDecoder.nullable(JsonDecoder.string),
-    id: JsonDecoder.number,
-    name: JsonDecoder.string,
-    role: JsonDecoder.enumeration<DashboardRole>(
-      DashboardRole,
-      'DashboardRole'
-    ),
-    type: JsonDecoder.enumeration<ContactType>(ContactType, 'ContactType')
-  },
-  'Dashboard AccessRights'
-);
+const dashboardAccessRightsDecoder =
+  JsonDecoder.object<DashboardContactAccessRights>(
+    {
+      email: JsonDecoder.nullable(JsonDecoder.string),
+      fullname: JsonDecoder.nullable(JsonDecoder.string),
+      id: JsonDecoder.number,
+      name: JsonDecoder.string,
+      role: JsonDecoder.enumeration<DashboardRole>(
+        DashboardRole,
+        'DashboardRole'
+      ),
+      type: JsonDecoder.enumeration<ContactType>(ContactType, 'ContactType')
+    },
+    'Dashboard AccessRights'
+  );
 
 export const dashboardAccessRightsListDecoder = buildListingDecoder({
   entityDecoder: dashboardAccessRightsDecoder,

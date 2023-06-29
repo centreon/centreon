@@ -45,7 +45,9 @@ const useMutationQuery = <T extends object>({
   defaultFailureMessage,
   fetchHeaders,
   httpCodesBypassErrorSnackbar = [],
-  method
+  method,
+  onMutate,
+  onError
 }: UseMutationQueryProps<T>): UseMutationQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
 
@@ -63,7 +65,11 @@ const useMutationQuery = <T extends object>({
         isMutation: true,
         method,
         payload
-      })
+      }),
+    {
+      onError,
+      onMutate
+    }
   );
 
   const manageError = (): void => {

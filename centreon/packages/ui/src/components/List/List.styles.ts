@@ -6,3 +6,17 @@ export const useStyles = makeStyles()({
     overflowY: 'auto'
   }
 });
+
+// TODO merge cleanup
+
+export const useListItemTextStyles = makeStyles()((theme) => ({
+  disabled: {
+    color: theme.palette.action.disabled
+  }
+}));
+
+export const useListItemAvatarStyles = makeStyles()((theme) => ({
+  disabled: {
+    backgroundColor: theme.palette.action.disabled
+  }
+}));

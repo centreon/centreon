@@ -188,7 +188,7 @@ const HeaderActions = ({
           icon={<ShareIcon />}
           onClick={openShareModal}
         />
-        <Shares />
+        <Shares id={id} />
       </div>
     );
   }

@@ -87,7 +87,7 @@ export enum ContactType {
   contactGroup = 'contact_group'
 }
 
-export type DashboardAccessRights = NamedEntity & {
+export type DashboardContactAccessRights = NamedEntity & {
   email: string | null;
   fullname: string | null;
   role: DashboardRole;
