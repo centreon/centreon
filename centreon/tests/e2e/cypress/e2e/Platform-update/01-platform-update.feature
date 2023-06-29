@@ -19,4 +19,3 @@ Scenario: Administrator performs a platform update procedure
       | last stable            |
       | penultimate stable     |
       | antepenultimate stable |
-
