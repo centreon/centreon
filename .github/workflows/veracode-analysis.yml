@@ -191,7 +191,7 @@ jobs:
             fi
           fi
 
-          if [[ -f package.json && REINSTALL_PACKAGE_JSON != 'false' ]]; then
+          if [[ -f package.json && $REINSTALL_PACKAGE_JSON != 'false' ]]; then
             echo "[DEBUG] - Found a 'package.json'"
             RESULT=0
             echo "[DEBUG] - Generate a 'package-lock.json'"
