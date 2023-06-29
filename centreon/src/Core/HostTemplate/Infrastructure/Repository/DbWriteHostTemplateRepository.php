@@ -32,6 +32,7 @@ use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
+use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\HostTemplate\Domain\Model\NewHostTemplate;
 
 class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements WriteHostTemplateRepositoryInterface
@@ -95,6 +96,38 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
             $this->debug('Host template added with ID '. $hostTemplateId);
 
             return $hostTemplateId;
+        } catch (\Throwable $ex) {
+             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(HostTemplate $hostTemplate): void
+    {
+        $alreadyInTransaction = $this->db->inTransaction();
+        if (! $alreadyInTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $this->updateTemplateBasicInformations($hostTemplate);
+            $this->updateExtendedInformations($hostTemplate);
+            $this->deleteSeverity($hostTemplate->getId());
+            if ($hostTemplate->getSeverityId() !== null) {
+                $this->addSeverity($hostTemplate->getId(), $hostTemplate);
+            }
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
         } catch (\Throwable $ex) {
              $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
@@ -303,6 +336,119 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
 
         $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
         $statement->bindValue(':severityId', $hostTemplate->getSeverityId(), \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    private function deleteSeverity(int $hostTemplateId): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                DELETE rel FROM `:db`.`hostcategories_relation` rel
+                LEFT JOIN `:db`.`hostcategories` hc ON hc.hc_id = rel.hostcategories_hc_id
+                WHERE  rel.host_host_id = :hostTemplateId
+                    AND hc.level IS NOT NULL
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':hostTemplateId', $hostTemplateId, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    private function updateTemplateBasicInformations(HostTemplate $hostTemplate): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.`host`
+                SET
+                    `host_name` = :name,
+                    `host_alias` = :alias,
+                    `host_snmp_version` = :snmpVersion,
+                    `host_snmp_community` = :snmpCommunity,
+                    `host_location` = :timezoneId,
+                    `command_command_id` = :checkCommandId,
+                    `command_command_id_arg1` = :checkCommandArgs,
+                    `timeperiod_tp_id` = :checkTimeperiodId,
+                    `host_max_check_attempts` = :maxCheckAttempts,
+                    `host_check_interval` = :normalCheckInterval,
+                    `host_retry_check_interval` = :retryCheckInterval,
+                    `host_active_checks_enabled` = :activeCheckEnabled,
+                    `host_passive_checks_enabled` = :passiveCheckEnabled,
+                    `host_notifications_enabled` = :notificationEnabled,
+                    `host_notification_options` = :notificationOptions,
+                    `host_notification_interval` = :notificationInterval,
+                    `timeperiod_tp_id2` = :notificationTimeperiodId,
+                    `cg_additive_inheritance` = :addInheritedContactGroup,
+                    `contact_additive_inheritance` = :addInheritedContact,
+                    `host_first_notification_delay` = :firstNotificationDelay,
+                    `host_recovery_notification_delay` = :recoveryNotificationDelay,
+                    `host_acknowledgement_timeout` = :acknowledgementTimeout,
+                    `host_check_freshness` = :freshnessChecked,
+                    `host_freshness_threshold` = :freshnessThreshold,
+                    `host_flap_detection_enabled` = :flapDetectionEnabled,
+                    `host_low_flap_threshold` = :lowFlapThreshold,
+                    `host_high_flap_threshold` = :highFlapThreshold,
+                    `host_event_handler_enabled` = :eventHandlerEnabled,
+                    `command_command_id2` = :eventHandlerCommandId,
+                    `command_command_id_arg2` = :eventHandlerCommandArgs,
+                    `host_comment` = :comment,
+                    `host_activate` = :isActivated,
+                    `host_locked` = :isLocked,
+                    `host_register` = :hostType
+                WHERE `host_id` = :hostId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':hostId', $hostTemplate->getId(), \PDO::PARAM_INT);
+        $this->bindHostTemplateValues($statement, $hostTemplate);
+
+        $statement->execute();
+    }
+
+    private function updateExtendedInformations(HostTemplate $hostTemplate): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.`extended_host_information`
+                SET
+                    ehi_notes_url = :noteUrl,
+                    ehi_notes = :note,
+                    ehi_action_url = :actionUrl,
+                    ehi_icon_image = :iconId,
+                    ehi_icon_image_alt = :iconAlternative
+                WHERE host_host_id = :hostTemplateId
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':hostTemplateId', $hostTemplate->getId(), \PDO::PARAM_INT);
+        $statement->bindValue(
+            ':noteUrl',
+            $hostTemplate->getNoteUrl() === ''
+                ? null
+                : $this->legacyHtmlEncode($hostTemplate->getNoteUrl()), \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':note',
+            $hostTemplate->getNote() === ''
+                ? null
+                : $this->legacyHtmlEncode($hostTemplate->getNote()), \PDO::PARAM_STR
+        );
+        $statement->bindValue(
+            ':actionUrl',
+            $hostTemplate->getActionUrl() === ''
+                ? null
+                : $this->legacyHtmlEncode($hostTemplate->getActionUrl()), \PDO::PARAM_STR
+        );
+        $statement->bindValue(':iconId', $hostTemplate->getIconId(), \PDO::PARAM_INT);
+        $statement->bindValue(
+            ':iconAlternative',
+            $hostTemplate->getIconAlternative() === ''
+                ? null
+                : $this->legacyHtmlEncode($hostTemplate->getIconAlternative()), \PDO::PARAM_STR
+        );
 
         $statement->execute();
     }
