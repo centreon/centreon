@@ -66,6 +66,8 @@ Requires(pre):  /usr/sbin/groupadd
 Requires(pre):  /usr/sbin/useradd
 Requires(post): /usr/sbin/groupdel
 Requires(post): /usr/sbin/userdel
+Requires:       centreon-broker >= %{thismajor}, centreon-broker < %{nextmajor}
+Requires:       centreon-engine-daemon >= %{thismajor}, centreon-engine-daemon < %{nextmajor}
 
 %description common
 %{COMMIT_HASH}
@@ -495,6 +497,14 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 %{_bindir}/rm -rf %{_localstatedir}/cache/centreon/config/broker %{_localstatedir}/cache/centreon/config/engine %{_localstatedir}/cache/centreon/config/export 2> /dev/null
 %{_bindir}/getent group centreon &>/dev/null || %{_sbindir}/groupadd -r centreon
 %{_bindir}/getent passwd centreon &>/dev/null || %{_sbindir}/useradd -g centreon -m -d %{_localstatedir}/spool/centreon -r centreon 2> /dev/null
+if [ "$(getent passwd centreon-broker)" ]; then
+  %{_bindir}/usermod -a -G centreon-broker centreon
+  %{_bindir}/usermod -a -G centreon centreon-broker
+fi
+if [ "$(getent passwd centreon-engine)" ]; then
+  %{_bindir}/usermod -a -G centreon-engine centreon
+  %{_bindir}/usermod -a -G centreon centreon-engine
+fi
 
 %post common
 #%selinux_modules_install %{_datadir}/selinux/packages/centreon/centreon_common.pp 2>/dev/null || :
@@ -511,6 +521,10 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 if [ "$1" = 0 ]; then
     %{_sbindir}/userdel -r centreon 2> /dev/null
     %{_sbindir}/groupdel centreon
+    %{_sbindir}/deluser centreon centreon-broker || :
+    %{_sbindir}/deluser centreon-broker centreon || :
+    %{_sbindir}/deluser centreon centreon-engine || :
+    %{_sbindir}/deluser centreon-engine centreon || :
 fi
 
 ######################################################
