@@ -38,11 +38,21 @@ $alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT
 
 $modifyUniqueKeyInMetricsTable = function(CentreonDB $pearDBO) {
     $showIndexesStatement = $pearDBO->query(
-        "SHOW INDEXES FROM `metrics` WHERE `Key_name`='index_id' AND `Column_name`='metric_name'"
+        <<<'SQL'
+            SHOW INDEXES FROM `metrics` WHERE `Column_name`='metric_name'
+            SQL
     );
     if ($showIndexesStatement->rowCount() > 0) {
-        $pearDBO->query("ALTER TABLE `metrics` DROP INDEX IF EXISTS `index_id`");
-        $pearDBO->query("ALTER TABLE `metrics` ADD CONSTRAINT `index_id` UNIQUE (`metric_id`, `index_id`)");
+        $pearDBO->query(
+            <<<'SQL'
+                ALTER TABLE `metrics` DROP INDEX IF EXISTS `index_id`
+                SQL
+        );
+        $pearDBO->query(
+            <<<'SQL'
+                ALTER TABLE `metrics` ADD CONSTRAINT `index_id` UNIQUE (`metric_id`, `index_id`)
+                SQL
+        );
     }
 };
 
