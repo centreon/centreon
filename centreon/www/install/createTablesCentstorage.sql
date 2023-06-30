@@ -203,7 +203,7 @@ UNLOCK TABLES;
 CREATE TABLE `metrics` (
   `metric_id` int(11) NOT NULL AUTO_INCREMENT,
   `index_id` BIGINT UNSIGNED DEFAULT NULL,
-  `metric_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `metric_name` varchar(21792) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `data_source_type` enum('0','1','2','3') DEFAULT NULL,
   `unit_name` varchar(32) DEFAULT NULL,
   `current_value` float DEFAULT NULL,
@@ -219,7 +219,7 @@ CREATE TABLE `metrics` (
   `locked` enum('0','1') DEFAULT NULL,
   `to_delete` int(1) DEFAULT '0',
   PRIMARY KEY (`metric_id`),
-  UNIQUE KEY `index_id` (`metric_id`, `index_id`),
+  UNIQUE KEY `index_id` (`index_id`,`metric_name`),
   KEY `index` (`index_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
