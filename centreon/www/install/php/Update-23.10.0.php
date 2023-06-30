@@ -50,7 +50,7 @@ try {
     $pearDBO->query($alterResourceTableStmnt);
 
     $errorMessage = 'Impossible to alter metrics table';
-    $modifyUniqueKeyInMetricsTable($pearDBO);
+    $alterMetricsTable($pearDBO);
 
     $errorMessage = '';
     // Transactional queries
