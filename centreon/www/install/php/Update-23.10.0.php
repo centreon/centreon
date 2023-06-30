@@ -39,7 +39,7 @@ $alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT
 $modifyUniqueKeyInMetricsTable = function(CentreonDB $pearDBO) {
     $showIndexesStatement = $pearDBO->query(
         <<<'SQL'
-            SHOW INDEXES FROM `metrics` WHERE `Column_name`='metric_name'
+            SHOW INDEX FROM `metrics` WHERE `Column_name`='metric_name'
             SQL
     );
     if ($showIndexesStatement->rowCount() > 0) {
