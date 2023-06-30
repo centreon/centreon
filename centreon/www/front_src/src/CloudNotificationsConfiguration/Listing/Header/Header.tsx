@@ -1,5 +1,6 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Box } from '@mui/material';
 
@@ -10,12 +11,14 @@ import {
 } from '../../atom';
 import { DeleteButton } from '../../Actions';
 import { DeleteType } from '../../models';
+import { labelDeleteMultipleNotifications } from '../../translatedLabels';
 
 import Add from './Add';
 import useStyle from './Header.styles';
 
 const Header = (): JSX.Element => {
   const { classes } = useStyle();
+  const { t } = useTranslation();
 
   const selectedRows = useAtomValue(selectedRowsAtom);
   const setDeleteInformations = useSetAtom(deleteNotificationAtom);
@@ -35,7 +38,7 @@ const Header = (): JSX.Element => {
     <Box className={classes.actions}>
       <Add />
       <DeleteButton
-        ariaLabel="delete multiple notifications"
+        ariaLabel={t(labelDeleteMultipleNotifications) as string}
         className={classes.icon}
         disabled={isEmpty(selectedRows)}
         onClick={onClick}

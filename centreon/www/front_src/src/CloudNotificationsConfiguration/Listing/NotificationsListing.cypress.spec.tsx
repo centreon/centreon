@@ -14,6 +14,7 @@ import {
   labelNotificationsSuccessfullyDeleted
 } from '../translatedLabels';
 import { notificationEndpoint } from '../EditPanel/api/endpoints';
+import { ConfirmaDeleteDialog } from '../Actions';
 
 import { buildNotificationsEndpoint } from './api/endpoints';
 import {
@@ -34,7 +35,10 @@ const ListingWithQueryProvider = (): JSX.Element => {
     <Provider store={store}>
       <TestQueryProvider>
         <SnackbarProvider>
-          <Listing />
+          <>
+            <Listing />
+            <ConfirmaDeleteDialog />
+          </>
         </SnackbarProvider>
       </TestQueryProvider>
     </Provider>
@@ -240,7 +244,7 @@ describe('Listing header: Delete button', () => {
     cy.findByText(labelDeleteNotification);
     cy.findByText(labelDeleteNotificationWarning);
     cy.findByText(labelDelete);
-    cy.findByText(labelCancel);
+    cy.findByText(labelCancel).click();
 
     cy.matchImageSnapshot();
   });
@@ -316,6 +320,7 @@ describe('Listing row actions: Delete button', () => {
     cy.findByText(message);
     cy.findByText(labelDeleteNotification);
     cy.findByText(labelDeleteNotificationWarning);
+    cy.findByText(labelCancel).click();
 
     cy.matchImageSnapshot();
   });

@@ -69,3 +69,4 @@ export const labelFailedToDeleteNotifications =
   'Failed to delete the notifications';
 export const labelFailedToDeleteSelectedNotifications =
   'Failed to delete the selected notifications';
+export const labelDeleteMultipleNotifications = 'delete multiple notifications';

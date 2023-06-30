@@ -26,9 +26,11 @@ import {
   labelThisNameAlreadyExists,
   labelDeleteNotification,
   labelDeleteNotificationWarning,
-  labelNotificationSuccessfullyDeleted
+  labelNotificationSuccessfullyDeleted,
+  labelCancel
 } from '../translatedLabels';
 import { notificationsNamesAtom } from '../atom';
+import { ConfirmaDeleteDialog } from '../Actions';
 
 import { notificationEndpoint } from './api/endpoints';
 import { PanelMode } from './models';
@@ -48,7 +50,10 @@ const PanelWithQueryProvider = (): JSX.Element => {
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>
-            <Form />
+            <>
+              <Form />
+              <ConfirmaDeleteDialog />
+            </>
           </SnackbarProvider>
         </TestQueryProvider>
       </Provider>
@@ -451,6 +456,7 @@ describe('Edit Panel: Delete button', () => {
     cy.findByText(message);
     cy.findByText(labelDeleteNotification);
     cy.findByText(labelDeleteNotificationWarning);
+    cy.findByText(labelCancel).click();
 
     cy.matchImageSnapshot();
   });

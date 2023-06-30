@@ -21,6 +21,7 @@ import {
 import {
   labelFailedToDeleteNotification,
   labelFailedToDeleteNotifications,
+  labelFailedToDeleteSelectedNotifications,
   labelNotificationSuccessfullyDeleted,
   labelNotificationsSuccessfullyDeleted
 } from '../translatedLabels';
@@ -55,7 +56,7 @@ const useDeleteRequest = ({
     : deleteMultipleNotificationEndpoint;
   const labelFailed = isSingleItem
     ? labelFailedToDeleteNotification
-    : labelFailedToDeleteNotifications;
+    : labelFailedToDeleteSelectedNotifications;
   const labelSuccess = isSingleItem
     ? labelNotificationSuccessfullyDeleted
     : labelNotificationsSuccessfullyDeleted;
