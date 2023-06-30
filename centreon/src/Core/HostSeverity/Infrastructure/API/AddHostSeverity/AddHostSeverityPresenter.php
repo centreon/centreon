@@ -34,6 +34,8 @@ class AddHostSeverityPresenter extends AbstractPresenter
 {
     use LoggerTrait;
     private const ROUTE_NAME = 'FindHostSeverity';
+    private const ROUTE_HOST_SEVERITY_ID = 'hostSeverityId';
+
 
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
@@ -64,7 +66,7 @@ class AddHostSeverityPresenter extends AbstractPresenter
 
             try {
                 $this->setResponseHeaders([
-                    'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $payload->id]),
+                    'Location' => $this->router->generate(self::ROUTE_NAME, [self::ROUTE_HOST_SEVERITY_ID => $payload->id]),
                 ]);
             } catch (\Throwable $ex) {
                 $this->error('Impossible to generate the location header', [
