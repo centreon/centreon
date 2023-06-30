@@ -21,7 +21,7 @@ const useFormInitialValues = (): UseFormState => {
   const { data, isLoading: loading } = useFetchQuery({
     decoder: notificationdecoder,
     getEndpoint: () => notificationtEndpoint({ id: editedNotificationId }),
-    getQueryKey: () => ['notification'],
+    getQueryKey: () => ['notification', editedNotificationId],
     queryOptions: {
       cacheTime: 0,
       enabled: equals(panelMode, PanelMode.Edit),
