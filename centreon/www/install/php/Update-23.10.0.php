@@ -31,13 +31,13 @@ $removeNagiosPathImg = function(CentreonDB $pearDB) {
         $pearDB->query("DELETE FROM options WHERE `key`='nagios_path_img'");
     }
 };
-
 //Change the type of check_attempt and max_check_attempts columns from table resources
 $errorMessage = "Couldn't modify resources table";
 $alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED, 
     MODIFY max_check_attempts SMALLINT UNSIGNED";
 
 try {
+
     $pearDBO->query($alterResourceTableStmnt);
     $errorMessage = '';
     // Transactional queries

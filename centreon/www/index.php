@@ -108,7 +108,7 @@ if (isset($_GET["autologin"]) && $_GET["autologin"]) {
         $_SESSION["centreon"] = $centreon;
         // saving session data in the DB
         $query = "INSERT INTO `session` (`session_id` , `user_id` , `current_page` , `last_reload`, `ip_address`) "
-        . "VALUES (?, ?, ?, ?, ?)";
+            . "VALUES (?, ?, ?, ?, ?)";
         $dbResult = $pearDB->prepare($query);
         $pearDB->execute(
             $dbResult,
