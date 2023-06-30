@@ -103,6 +103,8 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
   frontend-lint:
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
     runs-on: ubuntu-22.04
 
     steps:
@@ -122,6 +124,8 @@ jobs:
           module_name: centreon-web
 
   frontend-unit-test:
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
     runs-on: ubuntu-22.04
 
     steps:
@@ -145,6 +149,8 @@ jobs:
           path: "centreon/junit.xml"
 
   backend-unit-test:
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
     runs-on: ubuntu-22.04
 
     steps:
@@ -185,7 +191,7 @@ jobs:
         frontend-lint,
         frontend-unit-test,
       ]
-    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
       fail-fast: false
@@ -304,6 +310,7 @@ jobs:
   e2e-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - name: Checkout sources
@@ -342,6 +349,7 @@ jobs:
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -421,7 +429,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
@@ -461,7 +469,7 @@ jobs:
         performances-test,
         legacy-e2e-test,
       ]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
@@ -483,3 +491,32 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+
+  promote:
+    needs: [get-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el7, el8, bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Promote ${{ matrix.distrib }} to stable
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module: web
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          stability: ${{ needs.get-version.outputs.stability }}
+          repository_name: standard
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
