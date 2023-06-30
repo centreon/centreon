@@ -3,8 +3,6 @@ import { useAtomValue } from 'jotai';
 
 import { useFetchQuery } from '@centreon/ui';
 
-import { notificationsAtom } from '../atom';
-
 import { emptyInitialValues, getInitialValues } from './initialValues';
 import { PanelMode } from './models';
 import { notificationtEndpoint } from './api/endpoints';
@@ -19,17 +17,13 @@ interface UseFormState {
 const useFormInitialValues = (): UseFormState => {
   const panelMode = useAtomValue(panelModeAtom);
   const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
-  const notifications = useAtomValue(notificationsAtom);
-
-  const editedNotification = notifications.filter(
-    (item) => item.id === editedNotificationId
-  );
 
   const { data, isLoading: loading } = useFetchQuery({
     decoder: notificationdecoder,
     getEndpoint: () => notificationtEndpoint({ id: editedNotificationId }),
-    getQueryKey: () => ['notification', editedNotification],
+    getQueryKey: () => ['notification'],
     queryOptions: {
+      cacheTime: 0,
       enabled: equals(panelMode, PanelMode.Edit),
       suspense: false
     }
