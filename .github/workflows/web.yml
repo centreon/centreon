@@ -504,7 +504,7 @@ jobs:
       features_path: tests/e2e/cypress/e2e
       major_version: ${{ needs.get-version.outputs.major_version }}
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
-      package_directory: centreon/tests/e2e/cypress/fixtures/rpms
+      package_directory: centreon/tests/e2e/cypress/fixtures/packages
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}

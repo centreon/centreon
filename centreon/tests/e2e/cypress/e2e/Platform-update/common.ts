@@ -172,15 +172,26 @@ EOF`,
 const updatePlatformPackages = (): Cypress.Chainable => {
   return cy
     .copyToContainer({
-      destination: '/tmp/rpms-update-centreon',
-      source: './cypress/fixtures/rpms'
+      destination: '/tmp/packages-update-centreon',
+      source: './cypress/fixtures/packages'
     })
     .getWebVersion()
     .then(({ major_version }) => {
+      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+        return cy.execInContainer({
+          command: `bash -e <<EOF
+          rm -f /tmp/packages-update-centreon/centreon-${major_version}*.rpm /tmp/packages-update-centreon/centreon-central-${major_version}*.rpm
+          dnf install -y /tmp/packages-update-centreon/*.rpm
+EOF`,
+          name: Cypress.env('dockerName')
+        });
+      }
+
       return cy.execInContainer({
         command: `bash -e <<EOF
-        rm -f /tmp/rpms-update-centreon/centreon-${major_version}*.rpm /tmp/rpms-update-centreon/centreon-central-${major_version}*.rpm
-        dnf install -y /tmp/rpms-update-centreon/*.rpm
+        rm -f /tmp/packages-update-centreon/centreon_${major_version}*.deb /tmp/packages-update-centreon/centreon-central_${major_version}*.deb
+        apt-get update
+        apt-get install -y /tmp/debs-centreon/centreon-*.deb
 EOF`,
         name: Cypress.env('dockerName')
       });
@@ -188,12 +199,12 @@ EOF`,
 };
 
 const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
+  const command = Cypress.env('WEB_IMAGE_OS').includes('alma')
+    ? `rpm -qa | grep centreon-web | cut -d '-' -f3`
+    : `apt -qq list centreon-web | awk '{ print \\$2 }' | cut -d '-' -f1`;
+
   return cy
-    .exec(
-      `docker exec -i ${Cypress.env(
-        'dockerName'
-      )} sh -c "rpm -qa |grep centreon-web |cut -d '-' -f3"`
-    )
+    .exec(`docker exec -i ${Cypress.env('dockerName')} sh -c "${command}"`)
     .then(({ stdout }): Cypress.Chainable<null> | null => {
       const isExpected = platformVersion === stdout;
       if (isExpected) {

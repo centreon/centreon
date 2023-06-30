@@ -1,5 +1,5 @@
 node_modules
 cypress/node_modules
 cypress/results
-cypress/fixtures/rpms
+cypress/fixtures/packages
 *.yml
