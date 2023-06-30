@@ -1,17 +1,15 @@
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty } from 'ramda';
 
 import { Box } from '@mui/material';
 
-import { Method } from '@centreon/ui';
-
-import { selectedRowsAtom } from '../../atom';
-import { notificationEndpoint } from '../../EditPanel/api/endpoints';
-import { useDelete, DeleteButton, ConfirmationDialog } from '../../Actions';
 import {
-  labelFailedToDeleteSelectedNotifications,
-  labelNotificationsSuccessfullyDeleted
-} from '../../translatedLabels';
+  deleteNotificationAtom,
+  isDeleteDialogOpenAtom,
+  selectedRowsAtom
+} from '../../atom';
+import { DeleteButton } from '../../Actions';
+import { DeleteType } from '../../models';
 
 import Add from './Add';
 import useStyle from './Header.styles';
@@ -20,19 +18,18 @@ const Header = (): JSX.Element => {
   const { classes } = useStyle();
 
   const selectedRows = useAtomValue(selectedRowsAtom);
-  const getEndpoint = (): string => `${notificationEndpoint({})}/_delete`;
+  const setDeleteInformations = useSetAtom(deleteNotificationAtom);
+  const setIsDeleteDialog = useSetAtom(isDeleteDialogOpenAtom);
 
-  const payload = {
-    ids: selectedRows?.map((notification) => notification.id)
+  const selectedRowsIds = selectedRows?.map((notification) => notification.id);
+
+  const onClick = (): void => {
+    setDeleteInformations({
+      id: selectedRowsIds,
+      type: DeleteType.MultipleItems
+    });
+    setIsDeleteDialog(true);
   };
-
-  const { onClick, dialogOpen, isMutating, onCancel, onConfirm } = useDelete({
-    fetchMethod: Method.POST,
-    getEndpoint,
-    labelFailed: labelFailedToDeleteSelectedNotifications,
-    labelSuccess: labelNotificationsSuccessfullyDeleted,
-    payload
-  });
 
   return (
     <Box className={classes.actions}>
@@ -42,12 +39,6 @@ const Header = (): JSX.Element => {
         className={classes.icon}
         disabled={isEmpty(selectedRows)}
         onClick={onClick}
-      />
-      <ConfirmationDialog
-        dialogOpen={dialogOpen}
-        isMutating={isMutating}
-        onCancel={onCancel}
-        onConfirm={onConfirm}
       />
     </Box>
   );

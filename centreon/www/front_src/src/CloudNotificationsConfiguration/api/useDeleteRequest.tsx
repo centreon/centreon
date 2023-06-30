@@ -5,7 +5,8 @@ import {
   length,
   propEq,
   split,
-  complement
+  complement,
+  equals
 } from 'ramda';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -17,83 +18,105 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
-import { labelFailedToDeleteNotifications } from '../translatedLabels';
-import { notificationEndpoint } from '../EditPanel/api/endpoints';
+import {
+  labelFailedToDeleteNotification,
+  labelFailedToDeleteNotifications,
+  labelNotificationSuccessfullyDeleted,
+  labelNotificationsSuccessfullyDeleted
+} from '../translatedLabels';
+import { DeleteType } from '../models';
+
+import {
+  deleteMultipleNotificationEndpoint,
+  deleteSingleNotificationEndpoint
+} from './endpoints';
 
 interface useDeleteRequestState {
-  isMutating: boolean;
-  onConfirm: () => void;
+  isLoading: boolean;
+  submit: () => void;
 }
 
 const useDeleteRequest = ({
-  fetchMethod = Method.DELETE,
-  getEndpoint = () => notificationEndpoint({}),
-  labelFailed = labelFailedToDeleteNotifications,
-  labelSuccess,
-  onSuccess,
-  payload,
+  closePanel,
   selectedRows,
-  setDialogOpen
+  closeDialog,
+  deleteNotification
 }): useDeleteRequestState => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { showSuccessMessage, showErrorMessage, showWarningMessage } =
     useSnackbar();
 
+  const isSingleItem = equals(deleteNotification.type, DeleteType.SingleItem);
+
+  const fetchMethod = isSingleItem ? Method.DELETE : Method.POST;
+  const endpoint = isSingleItem
+    ? deleteSingleNotificationEndpoint(deleteNotification.id)
+    : deleteMultipleNotificationEndpoint;
+  const labelFailed = isSingleItem
+    ? labelFailedToDeleteNotification
+    : labelFailedToDeleteNotifications;
+  const labelSuccess = isSingleItem
+    ? labelNotificationSuccessfullyDeleted
+    : labelNotificationsSuccessfullyDeleted;
+  const payload = isSingleItem ? {} : { ids: deleteNotification.id };
+
   const { isMutating, mutateAsync } = useMutationQuery({
     defaultFailureMessage: t(labelFailed) as string,
-    getEndpoint,
+    getEndpoint: (): string => endpoint,
     method: fetchMethod
   });
 
-  const onConfirm = (): void => {
-    mutateAsync(payload || {}).then((response) => {
-      const { isError, statusCode, message, data } = response as ResponseError;
+  const submit = (): void => {
+    mutateAsync(payload || {})
+      .then((response) => {
+        const { isError, statusCode, message, data } =
+          response as ResponseError;
 
-      if (isError) {
-        return;
-      }
-
-      if (statusCode === 207) {
-        const successfullResponses = data.filter(propEq('status', 204));
-        const failedResponsesIds = data
-          .filter(complement(propEq('status', 204)))
-          .map((item) => item.href)
-          .map((item) => parseInt(last(split('/', item)) as string, 10));
-
-        if (isEmpty(successfullResponses)) {
-          showErrorMessage(t(labelFailed));
-          setDialogOpen?.(false);
-
+        if (isError) {
           return;
         }
 
-        if (length(successfullResponses) < length(data)) {
-          const failedResponsesName = selectedRows
-            ?.filter((item) => includes(item.id, failedResponsesIds))
-            .map((item) => item.name);
+        if (statusCode === 207) {
+          const successfullResponses = data.filter(propEq('status', 204));
+          const failedResponsesIds = data
+            .filter(complement(propEq('status', 204)))
+            .map((item) => item.href)
+            .map((item) => parseInt(last(split('/', item)) as string, 10));
 
-          showWarningMessage(
-            `${labelFailedToDeleteNotifications}: ${failedResponsesName.join(
-              ', '
-            )}`
-          );
-          setDialogOpen?.(false);
+          if (isEmpty(successfullResponses)) {
+            showErrorMessage(t(labelFailed));
 
-          return;
+            return;
+          }
+
+          if (length(successfullResponses) < length(data)) {
+            const failedResponsesName = selectedRows
+              ?.filter((item) => includes(item.id, failedResponsesIds))
+              .map((item) => item.name);
+
+            showWarningMessage(
+              `${labelFailedToDeleteNotifications}: ${failedResponsesName.join(
+                ', '
+              )}`
+            );
+
+            return;
+          }
         }
-      }
 
-      showSuccessMessage(message || t(labelSuccess));
-      setDialogOpen?.(false);
-      onSuccess?.();
-      queryClient.invalidateQueries(['notifications']);
-    });
+        showSuccessMessage(message || t(labelSuccess));
+        queryClient.invalidateQueries(['notifications']);
+      })
+      .finally(() => {
+        closeDialog();
+        closePanel();
+      });
   };
 
   return {
-    isMutating,
-    onConfirm
+    isLoading: isMutating,
+    submit
   };
 };
 

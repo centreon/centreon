@@ -3,17 +3,11 @@ import { FormikValues, useFormikContext } from 'formik';
 import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
 
-import { Box } from '@mui/material';
-
-import {
-  labelDeleteNotification,
-  labelFailedToDeleteNotification,
-  labelNotificationSuccessfullyDeleted
-} from '../../../translatedLabels';
+import { labelDeleteNotification } from '../../../translatedLabels';
 import { editedNotificationIdAtom } from '../../atom';
-import { notificationEndpoint } from '../../api/endpoints';
-import { ConfirmationDialog, useDelete, DeleteButton } from '../../../Actions';
-import { isPanelOpenAtom } from '../../../atom';
+import { DeleteButton } from '../../../Actions';
+import { deleteNotificationAtom, isDeleteDialogOpenAtom } from '../../../atom';
+import { DeleteType } from '../../../models';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
@@ -27,37 +21,28 @@ const DeleteAction = (): JSX.Element => {
   const { classes } = useStyle();
 
   const notificationId = useAtomValue(editedNotificationIdAtom);
-  const setPanelOpen = useSetAtom(isPanelOpenAtom);
-
-  const getEndpoint = (): string =>
-    notificationEndpoint({ id: notificationId });
+  const setDeleteInformations = useSetAtom(deleteNotificationAtom);
+  const setIsDeleteDialog = useSetAtom(isDeleteDialogOpenAtom);
 
   const {
     values: { name }
   } = useFormikContext<FormikValues>();
 
-  const { onClick, dialogOpen, isMutating, onCancel, onConfirm } = useDelete({
-    getEndpoint,
-    labelFailed: labelFailedToDeleteNotification,
-    labelSuccess: labelNotificationSuccessfullyDeleted,
-    onSuccess: () => setPanelOpen(false)
-  });
+  const onClick = (): void => {
+    setDeleteInformations({
+      id: notificationId as number,
+      name,
+      type: DeleteType.SingleItem
+    });
+    setIsDeleteDialog(true);
+  };
 
   return (
-    <Box>
-      <DeleteButton
-        ariaLabel={t(labelDeleteNotification) as string}
-        iconClassName={classes.icon}
-        onClick={onClick}
-      />
-      <ConfirmationDialog
-        dialogOpen={dialogOpen}
-        isMutating={isMutating}
-        notificationName={name}
-        onCancel={onCancel}
-        onConfirm={onConfirm}
-      />
-    </Box>
+    <DeleteButton
+      ariaLabel={t(labelDeleteNotification) as string}
+      iconClassName={classes.icon}
+      onClick={onClick}
+    />
   );
 };
 

@@ -1,60 +1,46 @@
-import { useState } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
-import { useAtomValue } from 'jotai';
-
-import { Method } from '@centreon/ui';
-
-import { selectedRowsAtom } from '../atom';
+import {
+  deleteNotificationAtom,
+  isDeleteDialogOpenAtom,
+  isPanelOpenAtom,
+  selectedRowsAtom
+} from '../atom';
 import useDeleteRequest from '../api/useDeleteRequest';
 
-interface UseDeleteProps {
-  fetchMethod?: Method;
-  getEndpoint?: () => string;
-  labelFailed?: string;
-  labelSuccess?: string;
-  onSuccess?: () => void;
-  payload?: { ids: Array<number | string> };
-}
-
 interface UseDeleteState {
-  dialogOpen: boolean;
-  isMutating: boolean;
-  onCancel: () => void;
-  onClick: () => void;
-  onConfirm: () => void;
+  closeDialog: () => void;
+  isDialogOpen: boolean;
+  isLoading: boolean;
+  notificationName?: string;
+  openDialog: () => void;
+  submit: () => void;
 }
 
-const useDelete = ({
-  getEndpoint,
-  onSuccess,
-  labelSuccess,
-  labelFailed,
-  fetchMethod,
-  payload
-}: UseDeleteProps): UseDeleteState => {
-  const [dialogOpen, setDialogOpen] = useState(false);
+const useDelete = (): UseDeleteState => {
+  const [isDialogOpen, setIsDialogOpen] = useAtom(isDeleteDialogOpenAtom);
   const selectedRows = useAtomValue(selectedRowsAtom);
+  const deleteNotification = useAtomValue(deleteNotificationAtom);
+  const setIsPanelOpen = useSetAtom(isPanelOpenAtom);
 
-  const { onConfirm, isMutating } = useDeleteRequest({
-    fetchMethod,
-    getEndpoint,
-    labelFailed,
-    labelSuccess,
-    onSuccess,
-    payload,
-    selectedRows,
-    setDialogOpen
+  const openDialog = (): void => setIsDialogOpen(true);
+  const closeDialog = (): void => setIsDialogOpen(false);
+  const closePanel = (): void => setIsPanelOpen(false);
+
+  const { submit, isLoading } = useDeleteRequest({
+    closeDialog,
+    closePanel,
+    deleteNotification,
+    selectedRows
   });
 
-  const onClick = (): void => setDialogOpen(true);
-  const onCancel = (): void => setDialogOpen(false);
-
   return {
-    dialogOpen,
-    isMutating,
-    onCancel,
-    onClick,
-    onConfirm
+    closeDialog,
+    isDialogOpen,
+    isLoading,
+    notificationName: deleteNotification?.name,
+    openDialog,
+    submit
   };
 };
 

@@ -1,16 +1,14 @@
 import { useTranslation } from 'react-i18next';
+import { useSetAtom } from 'jotai';
 
 import { Box } from '@mui/material';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import { ConfirmationDialog, DeleteButton, useDelete } from '../../Actions';
-import { notificationEndpoint } from '../../EditPanel/api/endpoints';
-import {
-  labelDeleteNotification,
-  labelFailedToDeleteNotification,
-  labelNotificationSuccessfullyDeleted
-} from '../../translatedLabels';
+import { DeleteButton } from '../../Actions';
+import { labelDeleteNotification } from '../../translatedLabels';
+import { deleteNotificationAtom, isDeleteDialogOpenAtom } from '../../atom';
+import { DeleteType } from '../../models';
 
 import Duplicate from './Duplicate';
 import useStyles from './Actions.styles';
@@ -18,13 +16,17 @@ import useStyles from './Actions.styles';
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const getEndpoint = (): string => notificationEndpoint({ id: row.id });
+  const setDeleteInformations = useSetAtom(deleteNotificationAtom);
+  const setIsDeleteDialog = useSetAtom(isDeleteDialogOpenAtom);
 
-  const { onClick, dialogOpen, isMutating, onCancel, onConfirm } = useDelete({
-    getEndpoint,
-    labelFailed: labelFailedToDeleteNotification,
-    labelSuccess: labelNotificationSuccessfullyDeleted
-  });
+  const onClick = (): void => {
+    setDeleteInformations({
+      id: row.id,
+      name: row.name,
+      type: DeleteType.SingleItem
+    });
+    setIsDeleteDialog(true);
+  };
 
   return (
     <Box className={classes.actions}>
@@ -34,13 +36,6 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
         onClick={onClick}
       />
       <Duplicate row={row} />
-      <ConfirmationDialog
-        dialogOpen={dialogOpen}
-        isMutating={isMutating}
-        notificationName={row.name}
-        onCancel={onCancel}
-        onConfirm={onConfirm}
-      />
     </Box>
   );
 };

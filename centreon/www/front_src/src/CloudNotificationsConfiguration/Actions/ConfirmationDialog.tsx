@@ -12,6 +12,8 @@ import {
   labelDeleteNotificationWarning
 } from '../translatedLabels';
 
+import { useDelete } from '.';
+
 const useStyles = makeStyles()((theme) => ({
   confirmButtons: {
     '&:hover': {
@@ -25,27 +27,16 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-interface DialogProps {
-  dialogOpen: boolean;
-  isMutating: boolean;
-  notificationName?: string;
-  onCancel: () => void;
-  onConfirm: () => void;
-}
-
-const ConfirmationDialog = ({
-  notificationName,
-  dialogOpen,
-  isMutating,
-  onCancel,
-  onConfirm
-}: DialogProps): JSX.Element => {
+const ConfirmationDialog = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
+  const { closeDialog, isDialogOpen, isLoading, submit, notificationName } =
+    useDelete();
+
   return (
     <ConfirmDialog
-      confirmDisabled={isMutating}
+      confirmDisabled={isLoading}
       dialogConfirmButtonClassName={classes.confirmButtons}
       dialogPaperClassName={classes.paper}
       labelCancel={t(labelCancel)}
@@ -55,10 +46,10 @@ const ConfirmationDialog = ({
       }
       labelSecondMessage={t(labelDeleteNotificationWarning)}
       labelTitle={t(labelDeleteNotification)}
-      open={dialogOpen}
-      submitting={isMutating}
-      onCancel={onCancel}
-      onConfirm={onConfirm}
+      open={isDialogOpen}
+      submitting={isLoading}
+      onCancel={closeDialog}
+      onConfirm={submit}
     />
   );
 };
