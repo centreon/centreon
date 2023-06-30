@@ -91,8 +91,6 @@ EOF`,
         apt-get install -y centreon-web-apache=${version}-${Cypress.env(
         'WEB_IMAGE_OS'
       )} centreon-poller=${version}-${Cypress.env('WEB_IMAGE_OS')}
-        #mkdir /usr/share/centreon-engine
-        #mkdir /usr/lib/centreon-connector
         echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
         sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql
         service mysql start
