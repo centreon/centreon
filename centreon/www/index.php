@@ -106,6 +106,14 @@ if (isset($_GET["autologin"]) && $_GET["autologin"]) {
         // security fix - regenerate the sid after the login to prevent session fixation
         session_regenerate_id(true);
         $_SESSION["centreon"] = $centreon;
+        // saving session data in the DB
+        $query = "INSERT INTO `session` (`session_id` , `user_id` , `current_page` , `last_reload`, `ip_address`) "
+        . "VALUES (?, ?, ?, ?, ?)";
+        $dbResult = $pearDB->prepare($query);
+        $pearDB->execute(
+            $dbResult,
+            [session_id(), $centreon->user->user_id, '1', time(), $_SERVER["REMOTE_ADDR"]]
+        );
 
         // saving session token in security_token
         $expirationSessionDelay = 120;
@@ -151,15 +159,6 @@ if (isset($_GET["autologin"]) && $_GET["autologin"]) {
         );
         $securityAuthenticationTokenStatement->bindValue(':userId', $centreon->user->user_id, \PDO::PARAM_INT);
         $securityAuthenticationTokenStatement->execute();
-
-        // saving session data in the DB
-        $query = "INSERT INTO `session` (`session_id` , `user_id` , `current_page` , `last_reload`, `ip_address`) "
-        . "VALUES (?, ?, ?, ?, ?)";
-        $dbResult = $pearDB->prepare($query);
-        $pearDB->execute(
-            $dbResult,
-            [session_id(), $centreon->user->user_id, '1', time(), $_SERVER["REMOTE_ADDR"]]
-        );
 
         manageRedirection($centreon, $pearDB);
         return;

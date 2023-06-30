@@ -312,6 +312,7 @@ class WebSSOAuthenticator extends AbstractAuthenticator
         }
         try {
             $session = new Session($sessionToken, $contact->getId(), $clientIp);
+            $this->sessionRepository->addSession($session);
             $this->writeTokenRepository->createAuthenticationTokens(
                 $sessionToken,
                 $providerToken->getId(),
@@ -319,7 +320,6 @@ class WebSSOAuthenticator extends AbstractAuthenticator
                 $providerToken,
                 $providerRefreshToken
             );
-            $this->sessionRepository->addSession($session);
             if (!$isAlreadyInTransaction) {
                 $this->dataStorageEngine->commitTransaction();
             }

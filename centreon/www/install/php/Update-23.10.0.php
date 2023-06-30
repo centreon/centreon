@@ -32,42 +32,14 @@ $removeNagiosPathImg = function(CentreonDB $pearDB) {
     }
 };
 
-$alterTableSession = function(CentreonDB $pearDB) use(&$errorMessage) {
-    $constraintExistStatement = $pearDB->query(
-        <<<SQL
-            SELECT 1  from INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-            WHERE TABLE_NAME="session" AND CONSTRAINT_NAME="token_id_fk_1"
-        SQL
-    );
-    if ($constraintExistStatement->fetch() !== false) {
-        $errorMessage = "Unable to delete entries from session table";
-        $pearDB->query("DELETE FROM session");
-
-        $errorMessage = "Unable to delete entries from security_token table";
-        $pearDB->query("DELETE FROM security_token");
-
-        $errorMessage = "Unable to delete entries from security_token table";
-        $pearDB->query(
-            <<<SQL
-                ALTER TABLE session
-                ADD CONSTRAINT `token_id_fk` FOREIGN KEY (`session_id`)
-                    REFERENCES `security_authentication_tokens` (`token`) ON DELETE CASCADE
-            SQL
-        );
-    }
-};
-
-
 //Change the type of check_attempt and max_check_attempts columns from table resources
+$errorMessage = "Couldn't modify resources table";
 $alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED, 
     MODIFY max_check_attempts SMALLINT UNSIGNED";
 
 try {
-    $errorMessage = "Couldn't modify resources table";
     $pearDBO->query($alterResourceTableStmnt);
-
-    $alterTableSession($pearDB);
-
+    $errorMessage = '';
     // Transactional queries
     if (! $pearDB->inTransaction()) {
         $pearDB->beginTransaction();

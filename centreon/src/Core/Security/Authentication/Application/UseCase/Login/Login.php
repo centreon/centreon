@@ -172,6 +172,7 @@ final class Login
 
         try {
             $session = new Session($sessionToken, $contact->getId(), $clientIp);
+            $this->writeSessionTokenRepository->createSession($session);
             $this->writeTokenRepository->createAuthenticationTokens(
                 $sessionToken,
                 $this->provider->getConfiguration()->getId(),
@@ -179,7 +180,6 @@ final class Login
                 $providerToken,
                 $providerRefreshToken
             );
-            $this->writeSessionTokenRepository->createSession($session);
             if (!$isAlreadyInTransaction) {
                 $this->dataStorageEngine->commitTransaction();
             }
