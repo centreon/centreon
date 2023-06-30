@@ -18,30 +18,50 @@ const checkIfSystemUserRoot = (): Cypress.Chainable => {
 const getCentreonStableMinorVersions = (
   majorVersion: string
 ): Cypress.Chainable => {
-  return cy
-    .execInContainer({
-      command: `bash -e <<EOF
-        dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
+  let commandResult;
+  if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+    commandResult = cy
+      .execInContainer({
+        command: `bash -e <<EOF
+          dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
 EOF`,
-      name: Cypress.env('dockerName')
-    })
-    .exec(
-      `docker exec -i ${Cypress.env(
-        'dockerName'
-      )} sh -c "dnf --showduplicates list centreon-web | grep centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }' | tr '\n' ' '"`
-    )
-    .then(({ stdout }): Cypress.Chainable<Array<number>> => {
-      const stableVersions: Array<number> = [];
+        name: Cypress.env('dockerName')
+      })
+      .exec(
+        `docker exec -i ${Cypress.env(
+          'dockerName'
+        )} sh -c "dnf --showduplicates list centreon-web | grep centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }' | tr '\n' ' '"`
+      );
+  } else {
+    commandResult = cy
+      .execInContainer({
+        command: `bash -e <<EOF
+          #mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak
+          #mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak
+          apt-get update
+EOF`,
+        name: Cypress.env('dockerName')
+      })
+      .exec(
+        `docker exec -i ${Cypress.env(
+          'dockerName'
+        )} sh -c "apt list -a centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }'"`
+      );
+  }
 
-      const versionsRegex = /\d+\.\d+\.(\d+)/g;
+  return commandResult.then(({ stdout }): Cypress.Chainable<Array<number>> => {
+    cy.log(stdout);
+    const stableVersions: Array<number> = [];
 
-      [...stdout.matchAll(versionsRegex)].forEach((result) => {
-        cy.log(`available version found : ${majorVersion}.${result[1]}`);
-        stableVersions.push(Number(result[1]));
-      });
+    const versionsRegex = /\d+\.\d+\.(\d+)/g;
 
-      return cy.wrap([...new Set(stableVersions)].sort((a, b) => a - b)); // remove duplicates and order
+    [...stdout.matchAll(versionsRegex)].forEach((result) => {
+      cy.log(`available version found : ${majorVersion}.${result[1]}`);
+      stableVersions.push(Number(result[1]));
     });
+
+    return cy.wrap([...new Set(stableVersions)].sort((a, b) => a - b)); // remove duplicates and order
+  });
 };
 
 const installCentreon = (version: string): Cypress.Chainable => {
@@ -56,8 +76,8 @@ const installCentreon = (version: string): Cypress.Chainable => {
         echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
         /etc/init.d/mysql start
         mkdir -p /run/php-fpm
-        /usr/sbin/php-fpm
-        httpd -k start
+        systemctl start php-fpm
+        systemctl start httpd
         mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 EOF`,
       name: Cypress.env('dockerName')
@@ -65,14 +85,18 @@ EOF`,
   } else {
     cy.execInContainer({
       command: `bash -e <<EOF
-        mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak
+        #mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak
+        #mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak
         apt-get update
-        apt-get install -y centreon-web-${version}
+        apt-get install -y centreon-web-apache=${version}-${Cypress.env(
+        'WEB_IMAGE_OS'
+      )} centreon-poller=${version}-${Cypress.env('WEB_IMAGE_OS')}
         echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
+        sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql
         service mysql start
         mkdir -p /run/php
-        /usr/sbin/php-fpm8.1
-        apache2ctl start
+        systemctl start php8.1-fpm
+        systemctl start apache2
         mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
 EOF`,
       name: Cypress.env('dockerName')
