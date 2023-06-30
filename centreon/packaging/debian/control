@@ -162,6 +162,10 @@ Description: This packages contains Centreon Perl libraries.
 
 Package: centreon-common
 Depends:
+    centreon-broker (>= ${centreon:version}~),
+    centreon-broker (<< ${centreon:versionThreshold}~),
+    centreon-engine-daemon (>= ${centreon:version}~),
+    centreon-engine-daemon (<< ${centreon:versionThreshold}~),
     ${misc:Depends},
     sudo
 Architecture: all
