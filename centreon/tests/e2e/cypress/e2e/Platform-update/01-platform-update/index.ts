@@ -25,6 +25,50 @@ beforeEach(() => {
       url: '/centreon/include/common/userTimezone.php'
     }).as('getTimeZone');
 
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+    }).as('getLastestUserFilters');
+
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/install/step_upgrade/step1.php'
+    }).as('getStep1');
+
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/install/step_upgrade/step2.php'
+    }).as('getStep2');
+
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/install/step_upgrade/step3.php'
+    }).as('getStep3');
+
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/install/step_upgrade/step4.php'
+    }).as('getStep4');
+
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/install/step_upgrade/step5.php'
+    }).as('getStep5');
+
+    cy.intercept({
+      method: 'POST',
+      url: '/centreon/install/steps/process/generationCache.php'
+    }).as('generatingCache');
+
+    cy.intercept('/centreon/api/latest/monitoring/resources*').as(
+      'monitoringEndpoint'
+    );
+
+    cy.intercept({
+      method: 'GET',
+      url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+    }).as('generateAndReloadPollers');
+
     return cy
       .startContainer({
         image: `docker.centreon.com/centreon/centreon-web-dependencies-${Cypress.env(
@@ -49,52 +93,6 @@ beforeEach(() => {
           .visit('/waiting-page');
       });
   });
-});
-
-beforeEach(() => {
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
-
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/install/step_upgrade/step1.php'
-  }).as('getStep1');
-
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/install/step_upgrade/step2.php'
-  }).as('getStep2');
-
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/install/step_upgrade/step3.php'
-  }).as('getStep3');
-
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/install/step_upgrade/step4.php'
-  }).as('getStep4');
-
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/install/step_upgrade/step5.php'
-  }).as('getStep5');
-
-  cy.intercept({
-    method: 'POST',
-    url: '/centreon/install/steps/process/generationCache.php'
-  }).as('generatingCache');
-
-  cy.intercept('/centreon/api/latest/monitoring/resources*').as(
-    'monitoringEndpoint'
-  );
-
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
-  }).as('generateAndReloadPollers');
 });
 
 Given(
@@ -217,14 +215,12 @@ Then(
 
     cy.loginByTypeOfUser({
       jsonName: 'admin'
-    });
+    }).wait('@getLastestUserFilters');
 
     cy.url().should('include', '/monitoring/resources');
 
-    cy.get('[aria-label="State filter"]')
-      .click()
-      .get('[data-value="all"]')
-      .click();
+    cy.get('[aria-label="State filter"]').click();
+    cy.get('[data-value="all"]').click();
 
     cy.waitUntil(
       () => {
