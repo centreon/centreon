@@ -24,7 +24,7 @@ jobs:
           display_token_usage () {
             echo "current token usage :"
             curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit | jq .rate
-            echo "\n"
+            echo ""
           }
 
           display_token_usage
