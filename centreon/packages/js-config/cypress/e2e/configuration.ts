@@ -47,6 +47,7 @@ export default ({
     },
     execTimeout: 60000,
     experimentalMemoryManagement: true,
+    numTestsKeptInMemory: 1,
     reporter: 'mochawesome',
     reporterOptions: {
       html: false,

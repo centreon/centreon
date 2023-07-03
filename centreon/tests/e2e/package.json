@@ -19,7 +19,7 @@
     "@types/cypress-cucumber-preprocessor": "^4.0.1",
     "@types/dockerode": "^3.3.16",
     "@types/node": "^14.14.44",
-    "cypress": "^12.13.0",
+    "cypress": "^12.16.0",
     "cypress-wait-until": "^1.7.2",
     "dockerode": "^3.3.5",
     "mochawesome": "^7.1.3",
