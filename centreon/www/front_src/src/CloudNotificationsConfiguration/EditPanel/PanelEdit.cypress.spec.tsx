@@ -30,7 +30,7 @@ import {
   labelCancel
 } from '../translatedLabels';
 import { notificationsNamesAtom } from '../atom';
-import { ConfirmaDeleteDialog } from '../Actions';
+import { DeleteConfirmationDialog } from '../Actions';
 
 import { notificationEndpoint } from './api/endpoints';
 import { PanelMode } from './models';
@@ -52,7 +52,7 @@ const PanelWithQueryProvider = (): JSX.Element => {
           <SnackbarProvider>
             <>
               <Form />
-              <ConfirmaDeleteDialog />
+              <DeleteConfirmationDialog />
             </>
           </SnackbarProvider>
         </TestQueryProvider>

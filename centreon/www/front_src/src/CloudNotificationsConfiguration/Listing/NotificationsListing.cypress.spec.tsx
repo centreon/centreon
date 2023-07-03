@@ -14,7 +14,7 @@ import {
   labelNotificationsSuccessfullyDeleted
 } from '../translatedLabels';
 import { notificationEndpoint } from '../EditPanel/api/endpoints';
-import { ConfirmaDeleteDialog } from '../Actions';
+import { DeleteConfirmationDialog } from '../Actions';
 
 import { buildNotificationsEndpoint } from './api/endpoints';
 import {
@@ -37,7 +37,7 @@ const ListingWithQueryProvider = (): JSX.Element => {
         <SnackbarProvider>
           <>
             <Listing />
-            <ConfirmaDeleteDialog />
+            <DeleteConfirmationDialog />
           </>
         </SnackbarProvider>
       </TestQueryProvider>
