@@ -69,6 +69,10 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/acknowledge'
   }).as('postAcknowledgments');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_performance_service&action=list&q=*&page_limit=20&page=1'
+  }).as('getCharts');
 });
 
 Given('a user authenticated in a Centreon server', () => {
@@ -442,7 +446,11 @@ When('the user opens a chart from Monitoring>Performances>Graphs', () => {
 });
 
 When('the user selects a chart', () => {
+  cy.reload().wait('@getTimeZone');
+
   cy.getIframeBody().find('.select2-search__field').eq(0).type('Ping');
+
+  cy.wait('@getCharts');
 
   cy.getIframeBody()
     .find('ul[id="select2-select-chart-results"] li')
