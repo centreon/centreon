@@ -70,5 +70,3 @@ jobs:
           echo "Timeout : some jobs are still in progress"
           exit 1
         shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
