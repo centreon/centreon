@@ -188,11 +188,33 @@ foreach (
     );
 }
 
+foreach (
+    [
+        'name',
+        'alias',
+    ] as $field
+) {
+    it("should throw an exception when host template {$field} is set to an empty string", function () use ($field): void {
+        $hostTemplate = ($this->createHostTemplate)();
+        $hostTemplate->{'set' . $field}('');
+    })->throws(
+        InvalidArgumentException::class,
+        AssertionException::notEmptyString("HostTemplate::{$field}")->getMessage()
+    );
+}
+
 // name and conmmands args should be formated
 it("should return trimmed and formatted field name after construct", function (): void {
     $hostTemplate = new HostTemplate(1, '    host template name   ', 'alias');
 
     expect($hostTemplate->getName())->toBe('host_template_name');
+});
+
+it("should trimm and format field name when set", function (): void {
+    $hostTemplate = ($this->createHostTemplate)();
+    $hostTemplate->setName('    some new name   ');
+
+    expect($hostTemplate->getName())->toBe('some_new_name');
 });
 
 foreach (
@@ -208,6 +230,23 @@ foreach (
             $valueFromGetter = $hostTemplate->{'get' . $field}();
 
             expect($valueFromGetter)->toBe(['arg1', 'arg2']);
+        }
+    );
+}
+
+foreach (
+    [
+        'checkCommandArgs',
+        'eventHandlerCommandArgs',
+    ] as $field
+) {
+    it(
+        "should set a trimmed field {$field}",
+        function () use ($field): void {
+            $hostTemplate = ($this->createHostTemplate)();
+            $hostTemplate->{'set' . $field}(["  arg1  ", "  arg2  "]);
+
+            expect($hostTemplate->{'get' . $field}())->toBe(['arg1', 'arg2']);
         }
     );
 }
@@ -236,6 +275,29 @@ foreach (
     );
 }
 
+foreach (
+    [
+        'name',
+        'alias',
+        'snmpCommunity',
+        'noteUrl',
+        'note',
+        'actionUrl',
+        'iconAlternative',
+        'comment',
+    ] as $field
+) {
+    it(
+        "should set a trimmed field {$field}",
+        function () use ($field): void {
+            $hostTemplate = ($this->createHostTemplate)();
+            $hostTemplate->{'set' . $field}('  abcd ');
+
+            expect($hostTemplate->{'get' . $field}())->toBe('abcd');
+        }
+    );
+}
+
 // too long fields
 foreach (
     [
@@ -256,6 +318,31 @@ foreach (
     )->throws(
         InvalidArgumentException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "HostTemplate::{$field}")->getMessage()
+    );
+}
+
+foreach (
+    [
+        'name' => HostTemplate::MAX_NAME_LENGTH,
+        'alias' => HostTemplate::MAX_ALIAS_LENGTH,
+        'snmpCommunity' => HostTemplate::MAX_SNMP_COMMUNITY_LENGTH,
+        'noteUrl' => HostTemplate::MAX_NOTE_URL_LENGTH,
+        'note' => HostTemplate::MAX_NOTE_LENGTH,
+        'actionUrl' => HostTemplate::MAX_ACTION_URL_LENGTH,
+        'iconAlternative' => HostTemplate::MAX_ICON_ALT_LENGTH,
+        'comment' => HostTemplate::MAX_COMMENT_LENGTH,
+    ] as $field => $length
+) {
+    $tooLongStr = str_repeat('a', $length + 1);
+    it(
+        "should throw an exception when host template {$field} is set too long",
+        function () use ($field, $tooLongStr) {
+            $hostTemplate = ($this->createHostTemplate)();
+            $hostTemplate->{'set' . $field}($tooLongStr);
+        }
+    )->throws(
+        InvalidArgumentException::class,
+        AssertionException::maxLength($tooLongStr, $length + 1, $length, "HostTemplate::{$field}")->getMessage()
     );
 }
 
@@ -280,6 +367,29 @@ foreach (
     );
 }
 
+foreach (
+    [
+        'timezoneId',
+        'severityId',
+        'checkCommandId',
+        'checkTimeperiodId',
+        'notificationTimeperiodId',
+        'eventHandlerCommandId',
+        'iconId',
+    ] as $field
+) {
+    it(
+        "should throw an exception when host template {$field} set value is not > 0",
+        function() use ($field): void {
+            $hostTemplate = ($this->createHostTemplate)();
+            $hostTemplate->{'set' . $field}(0);
+        }
+    )->throws(
+        InvalidArgumentException::class,
+        AssertionException::positiveInt(0, "HostTemplate::{$field}")->getMessage()
+    );
+}
+
 // integer >= 0 field
 foreach (
     [
@@ -298,6 +408,32 @@ foreach (
     it(
         "should throw an exception when host template {$field} is not >= 0",
         fn() => ($this->createHostTemplate)([$field => -1])
+    )->throws(
+        InvalidArgumentException::class,
+        AssertionException::min(-1, 0, "HostTemplate::{$field}")->getMessage()
+    );
+}
+
+foreach (
+    [
+        'maxCheckAttempts',
+        'normalCheckInterval',
+        'retryCheckInterval',
+        'notificationInterval',
+        'firstNotificationDelay',
+        'recoveryNotificationDelay',
+        'acknowledgementTimeout',
+        'freshnessThreshold',
+        'lowFlapThreshold',
+        'highFlapThreshold',
+    ] as $field
+) {
+    it(
+        "should throw an exception when host template {$field} set value is not >= 0",
+        function() use ($field): void {
+            $hostTemplate = ($this->createHostTemplate)();
+            $hostTemplate->{'set' . $field}(-1);
+        }
     )->throws(
         InvalidArgumentException::class,
         AssertionException::min(-1, 0, "HostTemplate::{$field}")->getMessage()

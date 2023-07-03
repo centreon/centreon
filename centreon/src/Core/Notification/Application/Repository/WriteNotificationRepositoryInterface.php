@@ -62,9 +62,29 @@ interface WriteNotificationRepositoryInterface
     public function addUsers(int $notificationId, array $userIds): void;
 
     /**
-     * Update a notification configuration.
+     * Update notification.
      *
      * @param Notification $notification
+     *
+     * @throws \Throwable
      */
     public function update(Notification $notification): void;
+
+    /**
+     * delete all the messages of a notification.
+     *
+     * @param int $notificationId
+     *
+     * @throws \Throwable
+     */
+    public function deleteMessages(int $notificationId): void;
+
+    /**
+     * delete all the users of a notification.
+     *
+     * @param int $notificationId
+     *
+     * @throws \Throwable
+     */
+    public function deleteUsers(int $notificationId): void;
 }
