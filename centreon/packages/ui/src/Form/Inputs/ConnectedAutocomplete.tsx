@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
 import { equals, isEmpty, path, split } from 'ramda';
@@ -11,12 +11,7 @@ import {
 } from '../..';
 import MultiConnectedAutocompleteField from '../../InputField/Select/Autocomplete/Connected/Multi';
 
-import {
-  AutoCompleteChangeData,
-  InputPropsWithoutGroup,
-  InputType,
-  Reason
-} from './models';
+import { InputPropsWithoutGroup, InputType } from './models';
 
 const defaultFilterKey = 'name';
 
