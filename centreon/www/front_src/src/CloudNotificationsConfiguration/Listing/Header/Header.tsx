@@ -1,15 +1,11 @@
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Box } from '@mui/material';
 
-import {
-  deleteNotificationAtom,
-  isDeleteDialogOpenAtom,
-  selectedRowsAtom
-} from '../../atom';
-import { DeleteButton } from '../../Actions';
+import { selectedRowsAtom } from '../../atom';
+import { DeleteButton, useDelete } from '../../Actions';
 import { DeleteType } from '../../models';
 import { labelDeleteMultipleNotifications } from '../../translatedLabels';
 
@@ -21,17 +17,15 @@ const Header = (): JSX.Element => {
   const { t } = useTranslation();
 
   const selectedRows = useAtomValue(selectedRowsAtom);
-  const setDeleteInformations = useSetAtom(deleteNotificationAtom);
-  const setIsDeleteDialog = useSetAtom(isDeleteDialogOpenAtom);
+  const { deleteItems } = useDelete();
 
   const selectedRowsIds = selectedRows?.map((notification) => notification.id);
 
   const onClick = (): void => {
-    setDeleteInformations({
+    deleteItems({
       id: selectedRowsIds,
       type: DeleteType.MultipleItems
     });
-    setIsDeleteDialog(true);
   };
 
   return (

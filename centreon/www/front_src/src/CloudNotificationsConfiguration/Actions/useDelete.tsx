@@ -7,9 +7,11 @@ import {
   selectedRowsAtom
 } from '../atom';
 import useDeleteRequest from '../api/useDeleteRequest';
+import { DeleteNotificationType } from '../models';
 
 interface UseDeleteState {
   closeDialog: () => void;
+  deleteItems: ({ id, name, type }: DeleteNotificationType) => void;
   isDialogOpen: boolean;
   isLoading: boolean;
   notificationName?: string;
@@ -19,13 +21,24 @@ interface UseDeleteState {
 
 const useDelete = (): UseDeleteState => {
   const [isDialogOpen, setIsDialogOpen] = useAtom(isDeleteDialogOpenAtom);
+  const [deleteNotification, setDeleteInformations] = useAtom(
+    deleteNotificationAtom
+  );
   const selectedRows = useAtomValue(selectedRowsAtom);
-  const deleteNotification = useAtomValue(deleteNotificationAtom);
   const setIsPanelOpen = useSetAtom(isPanelOpenAtom);
 
   const openDialog = (): void => setIsDialogOpen(true);
   const closeDialog = (): void => setIsDialogOpen(false);
   const closePanel = (): void => setIsPanelOpen(false);
+
+  const deleteItems = ({ id, name, type }: DeleteNotificationType): void => {
+    setDeleteInformations({
+      id,
+      name,
+      type
+    });
+    setIsDialogOpen(true);
+  };
 
   const { submit, isLoading } = useDeleteRequest({
     closeDialog,
@@ -36,6 +49,7 @@ const useDelete = (): UseDeleteState => {
 
   return {
     closeDialog,
+    deleteItems,
     isDialogOpen,
     isLoading,
     notificationName: deleteNotification?.name,
