@@ -14,7 +14,7 @@ const listNotificationResponse = {
     {
       events: 3,
       extra: {
-        events_services: 3
+        event_services: 3
       },
       ids: [
         {
