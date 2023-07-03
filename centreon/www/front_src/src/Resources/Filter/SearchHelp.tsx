@@ -6,7 +6,7 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Link, Box, Typography } from '@mui/material';
 
-import { PersistentTooltip } from '@centreon/ui';
+import { PersistentTooltip, getDocsURL } from '@centreon/ui';
 
 import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
 import {
@@ -36,8 +36,11 @@ const SearchHelp = (): JSX.Element => {
 
   const [openTooltip, setOpenTooltip] = useState(false);
   const platform = useAtomValue(platformVersionsAtom);
-
-  const docsURL = `https://docs.centreon.com/docs/${platform?.web.major}.${platform?.web.minor}/alerts-notifications/resources-status/#search-bar`;
+  const docsURL = getDocsURL({
+    isCloudPlatform: platform?.isCloudPlatform || false,
+    majorVersion: platform?.web.major || '',
+    minorVersion: platform?.web.minor || ''
+  });
 
   return (
     <PersistentTooltip
