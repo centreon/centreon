@@ -67,9 +67,9 @@ class NotificationValidator
      *
      * @param int[] $userIds
      * @param ContactRepositoryInterface $contactRepository
-     * @return \Throwable|NotificationException
+     * @throws \Throwable|NotificationException
      */
-    private function validateUsers(array $userIds, ContactRepositoryInterface $contactRepository)
+    private function validateUsers(array $userIds, ContactRepositoryInterface $contactRepository): void
     {
         $userIds = array_unique($userIds);
 
@@ -93,13 +93,13 @@ class NotificationValidator
      *
      * @param int[] $contactGroupIds
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
-     * @return void
+     * @throws \Throwable|NotificationException
      */
     private function validateContactGroups(
         array $contactGroupIds,
         ReadContactGroupRepositoryInterface $contactGroupRepository,
         ContactInterface $user
-    ) {
+    ):void {
         $contactGroupIds = array_unique($contactGroupIds);
 
         if ($user->isAdmin()) {

@@ -55,7 +55,7 @@ final class AddNotificationController extends AbstractController
         try {
             /** @var array{
              *     name: string,
-             *     timeperiod: int,
+             *     timeperiod_id: int,
              *     users: int[],
              *     contactgroups: int[],
              *     resources: array<array{
@@ -89,8 +89,9 @@ final class AddNotificationController extends AbstractController
     /**
      * @param array{
      *     name: string,
-     *     timeperiod: int,
+     *     timeperiod_id: int,
      *     users: int[],
+     *     contactgroups: int[],
      *     resources: array<array{
      *         type:string,
      *         ids:int[],
