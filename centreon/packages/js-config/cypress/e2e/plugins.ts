@@ -51,6 +51,7 @@ export default async (on, config): Promise<void> => {
 
   on('before:browser:launch', (browser = {}, launchOptions) => {
     if ((browser as { name }).name === 'chrome') {
+      launchOptions.args.push('--max-old-space-size=512');
       launchOptions.args.push('--disable-gpu');
       launchOptions.args = launchOptions.args.filter(
         (element) => element !== '--disable-dev-shm-usage'
