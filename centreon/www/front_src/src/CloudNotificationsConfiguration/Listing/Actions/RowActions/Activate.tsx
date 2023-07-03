@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { styled } from '@mui/material/styles';
 import { Switch as MUISwitch } from '@mui/material';
@@ -29,6 +29,12 @@ const Switch = styled(MUISwitch)(({ theme }) => ({
 
 const ActivateAction = ({ row }: ComponentColumnProps): JSX.Element => {
   const [checked, setChecked] = useState(row?.isActivated);
+
+  useEffect(() => {
+    if (row?.isActivated !== checked) {
+      setChecked(row?.isActivated);
+    }
+  }, [row?.isActivated]);
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () => notificationtEndpoint({ id: row.id }),
