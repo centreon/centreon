@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "widgets/centreon-widget-hostgroup-monitoring/**"
+      - "!widgets/centreon-widget-hostgroup-monitoring/.veracode"
   push:
     branches:
       - develop
@@ -17,6 +18,7 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "widgets/centreon-widget-hostgroup-monitoring/**"
+      - "!widgets/centreon-widget-hostgroup-monitoring/.veracode"
     tags:
       - centreon-widget-hostgroup-monitoring-*
 
