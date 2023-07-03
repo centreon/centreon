@@ -27,7 +27,7 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const ConfirmationDialog = (): JSX.Element => {
+const DeleteConfirmationDialog = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -54,4 +54,4 @@ const ConfirmationDialog = (): JSX.Element => {
   );
 };
 
-export default ConfirmationDialog;
+export default DeleteConfirmationDialog;

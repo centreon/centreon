@@ -7,7 +7,7 @@ import { ListingPage } from '@centreon/ui';
 import PanelEdit from '../EditPanel';
 import { isPanelOpenAtom } from '../atom';
 import Listing from '../Listing';
-import { ConfirmaDeleteDialog } from '../Actions';
+import { DeleteConfirmationDialog } from '../Actions';
 
 import ListingPageHeader from './ListingPageHeader';
 
@@ -23,7 +23,7 @@ const NotificationsListingPage = (): JSX.Element => {
         panel={<PanelEdit />}
         panelOpen={isPannelOpen}
       />
-      <ConfirmaDeleteDialog />
+      <DeleteConfirmationDialog />
     </Box>
   );
 };
