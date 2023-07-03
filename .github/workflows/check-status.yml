@@ -20,7 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: |
+      - name: Check workflow statuses and display token usage
+        run: |
           display_token_usage () {
             echo "current token usage :"
             curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit | jq .rate
