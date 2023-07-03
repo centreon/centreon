@@ -11,7 +11,11 @@ import { isPanelOpenAtom, panelWidthStorageAtom } from '../atom';
 
 import Form from './Form';
 
-const useStyle = makeStyles()((theme) => ({
+interface Props {
+  bottom?: number;
+}
+
+const useStyle = makeStyles<{ bottom: number }>()((theme, { bottom }) => ({
   panel: {
     backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
       ? theme.palette.common.black
@@ -20,12 +24,12 @@ const useStyle = makeStyles()((theme) => ({
   panelContainer: {
     display: 'flex',
     flexDirection: 'row-reverse',
-    height: `calc(100vh - ${theme.spacing(20)})`
+    height: `calc(100vh - ${theme.spacing(bottom)})`
   }
 }));
 
-const EditPanel = (): JSX.Element => {
-  const { classes } = useStyle();
+const EditPanel = ({ bottom = 20 }: Props): JSX.Element => {
+  const { classes } = useStyle({ bottom });
   const [panelWidth, setPanelWidth] = useAtom(panelWidthStorageAtom);
   const setIsPanelOpen = useSetAtom(isPanelOpenAtom);
 
