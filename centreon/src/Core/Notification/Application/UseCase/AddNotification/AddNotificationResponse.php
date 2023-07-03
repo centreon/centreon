@@ -54,6 +54,14 @@ final class AddNotificationResponse
 
     /**
      * @var array<array{
+     *         id:int,
+     *         name:string,
+     *     }> $contactGroups
+     */
+    public array $contactGroups = [];
+
+    /**
+     * @var array<array{
      *         type:string,
      *         ids:array<array{id:int,name:string}>,
      *         events:int,

@@ -57,6 +57,7 @@ final class AddNotificationController extends AbstractController
              *     name: string,
              *     timeperiod: int,
              *     users: int[],
+             *     contactgroups: int[],
              *     resources: array<array{
              *         type:string,
              *         ids:int[],
@@ -113,6 +114,7 @@ final class AddNotificationController extends AbstractController
         $notificationRequest->timeperiodId = $data['timeperiod_id'];
         $notificationRequest->isActivated = $data['is_activated'] ?? true;
         $notificationRequest->users = $data['users'];
+        $notificationRequest->contactGroups = $data['contactgroups'];
         foreach ($data['messages'] as $messageData) {
             $notificationRequest->messages[] = [
                 'channel' => $messageData['channel'],
