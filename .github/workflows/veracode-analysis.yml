@@ -161,11 +161,11 @@ jobs:
           createsandbox: true
           sandboxname: "${{ github.ref_name }}"
           criticality: "Low"
-          scantimeout: 60
+          scantimeout: 120
           includenewmodules: true
           scanallnonfataltoplevelmodules: true
           deleteincompletescan: 1
-          scanpollinginterval: 60 # time between two checks in seconds / [30 to 120]
+          scanpollinginterval: 120 # time between two checks in seconds / [30 to 120]
 
   sca-scan:
     needs: [build]

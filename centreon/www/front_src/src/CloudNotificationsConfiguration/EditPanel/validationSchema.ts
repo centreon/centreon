@@ -13,11 +13,16 @@ import {
 import { notificationsNamesAtom } from '../atom';
 
 import { emptyEmail } from './utils';
+import { EditedNotificationIdAtom } from './atom';
 
 const useValidationSchema = (): object => {
   const { t } = useTranslation();
   const notificationsNames = useAtomValue(notificationsNamesAtom);
+  const notificationId = useAtomValue(EditedNotificationIdAtom);
 
+  const names = notificationsNames
+    .filter((item) => item.id !== notificationId)
+    .map((item) => item.name);
   const messagesSchema = Yup.object({
     message: Yup.string().notOneOf(
       [emptyEmail],
@@ -43,7 +48,7 @@ const useValidationSchema = (): object => {
       messages: messagesSchema,
       name: Yup.string()
         .required(t(labelRequired) as string)
-        .notOneOf(notificationsNames, t(labelThisNameAlreadyExists) as string),
+        .notOneOf(names, t(labelThisNameAlreadyExists) as string),
       serviceGroups: resourceSchema('hostGroups.ids'),
       users: Yup.array().min(1, t(labelChooseAtleastOneUser) as string)
     },
