@@ -44,10 +44,10 @@ use Core\Notification\Application\UseCase\AddNotification\Factory\NewNotificatio
 use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationMessageFactory;
 use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationResourceFactory;
 use Core\Notification\Application\UseCase\AddNotification\Validator\NotificationValidator;
+use Core\Notification\Domain\Model\ConfigurationUser;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\ConfigurationUser;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -238,7 +238,7 @@ final class AddNotification
         $response->contactGroups = array_map(
             static fn(ContactGroup $contactGroup): array => [
                 'id' => $contactGroup->getId(),
-                'name' => $contactGroup->getName()
+                'name' => $contactGroup->getName(),
             ],
             $contactGroups
         );
@@ -264,6 +264,7 @@ final class AddNotification
             }
             $response->resources[] = $responseResource;
         }
+
         return new CreatedResponse($response->id, $response);
     }
 

@@ -36,12 +36,14 @@ class NotificationValidator
     use LoggerTrait;
 
     /**
-     * Validate that provided user and contactgroup ids exists
+     * Validate that provided user and contactgroup ids exists.
      *
      * @param int[] $userIds
      * @param int[] $contactGroupsIds
      * @param ContactRepositoryInterface $contactRepository
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
+     * @param ContactInterface $user
+     *
      * @throws \Throwable|NotificationException
      */
     public function validateUsersAndContactGroups(
@@ -54,19 +56,20 @@ class NotificationValidator
         if (empty($userIds) && empty($contactGroupsIds)) {
             throw NotificationException::emptyArrayNotAllowed('users, contactgroups');
         }
-        if(! empty($userIds)) {
+        if (! empty($userIds)) {
             $this->validateUsers($userIds, $contactRepository);
         }
-        if(! empty($contactGroupsIds)) {
+        if (! empty($contactGroupsIds)) {
             $this->validateContactGroups($contactGroupsIds, $contactGroupRepository, $user);
         }
     }
 
     /**
-     * Validate that provided user ids exists
+     * Validate that provided user ids exists.
      *
      * @param int[] $userIds
      * @param ContactRepositoryInterface $contactRepository
+     *
      * @throws \Throwable|NotificationException
      */
     private function validateUsers(array $userIds, ContactRepositoryInterface $contactRepository): void
@@ -89,10 +92,12 @@ class NotificationValidator
     }
 
     /**
-     * Validate that provided contactgroup ids exists
+     * Validate that provided contactgroup ids exists.
      *
      * @param int[] $contactGroupIds
      * @param ReadContactGroupRepositoryInterface $contactGroupRepository
+     * @param ContactInterface $user
+     *
      * @throws \Throwable|NotificationException
      */
     private function validateContactGroups(
@@ -107,9 +112,7 @@ class NotificationValidator
         } else {
             $contactGroups = $contactGroupRepository->findByIdsAndUserId($contactGroupIds, $user->getId());
         }
-        $existingContactGroups = array_map(function (ContactGroup $contactgroup) {
-            return $contactgroup->getId();
-        }, $contactGroups);
+        $existingContactGroups = array_map(fn (ContactGroup $contactgroup) => $contactgroup->getId(), $contactGroups);
         $difference = new BasicDifference($contactGroupIds, $existingContactGroups);
         $missingContactGroups = $difference->getRemoved();
 
