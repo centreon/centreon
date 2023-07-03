@@ -172,16 +172,6 @@ EOF`,
   cy.wait('@nextStep').get('#finish').click();
 
   return cy
-    .copyToContainer({
-      destination: '/tmp/standard.sql',
-      source: '../../../.github/docker/sql/standard.sql'
-    })
-    .execInContainer({
-      command: `bash -e <<EOF
-      mysql -pcentreon centreon < /tmp/standard.sql
-EOF`,
-      name: Cypress.env('dockerName')
-    })
     .setUserTokenApiV1()
     .applyPollerConfiguration()
     .execInContainer({
