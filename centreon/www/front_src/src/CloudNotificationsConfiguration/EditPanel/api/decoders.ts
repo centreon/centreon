@@ -32,7 +32,7 @@ const resourceExtraType = JsonDecoder.object<ResourceExtraType>(
   },
   'Resource Extra Type',
   {
-    eventsServices: 'events_services'
+    eventsServices: 'event_services'
   }
 );
 
