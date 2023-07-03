@@ -22,6 +22,11 @@ beforeEach(() => {
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
 
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+  }).as('getLastestUserFilters');
+
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: true
@@ -48,7 +53,11 @@ When('I select the acknowledge action on a problematic Resource', () => {
 });
 
 Then('the problematic Resource is displayed as acknowledged', () => {
-  cy.get(stateFilterContainer).click().get('[data-value="all"]').click();
+  cy.wait('@getLastestUserFilters');
+
+  cy.get(stateFilterContainer).click();
+  cy.get('[data-value="all"]').click();
+
   cy.waitUntil(
     () => {
       return cy
@@ -81,6 +90,7 @@ When('I select the downtime action on a problematic Resource', () => {
 });
 
 Then('the problematic Resource is displayed as in downtime', () => {
+  cy.wait('@getLastestUserFilters');
   cy.get(stateFilterContainer).click();
   cy.get('li[data-value="all"]').click({ force: true });
 
