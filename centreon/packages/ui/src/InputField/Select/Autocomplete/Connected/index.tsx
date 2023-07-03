@@ -28,10 +28,8 @@ import {
   SearchParameter
 } from '../../../../api/buildListingEndpoint/models';
 import useFetchQuery from '../../../../api/useFetchQuery';
-import { AutoCompleteChangeData } from '../../../../Form/Inputs/models';
 
 export interface ConnectedAutoCompleteFieldProps<TData> {
-  autocompleteChangeData?: AutoCompleteChangeData;
   conditionField?: keyof SelectEntry;
   field: string;
   getEndpoint: ({ search, page }) => string;
@@ -57,7 +55,6 @@ const ConnectedAutocompleteField = (
     getRenderedOptionText = (option): string => option.name?.toString(),
     getRequestHeaders,
     displayOptionThumbnail,
-    autocompleteChangeData,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -68,6 +65,9 @@ const ConnectedAutocompleteField = (
     const [searchParameter, setSearchParameter] = useState<
       SearchParameter | undefined
     >(undefined);
+
+    const [autocompleteChangedValue, setAutocompleteChangedValue] =
+      useState<Array<SelectEntry>>();
     const debounce = useDebounce({
       functionToDebounce: (value): void => {
         setSearchParameter(getSearchParameter(value));
@@ -278,11 +278,11 @@ const ConnectedAutocompleteField = (
     }, useDeepCompare([searchConditions]));
 
     useEffect(() => {
-      if (!autocompleteChangeData) {
+      if (!autocompleteChangedValue && !props?.value) {
         return;
       }
       setSearchParameter(undefined);
-    }, [autocompleteChangeData?.reason, autocompleteChangeData?.value]);
+    }, [autocompleteChangedValue, props?.value]);
 
     useEffect(() => {
       if (!optionsOpen) {
@@ -299,6 +299,7 @@ const ConnectedAutocompleteField = (
         open={optionsOpen}
         options={options}
         renderOption={renderOptions}
+        onChange={(_, value) => setAutocompleteChangedValue(value)}
         onClose={(): void => setOptionsOpen(false)}
         onOpen={(): void => setOptionsOpen(true)}
         onTextChange={changeText}

@@ -34,8 +34,6 @@ const ConnectedAutocomplete = ({
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
-  const [autocompleteChangeData, setAutocompleteChangeData] =
-    useState<AutoCompleteChangeData>();
   const { values, touched, errors, setFieldValue, setFieldTouched } =
     useFormikContext<FormikValues>();
 
@@ -62,9 +60,7 @@ const ConnectedAutocomplete = ({
   const fieldNamePath = split('.', fieldName);
 
   const changeAutocomplete = useCallback(
-    (_, value, reason: Reason): void => {
-      setAutocompleteChangeData({ reason, value });
-
+    (_, value): void => {
       if (change) {
         change({ setFieldValue, value });
 
@@ -113,7 +109,6 @@ const ConnectedAutocomplete = ({
   return useMemoComponent({
     Component: (
       <AutocompleteField
-        autocompleteChangeData={autocompleteChangeData}
         dataTestId={dataTestId}
         disableClearable={false}
         disabled={disabled}

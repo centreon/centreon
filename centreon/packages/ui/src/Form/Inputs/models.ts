@@ -103,16 +103,3 @@ export interface Group {
   name: string;
   order: number;
 }
-
-export enum Reason {
-  blur = 'blur',
-  clear = 'clear',
-  createOption = 'createOption',
-  removeOption = 'removeOption',
-  selectOption = 'selectOption'
-}
-
-export interface AutoCompleteChangeData {
-  reason: Reason;
-  value: string;
-}

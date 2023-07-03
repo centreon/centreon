@@ -1,5 +1,3 @@
-import { equals } from 'ramda';
-
 import {
   Method,
   MultiConnectedAutocompleteField,
@@ -10,7 +8,7 @@ import { baseEndpoint, getEndpoint, label, placeholder } from './utils';
 
 const optionOne = 'My Option 1';
 
-describe('Multi connected', () => {
+describe('Multi connected autocomplete', () => {
   beforeEach(() => {
     cy.fixture('inputField/listOptions').then((optionsData) => {
       cy.interceptAPIRequest({
@@ -39,82 +37,125 @@ describe('Multi connected', () => {
     cy.mount({
       Component: (
         <TestQueryProvider>
-          <MultiConnectedAutocompleteField
-            field="host.name"
-            getEndpoint={getEndpoint}
-            label={label}
-            placeholder={placeholder}
-          />
+          <div style={{ paddingTop: 20 }}>
+            <MultiConnectedAutocompleteField
+              field="host.name"
+              getEndpoint={getEndpoint}
+              label={label}
+              placeholder={placeholder}
+            />
+          </div>
         </TestQueryProvider>
       )
     });
   });
 
-  it('first test , afficher et cacher la liste quand user clique 2 fois sur l input', () => {
+  it('displays and hide the list when the user double-clicks on the input', () => {
     cy.contains(label).should('be.visible');
+
     cy.get('[data-testid="Multi Connected Autocomplete"]').as('input');
+
     cy.get('@input').click();
+
     cy.waitForRequest('@getListOptions');
+
     cy.get('@input').invoke('attr', 'placeholder').should('equal', placeholder);
 
-    cy.get('[data-testid="listOptions"]').as('listOptions');
+    cy.findByRole('presentation').as('listOptions');
 
     cy.get('@listOptions').should('be.visible');
 
-    cy.fixture('inputField/options').then((optionsData) => {
-      optionsData.result.forEach((option) => {
-        cy.contains(option.name);
+    cy.fixture('inputField/listOptions').then((optionsData) => {
+      cy.get('@listOptions').within(() => {
+        optionsData.result.forEach((option) => {
+          cy.contains(option.name);
+        });
       });
     });
+
+    cy.matchImageSnapshot(
+      'displays the list when the user clicks on the input'
+    );
+
     cy.get('@input').click();
+
     cy.get('@listOptions').should('not.exist');
+
+    cy.matchImageSnapshot('hide the list when the user clicks on the input');
   });
 
-  it.only('second test , chercher extactement une option , la liste doit avoir que cette option', () => {
+  it('displays exactly one option on the list when the user types that option', () => {
     cy.get('[data-testid="Multi Connected Autocomplete"]').as('input');
+
     cy.get('@input').click();
+
     cy.waitForRequest('@getListOptions');
 
-    cy.get('[data-testid="listOptions"]').as('listOptions');
+    cy.findByRole('presentation').as('listOptions');
 
     cy.get('@listOptions').should('be.visible');
 
     cy.get('@input').type(optionOne);
+
     cy.waitForRequest('@getSearchedOption');
 
-    cy.fixture('inputField/listOptions').then((optionsData) => {
-      optionsData.result.forEach((option, index) => {
-        if (equals(index, 0)) {
-          cy.contains(option.name).should('be.visible');
-        }
-        if (!equals(index, 0)) {
-          cy.contains(option.name).should('not.exist');
-        }
-      });
+    cy.fixture('inputField/searchedOption').then((optionData) => {
+      cy.get('@listOptions')
+        .find('li')
+        .should('have.length', optionData.result.length);
     });
+
+    cy.get('@listOptions').within(() => {
+      cy.contains(optionOne).should('be.visible');
+    });
+
+    cy.matchImageSnapshot();
   });
 
-  // it('troisieme  test , chercher l option , selectionner l option , l optipo doit etre visible sur l input', () => {
-  //   cy.contains(label).should('be.visible');
-  //   cy.get('[data-testid="Multi Connected Autocomplete"]').as('input');
-  //   cy.get('@input').click();
-  //   cy.waitForRequest('@getListOptions');
-  //   cy.get('@input').invoke('attr', 'placeholder').should('equal', placeholder);
+  it('displays all options on the list when the user searches for and selects an option."', () => {
+    cy.get('[data-testid="Multi Connected Autocomplete"]').as('input');
 
-  //   cy.get('[data-testid="listOptions"]').as('listOptions');
+    cy.get('@input').click();
 
-  //   cy.get('@listOptions').should('be.visible');
-  // });
+    cy.waitForRequest('@getListOptions');
 
-  // it('quatrie, test , chercher l option , selectionner l option , l optipo doit etre visible sur l input , la liste doit avoir les autres options', () => {
-  //   cy.contains(label).should('be.visible');
-  //   cy.get('[data-testid="Multi Connected Autocomplete"]').as('input');
-  //   cy.get('@input').click();
-  //   cy.waitForRequest('@getListOptions');
-  //   cy.get('@input').invoke('attr', 'placeholder').should('equal', placeholder);
+    cy.findByRole('presentation').as('listOptions');
 
-  //   cy.get('[data-testid="listOptions"]').as('listOptions');
+    cy.get('@listOptions').should('be.visible');
 
-  //   cy.get('@listOptions').should('be.visible');
-  // });
+    cy.get('@input').type(optionOne);
+
+    cy.waitForRequest('@getSearchedOption');
+
+    cy.fixture('inputField/searchedOption').then((optionData) => {
+      cy.get('@listOptions')
+        .find('li')
+        .should('have.length', optionData.result.length);
+    });
+
+    cy.get('[type="checkbox"]').check();
+    cy.get('@input')
+      .parent()
+      .within(() => {
+        cy.contains(optionOne).should('be.visible');
+
+        cy.get('[data-testid="CancelIcon"]').should('be.visible');
+      });
+
+    cy.waitForRequest('@getListOptions');
+
+    cy.fixture('inputField/listOptions').then((optionsData) => {
+      cy.get('@listOptions')
+        .find('li')
+        .should('have.length', optionsData.result.length);
+
+      cy.get('@listOptions').within(() => {
+        optionsData.result.forEach((option) => {
+          cy.contains(option.name);
+        });
+      });
+    });
+
+    cy.matchImageSnapshot();
+  });
 });
