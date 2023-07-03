@@ -7,6 +7,7 @@ import { getData, useRequest } from '@centreon/ui';
 
 import { platformVersionsEndpoint } from '../api/endpoint';
 import { PlatformVersions } from '../api/models';
+import { platformVersionsDecoder } from '../api/decoders';
 
 import { platformVersionsAtom } from './atoms/platformVersionsAtom';
 
@@ -18,6 +19,7 @@ interface UsePlatformVersionsState {
 
 const usePlatformVersions = (): UsePlatformVersionsState => {
   const { sendRequest: sendPlatformVersions } = useRequest<PlatformVersions>({
+    decoder: platformVersionsDecoder,
     request: getData
   });
 
