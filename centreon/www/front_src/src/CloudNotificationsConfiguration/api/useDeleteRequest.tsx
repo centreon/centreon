@@ -38,9 +38,8 @@ interface useDeleteRequestState {
 }
 
 const useDeleteRequest = ({
-  closePanel,
+  onSettled,
   selectedRows,
-  closeDialog,
   deleteNotification
 }): useDeleteRequestState => {
   const { t } = useTranslation();
@@ -110,8 +109,7 @@ const useDeleteRequest = ({
         queryClient.invalidateQueries(['notifications']);
       })
       .finally(() => {
-        closeDialog();
-        closePanel();
+        onSettled();
       });
   };
 

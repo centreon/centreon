@@ -40,10 +40,14 @@ const useDelete = (): UseDeleteState => {
     setIsDialogOpen(true);
   };
 
+  const onSettled = (): void => {
+    closeDialog();
+    closePanel();
+  };
+
   const { submit, isLoading } = useDeleteRequest({
-    closeDialog,
-    closePanel,
     deleteNotification,
+    onSettled,
     selectedRows
   });
 
