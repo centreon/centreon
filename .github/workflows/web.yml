@@ -84,11 +84,11 @@ jobs:
     secrets:
       veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
+      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
 
   frontend-build:
     needs: [get-version]
     runs-on: ubuntu-22.04
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -104,7 +104,6 @@ jobs:
   backend-dependencies:
     needs: [get-version]
     runs-on: ubuntu-22.04
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -116,8 +115,6 @@ jobs:
 
   translation-build:
     needs: [get-version]
-    if: ${{ needs.get-version.outputs.stability != 'stable' }}
-
     runs-on: ubuntu-22.04
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/translation:${{ needs.get-version.outputs.major_version }}
@@ -149,8 +146,8 @@ jobs:
 
   frontend-lint:
     runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
 
     steps:
       - uses: actions/checkout@v3
@@ -162,8 +159,8 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
 
     steps:
       - uses: actions/checkout@v3
@@ -193,8 +190,8 @@ jobs:
           path: "centreon/junit.xml"
 
   frontend-component-test:
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
     uses: ./.github/workflows/cypress-component-parallelization.yml
     with:
       name: component
@@ -203,8 +200,8 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
-    needs: [changes]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
 
     steps:
       - uses: actions/checkout@v3
@@ -394,8 +391,8 @@ jobs:
         shell: bash
 
   api-integration-test:
-    needs: [dockerize, changes]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    needs: [dockerize, changes, get-version]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable'}}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
@@ -409,8 +406,8 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
-    needs: [dockerize, changes]
-    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    needs: [dockerize, changes, get-version]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/behat-test.yml
     with:
       name: legacy-e2e
