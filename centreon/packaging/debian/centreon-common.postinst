@@ -1,11 +1,6 @@
 #!/bin/sh
 
 if [ "$1" = "configure" ] ; then
-  if [ ! "$(getent passwd centreon)" ]; then
-    # User will have a shell. Not secure but require refactoring otherwise.
-    adduser --system --group --shell /bin/bash --home /var/lib/centreon centreon
-  fi
-
   chown -R centreon:centreon \
     /etc/centreon \
     /var/cache/centreon
