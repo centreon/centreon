@@ -40,7 +40,7 @@ $alterMetricsTable = function(CentreonDB $pearDBO) {
     $pearDBO->query(
         <<<'SQL'
             ALTER TABLE `metrics`
-            MODIFY COLUMN `metric_name` VARCHAR(21792) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL
+            MODIFY COLUMN `metric_name` VARCHAR(1021) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL
             SQL
     );
 };
