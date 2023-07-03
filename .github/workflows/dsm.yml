@@ -17,6 +17,7 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-dsm/**"
+      - "!centreon-dsm/.veracode-exclusions"
     tags:
       - centreon-dsm-*
 

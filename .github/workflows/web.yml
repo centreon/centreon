@@ -19,6 +19,7 @@ on:
     paths:
       - "centreon/**"
       - "!centreon/packages/**"
+      - "!centreon/.veracode-exclusions"
     tags:
       - centreon-*
 
