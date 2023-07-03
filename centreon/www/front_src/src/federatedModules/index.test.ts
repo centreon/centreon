@@ -28,7 +28,6 @@ const retrievedWebVersions = {
   widgets: {}
 };
 
-
 describe('external components', () => {
   beforeEach(() => {
     mockedAxios.get.mockReset();
