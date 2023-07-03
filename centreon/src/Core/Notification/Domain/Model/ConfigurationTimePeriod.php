@@ -27,6 +27,8 @@ use Centreon\Domain\Common\Assertion\Assertion;
 
 class ConfigurationTimePeriod
 {
+    public const ALL_TIME_PERIOD = '24x7';
+
     /**
      * @throws \Assert\AssertionFailedException
      */

@@ -44,6 +44,9 @@ class FindServiceTemplatesOnPremPresenter extends AbstractPresenter implements F
         parent::__construct($presenterFormatter);
     }
 
+    /**
+     * @param ResponseStatusInterface|FindServiceTemplateResponse $response
+     */
     public function presentResponse(ResponseStatusInterface|FindServiceTemplateResponse $response): void
     {
         if ($response instanceof ResponseStatusInterface) {

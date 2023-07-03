@@ -11,16 +11,11 @@ import {
   DashboardForm,
   DashboardFormProps,
   DataTable,
-  Header,
-  Modal
+  Modal,
+  PageHeader,
+  PageLayout
 } from '../../components';
 import { Default as DashboardFormDefaultStory } from '../../components/Form/Dashboard/DashboardForm.stories';
-import {
-  TiledListingActions,
-  TiledListingContent,
-  TiledListingList,
-  TiledListingPage
-} from '../../layout/TiledListingPage';
 
 const meta: Meta = {
   args: {
@@ -64,7 +59,10 @@ const meta: Meta = {
     },
     title: 'Dashboards overview'
   },
-  title: 'screens/Dashboards'
+  parameters: {
+    layout: 'fullscreen'
+  },
+  title: 'screens/Dashboards overview'
 };
 
 export default meta;
@@ -134,10 +132,16 @@ const DefaultView = (args): JSX.Element => {
   };
 
   return (
-    <TiledListingPage>
-      <Header title={title} />
-      <TiledListingList>
-        <TiledListingActions>
+    <PageLayout>
+      <PageLayout.Header>
+        <PageHeader>
+          <PageHeader.Main>
+            <PageHeader.Title title={title} />
+          </PageHeader.Main>
+        </PageHeader>
+      </PageLayout.Header>
+      <PageLayout.Body>
+        <PageLayout.Actions>
           {dataDashboards.length !== 0 && (
             <Button
               aria-label="add"
@@ -150,101 +154,105 @@ const DefaultView = (args): JSX.Element => {
               {actions.create.label}
             </Button>
           )}
-        </TiledListingActions>
-        <TiledListingContent>
-          <DataTable isEmpty={dataDashboards.length === 0}>
-            {dataDashboards.length === 0 ? (
-              <DataTable.EmptyState
-                labels={list.emptyState.labels}
-                onCreate={() =>
-                  setDialogState({ item: null, open: true, variant: 'create' })
-                }
-              />
-            ) : (
-              dataDashboards.map((dashboard) => (
-                <DataTable.Item
-                  hasActions
-                  hasCardAction
-                  description={dashboard.description}
-                  key={dashboard.id}
-                  title={dashboard.name}
-                  onDelete={() =>
-                    setDeleteDialogState({ item: dashboard, open: true })
-                  }
-                  onEdit={() =>
-                    setDialogState({
-                      item: dashboard,
-                      open: true,
-                      variant: 'update'
-                    })
-                  }
-                />
-              ))
-            )}
-          </DataTable>
-        </TiledListingContent>
-        <Modal
-          open={dialogState.open}
-          onClose={() =>
-            setDialogState({
-              item: null,
-              open: false,
-              variant: dialogState.variant
-            })
-          }
-        >
-          <Modal.Header>
-            {form.labels.title[dialogState.variant ?? 'create']}
-          </Modal.Header>
-          <Modal.Body>
-            <DashboardForm
-              labels={DashboardFormDefaultStory!.args!.labels!}
-              resource={dialogState.item || undefined}
-              variant={dialogState.variant}
-              onCancel={() =>
+        </PageLayout.Actions>
+
+        <DataTable isEmpty={dataDashboards.length === 0}>
+          {dataDashboards.length === 0 ? (
+            <DataTable.EmptyState
+              labels={list.emptyState.labels}
+              onCreate={() =>
                 setDialogState({
                   item: null,
-                  open: false,
-                  variant: dialogState.variant
+                  open: true,
+                  variant: 'create'
                 })
               }
-              onSubmit={(values) =>
-                dialogState.variant === 'create'
-                  ? createDashboard(values)
-                  : updateDashboard(values)
-              }
             />
-          </Modal.Body>
-        </Modal>
-        <Modal
-          open={deleteDialogState.open}
-          onClose={() =>
-            setDeleteDialogState({
-              ...deleteDialogState,
-              open: false
-            })
-          }
-        >
-          <Modal.Header>{deleteConfirmation.labels.title}</Modal.Header>
-          <Modal.Body>
-            <p>
-              {deleteConfirmation.labels.description(
-                deleteDialogState.item?.name
-              )}
-            </p>
-          </Modal.Body>
-          <Modal.Actions
-            isDanger
-            labels={deleteConfirmation.labels.actions}
-            onCancel={() => setDeleteDialogState({ item: null, open: false })}
-            onConfirm={() => {
-              deleteDashboard(deleteDialogState.item?.id);
-              setDeleteDialogState({ item: null, open: false });
-            }}
+          ) : (
+            dataDashboards.map((dashboard) => (
+              <DataTable.Item
+                hasActions
+                hasCardAction
+                description={dashboard.description}
+                key={dashboard.id}
+                title={dashboard.name}
+                onDelete={() =>
+                  setDeleteDialogState({ item: dashboard, open: true })
+                }
+                onEdit={() =>
+                  setDialogState({
+                    item: dashboard,
+                    open: true,
+                    variant: 'update'
+                  })
+                }
+              />
+            ))
+          )}
+        </DataTable>
+      </PageLayout.Body>
+
+      <Modal
+        open={dialogState.open}
+        onClose={() =>
+          setDialogState({
+            item: null,
+            open: false,
+            variant: dialogState.variant
+          })
+        }
+      >
+        <Modal.Header>
+          {form.labels.title[dialogState.variant ?? 'create']}
+        </Modal.Header>
+        <Modal.Body>
+          <DashboardForm
+            labels={DashboardFormDefaultStory!.args!.labels!}
+            resource={dialogState.item || undefined}
+            variant={dialogState.variant}
+            onCancel={() =>
+              setDialogState({
+                item: null,
+                open: false,
+                variant: dialogState.variant
+              })
+            }
+            onSubmit={(values) =>
+              dialogState.variant === 'create'
+                ? createDashboard(values)
+                : updateDashboard(values)
+            }
           />
-        </Modal>
-      </TiledListingList>
-    </TiledListingPage>
+        </Modal.Body>
+      </Modal>
+      <Modal
+        open={deleteDialogState.open}
+        onClose={() =>
+          setDeleteDialogState({
+            ...deleteDialogState,
+            open: false
+          })
+        }
+      >
+        <Modal.Header>{deleteConfirmation.labels.title}</Modal.Header>
+        <Modal.Body>
+          <p>
+            {deleteConfirmation.labels.description(
+              deleteDialogState.item?.name
+            )}
+          </p>
+        </Modal.Body>
+        <Modal.Actions
+          isDanger
+          labels={deleteConfirmation.labels.actions}
+          onCancel={() => setDeleteDialogState({ item: null, open: false })}
+          onConfirm={() => {
+            deleteDashboard(deleteDialogState.item?.id);
+            setDeleteDialogState({ item: null, open: false });
+          }}
+        />
+      </Modal>
+    </PageLayout>
   );
 };
 

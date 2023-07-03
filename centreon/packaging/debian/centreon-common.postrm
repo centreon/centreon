@@ -4,9 +4,15 @@ set -e
 
 case "$1" in
     remove)
+        systemctl --no-reload disable --now centreon.service || : &>/dev/null || :
+    ;;
+    purge)
         deluser centreon || true
         delgroup centreon || true
-        systemctl --no-reload disable --now centreon.service || : &>/dev/null || :
+        gpasswd --delete centreon centreon-broker > /dev/null 2>&1 || :
+        gpasswd --delete centreon-broker centreon > /dev/null 2>&1 || :
+        gpasswd --delete centreon centreon-engine > /dev/null 2>&1 || :
+        gpasswd --delete centreon-engine centreon > /dev/null 2>&1 || :
     ;;
 esac
 
