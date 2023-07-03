@@ -84,6 +84,7 @@ jobs:
     secrets:
       veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
+      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
 
   frontend-build:
     needs: [get-version]
@@ -102,7 +103,6 @@ jobs:
 
   backend-dependencies:
     needs: [get-version]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
     runs-on: ubuntu-22.04
 
     steps:
