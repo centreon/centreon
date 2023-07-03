@@ -21,6 +21,13 @@ jobs:
       - uses: actions/checkout@v3
 
       - run: |
+          display_token_usage () {
+            echo "current token usage :"
+            curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/rate_limit | jq .rate
+            echo "\n"
+          }
+
+          display_token_usage
           sleep 30s
 
           ITERATIONS=1
@@ -50,7 +57,10 @@ jobs:
 
               if [ $ITERATIONS -lt 60 ]; then
                   echo "some jobs are still in progress, next try in 60 seconds... (tries: $ITERATIONS/60)"
-                  sleep 60s
+                  sleep 30s
+                  display_token_usage
+                  sleep 30s
+                  display_token_usage
               fi
 
               ITERATIONS=$((ITERATIONS+1))
