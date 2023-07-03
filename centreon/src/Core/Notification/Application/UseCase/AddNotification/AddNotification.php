@@ -236,9 +236,9 @@ final class AddNotification
         );
 
         $response->contactGroups = array_map(
-            static fn(ContactGroup $contactGroups): array => [
-                'id' => $contactGroups->getId(),
-                'name' => $contactGroups->getName()
+            static fn(ContactGroup $contactGroup): array => [
+                'id' => $contactGroup->getId(),
+                'name' => $contactGroup->getName()
             ],
             $contactGroups
         );
@@ -264,7 +264,6 @@ final class AddNotification
             }
             $response->resources[] = $responseResource;
         }
-
         return new CreatedResponse($response->id, $response);
     }
 
