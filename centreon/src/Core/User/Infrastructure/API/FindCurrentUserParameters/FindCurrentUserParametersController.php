@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\User\Infrastructure\API\FindCurrentUserParameters;
 
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Contact\Contact;
 use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParameters;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;

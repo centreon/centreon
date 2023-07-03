@@ -17,6 +17,7 @@ on:
       stability:
         required: true
         type: string
+
     secrets:
       veracode_api_id:
         required: true
@@ -106,8 +107,8 @@ jobs:
         uses: veracode/Veracode-pipeline-scan-action@v1.0.8
         continue-on-error: true
         with:
-          vid: '${{ secrets.veracode_api_id }}'
-          vkey: '${{ secrets.veracode_api_key }}'
+          vid: "vera01ei-${{ secrets.veracode_api_id }}"
+          vkey: "vera01es-${{ secrets.veracode_api_key }}"
           file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           baseline_file: "${{ env.baseline_file }}"
           create_baseline_from: "${{ env.create_baseline_from }}"
@@ -122,10 +123,15 @@ jobs:
         # only baseline files not generated from a development branch are saved
         if: needs.build.outputs.development_stage != 'Development'
         run: |
-          mv *results.json /tmp
-          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
-          aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
-          aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
+          BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
+          for BRANCH in "${BRANCHES[@]}"; do
+            if [[ "${{ github.ref_name }}" == "$BRANCH" ]]; then
+              mv *results.json /tmp
+              BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
+              aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
+              aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
+            fi
+          done
 
   policy-scan:
     needs: [build]
@@ -149,23 +155,23 @@ jobs:
           appname: "${{ inputs.module_name }}"
           version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
-          vid: '${{ secrets.veracode_api_id }}'
-          vkey: '${{ secrets.veracode_api_key }}'
+          vid: "vera01ei-${{ secrets.veracode_api_id }}"
+          vkey: "vera01es-${{ secrets.veracode_api_key }}"
           createprofile: true
           createsandbox: true
           sandboxname: "${{ github.ref_name }}"
           criticality: "Low"
-          scantimeout: 60
+          scantimeout: 120
           includenewmodules: true
           scanallnonfataltoplevelmodules: true
           deleteincompletescan: 1
-          scanpollinginterval: 60 # time between two checks in seconds / [30 to 120]
+          scanpollinginterval: 120 # time between two checks in seconds / [30 to 120]
 
   sca-scan:
     needs: [build]
     name: Run a SCA scan
     # only stable and unstable maintenance branches will produce a report
-    if: needs.build.outputs.development_stage != 'Development'
+    if: github.ref_name == 'develop'
     runs-on: ubuntu-latest
     continue-on-error: true
 
@@ -191,7 +197,7 @@ jobs:
             fi
           fi
 
-          if [[ -f package.json && REINSTALL_PACKAGE_JSON != 'false' ]]; then
+          if [[ -f package.json && $REINSTALL_PACKAGE_JSON != 'false' ]]; then
             echo "[DEBUG] - Found a 'package.json'"
             RESULT=0
             echo "[DEBUG] - Generate a 'package-lock.json'"

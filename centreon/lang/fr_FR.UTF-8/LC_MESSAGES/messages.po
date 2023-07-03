@@ -11290,7 +11290,7 @@ msgstr "Voulez-vous vraiment débloquer cet utilisateur ?"
 
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
 msgid "The user(s) will be unblocked. Do you confirm the request?"
-msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l'action ?"
+msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l\\'action ?"
 
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
 msgid "Unblock"
@@ -17711,8 +17711,8 @@ msgstr "Erreur durant la suppression d'un tableau de bord"
 msgid "Error while updating a dashboard"
 msgstr "Erreur lors de la mise à jour d'un tableau de bord"
 
-msgid "Error while trying to update a dashboard panel which belongs to another dashboard"
-msgstr "Erreur lors d'une tentative de mise à jour d'un panneau de tableau de bord qui appartient à un autre tableau de bord"
+msgid "Error while trying to update a widget which belongs to another dashboard"
+msgstr "Erreur lors d'une tentative de mise à jour d'un widget qui appartient à un autre tableau de bord"
 
 msgid "Error while searching for host templates"
 msgstr "Erreur lors de la recherche des modèles d'hôtes"
@@ -17828,8 +17828,20 @@ msgstr "Modèle d'hôte #%d introuvable"
 msgid "Circular inheritance not allowed"
 msgstr "Héritage circulaire non autorisé"
 
+msgid "You are not allowed to display the details of the notification"
+msgstr "Vous n'êtes pas autorisé à afficher les détails de la notification"
+
+msgid "You are not allowed to update the notification configuration"
+msgstr "Vous n'êtes pas autorisé à mettre à jour la configuration de la notification"
+
 msgid "You are not allowed to access commands"
 msgstr "Vous n'êtes pas autorisé à accéder aux commandes"
 
 msgid "Error while searching for commands"
 msgstr "Erreur lors de la recherche de commandes"
+
+msgid "You are not allowed to partially update a notification configuration"
+msgstr "Vous n'êtes pas autorisé à effectuer la modification partielle d'une configuration de notification"
+
+msgid "Error while partially updating a notification configuration"
+msgstr "Erreur lors de la modification partielle d'une configuration de notification"

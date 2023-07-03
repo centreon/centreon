@@ -1,9 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { styled } from '@mui/material/styles';
 import { Switch as MUISwitch } from '@mui/material';
 
-import type { ComponentColumnProps } from '@centreon/ui';
+import {
+  Method,
+  type ComponentColumnProps,
+  useMutationQuery,
+  ResponseError
+} from '@centreon/ui';
+
+import { notificationtEndpoint } from '../../../EditPanel/api/endpoints';
 
 const Switch = styled(MUISwitch)(({ theme }) => ({
   '& .MuiSwitch-switchBase': {
@@ -21,19 +28,32 @@ const Switch = styled(MUISwitch)(({ theme }) => ({
 }));
 
 const ActivateAction = ({ row }: ComponentColumnProps): JSX.Element => {
-  const [checked, setchecked] = useState(row?.isActivated);
+  const [checked, setChecked] = useState(row?.isActivated);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setchecked(event.target.checked);
+  useEffect(() => {
+    if (row?.isActivated !== checked) {
+      setChecked(row?.isActivated);
+    }
+  }, [row?.isActivated]);
+
+  const { mutateAsync } = useMutationQuery({
+    getEndpoint: () => notificationtEndpoint({ id: row.id }),
+    method: Method.PATCH
+  });
+
+  const onClick = (event): void => {
+    const value = event.target.checked;
+    setChecked(value);
+
+    mutateAsync({ is_activated: value }).then((response) => {
+      if ((response as ResponseError).isError) {
+        setChecked(!value);
+      }
+    });
   };
 
   return (
-    <Switch
-      checked={checked}
-      color="success"
-      size="small"
-      onChange={handleChange}
-    />
+    <Switch checked={checked} color="success" size="small" onClick={onClick} />
   );
 };
 

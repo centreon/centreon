@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Dashboard\Domain\Model;
 
 use Assert\AssertionFailedException;
+use Core\Dashboard\Domain\Model\Validation\DashboardPanelValidationTrait;
 
 class NewDashboardPanel
 {

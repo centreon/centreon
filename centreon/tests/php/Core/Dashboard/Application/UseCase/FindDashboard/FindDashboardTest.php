@@ -30,7 +30,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
-use Core\Dashboard\Application\Repository\ReadDashboardRelationRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboard;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
@@ -43,7 +43,7 @@ beforeEach(function (): void {
     $this->useCase = new FindDashboard(
         $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class),
         $this->readDashboardPanelRepository = $this->createMock(ReadDashboardPanelRepositoryInterface::class),
-        $this->readDashboardRelationRepository = $this->createMock(ReadDashboardRelationRepositoryInterface::class),
+        $this->readDashboardRelationRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
         $this->readContactRepository = $this->createMock(ReadContactRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class)

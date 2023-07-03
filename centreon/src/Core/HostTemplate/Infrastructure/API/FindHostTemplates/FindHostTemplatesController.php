@@ -45,7 +45,7 @@ final class FindHostTemplatesController extends AbstractController
         FindHostTemplatesOnPremPresenter $onPremPresenter,
         bool $isCloudPlatform,
     ): Response {
-        $this->denyAccessUnlessGrantedForAPIConfiguration();
+        $this->denyAccessUnlessGrantedForApiConfiguration();
 
         $presenter = $isCloudPlatform ? $saasPresenter : $onPremPresenter;
 

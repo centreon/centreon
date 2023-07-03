@@ -1,39 +1,41 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
+import { useSearchParams } from 'react-router-dom';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Typography } from '@mui/material';
 
-import { Modal, Button } from '@centreon/ui/components';
+import { Button, Modal } from '@centreon/ui/components';
+
+import { Dashboard, DashboardPanel } from '../api/models';
 
 import {
-  labelExit,
-  labelExitEditionMode,
   labelEditDashboard,
-  labelSave,
+  labelExit,
+  labelExitDashboard,
+  labelExitEditionMode,
   labelLeaveEditionModeChangesNotSaved,
   labelQuitDashboardChangesNotSaved,
-  labelExitDashboard
+  labelSave
 } from './translatedLabels';
 import {
   dashboardAtom,
   isEditingAtom,
   switchPanelsEditionModeDerivedAtom
 } from './atoms';
-import useDashboardSaveBlocker from './useDashboardSaveBlocker';
-import { PanelDetails } from './models';
 import { formatPanel } from './useDashboardDetails';
 import useSaveDashboard from './useSaveDashboard';
 import useDashboardDirty from './useDashboardDirty';
 
 interface HeaderActionsProps {
-  id?: number;
+  id?: Dashboard['id'];
   name?: string;
-  panels?: Array<PanelDetails>;
+  panels?: Array<DashboardPanel>;
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const HeaderActions = ({
   id,
   name,
@@ -50,8 +52,17 @@ const HeaderActions = ({
   );
   const setDashboard = useSetAtom(dashboardAtom);
 
-  const { blocked, blockNavigation, proceedNavigation } =
-    useDashboardSaveBlocker({ id, name });
+  /**
+   * TODO useDashboardSaveBlocker issue with default router behaviour
+   * re-enable when fixed and widget edition is implemented
+   */
+  // const { blocked, blockNavigation, proceedNavigation } =
+  //   useDashboardSaveBlocker({ id, name });
+  const blocked = false;
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type,@typescript-eslint/no-empty-function
+  const blockNavigation = () => {};
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type,@typescript-eslint/no-empty-function
+  const proceedNavigation = () => {};
 
   const { saveDashboard } = useSaveDashboard();
 
@@ -59,13 +70,32 @@ const HeaderActions = ({
     (panels || []).map((panel) => formatPanel({ panel, staticPanel: false }))
   );
 
-  const startEditing = (): void => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const startEditing = useCallback(() => {
     switchPanelsEditionMode(true);
-  };
+    if (searchParams.get('edit') !== 'true') {
+      searchParams.set('edit', 'true');
+      setSearchParams(searchParams);
+    }
+  }, [searchParams, setSearchParams]);
+
+  const stopEditing = useCallback(() => {
+    switchPanelsEditionMode(false);
+    if (searchParams.get('edit') !== null) {
+      searchParams.delete('edit');
+      setSearchParams(searchParams);
+    }
+  }, [searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (searchParams.get('edit') === 'true') startEditing();
+    if (searchParams.get('edit') === null) stopEditing();
+  }, [searchParams]);
 
   const askCancelConfirmation = (): void => {
     if (!dirty) {
-      switchPanelsEditionMode(false);
+      stopEditing();
 
       return;
     }
@@ -92,7 +122,7 @@ const HeaderActions = ({
     setDashboard({
       layout: panels?.map((panel) => formatPanel({ panel })) || []
     });
-    switchPanelsEditionMode(false);
+    stopEditing();
     closeAskCancelConfirmationAndProceed();
   };
 
@@ -135,6 +165,7 @@ const HeaderActions = ({
         data-testid="edit_dashboard"
         icon={<EditOutlinedIcon />}
         iconVariant="start"
+        size="small"
         variant="ghost"
         onClick={startEditing}
       >
@@ -148,6 +179,7 @@ const HeaderActions = ({
       <Button
         aria-label={t(labelExit) as string}
         data-testid="cancel_dashboard"
+        size="small"
         variant="ghost"
         onClick={askCancelConfirmation}
       >
@@ -157,6 +189,8 @@ const HeaderActions = ({
         aria-label={t(labelSave) as string}
         data-testid="save_dashboard"
         disabled={!dirty}
+        size="small"
+        variant="ghost"
         onClick={saveAndProceed}
       >
         {t(labelSave)}

@@ -23,17 +23,18 @@ declare(strict_types=1);
 
 namespace Tests\Core\User\Application\UseCase\FindCurrentUserParameters;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Model\Page;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Configuration\User\Exception\UserException;
-use Core\Dashboard\Domain\Model\DashboardGlobalRole;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParameters;
 use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParametersResponse;
 use Core\User\Domain\Model\UserInterfaceDensity;
 use Core\User\Domain\Model\UserTheme;
+use Core\User\Infrastructure\Model\UserInterfaceDensityConverter;
+use Core\User\Infrastructure\Model\UserThemeConverter;
 
 beforeEach(function (): void {
     $this->presenter = new FindCurrentUserParametersPresenterStub();
@@ -63,7 +64,9 @@ it(
 it(
     'should present a valid response when the user is retrieved',
     function (): void {
-        $this->contact->method('hasRole')->willReturn($isExportButtonEnabled = true);
+        $rand
+
+            = $this->contact->method('hasRole')->willReturn($isExportButtonEnabled = true);
         $this->contact->method('getId')->willReturn($id = ($this->randomInt)());
         $this->contact->method('getName')->willReturn($name = ($this->randomString)());
         $this->contact->method('getAlias')->willReturn($alias = ($this->randomString)());
@@ -72,8 +75,10 @@ it(
         $this->contact->method('getLocale')->willReturn($locale = ($this->randomString)());
         $this->contact->method('isAdmin')->willReturn($isAdmin = ($this->randomBool)());
         $this->contact->method('isUsingDeprecatedPages')->willReturn($useDeprecatedPages = ($this->randomBool)());
-        $this->contact->method('getTheme')->willReturn(($theme = UserTheme::Light)->value);
-        $this->contact->method('getUserInterfaceDensity')->willReturn(($uiDensity = UserInterfaceDensity::Compact)->value);
+        $this->contact->method('getTheme')
+            ->willReturn(UserThemeConverter::toString($theme = UserTheme::Dark));
+        $this->contact->method('getUserInterfaceDensity')
+            ->willReturn(UserInterfaceDensityConverter::toString($uiDensity = UserInterfaceDensity::Extended));
         $this->contact->method('getDefaultPage')->willReturn($page = $this->createMock(Page::class));
 
         $page->method('getRedirectionUri')->willReturn($defaultPage = ($this->randomString)());
@@ -102,11 +107,12 @@ it(
 
 it(
     'should present a valid dashboard permission dto in the response',
-    function ($globalRole): void {
+    function (DashboardGlobalRole $globalRole): void {
         $this->rights->method('hasViewerRole')->willReturn($hasViewerRole = ($this->randomBool)());
         $this->rights->method('hasCreatorRole')->willReturn($hasCreatorRole = ($this->randomBool)());
         $this->rights->method('hasAdminRole')->willReturn($hasAdminRole = ($this->randomBool)());
-        $this->rights->method('getGlobalRole')->willReturn(DashboardGlobalRole::from($globalRole));
+        $this->rights->method('getGlobalRole')
+            ->willReturn($globalRole);
 
         ($this->useCase)($this->presenter);
 
@@ -114,11 +120,14 @@ it(
             ->and($this->presenter->data->dashboardPermissions->hasViewerRole)->toBe($hasViewerRole)
             ->and($this->presenter->data->dashboardPermissions->hasCreatorRole)->toBe($hasCreatorRole)
             ->and($this->presenter->data->dashboardPermissions->hasAdminRole)->toBe($hasAdminRole)
-            ->and($this->presenter->data->dashboardPermissions->globalRole->value)->toBe($globalRole);
+            ->and($this->presenter->data->dashboardPermissions->globalRole)->toBe($globalRole);
     }
 )->with(
-    array_map(
-        static fn(DashboardGlobalRole $role): string => $role->value,
-        DashboardGlobalRole::cases()
+    iterator_to_array(
+        (static function (): \Generator {
+            foreach (DashboardGlobalRole::cases() as $role) {
+                yield $role->name => [$role];
+            }
+        })()
     )
 );

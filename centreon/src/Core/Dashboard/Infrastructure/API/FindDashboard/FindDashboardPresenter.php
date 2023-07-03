@@ -28,6 +28,7 @@ use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardPresenterInter
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\PanelResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto;
+use Core\Dashboard\Infrastructure\Model\DashboardSharingRoleConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 
@@ -47,7 +48,7 @@ final class FindDashboardPresenter extends DefaultPresenter implements FindDashb
                 'created_at' => $this->formatDateToIso8601($data->createdAt),
                 'updated_at' => $this->formatDateToIso8601($data->updatedAt),
                 'panels' => array_map($this->panelToArray(...), $data->panels),
-                'own_role' => $data->ownRole,
+                'own_role' => DashboardSharingRoleConverter::toString($data->ownRole),
             ]);
         } else {
             $this->setResponseStatus($data);

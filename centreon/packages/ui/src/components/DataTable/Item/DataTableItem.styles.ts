@@ -10,10 +10,13 @@ const useStyles = makeStyles()((theme) => ({
       justifyContent: 'space-between'
     },
     '& .MuiCardActions-root': {
+      '& > span': {
+        display: 'flex',
+        gap: theme.spacing(1)
+      },
       display: 'flex',
-      flexDirection: 'row-reverse',
-      gap: theme.spacing(1),
 
+      justifyContent: 'space-between',
       opacity: 0
     },
     '&:hover .MuiCardActions-root': {

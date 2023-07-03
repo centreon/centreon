@@ -29,6 +29,10 @@ use Core\User\Domain\Model\UserTheme;
 
 final class FindCurrentUserParametersResponse
 {
+    public UserTheme $theme;
+
+    public UserInterfaceDensity $userInterfaceDensity;
+
     public function __construct(
         public int $id = 0,
         public string $name = '',
@@ -39,10 +43,12 @@ final class FindCurrentUserParametersResponse
         public bool $isAdmin = false,
         public bool $useDeprecatedPages = false,
         public bool $isExportButtonEnabled = false,
-        public UserTheme $theme = UserTheme::Light,
-        public UserInterfaceDensity $userInterfaceDensity = UserInterfaceDensity::Compact,
+        ?UserTheme $theme = null,
+        ?UserInterfaceDensity $userInterfaceDensity = null,
         public ?string $defaultPage = null,
         public DashboardPermissionsResponseDto $dashboardPermissions = new DashboardPermissionsResponseDto(),
     ) {
+        $this->theme = $theme ?? UserTheme::Light;
+        $this->userInterfaceDensity = $userInterfaceDensity ?? UserInterfaceDensity::Compact;
     }
 }
