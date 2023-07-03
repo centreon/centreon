@@ -6,7 +6,8 @@ import {
   propEq,
   split,
   complement,
-  equals
+  equals,
+  prop
 } from 'ramda';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -77,11 +78,11 @@ const useDeleteRequest = ({
           return;
         }
 
-        if (statusCode === 207) {
+        if (equals(statusCode, 207)) {
           const successfullResponses = data.filter(propEq('status', 204));
           const failedResponsesIds = data
             .filter(complement(propEq('status', 204)))
-            .map((item) => item.href)
+            .map(prop('href'))
             .map((item) => parseInt(last(split('/', item)) as string, 10));
 
           if (isEmpty(successfullResponses)) {
