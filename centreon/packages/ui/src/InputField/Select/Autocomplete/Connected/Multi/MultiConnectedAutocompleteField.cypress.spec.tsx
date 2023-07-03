@@ -112,7 +112,7 @@ describe('Multi connected autocomplete', () => {
     cy.matchImageSnapshot();
   });
 
-  it('displays all options on the list when the user searches for and selects an option."', () => {
+  it('displays all options on the list when the user searches for and selects an option', () => {
     cy.get('[data-testid="Multi Connected Autocomplete"]').as('input');
 
     cy.get('@input').click();
