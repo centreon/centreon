@@ -218,4 +218,43 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
 
         return $contactGroups;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByIdsAndUserId(array $contactGroupIds, int $userId): array
+    {
+        $queryBindValues = [];
+        foreach ($contactGroupIds as $contactGroupId) {
+            $queryBindValues[':contact_group_' . $contactGroupId] = $contactGroupId;
+        }
+
+        if (empty($queryBindValues)) {
+            return [];
+        }
+        $contactGroups = [];
+        $boundIds = implode(', ', array_keys($queryBindValues));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+            SELECT cg_id,cg_name FROM `:db`.contactgroup cg
+            INNER JOIN `:db`.contactgroup_contact_relation ccr
+                ON ccr.contactgroup_cg_id = cg.cg_id
+            WHERE ccr.contact_contact_id = :userId
+                AND cg_activate = '1'
+                AND cg.cg_id IN ($boundIds);
+            SQL
+        ));
+        foreach ($queryBindValues as $bindKey => $contactGroupId) {
+            $statement->bindValue($bindKey, $contactGroupId, \PDO::PARAM_INT);
+        }
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            $contactGroups[] = DbContactGroupFactory::createFromRecord($result);
+        }
+        $this->debug('Contact Group found: ' . count($contactGroups));
+
+        return $contactGroups;
+    }
 }

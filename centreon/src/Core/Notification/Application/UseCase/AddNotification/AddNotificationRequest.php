@@ -32,6 +32,9 @@ final class AddNotificationRequest
     /** @var int[] */
     public array $users = [];
 
+    /** @var int[] */
+    public array $contactGroups = [];
+
     /** @var array<array{
      *         type:string,
      *         ids:int[],

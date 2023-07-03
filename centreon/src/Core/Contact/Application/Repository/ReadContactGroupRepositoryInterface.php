@@ -61,4 +61,14 @@ interface ReadContactGroupRepositoryInterface
      * @throws \Throwable
      */
     public function findByIds(array $contactGroupIds): array;
+
+    /**
+     * Get Contact groups by their ids and related user.
+     *
+     * @param int[] $contactGroupIds
+     * @param int $userId
+     * @return ContactGroup[]
+     * @throws \Throwable
+     */
+    public function findByIdsAndUserId(array $contactGroupIds, int $userId): array;
 }
