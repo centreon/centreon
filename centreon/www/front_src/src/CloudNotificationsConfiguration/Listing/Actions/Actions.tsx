@@ -32,7 +32,6 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
         onClick={onClick}
       />
       <Duplicate row={row} />
-      <div>trigger</div>
     </Box>
   );
 };
