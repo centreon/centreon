@@ -1,38 +1,18 @@
-import { useState } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 import { FormikValues, useFormikContext } from 'formik';
-import { or, equals } from 'ramda';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useQueryClient } from '@tanstack/react-query';
+import { or } from 'ramda';
 
 import { Box } from '@mui/material';
 import SaveIcon from '@mui/icons-material/SaveOutlined';
 
-import {
-  ConfirmDialog,
-  IconButton,
-  useMutationQuery,
-  Method,
-  useSnackbar
-} from '@centreon/ui';
+import { ConfirmDialog, IconButton } from '@centreon/ui';
 
-import { EditedNotificationIdAtom, panelModeAtom } from '../../atom';
-import { isPanelOpenAtom } from '../../../atom';
 import {
   labelSave,
-  labelSuccessfulEditNotification,
-  labelSuccessfulNotificationAdded,
-  labelConfirmAddNotification,
-  labelConfirmEditNotification,
-  labelDoYouWantToConfirmAction,
-  labelCancelEditNotification,
-  labelCancelAddNotification
+  labelDoYouWantToConfirmAction
 } from '../../../translatedLabels';
-import { notificationtEndpoint } from '../../api/endpoints';
-import { adaptNotifications } from '../../api/adapters';
-import { PanelMode } from '../../models';
+import useFormSubmit from '../../useFormSubmit';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
@@ -42,56 +22,23 @@ const useStyle = makeStyles()((theme) => ({
 
 const SaveAction = (): JSX.Element => {
   const { classes } = useStyle();
-
   const { t } = useTranslation();
-  const { showSuccessMessage } = useSnackbar();
-  const { values, isValid, dirty } = useFormikContext<FormikValues>();
-  const queryClient = useQueryClient();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const panelMode = useAtomValue(panelModeAtom);
-  const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
-  const setPanelOpen = useSetAtom(isPanelOpenAtom);
+  const { isSubmitting, isValid, dirty, submitForm } =
+    useFormikContext<FormikValues>();
 
-  const { isMutating, mutateAsync } = useMutationQuery({
-    getEndpoint: () =>
-      equals(panelMode, PanelMode.Create)
-        ? notificationtEndpoint({})
-        : notificationtEndpoint({ id: editedNotificationId }),
-    method: equals(panelMode, PanelMode.Create) ? Method.POST : Method.PUT
-  });
+  const { labelConfirm, labelCancel, setDialogOpen, dialogOpen } =
+    useFormSubmit();
 
-  const onClick = (): void => {
-    setDialogOpen(true);
-  };
+  const onClick = (): void => setDialogOpen(true);
 
-  const onCancel = (): void => {
-    setDialogOpen(false);
-  };
+  const onCancel = (): void => setDialogOpen(false);
 
   const onConfirm = (): void => {
-    const labelMessage = equals(panelMode, PanelMode.Create)
-      ? labelSuccessfulNotificationAdded
-      : labelSuccessfulEditNotification;
-
-    mutateAsync(adaptNotifications(values)).then(() => {
-      showSuccessMessage(t(labelMessage));
-      setDialogOpen(false);
-      setPanelOpen(false);
-      queryClient.invalidateQueries(['notificationsListing']);
-      queryClient.invalidateQueries(['notifications']);
-    });
+    submitForm();
   };
 
   const disabled = or(!isValid, !dirty);
-
-  const labelConfirm = equals(panelMode, PanelMode.Create)
-    ? labelConfirmAddNotification
-    : labelConfirmEditNotification;
-
-  const labelCancel = equals(panelMode, PanelMode.Create)
-    ? labelCancelAddNotification
-    : labelCancelEditNotification;
 
   return (
     <Box>
@@ -107,7 +54,7 @@ const SaveAction = (): JSX.Element => {
         />
       </IconButton>
       <ConfirmDialog
-        confirmDisabled={isMutating}
+        confirmDisabled={isSubmitting}
         dataTestId={{
           dataTestIdCanceledButton: labelCancel,
           dataTestIdConfirmButton: labelConfirm
@@ -115,7 +62,7 @@ const SaveAction = (): JSX.Element => {
         labelMessage={t(labelConfirm)}
         labelTitle={t(labelDoYouWantToConfirmAction)}
         open={dialogOpen}
-        submitting={isMutating}
+        submitting={isSubmitting}
         onCancel={onCancel}
         onConfirm={onConfirm}
       />

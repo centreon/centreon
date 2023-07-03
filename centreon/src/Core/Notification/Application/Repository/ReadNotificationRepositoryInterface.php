@@ -25,10 +25,11 @@ namespace Core\Notification\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\TrimmedString;
+use Core\Contact\Domain\Model\ContactGroup;
+use Core\Notification\Domain\Model\ConfigurationUser;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationMessage;
-use Core\Notification\Domain\Model\ConfigurationUser;
 
 interface ReadNotificationRepositoryInterface
 {
@@ -42,6 +43,17 @@ interface ReadNotificationRepositoryInterface
      * @return Notification|null
      */
     public function findById(int $notificationId): ?Notification;
+
+    /**
+     * Find one notification by its name.
+     *
+     * @param TrimmedString $notificationName
+     *
+     * @throws \Throwable
+     *
+     * @return Notification|null
+     */
+    public function findByName(TrimmedString $notificationName): ?Notification;
 
     /**
      * Find notification message for a notification.
@@ -73,6 +85,17 @@ interface ReadNotificationRepositoryInterface
      * @return ConfigurationUser[]
      */
     public function findUsersByNotificationId(int $notificationId): array;
+
+    /**
+     * Find notification Contact Groups for a notification.
+     *
+     * @param int $notificationId
+     *
+     * @throws \Throwable
+     *
+     * @return ContactGroup[]
+     */
+    public function findContactGroupsByNotificationId(int $notificationId): array;
 
     /**
      * Find notification users for a notification.

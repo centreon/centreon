@@ -36,4 +36,23 @@ interface WriteNotificationResourceRepositoryInterface
      * @throws \Throwable
      */
     public function add(int $notificationId, NotificationResource $resource): void;
+
+    /**
+     * Delete given resources for a notification.
+     *
+     * @param int $notificationId
+     * @param int[] $resourcesIds
+     *
+     * @throws \Throwable
+     */
+    public function deleteByNotificationIdAndResourcesId(int $notificationId, array $resourcesIds): void;
+
+    /**
+     * Delete all the resources of a notification.
+     *
+     * @param int $notificationId
+     *
+     * @throws \Throwable
+     */
+    public function deleteAllByNotification(int $notificationId): void;
 }

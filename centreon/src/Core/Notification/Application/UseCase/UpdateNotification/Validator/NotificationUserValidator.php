@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\AddNotification\Validator;
+namespace Core\Notification\Application\UseCase\UpdateNotification\Validator;
 
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -33,10 +33,11 @@ class NotificationUserValidator
     use LoggerTrait;
 
     /**
-     * Validate that provided user ids exists
+     * Validate that provided user ids exists.
      *
      * @param int[] $userIds
      * @param ContactRepositoryInterface $contactRepository
+     *
      * @throws \Throwable|NotificationException
      */
     public function validate(array $userIds, ContactRepositoryInterface $contactRepository): void
