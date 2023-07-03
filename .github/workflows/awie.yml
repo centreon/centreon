@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-awie/**"
+      - "!centreon-awie/.veracode-exclusions"
   push:
     branches:
       - develop

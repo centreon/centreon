@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-dsm/**"
+      - "!centreon-dsm/.veracode-exclusions"
   push:
     branches:
       - develop

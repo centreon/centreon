@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-open-tickets/**"
+      - "!centreon-open-tickets/.veracode-exclusions"
   push:
     branches:
       - develop

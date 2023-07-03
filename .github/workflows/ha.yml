@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-ha/**"
+      - "!centreon-ha/.veracode-exclusions"
   push:
     branches:
       - develop
