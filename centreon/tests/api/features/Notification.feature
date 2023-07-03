@@ -906,7 +906,7 @@ Feature:
       }
     """
 
-  Scenario: Notification Update as non-admin
+  Scenario: Notification update as non-admin
     Given the following CLAPI import data:
     """
     CONTACT;ADD;test-user;test-user;test-user@localservice.com;Centreon@2022;0;1;en_US;local

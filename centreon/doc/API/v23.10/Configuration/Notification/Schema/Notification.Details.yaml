@@ -6,7 +6,7 @@ properties:
     example: 1
   name:
     type: string
-    description: "Name of notification"
+    description: "Name of the notification"
     example: "notification-name"
   timeperiod:
     type: object
@@ -36,7 +36,7 @@ properties:
           description: "Subject of the message"
         message:
           type: string
-          description: "content of the message"
+          description: "Content of the message"
   users:
     type: array
     items:
@@ -47,7 +47,7 @@ properties:
           description: "ID of the user"
         name:
           type: string
-          description: "name of the user"
+          description: "Name of the user"
   resources:
     type: array
     items:
@@ -72,7 +72,7 @@ properties:
                 example: 1
               name:
                 type: string
-                description: "name of the resource"
+                description: "Name of the resource"
                 example: "My Hostgroup"
         extra:
           type: object

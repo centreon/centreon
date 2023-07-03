@@ -59,7 +59,7 @@ beforeEach(function():void {
     $this->presenter = new UpdateNotificationPresenterStub($this->presenterFormatter);
 });
 
-it('should present an forbidden response when the user is not admin and does not have sufficient ACLs', function (): void {
+it('should present a forbidden response when the user is not admin and does not have sufficient ACLs', function (): void {
     $contact = (new Contact())->setAdmin(false)->setId(1);
     $request= new UpdateNotificationRequest();
     (new UpdateNotification(
@@ -78,7 +78,7 @@ it('should present an forbidden response when the user is not admin and does not
         ->toBe(NotificationException::updateNotAllowed()->getMessage());
 });
 
-it('should present a not found response when the does not exists', function (): void {
+it('should present a not found response when the notification does not exists', function (): void {
     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
@@ -104,7 +104,7 @@ it('should present a not found response when the does not exists', function (): 
     expect($this->presenter->responseStatus)->toBeInstanceOf(NotFoundResponse::class);
 });
 
-it('should present an InvalidArgumentResponse when a different notification with same name exists', function (): void {
+it('should present an InvalidArgumentResponse when a different notification with the same name exists', function (): void {
     $contact = (new Contact())->setAdmin(true)->setId(1)->setTopologyRules(
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );

@@ -47,7 +47,7 @@ put:
 patch:
   tags:
     - Notification
-  summary: "Partial update a notification definition"
+  summary: "Partial update of a notification definition"
   description: |
     Partial update of a notification definition
 
