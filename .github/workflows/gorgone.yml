@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-gorgone/**"
+      - "!centreon-gorgone/.veracode"
       - "!centreon-gorgone/.veracode-exclusions"
   push:
     branches:
@@ -18,6 +19,7 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-gorgone/**"
+      - "!centreon-gorgone/.veracode"
       - "!centreon-gorgone/.veracode-exclusions"
     tags:
       - centreon-gorgone-*
