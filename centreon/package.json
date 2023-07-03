@@ -172,6 +172,7 @@
   "workspaces": [
     "packages/*"
   ],
+  
   "msw": {
     "workerDirectory": "www/front_src/public"
   }
