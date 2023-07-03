@@ -6,10 +6,9 @@ info:
     + Added host severities endpoints (GET, PUT)
     + Added host categories endpoint (GET, PUT)
     + Added host group endpoints (GET, PUT)
-    + Added notification endpoint (POST)
-    + Added service templates endpoints (GET)
-    + Add host template endpoints (POST, DELETE, PATCH)
-    + Add notification configuration endpoints (PATCH)
+    + Added notification endpoints (POST, PATCH)
+    + Added service templates endpoints (GET, POST, DELETE, PATCH)
+    + Added host template endpoints (POST, DELETE, PATCH)
     +
     # Updated features
     + Updated host template endpoint (GET)
@@ -254,7 +253,7 @@ paths:
   /configuration/notifications:
     $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
   /configuration/notifications/{notification_id}:
-    $ref: "./v23.10/Configuration/Notification/PartialUpdateNotification.yaml"
+    $ref: "./v23.10/Configuration/Notification/Notification.yaml"
   /configuration/hosts/templates:
     $ref: './v23.10/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
@@ -4256,33 +4255,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /platform/versions:
-    get:
-      tags:
-        - Platform
-      summary: "List versions of web, widgets and modules"
-      description: "List versions of web, widgets and modules"
-      responses:
-        '200':
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  web:
-                      $ref: '#/components/schemas/Platform.Versions'
-                  widgets:
-                    type: object
-                    properties:
-                      widgetName:
-                        type: object
-                        $ref: '#/components/schemas/Platform.Versions'
-                  modules:
-                    type: object
-                    properties:
-                      moduleName:
-                        type: object
-                        $ref: '#/components/schemas/Platform.Versions'
+    $ref: './v23.10/Platform/Versions.yaml'
   /platform/updates:
     $ref: "./v22.10/Administration/updates.yaml"
   /platform/installation/status:
@@ -8667,26 +8640,6 @@ components:
                 type: string
                 description: "Data on JSON Format"
                 example: "{\"action\":\"getthumbprint\",\"data\":{\"thumbprint\":\"xxxx_xxxxxxxxx\"},\"message\":\"ok\"}"
-    Platform.Versions:
-      type: object
-      description: "version"
-      properties:
-        version:
-          type: string
-          description: "Full Version"
-          example: 22.04.0
-        major:
-          type: string
-          description: "Major version"
-          example: "22"
-        minor:
-          type: string
-          description: "Minor version"
-          example: "04"
-        fix:
-          type: string
-          description: "Fix version"
-          example: "0"
     Administration.Vault.Configuration.Write:
       type: object
       required: [name, address, port, root_path, role_id, secret_id]

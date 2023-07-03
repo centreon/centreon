@@ -35,6 +35,8 @@ class AddHostCategoryPresenter extends AbstractPresenter
     use LoggerTrait;
     private const ROUTE_NAME = 'FindHostCategory';
 
+    private const ROUTE_HOST_CATEGORY_ID = 'hostCategoryId';
+
     public function __construct(
         protected PresenterFormatterInterface $presenterFormatter,
         readonly private Router $router
@@ -62,7 +64,7 @@ class AddHostCategoryPresenter extends AbstractPresenter
 
             try {
                 $this->setResponseHeaders([
-                    'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $payload->id]),
+                    'Location' => $this->router->generate(self::ROUTE_NAME, [self::ROUTE_HOST_CATEGORY_ID => $payload->id]),
                 ]);
             } catch (\Throwable $ex) {
                 $this->error('Impossible to generate the location header', [

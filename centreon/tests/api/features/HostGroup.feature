@@ -321,6 +321,7 @@ Feature:
     And I store response values in:
       | name        | path    |
       | hostGroupId | id      |
+    And the header location should be equal to '/centreon/api/latest/configuration/hosts/groups/<hostGroupId>'
 
     When I send a PUT request to '/api/latest/configuration/hosts/groups/<hostGroupId>' with body:
     """
