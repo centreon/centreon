@@ -24,7 +24,7 @@ const useStyle = makeStyles<Required<Props>>()((theme, { marginBottom }) => ({
   panelContainer: {
     display: 'flex',
     flexDirection: 'row-reverse',
-    height: `calc(100vh - ${theme.spacing(bottom)})`
+    height: `calc(100vh - ${theme.spacing(marginBottom)})`
   }
 }));
 
