@@ -15,7 +15,7 @@ interface Props {
   marginBottom?: number;
 }
 
-const useStyle = makeStyles<{ bottom: number }>()((theme, { bottom }) => ({
+const useStyle = makeStyles<Required<Props>>()((theme, { marginBottom }) => ({
   panel: {
     backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
       ? theme.palette.common.black
