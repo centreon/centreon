@@ -37,7 +37,7 @@ const PanelWithQueryProvider = (): JSX.Element => {
     <div style={{ height: '100vh' }}>
       <TestQueryProvider>
         <SnackbarProvider>
-          <Form />
+          <Form marginBottom={0} />
         </SnackbarProvider>
       </TestQueryProvider>
     </div>
