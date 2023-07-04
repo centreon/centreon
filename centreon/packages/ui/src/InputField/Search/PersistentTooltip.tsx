@@ -59,10 +59,6 @@ const PersistentTooltip = ({
     closeTooltipProp?.();
   };
 
-  useEffect(() => {
-    setOpen(openTooltip as boolean);
-  }, [openTooltip]);
-
   const title = (
     <>
       <IconButton
@@ -77,7 +73,11 @@ const PersistentTooltip = ({
   );
 
   return (
-    <Tooltip classes={{ tooltip: classes.tooltip }} open={open} title={title}>
+    <Tooltip
+      classes={{ tooltip: classes.tooltip }}
+      open={openTooltip || open}
+      title={title}
+    >
       <IconButton
         aria-label={labelSearchHelp}
         size="small"
