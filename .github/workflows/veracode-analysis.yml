@@ -168,7 +168,7 @@ jobs:
           scanpollinginterval: 120 # time between two checks in seconds / [30 to 120]
 
       - name: Promote Scan
-        # only develop will promote to policy scan
+        # only develop will be promoted to policy scan
         if: github.ref_name == 'develop'
         env:
           VERACODE_API_ID: "${{ secrets.veracode_api_id }}"
