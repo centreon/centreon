@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Box } from '@mui/material';
 
-import { Group, InputType } from '@centreon/ui';
+import { Group, InputType, Variant } from '@centreon/ui';
 
 import {
   labelSelectResourcesAndEvents,
@@ -48,18 +48,26 @@ const useFormInputs = ({ panelWidth }: Props): object => {
   const { classes } = useStyles({ isExtraFieldHidden });
   const { t } = useTranslation();
 
+  const titleAttributes = {
+    classes: { root: classes.titleGroup },
+    variant: Variant.subtitle1
+  };
+
   const basicFormGroups: Array<Group> = [
     {
       name: t(labelSelectResourcesAndEvents),
-      order: 1
+      order: 1,
+      titleAttributes
     },
     {
       name: t(labelSelectUsers),
-      order: 2
+      order: 2,
+      titleAttributes
     },
     {
       name: t(labelSelectTimePeriodAndChannels),
-      order: 3
+      order: 3,
+      titleAttributes
     }
   ];
 
