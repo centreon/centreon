@@ -252,7 +252,6 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         while ($statement !== false && is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
             $contactGroups[] = DbContactGroupFactory::createFromRecord($result);
         }
-        $this->debug('Contact Group found: ' . count($contactGroups));
 
         return $contactGroups;
     }
