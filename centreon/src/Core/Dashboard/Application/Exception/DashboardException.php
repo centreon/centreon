@@ -58,7 +58,7 @@ class DashboardException extends \Exception
     {
         return new self(
             sprintf(
-                _('You are not allowed to perform read operations on the dashboard #%d access rights'),
+                _('You cannot view access rights on the dashboard #%d'),
                 $dashboardId
             )
         );
@@ -73,7 +73,7 @@ class DashboardException extends \Exception
     {
         return new self(
             sprintf(
-                _('You are not allowed to perform write operations on the dashboard #%d access rights'),
+                _('You are not allowed to edit access rights on the dashboard #%d'),
                 $dashboardId
             )
         );
@@ -132,7 +132,7 @@ class DashboardException extends \Exception
      */
     public static function errorWhileRetrievingJustCreatedShare(): self
     {
-        return new self(_('Error while retrieving newly created dashboard share'));
+        return new self(_('Error while retrieving the new share of dashboard'));
     }
 
     /**
@@ -152,6 +152,6 @@ class DashboardException extends \Exception
      */
     public static function theContactDoesNotExist(int $contactId): self
     {
-        return new self(sprintf(_("The contact id #%d doesn't exist"), $contactId));
+        return new self(sprintf(_("The contact ID #%d does not exist"), $contactId));
     }
 }
