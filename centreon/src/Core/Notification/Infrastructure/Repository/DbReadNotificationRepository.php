@@ -195,16 +195,27 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
      */
     public function findUsersCountByNotificationIds(array $notificationIds): array
     {
-        $concatenator = $this->getConcatenatorForFindUsersCountQuery()
-            ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
-            ->appendWhere(
-                <<<'SQL'
-                        WHERE notification_id IN (:notification_ids)
-                    SQL
-            );
-
-        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
-        $concatenator->bindValuesToStatement($statement);
+        $bindValues = [];
+        foreach($notificationIds as $notificationId) {
+            $bindValues[':notification_' . $notificationId] = $notificationId;
+        }
+        $bindToken = implode(', ', array_keys($bindValues));
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT notification_id, count(user) FROM (
+                    SELECT rel.notification_id, user_id as user
+                    FROM notification_user_relation rel
+                    WHERE rel.notification_id IN ($bindToken)
+                    UNION
+                    SELECT cg_rel.notification_id, contactgroup_id as user
+                    FROM notification_contactgroup_relation cg_rel
+                    WHERE cg_rel.notification_id IN ($bindToken)
+                ) as subquery GROUP BY notification_id;
+            SQL
+        ));
+        foreach ($bindValues as $token => $notificationId) {
+            $statement->bindValue($token, $notificationId, \PDO::PARAM_INT);
+        }
         $statement->execute();
 
         $result = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
@@ -307,28 +318,6 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         }
 
         return $notificationsChannels;
-    }
-
-    /**
-     * @return SqlConcatenator
-     */
-    private function getConcatenatorForFindUsersCountQuery(): SqlConcatenator
-    {
-        return (new SqlConcatenator())
-            ->defineSelect(
-                <<<'SQL'
-                    SELECT notification_id, COUNT(user_id)
-                    SQL
-            )->defineFrom(
-                <<<'SQL'
-                    FROM
-                        `:db`.notification_user_relation rel
-                    SQL
-            )->defineGroupBy(
-                <<<'SQL'
-                        GROUP BY notification_id
-                    SQL
-            );
     }
 
     /**

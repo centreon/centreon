@@ -30,6 +30,7 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\DeleteDashboard\DeleteDashboard;
 use Core\Dashboard\Domain\Model\Dashboard;
@@ -40,6 +41,7 @@ beforeEach(function (): void {
     $this->useCase = new DeleteDashboard(
         $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class),
         $this->writeDashboardRepository = $this->createMock(WriteDashboardRepositoryInterface::class),
+        $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class)
     );
@@ -111,12 +113,36 @@ it(
             ->method('hasAdminRole')->willReturn(false);
         $this->rights->expects($this->once())
             ->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())
+            ->method('canDelete')->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
-            ->method('existsOneByContact')->willReturn(true);
+            ->method('findOneByContact')->willReturn($this->testedDashboard);
+        $this->writeDashboardRepository->expects($this->once())
+            ->method('delete');
 
         ($this->useCase)($this->testedDashboardId, $this->presenter);
 
         expect($this->presenter->data)->toBeInstanceOf(NoContentResponse::class);
+    }
+);
+
+it(
+    'should present a ForbiddenResponse as NOT allowed CREATOR user',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())
+            ->method('canDelete')->willReturn(false);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOneByContact')->willReturn($this->testedDashboard);
+        $this->writeDashboardRepository->expects($this->never())
+            ->method('delete');
+
+        ($this->useCase)($this->testedDashboardId, $this->presenter);
+
+        expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class);
     }
 );
 
@@ -128,7 +154,7 @@ it(
         $this->rights->expects($this->once())
             ->method('canAccess')->willReturn(true);
         $this->readDashboardRepository->expects($this->once())
-            ->method('existsOneByContact')->willReturn(false);
+            ->method('findOneByContact')->willReturn(null);
 
         ($this->useCase)($this->testedDashboardId, $this->presenter);
 

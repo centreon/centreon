@@ -32,8 +32,8 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
-use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
@@ -139,7 +139,7 @@ final class AddDashboard
 
             $newDashboardId = $this->writeDashboardRepository->add($newDashboard);
 
-            $this->writeDashboardShareRepository->createShareWithContact(
+            $this->writeDashboardShareRepository->upsertShareWithContact(
                 $this->contact->getId(),
                 $newDashboardId,
                 $this->defaultSharingRoleOnCreate
