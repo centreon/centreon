@@ -12,7 +12,7 @@ import { isPanelOpenAtom, panelWidthStorageAtom } from '../atom';
 import Form from './Form';
 
 interface Props {
-  bottom?: number;
+  marginBottom?: number;
 }
 
 const useStyle = makeStyles<{ bottom: number }>()((theme, { bottom }) => ({
