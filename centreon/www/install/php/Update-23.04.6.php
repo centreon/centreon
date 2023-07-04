@@ -22,7 +22,7 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
 //error specific content
-$versionOfTheUpgrade = 'UPGRADE - 23.04.5: ';
+$versionOfTheUpgrade = 'UPGRADE - 23.04.6: ';
 $errorMessage = '';
 
 $alterMetricsTable = function(CentreonDB $pearDBO) {
