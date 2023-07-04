@@ -36,8 +36,8 @@ EOF`,
     commandResult = cy
       .execInContainer({
         command: `bash -e <<EOF
-          #mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak
-          #mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak
+          rm -f /etc/apt/sources.list.d/centreon-unstable.list
+          rm -f /etc/apt/sources.list.d/centreon-testing.list
           apt-get update
 EOF`,
         name: Cypress.env('dockerName')
@@ -85,8 +85,8 @@ EOF`,
   } else {
     cy.execInContainer({
       command: `bash -e <<EOF
-        #mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak
-        #mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak
+        rm -f /etc/apt/sources.list.d/centreon-unstable.list
+        rm -f  /etc/apt/sources.list.d/centreon-testing.list
         apt-get update
         apt-get install -y centreon-web-apache=${version}-${Cypress.env(
         'WEB_IMAGE_OS'
