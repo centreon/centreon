@@ -258,11 +258,15 @@ foreach ($queryParams as $param => $value) {
 $stmt->execute();
 $stmt2 = $pearDBO->query("SELECT FOUND_ROWS()");
 $rows = $stmt2->fetchColumn();
-for ($i = 0; $indexData = $stmt->fetch(PDO::FETCH_ASSOC); $i++) {
-    $query = "SELECT * FROM metrics WHERE index_id = '" . $indexData["id"] . "' ORDER BY metric_name";
-    $DBRESULT2 = $pearDBO->query($query);
+
+for ($i = 0; $indexData = $stmt->fetch(\PDO::FETCH_ASSOC); $i++) {
+    $query = "SELECT * FROM metrics WHERE index_id = :indexId ORDER BY metric_name";
+    $stmt2 = $pearDBO->prepare($query);
+    $stmt2->bindValue(':indexId', $indexData["id"], \PDO::PARAM_INT);
+    $stmt2->execute();
+
     $metric = "";
-    for ($im = 0; $metrics = $DBRESULT2->fetchRow(); $im++) {
+    for ($im = 0; $metrics = $stmt2->fetch(\PDO::FETCH_ASSOC); $im++) {
         if ($im) {
             $metric .= " - ";
         }
