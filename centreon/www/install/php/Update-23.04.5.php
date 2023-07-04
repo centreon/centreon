@@ -18,33 +18,3 @@
  * For more information : contact@centreon.com
  *
  */
-require_once __DIR__ . '/../../class/centreonLog.class.php';
-$centreonLog = new CentreonLog();
-
-//error specific content
-$versionOfTheUpgrade = 'UPGRADE - 23.04.5: ';
-$errorMessage = '';
-
-$alterMetricsTable = function(CentreonDB $pearDBO) {
-    $pearDBO->query(
-        <<<'SQL'
-            ALTER TABLE `metrics`
-            MODIFY COLUMN `metric_name` VARCHAR(1021) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL
-            SQL
-    );
-};
-
-try {
-    $errorMessage = 'Impossible to alter metrics table';
-    $alterMetricsTable($pearDBO);
-} catch (\Exception $e) {
-    $centreonLog->insertLog(
-        4,
-        $versionOfTheUpgrade . $errorMessage
-        . ' - Code : ' . (int) $e->getCode()
-        . ' - Error : ' . $e->getMessage()
-        . ' - Trace : ' . $e->getTraceAsString()
-    );
-
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
-}
