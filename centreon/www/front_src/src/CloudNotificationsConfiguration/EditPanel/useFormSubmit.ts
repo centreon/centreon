@@ -16,9 +16,7 @@ import {
   labelConfirmAddNotification,
   labelConfirmEditNotification,
   labelSuccessfulEditNotification,
-  labelSuccessfulNotificationAdded,
-  labelCancelAddNotification,
-  labelCancelEditNotification
+  labelSuccessfulNotificationAdded
 } from '../translatedLabels';
 import { isPanelOpenAtom } from '../atom';
 
@@ -29,8 +27,8 @@ import { notificationtEndpoint } from './api/endpoints';
 
 interface UseFormState {
   dialogOpen: boolean;
-  labelCancel: string;
   labelConfirm: string;
+  panelMode: PanelMode;
   setDialogOpen;
   submit: (
     values,
@@ -56,10 +54,6 @@ const useForm = (): UseFormState => {
   const labelConfirm = equals(panelMode, PanelMode.Create)
     ? labelConfirmAddNotification
     : labelConfirmEditNotification;
-
-  const labelCancel = equals(panelMode, PanelMode.Create)
-    ? labelCancelAddNotification
-    : labelCancelEditNotification;
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () =>
@@ -91,8 +85,8 @@ const useForm = (): UseFormState => {
 
   return {
     dialogOpen,
-    labelCancel,
     labelConfirm,
+    panelMode,
     setDialogOpen,
     submit
   };

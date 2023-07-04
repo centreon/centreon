@@ -13,6 +13,8 @@ import {
   CircularProgress
 } from '@mui/material';
 
+import { DataTestAttributes } from '../@types/data-attributes';
+
 interface StylesProps {
   contentWidth?: number;
 }
@@ -29,18 +31,12 @@ const useStyles = makeStyles<StylesProps>()((theme, { contentWidth }) => ({
   }
 }));
 
-interface DialogDataTestId {
-  dataTestIdCanceledButton?: string;
-  dataTestIdConfirmButton?: string;
-}
-
 export type Props = {
   cancelDisabled?: boolean;
   children?: ReactNode;
   className?: string;
   confirmDisabled?: boolean;
   contentWidth?: number;
-  dataTestId?: DialogDataTestId;
   dialogActionsClassName?: string;
   dialogConfirmButtonClassName?: string;
   dialogContentClassName?: string;
@@ -54,7 +50,8 @@ export type Props = {
   onConfirm: (event, value?) => void;
   open: boolean;
   submitting?: boolean;
-} & DialogProps;
+} & DialogProps &
+  DataTestAttributes;
 
 const Dialog = ({
   open,
@@ -69,7 +66,6 @@ const Dialog = ({
   confirmDisabled = false,
   cancelDisabled = false,
   submitting = false,
-  dataTestId,
   dialogPaperClassName,
   dialogTitleClassName,
   dialogContentClassName,
@@ -79,12 +75,6 @@ const Dialog = ({
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ contentWidth });
   const { t } = useTranslation();
-
-  const dataTestIdConfirmButton =
-    dataTestId?.dataTestIdConfirmButton ?? t(labelConfirm as string);
-
-  const dataTestIdCanceledButton =
-    dataTestId?.dataTestIdCanceledButton ?? t(labelCancel as string);
 
   return (
     <MuiDialog
@@ -110,7 +100,7 @@ const Dialog = ({
         {onCancel && (
           <Button
             color="primary"
-            data-testid={dataTestIdCanceledButton}
+            data-testid={t(labelCancel as string)}
             disabled={cancelDisabled}
             onClick={onCancel}
           >
@@ -121,7 +111,7 @@ const Dialog = ({
           aria-label={labelConfirm || ''}
           className={dialogConfirmButtonClassName}
           color="primary"
-          data-testid={dataTestIdConfirmButton}
+          data-testid={t(labelConfirm as string)}
           disabled={confirmDisabled}
           endIcon={submitting && <CircularProgress size={15} />}
           onClick={onConfirm}
