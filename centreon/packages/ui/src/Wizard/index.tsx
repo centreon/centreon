@@ -37,7 +37,8 @@ const Wizard = ({
   open,
   onClose = undefined,
   confirmDialogLabels = undefined,
-  actionsBarLabels = actionsBarLabelsDefaultValues
+  actionsBarLabels = actionsBarLabelsDefaultValues,
+  displayConfirmDialog
 }: WizardProps): JSX.Element => {
   const { classes } = useStyles();
   const [currentStep, setCurrentStep] = useState(0);
@@ -78,9 +79,18 @@ const Wizard = ({
     bag.setSubmitting(false);
   };
 
+  const controlDisplayConfirmationDialog = (): void => {
+    if (!equals(displayConfirmDialog, false)) {
+      setOpenConfirm(displayConfirmDialog ?? true);
+
+      return;
+    }
+    onClose?.();
+  };
+
   const handleClose = (_, reason): void => {
     if (equals(reason, 'backdropClick')) {
-      setOpenConfirm(true);
+      controlDisplayConfirmationDialog();
 
       return;
     }
@@ -89,7 +99,6 @@ const Wizard = ({
 
   const handleCloseConfirm = (confirm): void => {
     setOpenConfirm(false);
-
     if (!confirm) {
       return;
     }
