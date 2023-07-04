@@ -256,3 +256,34 @@ properties:
     type: boolean
     description: "Indicates whether the service template is activated or not"
     example: true
+  macros:
+    type: array
+    description: |
+      Macros defined for the service (directly or through a template or command inheritance)
+
+      If multiple macros are defined with the same name, only the last one will be saved.
+    items:
+      type: object
+      required: [ 'name', 'value', 'is_password', 'description' ]
+      properties:
+        name:
+          type: string
+          description: "Name of the macro"
+          example: "MacroName"
+        value:
+          type: string
+          nullable: true
+          description: |
+            Value of the macro.
+
+            If the is_password property is set to true and value is set to null, then the value will be considered unchanged.
+          example: "macroValue"
+        is_password:
+          type: boolean
+          description: "Indicates whether the macro value is a password or not"
+          example: false
+        description:
+          type: string
+          nullable: true
+          description: "Macro description"
+          example: "Some text to describe the macro"

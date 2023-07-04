@@ -11,7 +11,7 @@ import { userAtom } from '@centreon/ui-context';
 
 import { retrievedUser } from './mockedData';
 
-import TimePeriod from '.';
+import TimePeriod from './index';
 
 dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
