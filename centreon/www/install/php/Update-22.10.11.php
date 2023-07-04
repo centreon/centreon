@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,19 +22,8 @@ require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
 //error specific content
-$versionOfTheUpgrade = 'UPGRADE - 23.10.0: ';
+$versionOfTheUpgrade = 'UPGRADE - 22.10.10: ';
 $errorMessage = '';
-
-$removeNagiosPathImg = function(CentreonDB $pearDB) {
-    $selectStatement = $pearDB->query("SELECT 1 FROM options WHERE `key`='nagios_path_img'");
-    if($selectStatement->rowCount() > 0) {
-        $pearDB->query("DELETE FROM options WHERE `key`='nagios_path_img'");
-    }
-};
-//Change the type of check_attempt and max_check_attempts columns from table resources
-$errorMessage = "Couldn't modify resources table";
-$alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED, 
-    MODIFY max_check_attempts SMALLINT UNSIGNED";
 
 $alterMetricsTable = function(CentreonDB $pearDBO) {
     $pearDBO->query(
@@ -46,26 +35,9 @@ $alterMetricsTable = function(CentreonDB $pearDBO) {
 };
 
 try {
-
-    $pearDBO->query($alterResourceTableStmnt);
-
     $errorMessage = 'Impossible to alter metrics table';
     $alterMetricsTable($pearDBO);
-
-    $errorMessage = '';
-    // Transactional queries
-    if (! $pearDB->inTransaction()) {
-        $pearDB->beginTransaction();
-    }
-    $errorMessage = "Unable to Delete nagios_path_img from options table";
-    $removeNagiosPathImg($pearDB);
-
-    $pearDB->commit();
 } catch (\Exception $e) {
-    if ($pearDB->inTransaction()) {
-        $pearDB->rollBack();
-    }
-
     $centreonLog->insertLog(
         4,
         $versionOfTheUpgrade . $errorMessage
