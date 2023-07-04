@@ -5,7 +5,6 @@ import {
   checkPlatformVersion,
   dateBeforeLogin,
   getCentreonStableMinorVersions,
-  insertResources,
   installCentreon,
   updatePlatformPackages
 } from '../common';
@@ -185,7 +184,7 @@ When('administrator runs the update procedure', () => {
     .each(($span) => {
       cy.wrap($span).should('have.text', 'OK');
     });
-  cy.get('.btc.bt_info').eq(0).click();
+  cy.get('.btc.bt_info', { timeout: 15000 }).eq(0).click();
 
   cy.wait('@getStep5').get('.btc.bt_success').eq(0).click();
 });
@@ -271,7 +270,10 @@ Given('a successfully updated platform', () => {
 });
 
 When('administrator exports Poller configuration', () => {
-  insertResources();
+  cy.addHost({
+    checkCommand: 'check_command',
+    name: 'host2'
+  });
 
   cy.get('header').get('svg[data-testid="DeviceHubIcon"]').click();
 
@@ -285,7 +287,7 @@ When('administrator exports Poller configuration', () => {
 });
 
 Then('Poller configuration should be fully generated', () => {
-  checkIfConfigurationIsExported(dateBeforeLogin);
+  checkIfConfigurationIsExported({ dateBeforeLogin, hostName: 'host2' });
 });
 
 afterEach(() => {

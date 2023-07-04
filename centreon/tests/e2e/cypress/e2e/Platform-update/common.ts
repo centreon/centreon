@@ -176,9 +176,9 @@ EOF`,
     .applyPollerConfiguration()
     .execInContainer({
       command: `bash -e <<EOF
-        /etc/init.d/cbd start
-        /etc/init.d/centengine start
-        su - centreon-gorgone -c "/usr/bin/perl /usr/bin/gorgoned --config=/etc/centreon-gorgone/config.yaml --logfile=/var/log/centreon-gorgone/gorgoned.log --severity=info" &
+        systemctl restart cbd
+        systemctl restart centengine
+        systemctl restart gorgoned
 EOF`,
       name: Cypress.env('dockerName')
     });
