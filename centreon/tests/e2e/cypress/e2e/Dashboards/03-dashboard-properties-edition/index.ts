@@ -99,6 +99,7 @@ When('the user saves the dashboard with its new values', () => {
 Then(
   'the dashboard is listed in the dashboards library with its new name and description',
   () => {
+    cy.reload();
     const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
     cy.contains('Dashboards').should('be.visible');
     cy.contains('Update dashboard').should('not.exist');
@@ -217,6 +218,7 @@ When('the user saves the dashboard with the description field empty', () => {
 Then(
   'the dashboard is listed in the dashboard library with only its name',
   () => {
+    cy.reload();
     const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
     cy.contains('Dashboards').should('be.visible');
     cy.contains('Update dashboard').should('not.exist');
