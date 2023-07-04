@@ -135,8 +135,6 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
      */
     public function update(Notification $notification): void
     {
-        $this->info('Updating a notification configuration');
-
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 UPDATE notification
@@ -154,6 +152,36 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
         $statement->bindValue(':isActivated', $notification->isActivated(), \PDO::PARAM_BOOL);
         $statement->bindValue(':notificationId', $notification->getId(), \PDO::PARAM_INT);
 
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteMessages(int $notificationId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    DELETE FROM `:db`.notification_message
+                    WHERE notification_id = :notificationId
+                SQL
+        ));
+        $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteUsers(int $notificationId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    DELETE FROM `:db`.notification_user_relation
+                    WHERE notification_id = :notificationId
+                SQL
+        ));
+        $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $statement->execute();
     }
 }

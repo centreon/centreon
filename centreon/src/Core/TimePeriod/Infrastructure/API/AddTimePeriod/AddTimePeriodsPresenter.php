@@ -36,6 +36,8 @@ class AddTimePeriodsPresenter extends AbstractPresenter implements PresenterInte
     use LoggerTrait;
 
     private const ROUTE_NAME = 'FindTimePeriod';
+    private const ROUTE_TIME_PERIOD_ID = 'id';
+
 
     /**
      * @param PresenterFormatterInterface $presenterFormatter
@@ -67,7 +69,7 @@ class AddTimePeriodsPresenter extends AbstractPresenter implements PresenterInte
             ]);
             try {
                 $this->setResponseHeaders([
-                    'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $payload->id]),
+                    'Location' => $this->router->generate(self::ROUTE_NAME, [self::ROUTE_TIME_PERIOD_ID => $payload->id]),
                 ]);
             } catch (\Throwable $ex) {
                 $this->error('Impossible to generate the location header', [

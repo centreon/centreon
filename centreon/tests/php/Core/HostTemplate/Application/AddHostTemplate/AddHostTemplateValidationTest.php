@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\ServiceSeverity\Application\UseCase\AddServiceSeverity;
+namespace Tests\Core\HostTemplate\Application\UseCase\AddHostTemplate;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
