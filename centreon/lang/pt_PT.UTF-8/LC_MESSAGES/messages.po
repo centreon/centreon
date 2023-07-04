@@ -16324,9 +16324,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Error while deleting a dashboard share"
 
-# msgid "Dashboard share not found"
-# msgstr ""
-
 # msgid "Error while updating a dashboard share"
 # msgstr ""
 

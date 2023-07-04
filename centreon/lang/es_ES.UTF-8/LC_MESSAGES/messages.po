@@ -15871,9 +15871,6 @@ msgstr ""
 # msgid "Error while deleting a dashboard share"
 # msgstr ""
 
-# msgid "Dashboard share not found"
-# msgstr ""
-
 # msgid "Error while updating a dashboard share"
 # msgstr ""
 

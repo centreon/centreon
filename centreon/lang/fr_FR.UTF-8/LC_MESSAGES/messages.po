@@ -17840,9 +17840,6 @@ msgstr "Erreur durant la récupération de partages de tableau de bord"
 msgid "Error while deleting a dashboard share"
 msgstr "Erreur durant la suppression d'un partage de tableau de bord"
 
-msgid "Dashboard share not found"
-msgstr "Partage de tableau de bord non trouvé"
-
 msgid "Error while updating a dashboard share"
 msgstr "Erreur durant la mise à jour d'un partage de tableau de bord"
 
