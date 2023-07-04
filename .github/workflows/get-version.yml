@@ -117,7 +117,7 @@ jobs:
           echo "env=$MAJOR-$ENV" >> $GITHUB_OUTPUT
 
           #DOCKERIZE_MATRIX='["alma9"]'
-          DOCKERIZE_MATRIX='["bullseye"]'
+          DOCKERIZE_MATRIX='["alma8","alma9","bullseye"]'
           if [ "${{ github.event_name }}" = "schedule" ]; then
             DOCKERIZE_MATRIX='["alma8","alma9","bullseye"]'
           fi
