@@ -1,0 +1,17 @@
+type: object
+required:
+  - id
+  - role
+
+properties:
+
+  id:
+    type: integer
+    description: "Contact ID"
+    example: 1
+
+  role:
+    type: string
+    enum: [ viewer, editor ]
+    description: "The role of the contact for this dashboard."
+    example: "viewer"

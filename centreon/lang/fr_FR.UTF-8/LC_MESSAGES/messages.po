@@ -17696,6 +17696,12 @@ msgstr "Erreur durant l'ajout d'un tableau de bord"
 msgid "You are not allowed to perform write operations on dashboards"
 msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les tableaux de bord"
 
+msgid "You are not allowed to edit access rights on the dashboard #%d"
+msgstr "Vous n'êtes pas autorisé à éditer les droits d'accès du tableau de bord #%d"
+
+msgid "You cannot view access rights on the dashboard #%d"
+msgstr "Vous n'êtes pas autorisé à consulter les droits d'accès du tableau de bord #%d"
+
 msgid "Error while retrieving a dashboard"
 msgstr "Erreur durant la récupération d'un tableau de bord"
 
@@ -17818,6 +17824,24 @@ msgstr "Vous n'êtes pas autorisé à effectuer des actions d'écriture sur les 
 
 msgid "Host template #%d not found"
 msgstr "Modèle d'hôte #%d introuvable"
+
+msgid "The contact ID #%d does not exist"
+msgstr "L'ID du contact #%d n'existe pas"
+
+msgid "Error while retrieving the new dashboard share"
+msgstr "Erreur durant la récupération d'un nouveau partage de tableau de bord"
+
+msgid "Error while adding the dashboard share"
+msgstr "Erreur durant l'ajout d'un partage de tableau de bord"
+
+msgid "Error while searching for the dashboard shares"
+msgstr "Erreur durant la recherche de partages de tableau de bord"
+
+msgid "Error while deleting the dashboard share"
+msgstr "Erreur durant la suppression d'un partage de tableau de bord"
+
+msgid "Error while updating the dashboard share"
+msgstr "Erreur durant la mise à jour d'un partage de tableau de bord"
 
 msgid "Circular inheritance not allowed"
 msgstr "Héritage circulaire non autorisé"
