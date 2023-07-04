@@ -288,7 +288,7 @@ export const labelForcedCheckCommandSent =
   'Forced check command sent ! Please refresh the listing to update the data.';
 export const labelUnit = 'Unit';
 export const labelNeedHelpWithSearchBarUsage =
-  'Need help with search bar usage ?';
+  'Need help with search bar usage?';
 export const labelFindExplanationsAndExamples =
   'Find explanations and examples';
 export const labelHere = 'here';
