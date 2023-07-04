@@ -108,7 +108,7 @@ final class PartialUpdateContactDashboardShare
             $presenter->presentResponse(new ErrorResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->presentResponse(new ErrorResponse('Error while updating the share of dashboard'));
+            $presenter->presentResponse(new ErrorResponse('Error while updating the dashboard share'));
         }
     }
 

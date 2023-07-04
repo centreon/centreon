@@ -132,7 +132,7 @@ class DashboardException extends \Exception
      */
     public static function errorWhileRetrievingJustCreatedShare(): self
     {
-        return new self(_('Error while retrieving the new share of dashboard'));
+        return new self(_('Error while retrieving the new dashboard share'));
     }
 
     /**

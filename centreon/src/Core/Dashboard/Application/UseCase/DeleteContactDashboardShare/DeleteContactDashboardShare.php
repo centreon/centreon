@@ -93,7 +93,7 @@ final class DeleteContactDashboardShare
             $presenter->presentResponse(new ErrorResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->presentResponse(new ErrorResponse('Error while deleting the share of dashboard'));
+            $presenter->presentResponse(new ErrorResponse('Error while deleting the dashboard share'));
         }
     }
 

@@ -95,7 +95,7 @@ final class AddContactDashboardShare
             $presenter->presentResponse(new ErrorResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->presentResponse(new ErrorResponse('Error while adding the share of dashboard'));
+            $presenter->presentResponse(new ErrorResponse('Error while adding the dashboard share'));
         }
     }
 
