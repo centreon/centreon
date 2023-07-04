@@ -100,7 +100,7 @@ const Dialog = ({
         {onCancel && (
           <Button
             color="primary"
-            data-testid={t(labelCancel as string)}
+            data-testid={labelCancel}
             disabled={cancelDisabled}
             onClick={onCancel}
           >
@@ -111,7 +111,7 @@ const Dialog = ({
           aria-label={labelConfirm || ''}
           className={dialogConfirmButtonClassName}
           color="primary"
-          data-testid={t(labelConfirm as string)}
+          data-testid={labelConfirm}
           disabled={confirmDisabled}
           endIcon={submitting && <CircularProgress size={15} />}
           onClick={onConfirm}
