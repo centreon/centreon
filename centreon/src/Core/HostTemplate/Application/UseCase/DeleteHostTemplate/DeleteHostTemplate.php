@@ -43,7 +43,7 @@ final class DeleteHostTemplate
     public function __construct(
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
-        private ContactInterface $user
+        private readonly ContactInterface $user
     ) {
     }
 
