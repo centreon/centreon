@@ -30,6 +30,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Domain\Model\ConfigurationTimePeriod;
 use Core\Notification\Domain\Model\ConfigurationUser;
@@ -163,6 +164,30 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         }
 
         return $users;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findContactGroupsByNotificationId(int $notificationId): array
+    {
+        $request = $this->translateDbName(
+            'SELECT notification_id, contactgroup_id, contactgroup.cg_name
+            FROM `:db`.notification_contactgroup_relation
+            JOIN `:db`.contactgroup ON cg_id = contactgroup_id
+            WHERE notification_id = :notificationId'
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $contactgroups = [];
+
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
+            $contactgroups[] = new ContactGroup($result['contactgroup_id'], $result['cg_name']);
+        }
+
+        return $contactgroups;
     }
 
     /**

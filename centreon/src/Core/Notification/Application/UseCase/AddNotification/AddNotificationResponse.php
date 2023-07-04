@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\AddNotification;
 
-use Core\Notification\Domain\Model\NotificationHostEvent;
-use Core\Notification\Domain\Model\NotificationServiceEvent;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
+use Core\Notification\Domain\Model\NotificationHostEvent;
+use Core\Notification\Domain\Model\NotificationServiceEvent;
 
 final class AddNotificationResponse
 {
@@ -54,6 +54,14 @@ final class AddNotificationResponse
 
     /**
      * @var array<array{
+     *         id:int,
+     *         name:string,
+     *     }> $contactGroups
+     */
+    public array $contactGroups = [];
+
+    /**
+     * @var array<array{
      *         type:string,
      *         ids:array<array{id:int,name:string}>,
      *         events:int,
@@ -73,6 +81,7 @@ final class AddNotificationResponse
 
     /**
      * @param NotificationHostEvent[]|NotificationServiceEvent[] $enums
+     *
      * @return int
      */
     public function convertHostEventsToBitFlags(array $enums): int
@@ -85,6 +94,7 @@ final class AddNotificationResponse
 
     /**
      * @param NotificationServiceEvent[]|NotificationHostEvent[] $enums
+     *
      * @return int
      */
     public function convertServiceEventsToBitFlags(array $enums): int
