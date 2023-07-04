@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
 import {
@@ -74,7 +73,6 @@ const Dialog = ({
   ...rest
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ contentWidth });
-  const { t } = useTranslation();
 
   return (
     <MuiDialog
