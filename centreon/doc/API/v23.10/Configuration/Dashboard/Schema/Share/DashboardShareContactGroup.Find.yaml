@@ -2,7 +2,6 @@ type: object
 required:
   - id
   - name
-  - email
   - role
 
 properties:
@@ -16,11 +15,6 @@ properties:
     type: string
     description: "Name of the contact group"
     example: "John Doe"
-
-  email:
-    type: string
-    description: "Email of the contact group"
-    example: "john.doe@centreon.com"
 
   role:
     type: string

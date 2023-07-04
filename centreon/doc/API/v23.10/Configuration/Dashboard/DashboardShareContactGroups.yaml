@@ -1,7 +1,7 @@
 get:
   tags:
     - Dashboard
-  summary: "List contact access rights of a dashboard"
+  summary: "List contact group access rights of a dashboard"
   description: |
     Return all contact access rights of a dashboard.
     
@@ -9,7 +9,6 @@ get:
     
     * id
     * name
-    * email
     
     `Since Centreon web 23.10`
   parameters:
@@ -37,7 +36,7 @@ get:
 post:
   tags:
     - Dashboard
-  summary: "Add a contact access right of a dashboard"
+  summary: "Add a contact group access right of a dashboard"
   description: |
     Add a new contact access right for a dashboard.
     
