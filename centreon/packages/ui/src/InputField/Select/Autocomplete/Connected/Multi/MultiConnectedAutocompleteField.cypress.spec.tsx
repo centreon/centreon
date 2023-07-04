@@ -50,7 +50,7 @@ describe('Multi connected autocomplete', () => {
     });
   });
 
-  it('displays and hide the list when the user double-clicks on the input', () => {
+  it('displays and hides the list when the user double-clicks on the input', () => {
     cy.contains(label).should('be.visible');
 
     cy.get('[data-testid="Multi Connected Autocomplete"]').as('input');
