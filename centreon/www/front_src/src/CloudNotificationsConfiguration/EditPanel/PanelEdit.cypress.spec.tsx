@@ -53,7 +53,10 @@ const PanelWithQueryProvider = (): JSX.Element => {
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>
-            <Form marginBottom={0} />
+            <>
+              <Form marginBottom={0} />
+              <DeleteConfirmationDialog />
+            </>
           </SnackbarProvider>
         </TestQueryProvider>
       </Provider>
