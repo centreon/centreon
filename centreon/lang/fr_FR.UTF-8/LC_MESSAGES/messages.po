@@ -15662,6 +15662,21 @@ msgstr "Votre formulaire comporte des modifications non enregistrées"
 msgid "This name already exists"
 msgstr "Ce nom existe déjà"
 
+msgid "Notification deleted successfully"
+msgstr "La notification a été supprimée avec succès"
+
+msgid "The selected notifications have been deleted successfully"
+msgstr "Les notifications sélectionnées ont été supprimées avec succès"
+
+msgid "Failed to delete the notification"
+msgstr "La notification n'a pas pu être supprimée"
+
+msgid "Failed to delete the selected notifications"
+msgstr "Échec de la suppression des notifications sélectionnées"
+
+msgid "Failed to delete notifications"
+msgstr "Échec de la suppression des notifications"
+
 #: api/platform
 msgid "Unable to convert in remote server, no Central to link provided"
 msgstr "Impossible de convertir en remote, aucun Central à lier renseigné"

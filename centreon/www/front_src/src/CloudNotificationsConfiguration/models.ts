@@ -41,3 +41,14 @@ export interface NotificationsListingType {
   meta: MetaType;
   result: Array<NotificationsType>;
 }
+
+export enum DeleteType {
+  MultipleItems = 'Multiple',
+  SingleItem = 'Single'
+}
+
+export interface DeleteNotificationType {
+  id: number | Array<number> | null;
+  name?: string;
+  type: DeleteType;
+}

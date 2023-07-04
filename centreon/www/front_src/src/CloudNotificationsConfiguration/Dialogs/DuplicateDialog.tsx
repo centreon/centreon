@@ -8,7 +8,7 @@ import {
   labelDuplicate,
   labelName,
   labelDuplicateNotification
-} from '../../translatedLabels';
+} from '../translatedLabels';
 
 const DuplicateDialog = ({
   open,

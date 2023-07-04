@@ -20,10 +20,10 @@ const Switch = styled(MUISwitch)(({ theme }) => ({
   }
 }));
 
-const ActivateAction = ({ row }: ComponentColumnProps): JSX.Element => {
+const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
   const [checked, setchecked] = useState(row?.isActivated);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setchecked(event.target.checked);
   };
 
@@ -32,9 +32,9 @@ const ActivateAction = ({ row }: ComponentColumnProps): JSX.Element => {
       checked={checked}
       color="success"
       size="small"
-      onChange={handleChange}
+      onChange={onChange}
     />
   );
 };
 
-export default ActivateAction;
+export default Activate;
