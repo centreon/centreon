@@ -20,7 +20,7 @@ import {
 
 import {
   hostsGroupsEndpoint,
-  notificationtEndpoint,
+  notificationEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
 } from './api/endpoints';
@@ -48,7 +48,7 @@ const initialize = (): void => {
   cy.interceptAPIRequest({
     alias: 'addNotificationRequest',
     method: Method.POST,
-    path: notificationtEndpoint({}),
+    path: notificationEndpoint({}),
     response: { status: 'ok' }
   });
 
