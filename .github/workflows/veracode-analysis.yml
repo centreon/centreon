@@ -167,6 +167,21 @@ jobs:
           deleteincompletescan: 1
           scanpollinginterval: 120 # time between two checks in seconds / [30 to 120]
 
+      - name: Promote Scan
+        # only develop will promote to policy scan
+        if: github.ref_name == 'develop'
+        env:
+          VERACODE_API_ID: "${{ secrets.veracode_api_id }}"
+          VERACODE_API_SECRET: "${{ secrets.veracode_api_key }}"
+
+        # Action forked as API call hardcode '.com' route
+        uses: sc979/veracode-sandboxes-helper@v0.1
+        with:
+          activity: "promote-latest-scan"
+          app-name: "${{ inputs.module_name }}"
+          sandbox-name: "${{ github.ref_name }}"
+          delete-on-promote: false
+
   sca-scan:
     needs: [build]
     name: Run a SCA scan
