@@ -62,6 +62,16 @@ interface WriteNotificationRepositoryInterface
     public function addUsers(int $notificationId, array $userIds): void;
 
     /**
+     * Add Contact Groups to a notification.
+     *
+     * @param int $notificationId
+     * @param int[] $contactGroupIds
+     *
+     * @throws \Throwable
+     */
+    public function addContactGroups(int $notificationId, array $contactGroupIds): void;
+
+    /**
      * Update notification.
      *
      * @param Notification $notification
