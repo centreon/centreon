@@ -90,7 +90,7 @@ final class FindContactDashboardShares
             $presenter->presentResponse(new ErrorResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->presentResponse(new ErrorResponse('Error while searching dashboard shares'));
+            $presenter->presentResponse(new ErrorResponse('Error while searching for the shares of dashboard'));
         }
     }
 
