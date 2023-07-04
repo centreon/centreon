@@ -24,11 +24,28 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
 
 interface ReadDashboardShareRepositoryInterface
 {
+    /**
+     * Find all contact shares of one dashboard.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param Dashboard $dashboard
+     *
+     * @throws \Throwable
+     *
+     * @return DashboardContactShare[]
+     */
+    public function findDashboardContactSharesByRequestParameter(
+        Dashboard $dashboard,
+        RequestParametersInterface $requestParameters
+    ): array;
+
     /**
      * Retrieve the sharing roles of a dashboard.
      *
