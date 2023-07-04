@@ -15524,19 +15524,19 @@ msgstr ""
 # msgid "The contact ID #%d does not exist"
 # msgstr ""
 
-# msgid "Error while retrieving the new share of dashboard"
+# msgid "Error while retrieving the new dashboard share"
 # msgstr ""
 
-# msgid "Error while adding the share of dashboard"
+# msgid "Error while adding the dashboard share"
 # msgstr ""
 
-# msgid "Error while searching for the shares of dashboard"
+# msgid "Error while searching for the dashboard shares"
 # msgstr ""
 
-# msgid "Error while deleting the share of dashboard"
+# msgid "Error while deleting the dashboard share"
 # msgstr ""
 
-# msgid "Error while updating the share of dashboard"
+# msgid "Error while updating the dashboard share"
 # msgstr ""
 
 #  msgid "Circular inheritance not allowed"
