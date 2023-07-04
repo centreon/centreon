@@ -206,7 +206,7 @@ EOF`,
         command: `bash -e <<EOF
         rm -f /tmp/packages-update-centreon/centreon_${major_version}*.deb /tmp/packages-update-centreon/centreon-central_${major_version}*.deb
         apt-get update
-        apt-get install -y /tmp/debs-centreon/centreon-*.deb
+        apt-get install -y /tmp/packages-update-centreon/centreon-*.deb
 EOF`,
         name: Cypress.env('dockerName')
       });
