@@ -100,6 +100,28 @@ interface WriteNotificationRepositoryInterface
     public function deleteUsers(int $notificationId): void;
 
     /**
+     * delete all the contactgroups of a notification.
+     *
+     * @param int $notificationId
+     *
+     * @throws \Throwable
+     */
+    public function deleteContactGroups(int $notificationId): void;
+
+    /**
+     * delete the given contactgroups of a notification.
+     *
+     * @param int $notificationId
+     * @param int[] $contactGroupsIds
+     *
+     * @throws \Throwable
+     */
+    public function deleteContactGroupsByNotificationAndContactGroupIds(
+        int $notificationId,
+        array $contactGroupsIds
+    ): void;
+
+    /**
      * Delete a notification.
      *
      * @param int $notificationId
