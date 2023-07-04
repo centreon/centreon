@@ -28,8 +28,8 @@ const useStyle = makeStyles<Required<Props>>()((theme, { marginBottom }) => ({
   }
 }));
 
-const EditPanel = ({ bottom = 20 }: Props): JSX.Element => {
-  const { classes } = useStyle({ bottom });
+const EditPanel = ({ marginBottom = 20 }: Props): JSX.Element => {
+  const { classes } = useStyle({ marginBottom });
   const [panelWidth, setPanelWidth] = useAtom(panelWidthStorageAtom);
   const setIsPanelOpen = useSetAtom(isPanelOpenAtom);
 
