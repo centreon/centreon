@@ -21,36 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Macro\Application\Repository;
+namespace Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate;
 
-use Core\Macro\Domain\Model\Macro;
-
-interface WriteServiceMacroRepositoryInterface
+class MacroDto
 {
-    /**
-     * Add service's macros.
-     *
-     * @param Macro $macro
-     *
-     * @throws \Throwable
-     */
-    public function add(Macro $macro): void;
-
-    /**
-     * Delete a service's macros.
-     *
-     * @param Macro $macro
-     *
-     * @throws \Throwable
-     */
-    public function delete(Macro $macro): void;
-
-    /**
-     * Update a service's macros.
-     *
-     * @param Macro $macro
-     *
-     * @throws \Throwable
-     */
-    public function update(Macro $macro): void;
+    public function __construct(
+        public string $name,
+        public ?string $value,
+        public bool $isPassword,
+        public ?string $description,
+    ) {
+    }
 }
