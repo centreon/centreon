@@ -79,6 +79,9 @@ jobs:
             apt-get update
             apt-get install -y libcurl4-openssl-dev cpanminus
           else
+            yum install -y yum-utils epel-release git
+            yum config-manager --set-enabled crb || true # alma 9
+            yum config-manager --set-enabled powertools || true # alma 8
             dnf install -y libcurl-devel cpanminus
           fi
 
