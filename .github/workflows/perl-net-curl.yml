@@ -79,12 +79,14 @@ jobs:
             apt-get update
             apt-get install -y libcurl4-openssl-dev
           else
-            dnf install libcurl-devel
+            dnf install -y libcurl-devel
           fi
 
-          cd perl-Net-Curl
-          perl Makefile.PL
-          ls -la
+          cpanm Net::Curl
+
+          #cd perl-Net-Curl
+          #perl Makefile.PL
+          #ls -la
         shell: bash
 
       - name: Set package name according to distrib
