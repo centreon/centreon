@@ -224,6 +224,35 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findContactGroupsByNotificationIdAndUserId(int $notificationId, int $userId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT cg_id,cg_name FROM contactgroup cg
+                INNER JOIN contactgroup_contact_relation ccr
+                    ON ccr.contactgroup_cg_id = cg.cg_id
+                INNER JOIN notification_contactgroup_relation ncr
+                    ON ncr.contactgroup_id = cg.cg_id
+                WHERE ccr.contact_contact_id = :userId
+                AND ncr.notification_id = :notificationId
+                AND cg_activate = '1';
+            SQL
+        ));
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $contactGroups = [];
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
+            $contactGroups[] = new ContactGroup($result['cg_id'], $result['cg_name']);
+        }
+
+        return $contactGroups;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function exists(int $notificationId): bool

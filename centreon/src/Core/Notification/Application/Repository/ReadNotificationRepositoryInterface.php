@@ -109,6 +109,17 @@ interface ReadNotificationRepositoryInterface
     public function findUsersCountByNotificationIds(array $notificationIds): array;
 
     /**
+     * Find notification Contact Groups linked to a given user for a notification.
+     *
+     * @param integer $notificationId
+     * @param integer $userId
+     * @return ContactGroup[]
+     *
+     * @throws \Throwable
+     */
+    public function findContactGroupsByNotificationIdAndUserId(int $notificationId, int $userId): array;
+
+    /**
      * Tells whether the notification exists.
      *
      * @param int $notificationId

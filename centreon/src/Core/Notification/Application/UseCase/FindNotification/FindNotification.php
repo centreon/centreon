@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
@@ -88,12 +89,14 @@ final class FindNotification
             } else {
                 $notificationMessages = $this->notificationRepository->findMessagesByNotificationId($notificationId);
                 $notifiedUsers = $this->notificationRepository->findUsersByNotificationId($notificationId);
+                $notifiedContactGroups = $this->findContactGroupsByNotificationId($notificationId);
                 $notificationResources = $this->findResourcesByNotificationId($notificationId);
 
                 $presenter->presentResponse($this->createResponse(
                     $notification,
                     $notificationMessages,
                     $notifiedUsers,
+                    $notifiedContactGroups,
                     $notificationResources
                 ));
             }
@@ -139,11 +142,32 @@ final class FindNotification
     }
 
     /**
+     * Retrieve notification contactgroup with user rights.
+     *
+     * @param integer $notificationId
+     * @return ContactGroup[]
+     *
+     * @throws \Throwable
+     */
+    private function findContactGroupsByNotificationId(int $notificationId): array
+    {
+        if ($this->user->isAdmin()) {
+            return $this->notificationRepository->findContactGroupsByNotificationId($notificationId);
+        }
+
+        return $this->notificationRepository->findContactGroupsByNotificationIdAndUserId(
+            $notificationId,
+            $this->user->getId()
+        );
+    }
+
+    /**
      * create FindNotificationResponse Dto.
      *
      * @param Notification $notification
      * @param NotificationMessage[] $notificationMessages
      * @param ConfigurationUser[] $notifiedUsers
+     * @param ContactGroup[] $notifiedContactGroups
      * @param NotificationResource[] $notificationResources
      *
      * @return FindNotificationResponse
@@ -152,6 +176,7 @@ final class FindNotification
         Notification $notification,
         array $notificationMessages,
         array $notifiedUsers,
+        array $notifiedContactGroups,
         array $notificationResources
     ): FindNotificationResponse {
         $response = new FindNotificationResponse();
@@ -174,6 +199,14 @@ final class FindNotification
         $response->users = array_map(
             static fn(ConfigurationUser $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
             $notifiedUsers
+        );
+
+        $response->contactGroups = array_map(
+            static fn(ContactGroup $contactGroup): array => [
+                'id' => $contactGroup->getId(),
+                'name' => $contactGroup->getName()
+            ],
+            $notifiedContactGroups
         );
 
         foreach ($notificationResources as $resource) {
