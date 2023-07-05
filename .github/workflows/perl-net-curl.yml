@@ -75,6 +75,13 @@ jobs:
 
       - name: Compile library
         run: |
+          if [ "${{ matrix.distrib }}" = "bullseye" ]; then
+            apt-get update
+            apt-get install -y libcurl4-openssl-dev
+          else
+            dnf install libcurl-devel
+          fi
+
           cd perl-Net-Curl
           perl Makefile.PL
           ls -la
@@ -85,7 +92,7 @@ jobs:
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then
             sed -i "s/@NAME@/libnet-curl-perl/g" dependencies/perl-net-curl/perl-net-curl.yaml
           else
-          sed -i "s/@NAME@/perl-Net-Curl/g" dependencies/perl-net-curl/perl-net-curl.yaml
+            sed -i "s/@NAME@/perl-Net-Curl/g" dependencies/perl-net-curl/perl-net-curl.yaml
           fi
         shell: bash
 
