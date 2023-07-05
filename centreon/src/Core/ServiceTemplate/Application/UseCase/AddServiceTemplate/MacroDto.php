@@ -21,36 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\HostMacro\Application\Repository;
+namespace Core\ServiceTemplate\Application\UseCase\AddServiceTemplate;
 
-use Core\HostMacro\Domain\Model\HostMacro;
-
-interface WriteHostMacroRepositoryInterface
+class MacroDto
 {
-    /**
-     * Add host's macros.
-     *
-     * @param HostMacro $macro
-     *
-     * @throws \Throwable
-     */
-    public function add(HostMacro $macro): void;
-
-    /**
-     * Update host's macros.
-     *
-     * @param HostMacro $macro
-     *
-     * @throws \Throwable
-     */
-    public function update(HostMacro $macro): void;
-
-    /**
-     * Delete host's macros.
-     *
-     * @param HostMacro $macro
-     *
-     * @throws \Throwable
-     */
-    public function delete(HostMacro $macro): void;
+    public function __construct(
+        public string $name,
+        public ?string $value,
+        public bool $isPassword,
+        public ?string $description,
+    ) {
+    }
 }

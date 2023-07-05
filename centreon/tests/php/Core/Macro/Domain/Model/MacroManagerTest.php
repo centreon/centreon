@@ -23,45 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\HostTemplate\Domain\Model;
 
-use Assert\InvalidArgumentException;
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
-use Core\Common\Domain\YesNoDefault;
-use Core\Host\Domain\Model\HostEvent;
-use Core\Host\Domain\Model\SnmpVersion;
-use Core\HostMacro\Domain\Model\HostMacro;
-use Core\HostMacro\Domain\Model\HostMacroDifference;
-use Core\HostTemplate\Domain\Model\MacroManager;
-use Core\HostTemplate\Domain\Model\NewHostTemplate;
-
-it('should resolve host macro inheritance', function (): void {
-    $templateId = 1;
-    $templateInheritanceLine= [2, 3, 4];
-    $macros = [
-        $macroA = new HostMacro(1, 'nameA', 'valueA'),
-        $macroB2 = new HostMacro(1, 'nameB', 'valueB-edited'),
-        $macroB1 = new HostMacro(4, 'nameB', 'valueB-original'),
-        $macroC = new HostMacro(2, 'nameC', 'valueC'),
-        $macroD = new HostMacro(3, 'nameD', 'valueD'),
-        $macroE2 = new HostMacro(3, 'nameE', 'valueE-edited'),
-        $macroE1 = new HostMacro(4, 'nameE', 'valueE-original'),
-    ];
-
-    [$directMacros, $inheritedMacros]
-        = MacroManager::resolveInheritanceForHostMacro($macros, $templateInheritanceLine, $templateId);
-
-    expect($directMacros)->toBe([
-        $macroA->getName() => $macroA,
-        $macroB2->getName() => $macroB2,
-    ])
-    ->and($inheritedMacros)->toBe([
-        $macroC->getName() => $macroC,
-        $macroD->getName() => $macroD,
-        $macroE2->getName() => $macroE2,
-        $macroB1->getName() => $macroB1,
-    ]);
-});
+use Core\Macro\Domain\Model\Macro;
+use Core\Macro\Domain\Model\MacroDifference;
+use Core\Macro\Domain\Model\MacroManager;
 
 it('should resolve command macro inheritance', function (): void {
     $macros = [
@@ -81,16 +47,16 @@ it('should resolve command macro inheritance', function (): void {
 });
 
 it('should set macros order property', function (): void {
-    $macroA = new HostMacro(1, 'nameA', 'valueA');
+    $macroA = new Macro(1, 'nameA', 'valueA');
     $macroA->setOrder(0);
-    $macroB = new HostMacro(1, 'nameB', 'valueB');
+    $macroB = new Macro(1, 'nameB', 'valueB');
     $macroB->setOrder(1);
-    $macroC = new HostMacro(1, 'nameC', 'valueC');
+    $macroC = new Macro(1, 'nameC', 'valueC');
     $macroC->setOrder(2);
-    $macroD = new HostMacro(1, 'nameD', 'valueD');
+    $macroD = new Macro(1, 'nameD', 'valueD');
     $macroD->setOrder(3);
-    $macroE = new HostMacro(2, 'nameE', 'valueE');
-    $macroF = new HostMacro(1, 'nameF', 'valueF');
+    $macroE = new Macro(2, 'nameE', 'valueE');
+    $macroF = new Macro(1, 'nameF', 'valueF');
 
     $directMacros = [
         $macroA->getName() => $macroA,
@@ -106,7 +72,7 @@ it('should set macros order property', function (): void {
         $macroF->getName() => $macroF,
     ];
 
-    $macrosDiff = new HostMacroDifference();
+    $macrosDiff = new MacroDifference();
     $macrosDiff->addedMacros = [
         $macroF->getName() => $macroF,
     ];

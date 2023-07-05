@@ -105,4 +105,7 @@ final class AddServiceTemplateRequest
     public int|null $firstNotificationDelay = null;
 
     public int|null $acknowledgementTimeout = null;
+
+    /** @var MacroDto[] */
+    public array $macros = [];
 }

@@ -113,4 +113,7 @@ final class AddServiceTemplateResponse
     public int|null $serviceTemplateId = null;
 
     public int|null $severityId = null;
+
+    /** @var MacroDto[] */
+    public array $macros = [];
 }
