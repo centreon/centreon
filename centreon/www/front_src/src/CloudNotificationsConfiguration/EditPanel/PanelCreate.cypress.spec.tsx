@@ -17,6 +17,7 @@ import {
   labelNotificationName,
   labelSubject
 } from '../translatedLabels';
+import { contactGroupsEndpoint } from '../../Authentication/api/endpoints';
 
 import {
   hostsGroupsEndpoint,
@@ -27,7 +28,8 @@ import {
 import {
   usersResponse,
   hostGroupsResponse,
-  serviceGroupsResponse
+  serviceGroupsResponse,
+  contactGroupsResponse
 } from './testUtils';
 
 import Form from '.';
@@ -73,6 +75,13 @@ const initialize = (): void => {
     response: usersResponse
   });
 
+  cy.interceptAPIRequest({
+    alias: 'contactGroupsEndpoint',
+    method: Method.GET,
+    path: `${contactGroupsEndpoint}**`,
+    response: contactGroupsResponse
+  });
+
   cy.mount({
     Component: <PanelWithQueryProvider />
   });
@@ -113,7 +122,7 @@ describe('Panel: Creation mode', () => {
     cy.waitForRequest('@getServiceGroupsEndpoint');
     cy.findByText('MySQL-Servers').click();
 
-    cy.findByLabelText('Search users').click();
+    cy.findByLabelText('Search contacts').click();
     cy.waitForRequest('@getUsersEndpoint');
     cy.findByText('Guest').click();
 
@@ -135,7 +144,7 @@ describe('Panel: Creation mode', () => {
     cy.waitForRequest('@getServiceGroupsEndpoint');
     cy.findByText('MySQL-Servers').click();
 
-    cy.findByLabelText('Search users').click();
+    cy.findByLabelText('Search contacts').click();
     cy.waitForRequest('@getUsersEndpoint');
     cy.findByText('Guest').click();
 
@@ -160,7 +169,7 @@ describe('Panel: Creation mode', () => {
     cy.waitForRequest('@getServiceGroupsEndpoint');
     cy.findByText('MySQL-Servers').click();
 
-    cy.findByLabelText('Search users').click();
+    cy.findByLabelText('Search contacts').click();
     cy.waitForRequest('@getUsersEndpoint');
     cy.findByText('Guest').click();
 

@@ -1,9 +1,10 @@
 import { equals } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { useFetchQuery } from '@centreon/ui';
 
-import { emptyInitialValues, getInitialValues } from './initialValues';
+import { getEmptyInitialValues, getInitialValues } from './initialValues';
 import { PanelMode } from './models';
 import { notificationEndpoint } from './api/endpoints';
 import { notificationdecoder } from './api/decoders';
@@ -15,6 +16,7 @@ interface UseFormState {
 }
 
 const useFormInitialValues = (): UseFormState => {
+  const { t } = useTranslation();
   const panelMode = useAtomValue(panelModeAtom);
   const editedNotificationId = useAtomValue(editedNotificationIdAtom);
 
@@ -31,8 +33,8 @@ const useFormInitialValues = (): UseFormState => {
 
   const initialValues =
     equals(panelMode, PanelMode.Edit) && data
-      ? getInitialValues(data)
-      : emptyInitialValues;
+      ? getInitialValues({ ...data, t })
+      : getEmptyInitialValues(t);
 
   const isLoading = equals(panelMode, PanelMode.Edit) ? loading : false;
 
