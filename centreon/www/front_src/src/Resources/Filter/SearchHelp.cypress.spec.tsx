@@ -41,7 +41,7 @@ describe('Searchbar help tooltip', () => {
     cy.viewport(1200, 1000);
   });
 
-  it('displays a tooltip containing a documentation link upon help icon click', () => {
+  it('displays a tooltip containing a documentation link upon clicking the help icon', () => {
     const docsURL = getOnPremDocsURL({
       majorVersion: '23',
       minorVersion: '10'
@@ -57,7 +57,7 @@ describe('Searchbar help tooltip', () => {
     cy.matchImageSnapshot();
   });
 
-  it('displays a tooltip containing a cloud documentation link upon help icon click in a cloud environement', () => {
+  it('displays a tooltip containing a cloud documentation link upon clicking the help icon in a cloud environment', () => {
     store.set(platformVersionsAtom, {
       ...platformVersions,
       isCloudPlatform: true
