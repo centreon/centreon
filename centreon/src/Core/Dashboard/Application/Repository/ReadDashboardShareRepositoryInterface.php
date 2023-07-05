@@ -26,6 +26,7 @@ namespace Core\Dashboard\Application\Repository;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
+use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
 use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
 
@@ -42,6 +43,21 @@ interface ReadDashboardShareRepositoryInterface
      * @return DashboardContactShare[]
      */
     public function findDashboardContactSharesByRequestParameter(
+        Dashboard $dashboard,
+        RequestParametersInterface $requestParameters
+    ): array;
+
+    /**
+     * Find all contact group shares of one dashboard.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param Dashboard $dashboard
+     *
+     * @throws \Throwable
+     *
+     * @return DashboardContactGroupShare[]
+     */
+    public function findDashboardContactGroupSharesByRequestParameter(
         Dashboard $dashboard,
         RequestParametersInterface $requestParameters
     ): array;
