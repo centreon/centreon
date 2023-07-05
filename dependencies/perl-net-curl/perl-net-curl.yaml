@@ -52,6 +52,9 @@ contents:
 
 overrides:
   rpm:
+    depends:
+      - perl
+      - libcurl
     conflicts:
       - perl-Net-Curl-debuginfo
     replaces:
@@ -65,12 +68,20 @@ overrides:
       - perl(Net::Curl::Share)
       - perl(Net::Curl::Multi)
   deb:
+    depends:
+      - perl
+      - libcurl4
     conflicts:
       - libnet-curl-perl-dbgsym
     replaces:
       - libnet-curl-perl-dbgsym
     provides:
       - libnet-curl-perl-dbgsym
+      - libnet-curl-compat-perl
+      - libnet-curl-easy-perl
+      - libnet-curl-form-perl
+      - libnet-curl-share-perl
+      - libnet-curl-multi-perl
 
 rpm:
   summary: Perl interface for libcurl
