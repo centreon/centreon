@@ -144,10 +144,11 @@ final class FindNotification
     /**
      * Retrieve notification contactgroup with user rights.
      *
-     * @param integer $notificationId
-     * @return ContactGroup[]
+     * @param int $notificationId
      *
      * @throws \Throwable
+     *
+     * @return ContactGroup[]
      */
     private function findContactGroupsByNotificationId(int $notificationId): array
     {
@@ -204,7 +205,7 @@ final class FindNotification
         $response->contactGroups = array_map(
             static fn(ContactGroup $contactGroup): array => [
                 'id' => $contactGroup->getId(),
-                'name' => $contactGroup->getName()
+                'name' => $contactGroup->getName(),
             ],
             $notifiedContactGroups
         );

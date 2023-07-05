@@ -111,11 +111,12 @@ interface ReadNotificationRepositoryInterface
     /**
      * Find notification Contact Groups linked to a given user for a notification.
      *
-     * @param integer $notificationId
-     * @param integer $userId
-     * @return ContactGroup[]
+     * @param int $notificationId
+     * @param int $userId
      *
      * @throws \Throwable
+     *
+     * @return ContactGroup[]
      */
     public function findContactGroupsByNotificationIdAndUserId(int $notificationId, int $userId): array;
 

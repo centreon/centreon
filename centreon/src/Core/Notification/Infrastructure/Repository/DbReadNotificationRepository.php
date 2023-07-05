@@ -196,22 +196,22 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findUsersCountByNotificationIds(array $notificationIds): array
     {
         $bindValues = [];
-        foreach($notificationIds as $notificationId) {
+        foreach ($notificationIds as $notificationId) {
             $bindValues[':notification_' . $notificationId] = $notificationId;
         }
         $bindToken = implode(', ', array_keys($bindValues));
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                SELECT notification_id, count(user) FROM (
-                    SELECT rel.notification_id, user_id as user
-                    FROM notification_user_relation rel
-                    WHERE rel.notification_id IN ($bindToken)
-                    UNION
-                    SELECT cg_rel.notification_id, contactgroup_id as user
-                    FROM notification_contactgroup_relation cg_rel
-                    WHERE cg_rel.notification_id IN ($bindToken)
-                ) as subquery GROUP BY notification_id;
-            SQL
+                    SELECT notification_id, count(user) FROM (
+                        SELECT rel.notification_id, user_id as user
+                        FROM notification_user_relation rel
+                        WHERE rel.notification_id IN ({$bindToken})
+                        UNION
+                        SELECT cg_rel.notification_id, contactgroup_id as user
+                        FROM notification_contactgroup_relation cg_rel
+                        WHERE cg_rel.notification_id IN ({$bindToken})
+                    ) as subquery GROUP BY notification_id;
+                SQL
         ));
         foreach ($bindValues as $token => $notificationId) {
             $statement->bindValue($token, $notificationId, \PDO::PARAM_INT);
@@ -229,16 +229,16 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findContactGroupsByNotificationIdAndUserId(int $notificationId, int $userId): array
     {
         $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
-                SELECT cg_id,cg_name FROM contactgroup cg
-                INNER JOIN contactgroup_contact_relation ccr
-                    ON ccr.contactgroup_cg_id = cg.cg_id
-                INNER JOIN notification_contactgroup_relation ncr
-                    ON ncr.contactgroup_id = cg.cg_id
-                WHERE ccr.contact_contact_id = :userId
-                AND ncr.notification_id = :notificationId
-                AND cg_activate = '1';
-            SQL
+            <<<'SQL'
+                    SELECT cg_id,cg_name FROM contactgroup cg
+                    INNER JOIN contactgroup_contact_relation ccr
+                        ON ccr.contactgroup_cg_id = cg.cg_id
+                    INNER JOIN notification_contactgroup_relation ncr
+                        ON ncr.contactgroup_id = cg.cg_id
+                    WHERE ccr.contact_contact_id = :userId
+                    AND ncr.notification_id = :notificationId
+                    AND cg_activate = '1';
+                SQL
         ));
         $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);

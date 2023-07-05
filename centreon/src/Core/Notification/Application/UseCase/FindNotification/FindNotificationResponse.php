@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotification;
 
-use Core\Notification\Application\Converter\NotificationHostEventConverter;
-use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Notification\Domain\Model\NotificationServiceEvent;
 
