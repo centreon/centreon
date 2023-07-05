@@ -8,6 +8,11 @@ if [ "$1" = "configure" ] ; then
       /usr/share/centreon \
       /var/log/centreon \
       /var/lib/centreon
+
+    if [ -d "/var/log/centreon/symfony" ]; then
+      chown -R www-data:www-data /var/log/centreon/symfony
+    fi
+
     chmod 0775 \
       /usr/share/centreon/src \
       /usr/share/centreon/api
