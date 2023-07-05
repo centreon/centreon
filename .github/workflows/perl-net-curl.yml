@@ -68,6 +68,18 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
+      - uses: actions/checkout@v3
+        with:
+          repository: sparky/perl-Net-Curl
+          path: perl-Net-Curl
+
+      - name: Compile library
+        run: |
+          cd perl-Net-Curl
+          perl Makefile.PL
+          ls -la
+        shell: bash
+
       - name: Set package name according to distrib
         run: |
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then

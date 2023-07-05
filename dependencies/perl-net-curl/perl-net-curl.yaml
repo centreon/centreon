@@ -26,6 +26,12 @@ overrides:
       - perl-Net-Curl-debuginfo
     provides:
       - perl-Net-Curl-debuginfo
+      - perl(Net::Curl)
+      - perl(Net::Curl::Compat)
+      - perl(Net::Curl::Easy)
+      - perl(Net::Curl::Form)
+      - perl(Net::Curl::Share)
+      - perl(Net::Curl::Multi)
   deb:
     conflicts:
       - libnet-curl-perl-dbgsym
