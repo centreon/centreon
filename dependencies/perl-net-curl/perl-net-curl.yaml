@@ -17,23 +17,23 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - src: "@PERL_LOCAL_VENDORARCH@/auto/Net/Curl/Curl.so"
+  - src: "/tmp/lib/perl5/x86_64-linux-thread-multi/auto/Net/Curl/Curl.so"
     dst: "@PERL_VENDORARCH@/auto/Net/Curl/Curl.so"
     file_info:
       mode: 0644
     packager: deb
-  - src: "@PERL_LOCAL_VENDORARCH@/auto/Net/Curl/Curl.so"
+  - src: "/tmp/lib/perl5/x86_64-linux-thread-multi/auto/Net/Curl/Curl.so"
     dst: "@PERL_VENDORARCH@/auto/Net/Curl/Curl.so"
     file_info:
       mode: 0644
     packager: rpm
 
-  - src: "@PERL_LOCAL_VENDORARCH@/Net/Curl*"
+  - src: "/tmp/lib/perl5/x86_64-linux-thread-multi/Net/Curl*"
     dst: "@PERL_VENDORARCH@/Net/"
     file_info:
       mode: 0644
     packager: deb
-  - src: "@PERL_LOCAL_VENDORARCH@/Net/Curl*"
+  - src: "/tmp/lib/perl5/x86_64-linux-thread-multi/Net/Curl*"
     dst: "@PERL_VENDORARCH@/Net/"
     file_info:
       mode: 0644
