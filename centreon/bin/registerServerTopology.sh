@@ -88,7 +88,7 @@ function parse_command_options() {
     || ! $TARGET_NODE_ADDRESS \
     || ! $CURRENT_NODE_NAME \
   ]]; then
-    log "ERROR" "Missing Parameters: -u -h -t -n are mandatories\n"
+    log "ERROR" "Missing Parameters: -u -h -t -n are mandatory\n"
     usage
     exit 1
   fi
@@ -289,7 +289,7 @@ function get_current_node_ip() {
 
   if [[ $count_available_ips -gt 1 ]];
   then
-    echo "Which IP do you want to use as CURRENT NODE IP ?"
+    echo "Which IP do you want to use as CURRENT NODE IP?"
     for i in "${!ips[@]}";
     do
       printf "%s) %s\n" "$i" "${ips[$i]}"
@@ -317,7 +317,7 @@ function prepare_register_payload() {
 
   Summary of the information that will be sent:
 
-  Api Connection:
+  API connection:
   username: ${API_USERNAME}
   password: ******
   target server: ${PARSED_URL[HOST]}
@@ -378,7 +378,7 @@ function set_variable_from_template() {
     || ! $CURRENT_NODE_NAME \
     || ! $CURRENT_NODE_ADDRESS \
   ]]; then
-    log "ERROR" "Missing Parameters: please fill all the template's mandatory parameters"
+    log "ERROR" "Missing parameters: please fill all of the template's mandatory parameters"
     usage
     exit 1
   else
@@ -463,9 +463,9 @@ function request_to_remote() {
 #========= begin of set_remote_parameters_manually()
 function set_remote_parameters_manually() {
     # ask information to connect to Remote API
-    echo "More information is required to convert your platform into Remote : "
+    echo "More information is required to convert your platform into a remote server: "
     read -p "${PARSED_CURRENT_NODE_URL[HOST]} : Please enter your username: " API_CURRENT_NODE_USERNAME
-    read -sp "Please enter the password of ${PARSED_CURRENT_NODE_URL[HOST]}: " API_CURRENT_NODE_PASSWORD; echo ""
+    read -sp "Please enter the password for ${PARSED_CURRENT_NODE_URL[HOST]}: " API_CURRENT_NODE_PASSWORD; echo ""
     if [ -z ${PARSED_CURRENT_NODE_URL[SCHEME]} ];then
       read -p "${PARSED_CURRENT_NODE_URL[HOST]} : Protocol [http]: " PARSED_CURRENT_NODE_URL[SCHEME]
     fi
@@ -513,7 +513,7 @@ parse_command_options "$@"
 if [[ ! $TEMPLATE_FILE ]];
 then
   # Ask for API TARGET Password
-  read -sp "Please enter the password of $TARGET_NODE_ADDRESS: " API_TARGET_PASSWORD; echo ""
+  read -sp "Please enter the password for $TARGET_NODE_ADDRESS: " API_TARGET_PASSWORD; echo ""
 
   if [[ ! $CURRENT_NODE_ADDRESS ]];
   then
