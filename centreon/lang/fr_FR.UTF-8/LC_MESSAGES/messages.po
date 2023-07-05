@@ -17533,6 +17533,12 @@ msgstr "Vérifier les ressources sélectionnées même en dehors de la période 
 msgid "Forced check command sent ! Please refresh the listing to update the data."
 msgstr "Commande de vérification forcée envoyée ! Veuillez actualiser le tableau pour mettre à jour les données."
 
+msgid "Need help with search bar usage?"
+msgstr "Besoin d'aide pour l'utilisation de la barre de recherche?"
+
+msgid "Find explanations and examples"
+msgstr "Trouvez des explications et des exemples"
+
 msgid "Developed by"
 msgstr "Développé par"
 
