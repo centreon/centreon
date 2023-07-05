@@ -85,7 +85,7 @@ jobs:
             dnf install -y libcurl-devel cpanminus
           fi
 
-          cpanm Net::Curl
+          cpanm -v Net::Curl
 
           #cd perl-Net-Curl
           #perl Makefile.PL
