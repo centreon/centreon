@@ -21,12 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\PartialUpdateContactDashboardShare;
+namespace Core\Dashboard\Application\UseCase\PartialUpdateContactGroupDashboardShare;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -35,6 +33,8 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Application\Type\NoValue;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
@@ -42,7 +42,7 @@ use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 
-final class PartialUpdateContactDashboardShare
+final class PartialUpdateContactGroupDashboardShare
 {
     use LoggerTrait;
 
@@ -50,7 +50,7 @@ final class PartialUpdateContactDashboardShare
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
-        private readonly ContactRepositoryInterface $contactRepository,
+        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
     ) {
@@ -58,38 +58,44 @@ final class PartialUpdateContactDashboardShare
 
     public function __invoke(
         int $dashboardId,
-        int $contactId,
-        PartialUpdateContactDashboardShareRequest $request,
-        PartialUpdateContactDashboardSharePresenterInterface $presenter
+        int $contactGroupId,
+        PartialUpdateContactGroupDashboardShareRequest $request,
+        PartialUpdateContactGroupDashboardSharePresenterInterface $presenter
     ): void {
         try {
             if ($this->rights->hasAdminRole()) {
                 $dashboard = $this->readDashboardRepository->findOne($dashboardId);
-                $contact = $this->contactRepository->findById($contactId);
+                $contactGroup = $this->readContactGroupRepository->find($contactGroupId);
 
                 if (null === $dashboard) {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
                     $response = new NotFoundResponse('Dashboard');
-                } elseif (null === $contact) {
-                    $this->warning('Contact group (%s) not found', ['id' => $contactId]);
+                } elseif (null === $contactGroup) {
+                    $this->warning('Contact group (%s) not found', ['id' => $contactGroupId]);
                     $response = new NotFoundResponse('Contact');
                 } else {
-                    $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
-                    $response = $this->updateContactShareAsAdmin($dashboard, $contact, $request);
+                    $this->info(
+                        'Update a contact group share for dashboard',
+                        ['id' => $dashboardId, 'contact_id' => $contactGroupId]
+                    );
+                    $response = $this->updateContactGroupShareAsAdmin($dashboard, $contactGroup, $request);
                 }
             } elseif ($this->rights->canAccess()) {
                 $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
-                $contact = $this->contactRepository->findById($contactId);
+                $contactGroup = $this->readContactGroupRepository->find($contactGroupId);
 
                 if (null === $dashboard) {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
                     $response = new NotFoundResponse('Dashboard');
-                } elseif (null === $contact) {
-                    $this->warning('Contact group (%s) not found', ['id' => $contactId]);
+                } elseif (null === $contactGroup) {
+                    $this->warning('Contact group (%s) not found', ['id' => $contactGroupId]);
                     $response = new NotFoundResponse('Contact');
-                }else {
-                    $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
-                    $response = $this->updateContactShareAsContact($dashboard, $contact, $request);
+                } else {
+                    $this->info(
+                        'Update a contact group share for dashboard',
+                        ['id' => $dashboardId, 'contact_id' => $contactGroupId]
+                    );
+                    $response = $this->updateContactGroupShareAsContact($dashboard, $contactGroup, $request);
                 }
             } else {
                 $this->error(
@@ -114,20 +120,21 @@ final class PartialUpdateContactDashboardShare
 
     /**
      * @param Dashboard $dashboard
-     * @param Contact $contact
-     * @param PartialUpdateContactDashboardShareRequest $request
+     * @param ContactGroup $group
+     * @param PartialUpdateContactGroupDashboardShareRequest $request
      *
      * @throws \Throwable
      *
      * @return ResponseStatusInterface
      */
-    private function updateContactShareAsAdmin(
+    private function updateContactGroupShareAsAdmin(
         Dashboard $dashboard,
-        Contact $contact,
-        PartialUpdateContactDashboardShareRequest $request
+        ContactGroup $group,
+        PartialUpdateContactGroupDashboardShareRequest $request
     ): ResponseStatusInterface {
         if (! ($request->role instanceof NoValue)) {
-            $updated = $this->writeDashboardShareRepository->updateContactShare($contact->getId(), $dashboard->getId(), $request->role);
+            $updated = $this->writeDashboardShareRepository
+                ->updateContactGroupShare($group->getId(), $dashboard->getId(), $request->role);
 
             return $updated
                 ? new NoContentResponse()
@@ -139,17 +146,17 @@ final class PartialUpdateContactDashboardShare
 
     /**
      * @param Dashboard $dashboard
-     * @param Contact $contact
-     * @param PartialUpdateContactDashboardShareRequest $request
+     * @param ContactGroup $group
+     * @param PartialUpdateContactGroupDashboardShareRequest $request
      *
      * @throws \Throwable
      *
      * @return ResponseStatusInterface
      */
-    private function updateContactShareAsContact(
+    private function updateContactGroupShareAsContact(
         Dashboard $dashboard,
-        Contact $contact,
-        PartialUpdateContactDashboardShareRequest $request
+        ContactGroup $group,
+        PartialUpdateContactGroupDashboardShareRequest $request
     ): ResponseStatusInterface {
         $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard);
         if (! $this->rights->canUpdateShare($sharingRoles)) {
@@ -159,7 +166,8 @@ final class PartialUpdateContactDashboardShare
         }
 
         if (! ($request->role instanceof NoValue)) {
-            $updated = $this->writeDashboardShareRepository->updateContactShare($contact->getId(), $dashboard->getId(), $request->role);
+            $updated = $this->writeDashboardShareRepository
+                ->updateContactGroupShare($group->getId(), $dashboard->getId(), $request->role);
 
             return $updated
                 ? new NoContentResponse()

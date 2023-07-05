@@ -21,12 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\PartialUpdateContactDashboardShare;
+namespace Core\Dashboard\Application\UseCase\DeleteContactGroupDashboardShare;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
@@ -34,7 +32,7 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Common\Application\Type\NoValue;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
@@ -42,15 +40,15 @@ use Core\Dashboard\Application\Repository\WriteDashboardShareRepositoryInterface
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
 
-final class PartialUpdateContactDashboardShare
+final class DeleteContactGroupDashboardShare
 {
     use LoggerTrait;
 
     public function __construct(
-        private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
+        private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly WriteDashboardShareRepositoryInterface $writeDashboardShareRepository,
-        private readonly ContactRepositoryInterface $contactRepository,
+        private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
     ) {
@@ -58,38 +56,31 @@ final class PartialUpdateContactDashboardShare
 
     public function __invoke(
         int $dashboardId,
-        int $contactId,
-        PartialUpdateContactDashboardShareRequest $request,
-        PartialUpdateContactDashboardSharePresenterInterface $presenter
+        int $contactGroupId,
+        DeleteContactGroupDashboardSharePresenterInterface $presenter
     ): void {
         try {
             if ($this->rights->hasAdminRole()) {
-                $dashboard = $this->readDashboardRepository->findOne($dashboardId);
-                $contact = $this->contactRepository->findById($contactId);
-
-                if (null === $dashboard) {
+                if ($dashboard = $this->readDashboardRepository->findOne($dashboardId)) {
+                    $this->info(
+                        'Delete a contact group share for dashboard',
+                        ['id' => $dashboardId, 'contact_id' => $contactGroupId]
+                    );
+                    $response = $this->deleteContactGroupShareAsAdmin($dashboard, $contactGroupId);
+                } else {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
                     $response = new NotFoundResponse('Dashboard');
-                } elseif (null === $contact) {
-                    $this->warning('Contact group (%s) not found', ['id' => $contactId]);
-                    $response = new NotFoundResponse('Contact');
-                } else {
-                    $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
-                    $response = $this->updateContactShareAsAdmin($dashboard, $contact, $request);
                 }
             } elseif ($this->rights->canAccess()) {
-                $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
-                $contact = $this->contactRepository->findById($contactId);
-
-                if (null === $dashboard) {
+                if ($dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact)) {
+                    $this->info(
+                        'Delete a contact contact group for dashboard',
+                        ['id' => $dashboardId, 'contact_id' => $contactGroupId]
+                    );
+                    $response = $this->deleteContactGroupShareAsContact($dashboard, $contactGroupId);
+                } else {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
                     $response = new NotFoundResponse('Dashboard');
-                } elseif (null === $contact) {
-                    $this->warning('Contact group (%s) not found', ['id' => $contactId]);
-                    $response = new NotFoundResponse('Contact');
-                }else {
-                    $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
-                    $response = $this->updateContactShareAsContact($dashboard, $contact, $request);
                 }
             } else {
                 $this->error(
@@ -108,30 +99,29 @@ final class PartialUpdateContactDashboardShare
             $presenter->presentResponse(new ErrorResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->presentResponse(new ErrorResponse('Error while updating the dashboard share'));
+            $presenter->presentResponse(new ErrorResponse('Error while deleting the dashboard share'));
         }
     }
 
     /**
      * @param Dashboard $dashboard
-     * @param Contact $contact
-     * @param PartialUpdateContactDashboardShareRequest $request
+     * @param int $contactGroupId
      *
      * @throws \Throwable
      *
      * @return ResponseStatusInterface
      */
-    private function updateContactShareAsAdmin(
-        Dashboard $dashboard,
-        Contact $contact,
-        PartialUpdateContactDashboardShareRequest $request
-    ): ResponseStatusInterface {
-        if (! ($request->role instanceof NoValue)) {
-            $updated = $this->writeDashboardShareRepository->updateContactShare($contact->getId(), $dashboard->getId(), $request->role);
+    private function deleteContactGroupShareAsAdmin(Dashboard $dashboard, int $contactGroupId): ResponseStatusInterface
+    {
+        $group = $this->readContactGroupRepository->find($contactGroupId);
+        if (null === $group) {
+            $this->warning('Contact group (%s) not found', ['id' => $contactGroupId]);
 
-            return $updated
-                ? new NoContentResponse()
-                : new NotFoundResponse('Dashboard share');
+            return new NotFoundResponse('Contact');
+        }
+
+        if (! $this->writeDashboardShareRepository->deleteContactGroupShare($group->getId(), $dashboard->getId())) {
+            return new NotFoundResponse('Dashboard share');
         }
 
         return new NoContentResponse();
@@ -139,31 +129,30 @@ final class PartialUpdateContactDashboardShare
 
     /**
      * @param Dashboard $dashboard
-     * @param Contact $contact
-     * @param PartialUpdateContactDashboardShareRequest $request
+     * @param int $contactGroupId
      *
      * @throws \Throwable
      *
      * @return ResponseStatusInterface
      */
-    private function updateContactShareAsContact(
-        Dashboard $dashboard,
-        Contact $contact,
-        PartialUpdateContactDashboardShareRequest $request
-    ): ResponseStatusInterface {
+    private function deleteContactGroupShareAsContact(Dashboard $dashboard, int $contactGroupId): ResponseStatusInterface
+    {
+        $group = $this->readContactGroupRepository->find($contactGroupId);
+        if (null === $group) {
+            $this->warning('Contact group (%s) not found', ['id' => $contactGroupId]);
+
+            return new NotFoundResponse('Contact');
+        }
+
         $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard);
-        if (! $this->rights->canUpdateShare($sharingRoles)) {
+        if (! $this->rights->canDeleteShare($sharingRoles)) {
             return new ForbiddenResponse(
                 DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboard->getId())
             );
         }
 
-        if (! ($request->role instanceof NoValue)) {
-            $updated = $this->writeDashboardShareRepository->updateContactShare($contact->getId(), $dashboard->getId(), $request->role);
-
-            return $updated
-                ? new NoContentResponse()
-                : new NotFoundResponse('Dashboard share');
+        if (! $this->writeDashboardShareRepository->deleteContactGroupShare($group->getId(), $dashboard->getId())) {
+            return new NotFoundResponse('Dashboard share');
         }
 
         return new NoContentResponse();
