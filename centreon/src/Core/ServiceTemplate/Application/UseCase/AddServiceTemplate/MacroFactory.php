@@ -21,20 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate;
+namespace Core\ServiceTemplate\Application\UseCase\AddServiceTemplate;
 
 use Assert\AssertionFailedException;
 use Core\Macro\Domain\Model\Macro;
 
-final class HostMacroFactory
+final class MacroFactory
 {
     /**
      * Create macros object from the request data.
      * Use direct and inherited macros to retrieve value of macro with isPassword when not provided in dto.
      *
-     * @param array{name:string,value:string|null,is_password:bool,description:string|null} $data
-     * @param int $hostTemplateId
-     * @param array<string,Macro> $directMacros
+     * @param MacroDto $dto
+     * @param int $serviceTemplateId
      * @param array<string,Macro> $inheritedMacros
      *
      * @throws \Throwable
@@ -43,31 +42,29 @@ final class HostMacroFactory
      * @return Macro
      */
     public static function create(
-        array $data,
-        int $hostTemplateId,
-        array $directMacros,
+        MacroDto $dto,
+        int $serviceTemplateId,
         array $inheritedMacros
     ): Macro {
-        $macroName = mb_strtoupper($data['name']);
-        $macroValue = $data['value'] ?? '';
-        $passwordHasNotChanged = (null === $data['value']) && $data['is_password'];
+        $macroName = mb_strtoupper($dto->name);
+        $macroValue = $dto->value ?? '';
+        $passwordHasNotChanged = (null === $dto->value) && $dto->isPassword;
         // Note: do not handle vault storage at the moment
         if ($passwordHasNotChanged) {
             $macroValue = match (true) {
                 // retrieve actual password value
-                isset($directMacros[$macroName]) => $directMacros[$macroName]->getValue(),
                 isset($inheritedMacros[$macroName]) => $inheritedMacros[$macroName]->getValue(),
                 default => $macroValue,
             };
         }
 
         $macro = new Macro(
-            $hostTemplateId,
-            $data['name'],
+            $serviceTemplateId,
+            $dto->name,
             $macroValue,
         );
-        $macro->setIsPassword($data['is_password']);
-        $macro->setDescription($data['description'] ?? '');
+        $macro->setIsPassword($dto->isPassword);
+        $macro->setDescription($dto->description ?? '');
 
         return $macro;
     }
