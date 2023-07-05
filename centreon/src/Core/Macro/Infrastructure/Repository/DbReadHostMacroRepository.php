@@ -21,13 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\HostMacro\Infrastructure\Repository;
+namespace Core\Macro\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\HostMacro\Application\Repository\ReadHostMacroRepositoryInterface;
-use Core\HostMacro\Domain\Model\HostMacro;
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
 use Utility\SqlConcatenator;
 
 class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHostMacroRepositoryInterface
@@ -142,13 +142,13 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
      *    macro_order:int
      * } $data
      *
-     * @return HostMacro
+     * @return Macro
      */
-    private function createHostMacroFromArray(array $data): HostMacro
+    private function createHostMacroFromArray(array $data): Macro
     {
         preg_match('/^\$_HOST(?<macro_name>.*)\$$/', $data['host_macro_name'], $matches);
 
-        $macro = new HostMacro(
+        $macro = new Macro(
             (int) $data['host_host_id'],
             $matches['macro_name'],
             $data['host_macro_value'],

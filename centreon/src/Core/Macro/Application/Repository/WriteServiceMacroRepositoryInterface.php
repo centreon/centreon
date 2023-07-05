@@ -21,31 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\HostMacro\Application\Repository;
+namespace Core\Macro\Application\Repository;
 
-use Core\HostMacro\Domain\Model\HostMacro;
+use Core\Macro\Domain\Model\Macro;
 
-interface ReadHostMacroRepositoryInterface
+interface WriteServiceMacroRepositoryInterface
 {
     /**
-     * Find macros by host (or host template) IDs.
+     * Add service's macros.
      *
-     * @param int[] $hostIds
-     *
-     * @throws \Throwable
-     *
-     * @return HostMacro[]
-     */
-    public function findByHostIds(array $hostIds): array;
-
-    /**
-     * Find macros by host (or host template) ID.
-     *
-     * @param int $hostId
+     * @param Macro $macro
      *
      * @throws \Throwable
-     *
-     * @return HostMacro[]
      */
-    public function findByHostId(int $hostId): array;
+    public function add(Macro $macro): void;
 }
