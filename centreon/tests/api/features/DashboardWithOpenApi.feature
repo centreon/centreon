@@ -1605,6 +1605,23 @@ Feature:
     And the JSON should be equal to:
     """
     {
+        "result": [],
+        "meta": {
+            "page": 1,
+            "limit": 10,
+            "search": { "$and": { "name": { "$lk": "%guest%" } } },
+            "sort_by": {},
+            "total": 0
+        }
+    }
+    """
+
+    When I am logged in
+    Then I send a GET request to '/api/latest/configuration/dashboards/contactgroups?search={"name":{"$lk":"%25guest%25"}}'
+    And the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
         "result": [
             {
                 "id": 3,
