@@ -25,6 +25,7 @@ namespace Core\Dashboard\Application\UseCase\FindDashboardContactGroups;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
@@ -39,6 +40,7 @@ final class FindDashboardContactGroups
 
     public function __construct(
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
+        private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
     ) {
@@ -48,6 +50,7 @@ final class FindDashboardContactGroups
     {
         try {
             if ($this->rights->canAccess()) {
+                $this->info('Find dashboard contact groups', ['request' => $this->requestParameters->toArray()]);
                 $users = $this->contact->isAdmin()
                     ? $this->findContactGroupsAsAdmin()
                     : $this->findContactGroupsAsContact();

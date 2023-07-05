@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\Dashboard\Application\UseCase\FindDashboardContacts;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
@@ -36,6 +37,7 @@ beforeEach(function (): void {
     $this->presenter = new FindDashboardContactsPresenterStub();
     $this->useCase = new FindDashboardContacts(
         $this->readUserRepository = $this->createMock(ReadUserRepositoryInterface::class),
+        $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
     );
