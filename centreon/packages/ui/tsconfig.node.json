@@ -8,6 +8,13 @@
   },
   "include": [
     "vite.config.ts",
-    ".storybook"
-  ]
+    ".storybook",
+    "style-dictionary.transform.ts",
+  ],
+  "ts-node": {
+    "transpileOnly": true,
+    "moduleTypes": {
+      "style-dictionary.transform.ts": "cjs"
+    }
+  }
 }

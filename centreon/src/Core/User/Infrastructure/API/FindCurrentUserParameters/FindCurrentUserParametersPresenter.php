@@ -25,10 +25,13 @@ namespace Core\User\Infrastructure\API\FindCurrentUserParameters;
 
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Infrastructure\FeatureFlags;
+use Core\Dashboard\Infrastructure\Model\DashboardGlobalRoleConverter;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParametersPresenterInterface;
 use Core\User\Application\UseCase\FindCurrentUserParameters\FindCurrentUserParametersResponse;
+use Core\User\Infrastructure\Model\UserInterfaceDensityConverter;
+use Core\User\Infrastructure\Model\UserThemeConverter;
 
 class FindCurrentUserParametersPresenter extends DefaultPresenter
     implements FindCurrentUserParametersPresenterInterface
@@ -57,15 +60,17 @@ class FindCurrentUserParametersPresenter extends DefaultPresenter
                 'is_admin' => $data->isAdmin,
                 'use_deprecated_pages' => $data->useDeprecatedPages,
                 'is_export_button_enabled' => $data->isExportButtonEnabled,
-                'theme' => $data->theme->value,
-                'user_interface_density' => $data->userInterfaceDensity->value,
+                'theme' => UserThemeConverter::toString($data->theme),
+                'user_interface_density' => UserInterfaceDensityConverter::toString($data->userInterfaceDensity),
                 'default_page' => $data->defaultPage,
             ];
 
             if ($this->hasDashboardFlag) {
                 $array['dashboard'] = $data->dashboardPermissions->globalRole
                     ? [
-                        'global_user_role' => $data->dashboardPermissions->globalRole->value,
+                        'global_user_role' => DashboardGlobalRoleConverter::toString(
+                            $data->dashboardPermissions->globalRole
+                        ),
                         'view_dashboards' => $data->dashboardPermissions->hasViewerRole,
                         'create_dashboards' => $data->dashboardPermissions->hasCreatorRole,
                         'administrate_dashboards' => $data->dashboardPermissions->hasAdminRole,

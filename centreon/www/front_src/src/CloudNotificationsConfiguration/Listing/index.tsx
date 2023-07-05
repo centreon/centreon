@@ -43,7 +43,6 @@ const NotificationsListing = (): JSX.Element => {
   const setEditedNotificationId = useSetAtom(editedNotificationIdAtom);
   const setPanelMode = useSetAtom(panelModeAtom);
   const setNotificationsNames = useSetAtom(notificationsNamesAtom);
-
   const { loading, data: listingData, refetch } = useLoadingNotifications();
 
   useEffect(() => {
@@ -52,7 +51,10 @@ const NotificationsListing = (): JSX.Element => {
 
   useEffect(() => {
     if (listingData) {
-      const names = listingData.result.map((item) => item.name);
+      const names = listingData.result.map((item) => ({
+        id: item.id,
+        name: item.name
+      }));
       setNotificationsNames(names);
     }
   }, [listingData]);

@@ -87,6 +87,7 @@ jobs:
     secrets:
       veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
       veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
+      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
 
   frontend-web-build:
     needs: [get-version]
@@ -281,7 +282,6 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye]
         include:
           - package_extension: rpm
             image: packaging-alma8
@@ -503,7 +503,7 @@ jobs:
       features_path: tests/e2e/cypress/e2e
       major_version: ${{ needs.get-version.outputs.major_version }}
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
-      package_directory: centreon/tests/e2e/cypress/fixtures/rpms
+      package_directory: centreon/tests/e2e/cypress/fixtures/packages
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Notification\Application\Repository;
 
 use Core\Notification\Domain\Model\NewNotification;
+use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Infrastructure\Common\Repository\RepositoryException;
 
@@ -60,6 +61,43 @@ interface WriteNotificationRepositoryInterface
      * @throws \Throwable
      */
     public function addUsers(int $notificationId, array $userIds): void;
+
+    /**
+     * Add Contact Groups to a notification.
+     *
+     * @param int $notificationId
+     * @param int[] $contactGroupIds
+     *
+     * @throws \Throwable
+     */
+    public function addContactGroups(int $notificationId, array $contactGroupIds): void;
+
+    /**
+     * Update notification.
+     *
+     * @param Notification $notification
+     *
+     * @throws \Throwable
+     */
+    public function update(Notification $notification): void;
+
+    /**
+     * delete all the messages of a notification.
+     *
+     * @param int $notificationId
+     *
+     * @throws \Throwable
+     */
+    public function deleteMessages(int $notificationId): void;
+
+    /**
+     * delete all the users of a notification.
+     *
+     * @param int $notificationId
+     *
+     * @throws \Throwable
+     */
+    public function deleteUsers(int $notificationId): void;
 
     /**
      * Delete a notification.

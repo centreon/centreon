@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboards\Response;
 
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use DateTimeImmutable;
 
 final class DashboardResponseDto
@@ -35,7 +36,7 @@ final class DashboardResponseDto
         public ?UserResponseDto $updatedBy = null,
         public DateTimeImmutable $createdAt = new \DateTimeImmutable(),
         public DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
-        public string $ownRole = '',
+        public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
     ) {
     }
 }

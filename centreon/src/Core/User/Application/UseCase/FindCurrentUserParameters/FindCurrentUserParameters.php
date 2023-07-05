@@ -29,8 +29,8 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Configuration\User\Exception\UserException;
 use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\User\Domain\Model\UserInterfaceDensity;
-use Core\User\Domain\Model\UserTheme;
+use Core\User\Application\Model\UserInterfaceDensityConverter;
+use Core\User\Application\Model\UserThemeConverter;
 
 final class FindCurrentUserParameters
 {
@@ -67,10 +67,8 @@ final class FindCurrentUserParameters
         $dto->isAdmin = $user->isAdmin();
         $dto->useDeprecatedPages = $user->isUsingDeprecatedPages();
         $dto->isExportButtonEnabled = $this->hasExportButtonRole($user);
-        $dto->theme = UserTheme::tryFrom((string) $user->getTheme())
-            ?? UserTheme::Light;
-        $dto->userInterfaceDensity = UserInterfaceDensity::tryFrom((string) $user->getUserInterfaceDensity())
-            ?? UserInterfaceDensity::Compact;
+        $dto->theme = UserThemeConverter::fromString($user->getTheme());
+        $dto->userInterfaceDensity = UserInterfaceDensityConverter::fromString($user->getUserInterfaceDensity());
         $dto->defaultPage = $user->getDefaultPage()?->getRedirectionUri();
 
         $dto->dashboardPermissions->globalRole = $this->rights->getGlobalRole();

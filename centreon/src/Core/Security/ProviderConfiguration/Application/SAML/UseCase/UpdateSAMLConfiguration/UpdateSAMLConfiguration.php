@@ -372,9 +372,11 @@ class UpdateSAMLConfiguration
             $foundContactGroupsId[] = $foundAccessGroup->getId();
         }
         $nonExistentAccessGroupsIds = array_diff($contactGroupIds, $foundContactGroupsId);
-        $this->error("Access groups not found", [
-            "access_group_ids" => implode(', ', $nonExistentAccessGroupsIds)
-        ]);
+        if (! empty($nonExistentAccessGroupsIds)) {
+            $this->error("Access groups not found", [
+                "access_group_ids" => implode(', ', $nonExistentAccessGroupsIds)
+            ]);
+        }
     }
 
     /**

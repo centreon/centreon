@@ -26,8 +26,8 @@ namespace Core\Dashboard\Application\UseCase\FindDashboards;
 use Core\Dashboard\Application\UseCase\FindDashboards\Response\DashboardResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboards\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\DashboardSharingRole;
-use Core\Dashboard\Domain\Model\DashboardSharingRoles;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Share\DashboardSharingRoles;
 
 final class FindDashboardsFactory
 {
@@ -58,7 +58,7 @@ final class FindDashboardsFactory
             $dto->description = $dashboard->getDescription();
             $dto->createdAt = $dashboard->getCreatedAt();
             $dto->updatedAt = $dashboard->getUpdatedAt();
-            $dto->ownRole = $ownRole->value;
+            $dto->ownRole = $ownRole;
 
             if (null !== ($contactId = $dashboard->getCreatedBy())) {
                 $dto->createdBy = new UserResponseDto();

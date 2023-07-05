@@ -72,6 +72,26 @@ class NotificationException extends \Exception
         return new self(sprintf(_('Notification #%d should have at least one user'), $notificationId));
     }
 
+    public static function listOneNotAllowed(): self
+    {
+        return new self(_('You are not allowed to display the details of the notification'));
+    }
+
+    public static function updateNotAllowed(): self
+    {
+       return new self(_('You are not allowed to update the notification configuration'));
+    }
+
+    public static function partialUpdateNotAllowed(): self
+    {
+        return new self(_('You are not allowed to partially update a notification configuration'));
+    }
+
+    public static function errorWhilePartiallyUpdatingObject(): self
+    {
+        return new self(_('Error while partially updating a notification configuration'));
+    }
+
     public static function deleteNotAllowed(): self
     {
         return new self(_('You are not allowed to delete a notification configuration'));

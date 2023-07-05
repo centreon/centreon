@@ -29,7 +29,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
-use Core\Dashboard\Application\Repository\ReadDashboardRelationRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboards;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboardsResponse;
@@ -40,7 +40,7 @@ beforeEach(function (): void {
     $this->presenter = new FindDashboardsPresenterStub();
     $this->useCase = new FindDashboards(
         $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class),
-        $this->createMock(ReadDashboardRelationRepositoryInterface::class),
+        $this->createMock(ReadDashboardShareRepositoryInterface::class),
         $this->createMock(RequestParametersInterface::class),
         $this->createMock(ReadContactRepositoryInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),

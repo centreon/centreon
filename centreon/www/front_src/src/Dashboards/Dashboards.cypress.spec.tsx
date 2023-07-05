@@ -1,4 +1,4 @@
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
@@ -6,12 +6,12 @@ import {
   ListingVariant,
   userAtom
 } from '@centreon/ui-context';
-import { Method, TestQueryProvider } from '@centreon/ui';
+import { TestQueryProvider } from '@centreon/ui';
+import { Method } from '@centreon/js-config/cypress/component/commands';
 
-import { DashboardRole } from './models';
+import { DashboardRole } from './api/models';
+import { DashboardsPage } from './DashboardsPage';
 import { dashboardsEndpoint } from './api/endpoints';
-
-import Dashboards from '.';
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
@@ -51,7 +51,7 @@ const initializeAndMount = ({
     cy.interceptAPIRequest({
       alias: 'getDashboards',
       method: Method.GET,
-      path: `${dashboardsEndpoint}**`,
+      path: `${dashboardsEndpoint}?**`,
       response: dashboards
     });
   });
@@ -61,7 +61,7 @@ const initializeAndMount = ({
       <TestQueryProvider>
         <BrowserRouter>
           <Provider store={store}>
-            <Dashboards />
+            <DashboardsPage />
           </Provider>
         </BrowserRouter>
       </TestQueryProvider>

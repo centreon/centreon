@@ -30,11 +30,11 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
-use Core\Dashboard\Application\Repository\ReadDashboardRelationRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Dashboard\Domain\Model\DashboardSharingRole;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 final class FindDashboards
 {
@@ -42,7 +42,7 @@ final class FindDashboards
 
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
-        private readonly ReadDashboardRelationRepositoryInterface $readDashboardRelationRepository,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadContactRepositoryInterface $readContactRepository,
         private readonly DashboardRights $rights,
@@ -85,7 +85,7 @@ final class FindDashboards
         return FindDashboardsFactory::createResponse(
             $dashboards,
             $this->readContactRepository->findNamesByIds(...$contactIds),
-            $this->readDashboardRelationRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
+            $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
             DashboardSharingRole::Editor
         );
     }
@@ -106,7 +106,7 @@ final class FindDashboards
         return FindDashboardsFactory::createResponse(
             $dashboards,
             $this->readContactRepository->findNamesByIds(...$contactIds),
-            $this->readDashboardRelationRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
+            $this->readDashboardShareRepository->getMultipleSharingRoles($this->contact, ...$dashboards),
             DashboardSharingRole::Viewer
         );
     }
