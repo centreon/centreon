@@ -17,6 +17,38 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
+  - src: "@PERL_LOCAL_VENDORARCH@/auto/Net/Curl/Curl.so"
+    dst: "@PERL_VENDORARCH@/auto/Net/Curl/Curl.so"
+    file_info:
+      mode: 0644
+    packager: deb
+  - src: "@PERL_LOCAL_VENDORARCH@/auto/Net/Curl/Curl.so"
+    dst: "@PERL_VENDORARCH@/auto/Net/Curl/Curl.so"
+    file_info:
+      mode: 0644
+    packager: rpm
+
+  - src: "@PERL_LOCAL_VENDORARCH@/Net/Curl*"
+    dst: "@PERL_VENDORARCH@/Net/"
+    file_info:
+      mode: 0644
+    packager: deb
+  - src: "@PERL_LOCAL_VENDORARCH@/Net/Curl*"
+    dst: "@PERL_VENDORARCH@/Net/"
+    file_info:
+      mode: 0644
+    packager: rpm
+
+  - src: /usr/local/man/man3/Net::Curl*
+    dst: /usr/share/man/man3/
+    file_info:
+      mode: 0644
+    packager: deb
+  - src: /usr/local/share/man/man3/Net::Curl*
+    dst: /usr/local/share/man/man3/
+    file_info:
+      mode: 0644
+    packager: rpm
 
 overrides:
   rpm:
