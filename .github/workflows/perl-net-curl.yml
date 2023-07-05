@@ -73,23 +73,19 @@ jobs:
           repository: sparky/perl-Net-Curl
           path: perl-Net-Curl
 
-      - name: Compile library
+      - name: Install locally Net::Curl
         run: |
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then
             apt-get update
             apt-get install -y libcurl4-openssl-dev cpanminus gcc
           else
-            yum install -y yum-utils epel-release git
-            yum config-manager --set-enabled crb || true # alma 9
-            yum config-manager --set-enabled powertools || true # alma 8
+            #yum install -y yum-utils epel-release git
+            #yum config-manager --set-enabled crb || true # alma 9
+            #yum config-manager --set-enabled powertools || true # alma 8
             dnf install -y libcurl-devel cpanminus gcc
           fi
 
           cpanm -v -l /tmp Net::Curl
-
-          #cd perl-Net-Curl
-          #perl Makefile.PL
-          #ls -la
         shell: bash
 
       - name: Set package name and paths according to distrib
