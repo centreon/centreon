@@ -77,9 +77,9 @@ jobs:
         run: |
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then
             apt-get update
-            apt-get install -y libcurl4-openssl-dev
+            apt-get install -y libcurl4-openssl-dev cpanminus
           else
-            dnf install -y libcurl-devel
+            dnf install -y libcurl-devel cpanminus
           fi
 
           cpanm Net::Curl
