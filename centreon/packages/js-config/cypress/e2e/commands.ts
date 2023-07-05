@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
-const apiBase = '/centreon/api';
-const apiActionV1 = `${apiBase}/index.php`;
+import './commands/configuration';
+
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
 Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
@@ -170,50 +170,6 @@ Cypress.Commands.add(
         statusCode: 200
       })
       .visit('/waiting-page')
-);
-
-interface ActionClapi {
-  action: string;
-  object?: string;
-  values: string;
-}
-
-interface ExecuteActionViaClapiProps {
-  bodyContent: ActionClapi;
-  method?: string;
-}
-
-Cypress.Commands.add(
-  'executeActionViaClapi',
-  ({
-    bodyContent,
-    method = 'POST'
-  }: ExecuteActionViaClapiProps): Cypress.Chainable => {
-    return cy.request({
-      body: bodyContent,
-      headers: {
-        'Content-Type': 'application/json',
-        'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
-      },
-      method,
-      url: `${apiActionV1}?action=action&object=centreon_clapi`
-    });
-  }
-);
-
-Cypress.Commands.add(
-  'executeCommandsViaClapi',
-  (fixtureFile: string): Cypress.Chainable => {
-    return cy.fixture(fixtureFile).then((listRequestConfig) => {
-      cy.wrap(
-        Promise.all(
-          listRequestConfig.map((request: ActionClapi) =>
-            cy.executeActionViaClapi({ bodyContent: request })
-          )
-        )
-      );
-    });
-  }
 );
 
 Cypress.Commands.add('waitForContainerAndSetToken', (): Cypress.Chainable => {
@@ -399,10 +355,6 @@ declare global {
         command,
         name
       }: ExecInContainerProps) => Cypress.Chainable;
-      executeActionViaClapi: (
-        props: ExecuteActionViaClapiProps
-      ) => Cypress.Chainable;
-      executeCommandsViaClapi: (fixtureFile: string) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
       getTimeFromHeader: () => Cypress.Chainable;
       getWebVersion: () => Cypress.Chainable;

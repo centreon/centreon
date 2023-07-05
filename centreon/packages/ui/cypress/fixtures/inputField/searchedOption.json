@@ -1,0 +1,13 @@
+{
+    "meta":{
+       "limit":1,
+       "page":1,
+       "total":1
+    },
+    "result":[
+       {
+          "id":0,
+          "name":"My Option 1"
+       }
+    ]
+ }
