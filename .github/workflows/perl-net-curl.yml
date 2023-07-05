@@ -96,15 +96,12 @@ jobs:
         run: |
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then
             sed -i "s/@NAME@/libnet-curl-perl/g" dependencies/perl-net-curl/perl-net-curl.yaml
-            sed -i "s#@PERL_LOCAL_VENDORARCH@#/usr/local/lib/x86_64-linux-gnu/perl/5.32.1#g" dependencies/perl-net-curl/perl-net-curl.yaml
             sed -i "s#@PERL_VENDORARCH@#/usr/lib/x86_64-linux-gnu/perl5/5.32#g" dependencies/perl-net-curl/perl-net-curl.yaml
           else
             sed -i "s/@NAME@/perl-Net-Curl/g" dependencies/perl-net-curl/perl-net-curl.yaml
             if [ "${{ matrix.distrib }}" = "el8" ]; then
-              sed -i "s#@PERL_LOCAL_VENDORARCH@#/usr/local/lib64/perl5#g" dependencies/perl-net-curl/perl-net-curl.yaml
               sed -i "s#@PERL_VENDORARCH@#/usr/local/lib64/perl5#g" dependencies/perl-net-curl/perl-net-curl.yaml
             else
-              sed -i "s#@PERL_LOCAL_VENDORARCH@#/usr/local/lib64/perl5/5.32#g" dependencies/perl-net-curl/perl-net-curl.yaml
               sed -i "s#@PERL_VENDORARCH@#/usr/local/lib64/perl5/5.32#g" dependencies/perl-net-curl/perl-net-curl.yaml
             fi
           fi
