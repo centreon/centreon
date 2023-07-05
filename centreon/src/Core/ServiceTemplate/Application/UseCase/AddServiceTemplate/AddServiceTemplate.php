@@ -46,6 +46,11 @@ use Core\Macro\Domain\Model\Macro;
 use Core\Macro\Domain\Model\MacroDifference;
 use Core\Macro\Domain\Model\MacroManager;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
+use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
+use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
@@ -60,6 +65,9 @@ final class AddServiceTemplate
 {
     use LoggerTrait;
 
+    /** @var AccessGroup[] */
+    private array $accessGroups;
+
     public function __construct(
         private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
         private readonly WriteServiceTemplateRepositoryInterface $writeServiceTemplateRepository,
@@ -73,6 +81,9 @@ final class AddServiceTemplate
         private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
         private readonly DataStorageEngineInterface $storageEngine,
+        private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
+        private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly OptionService $optionService,
         private readonly ContactInterface $user
     ) {
@@ -96,6 +107,11 @@ final class AddServiceTemplate
 
                 return;
             }
+
+            if (! $this->user->isAdmin()) {
+                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+            }
+
             $nameToCheck = new TrimmedString(ServiceTemplate::formatName($request->name));
             if ($this->readServiceTemplateRepository->existsByName($nameToCheck)) {
                 $presenter->presentResponse(
@@ -117,7 +133,16 @@ final class AddServiceTemplate
 
                 return;
             }
-            $presenter->presentResponse($this->createResponse($serviceTemplate));
+            if ($this->user->isAdmin()) {
+                $serviceCategories = $this->readServiceCategoryRepository->findByService($newServiceTemplateId);
+            } else {
+                $serviceCategories = $this->readServiceCategoryRepository->findByServiceAndAccessGroups(
+                    $newServiceTemplateId,
+                    $this->accessGroups
+                );
+            }
+
+            $presenter->presentResponse($this->createResponse($serviceTemplate, $serviceCategories));
         } catch (AssertionFailedException $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -334,13 +359,63 @@ final class AddServiceTemplate
     }
 
     /**
+     * @param AddServiceTemplateRequest $request
+     *
+     * @throws ServiceTemplateException
+     * @throws \Throwable
+     */
+    private function assertIsValidServiceCategories(array $serviceCategoriesIds): void
+    {
+        if (empty($serviceCategoriesIds)) {
+
+            return;
+        }
+
+        if ($this->user->isAdmin()) {
+            $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
+                $serviceCategoriesIds
+            );
+        } else {
+            $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIdsByAccessGroups(
+                $serviceCategoriesIds,
+                $this->accessGroups
+            );
+        }
+
+        if ([] !== ($idsNotFound = array_diff($serviceCategoriesIds, $serviceCategoriesIdsFound))) {
+            throw ServiceTemplateException::idsDoesNotExist('service_categories', $idsNotFound);
+        }
+    }
+
+    /**
+     * @param int $serviceTemplateId
+     * @param AddServiceTemplateRequest $request
+     *
+     * @throws \Throwable
+     */
+    private function linkServiceTemplateToServiceCategories(int $serviceTemplateId, AddServiceTemplateRequest $request): void
+    {
+        if (empty($request->serviceCategories)) {
+
+            return;
+        }
+
+        $this->info(
+            'Link existing service categories to service',
+            ['service_categories' => $request->serviceCategories]
+        );
+        $this->writeServiceCategoryRepository->linkToService($serviceTemplateId, $request->serviceCategories);
+    }
+
+    /**
      * @param ServiceTemplate $serviceTemplate
+     * @param ServiceCategory[] $serviceCategories
      *
      * @throws \Throwable
      *
      * @return AddServiceTemplateResponse
      */
-    private function createResponse(ServiceTemplate $serviceTemplate): AddServiceTemplateResponse
+    private function createResponse(ServiceTemplate $serviceTemplate, array $serviceCategories): AddServiceTemplateResponse
     {
         $macros = $this->readServiceMacroRepository->findByServiceIds($serviceTemplate->getId());
 
@@ -396,6 +471,11 @@ final class AddServiceTemplate
             $macros
         );
 
+        $response->categories = array_map(
+            fn(ServiceCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
+            $serviceCategories
+        );
+
         return $response;
     }
 
@@ -416,6 +496,7 @@ final class AddServiceTemplate
         $this->assertIsValidNotificationTimePeriod($request->notificationTimePeriodId);
         $this->assertIsValidIcon($request->iconId);
         $this->assertIsValidHostTemplates($request->hostTemplateIds);
+        $this->assertIsValidServiceCategories($request->serviceCategories);
     }
 
     /**
@@ -434,6 +515,7 @@ final class AddServiceTemplate
         try {
             $newServiceTemplateId = $this->writeServiceTemplateRepository->add($newServiceTemplate);
             $this->addMacros($newServiceTemplateId, $request);
+            $this->linkServiceTemplateToServiceCategories($newServiceTemplateId, $request);
             $this->storageEngine->commitTransaction();
 
             return $newServiceTemplateId;

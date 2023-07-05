@@ -90,6 +90,7 @@ class AddServiceTemplateOnPremPresenter extends AbstractPresenter implements Add
                             'is_password' => $macro->isPassword,
                             'description' => $macro->description,
                         ], $response->macros),
+                        'categories' => $response->categories,
                     ]
                 )
             );
