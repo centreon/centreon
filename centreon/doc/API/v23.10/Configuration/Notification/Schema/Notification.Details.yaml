@@ -48,6 +48,17 @@ properties:
         name:
           type: string
           description: "Name of the user"
+  contactgroups:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "ID of the contact group"
+        name:
+          type: string
+          description: "Name of the contact group"
   resources:
     type: array
     items:
