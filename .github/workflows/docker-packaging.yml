@@ -13,8 +13,8 @@ on:
     paths:
       - ".github/docker/Dockerfile.packaging-*"
   pull_request:
-    # paths:
-    #   - ".github/docker/Dockerfile.packaging-*"
+    paths:
+      - ".github/docker/Dockerfile.packaging-*"
 
 jobs:
   get-version:

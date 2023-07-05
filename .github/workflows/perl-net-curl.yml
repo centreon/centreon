@@ -70,7 +70,7 @@ jobs:
 
       - name: Set package name according to distrib
         run: |
-          if [ "${ matrix.distrib }" = "bullseye" ]; then
+          if [ "${{ matrix.distrib }}" = "bullseye" ]; then
             sed -i "s/@NAME@/libnet-curl-perl/g" dependencies/perl-net-curl/perl-net-curl.yaml
           else
           sed -i "s/@NAME@/perl-Net-Curl/g" dependencies/perl-net-curl/perl-net-curl.yaml
