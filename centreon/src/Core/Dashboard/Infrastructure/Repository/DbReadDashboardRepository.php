@@ -28,7 +28,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
@@ -206,9 +205,7 @@ class DbReadDashboardRepository extends AbstractRepositoryRDB implements ReadDas
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface|null $requestParameters
      *
-     * @throws RequestParametersTranslatorException
-     * @throws \PDOException
-     * @throws AssertionFailedException
+     * @throws \Throwable
      *
      * @return list<Dashboard>
      */

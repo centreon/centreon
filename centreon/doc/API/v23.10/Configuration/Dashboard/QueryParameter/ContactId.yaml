@@ -1,0 +1,8 @@
+in: path
+name: contact_id
+description: "ID of the contact"
+required: true
+schema:
+  type: integer
+  format: int64
+  example: 5

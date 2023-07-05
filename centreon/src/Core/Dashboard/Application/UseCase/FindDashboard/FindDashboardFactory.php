@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboard;
 
-use Core\Dashboard\Application\Model\DashboardSharingRoleConverter;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\PanelResponseDto;
 use Core\Dashboard\Application\UseCase\FindDashboard\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Dashboard;

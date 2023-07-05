@@ -42,7 +42,82 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
         $this->db = $db;
     }
 
-    public function createShareWithContact(int $contactId, int $dashboardId, DashboardSharingRole $role): void
+    public function deleteContactShare(int $contactId, int $dashboardId): bool
+    {
+        $query = <<<'SQL'
+            DELETE FROM
+               `:db`.`dashboard_contact_relation`
+            WHERE
+                dashboard_id = :dashboard_id
+                AND contact_id = :contact_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
+        $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return 0 !== $statement->rowCount();
+    }
+
+    public function deleteContactGroupShare(int $contactGroupId, int $dashboardId): bool
+    {
+        $query = <<<'SQL'
+            DELETE FROM
+               `:db`.`dashboard_contactgroup_relation`
+            WHERE
+                dashboard_id = :dashboard_id
+                AND contactgroup_id = :contactgroup_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
+        $statement->bindValue(':contactgroup_id', $contactGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return 0 !== $statement->rowCount();
+    }
+
+    public function updateContactShare(int $contactId, int $dashboardId, DashboardSharingRole $role): bool
+    {
+        $query = <<<'SQL'
+            UPDATE `:db`.`dashboard_contact_relation`
+            SET
+                `role` = :contact_role
+            WHERE
+                dashboard_id = :dashboard_id
+                AND contact_id = :contact_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
+        $statement->bindValue(':contact_id', $contactId, \PDO::PARAM_INT);
+        $statement->bindValue(':contact_role', $this->roleToString($role), \PDO::PARAM_STR);
+        $statement->execute();
+
+        return 0 !== $statement->rowCount();
+    }
+    public function updateContactGroupShare(int $contactGroupId, int $dashboardId, DashboardSharingRole $role): bool
+    {
+        $query = <<<'SQL'
+            UPDATE `:db`.`dashboard_contactgroup_relation`
+            SET
+                `role` = :contact_role
+            WHERE
+                dashboard_id = :dashboard_id
+                AND contactgroup_id = :contactgroup_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($query));
+        $statement->bindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
+        $statement->bindValue(':contactgroup_id', $contactGroupId, \PDO::PARAM_INT);
+        $statement->bindValue(':contact_role', $this->roleToString($role), \PDO::PARAM_STR);
+        $statement->execute();
+
+        return 0 !== $statement->rowCount();
+    }
+
+    public function upsertShareWithContact(int $contactId, int $dashboardId, DashboardSharingRole $role): void
     {
         $query = <<<'SQL'
             INSERT INTO `:db`.`dashboard_contact_relation` (`dashboard_id`, `contact_id`, `role`)
@@ -57,7 +132,7 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
         $statement->execute();
     }
 
-    public function createShareWithContactGroup(int $contactGroupId, int $dashboardId, DashboardSharingRole $role): void
+    public function upsertShareWithContactGroup(int $contactGroupId, int $dashboardId, DashboardSharingRole $role): void
     {
         $query = <<<'SQL'
             INSERT INTO `:db`.`dashboard_contactgroup_relation` (`dashboard_id`, `contactgroup_id`, `role`)
