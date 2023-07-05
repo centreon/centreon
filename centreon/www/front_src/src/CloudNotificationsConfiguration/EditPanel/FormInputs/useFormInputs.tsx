@@ -5,8 +5,9 @@ import { cond, gt, always, T, isEmpty, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Box } from '@mui/material';
+import { Variant } from '@mui/material/styles/createTypography';
 
-import { Group, InputType, Variant } from '@centreon/ui';
+import { Group, InputType } from '@centreon/ui';
 
 import {
   labelSelectResourcesAndEvents,
@@ -50,7 +51,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
 
   const titleAttributes = {
     classes: { root: classes.titleGroup },
-    variant: Variant.subtitle1
+    variant: 'subtitle1' as Variant
   };
 
   const basicFormGroups: Array<Group> = [

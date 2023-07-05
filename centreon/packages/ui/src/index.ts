@@ -143,4 +143,3 @@ export type { ResponseError, CatchErrorProps } from './api/customFetch';
 export * from './utils';
 export { default as FluidTypography } from './Typography/FluidTypography';
 export * from './Dashboard';
-export { Variant } from './Typography/models';
