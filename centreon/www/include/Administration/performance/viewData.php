@@ -124,7 +124,7 @@ $searchS = null;
 $searchH = null;
 $searchP = null;
 
-if (isset($inputs['Search'])) {
+if (isset($inputs['Search']) && $inputs['Search'] !== "" ) {
     $centreon->historySearch[$url] = array();
     $searchH = $inputs["searchH"];
     $centreon->historySearch[$url]["searchH"] = $searchH;
