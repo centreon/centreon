@@ -115,6 +115,7 @@ const Wizard = ({
         classes={{
           paper: fullHeight ? classes.fullHeight : undefined
         }}
+        data-testid="Dialog"
         maxWidth={width}
         open={open}
         onClose={handleClose}
