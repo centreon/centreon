@@ -45,26 +45,37 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
+
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+  }).as('getLastestUserFilters');
+
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/downtime'
   }).as('postSaveDowntime');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_timezone&action=list*'
   }).as('getTimezonesList');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/monitoring/hosts/*/services/*/acknowledgements?limit=1'
   }).as('getAckToolTip');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_configuration_service&action=list&e=enable&page_limit=60&page=1'
   }).as('getServices');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/acknowledge'
@@ -84,6 +95,8 @@ Given('a user authenticated in a Centreon server', () => {
 
 Given('the platform is configured with at least one resource', () => {
   cy.reload();
+
+  cy.wait('@getLastestUserFilters');
 
   insertDtResources();
 
