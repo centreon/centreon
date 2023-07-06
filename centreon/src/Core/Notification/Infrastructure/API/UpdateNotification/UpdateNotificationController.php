@@ -48,6 +48,7 @@ final class UpdateNotificationController extends AbstractController
              *     name: string,
              *     timeperiod: int,
              *     users: int[],
+             *     contactgroups: int[],
              *     resources: array<array{
              *         type:string,
              *         ids:int[],
@@ -82,6 +83,7 @@ final class UpdateNotificationController extends AbstractController
      *     name: string,
      *     timeperiod: int,
      *     users: int[],
+     *     contactgroups: int[]
      *     resources: array<array{
      *         type:string,
      *         ids:int[],
@@ -102,6 +104,7 @@ final class UpdateNotificationController extends AbstractController
         $request->id = $notificationId;
         $request->name = $dataSent['name'];
         $request->users = $dataSent['users'];
+        $request->contactGroups = $dataSent['contactgroups'];
         foreach ($dataSent['messages'] as $messageData) {
             $request->messages[] = [
                 'channel' => $messageData['channel'],
