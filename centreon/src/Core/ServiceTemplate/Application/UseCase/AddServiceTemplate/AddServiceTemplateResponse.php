@@ -116,4 +116,7 @@ final class AddServiceTemplateResponse
 
     /** @var MacroDto[] */
     public array $macros = [];
+
+    /** @var array<array{id:int,name:string}> */
+    public array $categories = [];
 }

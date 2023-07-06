@@ -33,6 +33,9 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
+use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
@@ -60,6 +63,9 @@ class Mock extends TestCase
         $testCase->readCommandMacroRepository = $testCase->createMock(ReadCommandMacroRepositoryInterface::class);
         $testCase->writeServiceMacroRepository = $testCase->createMock(WriteServiceMacroRepositoryInterface::class);
         $testCase->storageEngine = $testCase->createMock(DataStorageEngineInterface::class);
+        $testCase->readServiceCategoryRepository = $testCase->createMock(ReadServiceCategoryRepositoryInterface::class);
+        $testCase->writeServiceCategoryRepository = $testCase->createMock(WriteServiceCategoryRepositoryInterface::class);
+        $testCase->readAccessGroupRepository = $testCase->createMock(ReadAccessGroupRepositoryInterface::class);
         $testCase->optionService = $testCase->createMock(OptionService::class);
         $testCase->user = $testCase->createMock(ContactInterface::class);
         $testCase->useCasePresenter = new AddServiceTemplatePresenterStub(
@@ -78,6 +84,9 @@ class Mock extends TestCase
             $testCase->readCommandMacroRepository,
             $testCase->writeServiceMacroRepository,
             $testCase->storageEngine,
+            $testCase->readServiceCategoryRepository,
+            $testCase->writeServiceCategoryRepository,
+            $testCase->readAccessGroupRepository,
             $testCase->optionService,
             $testCase->user
         );

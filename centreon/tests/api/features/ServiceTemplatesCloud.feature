@@ -26,7 +26,8 @@ Feature:
         "note_url": "note_url",
         "action_url": "action url",
         "severity_id": null,
-        "host_templates": [3, 11]
+        "host_templates": [3, 11],
+        "service_categories": [1, 2]
     }
     """
     Then the response code should be 201
@@ -46,7 +47,17 @@ Feature:
             3,
             11
         ],
-        "is_locked": false
+        "is_locked": false,
+        "categories": [
+            {
+                "id": 1,
+                "name": "Ping"
+            },
+            {
+                "id": 2,
+                "name": "Traffic"
+            }
+        ]
     }
     """
 

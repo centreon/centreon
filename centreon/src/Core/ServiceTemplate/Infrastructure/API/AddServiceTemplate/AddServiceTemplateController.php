@@ -78,6 +78,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  *     is_activated: boolean|null,
  *     is_locked: boolean|null,
  *     macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>
+ *     service_categories: list<int>|null
  * }
  */
 class AddServiceTemplateController extends AbstractController
@@ -172,6 +173,7 @@ class AddServiceTemplateController extends AbstractController
         $dto->iconAlternativeText = $request['icon_alternative'] ?? null;
         $dto->severityId = $request['severity_id'];
         $dto->isActivated = $request['is_activated'] ?? true;
+        $dto->serviceCategories = $request['service_categories'] ?? [];
 
         foreach ($request['macros'] as $macro) {
             $dto->macros[] = new MacroDto(
