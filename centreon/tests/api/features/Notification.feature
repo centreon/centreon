@@ -46,6 +46,7 @@ Feature:
         }
       ],
       "users": [20,21],
+      "contactgroups": [3,5],
       "is_activated": true
     }
     """
@@ -68,6 +69,16 @@ Feature:
               "id": 21,
               "name": "user-name2"
           }
+      ],
+      "contactgroups": [
+        {
+          "id": 3,
+          "name": "Guest"
+        },
+        {
+          "id": 5,
+          "name": "Supervisors"
+        }
       ],
       "resources": [
           {
@@ -132,6 +143,7 @@ Feature:
     SG;ADD;service-grp2;service-grp2-alias
     CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
     CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
+    CG;addcontact;Guest;ala;ala
     """
     And I am logged in with "ala"/"Centreon@2022"
     And a feature flag "notification" of bitmask 2
@@ -161,6 +173,7 @@ Feature:
           }
         ],
         "users": [20,21],
+        "contactgroups": [5],
         "is_activated": true
       }
       """
@@ -192,6 +205,7 @@ Feature:
           }
         ],
         "users": [20,21],
+        "contactgroups": [3],
         "is_activated": true
       }
       """
@@ -214,6 +228,12 @@ Feature:
                 "id": 21,
                 "name": "user-name1"
             }
+        ],
+        "contactgroups": [
+          {
+            "id": 3,
+            "name": "Guest"
+          }
         ],
         "resources": [
             {
@@ -294,6 +314,7 @@ Feature:
         }
       ],
       "users": [20,21],
+      "contactgroups": [3,5],
       "is_activated": true
     }
     """
@@ -309,7 +330,7 @@ Feature:
           "id": 1,
           "is_activated": true,
           "name": "notification-name",
-          "user_count": 2,
+          "user_count": 4,
           "channels": [
             "Slack"
           ],
@@ -358,6 +379,7 @@ Feature:
     SG;ADD;service-grp2;service-grp2-alias
     CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
     CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
+    CG;addcontact;Guest;test-user;test-user
     """
     And I am logged in with "test-user"/"Centreon@2022"
     And a feature flag "notification" of bitmask 2
@@ -387,6 +409,7 @@ Feature:
           }
         ],
         "users": [20,21],
+        "contactgroups": [3],
         "is_activated": true
       }
       """
@@ -402,7 +425,7 @@ Feature:
           "id": 1,
           "is_activated": true,
           "name": "notification-name",
-          "user_count": 2,
+          "user_count": 3,
           "channels": [
             "Slack"
           ],
@@ -479,6 +502,7 @@ Feature:
           }
         ],
         "users": [20,21],
+        "contactgroups": [5],
         "is_activated": true
       }
       """
@@ -526,6 +550,7 @@ Feature:
         }
       ],
       "users": [20,21],
+      "contactgroups": [3,5],
       "is_activated": true
     }
     """
@@ -559,6 +584,16 @@ Feature:
                 "id": 21,
                 "name": "user-name2"
             }
+        ],
+        "contactgroups": [
+          {
+            "id": 3,
+            "name": "Guest"
+          },
+          {
+            "id": 5,
+            "name": "Supervisors"
+          }
         ],
         "resources": [
             {
@@ -614,6 +649,7 @@ Feature:
     SG;ADD;service-grp2;service-grp2-alias
     CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
     CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
+    CG;addcontact;Guest;test-user;test-user
     """
     And I am logged in
     And a feature flag "notification" of bitmask 2
@@ -643,6 +679,7 @@ Feature:
           }
         ],
         "users": [20,21],
+        "contactgroups": [3,5],
         "is_activated": false
       }
       """
@@ -676,6 +713,12 @@ Feature:
             {
                 "id": 21,
                 "name": "user-name1"
+            }
+        ],
+        "contactgroups": [
+            {
+                "id": 3,
+                "name": "Guest"
             }
         ],
         "resources": [
@@ -749,6 +792,7 @@ Feature:
           }
         ],
         "users": [20,21],
+        "contactgroups": [],
         "is_activated": true
       }
       """
@@ -803,6 +847,7 @@ Feature:
         }
       ],
       "users": [20,21],
+      "contactgroups": [],
       "is_activated": true
     }
     """
@@ -870,6 +915,7 @@ Feature:
                   "name": "user-name2"
               }
           ],
+          "contactgroups": [],
           "resources": [
               {
                   "type": "hostgroup",
@@ -953,6 +999,7 @@ Feature:
           }
         ],
         "users": [20,21],
+        "contactgroups": [],
         "is_activated": false
       }
       """
@@ -1013,6 +1060,7 @@ Feature:
                   "name": "user-name1"
               }
           ],
+          "contactgroups": [],
           "resources": [
               {
                   "type": "hostgroup",
@@ -1072,6 +1120,7 @@ Feature:
         }
       ],
       "users": [20,21],
+      "contactgroups": [],
       "is_activated": false
     }
     """
@@ -1123,6 +1172,7 @@ Feature:
         }
       ],
       "users": [20,21],
+      "contactgroups": [],
       "is_activated": false
     }
     """
@@ -1184,6 +1234,7 @@ Feature:
           }
         ],
         "users": [20,21],
+        "contactgroups": [],
         "is_activated": true
       }
       """
@@ -1243,6 +1294,7 @@ Feature:
           }
         ],
         "users": [20,21],
+        "contactgroups": [],
         "is_activated": false
       }
       """
