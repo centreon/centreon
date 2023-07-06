@@ -847,7 +847,7 @@ Feature:
         }
       ],
       "users": [20,21],
-      "contactgroups": [],
+      "contactgroups": [3],
       "is_activated": true
     }
     """
@@ -881,6 +881,7 @@ Feature:
         }
       ],
       "users": [20,21],
+      "contactgroups": [3,5]
       "is_activated": true
     }
     """
@@ -915,7 +916,16 @@ Feature:
                   "name": "user-name2"
               }
           ],
-          "contactgroups": [],
+          "contactgroups": [
+            {
+              "id": 3,
+              "name": "Guest"
+            },
+            {
+              "id": 5,
+              "name": "Supervisors"
+            }
+          ],
           "resources": [
               {
                   "type": "hostgroup",
@@ -970,6 +980,7 @@ Feature:
     SG;ADD;service-grp2;service-grp2-alias
     CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
     CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
+    CG;addcontact;Guest;test-user;test-user
     """
     And I am logged in
     And a feature flag "notification" of bitmask 2
@@ -999,7 +1010,7 @@ Feature:
           }
         ],
         "users": [20,21],
-        "contactgroups": [],
+        "contactgroups": [3,5],
         "is_activated": false
       }
       """
@@ -1026,6 +1037,7 @@ Feature:
           }
         ],
         "users": [20,21],
+        "contactgroups": [],
         "is_activated": true
       }
     """

@@ -34,6 +34,8 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
@@ -42,7 +44,7 @@ use Core\Notification\Application\Repository\WriteNotificationRepositoryInterfac
 use Core\Notification\Application\UseCase\UpdateNotification\Factory\NotificationFactory;
 use Core\Notification\Application\UseCase\UpdateNotification\Factory\NotificationMessageFactory;
 use Core\Notification\Application\UseCase\UpdateNotification\Factory\NotificationResourceFactory;
-use Core\Notification\Application\UseCase\UpdateNotification\Validator\NotificationUserValidator;
+use Core\Notification\Application\UseCase\UpdateNotification\Validator\NotificationValidator;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
@@ -57,6 +59,7 @@ final class UpdateNotification
         private readonly WriteNotificationRepositoryInterface $writeNotificationRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactRepositoryInterface $contactRepository,
+        private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
         private readonly NotificationResourceRepositoryProviderInterface $resourceRepositoryProvider,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
@@ -93,12 +96,24 @@ final class UpdateNotification
             );
             $resources = $notificationResourceFactory->createMultipleResource($request->resources);
 
-            $userValidator = new NotificationUserValidator();
-            $userValidator->validate($request->users, $this->contactRepository);
+            $validator = new NotificationValidator();
+            $validator->validateUsersAndContactGroups(
+                $request->users,
+                $request->contactGroups,
+                $this->contactRepository,
+                $this->contactGroupRepository,
+                $this->user
+            );
 
             try {
                 $this->dataStorageEngine->startTransaction();
-                $this->updateNotificationConfiguration($notification, $messages, $request->users, $resources);
+                $this->updateNotificationConfiguration(
+                    $notification,
+                    $messages,
+                    $request->users,
+                    $request->contactGroups,
+                    $resources
+                );
                 $this->dataStorageEngine->commitTransaction();
                 $presenter->presentResponse(new NoContentResponse());
             } catch (\Throwable $ex) {
@@ -115,9 +130,36 @@ final class UpdateNotification
         } catch (\Throwable $ex) {
             $this->error('Unable to update notification configuration', ['trace' => (string) $ex]);
             $presenter->presentResponse(
-                new ErrorResponse($ex->getMessage())
+                new ErrorResponse(_('Error while updating a notification configuration'))
             );
         }
+    }
+
+    /**
+     * Ordonate the modification of notification configuration.
+     *
+     * @param Notification $notification
+     * @param NotificationMessage[] $messages
+     * @param int[] $users
+     * @param int[] $contactGroups
+     * @param NotificationResource[] $resources
+     *
+     * @throws \Throwable
+     */
+    private function updateNotificationConfiguration(
+        Notification $notification,
+        array $messages,
+        array $users,
+        array $contactGroups,
+        array $resources
+    ): void {
+        $this->writeNotificationRepository->update($notification);
+        $this->writeNotificationRepository->deleteMessages($notification->getId());
+        $this->writeNotificationRepository->addMessages($notification->getId(), $messages);
+        $this->writeNotificationRepository->deleteUsers($notification->getId());
+        $this->writeNotificationRepository->addUsers($notification->getId(), $users);
+        $this->updateResources($notification->getId(), $resources);
+        $this->updateContactGroups($notification->getId(), $contactGroups);
     }
 
     /**
@@ -131,7 +173,7 @@ final class UpdateNotification
         foreach ($this->resourceRepositoryProvider->getRepositories() as $repository) {
             if (! $this->user->isAdmin()) {
                 $this->deleteResourcesForUserWithACL($repository, $notificationId);
-            }else {
+            } else {
                 $repository->deleteAllByNotification($notificationId);
             }
         }
@@ -143,29 +185,30 @@ final class UpdateNotification
     }
 
     /**
-     * Ordonate the modification of notification configuration.
+     * Update the Notification's Contact Groups with ACL Calculation.
      *
-     * @param Notification $notification
-     * @param NotificationMessage[] $messages
-     * @param int[] $users
-     * @param NotificationResource[] $resources
+     * @param int $notificationId
+     * @param int[] $contactGroups
+     * @return void
+     */
+    private function updateContactGroups(int $notificationId, array $contactGroups): void
+    {
+        if (! $this->user->isAdmin()) {
+            $this->deleteContactGroupsForUserWithACL($notificationId);
+        } else {
+            $this->writeNotificationRepository->deleteContactGroups($notificationId);
+        }
+        $this->writeNotificationRepository->addContactGroups($notificationId, $contactGroups);
+    }
+
+    /**
+     * Delete Resources for a user with ACL.
+     *
+     * @param NotificationResourceRepositoryInterface $repository
+     * @param int $notificationId
      *
      * @throws \Throwable
      */
-    private function updateNotificationConfiguration(
-        Notification $notification,
-        array $messages,
-        array $users,
-        array $resources
-    ): void {
-        $this->writeNotificationRepository->update($notification);
-        $this->writeNotificationRepository->deleteMessages($notification->getId());
-        $this->writeNotificationRepository->addMessages($notification->getId(), $messages);
-        $this->writeNotificationRepository->deleteUsers($notification->getId());
-        $this->writeNotificationRepository->addUsers($notification->getId(), $users);
-        $this->updateResources($notification->getId(), $resources);
-    }
-
     private function deleteResourcesForUserWithACL(
         NotificationResourceRepositoryInterface $repository,
         int $notificationId
@@ -178,6 +221,23 @@ final class UpdateNotification
                 $existingResourcesIds[] = $existingResource->getId();
             }
             $repository->deleteByNotificationIdAndResourcesId($notificationId, $existingResourcesIds);
+        }
+    }
+
+    private function deleteContactGroupsForUserWithACL(int $notificationId): void
+    {
+        $contactGroups = $this->readNotificationRepository->findContactGroupsByNotificationIdAndUserId(
+            $notificationId,
+            $this->user->getId()
+        );
+        if (! empty($contactGroups)) {
+            $contactGroupsIds = array_map(
+                fn (ContactGroup $contactGroup): int => $contactGroup->getId(), $contactGroups
+            );
+            $this->writeNotificationRepository->deleteContactGroupsByNotificationAndContactGroupIds(
+                $notificationId,
+                $contactGroupsIds
+            );
         }
     }
 }
