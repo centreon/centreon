@@ -181,7 +181,8 @@ Feature:
                 "is_password": false,
                 "description": null
             }
-        ]
+        ],
+        "service_categories": [1, 2]
     }
     """
     Then the response code should be 201
@@ -250,6 +251,16 @@ Feature:
                 "value": "E1",
                 "is_password": false,
                 "description": ""
+            }
+        ],
+        "categories": [
+            {
+                "id": 1,
+                "name": "Ping"
+            },
+            {
+                "id": 2,
+                "name": "Traffic"
             }
         ]
     }

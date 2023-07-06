@@ -57,6 +57,10 @@ class AddServiceTemplateSaasPresenter extends AbstractPresenter implements AddSe
                         'severity_id' => $response->severityId,
                         'host_templates' => $response->hostTemplateIds,
                         'is_locked' => $response->isLocked,
+                        'categories' => array_map(fn($category): array => [
+                            'id' => $category['id'],
+                            'name' => $category['name'],
+                        ], $response->categories),
                     ]
                 )
             );
