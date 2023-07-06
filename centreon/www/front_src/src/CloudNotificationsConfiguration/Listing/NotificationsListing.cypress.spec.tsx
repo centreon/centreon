@@ -366,7 +366,7 @@ describe('Listing row actions: Delete button', () => {
 describe('column sorting', () => {
   beforeEach(initializeSorting);
 
-  it('executes a listing request with sort_by param when a sortable column is clicked', () => {
+  it('executes a listing request when a sortable column is clicked', () => {
     cy.waitForRequest('@defaultRequest');
 
     columnToSort.forEach(({ label, id, sortField }) => {
@@ -389,7 +389,7 @@ describe('column sorting', () => {
       cy.contains('notification1').should('be.visible');
 
       cy.matchImageSnapshot(
-        `column sorting --  executes a listing request with sorty_by param when the ${label} column is clicked`
+        `column sorting --  executes a listing request when the ${label} column is clicked`
       );
     });
   });
