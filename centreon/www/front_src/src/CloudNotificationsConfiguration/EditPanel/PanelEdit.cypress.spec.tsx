@@ -54,7 +54,7 @@ const PanelWithQueryProvider = (): JSX.Element => {
         <TestQueryProvider>
           <SnackbarProvider>
             <>
-              <Form />
+              <Form bottom={0} />
               <DeleteConfirmationDialog />
             </>
           </SnackbarProvider>
@@ -320,9 +320,14 @@ describe('Edit Panel', () => {
 
   it('Displays the Users field with edited notification users', () => {
     cy.waitForRequest('@listingRequest');
+    cy.get('[data-testid="Search users"]').as('fieldUsers');
 
-    cy.findByText('centreon-gorgone').should('be.visible');
-    cy.findByText('Guest').should('be.visible');
+    cy.get('@fieldUsers')
+      .parent()
+      .within(() => {
+        cy.findByText('centreon-gorgone').should('be.visible');
+        cy.findByText('Guest').should('be.visible');
+      });
 
     cy.matchImageSnapshot();
   });
