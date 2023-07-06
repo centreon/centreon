@@ -12,6 +12,9 @@ import {
   type as variableType
 } from 'ramda';
 
+import { InputAdornment } from '@mui/material';
+import { MailLockOutlined } from '@mui/icons-material';
+
 import { TextField, useMemoComponent } from '../..';
 
 import PasswordEndAdornment from './PasswordEndAdornment';
@@ -64,16 +67,24 @@ const Text = ({
     ? path(fieldNamePath, errors)
     : undefined;
 
-  const passwordEndAdornment = useCallback(
-    (): JSX.Element | null =>
-      equals(type, InputType.Password) ? (
+  const EndAdornment = useCallback((): JSX.Element | null => {
+    if (equals(type, InputType.Password)) {
+      return (
         <PasswordEndAdornment
           changeVisibility={changeVisibility}
           isVisible={isVisible}
         />
-      ) : null,
-    [isVisible]
-  );
+      );
+    }
+
+    if (text?.endAdornment) {
+      return (
+        <InputAdornment position="end">{text?.endAdornment}</InputAdornment>
+      );
+    }
+
+    return null;
+  }, [isVisible]);
 
   const getInputType = (): string => {
     if (text?.type) {
@@ -97,13 +108,14 @@ const Text = ({
     Component: (
       <TextField
         fullWidth
-        EndAdornment={passwordEndAdornment}
+        EndAdornment={EndAdornment}
         ariaLabel={t(label) || ''}
         dataTestId={dataTestId || ''}
         disabled={disabled}
         error={error as string | undefined}
         label={t(label)}
         multiline={isMultiline}
+        placeholder={text?.placeholder}
         required={isRequired}
         rows={rows}
         type={getInputType()}
