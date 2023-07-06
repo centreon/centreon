@@ -13,7 +13,6 @@ import {
 } from 'ramda';
 
 import { InputAdornment } from '@mui/material';
-import { MailLockOutlined } from '@mui/icons-material';
 
 import { TextField, useMemoComponent } from '../..';
 
