@@ -187,6 +187,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
               additionalConditionParameters: [],
               endpoint: usersEndpoint
             },
+            dataTestId: 'Search users',
             fieldName: 'users',
             label: 'Search users',
             required: true,

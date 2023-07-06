@@ -62,6 +62,18 @@ interface WriteDashboardShareRepositoryInterface
     public function deleteContactShare(int $contactId, int $dashboardId): bool;
 
     /**
+     * Delete the share relation between a dashboard and a contact group.
+     *
+     * @param int $dashboardId
+     * @param int $contactGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function deleteContactGroupShare(int $contactGroupId, int $dashboardId): bool;
+
+    /**
      * Update the share relation between a dashboard and a contact.
      *
      * @param int $contactId
@@ -73,4 +85,17 @@ interface WriteDashboardShareRepositoryInterface
      * @return bool
      */
     public function updateContactShare(int $contactId, int $dashboardId, DashboardSharingRole $role): bool;
+
+    /**
+     * Update the share relation between a dashboard and a contact group.
+     *
+     * @param int $contactGroupId
+     * @param int $dashboardId
+     * @param DashboardSharingRole $role
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function updateContactGroupShare(int $contactGroupId, int $dashboardId, DashboardSharingRole $role): bool;
 }

@@ -21,6 +21,8 @@
 
 declare(strict_types=1);
 
+namespace Tests\Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate;
+
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
@@ -41,6 +43,7 @@ use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInt
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\PartialUpdateServiceTemplate;
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\PartialUpdateServiceTemplateRequest;
+use Exception;
 
 beforeEach(closure: function (): void {
     $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class);

@@ -48,7 +48,6 @@ class DbReadCommandMacroRepository extends AbstractRepositoryRDB implements Read
     public function findByCommandIdAndType(int $commandId, CommandMacroType $type): array
     {
         $this->info('Get command macros by command ID and type',['command_id' => $commandId, 'type' => $type]);
-
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 SELECT
@@ -62,7 +61,7 @@ class DbReadCommandMacroRepository extends AbstractRepositoryRDB implements Read
                     AND m.command_macro_type = :macroType
                 SQL
         ));
-        $statement->bindValue(':macroType', CommandMacroType::Host->value, \PDO::PARAM_STR);
+        $statement->bindValue(':macroType', $type->value, \PDO::PARAM_STR);
         $statement->bindValue(':commandId', $commandId, \PDO::PARAM_INT);
         $statement->execute();
 
