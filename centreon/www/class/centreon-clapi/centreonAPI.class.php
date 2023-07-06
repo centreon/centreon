@@ -798,9 +798,9 @@ class CentreonAPI
 
                 $string = trim($string);
                 if (
-                    strlen($string) === 0
-                    || substr($string, 0, 1)  === '#'
-                    || substr($string, 0, 13)  === '{OBJECT_TYPE}'
+                    $string === ''
+                    || str_starts_with($string, '#')
+                    || str_starts_with($string, '{OBJECT_TYPE}')
                 ) {
                     continue;
                 }
