@@ -189,7 +189,8 @@ final class UpdateNotification
      *
      * @param int $notificationId
      * @param int[] $contactGroups
-     * @return void
+     *
+     * @throws \Throwable
      */
     private function updateContactGroups(int $notificationId, array $contactGroups): void
     {
@@ -224,6 +225,13 @@ final class UpdateNotification
         }
     }
 
+    /**
+     * Delete Contact Groups for a user with ACL.
+     *
+     * @param int $notificationId
+     *
+     * @throws \Throwable
+     */
     private function deleteContactGroupsForUserWithACL(int $notificationId): void
     {
         $contactGroups = $this->readNotificationRepository->findContactGroupsByNotificationIdAndUserId(

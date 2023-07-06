@@ -232,8 +232,13 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
         $statement->execute();
     }
 
-    public function deleteContactGroupsByNotificationAndContactGroupIds(int $notificationId, array $contactGroupsIds): void
-    {
+    /**
+     * @inheritDoc
+     */
+    public function deleteContactGroupsByNotificationAndContactGroupIds(
+        int $notificationId,
+        array $contactGroupsIds
+    ): void {
         if ($contactGroupsIds === []) {
             return;
         }

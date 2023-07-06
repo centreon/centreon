@@ -17871,4 +17871,4 @@ msgid "Error while partially updating a notification configuration"
 msgstr "Erreur lors de la modification partielle d'une configuration de notification"
 
 msgid "Error while updating a notification configuration"
-msgstr "Erreur lors de la mise a jour d'une configuration de notification"
+msgstr "Erreur lors de la mise à jour d'une configuration de notification"
