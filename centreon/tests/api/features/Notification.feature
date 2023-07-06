@@ -1081,7 +1081,6 @@ Feature:
       }
     """
 
-
   Scenario: Enable a notification as an admin user
     Given I am logged in
     And a feature flag "notification" of bitmask 2
@@ -1308,6 +1307,7 @@ Feature:
     }
     """
     Then the response code should be "403"
+
   Scenario: Delete notification definition as an admin user
     Given the following CLAPI import data:
     """
@@ -1323,7 +1323,7 @@ Feature:
     """
     {
       "name": "notification-name",
-      "timeperiod": 2,
+      "timeperiod_id": 2,
       "resources": [
         {
           "type": "hostgroup",
@@ -1347,6 +1347,7 @@ Feature:
         }
       ],
       "users": [20,21],
+      "contactgroups": [],
       "is_activated": true
     }
     """
@@ -1380,7 +1381,7 @@ Feature:
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -1402,6 +1403,7 @@ Feature:
           }
         ],
         "users": [20,21],
+        "contactgroups": [],
         "is_activated": true
       }
       """
@@ -1434,7 +1436,7 @@ Feature:
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -1455,6 +1457,7 @@ Feature:
           }
         ],
         "users": [20,21],
+        "contactgroups": [],
         "is_activated": true
       }
       """
@@ -1462,7 +1465,8 @@ Feature:
     And I am logged in with "test-user"/"Centreon@2022"
     When I send a DELETE request to '/api/latest/configuration/notifications/1'
     Then the response code should be "403"
-Scenario: Delete notification definition with ID that does not exist
+
+  Scenario: Delete notification definition with ID that does not exist
     Given the following CLAPI import data:
     """
     CONTACT;ADD;test-user;test-user;test-user@localservice.com;Centreon@2022;0;1;en_US;local
@@ -1488,7 +1492,7 @@ Scenario: Delete notification definition with ID that does not exist
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -1510,6 +1514,7 @@ Scenario: Delete notification definition with ID that does not exist
           }
         ],
         "users": [20,21],
+        "contactgroups": [],
         "is_activated": true
       }
       """
@@ -1531,7 +1536,7 @@ Scenario: Delete notification definition with ID that does not exist
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -1553,6 +1558,7 @@ Scenario: Delete notification definition with ID that does not exist
           }
         ],
         "users": [20,21],
+        "contactgroups": [],
         "is_activated": true
       }
       """
@@ -1609,7 +1615,7 @@ Scenario: Delete notification definition with ID that does not exist
       """
       {
         "name": "notification-name",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -1631,6 +1637,7 @@ Scenario: Delete notification definition with ID that does not exist
           }
         ],
         "users": [20,21],
+        "contactgroups": [],
         "is_activated": true
       }
       """
@@ -1639,7 +1646,7 @@ Scenario: Delete notification definition with ID that does not exist
       """
       {
         "name": "notification-name-2",
-        "timeperiod": 2,
+        "timeperiod_id": 2,
         "resources": [
           {
             "type": "hostgroup",
@@ -1661,6 +1668,7 @@ Scenario: Delete notification definition with ID that does not exist
           }
         ],
         "users": [20],
+        "contactgroups": [],
         "is_activated": true
       }
       """
