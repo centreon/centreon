@@ -72,6 +72,7 @@ function createAddServiceTemplateRequest(): AddServiceTemplateRequest
     $request->firstNotificationDelay = null;
     $request->acknowledgementTimeout = null;
     $request->hostTemplateIds = [];
+    $request->serviceCategories = [];
 
     return $request;
 }
@@ -531,6 +532,7 @@ it('should present a ConflictResponse when the icon ID is not valid', function (
 it('should present a ConflictResponse when the host template IDs are not valid', function (): void {
     $request = new AddServiceTemplateRequest();
     $request->name = 'fake_name';
+    $request->alias = 'fake_alias';
     $request->severityId = 1;
     $request->graphTemplateId = 1;
     $request->serviceTemplateParentId = 1;
@@ -586,6 +588,11 @@ it('should present a ConflictResponse when the host template IDs are not valid',
         ]],
     ]);
 
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findAllExistingIds')
@@ -600,6 +607,88 @@ it('should present a ConflictResponse when the host template IDs are not valid',
             ServiceTemplateException::idsDoesNotExist(
                 'host_templates',
                 [$request->hostTemplateIds[1]]
+            )->getMessage()
+        );
+});
+
+it('should present a ConflictResponse when the service category IDs are not valid', function () {
+    $request = new AddServiceTemplateRequest();
+    $request->name = 'fake_name';
+    $request->alias = 'fake_alias';
+    $request->severityId = 1;
+    $request->graphTemplateId = 1;
+    $request->serviceTemplateParentId = 1;
+    $request->commandId = 1;
+    $request->eventHandlerId = 12;
+    $request->checkTimePeriodId = 13;
+    $request->notificationTimePeriodId = 14;
+    $request->iconId = 15;
+    $request->serviceCategories = [2, 3];
+
+    Mock::setMock($this, [
+        'user' => [[
+            'expected' => [[Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true]],
+        ]],
+        'readServiceTemplateRepository' => [
+            [
+                'method' => 'existsByName',
+                'arguments' => $request->name,
+                'expected' => false,
+            ],
+            [
+                'method' => 'exists',
+                'arguments' => $request->serviceTemplateParentId,
+                'expected' => true,
+            ],
+        ],
+        'serviceSeverityRepository' => [[
+            'arguments' => $request->severityId,
+            'expected' => true,
+        ]],
+        'performanceGraphRepository' => [[
+            'arguments' => $request->graphTemplateId,
+            'expected' => true,
+        ]],
+        'commandRepository' => [
+            [
+                'method' => 'existsByIdAndCommandType',
+                'arguments' => $request->commandId,
+                'expected' => true,
+            ],
+            [
+                'method' => 'exists',
+                'arguments' => $request->eventHandlerId,
+                'expected' => true,
+            ],
+        ],
+        'timePeriodRepository' => [[
+            'expected' => [[$request->checkTimePeriodId, true], [$request->notificationTimePeriodId, true]],
+        ]],
+        'imageRepository' => [[
+            'arguments' => $request->iconId,
+            'expected' => true,
+        ]],
+    ]);
+
+    $this->user
+        ->expects($this->exactly(2))
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->readServiceCategoryRepository
+    ->expects($this->once())
+    ->method('findAllExistingIds')
+    ->with($request->serviceCategories)
+    ->willReturn([$request->serviceCategories[0]]);
+
+    ($this->addUseCase)($request, $this->useCasePresenter);
+    expect($this->useCasePresenter->response)
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->useCasePresenter->response->getMessage())
+        ->toBe(
+            ServiceTemplateException::idsDoesNotExist(
+                'service_categories',
+                [$request->serviceCategories[1]]
             )->getMessage()
         );
 });
