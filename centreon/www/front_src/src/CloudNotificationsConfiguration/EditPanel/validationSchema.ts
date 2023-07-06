@@ -13,12 +13,12 @@ import {
 import { notificationsNamesAtom } from '../atom';
 
 import { emptyEmail } from './utils';
-import { EditedNotificationIdAtom } from './atom';
+import { editedNotificationIdAtom } from './atom';
 
 const useValidationSchema = (): object => {
   const { t } = useTranslation();
   const notificationsNames = useAtomValue(notificationsNamesAtom);
-  const notificationId = useAtomValue(EditedNotificationIdAtom);
+  const notificationId = useAtomValue(editedNotificationIdAtom);
 
   const names = notificationsNames
     .filter((item) => item.id !== notificationId)

@@ -1,0 +1,7 @@
+type: object
+properties:
+  ids:
+    type: array
+    description: List of notification IDs to delete
+    items:
+      type: integer

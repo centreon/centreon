@@ -26,6 +26,7 @@ namespace Core\Notification\Application\Repository;
 use Core\Notification\Domain\Model\NewNotification;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationMessage;
+use Core\Infrastructure\Common\Repository\RepositoryException;
 
 interface WriteNotificationRepositoryInterface
 {
@@ -119,4 +120,15 @@ interface WriteNotificationRepositoryInterface
         int $notificationId,
         array $contactGroupsIds
     ): void;
+
+    /**
+     * Delete a notification.
+     *
+     * @param int $notificationId
+     *
+     * @return int
+     *
+     * @throws \Throwable|RepositoryException
+     */
+    public function delete(int $notificationId): int;
 }

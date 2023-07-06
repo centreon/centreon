@@ -261,5 +261,20 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
             $statement->bindValue($token, $value, \PDO::PARAM_INT);
         }
         $statement->execute();
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(int $notificationId): int
+    {
+        $request = <<<'SQL'
+            DELETE FROM `:db`.`notification`
+            WHERE `id` = :notification_id
+            SQL;
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':notification_id', $notificationId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->rowCount();
     }
 }
