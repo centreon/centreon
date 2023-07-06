@@ -881,7 +881,7 @@ Feature:
         }
       ],
       "users": [20,21],
-      "contactgroups": [3,5]
+      "contactgroups": [3,5],
       "is_activated": true
     }
     """
