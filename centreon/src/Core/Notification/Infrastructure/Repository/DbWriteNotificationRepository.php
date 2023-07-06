@@ -251,16 +251,17 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
 
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                DELETE FROM `:db`.notification_contactgroup_relation
-                WHERE notification_id = :notificationId
-                AND contactgroup_id IN ($bindToken)
-            SQL
+                    DELETE FROM `:db`.notification_contactgroup_relation
+                    WHERE notification_id = :notificationId
+                    AND contactgroup_id IN ($bindToken)
+                SQL
         ));
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         foreach($bindValues as $token => $value) {
             $statement->bindValue($token, $value, \PDO::PARAM_INT);
         }
         $statement->execute();
+    }
 
     /**
      * @inheritDoc
