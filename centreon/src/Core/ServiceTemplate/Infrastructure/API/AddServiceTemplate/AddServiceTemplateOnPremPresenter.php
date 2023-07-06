@@ -90,6 +90,10 @@ class AddServiceTemplateOnPremPresenter extends AbstractPresenter implements Add
                             'is_password' => $macro->isPassword,
                             'description' => $macro->description,
                         ], $response->macros),
+                        'categories' => array_map(fn($category): array => [
+                            'id' => $category['id'],
+                            'name' => $category['name'],
+                        ], $response->categories),
                     ]
                 )
             );
