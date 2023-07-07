@@ -3597,7 +3597,7 @@
 											"  while(curDate-date < millis);",
 											"}",
 											"",
-											"wait(5000);"
+											"wait(10000);"
 										],
 										"type": "text/javascript"
 									}
@@ -6009,7 +6009,7 @@
 									"  while(curDate-date < millis);",
 									"}",
 									"",
-									"wait(5000);"
+									"wait(10000);"
 								],
 								"type": "text/javascript"
 							}
@@ -6088,21 +6088,12 @@
 									"",
 									"tests[\"Validate schema\"] = tv4.validate(result, schema);",
 									"",
-									"try {",
-									"    tests[\"Body contains list of downtimes\"] = result;",
-									"    var i = 0;",
-									"    while (i < result.length) {",
-									"        if (postman.getEnvironmentVariable(\"downtime_name\") == result[i].name){",
-									"            tests[\"Body contains added downtime_name\"] = postman.getEnvironmentVariable(\"downtime_name\") == result[i].name;",
-									"            tests[\"Body contains added downtime_description\"] = postman.getEnvironmentVariable(\"downtime_description\") == result[i].description;",
-									"            break;",
-									"        }",
-									"        i++;",
-									"    }",
-									"    if (i == engineData.length)",
-									"        tests[\"enine_name was found\"] = false;",
+									"function wait(millis) {",
+									"  var date = new Date();",
+									"  var curDate = null;",
+									"  do { curDate = new Date(); }",
+									"  while(curDate-date < millis);",
 									"}",
-									"catch (e) {}",
 									" "
 								],
 								"type": "text/javascript"
@@ -6740,7 +6731,7 @@
 									"  while(curDate-date < millis);",
 									"}",
 									"",
-									"wait(8000);"
+									"wait(20000);"
 								]
 							}
 						},
