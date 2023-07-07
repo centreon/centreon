@@ -134,8 +134,6 @@ class UpdateSAMLConfigurationRequest
     public function toArray(): array
     {
         return [
-            'is_forced' => $this->isForced,
-            'is_active' => $this->isActive,
             'entity_id_url' => $this->entityIdUrl,
             'remote_login_url' => $this->remoteLoginUrl,
             'user_id_attribute' => $this->userIdAttribute,
