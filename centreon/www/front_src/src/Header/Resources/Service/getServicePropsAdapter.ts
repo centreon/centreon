@@ -1,19 +1,18 @@
+import type { CounterProps, SelectEntry, SubMenuProps } from '@centreon/ui';
 import { SeverityCode } from '@centreon/ui';
-import type { SelectEntry, SubMenuProps, CounterProps } from '@centreon/ui';
 
+import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
+import type { ServiceStatusResponse } from '../../api/decoders';
 import {
-  getServiceResourcesUrl,
   criticalCriterias,
-  warningCriterias,
-  unknownCriterias,
+  getResourcesUrl,
   okCriterias,
   pendingCriterias,
   unhandledStateCriterias,
-  serviceCriteria
+  unknownCriterias,
+  warningCriterias
 } from '../getResourcesUrl';
-import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
 import type { Adapter } from '../useResourceCounters';
-import type { ServiceStatusResponse } from '../../api/decoders';
 import {
   formatCount,
   formatUnhandledOverTotal,
@@ -21,19 +20,21 @@ import {
 } from '../utils';
 
 import {
-  labelCriticalStatusServices,
-  labelWarningStatusServices,
-  labelUnknownStatusServices,
-  labelOkStatusServices,
   labelAll,
   labelCritical,
-  labelWarning,
+  labelCriticalStatusServices,
+  labelOk,
+  labelOkStatusServices,
   labelPending,
+  labelServices,
   labelUnknown,
-  labelOk
+  labelUnknownStatusServices,
+  labelWarning,
+  labelWarningStatusServices
 } from './translatedLabels';
 
 export interface ServicesPropsAdapterOutput {
+  buttonLabel: string;
   counters: CounterProps['counters'];
   hasPending: boolean;
   items: SubMenuProps['items'];
@@ -51,6 +52,20 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   t,
   data
 }) => {
+  const resourceTypeCriterias = {
+    name: 'resource_types',
+    value: []
+  };
+  const stateCriterias = { name: 'states', value: [] };
+
+  const allStatusesServicesCriterias = [
+    ...okCriterias.value,
+    ...pendingCriterias.value,
+    ...unknownCriterias.value,
+    ...warningCriterias.value,
+    ...criticalCriterias.value
+  ] as Array<SelectEntry>;
+
   const changeFilterAndNavigate = getNavigationFunction({
     applyFilter,
     navigate,
@@ -58,69 +73,79 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   });
 
   const unhandledCriticalServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
     states: unhandledStateCriterias.value,
     statuses: criticalCriterias.value as Array<SelectEntry>
   });
 
   const unhandledCriticalServicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc_unhandled&statusFilter=critical&search='
-    : getServiceResourcesUrl({
+    : getResourcesUrl({
+        resourceTypeCriterias,
         stateCriterias: unhandledStateCriterias,
         statusCriterias: criticalCriterias
       });
 
   const unhandledWarningServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
     states: unhandledStateCriterias.value,
     statuses: warningCriterias.value as Array<SelectEntry>
   });
 
   const unhandledWarningServicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc_unhandled&statusFilter=warning&search='
-    : getServiceResourcesUrl({
+    : getResourcesUrl({
+        resourceTypeCriterias,
         stateCriterias: unhandledStateCriterias,
         statusCriterias: warningCriterias
       });
 
   const unhandledUnknownServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
     states: unhandledStateCriterias.value,
     statuses: unknownCriterias.value as Array<SelectEntry>
   });
 
   const unhandledUnknownServicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc_unhandled&statusFilter=unknown&search='
-    : getServiceResourcesUrl({
+    : getResourcesUrl({
+        resourceTypeCriterias,
         stateCriterias: unhandledStateCriterias,
         statusCriterias: unknownCriterias
       });
 
   const okServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
     statuses: okCriterias.value as Array<SelectEntry>
   });
 
   const okServicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc&statusFilter=ok&search='
-    : getServiceResourcesUrl({ statusCriterias: okCriterias });
+    : getResourcesUrl({
+        resourceTypeCriterias,
+        stateCriterias,
+        statusCriterias: okCriterias
+      });
 
   const servicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value
+    statuses: allStatusesServicesCriterias
   });
 
   const servicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc&statusFilter=&search='
-    : getServiceResourcesUrl();
-
+    : getResourcesUrl({
+        resourceTypeCriterias,
+        stateCriterias,
+        statusCriterias: {
+          name: 'statuses',
+          value: allStatusesServicesCriterias
+        }
+      });
   const pendingServicesCriterias = getDefaultCriterias({
-    resourceTypes: serviceCriteria.value,
     statuses: pendingCriterias.value as Array<SelectEntry>
   });
 
   const pendingServicesLink = useDeprecatedPages
     ? '/main.php?p=20201&o=svc&statusFilter=pending&search='
-    : getServiceResourcesUrl({
+    : getResourcesUrl({
+        resourceTypeCriterias,
+        stateCriterias,
         statusCriterias: pendingCriterias
       });
 
@@ -157,7 +182,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
         criterias: okServicesCriterias,
         link: okServicesLink
       }),
-      severityCode: SeverityCode.Ok,
+      severityCode: SeverityCode.OK,
       shortCount: data.ok,
       to: okServicesLink,
       topCounterAriaLabel: t(labelOkStatusServices)
@@ -206,6 +231,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   };
 
   return {
+    buttonLabel: t(labelServices),
     counters: ['critical', 'warning', 'unknown', 'ok'].map((statusName) => {
       const { to, shortCount, topCounterAriaLabel, onClick, severityCode } =
         config[statusName];

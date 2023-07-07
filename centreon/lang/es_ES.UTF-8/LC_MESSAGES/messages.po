@@ -2274,7 +2274,6 @@ msgstr "Estado detallado"
 
 #: centreon-web/www/install/smarty_translate.php:873 centreon-web/www/install/smarty_translate.php:909
 #: centreon-web/www/include/Administration/parameters/ldap/xml/additionalRowXml.php:100
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:75
 #: centreon-web/www/include/monitoring/acknowlegement/hostAcknowledge.php:71
 #: centreon-web/www/include/monitoring/acknowlegement/serviceAcknowledge.php:73
 #: centreon-web/www/include/monitoring/objectDetails/serviceDetails.php:481
@@ -2287,7 +2286,6 @@ msgid "Host Name"
 msgstr "Nombre del anfitrión"
 
 #: centreon-web/www/install/smarty_translate.php:876
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:76
 #: centreon-web/www/include/configuration/configObject/service_dependency/formServiceDependency.php:167
 msgid "Service Description"
 msgstr "Descripción del servicio."
@@ -3058,6 +3056,10 @@ msgstr "Gestión de datos de rendimiento."
 #: centreon-web/www/install/menu_translation.php:121
 msgid "Monitoring connectors"
 msgstr "Conectores de supervisión"
+
+# centreon-web/www/install/menu_translation.php:121
+msgid "Monitoring Connectors Manager"
+msgstr "Gestor de conectores de supervisión"
 
 #: centreon-web/www/install/menu_translation.php:122
 msgid "Poller Statistics"
@@ -5907,21 +5909,17 @@ msgstr "Gestión de host"
 msgid "Services Resources"
 msgstr "Gestión de servicios"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:109
 msgid "Centreon Users"
 msgstr "Usuarios de Centreon"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:147
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:229
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:224
 msgid "The selected user didn't see any resources"
 msgstr "El usuario seleccionado no ve ningún recurso."
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:148
 msgid "Please select an user in order to display resources"
 msgstr "Por favor, seleccione un usuario para ver los recursos"
 
-#: centreon-web/www/include/options/accessLists/resourcesACL/showUsersAccess.php:149
 #: centreon-web/www/include/configuration/configObject/contact/displayNotification.php:231
 #: centreon-web/www/include/configuration/configObject/contactgroup/displayNotification.php:226
 msgid "The selected user is not enable."
@@ -14473,7 +14471,7 @@ msgstr "Permitir certificado autofirmado"
 #  msgid "Downtime command sent"
 #  msgstr ""
 
-#  msgid "Check command sent"
+#  msgid "Check command sent ! Please refresh the listing to update the data."
 #  msgstr ""
 
 #  msgid "Type of resource"
@@ -15395,6 +15393,9 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgid "Error while searching for host groups"
 #  msgstr ""
 
+# msgid "Error while retrieving a host group"
+# msgstr ""
+
 #  msgid "You are not allowed to access host groups"
 #  msgstr ""
 
@@ -15408,6 +15409,9 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgstr ""
 
 #  msgid "Error while adding a host group"
+#  msgstr ""
+
+#  msgid "Error while updating a host group"
 #  msgstr ""
 
 #  msgid "The host group name '%s' already exists"
@@ -15443,10 +15447,10 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgid "Error while creating host severity"
 #  msgstr ""
 
-#  msgid "You are not allowed to create host severities"
+#  msgid "You are not allowed to create/modify a host severity"
 #  msgstr ""
 
-#  msgid "Error while retrieving recently created host severity"
+#  msgid "Error while retrieving host severity"
 #  msgstr ""
 
 #  msgid "Host severity name already exists"
@@ -15533,9 +15537,62 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 #  msgid "The service severity icon with id '%d' does not exist"
 #  msgstr ""
 
+msgid "Forced check"
+msgstr "control forzado"
+
+msgid "Check selected resources only within configured check period"
+msgstr "Verifique los recursos seleccionados solo dentro del período de verificación configurado"
+
+msgid "Check selected resources even outside configured check period"
+msgstr "Verifique los recursos seleccionados incluso fuera del período configurado de verificación"
+
+msgid "Forced check command sent ! Please refresh the listing to update the data."
+msgstr ""
+
 #  msgid "Monitoring server disabled (#%d)"
 #  msgstr ""
 
+#  msgid "Centreon wallpaper"
+#  msgstr ""
+
+#  msgid "Powered by Centreon"
+#  msgstr ""
+
+# msgid "Developed by"
+# msgstr ""
+
+# msgid "and"
+# msgstr ""
+
+# msgid "the community"
+# msgstr ""
+
+# msgid "Project leaders"
+# msgstr ""
+
+# msgid "Developers"
+# msgstr ""
+
+# msgid "Contributors"
+# msgstr ""
+
+# msgid "Security acknowledgement"
+# msgstr ""
+
+# msgid "And many others..."
+# msgstr ""
+
+# msgid "You can see the full list on the"
+# msgstr ""
+
+# msgid "Centreon's Github"
+# msgstr ""
+
+# msgid "Many thanks to all the contributors to the security of Centreon"
+# msgstr ""
+
+# msgid "Centreon website"
+# msgstr ""
 
 #: www/front_src/src/Header/Poller
 
@@ -15562,7 +15619,6 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 # msgid "Up status hosts"
 # msgstr ""
 
-
 #: www/front_src/src/Header/Resources/Services
 
 # msgid "Critical status services"
@@ -15576,3 +15632,247 @@ msgstr "No ha guardado los cambios, ¿quiere continuar?"
 
 # msgid "OK status services"
 # msgstr ""
+
+# msgid "Redirect URL"
+# msgstr ""
+
+# msgid "SAML configuration"
+# msgstr ""
+
+# msgid "Define SAML configuration"
+# msgstr ""
+
+# msgid "Failed to save SAML configuration"
+# msgstr ""
+
+# msgid "SAML configuration saved"
+# msgstr ""
+
+# msgid "Enable SAMLv2 authentication"
+# msgstr ""
+
+# msgid "SAML only"
+# msgstr ""
+
+# msgid "Remote login URL"
+# msgstr ""
+
+# msgid "Issuer (Entity ID) URL"
+# msgstr ""
+
+# msgid "Copy/paste x.509 certificate"
+# msgstr ""
+
+# msgid "User ID (login) attribute for Centreon user"
+# msgstr ""
+
+# msgid "Logout from"
+# msgstr ""
+
+# msgid "Centreon UI only"
+# msgstr ""
+
+# msgid "Both identity provider and Centreon UI"
+# msgstr ""
+
+# msgid "Define relation between roles and ACL access groups"
+# msgstr ""
+
+#: centreon-bam/www/modules/centreon-bam-server/react/hooks/header/topCounter
+# msgid "B.Activities"
+# msgstr ""
+
+# msgid "Logout URL"
+# msgstr ""
+
+# msgid "Logout URL"
+# msgstr ""
+
+# msgid "Full name attribute"
+# msgstr ""
+
+# msgid "Roles mapping"
+# msgstr ""
+
+# msgid "Groups mapping"
+# msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:280
+#msgid "Do you really want to unblock this user?"
+#msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
+#msgid "The user(s) will be unblocked. Do you confirm the request?"
+#msgstr ""
+
+# msgid "Error while updating host severity"
+# msgstr ""
+
+# msgid "Error when searching for the host severity #%d"
+# msgstr ""
+
+# msgid "Error when searching for the host category #%d"
+# msgstr ""
+
+#  msgid "Error while retrieving a host category"
+#  msgstr ""
+
+# msgid "You are not allowed to access dashboards"
+# msgstr ""
+
+# msgid "Error while searching for dashboards"
+# msgstr ""
+
+# msgid "Error while retrieving newly created dashboard"
+# msgstr ""
+
+# msgid "Error while adding a dashboard"
+# msgstr ""
+
+# msgid "You are not allowed to perform write operations on dashboards"
+# msgstr ""
+
+# msgid "You are not allowed to edit access rights on the dashboard #%d"
+# msgstr ""
+
+# msgid "You cannot view access rights on the dashboard #%d"
+# msgstr ""
+
+# msgid "Error while retrieving a dashboard"
+# msgstr ""
+
+# msgid "Error while deleting a dashboard"
+# msgstr ""
+
+# msgid "Error while updating a dashboard"
+# msgstr ""
+
+# msgid "Error while trying to update a widget which belongs to another dashboard"
+# msgstr ""
+
+#: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
+#msgid "Unblock"
+#msgstr ""
+
+#  msgid "Error while searching for host templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to access host templates"
+#  msgstr ""
+
+#  msgid "Error while updating the host category"
+#  msgstr ""
+
+# msgid "You are not allowed to access service templates"
+# msgstr ""
+
+# msgid "Error while searching for service templates"
+# msgstr ""
+
+# msgid "[%s] (%s) was expected to be an instance of the class '%s'"
+# msgstr ""
+
+# msgid "The service template '%s' is locked and cannot be deleted"
+# msgstr ""
+
+# msgid "You are not allowed to delete a service template"
+# msgstr ""
+
+# msgid "Error while deleting the service template"
+# msgstr ""
+
+#  msgid "Error while deleting a host template"
+#  msgstr ""
+
+#  msgid "Error while adding a host template"
+#  msgstr ""
+
+#  msgid "You are not allowed to delete host templates"
+#  msgstr ""
+
+#  msgid "You are not allowed to add host templates"
+#  msgstr ""
+
+#  msgid "The %s with value '%d' does not exist"
+#  msgstr ""
+
+#  msgid "The name %s (original name: %s) already exists"
+#  msgstr ""
+
+#  msgid "Error while retrieving a host template"
+#  msgstr ""
+
+#  msgid "Host template #%d is locked (edition and deletion not allowed)"
+#  msgstr ""
+
+# msgid "Edit dashboard"
+# msgstr ""
+
+# msgid "Exit"
+# msgstr ""
+
+# msgid "Exit {{dashboardName}}"
+# msgstr ""
+
+# msgid "Exit edition mode"
+# msgstr ""
+
+# msgid "If you leave the edition mode, your changes will not be saved."
+# msgstr ""
+
+# msgid "If you leave {{dashboardName}}, your changes will not be saved."
+# msgstr ""
+
+# msgid "Your dashboard has been saved"
+# msgstr ""
+
+#  msgid "You are not allowed to add a service template"
+#  msgstr ""
+
+#  msgid "Error while adding the service template"
+#  msgstr ""
+
+#  msgid "Error while retrieving a service template"
+#  msgstr ""
+
+#  msgid "The service template name '%s' already exists"
+#  msgstr ""
+
+#  msgid "[%s] The value contains unauthorized characters: %s"
+#  msgstr ""
+
+#  msgid "Error while linking host categories to a host template"
+#  msgstr ""
+
+#  msgid "The %s does not exist with id(s) '%s'"
+#  msgstr ""
+
+#  msgid "Error while partially updating a host template"
+#  msgstr ""
+
+#  msgid "You are not allowed to perform write actions on host templates"
+#  msgstr ""
+
+#  msgid "Host template #%d not found"
+#  msgstr ""
+
+# msgid "The contact ID #%d does not exist"
+# msgstr ""
+
+# msgid "Error while retrieving the new dashboard share"
+# msgstr ""
+
+# msgid "Error while adding the dashboard share"
+# msgstr ""
+
+# msgid "Error while searching for the dashboard shares"
+# msgstr ""
+
+# msgid "Error while deleting the dashboard share"
+# msgstr ""
+
+# msgid "Error while updating the dashboard share"
+# msgstr ""
+
+#  msgid "Circular inheritance not allowed"
+#  msgstr ""

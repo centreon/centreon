@@ -15,9 +15,9 @@ jms_serializer:
                 path: '%kernel.project_dir%/config/packages/serializer/Core'
 parameters:
     api.header: "Api-Version"
-    api.version.latest: "23.04"
+    api.version.latest: "23.10"
     debug_log_file: '%log_path%/centreon-web.log'
-    env(DEBUG_LEVEL): !php/const Monolog\Logger::NOTICE
+    env(DEBUG_LEVEL): !php/const Monolog\Logger::WARNING
     curl.timeout: 60
     debug_level: "%env(int:DEBUG_LEVEL)%"
     env(DEBUG_CONTACT): null
@@ -31,14 +31,25 @@ services:
     Centreon\:
         resource: '../../src/Centreon/*'
         exclude: '../../src/Centreon/Tests'
+        bind:
+            $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
     Core\:
         resource: '../../src/Core/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
+    Logger:
+        class: Centreon\Domain\Log\Logger
+
+    Core\Common\Infrastructure\FeatureFlags:
+        arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']
+        public: true
+
     Centreon\Infrastructure\DatabaseConnection:
         class: Centreon\Infrastructure\DatabaseConnection
+        bind:
+            $logger: '@Logger'
         arguments:
             $host: '%database_host%'
             $port: '%database_port%'
@@ -99,7 +110,7 @@ services:
         class: Core\Infrastructure\Common\Presenter\DownloadPresenter
         arguments: ['@Core\Infrastructure\Common\Presenter\CsvFormatter']
 
-    Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetricPresenterInterface:
+    Core\Infrastructure\RealTime\Api\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenter:
         class: Core\Infrastructure\RealTime\Api\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenter
         arguments: ['@presenter.download.csv']
 
@@ -292,6 +303,8 @@ services:
             tags: ['platform.requirement.validators']
         Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface:
             tags: ['platform.requirement.database.validators']
+        Core\Notification\Application\Repository\NotificationResourceRepositoryInterface:
+            tags: ['configuration.notification.resource.repositories']
 
     Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurations:
         arguments:
@@ -421,13 +434,13 @@ services:
 
     monolog.debug.handler:
         class: Centreon\Domain\Log\DebugFileHandler
-        arguments: [ '@monolog.debug.formater', '%debug_log_file%', '%env(bool:APP_DEBUG)%', 664, '%debug_level%' ]
+        arguments: [ '@monolog.debug.formater', '%debug_log_file%', 664, '%debug_level%' ]
 
     Centreon\Domain\Log\ContactForDebug:
         class: Centreon\Domain\Log\ContactForDebug
         arguments: ['%env(DEBUG_CONTACT)%']
 
-    Centreon\Domain\Log\LegacyLogger:
+    Centreon\Domain\Log\Logger:
         public: true
 
     # Session
@@ -442,3 +455,44 @@ services:
     Utility\Interfaces\UUIDGeneratorInterface:
         class: Utility\UUIDGenerator
         public: true
+
+    Centreon\Domain\Repository\ImagesRepository:
+        class: Centreon\Domain\Repository\ImagesRepository
+        public: true
+
+    CentreonUser\Domain\Repository\TimeperiodRepository:
+        class: CentreonUser\Domain\Repository\TimeperiodRepository
+        public: true
+
+    CentreonCommand\Domain\Repository\CommandRepository:
+        class: CentreonCommand\Domain\Repository\CommandRepository
+        public: true
+
+    Centreon\Domain\Repository\NagiosServerRepository:
+        class: Centreon\Domain\Repository\NagiosServerRepository
+        public: true
+
+    Centreon\Domain\Repository\AclGroupRepository:
+        class: Centreon\Domain\Repository\AclGroupRepository
+        public: true
+
+    Centreon\Domain\Repository\ContactGroupRepository:
+        class: Centreon\Domain\Repository\ContactGroupRepository
+        public: true
+
+    CentreonNotification\Domain\Repository\EscalationRepository:
+        class: CentreonNotification\Domain\Repository\EscalationRepository
+        public: true
+
+    Centreon\Domain\Repository\ServiceRepository:
+        class: Centreon\Domain\Repository\ServiceRepository
+        public: true
+
+    CentreonNotification\Domain\Repository\DependencyRepository:
+        class: CentreonNotification\Domain\Repository\DependencyRepository
+        public: true
+
+    # Configuration Notifications
+    Core\Notification\Infrastructure\Repository\NotificationResourceRepositoryProvider:
+        arguments:
+            $repositories: !tagged_iterator 'configuration.notification.resource.repositories'

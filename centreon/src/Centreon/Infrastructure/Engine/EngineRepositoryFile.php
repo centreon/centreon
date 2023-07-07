@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace Centreon\Infrastructure\Engine;
 
 use Centreon\Domain\Engine\EngineException;
-use Centreon\Domain\Engine\EngineService;
 use Centreon\Domain\Engine\Interfaces\EngineRepositoryInterface;
 
 final class EngineRepositoryFile implements EngineRepositoryInterface
@@ -96,7 +95,7 @@ final class EngineRepositoryFile implements EngineRepositoryInterface
                 throw new EngineException(
                     sprintf(
                         _('Error during creation of the CentCore command file (%s)'),
-                        $this->centCorePath
+                        $this->centCoreFile
                     )
                 );
             }

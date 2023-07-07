@@ -1,5 +1,4 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-
 interface ActionClapi {
   action: string;
   object?: string;
@@ -10,37 +9,129 @@ interface DateBeforeLoginProps {
   dateBeforeLogin: Date;
 }
 
-const stepWaitingTime = 250;
-const pollingCheckTimeout = 100000;
-const maxSteps = pollingCheckTimeout / stepWaitingTime;
+interface SubmitResult {
+  host: string;
+  output: string;
+  service?: string;
+  status: string;
+  updatetime?: string;
+}
 
-const apiBase = `${Cypress.config().baseUrl}/centreon/api`;
+const stepWaitingTime = 250;
+const pollingCheckTimeout = 60000;
+const maxSteps = pollingCheckTimeout / stepWaitingTime;
+const waitToExport = 3000;
+
+const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 const versionApi = 'latest';
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 const apiLogout = '/centreon/api/latest/authentication/logout';
 
-const executeActionViaClapi = (
-  bodyContent: ActionClapi,
-  method?: string
-): Cypress.Chainable => {
-  return cy.request({
-    body: bodyContent,
-    headers: {
-      'Content-Type': 'application/json',
-      'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
-    },
-    method: method || 'POST',
-    url: `${apiActionV1}?action=action&object=centreon_clapi`
+let servicesFoundStepCount = 0;
+let hostsFoundStepCount = 0;
+
+const getStatusNumberFromString = (status: string): number => {
+  const statuses = {
+    critical: '2',
+    down: '1',
+    unknown: '3',
+    unreachable: '2',
+    up: '0',
+    warning: '1'
+  };
+
+  if (status in statuses) {
+    return statuses[status];
+  }
+
+  throw new Error(`Status ${status} does not exist`);
+};
+
+interface MonitoredHost {
+  name: string;
+  output?: string;
+  status?: string;
+}
+
+const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
+  cy.log('Checking hosts in database');
+
+  let query = 'SELECT COUNT(h.host_id) from hosts as h WHERE h.enabled=1 AND (';
+  const conditions: Array<string> = [];
+  hosts.forEach(({ name, output = '', status = '' }) => {
+    let condition = `(h.name = '${name}'`;
+    if (output !== '') {
+      condition += ` AND h.output LIKE '%${output}%'`;
+    }
+    if (status !== '') {
+      condition += ` AND h.state = ${getStatusNumberFromString(status)}`;
+    }
+    condition += ')';
+    conditions.push(condition);
+  });
+  query += conditions.join(' OR ');
+  query += ')';
+  cy.log(query);
+
+  const command = `docker exec -i ${Cypress.env(
+    'dockerName'
+  )} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
+
+  cy.exec(command).then(({ stdout }): Cypress.Chainable<null> | null => {
+    hostsFoundStepCount += 1;
+
+    const output = stdout || '0';
+    const foundHostCount = parseInt(output.split('\n')[1], 10);
+
+    cy.log('Host count in database', foundHostCount);
+    cy.log('Host database check step count', hostsFoundStepCount);
+
+    if (foundHostCount >= hosts.length) {
+      return null;
+    }
+
+    if (hostsFoundStepCount < maxSteps) {
+      cy.wait(stepWaitingTime);
+
+      return cy.wrap(null).then(() => checkHostsAreMonitored(hosts));
+    }
+
+    throw new Error(
+      `Hosts ${hosts
+        .map(({ name }) => name)
+        .join()} are not monitored after ${pollingCheckTimeout}ms`
+    );
   });
 };
 
-let servicesFoundStepCount = 0;
+interface MonitoredService {
+  name: string;
+  output?: string;
+  status?: string;
+}
 
-const checkThatFixtureServicesExistInDatabase = (): void => {
+const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
   cy.log('Checking services in database');
 
-  const query = `SELECT COUNT(s.service_id) as count_services from services as s WHERE s.description LIKE '%service_test_ack%' AND s.output LIKE '%submit_status_2%' AND s.enabled=1;`;
+  let query =
+    'SELECT COUNT(s.service_id) from services as s WHERE s.enabled=1 AND (';
+  const conditions: Array<string> = [];
+  services.forEach(({ name, output = '', status = '' }) => {
+    let condition = `(s.description = '${name}'`;
+    if (output !== '') {
+      condition += ` AND s.output LIKE '%${output}%'`;
+    }
+    if (status !== '') {
+      condition += ` AND s.state = ${getStatusNumberFromString(status)}`;
+    }
+    condition += ')';
+    conditions.push(condition);
+  });
+  query += conditions.join(' OR ');
+  query += ')';
+  cy.log(query);
+
   const command = `docker exec -i ${Cypress.env(
     'dockerName'
   )} mysql -ucentreon -pcentreon centreon_storage -e "${query}"`;
@@ -54,21 +145,20 @@ const checkThatFixtureServicesExistInDatabase = (): void => {
     cy.log('Service count in database', foundServiceCount);
     cy.log('Service database check step count', servicesFoundStepCount);
 
-    if (foundServiceCount > 0) {
+    if (foundServiceCount >= services.length) {
       return null;
     }
 
     if (servicesFoundStepCount < maxSteps) {
       cy.wait(stepWaitingTime);
 
-      return cy
-        .wrap(null)
-        .then(() => submitResultsViaClapi())
-        .then(() => checkThatFixtureServicesExistInDatabase());
+      return cy.wrap(null).then(() => checkServicesAreMonitored(services));
     }
 
     throw new Error(
-      `No service found in the database after ${pollingCheckTimeout}ms`
+      `Services ${services
+        .map(({ name }) => name)
+        .join()} are not monitored after ${pollingCheckTimeout}ms`
     );
   });
 };
@@ -109,9 +199,11 @@ const checkThatConfigurationIsExported = ({
 };
 
 const applyConfigurationViaClapi = (): Cypress.Chainable => {
-  return executeActionViaClapi({
-    action: 'APPLYCFG',
-    values: '1'
+  return cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'APPLYCFG',
+      values: '1'
+    }
   });
 };
 
@@ -129,56 +221,90 @@ const updateFixturesResult = (): Cypress.Chainable => {
     });
 };
 
-const submitResultsViaClapi = (): Cypress.Chainable => {
-  return updateFixturesResult().then((submitResults) => {
-    return cy.request({
-      body: { results: submitResults },
-      headers: {
-        'Content-Type': 'application/json',
-        'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
-      },
-      method: 'POST',
-      url: `${apiActionV1}?action=submit&object=centreon_submit_results`
-    });
+const submitResultsViaClapi = (
+  submitResult: Array<SubmitResult>
+): Cypress.Chainable => {
+  return cy.request({
+    body: { results: submitResult },
+    headers: {
+      'Content-Type': 'application/json',
+      'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
+    },
+    method: 'POST',
+    url: `${apiActionV1}?action=submit&object=centreon_submit_results`
   });
 };
 
 const loginAsAdminViaApiV2 = (): Cypress.Chainable => {
-  return cy
-    .fixture('users/admin.json')
-    .then((userAdmin) => {
-      return cy.request({
-        body: {
-          login: userAdmin.login,
-          password: userAdmin.password
-        },
-        method: 'POST',
-        url: apiLoginV2
-      });
-    })
-    .then(() => {
-      Cypress.Cookies.defaults({
-        preserve: 'PHPSESSID'
-      });
+  return cy.fixture('users/admin.json').then((userAdmin) => {
+    return cy.request({
+      body: {
+        login: userAdmin.login,
+        password: userAdmin.password
+      },
+      method: 'POST',
+      url: apiLoginV2
     });
+  });
 };
 
 const insertFixture = (file: string): Cypress.Chainable => {
-  return cy.fixture(file).then(executeActionViaClapi);
+  return cy
+    .fixture(file)
+    .then((fixture) => cy.executeActionViaClapi({ bodyContent: fixture }));
 };
 
-const logout = (): Cypress.Chainable =>
-  cy.request({
-    body: {},
-    method: 'POST',
-    url: apiLogout
+const logout = (): Cypress.Chainable => cy.visit(apiLogout);
+
+const checkExportedFileContent = (
+  testHostName: string
+): Cypress.Chainable<boolean> => {
+  return cy
+    .exec(
+      `docker exec -i ${Cypress.env(
+        'dockerName'
+      )} sh -c "grep '${testHostName}' /etc/centreon-engine/hosts.cfg | tail -1"`
+    )
+    .then(({ stdout }): boolean => {
+      if (stdout) {
+        return true;
+      }
+
+      return false;
+    });
+};
+
+const checkIfConfigurationIsExported = ({
+  dateBeforeLogin,
+  hostName
+}): void => {
+  cy.log('Checking that configuration is exported');
+  const now = dateBeforeLogin.getTime();
+
+  cy.wait(waitToExport);
+
+  cy.exec(
+    `docker exec -i ${Cypress.env(
+      'dockerName'
+    )} date -r /etc/centreon-engine/hosts.cfg`
+  ).then(({ stdout }): Cypress.Chainable<null> | null => {
+    const configurationExported = now < new Date(stdout).getTime();
+
+    if (configurationExported && checkExportedFileContent(hostName)) {
+      return null;
+    }
+
+    throw new Error(`No configuration has been exported`);
   });
+};
 
 export {
   ActionClapi,
+  SubmitResult,
   checkThatConfigurationIsExported,
-  checkThatFixtureServicesExistInDatabase,
-  executeActionViaClapi,
+  checkHostsAreMonitored,
+  checkServicesAreMonitored,
+  getStatusNumberFromString,
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,
@@ -187,5 +313,6 @@ export {
   versionApi,
   loginAsAdminViaApiV2,
   insertFixture,
-  logout
+  logout,
+  checkIfConfigurationIsExported
 };

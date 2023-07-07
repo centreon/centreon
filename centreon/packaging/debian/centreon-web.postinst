@@ -8,12 +8,15 @@ if [ "$1" = "configure" ] ; then
       /usr/share/centreon \
       /var/log/centreon \
       /var/lib/centreon
+
+    if [ -d "/var/log/centreon/symfony" ]; then
+      chown -R www-data:www-data /var/log/centreon/symfony
+    fi
+
     chmod 0775 \
       /usr/share/centreon/src \
       /usr/share/centreon/api
-    chmod -R 0775 \
-      /var/log/centreon \
-      /var/lib/centreon
+    chmod -R 0775 /var/lib/centreon
     chmod -R 0775 \
       /usr/share/centreon/www \
       /usr/share/centreon/GPL_LIB/SmartyCache
@@ -38,8 +41,10 @@ if [ "$1" = "configure" ] ; then
     /usr/share/centreon/bin/generateSqlLite \
     /usr/share/centreon/bin/import-mysql-indexes \
     /usr/share/centreon/bin/logAnalyserBroker \
+    /usr/share/centreon/cron/centAcl.php \
     /usr/share/centreon/cron/centreon-backup.pl \
     /usr/share/centreon/cron/dashboardBuilder \
+    /usr/share/centreon/cron/downtimeManager.php \
     /usr/share/centreon/cron/eventReportBuilder \
     /usr/share/centreon/vendor/enshrined/svg-sanitize/src/svg-scanner.php \
     /usr/share/centreon/www/install/tools/migration/logsMigration.pl
@@ -59,7 +64,12 @@ fi
 
 # rebuild symfony cache on upgrade
 if [ -n "$2" ]; then
-  su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear --no-warmup"
+  rm -rf /var/cache/centreon/symfony
+  su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
+
+  if ! echo "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" | grep -Eq "^.*id:.*$"; then
+    sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
+  fi
 fi
 
 # Try auto configure timezone for php

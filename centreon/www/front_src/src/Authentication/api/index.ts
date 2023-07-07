@@ -28,28 +28,3 @@ export const putPasswordPasswordSecurityPolicy =
       data: adaptPasswordSecurityPolicyToAPI(securityPolicy),
       endpoint: authenticationProvidersEndpoint(Provider.Local)
     });
-
-export const getProviderConfiguration =
-  <Configuration>(type: Provider) =>
-  (cancelToken: CancelToken) =>
-  (): Promise<Configuration> =>
-    getData<Configuration>(cancelToken)({
-      endpoint: authenticationProvidersEndpoint(type)
-    });
-
-interface PutProviderConfiguration<Configuration, ConfigurationToAPI> {
-  adapter: (configuration: Configuration) => ConfigurationToAPI;
-  type: Provider;
-}
-
-export const putProviderConfiguration =
-  <Configuration, ConfigurationToAPI>({
-    type,
-    adapter
-  }: PutProviderConfiguration<Configuration, ConfigurationToAPI>) =>
-  (cancelToken: CancelToken) =>
-  (configuration: Configuration): Promise<unknown> =>
-    putData<ConfigurationToAPI, unknown>(cancelToken)({
-      data: adapter(configuration),
-      endpoint: authenticationProvidersEndpoint(type)
-    });

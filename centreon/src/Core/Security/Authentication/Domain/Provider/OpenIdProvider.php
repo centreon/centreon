@@ -39,7 +39,7 @@ use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Domain\Model\ProviderToken;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\ProviderConfiguration\Domain\Repository\ReadAttributePathRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
@@ -114,6 +114,11 @@ class OpenIdProvider implements OpenIdProviderInterface
      * @var array<string,mixed>
      */
     private array $connectionTokenResponseContent = [];
+
+    /**
+     * @var string[]
+     */
+    private array $aclConditionsMatches = [];
 
     /**
      * @param HttpClientInterface $client
@@ -250,8 +255,12 @@ class OpenIdProvider implements OpenIdProviderInterface
 
     /**
      * {@inheritDoc}
+     * @param string|null $authorizationCode
+     * @param string $clientIp
+     * @throws AclConditionsException
+     * @throws AuthenticationConditionsException
+     * @throws ConfigurationException
      * @throws SSOAuthenticationException
-     * @throws OpenIdConfigurationException
      */
     public function authenticateOrFail(?string $authorizationCode, string $clientIp): void
     {
@@ -272,13 +281,13 @@ class OpenIdProvider implements OpenIdProviderInterface
         }
 
         if ($customConfiguration->getTokenEndpoint() === null) {
-            throw OpenIdConfigurationException::missingTokenEndpoint();
+            throw ConfigurationException::missingTokenEndpoint();
         }
         if (
             $customConfiguration->getIntrospectionTokenEndpoint() === null
             && $customConfiguration->getUserInformationEndpoint() === null
         ) {
-            throw OpenIdConfigurationException::missingInformationEndpoint();
+            throw ConfigurationException::missingInformationEndpoint();
         }
 
         $this->sendRequestForConnectionTokenOrFail($authorizationCode);
@@ -408,6 +417,14 @@ class OpenIdProvider implements OpenIdProviderInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getAclConditionsMatches(): array
+    {
+        return $this->aclConditionsMatches;
+    }
+
+    /**
      * Extract Payload from JWT token
      *
      * @param string $token
@@ -418,7 +435,7 @@ class OpenIdProvider implements OpenIdProviderInterface
     {
         try {
             $tokenParts = explode(".", $token);
-            return json_decode(base64_decode($tokenParts[1]), true);
+            return json_decode($this->urlSafeTokenDecode($tokenParts[1]), true);
         } catch (Throwable $ex) {
             $this->error(
                 SSOAuthenticationException::unableToDecodeIdToken()->getMessage(),
@@ -682,29 +699,54 @@ class OpenIdProvider implements OpenIdProviderInterface
 
         $this->conditions->validate(
             $this->configuration,
-            $this->idTokenPayload ?: $this->attributePathFetcher->fetch(
-                $accessToken,
-                $this->configuration,
-                $authenticationConditions->getEndpoint()
-            )
+            $authenticationConditions->isEnabled()
+                ? array_merge(
+                    $this->idTokenPayload,
+                    array_diff_key(
+                        $this->attributePathFetcher->fetch(
+                            $accessToken,
+                            $this->configuration,
+                            $authenticationConditions->getEndpoint()
+                        ),
+                        $this->idTokenPayload
+                    )
+                )
+                : $this->idTokenPayload
         );
 
         $this->rolesMapping->validate(
             $this->configuration,
-            $this->idTokenPayload ?: $this->attributePathFetcher->fetch(
-                $accessToken,
-                $this->configuration,
-                $rolesMapping->getEndpoint()
-            )
+            $rolesMapping->isEnabled()
+                ? array_merge(
+                    $this->idTokenPayload,
+                    array_diff_key(
+                        $this->attributePathFetcher->fetch(
+                            $accessToken,
+                            $this->configuration,
+                            $rolesMapping->getEndpoint()
+                        ),
+                        $this->idTokenPayload
+                    )
+                )
+                : $this->idTokenPayload
         );
+        $this->aclConditionsMatches = $this->rolesMapping->getConditionMatches();
 
         $this->groupsMapping->validate(
             $this->configuration,
-            $this->idTokenPayload ?: $this->attributePathFetcher->fetch(
-                $accessToken,
-                $this->configuration,
-                $groupsMapping->getEndpoint()
+            $groupsMapping->isEnabled()
+            ? array_merge(
+                $this->idTokenPayload,
+                array_diff_key(
+                    $this->attributePathFetcher->fetch(
+                        $accessToken,
+                        $this->configuration,
+                        $groupsMapping->getEndpoint()
+                    ),
+                    $this->idTokenPayload
+                )
             )
+            : $this->idTokenPayload
         );
     }
 
@@ -935,5 +977,24 @@ class OpenIdProvider implements OpenIdProviderInterface
     public function getUserContactGroups(): array
     {
         return $this->groupsMapping->getUserContactGroups();
+    }
+
+    /**
+     * Decode using the RFC-4648 "URL and Filename safe" Base 64 Alphabet.
+     * @see https://www.ietf.org/rfc/rfc4648.txt
+     *
+     * @param string $token
+     * @return string
+     *
+     * @throws \ValueError
+     */
+    private function urlSafeTokenDecode(string $token): string
+    {
+        $decoded = base64_decode(str_replace(['-', '_'], ['+', '/'], $token), true);
+        if (false === $decoded) {
+            throw new \ValueError('The token cannot be base64 decoded');
+        }
+
+        return $decoded;
     }
 }

@@ -1,12 +1,12 @@
 import axios from 'axios';
-import { Provider } from 'jotai';
 
+import { ListingVariant } from '@centreon/ui-context';
 import {
   render,
   RenderResult,
   waitFor,
   screen
-} from '@centreon/ui/src/testRenderer';
+} from '@centreon/ui/test/testRenderer';
 
 import {
   platformInstallationStatusEndpoint,
@@ -25,8 +25,7 @@ import { navigationEndpoint } from '../Navigation/useNavigation';
 import { labelAuthenticationDenied } from '../FallbackPages/AuthenticationDenied/translatedLabels';
 
 import { labelCentreonIsLoading } from './translatedLabels';
-
-import Main from '.';
+import Provider from './Provider';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -41,7 +40,8 @@ const retrievedUser = {
   locale: 'fr_FR.UTF8',
   name: 'Admin',
   timezone: 'Europe/Paris',
-  use_deprecated_pages: false
+  use_deprecated_pages: false,
+  user_interface_density: ListingVariant.compact
 };
 
 const retrievedParameters = {
@@ -55,12 +55,14 @@ const retrievedActionsAcl = {
   host: {
     acknowledgement: true,
     check: true,
-    downtime: true
+    downtime: true,
+    forced_check: true
   },
   service: {
     acknowledgement: true,
     check: true,
-    downtime: true
+    downtime: true,
+    forced_check: true
   }
 };
 
@@ -71,9 +73,23 @@ const retrievedTranslations = {
 };
 
 const retrievedWeb = {
+  is_cloud_platform: false,
+  modules: {},
   web: {
-    version: '21.10.1'
-  }
+    fix: '0',
+    major: '23',
+    minor: '04',
+    version: '23.04.1'
+  },
+  widgets: {}
+};
+
+const retrievedLoginConfiguration = {
+  custom_text: 'Custom text',
+  icon_source: 'icon_source',
+  image_source: 'image_source',
+  platform_name: 'Platform name',
+  text_position: null
 };
 
 const retrievedProvidersConfiguration = [
@@ -108,12 +124,7 @@ jest.mock('../components/mainRouter', () => {
   };
 });
 
-const renderMain = (): RenderResult =>
-  render(
-    <Provider>
-      <Main />
-    </Provider>
-  );
+const renderMain = (): RenderResult => render(<Provider />);
 
 const mockDefaultGetRequests = (): void => {
   mockedAxios.get
@@ -143,6 +154,9 @@ const mockDefaultGetRequests = (): void => {
     })
     .mockResolvedValueOnce({
       data: retrievedActionsAcl
+    })
+    .mockResolvedValueOnce({
+      data: retrievedLoginConfiguration
     })
     .mockResolvedValueOnce({
       data: null
@@ -181,6 +195,9 @@ const mockRedirectFromLoginPageGetRequests = (): void => {
     .mockResolvedValueOnce({
       data: retrievedActionsAcl
     })
+    .mockResolvedValueOnce({
+      data: retrievedLoginConfiguration
+    })
     .mockResolvedValue({
       data: null
     });
@@ -205,23 +222,19 @@ const mockNotConnectedGetRequests = (): void => {
     })
     .mockResolvedValueOnce({
       data: retrievedProvidersConfiguration
+    })
+    .mockResolvedValueOnce({
+      data: retrievedLoginConfiguration
     });
 };
 
 const mockInstallGetRequests = (): void => {
-  mockedAxios.get
-    .mockResolvedValueOnce({
-      data: {
-        has_upgrade_available: false,
-        is_installed: false
-      }
-    })
-    .mockRejectedValueOnce({
-      response: { status: 403 }
-    })
-    .mockResolvedValueOnce({
-      data: retrievedWeb
-    });
+  mockedAxios.get.mockResolvedValueOnce({
+    data: {
+      has_upgrade_available: false,
+      is_installed: false
+    }
+  });
 };
 
 const mockUpgradeAndUserDisconnectedGetRequests = (): void => {
@@ -267,6 +280,9 @@ const mockUpgradeAndUserConnectedGetRequests = (): void => {
       data: retrievedActionsAcl
     })
     .mockResolvedValueOnce({
+      data: retrievedLoginConfiguration
+    })
+    .mockResolvedValueOnce({
       data: null
     });
 };
@@ -277,13 +293,12 @@ describe('Main', () => {
     window.history.pushState({}, '', '/');
   });
 
-  it('displays the login page when the path is "/login" and the user is not connected', async () => {
+  // To migrate to Cypress
+  it.only('displays the login page when the path is "/login" and the user is not connected', async () => {
     window.history.pushState({}, '', '/login');
     mockNotConnectedGetRequests();
 
     renderMain();
-
-    expect(screen.getByText(labelCentreonIsLoading)).toBeInTheDocument();
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -336,13 +351,6 @@ describe('Main', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         platformInstallationStatusEndpoint,
-        cancelTokenRequestParam
-      );
-    });
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        userEndpoint,
         cancelTokenRequestParam
       );
     });

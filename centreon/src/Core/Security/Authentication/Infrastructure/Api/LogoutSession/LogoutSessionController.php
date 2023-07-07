@@ -24,11 +24,22 @@ namespace Core\Security\Authentication\Infrastructure\Api\LogoutSession;
 
 use Symfony\Component\HttpFoundation\Request;
 use Centreon\Application\Controller\AbstractController;
+use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSession;
 use Core\Security\Authentication\Application\UseCase\LogoutSession\LogoutSessionPresenterInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class LogoutSessionController extends AbstractController
 {
+    use HttpUrlTrait;
+
+    /**
+     * @param UrlGeneratorInterface $urlGenerator
+     */
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
+    {
+    }
+
     /**
      * @param LogoutSession $useCase
      * @param Request $request
@@ -41,7 +52,6 @@ class LogoutSessionController extends AbstractController
         LogoutSessionPresenterInterface $presenter,
     ): object {
         $useCase($request->cookies->get('PHPSESSID'), $presenter);
-
-        return $presenter->show();
+        return $this->redirect($this->getBaseUrl() . '/login');
     }
 }

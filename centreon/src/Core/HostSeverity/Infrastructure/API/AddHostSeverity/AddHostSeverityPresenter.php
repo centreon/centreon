@@ -34,6 +34,8 @@ class AddHostSeverityPresenter extends AbstractPresenter
 {
     use LoggerTrait;
     private const ROUTE_NAME = 'FindHostSeverity';
+    private const ROUTE_HOST_SEVERITY_ID = 'hostSeverityId';
+
 
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
@@ -62,19 +64,18 @@ class AddHostSeverityPresenter extends AbstractPresenter
                 'comment' => $payload->comment,
             ]);
 
-            // NOT setting location as required route does not currently exist
-            // try {
-            //     $this->setResponseHeaders([
-            //         'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $payload->id]),
-            //     ]);
-            // } catch (\Throwable $ex) {
-            //     $this->error('Impossible to generate the location header', [
-            //         'message' => $ex->getMessage(),
-            //         'trace' => $ex->getTraceAsString(),
-            //         'route' => self::ROUTE_NAME,
-            //         'payload' => $payload,
-            //     ]);
-            // }
+            try {
+                $this->setResponseHeaders([
+                    'Location' => $this->router->generate(self::ROUTE_NAME, [self::ROUTE_HOST_SEVERITY_ID => $payload->id]),
+                ]);
+            } catch (\Throwable $ex) {
+                $this->error('Impossible to generate the location header', [
+                    'message' => $ex->getMessage(),
+                    'trace' => $ex->getTraceAsString(),
+                    'route' => self::ROUTE_NAME,
+                    'payload' => $payload,
+                ]);
+            }
         }
         parent::present($data);
     }

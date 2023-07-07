@@ -25,7 +25,9 @@ namespace Core\Security\ProviderConfiguration\Domain\SecurityAccess;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
 
 /**
@@ -41,6 +43,11 @@ class RolesMapping implements SecurityAccessInterface
      * @var string
      */
     private string $scope = 'undefined';
+
+    /**
+     * @var string[]
+     */
+    private array $conditionMatches = [];
 
     /**
      * @param LoginLoggerInterface $loginLogger
@@ -72,7 +79,11 @@ class RolesMapping implements SecurityAccessInterface
         $this->loginLogger->info($this->scope, "Roles mapping is enabled");
         $this->info("Roles mapping is enabled");
 
-        $attributePath = explode(".", $aclConditions->getAttributePath());
+        $attributePath[] = $aclConditions->getAttributePath();
+        if ($configuration->getType() === Provider::OPENID) {
+            $attributePath = explode(".", $aclConditions->getAttributePath());
+        }
+
         foreach ($attributePath as $attribute) {
             $providerConditions = [];
             if (array_key_exists($attribute, $identityProviderData)) {
@@ -83,28 +94,31 @@ class RolesMapping implements SecurityAccessInterface
             }
         }
 
-        $configuredClaimValues = $aclConditions->getClaimValues();
-        if ($aclConditions->onlyFirstRoleIsApplied() && !empty($configuredClaimValues)) {
-            $configuredClaimValues = [$configuredClaimValues[0]];
-        }
-
         if (is_string($providerConditions)) {
             $providerConditions = explode(",", $providerConditions);
         }
 
-        $this->validateAclAttributeOrFail($providerConditions, $configuredClaimValues);
+        $this->validateAclAttributeOrFail($providerConditions, $aclConditions);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getConditionMatches(): array
+    {
+        return $this->conditionMatches;
     }
 
     /**
      * Validate roles mapping conditions
      *
      * @param array<mixed> $conditions
-     * @param string[] $configuredAuthorizedValues
+     * @param ACLConditions $aclConditions
      * @throws AclConditionsException
      */
-    private function validateAclAttributeOrFail(array $conditions, array $configuredAuthorizedValues): void
+    private function validateAclAttributeOrFail(array $conditions, ACLConditions $aclConditions): void
     {
-        if (!array_is_list($conditions)) {
+        if (! array_is_list($conditions)) {
             $errorMessage = "Invalid roles mapping (ACL) conditions format, array of strings expected";
             $this->error($errorMessage, [
                 "authentication_condition_from_provider" => $conditions
@@ -118,13 +132,23 @@ class RolesMapping implements SecurityAccessInterface
 
             throw AclConditionsException::invalidAclConditions();
         }
+        $configuredClaimValues = $aclConditions->getClaimValues();
+        if ($aclConditions->onlyFirstRoleIsApplied() && ! empty($configuredClaimValues)) {
+            foreach ($configuredClaimValues as $claimValue) {
+                if (in_array($claimValue, $conditions)) {
+                    $this->conditionMatches = [$claimValue];
+                    break;
+                }
+            }
+        } else {
+            $this->conditionMatches = array_intersect($conditions, $configuredClaimValues);
+        }
 
-        $conditionMatches = array_intersect($conditions, $configuredAuthorizedValues);
-        if (empty($conditionMatches)) {
+        if (empty($this->conditionMatches)) {
             $this->error(
                 "Configured attribute value not found in roles mapping configuration",
                 [
-                    "configured_authorized_values" => $configuredAuthorizedValues,
+                    "configured_authorized_values" => $configuredClaimValues,
                     "provider_conditions" => $conditions
                 ]
             );
@@ -139,9 +163,9 @@ class RolesMapping implements SecurityAccessInterface
         }
 
         $this->info("Role mapping relation found", [
-            "conditions_matches" => $conditionMatches,
+            "conditions_matches" => $this->conditionMatches,
             "provider" => $conditions,
-            "configured" => $configuredAuthorizedValues
+            "configured" => $configuredClaimValues
         ]);
 
 
@@ -149,9 +173,9 @@ class RolesMapping implements SecurityAccessInterface
             $this->scope,
             "Role mapping relation found",
             [
-                "conditions_matches" => $conditionMatches,
+                "conditions_matches" => $this->conditionMatches,
                 "provider" => $conditions,
-                "configured" => $configuredAuthorizedValues
+                "configured" => $configuredClaimValues
             ]
         );
     }

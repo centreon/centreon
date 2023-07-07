@@ -13,7 +13,7 @@ const useStyles = makeStyles()((theme) => ({
     listStyle: 'none',
     margin: 0,
     padding: 0,
-    [theme.breakpoints.down(768)]: {
+    [theme.breakpoints.down(1025)]: {
       flexFlow: 'row wrap'
     }
   },
@@ -28,7 +28,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   splitter: {
     display: 'none',
-    [theme.breakpoints.down(768)]: {
+    [theme.breakpoints.down(1025)]: {
       display: 'block',
       marginBottom: theme.spacing(0.25)
     }

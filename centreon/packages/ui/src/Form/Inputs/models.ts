@@ -16,7 +16,9 @@ export enum InputType {
   MultiConnectedAutocomplete,
   FieldsTable,
   Grid,
-  Custom
+  Custom,
+  Checkbox,
+  CheckboxGroup
 }
 
 interface FieldsTableGetRequiredProps {
@@ -24,14 +26,22 @@ interface FieldsTableGetRequiredProps {
   values: FormikValues;
 }
 
+export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
+
 export interface InputProps {
   additionalLabel?: string;
+  additionalLabelClassName?: string;
   additionalMemoProps?: Array<unknown>;
   autocomplete?: {
     creatable?: boolean;
     options: Array<SelectEntry>;
   };
   change?: ({ setFieldValue, value }) => void;
+  checkbox?: {
+    direction?: 'horizontal' | 'vertical';
+    labelPlacement?: LabelPlacement;
+    options?: Array<string>;
+  };
   connectedAutocomplete?: {
     additionalConditionParameters: Array<ConditionsSearchParameter>;
     endpoint?: string;
@@ -51,16 +61,19 @@ export interface InputProps {
     getRequired?: ({ values, index }: FieldsTableGetRequiredProps) => boolean;
     getSortable?: (values: FormikValues) => boolean;
     hasSingleValue?: boolean;
+    sortableIdProperty?: string;
   };
   getDisabled?: (values: FormikValues) => boolean;
   getRequired?: (values: FormikValues) => boolean;
   grid?: {
     alignItems?: string;
+    className?: string;
     columns: Array<Omit<InputProps, 'group'>>;
     gridTemplateColumns?: string;
   };
   group: string;
   hideInput?: (values: FormikValues) => boolean;
+  inputClassName?: string;
   label: string;
   radio?: {
     options?: Array<{
@@ -74,7 +87,8 @@ export interface InputProps {
     getChecked?: (value) => boolean;
   };
   text?: {
-    type: string;
+    multilineRows?: number;
+    type?: string;
   };
   type: InputType;
 }

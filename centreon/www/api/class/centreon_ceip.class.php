@@ -38,7 +38,7 @@ class CentreonCeip extends CentreonWebService
     private $user;
 
     /**
-     * @var \Centreon\Domain\Log\LegacyLogger
+     * @var \Centreon\Domain\Log\Logger
      */
     private $logger;
 
@@ -58,7 +58,7 @@ class CentreonCeip extends CentreonWebService
 
         $kernel = \App\Kernel::createForWeb();
         $this->logger = $kernel->getContainer()->get(
-            \Centreon\Domain\Log\LegacyLogger::class
+            \Centreon\Domain\Log\Logger::class
         );
     }
 
@@ -209,7 +209,7 @@ class CentreonCeip extends CentreonWebService
             $licenseInformation = [];
             foreach ($centreonModules as $module) {
                 $licenseObject->setProduct($module);
-                $isLicenseValid = $licenseObject->validate(false);
+                $isLicenseValid = $licenseObject->validate();
                 if ($isLicenseValid && !empty($licenseObject->getData())) {
                     $licenseInformation[$module] = $licenseObject->getData();
                     $licenseClientName = $licenseInformation[$module]['client']['name'];

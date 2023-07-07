@@ -42,17 +42,10 @@ const getElements = (): void => {
 export default (): void =>
   describe('Pollers', () => {
     describe('responsive behaviors', () => {
-      it('hides the button’s text at smaller screen size', () => {
+      it("hides the button's text at smaller screen size", () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
-        cy.get('@pollerButton').within(() => {
-          cy.findByText('Pollers').should('be.visible');
-          cy.findByTestId('ExpandLessIcon').should('be.visible');
-          cy.findByTestId('DeviceHubIcon').should('be.visible');
-        });
-
-        cy.viewport(767, 300);
         cy.get('@pollerButton').within(() => {
           cy.findByText('Pollers').should('not.be.visible');
           cy.findByTestId('ExpandLessIcon').should('be.visible');
@@ -179,6 +172,66 @@ export default (): void =>
           );
         });
       });
+
+      describe('stability', () => {
+        it('validates stability when there are issues', () => {
+          initialize({
+            pollersListIssues: {
+              issues: {
+                stability: {
+                  critical: {
+                    poller: [{ id: 1, name: 'poller1', since: '' }],
+                    total: 1
+                  },
+                  total: 1
+                }
+              }
+            }
+          });
+          getElements();
+
+          cy.get('@databaseIndicator').should(
+            'contain.text',
+            labelDatabaseUpdateAndActive
+          );
+
+          cy.get('@latencyIndicator').should(
+            'contain.text',
+            labelNoLatencyDetected
+          );
+        });
+
+        it('validates stability with no issues', () => {
+          initialize({
+            pollersListIssues: {
+              issues: {
+                stability: {
+                  critical: {
+                    poller: [],
+                    total: 0
+                  },
+                  total: 0,
+                  warning: {
+                    poller: [],
+                    total: 0
+                  }
+                }
+              }
+            }
+          });
+          getElements();
+
+          cy.get('@databaseIndicator').should(
+            'contain.text',
+            labelDatabaseUpdateAndActive
+          );
+
+          cy.get('@latencyIndicator').should(
+            'contain.text',
+            labelNoLatencyDetected
+          );
+        });
+      });
     });
 
     describe('sub menu', () => {
@@ -278,8 +331,7 @@ export default (): void =>
           }
         ];
 
-        cy.findByTestId('poller-menu')
-          .findAllByRole('listitem')
+        cy.get('[data-testid="pollerIssues"]')
           .as('items')
           .should('have.length', expectedItems.length);
 
@@ -337,10 +389,7 @@ export default (): void =>
           });
           openSubMenu('Pollers');
 
-          cy.findByTestId('poller-menu')
-            .findAllByRole('listitem')
-            .last()
-            .findByRole('button', { name: labelConfigurePollers })
+          cy.get(`[data-testid="${labelConfigurePollers}"]`)
             .should('be.visible')
             .click();
 
@@ -356,10 +405,7 @@ export default (): void =>
           initialize();
           openSubMenu('Pollers');
 
-          cy.findByTestId('poller-menu')
-            .findAllByRole('listitem')
-            .last()
-            .findByRole('button', { name: labelExportConfiguration })
+          cy.get(`[data-testid="${labelExportConfiguration}"]`)
             .as('exportbutton')
             .should('be.visible');
           cy.matchImageSnapshot();
@@ -370,11 +416,9 @@ export default (): void =>
           initialize();
           openSubMenu('Pollers');
 
-          cy.findByTestId('poller-menu')
-            .findAllByRole('listitem')
-            .last()
-            .findByRole('button', { name: labelExportConfiguration })
-            .as('exportbutton');
+          cy.get(`[data-testid="${labelExportConfiguration}"]`).as(
+            'exportbutton'
+          );
 
           cy.get('@exportbutton').click();
 
@@ -403,11 +447,9 @@ export default (): void =>
           initialize();
           openSubMenu('Pollers');
 
-          cy.findByTestId('poller-menu')
-            .findAllByRole('listitem')
-            .last()
-            .findByRole('button', { name: labelExportConfiguration })
-            .as('exportbutton');
+          cy.get(`[data-testid="${labelExportConfiguration}"]`).as(
+            'exportbutton'
+          );
 
           cy.get('@exportbutton').click();
 

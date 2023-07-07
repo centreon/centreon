@@ -21,15 +21,17 @@
 
 namespace Centreon\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
-use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use PDO;
 use Centreon\Domain\Entity\Image;
 use Centreon\Domain\Entity\ImageDir;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
-use PDO;
+use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
+use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
 
-class ImagesRepository extends ServiceEntityRepository implements PaginationRepositoryInterface
+class ImagesRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
 
@@ -42,12 +44,25 @@ class ImagesRepository extends ServiceEntityRepository implements PaginationRepo
     }
 
     /**
+     * @var int $resultCountForPagination
+     */
+    private int $resultCountForPagination = 0;
+
+    /**
+     * @param DatabaseConnection $db
+     */
+    public function __construct(DatabaseConnection $db)
+    {
+        $this->db = $db;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array
     {
         $collector = new StatementCollector();
-        $sql = 'SELECT * FROM `' . ImageDir::TABLE . '`,`' . ImageDir::JOIN_TABLE . '` vidr,`' . Image::TABLE . '` '
+        $sql = 'SELECT SQL_CALC_FOUND_ROWS * FROM `' . ImageDir::TABLE . '`,`' . ImageDir::JOIN_TABLE . '` vidr,`' . Image::TABLE . '` '
             . 'WHERE `img_id` = `vidr`.`img_img_id` AND `dir_id` = `vidr`.`dir_dir_parent_id`';
 
         $isWhere = true;
@@ -83,6 +98,13 @@ class ImagesRepository extends ServiceEntityRepository implements PaginationRepo
         $stmt = $this->db->prepare($sql);
         $collector->bind($stmt);
         $stmt->execute();
+
+        $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
+
+        if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
+            $this->resultCountForPagination = $total;
+        }
+
         $stmt->setFetchMode(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, Image::class);
 
         $result = $stmt->fetchAll();
@@ -115,6 +137,6 @@ class ImagesRepository extends ServiceEntityRepository implements PaginationRepo
      */
     public function getPaginationListTotal(): int
     {
-        return $this->db->numberRows();
+        return $this->resultCountForPagination;
     }
 }

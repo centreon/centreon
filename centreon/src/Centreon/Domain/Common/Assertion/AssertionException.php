@@ -32,8 +32,11 @@ class AssertionException extends \Assert\InvalidArgumentException
 {
     public const INVALID_EMAIL = Assert::INVALID_EMAIL;
     public const INVALID_GREATER_OR_EQUAL = Assert::INVALID_GREATER_OR_EQUAL;
+    public const INVALID_INSTANCE_OF = Assert::INVALID_INSTANCE_OF;
     public const INVALID_IP = Assert::INVALID_IP;
     public const INVALID_IP_OR_DOMAIN = 1002;
+    public const INVALID_ARRAY_JSON_ENCODABLE = 1004;
+    public const INVALID_JSON_STRING = Assert::INVALID_JSON_STRING;
     public const INVALID_MAX = Assert::INVALID_MAX;
     public const INVALID_MAX_DATE = 1001;
     public const INVALID_MAX_LENGTH = Assert::INVALID_MAX_LENGTH;
@@ -44,6 +47,9 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const INVALID_CHOICE = Assert::INVALID_CHOICE;
     public const VALUE_EMPTY = Assert::VALUE_EMPTY;
     public const VALUE_NULL = Assert::VALUE_NULL;
+
+    // Error codes of Centreon assertion start from 1000
+    public const INVALID_CHARACTERS = 1003;
 
     /**
      * The extended constructor is here only to enforce the types used
@@ -63,6 +69,32 @@ class AssertionException extends \Assert\InvalidArgumentException
         array $constraints = []
     ) {
         parent::__construct($message, $code, $propertyPath, $value, $constraints);
+    }
+
+    /**
+     * Exception when the value contains unauthorized characters.
+     *
+     * @param string $value Tested value
+     * @param string $unauthorizedCharacters List of unauthorized characters found in the value
+     * @param string|null $propertyPath Property's path (ex: Host::name)
+     *
+     * @return self
+     */
+    public static function unauthorizedCharacters(
+        string $value,
+        string $unauthorizedCharacters,
+        ?string $propertyPath = null
+    ): self {
+        return new self(
+            sprintf(
+                _('[%s] The value contains unauthorized characters: %s'),
+                $propertyPath,
+                $unauthorizedCharacters,
+            ),
+            self::INVALID_CHARACTERS,
+            $propertyPath,
+            $value
+        );
     }
 
     /**
@@ -428,6 +460,33 @@ class AssertionException extends \Assert\InvalidArgumentException
     }
 
     /**
+     * Exception when the object is not of the correct class type.
+     *
+     * @param string $objectInstanceName
+     * @param string $instanceNameRequired
+     * @param string|null $propertyPath
+     *
+     * @return self
+     */
+    public static function badInstanceOfObject(
+        string $objectInstanceName,
+        string $instanceNameRequired,
+        ?string $propertyPath = null
+    ): self {
+        return new self(
+            sprintf(
+                _("[%s] (%s) was expected to be an instance of the class '%s'"),
+                $propertyPath,
+                $objectInstanceName,
+                $instanceNameRequired
+            ),
+            self::INVALID_INSTANCE_OF,
+            $propertyPath,
+            $objectInstanceName
+        );
+    }
+
+    /**
      * Exception when the value does not respect ip format.
      *
      * @param string $value Tested value
@@ -446,6 +505,44 @@ class AssertionException extends \Assert\InvalidArgumentException
             self::INVALID_IP,
             $propertyPath,
             $value
+        );
+    }
+
+    /**
+     * Exception when the value is not a valid JSON string.
+     *
+     * @param string|null $propertyPath Property's path (ex: Host::name)
+     *
+     * @return self
+     */
+    public static function invalidJsonString(?string $propertyPath = null): self
+    {
+        return new self(
+            sprintf(
+                _('[%s] The value is not a valid JSON string'),
+                $propertyPath
+            ),
+            self::INVALID_JSON_STRING,
+            $propertyPath
+        );
+    }
+
+    /**
+     * Exception when the value is not encodable to a valid JSON string.
+     *
+     * @param string|null $propertyPath Property's path (ex: Host::name)
+     *
+     * @return self
+     */
+    public static function notJsonEncodable(?string $propertyPath = null): self
+    {
+        return new self(
+            sprintf(
+                _('[%s] The value cannot be encoded to a valid JSON string'),
+                $propertyPath
+            ),
+            self::INVALID_ARRAY_JSON_ENCODABLE,
+            $propertyPath
         );
     }
 }

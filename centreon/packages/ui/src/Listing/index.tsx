@@ -26,42 +26,34 @@ import {
   uniqBy
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
 
-import {
-  Box,
-  LinearProgress,
-  Table,
-  TableBody,
-  TableRow,
-  useTheme
-} from '@mui/material';
+import { Box, LinearProgress, Table, TableBody } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import useKeyObserver from '../utils/useKeyObserver';
-import useMemoComponent from '../utils/useMemoComponent';
+import { useKeyObserver, useMemoComponent } from '../utils';
 
 import ListingActionBar from './ActionBar';
 import Cell from './Cell';
 import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
 import getCumulativeOffset from './getCumulativeOffset';
-import ListingHeader, { headerHeight } from './Header/index';
 import {
   Column,
   ColumnConfiguration,
   PredefinedRowSelection,
   RowColorCondition,
   RowId,
-  SortOrder,
-  TableStyleAtom as TableStyle
+  SortOrder
 } from './models';
-import ListingRow from './Row';
-import ListingLoadingSkeleton from './Skeleton';
+import ListingRow from './Row/Row';
 import { labelNoResultFound } from './translatedLabels';
 import useResizeObserver from './useResizeObserver';
 import useStyleTable from './useStyleTable';
+import { loadingIndicatorHeight, useStyles } from './Listing.styles';
+import { EmptyResult } from './EmptyResult/EmptyResult';
+import { SkeletonLoader } from './Row/SkeletonLoaderRows';
+import { ListingHeader } from './Header';
 
 const getVisibleColumns = ({
   columnConfiguration,
@@ -78,80 +70,18 @@ const getVisibleColumns = ({
   ) as Array<Column>;
 };
 
-const loadingIndicatorHeight = 3;
-
-interface StylesProps {
-  checkable: boolean;
-  currentVisibleColumns: Array<Column>;
-  dataStyle: TableStyle;
-  getGridTemplateColumn: string;
-  rows: Array<unknown>;
-  viewMode: ListingVariant;
+interface CustomStyle {
+  customStyleViewerModeContainer?: string;
+  customStyleViewerModeIcon?: string;
 }
-
-const useStyles = makeStyles<StylesProps>()(
-  (
-    theme,
-    { dataStyle, getGridTemplateColumn, rows, checkable, currentVisibleColumns }
-  ) => ({
-    actionBar: {
-      alignItems: 'center',
-      display: 'flex'
-    },
-    checkbox: {
-      justifyContent: 'center'
-    },
-    container: {
-      background: 'none',
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      width: '100%'
-    },
-    emptyDataCell: {
-      flexDirection: 'column',
-      gridColumn: `auto / span ${
-        checkable
-          ? currentVisibleColumns.length + 1
-          : currentVisibleColumns.length
-      }`,
-      justifyContent: 'center'
-    },
-    emptyDataRow: {
-      display: 'contents'
-    },
-    loadingIndicator: {
-      height: loadingIndicatorHeight,
-      width: '100%'
-    },
-    table: {
-      '.listingHeader div div': {
-        backgroundColor: theme.palette.background.listingHeader,
-        boxShadow: `-1px 0px 0px 0px ${theme.palette.background.listingHeader}`,
-        height: dataStyle.header.height,
-        padding: 0
-      },
-      alignItems: 'center',
-      display: 'grid',
-      gridTemplateColumns: getGridTemplateColumn,
-      gridTemplateRows: `${theme.spacing(dataStyle.header.height / 8)} repeat(${
-        rows?.length
-      }, ${dataStyle.body.height}px)`,
-      position: 'relative'
-    },
-    tableBody: {
-      display: 'contents',
-      'div:first-of-type': {
-        gridColumnStart: 1
-      },
-      position: 'relative'
-    },
-    tableWrapper: {
-      borderBottom: 'none',
-      overflow: 'auto'
-    }
-  })
-);
+interface ViewerModeConfiguration {
+  customStyle?: CustomStyle;
+  disabled?: boolean;
+  labelViewerMode?: string;
+  onClick: () => void;
+  testId?: string;
+  title?: string;
+}
 
 export interface Props<TRow> {
   actions?: JSX.Element;
@@ -176,7 +106,7 @@ export interface Props<TRow> {
   onRowClick?: (row: TRow) => void;
   onSelectColumns?: (selectedColumnIds: Array<string>) => void;
   onSelectRows?: (rows: Array<TRow>) => void;
-  onSort?: (sortParams) => void;
+  onSort?: (sortParams: { sortField: string; sortOrder: SortOrder }) => void;
   paginated?: boolean;
   predefinedRowsSelection?: Array<PredefinedRowSelection>;
   rowColorConditions?: Array<RowColorCondition>;
@@ -186,6 +116,7 @@ export interface Props<TRow> {
   sortOrder?: SortOrder;
   totalRows?: number;
   viewMode?: ListingVariant;
+  viewerModeConfiguration?: ViewerModeConfiguration;
   widthToMoveTablePagination?: number;
 }
 
@@ -228,7 +159,8 @@ const Listing = <TRow extends { id: RowId }>({
   moveTablePagination,
   viewMode = ListingVariant.compact,
   widthToMoveTablePagination,
-  getHighlightRowCondition
+  getHighlightRowCondition,
+  viewerModeConfiguration
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -240,11 +172,10 @@ const Listing = <TRow extends { id: RowId }>({
     viewMode
   });
 
-  const { classes } = useStyles({
-    checkable,
-    currentVisibleColumns,
+  const { classes, theme } = useStyles({
     dataStyle,
     getGridTemplateColumn,
+    limit,
     rows,
     viewMode
   });
@@ -260,8 +191,6 @@ const Listing = <TRow extends { id: RowId }>({
   >(null);
   const containerRef = React.useRef<HTMLDivElement>();
   const actionBarRef = React.useRef<HTMLDivElement>();
-
-  const theme = useTheme();
 
   useResizeObserver({
     onResize: () => {
@@ -468,9 +397,9 @@ const Listing = <TRow extends { id: RowId }>({
 
     return `calc(100vh - ${tableTopOffset}px - ${
       actionBarRef.current?.offsetHeight
-    }px - ${headerHeight}px - ${loadingIndicatorHeight}px - ${theme.spacing(
-      1
-    )})`;
+    }px - ${
+      dataStyle.header.height
+    }px - ${loadingIndicatorHeight}px - ${theme.spacing(1)})`;
   };
 
   const changeLimit = (updatedLimit: string): void => {
@@ -520,6 +449,8 @@ const Listing = <TRow extends { id: RowId }>({
             moveTablePagination={moveTablePagination}
             paginated={paginated}
             totalRows={totalRows}
+            viewMode={viewMode}
+            viewerModeConfiguration={viewerModeConfiguration}
             widthToMoveTablePagination={widthToMoveTablePagination}
             onLimitChange={changeLimit}
             onPaginate={onPaginate}
@@ -622,7 +553,6 @@ const Listing = <TRow extends { id: RowId }>({
 
                     {visibleColumns.map((column) => (
                       <DataCell
-                        areColumnsEditable={areColumnsEditable}
                         column={column}
                         disableRowCondition={disableRowCondition}
                         getHighlightRowCondition={getHighlightRowCondition}
@@ -637,26 +567,13 @@ const Listing = <TRow extends { id: RowId }>({
                   </ListingRow>
                 );
               })}
-              {rows.length < 1 && (
-                <TableRow
-                  className={classes.emptyDataRow}
-                  component="div"
-                  tabIndex={-1}
-                >
-                  <Cell
-                    align="center"
-                    className={classes.emptyDataCell}
-                    disableRowCondition={(): boolean => false}
-                    isRowHovered={false}
-                  >
-                    {loading ? (
-                      <ListingLoadingSkeleton />
-                    ) : (
-                      t(labelNoResultFound)
-                    )}
-                  </Cell>
-                </TableRow>
-              )}
+
+              {rows.length < 1 &&
+                (loading ? (
+                  <SkeletonLoader rows={limit} />
+                ) : (
+                  <EmptyResult label={t(labelNoResultFound)} />
+                ))}
             </TableBody>
           </Table>
         </Box>

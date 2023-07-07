@@ -1,23 +1,23 @@
 <?php
 
 /*
-* Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* https://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-* For more information : contact@centreon.com
-*
-*/
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
 
 declare(strict_types=1);
 
@@ -32,6 +32,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Common\Domain\TrimmedString;
 use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
@@ -62,9 +63,9 @@ final class AddHostCategory
                     'user_id' => $this->user->getId(),
                 ]);
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostCategoryException::addNotAllowed())
+                    new ForbiddenResponse(HostCategoryException::writingActionsNotAllowed())
                 );
-            } elseif ($this->readHostCategoryRepository->existsByName(trim($request->name))) {
+            } elseif ($this->readHostCategoryRepository->existsByName(new TrimmedString($request->name))) {
                 $this->error('Host category name already exists', [
                     'hostcategory_name' => trim($request->name),
                 ]);
@@ -72,15 +73,15 @@ final class AddHostCategory
                     new ConflictResponse(HostCategoryException::hostNameAlreadyExists())
                 );
             } else {
-                $newHostCategory = new NewHostCategory(trim($request->name), trim($request->alias));
-                $newHostCategory->setComment($request->comment ? trim($request->comment) : null);
+                $newHostCategory = new NewHostCategory($request->name, $request->alias);
+                $newHostCategory->setComment($request->comment ?: null);
                 $newHostCategory->setActivated($request->isActivated);
 
                 $hostCategoryId = $this->writeHostCategoryRepository->add($newHostCategory);
                 $hostCategory = $this->readHostCategoryRepository->findById($hostCategoryId);
                 if (! $hostCategory) {
                     $presenter->setResponseStatus(
-                        new ErrorResponse(HostCategoryException::errorWhileRetrievingJustCreated())
+                        new ErrorResponse(HostCategoryException::errorWhileRetrievingObject())
                     );
 
                     return;
@@ -103,6 +104,7 @@ final class AddHostCategory
 
     /**
      * @param HostCategory|null $hostCategory
+     *
      * @return AddHostCategoryResponse
      */
     private function createResponse(?HostCategory $hostCategory): AddHostCategoryResponse

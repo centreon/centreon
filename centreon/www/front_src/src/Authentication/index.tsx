@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
-import { useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import { Box, Container, Paper, Tab } from '@mui/material';
@@ -16,10 +15,12 @@ import { labelPasswordSecurityPolicy } from './Local/translatedLabels';
 import { labelOpenIDConnectConfiguration } from './Openid/translatedLabels';
 import OpenidConfiguration from './Openid';
 import WebSSOConfigurationForm from './WebSSO';
+import SAMLConfigurationForm from './SAML';
 import { labelWebSSOConfiguration } from './WebSSO/translatedLabels';
 import { tabAtom, appliedTabAtom } from './tabAtoms';
 import passwordPadlockLogo from './logos/passwordPadlock.svg';
 import providerPadlockLogo from './logos/providerPadlock.svg';
+import { labelSAMLConfiguration } from './SAML/translatedLabels';
 
 const panels = [
   {
@@ -39,6 +40,12 @@ const panels = [
     image: providerPadlockLogo,
     title: labelWebSSOConfiguration,
     value: Provider.WebSSO
+  },
+  {
+    Component: SAMLConfigurationForm,
+    image: providerPadlockLogo,
+    title: labelSAMLConfiguration,
+    value: Provider.SAML
   }
 ];
 
@@ -87,7 +94,7 @@ const Authentication = (): JSX.Element => {
 
   const appliedTab = useAtomValue(appliedTabAtom);
   const { themeMode } = useAtomValue(userAtom);
-  const setTab = useUpdateAtom(tabAtom);
+  const setTab = useSetAtom(tabAtom);
 
   const changeTab = (_, newTab: Provider): void => {
     setTab(newTab);
@@ -113,7 +120,7 @@ const Authentication = (): JSX.Element => {
   const tabs = useMemo(
     () =>
       panels.map(({ title, value }) => (
-        <Tab key={value} label={t(title)} value={value} />
+        <Tab aria-label={t(title)} key={value} label={t(title)} value={value} />
       )),
     []
   );

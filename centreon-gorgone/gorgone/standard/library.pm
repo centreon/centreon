@@ -734,7 +734,7 @@ sub create_com {
         if ($socket->has_error) {
             $options{logger}->writeLogDebug("[core] Cannot bind IPC '$options{path}': $!");
             # try create dir
-            $options{logger}->writeLogDebug("[core] Maybe directory not exist. We try to create it!!!");
+            $options{logger}->writeLogDebug("[core] Maybe directory not exist. We try to create it");
             if (!mkdir(dirname($options{path}))) {
                 $options{logger}->writeLogError("[core] Cannot create IPC file directory '$options{path}'");
                 exit(1);

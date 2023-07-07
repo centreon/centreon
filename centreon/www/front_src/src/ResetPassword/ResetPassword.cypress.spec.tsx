@@ -1,15 +1,17 @@
 import { BrowserRouter } from 'react-router-dom';
-import { Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { replace } from 'ramda';
 
-import { SnackbarProvider } from '@centreon/ui';
+import { SnackbarProvider, Method, TestQueryProvider } from '@centreon/ui';
 
 import { labelCentreonLogo } from '../Login/translatedLabels';
 import { loginEndpoint } from '../Login/api/endpoint';
-import { Method } from '../../../../cypress/support/commands';
 import { userEndpoint } from '../api/endpoint';
 
-import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';
+import {
+  PasswordResetInformations,
+  passwordResetInformationsAtom
+} from './passwordResetInformationsAtom';
 import {
   labelCurrentPassword,
   labelNewPassword,
@@ -25,7 +27,7 @@ import ResetPassword from '.';
 const retrievedUser = {
   alias: 'Admin',
   default_page: '/monitoring/resources',
-  is_export_button_enabled: true,
+  isExportButtonEnabled: true,
   locale: 'fr_FR.UTF8',
   name: 'Admin',
   timezone: 'Europe/Paris',
@@ -41,8 +43,10 @@ const retrievedLogin = {
 };
 
 const mountComponentAndStub = (
-  initialValues: unknown = resetPasswordInitialValues
-): void => {
+  initialValues: PasswordResetInformations | null = resetPasswordInitialValues
+): unknown => {
+  const store = createStore();
+  store.set(passwordResetInformationsAtom, initialValues);
   const useNavigate = cy.stub();
   cy.stub(router, 'useNavigate').returns(useNavigate);
 
@@ -50,11 +54,11 @@ const mountComponentAndStub = (
     Component: (
       <BrowserRouter>
         <SnackbarProvider>
-          <Provider
-            initialValues={[[passwordResetInformationsAtom, initialValues]]}
-          >
-            <ResetPassword />
-          </Provider>
+          <TestQueryProvider>
+            <Provider store={store}>
+              <ResetPassword />
+            </Provider>
+          </TestQueryProvider>
         </SnackbarProvider>
       </BrowserRouter>
     )

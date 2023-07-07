@@ -31,7 +31,7 @@ trait HttpUrlTrait
     /**
      * @var ServerBag|null
      */
-    private ?ServerBag $httpServerBag;
+    private ?ServerBag $httpServerBag = null;
 
     /**
      * @param RequestStack $requestStack
@@ -106,5 +106,19 @@ trait HttpUrlTrait
         }
 
         return rtrim($baseUri, '/');
+    }
+
+    /**
+     * @param bool $withScheme
+     * @return string
+     */
+    public function getHost(bool $withScheme = false): string
+    {
+        $httpHost = $_SERVER['HTTP_HOST'];
+        if ($withScheme) {
+            $scheme = $_SERVER['REQUEST_SCHEME'];
+        }
+
+        return $withScheme ? sprintf("%s://%s", $scheme, $httpHost) : $httpHost;
     }
 }

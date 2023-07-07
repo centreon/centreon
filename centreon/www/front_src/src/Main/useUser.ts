@@ -1,10 +1,9 @@
-import { useAtom, atom } from 'jotai';
-import { useUpdateAtom } from 'jotai/utils';
+import { useAtom, atom, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
 
 import { useRequest, getData } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
-import type { User } from '@centreon/ui';
+import type { User } from '@centreon/ui-context';
 
 import { userDecoder } from '../api/decoders';
 import { userEndpoint } from '../api/endpoint';
@@ -21,7 +20,7 @@ const useUser = (): (() => null | Promise<void>) => {
   const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
     areUserParametersLoadedAtom
   );
-  const setUser = useUpdateAtom(userAtom);
+  const setUser = useSetAtom(userAtom);
 
   const loadUser = (): null | Promise<void> => {
     if (areUserParametersLoaded) {
@@ -44,18 +43,22 @@ const useUser = (): (() => null | Promise<void>) => {
           themeMode,
           timezone,
           use_deprecated_pages: useDeprecatedPages,
-          default_page: defaultPage
+          default_page: defaultPage,
+          user_interface_density,
+          dashboard
         } = retrievedUser as User;
 
         setUser({
           alias,
+          dashboard,
           default_page: defaultPage || '/monitoring/resources',
           isExportButtonEnabled,
           locale: locale || 'en',
           name,
           themeMode,
           timezone,
-          use_deprecated_pages: useDeprecatedPages
+          use_deprecated_pages: useDeprecatedPages,
+          user_interface_density
         });
         setAreUserParametersLoaded(true);
       })

@@ -159,8 +159,6 @@ $tpl->assign("elemArr", $elemArr);
 $tpl->assign('msg', array(
     "addL" => "main.php?p=" . $p . "&o=a",
     "addT" => _("Add"),
-    "testT" => _("Check User View"),
-    "testL" => "main.php?p=" . $p . "&o=t&min=1",
     "delConfirm" => _("Do you confirm the deletion ?")
 ));
 

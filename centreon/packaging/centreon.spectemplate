@@ -1,8 +1,8 @@
 %define name centreon
 %define version %{PACKAGE_VERSION}
 %define release %{PACKAGE_RELEASE}%{?dist}
-%define thismajor 23.04.0
-%define nextmajor 23.05.0
+%define thismajor 23.10.0
+%define nextmajor 23.11.0
 
 #%define selinuxdevel %{_datadir}/selinux/devel
 
@@ -42,6 +42,8 @@ Requires(post): sudo
 BuildRequires:  systemd
 
 %description
+%{COMMIT_HASH}
+UI to export/import centreon configuration.
 Centreon is a network, system, applicative supervision and monitoring tool,
 it is based upon the most effective Open Source monitoring engine : Nagios.
 Centreon provides a new frontend and new functionnalities to Nagios.
@@ -64,8 +66,11 @@ Requires(pre):  /usr/sbin/groupadd
 Requires(pre):  /usr/sbin/useradd
 Requires(post): /usr/sbin/groupdel
 Requires(post): /usr/sbin/userdel
+Requires:       centreon-broker >= %{thismajor}, centreon-broker < %{nextmajor}
+Requires:       centreon-engine-daemon >= %{thismajor}, centreon-engine-daemon < %{nextmajor}
 
 %description common
+%{COMMIT_HASH}
 Add user and group for Centreon and this suite.
 
 %package web
@@ -77,6 +82,7 @@ BuildRequires: systemd
 Requires:   centreon-common = %{version}-%{release}
 Requires:   centreon-perl-libs = %{version}-%{release}
 Requires:   centreon-poller = %{version}-%{release}
+Requires:   centreon-broker-cbd >= %{thismajor}, centreon-broker-cbd < %{nextmajor}
 Requires:   bc
 Requires:   cronie
 Requires:   initscripts
@@ -87,7 +93,7 @@ Requires:   mysql
 Requires:   httpd
 Requires:   mariadb
 %endif
-Requires:   php-common >= 8.0
+Requires:   php-common >= 8.1
 Requires:   php-cli
 Requires:   php-pdo
 Requires:   php-mysqlnd
@@ -102,8 +108,6 @@ Requires:   php-curl
 Requires:   php-zip
 Requires:   php-pear
 Requires:   php-json
-Requires:   php-pecl-protobuf
-Requires:   php-pecl-grpc
 Requires:   openssl
 Requires:   perl-DBD-MySQL
 Requires:   perl-DBI
@@ -132,6 +136,7 @@ Conflicts:  centreon-poller-display-central
 Conflicts:  centreon-pp-manager < %{thismajor}
 
 %description web
+%{COMMIT_HASH}
 This package contains WebUI files.
 
 %package database
@@ -145,6 +150,7 @@ Requires:   mariadb-server
 %endif
 
 %description database
+%{COMMIT_HASH}
 Install a database server optimized for use with Centreon.
 
 %package perl-libs
@@ -159,6 +165,7 @@ Provides:   perl-centreon-base
 AutoReqProv: no
 
 %description perl-libs
+%{COMMIT_HASH}
 This packages contains Centreon Perl libraries.
 
 %package trap
@@ -174,6 +181,7 @@ Obsoletes:  centreon-trap-poller
 Obsoletes:  centreon-trap-central
 
 %description trap
+%{COMMIT_HASH}
 This package contains Centreon Trap engine
 
 %package central
@@ -208,6 +216,7 @@ Obsoletes:  centreon-base-config-centreon-engine
 Provides:   /etc/centreon/conf.pm
 
 %description central
+%{COMMIT_HASH}
 The package contains base configuration for Centreon Engine and Centreon Broker.
 It provides one default monitoring engine running with Centreon Engine and
 two Centreon Broker instances to store real-time information in database and
@@ -220,9 +229,7 @@ License:    Apache-2.0
 Requires:   centreon-common = %{version}-%{release}
 Requires:   centreon-trap = %{version}-%{release}
 Requires:   centreon-engine >= %{thismajor}, centreon-engine < %{nextmajor}
-Requires:   centreon-broker >= %{thismajor}, centreon-broker < %{nextmajor}
 Requires:   centreon-broker-cbmod >= %{thismajor}, centreon-broker-cbmod < %{nextmajor}
-Requires:   centreon-broker-storage >= %{thismajor}, centreon-broker-storage < %{nextmajor}
 Requires:   centreon-connector >= %{thismajor}, centreon-connector < %{nextmajor}
 Requires:   centreon-gorgone-centreon-config >= %{thismajor}, centreon-gorgone-centreon-config < %{nextmajor}
 Requires:   perl-DBD-MySQL
@@ -251,8 +258,20 @@ Provides:   centreon-poller-centreon-engine
 Obsoletes:  centreon-poller-centreon-engine
 
 %description poller
+%{COMMIT_HASH}
 This package add rights and default directories for a poller
 managed by Centreon. This includes the default central poller.
+
+%package plugins-sudoers
+Summary:    Sudoers configuration for centreon plugins
+Group:      Applications/System
+License:    Apache-2.0
+Provides:   centreon-cwrapper-perl
+Obsoletes:  centreon-cwrapper-perl
+
+%description plugins-sudoers
+%{COMMIT_HASH}
+Sudoers configuration for centreon plugins
 
 %prep
 %setup -q %{SOURCE0}
@@ -414,7 +433,7 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 %{__install} -d -m 0775 %buildroot%{_localstatedir}/lib/centreon/centcore
 %{__install} -d -m 0775 %buildroot%{_localstatedir}/lib/centreon/perfdata
 
-%{__install} -d -m 0775 %buildroot%{_localstatedir}/log/centreon
+%{__install} -d -m 0774 %buildroot%{_localstatedir}/log/centreon
 %{__install} -d -m 0750 %buildroot%{_localstatedir}/run/centreon
 %{__install} -d -m 0750 %buildroot%{_localstatedir}/cache/centreon/backup
 
@@ -432,6 +451,7 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 # Sudoers files
 %{__install} -d %buildroot%{_sysconfdir}/sudoers.d/
 %{__cp} centreon/tmpl/install/sudoersCentreonEngine %buildroot%{_sysconfdir}/sudoers.d/centreon
+%{__cp} centreon/packaging/src/sudoersCentreonPlugins %buildroot%{_sysconfdir}/sudoers.d/centreon-plugins
 
 # MySQL/MariaDB custom configuration
 %{__install} -d %buildroot%{_sysconfdir}/my.cnf.d/
@@ -477,6 +497,14 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 %{_bindir}/rm -rf %{_localstatedir}/cache/centreon/config/broker %{_localstatedir}/cache/centreon/config/engine %{_localstatedir}/cache/centreon/config/export 2> /dev/null
 %{_bindir}/getent group centreon &>/dev/null || %{_sbindir}/groupadd -r centreon
 %{_bindir}/getent passwd centreon &>/dev/null || %{_sbindir}/useradd -g centreon -m -d %{_localstatedir}/spool/centreon -r centreon 2> /dev/null
+if [ "$(getent passwd centreon-broker)" ]; then
+  %{_sbindir}/usermod -a -G centreon-broker centreon
+  %{_sbindir}/usermod -a -G centreon centreon-broker
+fi
+if [ "$(getent passwd centreon-engine)" ]; then
+  %{_sbindir}/usermod -a -G centreon-engine centreon
+  %{_sbindir}/usermod -a -G centreon centreon-engine
+fi
 
 %post common
 #%selinux_modules_install %{_datadir}/selinux/packages/centreon/centreon_common.pp 2>/dev/null || :
@@ -493,6 +521,10 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 if [ "$1" = 0 ]; then
     %{_sbindir}/userdel -r centreon 2> /dev/null
     %{_sbindir}/groupdel centreon
+    %{_bindir}/gpasswd --delete centreon centreon-broker > /dev/null 2>&1 || :
+    %{_bindir}/gpasswd --delete centreon-broker centreon > /dev/null 2>&1 || :
+    %{_bindir}/gpasswd --delete centreon centreon-engine > /dev/null 2>&1 || :
+    %{_bindir}/gpasswd --delete centreon-engine centreon > /dev/null 2>&1 || :
 fi
 
 ######################################################
@@ -643,7 +675,13 @@ systemctl try-restart php-fpm || :
 
 # rebuild symfony cache on upgrade
 if [ -f %{_sysconfdir}/centreon/centreon.conf.php ] ; then
-  su - apache -s /bin/bash -c "%{_datadir}/centreon/bin/console cache:clear --no-warmup"
+  rm -rf /var/cache/centreon/symfony
+  su - apache -s /bin/bash -c "%{_datadir}/centreon/bin/console cache:clear"
+fi
+
+# make sure that gorgone configuration file has the central id set
+if [[ ! "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*id:.*$ ]]; then
+    sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 fi
 
 #%preun web
@@ -746,10 +784,12 @@ fi
 %{_datadir}/centreon/bin/registerServerTopology.sh
 %{_datadir}/centreon/bin/registerServerTopologyTemplate
 
+%defattr(-, centreon, centreon, 0774)
+%dir %{_localstatedir}/log/centreon
+
 %defattr(-, centreon, centreon, 0775)
 %dir %{_localstatedir}/lib/centreon
 %dir %{_localstatedir}/lib/centreon/centplugins
-%dir %{_localstatedir}/log/centreon
 %dir %{_localstatedir}/run/centreon
 
 %attr(0600,root, root) %{_sysconfdir}/sudoers.d/centreon
@@ -783,5 +823,14 @@ view centreon included .1.3.6.1" \
 access notConfigGroup \"\" any noauth exact centreon none none" \
                 /etc/snmp/snmpd.conf
 fi
+
+######################################################
+# Package centreon-plugins-sudoers
+######################################################
+
+%files plugins-sudoers
+
+%defattr(-,root,root,-)
+%attr(0600,root, root) %{_sysconfdir}/sudoers.d/centreon-plugins
 
 %changelog

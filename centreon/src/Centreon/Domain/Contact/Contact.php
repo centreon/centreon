@@ -34,7 +34,9 @@ class Contact implements UserInterface, ContactInterface
 
     // user action roles
     public const ROLE_HOST_CHECK = 'ROLE_HOST_CHECK';
+    public const ROLE_HOST_FORCED_CHECK = 'ROLE_HOST_FORCED_CHECK';
     public const ROLE_SERVICE_CHECK = 'ROLE_SERVICE_CHECK';
+    public const ROLE_SERVICE_FORCED_CHECK = 'ROLE_SERVICE_FORCED_CHECK';
     public const ROLE_HOST_ACKNOWLEDGEMENT = 'ROLE_HOST_ACKNOWLEDGEMENT';
     public const ROLE_HOST_DISACKNOWLEDGEMENT = 'ROLE_HOST_DISACKNOWLEDGEMENT';
     public const ROLE_SERVICE_ACKNOWLEDGEMENT = 'ROLE_SERVICE_ACKNOWLEDGEMENT';
@@ -51,6 +53,9 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_GENERATE_CONFIGURATION = 'ROLE_GENERATE_CONFIGURATION';
 
     // user pages access
+    public const ROLE_HOME_DASHBOARD_VIEWER = 'ROLE_HOME_DASHBOARD_VIEWER_RW';
+    public const ROLE_HOME_DASHBOARD_CREATOR = 'ROLE_HOME_DASHBOARD_CREATOR_RW';
+    public const ROLE_HOME_DASHBOARD_ADMIN = 'ROLE_HOME_DASHBOARD_ADMINISTRATOR_RW';
     public const ROLE_CONFIGURATION_HOSTS_WRITE = 'ROLE_CONFIGURATION_HOSTS_HOSTS_RW';
     public const ROLE_CONFIGURATION_HOSTS_READ = 'ROLE_CONFIGURATION_HOSTS_HOSTS_R';
     public const ROLE_CONFIGURATION_SERVICES_WRITE = 'ROLE_CONFIGURATION_SERVICES_SERVICES_BY_HOST_RW';
@@ -78,6 +83,22 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ_WRITE = 'ROLE_CONFIGURATION_SERVICES_CATEGORIES_RW';
     public const ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ = 'ROLE_CONFIGURATION_SERVICES_CATEGORIES_R';
     public const ROLE_ADMINISTRATION_AUTHENTICATION_READ_WRITE = 'ROLE_ADMINISTRATION_AUTHENTICATION_RW';
+    public const ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE = 'ROLE_CONFIGURATION_NOTIFICATIONS_RW';
+    public const ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE = 'ROLE_CONFIGURATION_HOSTS_TEMPLATES_RW';
+    public const ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ = 'ROLE_CONFIGURATION_HOSTS_TEMPLATES_R';
+    public const ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE = 'ROLE_CONFIGURATION_SERVICES_TEMPLATES_RW';
+    public const ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ = 'ROLE_CONFIGURATION_SERVICES_TEMPLATES_R';
+
+    public const ROLE_CONFIGURATION_COMMANDS_CHECKS_R = 'ROLE_CONFIGURATION_COMMANDS_CHECKS_R';
+    public const ROLE_CONFIGURATION_COMMANDS_CHECKS_RW = 'ROLE_CONFIGURATION_COMMANDS_CHECKS_RW';
+    public const ROLE_CONFIGURATION_COMMANDS_NOTIFICATIONS_R = 'ROLE_CONFIGURATION_COMMANDS_NOTIFICATIONS_R';
+    public const ROLE_CONFIGURATION_COMMANDS_NOTIFICATIONS_RW = 'ROLE_CONFIGURATION_COMMANDS_NOTIFICATIONS_RW';
+    public const ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_R = 'ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_R';
+    public const ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_RW = 'ROLE_CONFIGURATION_COMMANDS_MISCELLANEOUS_RW';
+
+    public const ROLE_CONFIGURATION_COMMANDS_DISCOVERY_R = 'ROLE_CONFIGURATION_COMMANDS_DISCOVERY_R';
+    public const ROLE_CONFIGURATION_COMMANDS_DISCOVERY_RW = 'ROLE_CONFIGURATION_COMMANDS_DISCOVERY_RW';
+
 
     /**
      * @var string
@@ -195,6 +216,9 @@ class Contact implements UserInterface, ContactInterface
      * @var string|null
      */
     private $theme;
+
+    /** @var string|null */
+    private $userInterfaceDensity;
 
     /**
      * @param int $timezoneId
@@ -723,5 +747,25 @@ class Contact implements UserInterface, ContactInterface
     public function getTheme(): ?string
     {
         return $this->theme;
+    }
+
+    /**
+     * @param string|null $userInterfaceDensity
+     *
+     * @return $this
+     */
+    public function setUserInterfaceDensity(?string $userInterfaceDensity): self
+    {
+        $this->userInterfaceDensity = $userInterfaceDensity;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUserInterfaceDensity(): ?string
+    {
+        return $this->userInterfaceDensity;
     }
 }

@@ -21,6 +21,9 @@
         {/if}
         {/foreach}
         </select>
+        <script>
+            jQuery('#select_{$groupId}').select2()
+        </script>
     {/if}
     </td>
 </tr>

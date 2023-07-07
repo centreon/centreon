@@ -31,6 +31,7 @@ jobs:
 
   package:
     needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
       fail-fast: true
@@ -56,15 +57,37 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       minor_version: ${{ needs.get-version.outputs.minor_version }}
       release: ${{ needs.get-version.outputs.release }}
+      commit_hash: ${{ github.sha }}
       cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
+  deliver-sources:
+    runs-on: [self-hosted, common]
+    needs: [get-version, package]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Deliver sources
+        uses: ./.github/actions/release-sources
+        with:
+          bucket_directory: centreon-ha
+          module_directory: centreon-ha
+          module_name: centreon-ha
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
+
   delivery-rpm:
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [el8, el9]
@@ -76,20 +99,19 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
+          module_name: ha
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
-          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
-          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
-          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
           stability: ${{ needs.get-version.outputs.stability }}
 
   delivery-deb:
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
+    environment: ${{ needs.get-version.outputs.environment }}
+
     strategy:
       matrix:
         distrib: [bullseye]
@@ -100,10 +122,31 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
+          module_name: ha
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
-          nexus_username: ${{ secrets.NEXUS_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  promote:
+    needs: [get-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el8, el9, bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Promote ${{ matrix.distrib }} to stable
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module: ha
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}

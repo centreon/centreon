@@ -43,10 +43,14 @@ class NewHostCategory
         protected string $name,
         protected string $alias
     ) {
-        Assertion::maxLength($name, self::MAX_NAME_LENGTH, (new \ReflectionClass($this))->getShortName() . '::name');
-        Assertion::notEmpty($name, (new \ReflectionClass($this))->getShortName() . '::name');
-        Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, (new \ReflectionClass($this))->getShortName() . '::alias');
-        Assertion::notEmpty($alias, (new \ReflectionClass($this))->getShortName() . '::alias');
+        $this->name = trim($name);
+        $this->alias = trim($alias);
+
+        $shortName = (new \ReflectionClass($this))->getShortName();
+        Assertion::maxLength($name, self::MAX_NAME_LENGTH, $shortName . '::name');
+        Assertion::notEmptyString($name, $shortName . '::name');
+        Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, $shortName . '::alias');
+        Assertion::notEmptyString($alias, $shortName . '::alias');
     }
 
     /**
@@ -95,6 +99,7 @@ class NewHostCategory
     public function setComment(?string $comment): void
     {
         if ($comment !== null) {
+            $comment = trim($comment);
             Assertion::maxLength(
                 $comment,
                 self::MAX_COMMENT_LENGTH,

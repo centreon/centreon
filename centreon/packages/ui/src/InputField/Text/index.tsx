@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useCallback } from 'react';
 
 import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
@@ -12,7 +12,7 @@ import {
   Typography
 } from '@mui/material';
 
-import getNormalizedId from '../../utils/getNormalizedId';
+import { getNormalizedId } from '../../utils';
 
 import useAutoSize from './useAutoSize';
 
@@ -79,10 +79,12 @@ export type Props = {
   autoSizeDefaultWidth?: number;
   className?: string;
   dataTestId: string;
+  debounced?: boolean;
   displayErrorInTooltip?: boolean;
   error?: string;
   externalValueForAutoSize?: string;
   open?: boolean;
+  required?: boolean;
   size?: SizeVariant;
   transparent?: boolean;
   value?: string;
@@ -102,10 +104,12 @@ const TextField = forwardRef(
       displayErrorInTooltip = false,
       className,
       autoSize = false,
+      debounced = false,
       autoSizeDefaultWidth = 0,
       externalValueForAutoSize,
       autoSizeCustomPadding,
       defaultValue,
+      required = false,
       ...rest
     }: Props,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -123,7 +127,17 @@ const TextField = forwardRef(
 
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
 
-    const valueProps = defaultValue ? { defaultValue } : { value: innerValue };
+    const getValueProps = useCallback((): object => {
+      if (debounced) {
+        return {};
+      }
+
+      if (defaultValue) {
+        return { defaultValue };
+      }
+
+      return { value: innerValue };
+    }, [innerValue, debounced, defaultValue]);
 
     return (
       <>
@@ -142,7 +156,7 @@ const TextField = forwardRef(
             ref={ref}
             size={size || 'small'}
             onChange={changeInputValue}
-            {...valueProps}
+            {...getValueProps()}
             {...rest}
             InputProps={{
               className: cx(
@@ -170,6 +184,7 @@ const TextField = forwardRef(
               ...rest.InputProps
             }}
             className={classes.textField}
+            required={required}
             sx={{
               width: autoSize ? width : undefined,
               ...rest?.sx

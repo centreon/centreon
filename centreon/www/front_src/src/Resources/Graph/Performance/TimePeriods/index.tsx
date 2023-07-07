@@ -1,12 +1,12 @@
-import { useTranslation } from 'react-i18next';
-import { always, cond, lt, lte, map, not, pick, T } from 'ramda';
 import { Responsive } from '@visx/visx';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { always, cond, lt, lte, map, not, pick, T } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Paper, ButtonGroup, Button, useTheme, Tooltip } from '@mui/material';
+import { Button, ButtonGroup, Paper, Tooltip, useTheme } from '@mui/material';
 
-import { useMemoComponent } from '@centreon/ui';
+import { useDebounce, useMemoComponent } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { timePeriods } from '../../../Details/tabs/Graph/models';
@@ -40,7 +40,7 @@ const useStyles = makeStyles<StylesProps>()((theme, { disablePaper }) => ({
     boxShadow: disablePaper ? 'unset' : 'undefined',
     columnGap: theme.spacing(2),
     display: 'grid',
-    gridTemplateColumns: `repeat(3, auto)`,
+    gridTemplateColumns: `repeat(4, auto)`,
     gridTemplateRows: '1fr',
     justifyContent: 'center',
     padding: theme.spacing(1, 0.5)
@@ -63,15 +63,18 @@ const TimePeriodButtonGroup = ({
   const { classes } = useStyles({ disablePaper });
   const { t } = useTranslation();
   const theme = useTheme();
+  const debouncedChangeDate = useDebounce({
+    functionToDebounce: ({ property, date }): void =>
+      changeCustomTimePeriod({ date, property }),
+    wait: 500
+  });
 
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const { themeMode } = useAtomValue(userAtom);
 
-  const changeCustomTimePeriod = useUpdateAtom(
-    changeCustomTimePeriodDerivedAtom
-  );
-  const changeSelectedTimePeriod = useUpdateAtom(
+  const changeCustomTimePeriod = useSetAtom(changeCustomTimePeriodDerivedAtom);
+  const changeSelectedTimePeriod = useSetAtom(
     changeSelectedTimePeriodDerivedAtom
   );
 
@@ -80,9 +83,6 @@ const TimePeriodButtonGroup = ({
     largeName: t(timePeriod.largeName),
     name: t(timePeriod.name)
   }));
-
-  const changeDate = ({ property, date }): void =>
-    changeCustomTimePeriod({ date, property });
 
   return useMemoComponent({
     Component: (
@@ -113,7 +113,7 @@ const TimePeriodButtonGroup = ({
                         }
                         onClick={(): void => changeSelectedTimePeriod(id)}
                       >
-                        {cond([
+                        {cond<number, string>([
                           [lte(theme.breakpoints.values.md), always(largeName)],
                           [T, always(name)]
                         ])(width)}
@@ -124,7 +124,7 @@ const TimePeriodButtonGroup = ({
                 )}
               </ButtonGroup>
               <CustomTimePeriodPickers
-                acceptDate={changeDate}
+                acceptDate={debouncedChangeDate}
                 customTimePeriod={customTimePeriod}
                 isCompact={isCompact}
               />

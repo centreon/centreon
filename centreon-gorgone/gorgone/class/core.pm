@@ -620,7 +620,6 @@ sub broadcast_run {
             action => $options{action},
             logger => $self->{logger},
             frame => $options{frame},
-            data => $options{data},
             token => $options{token}
         );
     }
@@ -805,7 +804,7 @@ sub check_external_rotate_keys {
         }
         next if ($self->{identity_infos}->{$id}->{ctime} > ($time - $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_rotation}));
 
-        $self->{logger}->writeLogDebug('[core] rotate external key for ' . $id);
+        $self->{logger}->writeLogDebug('[core] rotate external key for ' . pack('H*', $id));
 
         ($rv, $key) = gorgone::standard::library::generate_symkey(
             keysize => $self->{config}->{configuration}->{gorgone}->{gorgonecore}->{external_com_keysize}
@@ -963,6 +962,7 @@ sub handshake {
 
         my $message = $options{frame}->getFrame();
         if ($rv == 0 && $$message =~ /^(?:[\[a-zA-Z-_]+?\]\s+\[.*?\]|[\[a-zA-Z-_]+?\]\s*$)/) {
+            $self->{identity_infos}->{ $options{identity} }->{mtime} = time();
             gorgone::standard::library::update_identity_mtime(dbh => $self->{db_gorgone}, identity => $options{identity});
             return (0, $cipher_infos);
         }
@@ -1218,6 +1218,10 @@ sub check_exit_modules {
 sub periodic_exec {
     $gorgone->check_exit_modules();
     $gorgone->{listener}->check();
+    $gorgone->router_internal_event();
+    if (defined($gorgone->{external_socket})) {
+        $gorgone->router_external_event();
+    }
 }
 
 sub run {

@@ -39,8 +39,11 @@ class NewUser
                  MAX_EMAIL_LENGTH = 255,
                  MIN_THEME_LENGTH = 1,
                  MAX_THEME_LENGTH = 100,
+                 MAX_USER_INTERFACE_DENSITY_LENGTH = 100,
                  THEME_LIGHT = 'light',
-                 THEME_DARK = 'dark';
+                 THEME_DARK = 'dark',
+                 USER_INTERFACE_DENSITY_EXTENDED = 'extended',
+                 USER_INTERFACE_DENSITY_COMPACT = 'compact';
 
     /**
      * @var bool
@@ -61,6 +64,8 @@ class NewUser
      * @var ContactTemplate|null
      */
     protected ?ContactTemplate $contactTemplate = null;
+
+    protected string $userInterfaceDensity = self::USER_INTERFACE_DENSITY_COMPACT;
 
     /**
      * @param string $alias
@@ -215,6 +220,46 @@ class NewUser
     public function setActivate(bool $isActivate): self
     {
         $this->isActivate = $isActivate;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserInterfaceDensity(): string
+    {
+        return $this->userInterfaceDensity;
+    }
+
+    /**
+     * @param string $userInterfaceDensity
+     *
+     * @return self
+     * @throws \Assert\AssertionFailedException
+     * @throws \InvalidArgumentException
+     */
+    public function setUserInterfaceDensity(string $userInterfaceDensity): self
+    {
+        Assertion::notEmptyString(
+            $userInterfaceDensity,
+            'User::userInterfaceViewMode'
+        );
+
+        Assertion::maxLength(
+            $userInterfaceDensity,
+            self::MAX_USER_INTERFACE_DENSITY_LENGTH,
+            'User::userInterfaceViewMode'
+        );
+        
+        if (
+            $userInterfaceDensity !== self::USER_INTERFACE_DENSITY_EXTENDED
+            && $userInterfaceDensity !== self::USER_INTERFACE_DENSITY_COMPACT
+        ) {
+            throw new \InvalidArgumentException('User interface view mode provided not handled');
+        }
+
+        $this->userInterfaceDensity = $userInterfaceDensity;
 
         return $this;
     }

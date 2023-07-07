@@ -293,6 +293,8 @@ sub getApacheDirectory() {
         return '/opt/rh/httpd24/root/etc/httpd/conf.d';
     } elsif ( -d '/etc/httpd/conf.d' ) {
         return '/etc/httpd/conf.d';
+    } elsif ( -d '/etc/apache2/sites-available' ) {
+        return '/etc/apache2/sites-available';
     } else {
         print STDERR "Unable to get Apache conf directory\n";
     }
@@ -302,9 +304,9 @@ sub getMySQLConfFile() {
     if (defined($MYSQL_CONF)) {
         if ( -e $MYSQL_CONF) {
             return $MYSQL_CONF;
-        }
-    } elsif ( -e '/etc/my.cnf' ) {
-        return '/etc/my.cnf';
+        } elsif ( -e '/etc/my.cnf' ) {
+            return '/etc/my.cnf';
+        }    
     } else {
         print STDERR "Unable to get Mysql configuration\n";
     }
@@ -404,7 +406,7 @@ sub databasesBackup() {
         if ($BACKUP_DATABASE_CENTREON_STORAGE == '1') {
 
             # Check if process already exist
-            my $process_number = `ps aux | grep -v grep |grep "centstorage" | wc -l | bc`;
+            my $process_number = `ps aux | grep -v grep |grep "centstorage" | wc -l`;
 
             if ($process_number == 0) {
                 $file = $TEMP_DB_DIR . "/" . $today . "-centreon_storage.sql.gz";
@@ -450,7 +452,7 @@ sub databasesBackup() {
 
     # Delete temporary directories
     chdir;
-    rmtree($TEMP_DB_DIR, { mode => 0755, error => \my $err_list });
+    rmtree($TEMP_DB_DIR, { error => \my $err_list, safe => 1 });
     if (@$err_list) {
         for my $diag (@$err_list) {
             my ($file, $message) = %$diag;
@@ -568,9 +570,13 @@ sub centralBackup() {
         }
     }
     $MYSQL_CONF = getMySQLConfFile();
-    `cp -pr $MYSQL_CONF $TEMP_CENTRAL_ETC_DIR/mysql/`;
-    if ($? ne 0) {
-        print STDERR "Unable to copy MySQL configuration file\n";
+    if ( -e $MYSQL_CONF) {
+        `cp -pr $MYSQL_CONF $TEMP_CENTRAL_ETC_DIR/mysql/`;
+        if ($? ne 0) {
+            print STDERR "Unable to copy MySQL configuration file\n";
+        }
+    } else {
+        print "The MySQL configuration file doesn't exist on this server so we will not backup it\n";
     }
 
     # PHP.ini
@@ -705,7 +711,7 @@ sub centralBackup() {
 
     # Remove all temp directory
     chdir;
-    rmtree($TEMP_CENTRAL_DIR, { mode => 0755, error => \my $err_list });
+    rmtree($TEMP_CENTRAL_DIR, { error => \my $err_list, safe => 1 });
     if (@$err_list) {
         for my $diag (@$err_list) {
             my ($file, $message) = %$diag;
@@ -763,7 +769,7 @@ sub monitoringengineBackup() {
         }
     }
     my $plugins_dir = "/usr/lib64/nagios/plugins";
-    if ($plugins_dir ne "") {
+    if (-d $plugins_dir) {
         `cp -pr $plugins_dir/* $TEMP_CENTRAL_DIR/plugins/`;
         if ($? != 0) {
             print STDERR "Unable to copy plugins\n";
@@ -798,9 +804,11 @@ sub monitoringengineBackup() {
             }
         }
     }
-    `cp -p $logs_archive_directory/* $TEMP_CENTRAL_DIR/logs/archives/`;
-    if ($? != 0) {
-        print STDERR "Unable to copy monitoring engine logs archives\n";
+    if (-d $logs_archive_directory) {
+        `cp -p $logs_archive_directory/* $TEMP_CENTRAL_DIR/logs/archives/`;
+        if ($? != 0) {
+            print STDERR "Unable to copy monitoring engine logs archives\n";
+        }
     }
 
     #################
@@ -892,7 +900,7 @@ sub monitoringengineBackup() {
 
     # Remove all temp directory
     chdir;
-    rmtree($TEMP_DIR, {mode => 0755, error => \my $err_list});
+    rmtree($TEMP_DIR, { error => \my $err_list, safe => 1 });
     if (@$err_list) {
         for my $diag (@$err_list) {
             my ($file, $message) = %$diag;

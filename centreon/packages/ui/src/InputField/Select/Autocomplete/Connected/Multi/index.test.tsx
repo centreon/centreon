@@ -6,31 +6,12 @@ import {
   RenderResult,
   resetMocks,
   waitFor
-} from '../../../../../testRenderer';
-import { buildListingEndpoint } from '../../../../..';
+} from '../../../../../../test/testRenderer';
 import TestQueryProvider from '../../../../../api/TestQueryProvider';
 
+import { baseEndpoint, getEndpoint, label, optionsData } from './utils';
+
 import MultiConnectedAutocompleteField from '.';
-
-const baseEndpoint = 'endpoint';
-
-const getEndpoint = (parameters): string => {
-  return buildListingEndpoint({ baseEndpoint, parameters });
-};
-
-const label = 'Multi Connected Autocomplete';
-
-const optionsData = {
-  meta: {
-    limit: 2,
-    page: 1,
-    total: 20
-  },
-  result: [
-    { id: 0, name: 'My Option 1' },
-    { id: 1, name: 'My Option 2' }
-  ]
-};
 
 const renderMultiAutocompleteField = (): RenderResult =>
   render(

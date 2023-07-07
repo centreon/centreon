@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     try {
         $authenticateApiUseCase->execute($request, $response);
     } catch (AuthenticationException $ex) {
-        CentreonWebService::sendResult('Invalid credentials', 401);
+        CentreonWebService::sendResult('Authentication failed', 401);
     }
     $userAccessesStatement = $pearDB->prepare(
         "SELECT contact_admin, reach_api, reach_api_rt FROM contact WHERE contact_alias = :alias"

@@ -1,28 +1,32 @@
-import { useState } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 import { isNil } from 'ramda';
 
-import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import {
+  LocalizationProvider,
+  DesktopDateTimePicker
+} from '@mui/x-date-pickers';
 import {
   Checkbox,
   FormControlLabel,
   FormHelperText,
   Alert,
-  TextFieldProps,
   Stack
 } from '@mui/material';
 import { Box } from '@mui/system';
 
-import { Dialog, TextField, SelectField } from '@centreon/ui';
+import {
+  Dialog,
+  TextField,
+  SelectField,
+  useDateTimePickerAdapter
+} from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import {
   labelCancel,
-  labelEndTime,
   labelComment,
   labelDowntime,
   labelDuration,
@@ -33,11 +37,12 @@ import {
   labelSetDowntime,
   labelSetDowntimeOnServices,
   labelTo,
-  labelStartTime
+  labelUnit,
+  labelStartTime,
+  labelEndTime
 } from '../../../translatedLabels';
 import { Resource } from '../../../models';
 import useAclQuery from '../aclQuery';
-import useDateTimePickerAdapter from '../../../useDateTimePickerAdapter';
 
 import { DowntimeFormValues } from '.';
 
@@ -55,25 +60,6 @@ interface Props extends Pick<FormikHandlers, 'handleChange'> {
   values: FormikValues;
 }
 
-const renderDateTimePickerEndAdornment = (InputProps) => (): JSX.Element =>
-  <div>{InputProps?.endAdornment}</div>;
-
-const renderDateTimePickerTextField =
-  (ariaLabel: string) =>
-  ({ inputRef, inputProps, InputProps }: TextFieldProps): JSX.Element => {
-    return (
-      <TextField
-        EndAdornment={renderDateTimePickerEndAdornment(InputProps)}
-        inputProps={{
-          ...inputProps,
-          'aria-label': ariaLabel,
-          ref: inputRef,
-          style: { padding: 8 }
-        }}
-      />
-    );
-  };
-
 const DialogDowntime = ({
   resources,
   canConfirm,
@@ -88,15 +74,10 @@ const DialogDowntime = ({
   const { t } = useTranslation();
 
   const { getDowntimeDeniedTypeAlert, canDowntimeServices } = useAclQuery();
-  const [isPickerOpened, setIsPickerOpened] = useState(false);
 
   const { locale } = useAtomValue(userAtom);
 
-  const {
-    Adapter,
-    getDestinationAndConfiguredTimezoneOffset,
-    formatKeyboardValue
-  } = useDateTimePickerAdapter();
+  const { Adapter } = useDateTimePickerAdapter();
 
   const open = resources.length > 0;
 
@@ -112,16 +93,8 @@ const DialogDowntime = ({
 
   const changeTime =
     (field) =>
-    (newValue: dayjs.Dayjs | null, keyBoardValue: string | undefined): void => {
-      const value = isPickerOpened
-        ? dayjs(newValue).toDate()
-        : dayjs(formatKeyboardValue(keyBoardValue))
-            .add(
-              dayjs.duration({
-                hours: getDestinationAndConfiguredTimezoneOffset()
-              })
-            )
-            .toDate();
+    (newValue: dayjs.Dayjs | null): void => {
+      const value = dayjs(newValue).toDate();
 
       changeDate(field)(value);
     };
@@ -139,8 +112,8 @@ const DialogDowntime = ({
       onConfirm={onConfirm}
     >
       <LocalizationProvider
+        adapterLocale={locale.substring(0, 2)}
         dateAdapter={Adapter}
-        locale={locale.substring(0, 2)}
       >
         {deniedTypeAlert && <Alert severity="warning">{deniedTypeAlert}</Alert>}
         <Stack spacing={2}>
@@ -150,23 +123,25 @@ const DialogDowntime = ({
             gap={1}
             gridTemplateColumns="1fr auto 1fr"
           >
-            <DateTimePicker<dayjs.Dayjs>
-              disableMaskedInput
+            <DesktopDateTimePicker<dayjs.Dayjs>
               maxDate={dayjs(maxEndDate)}
-              renderInput={renderDateTimePickerTextField(t(labelStartTime))}
-              value={values.startTime}
+              slotProps={{
+                textField: {
+                  'aria-label': t(labelStartTime) as string
+                }
+              }}
+              value={dayjs(values.startTime)}
               onChange={changeTime('startTime')}
-              onClose={(): void => setIsPickerOpened(false)}
-              onOpen={(): void => setIsPickerOpened(true)}
             />
             <FormHelperText>{t(labelTo)}</FormHelperText>
-            <DateTimePicker<dayjs.Dayjs>
-              disableMaskedInput
-              renderInput={renderDateTimePickerTextField(t(labelEndTime))}
-              value={values.endTime}
+            <DesktopDateTimePicker<dayjs.Dayjs>
+              slotProps={{
+                textField: {
+                  'aria-label': t(labelEndTime) as string
+                }
+              }}
+              value={dayjs(values.endTime)}
               onChange={changeTime('endTime')}
-              onClose={(): void => setIsPickerOpened(false)}
-              onOpen={(): void => setIsPickerOpened(true)}
             />
             {isNil(errors?.startTime) ? (
               <div />
@@ -188,7 +163,8 @@ const DialogDowntime = ({
 
             <Stack alignItems="center" direction="row" spacing={1}>
               <TextField
-                ariaLabel={t(labelDuration)}
+                ariaLabel={t(labelDuration) as string}
+                dataTestId={labelDuration}
                 disabled={values.fixed}
                 error={errors?.duration?.value}
                 type="number"
@@ -196,6 +172,7 @@ const DialogDowntime = ({
                 onChange={handleChange('duration.value')}
               />
               <SelectField
+                dataTestId={labelUnit}
                 disabled={values.fixed}
                 options={[
                   {
@@ -219,7 +196,7 @@ const DialogDowntime = ({
                   <Checkbox
                     checked={values.fixed}
                     color="primary"
-                    inputProps={{ 'aria-label': t(labelFixed) }}
+                    inputProps={{ 'aria-label': t(labelFixed) as string }}
                     size="small"
                     onChange={handleChange('fixed')}
                   />
@@ -231,6 +208,7 @@ const DialogDowntime = ({
           <TextField
             fullWidth
             multiline
+            dataTestId={labelComment}
             error={errors?.comment}
             label={t(labelComment)}
             rows={3}

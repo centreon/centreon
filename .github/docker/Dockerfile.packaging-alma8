@@ -1,8 +1,15 @@
-FROM docker.centreon.com/proxy/almalinux:8
+FROM almalinux:8
 
-RUN <<EOF
+RUN bash -e <<EOF
 
-dnf install -y rpm-build rpm-sign zstd perl-devel
+echo '[goreleaser]
+name=GoReleaser
+baseurl=https://repo.goreleaser.com/yum/
+enabled=1
+gpgcheck=0' | tee /etc/yum.repos.d/goreleaser.repo
+
+dnf install -y rpm-build rpm-sign zstd perl-devel nfpm
+
 dnf clean all
 
 EOF

@@ -81,4 +81,95 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
 
         return (int) $this->db->lastInsertId();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function linkToService(int $serviceId, array $serviceCategoriesIds): void
+    {
+        if ($serviceCategoriesIds === []) {
+            return;
+        }
+
+        $request = <<<'SQL'
+            INSERT INTO service_categories_relation
+                (service_service_id, sc_id)
+                VALUES (:service_id, :service_category_id)
+            SQL;
+
+        $alreadyInTransaction = $this->db->inTransaction();
+
+        try {
+            if (! $alreadyInTransaction) {
+                $this->db->beginTransaction();
+            }
+            $statement = $this->db->prepare($request);
+
+            $serviceCategoriesId = null;
+            $statement->bindParam(':service_id', $serviceId, \PDO::PARAM_INT);
+            $statement->bindParam(':service_category_id', $serviceCategoriesId, \PDO::PARAM_INT);
+
+            foreach ($serviceCategoriesIds as $serviceCategoriesId) {
+                $statement->execute();
+            }
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function unlinkFromService(int $serviceId, array $serviceCategoriesIds): void
+    {
+        if ($serviceCategoriesIds === []) {
+            return;
+        }
+        $alreadyInTransaction = $this->db->inTransaction();
+
+        try {
+            if (! $alreadyInTransaction) {
+                $this->db->beginTransaction();
+            }
+
+            $bindServiceCategoriesIds = [];
+            foreach ($serviceCategoriesIds as $index => $serviceCategoriesId) {
+                $bindServiceCategoriesIds[':service_categories_' . $index] = [\PDO::PARAM_INT => $serviceCategoriesId];
+            }
+            $serviceCategoriesFields = implode(',', array_keys($bindServiceCategoriesIds));
+
+            $request = $this->translateDbName(<<<"SQL"
+                DELETE FROM `:db`.service_categories_relation
+                WHERE service_service_id = :service_id
+                AND sc_id IN ({$serviceCategoriesFields})
+                SQL
+            );
+
+            $statement = $this->db->prepare($request);
+            $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+            foreach ($bindServiceCategoriesIds as $field => $details) {
+                $type = key($details);
+                $statement->bindValue($field, $details[$type], $type);
+            }
+            $statement->execute();
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
 }

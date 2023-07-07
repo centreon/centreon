@@ -78,6 +78,7 @@ trait RealTimeResponseTrait
                 'start_time' => $downtime->getStartTime(),
                 'end_time' => $downtime->getEndTime(),
                 'actual_start_time' => $downtime->getActualStartTime(),
+                'actual_end_time' => $downtime->getActualEndTime(),
                 'id' => $downtime->getId(),
                 'entry_time' => $downtime->getEntryTime(),
                 'author_id' => $downtime->getAuthorId(),

@@ -29,8 +29,8 @@
 <table class="ToolbarTable table">
 	<tr class="ToolbarTR">
         <td>
-            {if $msgs2}<a class="btc bt_success mr-1" href="{$msgs2.addL2}">{$msgs2.addT2}</a>{/if}
-            {if $nb_downtime_svc && $msgs2}<input type="submit" name="submit2" value="{$cancel}" class="btc bt_danger" onclick="doAction('select[name=\'o1\']', 'cs','{$msgs2.delConfirm}')">{/if}
+            {if $msgs2}<a class="btc bt_success" href="{$msgs2.addL2}">{$msgs2.addT2}</a>{/if}
+            {if $nb_downtime_svc && $msgs2}<input type="submit" name="submit2" value="{$cancel}" class="btc bt_danger ml-2" onclick="doAction('select[name=\'o1\']', 'cs','{$msgs2.delConfirm}')">{/if}
         </td>
         {php}
         include('./include/common/pagination.php');
@@ -104,8 +104,8 @@
 <table class="ToolbarTable table">
     <tr class="ToolbarTR">
         <td>
-            {if $msgs2}<a class="btc bt_success mr-1" href="{$msgs2.addL2}">{$msgs2.addT2}</a>{/if}
-            {if $nb_downtime_svc && $msgs2}<input type="submit" name="submit2" value="{$cancel}" class="btc bt_danger" onclick="doAction('select[name=\'o1\']', 'cs','{$msgs2.delConfirm}')">{/if}
+            {if $msgs2}<a class="btc bt_success" href="{$msgs2.addL2}">{$msgs2.addT2}</a>{/if}
+            {if $nb_downtime_svc && $msgs2}<input type="submit" name="submit2" value="{$cancel}" class="btc bt_danger ml-2" onclick="doAction('select[name=\'o1\']', 'cs','{$msgs2.delConfirm}')">{/if}
         </td>
 	{php}
 	   include('./include/common/pagination.php');
@@ -122,13 +122,13 @@
     function doAction(slt, act, msg) {
         var bChecked = isChecked();
         if (slt.selectedIndex != 0 && !bChecked) {
-            alert('Please select one or more items');
+            parent.window.alert('Please select one or more items');
             return false;
         }
         if (slt.selectedIndex == 0) {
             return false;
         } else {
-            if (confirm(msg)) {
+            if (parent.window.confirm(msg)) {
                 jQuery('input[name=o]').attr('value', act);
                 document.form.submit();
             } else {

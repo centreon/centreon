@@ -4,6 +4,8 @@ import { alpha, PaletteOptions } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
 
+import * as BaseTokens from '../base/tokens/themes/base.tokens';
+
 declare module '@mui/material/styles/createPalette' {
   interface TypeAction {
     acknowledged: string;
@@ -15,11 +17,10 @@ declare module '@mui/material/styles/createPalette' {
 
 declare module '@mui/material/styles' {
   interface Palette {
-    background: {
-      default: string;
-      listingHeader: string;
-      paper: string;
-    };
+    background: TypeBackground;
+    header: TypeHeader;
+    layout: TypeLayout;
+    menu: TypeMenu;
     pending: {
       contrastText: string;
       main: string;
@@ -35,6 +36,9 @@ declare module '@mui/material/styles' {
     warning: string;
   }
   interface PaletteOptions {
+    header: TypeHeader;
+    layout: TypeLayout;
+    menu: TypeMenu;
     pending: {
       contrastText: string;
       main: string;
@@ -43,7 +47,71 @@ declare module '@mui/material/styles' {
   }
 
   interface TypeBackground {
+    default: string;
     listingHeader: string;
+    panel: string;
+    panelGroups: string;
+    paper: string;
+    tooltip: string;
+  }
+
+  interface TypeLayout {
+    body: {
+      background: string;
+    };
+    header: {
+      background: string;
+      border: string;
+    };
+  }
+
+  interface TypeHeader {
+    page: {
+      action: {
+        background: {
+          active: string;
+          default: string;
+        };
+        color: {
+          active: string;
+          default: string;
+        };
+      };
+      border: string;
+      description: string;
+      title: string;
+    };
+  }
+
+  interface TypeMenu {
+    background: string;
+    button: {
+      background: {
+        active: string;
+        default: string;
+        hover: string;
+      };
+      color: {
+        active: string;
+        default: string;
+        hover: string;
+      };
+    };
+    divider: {
+      border: string;
+    };
+    item: {
+      background: {
+        active: string;
+        default: string;
+        hover: string;
+      };
+      color: {
+        active: string;
+        default: string;
+        hover: string;
+      };
+    };
   }
 }
 
@@ -79,16 +147,75 @@ export const lightPalette: PaletteOptions = {
   background: {
     default: '#F4F4F4',
     listingHeader: '#666666',
-    paper: '#FFFFFF'
+    panel: '#EDEDED',
+    panelGroups: '#F5F5F5',
+    paper: '#FFFFFF',
+    tooltip: '#434E5B'
   },
   divider: '#E3E3E3',
   error: {
     contrastText: '#000',
     main: '#FF4A4A'
   },
+  header: {
+    page: {
+      action: {
+        background: {
+          active: '#1975D10F',
+          default: '#FFFFFF00'
+        },
+        color: {
+          active: '#1976D2',
+          default: '#696969'
+        }
+      },
+      border: '#4A4A4A',
+      description: '#4A4A4A',
+      title: '#000000'
+    }
+  },
   info: {
     contrastText: '#000',
     main: '#1588D1'
+  },
+  layout: {
+    body: {
+      background: '#F6F6F6'
+    },
+    header: {
+      background: '#FFFFFF',
+      border: '#E3E3E3'
+    }
+  },
+  menu: {
+    background: '#FFFFFF',
+    button: {
+      background: {
+        active: BaseTokens.colorBlue50,
+        default: 'transparent',
+        hover: BaseTokens.colorGrey50
+      },
+      color: {
+        active: BaseTokens.colorBlue400,
+        default: BaseTokens.colorGrey400,
+        hover: BaseTokens.colorGrey500
+      }
+    },
+    divider: {
+      border: BaseTokens.colorGrey200
+    },
+    item: {
+      background: {
+        active: BaseTokens.colorBlue50,
+        default: 'transparent',
+        hover: BaseTokens.colorGrey50
+      },
+      color: {
+        active: BaseTokens.colorBlue400,
+        default: BaseTokens.colorGrey900,
+        hover: BaseTokens.colorGrey950
+      }
+    }
   },
   mode: ThemeMode.light,
   pending: {
@@ -103,6 +230,8 @@ export const lightPalette: PaletteOptions = {
   },
   secondary: {
     contrastText: '#fff',
+    dark: '#ac28c1',
+    light: '#e5a5f0',
     main: '#C772D6'
   },
   statusBackground: {
@@ -131,7 +260,7 @@ export const lightPalette: PaletteOptions = {
 export const darkPalette: PaletteOptions = {
   action: {
     acknowledged: '#67532C',
-    acknowledgedBackground: '#F5F1E9',
+    acknowledgedBackground: '#67532C',
     activatedOpacity: 0.3,
     active: '#B5B5B5',
     disabled: '#999999',
@@ -141,23 +270,82 @@ export const darkPalette: PaletteOptions = {
     hover: 'rgba(255, 255, 255, 0.16)',
     hoverOpacity: 0.16,
     inDowntime: '#4B2352',
-    inDowntimeBackground: '#F0E9F8',
+    inDowntimeBackground: '#4B2352',
     selected: 'rgba(255, 255, 255, 0.5)',
     selectedOpacity: 0.5
   },
   background: {
     default: '#4a4a4a',
     listingHeader: '#666666',
-    paper: '#212121'
+    panel: '#4a4a4a',
+    panelGroups: '#252525',
+    paper: '#212121',
+    tooltip: '#AAB4C0'
   },
   divider: '#666666',
   error: {
     contrastText: '#fff',
     main: '#D60101'
   },
+  header: {
+    page: {
+      action: {
+        background: {
+          active: '#1975D10F',
+          default: '#FFFFFF00'
+        },
+        color: {
+          active: '#1976D2',
+          default: '#696969'
+        }
+      },
+      border: '#bdbdbd',
+      description: '#bdbdbd',
+      title: '#fff'
+    }
+  },
   info: {
     contrastText: '#fff',
     main: '#1CA9F4'
+  },
+  layout: {
+    body: {
+      background: '#F6F6F6'
+    },
+    header: {
+      background: '#FFFFFF',
+      border: '#E3E3E3'
+    }
+  },
+  menu: {
+    background: BaseTokens.colorGrey950,
+    button: {
+      background: {
+        active: BaseTokens.colorBlue950,
+        default: 'transparent',
+        hover: BaseTokens.colorGrey950
+      },
+      color: {
+        active: BaseTokens.colorBlue600,
+        default: BaseTokens.colorGrey600,
+        hover: BaseTokens.colorGrey500
+      }
+    },
+    divider: {
+      border: BaseTokens.colorGrey800
+    },
+    item: {
+      background: {
+        active: BaseTokens.colorBlue950,
+        default: 'transparent',
+        hover: BaseTokens.colorGrey950
+      },
+      color: {
+        active: BaseTokens.colorBlue400,
+        default: BaseTokens.colorGrey50,
+        hover: '#fff'
+      }
+    }
   },
   mode: ThemeMode.dark,
   pending: {
@@ -189,7 +377,7 @@ export const darkPalette: PaletteOptions = {
   text: {
     disabled: '#666666',
     primary: '#FFFFFF',
-    secondary: '#B5B5B5'
+    secondary: '#CCCCCC'
   },
   warning: {
     contrastText: '#fff',

@@ -16,14 +16,17 @@ import {
 import { CircularProgress, useTheme } from '@mui/material';
 
 import { Props as AutocompleteFieldProps } from '..';
-import useIntersectionObserver from '../../../../utils/useIntersectionObserver';
+import {
+  useDebounce,
+  useIntersectionObserver,
+  useDeepCompare
+} from '../../../../utils';
 import { ListingModel, SelectEntry } from '../../../..';
 import Option from '../../Option';
 import {
   ConditionsSearchParameter,
   SearchParameter
 } from '../../../../api/buildListingEndpoint/models';
-import useDebounce from '../../../../utils/useDebounce';
 import useFetchQuery from '../../../../api/useFetchQuery';
 
 export interface ConnectedAutoCompleteFieldProps<TData> {
@@ -62,6 +65,9 @@ const ConnectedAutocompleteField = (
     const [searchParameter, setSearchParameter] = useState<
       SearchParameter | undefined
     >(undefined);
+
+    const [autocompleteChangedValue, setAutocompleteChangedValue] =
+      useState<Array<SelectEntry>>();
     const debounce = useDebounce({
       functionToDebounce: (value): void => {
         setSearchParameter(getSearchParameter(value));
@@ -269,7 +275,14 @@ const ConnectedAutocompleteField = (
           ? { conditions: searchConditions }
           : undefined
       );
-    }, [searchConditions]);
+    }, useDeepCompare([searchConditions]));
+
+    useEffect(() => {
+      if (!autocompleteChangedValue && !props?.value) {
+        return;
+      }
+      setSearchParameter(undefined);
+    }, [autocompleteChangedValue, props?.value]);
 
     useEffect(() => {
       if (!optionsOpen) {
@@ -283,9 +296,10 @@ const ConnectedAutocompleteField = (
       <AutocompleteField
         filterOptions={(opt): SelectEntry => opt}
         loading={isFetching}
-        open={open}
+        open={optionsOpen}
         options={options}
         renderOption={renderOptions}
+        onChange={(_, value) => setAutocompleteChangedValue(value)}
         onClose={(): void => setOptionsOpen(false)}
         onOpen={(): void => setOptionsOpen(true)}
         onTextChange={changeText}

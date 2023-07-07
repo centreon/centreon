@@ -166,12 +166,6 @@ function updateNagiosConfigData($gopt_id = null)
 
     updateOption(
         $pearDB,
-        "nagios_path_img",
-        isset($ret["nagios_path_img"]) && $ret["nagios_path_img"] != null
-            ? $pearDB->escape($ret["nagios_path_img"]) : "NULL"
-    );
-    updateOption(
-        $pearDB,
         "nagios_path_plugins",
         isset($ret["nagios_path_plugins"]) && $ret["nagios_path_plugins"] != null
             ? $pearDB->escape($ret["nagios_path_plugins"]) : "NULL"
@@ -552,13 +546,6 @@ function updateGeneralConfigData()
         !empty($ret["inheritance_mode"]["inheritance_mode"])
             ? (int)$ret["inheritance_mode"]["inheritance_mode"]
             : 3 //default cumulative inheritance
-    );
-    updateOption(
-        $pearDB,
-        "resource_status_view_mode",
-        ! empty($ret["resource_status_view_mode"]["resource_status_view_mode"])
-            ? $ret["resource_status_view_mode"]["resource_status_view_mode"]
-            : 'compact'
     );
     updateOption(
         $pearDB,

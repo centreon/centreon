@@ -4,6 +4,7 @@ import { equals, prop } from 'ramda';
 
 import { Typography } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import MailIcon from '@mui/icons-material/MailOutline';
 
 import { SelectEntry } from '../InputField/Select';
 import { Listing } from '../api/models';
@@ -20,6 +21,7 @@ export interface BasicForm {
   activeSortableFieldsTable: boolean;
   animals: Array<SelectEntry>;
   anotherText: string;
+  certificate: string;
   class: { id: number; name: string } | null;
   custom: string;
   email: string;
@@ -53,6 +55,7 @@ export const basicFormValidationSchema = Yup.object().shape({
   ),
   animals: Yup.array().of(selectEntryValidationSchema.required('Required')),
   anotherText: Yup.string(),
+  certificate: Yup.string(),
   class: selectEntryValidationSchema.nullable().required('Required'),
   custom: Yup.string().required('Custom is required'),
   email: Yup.string().email('Invalid email').required('Email is required'),
@@ -79,9 +82,7 @@ export const basicFormValidationSchema = Yup.object().shape({
   scopes: Yup.array().of(
     Yup.string().min(3, '3 characters min').required('Required')
   ),
-  sports: Yup.array()
-    .of(selectEntryValidationSchema.required('Required'))
-    .min(2, 'Choose at least 2 sports')
+  sports: Yup.array().of(selectEntryValidationSchema.required('Required'))
 });
 
 const roleEntries: Array<SelectEntry> = [
@@ -103,6 +104,7 @@ export const basicFormInitialValues = {
   active: false,
   activeSortableFieldsTable: false,
   animals: [],
+  certificate: '',
   class: { id: 0, name: 'Class 0' },
   custom: '',
   email: '',
@@ -112,6 +114,11 @@ export const basicFormInitialValues = {
   isForced: false,
   language: 'French',
   name: '',
+  notifications: {
+    channels: { Icon: MailIcon, checked: true, label: 'mail' },
+    hostevents: ['ok', 'warning'],
+    includeServices: { checked: true, label: 'Include services for this host' }
+  },
   password: '',
   roleMapping: [
     {
@@ -154,6 +161,10 @@ export const basicFormGroups: Array<Group> = [
     TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>,
     name: 'Second group',
     order: 2
+  },
+  {
+    name: 'Third group',
+    order: 3
   }
 ];
 
@@ -201,6 +212,41 @@ export const basicFormInputs: Array<InputProps> = [
       ]
     },
     type: InputType.Radio
+  },
+  {
+    additionalLabel: 'Notifications',
+    fieldName: '',
+    grid: {
+      alignItems: 'center',
+      columns: [
+        {
+          checkbox: {
+            direction: 'horizontal'
+          },
+          fieldName: 'notifications.channels',
+          label: 'channels',
+          type: InputType.Checkbox
+        },
+        {
+          fieldName: 'notifications.includeServices',
+          label: 'Iclude services',
+          type: InputType.Checkbox
+        },
+        {
+          checkbox: {
+            direction: 'horizontal',
+            labelPlacement: 'top',
+            options: ['ok', 'warning', 'critical', 'unknown']
+          },
+          fieldName: 'notifications.hostevents',
+          label: 'host events',
+          type: InputType.CheckboxGroup
+        }
+      ]
+    },
+    group: 'Third group',
+    label: 'Notifications',
+    type: InputType.Grid
   },
   {
     fieldName: 'anotherText',
@@ -389,6 +435,15 @@ export const basicFormInputs: Array<InputProps> = [
     group: 'First group',
     label: 'roleMapping',
     type: InputType.FieldsTable
+  },
+  {
+    fieldName: 'certificate',
+    group: 'First group',
+    label: 'Certificate',
+    text: {
+      multilineRows: 4
+    },
+    type: InputType.Text
   }
 ];
 

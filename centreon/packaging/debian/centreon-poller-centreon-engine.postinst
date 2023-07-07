@@ -2,6 +2,14 @@
 
 if [ "$1" = "configure" ]; then
 
+    chmod 0774 /var/log/centreon
+    chmod 0775 /var/run/centreon
+
+    if [ "$(getent passwd centreon)" ]; then
+        chown centreon:centreon /var/log/centreon
+        chown centreon:centreon /var/run/centreon
+    fi
+
     if [ "$(getent group nagios)" ]; then
         /usr/sbin/usermod -a -G centreon,nagios,centreon-broker centreon-engine
         /usr/sbin/usermod -a -G centreon,nagios centreon-broker

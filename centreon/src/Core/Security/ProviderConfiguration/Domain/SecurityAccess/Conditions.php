@@ -24,9 +24,9 @@ namespace Core\Security\ProviderConfiguration\Domain\SecurityAccess;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
-use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
 
 /**
@@ -55,7 +55,7 @@ class Conditions implements SecurityAccessInterface
         $scope = $configuration->getType();
         $customConfiguration = $configuration->getCustomConfiguration();
         $authenticationConditions = $customConfiguration->getAuthenticationConditions();
-        if (!$authenticationConditions->isEnabled()) {
+        if (! $authenticationConditions->isEnabled()) {
             $this->loginLogger->info($scope, "Authentication conditions disabled");
             $this->info("Authentication conditions disabled");
             return;
@@ -64,10 +64,12 @@ class Conditions implements SecurityAccessInterface
         $this->loginLogger->info($scope, "Authentication conditions is enabled");
         $this->info("Authentication conditions is enabled");
 
-        $customConfiguration = $configuration->getCustomConfiguration();
-        $conditionsConfiguration = $customConfiguration->getAuthenticationConditions();
-        $localConditions = $conditionsConfiguration->getAuthorizedValues();
-        $authenticationAttributePath = explode(".", $conditionsConfiguration->getAttributePath());
+        $localConditions = $authenticationConditions->getAuthorizedValues();
+
+        $authenticationAttributePath[] = $authenticationConditions->getAttributePath();
+        if ($configuration->getType() === Provider::OPENID) {
+            $authenticationAttributePath = explode(".", $authenticationConditions->getAttributePath());
+        }
 
         $this->loginLogger->info($scope, "Configured attribute path found", $authenticationAttributePath);
         $this->loginLogger->info($scope, "Configured authorized values", $localConditions);
@@ -76,7 +78,7 @@ class Conditions implements SecurityAccessInterface
             $providerAuthenticationConditions = [];
             if (array_key_exists($attribute, $identityProviderData)) {
                 $providerAuthenticationConditions = $identityProviderData[$attribute];
-                $identityProviderData[] = $identityProviderData[$attribute];
+                $identityProviderData = $identityProviderData[$attribute];
             } else {
                 break;
             }
@@ -109,7 +111,7 @@ class Conditions implements SecurityAccessInterface
             $this->error(
                 "Configured attribute value not found in conditions endpoint",
                 [
-                    "configured_authorized_values" => $conditionsConfiguration->getAuthorizedValues()
+                    "configured_authorized_values" => $authenticationConditions->getAuthorizedValues()
                 ]
             );
 
@@ -122,5 +124,13 @@ class Conditions implements SecurityAccessInterface
         }
         $this->info("Conditions found", ["conditions" => $conditionMatches]);
         $this->loginLogger->info($scope, "Conditions found", $conditionMatches);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getConditionMatches(): array
+    {
+        return [];
     }
 }

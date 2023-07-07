@@ -1,18 +1,19 @@
-import { useRequest } from '@centreon/ui';
+import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
 import { Redirect } from './models';
 import { redirectDecoder } from './api/decoder';
-import postLogin from './api';
+import { loginEndpoint } from './api/endpoint';
 
 interface UsePostLoginState {
-  sendLogin: (values) => Promise<Redirect>;
+  sendLogin: (payload: unknown) => Promise<Redirect | ResponseError>;
 }
 
 const usePostLogin = (): UsePostLoginState => {
-  const { sendRequest: sendLogin } = useRequest<Redirect>({
+  const { mutateAsync: sendLogin } = useMutationQuery({
     decoder: redirectDecoder,
+    getEndpoint: () => loginEndpoint,
     httpCodesBypassErrorSnackbar: [401],
-    request: postLogin
+    method: Method.POST
   });
 
   return { sendLogin };

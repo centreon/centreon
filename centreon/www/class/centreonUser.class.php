@@ -72,6 +72,8 @@ class CentreonUser
     # String with elements ID separated by commas for DB requests
     public $lcaTStr;
 
+    public $authType;
+
     /**
      * CentreonUser constructor.
      * @param array $user
@@ -114,6 +116,11 @@ class CentreonUser
          */
         $this->restApi = isset($user['reach_api']) && $user['reach_api'] == 1;
         $this->restApiRt = isset($user['reach_api_rt']) && $user['reach_api_rt'] == 1;
+
+        /*
+         * Init authentication type, could by local, openid, web-sso, saml
+         */
+        $this->authType = $user['auth_type'] ?? 'unknown';
     }
 
     /**

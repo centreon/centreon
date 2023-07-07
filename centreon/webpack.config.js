@@ -20,8 +20,8 @@ module.exports = (jscTransformConfiguration) =>
       },
       plugins: [
         new webpack.ProvidePlugin({
-          process: 'process/browser',
           React: 'react',
+          process: 'process/browser'
         }),
         new HtmlWebpackPlugin({
           alwaysWriteToDisk: true,
@@ -29,6 +29,12 @@ module.exports = (jscTransformConfiguration) =>
           template: './www/front_src/public/index.html'
         }),
         new HtmlWebpackHarddiskPlugin()
-      ]
+      ],
+      resolve: {
+        alias: {
+          'centreon-widgets': path.resolve(__dirname, 'www', 'widgets', 'src')
+        },
+        modules: [path.resolve(__dirname, '.'), 'node_modules']
+      }
     }
   );

@@ -80,7 +80,8 @@ class FindUsersPresenterTest extends TestCase
             'name',
             'root@localhost',
             true,
-            'light'
+            'light',
+            'compact'
         );
 
         $this->requestParameters->expects($this->once())
