@@ -416,8 +416,6 @@ Then(
       }
     );
 
-    cy.wait('@getTimeZone');
-
     cy.getIframeBody()
       .find('.ListTable tr:not(.ListHeader) td')
       .eq(3)
