@@ -14,7 +14,7 @@ import {
   tearDownResource
 } from '../common';
 
-const chosenTZ = 'Africa/Cpsablanca';
+const chosenTZ = 'Africa/Casablanca';
 
 const convert12hFormatToDate = (timeString: string): Date => {
   const currentDate = new Date();
