@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\MacroDto;
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\PartialUpdateServiceTemplate;
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\PartialUpdateServiceTemplateRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +36,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @phpstan-type _ServiceTemplate = array{
  *      host_templates: list<int>,
- *      service_categories: list<int>
+ *      service_categories: list<int>,
+ *      macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>
  * }
  */
 class PartialUpdateServiceTemplateController extends AbstractController
@@ -94,6 +96,17 @@ class PartialUpdateServiceTemplateController extends AbstractController
         }
         if (array_key_exists('service_categories', $request)) {
             $serviceTemplate->serviceCategories = $request['service_categories'];
+        }
+        if (array_key_exists('macros', $request)) {
+            $serviceTemplate->macros = array_map(
+                fn(array $macro): MacroDto => new MacroDto(
+                    $macro['name'],
+                    $macro['value'],
+                    (bool) $macro['is_password'],
+                    $macro['description']
+                ),
+                $request['macros']
+            );
         }
 
         return $serviceTemplate;
