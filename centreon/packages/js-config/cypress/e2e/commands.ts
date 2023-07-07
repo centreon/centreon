@@ -258,9 +258,10 @@ Cypress.Commands.add(
   ({
     name = Cypress.env('dockerName')
   }: StopWebContainerProps = {}): Cypress.Chainable => {
-    const logDirectory = `cypress/results/logs/${
-      Cypress.spec.name
-    }/${Cypress.currentTest.title.replace(/[,\s/|<>*?:"]/g, '_')}`;
+    const logDirectory = `cypress/results/logs/${Cypress.spec.name.replace(
+      /[,\s/|<>*?:"]/g,
+      '_'
+    )}/${Cypress.currentTest.title.replace(/[,\s/|<>*?:"]/g, '_')}`;
 
     return cy
       .visitEmptyPage()
