@@ -363,7 +363,7 @@ Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
 
     cy.log(`Time in header is ${localTime}`);
 
-    return localTime;
+    return cy.wrap(localTime);
   });
 });
 
