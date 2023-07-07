@@ -1,4 +1,4 @@
-name: centreon-ui-context
+name: centreon-ui-context-beta
 
 on:
   workflow_dispatch:

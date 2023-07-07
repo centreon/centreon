@@ -1,4 +1,4 @@
-name: centreon-ui
+name: centreon-ui-beta
 
 on:
   pull_request:
