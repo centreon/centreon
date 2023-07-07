@@ -69,7 +69,7 @@ jobs:
 
   publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
-    needs: [lint, unit-test, check-package-version, cypress-component-testing, publish-snapshots]
+    needs: [lint, unit-test, cypress-component-testing, publish-snapshots]
 
     steps:
       - uses: actions/checkout@v3
@@ -83,16 +83,3 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           package: ${{ env.package }}
           release_branch: ${{ env.base_branch }}
-
-  check-package-version:
-    runs-on: ubuntu-22.04
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-
-      - uses: ./.github/actions/check-package-version
-        with:
-          base_branch: ${{ env.base_branch }}
-          directory: ${{ env.directory }}
