@@ -260,7 +260,7 @@ Cypress.Commands.add(
   }: StopWebContainerProps = {}): Cypress.Chainable => {
     const logDirectory = `cypress/results/logs/${
       Cypress.spec.name
-    }/${Cypress.currentTest.title.replace(/,|\s|\//g, '_')}`;
+    }/${Cypress.currentTest.title.replace(/[,\s/|<*?:"]/g, '_')}`;
 
     return cy
       .visitEmptyPage()
@@ -276,6 +276,19 @@ Cypress.Commands.add(
       .copyFromContainer({
         destination: `${logDirectory}/centreon`,
         source: '/var/log/centreon'
+      })
+      .then(() => {
+        if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+          return cy.copyFromContainer({
+            destination: `${logDirectory}/php`,
+            source: '/var/log/php-fpm'
+          });
+        }
+
+        return cy.copyFromContainer({
+          destination: `${logDirectory}/php/`,
+          source: '/var/log/php8.1-fpm-centreon-error.log'
+        });
       })
       .stopContainer({ name });
   }
@@ -340,6 +353,8 @@ Cypress.Commands.add(
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
   return cy.get('header div[data-cy="clock"]').then(($time) => {
     const localTime = $time.children()[1].textContent;
+
+    cy.log(`Time in header is ${localTime}`);
 
     return localTime;
   });

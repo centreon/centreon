@@ -33,6 +33,10 @@ const calculateMinuteInterval = (startDate: Date, endDate: Date): number => {
   const diffInMilliseconds = endDate.getTime() - startDate.getTime();
   const minutes = Math.abs(Math.floor(diffInMilliseconds / 60000));
 
+  cy.log(
+    `Diff in minutes between ${endDate.getTime()} and ${startDate.getTime()} is ${minutes}`
+  );
+
   return minutes;
 };
 
@@ -159,6 +163,11 @@ When('the user saves the form', () => {
     .eq(0)
     .contains('Save')
     .click();
+
+  cy.get('iframe#main-content')
+    .its('0.contentDocument.body')
+    .find('input[type="button"]')
+    .should('have.value', 'Modify');
 });
 
 Then('timezone information are updated on the banner', () => {

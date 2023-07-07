@@ -92,23 +92,15 @@ jobs:
           module: centreon
           feature_file_path: ${{ matrix.feature }}
 
-      - name: Upload test logs
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-logs
-          path: ${{ inputs.module_name }}/tests/e2e/cypress/results/logs/*
-          retention-days: 1
-
-      - name: Upload videos
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-test-videos
-          path: ${{ inputs.module_name }}/tests/e2e/cypress/results/videos/
-          retention-days: 1
-
       - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-results
+          path: ${{ inputs.module_name }}/tests/e2e/cypress/results/
+          retention-days: 1
+
+      - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v3
         with:
