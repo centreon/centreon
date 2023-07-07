@@ -51,25 +51,13 @@
 			"enabled": true
 		},
 		{
-			"key": "token",
-			"value": "",
-			"type": "any",
-			"enabled": true
-		},
-		{
-			"key": "currentUserName",
-			"value": "",
-			"type": "any",
-			"enabled": true
-		},
-		{
-			"key": "currentUserID",
-			"value": "",
-			"type": "any",
+			"key": "dayJSCloudFlareLink",
+			"value": "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.9/dayjs.min.js",
+			"type": "default",
 			"enabled": true
 		}
 	],
 	"_postman_variable_scope": "environment",
-	"_postman_exported_at": "2023-01-18T10:24:48.938Z",
-	"_postman_exported_using": "Postman/10.8.1"
+	"_postman_exported_at": "2023-07-07T09:02:30.491Z",
+	"_postman_exported_using": "Postman/10.15.8"
 }
