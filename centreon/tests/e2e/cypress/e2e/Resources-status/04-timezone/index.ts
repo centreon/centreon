@@ -399,11 +399,13 @@ Then(
   () => {
     cy.waitUntil(
       () => {
+        cy.reload().wait('@getTimeZone');
+
         return cy
-          .reload()
-          .then(() =>
-            cy.getIframeBody().find('.ListTable tr:not(.ListHeader)').first()
-          )
+          .get('iframe#main-content')
+          .its('0.contentDocument.body')
+          .find('.ListTable tr:not(.ListHeader)')
+          .first()
           .children()
           .then((val) => {
             return val.text().trim() !== 'No downtime scheduled';
@@ -421,12 +423,18 @@ Then(
       .eq(3)
       .then(($el) => {
         cy.getTimeFromHeader().then((localTime: string) => {
-          const dtTime = $el[0].textContent || '';
+          const downtimeStartTime = $el[0].textContent;
+
+          if (downtimeStartTime === null) {
+            throw new Error('Cannot get downtime start time');
+          }
+
+          cy.log(`Downtime start time : ${downtimeStartTime}`);
 
           expect(
             calculateMinuteInterval(
               convert12hFormatToDate(localTime),
-              new Date(dtTime)
+              new Date(downtimeStartTime)
             )
           ).to.be.lte(2);
         });
