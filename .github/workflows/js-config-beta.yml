@@ -1,4 +1,4 @@
-name: centreon-js-config
+name: centreon-js-config-beta
 
 on:
   workflow_dispatch:

@@ -34,11 +34,11 @@ runs:
 
     - name: Install action dependencies
       run: pnpm install
-      working-directory: ./.github/actions/get-latest-npm-beta-branch-version
+      working-directory: ./.github/actions/get-latest-npm-branch-version
       shell: bash
 
-    - uses: ./.github/actions/get-latest-npm-beta-branch-version
-      id: get-latest-npm-beta-branch-version
+    - uses: ./.github/actions/get-latest-npm-branch-version
+      id: get-latest-npm-branch-version
       with:
         package: ${{ inputs.package }}
         branch_name: ${{ github.head_ref }}
