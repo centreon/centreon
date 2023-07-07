@@ -41,7 +41,13 @@ runs:
       id: get-latest-npm-branch-version
       with:
         package: ${{ inputs.package }}
-        branch_name: ${{ github.head_ref }}
+        branch_name: ${{ inputs.release_branch }}
+
+    - name: Write NPM package version
+      if: ${{ steps.get-latest-npm-branch-version.outputs.package_version != '' }}
+      run: npm version ${{ steps.get-latest-npm-branch-version.outputs.package_version }} --legacy-peer-deps
+      working-directory: ${{ env.directory }}
+      shell: bash
 
     - name: Configure tag
       run: |

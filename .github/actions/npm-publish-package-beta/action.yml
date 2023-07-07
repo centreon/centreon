@@ -38,7 +38,7 @@ runs:
       shell: bash
 
     - uses: ./.github/actions/get-latest-npm-branch-version
-      id: get-latest-npm-branch-version
+      id: get-latest-npm-beta-branch-version
       with:
         package: ${{ inputs.package }}
         branch_name: ${{ github.head_ref }}
