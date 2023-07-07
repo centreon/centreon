@@ -48,6 +48,7 @@
   "devDependencies": {
     "@cypress/react": "^7.0.2",
     "@cypress/webpack-dev-server": "^3.2.3",
+    "@faker-js/faker": "^8.0.2",
     "@mdx-js/react": "^2.1.4",
     "@simonsmith/cypress-image-snapshot": "^6.1.0",
     "@storybook/addon-a11y": "^7.0.9",

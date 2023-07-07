@@ -1,12 +1,12 @@
-import { ReactElement } from 'react';
+import { ReactElement, ReactNode } from 'react';
 
 import { ListItemText as MuiListItemText } from '@mui/material';
 
 import { useStyles } from './ListItem.styles';
 
 type TextProps = {
-  primaryText: string;
-  secondaryText?: string;
+  primaryText: ReactNode;
+  secondaryText?: ReactNode;
 };
 
 export const Text = ({

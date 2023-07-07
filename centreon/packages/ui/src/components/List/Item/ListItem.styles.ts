@@ -6,7 +6,9 @@ export const useStyles = makeStyles()((theme) => ({
       backgroundColor: theme.palette.action.disabled
     }
   },
-  listItem: {},
+  listItem: {
+    maxWidth: '480px'
+  },
   text: {
     disabled: {
       color: theme.palette.action.disabled

@@ -148,30 +148,6 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     },
     MuiCssBaseline: {
       styleOverrides: (theme) => `
-        ::-webkit-scrollbar {
-          height: ${theme.spacing(1)};
-          width: ${theme.spacing(1)};
-          background-color: ${theme.palette.background.default};
-        }
-        ::-webkit-scrollbar-thumb {
-          background-color: ${
-            equals(mode, 'dark')
-              ? theme.palette.divider
-              : theme.palette.text.disabled
-          };
-          border-radius: ${theme.spacing(0.5)};
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background-color: ${theme.palette.primary.main};
-        }
-        * {
-          scrollbar-color: ${
-            equals(mode, 'dark')
-              ? theme.palette.divider
-              : theme.palette.text.disabled
-          } ${theme.palette.background.default};
-          scrollbar-width: thin;
-        }
         html {
           margin: 0;
           padding: 0;

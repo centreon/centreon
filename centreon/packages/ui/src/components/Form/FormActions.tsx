@@ -1,48 +1,49 @@
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 
 import { useFormikContext } from 'formik';
 
-import { Button } from '../../Button';
-import { FormVariant } from '../Form.models';
+import { Button } from '../Button';
 
-import { useStyles } from './DashboardForm.styles';
-import { DashboardResource } from './Dashboard.resource';
+import { FormVariant } from './Form.models';
+import { useStyles } from './Form.styles';
 
-export type DashboardFormActionsProps = {
-  labels: DashboardFormActionsLabels;
+export type FormActionsProps = {
+  labels: FormActionsLabels;
   onCancel: () => void;
   variant: FormVariant;
 };
 
-export type DashboardFormActionsLabels = {
+export type FormActionsLabels = {
   cancel: string;
   submit: Record<FormVariant, string>;
 };
 
-const DashboardFormActions = ({
+const FormActions = <TResource extends object>({
   labels,
   onCancel,
   variant
-}: DashboardFormActionsProps): ReactElement => {
+}: FormActionsProps): ReactElement => {
   const { classes } = useStyles();
   const { isSubmitting, dirty, isValid, submitForm } =
-    useFormikContext<DashboardResource>();
+    useFormikContext<TResource>();
 
   return (
     <div className={classes.actions}>
       <Button
-        aria-label="cancel"
+        aria-label={labels.cancel}
+        data-testid="cancel"
         disabled={isSubmitting}
-        size="small"
+        size="medium"
         variant="secondary"
         onClick={() => onCancel?.()}
       >
         {labels.cancel}
       </Button>
       <Button
-        aria-label="submit"
+        aria-label={labels.submit[variant]}
+        data-testid="submit"
         disabled={isSubmitting || !dirty || !isValid}
-        size="small"
+        size="medium"
         type="submit"
         variant="primary"
         onClick={submitForm}
@@ -53,4 +54,4 @@ const DashboardFormActions = ({
   );
 };
 
-export { DashboardFormActions };
+export { FormActions };

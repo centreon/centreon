@@ -7,18 +7,23 @@ import { useStyles } from './ListItem.styles';
 type ListItemProps = {
   action?: ReactElement;
   children: ReactNode | Array<ReactNode>;
+  className?: string;
 };
 
 export const ListItem = forwardRef(
-  ({ action, children }: ListItemProps, ref?: ForwardedRef<HTMLLIElement>) => {
-    const { classes } = useStyles();
+  (
+    { action, children, className, ...attr }: ListItemProps,
+    ref?: ForwardedRef<HTMLLIElement>
+  ) => {
+    const { classes, cx } = useStyles();
 
     return (
       <MuiListItem
         disableGutters
-        className={classes.listItem}
+        className={cx(classes.listItem, className)}
         ref={ref}
         secondaryAction={action}
+        {...attr}
       >
         {children}
       </MuiListItem>
