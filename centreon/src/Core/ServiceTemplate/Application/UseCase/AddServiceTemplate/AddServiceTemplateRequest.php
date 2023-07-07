@@ -38,6 +38,9 @@ final class AddServiceTemplateRequest
     /** @var list<int> */
     public array $hostTemplateIds = [];
 
+    /** @var list<int> */
+    public array $serviceCategories = [];
+
     public int|null $notificationTypes = null;
 
     public bool $isContactAdditiveInheritance = false;

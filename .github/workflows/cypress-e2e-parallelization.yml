@@ -96,7 +96,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.name }}-test-logs
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-logs
           path: ${{ inputs.module_name }}/tests/e2e/cypress/results/logs/*
           retention-days: 1
 
@@ -104,7 +104,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.name }}-test-videos
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-videos
           path: ${{ inputs.module_name }}/tests/e2e/cypress/results/videos/
           retention-days: 1
 
@@ -112,7 +112,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.name }}-test-reports
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
           path: ${{ inputs.module_name }}/tests/e2e/cypress/results/reports/*.json
           retention-days: 1
 
@@ -131,7 +131,7 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs.name }}-test-reports
+          name: ${{ inputs.name }}-${{ inputs.os }}-test-reports
           path: ${{ inputs.name }}-json-reports
 
       - name: Merge reports
