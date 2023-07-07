@@ -260,7 +260,7 @@ Cypress.Commands.add(
   }: StopWebContainerProps = {}): Cypress.Chainable => {
     const logDirectory = `cypress/results/logs/${
       Cypress.spec.name
-    }/${Cypress.currentTest.title.replace(/[,\s/|<*?:"]/g, '_')}`;
+    }/${Cypress.currentTest.title.replace(/[,\s/|<>*?:"]/g, '_')}`;
 
     return cy
       .visitEmptyPage()
