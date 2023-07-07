@@ -358,12 +358,15 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
-  return cy.get('header div[data-cy="clock"]').then(($time) => {
-    const localTime = $time.children()[1].textContent;
+  return cy.waitUntil(() => {
+    return cy.get('header div[data-cy="clock"]').then(($time) => {
+      const headerTime = $time.children()[1].textContent;
+      if (headerTime?.match(/\d+:\d+/)) {
+        return headerTime;
+      }
 
-    cy.log(`Time in header is ${localTime}`);
-
-    return cy.wrap(localTime);
+      return false;
+    });
   });
 });
 
