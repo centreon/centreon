@@ -1,6 +1,9 @@
+import { useMemo } from 'react';
+
 import { atom, useAtom } from 'jotai';
 
 import { Dashboard } from '../../api/models';
+import routeMap from '../../../reactRoutes/routeMap';
 
 const dialogStateAtom = atom<{
   dashboard: Dashboard | null;
@@ -17,6 +20,7 @@ type UseDashboardAccessRights = {
   dashboard: Dashboard | null;
   editAccessRights: (dashboard: Dashboard) => () => void;
   isDialogOpen: boolean;
+  resourceLink: string;
   status: 'idle' | 'loading' | 'success' | 'error';
   submit: (dashboard: Dashboard) => void;
 };
@@ -35,6 +39,15 @@ const useDashboardAccessRights = (): UseDashboardAccessRights => {
     });
   };
 
+  const resourceLink = useMemo(() => {
+    const path = routeMap.dashboard.replace(
+      ':dashboardId',
+      (dialogState.dashboard?.id as string) ?? ''
+    );
+
+    return `${window.location.origin}${path}`;
+  }, [dialogState.dashboard]);
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const submit = async (dashboard: Dashboard): Promise<void> => {
     setDialogState({ ...dialogState, isOpen: false });
@@ -45,6 +58,7 @@ const useDashboardAccessRights = (): UseDashboardAccessRights => {
     dashboard: dialogState.dashboard,
     editAccessRights,
     isDialogOpen: dialogState.isOpen,
+    resourceLink,
     status: dialogState.status,
     submit
   };

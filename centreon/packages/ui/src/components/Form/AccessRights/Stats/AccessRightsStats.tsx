@@ -22,7 +22,7 @@ const AccessRightsStats = ({
     ['added', 'updated', 'removed'].forEach((state) => {
       if (stats?.[state] > 0)
         elements.push(
-          <span>
+          <span key={state}>
             <strong>{stats[state]}</strong> {labels[state]}
           </span>
         );
