@@ -261,7 +261,6 @@ const useAccessRightsForm = (): UseAccessRightsForm => {
     stats,
     submit,
     updateContactAccessRight
-    // TODO isInContactAccessRights(contact) => boolean
   };
 };
 

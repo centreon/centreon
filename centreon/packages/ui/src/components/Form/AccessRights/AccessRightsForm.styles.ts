@@ -6,8 +6,7 @@ const useStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     gap: theme.spacing(6),
 
-    maxWidth: '480px',
-    paddingBottom: theme.spacing(2),
+    maxWidth: '520px',
     paddingTop: theme.spacing(3),
 
     width: '100%'

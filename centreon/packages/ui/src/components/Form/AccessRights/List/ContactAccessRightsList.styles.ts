@@ -19,7 +19,7 @@ const useStyles = makeStyles()((theme) => ({
     '& .MuiChip-root': {
       '& .MuiChip-label': {
         lineHeight: 'unset',
-        padding: theme.spacing(0, 0.5),
+        padding: theme.spacing(0, 0.75),
         textOverflow: 'unset'
       },
       '&[data-state="added"]': {
@@ -34,8 +34,8 @@ const useStyles = makeStyles()((theme) => ({
         borderColor: theme.palette.chip.color.info,
         color: theme.palette.chip.color.info
       },
-      borderRadius: '0.25rem',
-      flexBasis: '3rem',
+      borderRadius: '0.625rem',
+      flexBasis: '3.5rem',
       flexShrink: 0,
       fontSize: '0.6875rem',
 

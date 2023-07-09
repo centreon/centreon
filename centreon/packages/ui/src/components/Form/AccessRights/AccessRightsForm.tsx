@@ -26,9 +26,9 @@ export type AccessRightsFormProps = {
   initialValues?: AccessRightsFormProviderProps['initialValues'];
   labels: AccessRightsFormLabels;
   onCancel?: AccessRightsFormActionsProps['onCancel'];
-  onCopyLink?: AccessRightsFormActionsProps['onCopyLink'];
   onSubmit?: AccessRightsFormProviderProps['onSubmit'];
-  options?: AccessRightsFormProviderProps['options'];
+  options: AccessRightsFormProviderProps['options'];
+  resourceLink: string;
 };
 
 export type AccessRightsFormLabels = {
@@ -44,7 +44,7 @@ const AccessRightsForm = ({
   options,
   onSubmit,
   onCancel,
-  onCopyLink
+  resourceLink
 }: AccessRightsFormProps): ReactElement => {
   const { classes } = useStyles();
 
@@ -62,8 +62,8 @@ const AccessRightsForm = ({
         </span>
         <AccessRightsFormActions
           labels={labels.actions}
+          resourceLink={resourceLink}
           onCancel={onCancel}
-          onCopyLink={onCopyLink}
         />
       </div>
     </AccessRightsFormProvider>

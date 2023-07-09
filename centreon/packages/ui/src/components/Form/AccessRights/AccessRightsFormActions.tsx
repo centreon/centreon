@@ -4,28 +4,37 @@ import { Link as LinkIcon } from '@mui/icons-material';
 
 import { Button } from '../../Button';
 import { useStyles } from '../Form.styles';
+import { useCopyToClipboard } from '../../../utils';
 
 import { useAccessRightsForm } from './useAccessRightsForm';
 
 export type AccessRightsFormActionsProps = {
   labels: AccessRightsFormActionsLabels;
   onCancel?: () => void;
-  onCopyLink?: () => void;
+  resourceLink: string;
 };
 
 type AccessRightsFormActionsLabels = {
   cancel: string;
   copyLink: string;
+  copyLinkMessages: {
+    error: string;
+    success: string;
+  };
   submit: string;
 };
 
 const AccessRightsFormActions = ({
   labels,
   onCancel,
-  onCopyLink
+  resourceLink
 }: AccessRightsFormActionsProps): ReactElement => {
   const { classes } = useStyles();
   const { isDirty, submit } = useAccessRightsForm();
+  const { copy } = useCopyToClipboard({
+    errorMessage: labels.copyLinkMessages.error,
+    successMessage: labels.copyLinkMessages.success
+  });
 
   return (
     <div className={classes.actions}>
@@ -37,7 +46,7 @@ const AccessRightsFormActions = ({
           iconVariant="start"
           size="small"
           variant="ghost"
-          onClick={() => onCopyLink?.()}
+          onClick={() => copy(resourceLink)}
         >
           {labels.copyLink}
         </Button>

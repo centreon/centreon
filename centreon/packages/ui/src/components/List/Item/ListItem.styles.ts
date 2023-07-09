@@ -7,7 +7,7 @@ export const useStyles = makeStyles()((theme) => ({
     }
   },
   listItem: {
-    maxWidth: '480px'
+    maxWidth: '520px'
   },
   text: {
     disabled: {

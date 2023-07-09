@@ -24,6 +24,10 @@ export const Default: Story = {
       actions: {
         cancel: 'Cancel',
         copyLink: 'Copy link',
+        copyLinkMessages: {
+          error: 'Unable to copy link',
+          success: 'Link copied'
+        },
         submit: 'Update'
       },
       input: {
@@ -41,13 +45,15 @@ export const Default: Story = {
     options: {
       contacts: contactsAndGroupsMock(25),
       roles: [{ role: 'viewer' }, { role: 'editor' }]
-    }
+    },
+    resourceLink: 'https://app.centreon.com/resource/1'
   }
 };
 
 export const AsEmptyState: Story = {
   args: {
     labels: Default.args?.labels,
-    options: Default.args?.options
+    options: Default.args?.options,
+    resourceLink: Default.args?.resourceLink
   }
 };
