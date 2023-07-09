@@ -28,7 +28,7 @@ import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
 import { isEditingAtom } from './atoms';
 import { labelAddAWidget } from './translatedLabels';
-import { HeaderActions } from './HeaderActions/HeaderActions';
+import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
 
 const Dashboard = (): ReactElement => {
   const { t } = useTranslation();
@@ -64,7 +64,7 @@ const Dashboard = (): ReactElement => {
           </PageHeader.Main>
           <PageHeader.Actions>
             {canEdit && (
-              <HeaderActions
+              <DashboardEditActions
                 id={dashboard?.id}
                 name={dashboard?.name}
                 panels={panels}

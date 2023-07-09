@@ -5,23 +5,20 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import ShareIcon from '@mui/icons-material/Share';
 import { Typography } from '@mui/material';
 
-import { Button, IconButton, Modal } from '@centreon/ui/components';
+import { Button, Modal } from '@centreon/ui/components';
 
-import { Dashboard, DashboardPanel } from '../../api/models';
-import { formatPanel } from '../useDashboardDetails';
-import useDashboardDirty from '../useDashboardDirty';
-import { selectedDashboardShareAtom } from '../../Shares/atoms';
-import { Shares } from '../../Shares';
-import { labelShareTheDashboard } from '../../translatedLabels';
-import useSaveDashboard from '../useSaveDashboard';
+import { Dashboard, DashboardPanel } from '../../../api/models';
+import { formatPanel } from '../../useDashboardDetails';
+import useDashboardDirty from '../../useDashboardDirty';
+import { selectedDashboardShareAtom } from '../../../Shares/atoms';
+import useSaveDashboard from '../../useSaveDashboard';
 import {
   dashboardAtom,
   isEditingAtom,
   switchPanelsEditionModeDerivedAtom
-} from '../atoms';
+} from '../../atoms';
 import {
   labelEditDashboard,
   labelExit,
@@ -30,20 +27,20 @@ import {
   labelLeaveEditionModeChangesNotSaved,
   labelQuitDashboardChangesNotSaved,
   labelSave
-} from '../translatedLabels';
+} from '../../translatedLabels';
 
-interface HeaderActionsProps {
+interface DashboardEditActionsProps {
   id?: Dashboard['id'];
   name?: string;
   panels?: Array<DashboardPanel>;
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-const HeaderActions = ({
+const DashboardEditActions = ({
   id,
   name,
   panels
-}: HeaderActionsProps): ReactElement => {
+}: DashboardEditActionsProps): ReactElement => {
   const { t } = useTranslation();
 
   const [isAskingCancelConfirmation, setIsAskingCancelConfirmation] =
@@ -179,13 +176,13 @@ const HeaderActions = ({
         >
           {t(labelEditDashboard)}
         </Button>
-        <IconButton
-          aria-label={t(labelShareTheDashboard) as string}
-          data-testid={labelShareTheDashboard}
-          icon={<ShareIcon />}
-          onClick={openShareModal}
-        />
-        <Shares id={id} />
+        {/* <IconButton */}
+        {/*  aria-label={t(labelShareTheDashboard) as string} */}
+        {/*  data-testid={labelShareTheDashboard} */}
+        {/*  icon={<ShareIcon />} */}
+        {/*  onClick={openShareModal} */}
+        {/* /> */}
+        {/* <Shares id={id} /> */}
       </>
     );
   }
@@ -232,4 +229,4 @@ const HeaderActions = ({
   );
 };
 
-export { HeaderActions };
+export { DashboardEditActions };
