@@ -25,6 +25,7 @@ namespace Core\Dashboard\Application\UseCase\FindDashboardContactGroups;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
@@ -39,17 +40,21 @@ final class FindDashboardContactGroups
 
     public function __construct(
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
+        private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
-    )
-    {
+    ) {
     }
 
     public function __invoke(FindDashboardContactGroupsPresenterInterface $presenter): void
     {
         try {
             if ($this->rights->canAccess()) {
-                $users = $this->readContactGroupRepository->findAll();
+                $this->info('Find dashboard contact groups', ['request' => $this->requestParameters->toArray()]);
+                $users = $this->contact->isAdmin()
+                    ? $this->findContactGroupsAsAdmin()
+                    : $this->findContactGroupsAsContact();
+
                 $presenter->presentResponse($this->createResponse($users));
             } else {
                 $this->error(
@@ -62,6 +67,26 @@ final class FindDashboardContactGroups
             $presenter->presentResponse(new ErrorResponse(DashboardException::errorWhileRetrieving()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return array<ContactGroup>
+     */
+    private function findContactGroupsAsAdmin(): array
+    {
+        return $this->readContactGroupRepository->findAll();
+    }
+
+    /**
+     * @throws \Throwable
+     *
+     * @return array<ContactGroup>
+     */
+    private function findContactGroupsAsContact(): array
+    {
+        return $this->readContactGroupRepository->findAllByUserId($this->contact->getId());
     }
 
     /**

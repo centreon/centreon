@@ -25,6 +25,7 @@ namespace Core\Dashboard\Application\UseCase\FindDashboardContacts;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
@@ -39,6 +40,7 @@ final class FindDashboardContacts
 
     public function __construct(
         private readonly ReadUserRepositoryInterface $readUserRepository,
+        private readonly RequestParametersInterface $requestParameters,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
     )
@@ -49,6 +51,7 @@ final class FindDashboardContacts
     {
         try {
             if ($this->rights->canAccess()) {
+                $this->info('Find dashboard contacts', ['request' => $this->requestParameters->toArray()]);
                 $users = $this->readUserRepository->findAllUsers();
                 $presenter->presentResponse($this->createResponse($users));
             } else {

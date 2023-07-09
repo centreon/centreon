@@ -51,17 +51,20 @@ final class AddContactDashboardShare
         private readonly ContactRepositoryInterface $contactRepository,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
-    ) {
+    )
+    {
     }
 
     public function __invoke(
         int $dashboardId,
         AddContactDashboardShareRequest $request,
         AddContactDashboardSharePresenterInterface $presenter
-    ): void {
+    ): void
+    {
         try {
             if ($this->rights->hasAdminRole()) {
                 if ($dashboard = $this->readDashboardRepository->findOne($dashboardId)) {
+                    $this->info('Add a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $request->id]);
                     $response = $this->addContactShareAsAdmin($dashboard, $request);
                 } else {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
@@ -69,6 +72,7 @@ final class AddContactDashboardShare
                 }
             } elseif ($this->rights->canAccess()) {
                 if ($dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact)) {
+                    $this->info('Add a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $request->id]);
                     $response = $this->addContactShareAsContact($dashboard, $request);
                 } else {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
@@ -91,7 +95,7 @@ final class AddContactDashboardShare
             $presenter->presentResponse(new ErrorResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->presentResponse(new ErrorResponse('Error while adding a dashboard share'));
+            $presenter->presentResponse(new ErrorResponse('Error while adding the dashboard share'));
         }
     }
 
@@ -99,15 +103,16 @@ final class AddContactDashboardShare
      * @param Dashboard $dashboard
      * @param AddContactDashboardShareRequest $request
      *
-     * @throws \Throwable
      * @throws DashboardException
+     * @throws \Throwable
      *
      * @return AddContactDashboardShareResponse
      */
     private function addContactShareAsAdmin(
         Dashboard $dashboard,
         AddContactDashboardShareRequest $request
-    ): AddContactDashboardShareResponse {
+    ): AddContactDashboardShareResponse
+    {
         $contact = $this->getContactById($request->id);
 
         $this->writeDashboardShareRepository->upsertShareWithContact(
@@ -126,15 +131,16 @@ final class AddContactDashboardShare
      * @param Dashboard $dashboard
      * @param AddContactDashboardShareRequest $request
      *
-     * @throws \Throwable
      * @throws DashboardException
+     * @throws \Throwable
      *
      * @return AddContactDashboardShareResponse|ResponseStatusInterface
      */
     private function addContactShareAsContact(
         Dashboard $dashboard,
         AddContactDashboardShareRequest $request
-    ): AddContactDashboardShareResponse|ResponseStatusInterface {
+    ): AddContactDashboardShareResponse|ResponseStatusInterface
+    {
         $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard);
         if (! $this->rights->canCreateShare($sharingRoles)) {
             return new ForbiddenResponse(

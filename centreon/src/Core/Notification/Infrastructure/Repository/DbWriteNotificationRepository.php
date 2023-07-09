@@ -133,10 +133,40 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
+    public function addContactGroups(int $notificationId, array $contactGroupIds): void
+    {
+
+        if ($contactGroupIds === []) {
+            return;
+        }
+
+        $queryBinding = [];
+        $bindedValues = [];
+        foreach ($contactGroupIds as $key => $contactgroupId) {
+            $queryBinding[] = "(:notificationId, :contactgroupId_{$key})";
+            $bindedValues[":contactgroupId_{$key}"] = $contactgroupId;
+        }
+
+        $request = $this->translateDbName(
+            'INSERT INTO `:db`.notification_contactgroup_relation
+            (notification_id, contactgroup_id) VALUES '
+            . implode(', ', $queryBinding)
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        foreach ($bindedValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function update(Notification $notification): void
     {
-        $this->info('Updating a notification configuration');
-
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 UPDATE notification
@@ -155,5 +185,97 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
         $statement->bindValue(':notificationId', $notification->getId(), \PDO::PARAM_INT);
 
         $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteMessages(int $notificationId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    DELETE FROM `:db`.notification_message
+                    WHERE notification_id = :notificationId
+                SQL
+        ));
+        $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteUsers(int $notificationId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                    DELETE FROM `:db`.notification_user_relation
+                    WHERE notification_id = :notificationId
+                SQL
+        ));
+        $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteContactGroups(int $notificationId): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE FROM `:db`.notification_contactgroup_relation
+                WHERE notification_id = :notificationId
+            SQL
+        ));
+        $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteContactGroupsByNotificationAndContactGroupIds(
+        int $notificationId,
+        array $contactGroupsIds
+    ): void {
+        if ($contactGroupsIds === []) {
+            return;
+        }
+        $bindValues = [];
+        foreach ($contactGroupsIds as $contactGroupId) {
+            $bindValues[':contactgroup_' . $contactGroupId] = $contactGroupId;
+        }
+
+        $bindToken = implode(", ", array_keys($bindValues));
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                    DELETE FROM `:db`.notification_contactgroup_relation
+                    WHERE notification_id = :notificationId
+                    AND contactgroup_id IN ($bindToken)
+                SQL
+        ));
+        $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        foreach($bindValues as $token => $value) {
+            $statement->bindValue($token, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(int $notificationId): int
+    {
+        $request = <<<'SQL'
+            DELETE FROM `:db`.`notification`
+            WHERE `id` = :notification_id
+            SQL;
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':notification_id', $notificationId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->rowCount();
     }
 }

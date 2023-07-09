@@ -16178,10 +16178,10 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "You are not allowed to perform write operations on dashboards"
 # msgstr ""
 
-# msgid "You are not allowed to perform write operations on the dashboard #%d access rights"
+# msgid "You are not allowed to edit access rights on the dashboard #%d"
 # msgstr ""
 
-# msgid "You are not allowed to perform read operations on the dashboard #%d access rights"
+# msgid "You cannot view access rights on the dashboard #%d"
 # msgstr ""
 
 # msgid "Error while retrieving a dashboard"
@@ -16310,37 +16310,22 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Host template #%d not found"
 #  msgstr ""
 
-# msgid "The contact id #%d doesn't exist"
+# msgid "The contact ID #%d does not exist"
 # msgstr ""
 
-# msgid "Error while retrieving newly created dashboard share"
+# msgid "Error while retrieving the new dashboard share"
 # msgstr ""
 
-# msgid "Error while adding a dashboard share"
+# msgid "Error while adding the dashboard share"
 # msgstr ""
 
-# msgid "Error while searching dashboard shares"
+# msgid "Error while searching for the dashboard shares"
 # msgstr ""
 
-# msgid "Error while deleting a dashboard share"
+# msgid "Error while deleting the dashboard share"
 
-# msgid "Dashboard share not found"
-# msgstr ""
-
-# msgid "Error while updating a dashboard share"
+# msgid "Error while updating the dashboard share"
 # msgstr ""
 
 #  msgid "Circular inheritance not allowed"
 #  msgstr ""
-
-# msgid "Dashboard access rights"
-# msgstr ""
-
-# msgid "User roles"
-# msgstr ""
-
-# msgid "Share the dashboard"
-# msgstr ""
-
-# msgid "User roles are updated"
-# msgstr ""

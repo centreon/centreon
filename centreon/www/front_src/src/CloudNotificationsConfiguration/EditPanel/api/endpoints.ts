@@ -7,7 +7,7 @@ export const notificationListingEndpoint = `${baseEndpoint}/configuration/notifi
 interface Props {
   id?: number | null;
 }
-export const notificationtEndpoint = ({ id }: Props): string => {
+export const notificationEndpoint = ({ id }: Props): string => {
   if (isNil(id)) {
     return notificationListingEndpoint;
   }

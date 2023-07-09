@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Option\OptionService;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -34,23 +36,27 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Application\Type\NoValue;
+use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\InheritanceManager;
+use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
-use Core\HostMacro\Application\Repository\ReadHostMacroRepositoryInterface;
-use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
-use Core\HostMacro\Domain\Model\HostMacro;
-use Core\HostMacro\Domain\Model\HostMacroDifference;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
-use Core\HostTemplate\Domain\Model\MacroManager;
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
+use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
+use Core\Macro\Domain\Model\MacroDifference;
+use Core\Macro\Domain\Model\MacroManager;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Utility\Difference\BasicDifference;
@@ -71,7 +77,8 @@ final class PartialUpdateHostTemplate
         private readonly WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
-        private readonly InheritanceManager $inheritanceManager,
+        private readonly PartialUpdateHostTemplateValidation $validation,
+        private readonly OptionService $optionService,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
     ) {
@@ -82,8 +89,11 @@ final class PartialUpdateHostTemplate
      * @param PartialUpdateHostTemplateRequest $request
      * @param int $hostTemplateId
      */
-    public function __invoke(PartialUpdateHostTemplateRequest $request, PresenterInterface $presenter, int $hostTemplateId): void
-    {
+    public function __invoke(
+        PartialUpdateHostTemplateRequest $request,
+        PresenterInterface $presenter,
+        int $hostTemplateId
+    ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE)) {
                 $this->error(
@@ -121,6 +131,7 @@ final class PartialUpdateHostTemplate
 
             if (! $this->user->isAdmin()) {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $this->validation->accessGroups = $this->accessGroups;
             }
 
             $this->updatePropertiesInTransaction($request, $hostTemplate);
@@ -146,11 +157,14 @@ final class PartialUpdateHostTemplate
      *
      * @throws \Throwable
      */
-    private function updatePropertiesInTransaction(PartialUpdateHostTemplateRequest $request, HostTemplate $hostTemplate): void
-    {
+    private function updatePropertiesInTransaction(
+        PartialUpdateHostTemplateRequest $request,
+        HostTemplate $hostTemplate
+    ): void {
         try {
             $this->dataStorageEngine->startTransaction();
 
+            $this->updateHostTemplate($request, $hostTemplate);
             // Note: parent templates must be updated before macros for macro inheritance resolution
             $this->updateParentTemplates($request, $hostTemplate->getId());
             $this->updateMacros($request, $hostTemplate);
@@ -163,6 +177,196 @@ final class PartialUpdateHostTemplate
 
             throw $ex;
         }
+    }
+
+    /**
+     * @param PartialUpdateHostTemplateRequest $request
+     * @param HostTemplate $hostTemplate
+     *
+     * @throws \Throwable|AssertionFailedException|HostTemplateException
+     */
+    private function updateHostTemplate(PartialUpdateHostTemplateRequest $request, HostTemplate $hostTemplate): void
+    {
+        $this->info('PartialUpdateHostTemplate: update host template', ['host_template_id' => $hostTemplate->getId()]);
+
+        $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
+        $inheritanceMode = isset($inheritanceMode['inheritance_mode'])
+            ? (int) $inheritanceMode['inheritance_mode']->getValue()
+            : 0;
+
+        if (! $request->name instanceOf NoValue) {
+            $this->validation->assertIsValidName($request->name, $hostTemplate);
+            $hostTemplate->setName($request->name);
+        }
+
+        if (! $request->alias instanceOf NoValue) {
+            $hostTemplate->setAlias($request->alias);
+        }
+
+        if (! $request->snmpVersion instanceOf NoValue) {
+            $hostTemplate->setSnmpVersion(
+                $request->snmpVersion === ''
+                    ? null
+                    : SnmpVersion::from($request->snmpVersion)
+            );
+        }
+
+        if (! $request->snmpCommunity instanceOf NoValue) {
+            $hostTemplate->setSnmpCommunity($request->snmpCommunity);
+        }
+
+        if (! $request->timezoneId instanceOf NoValue) {
+            $this->validation->assertIsValidTimezone($request->timezoneId);
+            $hostTemplate->setTimezoneId($request->timezoneId);
+        }
+
+        if (! $request->severityId instanceOf NoValue) {
+            $this->validation->assertIsValidSeverity($request->severityId);
+            $hostTemplate->setSeverityId($request->severityId);
+        }
+
+        if (! $request->checkCommandId instanceOf NoValue) {
+            $this->validation->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
+            $hostTemplate->setCheckCommandId($request->checkCommandId);
+        }
+
+        if (! $request->checkCommandArgs instanceOf NoValue) {
+            $hostTemplate->setCheckCommandArgs($request->checkCommandArgs);
+        }
+
+        if (! $request->checkTimeperiodId instanceOf NoValue) {
+            $this->validation->assertIsValidTimePeriod($request->checkTimeperiodId, 'checkTimeperiodId');
+            $hostTemplate->setCheckTimeperiodId($request->checkTimeperiodId);
+        }
+
+        if (! $request->maxCheckAttempts instanceOf NoValue) {
+            $hostTemplate->setMaxCheckAttempts($request->maxCheckAttempts);
+        }
+
+        if (! $request->normalCheckInterval instanceOf NoValue) {
+            $hostTemplate->setNormalCheckInterval($request->normalCheckInterval);
+        }
+
+        if (! $request->retryCheckInterval instanceOf NoValue) {
+            $hostTemplate->setRetryCheckInterval($request->retryCheckInterval);
+        }
+
+        if (! $request->activeCheckEnabled instanceOf NoValue) {
+            $hostTemplate->setActiveCheckEnabled(YesNoDefaultConverter::fromScalar($request->activeCheckEnabled));
+        }
+
+        if (! $request->passiveCheckEnabled instanceOf NoValue) {
+            $hostTemplate->setPassiveCheckEnabled(YesNoDefaultConverter::fromScalar($request->passiveCheckEnabled));
+        }
+
+        if (! $request->notificationEnabled instanceOf NoValue) {
+            $hostTemplate->setNotificationEnabled(YesNoDefaultConverter::fromScalar($request->notificationEnabled));
+        }
+
+        if (! $request->notificationOptions instanceOf NoValue) {
+            $hostTemplate->setNotificationOptions(
+                $request->notificationOptions === null
+                    ? []
+                    : HostEventConverter::fromBitFlag($request->notificationOptions)
+            );
+        }
+
+        if (! $request->notificationInterval instanceOf NoValue) {
+            $hostTemplate->setNotificationInterval($request->notificationInterval);
+        }
+
+        if (! $request->notificationTimeperiodId instanceOf NoValue) {
+            $this->validation->assertIsValidTimePeriod($request->notificationTimeperiodId, 'notificationTimeperiodId');
+            $hostTemplate->setNotificationTimeperiodId($request->notificationTimeperiodId);
+        }
+
+        if (! $request->addInheritedContactGroup instanceOf NoValue) {
+            $hostTemplate->setAddInheritedContactGroup(
+                $inheritanceMode === 1 ? $request->addInheritedContactGroup : false
+            );
+        }
+
+        if (! $request->addInheritedContact instanceOf NoValue) {
+            $hostTemplate->setAddInheritedContact(
+                $inheritanceMode === 1 ? $request->addInheritedContact : false
+            );
+        }
+
+        if (! $request->firstNotificationDelay instanceOf NoValue) {
+            $hostTemplate->setFirstNotificationDelay($request->firstNotificationDelay);
+        }
+
+        if (! $request->recoveryNotificationDelay instanceOf NoValue) {
+            $hostTemplate->setRecoveryNotificationDelay($request->recoveryNotificationDelay);
+        }
+
+        if (! $request->acknowledgementTimeout instanceOf NoValue) {
+            $hostTemplate->setAcknowledgementTimeout($request->acknowledgementTimeout);
+        }
+
+        if (! $request->freshnessChecked instanceOf NoValue) {
+            $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar($request->freshnessChecked));
+        }
+
+        if (! $request->freshnessThreshold instanceOf NoValue) {
+            $hostTemplate->setFreshnessThreshold($request->freshnessThreshold);
+        }
+
+        if (! $request->flapDetectionEnabled instanceOf NoValue) {
+            $hostTemplate->setFlapDetectionEnabled(YesNoDefaultConverter::fromScalar($request->flapDetectionEnabled));
+        }
+
+        if (! $request->lowFlapThreshold instanceOf NoValue) {
+            $hostTemplate->setLowFlapThreshold($request->lowFlapThreshold);
+        }
+
+        if (! $request->highFlapThreshold instanceOf NoValue) {
+            $hostTemplate->setHighFlapThreshold($request->highFlapThreshold);
+        }
+
+        if (! $request->eventHandlerEnabled instanceOf NoValue) {
+            $hostTemplate->setEventHandlerEnabled(YesNoDefaultConverter::fromScalar($request->eventHandlerEnabled));
+        }
+
+        if (! $request->eventHandlerCommandId instanceOf NoValue) {
+            $this->validation->assertIsValidCommand($request->eventHandlerCommandId, null, 'eventHandlerCommandId');
+            $hostTemplate->setEventHandlerCommandId($request->eventHandlerCommandId);
+        }
+
+        if (! $request->eventHandlerCommandArgs instanceOf NoValue) {
+            $hostTemplate->setEventHandlerCommandArgs($request->eventHandlerCommandArgs);
+        }
+
+        if (! $request->noteUrl instanceOf NoValue) {
+            $hostTemplate->setNoteUrl($request->noteUrl);
+        }
+
+        if (! $request->note instanceOf NoValue) {
+            $hostTemplate->setNote($request->note);
+        }
+
+        if (! $request->actionUrl instanceOf NoValue) {
+            $hostTemplate->setActionUrl($request->actionUrl);
+        }
+
+        if (! $request->iconId instanceOf NoValue) {
+            $this->validation->assertIsValidIcon($request->iconId);
+            $hostTemplate->setIconId($request->iconId);
+        }
+
+        if (! $request->iconAlternative instanceOf NoValue) {
+            $hostTemplate->setIconAlternative($request->iconAlternative);
+        }
+
+        if (! $request->comment instanceOf NoValue) {
+            $hostTemplate->setComment($request->comment);
+        }
+
+        if (! $request->isActivated instanceOf NoValue) {
+            $hostTemplate->setIsActivated($request->isActivated);
+        }
+
+        $this->writeHostTemplateRepository->update($hostTemplate);
     }
 
     /**
@@ -185,8 +389,8 @@ final class PartialUpdateHostTemplate
         }
 
         /**
-         * @var array<string,HostMacro> $directMacros
-         * @var array<string,HostMacro> $inheritedMacros
+         * @var array<string,Macro> $directMacros
+         * @var array<string,Macro> $inheritedMacros
          * @var array<string,CommandMacro> $commandMacros
          */
         [$directMacros, $inheritedMacros, $commandMacros] = $this->findOriginalMacros($hostTemplate);
@@ -197,7 +401,7 @@ final class PartialUpdateHostTemplate
             $macros[$macro->getName()] = $macro;
         }
 
-        $macrosDiff = new HostMacroDifference();
+        $macrosDiff = new MacroDifference();
         $macrosDiff->compute($directMacros, $inheritedMacros, $commandMacros, $macros);
 
         MacroManager::setOrder($macrosDiff, $macros, $directMacros);
@@ -232,8 +436,8 @@ final class PartialUpdateHostTemplate
      * @throws \Throwable
      *
      * @return array{
-     *      array<string,HostMacro>,
-     *      array<string,HostMacro>,
+     *      array<string,Macro>,
+     *      array<string,Macro>,
      *      array<string,CommandMacro>
      * }
      */
@@ -244,7 +448,7 @@ final class PartialUpdateHostTemplate
         $existingHostMacros
             = $this->readHostMacroRepository->findByHostIds(array_merge([$hostTemplate->getId()], $inheritanceLine));
 
-        [$directMacros, $inheritedMacros] = MacroManager::resolveInheritanceForHostMacro(
+        [$directMacros, $inheritedMacros] = Macro::resolveInheritance(
             $existingHostMacros,
             $inheritanceLine,
             $hostTemplate->getId()
@@ -279,7 +483,7 @@ final class PartialUpdateHostTemplate
 
         $categoryIds = array_unique($request->categories);
 
-        $this->assertAreValidCategories($categoryIds);
+        $this->validation->assertAreValidCategories($categoryIds);
 
         if ($this->user->isAdmin()) {
             $originalCategories = $this->readHostCategoryRepository->findByHost($hostTemplate->getId());
@@ -301,28 +505,6 @@ final class PartialUpdateHostTemplate
 
         $this->writeHostCategoryRepository->linkToHost($hostTemplate->getId(), $addedCategories);
         $this->writeHostCategoryRepository->unlinkFromHost($hostTemplate->getId(), $removedCategories);
-    }
-
-    /**
-     * Assert category IDs are valid.
-     *
-     * @param int[] $categoryIds
-     *
-     * @throws HostTemplateException
-     * @throws \Throwable
-     */
-    private function assertAreValidCategories(array $categoryIds): void
-    {
-        if ($this->user->isAdmin()) {
-            $validCategoryIds = $this->readHostCategoryRepository->exist($categoryIds);
-        } else {
-            $validCategoryIds
-                = $this->readHostCategoryRepository->existByAccessGroups($categoryIds, $this->accessGroups);
-        }
-
-        if ([] !== ($invalidIds = array_diff($categoryIds, $validCategoryIds))) {
-            throw HostTemplateException::idsDoNotExist('categories', $invalidIds);
-        }
     }
 
     /**
@@ -348,7 +530,7 @@ final class PartialUpdateHostTemplate
         /** @var int[] $parentTemplateIds */
         $parentTemplateIds = array_unique($dto->templates);
 
-        $this->assertAreValidTemplates($parentTemplateIds, $hostTemplateId);
+        $this->validation->assertAreValidTemplates($parentTemplateIds, $hostTemplateId);
 
         $this->info('Remove parent templates from a host template', ['child_id' => $hostTemplateId]);
         $this->writeHostTemplateRepository->deleteParents($hostTemplateId);
@@ -358,36 +540,6 @@ final class PartialUpdateHostTemplate
                 'child_id' => $hostTemplateId, 'parent_id' => $templateId, 'order' => $order,
             ]);
             $this->writeHostTemplateRepository->addParent($hostTemplateId, $templateId, $order);
-        }
-    }
-
-    /**
-     * Assert template IDs are valid.
-     *
-     * @param int[] $templateIds
-     * @param int $hostTemplateId
-     *
-     * @throws HostTemplateException
-     * @throws \Throwable
-     */
-    private function assertAreValidTemplates(array $templateIds, int $hostTemplateId): void
-    {
-        if ($templateIds === []) {
-
-            return;
-        }
-
-        $validTemplateIds = $this->readHostTemplateRepository->exist($templateIds);
-
-        if ([] !== ($invalidIds = array_diff($templateIds, $validTemplateIds))) {
-            throw HostTemplateException::idsDoNotExist('templates', $invalidIds);
-        }
-
-        if (
-            in_array($hostTemplateId, $templateIds, true)
-            || false === $this->inheritanceManager->isValidInheritanceTree($hostTemplateId, $templateIds)
-        ) {
-            throw HostTemplateException::circularTemplateInheritance();
         }
     }
 }

@@ -15,34 +15,91 @@ const checkIfSystemUserRoot = (): Cypress.Chainable => {
     });
 };
 
+const getCentreonStableMinorVersions = (
+  majorVersion: string
+): Cypress.Chainable => {
+  let commandResult;
+  if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+    commandResult = cy
+      .execInContainer({
+        command: `bash -e <<EOF
+          dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
+EOF`,
+        name: Cypress.env('dockerName')
+      })
+      .exec(
+        `docker exec -i ${Cypress.env(
+          'dockerName'
+        )} sh -c "dnf --showduplicates list centreon-web | grep centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }' | tr '\n' ' '"`
+      );
+  } else {
+    commandResult = cy
+      .execInContainer({
+        command: `bash -e <<EOF
+          rm -f /etc/apt/sources.list.d/centreon-unstable.list
+          rm -f /etc/apt/sources.list.d/centreon-testing.list
+          apt-get update
+EOF`,
+        name: Cypress.env('dockerName')
+      })
+      .exec(
+        `docker exec -i ${Cypress.env(
+          'dockerName'
+        )} sh -c "apt list -a centreon-web | grep '${majorVersion}' | awk '{ print \\$2 }'"`
+      );
+  }
+
+  return commandResult.then(({ stdout }): Cypress.Chainable<Array<number>> => {
+    cy.log(stdout);
+    const stableVersions: Array<number> = [];
+
+    const versionsRegex = /\d+\.\d+\.(\d+)/g;
+
+    [...stdout.matchAll(versionsRegex)].forEach((result) => {
+      cy.log(`available version found : ${majorVersion}.${result[1]}`);
+      stableVersions.push(Number(result[1]));
+    });
+
+    return cy.wrap([...new Set(stableVersions)].sort((a, b) => a - b)); // remove duplicates and order
+  });
+};
+
 const installCentreon = (version: string): Cypress.Chainable => {
+  cy.log(`installing version ${version}...`);
+
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     cy.execInContainer({
       command: `bash -e <<EOF
-        dnf config-manager --set-disabled 'centreon-*-unstable*' 'mariadb*'
+        dnf config-manager --set-disabled 'centreon-*-unstable*' 'centreon-*-testing*' 'mariadb*'
         dnf install -y centreon-web-${version}
+        dnf install -y centreon-broker-cbd
         echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini
-        service mysql start
+        /etc/init.d/mysql start
         mkdir -p /run/php-fpm
-        /usr/sbin/php-fpm
-        httpd -k start
+        systemctl start php-fpm
+        systemctl start httpd
         mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
-  EOF`,
+EOF`,
       name: Cypress.env('dockerName')
     });
   } else {
     cy.execInContainer({
       command: `bash -e <<EOF
-        mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak
+        rm -f /etc/apt/sources.list.d/centreon-unstable.list
+        rm -f  /etc/apt/sources.list.d/centreon-testing.list
         apt-get update
-        apt-get install -y centreon-web-${version}
+        apt-get install -y centreon-web-apache=${version}-${Cypress.env(
+        'WEB_IMAGE_OS'
+      )} centreon-poller=${version}-${Cypress.env('WEB_IMAGE_OS')}
+        mkdir /usr/lib/centreon-connector
         echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
+        sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql
         service mysql start
         mkdir -p /run/php
-        /usr/sbin/php-fpm8.1
-        apache2ctl start
+        systemctl start php8.1-fpm
+        systemctl start apache2
         mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
-  EOF`,
+EOF`,
       name: Cypress.env('dockerName')
     });
   }
@@ -115,13 +172,13 @@ const installCentreon = (version: string): Cypress.Chainable => {
   cy.wait('@nextStep').get('#finish').click();
 
   return cy
-    .copyToContainer({
-      destination: '/tmp/standard.sql',
-      source: '../../../.github/docker/sql/standard.sql'
-    })
+    .setUserTokenApiV1()
+    .applyPollerConfiguration()
     .execInContainer({
       command: `bash -e <<EOF
-      mysql -pcentreon centreon < /tmp/standard.sql
+        systemctl restart cbd
+        systemctl restart centengine
+        systemctl restart gorgoned
 EOF`,
       name: Cypress.env('dockerName')
     });
@@ -130,15 +187,26 @@ EOF`,
 const updatePlatformPackages = (): Cypress.Chainable => {
   return cy
     .copyToContainer({
-      destination: '/tmp/rpms-update-centreon',
-      source: './cypress/fixtures/rpms'
+      destination: '/tmp/packages-update-centreon',
+      source: './cypress/fixtures/packages'
     })
     .getWebVersion()
     .then(({ major_version }) => {
+      if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+        return cy.execInContainer({
+          command: `bash -e <<EOF
+          rm -f /tmp/packages-update-centreon/centreon-${major_version}*.rpm /tmp/packages-update-centreon/centreon-central-${major_version}*.rpm
+          dnf install -y /tmp/packages-update-centreon/*.rpm
+EOF`,
+          name: Cypress.env('dockerName')
+        });
+      }
+
       return cy.execInContainer({
         command: `bash -e <<EOF
-        rm -f /tmp/rpms-update-centreon/centreon-${major_version}*.rpm /tmp/rpms-update-centreon/centreon-central-${major_version}*.rpm
-        dnf install -y /tmp/rpms-update-centreon/*.rpm
+        rm -f /tmp/packages-update-centreon/centreon_${major_version}*.deb /tmp/packages-update-centreon/centreon-central_${major_version}*.deb
+        apt-get update
+        apt-get install -y /tmp/packages-update-centreon/centreon-*.deb
 EOF`,
         name: Cypress.env('dockerName')
       });
@@ -146,15 +214,15 @@ EOF`,
 };
 
 const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
+  const command = Cypress.env('WEB_IMAGE_OS').includes('alma')
+    ? `rpm -qa | grep centreon-web | cut -d '-' -f3`
+    : `apt -qq list centreon-web | awk '{ print \\$2 }' | cut -d '-' -f1`;
+
   return cy
-    .exec(
-      `docker exec -i ${Cypress.env(
-        'dockerName'
-      )} sh -c "rpm -qa |grep centreon-web |cut -d '-' -f3"`
-    )
+    .exec(`docker exec -i ${Cypress.env('dockerName')} sh -c "${command}"`)
     .then(({ stdout }): Cypress.Chainable<null> | null => {
-      const isRoot = platformVersion === stdout;
-      if (isRoot) {
+      const isExpected = platformVersion === stdout;
+      if (isExpected) {
         return null;
       }
 
@@ -186,6 +254,7 @@ const insertResources = (): Cypress.Chainable => {
 
 export {
   checkIfSystemUserRoot,
+  getCentreonStableMinorVersions,
   installCentreon,
   updatePlatformPackages,
   checkPlatformVersion,

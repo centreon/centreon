@@ -33,8 +33,6 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class DeleteContactDashboardShareController extends AbstractController
 {
-    use LoggerTrait;
-
     /**
      * @param int $dashboardId
      * @param int $contactId

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\Dashboard\Application\UseCase\FindDashboardContactGroups;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
@@ -36,6 +37,7 @@ beforeEach(function (): void {
     $this->presenter = new FindDashboardContactGroupsPresenterStub();
     $this->useCase = new FindDashboardContactGroups(
         $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
+        $this->requestParameters = $this->createMock(RequestParametersInterface::class),
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
     );
@@ -69,7 +71,7 @@ it(
     'should present a FindDashboardContactGroupsResponse if the contact is allowed',
     function (): void {
         $this->rights->expects($this->once())->method('canAccess')->willReturn(true);
-        $this->readContactGroupRepository->expects($this->once())->method('findAll')->willReturn([]);
+        $this->readContactGroupRepository->expects($this->once())->method('findAllByUserId')->willReturn([]);
 
         ($this->useCase)($this->presenter);
 

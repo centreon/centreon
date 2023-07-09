@@ -15,10 +15,10 @@ import {
   selectedRowsAtom,
   notificationsNamesAtom
 } from '../atom';
-import { EditedNotificationIdAtom, panelModeAtom } from '../EditPanel/atom';
+import { editedNotificationIdAtom, panelModeAtom } from '../EditPanel/atom';
 import { PanelMode } from '../EditPanel/models';
 
-import Actions from './Actions/HeaderActions';
+import { Actions } from './Header';
 import useListingColumns from './columns';
 import useLoadingNotifications from './useLoadNotifications';
 
@@ -40,10 +40,9 @@ const NotificationsListing = (): JSX.Element => {
   const [isPannelOpen, setIsPannelOpen] = useAtom(isPanelOpenAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const setLimit = useSetAtom(limitAtom);
-  const setEditedNotificationId = useSetAtom(EditedNotificationIdAtom);
+  const setEditedNotificationId = useSetAtom(editedNotificationIdAtom);
   const setPanelMode = useSetAtom(panelModeAtom);
   const setNotificationsNames = useSetAtom(notificationsNamesAtom);
-
   const { loading, data: listingData, refetch } = useLoadingNotifications();
 
   useEffect(() => {
@@ -52,7 +51,10 @@ const NotificationsListing = (): JSX.Element => {
 
   useEffect(() => {
     if (listingData) {
-      const names = listingData.result.map((item) => item.name);
+      const names = listingData.result.map((item) => ({
+        id: item.id,
+        name: item.name
+      }));
       setNotificationsNames(names);
     }
   }, [listingData]);

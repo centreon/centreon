@@ -87,7 +87,9 @@ export interface InputProps {
     getChecked?: (value) => boolean;
   };
   text?: {
+    endAdornment?: JSX.Element;
     multilineRows?: number;
+    placeholder?: string;
     type?: string;
   };
   type: InputType;

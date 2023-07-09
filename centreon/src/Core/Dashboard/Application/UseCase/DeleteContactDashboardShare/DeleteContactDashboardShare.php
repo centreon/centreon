@@ -62,6 +62,7 @@ final class DeleteContactDashboardShare
         try {
             if ($this->rights->hasAdminRole()) {
                 if ($dashboard = $this->readDashboardRepository->findOne($dashboardId)) {
+                    $this->info('Delete a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
                     $response = $this->deleteContactShareAsAdmin($dashboard, $contactId);
                 } else {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
@@ -69,6 +70,7 @@ final class DeleteContactDashboardShare
                 }
             } elseif ($this->rights->canAccess()) {
                 if ($dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact)) {
+                    $this->info('Delete a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
                     $response = $this->deleteContactShareAsContact($dashboard, $contactId);
                 } else {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
@@ -91,7 +93,7 @@ final class DeleteContactDashboardShare
             $presenter->presentResponse(new ErrorResponse($ex));
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->presentResponse(new ErrorResponse('Error while deleting a dashboard share'));
+            $presenter->presentResponse(new ErrorResponse('Error while deleting the dashboard share'));
         }
     }
 
