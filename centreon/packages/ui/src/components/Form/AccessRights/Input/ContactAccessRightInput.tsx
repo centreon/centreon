@@ -21,9 +21,7 @@ type ContactAccessRightInputLabels = {
     add: string;
   };
   fields: {
-    contact: {
-      labels: ContactInputFieldProps['labels'];
-    };
+    contact: ContactInputFieldProps['labels'];
     role?: {
       label: string;
     };
@@ -61,7 +59,7 @@ const ContactAccessRightInput = ({
       <FormikProvider value={formik}>
         <ContactInputField
           id="contact"
-          {...labels.fields.contact}
+          labels={labels.fields.contact}
           name="contact"
         />
         <RoleInputField id="role" name="role" {...labels?.fields?.role} />

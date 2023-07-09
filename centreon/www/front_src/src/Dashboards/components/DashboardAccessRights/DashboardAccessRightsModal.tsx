@@ -10,7 +10,21 @@ import {
 } from '@centreon/ui/components';
 
 import {
+  labelAccessRightsListEmptyState,
+  labelAccessRightsStatsAdded,
+  labelAccessRightsStatsRemoved,
+  labelAccessRightsStatsUpdated,
+  labelAccessRightStateAdded,
+  labelAccessRightStateRemoved,
+  labelAccessRightStateUpdated,
+  labelAdd,
   labelCancel,
+  labelContactGroupTag,
+  labelContactNoOptionsText,
+  labelContactPlaceholder,
+  labelCopyLinkToDashboard,
+  labelCopyLinkToDashboardError,
+  labelCopyLinkToDashboardSuccess,
   labelEditAccessRights,
   labelUpdate
 } from '../../translatedLabels';
@@ -53,40 +67,40 @@ const DashboardAccessRightsModal = (): ReactElement => {
       form: {
         actions: {
           cancel: t(labelCancel),
-          copyLink: 'copy link',
+          copyLink: t(labelCopyLinkToDashboard),
           copyLinkMessages: {
-            error: 'error',
-            success: 'link copied'
+            error: t(labelCopyLinkToDashboardError),
+            success: t(labelCopyLinkToDashboardSuccess)
           },
           submit: t(labelUpdate)
         },
         input: {
+          actions: {
+            add: t(labelAdd)
+          },
           fields: {
             contact: {
-              labels: {
-                // FIXME
-                group: 'group',
-                noOptionsText: 'no options',
-                placeholder: 'placeholder'
-              }
+              group: t(labelContactGroupTag),
+              noOptionsText: t(labelContactNoOptionsText),
+              placeholder: t(labelContactPlaceholder)
             }
           }
         },
         list: {
-          emptyState: 'empty state',
+          emptyState: t(labelAccessRightsListEmptyState),
           item: {
-            group: 'group',
+            group: t(labelContactGroupTag),
             state: {
-              added: 'added',
-              removed: 'removed',
-              updated: 'updated'
+              added: t(labelAccessRightStateAdded),
+              removed: t(labelAccessRightStateRemoved),
+              updated: t(labelAccessRightStateUpdated)
             }
           }
         },
         stats: {
-          added: 'added',
-          removed: 'removed',
-          updated: 'updated'
+          added: t(labelAccessRightsStatsAdded),
+          removed: t(labelAccessRightsStatsRemoved),
+          updated: t(labelAccessRightsStatsUpdated)
         }
       },
       modalTitle: t(labelEditAccessRights)

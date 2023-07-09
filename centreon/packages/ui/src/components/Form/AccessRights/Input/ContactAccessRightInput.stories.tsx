@@ -39,11 +39,9 @@ export const Default: Story = {
       },
       fields: {
         contact: {
-          labels: {
-            group: 'group',
-            noOptionsText: 'No contacts found',
-            placeholder: 'Add Contact...'
-          }
+          group: 'group',
+          noOptionsText: 'No contacts found',
+          placeholder: 'Add Contact...'
         }
       }
     }
