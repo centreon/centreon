@@ -87,7 +87,8 @@ const ContactAccessRightsListItem = ({
             )
           }
           secondaryText={
-            isContactResource(contactAccessRight.contact)
+            isContactResource(contactAccessRight.contact) &&
+            contactAccessRight.contact?.email
               ? contactAccessRight.contact?.email
               : undefined
           }

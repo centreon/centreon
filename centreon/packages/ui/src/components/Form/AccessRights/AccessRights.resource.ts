@@ -1,9 +1,3 @@
-export type AccessRightsResource = {
-  id?: number | string;
-  name: string;
-  type: 'contact' | 'contact_group';
-};
-
 export type ContactAccessRightState =
   | 'added'
   | 'updated'
@@ -22,22 +16,30 @@ export type ContactAccessRightResource = {
 };
 
 export type ContactResource = {
-  email: string;
+  email?: string;
   id?: number | string;
   name: string;
+  type: 'contact';
 };
 
 export const isContactResource = (
   resource: ContactResource | ContactGroupResource | null
 ): resource is ContactResource => {
-  return !!(resource as ContactResource).email;
+  return resource?.type === 'contact';
 };
 
 export type ContactGroupResource = {
   id?: number | string;
   name: string;
+  type: 'contact_group';
+};
+
+export const isContactGroupResource = (
+  resource: ContactResource | ContactGroupResource | null
+): resource is ContactResource => {
+  return resource?.type === 'contact_group';
 };
 
 export type RoleResource = {
-  role: 'viewer' | 'editor';
+  role: 'viewer' | 'editor' | string;
 };

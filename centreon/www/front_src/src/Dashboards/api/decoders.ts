@@ -10,6 +10,8 @@ import {
   DashboardContactAccessRights,
   DashboardPanel,
   DashboardRole,
+  DashboardsContact,
+  DashboardsContactGroup,
   NamedEntity
 } from './models';
 
@@ -112,4 +114,43 @@ export const dashboardAccessRightsListDecoder = buildListingDecoder({
   entityDecoder: dashboardAccessRightsDecoder,
   entityDecoderName: 'Dashboard AccessRights List',
   listingDecoderName: 'Dashboard AccessRights'
+});
+
+/**
+ * dashboards contacts
+ */
+
+export const dashboardsContactDecoder = JsonDecoder.object<DashboardsContact>(
+  {
+    id: JsonDecoder.number,
+    name: JsonDecoder.string,
+    type: JsonDecoder.constant('contact')
+  },
+  'Dashboards Contact'
+);
+
+export const dashboardsContactsListDecoder = buildListingDecoder({
+  entityDecoder: dashboardsContactDecoder,
+  entityDecoderName: 'Dashboards Contacts List',
+  listingDecoderName: 'Dashboards Contacts'
+});
+
+/**
+ * dashboard contact groups
+ */
+
+export const dashboardsContactGroupDecoder =
+  JsonDecoder.object<DashboardsContactGroup>(
+    {
+      id: JsonDecoder.number,
+      name: JsonDecoder.string,
+      type: JsonDecoder.constant('contact_group')
+    },
+    'Dashboards Contact Group'
+  );
+
+export const dashboardsContactGroupsListDecoder = buildListingDecoder({
+  entityDecoder: dashboardsContactGroupDecoder,
+  entityDecoderName: 'Dashboards Contact Groups List',
+  listingDecoderName: 'Dashboards Contact Groups'
 });

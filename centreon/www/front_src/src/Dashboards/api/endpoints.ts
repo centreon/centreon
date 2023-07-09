@@ -10,3 +10,7 @@ export const getDashboardEndpoint = (id?: NamedEntity['id']): string =>
 export const getDashboardAccessRightsEndpoint = (
   id?: NamedEntity['id']
 ): string => `${baseEndpoint}/configuration/dashboards/${id}/access_rights`;
+
+export const dashboardsContactsEndpoint = `${baseEndpoint}/configuration/dashboards/contacts`;
+
+export const dashboardsContactGroupsEndpoint = `${baseEndpoint}/configuration/dashboards/contactgroups`;

@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import {
   AccessRightsForm,
   AccessRightsFormLabels,
-  AccessRightsFormProps,
   Modal
 } from '@centreon/ui/components';
 
@@ -33,31 +32,10 @@ import { useDashboardAccessRights } from './useDashboardAccessRights';
 
 const DashboardAccessRightsModal = (): ReactElement => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { isDialogOpen, closeDialog, resourceLink, dashboard, submit } =
+  const { isDialogOpen, closeDialog, resourceLink, options } =
     useDashboardAccessRights();
 
   const { t } = useTranslation();
-
-  const options: AccessRightsFormProps['options'] = {
-    contacts: [
-      {
-        id: 1,
-        name: 'contact1'
-      },
-      {
-        id: 2,
-        name: 'contact2'
-      }
-    ],
-    roles: [
-      {
-        role: 'viewer' // FIXME name ? + allow other roles ?
-      },
-      {
-        role: 'editor'
-      }
-    ]
-  };
 
   const labels = useMemo(
     (): {

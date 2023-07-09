@@ -8,7 +8,9 @@ import { List } from './meta.models';
 
 export const resource = {
   dashboard: 'dashboard',
-  dashboards: 'dashboards'
+  dashboards: 'dashboards',
+  dashboardsContactGroups: 'dashboardsContactGroups',
+  dashboardsContacts: 'dashboardsContacts'
 } as const;
 
 /**
@@ -93,3 +95,25 @@ export type DashboardContactAccessRights = NamedEntity & {
   role: DashboardRole;
   type: ContactType;
 };
+
+export type DashboardsContact = {
+  id: number;
+  name: string;
+  type: 'contact';
+};
+
+export const isDashboardsContact = (
+  value: unknown
+): value is DashboardsContact =>
+  (value as DashboardsContact).type === 'contact';
+
+export type DashboardsContactGroup = {
+  id: number;
+  name: string;
+  type: 'contact_group';
+};
+
+export const isDashboardsContactGroup = (
+  value: unknown
+): value is DashboardsContactGroup =>
+  (value as DashboardsContactGroup).type === 'contact_group';
