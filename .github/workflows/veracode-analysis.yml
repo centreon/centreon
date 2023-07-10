@@ -137,7 +137,7 @@ jobs:
     needs: [build]
     name: Run a sandbox scan
     # only stable and unstable maintenances branches will produce a report
-    if: needs.build.outputs.development_stage != 'Development'
+    #if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
     continue-on-error: true
 
