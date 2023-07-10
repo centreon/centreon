@@ -5,11 +5,11 @@
 /usr/sbin
 /run/lock
 /usr/share/zoneinfo
-/usr/share/readline/inputrc
 /var/lock
 /etc/inputrc
-/etc/bash*
-/etc/profile*
+/etc/bash.bashrc
+/etc/profile
+/etc/profile.d
 /etc/apache2
 /etc/sudo.conf
 /etc/sudoers
@@ -23,7 +23,6 @@
 /usr/share/centreon
 /var/cache/centreon
 /var/cache/centreon-gorgone
-/var/log/php*
 /var/log/centreon
 /var/log/centreon-engine
 /var/log/centreon-broker
