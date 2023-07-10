@@ -12,10 +12,10 @@ import { useAccessRightsForm } from '../useAccessRightsForm';
 import {
   ContactGroupResource,
   ContactResource,
-  isContactResource
+  isContactGroupResource
 } from '../AccessRights.resource';
-import { GroupLabel } from '../common/GroupLabel';
 import { useInputStyles } from '../common/Input.styles';
+import { GroupLabel } from '../common/GroupLabel';
 
 import { useStyles } from './ContactAccessRightsInput.styles';
 
@@ -68,7 +68,7 @@ const ContactInputField = ({
   );
 
   useEffect(() => {
-    setValue(field.value ?? '');
+    setValue(field.value ?? null);
   }, [field.value]);
 
   return (
@@ -89,9 +89,11 @@ const ContactInputField = ({
       options={contacts}
       renderInput={renderInput}
       renderOption={(attr, option) => (
-        <MuiMenuItem {...attr} key={option.id}>
+        <MuiMenuItem {...attr}>
           {option.name}{' '}
-          {!isContactResource(option) && <GroupLabel label={labels.group} />}
+          {isContactGroupResource(option) && (
+            <GroupLabel label={labels.group} />
+          )}
         </MuiMenuItem>
       )}
       value={value}

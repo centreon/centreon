@@ -15,7 +15,8 @@ export const rolesMock = (): Array<RoleResource> => [
 export const contactMock = (): ContactResource => ({
   email: faker.internet.email(),
   id: faker.string.uuid(),
-  name: faker.person.fullName()
+  name: faker.person.fullName(),
+  type: 'contact'
 });
 
 export const contactsMock = (length: number): Array<ContactResource> =>
@@ -23,7 +24,8 @@ export const contactsMock = (length: number): Array<ContactResource> =>
 
 export const contactGroupMock = (): ContactGroupResource => ({
   id: faker.string.uuid(),
-  name: faker.company.name()
+  name: faker.company.name(),
+  type: 'contact_group'
 });
 export const contactGroupsMock = (
   length: number
