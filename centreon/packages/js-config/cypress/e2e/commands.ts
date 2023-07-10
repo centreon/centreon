@@ -302,7 +302,7 @@ Cypress.Commands.add(
         }
 
         return cy.copyFromContainer({
-          destination: `${logDirectory}/php/`,
+          destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
           name,
           source: '/var/log/php8.1-fpm-centreon-error.log'
         });

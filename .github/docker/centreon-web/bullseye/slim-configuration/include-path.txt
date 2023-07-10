@@ -6,6 +6,7 @@
 /run/lock
 /usr/share/zoneinfo
 /var/lock
+/etc/inputrc
 /etc/bash*
 /etc/profile*
 /etc/apache2
