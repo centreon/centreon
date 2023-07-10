@@ -1,0 +1,48 @@
+name: "@NAME@"
+arch: "${ARCH}"
+platform: "linux"
+version_schema: "none"
+version: "0.017"
+release: "1${DIST}"
+section: "default"
+priority: "optional"
+maintainer: "Centreon <contact@centreon.com>"
+description: |
+  Net::Curl provides a Perl interface to libcurl created with object-oriented implementations in mind.
+  This documentation contains Perl-specific details and quirks.
+  For more information consult libcurl man pages and documentation at http://curl.haxx.se.
+  Commit: @COMMIT_HASH@
+vendor: "Centreon"
+homepage: "https://www.centreon.com"
+license: "Apache-2.0"
+
+contents:
+  - src: "/tmp/lib/perl5/*/auto/Crypt/Argon2/*"
+    dst: "@PERL_VENDORARCH@/auto/Crypt/Argon2/"
+    file_info:
+      mode: 0644
+    packager: deb
+
+  - src: "/tmp/lib/perl5/*/Crypt/Argon2.pm"
+    dst: "@PERL_VENDORARCH@/Crypt/Argon2.pm"
+    file_info:
+      mode: 0644
+    packager: deb
+
+  - src: /tmp/man/man3/Crypt::Argon2*
+    dst: /usr/share/man/man3/
+    file_info:
+      mode: 0644
+    packager: deb
+
+overrides:
+  deb:
+    depends:
+      - perl
+      - libc6
+    conflicts:
+      - libcrypt-argon2-perl-dbgsym
+    replaces:
+      - libcrypt-argon2-perl-dbgsym
+    provides:
+      - libcrypt-argon2-perl-dbgsym
