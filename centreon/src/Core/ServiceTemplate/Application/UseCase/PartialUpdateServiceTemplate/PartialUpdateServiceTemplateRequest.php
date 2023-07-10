@@ -33,9 +33,13 @@ final class PartialUpdateServiceTemplateRequest
     /** @var array<int>|NoValue */
     public array|NoValue $serviceCategories;
 
+    /** @var MacroDto[]|NoValue */
+    public array|NoValue $macros;
+
     public function __construct(public int $id)
     {
         $this->hostTemplates = new NoValue();
         $this->serviceCategories = new NoValue();
+        $this->macros = new NoValue();
     }
 }
