@@ -33,21 +33,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - image: packaging-alma8
-            distrib: el8
-            package_extension: rpm
-            runner: collect
-            arch: amd64
-          - image: packaging-alma9
-            distrib: el9
-            package_extension: rpm
-            runner: collect
-            arch: amd64
-          - image: packaging-bullseye
-            distrib: bullseye
-            package_extension: deb
-            runner: collect
-            arch: amd64
+          # - image: packaging-alma8
+          #   distrib: el8
+          #   package_extension: rpm
+          #   runner: collect
+          #   arch: amd64
+          # - image: packaging-alma9
+          #   distrib: el9
+          #   package_extension: rpm
+          #   runner: collect
+          #   arch: amd64
+          # - image: packaging-bullseye
+          #   distrib: bullseye
+          #   package_extension: deb
+          #   runner: collect
+          #   arch: amd64
           - image: packaging-bullseye-arm64
             distrib: bullseye
             package_extension: deb
@@ -98,6 +98,8 @@ jobs:
               sed -i "s#@PERL_VENDORARCH@#/usr/local/lib64/perl5/5.32#g" dependencies/perl-net-curl/perl-net-curl.yaml
             fi
           fi
+
+          cat dependencies/perl-net-curl/perl-net-curl.yaml
         shell: bash
 
       - name: Package
@@ -121,3 +123,76 @@ jobs:
           name: packages-${{ matrix.distrib }}-${{ matrix.arch }}
           path: ./*.${{ matrix.package_extension}}
           retention-days: 1
+
+  deliver-rpm:
+    needs: [get-version, package]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    environment: ${{ needs.get-version.outputs.environment }}
+
+    strategy:
+      matrix:
+        distrib: [el8, el9]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: perl-net-curl
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          cache_key: cache-${{ github.sha }}-rpm-perl-net-curl-${{ matrix.distrib }}-amd64-${{ github.head_ref || github.ref_name }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  deliver-deb:
+    needs: [get-version, package]
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    environment: ${{ needs.get-version.outputs.environment }}
+
+    strategy:
+      matrix:
+        distrib: [bullseye]
+        include:
+          - arch: amd64
+          - arch: arm64
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
+        with:
+          module_name: perl-net-curl
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-version.outputs.major_version }}
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          cache_key: cache-${{ github.sha }}-deb-perl-net-curl-${{ matrix.distrib }}-${{ matrix.arch }}-${{ github.head_ref || github.ref_name }}
+          stability: ${{ needs.get-version.outputs.stability }}
+
+  promote:
+    needs: [get-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el8, el9, bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Promote ${{ matrix.distrib }} to stable
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module: perl-net-curl
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          stability: ${{ needs.get-version.outputs.stability }}
