@@ -199,14 +199,12 @@ jobs:
           cd ${{ inputs.module_directory }}
           echo "[DEBUG] - package-lock.json scan disabled"
 
-          if [[ -f package.json ]]; then
-            npm i --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
-            if [[ $RESULT -ne 0 ]]; then
-              echo "[DEBUG] - Failure of '$ npm install'. Deleting the 'node_modules' to avoid analysis failure"
-              rm -rf node_modules
-            fi
-            rm -f package.json
+          if [[ -f package-lock.json ]]; then
             rm -f package-lock.json
+          fi
+
+          if [[ -f package.json ]]; then
+            rm -f package.json
           fi
 
       - name: SCA scan
