@@ -19,8 +19,8 @@
 ##
 ## GPL License: http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 ##
-## Developed by : Julien Mathis - Romain Le Merlus
-## Contributors : Guillaume Watteeux - Maximilien Bersoult
+## Developed by: Julien Mathis - Romain Le Merlus
+## Contributors: Guillaume Watteeux - Maximilien Bersoult
 ##
 ## This program is free software; you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License
@@ -32,7 +32,7 @@
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
 ##
-##    For information : infos@centreon.com
+##    For information: infos@centreon.com
 #
 
 #----
@@ -240,7 +240,7 @@ if [ "$silent_install" -ne 1 ] ; then
 	tput clear 
 	more "$BASE_DIR/LICENSE.md"
 
-	yes_no_default "$(gettext "Do you accept GPL license ?")" 
+	yes_no_default "$(gettext "Do you accept the GPL license ?")" 
 	if [ "$?" -ne 0 ] ; then 
 		echo_info "$(gettext "As you did not accept the license, we cannot continue.")"
 		log "INFO" "Installation aborted - License not accepted"
