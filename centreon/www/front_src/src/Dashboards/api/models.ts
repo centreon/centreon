@@ -1,4 +1,4 @@
-/* eslint-disable typescript-sort-keys/interface */
+/* eslint-disable typescript-sort-keys/interface,sort-keys-fix/sort-keys-fix */
 
 import { List } from './meta.models';
 
@@ -9,8 +9,10 @@ import { List } from './meta.models';
 export const resource = {
   dashboard: 'dashboard',
   dashboards: 'dashboards',
+  dashboardsContacts: 'dashboardsContacts',
   dashboardsContactGroups: 'dashboardsContactGroups',
-  dashboardsContacts: 'dashboardsContacts'
+  dashboardAccessRightsContactGroups: 'dashboardAccessRightsContactGroups',
+  dashboardAccessRightsContacts: 'dashboardAccessRightsContacts'
 } as const;
 
 /**
@@ -25,6 +27,11 @@ export type NamedEntity = {
 export enum DashboardRole {
   editor = 'editor',
   viewer = 'viewer'
+}
+
+export enum ContactType {
+  contact = 'contact',
+  contactGroup = 'contact_group'
 }
 
 /**
@@ -81,39 +88,48 @@ export type DashboardPanel = NamedEntity & {
 };
 
 /**
- * dashboard access rights
+ * dashboards contacts and contact groups
  */
 
-export enum ContactType {
-  contact = 'contact',
-  contactGroup = 'contact_group'
-}
-
-export type DashboardContactAccessRights = NamedEntity & {
-  email: string | null;
-  fullname: string | null;
-  role: DashboardRole;
-  type: ContactType;
-};
-
-export type DashboardsContact = {
-  id: number;
-  name: string;
-  type: 'contact';
+export type DashboardsContact = NamedEntity & {
+  type: ContactType.contact;
 };
 
 export const isDashboardsContact = (
   value: unknown
 ): value is DashboardsContact =>
-  (value as DashboardsContact).type === 'contact';
+  (value as DashboardsContact).type === ContactType.contact;
 
-export type DashboardsContactGroup = {
-  id: number;
-  name: string;
-  type: 'contact_group';
+export type DashboardsContactGroup = NamedEntity & {
+  type: ContactType.contactGroup;
 };
 
 export const isDashboardsContactGroup = (
   value: unknown
 ): value is DashboardsContactGroup =>
-  (value as DashboardsContactGroup).type === 'contact_group';
+  (value as DashboardsContactGroup).type === ContactType.contactGroup;
+
+/**
+ * dashboard access rights
+ */
+
+export type DashboardAccessRightsContact = NamedEntity & {
+  email?: string;
+  role: DashboardRole;
+  type: ContactType.contact;
+};
+
+export type DashboardAccessRightsContactGroup = NamedEntity & {
+  role: DashboardRole;
+  type: ContactType.contactGroup;
+};
+
+export type CreateAccessRightDto = Pick<
+  DashboardAccessRightsContact | DashboardAccessRightsContactGroup,
+  'id' | 'role'
+>;
+
+export type UpdateAccessRightDto = Pick<
+  DashboardAccessRightsContact | DashboardAccessRightsContactGroup,
+  'role'
+>;

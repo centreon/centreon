@@ -7,7 +7,8 @@ import { buildListingDecoder } from '@centreon/ui';
 import {
   ContactType,
   Dashboard,
-  DashboardContactAccessRights,
+  DashboardAccessRightsContact,
+  DashboardAccessRightsContactGroup,
   DashboardPanel,
   DashboardRole,
   DashboardsContact,
@@ -91,32 +92,6 @@ export const dashboardListDecoder = buildListingDecoder({
 });
 
 /**
- * dashboard access rights : entity
- */
-
-const dashboardAccessRightsDecoder =
-  JsonDecoder.object<DashboardContactAccessRights>(
-    {
-      email: JsonDecoder.nullable(JsonDecoder.string),
-      fullname: JsonDecoder.nullable(JsonDecoder.string),
-      id: JsonDecoder.number,
-      name: JsonDecoder.string,
-      role: JsonDecoder.enumeration<DashboardRole>(
-        DashboardRole,
-        'DashboardRole'
-      ),
-      type: JsonDecoder.enumeration<ContactType>(ContactType, 'ContactType')
-    },
-    'Dashboard AccessRights'
-  );
-
-export const dashboardAccessRightsListDecoder = buildListingDecoder({
-  entityDecoder: dashboardAccessRightsDecoder,
-  entityDecoderName: 'Dashboard AccessRights List',
-  listingDecoderName: 'Dashboard AccessRights'
-});
-
-/**
  * dashboards contacts
  */
 
@@ -124,7 +99,7 @@ export const dashboardsContactDecoder = JsonDecoder.object<DashboardsContact>(
   {
     id: JsonDecoder.number,
     name: JsonDecoder.string,
-    type: JsonDecoder.constant('contact')
+    type: JsonDecoder.constant(ContactType.contact)
   },
   'Dashboards Contact'
 );
@@ -144,7 +119,7 @@ export const dashboardsContactGroupDecoder =
     {
       id: JsonDecoder.number,
       name: JsonDecoder.string,
-      type: JsonDecoder.constant('contact_group')
+      type: JsonDecoder.constant(ContactType.contactGroup)
     },
     'Dashboards Contact Group'
   );
@@ -154,3 +129,50 @@ export const dashboardsContactGroupsListDecoder = buildListingDecoder({
   entityDecoderName: 'Dashboards Contact Groups List',
   listingDecoderName: 'Dashboards Contact Groups'
 });
+
+/**
+ * dashboard access rights : entity
+ */
+
+const dashboardAccessRightsContactDecoder =
+  JsonDecoder.object<DashboardAccessRightsContact>(
+    {
+      email: JsonDecoder.optional(JsonDecoder.string),
+      id: JsonDecoder.number,
+      name: JsonDecoder.string,
+      role: JsonDecoder.enumeration<DashboardRole>(
+        DashboardRole,
+        'DashboardRole'
+      ),
+      type: JsonDecoder.constant(ContactType.contact)
+    },
+    'Dashboard AccessRights Contact'
+  );
+
+export const dashboardAccessRightsContactListDecoder = buildListingDecoder({
+  entityDecoder: dashboardAccessRightsContactDecoder,
+  entityDecoderName: 'Dashboard AccessRights Contact',
+  listingDecoderName: 'Dashboard AccessRights Contact List'
+});
+
+const dashboardAccessRightsContactGroupDecoder =
+  JsonDecoder.object<DashboardAccessRightsContactGroup>(
+    {
+      id: JsonDecoder.number,
+      name: JsonDecoder.string,
+      role: JsonDecoder.enumeration<DashboardRole>(
+        DashboardRole,
+        'DashboardRole'
+      ),
+      type: JsonDecoder.constant(ContactType.contactGroup)
+    },
+    'Dashboard AccessRights ContactGroup'
+  );
+
+export const dashboardAccessRightsContactGroupListDecoder = buildListingDecoder(
+  {
+    entityDecoder: dashboardAccessRightsContactGroupDecoder,
+    entityDecoderName: 'Dashboard AccessRights ContactGroup',
+    listingDecoderName: 'Dashboard AccessRights ContactGroup List'
+  }
+);
