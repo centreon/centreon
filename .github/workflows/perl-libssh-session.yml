@@ -77,7 +77,7 @@ jobs:
             dnf install -y cpanminus gcc libssh-devel
           fi
 
-          cpanm -v -l /tmp Libssh::Session@0.9
+          cpanm -v -l /tmp Libssh::Session@0.8
         shell: bash
 
       - name: Set package name and paths according to distrib
