@@ -4,6 +4,8 @@ import './commands/configuration';
 
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
+const artifactIllegalCharactersMatcher = /[,\s/|<>*?:"]/g;
+
 Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
   return cy
     .exec(
@@ -258,9 +260,13 @@ Cypress.Commands.add(
   ({
     name = Cypress.env('dockerName')
   }: StopWebContainerProps = {}): Cypress.Chainable => {
-    const logDirectory = `cypress/results/logs/${
-      Cypress.spec.name
-    }/${Cypress.currentTest.title.replace(/,|\s|\//g, '_')}`;
+    const logDirectory = `cypress/results/logs/${Cypress.spec.name.replace(
+      artifactIllegalCharactersMatcher,
+      '_'
+    )}/${Cypress.currentTest.title.replace(
+      artifactIllegalCharactersMatcher,
+      '_'
+    )}`;
 
     return cy
       .visitEmptyPage()
@@ -277,6 +283,19 @@ Cypress.Commands.add(
         destination: `${logDirectory}/centreon`,
         source: '/var/log/centreon'
       })
+      .then(() => {
+        if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+          return cy.copyFromContainer({
+            destination: `${logDirectory}/php`,
+            source: '/var/log/php-fpm'
+          });
+        }
+
+        return cy.copyFromContainer({
+          destination: `${logDirectory}/php/`,
+          source: '/var/log/php8.1-fpm-centreon-error.log'
+        });
+      })
       .stopContainer({ name });
   }
 );
@@ -290,10 +309,11 @@ Cypress.Commands.add(
   ({ name }: StopContainerProps): Cypress.Chainable => {
     cy.exec(`docker logs ${name}`).then(({ stdout }) => {
       cy.writeFile(
-        `cypress/results/logs/${
-          Cypress.spec.name
-        }/${Cypress.currentTest.title.replace(
-          /,|\s|\//g,
+        `cypress/results/logs/${Cypress.spec.name.replace(
+          artifactIllegalCharactersMatcher,
+          '_'
+        )}/${Cypress.currentTest.title.replace(
+          artifactIllegalCharactersMatcher,
           '_'
         )}/container-${name}.log`,
         stdout
@@ -338,10 +358,15 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
-  return cy.get('header div[data-cy="clock"]').then(($time) => {
-    const localTime = $time.children()[1].textContent;
+  return cy.waitUntil(() => {
+    return cy.get('header div[data-cy="clock"]').then(($time) => {
+      const headerTime = $time.children()[1].textContent;
+      if (headerTime?.match(/\d+:\d+/)) {
+        return headerTime;
+      }
 
-    return localTime;
+      return false;
+    });
   });
 });
 

@@ -14,3 +14,11 @@ properties:
       type: integer
       description: "Service category ID"
     example: [ 1, 2 ]
+  macros:
+    type: array
+    description: |
+      Macros defined for the service (directly or through a template or command inheritance)
+
+      If multiple macros are defined with the same name, only the last one will be saved.
+    items:
+      $ref: 'macro.yaml'

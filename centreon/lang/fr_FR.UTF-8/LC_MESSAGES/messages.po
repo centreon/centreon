@@ -1,17 +1,3 @@
-msgid ""
-msgstr ""
-"Project-Id-Version: Centreon web 2.x\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-23 10:23+0000\n"
-"PO-Revision-Date: 2017-03-19 19:45+0100\n"
-"Last-Translator: Laurent Pinsivy <lpinsivy@centreon.com>\n"
-"Language-Team: Centreon team\n"
-"Language: fr\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.7.7\n"
 
 #: centreon-web/broker_field_translation.php:2
 #: centreon-web/www/install/centreon_broker_translation.php:44
@@ -15662,6 +15648,21 @@ msgstr "Votre formulaire comporte des modifications non enregistrées"
 msgid "This name already exists"
 msgstr "Ce nom existe déjà"
 
+msgid "Notification deleted successfully"
+msgstr "La notification a été supprimée avec succès"
+
+msgid "The selected notifications have been deleted successfully"
+msgstr "Les notifications sélectionnées ont été supprimées avec succès"
+
+msgid "Failed to delete the notification"
+msgstr "La notification n'a pas pu être supprimée"
+
+msgid "Failed to delete the selected notifications"
+msgstr "Échec de la suppression des notifications sélectionnées"
+
+msgid "Failed to delete notifications"
+msgstr "Échec de la suppression des notifications"
+
 #: api/platform
 msgid "Unable to convert in remote server, no Central to link provided"
 msgstr "Impossible de convertir en remote, aucun Central à lier renseigné"
@@ -17533,6 +17534,12 @@ msgstr "Vérifier les ressources sélectionnées même en dehors de la période 
 msgid "Forced check command sent ! Please refresh the listing to update the data."
 msgstr "Commande de vérification forcée envoyée ! Veuillez actualiser le tableau pour mettre à jour les données."
 
+msgid "Need help with search bar usage?"
+msgstr "Besoin d'aide pour l'utilisation de la barre de recherche?"
+
+msgid "Find explanations and examples"
+msgstr "Trouvez des explications et des exemples"
+
 msgid "Developed by"
 msgstr "Développé par"
 
@@ -17852,6 +17859,12 @@ msgstr "Vous n'êtes pas autorisé à afficher les détails de la notification"
 msgid "You are not allowed to update the notification configuration"
 msgstr "Vous n'êtes pas autorisé à mettre à jour la configuration de la notification"
 
+msgid "You are not allowed to delete a notification configuration"
+msgstr "Vous n'êtes pas autorisé à supprimer une configuration de notification"
+
+msgid "Error while deleting a notification configuration"
+msgstr "Erreur lors de la suppression de la configuration de notification"
+
 msgid "You are not allowed to access commands"
 msgstr "Vous n'êtes pas autorisé à accéder aux commandes"
 
@@ -17863,3 +17876,6 @@ msgstr "Vous n'êtes pas autorisé à effectuer la modification partielle d'une 
 
 msgid "Error while partially updating a notification configuration"
 msgstr "Erreur lors de la modification partielle d'une configuration de notification"
+
+msgid "Error while updating a notification configuration"
+msgstr "Erreur lors de la mise à jour de la configuration d'une notification"

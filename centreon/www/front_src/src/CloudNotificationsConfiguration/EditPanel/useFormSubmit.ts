@@ -22,8 +22,8 @@ import { isPanelOpenAtom } from '../atom';
 
 import { adaptNotifications } from './api/adapters';
 import { PanelMode } from './models';
-import { EditedNotificationIdAtom, panelModeAtom } from './atom';
-import { notificationtEndpoint } from './api/endpoints';
+import { editedNotificationIdAtom, panelModeAtom } from './atom';
+import { notificationEndpoint } from './api/endpoints';
 
 interface UseFormState {
   dialogOpen: boolean;
@@ -47,7 +47,7 @@ const useForm = (): UseFormState => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const panelMode = useAtomValue(panelModeAtom);
-  const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
+  const editedNotificationId = useAtomValue(editedNotificationIdAtom);
   const setPanelOpen = useSetAtom(isPanelOpenAtom);
 
   const labelConfirm = equals(panelMode, PanelMode.Create)
@@ -57,8 +57,8 @@ const useForm = (): UseFormState => {
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () =>
       equals(panelMode, PanelMode.Create)
-        ? notificationtEndpoint({})
-        : notificationtEndpoint({ id: editedNotificationId }),
+        ? notificationEndpoint({})
+        : notificationEndpoint({ id: editedNotificationId }),
     method: equals(panelMode, PanelMode.Create) ? Method.POST : Method.PUT
   });
 

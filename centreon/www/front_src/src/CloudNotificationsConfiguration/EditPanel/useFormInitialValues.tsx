@@ -5,9 +5,9 @@ import { useFetchQuery } from '@centreon/ui';
 
 import { emptyInitialValues, getInitialValues } from './initialValues';
 import { PanelMode } from './models';
-import { notificationtEndpoint } from './api/endpoints';
+import { notificationEndpoint } from './api/endpoints';
 import { notificationdecoder } from './api/decoders';
-import { EditedNotificationIdAtom, panelModeAtom } from './atom';
+import { editedNotificationIdAtom, panelModeAtom } from './atom';
 
 interface UseFormState {
   initialValues: object;
@@ -16,11 +16,11 @@ interface UseFormState {
 
 const useFormInitialValues = (): UseFormState => {
   const panelMode = useAtomValue(panelModeAtom);
-  const editedNotificationId = useAtomValue(EditedNotificationIdAtom);
+  const editedNotificationId = useAtomValue(editedNotificationIdAtom);
 
   const { data, isLoading: loading } = useFetchQuery({
     decoder: notificationdecoder,
-    getEndpoint: () => notificationtEndpoint({ id: editedNotificationId }),
+    getEndpoint: () => notificationEndpoint({ id: editedNotificationId }),
     getQueryKey: () => ['notification', editedNotificationId],
     queryOptions: {
       cacheTime: 0,
