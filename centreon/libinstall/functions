@@ -720,7 +720,7 @@ locate_monitoringengine_log() {
 
 locate_broker_etc() {
     if [ -z "$BROKER_ETC" ]; then
-        answer_with_testdir "$(gettext "Where is the configuration directory for broker module ?") [$DEFAULT_BROKER_ETC]" "$DEFAULT_BROKER_ETC" "BROKER_ETC"
+        answer_with_testdir "$(gettext "Where is the configuration directory for the broker module ?") [$DEFAULT_BROKER_ETC]" "$DEFAULT_BROKER_ETC" "BROKER_ETC"
     fi
     BROKER_ETC=`trim ${BROKER_ETC%/}`
     export BROKER_ETC
