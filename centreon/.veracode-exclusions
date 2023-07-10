@@ -10,4 +10,3 @@ www/lib/wz_tooltip/wz_tooltip.js
 www/install/sql
 www/include/Administration/parameters/backup/formBackup.js
 bin/changeRrdDsName.pl
-bin/email_status.pl
