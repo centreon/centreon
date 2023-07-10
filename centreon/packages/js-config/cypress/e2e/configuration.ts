@@ -45,7 +45,7 @@ export default ({
       WEB_IMAGE_VERSION: webImageVersion,
       dockerName: dockerName || 'centreon-dev'
     },
-    execTimeout: 60000,
+    execTimeout: 120000,
     reporter: 'mochawesome',
     reporterOptions: {
       html: false,
