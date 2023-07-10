@@ -62,7 +62,8 @@ const useListAccessRightsContactGroups = ({
       dashboardResourceIdRef.current
     ],
     queryOptions: {
-      enabled: !!dashboardResourceIdRef.current
+      enabled: !!dashboardResourceIdRef.current,
+      suspense: false
     }
   });
 

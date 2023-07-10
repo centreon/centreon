@@ -26,7 +26,7 @@ export type UseMutationQueryProps<T> = {
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
   fetchHeaders?: HeadersInit;
-  getEndpoint: (payload) => string;
+  getEndpoint: (_meta: Record<string, unknown>) => string;
   httpCodesBypassErrorSnackbar?: Array<number>;
   method: Method;
 } & Omit<UseMutationOptions<T>, 'mutationFn'>;
@@ -52,12 +52,13 @@ const useMutationQuery = <T extends object>({
   const { showErrorMessage } = useSnackbar();
 
   const queryData = useMutation<T | ResponseError>(
-    (payload): Promise<T | ResponseError> =>
+    // @ts-expect-error useMutation / useMutationQuery is not typed correctly
+    ({ _meta, ...payload }): Promise<T | ResponseError> =>
       customFetch<T>({
         catchError,
         decoder,
         defaultFailureMessage,
-        endpoint: getEndpoint(payload),
+        endpoint: getEndpoint(_meta ?? {}),
         headers: new Headers({
           'Content-Type': 'application/x-www-form-urlencoded',
           ...fetchHeaders

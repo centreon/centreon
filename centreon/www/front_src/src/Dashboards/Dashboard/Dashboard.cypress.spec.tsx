@@ -23,10 +23,8 @@ import {
   getDashboardAccessRightsEndpoint,
   getDashboardEndpoint
 } from '../api/endpoints';
-import { labelShareTheDashboard } from '../translatedLabels';
-import { labelUserRolesAreUpdated } from '../Shares/translatedLabels';
 
-import { labelEditDashboard, labelSave } from './translatedLabels';
+import { labelEditDashboard } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 import { Dashboard } from './Dashboard';
 
@@ -390,95 +388,6 @@ describe('Dashboard', () => {
       cy.waitForRequest('@getDashboardDetails');
 
       cy.contains(labelEditDashboard).should('be.visible');
-    });
-  });
-
-  describe('AccessRights', () => {
-    it('displays the list of user roles when the corresponding button is clicked', () => {
-      // initializeBlocker();
-      initializeAndMount(editorRoles);
-
-      cy.findByLabelText(labelShareTheDashboard).click();
-
-      cy.fixture('Dashboards/Dashboard/accessRights.json').then((shares) => {
-        shares.result.forEach(({ fullname, email, role }, index) => {
-          cy.get('[data-element="avatar"]')
-            .contains(fullname[0])
-            .should('be.visible');
-          cy.findByText(fullname).should('be.visible');
-
-          if (email) {
-            cy.findByText(email).should('be.visible');
-          }
-
-          cy.findAllByTestId('change_role')
-            .eq(index)
-            .should('have.value', role);
-          cy.findAllByTestId('remove_user').eq(index).should('be.visible');
-        });
-      });
-    });
-
-    it('changes a user role when a new role is selected for a user and the corresponding button is clicked', () => {
-      // initializeBlocker();
-      initializeAndMount(editorRoles);
-
-      cy.findByLabelText(labelShareTheDashboard).click();
-
-      cy.findAllByTestId('change_role')
-        .eq(0)
-        .should('have.value', DashboardRole.viewer);
-
-      cy.findAllByTestId('change_role').eq(0).parent().click();
-      cy.get('[data-value="editor"]').click();
-
-      cy.findAllByTestId('change_role')
-        .eq(0)
-        .should('have.value', DashboardRole.editor);
-
-      cy.matchImageSnapshot();
-    });
-
-    it('removes a user from the list when the corresponding button is clicked', () => {
-      // initializeBlocker();
-      initializeAndMount(editorRoles);
-
-      cy.findByLabelText(labelShareTheDashboard).click();
-
-      cy.findByText('Walter Sobchak').should('be.visible');
-
-      cy.findAllByTestId('remove_user').eq(0).click();
-
-      cy.findByText('Walter Sobchak').should('be.visible');
-      cy.findAllByTestId('change_role').eq(0).should('be.disabled');
-      cy.findByTestId('add_user').should('be.visible');
-
-      cy.matchImageSnapshot();
-    });
-
-    it('does not display the share button when the user has only the viewer role', () => {
-      // initializeBlocker();
-      initializeAndMount(viewerRoles);
-
-      cy.findByLabelText(labelShareTheDashboard).should('not.exist');
-
-      cy.matchImageSnapshot();
-    });
-
-    it('updates the list of user roles when the list is updated and the corresponding button is clicked', () => {
-      // initializeBlocker();
-      initializeAndMount(editorRoles);
-
-      cy.findByLabelText(labelShareTheDashboard).click();
-
-      cy.findAllByTestId('change_role').eq(0).parent().click();
-      cy.get('[data-value="editor"]').click();
-
-      cy.findByLabelText(labelSave).click();
-
-      cy.waitForRequest('@putDashboardAccessRights');
-
-      cy.contains(labelUserRolesAreUpdated).should('be.visible');
     });
   });
 });

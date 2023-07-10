@@ -12,7 +12,6 @@ import { Button, Modal } from '@centreon/ui/components';
 import { Dashboard, DashboardPanel } from '../../../api/models';
 import { formatPanel } from '../../useDashboardDetails';
 import useDashboardDirty from '../../useDashboardDirty';
-import { selectedDashboardShareAtom } from '../../../Shares/atoms';
 import useSaveDashboard from '../../useSaveDashboard';
 import {
   dashboardAtom,
@@ -51,7 +50,6 @@ const DashboardEditActions = ({
     switchPanelsEditionModeDerivedAtom
   );
   const setDashboard = useSetAtom(dashboardAtom);
-  const setSelectedDashboardShareAtom = useSetAtom(selectedDashboardShareAtom);
 
   /**
    * TODO useDashboardSaveBlocker issue with default router behaviour
@@ -137,8 +135,6 @@ const DashboardEditActions = ({
     }
   };
 
-  const openShareModal = (): void => setSelectedDashboardShareAtom(id);
-
   useEffect(() => {
     if (!blocked) {
       return;
@@ -162,28 +158,18 @@ const DashboardEditActions = ({
     [blocked, isAskingCancelConfirmation, name]
   );
 
-  // TODO evaluate if we need styling here (the PageHeader component is already taking care of this)
   if (!isEditing) {
     return (
-      <>
-        <Button
-          data-testid="edit_dashboard"
-          icon={<EditOutlinedIcon />}
-          iconVariant="start"
-          size="small"
-          variant="ghost"
-          onClick={startEditing}
-        >
-          {t(labelEditDashboard)}
-        </Button>
-        {/* <IconButton */}
-        {/*  aria-label={t(labelShareTheDashboard) as string} */}
-        {/*  data-testid={labelShareTheDashboard} */}
-        {/*  icon={<ShareIcon />} */}
-        {/*  onClick={openShareModal} */}
-        {/* /> */}
-        {/* <Shares id={id} /> */}
-      </>
+      <Button
+        data-testid="edit_dashboard"
+        icon={<EditOutlinedIcon />}
+        iconVariant="start"
+        size="small"
+        variant="ghost"
+        onClick={startEditing}
+      >
+        {t(labelEditDashboard)}
+      </Button>
     );
   }
 

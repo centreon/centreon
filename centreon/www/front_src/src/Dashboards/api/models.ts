@@ -124,12 +124,15 @@ export type DashboardAccessRightsContactGroup = NamedEntity & {
   type: ContactType.contactGroup;
 };
 
-export type CreateAccessRightDto = Pick<
+export type CreateAccessRightDto = {
+  dashboardId: NamedEntity['id'];
+} & Pick<
   DashboardAccessRightsContact | DashboardAccessRightsContactGroup,
   'id' | 'role'
 >;
 
-export type UpdateAccessRightDto = Pick<
-  DashboardAccessRightsContact | DashboardAccessRightsContactGroup,
-  'role'
->;
+export type UpdateAccessRightDto = CreateAccessRightDto;
+
+export type DeleteAccessRightDto = {
+  dashboardId: NamedEntity['id'];
+} & Pick<NamedEntity, 'id'>;

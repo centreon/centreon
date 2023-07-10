@@ -29,7 +29,7 @@ import {
 import { useDashboardAccessRights } from './useDashboardAccessRights';
 
 const DashboardAccessRightsForm = (): ReactElement => {
-  const { closeDialog, resourceLink, options, initialAccessRights } =
+  const { closeDialog, resourceLink, options, initialAccessRights, submit } =
     useDashboardAccessRights();
 
   const { t } = useTranslation();
@@ -84,6 +84,7 @@ const DashboardAccessRightsForm = (): ReactElement => {
       options={options}
       resourceLink={resourceLink}
       onCancel={closeDialog}
+      onSubmit={submit}
     />
   );
 };

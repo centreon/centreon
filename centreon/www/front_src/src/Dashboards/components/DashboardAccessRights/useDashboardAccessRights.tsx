@@ -2,7 +2,10 @@ import { useEffect, useMemo } from 'react';
 
 import { atom, useAtom } from 'jotai';
 
-import { AccessRightsFormProps } from '@centreon/ui/components';
+import {
+  AccessRightsFormProps,
+  ContactAccessRightStateResource
+} from '@centreon/ui/components';
 
 import {
   Dashboard,
@@ -19,6 +22,7 @@ import { useListAccessRightsContacts } from '../../api/useListAccessRightsContac
 import { useListAccessRightsContactGroups } from '../../api/useListAccessRightsContactGroups';
 
 import { transformAccessRightContactOrContactGroup } from './useDashboardAccessRights.utils';
+import { useDashboardAccessRightsBatchUpdate } from './useDashboardAccessRightsBatchUpdate';
 
 const dialogStateAtom = atom<{
   dashboard: Dashboard | null;
@@ -51,11 +55,13 @@ type UseDashboardAccessRights = {
   options: AccessRightsFormProps['options'];
   resourceLink: string;
   status: 'idle' | 'loading' | 'success' | 'error';
-  submit: (dashboard: Dashboard) => void;
+  submit: AccessRightsFormProps['onSubmit'];
 };
 
 const useDashboardAccessRights = (): UseDashboardAccessRights => {
   const [dialogState, setDialogState] = useAtom(dialogStateAtom);
+
+  const { batchUpdateAccessRights } = useDashboardAccessRightsBatchUpdate();
 
   /** options */
 
@@ -141,7 +147,13 @@ const useDashboardAccessRights = (): UseDashboardAccessRights => {
     setDialogState({ ...dialogState, dashboard: null, isOpen: false });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const submit = async (values: unknown): Promise<void> => {
+  const submit = async (
+    values: Array<ContactAccessRightStateResource>
+  ): Promise<void> => {
+    batchUpdateAccessRights({
+      entityId: dialogState.dashboard?.id as number,
+      values
+    });
     closeDialog();
   };
 

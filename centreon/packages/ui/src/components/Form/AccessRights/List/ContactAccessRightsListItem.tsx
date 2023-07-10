@@ -29,7 +29,7 @@ export type ContactAccessRightsListItemProps = {
 const ContactAccessRightsListItem = ({
   labels,
   resource: { contactAccessRight, state },
-  hasAvatar = false
+  hasAvatar = true
 }: ContactAccessRightsListItemProps): ReactElement => {
   const { classes } = useStyles();
   const { updateContactAccessRight, removeContactAccessRight } =

@@ -134,7 +134,7 @@ export const dashboardsContactGroupsListDecoder = buildListingDecoder({
  * dashboard access rights : entity
  */
 
-const dashboardAccessRightsContactDecoder =
+export const dashboardAccessRightsContactDecoder =
   JsonDecoder.object<DashboardAccessRightsContact>(
     {
       email: JsonDecoder.optional(JsonDecoder.string),
@@ -155,7 +155,7 @@ export const dashboardAccessRightsContactListDecoder = buildListingDecoder({
   listingDecoderName: 'Dashboard AccessRights Contact List'
 });
 
-const dashboardAccessRightsContactGroupDecoder =
+export const dashboardAccessRightsContactGroupDecoder =
   JsonDecoder.object<DashboardAccessRightsContactGroup>(
     {
       id: JsonDecoder.number,
