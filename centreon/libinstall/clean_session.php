@@ -15,7 +15,7 @@
  *
  * For information: contact@centreon.com
  *
- * Developper: Maximilien Bersoult
+ * Developer: Maximilien Bersoult
  *
  */
 
