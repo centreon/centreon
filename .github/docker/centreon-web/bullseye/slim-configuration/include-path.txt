@@ -21,6 +21,7 @@
 /usr/share/centreon
 /var/cache/centreon
 /var/cache/centreon-gorgone
+/var/log/php*
 /var/log/centreon
 /var/log/centreon-engine
 /var/log/centreon-broker

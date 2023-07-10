@@ -92,29 +92,35 @@ Cypress.Commands.add(
 
 interface CopyFromContainerProps {
   destination: string;
+  name?: string;
   source: string;
 }
 
 Cypress.Commands.add(
   'copyFromContainer',
-  ({ source, destination }: CopyFromContainerProps) => {
-    return cy.exec(
-      `docker cp ${Cypress.env('dockerName')}:${source} "${destination}"`
-    );
+  ({
+    name = Cypress.env('dockerName'),
+    source,
+    destination
+  }: CopyFromContainerProps) => {
+    return cy.exec(`docker cp ${name}:${source} "${destination}"`);
   }
 );
 
 interface CopyToContainerProps {
   destination: string;
+  name?: string;
   source: string;
 }
 
 Cypress.Commands.add(
   'copyToContainer',
-  ({ source, destination }: CopyToContainerProps) => {
-    return cy.exec(
-      `docker cp ${source} ${Cypress.env('dockerName')}:${destination}`
-    );
+  ({
+    name = Cypress.env('dockerName'),
+    source,
+    destination
+  }: CopyToContainerProps) => {
+    return cy.exec(`docker cp ${source} ${name}:${destination}`);
   }
 );
 
@@ -273,33 +279,33 @@ Cypress.Commands.add(
       .exec(`mkdir -p "${logDirectory}"`)
       .copyFromContainer({
         destination: `${logDirectory}/broker`,
+        name,
         source: '/var/log/centreon-broker'
       })
       .copyFromContainer({
         destination: `${logDirectory}/engine`,
+        name,
         source: '/var/log/centreon-engine'
       })
       .copyFromContainer({
         destination: `${logDirectory}/centreon`,
+        name,
         source: '/var/log/centreon'
       })
       .then(() => {
         if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
           return cy.copyFromContainer({
             destination: `${logDirectory}/php`,
+            name,
             source: '/var/log/php-fpm'
           });
         }
 
-        return cy
-          .execInContainer({
-            command: `ls /var/log/php8.1-fpm-centreon-error.log >/dev/null 2>&1 || touch /var/log/php8.1-fpm-centreon-error.log`,
-            name: Cypress.env('dockerName')
-          })
-          .copyFromContainer({
-            destination: `${logDirectory}/php/`,
-            source: '/var/log/php8.1-fpm-centreon-error.log'
-          });
+        return cy.copyFromContainer({
+          destination: `${logDirectory}/php/`,
+          name,
+          source: '/var/log/php8.1-fpm-centreon-error.log'
+        });
       })
       .stopContainer({ name });
   }
