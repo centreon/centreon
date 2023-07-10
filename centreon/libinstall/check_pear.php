@@ -1,9 +1,9 @@
 #!@PHP_BIN@
 <?php
 /*
- * Centreon is developped with GPL Licence 2.0 :
+ * Centreon is developed with GPL Licence 2.0:
  * http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
- * Developped by : Julien Mathis - Romain Le Merlus
+ * Developed by: Julien Mathis - Romain Le Merlus
  *
  * The Software is provided to you AS IS and WITH ALL FAULTS.
  * Centreon makes no representation and gives no warranty whatsoever,
@@ -13,9 +13,9 @@
  * incidental or consequential damages however they may arise and even if Centreon has
  * been previously advised of the possibility of such damages.
  *
- * For information : contact@centreon.com
+ * For information: contact@centreon.com
  *
- * Developper: Maximilien Bersoult
+ * Developer: Maximilien Bersoult
  *
  */
 
