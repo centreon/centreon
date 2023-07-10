@@ -134,6 +134,8 @@ jobs:
       matrix:
         distrib: [el8, el9]
 
+    name: Deliver ${{ matrix.distrib }}
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -141,7 +143,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: perl-net-curl
+          module_name: perl-net-curl-amd64
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
@@ -156,10 +158,13 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye]
         include:
-          - arch: amd64
-          - arch: arm64
+          - distrib: bullseye
+            arch: amd64
+          - distrib: bullseye
+            arch: arm64
+
+    name: Deliver ${{ matrix.distrib }} ${{ matrix.arch }}
 
     steps:
       - name: Checkout sources
@@ -168,7 +173,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
-          module_name: perl-net-curl
+          module_name: perl-net-curl-${{ matrix.arch }}
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-version.outputs.major_version }}
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
@@ -181,17 +186,25 @@ jobs:
     runs-on: [self-hosted, common]
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye]
+        include:
+          - distrib: el8
+            arch: amd64
+          - distrib: el9
+            arch: amd64
+          - distrib: bullseye
+            arch: amd64
+          - distrib: bullseye
+            arch: arm64
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Promote ${{ matrix.distrib }} to stable
+      - name: Promote ${{ matrix.distrib }} ${{ matrix.arch }} to stable
         uses: ./.github/actions/promote-to-stable
         with:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module: perl-net-curl
+          module: perl-net-curl-${{ matrix.arch }}
           distrib: ${{ matrix.distrib }}
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
