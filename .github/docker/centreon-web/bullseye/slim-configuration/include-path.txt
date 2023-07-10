@@ -5,6 +5,8 @@
 /run/lock
 /usr/share/zoneinfo
 /var/lock
+/etc/bash*
+/etc/profile*
 /etc/apache2
 /etc/sudo.conf
 /etc/sudoers
