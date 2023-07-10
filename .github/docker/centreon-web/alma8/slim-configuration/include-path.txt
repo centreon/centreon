@@ -10,6 +10,7 @@
 /etc/sudoers.d
 /etc/pam.d
 /usr/libexec/sudo
+/usr/lib64/perl5/vendor_perl
 /var/www/html
 /usr/lib64/httpd/modules
 /var/lib/php/session

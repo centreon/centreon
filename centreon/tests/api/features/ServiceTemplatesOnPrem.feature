@@ -346,7 +346,8 @@ Feature:
     """
     {
         "host_templates": [2, 3],
-        "service_categories": [1, 4]
+        "service_categories": [1, 4],
+        "macros": []
     }
     """
     Then the response code should be "204"

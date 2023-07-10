@@ -11,6 +11,7 @@
 /etc/sudoers.d
 /etc/pam.d
 /usr/lib/sudo
+/usr/lib/x86_64-linux-gnu/perl5
 /var/www/html
 /usr/lib/apache2/modules
 /var/lib/php/sessions

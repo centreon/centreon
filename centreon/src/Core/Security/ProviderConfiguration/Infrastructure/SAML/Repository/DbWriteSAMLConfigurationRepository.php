@@ -100,8 +100,6 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
         $customConfiguration = $configuration->getCustomConfiguration();
 
         return [
-            'is_active' => $configuration->isActive(),
-            'is_forced' => $configuration->isForced(),
             'remote_login_url' => $customConfiguration->getRemoteLoginUrl(),
             'entity_id_url' => $customConfiguration->getEntityIDUrl(),
             'certificate' => $customConfiguration->getPublicCertificate(),

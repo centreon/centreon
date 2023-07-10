@@ -290,6 +290,7 @@ final class AddServiceTemplate
                     : ''
                 );
             }
+            $this->info('Add the macro ' . $macro->getName());
             $this->writeServiceMacroRepository->add($macro);
         }
     }
