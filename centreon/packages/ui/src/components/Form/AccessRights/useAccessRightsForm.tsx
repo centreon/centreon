@@ -1,4 +1,4 @@
-import { ReactElement, ReactNode, useMemo, useRef } from 'react';
+import { ReactElement, ReactNode, useEffect, useRef } from 'react';
 
 import {
   atom,
@@ -6,9 +6,9 @@ import {
   Provider,
   useAtom,
   useAtomValue,
+  useSetAtom,
   useStore
 } from 'jotai';
-import { useHydrateAtoms } from 'jotai/utils';
 
 import {
   ContactAccessRightResource,
@@ -83,29 +83,31 @@ const AccessRightsFormProvider = ({
 }: AccessRightsFormProviderProps): ReactElement => {
   const store = useRef(createStore()).current;
 
-  const initialState = useMemo(
-    () =>
-      initialValues
-        ?.map(
-          (contactAccessRight) =>
-            ({
-              contactAccessRight,
-              state: 'unchanged',
-              stateHistory: []
-            } as ContactAccessRightStateResource)
-        )
-        .sort(sortOnAddedStateFirstAndContactName),
-    [initialValues]
-  );
+  const setFormOptions = useSetAtom(formOptionsAtom, { store });
+  const setContactAccessRights = useSetAtom(contactAccessRightsAtom, { store });
+  const setCallbacks = useSetAtom(callbacksAtom, { store });
 
-  useHydrateAtoms(
-    [
-      [formOptionsAtom, options],
-      [contactAccessRightsAtom, initialState ?? []],
-      [callbacksAtom, { onSubmit }]
-    ],
-    { store }
-  );
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    options && setFormOptions(options);
+    setContactAccessRights(
+      initialValues ? createInitialState(initialValues) : []
+    );
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    onSubmit && setCallbacks({ onSubmit });
+  }, [initialValues, options, onSubmit]);
+
+  const createInitialState = (values): Array<ContactAccessRightStateResource> =>
+    values
+      ?.map(
+        (contactAccessRight) =>
+          ({
+            contactAccessRight,
+            state: 'unchanged',
+            stateHistory: []
+          } as ContactAccessRightStateResource)
+      )
+      .sort(sortOnAddedStateFirstAndContactName);
 
   return <Provider store={store}>{children}</Provider>;
 };
