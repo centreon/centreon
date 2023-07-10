@@ -116,6 +116,11 @@ class OpenIdProvider implements OpenIdProviderInterface
     private array $connectionTokenResponseContent = [];
 
     /**
+     * @var string[]
+     */
+    private array $aclConditionsMatches = [];
+
+    /**
      * @param HttpClientInterface $client
      * @param UrlGeneratorInterface $router
      * @param ContactServiceInterface $contactService
@@ -412,6 +417,14 @@ class OpenIdProvider implements OpenIdProviderInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getAclConditionsMatches(): array
+    {
+        return $this->aclConditionsMatches;
+    }
+
+    /**
      * Extract Payload from JWT token
      *
      * @param string $token
@@ -422,7 +435,7 @@ class OpenIdProvider implements OpenIdProviderInterface
     {
         try {
             $tokenParts = explode(".", $token);
-            return json_decode(base64_decode($tokenParts[1]), true);
+            return json_decode($this->urlSafeTokenDecode($tokenParts[1]), true);
         } catch (Throwable $ex) {
             $this->error(
                 SSOAuthenticationException::unableToDecodeIdToken()->getMessage(),
@@ -717,6 +730,7 @@ class OpenIdProvider implements OpenIdProviderInterface
                 )
                 : $this->idTokenPayload
         );
+        $this->aclConditionsMatches = $this->rolesMapping->getConditionMatches();
 
         $this->groupsMapping->validate(
             $this->configuration,
@@ -963,5 +977,24 @@ class OpenIdProvider implements OpenIdProviderInterface
     public function getUserContactGroups(): array
     {
         return $this->groupsMapping->getUserContactGroups();
+    }
+
+    /**
+     * Decode using the RFC-4648 "URL and Filename safe" Base 64 Alphabet.
+     * @see https://www.ietf.org/rfc/rfc4648.txt
+     *
+     * @param string $token
+     * @return string
+     *
+     * @throws \ValueError
+     */
+    private function urlSafeTokenDecode(string $token): string
+    {
+        $decoded = base64_decode(str_replace(['-', '_'], ['+', '/'], $token), true);
+        if (false === $decoded) {
+            throw new \ValueError('The token cannot be base64 decoded');
+        }
+
+        return $decoded;
     }
 }
