@@ -1211,7 +1211,7 @@ configureApache() {
                 echo_info "$(gettext "Backup Centreon Apache configuration completed")"
             fi
         else
-            yes_no_default "$(gettext "Do you want to add Centreon Apache sub configuration file?")"
+            yes_no_default "$(gettext "Do you want to add the Centreon Apache sub configuration file?")"
             [ "$?" -eq 0 ] && write_config="1"
         fi
     else
