@@ -1,5 +1,5 @@
 /root
-bin
+/bin
 /usr/bin
 /sbin
 /usr/sbin
