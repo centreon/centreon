@@ -43,11 +43,11 @@ jobs:
           #   package_extension: rpm
           #   runner: collect
           #   arch: amd64
-          # - image: packaging-bullseye
-          #   distrib: bullseye
-          #   package_extension: deb
-          #   runner: collect
-          #   arch: amd64
+          - image: packaging-bullseye
+            distrib: bullseye
+            package_extension: deb
+            runner: collect
+            arch: amd64
           - image: packaging-bullseye-arm64
             distrib: bullseye
             package_extension: deb
@@ -83,16 +83,23 @@ jobs:
       - name: Set package name and paths according to distrib
         run: |
           if [ "${{ matrix.distrib }}" = "bullseye" ]; then
-            sed -i "s/@NAME@/libcrypt-argon2-perl/g" dependencies/perl-crypt-argon2/perl-crypt-argon2.yaml
-            sed -i "s#@PERL_VENDORARCH@#/usr/lib/x86_64-linux-gnu/perl5/5.32#g" dependencies/perl-crypt-argon2/perl-crypt-argon2.yaml
-          else
-            sed -i "s/@NAME@/perl-Crypt-Argon2/g" dependencies/perl-crypt-argon2/perl-crypt-argon2.yaml
-            if [ "${{ matrix.distrib }}" = "el8" ]; then
-              sed -i "s#@PERL_VENDORARCH@#/usr/local/lib64/perl5#g" dependencies/perl-crypt-argon2/perl-crypt-argon2.yaml
+            NAME="libcrypt-argon2-perl"
+            if [ "${{ matrix.arch }}" = "amd64" ]; then
+              PERL_VENDORARCH="/usr/lib/x86_64-linux-gnu/perl5/5.32"
             else
-              sed -i "s#@PERL_VENDORARCH@#/usr/local/lib64/perl5/5.32#g" dependencies/perl-net-curl/perl-net-curl.yaml
+              PERL_VENDORARCH="/usr/lib/aarch64-linux-gnu/perl5/5.32"
+            fi
+          else
+            NAME="perl-Crypt-Argon2"
+            if [ "${{ matrix.distrib }}" = "el8" ]; then
+              PERL_VENDORARCH="/usr/local/lib64/perl5"
+            else
+              PERL_VENDORARCH="/usr/local/lib64/perl5/5.32"
             fi
           fi
+
+          sed -i "s/@NAME@/$NAME/g" dependencies/perl-crypt-argon2/perl-crypt-argon2.yaml
+          sed -i "s#@PERL_VENDORARCH@#$PERL_VENDORARCH#g" dependencies/perl-crypt-argon2/perl-crypt-argon2.yaml
 
           cat dependencies/perl-crypt-argon2/perl-crypt-argon2.yaml
         shell: bash
