@@ -186,7 +186,7 @@ jobs:
     needs: [build]
     name: Run a SCA scan
     # only stable and unstable maintenance branches will produce a report
-    if: github.ref_name == 'develop'
+    #if: github.ref_name == 'develop'
     runs-on: ubuntu-latest
     continue-on-error: true
 
