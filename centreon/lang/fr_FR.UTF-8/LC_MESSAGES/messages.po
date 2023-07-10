@@ -15676,7 +15676,7 @@ msgid "24h/24h - 7/7 days"
 msgstr "24h/24h - 7/7 jours"
 
 msgid "Include services for these hosts"
-msgstr "Inclure des services pour ces hôtes"
+msgstr "Inclure les services pour ces hôtes"
 
 msgid "Failed to delete notifications"
 msgstr "Échec de la suppression des notifications"

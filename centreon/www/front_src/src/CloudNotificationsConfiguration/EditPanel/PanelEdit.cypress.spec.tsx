@@ -332,9 +332,9 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Displays the Contacts Groups field with edited notification contacts groups', () => {
+  it('Displays the Contact Groups field with edited notification contact groups', () => {
     cy.waitForRequest('@listingRequest');
-    cy.get('[data-testid="Search contacts groups"]').as('fieldContactsGroups');
+    cy.get('[data-testid="Search contact groups"]').as('fieldContactsGroups');
 
     cy.get('@fieldContactsGroups')
       .parent()

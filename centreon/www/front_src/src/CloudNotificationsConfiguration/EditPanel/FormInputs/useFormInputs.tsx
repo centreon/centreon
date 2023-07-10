@@ -216,7 +216,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
               additionalConditionParameters: [],
               endpoint: contactsGroupsEndpoint
             },
-            dataTestId: 'Search contacts groups',
+            dataTestId: 'Search contact groups',
             fieldName: 'contactgroups',
             label: t(labelSearchContactsGroups),
             required: true,
