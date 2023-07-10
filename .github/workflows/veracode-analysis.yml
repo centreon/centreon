@@ -204,7 +204,7 @@ jobs:
           fi
 
           if [[ -f package.json ]]; then
-            npm i --package-lock-only --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
+            npm i --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
             if [[ $RESULT -ne 0 ]]; then
               echo "[DEBUG] - Failure of '$ npm install'. Deleting the 'node_modules' to avoid analysis failure"
               rm -rf node_modules
