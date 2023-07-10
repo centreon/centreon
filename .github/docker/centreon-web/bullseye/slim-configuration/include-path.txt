@@ -5,6 +5,7 @@
 /usr/sbin
 /run/lock
 /usr/share/zoneinfo
+/usr/share/readline/inputrc
 /var/lock
 /etc/inputrc
 /etc/bash*

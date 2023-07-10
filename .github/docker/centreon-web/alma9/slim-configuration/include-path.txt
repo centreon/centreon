@@ -5,6 +5,7 @@
 /usr/sbin
 /run/httpd
 /usr/share/zoneinfo
+/usr/share/readline/inputrc
 /etc/bash*
 /etc/profile*
 /etc/inputrc
