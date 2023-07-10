@@ -291,10 +291,15 @@ Cypress.Commands.add(
           });
         }
 
-        return cy.copyFromContainer({
-          destination: `${logDirectory}/php/`,
-          source: '/var/log/php8.1-fpm-centreon-error.log'
-        });
+        return cy
+          .execInContainer({
+            command: `ls /var/log/php8.1-fpm-centreon-error.log >/dev/null 2>&1 || touch /var/log/php8.1-fpm-centreon-error.log`,
+            name: Cypress.env('dockerName')
+          })
+          .copyFromContainer({
+            destination: `${logDirectory}/php/`,
+            source: '/var/log/php8.1-fpm-centreon-error.log'
+          });
       })
       .stopContainer({ name });
   }
