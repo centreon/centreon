@@ -21,7 +21,7 @@ contents:
     file_info:
       mode: 0644
 
-  - src: "/tmp/man/man3/Crypt::Argon2*"
+  - src: "/tmp/man/man3/JSON::Path*"
     dst: "/usr/share/man/man3/"
     file_info:
       mode: 0644
