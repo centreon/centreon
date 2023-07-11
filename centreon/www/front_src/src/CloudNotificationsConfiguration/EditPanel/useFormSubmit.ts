@@ -28,6 +28,7 @@ import { notificationEndpoint } from './api/endpoints';
 interface UseFormState {
   dialogOpen: boolean;
   labelConfirm: string;
+  panelMode: PanelMode;
   setDialogOpen;
   submit: (
     values,
@@ -85,6 +86,7 @@ const useForm = (): UseFormState => {
   return {
     dialogOpen,
     labelConfirm,
+    panelMode,
     setDialogOpen,
     submit
   };
