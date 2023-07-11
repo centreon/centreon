@@ -76,13 +76,6 @@ export const notificationdecoder = JsonDecoder.object<NotificationType>(
   },
   'Notifications Listing',
   {
-    contactgroups: 'contactgroups',
-    id: 'id',
-    isActivated: 'is_activated',
-    messages: 'messages',
-    name: 'name',
-    resources: 'resources',
-    timeperiod: 'timeperiod',
-    users: 'users'
+    isActivated: 'is_activated'
   }
 );
