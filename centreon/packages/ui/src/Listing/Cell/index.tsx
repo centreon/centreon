@@ -165,7 +165,7 @@ const Cell = ({
 
   const { children } = props;
 
-  const rowId = props.row.id;
+  const rowId = props.row?.id;
 
   const click = (e): void => {
     e.preventDefault();
