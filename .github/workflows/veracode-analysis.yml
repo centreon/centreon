@@ -197,32 +197,14 @@ jobs:
       - name: Preparing dependencies
         run: |
           cd ${{ inputs.module_directory }}
-          REINSTALL_PACKAGE_JSON='true'
+          echo "[DEBUG] - package-lock.json scan disabled"
 
           if [[ -f package-lock.json ]]; then
-            echo "[DEBUG] - Found a 'package-lock.json'"
-            RESULT=0
-            npm ci --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
-            if [[ $RESULT -ne 0 ]]; then
-              echo "[DEBUG] - Failure of '$ npm ci'. Deleting the 'package-lock.json' to generate a new one"
-              rm -f package-lock.json
-            else
-              echo "[DEBUG] - 'package-lock.json' seems ready for analysis"
-              REINSTALL_PACKAGE_JSON='false'
-            fi
+            rm -f package-lock.json
           fi
 
-          if [[ -f package.json && $REINSTALL_PACKAGE_JSON != 'false' ]]; then
-            echo "[DEBUG] - Found a 'package.json'"
-            RESULT=0
-            echo "[DEBUG] - Generate a 'package-lock.json'"
-            npm i --package-lock-only --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
-            if [[ $RESULT -ne 0 ]]; then
-              echo "[DEBUG] - Failure of '$ npm install'. Deleting the 'package.json' to avoid analysis failure"
-              rm -f package.json
-            else
-              echo "[DEBUG] - 'package-lock.json' ready for analysis"
-            fi
+          if [[ -f package.json ]]; then
+            rm -f package.json
           fi
 
       - name: SCA scan
