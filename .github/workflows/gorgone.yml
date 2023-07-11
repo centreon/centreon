@@ -9,6 +9,8 @@ on:
   pull_request:
     paths:
       - "centreon-gorgone/**"
+      - "!centreon-gorgone/.veracode"
+      - "!centreon-gorgone/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -16,7 +18,8 @@ on:
       - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
-      - "centreon-gorgone/**"
+      - "!centreon-gorgone/.veracode"
+      - "!centreon-gorgone/.veracode-exclusions"
     tags:
       - centreon-gorgone-*
 
@@ -45,6 +48,7 @@ jobs:
 
   package:
     needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
       fail-fast: false
@@ -98,7 +102,7 @@ jobs:
   deliver-rpm:
     runs-on: [self-hosted, common]
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
@@ -131,7 +135,7 @@ jobs:
   deliver-deb:
     runs-on: [self-hosted, common]
     needs: [get-version,package]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
