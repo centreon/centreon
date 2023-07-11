@@ -109,7 +109,7 @@ jobs:
               ENV="development"
               ;;
             *)
-              STABILITY="unstable"
+              STABILITY="canary"
               ENV="development"
               ;;
           esac
