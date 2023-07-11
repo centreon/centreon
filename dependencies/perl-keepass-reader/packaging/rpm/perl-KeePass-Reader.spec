@@ -12,6 +12,8 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  make
 BuildRequires:  perl(ExtUtils::MakeMaker)
 
+Requires: perl(Crypt::Argon2)
+
 %description
 KeePass::Reader is a perl interface to read KeePass version 4.
 
