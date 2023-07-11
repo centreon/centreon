@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "widgets/centreon-widget-single-metric/**"
+      - "!widgets/centreon-widget-single-metric/.veracode"
   push:
     branches:
       - develop
@@ -17,6 +18,7 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "widgets/centreon-widget-single-metric/**"
+      - "!widgets/centreon-widget-single-metric/.veracode"
     tags:
       - centreon-widget-single-metric-*
 
@@ -25,19 +27,6 @@ jobs:
     uses: ./.github/workflows/get-version.yml
     with:
       version_file: widgets/centreon-widget-single-metric/single-metric/configs.xml
-
-  veracode-analysis:
-    needs: [get-version]
-    uses: ./.github/workflows/veracode-analysis.yml
-    with:
-      module_directory: widgets/centreon-widget-single-metric
-      module_name: centreon-widget-single-metric
-      major_version: ${{ needs.get-version.outputs.major_version }}
-      minor_version: ${{ needs.get-version.outputs.minor_version }}
-      stability: ${{ needs.get-version.outputs.stability }}
-    secrets:
-      veracode_api_id: ${{ secrets.VERACODE_API_ID }}
-      veracode_api_key: ${{ secrets.VERACODE_API_KEY }}
 
   package:
     needs: [get-version]

@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "centreon-ha/**"
+      - "!centreon-ha/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -17,6 +18,7 @@ on:
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon-ha/**"
+      - "!centreon-ha/.veracode-exclusions"
     tags:
       - centreon-ha-*
 
@@ -141,3 +143,32 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-version.outputs.stability }}
+
+  promote:
+    needs: [get-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el7, el8, bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Promote ${{ matrix.distrib }} to stable
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module: ha
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          stability: ${{ needs.get-version.outputs.stability }}
+          repository_name: standard
+          update_repo_path: ${{ secrets.UPDATE_REPO_PATH }}
+          cloudfront_id: ${{ secrets.CLOUDFRONT_ID }}
+          yum_repo_address: ${{ secrets.YUM_REPO_ADDRESS }}
+          yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}

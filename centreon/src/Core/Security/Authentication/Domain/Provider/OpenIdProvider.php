@@ -57,6 +57,7 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ContactGroupRelation
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
 
 class OpenIdProvider implements OpenIdProviderInterface
 {
@@ -124,6 +125,11 @@ class OpenIdProvider implements OpenIdProviderInterface
     private array $userContactGroups = [];
 
     /**
+     * @var string[]
+     */
+    private array $conditionMatches = [];
+
+    /**
      * @param HttpClientInterface $client
      * @param UrlGeneratorInterface $router
      * @param ContactServiceInterface $contactService
@@ -163,6 +169,11 @@ class OpenIdProvider implements OpenIdProviderInterface
     public function getProviderRefreshToken(): ?NewProviderToken
     {
         return $this->refreshToken;
+    }
+
+    public function getConditionMatches(): array
+    {
+        return $this->conditionMatches;
     }
 
     /**
@@ -1173,18 +1184,13 @@ class OpenIdProvider implements OpenIdProviderInterface
             }
         }
 
-        $configuredClaimValues = $aclConditions->getClaimValues();
-        if ($aclConditions->onlyFirstRoleIsApplied() && !empty($configuredClaimValues)) {
-            $configuredClaimValues = [$configuredClaimValues[0]];
-        }
-
         if (is_string($providerConditions)) {
             $providerConditions = explode(",", $providerConditions);
         }
 
         $this->rolesMappingFromProvider = $providerConditions;
 
-        $this->validateAclAttributeOrFail($providerConditions, $configuredClaimValues);
+        $this->validateAclAttributeOrFail($providerConditions, $aclConditions);
     }
 
     /**
@@ -1213,10 +1219,10 @@ class OpenIdProvider implements OpenIdProviderInterface
      * Validate roles mapping (Acl) Condition Attribute
      *
      * @param array<mixed> $conditions
-     * @param string[] $configuredAuthorizedValues
+     * @param AclConditions $configuredAuthorizedValues
      * @throws AclConditionsException
      */
-    private function validateAclAttributeOrFail(array $conditions, array $configuredAuthorizedValues): void
+    private function validateAclAttributeOrFail(array $conditions, ACLConditions $aclConditions): void
     {
         if (array_is_list($conditions) === false) {
             $errorMessage = "Invalid roles mapping (ACL) conditions format, array of strings expected";
@@ -1230,12 +1236,23 @@ class OpenIdProvider implements OpenIdProviderInterface
             throw AclConditionsException::invalidAclConditions();
         }
 
-        $conditionMatches = array_intersect($conditions, $configuredAuthorizedValues);
-        if (empty($conditionMatches)) {
+        $configuredClaimValues = $aclConditions->getClaimValues();
+        if ($aclConditions->onlyFirstRoleIsApplied() && ! empty($configuredClaimValues)) {
+            foreach ($configuredClaimValues as $claimValue) {
+                if (in_array($claimValue, $conditions)) {
+                    $this->conditionMatches = [$claimValue];
+                    break;
+                }
+            }
+        } else {
+            $this->conditionMatches = array_intersect($conditions, $configuredClaimValues);
+        }
+
+        if (empty($this->conditionMatches)) {
             $this->error(
                 "Configured attribute value not found in roles mapping configuration",
                 [
-                    "configured_authorized_values" => $configuredAuthorizedValues,
+                    "configured_authorized_values" => $configuredClaimValues,
                     "provider_conditions" => $conditions
                 ]
             );
@@ -1246,14 +1263,14 @@ class OpenIdProvider implements OpenIdProviderInterface
             throw AclConditionsException::conditionsNotFound();
         }
         $this->info("Role mapping relation found", [
-            "conditions_matches" => $conditionMatches,
+            "conditions_matches" => $this->conditionMatches,
             "provider" => $conditions,
-            "configured" => $configuredAuthorizedValues
+            "configured" => $configuredClaimValues
         ]);
         $this->logAuthenticationInfo("Role mapping relation found", [
-            "conditions_matches" => $conditionMatches,
+            "conditions_matches" => $this->conditionMatches,
             "provider" => $conditions,
-            "configured" => $configuredAuthorizedValues
+            "configured" => $configuredClaimValues
         ]);
     }
 
