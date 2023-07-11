@@ -36,7 +36,7 @@ interface WriteDashboardShareRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function createShareWithContact(int $contactId, int $dashboardId, DashboardSharingRole $role): void;
+    public function upsertShareWithContact(int $contactId, int $dashboardId, DashboardSharingRole $role): void;
 
     /**
      * Create the share relation between a dashboard and a contact group.
@@ -47,5 +47,55 @@ interface WriteDashboardShareRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function createShareWithContactGroup(int $contactGroupId, int $dashboardId, DashboardSharingRole $role): void;
+    public function upsertShareWithContactGroup(int $contactGroupId, int $dashboardId, DashboardSharingRole $role): void;
+
+    /**
+     * Delete the share relation between a dashboard and a contact.
+     *
+     * @param int $contactId
+     * @param int $dashboardId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function deleteContactShare(int $contactId, int $dashboardId): bool;
+
+    /**
+     * Delete the share relation between a dashboard and a contact group.
+     *
+     * @param int $dashboardId
+     * @param int $contactGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function deleteContactGroupShare(int $contactGroupId, int $dashboardId): bool;
+
+    /**
+     * Update the share relation between a dashboard and a contact.
+     *
+     * @param int $contactId
+     * @param int $dashboardId
+     * @param DashboardSharingRole $role
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function updateContactShare(int $contactId, int $dashboardId, DashboardSharingRole $role): bool;
+
+    /**
+     * Update the share relation between a dashboard and a contact group.
+     *
+     * @param int $contactGroupId
+     * @param int $dashboardId
+     * @param DashboardSharingRole $role
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function updateContactGroupShare(int $contactGroupId, int $dashboardId, DashboardSharingRole $role): bool;
 }

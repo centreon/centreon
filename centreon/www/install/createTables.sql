@@ -2509,6 +2509,18 @@ CREATE TABLE IF NOT EXISTS `notification_user_relation` (
     REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `notification_contactgroup_relation` (
+  `notification_id` INT UNSIGNED NOT NULL,
+  `contactgroup_id` INT NOT NULL,
+  UNIQUE KEY `notification_contactgroup_relation_unique_index` (`notification_id`,`contactgroup_id`),
+  CONSTRAINT `notification_contactgroup_relation_notification_id`
+    FOREIGN KEY (`notification_id`)
+    REFERENCES `notification` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `notification_contactgroup_relation_contactgroup_id`
+    FOREIGN KEY (`contactgroup_id`)
+    REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS `notification_hg_relation` (
   `notification_id` INT UNSIGNED NOT NULL,
   `hg_id` INT NOT NULL,

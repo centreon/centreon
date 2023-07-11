@@ -36,9 +36,22 @@ $errorMessage = "Couldn't modify resources table";
 $alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED, 
     MODIFY max_check_attempts SMALLINT UNSIGNED";
 
+$alterMetricsTable = function(CentreonDB $pearDBO) {
+    $pearDBO->query(
+        <<<'SQL'
+            ALTER TABLE `metrics`
+            MODIFY COLUMN `metric_name` VARCHAR(1021) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL
+            SQL
+    );
+};
+
 try {
 
     $pearDBO->query($alterResourceTableStmnt);
+
+    $errorMessage = 'Impossible to alter metrics table';
+    $alterMetricsTable($pearDBO);
+
     $errorMessage = '';
     // Transactional queries
     if (! $pearDB->inTransaction()) {

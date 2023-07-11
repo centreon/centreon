@@ -32,6 +32,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Throwable;
@@ -43,6 +44,7 @@ final class DeleteDashboard
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly WriteDashboardRepositoryInterface $writeDashboardRepository,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
     ) {
@@ -99,14 +101,20 @@ final class DeleteDashboard
      */
     private function deleteDashboardAsContact(int $dashboardId): ResponseStatusInterface
     {
-        if ($this->readDashboardRepository->existsOneByContact($dashboardId, $this->contact)) {
-            $this->writeDashboardRepository->delete($dashboardId);
+        $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
+        if (null === $dashboard) {
+            $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
 
-            return new NoContentResponse();
+            return new NotFoundResponse('Dashboard');
         }
 
-        $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
+        $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard);
+        if (! $this->rights->canDelete($sharingRoles)) {
+            return new ForbiddenResponse(DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboardId));
+        }
 
-        return new NotFoundResponse('Dashboard');
+        $this->writeDashboardRepository->delete($dashboardId);
+
+        return new NoContentResponse();
     }
 }
