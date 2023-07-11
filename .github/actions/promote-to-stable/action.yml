@@ -187,11 +187,6 @@ runs:
             exit 1
           fi
 
-          if [[ $PATHS_FOUND_IN_ARCH -eq 2 ]]; then
-            echo "[DEBUG] - No source path found in all architecture."
-            exit 1
-          fi
-
           echo "[DEBUG] - Build target path."
           TARGET_PATH="/srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS"
           #TARGET_PATH="/srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/canary/$ARCH/RPMS"
