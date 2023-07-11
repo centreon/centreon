@@ -95,7 +95,7 @@ runs:
           echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
           for ARTIFACT in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Promoting $ARTIFACT to stable on artifactory."
-            #jf rt copy $ARTIFACT $TARGET_PATH --flat=true
+            jf rt copy $ARTIFACT $TARGET_PATH --flat=true
           done
         done
       shell: bash
@@ -134,7 +134,7 @@ runs:
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
         for ARTIFACT in ${SRC_PATHS[@]}; do
           echo "[DEBUG] - Promoting $ARTIFACT to stable."
-          #jf rt copy $ARTIFACT $TARGET_PATH --flat=true
+          jf rt copy $ARTIFACT $TARGET_PATH --flat=true
         done
       shell: bash
 
@@ -195,12 +195,11 @@ runs:
           ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET_PATH"
           for ARTIFACT in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Promoting $ARTIFACT to $TARGET_PATH."
-            #ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" cp $ARTIFACT $TARGET_PATH/
+            ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" cp $ARTIFACT $TARGET_PATH/
           done
 
           METADATAS="METADATAS /srv/centreon-yum/yum.centreon.com/$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH"
           INVALIDATION_PATHS="$INVALIDATION_PATHS /$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/*"
-
         done
 
         # Update repository metadata
@@ -256,7 +255,7 @@ runs:
 
         # Check if artifacts to promote
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
-        SRC_PATHS=$(curl -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" "https://apt.centreon.com/service/rest/v1/search/assets?repository=${ROOT_REPO_PATH}&name=*${{ inputs.module }}*&version=${{ inputs.major_version }}.${{ inputs.minor_version }}-1" |jq -r '.items[].downloadUrl')
+        SRC_PATHS=$(curl -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" "https://apt.centreon.com/service/rest/v1/search/assets?repository=${ROOT_REPO_PATH}&keyword=**{{ inputs.major_version }}.${{ inputs.minor_version }}*&version=${{ inputs.major_version }}.${{ inputs.minor_version }}-${{ inputs.distrb }}" |jq -r '.items[].downloadUrl')
 
         # Checking if there are testing packages to promote and download them.
         if [[ ${SRC_PATHS[@]} ]]; then
@@ -266,7 +265,7 @@ runs:
             curl -JOs $SRC_PATH
             FILENAME=$(basename $SRC_PATH)
             echo "[DEBUG] - Promoting testing artifact $FILENAME to stable."
-            #curl --fail -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILENAME" $TARGET_PATH/
+            curl --fail -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILENAME" $TARGET_PATH/
             rm -f $FILENAME
             sleep 2
           done
