@@ -131,6 +131,8 @@ interface Props
     TableCellProps {
   displaySubItemsCaret?: boolean;
   isRowHighlighted?: boolean;
+  labelCollapse?: string;
+  labelExpand?: string;
   subItemsRowProperty?: string;
   viewMode?: ListingVariant;
 }
@@ -153,6 +155,8 @@ const handleSubItems = ({
 const Cell = ({
   displaySubItemsCaret,
   subItemsRowProperty,
+  labelCollapse,
+  labelExpand,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles(props);
@@ -196,7 +200,13 @@ const Cell = ({
     >
       {displaySubItemsCaret &&
         (hasSubItems ? (
-          <IconButton size="small" onClick={click}>
+          <IconButton
+            ariaLabel={`${isSubItemsExpanded ? labelCollapse : labelExpand} ${
+              props.row.id
+            }`}
+            size="small"
+            onClick={click}
+          >
             <ExpandMoreIcon
               className={cx(
                 classes.caret,

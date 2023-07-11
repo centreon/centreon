@@ -376,6 +376,8 @@ export const ListingWithSubItems = {
     subItems: {
       canCheckSubItems: false,
       enable: true,
+      labelCollapse: 'Collapse',
+      labelExpand: 'Expand',
       rowProperty: 'subItems'
     },
     totalRows: 10

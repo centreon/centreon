@@ -121,6 +121,8 @@ export interface Props<TRow> {
   subItems?: {
     canCheckSubItems: boolean;
     enable: boolean;
+    labelCollapse: string;
+    labelExpand: string;
     rowProperty: string;
   };
   totalRows?: number;
@@ -173,6 +175,8 @@ const Listing = <TRow extends { id: RowId }>({
   subItems = {
     canCheckSubItems: false,
     enable: false,
+    labelCollapse: 'Collapse',
+    labelExpand: 'Expand',
     rowProperty: ''
   }
 }: Props<TRow>): JSX.Element => {
@@ -622,6 +626,8 @@ const Listing = <TRow extends { id: RowId }>({
                         isRowHovered={isRowHovered}
                         isRowSelected={isRowSelected}
                         key={`${getId(row)}-${column.id}`}
+                        labelCollapse={subItems.labelCollapse}
+                        labelExpand={subItems.labelExpand}
                         row={row}
                         rowColorConditions={rowColorConditions}
                         subItemsRowProperty={subItems?.rowProperty}

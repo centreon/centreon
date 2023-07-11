@@ -25,6 +25,8 @@ interface Props {
   getHighlightRowCondition?: (row) => boolean;
   isRowHovered: boolean;
   isRowSelected: boolean;
+  labelCollapse?: string;
+  labelExpand?: string;
   row?;
   rowColorConditions?: Array<RowColorCondition>;
   subItemsRowProperty?: string;
@@ -40,7 +42,9 @@ const DataCell = ({
   disableRowCondition,
   viewMode,
   getHighlightRowCondition,
-  subItemsRowProperty
+  subItemsRowProperty,
+  labelCollapse,
+  labelExpand
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const { dataStyle } = useStyleTable({ viewMode });
@@ -49,6 +53,8 @@ const DataCell = ({
     disableRowCondition,
     displaySubItemsCaret: column.displaySubItemsCaret,
     isRowHovered,
+    labelCollapse,
+    labelExpand,
     row,
     rowColorConditions,
     subItemsRowProperty
