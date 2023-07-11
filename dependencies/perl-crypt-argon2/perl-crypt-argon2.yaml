@@ -17,12 +17,12 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - src: /tmp/bin/argon2-calibrate"
+  - src: "/tmp/bin/argon2-calibrate"
     dst: "/usr/local/bin/"
     file_info:
       mode: 0755
     packager: rpm
-  - src: /tmp/bin/argon2-calibrate"
+  - src: "/tmp/bin/argon2-calibrate"
     dst: "/usr/bin/"
     file_info:
       mode: 0755
