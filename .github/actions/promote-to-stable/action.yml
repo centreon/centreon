@@ -75,7 +75,6 @@ runs:
         for ARCH in "noarch" "x86_64"; do
           echo "[DEBUG] - Get artifactory path of $ARCH testing artifacts to promote to stable."
           SRC_PATHS=$(jf rt search --include-dirs rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/testing/$ARCH/${{ inputs.module }}/*.rpm | jq -r '.[].path')
-
           if [[ ${SRC_PATHS[@]} ]]; then
             for SRC_PATH in ${SRC_PATHS[@]}; do
               echo "[DEBUG] - Source path found: $SRC_PATH"
@@ -93,7 +92,6 @@ runs:
           echo "[DEBUG] - Build $ARCH artifactory target path."
           TARGET_PATH="rpm-standard/${{ inputs.major_version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/RPMS/"
           echo "[DEBUG] - Target path: $TARGET_PATH"
-
           echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
           for ARTIFACT in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Promoting $ARTIFACT to stable on artifactory."
@@ -102,7 +100,7 @@ runs:
         done
       shell: bash
 
-    - name: Promote DEB package to stable
+    - name: Promote DEB packages to stable
       if: ${{ startsWith(inputs.distrib, 'bullseye') }}
       run: |
         set -x
@@ -120,14 +118,13 @@ runs:
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
         SRC_PATHS=$(jf rt search --include-dirs $ROOT_REPO_PATH-testing/pool/${{ inputs.module }}/*${{ inputs.major_version }}.${{ inputs.minor_version }}*.deb | jq -r '.[].path')
-
         if [[ ${SRC_PATHS[@]} ]]; then
           for SRC_PATH in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Source path found: $SRC_PATH"
           done
         else
           echo "[DEBUG] - No source path found."
-          continue
+          exit 1
         fi
 
         echo "[DEBUG] - Build target path."
@@ -137,11 +134,11 @@ runs:
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
         for ARTIFACT in ${SRC_PATHS[@]}; do
           echo "[DEBUG] - Promoting $ARTIFACT to stable."
-          jf rt cp $ARTIFACT $TARGET_PATH --flat=true
+          jf rt copy $ARTIFACT $TARGET_PATH --flat=true
         done
       shell: bash
 
-    - name: Promote RPM packages to stable on yum.centreon.com
+    - name: Promote RPMS packages to stable on yum.centreon.com
       if: ${{ startsWith(inputs.distrib, 'el') }}
       run: |
         set -x
@@ -149,6 +146,8 @@ runs:
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
         echo "[DEBUG] - Repository name: ${{ inputs.repository_name }}"
+
+        PATHS_FOUND_IN_ARCH=0
 
         PROJECT_PATH="standard"
         INVALIDATION_PATHS=""
@@ -179,8 +178,18 @@ runs:
               echo "[DEBUG] - Source path found: $SRC_PATH"
             done
           else
-            echo "[DEBUG] - No source path found."
-            continue
+            echo "[DEBUG] - No source path found for $ARCH."
+            PATHS_FOUND_IN_ARCH+=1
+          fi
+
+          if [[ $PATHS_FOUND_IN_ARCH -eq 2 ]]; then
+            echo "[DEBUG] - No source path found in all architecture."
+            exit 1
+          fi
+
+          if [[ $PATHS_FOUND_IN_ARCH -eq 2 ]]; then
+            echo "[DEBUG] - No source path found in all architecture."
+            exit 1
           fi
 
           echo "[DEBUG] - Build target path."
@@ -189,8 +198,9 @@ runs:
           echo "[DEBUG] - Target path: $TARGET_PATH"
 
           echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
+          ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET_PATH"
           for ARTIFACT in ${SRC_PATHS[@]}; do
-            ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" mkdir -p "$TARGET_PATH"
+            echo "[DEBUG] - Promoting $ARTIFACT to $TARGET_PATH."
             ssh -o StrictHostKeyChecking=no "${{ inputs.yum_repo_address }}" cp $ARTIFACT $TARGET_PATH/
           done
 
@@ -260,11 +270,12 @@ runs:
             curl -JOs $SRC_PATH
             FILENAME=$(basename $SRC_PATH)
             echo "[DEBUG] - Promoting testing artifact $FILENAME to stable."
-            curl -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILENAME" $TARGET_PATH
+            curl --fail -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILENAME" $TARGET_PATH
             rm -f $FILENAME
             sleep 2
           done
         else
           echo "[DEBUG] - No source path found."
+          exit 1
         fi
       shell: bash
