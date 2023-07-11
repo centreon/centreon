@@ -1069,7 +1069,7 @@
 								"exec": [
 									"const buffer_passwords = pm.environment.get(\"buffer_passwords\");\r",
 									"\r",
-									"pm.test(\"Password for admin user was successfully updated to \" + pm.environment.get(\"current_password\") + \".\", function () {\r",
+									"pm.test(\"[Cleanup] Password for admin user was successfully updated to \" + pm.environment.get(\"current_password\") + \".\", function () {\r",
 									"    pm.response.to.have.status(204);\r",
 									"});\r",
 									"\r",
