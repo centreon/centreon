@@ -19,34 +19,16 @@ contents:
     dst: "@PERL_VENDORARCH@/auto/Libssh/Session/Session.so"
     file_info:
       mode: 0644
-    packager: deb
-  - src: "/tmp/lib/perl5/x86_64-linux-thread-multi/auto/Libssh/Session/Session.so"
-    dst: "@PERL_VENDORARCH@/auto/Libssh/Session/Session.so"
-    file_info:
-      mode: 0644
-    packager: rpm
 
   - src: "/tmp/lib/perl5/*/Libssh"
     dst: "@PERL_VENDORARCH@/Libssh"
     file_info:
       mode: 0644
-    packager: deb
-  - src: "/tmp/lib/perl5/x86_64-linux-thread-multi/Libssh"
-    dst: "@PERL_VENDORARCH@/Libssh"
-    file_info:
-      mode: 0644
-    packager: rpm
 
-  - src: /tmp/man/man3/Libssh::*
-    dst: /usr/share/man/man3/
+  - src: "/tmp/man/man3/Libssh::*"
+    dst: "/usr/share/man/man3/"
     file_info:
       mode: 0644
-    packager: deb
-  - src: /tmp/man/man3/Libssh::*
-    dst: /usr/local/share/man/man3/
-    file_info:
-      mode: 0644
-    packager: rpm
 
 overrides:
   rpm:

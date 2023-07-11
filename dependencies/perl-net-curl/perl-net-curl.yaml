@@ -21,34 +21,16 @@ contents:
     dst: "@PERL_VENDORARCH@/auto/Net/Curl/Curl.so"
     file_info:
       mode: 0644
-    packager: deb
-  - src: "/tmp/lib/perl5/x86_64-linux-thread-multi/auto/Net/Curl/Curl.so"
-    dst: "@PERL_VENDORARCH@/auto/Net/Curl/Curl.so"
-    file_info:
-      mode: 0644
-    packager: rpm
 
   - src: "/tmp/lib/perl5/*/Net/Curl*"
     dst: "@PERL_VENDORARCH@/Net/"
     file_info:
       mode: 0644
-    packager: deb
-  - src: "/tmp/lib/perl5/x86_64-linux-thread-multi/Net/Curl*"
-    dst: "@PERL_VENDORARCH@/Net/"
-    file_info:
-      mode: 0644
-    packager: rpm
 
-  - src: /tmp/man/man3/Net::Curl*
-    dst: /usr/share/man/man3/
+  - src: "/tmp/man/man3/Net::Curl*"
+    dst: "/usr/share/man/man3/"
     file_info:
       mode: 0644
-    packager: deb
-  - src: /tmp/man/man3/Net::Curl*
-    dst: /usr/local/share/man/man3/
-    file_info:
-      mode: 0644
-    packager: rpm
 
 overrides:
   rpm:
