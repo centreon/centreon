@@ -16,7 +16,7 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - src: "/tmp/lib/perl5/*/JSON/Path/*"
+  - src: "/tmp/lib/perl5/JSON/Path/*"
     dst: "@PERL_VENDORLIB@/JSON/Path/"
     file_info:
       mode: 0644
@@ -40,7 +40,13 @@ overrides:
       - perl(Try::Tiny)
   deb:
     depends:
-      - perl
+      - libcarp-assert-perl
+      - libexporter-tiny-perl
+      - libjson-parse-perl
+      - liblv-perl
+      - libreadonly-perl
+      - libtie-ixhash-perl
+      - libtry-tiny-perl
 
 rpm:
   summary: This module implements JSONPath, an XPath-like language for searching JSON-like structures
