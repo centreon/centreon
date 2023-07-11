@@ -59,6 +59,10 @@ export const labelDoYouWantToQuitWithoutSaving =
   'Do you want to quit the form without saving the changes?';
 export const labelYourFormHasUnsavedChanges = 'Your form has unsaved changes';
 export const labelThisNameAlreadyExists = 'This name already exists';
+export const labelCancelAddNotification = 'Cancel notification creation';
+export const labelCancelEditNotification = 'Cancel notification update';
+export const labelCreateNotificationForTheFirstTime =
+  'Create notification for the first time';
 export const labelNotificationSuccessfullyDeleted =
   'Notification deleted successfully';
 export const labelNotificationsSuccessfullyDeleted =
