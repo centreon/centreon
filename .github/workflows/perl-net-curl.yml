@@ -33,28 +33,28 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - image: packaging-alma8
-          #   distrib: el8
-          #   package_extension: rpm
-          #   runner: collect
-          #   arch: amd64
-          # - image: packaging-alma9
-          #   distrib: el9
-          #   package_extension: rpm
-          #   runner: collect
-          #   arch: amd64
-          # - image: packaging-bullseye
-          #   distrib: bullseye
-          #   package_extension: deb
-          #   runner: collect
-          #   arch: amd64
+          - image: packaging-alma8
+            distrib: el8
+            package_extension: rpm
+            runner: ubuntu-22.04
+            arch: amd64
+          - image: packaging-alma9
+            distrib: el9
+            package_extension: rpm
+            runner: ubuntu-22.04
+            arch: amd64
+          - image: packaging-bullseye
+            distrib: bullseye
+            package_extension: deb
+            runner: ubuntu-22.04
+            arch: amd64
           - image: packaging-bullseye-arm64
             distrib: bullseye
             package_extension: deb
-            runner: collect-arm64
+            runner: ["self-hosted", "collect-arm64"]
             arch: arm64
 
-    runs-on: ${{ fromJson(format('["self-hosted", "{0}"]', matrix.runner)) }}
+    runs-on: ${{ matrix.runner }}
 
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -134,7 +134,7 @@ jobs:
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
 
       # set condition to true if artifacts are needed
-      - if: ${{ true }}
+      - if: ${{ false }}
         name: Upload package artifacts
         uses: actions/upload-artifact@v3
         with:
