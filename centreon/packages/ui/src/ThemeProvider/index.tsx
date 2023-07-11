@@ -283,7 +283,6 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     caption: {
       fontSize: '0.625rem'
     },
-
     fontFamily: 'Roboto, Arial'
   }
 });
