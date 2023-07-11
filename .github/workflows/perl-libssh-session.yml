@@ -36,25 +36,25 @@ jobs:
           - image: packaging-alma8
             distrib: el8
             package_extension: rpm
-            runner: common
+            runner: ubuntu-22.04
             arch: amd64
           - image: packaging-alma9
             distrib: el9
             package_extension: rpm
-            runner: common
+            runner: ubuntu-22.04
             arch: amd64
           - image: packaging-bullseye
             distrib: bullseye
             package_extension: deb
-            runner: common
+            runner: ubuntu-22.04
             arch: amd64
           - image: packaging-bullseye-arm64
             distrib: bullseye
             package_extension: deb
-            runner: collect-arm64
+            runner: ["self-hosted", "collect-arm64"]
             arch: arm64
 
-    runs-on: ${{ fromJson(format('["self-hosted", "{0}"]', matrix.runner)) }}
+    runs-on: ${{ matrix.runner }}
 
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}

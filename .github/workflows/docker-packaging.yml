@@ -38,11 +38,11 @@ jobs:
           - runner: ubuntu-22.04
             dockerfile: packaging-bullseye
             image: packaging-bullseye
-          - runner: collect-arm64
+          - runner: ["self-hosted", "collect-arm64"]
             dockerfile: packaging-bullseye
             image: packaging-bullseye-arm64
 
-    runs-on: ${{ matrix.runner == 'ubuntu-22.04' && matrix.runner || fromJson(format('["self-hosted", "{0}"]', matrix.runner)) }}
+    runs-on: ${{ matrix.runner }}
 
     name: build container ${{ matrix.image }}
 
