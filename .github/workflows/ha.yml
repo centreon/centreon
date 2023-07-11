@@ -33,6 +33,7 @@ jobs:
 
   package:
     needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
       fail-fast: true
@@ -84,7 +85,7 @@ jobs:
 
   delivery-rpm:
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
@@ -119,7 +120,7 @@ jobs:
 
   delivery-deb:
     needs: [get-version, package]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable"]'), needs.get-version.outputs.stability) }}
     runs-on: [self-hosted, common]
     environment: ${{ needs.get-version.outputs.environment }}
 
