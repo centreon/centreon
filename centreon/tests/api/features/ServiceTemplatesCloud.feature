@@ -17,26 +17,146 @@ Feature:
 
     When I send a POST request to '/api/latest/configuration/services/templates' with body:
     """
+      {
+          "name": "templateA",
+          "alias": "templateA",
+          "service_template_id": 1,
+          "macros": [
+              {
+                  "name": "MACRO1",
+                  "value": "A1",
+                  "is_password": false,
+                  "description": null
+              },
+              {
+                  "name": "MACROB",
+                  "value": "B1",
+                  "is_password": false,
+                  "description": null
+              },
+              {
+                  "name": "MACROC",
+                  "value": "C1",
+                  "is_password": false,
+                  "description": null
+              },
+              {
+                  "name": "MACROD",
+                  "value": "D1",
+                  "is_password": false,
+                  "description": null
+              },
+              {
+                  "name": "TOTO",
+                  "value": "T1",
+                  "is_password": false,
+                  "description": null
+              }
+          ]
+      }
+    """
+    Then the response code should be 201
+    And I store response values in:
+      | name      | path |
+      | templateA | id   |
+
+    When I send a POST request to '/api/latest/configuration/services/templates' with body:
+    """
+      {
+          "name": "templateB",
+          "alias": "templateB",
+          "service_template_id": <templateA>,
+          "macros": [
+              {
+                  "name": "MACROA",
+                  "value": "A2",
+                  "is_password": false,
+                  "description": null
+              },
+              {
+                  "name": "MACROC",
+                  "value": "C2",
+                  "is_password": false,
+                  "description": null
+              }
+          ]
+      }
+    """
+    Then the response code should be 201
+    And I store response values in:
+      | name      | path |
+      | templateB | id   |
+
+    When I send a POST request to '/api/latest/configuration/services/templates' with body:
+    """
+      {
+          "name": "templateC",
+          "alias": "templateC",
+          "service_template_id": <templateB>,
+          "macros": [
+              {
+                  "name": "MACROA",
+                  "value": "A3",
+                  "is_password": false,
+                  "description": null
+              },
+              {
+                  "name": "MACROB",
+                  "value": "B2",
+                  "is_password": false,
+                  "description": null
+              }
+          ]
+      }
+    """
+    Then the response code should be 201
+    And I store response values in:
+      | name      | path |
+      | templateC | id   |
+
+    When I send a POST request to '/api/latest/configuration/services/templates' with body:
+    """
     {
         "name": "service template test",
         "alias": "service template alias",
-        "service_template_id": 1,
+        "service_template_id": <templateC>,
         "check_timeperiod_id": 1,
         "note": "note",
         "note_url": "note_url",
         "action_url": "action url",
         "severity_id": null,
-        "host_templates": [3, 11]
+        "host_templates": [3, 11],
+        "service_categories": [1, 2],
+        "macros": [
+            {
+                "name": "MACROB",
+                "value": "B3",
+                "is_password": false,
+                "description": null
+            },
+            {
+                "name": "MACROE",
+                "value": "E1",
+                "is_password": false,
+                "description": null
+            },
+            {
+                "name": "TOTO",
+                "value": "T1",
+                "is_password": false,
+                "description": null
+            }
+        ]
     }
     """
     Then the response code should be 201
     And the JSON should be equal to:
     """
     {
-        "id": 27,
+        "id": 30,
         "name": "service template test",
         "alias": "service template alias",
-        "service_template_id": 1,
+        "service_template_id": <templateC>,
         "check_timeperiod_id": 1,
         "note": "note",
         "note_url": "note_url",
@@ -46,9 +166,36 @@ Feature:
             3,
             11
         ],
-        "is_locked": false
+        "is_locked": false,
+        "categories": [
+            {
+                "id": 1,
+                "name": "Ping"
+            },
+            {
+                "id": 2,
+                "name": "Traffic"
+            }
+        ],
+        "macros": [
+            {
+                "name": "MACROB",
+                "value": "B3",
+                "is_password": false,
+                "description": ""
+            },
+            {
+                "name": "MACROE",
+                "value": "E1",
+                "is_password": false,
+                "description": ""
+            }
+        ]
     }
     """
+    And I store response values in:
+      | name      | path |
+      | newServiceTemplateId | id   |
 
     When I send a GET request to '/api/latest/configuration/services/templates?search={"name": "service template test"}'
     Then the response code should be "200"
@@ -57,10 +204,10 @@ Feature:
     {
         "result": [
             {
-                "id": 27,
+                "id": <newServiceTemplateId>,
                 "name": "service template test",
                 "alias": "service template alias",
-                "service_template_id": 1,
+                "service_template_id": <templateC>,
                 "check_timeperiod_id": 1,
                 "note": "note",
                 "note_url": "note_url",
@@ -87,10 +234,11 @@ Feature:
     }
     """
 
-    When I send a PATCH request to '/api/latest/configuration/services/templates/27' with body:
+    When I send a PATCH request to '/api/latest/configuration/services/templates/<newServiceTemplateId>' with body:
     """
     {
-        "host_templates": [2, 3]
+        "host_templates": [2, 3],
+        "macros": []
     }
     """
     Then the response code should be "204"
@@ -102,10 +250,10 @@ Feature:
     {
         "result": [
             {
-                "id": 27,
+                "id": <newServiceTemplateId>,
                 "name": "service template test",
                 "alias": "service template alias",
-                "service_template_id": 1,
+                "service_template_id": <templateC>,
                 "check_timeperiod_id": 1,
                 "note": "note",
                 "note_url": "note_url",
@@ -133,11 +281,11 @@ Feature:
     """
 
     Given I am logged in with "test"/"Centreon@2022"
-    When I send a DELETE request to '/api/v23.10/configuration/services/templates/27'
+    When I send a DELETE request to '/api/v23.10/configuration/services/templates/<newServiceTemplateId>'
     Then the response code should be "403"
 
     When I am logged in
-    Then I send a DELETE request to '/api/v23.10/configuration/services/templates/27'
+    Then I send a DELETE request to '/api/v23.10/configuration/services/templates/<newServiceTemplateId>'
     Then the response code should be "204"
 
     When I send a GET request to '/api/v23.10/configuration/services/templates?search={"name": "service template test"}'

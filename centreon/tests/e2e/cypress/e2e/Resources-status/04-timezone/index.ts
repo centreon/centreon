@@ -33,6 +33,10 @@ const calculateMinuteInterval = (startDate: Date, endDate: Date): number => {
   const diffInMilliseconds = endDate.getTime() - startDate.getTime();
   const minutes = Math.abs(Math.floor(diffInMilliseconds / 60000));
 
+  cy.log(
+    `Diff in minutes between ${endDate.getTime()} and ${startDate.getTime()} is ${minutes}`
+  );
+
   return minutes;
 };
 
@@ -159,6 +163,11 @@ When('the user saves the form', () => {
     .eq(0)
     .contains('Save')
     .click();
+
+  cy.get('iframe#main-content')
+    .its('0.contentDocument.body')
+    .find('input[type="button"]')
+    .should('have.value', 'Modify');
 });
 
 Then('timezone information are updated on the banner', () => {
@@ -390,11 +399,13 @@ Then(
   () => {
     cy.waitUntil(
       () => {
+        cy.reload().wait('@getTimeZone');
+
         return cy
-          .reload()
-          .then(() =>
-            cy.getIframeBody().find('.ListTable tr:not(.ListHeader)').first()
-          )
+          .get('iframe#main-content')
+          .its('0.contentDocument.body')
+          .find('.ListTable tr:not(.ListHeader)')
+          .first()
           .children()
           .then((val) => {
             return val.text().trim() !== 'No downtime scheduled';
@@ -405,19 +416,23 @@ Then(
       }
     );
 
-    cy.wait('@getTimeZone');
-
     cy.getIframeBody()
       .find('.ListTable tr:not(.ListHeader) td')
       .eq(3)
       .then(($el) => {
         cy.getTimeFromHeader().then((localTime: string) => {
-          const dtTime = $el[0].textContent || '';
+          const downtimeStartTime = $el[0].textContent;
+
+          if (downtimeStartTime === null) {
+            throw new Error('Cannot get downtime start time');
+          }
+
+          cy.log(`Downtime start time : ${downtimeStartTime}`);
 
           expect(
             calculateMinuteInterval(
               convert12hFormatToDate(localTime),
-              new Date(dtTime)
+              new Date(downtimeStartTime)
             )
           ).to.be.lte(2);
         });

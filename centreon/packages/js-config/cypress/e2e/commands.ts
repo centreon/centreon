@@ -4,6 +4,8 @@ import './commands/configuration';
 
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
+const artifactIllegalCharactersMatcher = /[,\s/|<>*?:"]/g;
+
 Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
   return cy
     .exec(
@@ -90,29 +92,35 @@ Cypress.Commands.add(
 
 interface CopyFromContainerProps {
   destination: string;
+  name?: string;
   source: string;
 }
 
 Cypress.Commands.add(
   'copyFromContainer',
-  ({ source, destination }: CopyFromContainerProps) => {
-    return cy.exec(
-      `docker cp ${Cypress.env('dockerName')}:${source} "${destination}"`
-    );
+  ({
+    name = Cypress.env('dockerName'),
+    source,
+    destination
+  }: CopyFromContainerProps) => {
+    return cy.exec(`docker cp ${name}:${source} "${destination}"`);
   }
 );
 
 interface CopyToContainerProps {
   destination: string;
+  name?: string;
   source: string;
 }
 
 Cypress.Commands.add(
   'copyToContainer',
-  ({ source, destination }: CopyToContainerProps) => {
-    return cy.exec(
-      `docker cp ${source} ${Cypress.env('dockerName')}:${destination}`
-    );
+  ({
+    name = Cypress.env('dockerName'),
+    source,
+    destination
+  }: CopyToContainerProps) => {
+    return cy.exec(`docker cp ${source} ${name}:${destination}`);
   }
 );
 
@@ -258,24 +266,46 @@ Cypress.Commands.add(
   ({
     name = Cypress.env('dockerName')
   }: StopWebContainerProps = {}): Cypress.Chainable => {
-    const logDirectory = `cypress/results/logs/${
-      Cypress.spec.name
-    }/${Cypress.currentTest.title.replace(/,|\s|\//g, '_')}`;
+    const logDirectory = `cypress/results/logs/${Cypress.spec.name.replace(
+      artifactIllegalCharactersMatcher,
+      '_'
+    )}/${Cypress.currentTest.title.replace(
+      artifactIllegalCharactersMatcher,
+      '_'
+    )}`;
 
     return cy
       .visitEmptyPage()
       .exec(`mkdir -p "${logDirectory}"`)
       .copyFromContainer({
         destination: `${logDirectory}/broker`,
+        name,
         source: '/var/log/centreon-broker'
       })
       .copyFromContainer({
         destination: `${logDirectory}/engine`,
+        name,
         source: '/var/log/centreon-engine'
       })
       .copyFromContainer({
         destination: `${logDirectory}/centreon`,
+        name,
         source: '/var/log/centreon'
+      })
+      .then(() => {
+        if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+          return cy.copyFromContainer({
+            destination: `${logDirectory}/php`,
+            name,
+            source: '/var/log/php-fpm'
+          });
+        }
+
+        return cy.copyFromContainer({
+          destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
+          name,
+          source: '/var/log/php8.1-fpm-centreon-error.log'
+        });
       })
       .stopContainer({ name });
   }
@@ -290,10 +320,11 @@ Cypress.Commands.add(
   ({ name }: StopContainerProps): Cypress.Chainable => {
     cy.exec(`docker logs ${name}`).then(({ stdout }) => {
       cy.writeFile(
-        `cypress/results/logs/${
-          Cypress.spec.name
-        }/${Cypress.currentTest.title.replace(
-          /,|\s|\//g,
+        `cypress/results/logs/${Cypress.spec.name.replace(
+          artifactIllegalCharactersMatcher,
+          '_'
+        )}/${Cypress.currentTest.title.replace(
+          artifactIllegalCharactersMatcher,
           '_'
         )}/container-${name}.log`,
         stdout
@@ -338,10 +369,15 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
-  return cy.get('header div[data-cy="clock"]').then(($time) => {
-    const localTime = $time.children()[1].textContent;
+  return cy.waitUntil(() => {
+    return cy.get('header div[data-cy="clock"]').then(($time) => {
+      const headerTime = $time.children()[1].textContent;
+      if (headerTime?.match(/\d+:\d+/)) {
+        return headerTime;
+      }
 
-    return localTime;
+      return false;
+    });
   });
 });
 

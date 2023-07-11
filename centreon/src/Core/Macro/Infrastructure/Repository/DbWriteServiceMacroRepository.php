@@ -62,4 +62,51 @@ class DbWriteServiceMacroRepository extends AbstractRepositoryRDB implements Wri
         $statement->bindValue(':order', $macro->getOrder(), \PDO::PARAM_INT);
         $statement->execute();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(Macro $macro): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE FROM `:db`.`on_demand_macro_service`
+                WHERE `svc_svc_id` = :service_id
+                    AND `svc_macro_name` = :macro_name
+                SQL
+        ));
+        $statement->bindValue(':service_id', $macro->getOwnerId(), \PDO::PARAM_INT);
+        $statement->bindValue(':macro_name', '$_SERVICE' . $macro->getName() . '$', \PDO::PARAM_STR);
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(Macro $macro): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.`on_demand_macro_service`
+                SET `svc_macro_value` = :macro_value,
+                    `is_password` = :is_password,
+                    `description` = :macro_description,
+                    `macro_order` = :macro_order
+                WHERE `svc_svc_id` = :service_id
+                    AND `svc_macro_name` = :macro_name
+                SQL
+        ));
+
+        $statement->bindValue(':service_id', $macro->getOwnerId(), \PDO::PARAM_INT);
+        $statement->bindValue(':macro_name', '$_SERVICE' . $macro->getName() . '$', \PDO::PARAM_STR);
+        $statement->bindValue(':macro_value', $macro->getValue(), \PDO::PARAM_STR);
+        $statement->bindValue(':is_password', $macro->isPassword() ? '1' : null, \PDO::PARAM_INT);
+        $statement->bindValue(':macro_order', $macro->getOrder(), \PDO::PARAM_INT);
+        $statement->bindValue(
+            ':macro_description',
+            $this->emptyStringAsNull($macro->getDescription()),
+            \PDO::PARAM_STR
+        );
+        $statement->execute();
+    }
 }

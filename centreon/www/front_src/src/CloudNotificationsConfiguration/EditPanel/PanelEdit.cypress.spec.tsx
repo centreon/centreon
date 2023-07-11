@@ -23,20 +23,25 @@ import {
   labelDoYouWantToConfirmAction,
   labelConfirmEditNotification,
   labelSuccessfulEditNotification,
-  labelThisNameAlreadyExists
+  labelThisNameAlreadyExists,
+  labelDeleteNotification,
+  labelDeleteNotificationWarning,
+  labelNotificationSuccessfullyDeleted,
+  labelCancel
 } from '../translatedLabels';
 import { notificationsNamesAtom } from '../atom';
+import { DeleteConfirmationDialog } from '../Actions';
 
-import { notificationtEndpoint } from './api/endpoints';
+import { notificationEndpoint } from './api/endpoints';
 import { PanelMode } from './models';
-import { EditedNotificationIdAtom, panelModeAtom } from './atom';
+import { editedNotificationIdAtom, panelModeAtom } from './atom';
 import { listNotificationResponse } from './testUtils';
 
 import Form from '.';
 
 const store = createStore();
 store.set(panelModeAtom, PanelMode.Edit);
-store.set(EditedNotificationIdAtom, 1);
+store.set(editedNotificationIdAtom, 1);
 store.set(notificationsNamesAtom, [
   { id: 1, name: 'Notifications 1' },
   { id: 2, name: 'Notifications 2' }
@@ -48,7 +53,10 @@ const PanelWithQueryProvider = (): JSX.Element => {
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>
-            <Form />
+            <>
+              <Form bottom={0} />
+              <DeleteConfirmationDialog />
+            </>
           </SnackbarProvider>
         </TestQueryProvider>
       </Provider>
@@ -60,15 +68,23 @@ const initialize = (): void => {
   cy.interceptAPIRequest({
     alias: 'listingRequest',
     method: Method.GET,
-    path: notificationtEndpoint({ id: 1 }),
+    path: notificationEndpoint({ id: 1 }),
     response: listNotificationResponse
   });
 
   cy.interceptAPIRequest({
     alias: 'editNotificationRequest',
     method: Method.PUT,
-    path: notificationtEndpoint({ id: 1 }),
+    path: notificationEndpoint({ id: 1 }),
     response: { status: 'ok' }
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'deleteNotificationtRequest',
+    method: Method.DELETE,
+    path: notificationEndpoint({ id: 1 }),
+    response: undefined,
+    statusCode: 204
   });
 
   cy.mount({
@@ -84,7 +100,7 @@ describe('Edit Panel', () => {
   it('Ensures that the header section displays all the expected actions', () => {
     cy.waitForRequest('@listingRequest');
 
-    cy.findByLabelText(labelDelete).should('be.visible');
+    cy.findByLabelText(labelDeleteNotification).should('be.visible');
     cy.findByLabelText(labelSave).should('be.visible');
     cy.findByLabelText(labelDuplicate).should('be.visible');
     cy.findByLabelText(labelActiveOrInactive).should('be.visible');
@@ -304,9 +320,14 @@ describe('Edit Panel', () => {
 
   it('Displays the Users field with edited notification users', () => {
     cy.waitForRequest('@listingRequest');
+    cy.get('[data-testid="Search users"]').as('fieldUsers');
 
-    cy.findByText('centreon-gorgone').should('be.visible');
-    cy.findByText('Guest').should('be.visible');
+    cy.get('@fieldUsers')
+      .parent()
+      .within(() => {
+        cy.findByText('centreon-gorgone').should('be.visible');
+        cy.findByText('Guest').should('be.visible');
+      });
 
     cy.matchImageSnapshot();
   });
@@ -427,6 +448,60 @@ describe('Edit Panel : Confirm Dialog', () => {
     });
 
     cy.findByText(labelSuccessfulEditNotification).should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+});
+
+describe('Edit Panel: Delete button', () => {
+  beforeEach(initialize);
+
+  it('displays a confirmation dialog containing the notification name upon clicking the Delete button', () => {
+    cy.waitForRequest('@listingRequest');
+
+    const message = `${labelDelete} « Notifications 1 ».`;
+    cy.findByTestId(labelDeleteNotification).click();
+    cy.findByText(message);
+    cy.findByText(labelDeleteNotification);
+    cy.findByText(labelDeleteNotificationWarning);
+    cy.findByText(labelCancel).click();
+
+    cy.matchImageSnapshot();
+  });
+  it('displays a success message after successful deletion', () => {
+    cy.waitForRequest('@listingRequest');
+
+    cy.waitForRequest('@listingRequest');
+
+    cy.findByTestId(labelDeleteNotification).click();
+    cy.findByLabelText(labelDelete).click();
+
+    cy.waitForRequest('@deleteNotificationtRequest');
+    cy.waitForRequest('@listingRequest');
+
+    cy.findByText(labelNotificationSuccessfullyDeleted);
+
+    cy.matchImageSnapshot();
+  });
+  it('displays an error message upon failed deletion', () => {
+    cy.interceptAPIRequest({
+      alias: 'deleteNotificationtRequest',
+      method: Method.DELETE,
+      path: notificationEndpoint({ id: 1 }),
+      response: {
+        code: 'ok',
+        message: 'internal server error'
+      },
+      statusCode: 500
+    });
+
+    cy.waitForRequest('@listingRequest');
+
+    cy.findByTestId(labelDeleteNotification).click();
+    cy.findByLabelText(labelDelete).click();
+    cy.waitForRequest('@deleteNotificationtRequest');
+
+    cy.findByText('internal server error');
 
     cy.matchImageSnapshot();
   });
