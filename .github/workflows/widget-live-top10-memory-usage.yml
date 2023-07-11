@@ -30,6 +30,7 @@ jobs:
 
   package:
     needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/widget-package.yml
     with:
       widget_name: live-top10-memory-usage
@@ -42,6 +43,7 @@ jobs:
 
   delivery:
     needs: [get-version, package]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
     uses: ./.github/workflows/widget-delivery.yml
     with:
       widget_name: live-top10-memory-usage
@@ -59,3 +61,25 @@ jobs:
       yum_repo_key: ${{ secrets.YUM_REPO_KEY }}
       yum_repo_url: ${{ secrets.YUM_REPO_ADDRESS }}
       token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
+
+  promote:
+    needs: [get-version]
+    if: ${{ contains(fromJson('["stable"]'), needs.get-version.outputs.stability) }}
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        distrib: [el7, el8, bullseye]
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Promote ${{ matrix.distrib }} to stable
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module: widget-live-top10-memory-usage
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-version.outputs.major_version }}
+          minor_version: ${{ needs.get-version.outputs.minor_version }}
+          stability: ${{ needs.get-version.outputs.stability }}
