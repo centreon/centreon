@@ -27,6 +27,7 @@ interface Props {
   isRowSelected: boolean;
   row?;
   rowColorConditions?: Array<RowColorCondition>;
+  subItemsRowProperty?: string;
   viewMode?: ListingVariant;
 }
 
@@ -38,16 +39,19 @@ const DataCell = ({
   rowColorConditions,
   disableRowCondition,
   viewMode,
-  getHighlightRowCondition
+  getHighlightRowCondition,
+  subItemsRowProperty
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const { dataStyle } = useStyleTable({ viewMode });
 
   const commonCellProps = {
     disableRowCondition,
+    displaySubItemsCaret: column.displaySubItemsCaret,
     isRowHovered,
     row,
-    rowColorConditions
+    rowColorConditions,
+    subItemsRowProperty
   };
 
   const isRowHighlighted = getHighlightRowCondition?.(row);
@@ -106,7 +110,7 @@ const DataCell = ({
           isRowHighlighted={isRowHighlighted}
           viewMode={viewMode}
           onClick={(e): void => {
-            if (!clickable) {
+            if (!clickable || !column.displaySubItemsCaret) {
               return;
             }
             e.preventDefault();
@@ -223,6 +227,7 @@ const MemoizedDataCell = memo<Props>(
       : nextProps.row;
 
     return (
+      equals(prevProps.row, nextProps.row) &&
       equals(previousIsComponentHovered, nextIsComponentHovered) &&
       equals(prevProps.isRowHovered, nextProps.isRowHovered) &&
       equals(previousFormattedString, nextFormattedString) &&
@@ -244,7 +249,8 @@ const MemoizedDataCell = memo<Props>(
         nextProps.disableRowCondition(nextProps.row)
       ) &&
       equals(previousIsRowHighlighted, nextIsRowHighlighted) &&
-      equals(prevProps.viewMode, nextProps.viewMode) // &&
+      equals(prevProps.viewMode, nextProps.viewMode) &&
+      equals(prevProps.subItemsRowProperty, nextProps.subItemsRowProperty)
     );
   }
 );

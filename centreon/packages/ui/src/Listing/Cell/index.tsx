@@ -1,9 +1,11 @@
 import * as React from 'react';
 
-import { isNil, omit } from 'ramda';
+import { append, equals, includes, isNil, omit, reject } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 import { CSSObject } from 'tss-react';
+import { useAtom } from 'jotai';
 
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   alpha,
   TableCell,
@@ -14,7 +16,9 @@ import {
 
 import { ListingVariant } from '@centreon/ui-context';
 
+import { IconButton } from '../..';
 import { getTextStyleByViewMode } from '../useStyleTable';
+import { subItemsPivotsAtom } from '../tableAtoms';
 
 import { Props as DataCellProps } from './DataCell';
 
@@ -80,6 +84,20 @@ const useStyles = makeStyles<StylesProps>()(
       viewMode
     }
   ) => ({
+    caret: {
+      transition: theme.transitions.create('transform', {
+        duration: theme.transitions.duration.short
+      })
+    },
+    caretLess: {
+      transform: 'rotate3d(0,0,1,180deg)'
+    },
+    caretMore: {
+      transform: 'rotate3d(0,0,1,0deg)'
+    },
+    fakeCaret: {
+      marginLeft: theme.spacing(3)
+    },
     root: {
       alignItems: 'center',
       backgroundColor: getBackgroundColor({
@@ -111,14 +129,52 @@ interface Props
       'isRowHovered' | 'row' | 'rowColorConditions' | 'disableRowCondition'
     >,
     TableCellProps {
+  displaySubItemsCaret?: boolean;
   isRowHighlighted?: boolean;
+  subItemsRowProperty?: string;
   viewMode?: ListingVariant;
 }
 
-const Cell = (props: Props): JSX.Element => {
+const isPivotExistInTheList = (
+  id
+): ((list: Array<number | string>) => boolean) => includes(id);
+
+const handleSubItems = ({
+  currentSubItemsPivots,
+  id
+}): Array<number | string> => {
+  if (isPivotExistInTheList(id)(currentSubItemsPivots)) {
+    return reject(equals(id), currentSubItemsPivots);
+  }
+
+  return append(id, currentSubItemsPivots);
+};
+
+const Cell = ({
+  displaySubItemsCaret,
+  subItemsRowProperty,
+  ...props
+}: Props): JSX.Element => {
   const { classes, cx } = useStyles(props);
 
+  const [subItemsPivots, setSubItemsPivots] = useAtom(subItemsPivotsAtom);
+
   const { children } = props;
+
+  const rowId = props.row.id;
+
+  const click = (e): void => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setSubItemsPivots((currentSubItemsPivots) =>
+      handleSubItems({ currentSubItemsPivots, id: rowId })
+    );
+  };
+
+  const isSubItemsExpanded = isPivotExistInTheList(rowId)(subItemsPivots);
+
+  const hasSubItems = subItemsRowProperty && props.row[subItemsRowProperty];
 
   return (
     <TableCell
@@ -138,6 +194,20 @@ const Cell = (props: Props): JSX.Element => {
         props
       )}
     >
+      {displaySubItemsCaret &&
+        (hasSubItems ? (
+          <IconButton size="small" onClick={click}>
+            <ExpandMoreIcon
+              className={cx(
+                classes.caret,
+                isSubItemsExpanded ? classes.caretMore : classes.caretLess
+              )}
+              fontSize="small"
+            />
+          </IconButton>
+        ) : (
+          <div className={classes.fakeCaret} />
+        ))}
       {children}
     </TableCell>
   );

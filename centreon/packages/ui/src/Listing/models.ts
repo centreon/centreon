@@ -19,6 +19,7 @@ export interface Column {
   compact?: boolean;
   disablePadding?: boolean;
   disabled?: boolean;
+  displaySubItemsCaret?: boolean;
   getColSpan?: (isSelected) => number | undefined;
   getFormattedString?: (row) => string | null;
   getHiddenCondition?: (isSelected) => boolean;
