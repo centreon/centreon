@@ -1,8 +1,8 @@
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { Button } from '@mui/material';
 
 import { labelAdd } from '../../translatedLabels';
 import { isPanelOpenAtom } from '../../atom';
@@ -14,6 +14,7 @@ const AddAction = (): JSX.Element => {
   const setIsPannelOpen = useSetAtom(isPanelOpenAtom);
   const setPanelMode = useSetAtom(panelModeAtom);
   const setEditedNotificationId = useSetAtom(editedNotificationIdAtom);
+  const dataTestId = 'createNotification';
 
   const onClick = (): void => {
     setEditedNotificationId(null);
@@ -24,6 +25,7 @@ const AddAction = (): JSX.Element => {
   return (
     <Button
       color="primary"
+      data-testid={dataTestId}
       startIcon={<AddIcon />}
       variant="contained"
       onClick={onClick}

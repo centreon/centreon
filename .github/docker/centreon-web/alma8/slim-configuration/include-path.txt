@@ -1,9 +1,14 @@
+/root
 /bin
 /usr/bin
 /sbin
 /usr/sbin
 /run/httpd
 /usr/share/zoneinfo
+/etc/bashrc
+/etc/profile
+/etc/profile.d
+/etc/inputrc
 /etc/httpd
 /etc/sudo.conf
 /etc/sudoers
