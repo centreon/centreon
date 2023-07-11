@@ -1,6 +1,6 @@
 Name:		perl-KeePass-Reader
 Version:	0.2
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Interface to KeePass V4 database files
 Group:		Development/Libraries
 License:	Apache2
