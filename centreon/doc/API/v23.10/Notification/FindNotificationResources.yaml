@@ -1,0 +1,121 @@
+get:
+  tags:
+    - Notification
+  summary: "List all resources and events triggering a notification rule"
+  description: |
+    Return all resources: hosts, services, business activities and configured events
+    trigerring a notification rule.
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              hash:
+                type: string
+                description: Hash of the last sent response
+                example: "b89eaac7e61417341b710b727768294d0e6a277b"
+              hosts:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: "Resource's ID"
+                      example: 1
+                    notifications:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          events:
+                            type: integer
+                            description: "Bitmask corresponding to Resource's status"
+                            example: 5
+                          users:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                  description: "User's name"
+                                  example: "John Doe"
+                                mail:
+                                  type: string
+                                  description: "User's email address"
+                                  example: "john.doe@localhost"
+                          message:
+                            type: object
+                            properties:
+                              subject:
+                                type: string
+                                description: "Subject of notification message"
+                                example: "X is Unreachable"
+                              body:
+                                type: string
+                                description: "Body of notification message"
+                                example: "Dear {user.name},\n X is Unreachable"
+                          channels:
+                            type: array
+                            items:
+                              type: string
+                              example: "Slack"
+                    services:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            description: "Resource's ID"
+                            example: 1
+                          notifications:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                events:
+                                  type: integer
+                                  description: "Bitmask corresponding to Resource's status"
+                                  example: 5
+                                users:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      name:
+                                        type: string
+                                        description: "User's name"
+                                        example: "John Doe"
+                                      mail:
+                                        type: string
+                                        description: "User's email address"
+                                        example: "john.doe@localhost"
+                                message:
+                                  type: object
+                                  properties:
+                                    subject:
+                                      type: string
+                                      description: "Subject of notification message"
+                                      example: "X is Unreachable"
+                                    body:
+                                      type: string
+                                      description: "Body of notification message"
+                                      example: "Dear {user.name},\n X is Unreachable"
+                                channels:
+                                  type: array
+                                  items:
+                                    type: string
+                                    example: "Slack"
+    '204':
+      $ref: "../Common/Response/NoContent.yaml"
+    '403':
+      $ref: "../Common/Response/Forbidden.yaml"
+    '404':
+      $ref: "../Common/Response/NotFound.yaml"
+    '500':
+      $ref: "../Common/Response/InternalServerError.yaml"
