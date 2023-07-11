@@ -16,12 +16,12 @@ license: "Apache-2.0"
 
 contents:
   - src: "/tmp/lib/perl5/*/auto/Libssh/Session/Session.so"
-    dst: "@PERL_VENDORARCH@/auto/Libssh/Session/Session.so"
+    dst: "@PERL_VENDORARCH@/auto/Libssh/Session/"
     file_info:
       mode: 0644
 
-  - src: "/tmp/lib/perl5/*/Libssh"
-    dst: "@PERL_VENDORARCH@/Libssh"
+  - src: "/tmp/lib/perl5/*/Libssh/"
+    dst: "@PERL_VENDORARCH@/Libssh/"
     file_info:
       mode: 0644
 

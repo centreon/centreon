@@ -17,7 +17,7 @@ homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
 contents:
-  - src: "/tmp/lib/perl5/*/auto/Crypt/Argon2/*"
+  - src: "/tmp/lib/perl5/*/auto/Crypt/Argon2/"
     dst: "@PERL_VENDORARCH@/auto/Crypt/Argon2/"
     file_info:
       mode: 0644
