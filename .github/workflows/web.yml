@@ -373,7 +373,8 @@ jobs:
 
       - uses: docker/setup-buildx-action@v2
 
-      - uses: docker/build-push-action@v3
+      - name: Build and push fresh image
+        uses: docker/build-push-action@v3
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_fresh
@@ -382,22 +383,11 @@ jobs:
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
-          load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-
-      - uses: docker/build-push-action@v3
-        with:
-          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
-          target: web_fresh
-          context: .
-          build-args: |
-            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-version.outputs.major_version }}"
-          pull: false
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      - uses: docker/build-push-action@v3
+      - name: Build standard image
+        uses: docker/build-push-action@v3
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_standard
@@ -409,7 +399,8 @@ jobs:
           load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      - uses: docker/build-push-action@v3
+      - name: Push standard image
+        uses: docker/build-push-action@v3
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_standard
