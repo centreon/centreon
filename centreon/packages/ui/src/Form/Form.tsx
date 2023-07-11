@@ -73,7 +73,7 @@ const Form = <T extends object>({
       onSubmit={submit}
       {...formikSharedConfig}
     >
-      <form>
+      <div>
         {children}
         <div className={cx(className, classes.form)}>
           <Inputs
@@ -86,7 +86,7 @@ const Form = <T extends object>({
           />
           <Buttons />
         </div>
-      </form>
+      </div>
     </Formik>
   );
 };

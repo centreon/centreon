@@ -59,18 +59,13 @@ Then(
   () => {
     cy.contains('Create dashboard').should('be.visible');
 
-    // @see https://docs.cypress.io/api/commands/within#Forms
-    cy.get('form').within(($form) => {
-      cy.getByLabel({ label: 'Name', tag: 'input' }).should('be.empty');
+    cy.getByLabel({ label: 'Name', tag: 'input' }).should('be.empty');
 
-      cy.getByLabel({ label: 'Description', tag: 'textarea' }).should(
-        'be.empty'
-      );
+    cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
 
-      cy.getByTestId({ testId: 'submit' }).should('be.disabled');
+    cy.getByTestId({ testId: 'submit' }).should('be.disabled');
 
-      cy.getByTestId({ testId: 'cancel' }).should('be.enabled');
-    });
+    cy.getByTestId({ testId: 'cancel' }).should('be.enabled');
   }
 );
 
@@ -83,21 +78,17 @@ When('the user fills in the required fields', () => {
 Then(
   'the user is allowed to create the dashboard with the required fields only',
   () => {
-    cy.get('form').within(($form) => {
-      cy.getByLabel({ label: 'Name', tag: 'input' }).should(
-        'have.value',
-        dashboards.requiredOnly.name
-      );
+    cy.getByLabel({ label: 'Name', tag: 'input' }).should(
+      'have.value',
+      dashboards.requiredOnly.name
+    );
 
-      cy.getByTestId({ testId: 'submit' }).should('be.enabled');
-    });
+    cy.getByTestId({ testId: 'submit' }).should('be.enabled');
   }
 );
 
 When('the user saves the dashboard', () => {
-  cy.get('form').within(($form) => {
-    cy.getByTestId({ testId: 'submit' }).click();
-  });
+  cy.getByTestId({ testId: 'submit' }).click();
 
   cy.wait('@createDashboard');
 });
