@@ -27,90 +27,9 @@ get:
                       description: "Resource's ID"
                       example: 1
                     notifications:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          events:
-                            type: integer
-                            description: "Bitmask corresponding to Resource's status"
-                            example: 5
-                          users:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                name:
-                                  type: string
-                                  description: "User's name"
-                                  example: "John Doe"
-                                mail:
-                                  type: string
-                                  description: "User's email address"
-                                  example: "john.doe@localhost"
-                          message:
-                            type: object
-                            properties:
-                              subject:
-                                type: string
-                                description: "Subject of notification message"
-                                example: "X is Unreachable"
-                              body:
-                                type: string
-                                description: "Body of notification message"
-                                example: "Dear {user.name},\n X is Unreachable"
-                          channels:
-                            type: array
-                            items:
-                              type: string
-                              example: "Slack"
+                      $ref: 'Schema/Resource.Notification.yaml'
                     services:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                            description: "Resource's ID"
-                            example: 1
-                          notifications:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                events:
-                                  type: integer
-                                  description: "Bitmask corresponding to Resource's status"
-                                  example: 5
-                                users:
-                                  type: array
-                                  items:
-                                    type: object
-                                    properties:
-                                      name:
-                                        type: string
-                                        description: "User's name"
-                                        example: "John Doe"
-                                      mail:
-                                        type: string
-                                        description: "User's email address"
-                                        example: "john.doe@localhost"
-                                message:
-                                  type: object
-                                  properties:
-                                    subject:
-                                      type: string
-                                      description: "Subject of notification message"
-                                      example: "X is Unreachable"
-                                    body:
-                                      type: string
-                                      description: "Body of notification message"
-                                      example: "Dear {user.name},\n X is Unreachable"
-                                channels:
-                                  type: array
-                                  items:
-                                    type: string
-                                    example: "Slack"
+                      $ref: 'Schema/Resource.Notification.yaml'
     '204':
       $ref: "../Common/Response/NoContent.yaml"
     '403':
