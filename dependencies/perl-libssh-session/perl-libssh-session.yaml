@@ -52,7 +52,7 @@ overrides:
   rpm:
     depends:
       - perl
-      - libcurl
+      - libssh
     conflicts:
       - perl-Net-Curl-debuginfo
     replaces:
@@ -61,12 +61,11 @@ overrides:
       - perl-Net-Curl-debuginfo
       - perl(Libssh::Session)
       - perl(Libssh::Sftp)
-
   deb:
     depends:
       - perl
       - libc6
-      - libssh-4
+      - libssh2-1
     conflicts:
       - libssh-session-perl-dbgsym
     replaces:
