@@ -6,9 +6,9 @@ concurrency:
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - ".github/workflows/perl-cpan-libraries.yml"
+  # pull_request:
+  #   paths:
+  #     - ".github/workflows/perl-cpan-libraries.yml"
   push:
     branches:
       - develop
@@ -68,7 +68,6 @@ jobs:
             "HTTP::ProxyPAC",
             "JMX::Jmx4Perl",
             "JSON::Parse",
-            "JSON::Path",
             "JSON::WebToken",
             "LV",
             "MIME::Types",
@@ -141,8 +140,6 @@ jobs:
           - name: "FFI::Platypus"
             build_distribs: "el8,el9"
             rpm_provides: "perl(FFI::Platypus::Buffer) perl(FFI::Platypus::Memory)"
-          - name: "JSON::Path"
-            version: "1.0.3"
           - name: "Net::DHCP"
             rpm_provides: "perl(Net::DHCP::Constants) perl(Net::DHCP::Packet)"
           - name: "Statistics::Regression"
