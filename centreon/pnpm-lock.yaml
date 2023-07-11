@@ -58,7 +58,7 @@ importers:
       clsx: ^1.2.1
       cross-env: ^7.0.3
       css-loader: ^6.7.3
-      cypress: ^12.11.0
+      cypress: ^12.13.0
       cypress-msw-interceptor: 2.1.0
       cypress-plugin-tab: ^1.0.5
       d3-array: 3.2.0
