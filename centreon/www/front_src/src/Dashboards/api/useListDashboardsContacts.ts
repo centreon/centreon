@@ -36,7 +36,7 @@ type UseListDashboardsContacts<
 const useListDashboardsContacts = (
   props?: UseListDashboardsContactsProps
 ): UseListDashboardsContacts => {
-  const { params } = props || {};
+  const { params, options } = props || {};
 
   const { data, ...queryData } = useFetchQuery<List<DashboardsContact>>({
     decoder: dashboardsContactsListDecoder,
@@ -45,7 +45,8 @@ const useListDashboardsContacts = (
         baseEndpoint: dashboardsContactsEndpoint,
         parameters: { ...params }
       }),
-    getQueryKey: () => [resource.dashboardsContacts]
+    getQueryKey: () => [resource.dashboardsContacts],
+    queryOptions: { ...options }
   });
 
   return {

@@ -42,7 +42,8 @@ type UseListAccessRightsContactGroups<
 
 const useListAccessRightsContactGroups = ({
   params,
-  dashboardId
+  dashboardId,
+  options
 }: UseListAccessRightsContactGroupsProps): UseListAccessRightsContactGroups => {
   const dashboardResourceIdRef = useRef(dashboardId);
 
@@ -63,7 +64,7 @@ const useListAccessRightsContactGroups = ({
     ],
     queryOptions: {
       enabled: !!dashboardResourceIdRef.current,
-      suspense: false
+      ...options
     }
   });
 

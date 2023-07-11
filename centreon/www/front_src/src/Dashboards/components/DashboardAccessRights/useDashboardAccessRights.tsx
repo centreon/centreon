@@ -93,11 +93,13 @@ const useDashboardAccessRights = (): UseDashboardAccessRights => {
 
   const { data: dataAccessRightsContacts } = useListAccessRightsContacts({
     dashboardId: (dialogState.dashboard?.id as number) ?? null,
+    options: { suspense: false },
     params: { limit: 1000 }
   });
   const { data: dataAccessRightsContactGroups } =
     useListAccessRightsContactGroups({
       dashboardId: (dialogState.dashboard?.id as number) ?? null,
+      options: { suspense: false },
       params: { limit: 1000 }
     });
 

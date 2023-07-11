@@ -38,7 +38,8 @@ type UseListAccessRightsContacts<
 
 const useListAccessRightsContacts = ({
   params,
-  dashboardId
+  dashboardId,
+  options
 }: UseListAccessRightsContactsProps): UseListAccessRightsContacts => {
   const dashboardResourceIdRef = useRef(dashboardId);
 
@@ -59,7 +60,7 @@ const useListAccessRightsContacts = ({
     ],
     queryOptions: {
       enabled: !!dashboardResourceIdRef.current,
-      suspense: false
+      ...options
     }
   });
 
