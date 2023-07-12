@@ -65,6 +65,7 @@ const message = JsonDecoder.object<MessageType>(
 
 export const notificationdecoder = JsonDecoder.object<NotificationType>(
   {
+    contactgroups: JsonDecoder.array(user, 'Contactgroups'),
     id: JsonDecoder.number,
     isActivated: JsonDecoder.boolean,
     messages: JsonDecoder.array(message, 'Messages'),
@@ -75,12 +76,6 @@ export const notificationdecoder = JsonDecoder.object<NotificationType>(
   },
   'Notifications Listing',
   {
-    id: 'id',
-    isActivated: 'is_activated',
-    messages: 'messages',
-    name: 'name',
-    resources: 'resources',
-    timeperiod: 'timeperiod',
-    users: 'users'
+    isActivated: 'is_activated'
   }
 );
