@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Common\Domain\YesNoDefault;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplate;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplateRequest;
+use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\MacroDto;
 use Core\ServiceTemplate\Infrastructure\Model\YesNoDefaultConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,46 +37,48 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @phpstan-type _ServiceTemplate = array{
- *      name: string,
- *      alias: string,
- *      comment: string|null,
- *      service_template_id: int|null,
- *      check_command_id: int|null,
- *      check_command_args: list<string>|null,
- *      check_timeperiod_id: int|null,
- *      max_check_attempts: int|null,
- *      normal_check_interval: int|null,
- *      retry_check_interval: int|null,
- *      active_check_enabled: int|null,
- *      passive_check_enabled: int|null,
- *      volatility_enabled: int|null,
- *      notification_enabled: int|null,
- *      is_contact_additive_inheritance: boolean|null,
- *      is_contact_group_additive_inheritance: boolean|null,
- *      notification_interval: int|null,
- *      notification_timeperiod_id: int|null,
- *      notification_type: int|null,
- *      first_notification_delay: int|null,
- *      recovery_notification_delay: int|null,
- *      acknowledgement_timeout: int|null,
- *      freshness_checked: int|null,
- *      freshness_threshold: int|null,
- *      flap_detection_enabled: int|null,
- *      low_flap_threshold: int|null,
- *      high_flap_threshold: int|null,
- *      event_handler_enabled: int|null,
- *      event_handler_command_id: int|null,
- *      event_handler_command_args: list<string>|null,
- *      graph_template_id: int|null,
- *      host_templates: list<int>|null,
- *      note: string|null,
- *      note_url: string|null,
- *      action_url: string|null,
- *      icon_id: int|null,
- *      icon_alternative: string|null,
- *      severity_id: int|null,
- *      is_activated: boolean|null,
- *      is_locked: boolean|null
+ *     name: string,
+ *     alias: string,
+ *     comment: string|null,
+ *     service_template_id: int|null,
+ *     check_command_id: int|null,
+ *     check_command_args: list<string>|null,
+ *     check_timeperiod_id: int|null,
+ *     max_check_attempts: int|null,
+ *     normal_check_interval: int|null,
+ *     retry_check_interval: int|null,
+ *     active_check_enabled: int|null,
+ *     passive_check_enabled: int|null,
+ *     volatility_enabled: int|null,
+ *     notification_enabled: int|null,
+ *     is_contact_additive_inheritance: boolean|null,
+ *     is_contact_group_additive_inheritance: boolean|null,
+ *     notification_interval: int|null,
+ *     notification_timeperiod_id: int|null,
+ *     notification_type: int|null,
+ *     first_notification_delay: int|null,
+ *     recovery_notification_delay: int|null,
+ *     acknowledgement_timeout: int|null,
+ *     freshness_checked: int|null,
+ *     freshness_threshold: int|null,
+ *     flap_detection_enabled: int|null,
+ *     low_flap_threshold: int|null,
+ *     high_flap_threshold: int|null,
+ *     event_handler_enabled: int|null,
+ *     event_handler_command_id: int|null,
+ *     event_handler_command_args: list<string>|null,
+ *     graph_template_id: int|null,
+ *     host_templates: list<int>|null,
+ *     note: string|null,
+ *     note_url: string|null,
+ *     action_url: string|null,
+ *     icon_id: int|null,
+ *     icon_alternative: string|null,
+ *     severity_id: int|null,
+ *     is_activated: boolean|null,
+ *     is_locked: boolean|null,
+ *     macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>
+ *     service_categories: list<int>|null
  * }
  */
 class AddServiceTemplateController extends AbstractController
@@ -170,6 +173,16 @@ class AddServiceTemplateController extends AbstractController
         $dto->iconAlternativeText = $request['icon_alternative'] ?? null;
         $dto->severityId = $request['severity_id'];
         $dto->isActivated = $request['is_activated'] ?? true;
+        $dto->serviceCategories = $request['service_categories'] ?? [];
+
+        foreach ($request['macros'] as $macro) {
+            $dto->macros[] = new MacroDto(
+                $macro['name'],
+                $macro['value'],
+                (bool) $macro['is_password'],
+                $macro['description']
+            );
+        }
 
         return $dto;
     }

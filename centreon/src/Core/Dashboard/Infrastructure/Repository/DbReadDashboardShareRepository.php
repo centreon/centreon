@@ -105,6 +105,8 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
+        $sqlTranslator->calculateNumberOfRows($this->db);
+
         // Retrieve data
         $shares = [];
         foreach ($statement as $result) {
@@ -120,6 +122,79 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
                 $result['contact_id'],
                 $result['contact_name'],
                 $result['contact_email'],
+                $this->stringToRole($result['role'])
+            );
+        }
+
+        return $shares;
+    }
+
+    public function findDashboardContactGroupSharesByRequestParameter(
+        Dashboard $dashboard,
+        RequestParametersInterface $requestParameters
+    ): array {
+        $requestParameters->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'cg.cg_id',
+            'name' => 'cg.cg_name',
+        ]);
+
+        $concatenator = (new SqlConcatenator())
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT DISTINCT
+                        cg.`cg_id`,
+                        cg.`cg_name`,
+                        dcgr.`role`
+                    SQL
+            )
+            ->defineFrom(
+                <<<'SQL'
+                    FROM `:db`.`dashboard_contactgroup_relation` dcgr
+                    SQL
+            )
+            ->defineJoins(
+                <<<'SQL'
+                    INNER JOIN `:db`.`contactgroup` cg ON cg.`cg_id`=dcgr.`contactgroup_id`
+                    INNER JOIN `:db`.`contactgroup_contact_relation` cgcr ON cg.`cg_id`=cgcr.`contactgroup_cg_id`
+                    SQL
+            )
+            ->defineWhere(
+                <<<'SQL'
+                    WHERE dcgr.`dashboard_id` = :dashboard_id
+                    SQL
+            )
+            ->storeBindValue(':dashboard_id', $dashboard->getId(), \PDO::PARAM_INT)
+            ->defineOrderBy(
+                <<<'SQL'
+                    ORDER BY cg.`cg_name` ASC
+                    SQL
+            );
+
+        $sqlTranslator->translateForConcatenator($concatenator);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $sqlTranslator->bindSearchValues($statement);
+        $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $sqlTranslator->calculateNumberOfRows($this->db);
+
+        // Retrieve data
+        $shares = [];
+        foreach ($statement as $result) {
+            /** @var array{
+             *     cg_id: int,
+             *     cg_name: string,
+             *     role: string
+             * } $result
+             */
+            $shares[] = new DashboardContactGroupShare(
+                $dashboard,
+                $result['cg_id'],
+                $result['cg_name'],
                 $this->stringToRole($result['role'])
             );
         }
@@ -163,9 +238,9 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      * @param ContactInterface $contact
      * @param Dashboard ...$dashboards
      *
-     * @throws AssertionFailedException
      * @throws RepositoryException
      * @throws \PDOException
+     * @throws AssertionFailedException
      *
      * @return array<int, array<DashboardContactGroupShare>>
      */
@@ -233,9 +308,9 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
      * @param ContactInterface $contact
      * @param Dashboard ...$dashboards
      *
-     * @throws \PDOException
      * @throws RepositoryException
      * @throws AssertionFailedException
+     * @throws \PDOException
      *
      * @return array<int, DashboardContactShare>
      */

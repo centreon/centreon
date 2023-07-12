@@ -1,4 +1,4 @@
-name: centreon-ui-context-merge
+name: centreon-ui-context-stable
 
 on:
   workflow_dispatch:

@@ -67,29 +67,29 @@ final class PartialUpdateContactDashboardShare
                 $dashboard = $this->readDashboardRepository->findOne($dashboardId);
                 $contact = $this->contactRepository->findById($contactId);
 
-                if ($dashboard && $contact) {
-                    $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
-                    $response = $this->updateContactShareAsAdmin($dashboard, $contact, $request);
-                } elseif (null === $dashboard) {
+                if (null === $dashboard) {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
                     $response = new NotFoundResponse('Dashboard');
                 } elseif (null === $contact) {
-                    $this->warning('Contact (%s) not found', ['id' => $contactId]);
+                    $this->warning('Contact group (%s) not found', ['id' => $contactId]);
                     $response = new NotFoundResponse('Contact');
+                } else {
+                    $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
+                    $response = $this->updateContactShareAsAdmin($dashboard, $contact, $request);
                 }
             } elseif ($this->rights->canAccess()) {
                 $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
                 $contact = $this->contactRepository->findById($contactId);
 
-                if ($dashboard && $contact) {
-                    $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
-                    $response = $this->updateContactShareAsContact($dashboard, $contact, $request);
-                } elseif (null === $dashboard) {
+                if (null === $dashboard) {
                     $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
                     $response = new NotFoundResponse('Dashboard');
                 } elseif (null === $contact) {
-                    $this->warning('Contact (%s) not found', ['id' => $contactId]);
+                    $this->warning('Contact group (%s) not found', ['id' => $contactId]);
                     $response = new NotFoundResponse('Contact');
+                }else {
+                    $this->info('Update a contact share for dashboard', ['id' => $dashboardId, 'contact_id' => $contactId]);
+                    $response = $this->updateContactShareAsContact($dashboard, $contact, $request);
                 }
             } else {
                 $this->error(

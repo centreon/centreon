@@ -28,27 +28,45 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Option\OptionService;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
+use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
+use Core\CommandMacro\Domain\Model\CommandMacro;
+use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Domain\TrimmedString;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
+use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
+use Core\Macro\Domain\Model\MacroDifference;
+use Core\Macro\Domain\Model\MacroManager;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
+use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
+use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 final class AddServiceTemplate
 {
     use LoggerTrait;
+
+    /** @var AccessGroup[] */
+    private array $accessGroups;
 
     public function __construct(
         private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
@@ -59,6 +77,13 @@ final class AddServiceTemplate
         private readonly ReadTimePeriodRepositoryInterface $timePeriodRepository,
         private readonly ReadViewImgRepositoryInterface $imageRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
+        private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
+        private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
+        private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
+        private readonly DataStorageEngineInterface $storageEngine,
+        private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
+        private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly OptionService $optionService,
         private readonly ContactInterface $user
     ) {
@@ -82,6 +107,11 @@ final class AddServiceTemplate
 
                 return;
             }
+
+            if (! $this->user->isAdmin()) {
+                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+            }
+
             $nameToCheck = new TrimmedString(ServiceTemplate::formatName($request->name));
             if ($this->readServiceTemplateRepository->existsByName($nameToCheck)) {
                 $presenter->presentResponse(
@@ -90,17 +120,10 @@ final class AddServiceTemplate
 
                 return;
             }
-            $this->assertIsValidSeverity($request->severityId);
-            $this->assertIsValidPerformanceGraph($request->graphTemplateId);
-            $this->assertIsValidServiceTemplate($request->serviceTemplateParentId);
-            $this->assertIsValidCommand($request->commandId);
-            $this->assertIsValidEventHandler($request->eventHandlerId);
-            $this->assertIsValidTimePeriod($request->checkTimePeriodId);
-            $this->assertIsValidNotificationTimePeriod($request->notificationTimePeriodId);
-            $this->assertIsValidIcon($request->iconId);
-            $this->assertIsValidHostTemplates($request->hostTemplateIds);
-            $newServiceTemplate = $this->createNewServiceTemplate($request);
-            $newServiceTemplateId = $this->writeServiceTemplateRepository->add($newServiceTemplate);
+
+            $this->assertParameters($request);
+            $newServiceTemplateId = $this->createServiceTemplate($request);
+
             $this->info('New service template created', ['service_template_id' => $newServiceTemplateId]);
             $serviceTemplate = $this->readServiceTemplateRepository->findById($newServiceTemplateId);
             if (! $serviceTemplate) {
@@ -110,7 +133,16 @@ final class AddServiceTemplate
 
                 return;
             }
-            $presenter->presentResponse($this->createResponse($serviceTemplate));
+            if ($this->user->isAdmin()) {
+                $serviceCategories = $this->readServiceCategoryRepository->findByService($newServiceTemplateId);
+            } else {
+                $serviceCategories = $this->readServiceCategoryRepository->findByServiceAndAccessGroups(
+                    $newServiceTemplateId,
+                    $this->accessGroups
+                );
+            }
+
+            $presenter->presentResponse($this->createResponse($serviceTemplate, $serviceCategories));
         } catch (AssertionFailedException $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -223,6 +255,47 @@ final class AddServiceTemplate
     }
 
     /**
+     * @param int $serviceTemplateId
+     * @param AddServiceTemplateRequest $request
+     *
+     * @throws AssertionFailedException
+     * @throws \Throwable
+     */
+    private function addMacros(int $serviceTemplateId, AddServiceTemplateRequest $request): void
+    {
+        $this->info('Add macros', ['service_template_id' => $serviceTemplateId]);
+
+        /**
+         * @var array<string,Macro> $inheritedMacros
+         * @var array<string,CommandMacro> $commandMacros
+         */
+        [$inheritedMacros, $commandMacros] = $this->findAllInheritedMacros($serviceTemplateId, $request->commandId);
+
+        $macros = [];
+        foreach ($request->macros as $macro) {
+            $macro = MacroFactory::create($macro, $serviceTemplateId, $inheritedMacros);
+            $macros[$macro->getName()] = $macro;
+        }
+
+        $macrosDiff = new MacroDifference();
+        $macrosDiff->compute([], $inheritedMacros, $commandMacros, $macros);
+
+        MacroManager::setOrder($macrosDiff, $macros, []);
+
+        foreach ($macrosDiff->addedMacros as $macro) {
+            if ($macro->getDescription() === '') {
+                $macro->setDescription(
+                    isset($commandMacros[$macro->getName()])
+                    ? $commandMacros[$macro->getName()]->getDescription()
+                    : ''
+                );
+            }
+            $this->info('Add the macro ' . $macro->getName());
+            $this->writeServiceMacroRepository->add($macro);
+        }
+    }
+
+    /**
      * @param AddServiceTemplateRequest $request
      *
      * @throws \Exception
@@ -287,12 +360,66 @@ final class AddServiceTemplate
     }
 
     /**
+     * @param AddServiceTemplateRequest $request
+     *
+     * @throws ServiceTemplateException
+     * @throws \Throwable
+     */
+    private function assertIsValidServiceCategories(array $serviceCategoriesIds): void
+    {
+        if (empty($serviceCategoriesIds)) {
+
+            return;
+        }
+
+        if ($this->user->isAdmin()) {
+            $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
+                $serviceCategoriesIds
+            );
+        } else {
+            $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIdsByAccessGroups(
+                $serviceCategoriesIds,
+                $this->accessGroups
+            );
+        }
+
+        if ([] !== ($idsNotFound = array_diff($serviceCategoriesIds, $serviceCategoriesIdsFound))) {
+            throw ServiceTemplateException::idsDoesNotExist('service_categories', $idsNotFound);
+        }
+    }
+
+    /**
+     * @param int $serviceTemplateId
+     * @param AddServiceTemplateRequest $request
+     *
+     * @throws \Throwable
+     */
+    private function linkServiceTemplateToServiceCategories(int $serviceTemplateId, AddServiceTemplateRequest $request): void
+    {
+        if (empty($request->serviceCategories)) {
+
+            return;
+        }
+
+        $this->info(
+            'Link existing service categories to service',
+            ['service_categories' => $request->serviceCategories]
+        );
+        $this->writeServiceCategoryRepository->linkToService($serviceTemplateId, $request->serviceCategories);
+    }
+
+    /**
      * @param ServiceTemplate $serviceTemplate
+     * @param ServiceCategory[] $serviceCategories
+     *
+     * @throws \Throwable
      *
      * @return AddServiceTemplateResponse
      */
-    private function createResponse(ServiceTemplate $serviceTemplate): AddServiceTemplateResponse
+    private function createResponse(ServiceTemplate $serviceTemplate, array $serviceCategories): AddServiceTemplateResponse
     {
+        $macros = $this->readServiceMacroRepository->findByServiceIds($serviceTemplate->getId());
+
         $response = new AddServiceTemplateResponse();
         $response->id = $serviceTemplate->getId();
         $response->name = $serviceTemplate->getName();
@@ -335,7 +462,104 @@ final class AddServiceTemplate
         $response->recoveryNotificationDelay = $serviceTemplate->getRecoveryNotificationDelay();
         $response->firstNotificationDelay = $serviceTemplate->getFirstNotificationDelay();
         $response->acknowledgementTimeout = $serviceTemplate->getAcknowledgementTimeout();
+        $response->macros = array_map(
+            fn(Macro $macro): MacroDto => new MacroDto(
+                $macro->getName(),
+                $macro->getValue(),
+                $macro->isPassword(),
+                $macro->getDescription()
+            ),
+            $macros
+        );
+
+        $response->categories = array_map(
+            fn(ServiceCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
+            $serviceCategories
+        );
 
         return $response;
+    }
+
+    /**
+     * @param AddServiceTemplateRequest $request
+     *
+     * @throws ServiceTemplateException
+     * @throws \Throwable
+     */
+    private function assertParameters(AddServiceTemplateRequest $request): void
+    {
+        $this->assertIsValidSeverity($request->severityId);
+        $this->assertIsValidPerformanceGraph($request->graphTemplateId);
+        $this->assertIsValidServiceTemplate($request->serviceTemplateParentId);
+        $this->assertIsValidCommand($request->commandId);
+        $this->assertIsValidEventHandler($request->eventHandlerId);
+        $this->assertIsValidTimePeriod($request->checkTimePeriodId);
+        $this->assertIsValidNotificationTimePeriod($request->notificationTimePeriodId);
+        $this->assertIsValidIcon($request->iconId);
+        $this->assertIsValidHostTemplates($request->hostTemplateIds);
+        $this->assertIsValidServiceCategories($request->serviceCategories);
+    }
+
+    /**
+     * @param AddServiceTemplateRequest $request
+     *
+     * @throws AssertionFailedException
+     * @throws ServiceTemplateException
+     * @throws \Throwable
+     *
+     * @return int
+     */
+    private function createServiceTemplate(AddServiceTemplateRequest $request): int
+    {
+        $newServiceTemplate = $this->createNewServiceTemplate($request);
+        $this->storageEngine->startTransaction();
+        try {
+            $newServiceTemplateId = $this->writeServiceTemplateRepository->add($newServiceTemplate);
+            $this->addMacros($newServiceTemplateId, $request);
+            $this->linkServiceTemplateToServiceCategories($newServiceTemplateId, $request);
+            $this->storageEngine->commitTransaction();
+
+            return $newServiceTemplateId;
+        } catch (\Throwable $ex) {
+            $this->storageEngine->rollbackTransaction();
+
+            throw $ex;
+        }
+    }
+
+    /**
+     * @param int $serviceTemplateId
+     * @param int|null $checkCommandId
+     *
+     * @throws \Throwable
+     *
+     * @return array{
+     *      array<string,Macro>,
+     *      array<string,CommandMacro>
+     * }
+     */
+    private function findAllInheritedMacros(int $serviceTemplateId, ?int $checkCommandId): array
+    {
+        $serviceTemplateInheritances = $this->readServiceTemplateRepository->findParents($serviceTemplateId);
+        $inheritanceLine = ServiceTemplateInheritance::createInheritanceLine(
+            $serviceTemplateId,
+            $serviceTemplateInheritances
+        );
+        $existingMacros = $this->readServiceMacroRepository->findByServiceIds(...$inheritanceLine);
+
+        [, $inheritedMacros] = Macro::resolveInheritance($existingMacros, $inheritanceLine, $serviceTemplateId);
+
+        /** @var array<string,CommandMacro> $commandMacros */
+        $commandMacros = [];
+        if ($checkCommandId !== null) {
+            $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
+                $checkCommandId,
+                CommandMacroType::Service
+            );
+
+            $commandMacros = MacroManager::resolveInheritanceForCommandMacro($existingCommandMacros);
+        }
+
+        return [$inheritedMacros, $commandMacros];
     }
 }

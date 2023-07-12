@@ -252,6 +252,8 @@ paths:
     $ref: "./v23.10/Configuration/Command/FindCommands.yaml"
   /configuration/notifications:
     $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
+  /configuration/notifications/_delete:
+    $ref: "./v23.10/Configuration/Notification/DeleteNotifications.yaml"
   /configuration/notifications/{notification_id}:
     $ref: "./v23.10/Configuration/Notification/Notification.yaml"
   /configuration/hosts/templates:
@@ -1619,6 +1621,10 @@ paths:
     $ref: './v23.10/Configuration/Dashboard/DashboardShareContactGroups.yaml'
   /configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}:
     $ref: './v23.10/Configuration/Dashboard/DashboardShareContactGroup.yaml'
+  /configuration/dashboards/contacts:
+    $ref: './v23.10/Configuration/Dashboard/Contacts.yaml'
+  /configuration/dashboards/contactgroups:
+    $ref: './v23.10/Configuration/Dashboard/ContactGroups.yaml'
   /configuration/access-groups:
     get:
       tags:
