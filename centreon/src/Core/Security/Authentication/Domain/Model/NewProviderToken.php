@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Security\Authentication\Domain\Model;
@@ -66,8 +67,10 @@ class NewProviderToken
     }
 
     /**
-     * // TODO To be removed
+     * // TODO To be removed.
+     *
      * @param DateTimeImmutable|null $expirationDate
+     *
      * @return self
      */
     public function setExpirationDate(?DateTimeImmutable $expirationDate): self
@@ -79,9 +82,10 @@ class NewProviderToken
 
     /**
      * @param DateTimeImmutable|null $now
+     *
      * @return bool
      */
-    public function isExpired(DateTimeImmutable $now = null): bool
+    public function isExpired(?DateTimeImmutable $now = null): bool
     {
         if ($this->expirationDate === null) {
             return false;

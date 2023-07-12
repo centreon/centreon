@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,14 +25,11 @@ namespace Core\Infrastructure\RealTime\Hypermedia;
 
 class HypermediaCreator
 {
-    /**
-     * @var HypermediaProviderInterface[]
-     */
+    /** @var HypermediaProviderInterface[] */
     private array $hypermediaProviders;
 
     /**
      * @param iterable<HypermediaProviderInterface> $hypermediaProviders
-     * @return void
      */
     public function setHypermediaProviders(iterable $hypermediaProviders): void
     {
@@ -51,9 +48,10 @@ class HypermediaCreator
      *  "timeline": "/centreon/api/v21.10/monitoring/hosts/14/services/26/timeline",
      *  "status_graph": "/centreon/api/v21.10/monitoring/hosts/14/services/26/metrics/status",
      *  "performance_graph": "/centreon/api/v21.10/monitoring/hosts/14/services/26/metrics/performance"
-     * ]
+     * ].
      *
      * @param array<string, mixed> $parameters
+     *
      * @return array<string, string|null>
      */
     public function createEndpoints(array $parameters): array
@@ -63,6 +61,7 @@ class HypermediaCreator
                 return $hypermediaProvider->createEndpoints($parameters);
             }
         }
+
         return [];
     }
 
@@ -74,9 +73,10 @@ class HypermediaCreator
      *   "configuration": "/centreon/main.php?p=60201&o=c&service_id=26",
      *   "logs": "/centreon/main.php?p=20301&svc=14_26",
      *   "reporting": "/centreon/main.php?p=30702&period=yesterday&start=&end=&host_id=14&item=26"
-     * ]
+     * ].
      *
      * @param array<string, mixed> $parameters
+     *
      * @return array<string, string|null>
      */
     public function createInternalUris(array $parameters): array
@@ -86,6 +86,7 @@ class HypermediaCreator
                 return $hypermediaProvider->createInternalUris($parameters);
             }
         }
+
         return [];
     }
 
@@ -100,9 +101,10 @@ class HypermediaCreator
      *      'name' => ALL,
      *      'configuration_uri' => 'http://localhost:8080/centreon/main.php?p=60102&o=c&hg_id=53'
      *   ]
-     * ]
+     * ].
      *
      * @param mixed $response
+     *
      * @return array<array<string, string|int|null>>
      */
     public function convertGroupsForPresenter(mixed $response): array
@@ -112,6 +114,7 @@ class HypermediaCreator
                 return $hypermediaProvider->convertGroupsForPresenter($response->groups);
             }
         }
+
         return [];
     }
 
@@ -126,9 +129,10 @@ class HypermediaCreator
      *      'name' => ALL,
      *      'configuration_uri' => 'http://localhost:8080/centreon/main.php?p=60104&o=c&hc_id=53'
      *   ]
-     * ]
+     * ].
      *
      * @param mixed $response
+     *
      * @return array<array<string, string|int|null>>
      */
     public function convertCategoriesForPresenter(mixed $response): array
@@ -138,6 +142,7 @@ class HypermediaCreator
                 return $hypermediaProvider->convertCategoriesForPresenter($response->categories);
             }
         }
+
         return [];
     }
 }

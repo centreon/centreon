@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -69,6 +69,7 @@ final class PatchUser
                 }
             } catch (\Throwable $ex) {
                 $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
                 throw UserException::errorWhileSearchingForUser($ex);
             }
 
@@ -76,17 +77,20 @@ final class PatchUser
                 try {
                     if (($themes = $this->readUserRepository->findAvailableThemes()) === []) {
                         $this->unexpectedError('Abnormally empty list of themes', $presenter);
+
                         return;
                     }
 
                     $this->debug('User themes available', ['themes' => $themes]);
 
-                    if (! in_array($request->theme, $themes)) {
+                    if (! in_array($request->theme, $themes, true)) {
                         $this->themeNotFound($request->theme, $presenter);
+
                         return;
                     }
                 } catch (\Throwable $ex) {
                     $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
                     throw UserException::errorInReadingUserThemes($ex);
                 }
 
@@ -100,6 +104,7 @@ final class PatchUser
                     $this->debug('New user interface view mode', ['mode' => $request->userInterfaceDensity]);
                 } catch (\InvalidArgumentException $ex) {
                     $this->userInterfaceViewModeUnhandled($request->userInterfaceDensity, $presenter);
+
                     return;
                 }
             }
@@ -121,7 +126,7 @@ final class PatchUser
      * Update all user sessions.
      *
      * @param PatchUserRequest $request
-     * @return void
+     *
      * @throws \Throwable
      */
     private function updateUserSessions(PatchUserRequest $request): void

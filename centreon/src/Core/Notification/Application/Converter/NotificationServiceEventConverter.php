@@ -31,9 +31,7 @@ class NotificationServiceEventConverter
     private const CASE_WARNING_AS_BIT = 0b0010;
     private const CASE_CRITICAL_AS_BIT = 0b0100;
     private const CASE_UNKNOWN_AS_BIT = 0b1000;
-
     private const MAX_BITFLAGS = 0b1111;
-
     private const CASE_OK_AS_STR = 'o';
     private const CASE_WARNING_AS_STR = 'w';
     private const CASE_CRITICAL_AS_STR = 'c';
@@ -41,7 +39,7 @@ class NotificationServiceEventConverter
 
     /**
      * Convert an array of NotificationServiceEvent to a string.
-     * ex: [NotificationServiceEvent::Ok, NotificationServiceEvent::Unknown] => 'o,u'
+     * ex: [NotificationServiceEvent::Ok, NotificationServiceEvent::Unknown] => 'o,u'.
      *
      * @param NotificationServiceEvent[] $events
      *
@@ -64,7 +62,7 @@ class NotificationServiceEventConverter
 
     /**
      * Convert a string to an array of NotificationServiceEvent.
-     * ex: 'd,u' => [NotificationServiceEvent::Down, NotificationServiceEvent::Unreachable]
+     * ex: 'd,u' => [NotificationServiceEvent::Down, NotificationServiceEvent::Unreachable].
      *
      * @param string $legacyStr
      *
@@ -136,7 +134,7 @@ class NotificationServiceEventConverter
 
     /**
      * Convert an array of NotificationServiceEvent into a bitFlags
-     * If the array contains NotificationServiceEvent::None or is empty, an empty bitFlags will be returned
+     * If the array contains NotificationServiceEvent::None or is empty, an empty bitFlags will be returned.
      *
      * @param NotificationServiceEvent[] $enums
      *

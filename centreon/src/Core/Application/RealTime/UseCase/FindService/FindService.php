@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,34 +18,33 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Application\RealTime\UseCase\FindService;
 
 use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Monitoring\Host as LegacyHost;
+use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
+use Centreon\Domain\Monitoring\Service as LegacyService;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
+use Core\Application\RealTime\Repository\ReadDowntimeRepositoryInterface;
+use Core\Application\RealTime\Repository\ReadHostRepositoryInterface;
+use Core\Application\RealTime\Repository\ReadServicegroupRepositoryInterface;
+use Core\Application\RealTime\Repository\ReadServiceRepositoryInterface;
+use Core\Domain\RealTime\Model\Acknowledgement;
+use Core\Domain\RealTime\Model\Downtime;
 use Core\Domain\RealTime\Model\Host;
 use Core\Domain\RealTime\Model\Service;
-use Core\Tag\RealTime\Domain\Model\Tag;
-use Core\Domain\RealTime\Model\Downtime;
-use Core\Domain\RealTime\Model\Acknowledgement;
-use Core\Severity\RealTime\Domain\Model\Severity;
-use Centreon\Domain\Monitoring\Host as LegacyHost;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Monitoring\Service as LegacyService;
-use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
-use Core\Application\RealTime\Repository\ReadHostRepositoryInterface;
-use Core\Application\RealTime\UseCase\FindService\FindServiceResponse;
-use Core\Application\RealTime\Repository\ReadServiceRepositoryInterface;
-use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
-use Core\Application\RealTime\Repository\ReadDowntimeRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Application\RealTime\Repository\ReadServicegroupRepositoryInterface;
-use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
-use Core\Application\RealTime\UseCase\FindService\FindServicePresenterInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Severity\RealTime\Application\Repository\ReadSeverityRepositoryInterface;
+use Core\Severity\RealTime\Domain\Model\Severity;
+use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
+use Core\Tag\RealTime\Domain\Model\Tag;
 
 class FindService
 {
@@ -61,6 +60,7 @@ class FindService
      * @param ReadAcknowledgementRepositoryInterface $acknowledgementRepository
      * @param MonitoringServiceInterface $monitoringService
      * @param ReadTagRepositoryInterface $tagRepository
+     * @param privateReadSeverityRepositoryInterface $severityRepository
      */
     public function __construct(
         private ReadServiceRepositoryInterface $repository,
@@ -92,11 +92,13 @@ class FindService
             $host = $this->hostRepository->findHostById($hostId);
             if ($host === null) {
                 $this->handleHostNotFound($hostId, $presenter);
+
                 return;
             }
             $service = $this->repository->findServiceById($hostId, $serviceId);
             if ($service === null) {
                 $this->handleServiceNotFound($hostId, $serviceId, $presenter);
+
                 return;
             }
 
@@ -115,6 +117,7 @@ class FindService
 
             if ($host === null) {
                 $this->handleHostNotFound($hostId, $presenter);
+
                 return;
             }
 
@@ -122,6 +125,7 @@ class FindService
 
             if ($service === null) {
                 $this->handleServiceNotFound($hostId, $serviceId, $presenter);
+
                 return;
             }
 
@@ -147,7 +151,7 @@ class FindService
             [
                 'hostId' => $hostId,
                 'serviceId' => $serviceId,
-                'typeId' => Severity::SERVICE_SEVERITY_TYPE_ID
+                'typeId' => Severity::SERVICE_SEVERITY_TYPE_ID,
             ]
         );
 
@@ -168,7 +172,7 @@ class FindService
             : [];
 
         /**
-         * Obfuscate the passwords in Service commandLine
+         * Obfuscate the passwords in Service commandLine.
          */
         $service->setCommandLine($this->obfuscatePasswordInServiceCommandLine($service));
 
@@ -183,49 +187,11 @@ class FindService
     }
 
     /**
-     * Handle Host not found. This method will log the error and set the ResponseStatus
-     *
-     * @param int $hostId
-     * @param FindServicePresenterInterface $presenter
-     * @return void
-     */
-    private function handleHostNotFound(int $hostId, FindServicePresenterInterface $presenter): void
-    {
-        $this->error(
-            "Host not found",
-            [
-                'id' => $hostId,
-                'userId' => $this->contact->getId()
-            ]
-        );
-        $presenter->setResponseStatus(new NotFoundResponse('Host'));
-    }
-
-    /**
-     * Handle Service not found. This method will log the error and set the ResponseStatus
-     *
-     * @param int $hostId
-     * @param int $serviceId
-     * @param FindServicePresenterInterface $presenter
-     * @return void
-     */
-    private function handleServiceNotFound(int $hostId, int $serviceId, FindServicePresenterInterface $presenter): void
-    {
-        $this->error(
-            "Service not found",
-            [
-                'id' => $serviceId,
-                'hostId' => $hostId,
-                'userId' => $this->contact->getId()
-            ]
-        );
-        $presenter->setResponseStatus(new NotFoundResponse('Service'));
-    }
-
-    /**
      * @param Service $service
      * @param Downtime[] $downtimes
      * @param Acknowledgement|null $acknowledgement
+     * @param Host $host
+     *
      * @return FindServiceResponse
      */
     public function createResponse(
@@ -273,9 +239,48 @@ class FindService
     }
 
     /**
-     * Obfuscate passwords in the commandline
+     * Handle Host not found. This method will log the error and set the ResponseStatus.
+     *
+     * @param int $hostId
+     * @param FindServicePresenterInterface $presenter
+     */
+    private function handleHostNotFound(int $hostId, FindServicePresenterInterface $presenter): void
+    {
+        $this->error(
+            'Host not found',
+            [
+                'id' => $hostId,
+                'userId' => $this->contact->getId(),
+            ]
+        );
+        $presenter->setResponseStatus(new NotFoundResponse('Host'));
+    }
+
+    /**
+     * Handle Service not found. This method will log the error and set the ResponseStatus.
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @param FindServicePresenterInterface $presenter
+     */
+    private function handleServiceNotFound(int $hostId, int $serviceId, FindServicePresenterInterface $presenter): void
+    {
+        $this->error(
+            'Service not found',
+            [
+                'id' => $serviceId,
+                'hostId' => $hostId,
+                'userId' => $this->contact->getId(),
+            ]
+        );
+        $presenter->setResponseStatus(new NotFoundResponse('Service'));
+    }
+
+    /**
+     * Obfuscate passwords in the commandline.
      *
      * @param Service $service
+     *
      * @return string|null
      */
     private function obfuscatePasswordInServiceCommandLine(Service $service): ?string
@@ -300,10 +305,10 @@ class FindService
                 $obfuscatedCommandLine = $legacyService->getCommandLine();
             } catch (\Throwable $ex) {
                 $this->debug(
-                    "Failed to hide password in service command line",
+                    'Failed to hide password in service command line',
                     [
                         'id' => $service->getId(),
-                        'reason' => $ex->getMessage()
+                        'reason' => $ex->getMessage(),
                     ]
                 );
                 $obfuscatedCommandLine = sprintf(
