@@ -10,6 +10,7 @@ on:
     paths:
       - "centreon/**"
       - "!centreon/packages/**"
+      - "!centreon-web/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -19,6 +20,7 @@ on:
     paths:
       - "centreon/**"
       - "!centreon/packages/**"
+      - "!centreon-web/.veracode-exclusions"
     tags:
       - centreon-*
 
@@ -104,6 +106,8 @@ jobs:
 
   frontend-lint:
     runs-on: ubuntu-22.04
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable'}}
 
     steps:
       - uses: actions/checkout@v3
@@ -115,6 +119,8 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable'}}
 
     steps:
       - uses: actions/setup-node@v3
@@ -138,6 +144,8 @@ jobs:
 
   frontend-component-test:
     runs-on: ubuntu-22.04
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable'}}
 
     steps:
       - name: Checkout sources
@@ -149,6 +157,8 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
+    needs: [get-version]
+    if: ${{ needs.get-version.outputs.stability != 'stable'}}
 
     steps:
       - uses: actions/checkout@v3
@@ -189,7 +199,7 @@ jobs:
         frontend-unit-test,
         frontend-component-test,
       ]
-    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')  && needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
       fail-fast: false
@@ -231,7 +241,8 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [package]
+    needs: [get-version, package]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     strategy:
       matrix:
@@ -279,7 +290,9 @@ jobs:
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
-    needs: [dockerize]
+    needs: [get-version, dockerize]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
@@ -293,7 +306,9 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
-    needs: [dockerize]
+    needs: [get-version, dockerize]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
+
     uses: ./.github/workflows/behat-test.yml
     with:
       name: e2e
@@ -308,6 +323,7 @@ jobs:
   e2e-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - name: Checkout sources
@@ -331,6 +347,7 @@ jobs:
   performances-test:
     runs-on: ubuntu-22.04
     needs: [get-version, dockerize]
+    if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -411,7 +428,7 @@ jobs:
         e2e-test,
         performances-test,
       ]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
@@ -451,7 +468,7 @@ jobs:
         e2e-test,
         performances-test,
       ]
-    if: ${{ contains(fromJson('["stable", "testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
+    if: ${{ contains(fromJson('["testing", "unstable", "pkgtest"]'), needs.get-version.outputs.stability) }}
     environment: ${{ needs.get-version.outputs.environment }}
 
     strategy:
