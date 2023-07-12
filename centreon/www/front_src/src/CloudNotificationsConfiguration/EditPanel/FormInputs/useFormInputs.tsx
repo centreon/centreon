@@ -5,6 +5,7 @@ import { cond, gt, always, T, isEmpty, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Box } from '@mui/material';
+import { Variant } from '@mui/material/styles/createTypography';
 
 import { Group, InputType } from '@centreon/ui';
 
@@ -52,18 +53,26 @@ const useFormInputs = ({ panelWidth }: Props): object => {
   const { classes } = useStyles({ isExtraFieldHidden });
   const { t } = useTranslation();
 
+  const titleAttributes = {
+    classes: { root: classes.titleGroup },
+    variant: 'subtitle1' as Variant
+  };
+
   const basicFormGroups: Array<Group> = [
     {
       name: t(labelSelectResourcesAndEvents),
-      order: 1
+      order: 1,
+      titleAttributes
     },
     {
       name: t(labelSelectContactsAndContactsGroups),
-      order: 2
+      order: 2,
+      titleAttributes
     },
     {
       name: t(labelSelectTimePeriodAndChannels),
-      order: 3
+      order: 3,
+      titleAttributes
     }
   ];
 
