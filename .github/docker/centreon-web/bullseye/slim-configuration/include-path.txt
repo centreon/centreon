@@ -1,3 +1,4 @@
+/root
 /bin
 /usr/bin
 /sbin
@@ -5,6 +6,10 @@
 /run/lock
 /usr/share/zoneinfo
 /var/lock
+/etc/inputrc
+/etc/bash.bashrc
+/etc/profile
+/etc/profile.d
 /etc/apache2
 /etc/sudo.conf
 /etc/sudoers
