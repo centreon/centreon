@@ -16340,3 +16340,206 @@ msgstr ""
 
 #  msgid "Circular inheritance not allowed"
 #  msgstr ""
+
+#cloud notifications 
+
+# msgid 'Notifications management'
+# msgstr ""
+
+# msgid 'Welcome to the notifications interface'
+# msgstr ""
+
+# msgid 'Create a notification'
+# msgstr ""
+
+# msgid 'Add'
+# msgstr ""
+
+# msgid 'Duplicate'
+# msgstr ""
+
+# msgid 'Delete'
+# msgstr ""
+
+# msgid 'Discard'
+# msgstr ""
+
+# msgid 'Cancel'
+# msgstr ""
+
+# msgid 'Name'
+# msgstr ""
+
+# msgid 'Channels'
+# msgstr ""
+
+# msgid 'Users'
+# msgstr ""
+
+# msgid'Resources'
+# msgstr ""
+
+# msgid 'Period'
+# msgstr ""
+
+# msgid 'Actions'
+# msgstr ""
+
+# msgid 'Status'
+# msgstr ""
+
+# msgid 'Search'
+# msgstr ""
+
+# msgid 'Save'
+# msgstr ""
+
+# msgid 'Select resources and events'
+# msgstr ""
+
+# msgid 'Search host groups'
+# msgstr ""
+
+# msgid 'Select users'
+# msgstr ""
+
+# msgid 'Select time period / channels of notifications'
+# msgstr ""
+
+# msgid 'How many times would you like to duplicate selected notification?'
+# msgstr ""
+
+# msgid 'Delete notification?'
+# msgstr ""
+
+# msgid 'This action cannot be undone'
+# msgstr ""
+
+# msgid 'Collapse information panel'
+# msgstr ""
+
+# msgid 'Expand information panel'
+# msgstr ""
+
+# msgid 'Type your text here'
+# msgstr ""
+
+# msgid 'Active / Inactive'
+# msgstr ""
+
+# msgid 'Edit name'
+# msgstr ""
+
+# msgid 'Notification name'
+# msgstr ""
+
+# msgid 'Required'
+# msgstr ""
+
+# msgid 'The notification was successfully updated'
+# msgstr ""
+
+# msgid 'The notification was successfully added'
+# msgstr ""
+
+# msgid 'Do you want to confirm the action ?'
+# msgstr ""
+
+# msgid 'Confirm notification creation'
+# msgstr ""
+
+# msgid 'Confirm notification update'
+# msgstr ""
+
+# msgid 'Choose at least 1 resource'
+# msgstr ""
+
+# msgid 'Choose at least 1 service group'
+# msgstr ""
+
+# msgid 'Choose at least 1 contact or contact group'
+# msgstr ""
+
+# msgid 'The message field should not be empty!'
+# msgstr ""
+
+# msgid 'Close the panel'
+# msgstr ""
+
+# msgid 'Email template for the notification message'
+# msgstr ""
+
+# msgid 'Subject'
+# msgstr ""
+
+# msgid 'Notification channels'
+# msgstr ""
+
+# msgid 'Service groups'
+# msgstr ""
+
+# msgid 'Host groups'
+# msgstr ""
+
+# msgid 'Time period'
+# msgstr ""
+
+# msgid 'Search service groups'
+# msgstr ""
+
+# msgid' Do you want to quit the form without saving the changes?'
+# msgstr ""
+
+# msgid 'Your form has unsaved changes'
+# msgstr ""
+
+# msgid 'This name already exists'
+# msgstr ""
+
+# msgid 'Cancel notification creation'
+# msgstr ""
+
+# msgid 'Cancel notification update'
+# msgstr ""
+
+# msgid 'Create notification for the first time'
+# msgstr ""
+
+# msgid 'Notification deleted successfully'
+# msgstr ""
+
+# msgid 'The selected notifications have been deleted successfully'
+# msgstr ""
+
+# msgid 'Failed to delete the notification'
+# msgstr ""
+
+# msgid 'Failed to delete the notifications'
+# msgstr ""
+
+# msgid 'Failed to delete the selected notifications'
+# msgstr ""
+
+# msgid 'delete multiple notifications'
+# msgstr ""
+
+# msgid 'Contacts'
+# msgstr ""
+
+# msgid 'Contact groups'
+# msgstr ""
+
+# msgid 'Search contacts'
+# msgstr ""
+
+# msgid 'Search contact groups'
+# msgstr ""
+
+# msgid 'Select contacts and contact groups'
+# msgstr ""
+
+# msgid '24h/24h - 7/7 days'
+# msgstr ""
+
+# msgid 'Include services for these hosts'
+# msgstr ""
