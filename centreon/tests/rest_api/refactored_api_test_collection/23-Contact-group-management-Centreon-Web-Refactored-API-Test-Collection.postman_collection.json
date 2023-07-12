@@ -1,0 +1,4375 @@
+{
+	"info": {
+		"_postman_id": "35079df6-8c7c-4aa0-84be-fcfecb2f4f72",
+		"name": "23 - Contact group management - Centreon Web Refactored API Test Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22770334",
+		"_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-35079df6-8c7c-4aa0-84be-fcfecb2f4f72?action=share&creator=22770334&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "2301 - Listing default contact groups and their members",
+			"item": [
+				{
+					"name": "[2301] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseCode and the pm.test message at will) in every request that checks the status code of a response\r",
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2301-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"// End of block (do not forget to close the test assertion if you have nothing else to add in it)\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2301] List all contact groups",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2301-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"A list of contact groups has been successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Only the default groups are listed: Guest and Supervisors.\", function() {\r",
+									"    pm.expect(responseJson.meta.total).to.eql(2);\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(\"Guest\");\r",
+									"    pm.expect(responseJson.result[1].name).to.eql(\"Supervisors\");\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/contacts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"contacts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2301] Get list of users in default contact group \"Supervisors\"",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2301-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"A list of users in the contact group has been fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"This default contact group only has one user attached to it: the default admin.\", function() {\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(pm.environment.get(\"api_login\"));\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"Supervisors\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2301] Get list of users in default contact group \"Guest\"",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2301-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"A list of users in the contact group has been fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"This default contact group only has two user attached to it: a guest and a template user.\", function() {\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(\"guest\");\r",
+									"    pm.expect(responseJson.result[1].name).to.eql(\"user\");\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"Guest\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2301-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseCode and the pm.test message at will) in every request that checks the status code of a response\r",
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"// End of block (do not forget to close the test assertion if you have nothing else to add in it)\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2302 - Adding a new contact to default contact group",
+			"item": [
+				{
+					"name": "[2302] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2302-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2302] List all contact groups",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2302-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"A list of contact groups has been successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Only the default groups are listed: Guest and Supervisors.\", function() {\r",
+									"    pm.expect(responseJson.meta.total).to.eql(2);\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(\"Guest\");\r",
+									"    pm.expect(responseJson.result[1].name).to.eql(\"Supervisors\");\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/contacts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"contacts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2302] Add new non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2302-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserName\", \"User-Test-2302\");\r",
+									"pm.collectionVariables.set(\"testUserLogin\", \"testUser\");\r",
+									"pm.collectionVariables.set(\"testUserEmail\", \"testUser@localhost\");\r",
+									"pm.collectionVariables.set(\"testUserPassword\", \"Centreon!2021\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};Centreon!2021;0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2302] Add the non-admin user to the \"Guest\" contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2302-cleanup] Delete the non-admin user\"\r",
+									"\r",
+									"pm.test(\"User \" + pm.collectionVariables.get(\"testUserName\") + \" successfully added to the contact group \\\"Guest\\\".\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"addcontact\",\n  \"object\": \"cg\",\n  \"values\": \"Guest;{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2302] Get list of users in default contact group \"Guest\"",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2302-cleanup] Delete the non-admin user\"\r",
+									"\r",
+									"pm.test(\"A list of users in the contact group \\\"Guest\\\" has been fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"This default contact group has three users attached to it: a guest, a template user and the non-admin user that we created.\", function() {\r",
+									"    pm.expect(responseJson.result.length).to.eql(3);\r",
+									"    let tableOfUserNames = [];\r",
+									"    for (let count = 0; count < responseJson.result.length; count++) {\r",
+									"        tableOfUserNames.push(responseJson.result[count].name);\r",
+									"    }\r",
+									"    pm.expect(tableOfUserNames).to.contain(\"guest\");\r",
+									"    pm.expect(tableOfUserNames).to.contain(\"user\");\r",
+									"    pm.expect(tableOfUserNames).to.contain(pm.collectionVariables.get(\"testUserLogin\"));\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"Guest\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2302-cleanup] Delete the non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[Cleanup] The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"testUserLogin\");\r",
+									"    pm.collectionVariables.unset(\"testUserName\");\r",
+									"    pm.collectionVariables.unset(\"testUserPassword\");\r",
+									"    pm.collectionVariables.unset(\"testUserEmail\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2302-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2303 - Creating a new contact group",
+			"item": [
+				{
+					"name": "[2303] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2303-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2303] List all contact groups before contact group creation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2303-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"A list of contact groups has been successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Only the default groups are listed: Guest and Supervisors.\", function() {\r",
+									"    pm.expect(responseJson.meta.total).to.eql(2);\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(\"Guest\");\r",
+									"    pm.expect(responseJson.result[1].name).to.eql(\"Supervisors\");\r",
+									"    pm.collectionVariables.set(\"numberOfListedContactGroups\", responseJson.meta.total);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/contacts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"contacts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2303] Add a new contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2303-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has successfully been created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"contactGroupName\", \"CG-Test-API-2303\");\r",
+									"pm.collectionVariables.set(\"contactGroupAlias\", \"Contact Group Test API\")"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{contactGroupAlias}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2303] List all contact groups after contact group creation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2303] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"A list of contact groups has been successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Three contact groups are listed: Guest, Supervisors and the newly created \" + pm.collectionVariables.get(\"contactGroupName\") + \".\", function() {\r",
+									"    pm.expect(responseJson.meta.total).to.eql(pm.collectionVariables.get(\"numberOfListedContactGroups\") + 1);\r",
+									"    pm.collectionVariables.unset(\"numberOfListedContactGroups\");\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(\"Guest\");\r",
+									"    pm.expect(responseJson.result[1].name).to.eql(\"Supervisors\");\r",
+									"    pm.expect(responseJson.result[2].name).to.eql(pm.collectionVariables.get(\"contactGroupName\"));\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/contacts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"contacts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2303] Get list of users in this new contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2302-cleanup] Delete the non-admin user\"\r",
+									"\r",
+									"pm.test(\"A list of users in the contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Since it was just created, this default contact group is empty.\", function() {\r",
+									"    pm.expect(responseJson.result).to.be.empty;\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2303] Delete the contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"The new contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been successfully deleted.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.collectionVariables.unset(\"contactGroupName\");\r",
+									"    pm.collectionVariables.unset(\"contactGroupAlias\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2303] List all contact groups after contact group deletion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2303-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"A list of contact groups has been successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Only the default groups are listed: Guest and Supervisors.\", function() {\r",
+									"    pm.expect(responseJson.meta.total).to.eql(2);\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(\"Guest\");\r",
+									"    pm.expect(responseJson.result[1].name).to.eql(\"Supervisors\");\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/contacts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"contacts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2303-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2304 - Adding dummy users to new contact group",
+			"item": [
+				{
+					"name": "[2304] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2302-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2304] Add a new contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2304-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has successfully been created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"contactGroupName\", \"CG-Test-API-2304\");\r",
+									"pm.collectionVariables.set(\"contactGroupAlias\", \"Contact Group Test API\")"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{contactGroupAlias}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2304] Add new non-admin dummy users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2304] Delete new non-admin dummy users\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"currentUser\") + \" has been successfully created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"\r",
+									"    // Looping the request to add every user in the dummyUserNames list\r",
+									"    const users = pm.collectionVariables.get(\"dummyUserNames\");\r",
+									"    if (users && users.length > 0) {\r",
+									"        postman.setNextRequest(\"[2304] Add new non-admin dummy users\");\r",
+									"    } else {\r",
+									"        pm.collectionVariables.unset(\"currentUser\");\r",
+									"        pm.collectionVariables.unset(\"dummyUserNames\");\r",
+									"        postman.setNextRequest(\"[2304] Add dummy users to contact group\");\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let dummyUserNames = pm.collectionVariables.get(\"dummyUserNames\");\r",
+									"\r",
+									"if(!dummyUserNames || dummyUserNames.length == 0) {\r",
+									"    dummyUserNames = [\"user01\", \"user02\", \"user03\", \"user04\", \"user05\"];\r",
+									"    usersCreated = [];\r",
+									"}\r",
+									"\r",
+									"let currentUser = dummyUserNames.shift();\r",
+									"pm.collectionVariables.set(\"currentUser\", currentUser);\r",
+									"pm.collectionVariables.set(\"dummyUserNames\", dummyUserNames);\r",
+									"usersCreated.push(currentUser);\r",
+									"pm.collectionVariables.set(\"usersCreated\", usersCreated);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{currentUser}};{{currentUser}};dummymail@centreon.com;Centreon!2021;0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2304] Add dummy users to contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2304] Delete new non-admin dummy users\"\r",
+									"\r",
+									"pm.test(\"The dummy users \" + pm.collectionVariables.get(\"usersCreated\") + \" have been successfully added to the contact group.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.collectionVariables.unset(\"listOfUsersToAddToContactGroup\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let usersCreated = pm.collectionVariables.get(\"usersCreated\");\r",
+									"if (usersCreated || usersCreated.length != 0) {\r",
+									"    var finalParameter = \"\";\r",
+									"    for(var i = 0; i < usersCreated.length; i++) {\r",
+									"        finalParameter = finalParameter.concat('|', usersCreated[i]);\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"pm.collectionVariables.set(\"listOfUsersToAddToContactGroup\", finalParameter.substring(1));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"setcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{listOfUsersToAddToContactGroup}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2304] Get list of users in contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2304] Delete new non-admin dummy users\"\r",
+									"\r",
+									"pm.test(\"A list of users in the contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"const listOfUsers = pm.collectionVariables.get(\"usersCreated\");\r",
+									"pm.test(\"It is composed of \" + listOfUsers.length + \" users, which are the dummy users we added to it.\", function() {\r",
+									"    pm.expect(responseJson.result.length).to.eql(listOfUsers.length);\r",
+									"})\r",
+									"\r",
+									"for (var count = 0; count < responseJson.result.length; count++) {\r",
+									"    pm.test(\"User \" + responseJson.result[count].name + \" has been found.\"), function(){\r",
+									"        pm.expect(listOfUsers).to.contain(responseJson.result[count].name);\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2304] Remove the last created dummy user from the contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2304] Delete new non-admin dummy users\"\r",
+									"\r",
+									"pm.test(\"The dummy user \" + pm.collectionVariables.get(\"userToRemoveFromTheContactGroup\") + \" have been successfully removed from the contact group.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"usersCreated = pm.collectionVariables.get(\"usersCreated\");\r",
+									"pm.collectionVariables.set(\"userToRemoveFromTheContactGroup\", usersCreated[usersCreated.length - 1]);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"delcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{userToRemoveFromTheContactGroup}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2304] Get list of users in contact group after dummy user removal",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2304] Delete new non-admin dummy users\"\r",
+									"\r",
+									"pm.test(\"A list of users in the contact group has been fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"const listOfUsers = pm.collectionVariables.get(\"usersCreated\");\r",
+									"pm.test(\"It is composed of \" + (listOfUsers.length - 1) + \" users, which are the dummy users we added to it minus the one we removed, \" + pm.collectionVariables.get(\"userToRemoveFromTheContactGroup\") + \".\", function() {\r",
+									"    pm.expect(responseJson.result.length).to.eql(listOfUsers.length - 1);\r",
+									"    let tableOfUserNames = [];\r",
+									"    for (let count = 0; count < responseJson.result.length; count++) {\r",
+									"        tableOfUserNames.push(responseJson.result[count].name);\r",
+									"    }    \r",
+									"    pm.expect(tableOfUserNames).to.not.contain(\"userToRemoveFromTheContactGroup\");\r",
+									"    pm.collectionVariables.unset(\"userToRemoveFromTheContactGroup\");\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2304] Delete new non-admin dummy users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2304-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"User \" + pm.collectionVariables.get(\"currentUser\") + \" has successfully been deleted.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"\r",
+									"    const users = pm.collectionVariables.get(\"usersCreated\");\r",
+									"    if (users && users.length > 0) {\r",
+									"        postman.setNextRequest(\"[2304] Delete new non-admin dummy users\");\r",
+									"    } else {\r",
+									"        pm.collectionVariables.unset(\"usersCreated\");\r",
+									"        pm.collectionVariables.unset(\"currentUser\");\r",
+									"        postman.setNextRequest(\"[2304] Get list of users in contact group after dummy users deletion\");\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let usersCreated = pm.collectionVariables.get(\"usersCreated\");\r",
+									"pm.collectionVariables.set(\"currentUser\", usersCreated.shift());\r",
+									"pm.collectionVariables.set(\"usersCreated\", usersCreated);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{currentUser}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2304] Get list of users in contact group after dummy users deletion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2304-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"A list of users in the contact group has been fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"After the deletion of the dummy users, the contact group is back to being empty.\", function() {\r",
+									"    pm.expect(responseJson.result).to.be.empty;\r",
+									"})\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2304-cleanup] Delete the contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"contactGroupName\");\r",
+									"    pm.collectionVariables.unset(\"contactGroupAlias\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2304-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2305 - Disabling/enabling a new contact group",
+			"item": [
+				{
+					"name": "[2305] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2305-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2305] Add a new contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2305-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has successfully been created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"contactGroupName\", \"CG-Test-API-2305\");\r",
+									"pm.collectionVariables.set(\"contactGroupAlias\", \"Contact Group Test API\")"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{contactGroupAlias}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2305] List all contact groups",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2305-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"A list of contact groups has been successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Three contact groups are listed: Guest, Supervisors and the new contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \".\", function() {\r",
+									"    pm.expect(responseJson.meta.total).to.eql(3);\r",
+									"    let tableOfUserNames = [];\r",
+									"    for (let count = 0; count < responseJson.result.length; count++) {\r",
+									"        tableOfUserNames.push(responseJson.result[count].name);\r",
+									"    }\r",
+									"    pm.expect(tableOfUserNames).to.contain(\"Guest\");\r",
+									"    pm.expect(tableOfUserNames).to.contain(\"Supervisors\");\r",
+									"    pm.expect(tableOfUserNames).to.contain(pm.collectionVariables.get(\"contactGroupName\"));\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/contacts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"contacts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2305] Disable new contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2305-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"The contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been successfully disabled.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "CENTREON-AUTH-TOKEN",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"disable\",\n  \"object\": \"CG\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2305] List all contact groups after contact group disabling",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2305-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"A list of contact groups has been successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Only the default groups are listed: Guest and Supervisors. The contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" is not listed anymore.\", function() {\r",
+									"    pm.expect(responseJson.meta.total).to.eql(2);\r",
+									"    let tableOfUserNames = [];\r",
+									"    for (let count = 0; count < responseJson.result.length; count++) {\r",
+									"        tableOfUserNames.push(responseJson.result[count].name);\r",
+									"    }\r",
+									"    pm.expect(tableOfUserNames).to.contain(\"Guest\");\r",
+									"    pm.expect(tableOfUserNames).to.contain(\"Supervisors\");\r",
+									"    pm.expect(tableOfUserNames).to.not.contain(pm.collectionVariables.get(\"contactGroupName\"));\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/contacts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"contacts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2305] Enable new contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2305-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"The contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been successfully enabled.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "CENTREON-AUTH-TOKEN",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"enable\",\n  \"object\": \"CG\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2305] List all contact groups after contact group enabling",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2305-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"A list of contact groups has been successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The listed contact groups are now back to three: Guest, Supervisors and the new contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \".\", function() {\r",
+									"    pm.expect(responseJson.meta.total).to.eql(3);\r",
+									"    let tableOfUserNames = [];\r",
+									"    for (let count = 0; count < responseJson.result.length; count++) {\r",
+									"        tableOfUserNames.push(responseJson.result[count].name);\r",
+									"    }\r",
+									"    pm.expect(tableOfUserNames).to.contain(\"Guest\");\r",
+									"    pm.expect(tableOfUserNames).to.contain(\"Supervisors\");\r",
+									"    pm.expect(tableOfUserNames).to.contain(pm.collectionVariables.get(\"contactGroupName\"));\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/contacts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"contacts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2305-cleanup] Delete the contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[Cleanup] The new contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"contactGroupName\");\r",
+									"    pm.collectionVariables.unset(\"contactGroupAlias\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2305-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2306 - Adding a user to a disabled contact group",
+			"item": [
+				{
+					"name": "[2306] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2306-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2306] Add a new contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2306-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has successfully been created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"contactGroupName\", \"CG-Test-API-2306\");\r",
+									"pm.collectionVariables.set(\"contactGroupAlias\", \"Contact Group Test API\")"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{contactGroupAlias}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2306] Add new non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2306-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserName\", \"User-Test-2306\");\r",
+									"pm.collectionVariables.set(\"testUserLogin\", \"testUser\");\r",
+									"pm.collectionVariables.set(\"testUserEmail\", \"testUser@localhost\");\r",
+									"pm.collectionVariables.set(\"testUserPassword\", \"Centreon!2021\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};Centreon!2021;0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2306] Disable contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2306-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"The contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been successfully disabled.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"disable\",\n  \"object\": \"CG\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2306] Adding a non-admin user to a disabled contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2306-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"Even though the contact group is disabled, you can still add users to it, just like in the UI.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"setcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2306] Enable new contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2306-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"The contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been successfully enabled.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "CENTREON-AUTH-TOKEN",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"enable\",\n  \"object\": \"CG\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2306] Get list of users in contact group after contact group reactivation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2306-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"A list of users in the contact group has been fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" features the contact \" + pm.collectionVariables.get(\"testUserName\") + \", which we have added while it was disabled.\", function() {\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(pm.collectionVariables.get(\"testUserLogin\"));\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2306-cleanup] Delete the non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"testUserName\");\r",
+									"    pm.collectionVariables.unset(\"testUserLogin\");\r",
+									"    pm.collectionVariables.unset(\"testUserEmail\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2306-cleanup] Delete the contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The new contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"contactGroupName\");\r",
+									"    pm.collectionVariables.unset(\"contactGroupAlias\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2306-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2307 - Checking addcontact/setcontact properties on contact groups",
+			"item": [
+				{
+					"name": "[2307] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2307-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2307] Add two non-admin users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2307-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"User \" + pm.collectionVariables.get(\"currentUser\") + \" has successfully been created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"\r",
+									"    // Looping the request to add every user in the listOfUserNames list\r",
+									"    const users = pm.collectionVariables.get(\"listOfUserNames\");\r",
+									"    if (users && users.length > 0) {\r",
+									"        pm.collectionVariables.set(\"userAdd\", pm.collectionVariables.get(\"currentUser\"));\r",
+									"        postman.setNextRequest(\"[2307] Add two non-admin users\");\r",
+									"    } else {\r",
+									"        pm.collectionVariables.set(\"userSet\", pm.collectionVariables.get(\"currentUser\"));\r",
+									"        pm.collectionVariables.unset(\"currentUser\");\r",
+									"        pm.collectionVariables.unset(\"listOfUserNames\");\r",
+									"        postman.setNextRequest(\"[2307] Add a new contact group\");\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let listOfUserNames = pm.collectionVariables.get(\"listOfUserNames\");\r",
+									"\r",
+									"if(!listOfUserNames || listOfUserNames.length == 0) {\r",
+									"    listOfUserNames = [\"userAdd\", \"userSet\"];\r",
+									"}\r",
+									"\r",
+									"let currentUser = listOfUserNames.shift();\r",
+									"pm.collectionVariables.set(\"currentUser\", currentUser);\r",
+									"pm.collectionVariables.set(\"listOfUserNames\", listOfUserNames);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{currentUser}};{{currentUser}};dummymail@centreon.com;Centreon!2021;0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2307] Add a new contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2307-cleanup] Delete the two non-admin users\"\r",
+									"\r",
+									"pm.test(\"Contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has successfully been created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"contactGroupName\", \"CG-Test-API-2307\");\r",
+									"pm.collectionVariables.set(\"contactGroupAlias\", \"Contact Group Test API\")"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{contactGroupAlias}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2307] Add the first user to the contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2307-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"The user \" + pm.collectionVariables.get(\"userAdd\") + \" has been successfully added to the contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \".\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"addcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{userAdd}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2307] Get list of users in this new contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2307-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"A list of users in the contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The only listed user is \" + pm.collectionVariables.get(\"userAdd\") + \".\", function() {\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(pm.collectionVariables.get(\"userAdd\"));\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2307] Set the second user to the contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2307-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"The user \" + pm.collectionVariables.get(\"userSet\") + \" has been successfully assigned to the contact group.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"setcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{userSet}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2307] Get list of users in this new contact group after user set",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2307-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"A list of users in the contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The only listed user is \" + pm.collectionVariables.get(\"userSet\") + \", since the previous command has overwritten any previous definition of what is inside the contact group.\" , function() {\r",
+									"    pm.expect(responseJson.result.length).to.eql(1);\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(pm.collectionVariables.get(\"userSet\"));\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2307] Add the first user to the contact group for the second time",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2307-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"The user \" + pm.collectionVariables.get(\"userAdd\") + \" has been successfully added to the contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \".\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"addcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}};{{userAdd}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2307] Get list of users in this new contact group after second user add",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2307-cleanup] Delete the contact group\"\r",
+									"\r",
+									"pm.test(\"A list of users in the contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The two created users are now listed in the contact group, in their chronological order of addition.\", function() {\r",
+									"    pm.expect(responseJson.result.length).to.eql(2);\r",
+									"    pm.expect(responseJson.result[0].name).to.eql(pm.collectionVariables.get(\"userSet\"));\r",
+									"    pm.expect(responseJson.result[1].name).to.eql(pm.collectionVariables.get(\"userAdd\"));\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"getcontact\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2307-cleanup] Delete the contact group",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[Cleanup] The new contact group \" + pm.collectionVariables.get(\"contactGroupName\") + \" has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"contactGroupName\");\r",
+									"    pm.collectionVariables.unset(\"contactGroupAlias\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"cg\",\n  \"values\": \"{{contactGroupName}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2307-cleanup] Delete the two non-admin users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const users = pm.collectionVariables.get(\"listOfUserNames\");\r",
+									"\r",
+									"pm.test(\"[Cleanup] User \" + pm.collectionVariables.get(\"currentUser\") + \" has successfully been deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"if (users && users.length > 0) {\r",
+									"    pm.collectionVariables.unset(\"userAdd\");\r",
+									"    postman.setNextRequest(\"[2307-cleanup] Delete the two non-admin users\");\r",
+									"} else {\r",
+									"    pm.collectionVariables.unset(\"userSet\");\r",
+									"    pm.collectionVariables.unset(\"currentUser\");\r",
+									"    pm.collectionVariables.unset(\"listOfUserNames\");\r",
+									"    postman.setNextRequest(\"[2307-cleanup] Logout from admin user and clear collection variables\");\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let listOfUserNames = pm.collectionVariables.get(\"listOfUserNames\");\r",
+									"\r",
+									"if(!listOfUserNames || listOfUserNames.length == 0) {\r",
+									"    listOfUserNames = [\"userAdd\", \"userSet\"];\r",
+									"}\r",
+									"\r",
+									"let currentUser = listOfUserNames.shift();\r",
+									"pm.collectionVariables.set(\"currentUser\", currentUser);\r",
+									"pm.collectionVariables.set(\"listOfUserNames\", listOfUserNames);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{currentUser}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2307-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"Object.prototype.setNextRequestBasedOnStatusCode = (pm, postman, response, expectedResponseCode, nextRequestInCaseOfFailure) => {",
+					"    if(expectedResponseCode != response.code) {",
+					"        if (!pm.collectionVariables.get(\"requestTries\")) {",
+					"            pm.collectionVariables.set(\"requestTries\", 0);",
+					"        }",
+					"        pm.collectionVariables.set(\"requestTries\", pm.collectionVariables.get(\"requestTries\") + 1);",
+					"        if(pm.collectionVariables.get(\"requestTries\") < pm.environment.get(\"maxNumberOfRetries\")) {",
+					"            console.log(\"Response does not have the expected status code | Resending the request \\\"\" + pm.info.requestName + \"\\\"... | Number of tries: \" + pm.collectionVariables.get(\"requestTries\"));",
+					"            postman.setNextRequest(pm.info.requestName);",
+					"        } else {",
+					"            pm.collectionVariables.unset(\"requestTries\");",
+					"            pm.collectionVariables.unset(\"nextRequestInCaseOfFailure\");",
+					"            console.log(\"Response does not have the expected status code | Aborting the current scenario (too many tries)\");",
+					"            postman.setNextRequest(nextRequestInCaseOfFailure);",
+					"        }",
+					"    } else {",
+					"        console.log(\"Response has the expected status code \" + pm.response.code + \" | Running the next tests\")",
+					"    }",
+					"  }"
+				]
+			}
+		}
+	]
+}
