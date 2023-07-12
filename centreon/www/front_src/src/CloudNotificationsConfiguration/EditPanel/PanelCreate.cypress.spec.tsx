@@ -19,9 +19,7 @@ import {
   labelNotificationName,
   labelSubject
 } from '../translatedLabels';
-
 import { panelWidthStorageAtom } from '../atom';
-
 import { contactGroupsEndpoint } from '../../Authentication/api/endpoints';
 
 import {
@@ -84,7 +82,7 @@ const initialize = (): void => {
     path: `${usersEndpoint}**`,
     response: usersResponse
   });
-  
+
   cy.interceptAPIRequest({
     alias: 'contactGroupsEndpoint',
     method: Method.GET,
