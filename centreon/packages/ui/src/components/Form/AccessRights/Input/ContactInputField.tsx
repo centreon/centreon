@@ -89,7 +89,7 @@ const ContactInputField = ({
       options={contacts}
       renderInput={renderInput}
       renderOption={(attr, option) => (
-        <MuiMenuItem {...attr}>
+        <MuiMenuItem {...attr} key={`${option.type}--${option.name}`}>
           {option.name}{' '}
           {isContactGroupResource(option) && (
             <GroupLabel label={labels.group} />

@@ -1,14 +1,11 @@
 import { ReactElement, ReactNode } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
-import { FormikProvider, useFormik } from 'formik';
-import { mixed, object } from 'yup';
 
 import {
   AccessRightsFormProvider,
   AccessRightsFormProviderProps
 } from '../useAccessRightsForm';
-import { ContactAccessRightResource } from '../AccessRights.resource';
 import { contactAccessRightsMock } from '../__fixtures__/contactAccessRight.mock';
 
 import { ContactAccessRightsList } from './ContactAccessRightsList';
@@ -33,21 +30,12 @@ const Wrapper = ({
     roles: [{ role: 'viewer' }, { role: 'editor' }]
   };
 
-  const formik = useFormik<Partial<ContactAccessRightResource>>({
-    initialValues: { role: 'viewer' },
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    onSubmit: () => {},
-    validationSchema: object({
-      role: mixed().oneOf(['viewer', 'editor']).required()
-    })
-  });
-
   const initialValues: AccessRightsFormProviderProps['initialValues'] =
     contactAccessRightsMock(amountOfContacts);
 
   return (
     <AccessRightsFormProvider initialValues={initialValues} options={options}>
-      <FormikProvider value={formik}>{children}</FormikProvider>
+      {children}
     </AccessRightsFormProvider>
   );
 };
@@ -79,5 +67,31 @@ export const AsEmptyState: Story = {
     <Wrapper amountOfContacts={0}>
       <ContactAccessRightsList {...args} />
     </Wrapper>
+  )
+};
+
+const LoadingWrapper = ({
+  children
+}: {
+  children: ReactNode;
+}): ReactElement => {
+  const options: AccessRightsFormProviderProps['options'] = {
+    contacts: [],
+    roles: [{ role: 'viewer' }, { role: 'editor' }]
+  };
+
+  return (
+    <AccessRightsFormProvider loadingStatus="loading" options={options}>
+      {children}
+    </AccessRightsFormProvider>
+  );
+};
+
+export const AsLoadingState: Story = {
+  args: Default.args,
+  render: (args) => (
+    <LoadingWrapper>
+      <ContactAccessRightsList {...args} />
+    </LoadingWrapper>
   )
 };

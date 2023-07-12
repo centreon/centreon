@@ -23,13 +23,13 @@ import {
 } from './Stats/AccessRightsStats';
 
 export type AccessRightsFormProps = {
-  initialValues?: AccessRightsFormProviderProps['initialValues'];
   labels: AccessRightsFormLabels;
   onCancel?: AccessRightsFormActionsProps['onCancel'];
-  onSubmit?: AccessRightsFormProviderProps['onSubmit'];
-  options: AccessRightsFormProviderProps['options'];
   resourceLink: string;
-};
+} & Pick<
+  AccessRightsFormProviderProps,
+  'initialValues' | 'onSubmit' | 'options' | 'loadingStatus'
+>;
 
 export type AccessRightsFormLabels = {
   actions: AccessRightsFormActionsProps['labels'];
@@ -40,20 +40,14 @@ export type AccessRightsFormLabels = {
 
 const AccessRightsForm = ({
   labels,
-  initialValues,
-  options,
-  onSubmit,
   onCancel,
-  resourceLink
+  resourceLink,
+  ...providerProps
 }: AccessRightsFormProps): ReactElement => {
   const { classes } = useStyles();
 
   return (
-    <AccessRightsFormProvider
-      initialValues={initialValues}
-      options={options}
-      onSubmit={onSubmit}
-    >
+    <AccessRightsFormProvider {...providerProps}>
       <div className={classes.accessRightsForm}>
         <ContactAccessRightInput labels={labels.input} />
         <span className={classes.accessRightsFormList}>

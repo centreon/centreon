@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { atom, useAtom } from 'jotai';
 
@@ -27,7 +27,7 @@ import { useDashboardAccessRightsBatchUpdate } from './useDashboardAccessRightsB
 const dialogStateAtom = atom<{
   dashboard: Dashboard | null;
   isOpen: boolean;
-  status: 'idle' | 'loading' | 'success' | 'error';
+  status: 'idle' | 'loading';
 }>({
   dashboard: null,
   isOpen: false,
@@ -54,7 +54,7 @@ type UseDashboardAccessRights = {
   isDialogOpen: boolean;
   options: AccessRightsFormProps['options'];
   resourceLink: string;
-  status: 'idle' | 'loading' | 'success' | 'error';
+  status: 'idle' | 'loading';
   submit: AccessRightsFormProps['onSubmit'];
 };
 
@@ -66,9 +66,11 @@ const useDashboardAccessRights = (): UseDashboardAccessRights => {
   /** options */
 
   const { data: dataContacts } = useListDashboardsContacts({
+    options: { suspense: false },
     params: { limit: 1000 }
   });
   const { data: dataContactGroups } = useListDashboardsContactGroups({
+    options: { suspense: false },
     params: { limit: 1000 }
   });
 
@@ -91,17 +93,22 @@ const useDashboardAccessRights = (): UseDashboardAccessRights => {
 
   /** initial access rights */
 
-  const { data: dataAccessRightsContacts } = useListAccessRightsContacts({
+  const {
+    data: dataAccessRightsContacts,
+    isFetching: isFetchingAccessRightsContacts
+  } = useListAccessRightsContacts({
     dashboardId: (dialogState.dashboard?.id as number) ?? null,
     options: { suspense: false },
     params: { limit: 1000 }
   });
-  const { data: dataAccessRightsContactGroups } =
-    useListAccessRightsContactGroups({
-      dashboardId: (dialogState.dashboard?.id as number) ?? null,
-      options: { suspense: false },
-      params: { limit: 1000 }
-    });
+  const {
+    data: dataAccessRightsContactGroups,
+    isFetching: isFetchingAccessRightsContactGroups
+  } = useListAccessRightsContactGroups({
+    dashboardId: (dialogState.dashboard?.id as number) ?? null,
+    options: { suspense: false },
+    params: { limit: 1000 }
+  });
 
   // eslint-disable-next-line hooks/sort
   const [initialAccessRights, setInitialAccessRights] = useAtom(
@@ -124,6 +131,16 @@ const useDashboardAccessRights = (): UseDashboardAccessRights => {
       ]),
     [dataAccessRightsContacts, dataAccessRightsContactGroups]
   );
+
+  useEffect(() => {
+    setDialogState((prev) => ({
+      ...prev,
+      status:
+        isFetchingAccessRightsContacts || isFetchingAccessRightsContactGroups
+          ? 'loading'
+          : 'idle'
+    }));
+  }, [isFetchingAccessRightsContacts, isFetchingAccessRightsContactGroups]);
 
   /** resource link */
 
@@ -148,16 +165,17 @@ const useDashboardAccessRights = (): UseDashboardAccessRights => {
   const closeDialog = (): void =>
     setDialogState({ ...dialogState, dashboard: null, isOpen: false });
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const submit = async (
-    values: Array<ContactAccessRightStateResource>
-  ): Promise<void> => {
-    batchUpdateAccessRights({
-      entityId: dialogState.dashboard?.id as number,
-      values
-    });
-    closeDialog();
-  };
+  // eslint-disable-next-line hooks/sort
+  const submit = useCallback(
+    async (values: Array<ContactAccessRightStateResource>): Promise<void> => {
+      batchUpdateAccessRights({
+        entityId: dialogState.dashboard?.id as number,
+        values
+      });
+      closeDialog();
+    },
+    [dialogState.dashboard?.id]
+  );
 
   return {
     closeDialog,

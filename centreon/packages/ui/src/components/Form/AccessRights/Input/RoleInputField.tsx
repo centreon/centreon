@@ -17,7 +17,7 @@ const RoleInputField = ({ label, ...props }: RoleFieldProps): ReactElement => {
 
   return (
     <RoleInputSelect
-      initialValue={meta.initialValue}
+      defaultValue={meta.initialValue}
       {...field}
       {...props}
       {...(label && { label })}

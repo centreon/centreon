@@ -60,7 +60,8 @@ const ContactAccessRightsListItem = ({
         <IconButton
           data-testid={isRemoved ? 'restore_user' : 'remove_user'}
           icon={isRemoved ? <RotateRightIcon /> : <DeleteOutlineIcon />}
-          variant="ghost"
+          size="small"
+          variant="primary"
           onClick={toggleRemoved}
         />
       }
@@ -106,8 +107,8 @@ const ContactAccessRightsListItem = ({
       <RoleInputSelect
         disabled={isRemoved}
         id={`role-${contactAccessRight.contact?.id}`}
-        initialValue={contactAccessRight.role}
         name={`role-${contactAccessRight.contact?.id}`}
+        value={contactAccessRight.role}
         onChange={updateRole}
       />
     </List.Item>

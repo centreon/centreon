@@ -8,6 +8,7 @@ import {
   ContactAccessRightsListItemProps
 } from './ContactAccessRightsListItem';
 import { useStyles } from './ContactAccessRightsList.styles';
+import { ContactAccessRightsListSkeleton } from './ContactAccessRightsListSkeleton';
 
 export type ContactAccessRightsListProps = {
   labels: ContactAccessRightsListLabels;
@@ -22,9 +23,11 @@ const ContactAccessRightsList = ({
   labels
 }: ContactAccessRightsListProps): ReactElement => {
   const { classes } = useStyles();
-  const { contactAccessRights } = useAccessRightsForm();
+  const { contactAccessRights, isLoading } = useAccessRightsForm();
 
-  return (
+  return isLoading ? (
+    <ContactAccessRightsListSkeleton length={3} />
+  ) : (
     <div className={classes.contactAccessRightsList}>
       {contactAccessRights.length === 0 ? (
         <div className={classes.contactAccessRightsListEmpty}>

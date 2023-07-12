@@ -45,28 +45,8 @@ const useStyles = makeStyles()((theme) => ({
       minHeight: 'unset',
       textTransform: 'lowercase'
     },
-    '& .MuiListItemAvatar-root': {
-      '& > div': {
-        color: theme.palette.primary.contrastText,
-        fontSize: '1rem',
-        height: '2.25rem',
-        width: '2.25rem'
-      },
-      minWidth: 'unset'
-    },
-    '& .MuiListItemText-root': {
-      '& .MuiListItemText-primary': {
-        fontSize: '0.875rem'
-      },
-      '& .MuiListItemText-secondary': {
-        fontSize: '0.625rem'
-      },
-      '& > *': {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        textWrap: 'nowrap'
-      },
-      margin: 0
+    '& .MuiListItemSecondaryAction-root': {
+      paddingRight: theme.spacing(0.625)
     },
     '& > span:first-of-type': {
       alignItems: 'center',
@@ -80,16 +60,11 @@ const useStyles = makeStyles()((theme) => ({
         opacity: 0.3
       }
     },
-    display: 'flex',
-
-    flexGrow: 1,
     gap: theme.spacing(3),
     justifyContent: 'space-between',
 
     maxWidth: '520px',
-    paddingBottom: theme.spacing(1),
-    paddingRight: theme.spacing(7),
-    paddingTop: theme.spacing(1)
+    paddingRight: theme.spacing(7)
   }
 }));
 

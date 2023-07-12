@@ -29,8 +29,14 @@ import {
 import { useDashboardAccessRights } from './useDashboardAccessRights';
 
 const DashboardAccessRightsForm = (): ReactElement => {
-  const { closeDialog, resourceLink, options, initialAccessRights, submit } =
-    useDashboardAccessRights();
+  const {
+    closeDialog,
+    resourceLink,
+    options,
+    initialAccessRights,
+    submit,
+    status
+  } = useDashboardAccessRights();
 
   const { t } = useTranslation();
 
@@ -81,6 +87,7 @@ const DashboardAccessRightsForm = (): ReactElement => {
     <AccessRightsForm
       initialValues={initialAccessRights}
       labels={labels}
+      loadingStatus={status}
       options={options}
       resourceLink={resourceLink}
       onCancel={closeDialog}

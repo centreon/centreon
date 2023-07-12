@@ -25,3 +25,17 @@ export const sortOnAddedStateFirstAndContactName = (
     ) || 0
   );
 };
+
+export const createInitialState = (
+  values
+): Array<ContactAccessRightStateResource> =>
+  values
+    ?.map(
+      (contactAccessRight) =>
+        ({
+          contactAccessRight,
+          state: 'unchanged',
+          stateHistory: []
+        } as ContactAccessRightStateResource)
+    )
+    .sort(sortOnAddedStateFirstAndContactName);

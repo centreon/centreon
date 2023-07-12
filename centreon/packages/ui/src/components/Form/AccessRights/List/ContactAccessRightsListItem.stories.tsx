@@ -9,6 +9,7 @@ import {
 import { ContactAccessRightResource } from '../AccessRights.resource';
 
 import { ContactAccessRightsListItem } from './ContactAccessRightsListItem';
+import { ContactAccessRightsListItemSkeleton } from './ContactAccessRightsListItemSkeleton';
 
 const meta: Meta<typeof ContactAccessRightsListItem> = {
   component: ContactAccessRightsListItem,
@@ -46,7 +47,8 @@ export const Default: Story = {
         contact: {
           email: 'user@company.com',
           id: '1',
-          name: 'User Name'
+          name: 'User Name',
+          type: 'contact'
         },
         role: 'viewer'
       },
@@ -68,7 +70,8 @@ export const AsContactGroup: Story = {
       contactAccessRight: {
         contact: {
           id: '1',
-          name: 'Team Name'
+          name: 'Team Name',
+          type: 'contact_group'
         },
         role: 'editor'
       },
@@ -105,4 +108,9 @@ export const WithRemovedState: Story = {
     }
   },
   render: Default.render
+};
+
+export const AsLoadingState: Story = {
+  args: {},
+  render: () => <ContactAccessRightsListItemSkeleton />
 };

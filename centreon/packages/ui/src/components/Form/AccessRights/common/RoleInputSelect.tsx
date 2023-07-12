@@ -1,6 +1,10 @@
 import { ReactElement, useCallback } from 'react';
 
-import { MenuItem as MuiMenuItem, Select as MuiSelect } from '@mui/material';
+import {
+  MenuItem as MuiMenuItem,
+  Select as MuiSelect,
+  SelectProps as MuiSelectProps
+} from '@mui/material';
 
 import { useAccessRightsForm } from '../useAccessRightsForm';
 import { RoleResource } from '../AccessRights.resource';
@@ -9,19 +13,15 @@ import { useStyles } from './RoleInputSelect.styles';
 import { useInputStyles } from './Input.styles';
 
 type RoleInputSelectProps = {
-  disabled?: boolean;
   id: string;
-  initialValue?: string;
   label?: string;
   name: string;
   onChange?: (value: RoleResource['role']) => void;
-};
+} & Pick<MuiSelectProps, 'value' | 'defaultValue' | 'disabled'>;
 
 const RoleInputSelect = ({
   label,
-  initialValue,
   onChange,
-  disabled,
   ...props
 }: RoleInputSelectProps): ReactElement => {
   const { classes } = useStyles();
@@ -35,7 +35,6 @@ const RoleInputSelect = ({
 
   return (
     <MuiSelect
-      defaultValue={initialValue}
       size="small"
       {...props}
       {...(label && { label })}
@@ -44,7 +43,6 @@ const RoleInputSelect = ({
       }}
       className={classes.roleInputSelect}
       data-testid="role-input"
-      disabled={disabled}
       onChange={onInputChange}
     >
       {roles.map(({ role }) => (

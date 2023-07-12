@@ -17,9 +17,16 @@ import {
   ContactResource,
   RoleResource
 } from './AccessRights.resource';
-import { sortOnAddedStateFirstAndContactName } from './useAccessRightsForm.utils';
+import {
+  createInitialState,
+  sortOnAddedStateFirstAndContactName
+} from './useAccessRightsForm.utils';
 
 /** state */
+
+type loadingState = 'idle' | 'loading';
+
+const loadingStatusAtom = atom<loadingState>('idle');
 
 type formOptions = {
   contacts: Array<ContactResource | ContactGroupResource>;
@@ -43,11 +50,13 @@ type StateStats = {
 
 const contactAccessRightsStateAtom = atom<{
   isDirty: boolean;
+  isLoading: boolean;
   stats: StateStats;
 }>((get) => ({
   isDirty: get(contactAccessRightsAtom).some(
     ({ state }) => state !== 'unchanged'
   ),
+  isLoading: get(loadingStatusAtom) === 'loading',
   stats: {
     added: get(contactAccessRightsAtom).filter(({ state }) => state === 'added')
       .length,
@@ -71,6 +80,7 @@ const callbacksAtom = atom<callbacks>({});
 export type AccessRightsFormProviderProps = {
   children: ReactNode;
   initialValues?: Array<ContactAccessRightResource>;
+  loadingStatus?: loadingState;
   onSubmit?: callbacks['onSubmit'];
   options?: formOptions;
 };
@@ -79,35 +89,35 @@ const AccessRightsFormProvider = ({
   children,
   initialValues,
   options,
+  loadingStatus = 'idle',
   onSubmit
 }: AccessRightsFormProviderProps): ReactElement => {
   const store = useRef(createStore()).current;
 
+  const setLoadingStatus = useSetAtom(loadingStatusAtom, { store });
   const setFormOptions = useSetAtom(formOptionsAtom, { store });
   const setContactAccessRights = useSetAtom(contactAccessRightsAtom, { store });
   const setCallbacks = useSetAtom(callbacksAtom, { store });
 
   useEffect(() => {
+    setLoadingStatus(loadingStatus);
+  }, [loadingStatus]);
+
+  useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     options && setFormOptions(options);
+  }, [options]);
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    onSubmit && setCallbacks({ onSubmit });
+  }, [onSubmit]);
+
+  useEffect(() => {
     setContactAccessRights(
       initialValues ? createInitialState(initialValues) : []
     );
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    onSubmit && setCallbacks({ onSubmit });
-  }, [initialValues, options, onSubmit]);
-
-  const createInitialState = (values): Array<ContactAccessRightStateResource> =>
-    values
-      ?.map(
-        (contactAccessRight) =>
-          ({
-            contactAccessRight,
-            state: 'unchanged',
-            stateHistory: []
-          } as ContactAccessRightStateResource)
-      )
-      .sort(sortOnAddedStateFirstAndContactName);
+  }, [initialValues]);
 
   return <Provider store={store}>{children}</Provider>;
 };
@@ -120,6 +130,7 @@ type UseAccessRightsForm = {
   ) => void;
   contactAccessRights: Array<ContactAccessRightStateResource>;
   isDirty: boolean;
+  isLoading: boolean;
   options: formOptions;
   removeContactAccessRight: (
     contactAccessRight: ContactAccessRightResource,
@@ -139,9 +150,10 @@ const useAccessRightsForm = (): UseAccessRightsForm => {
     contactAccessRightsAtom,
     { store }
   );
-  const { isDirty, stats } = useAtomValue(contactAccessRightsStateAtom, {
-    store
-  });
+  const { isLoading, isDirty, stats } = useAtomValue(
+    contactAccessRightsStateAtom,
+    { store }
+  );
   const options = useAtomValue(formOptionsAtom, { store });
   const callbacks = useAtomValue(callbacksAtom, { store });
 
@@ -258,6 +270,7 @@ const useAccessRightsForm = (): UseAccessRightsForm => {
     addContactAccessRight,
     contactAccessRights,
     isDirty,
+    isLoading,
     options,
     removeContactAccessRight,
     stats,
