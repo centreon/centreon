@@ -374,6 +374,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
         <Stack direction="row" spacing={2}>
           <Button
             color="primary"
+            data-cy="update-all"
             disabled={disableUpdate}
             size="small"
             startIcon={<UpdateIcon />}
@@ -384,6 +385,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
           </Button>
           <Button
             color="primary"
+            data-cy="install-all"
             disabled={disableInstall}
             size="small"
             startIcon={<InstallIcon />}
