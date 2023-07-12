@@ -23,7 +23,8 @@
     "cypress:cli": "./cypress/scripts/cypress-cli.sh",
     "cypress:cli:updateSnapshot": "./cypress/scripts/cypress-cli.sh --env updateSnapshots=true",
     "cypress:ui": "cypress open --component --browser=chrome",
-    "cypress:run": "cypress run --component --browser=chrome"
+    "cypress:run": "cypress run --component --browser=chrome",
+    "generate:lockfile:analysis": "npm shrinkwrap && mv ./npm-shrinkwrap.json ./package-lock.json"
   },
   "devDependencies": {
     "@4tw/cypress-drag-drop": "^2.2.3",
@@ -170,7 +171,8 @@
     "output": "./jest-test-results.xml"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "www/widgets"
   ],
   "msw": {
     "workerDirectory": "www/front_src/public"

@@ -30,6 +30,7 @@ dnf install -y \
   cronie \
   httpd \
   initscripts \
+  jq \
   libsodium \
   libunwind \
   lua \

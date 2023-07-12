@@ -1,6 +1,6 @@
 import { equals, isNil } from 'ramda';
 
-import { ChannelsEnum, ResourcesTypeEnum, TimeperiodType } from '../models';
+import { ChannelsEnum, ResourcesTypeEnum } from '../models';
 
 import { EmailIcon } from './Channel/Icons';
 import { EventsType } from './models';
@@ -31,15 +31,6 @@ const formatEvents = (
   }
 
   return events;
-};
-
-const formatEntityNamed = ({
-  name
-}: TimeperiodType): { checked: boolean; label: string } => {
-  return {
-    checked: true,
-    label: name
-  };
 };
 
 const formatMessages = ({ messages, messageType }): object => {
@@ -82,7 +73,6 @@ export {
   emptyEmail,
   hostEvents,
   serviceEvents,
-  formatEntityNamed,
   formatMessages,
   formatResource
 };
