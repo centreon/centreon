@@ -1,0 +1,5819 @@
+{
+	"info": {
+		"_postman_id": "58d18f50-5072-4117-9bed-3a2934729df6",
+		"name": "21 - Contact management - Centreon Web Refactored API Test Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22770334",
+		"_collection_link": "https://centreon-api-v2-monitoring-clapi.postman.co/workspace/Refacto-Tests-API~937020c6-b43d-4380-8c50-a2069c131e07/collection/22770334-58d18f50-5072-4117-9bed-3a2934729df6?action=share&creator=22770334&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "2101 - Checking actions on admin user",
+			"item": [
+				{
+					"name": "[2101] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseCode and the pm.test message at will) in every request that checks the status code of a response\r",
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2101-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"// End of block (do not forget to close the test assertion if you have nothing else to add in it)\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2101] Check admin's actions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2101-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The available actions of the admin user have been successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"const valuesHosts = Object.values(responseJson.host);\r",
+									"const valuesServices = Object.values(responseJson.service);\r",
+									"const valuesMetaservices = Object.values(responseJson.metaservice);\r",
+									"\r",
+									"pm.test(\"Admin user has access to all available actions.\", function() {\r",
+									"    pm.expect(valuesHosts).to.not.include(false);\r",
+									"    pm.expect(valuesServices).to.not.include(false);\r",
+									"    pm.expect(valuesMetaservices).to.not.include(false);\r",
+									"})\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/acl/actions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"acl",
+								"actions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2101-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseCode and the pm.test message at will) in every request that checks the status code of a response\r",
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"// End of block (do not forget to close the test assertion if you have nothing else to add in it)\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2102 - Listing default users and check the presence of the admin user",
+			"item": [
+				{
+					"name": "[2102] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2102-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"    pm.environment.set(\"currentUserEmail\", responseJson.contact.email);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2102] List all users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2102-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The list of users was successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"for (let count = 0; count < responseJson.result.length; count++) {\r",
+									"    if(responseJson.result[count].id == pm.environment.get(\"currentUserID\")) {\r",
+									"        pm.test(\"Current admin user is registered in the list.\", function() {\r",
+									"            pm.expect(pm.environment.get(\"currentUserID\")).to.eql(responseJson.result[count].id);\r",
+									"            pm.expect(pm.environment.get(\"api_login\")).to.eql(responseJson.result[count].alias);\r",
+									"            pm.expect(pm.environment.get(\"currentUserEmail\")).to.eql(responseJson.result[count].email);\r",
+									"            pm.expect(responseJson.result[count].is_admin).to.eql(true);\r",
+									"        });\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Only the four default users are listed, whether they are enabled or not: '\" + pm.environment.get(\"currentUserName\") + \"', 'centreon-gorgone', 'Guest' and 'User'.\", function() {\r",
+									"    pm.expect(responseJson.meta.total).to.eql(4);\r",
+									"    for (let count = 0; count < responseJson.result.length; count++) {\r",
+									"        pm.expect([pm.environment.get(\"currentUserName\"), \"centreon-gorgone\", \"Guest\", \"User\"].indexOf(responseJson.result[count].name)).to.not.eql(-1);    \r",
+									"    } \r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2102-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2103 - Adding a new non-admin user and assess it is listed",
+			"item": [
+				{
+					"name": "[2103] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2103-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2103] List all users before user creation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2103-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The list of users was successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Only default users are listed: '\" + pm.environment.get(\"currentUserName\") + \"', 'centreon-gorgone', 'Guest' and 'User'.\", function() {\r",
+									"    for (let count = 0; count < responseJson.result.length; count++) {\r",
+									"        pm.expect([pm.environment.get(\"currentUserName\"), \"centreon-gorgone\", \"Guest\", \"User\"].indexOf(responseJson.result[count].name)).to.not.eql(-1);    \r",
+									"    } \r",
+									"})\r",
+									"\r",
+									"pm.collectionVariables.set(\"numberOfListedUsers\", responseJson.result.length);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2103] Add new non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2103-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2103\");\r",
+									"pm.collectionVariables.set(\"testUserLogin\", \"testUser\");\r",
+									"pm.collectionVariables.set(\"testUserEmail\", \"testUser@localhost\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};Centreon!2021;0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2103] List all users after user creation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2103-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The list of users was successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"This list of users now has one more member compared to before the previous request.\", function() {\r",
+									"    pm.expect(responseJson.meta.total).to.eql(pm.collectionVariables.get(\"numberOfListedUsers\") + 1);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Only default users are listed alongside the newly created user: '\" + pm.collectionVariables.get(\"testUserName\") + \"'.\", function() {\r",
+									"    for (let count = 0; count < responseJson.meta.total; count++) {\r",
+									"        pm.expect([pm.environment.get(\"currentUserName\"), \"centreon-gorgone\", \"Guest\", \"User\", pm.collectionVariables.get(\"testUserName\")].indexOf(responseJson.result[count].name)).to.not.eql(-1);\r",
+									"        if(responseJson.result[count].name == pm.collectionVariables.get(\"testUserName\")) {\r",
+									"            pm.collectionVariables.set(\"indexOfTestUserInList\", count);\r",
+									"        }\r",
+									"    } \r",
+									"})\r",
+									"\r",
+									"pm.test(\"The list features correct information for the newly created user.\", function() {\r",
+									"    pm.expect(responseJson.result[pm.collectionVariables.get(\"indexOfTestUserInList\")].name).to.eql(pm.collectionVariables.get(\"testUserName\"));\r",
+									"    pm.expect(responseJson.result[pm.collectionVariables.get(\"indexOfTestUserInList\")].alias).to.eql(pm.collectionVariables.get(\"testUserLogin\"));\r",
+									"    pm.expect(responseJson.result[pm.collectionVariables.get(\"indexOfTestUserInList\")].email).to.eql(pm.collectionVariables.get(\"testUserEmail\"));\r",
+									"    pm.expect(responseJson.result[pm.collectionVariables.get(\"indexOfTestUserInList\")].is_admin).to.eql(false);\r",
+									"    pm.collectionVariables.unset(\"testUserEmail\");\r",
+									"})\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2103] Delete the non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully deleted.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.collectionVariables.unset(\"testUserLogin\");\r",
+									"    pm.collectionVariables.unset(\"testUserName\");\r",
+									"    pm.collectionVariables.unset(\"testUserEmail\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2103] List all users after user deletion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2103-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The list of users was successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Only default users are listed, whether they are enabled or not: '\" + pm.environment.get(\"currentUserName\") + \"', 'centreon-gorgone', 'Guest' and 'User'.\", function() {\r",
+									"    for (let count = 0; count < responseJson.result.length; count++) {\r",
+									"        pm.expect([pm.environment.get(\"currentUserName\"), \"centreon-gorgone\", \"Guest\", \"User\"].indexOf(responseJson.result[count].name)).to.not.eql(-1);    \r",
+									"    } \r",
+									"})\r",
+									"\r",
+									"pm.collectionVariables.set(\"numberOfListedUsers\", responseJson.result.length);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2103-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2104 - Adding a non-admin user and disable/enable it",
+			"item": [
+				{
+					"name": "[2104] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2104-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2104] Add new non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2104-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2104\");\r",
+									"pm.collectionVariables.set(\"testUserLogin\", \"testUser\");\r",
+									"pm.collectionVariables.set(\"testUserEmail\", \"testUser@localhost\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};Centreon!2021;0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2104] List all users after user creation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2104-cleanup] Delete the non-admin user\"\r",
+									"\r",
+									"pm.test(\"The list of users was successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"for(count = 0; count < responseJson.meta.total; count++){\r",
+									"    if(responseJson.result[count].name == pm.collectionVariables.get(\"testUserName\")) {\r",
+									"        pm.collectionVariables.set(\"testUserId\", responseJson.result[count].id);\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2104] Disable non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2104-cleanup] Delete the non-admin user\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully disabled.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"disable\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2104] List all users after non-admin user disable",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2104-cleanup] Delete the non-admin user\"\r",
+									"\r",
+									"pm.test(\"The list of users was successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"for (let count = 0; count < responseJson.result.length; count++) {\r",
+									"    if(responseJson.result[count].name == pm.collectionVariables.get(\"testUserName\") && parseInt(responseJson.result[count].id) == pm.collectionVariables.get(\"testUserId\")) {\r",
+									"        pm.test(\"The selected user can be found, but has been disabled.\", function() {\r",
+									"            pm.expect(parseInt(responseJson.result[count].activate)).to.eql(0);\r",
+									"        })\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "CENTREON-AUTH-TOKEN",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"contact\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2104] Enable non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2104-cleanup] Delete the non-admin user\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully enabled.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"enable\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2104] List all users after non-admin user enable",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2104-cleanup] Delete the non-admin user\"\r",
+									"\r",
+									"pm.test(\"The list of users was successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"for (let count = 0; count < responseJson.result.length; count++) {\r",
+									"    if(responseJson.result[count].name == pm.collectionVariables.get(\"testUserName\") && parseInt(responseJson.result[count].id) == pm.collectionVariables.get(\"testUserId\")) {\r",
+									"        pm.test(\"The selected user can be found and is now enabled.\", function() {\r",
+									"            pm.expect(parseInt(responseJson.result[count].activate)).to.eql(1);\r",
+									"            pm.collectionVariables.unset(\"testUserId\");\r",
+									"        })\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "CENTREON-AUTH-TOKEN",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"show\",\n  \"object\": \"contact\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2104-cleanup] Delete the non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[Cleanup] The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"testUserName\");\r",
+									"    pm.collectionVariables.unset(\"testUserLogin\");\r",
+									"    pm.collectionVariables.unset(\"testUserEmail\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2104-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2105 - Trying to disable the current admin user",
+			"item": [
+				{
+					"name": "[2105] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2105-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2105] Try to disable the current admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2105-DEBUG] Enable the admin user\"\r",
+									"\r",
+									"postman.setNextRequest(\"[2105-cleanup] Logout from admin user and clear collection variables\");\r",
+									"pm.test(\"The admin user cannot be disabled.\", function () {\r",
+									"    const expectedResponseCode = 500\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"disable\",\n  \"object\": \"contact\",\n  \"values\": \"{{api_login}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2105-DEBUG] Enable the admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[DEBUG] The admin user, which could not have been disabled, has been enabled.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"enable\",\n  \"object\": \"contact\",\n  \"values\": \"{{api_login}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2105-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2106 - Adding a non-admin user, give it API access and log in on it",
+			"item": [
+				{
+					"name": "[2106] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2106-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2106] Add new non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2106-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2106\");\r",
+									"pm.collectionVariables.set(\"testUserLogin\", \"testUser\");\r",
+									"pm.collectionVariables.set(\"testUserEmail\", \"testUser@localhost\");\r",
+									"pm.collectionVariables.set(\"testUserPassword\", \"Centreon!2021\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};{{testUserPassword}};0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2106] Add access to API configuration & realtime to the new user",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
+									"let values = pm.collectionVariables.get(\"listOfValues\");\r",
+									"\r",
+									"if (!parameters || parameters.length == 0) {\r",
+									"    parameters = [\"reach_api\", \"reach_api_rt\"];\r",
+									"    values = [1, 0];\r",
+									"}\r",
+									"\r",
+									"let currentParameter = parameters.shift();\r",
+									"pm.collectionVariables.set(\"currentParameter\", currentParameter);\r",
+									"pm.collectionVariables.set(\"listOfParameters\", parameters);\r",
+									"let currentValue = values.shift();\r",
+									"pm.collectionVariables.set(\"currentValue\", currentValue);\r",
+									"pm.collectionVariables.set(\"listOfValues\", values);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2106-cleanup] Delete the non-admin user\"\r",
+									"\r",
+									"pm.test(\"Parameter \" + pm.collectionVariables.get(\"currentParameter\") + \" was updated with \" + pm.collectionVariables.get(\"currentValue\") + \".\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"\r",
+									"    // Looping the request to update every parameter of the listOfParameters list\r",
+									"    const parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
+									"    if (parameters && parameters.length > 0) {\r",
+									"        postman.setNextRequest(\"[2106] Add access to API configuration & realtime to the new user\");\r",
+									"    } else {\r",
+									"        pm.collectionVariables.unset(\"currentParameter\");\r",
+									"        pm.collectionVariables.unset(\"currentValue\");\r",
+									"        pm.collectionVariables.unset(\"listOfParameters\");\r",
+									"        pm.collectionVariables.unset(\"listOfValues\");\r",
+									"        postman.setNextRequest(\"[2106] Log out from admin user after non-admin user update\");\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\":\"setparam\",\r\n  \"object\":\"contact\",\r\n  \"values\": \"{{testUserLogin}};{{currentParameter}};{{currentValue}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2106] Log out from admin user after non-admin user update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[2106] Login on the newly created user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2106] Login with admin user after non-admin user check\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and does not have admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get(\"testUserLogin\"));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.false;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"security\": {\n    \"credentials\": {\n      \"login\": \"{{testUserLogin}}\",\n      \"password\": \"{{testUserPassword}}\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to retrieve an authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[2106] Check actions on non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2106] Login with admin user after non-admin user check\"\r",
+									"\r",
+									"pm.test(\"The available actions of the non-admin user \" + pm.collectionVariables.get(\"testUserName\") + \" were successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"const valuesHosts = Object.values(responseJson.host);\r",
+									"const valuesServices = Object.values(responseJson.service);\r",
+									"const valuesMetaservices = Object.values(responseJson.metaservice);\r",
+									"\r",
+									"pm.test(\"The newly created non-admin user has access to no available actions.\", function() {\r",
+									"    pm.expect(valuesHosts).to.not.include(true);\r",
+									"    pm.expect(valuesServices).to.not.include(true);\r",
+									"    pm.expect(valuesMetaservices).to.not.include(true);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/acl/actions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"acl",
+								"actions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2106] List users with new admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2106] Login with admin user after non-admin user check\"\r",
+									"\r",
+									"pm.test(\"Since the non-admin user was granted API access rights, it can access the list of users, which is not void.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.result.length).to.not.eql(0);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2106] Log out from non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[2106] Login with admin user after non-admin user check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2106-cleanup] Delete the non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[Cleanup] The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"testUserName\");\r",
+									"    pm.collectionVariables.unset(\"testUserLogin\");\r",
+									"    pm.collectionVariables.unset(\"testUserEmail\");\r",
+									"    pm.collectionVariables.unset(\"testUserPassword\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2106-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2107 - Adding an admin user, give it API access and log in on it",
+			"item": [
+				{
+					"name": "[2107] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2107-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2107] Add new admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2107-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2107\");\r",
+									"pm.collectionVariables.set(\"testUserLogin\", \"testUser\");\r",
+									"pm.collectionVariables.set(\"testUserEmail\", \"testUser@localhost\");\r",
+									"pm.collectionVariables.set(\"testUserPassword\", \"Centreon!2021\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};{{testUserPassword}};1;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2107] Add access to API configuration & realtime to the new admin user",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
+									"let values = pm.collectionVariables.get(\"listOfValues\");\r",
+									"\r",
+									"if (!parameters || parameters.length == 0) {\r",
+									"    parameters = [\"reach_api\", \"reach_api_rt\"];\r",
+									"    values = [1, 1];\r",
+									"}\r",
+									"\r",
+									"let currentParameter = parameters.shift();\r",
+									"pm.collectionVariables.set(\"currentParameter\", currentParameter);\r",
+									"pm.collectionVariables.set(\"listOfParameters\", parameters);\r",
+									"let currentValue = values.shift();\r",
+									"pm.collectionVariables.set(\"currentValue\", currentValue);\r",
+									"pm.collectionVariables.set(\"listOfValues\", values);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2107-cleanup] Delete the admin user\"\r",
+									"\r",
+									"pm.test(\"Parameter \" + pm.collectionVariables.get(\"currentParameter\") + \" was updated with \" + pm.collectionVariables.get(\"currentValue\") + \".\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"\r",
+									"    // Looping the request to update every parameter of the listOfParameters list\r",
+									"    const parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
+									"    if (parameters && parameters.length > 0) {\r",
+									"        postman.setNextRequest(\"[2107] Add access to API configuration & realtime to the new admin user\");\r",
+									"    } else {\r",
+									"        pm.collectionVariables.unset(\"currentParameter\");\r",
+									"        pm.collectionVariables.unset(\"currentValue\");\r",
+									"        pm.collectionVariables.unset(\"listOfParameters\");\r",
+									"        pm.collectionVariables.unset(\"listOfValues\");\r",
+									"        postman.setNextRequest(\"[2107] Log out from admin user after new admin user update\");\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\":\"setparam\",\r\n  \"object\":\"contact\",\r\n  \"values\": \"{{testUserLogin}};{{currentParameter}};{{currentValue}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2107] Log out from admin user after new admin user update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[2107] Login on newly created user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2107] Login with admin user after new admin user check\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get(\"testUserLogin\"));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"security\": {\n    \"credentials\": {\n      \"login\": \"{{testUserLogin}}\",\n      \"password\": \"{{testUserPassword}}\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to retrieve an authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[2107] Check actions on admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2107] Login with admin user after non-admin user check\"\r",
+									"\r",
+									"pm.test(\"The available actions of the admin user \" + pm.collectionVariables.get(\"testUserName\") + \" were successfully fetched.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});\r",
+									"\r",
+									"const valuesHosts = Object.values(responseJson.host);\r",
+									"const valuesServices = Object.values(responseJson.service);\r",
+									"const valuesMetaservices = Object.values(responseJson.metaservice);\r",
+									"\r",
+									"pm.test(\"The newly created admin user has access to all available actions.\", function() {\r",
+									"    pm.expect(valuesHosts).to.not.include(false);\r",
+									"    pm.expect(valuesServices).to.not.include(false);\r",
+									"    pm.expect(valuesMetaservices).to.not.include(false);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/acl/actions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"acl",
+								"actions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2107] Log out from admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[2107] Login with admin user after new admin user check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2107-cleanup] Delete the admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[Cleanup] The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"testUserName\");\r",
+									"    pm.collectionVariables.unset(\"testUserLogin\");\r",
+									"    pm.collectionVariables.unset(\"testUserEmail\");\r",
+									"    pm.collectionVariables.unset(\"testUserPassword\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2107-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2108 - Adding a user and trying to log in with it without API access rights",
+			"item": [
+				{
+					"name": "[2108] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2108-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2108] Add new non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2108-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2108\");\r",
+									"pm.collectionVariables.set(\"testUserLogin\", \"testUser\");\r",
+									"pm.collectionVariables.set(\"testUserEmail\", \"testUser@localhost\");\r",
+									"pm.collectionVariables.set(\"testUserPassword\", \"Centreon!2021\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};{{testUserPassword}};0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2108] Log out from non-admin user after admin user creation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[2108] Login on newly created non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2108] Login with admin user after non-admin user check\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and does not have admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get(\"testUserLogin\"));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.false;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"security\": {\n    \"credentials\": {\n      \"login\": \"{{testUserLogin}}\",\n      \"password\": \"{{testUserPassword}}\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to retrieve an authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[2108] Attempt to list users with new non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Since the non-admin user was not granted API access rights, it could not access the list of users.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/configuration/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2108] Log out from non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[2108] Login with admin user after non-admin user check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2108-cleanup] Delete the non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[Cleanup] The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"testUserName\");\r",
+									"    pm.collectionVariables.unset(\"testUserLogin\");\r",
+									"    pm.collectionVariables.unset(\"testUserEmail\");\r",
+									"    pm.collectionVariables.unset(\"testUserPassword\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2108-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2109 - Adding a user with duplicate fields",
+			"item": [
+				{
+					"name": "[2109] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2109-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2109] Add new non-admin user with defined fields",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2109-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2109\");\r",
+									"pm.collectionVariables.set(\"testUserLogin\", \"testUser\");\r",
+									"pm.collectionVariables.set(\"testUserEmail\", \"testUser@localhost\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};Centreon!2021;0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2109] Add new non-admin user with an already taken email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2109-cleanup] Delete the original non-admin user\"\r",
+									"\r",
+									"pm.test(\"Having two users with the same email is allowed by the application, therefore the host \" + pm.collectionVariables.get(\"testUserNameBis\") + \" with duplicate email \" + pm.collectionVariables.get(\"testUserEmailBis\") + \" was created.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.collectionVariables.unset(\"testUserNameBis\");\r",
+									"    pm.collectionVariables.unset(\"testUserEmailBis\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserNameBis\", pm.collectionVariables.get(\"testUserName\").concat(\"\", \"-bis\"));\r",
+									"pm.collectionVariables.set(\"testUserLoginBis\", pm.collectionVariables.get(\"testUserLogin\").concat(\"\", \"-bis\"));\r",
+									"pm.collectionVariables.set(\"testUserEmailBis\", pm.collectionVariables.get(\"testUserEmail\"));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserNameBis}};{{testUserLoginBis}};{{testUserEmailBis}};Centreon!2021;0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2109] Delete the non-admin user with duplicate email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserLoginBis\") + \" with duplicate email has been successfully deleted.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.collectionVariables.unset(\"testUserLoginBis\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLoginBis}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2109] Add new non-admin user with an already taken login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2109-DEBUG] Delete the non-admin user with duplicate login\"\r",
+									"\r",
+									"pm.test(\"Since the login \" + pm.collectionVariables.get(\"testUserLogin\") + \" is already taken, the new user \" + pm.collectionVariables.get(\"testUserNameBis\") + \" with this login could not be created.\", function () {\r",
+									"    pm.collectionVariables.unset(\"testUserNameBis\");\r",
+									"    pm.collectionVariables.unset(\"testUserEmailBis\");\r",
+									"    const expectedResponseCode = 409\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    postman.setNextRequest(\"[2109] Add new non-admin user with an already taken name\");\r",
+									"    pm.collectionVariables.unset(\"testUserLoginBis\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserNameBis\", pm.collectionVariables.get(\"testUserName\").concat(\"\", \"-bis\"));\r",
+									"pm.collectionVariables.set(\"testUserLoginBis\", pm.collectionVariables.get(\"testUserLogin\"));\r",
+									"pm.collectionVariables.set(\"testUserEmailBis\", pm.collectionVariables.get(\"testUserEmail\").concat(\"\", \"-bis\"));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserNameBis}};{{testUserLoginBis}};{{testUserEmailBis}};Centreon!2021;0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2109-DEBUG] Delete the non-admin user with duplicate login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[DEBUG] The new user \" + pm.collectionVariables.get(\"testUserLoginBis\") + \" with duplicate login has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"testUserLoginBis\");\r",
+									"    postman.setNextRequest(\"[2109-cleanup] Delete the original non-admin user\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLoginBis}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2109] Add new non-admin user with an already taken name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2109-DEBUG] Delete the non-admin user with duplicate name\"\r",
+									"\r",
+									"pm.test(\"Since the name \" + pm.collectionVariables.get(\"testUserName\") + \" is already taken, a new user with name \" + pm.collectionVariables.get(\"testUserNameBis\") + \" could not be created.\", function () {\r",
+									"    pm.collectionVariables.unset(\"testUserNameBis\");\r",
+									"    pm.collectionVariables.unset(\"testUserEmailBis\");\r",
+									"    postman.setNextRequest(\"[2109-DEBUG] Delete the non-admin user with duplicate name\");\r",
+									"    pm.response.to.have.status(409);\r",
+									"    postman.setNextRequest(\"[2109-cleanup] Delete the original non-admin user\");\r",
+									"    pm.collectionVariables.unset(\"testUserLoginBis\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserNameBis\", pm.collectionVariables.get(\"testUserName\"));\r",
+									"pm.collectionVariables.set(\"testUserLoginBis\", pm.collectionVariables.get(\"testUserLogin\").concat(\"\", \"-bis\"));\r",
+									"pm.collectionVariables.set(\"testUserEmailBis\", pm.collectionVariables.get(\"testUserEmail\").concat(\"\", \"-bis\"));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserNameBis}};{{testUserLoginBis}};{{testUserEmailBis}};Centreon!2021;0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2109-DEBUG] Delete the non-admin user with duplicate name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[DEBUG] The new user \" + pm.collectionVariables.get(\"testUserLoginBis\") + \" with duplicate name has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"testUserLoginBis\");\r",
+									"    postman.setNextRequest(\"[2109-cleanup] Delete the original non-admin user\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLoginBis}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2109-cleanup] Delete the original non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[Cleanup] The new user \" + pm.collectionVariables.get(\"testUserLoginBis\") + \" with duplicate email has been successfully deleted.\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.unset(\"testUserLogin\");\r",
+									"    pm.collectionVariables.unset(\"testUserName\");\r",
+									"    pm.collectionVariables.unset(\"testUserEmail\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2109-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2110 - Trying to add a user with a password that is non-compliant with the password policy",
+			"item": [
+				{
+					"name": "[2110] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2110-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2110] Trying to add a contact with a password that is non-compliant with the password policy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2110-DEBUG] Delete the contact with a non-compliant password\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" could not have been created because password \" + pm.environment.get(\"currentIncorrectPassword\") + \" does not match with the current password policy.\", function () {\r",
+									"    const expectedResponseCode = 500\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson).to.eql(\"Your password must be 12 characters long and must contain : uppercase characters, lowercase characters, numbers, special characters among '@$!%*?&'.\");\r",
+									"\r",
+									"    // Looping the request to try and create a user with every element of the incorrectPassowrds list as a password\r",
+									"    const incorrectPasswords = pm.environment.get(\"incorrectPasswords\");\r",
+									"    if(incorrectPasswords && incorrectPasswords.length > 0) {\r",
+									"        postman.setNextRequest(\"[2110] Trying to add a contact with a password that is non-compliant with the password policy\");\r",
+									"    } else {\r",
+									"        postman.setNextRequest(\"[2110-cleanup] Logout from admin user and clear collection variables\");\r",
+									"        pm.environment.unset(\"currentIncorrectPassword\");\r",
+									"        pm.environment.unset(\"incorrectPasswords\");\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2110\");\r",
+									"pm.collectionVariables.set(\"testUserLogin\", \"testUser\");\r",
+									"pm.collectionVariables.set(\"testUserEmail\", \"testUser@localhost\");\r",
+									"\r",
+									"let incorrectPasswords = pm.environment.get(\"incorrectPasswords\");\r",
+									"if (!incorrectPasswords || incorrectPasswords.length == 0){\r",
+									"    incorrectPasswords = [\"Centreon2021\", \"centreon!2021\", \"20210102030405\", \"\", \"CENTREON!2021\", \"CentreonTwoThousandTwentyOne\", \"centreon\", \"Cent!2\"];\r",
+									"}\r",
+									"pm.environment.set(\"currentIncorrectPassword\", incorrectPasswords.shift());\r",
+									"pm.environment.set(\"incorrectPasswords\", incorrectPasswords);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};{{currentIncorrectPassword}};0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2110-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2111 - Updating the password policy and then creating a user whose password is compliant with the new password policy",
+			"item": [
+				{
+					"name": "[2111] Login with admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2111-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2111] Updating the password policy of a Centreon instance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const nextRequestInCaseOfFailure = \"[2111-cleanup] Logout from admin user and clear collection variables\"\r",
+									"\r",
+									"pm.test(\"The password policy of the instance has been successfully updated.\", function () {\r",
+									"    const expectedResponseCode = 204\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let listOfMinimalPasswordLengthConfig = pm.collectionVariables.get(\"listOfMinimalPasswordLengthConfig\");\r",
+									"let listOfCurrentUppercaseConfig = pm.collectionVariables.get(\"listOfCurrentUppercaseConfig\");\r",
+									"let listOfCurrentLowercaseConfig = pm.collectionVariables.get(\"listOfCurrentLowercaseConfig\");\r",
+									"let listOfCurrentNumberConfig = pm.collectionVariables.get(\"listOfCurrentNumberConfig\");\r",
+									"let listOfCurrentSpecialParameterConfig = pm.collectionVariables.get(\"listOfCurrentSpecialParameterConfig\");\r",
+									"\r",
+									"if (!listOfMinimalPasswordLengthConfig || listOfMinimalPasswordLengthConfig.length == 0){\r",
+									"    listOfMinimalPasswordLengthConfig = [10, 12, 12, 12, 12];\r",
+									"    listOfCurrentUppercaseConfig = [true, false, true, true, true];\r",
+									"    listOfCurrentLowercaseConfig = [true, true, false, true, true];\r",
+									"    listOfCurrentNumberConfig = [true, true, true, false, true];\r",
+									"    listOfCurrentSpecialParameterConfig = [true, true, true, true, false];\r",
+									"}\r",
+									"\r",
+									"pm.collectionVariables.set(\"currentMinimalPasswordLength\", listOfMinimalPasswordLengthConfig.shift());\r",
+									"pm.collectionVariables.set(\"currentUppercaseParameter\", listOfCurrentUppercaseConfig.shift());\r",
+									"pm.collectionVariables.set(\"currentLowercaseParameter\", listOfCurrentLowercaseConfig.shift());\r",
+									"pm.collectionVariables.set(\"currentNumberParameter\", listOfCurrentNumberConfig.shift());\r",
+									"pm.collectionVariables.set(\"currentSpecialCharacterParameter\", listOfCurrentSpecialParameterConfig.shift());\r",
+									"\r",
+									"pm.collectionVariables.set(\"listOfMinimalPasswordLengthConfig\", listOfMinimalPasswordLengthConfig);\r",
+									"pm.collectionVariables.set(\"listOfCurrentUppercaseConfig\", listOfCurrentUppercaseConfig);\r",
+									"pm.collectionVariables.set(\"listOfCurrentLowercaseConfig\", listOfCurrentLowercaseConfig);\r",
+									"pm.collectionVariables.set(\"listOfCurrentNumberConfig\", listOfCurrentNumberConfig);\r",
+									"pm.collectionVariables.set(\"listOfCurrentSpecialParameterConfig\", listOfCurrentSpecialParameterConfig);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password_security_policy\": {\r\n        \"password_min_length\": {{currentMinimalPasswordLength}},\r\n        \"has_uppercase\": {{currentUppercaseParameter}},\r\n        \"has_lowercase\": {{currentLowercaseParameter}},\r\n        \"has_number\": {{currentNumberParameter}},\r\n        \"has_special_character\": {{currentSpecialCharacterParameter}},\r\n        \"attempts\": 5,\r\n        \"blocking_duration\": 900,\r\n        \"password_expiration\": {\r\n            \"expiration_delay\": 15552000,\r\n            \"excluded_users\": [\r\n                \"centreon-gorgone\"\r\n            ]\r\n        },\r\n        \"can_reuse_passwords\": false,\r\n        \"delay_before_new_password\": 3600\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/authentication/providers/local",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"authentication",
+								"providers",
+								"local"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2111] Adding a contact with a password that is compliant with the new password policy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2111-cleanup] Bringing back the password policy of a Centreon instance to defaults\"\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been created because the password \" + pm.collectionVariables.get(\"currentCompliantPassword\") + \" matches with the current password policy.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"testUserEmail\", \"testUser@localhost\");\r",
+									"\r",
+									"if(pm.collectionVariables.get(\"currentMinimalPasswordLength\") == 10) {\r",
+									"    pm.collectionVariables.set(\"currentCompliantPassword\", \"Centreon2!\");\r",
+									"    pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2111-Password-Length\");\r",
+									"    pm.collectionVariables.set(\"testUserLogin\", \"testUser-Password-Length\");    \r",
+									"} else if (pm.collectionVariables.get(\"currentUppercaseParameter\") == false) {\r",
+									"    pm.collectionVariables.set(\"currentCompliantPassword\", \"centreon!2021\");\r",
+									"    pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2111-No-Uppercase\");\r",
+									"    pm.collectionVariables.set(\"testUserLogin\", \"testUser-No-Uppercase\");     \r",
+									"} else if (pm.collectionVariables.get(\"currentLowercaseParameter\") == false) {\r",
+									"    pm.collectionVariables.set(\"currentCompliantPassword\", \"CENTREON!2021\");\r",
+									"    pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2111-No-Lowercase\");\r",
+									"    pm.collectionVariables.set(\"testUserLogin\", \"testUser-No-Lowercase\");    \r",
+									"} else if (pm.collectionVariables.get(\"currentNumberParameter\") == false) {\r",
+									"    pm.collectionVariables.set(\"currentCompliantPassword\", \"CentreonTwoThousandTwentyOne!\");\r",
+									"    pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2111-No-Number\");\r",
+									"    pm.collectionVariables.set(\"testUserLogin\", \"testUser-No-Number\");       \r",
+									"} else if (pm.collectionVariables.get(\"currentSpecialCharacterParameter\") == false) {\r",
+									"    pm.collectionVariables.set(\"currentCompliantPassword\", \"Centreon2021\");\r",
+									"    pm.collectionVariables.set(\"testUserName\", \"User-Test-API-2111-No-Special-Character\");\r",
+									"    pm.collectionVariables.set(\"testUserLogin\", \"testUser-No-Special-Character\");        \r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"add\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserName}};{{testUserLogin}};{{testUserEmail}};{{currentCompliantPassword}};0;0;en_US;local\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2111] Add access to API configuration & realtime to the new user",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
+									"let values = pm.collectionVariables.get(\"listOfValues\");\r",
+									"\r",
+									"if (!parameters || parameters.length == 0) {\r",
+									"    parameters = [\"reach_api\", \"reach_api_rt\"];\r",
+									"    values = [1, 0];\r",
+									"}\r",
+									"\r",
+									"let currentParameter = parameters.shift();\r",
+									"pm.collectionVariables.set(\"currentParameter\", currentParameter);\r",
+									"pm.collectionVariables.set(\"listOfParameters\", parameters);\r",
+									"let currentValue = values.shift();\r",
+									"pm.collectionVariables.set(\"currentValue\", currentValue);\r",
+									"pm.collectionVariables.set(\"listOfValues\", values);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2111] Delete the non-admin user\"\r",
+									"\r",
+									"pm.test(\"Parameter \" + pm.collectionVariables.get(\"currentParameter\") + \" was updated with \" + pm.collectionVariables.get(\"currentValue\") + \".\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"\r",
+									"    // Looping the request to update every parameter of the listOfParameters list\r",
+									"    const parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
+									"    if (parameters && parameters.length > 0) {\r",
+									"        postman.setNextRequest(\"[2111] Add access to API configuration & realtime to the new user\");\r",
+									"    } else {\r",
+									"        pm.collectionVariables.unset(\"currentParameter\");\r",
+									"        pm.collectionVariables.unset(\"currentValue\");\r",
+									"        pm.collectionVariables.unset(\"listOfParameters\");\r",
+									"        pm.collectionVariables.unset(\"listOfValues\");\r",
+									"        postman.setNextRequest(\"[2111] Log out from admin user after non-admin user update\");\r",
+									"    }   \r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\":\"setparam\",\r\n  \"object\":\"contact\",\r\n  \"values\": \"{{testUserLogin}};{{currentParameter}};{{currentValue}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2111] Log out from admin user after non-admin user update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[2111] Login on the newly created user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = \"[2111] Login with admin user after non-admin user check\"\r",
+									"\r",
+									"pm.test(\"The login with the newly created user \" + pm.collectionVariables.get(\"testUserLogin\") + \" and its password \" + pm.collectionVariables.get(\"currentCompliantPassword\") + \" was successful.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get(\"testUserLogin\"));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.false;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"security\": {\n    \"credentials\": {\n      \"login\": \"{{testUserLogin}}\",\n      \"password\": \"{{currentCompliantPassword}}\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to retrieve an authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[2111] Log out from the newly created user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "[2111] Login with admin user after non-admin user check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"    pm.expect(responseJson.contact.is_admin).to.be.true;\r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.name);\r",
+									"    pm.environment.set(\"currentUserLogin\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2111] Delete the non-admin user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"const nextRequestInCaseOfFailure = null\r",
+									"\r",
+									"pm.test(\"The new user \" + pm.collectionVariables.get(\"testUserName\") + \" has been successfully deleted.\", function () {\r",
+									"    const expectedResponseCode = 200\r",
+									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
+									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"    pm.collectionVariables.unset(\"testUserLogin\");\r",
+									"    pm.collectionVariables.unset(\"testUserName\");\r",
+									"    pm.collectionVariables.unset(\"currentCompliantPassword\");\r",
+									"    pm.collectionVariables.unset(\"testUserEmail\");\r",
+									"\r",
+									"    // Looping the request from \"[2111] Updating the password policy of a Centreon instance\" to \"[2111] Delete the non-admin user\" until all password policy changes have been checked and applied to a new user\r",
+									"    listOfMinimalPasswordLengthConfig = pm.collectionVariables.get(\"listOfMinimalPasswordLengthConfig\")\r",
+									"    if (listOfMinimalPasswordLengthConfig && listOfMinimalPasswordLengthConfig.length > 0) {\r",
+									"        postman.setNextRequest(\"[2111] Updating the password policy of a Centreon instance\");\r",
+									"    } else {\r",
+									"        pm.collectionVariables.unset(\"currentMinimalPasswordLength\");\r",
+									"        pm.collectionVariables.unset(\"currentUppercaseParameter\");\r",
+									"        pm.collectionVariables.unset(\"currentLowercaseParameter\");\r",
+									"        pm.collectionVariables.unset(\"currentNumberParameter\");\r",
+									"        pm.collectionVariables.unset(\"currentSpecialCharacterParameter\");\r",
+									"\r",
+									"        pm.collectionVariables.unset(\"listOfMinimalPasswordLengthConfig\");\r",
+									"        pm.collectionVariables.unset(\"listOfCurrentUppercaseConfig\");\r",
+									"        pm.collectionVariables.unset(\"listOfCurrentLowercaseConfig\");\r",
+									"        pm.collectionVariables.unset(\"listOfCurrentNumberConfig\");\r",
+									"        pm.collectionVariables.unset(\"listOfCurrentSpecialParameterConfig\");\r",
+									"        postman.setNextRequest(\"[2111-cleanup] Bringing back the password policy of a Centreon instance to defaults\");\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"del\",\n  \"object\": \"contact\",\n  \"values\": \"{{testUserLogin}}\"\n}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{server}}/centreon/api/index.php?action=action&object=centreon_clapi",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"centreon",
+								"api",
+								"index.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "action"
+								},
+								{
+									"key": "object",
+									"value": "centreon_clapi"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2111-cleanup] Bringing back the password policy of a Centreon instance to defaults",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The password policy of the instance has been brought back to defaults.\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password_security_policy\": {\r\n        \"password_min_length\": 12,\r\n        \"has_uppercase\": true,\r\n        \"has_lowercase\": true,\r\n        \"has_number\": true,\r\n        \"has_special_character\": true,\r\n        \"attempts\": 5,\r\n        \"blocking_duration\": 900,\r\n        \"password_expiration\": {\r\n            \"expiration_delay\": 15552000,\r\n            \"excluded_users\": [\r\n                \"centreon-gorgone\"\r\n            ]\r\n        },\r\n        \"can_reuse_passwords\": false,\r\n        \"delay_before_new_password\": 3600\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/administration/authentication/providers/local",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"administration",
+								"authentication",
+								"providers",
+								"local"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[2111-cleanup] Logout from admin user and clear collection variables",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"[Cleanup] Logout successful. The expected message is displayed (\\\"Successful logout\\\").\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserLogin\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"    pm.environment.unset(\"currentUserEmail\");\r",
+									"    pm.collectionVariables.clear();\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-AUTH-TOKEN",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"Object.prototype.setNextRequestBasedOnStatusCode = (pm, postman, response, expectedResponseCode, nextRequestInCaseOfFailure) => {",
+					"    if(expectedResponseCode != response.code) {",
+					"        if (!pm.collectionVariables.get(\"requestTries\")) {",
+					"            pm.collectionVariables.set(\"requestTries\", 0);",
+					"        }",
+					"        pm.collectionVariables.set(\"requestTries\", pm.collectionVariables.get(\"requestTries\") + 1);",
+					"        if(pm.collectionVariables.get(\"requestTries\") < pm.environment.get(\"maxNumberOfRetries\")) {",
+					"            console.log(\"Response does not have the expected status code | Resending the request \\\"\" + pm.info.requestName + \"\\\"... | Number of tries: \" + pm.collectionVariables.get(\"requestTries\"));",
+					"            postman.setNextRequest(pm.info.requestName);",
+					"        } else {",
+					"            pm.collectionVariables.unset(\"requestTries\");",
+					"            pm.collectionVariables.unset(\"nextRequestInCaseOfFailure\");",
+					"            console.log(\"Response does not have the expected status code | Aborting the current scenario (too many tries)\");",
+					"            postman.setNextRequest(nextRequestInCaseOfFailure);",
+					"        }",
+					"    } else {",
+					"        console.log(\"Response has the expected status code \" + pm.response.code + \" | Running the next tests\")",
+					"    }",
+					"  }"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "testUserName",
+			"value": ""
+		},
+		{
+			"key": "testUserLogin",
+			"value": ""
+		},
+		{
+			"key": "testUserEmail",
+			"value": ""
+		},
+		{
+			"key": "testUserLoginBis",
+			"value": ""
+		}
+	]
+}

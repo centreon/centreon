@@ -17,7 +17,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseConst and the pm.test message at will) in every request that checks the status code of a response\r",
+									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseCode and the pm.test message at will) in every request that checks the status code of a response\r",
 									"const responseJson = pm.response.json();\r",
 									"const nextRequestInCaseOfFailure = \"[2001-cleanup] Logout from admin user and clear collection variables\"\r",
 									"\r",
@@ -457,7 +457,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseConst and the pm.test message at will) in every request that checks the status code of a response\r",
+									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseCode and the pm.test message at will) in every request that checks the status code of a response\r",
 									"const responseJson = pm.response.json();\r",
 									"const nextRequestInCaseOfFailure = null\r",
 									"\r",
@@ -1478,18 +1478,19 @@
 									"    const expectedResponseCode = 200\r",
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
-									"});\r",
 									"\r",
-									"const parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
-									"if (parameters && parameters.length > 0) {\r",
-									"    postman.setNextRequest(\"[2004] Set parameters for default 'workhours' time period\");\r",
-									"} else {\r",
-									"    pm.collectionVariables.unset(\"currentParameter\");\r",
-									"    pm.collectionVariables.unset(\"currentValue\");\r",
-									"    pm.collectionVariables.unset(\"listOfParameters\");\r",
-									"    pm.collectionVariables.unset(\"listOfValues\");\r",
-									"    postman.setNextRequest(\"[2004] Show available time periods after 'workhours' update\");\r",
-									"}"
+									"    // Looping the request to update every parameter of the listOfParameters list\r",
+									"    const parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
+									"    if (parameters && parameters.length > 0) {\r",
+									"        postman.setNextRequest(\"[2004] Set parameters for default 'workhours' time period\");\r",
+									"    } else {\r",
+									"        pm.collectionVariables.unset(\"currentParameter\");\r",
+									"        pm.collectionVariables.unset(\"currentValue\");\r",
+									"        pm.collectionVariables.unset(\"listOfParameters\");\r",
+									"        pm.collectionVariables.unset(\"listOfValues\");\r",
+									"        postman.setNextRequest(\"[2004] Show available time periods after 'workhours' update\");\r",
+									"    }    \r",
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -1662,6 +1663,15 @@
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
+									"if (pm.collectionVariables.get(\"name\") && pm.collectionVariables.get(\"name\") != pm.collectionVariables.get(\"timePeriodName\")) {\r",
+									"    pm.collectionVariables.set(\"timePeriodName\", pm.collectionVariables.get(\"name\"));\r",
+									"}\r",
+									"\r",
+									"if (pm.collectionVariables.get(\"alias\") && pm.collectionVariables.get(\"alias\") != pm.collectionVariables.get(\"timePeriodAlias\")) {\r",
+									"    pm.collectionVariables.set(\"timePeriodAlias\", pm.collectionVariables.get(\"alias\"));\r",
+									"}\r",
+									"\r",
+									"// Looping the request to update every parameter of the listOfParameters list\r",
 									"const parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
 									"if (parameters && parameters.length > 0) {\r",
 									"    postman.setNextRequest(\"[2004-cleanup] Revert back parameters for 'workhours'\");\r",
@@ -2058,26 +2068,29 @@
 									"    const expectedResponseCode = 200\r",
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"\r",
+									"    if (pm.collectionVariables.get(\"name\") && pm.collectionVariables.get(\"name\") != pm.collectionVariables.get(\"timePeriodName\")) {\r",
+									"        pm.collectionVariables.set(\"timePeriodName\", pm.collectionVariables.get(\"name\"));  \r",
+									"    }\r",
+									"\r",
+									"    if (pm.collectionVariables.get(\"alias\") && pm.collectionVariables.get(\"alias\") != pm.collectionVariables.get(\"timePeriodAlias\")) {\r",
+									"        pm.collectionVariables.set(\"timePeriodAlias\", pm.collectionVariables.get(\"alias\"));\r",
+									"    }\r",
+									"\r",
+									"    // Looping the request to update every parameter of the listOfParameters list\r",
+									"    const parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
+									"    if (parameters && parameters.length > 0) {\r",
+									"        postman.setNextRequest(\"[2005] Set parameters for newly created time period\");\r",
+									"    } else {\r",
+									"        pm.collectionVariables.unset(\"currentParameter\");\r",
+									"        pm.collectionVariables.unset(\"currentValue\");\r",
+									"        pm.collectionVariables.unset(\"listOfParameters\");\r",
+									"        pm.collectionVariables.unset(\"listOfValues\");\r",
+									"        postman.setNextRequest(\"[2005] Show available time periods after time period update\");\r",
+									"    }\r",
 									"});\r",
 									"\r",
-									"if (pm.collectionVariables.get(\"name\") && pm.collectionVariables.get(\"name\") != pm.collectionVariables.get(\"timePeriodName\")) {\r",
-									"    pm.collectionVariables.set(\"timePeriodName\", pm.collectionVariables.get(\"name\"));\r",
-									"}\r",
-									"\r",
-									"if (pm.collectionVariables.get(\"alias\") && pm.collectionVariables.get(\"alias\") != pm.collectionVariables.get(\"timePeriodAlias\")) {\r",
-									"    pm.collectionVariables.set(\"timePeriodAlias\", pm.collectionVariables.get(\"alias\"));\r",
-									"}\r",
-									"\r",
-									"const parameters = pm.collectionVariables.get(\"listOfParameters\");\r",
-									"if (parameters && parameters.length > 0) {\r",
-									"    postman.setNextRequest(\"[2005] Set parameters for newly created time period\");\r",
-									"} else {\r",
-									"    pm.collectionVariables.unset(\"currentParameter\");\r",
-									"    pm.collectionVariables.unset(\"currentValue\");\r",
-									"    pm.collectionVariables.unset(\"listOfParameters\");\r",
-									"    pm.collectionVariables.unset(\"listOfValues\");\r",
-									"    postman.setNextRequest(\"[2005] Show available time periods after time period update\");\r",
-									"}"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -2533,7 +2546,7 @@
 									"const nextRequestInCaseOfFailure = \"[2006-cleanup] Delete the new time period\"\r",
 									"\r",
 									"pm.test(\"Cannot update parameter with a non-compliant value.\", function () {\r",
-									"    const expectedResponseCode = 200\r",
+									"    const expectedResponseCode = 400\r",
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
 									"});"
@@ -2957,20 +2970,21 @@
 									"    const expectedResponseCode = 200\r",
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);\r",
 									"    pm.response.to.have.status(expectedResponseCode);\r",
+									"\r",
+									"    const exceptionDates = pm.collectionVariables.get(\"listOfExceptionDates\");\r",
+									"    if (exceptionDates && exceptionDates.length > 0) {\r",
+									"        postman.setNextRequest(\"[2007] Set exceptions on newly created time period\");\r",
+									"    } else {\r",
+									"        pm.collectionVariables.unset(\"currentExceptionDate\");\r",
+									"        pm.collectionVariables.unset(\"currentExceptionTimerange\");\r",
+									"        pm.collectionVariables.unset(\"listOfExceptionDates\");\r",
+									"        pm.collectionVariables.unset(\"listOfExceptionTimeranges\");\r",
+									"        pm.collectionVariables.unset(\"count\");\r",
+									"        postman.setNextRequest(\"[2007] Get exceptions on newly created time period after set\");\r",
+									"    }\r",
 									"});\r",
 									"\r",
-									"const exceptionDates = pm.collectionVariables.get(\"listOfExceptionDates\");\r",
-									"\r",
-									"if (exceptionDates && exceptionDates.length > 0) {\r",
-									"    postman.setNextRequest(\"[2007] Set exceptions on newly created time period\");\r",
-									"} else {\r",
-									"    pm.collectionVariables.unset(\"currentExceptionDate\");\r",
-									"    pm.collectionVariables.unset(\"currentExceptionTimerange\");\r",
-									"    pm.collectionVariables.unset(\"listOfExceptionDates\");\r",
-									"    pm.collectionVariables.unset(\"listOfExceptionTimeranges\");\r",
-									"    pm.collectionVariables.unset(\"count\");\r",
-									"    postman.setNextRequest(\"[2007] Get exceptions on newly created time period after set\");\r",
-									"}"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -3501,6 +3515,7 @@
 									"    _.setNextRequestBasedOnStatusCode(pm, postman, pm.response, expectedResponseCode, nextRequestInCaseOfFailure);",
 									"    pm.response.to.have.status(expectedResponseCode);",
 									"});",
+									"",
 									"pm.test(\"The list should not present any exception, since the exception with the non-compliant format should not have been set on this time period.\", function () {",
 									"    pm.expect(responseJson.result).to.be.empty;",
 									"});",
@@ -3758,6 +3773,20 @@
 					"  }"
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "timePeriodName",
+			"value": ""
+		},
+		{
+			"key": "timePeriodAlias",
+			"value": ""
+		},
+		{
+			"key": "requestTries",
+			"value": ""
 		}
 	]
 }

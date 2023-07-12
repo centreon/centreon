@@ -17,7 +17,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseConst and the pm.test message at will) in every request that checks the status code of a response\r",
+									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseCode and the pm.test message at will) in every request that checks the status code of a response\r",
 									"const responseJson = pm.response.json();\r",
 									"const nextRequestInCaseOfFailure = \"[1001] Logout from admin user and clear collection variables\"\r",
 									"\r",
@@ -72,7 +72,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseConst and the pm.test message at will) in every request that checks the status code of a response\r",
+									"// Include this exact block (customize the nextRequestInCaseOfFailure, the expectedResponseCode and the pm.test message at will) in every request that checks the status code of a response\r",
 									"const responseJson = pm.response.json();\r",
 									"const nextRequestInCaseOfFailure = null\r",
 									"\r",
