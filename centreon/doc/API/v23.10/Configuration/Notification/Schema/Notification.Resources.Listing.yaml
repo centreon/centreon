@@ -1,0 +1,56 @@
+type: object
+properties:
+  hosts:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 13
+        event:
+          type: integer
+          description: "Bitmask representing host's status triggering a notification"
+          example: 5
+        services:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 15
+              event:
+                type: integer
+                description: "Bitmask representing service's status triggering a notification"
+                example: 5
+  users:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Contact's name"
+          example: "John Doe"
+        email:
+          type: string
+          description: "Contact's email"
+          example: "john.doe@localhost"
+  channels:
+    type: array
+    description: "Channels used to send a notification"
+    items:
+      type: string
+      example: "Email"
+  message:
+    type: object
+    properties:
+      subject:
+        type: string
+        description: "Subject of notification message"
+        example: "X is down"
+      body:
+        type: string
+        description: "Body of notification message"
+        example: "Dear {user.name}\n X is Critical"

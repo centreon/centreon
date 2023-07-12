@@ -1,0 +1,5 @@
+FindResourceNotifications:
+  methods: GET
+  path: /notifications/resources
+  controller: 'Core\Notification\Infrastructure\API\FindNotificationsResources\FindNotificationsResourcesController'
+  condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.notification')"
