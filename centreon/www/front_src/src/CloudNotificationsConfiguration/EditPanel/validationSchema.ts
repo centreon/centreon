@@ -2,11 +2,12 @@ import { isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
 import { useAtomValue } from 'jotai';
+import { ObjectShape } from 'yup/lib/object';
 
 import {
   labelRequired,
   labelChooseAtLeastOneResource,
-  labelChooseAtleastOneUser,
+  labelChooseAtleastOneContactOrContactGroup,
   labelMessageFieldShouldNotBeEmpty,
   labelThisNameAlreadyExists
 } from '../translatedLabels';
@@ -23,6 +24,7 @@ const useValidationSchema = (): object => {
   const names = notificationsNames
     .filter((item) => item.id !== notificationId)
     .map((item) => item.name);
+
   const messagesSchema = Yup.object({
     message: Yup.string().notOneOf(
       [emptyEmail],
@@ -31,7 +33,7 @@ const useValidationSchema = (): object => {
     subject: Yup.string().required(t(labelRequired) as string)
   });
 
-  const resourceSchema = (dependency): object =>
+  const resourceSchema = (dependency): Yup.ObjectSchema<ObjectShape> =>
     Yup.object().when(dependency, {
       is: (value) => isEmpty(value),
       otherwise: Yup.object().shape({
@@ -42,17 +44,31 @@ const useValidationSchema = (): object => {
       })
     });
 
+  const contactsSchema = (dependency): Yup.ArraySchema<Yup.AnySchema> =>
+    Yup.array().when(dependency, {
+      is: (value) => isEmpty(value),
+      otherwise: Yup.array(),
+      then: Yup.array().min(
+        1,
+        t(labelChooseAtleastOneContactOrContactGroup) as string
+      )
+    });
+
   const validationSchema = Yup.object().shape(
     {
+      contactgroups: contactsSchema('users'),
       hostGroups: resourceSchema('serviceGroups.ids'),
       messages: messagesSchema,
       name: Yup.string()
         .required(t(labelRequired) as string)
         .notOneOf(names, t(labelThisNameAlreadyExists) as string),
       serviceGroups: resourceSchema('hostGroups.ids'),
-      users: Yup.array().min(1, t(labelChooseAtleastOneUser) as string)
+      users: contactsSchema('contactgroups')
     },
-    ['hostGroups', 'serviceGroups']
+    [
+      ['users', 'contactgroups'],
+      ['hostGroups', 'serviceGroups']
+    ]
   );
 
   return { validationSchema };

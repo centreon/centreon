@@ -1,9 +1,6 @@
-import { T, always, cond, equals, map, pipe, sum } from 'ramda';
+import { T, always, cond, equals, map, pipe, prop, sum } from 'ramda';
 
 import { EventsType } from '../models';
-
-const adaptIds = (data: Array<{ id: number; name: string }>): Array<number> =>
-  map(({ id }) => id)(data);
 
 const getBinaryEquivalence = cond([
   [equals(EventsType.Up), always(1)],
@@ -16,11 +13,11 @@ const getBinaryEquivalence = cond([
   [T, always(0)]
 ]);
 
-const adaptEvents = (data: Array<string>): number => {
+const adaptEvents = (events: Array<EventsType>): number => {
   return pipe(
-    map((item) => getBinaryEquivalence(item)),
+    map((item: EventsType) => getBinaryEquivalence(item)),
     sum
-  )(data);
+  )(events);
 };
 
 export const adaptNotifications = ({
@@ -29,8 +26,10 @@ export const adaptNotifications = ({
   messages,
   name,
   serviceGroups,
-  users
+  users,
+  contactgroups
 }): object => ({
+  contactgroups: map(prop('id'), contactgroups),
   is_activated: isActivated,
   messages: [
     {
@@ -46,15 +45,15 @@ export const adaptNotifications = ({
       extra: {
         event_services: adaptEvents(hostGroups?.extra?.eventsServices)
       },
-      ids: adaptIds(hostGroups.ids),
+      ids: map(prop('id'), hostGroups.ids),
       type: hostGroups.type
     },
     {
       events: adaptEvents(serviceGroups.events),
-      ids: adaptIds(serviceGroups.ids),
+      ids: map(prop('id'), serviceGroups.ids),
       type: serviceGroups.type
     }
   ],
   timeperiod_id: 1,
-  users: adaptIds(users)
+  users: map(prop('id'), users)
 });

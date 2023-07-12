@@ -15657,8 +15657,26 @@ msgstr "Les notifications sélectionnées ont été supprimées avec succès"
 msgid "Failed to delete the notification"
 msgstr "La notification n'a pas pu être supprimée"
 
+msgid "Failed to delete the notifications"
+msgstr "Les notifications n'ont pas pu être supprimées"
+
 msgid "Failed to delete the selected notifications"
 msgstr "Échec de la suppression des notifications sélectionnées"
+
+msgid "Search contacts"
+msgstr "Rechercher des contacts"
+
+msgid "Search contact groups"
+msgstr "Rechercher des groupes de contacts"
+
+msgid "Select contacts and contact groups"
+msgstr "Sélectionner les contacts et les groupes de contacts"
+
+msgid "24h/24h - 7/7 days"
+msgstr "24h/24h - 7/7 jours"
+
+msgid "Include services for these hosts"
+msgstr "Inclure les services pour ces hôtes"
 
 msgid "Failed to delete notifications"
 msgstr "Échec de la suppression des notifications"
