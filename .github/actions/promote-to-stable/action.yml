@@ -70,7 +70,7 @@ runs:
         echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
 
-        PATHS_FOUND_IN_ARCH=0
+        NO_PATHS_FOUND_IN_ARCH=0
 
         for ARCH in "noarch" "x86_64"; do
           echo "[DEBUG] - Get artifactory path of $ARCH testing artifacts to promote to stable."
@@ -81,10 +81,10 @@ runs:
             done
           else
             echo "[DEBUG] - No source path found for $ARCH."
-            PATHS_FOUND_IN_ARCH+=1
+            NO_PATHS_FOUND_IN_ARCH+=1
           fi
 
-          if [[ $PATHS_FOUND_IN_ARCH -eq 2 ]]; then
+          if [[ $NO_PATHS_FOUND_IN_ARCH -eq 2 ]]; then
             echo "[DEBUG] - No source path found in all architecture."
             exit 1
           fi
@@ -147,7 +147,7 @@ runs:
         echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
         echo "[DEBUG] - Repository name: ${{ inputs.repository_name }}"
 
-        PATHS_FOUND_IN_ARCH=0
+        NO_PATHS_FOUND_IN_ARCH=0
 
         PROJECT_PATH="standard"
         INVALIDATION_PATHS=""
@@ -179,10 +179,10 @@ runs:
             done
           else
             echo "[DEBUG] - No source path found for $ARCH."
-            PATHS_FOUND_IN_ARCH+=1
+            NO_PATHS_FOUND_IN_ARCH+=1
           fi
 
-          if [[ $PATHS_FOUND_IN_ARCH -eq 2 ]]; then
+          if [[ $NO_PATHS_FOUND_IN_ARCH -eq 2 ]]; then
             echo "[DEBUG] - No source path found in all architecture."
             exit 1
           fi
