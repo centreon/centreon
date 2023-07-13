@@ -1159,7 +1159,7 @@ if ($o === HOST_WATCH) {
     $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
 }
 
-$tpl->assign('msg', array("nagios" => $centreon->user->get_version(), "tpl" => 0));
+$tpl->assign('msg', array("nagios" => $centreon->user->get_version(), "isHostTemplate" => 0));
 $tpl->assign('min', $min);
 $tpl->assign("sort1", _("Host Configuration"));
 $tpl->assign("sort2", _("Notification"));

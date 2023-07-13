@@ -45,6 +45,28 @@ $alterMetricsTable = function(CentreonDB $pearDBO) {
     );
 };
 
+$enableDisabledServiceTemplates = function(CentreonDB $pearDB) {
+    $pearDB->query(
+        <<<'SQL'
+            UPDATE `service`
+                SET service_activate = '1'
+            WHERE service_register = '0'
+                AND service_activate = '0'
+            SQL
+    );
+};
+
+$enableDisabledHostTemplates = function(CentreonDB $pearDB) {
+    $pearDB->query(
+        <<<'SQL'
+            UPDATE `host`
+                SET host_activate = '1'
+            WHERE host_register = '0'
+                AND host_activate = '0'
+            SQL
+    );
+};
+
 try {
 
     $pearDBO->query($alterResourceTableStmnt);
@@ -59,6 +81,12 @@ try {
     }
     $errorMessage = "Unable to Delete nagios_path_img from options table";
     $removeNagiosPathImg($pearDB);
+
+    $errorMessage = 'Unable to activate deactivated service templates';
+    $enableDisabledServiceTemplates($pearDB);
+
+    $errorMessage = 'Unable to activate deactivated host templates';
+    $enableDisabledHostTemplates($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {
