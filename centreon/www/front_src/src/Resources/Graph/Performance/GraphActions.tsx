@@ -13,7 +13,7 @@ import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
 import {
   ContentWithCircularLoading,
   IconButton,
-  useLocaleDateTimeFormat
+  useLocaleDateTimeFormat,
 } from '@centreon/ui';
 
 import FederatedComponent from '../../../components/FederatedComponents';
@@ -28,13 +28,13 @@ import {
   labelExport,
   labelMediumSize,
   labelPerformancePage,
-  labelSmallSize
+  labelSmallSize,
 } from '../../translatedLabels';
 
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
 import {
   getDatesDerivedAtom,
-  selectedTimePeriodAtom
+  selectedTimePeriodAtom,
 } from './TimePeriods/timePeriodAtoms';
 
 interface Props {
@@ -51,8 +51,8 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     columnGap: theme.spacing(1),
     display: 'flex',
-    flexDirection: 'row'
-  }
+    flexDirection: 'row',
+  },
 }));
 
 const GraphActions = ({
@@ -61,7 +61,7 @@ const GraphActions = ({
   timeline,
   performanceGraphRef,
   open,
-  renderAdditionalGraphActions
+  renderAdditionalGraphActions,
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -91,11 +91,11 @@ const GraphActions = ({
   const goToPerformancePage = (): void => {
     const startTimestamp = format({
       date: customTimePeriod?.start as Date,
-      formatString: 'X'
+      formatString: 'X',
     });
     const endTimestamp = format({
       date: customTimePeriod?.end as Date,
-      formatString: 'X'
+      formatString: 'X',
     });
 
     const urlParameters = (): string => {
@@ -103,7 +103,7 @@ const GraphActions = ({
         end: endTimestamp,
         mode: '0',
         start: startTimestamp,
-        svc_id: `${resource?.parent?.name};${resource?.name}`
+        svc_id: `${resource?.parent?.name};${resource?.name}`,
       });
 
       return params.toString();
@@ -119,7 +119,7 @@ const GraphActions = ({
       backgroundColor: theme.palette.background.paper,
       element: performanceGraphRef.current as HTMLElement,
       ratio,
-      title: `${resource?.name}-performance`
+      title: `${resource?.name}-performance`,
     }).finally(() => {
       setExporting(false);
     });
@@ -216,8 +216,8 @@ const MemoizedGraphActions = memoizeComponent<Props>({
     'resourceName',
     'timeline',
     'performanceGraphRef',
-    'renderAdditionalGraphActions'
-  ]
+    'renderAdditionalGraphActions',
+  ],
 });
 
 export default MemoizedGraphActions;
