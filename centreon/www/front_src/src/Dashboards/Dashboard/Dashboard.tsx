@@ -4,10 +4,10 @@ import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import {
+  Add as AddIcon,
   Settings as SettingsIcon,
   Share as ShareIcon
 } from '@mui/icons-material';
-import AddIcon from '@mui/icons-material/Add';
 
 import {
   Button,
@@ -26,9 +26,9 @@ import { useDashboardUserPermissions } from '../components/DashboardUserPermissi
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
-import HeaderActions from './HeaderActions';
 import { isEditingAtom } from './atoms';
 import { labelAddAWidget } from './translatedLabels';
+import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
 
 const Dashboard = (): ReactElement => {
   const { t } = useTranslation();
@@ -64,7 +64,7 @@ const Dashboard = (): ReactElement => {
           </PageHeader.Main>
           <PageHeader.Actions>
             {canEdit && (
-              <HeaderActions
+              <DashboardEditActions
                 id={dashboard?.id}
                 name={dashboard?.name}
                 panels={panels}

@@ -345,6 +345,7 @@ importers:
     specifiers:
       '@cypress/react': ^7.0.2
       '@cypress/webpack-dev-server': ^3.2.3
+      '@faker-js/faker': ^8.0.2
       '@lexical/link': 0.8.0
       '@lexical/react': 0.8.0
       '@lexical/selection': 0.8.0
@@ -439,6 +440,7 @@ importers:
     devDependencies:
       '@cypress/react': 7.0.3_l6q6cqyxbmzqucywl4vcx3iq4i
       '@cypress/webpack-dev-server': 3.4.1
+      '@faker-js/faker': 8.0.2
       '@mdx-js/react': 2.3.0_react@18.2.0
       '@simonsmith/cypress-image-snapshot': 6.1.1_cypress@12.12.0
       '@storybook/addon-a11y': 7.0.12_biqbaboplfbrettd7655fr4n2y
@@ -2769,6 +2771,11 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
+  /@faker-js/faker/8.0.2:
+    resolution: {integrity: sha512-Uo3pGspElQW91PCvKSIAXoEgAUlRnH29sX2/p89kg7sP1m2PzCufHINd0FhTXQf6DYGiUlVncdSPa2F9wxed2A==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0, npm: '>=6.14.13'}
+    dev: true
+
   /@fal-works/esbuild-plugin-global-externals/2.1.2:
     resolution: {integrity: sha512-cEee/Z+I12mZcFJshKcCqC8tuX5hG3s+d+9nZ3LabqKF1vKdF41B92pJVCBggjAGORAeOzyyDDKrZwIkLffeOQ==}
     dev: true
@@ -3136,7 +3143,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 14.18.47
+      '@types/node': 20.2.5
       '@types/yargs': 15.0.15
       chalk: 4.1.2
     dev: true
