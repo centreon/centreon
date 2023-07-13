@@ -59,7 +59,10 @@ Cypress.Commands.add(
       cy.hoverRootMenuItem(rootItemNumber)
         .contains(subMenu)
         .trigger('mouseover')
-        .wait(1000);
+        .get('.MuiCollapse-wrapper')
+        .find('div[data-cy="collapse"]')
+        .should('be.visible')
+        .and('contain', page);
 
       cy.clickSubRootMenuItem(page);
 
