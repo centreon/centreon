@@ -90,7 +90,7 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
                 $this->db->commit();
             }
 
-            $this->debug('Host added with ID '. $hostId);
+            $this->debug('Host added with ID ' . $hostId);
 
             return $hostId;
         } catch (\Throwable $ex) {
@@ -102,6 +102,17 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
 
             throw $ex;
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteById(int $hostId): void
+    {
+        $request = $this->translateDbName('DELETE FROM `:db`.host WHERE host_id = :host_id AND host_register = \'1\'');
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
     }
 
     /**
@@ -236,26 +247,30 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
             ':noteUrl',
             $host->getNoteUrl() === ''
                 ? null
-                : $this->legacyHtmlEncode($host->getNoteUrl()), \PDO::PARAM_STR
+                : $this->legacyHtmlEncode($host->getNoteUrl()),
+            \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':note',
             $host->getNote() === ''
                 ? null
-                : $this->legacyHtmlEncode($host->getNote()), \PDO::PARAM_STR
+                : $this->legacyHtmlEncode($host->getNote()),
+            \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':actionUrl',
             $host->getActionUrl() === ''
                 ? null
-                : $this->legacyHtmlEncode($host->getActionUrl()), \PDO::PARAM_STR
+                : $this->legacyHtmlEncode($host->getActionUrl()),
+            \PDO::PARAM_STR
         );
         $statement->bindValue(':iconId', $host->getIconId(), \PDO::PARAM_INT);
         $statement->bindValue(
             ':iconAlternative',
             $host->getIconAlternative() === ''
                 ? null
-                : $this->legacyHtmlEncode($host->getIconAlternative()), \PDO::PARAM_STR
+                : $this->legacyHtmlEncode($host->getIconAlternative()),
+            \PDO::PARAM_STR
         );
 
         $statement->execute();

@@ -56,4 +56,30 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
         $statement->bindValue(':id', $serviceId, \PDO::PARAM_INT);
         $statement->execute();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteByIds(int ...$serviceIds): void
+    {
+        $bindValues = [];
+        foreach ($serviceIds as $index => $serviceId) {
+            $bindValues[':service_id' . $index] = [\PDO::PARAM_INT => $serviceId];
+        }
+        $subRequest = implode(',', array_keys($bindValues));
+        $request = $this->translateDbName(<<<SQL
+            DELETE FROM `:db`.service
+            WHERE service_id IN ({$subRequest})
+                AND service_register = '1'
+            SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $key => $data) {
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+        $statement->execute();
+    }
 }
