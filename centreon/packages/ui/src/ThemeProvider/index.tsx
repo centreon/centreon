@@ -283,10 +283,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     caption: {
       fontSize: '0.625rem'
     },
-    fontFamily: 'Roboto, Arial',
-    formTitle: {
-      fontSize: '1.125rem'
-    }
+    fontFamily: 'Roboto, Arial'
   }
 });
 
