@@ -58,7 +58,9 @@ Cypress.Commands.add(
     if (subMenu) {
       cy.hoverRootMenuItem(rootItemNumber)
         .contains(subMenu)
-        .trigger('mouseover');
+        .trigger('mouseover')
+        .wait(1000);
+
       cy.clickSubRootMenuItem(page);
 
       return;
