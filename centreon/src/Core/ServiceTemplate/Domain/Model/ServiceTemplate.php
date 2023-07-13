@@ -165,11 +165,11 @@ class ServiceTemplate extends NewServiceTemplate
         $this->setFlapDetectionEnabled($flapDetectionEnabled);
         $this->setNotificationsEnabled($notificationsEnabled);
 
-        foreach (self::formatArrayArguments($commandArguments) as $commandArgument) {
+        foreach (self::stringifyArguments($commandArguments) as $commandArgument) {
             $this->addCommandArgument($commandArgument);
         }
 
-        foreach (self::formatArrayArguments($eventHandlerArguments) as $eventHandlerArgument) {
+        foreach (self::stringifyArguments($eventHandlerArguments) as $eventHandlerArgument) {
             $this->addEventHandlerArgument($eventHandlerArgument);
         }
 
@@ -193,7 +193,7 @@ class ServiceTemplate extends NewServiceTemplate
     public function setEventHandlerArguments(array $eventHandlerArguments): void
     {
         $this->resetEventHandlerArguments();
-        foreach (self::formatArrayArguments($eventHandlerArguments) as $eventHandlerArgument) {
+        foreach (self::stringifyArguments($eventHandlerArguments) as $eventHandlerArgument) {
             $this->addEventHandlerArgument($eventHandlerArgument);
         }
     }
@@ -204,7 +204,7 @@ class ServiceTemplate extends NewServiceTemplate
     public function setCommandArguments(array $commandArguments): void
     {
         $this->resetCommandArguments();
-        foreach (self::formatArrayArguments($commandArguments) as $commandArgument) {
+        foreach (self::stringifyArguments($commandArguments) as $commandArgument) {
             $this->addCommandArgument($commandArgument);
         }
     }
@@ -217,19 +217,19 @@ class ServiceTemplate extends NewServiceTemplate
     }
 
     /**
-     * @param list<mixed> $arrayArguments
+     * @param list<mixed> $arguments
      *
      * @return list<string>
      */
-    public static function formatArrayArguments(array $arrayArguments): array
+    public static function stringifyArguments(array $arguments): array
     {
-        $formattedArrayArguments = [];
-        foreach ($arrayArguments as $argument) {
+        $stringifiedArguments = [];
+        foreach ($arguments as $argument) {
             if (is_scalar($argument)) {
-                $formattedArrayArguments[] = (string) $argument;
+                $stringifiedArguments[] = (string) $argument;
             }
         }
 
-        return $formattedArrayArguments;
+        return $stringifiedArguments;
     }
 }
