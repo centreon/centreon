@@ -391,7 +391,7 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
-        uses: actions/cache@v3
+        uses: actions/cache/restore@v3
         with:
           path: ./*.${{ steps.matrix_include.outputs.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
@@ -472,35 +472,35 @@ jobs:
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches/docker-image-${{ env.project }}-slim-${{ matrix.os }}
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}
         shell: bash
 
       - name: Store standard slim image in cache
-        uses: actions/cache@v3
+        uses: actions/cache/save@v3
         with:
           path: /tmp/cache/docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.os }}
 
-  # api-integration-test:
-  #   needs: [get-version, changes, dockerize]
-  #   if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+  api-integration-test:
+    needs: [get-version, changes, dockerize]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
-  #   uses: ./.github/workflows/behat-test.yml
-  #   with:
-  #     name: api
-  #     module_name: centreon
-  #     image_name: centreon-web
-  #     os: ${{ matrix.os }}
-  #     features_path: tests/api/features
-  #     config_file: tests/api/behat.yml
-  #   secrets:
-  #     registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
-  #     registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
-  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: api
+      module_name: centreon
+      image_name: centreon-web
+      os: ${{ matrix.os }}
+      features_path: tests/api/features
+      config_file: tests/api/behat.yml
+    secrets:
+      registry_username: ${{ secrets.DOCKER_REGISTRY_ID}}
+      registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   # legacy-e2e-test:
   #   needs: [get-version, changes, dockerize]

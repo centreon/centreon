@@ -75,7 +75,7 @@ jobs:
 
       - name: Setup docker compose
         run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.14.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
       - if: ${{ contains(matrix.feature, 'RestApi') }}
@@ -87,6 +87,17 @@ jobs:
         run: composer install --optimize-autoloader
         working-directory: ${{ inputs.module_name }}
 
+      - name: Retore standard slim image in cache
+        uses: actions/cache/restore@v3
+        with:
+          path: /tmp/cache/docker-image
+          key: docker-image-${{ inputs.image_name }}-slim-${{ inputs.os }}
+          fail-on-cache-miss: true
+
+      - name: Load standard slim image
+        run: docker load --input /tmp/cache/docker-image/docker-image-${{ inputs.image_name }}-slim-${{ inputs.os }}.tar
+        shell: bash
+
       - name: Behat acceptance testing
         run: |
           WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-slim-${{ inputs.os }}:${{ github.head_ref || github.ref_name }}"
@@ -96,7 +107,7 @@ jobs:
             -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
             -e "s#@WEB_FRESH_IMAGE@#${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-fresh-${{ inputs.os }}:${{ github.head_ref || github.ref_name }}#g" \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
-          BASE_DIRECTORY=`pwd`
+          BASE_DIRECTORY=$(pwd)
           cd ${{ inputs.module_name }}
           ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
