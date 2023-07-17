@@ -216,10 +216,46 @@ Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
     return cy
-      .exec(`docker image inspect ${image} || docker pull ${image}`, {
-        timeout: 120000
+      .exec('docker image list --format "{{.Repository}}:{{.Tag}}"')
+      .then(({ stdout }) => {
+        const found = image.match(/([a-z0-9._-]+):([a-z0-9._-]+)/);
+        if (
+          found &&
+          stdout.match(
+            new RegExp(
+              `^${found[1].replace(
+                /[-[\]{}()*+?.,\\^$|#\s]/g,
+                '\\$&'
+              )}:${found[2].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}`,
+              'm'
+            )
+          )
+        ) {
+          cy.log(`Local docker image found : ${found[1]}:${found[2]}`);
+
+          return cy.wrap(`${found[1]}:${found[2]}`);
+        }
+
+        if (
+          stdout.match(
+            new RegExp(
+              `^${image.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}`,
+              'm'
+            )
+          )
+        ) {
+          cy.log(`Pulled remote docker image found : ${image}`);
+
+          return cy.wrap(image);
+        }
+
+        cy.log(`Pulling remote docker image : ${image}`);
+
+        return cy.exec(`docker pull ${image}`).then(() => cy.wrap(image));
       })
-      .task('startContainer', { image, name, portBindings });
+      .then((imageName) =>
+        cy.task('startContainer', { imageName, name, portBindings })
+      );
   }
 );
 
