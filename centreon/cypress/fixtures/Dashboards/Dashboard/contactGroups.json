@@ -1,0 +1,17 @@
+{
+  "result": [
+    {
+      "id": 4,
+      "name": "CG 1"
+    },
+    {
+      "id": 5,
+      "name": "CG2"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "total": 2,
+    "limit": 100
+  }
+}

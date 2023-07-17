@@ -19,10 +19,13 @@ import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 // import { router } from './useDashboardSaveBlocker';
 import { DashboardRole } from '../api/models';
 import {
+  dashboardsContactGroupsEndpoint,
+  dashboardsContactsEndpoint,
   dashboardsEndpoint,
   getDashboardAccessRightsEndpoint,
   getDashboardEndpoint
 } from '../api/endpoints';
+import { dialogStateAtom } from '../components/DashboardAccessRights/useDashboardAccessRights';
 
 import { labelEditDashboard } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
@@ -45,24 +48,6 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
 
   return store;
 };
-
-// const initializeBlocker = (isNavigationBlocked = false): unstable_Blocker => {
-//   const useBlockerResult: unstable_Blocker = {
-//     location: {
-//       hash: '',
-//       key: '5nvxpbdafa',
-//       pathname: '/dashboards/1',
-//       search: '',
-//       state: null
-//     },
-//     proceed: cy.stub(),
-//     reset: cy.stub(),
-//     state: isNavigationBlocked ? 'blocked' : 'unblocked'
-//   };
-//   cy.stub(router, 'useBlocker').returns(useBlockerResult);
-//
-//   return useBlockerResult;
-// };
 
 interface InitializeAndMountProps {
   canAdministrateDashboard?: boolean;
@@ -128,6 +113,26 @@ const initializeAndMount = ({
     use_deprecated_pages: false,
     user_interface_density: ListingVariant.compact
   });
+  store.set(dialogStateAtom, {
+    dashboard: {
+      createdAt: '',
+      createdBy: {
+        id: 1,
+        name: 'Joe'
+      },
+      description: null,
+      id: 1,
+      name: 'Dashboard 1',
+      ownRole: DashboardRole.editor,
+      updatedAt: '',
+      updatedBy: {
+        id: 1,
+        name: 'Joe'
+      }
+    },
+    isOpen: false,
+    status: 'idle'
+  });
 
   cy.viewport('macbook-13');
 
@@ -163,10 +168,30 @@ const initializeAndMount = ({
     cy.interceptAPIRequest({
       alias: 'getDashboardAccessRights',
       method: Method.GET,
-      path: getDashboardAccessRightsEndpoint(1),
+      path: `${getDashboardAccessRightsEndpoint(1)}**`,
       response: shares
     });
   });
+
+  cy.fixture('Dashboards/Dashboard/contacts.json').then((contacts) => {
+    cy.interceptAPIRequest({
+      alias: 'getContacts',
+      method: Method.GET,
+      path: `${dashboardsContactsEndpoint}**`,
+      response: contacts
+    });
+  });
+
+  cy.fixture('Dashboards/Dashboard/contactGroups.json').then(
+    (contactgroups) => {
+      cy.interceptAPIRequest({
+        alias: 'getContactGroups',
+        method: Method.GET,
+        path: `${dashboardsContactGroupsEndpoint}**`,
+        response: contactgroups
+      });
+    }
+  );
 
   cy.interceptAPIRequest({
     alias: 'putDashboardAccessRights',
@@ -195,176 +220,18 @@ const initializeAndMount = ({
 };
 
 describe('Dashboard', () => {
-  // FIXME the `unstable_Blocker` is conflicting with the default behavior of react-router-dom, feature has been disabled for now
-  /*
-  describe('Unsaved changes navigation blocker', () => {
-  it('cancels the dashboard changes when the "Cancel" button is clicked in the confirmation modal', () => {
-
-    initializeBlocker();
-    const store = initializeAndMount({});
-
-    cy.waitForRequest('@getDashboardDetails');
-
-    cy.contains(labelEditDashboard).click();
-
-    cy.fixture('Dashboards/Dashboard/updatedLayout.json').then((panels) => {
-      store.set(dashboardAtom, {
-        layout: panels
-      });
-    });
-
-    cy.findByTestId('1_move_panel').should('not.exist');
-
-    cy.contains(labelExit).click();
-
-    cy.contains(labelExitEditionMode).should('be.visible');
-    cy.contains(labelLeaveEditionModeChangesNotSaved).should('be.visible');
-
-    cy.matchImageSnapshot();
-
-    cy.findByTestId('cancel').click();
-
-    cy.contains(labelEditDashboard).click();
-
-    cy.findByTestId('1_move_panel').should('exist');
-  });
-
-  it('closes the cancel confirmation modal when the modal backdrop is clicked', () => {
-    initializeBlocker();
-    const store = initializeAndMount({});
-
-    cy.waitForRequest('@getDashboardDetails');
-
-    cy.contains(labelEditDashboard).click();
-
-    cy.fixture('Dashboards/Dashboard/updatedLayout.json').then((panels) => {
-      store.set(dashboardAtom, {
-        layout: panels
-      });
-    });
-
-    cy.contains(labelExit).click();
-    cy.get('body').click('topLeft');
-
-    cy.contains(labelExit).should('be.visible');
-
-    cy.matchImageSnapshot();
-  });
-
-  it('displays the cancel confirmation modal when the user tries to navigate away from the dashboard', () => {
-    const store = initializeAndMount({});
-
-    cy.waitForRequest('@getDashboardDetails');
-
-    cy.contains(labelEditDashboard).click();
-
-    cy.fixture('Dashboards/Dashboard/updatedLayout.json').then((panels) => {
-      store.set(dashboardAtom, {
-        layout: panels
-      });
-    });
-
-    initializeBlocker(true);
-
-    cy.contains(labelExitDashboard).should('be.visible');
-
-    cy.matchImageSnapshot();
-  });
-
-  it('does not display the cancel confirmation modal when the Exit button is clicked and the dashboard is not updated', () => {
-    initializeBlocker();
-    initializeAndMount({});
-
-    cy.waitForRequest('@getDashboardDetails');
-
-    cy.contains(labelEditDashboard).click();
-
-    cy.contains(labelExit).click();
-
-    cy.contains(labelExitEditionMode).should('not.exist');
-
-    cy.matchImageSnapshot();
-  });
-
-  it('does not display the cancel confirmation modal when the user tries to navigate away from the dashboard and the dashboard is not updated', () => {
-    initializeAndMount({});
-
-    cy.waitForRequest('@getDashboardDetails');
-
-    cy.contains(labelEditDashboard).click();
-
-    initializeBlocker(true);
-
-    cy.contains(labelExitEditionMode).should('not.exist');
-
-    cy.matchImageSnapshot();
-  });
-
-  it('proceeds the navigation when the corresponding button is clicked and the user tries to navigate away from the dashboard', () => {
-    const store = initializeAndMount({});
-
-    cy.waitForRequest('@getDashboardDetails');
-
-    cy.contains(labelEditDashboard).click();
-
-    cy.fixture('Dashboards/Dashboard/updatedLayout.json').then((panels) => {
-      store.set(dashboardAtom, {
-        layout: panels
-      });
-    });
-
-    const { proceed } = initializeBlocker(true);
-
-    cy.contains(labelExitDashboard).should('be.visible');
-
-    cy.findByTestId('cancel')
-      .click()
-      .then(() => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        expect(proceed).to.have.been.calledOnce;
-      });
-  });
-
-  it('saves the dashboard when the corresponding button is clicked and the dashboard is changed', () => {
-    initializeBlocker();
-    const store = initializeAndMount({});
-
-    cy.waitForRequest('@getDashboardDetails');
-
-    cy.contains(labelEditDashboard).click();
-
-    cy.findByLabelText(labelSave).should('be.disabled');
-
-    cy.fixture('Dashboards/Dashboard/updatedLayout.json').then((panels) => {
-      store.set(dashboardAtom, {
-        layout: panels
-      });
-    });
-
-    cy.findByLabelText(labelSave).click();
-
-    cy.waitForRequest('@patchDashboardDetails');
-
-    cy.contains(labelYourDashboardHasBeenSaved).should('be.visible');
-    cy.waitForRequest('@getDashboardDetails');
-
-    cy.matchImageSnapshot();
-  });
-  });
-  */
-
   describe('Roles', () => {
     it('has access to the dashboard edition features when the user has the editor role', () => {
-      // initializeBlocker();
       initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
+      cy.waitForRequest('@getContacts');
+      cy.waitForRequest('@getContactGroups');
 
       cy.contains(labelEditDashboard).should('be.visible');
     });
 
     it('does not have access to the dashboard edition features when the user has the viewer role and the global viewer role', () => {
-      // initializeBlocker();
       initializeAndMount(viewerRoles);
 
       cy.waitForRequest('@getDashboardDetails');
@@ -373,7 +240,6 @@ describe('Dashboard', () => {
     });
 
     it('does not have access to the dashboard edition features when the user has the viewer role and the global creator role', () => {
-      // initializeBlocker();
       initializeAndMount(viewerCreatorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
@@ -382,12 +248,15 @@ describe('Dashboard', () => {
     });
 
     it('has access to the dashboard edition features when the user has the viewer role and the global administrator role', () => {
-      // initializeBlocker();
       initializeAndMount(viewerAdministratorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
 
       cy.contains(labelEditDashboard).should('be.visible');
     });
+  });
+
+  describe('Add a widget', () => {
+    it('adds a widget');
   });
 });

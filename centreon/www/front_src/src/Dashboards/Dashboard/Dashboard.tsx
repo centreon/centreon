@@ -55,13 +55,7 @@ const Dashboard = (): ReactElement => {
             />
           </PageHeader.Main>
           <PageHeader.Actions>
-            {canEdit && (
-              <DashboardEditActions
-                id={dashboard?.id}
-                name={dashboard?.name}
-                panels={panels}
-              />
-            )}
+            {canEdit && <DashboardEditActions panels={panels} />}
           </PageHeader.Actions>
         </PageHeader>
       </PageLayout.Header>

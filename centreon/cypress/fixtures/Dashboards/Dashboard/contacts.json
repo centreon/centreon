@@ -1,0 +1,21 @@
+{
+  "result": [
+    {
+      "id": 1,
+      "name": "John"
+    },
+    {
+      "id": 2,
+      "name": "John 2"
+    },
+    {
+      "id": 3,
+      "name": "John 3"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "total": 3,
+    "limit": 100
+  }
+}

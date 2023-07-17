@@ -24,7 +24,7 @@ import { useListAccessRightsContactGroups } from '../../api/useListAccessRightsC
 import { transformAccessRightContactOrContactGroup } from './useDashboardAccessRights.utils';
 import { useDashboardAccessRightsBatchUpdate } from './useDashboardAccessRightsBatchUpdate';
 
-const dialogStateAtom = atom<{
+export const dialogStateAtom = atom<{
   dashboard: Dashboard | null;
   isOpen: boolean;
   status: 'idle' | 'loading';
