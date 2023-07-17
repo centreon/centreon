@@ -50,7 +50,7 @@ runs:
       uses: actions/upload-artifact@v3
       if: ${{ failure() }}
       with:
-        name: cypress-component-results
+        name: component-test-results
         path: |
           ${{ inputs.module }}/cypress/results/videos
           ${{ inputs.module }}/cypress/screenshots
