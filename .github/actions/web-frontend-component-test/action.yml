@@ -23,11 +23,18 @@ runs:
         cache-dependency-path: ${{ inputs.module }}
 
     - name: Install dependencies
-      run: |
-        pnpm install --frozen-lockfile
-        pnpm cypress install --force
+      run: pnpm install --frozen-lockfile
       working-directory: ${{ inputs.module }}
       shell: bash
+
+    - name: Install Cypress binary
+      uses: nick-fields/retry@v2
+      with:
+        timeout_seconds: 120
+        max_attempts: 5
+        retry_wait_seconds: 30
+        retry_on: error
+        command: cd ${{ inputs.module }} && pnpm cypress install --force
 
     - name: Format feature file path
       id: formatSpecFilePath
