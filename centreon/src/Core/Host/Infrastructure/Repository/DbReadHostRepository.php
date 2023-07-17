@@ -197,7 +197,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
      */
     public function findParents(int $hostId): array
     {
-        $this->info('Find parents IDs of host with ID #' . $hostId);
+        $this->info('Find parent IDs of host with ID #' . $hostId);
         $request = $this->translateDbName(
             <<<'SQL'
                 WITH RECURSIVE parents AS (

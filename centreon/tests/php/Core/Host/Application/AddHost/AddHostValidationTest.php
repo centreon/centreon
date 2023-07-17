@@ -187,7 +187,7 @@ it('throws an exception when category ID does not exist with non-admin user', fu
     HostException::idsDoNotExist('categories', [1,3])->getMessage()
 );
 
-it('throws an exception when parent template ID create a circular inheritance', function (): void {
+it('throws an exception when parent template ID creates a circular inheritance', function (): void {
     $this->validation->assertAreValidTemplates([1,3], 3);
 })->throws(
     HostException::class,
