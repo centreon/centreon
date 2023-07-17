@@ -1,13 +1,13 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 
 import {
   deleteNotificationAtom,
   isDeleteDialogOpenAtom,
   isPanelOpenAtom,
   selectedRowsAtom
-} from '../atom';
-import useDeleteRequest from '../api/useDeleteRequest';
-import { DeleteNotificationType } from '../models';
+} from '../../atom';
+import useDeleteRequest from '../../api/useDeleteRequest';
+import { DeleteNotificationType } from '../../models';
 
 interface UseDeleteState {
   closeDialog: () => void;
@@ -24,7 +24,7 @@ const useDelete = (): UseDeleteState => {
   const [deleteNotification, setDeleteInformations] = useAtom(
     deleteNotificationAtom
   );
-  const selectedRows = useAtomValue(selectedRowsAtom);
+  const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
   const setIsPanelOpen = useSetAtom(isPanelOpenAtom);
 
   const openDialog = (): void => setIsDialogOpen(true);
@@ -41,6 +41,7 @@ const useDelete = (): UseDeleteState => {
   };
 
   const onSettled = (): void => {
+    setSelectedRows([]);
     closeDialog();
     closePanel();
   };

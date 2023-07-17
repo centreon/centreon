@@ -7,7 +7,8 @@ import { ListingPage } from '@centreon/ui';
 import PanelEdit from '../EditPanel';
 import { isPanelOpenAtom } from '../atom';
 import Listing from '../Listing';
-import { DeleteConfirmationDialog } from '../Actions';
+import { DeleteConfirmationDialog } from '../Actions/delete';
+import { DuplicationForm } from '../Actions/duplicate';
 
 import ListingPageHeader from './ListingPageHeader';
 
@@ -24,6 +25,7 @@ const NotificationsListingPage = (): JSX.Element => {
         panelOpen={isPannelOpen}
       />
       <DeleteConfirmationDialog />
+      <DuplicationForm />
     </Box>
   );
 };

@@ -21,8 +21,6 @@ export const labelSearchHostGroups = 'Search host groups';
 export const labelSelectUsers = 'Select users';
 export const labelSelectTimePeriodAndChannels =
   'Select time period / channels of notifications';
-export const labelDuplicateNotification =
-  'How many times would you like to duplicate selected notification?';
 export const labelDeleteNotification = 'Delete notification?';
 export const labelDeleteNotificationWarning = 'This action cannot be undone';
 export const labelReduceInformationPanel = 'Collapse information panel';
@@ -84,3 +82,9 @@ export const labelSelectContactsAndContactsGroups =
 export const labelTimePeriod24h7days = '24h/24h - 7/7 days';
 export const labelIncludeServicesForTheseHosts =
   'Include services for these hosts';
+export const labelNotificationSuccessfullyDuplicated =
+  'Notification Successfully duplicated';
+export const labelFailedToDuplicateNotification =
+  'Failed to duplicate the notification';
+export const labelPleaseEnterNameForDuplicatedNotification =
+  'Please enter a name for the duplicated notification';

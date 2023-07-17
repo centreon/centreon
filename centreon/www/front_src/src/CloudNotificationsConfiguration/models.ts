@@ -52,3 +52,8 @@ export interface DeleteNotificationType {
   name?: string;
   type: DeleteType;
 }
+
+export interface DuplicateNotificationType {
+  id: number | null;
+  notification?: NotificationsType;
+}
