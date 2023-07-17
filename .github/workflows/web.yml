@@ -463,7 +463,7 @@ jobs:
       - name: Store standard slim image in local archive
         run: |
           mkdir -p /tmp/cache/docker-image
-          docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}
+          docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Clear previous docker image from cache

@@ -1,4 +1,4 @@
-sleep 5
+sleep 15
 
 su - apache -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
 
