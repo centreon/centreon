@@ -1,0 +1,16 @@
+name: "nightly platform deploy"
+description: "Deploy a platform with packages from nightly builds."
+inputs:
+  deploy_type:
+    description: "The type of platform deployment (install or update)."
+
+runs:
+  steps:
+    - name: Deploy a COD platform with nightly build artifacts
+      run: |
+          curl -X POST \
+          -H "Authorization: Bearer ${{secrets.PAT}}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/centreon/centreon-on-demand/actions/workflows/deploy.yml/dispatches \
+          -d '{"ref": "master", "inputs":{"bu":"rd", "disk_size":"", "poller_number":"", "central_instance":"", "poller_instance":"", "system_name":"", "centreon_branch":"", "configured_resources":"", "install_business_modules":"", "instance_password":"" }}'
+
