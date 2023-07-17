@@ -116,7 +116,6 @@ class HostConfigurationContext extends CentreonContext
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
-        'enabled' => 1,
         'comments' => 'hostMassiveChangeComments'
     );
 
@@ -180,7 +179,6 @@ class HostConfigurationContext extends CentreonContext
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
-        'enabled' => 1,
         'comments' => 'hostMassiveChangeComments'
     );
 
@@ -247,7 +245,6 @@ class HostConfigurationContext extends CentreonContext
         '2d_coords' => '2,3',
         '3d_coords' => '42,24,66',
         'severity_level' => '',
-        'enabled' => 1,
         'comments' => 'hostMassiveChangeCommentsChanged'
     );
 

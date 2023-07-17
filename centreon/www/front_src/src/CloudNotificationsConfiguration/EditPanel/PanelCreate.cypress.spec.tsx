@@ -17,17 +17,19 @@ import {
   labelNotificationName,
   labelSubject
 } from '../translatedLabels';
+import { contactGroupsEndpoint } from '../../Authentication/api/endpoints';
 
 import {
   hostsGroupsEndpoint,
-  notificationtEndpoint,
+  notificationEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
 } from './api/endpoints';
 import {
   usersResponse,
   hostGroupsResponse,
-  serviceGroupsResponse
+  serviceGroupsResponse,
+  contactGroupsResponse
 } from './testUtils';
 
 import Form from '.';
@@ -37,7 +39,7 @@ const PanelWithQueryProvider = (): JSX.Element => {
     <div style={{ height: '100vh' }}>
       <TestQueryProvider>
         <SnackbarProvider>
-          <Form />
+          <Form marginBottom={0} />
         </SnackbarProvider>
       </TestQueryProvider>
     </div>
@@ -48,7 +50,7 @@ const initialize = (): void => {
   cy.interceptAPIRequest({
     alias: 'addNotificationRequest',
     method: Method.POST,
-    path: notificationtEndpoint({}),
+    path: notificationEndpoint({}),
     response: { status: 'ok' }
   });
 
@@ -71,6 +73,13 @@ const initialize = (): void => {
     method: Method.GET,
     path: `${usersEndpoint}**`,
     response: usersResponse
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'contactGroupsEndpoint',
+    method: Method.GET,
+    path: `${contactGroupsEndpoint}**`,
+    response: contactGroupsResponse
   });
 
   cy.mount({
@@ -113,7 +122,7 @@ describe('Panel: Creation mode', () => {
     cy.waitForRequest('@getServiceGroupsEndpoint');
     cy.findByText('MySQL-Servers').click();
 
-    cy.findByLabelText('Search users').click();
+    cy.findByLabelText('Search contacts').click();
     cy.waitForRequest('@getUsersEndpoint');
     cy.findByText('Guest').click();
 
@@ -135,7 +144,7 @@ describe('Panel: Creation mode', () => {
     cy.waitForRequest('@getServiceGroupsEndpoint');
     cy.findByText('MySQL-Servers').click();
 
-    cy.findByLabelText('Search users').click();
+    cy.findByLabelText('Search contacts').click();
     cy.waitForRequest('@getUsersEndpoint');
     cy.findByText('Guest').click();
 
@@ -160,7 +169,7 @@ describe('Panel: Creation mode', () => {
     cy.waitForRequest('@getServiceGroupsEndpoint');
     cy.findByText('MySQL-Servers').click();
 
-    cy.findByLabelText('Search users').click();
+    cy.findByLabelText('Search contacts').click();
     cy.waitForRequest('@getUsersEndpoint');
     cy.findByText('Guest').click();
 

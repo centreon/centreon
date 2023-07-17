@@ -26,6 +26,7 @@ namespace Core\ServiceTemplate\Application\Repository;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\TrimmedString;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 
 interface ReadServiceTemplateRepositoryInterface
 {
@@ -72,4 +73,15 @@ interface ReadServiceTemplateRepositoryInterface
      * @return bool
      */
     public function existsByName(TrimmedString $serviceTemplateName): bool;
+
+    /**
+     * Retrieves all service inheritances from a service template.
+     *
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceTemplateInheritance[]
+     */
+    public function findParents(int $serviceTemplateId): array;
 }

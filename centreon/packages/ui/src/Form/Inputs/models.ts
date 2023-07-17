@@ -1,6 +1,6 @@
 import { FormikValues } from 'formik';
 
-import { SvgIconProps } from '@mui/material';
+import { SvgIconProps, TypographyProps } from '@mui/material';
 
 import { SelectEntry } from '../../InputField/Select';
 import { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
@@ -87,7 +87,9 @@ export interface InputProps {
     getChecked?: (value) => boolean;
   };
   text?: {
+    endAdornment?: JSX.Element;
     multilineRows?: number;
+    placeholder?: string;
     type?: string;
   };
   type: InputType;
@@ -102,4 +104,5 @@ export interface Group {
   TooltipContent?: () => JSX.Element;
   name: string;
   order: number;
+  titleAttributes?: TypographyProps;
 }
