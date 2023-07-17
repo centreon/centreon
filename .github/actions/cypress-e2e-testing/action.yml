@@ -48,12 +48,6 @@ runs:
         retry_on: error
         command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
 
-    - name: Format feature file path
-      id: formatFeatureFilePath
-      run:
-        echo "value=$(echo '${{ inputs.feature_file_path }}' | sed -e 's#/#-#g')" >> $GITHUB_OUTPUT
-      shell: bash
-
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@v5
       env:

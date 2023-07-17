@@ -36,12 +36,6 @@ runs:
         retry_on: error
         command: cd ${{ inputs.module }} && pnpm cypress install --force
 
-    - name: Format feature file path
-      id: formatSpecFilePath
-      run:
-        echo "value=$(find ${{ inputs.spec_file_path }} -type f -name "*.cypress.spec.tsx" -exec basename {} \; | sed -e 's#.cypress.spec.tsx##g')" >> $GITHUB_OUTPUT
-      shell: bash
-
     - name: Cypress web component testing
       uses: cypress-io/github-action@v5
       with:
@@ -56,22 +50,9 @@ runs:
       uses: actions/upload-artifact@v3
       if: ${{ failure() }}
       with:
-        name: cypress-videos-${{ steps.formatSpecFilePath.outputs.value }}
-        path: ${{ inputs.module }}/cypress/results/videos
-        retention-days: 1
-
-    - name: Archive screenshots
-      uses: actions/upload-artifact@v3
-      if: ${{ failure() }}
-      with:
-        name: cypress-screenshots-${{ steps.formatSpecFilePath.outputs.value }}
-        path: ${{ inputs.module }}/cypress/screenshots
-        retention-days: 1
-
-    - name: Archive snapshots
-      uses: actions/upload-artifact@v3
-      if: ${{ failure() }}
-      with:
-        name: cypress-snapshots-${{ steps.formatSpecFilePath.outputs.value }}
-        path: ${{ inputs.module }}/cypress/visual-testing-snapshots
+        name: cypress-component-results
+        path: |
+          ${{ inputs.module }}/cypress/results/videos
+          ${{ inputs.module }}/cypress/screenshots
+          ${{ inputs.module }}/cypress/visual-testing-snapshots
         retention-days: 1
