@@ -224,9 +224,9 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
-                DELETE FROM `:db`.notification_contactgroup_relation
-                WHERE notification_id = :notificationId
-            SQL
+                    DELETE FROM `:db`.notification_contactgroup_relation
+                    WHERE notification_id = :notificationId
+                SQL
         ));
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $statement->execute();
@@ -247,17 +247,17 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
             $bindValues[':contactgroup_' . $contactGroupId] = $contactGroupId;
         }
 
-        $bindToken = implode(", ", array_keys($bindValues));
+        $bindToken = implode(', ', array_keys($bindValues));
 
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
                     DELETE FROM `:db`.notification_contactgroup_relation
                     WHERE notification_id = :notificationId
-                    AND contactgroup_id IN ($bindToken)
+                    AND contactgroup_id IN ({$bindToken})
                 SQL
         ));
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
-        foreach($bindValues as $token => $value) {
+        foreach ($bindValues as $token => $value) {
             $statement->bindValue($token, $value, \PDO::PARAM_INT);
         }
         $statement->execute();

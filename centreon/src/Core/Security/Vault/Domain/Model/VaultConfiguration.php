@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,15 +40,16 @@ class VaultConfiguration
     public const NAME_VALIDATION_REGEX = NewVaultConfiguration::NAME_VALIDATION_REGEX;
 
     private ?string $secretId;
+
     private ?string $roleId;
 
     /**
      * @param EncryptionInterface $encryption
-     * @param integer $id
+     * @param int $id
      * @param string $name
      * @param Vault $vault
      * @param string $address
-     * @param integer $port
+     * @param int $port
      * @param string $rootPath
      * @param string $encryptedRoleId
      * @param string $encryptedSecretId
@@ -123,24 +124,26 @@ class VaultConfiguration
     }
 
     /**
-     * @return string|null
-     *
      * @throws \Exception
+     *
+     * @return string|null
      */
     public function getRoleId(): ?string
     {
         $this->roleId = $this->encryption->setSecondKey($this->salt)->decrypt($this->encryptedRoleId);
+
         return $this->roleId;
     }
 
     /**
-     * @return string|null
-     *
      * @throws \Exception
+     *
+     * @return string|null
      */
     public function getSecretId(): ?string
     {
         $this->secretId = $this->encryption->setSecondKey($this->salt)->decrypt($this->encryptedSecretId);
+
         return $this->secretId;
     }
 

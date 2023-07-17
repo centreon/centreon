@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Infrastructure\Local\Repository;
@@ -66,12 +67,13 @@ class DbWriteConfigurationRepository extends AbstractRepositoryDRB implements Wr
             if ($beginInTransaction === false && $this->db->inTransaction()) {
                 $this->db->rollBack();
             }
+
             throw $ex;
         }
     }
 
     /**
-     * Update custom configuration
+     * Update custom configuration.
      *
      * @param Configuration $configuration
      */
@@ -82,17 +84,17 @@ class DbWriteConfigurationRepository extends AbstractRepositoryDRB implements Wr
         $securityPolicy = $customConfiguration->getSecurityPolicy();
 
         $configuration = json_encode([
-            "password_security_policy" => [
-                "password_length" => $securityPolicy->getPasswordMinimumLength(),
-                "has_uppercase_characters" => $securityPolicy->hasUppercase(),
-                "has_lowercase_characters" => $securityPolicy->hasLowercase(),
-                "has_numbers" => $securityPolicy->hasNumber(),
-                "has_special_characters" => $securityPolicy->hasSpecialCharacter(),
-                "attempts" => $securityPolicy->getAttempts(),
-                "blocking_duration" => $securityPolicy->getBlockingDuration(),
-                "password_expiration_delay" => $securityPolicy->getPasswordExpirationDelay(),
-                "delay_before_new_password" => $securityPolicy->getDelayBeforeNewPassword(),
-                "can_reuse_passwords" => $securityPolicy->canReusePasswords(),
+            'password_security_policy' => [
+                'password_length' => $securityPolicy->getPasswordMinimumLength(),
+                'has_uppercase_characters' => $securityPolicy->hasUppercase(),
+                'has_lowercase_characters' => $securityPolicy->hasLowercase(),
+                'has_numbers' => $securityPolicy->hasNumber(),
+                'has_special_characters' => $securityPolicy->hasSpecialCharacter(),
+                'attempts' => $securityPolicy->getAttempts(),
+                'blocking_duration' => $securityPolicy->getBlockingDuration(),
+                'password_expiration_delay' => $securityPolicy->getPasswordExpirationDelay(),
+                'delay_before_new_password' => $securityPolicy->getDelayBeforeNewPassword(),
+                'can_reuse_passwords' => $securityPolicy->canReusePasswords(),
             ],
         ]);
 
@@ -108,7 +110,7 @@ class DbWriteConfigurationRepository extends AbstractRepositoryDRB implements Wr
     }
 
     /**
-     * Update excluded users
+     * Update excluded users.
      *
      * @param int[] $excludedUserIds
      */
@@ -120,7 +122,7 @@ class DbWriteConfigurationRepository extends AbstractRepositoryDRB implements Wr
     }
 
     /**
-     * Delete excluded users
+     * Delete excluded users.
      */
     private function deleteExcludedUsers(): void
     {
@@ -136,7 +138,7 @@ class DbWriteConfigurationRepository extends AbstractRepositoryDRB implements Wr
     }
 
     /**
-     * Add excluded users
+     * Add excluded users.
      *
      * @param int[] $excludedUserIds
      */
@@ -146,8 +148,8 @@ class DbWriteConfigurationRepository extends AbstractRepositoryDRB implements Wr
             return;
         }
 
-        $query = "INSERT INTO `:db`.`password_expiration_excluded_users`
-            (`provider_configuration_id`, `user_id`) ";
+        $query = 'INSERT INTO `:db`.`password_expiration_excluded_users`
+            (`provider_configuration_id`, `user_id`) ';
 
         $subQueries = [];
         foreach ($excludedUserIds as $userId) {

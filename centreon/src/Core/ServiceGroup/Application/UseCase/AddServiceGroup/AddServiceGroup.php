@@ -35,7 +35,6 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Domain\Common\GeoCoords;
-use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Exception\ServiceGroupException;
