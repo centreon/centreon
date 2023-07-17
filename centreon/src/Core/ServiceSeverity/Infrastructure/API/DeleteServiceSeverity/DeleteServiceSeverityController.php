@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Core\ServiceSeverity\Infrastructure\API\DeleteServiceSeverity;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\ServiceSeverity\Application\UseCase\DeleteServiceSeverity\DeleteServiceSeverity;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\ServiceSeverity\Application\UseCase\DeleteServiceSeverity\DeleteServiceSeverity;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 

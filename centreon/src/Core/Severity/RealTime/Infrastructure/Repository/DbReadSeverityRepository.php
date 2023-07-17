@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,13 +18,14 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Severity\RealTime\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\RequestParameters\RequestParameters;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Severity\RealTime\Application\Repository\ReadSeverityRepositoryInterface;
@@ -34,9 +35,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
 {
     use LoggerTrait;
 
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
     /**
@@ -53,7 +52,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
         $this->sqlRequestTranslator->setConcordanceArray([
             'id' => 's.id',
             'name' => 's.name',
-            'level' => 's.level'
+            'level' => 's.level',
         ]);
     }
 
@@ -65,7 +64,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
         $this->info(
             'Fetching severities from the database by typeId',
             [
-                'typeId' => $typeId
+                'typeId' => $typeId,
             ]
         );
 

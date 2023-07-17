@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,8 +35,6 @@ use Core\Security\Authentication\Application\UseCase\Login\LoginResponse;
 use Core\Security\Authentication\Application\UseCase\Login\PasswordExpiredResponse;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use FOS\RestBundle\View\View;
-use OneLogin\Saml2\Error;
-use OneLogin\Saml2\ValidationError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -50,8 +48,10 @@ class CallbackController extends AbstractController
      * @param Login $useCase
      * @param CallbackPresenter $presenter
      * @param SessionInterface $session
-     * @return object
+     *
      * @throws AuthenticationException
+     *
+     * @return object
      */
     public function __invoke(
         Request $request,
@@ -81,6 +81,7 @@ class CallbackController extends AbstractController
                  * @var LoginResponse $response
                  */
                 $response = $presenter->getPresentedData();
+
                 return View::createRedirect(
                     $this->getBaseUrl() . $response->getRedirectUri(),
                     Response::HTTP_FOUND,

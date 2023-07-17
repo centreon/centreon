@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Domain\RealTime\Model\ResourceTypes;
@@ -27,14 +28,10 @@ class MetaServiceResourceType extends AbstractResourceType
     public const TYPE_NAME = 'metaservice',
                  TYPE_ID = 2;
 
-    /**
-     * @var string $name
-     */
+    /** @var string */
     protected string $name = self::TYPE_NAME;
 
-    /**
-     * @var integer $id
-     */
+    /** @var int */
     protected int $id = self::TYPE_ID;
 
     /**

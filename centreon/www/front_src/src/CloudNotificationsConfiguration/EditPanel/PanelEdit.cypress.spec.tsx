@@ -16,7 +16,7 @@ import {
   labelSearchHostGroups,
   labelSearchServiceGroups,
   labelChooseAtLeastOneResource,
-  labelChooseAtleastOneUser,
+  labelChooseAtleastOneContactOrContactGroup,
   labelTimePeriod,
   labelSubject,
   labelMessageFieldShouldNotBeEmpty,
@@ -54,7 +54,7 @@ const PanelWithQueryProvider = (): JSX.Element => {
         <TestQueryProvider>
           <SnackbarProvider>
             <>
-              <Form bottom={0} />
+              <Form marginBottom={0} />
               <DeleteConfirmationDialog />
             </>
           </SnackbarProvider>
@@ -318,11 +318,11 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Displays the Users field with edited notification users', () => {
+  it('Displays the Contacts field with edited notification contacts', () => {
     cy.waitForRequest('@listingRequest');
-    cy.get('[data-testid="Search users"]').as('fieldUsers');
+    cy.get('[data-testid="Search contacts"]').as('fieldContacts');
 
-    cy.get('@fieldUsers')
+    cy.get('@fieldContacts')
       .parent()
       .within(() => {
         cy.findByText('centreon-gorgone').should('be.visible');
@@ -332,14 +332,32 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Validates that when the Users field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
+  it('Displays the Contact Groups field with edited notification contact groups', () => {
+    cy.waitForRequest('@listingRequest');
+    cy.get('[data-testid="Search contact groups"]').as('fieldContactsGroups');
+
+    cy.get('@fieldContactsGroups')
+      .parent()
+      .within(() => {
+        cy.findByText('contact-group1').should('be.visible');
+        cy.findByText('contact-group2').should('be.visible');
+      });
+
+    cy.matchImageSnapshot();
+  });
+
+  it('Validates that when the Contacts and Contact Groups fields are both empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@listingRequest');
 
-    cy.findAllByTestId('CancelIcon').eq(7).click();
-    cy.findAllByTestId('CancelIcon').eq(7).click();
+    for (let i = 0; i < 4; i += 1) {
+      cy.findAllByTestId('CancelIcon').eq(7).click();
+    }
     cy.clickOutside();
 
-    cy.findByText(labelChooseAtleastOneUser).should('be.visible');
+    cy.findAllByText(labelChooseAtleastOneContactOrContactGroup).should(
+      'have.length',
+      2
+    );
     cy.findByLabelText(labelSave).should('be.disabled');
 
     cy.matchImageSnapshot();

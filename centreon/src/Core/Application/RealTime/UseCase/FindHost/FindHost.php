@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,28 +18,29 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Application\RealTime\UseCase\FindHost;
 
 use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Domain\RealTime\Model\Host;
-use Core\Tag\RealTime\Domain\Model\Tag;
-use Core\Domain\RealTime\Model\Downtime;
-use Core\Domain\RealTime\Model\Acknowledgement;
-use Core\Severity\RealTime\Domain\Model\Severity;
-use Centreon\Domain\Monitoring\Host as LegacyHost;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Monitoring\Host as LegacyHost;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
-use Core\Application\RealTime\Repository\ReadHostRepositoryInterface;
-use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadDowntimeRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadHostgroupRepositoryInterface;
+use Core\Application\RealTime\Repository\ReadHostRepositoryInterface;
+use Core\Domain\RealTime\Model\Acknowledgement;
+use Core\Domain\RealTime\Model\Downtime;
+use Core\Domain\RealTime\Model\Host;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
 use Core\Severity\RealTime\Application\Repository\ReadSeverityRepositoryInterface;
+use Core\Severity\RealTime\Domain\Model\Severity;
+use Core\Tag\RealTime\Application\Repository\ReadTagRepositoryInterface;
+use Core\Tag\RealTime\Domain\Model\Tag;
 
 class FindHost
 {
@@ -72,7 +73,6 @@ class FindHost
     /**
      * @param int $hostId
      * @param FindHostPresenterInterface $presenter
-     * @return void
      */
     public function __invoke(int $hostId, FindHostPresenterInterface $presenter): void
     {
@@ -82,6 +82,7 @@ class FindHost
             $host = $this->repository->findHostById($hostId);
             if ($host === null) {
                 $this->handleHostNotFound($hostId, $presenter);
+
                 return;
             }
             $hostGroups = $this->hostgroupRepository->findAllByHostId($hostId);
@@ -94,6 +95,7 @@ class FindHost
             $host = $this->repository->findHostByIdAndAccessGroupIds($hostId, $accessGroupIds);
             if ($host === null) {
                 $this->handleHostNotFound($hostId, $presenter);
+
                 return;
             }
             $hostGroups = $this->hostgroupRepository->findAllByHostIdAndAccessGroupIds($hostId, $accessGroupIds);
@@ -109,7 +111,7 @@ class FindHost
             'Fetching severity from the database for host',
             [
                 'hostId' => $hostId,
-                'typeId' => Severity::HOST_SEVERITY_TYPE_ID
+                'typeId' => Severity::HOST_SEVERITY_TYPE_ID,
             ]
         );
 
@@ -130,7 +132,8 @@ class FindHost
             : [];
 
         /**
-         * Obfuscate the passwords in Host commandLine
+         * Obfuscate the passwords in Host commandLine.
+         *
          * @todo Re-write this code when monitoring repository will be migrated to new architecture
          */
         $host->setCommandLine($this->obfuscatePasswordInHostCommandLine($host));
@@ -145,11 +148,10 @@ class FindHost
     }
 
     /**
-     * Handle Host not found. This method will log the error and set the ResponseStatus
+     * Handle Host not found. This method will log the error and set the ResponseStatus.
      *
      * @param int $hostId
      * @param FindHostPresenterInterface $presenter
-     * @return void
      */
     private function handleHostNotFound(int $hostId, FindHostPresenterInterface $presenter): void
     {
@@ -161,6 +163,7 @@ class FindHost
      * @param Host $host
      * @param Downtime[] $downtimes
      * @param Acknowledgement|null $acknowledgement
+     *
      * @return FindHostResponse
      */
     private function createResponse(Host $host, array $downtimes, ?Acknowledgement $acknowledgement): FindHostResponse
@@ -205,9 +208,10 @@ class FindHost
     }
 
     /**
-     * Offuscate passwords in the commandline
+     * Offuscate passwords in the commandline.
      *
      * @param Host $host
+     *
      * @return string|null
      */
     private function obfuscatePasswordInHostCommandLine(Host $host): ?string

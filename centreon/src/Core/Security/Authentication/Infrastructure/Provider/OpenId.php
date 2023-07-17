@@ -1,18 +1,18 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the spceific language governing permissions and
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  * For more information : contact@centreon.com
@@ -23,35 +23,33 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Entity\ContactGroup;
+use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Infrastructure\Service\Exception\NotFoundException;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
+use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Exception;
-use Throwable;
-use Pimple\Container;
-use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Entity\ContactGroup;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Security\Authentication\Domain\Model\NewProviderToken;
-use Centreon\Infrastructure\Service\Exception\NotFoundException;
-use Core\Security\Authentication\Domain\Provider\OpenIdProvider;
-use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
-use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
-use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
+use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
+use Core\Security\Authentication\Domain\Model\NewProviderToken;
+use Core\Security\Authentication\Domain\Provider\OpenIdProvider;
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Exception;
+use Pimple\Container;
+use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
+use Throwable;
 
 class OpenId implements ProviderAuthenticationInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private string $username;
 
     /**
@@ -66,6 +64,7 @@ class OpenId implements ProviderAuthenticationInterface
 
     /**
      * @param LoginRequest $request
+     *
      * @throws ConfigurationException
      * @throws SSOAuthenticationException
      * @throws AclConditionsException
@@ -79,25 +78,26 @@ class OpenId implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return ContactInterface
      * @throws SSOAuthenticationException
      * @throws Throwable
+     *
+     * @return ContactInterface
      */
     public function findUserOrFail(): ContactInterface
     {
         $user = $this->getAuthenticatedUser();
         if ($user === null) {
-            $this->info("User not found");
-            if (!$this->isAutoImportEnabled()) {
+            $this->info('User not found');
+            if (! $this->isAutoImportEnabled()) {
                 throw new NotFoundException('User could not be created');
             }
-            $this->info("Start auto import");
+            $this->info('Start auto import');
             $this->provider->createUser();
             $user = $this->getAuthenticatedUser();
             if ($user === null) {
                 throw new NotFoundException('User not found');
             }
-            $this->info("User imported: " . $user->getName());
+            $this->info('User imported: ' . $user->getName());
         }
 
         return $user;
@@ -127,10 +127,10 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->provider->getUser();
         if ($this->isAutoImportEnabled() && $user === null) {
-            $this->info("Start auto import");
+            $this->info('Start auto import');
             $this->provider->createUser();
             $user = $this->findUserOrFail();
-            $this->info("User imported: " . $user->getName());
+            $this->info('User imported: ' . $user->getName());
         }
     }
 
@@ -142,16 +142,17 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->provider->getUser();
         if ($this->isAutoImportEnabled() === true && $user === null) {
-            $this->info("Start auto import");
+            $this->info('Start auto import');
             $this->provider->createUser();
             $user = $this->provider->getUser();
-            $this->info("User imported: " . $user->getName());
+            $this->info('User imported: ' . $user->getName());
         }
     }
 
     /**
-     * @return \Centreon
      * @throws Exception
+     *
+     * @return \Centreon
      */
     public function getLegacySession(): \Centreon
     {
@@ -178,7 +179,7 @@ class OpenId implements ProviderAuthenticationInterface
             'reach_api' => $user->hasAccessToApiConfiguration() ? 1 : 0,
             'reach_api_rt' => $user->hasAccessToApiRealTime() ? 1 : 0,
             'contact_theme' => $user->getTheme() ?? 'light',
-            'auth_type' => Provider::OPENID
+            'auth_type' => Provider::OPENID,
         ];
 
         $this->provider->setLegacySession(new \Centreon($sessionUserInfos));
@@ -188,6 +189,7 @@ class OpenId implements ProviderAuthenticationInterface
 
     /**
      * @param string|null $token
+     *
      * @return NewProviderToken
      */
     public function getProviderToken(?string $token = null): NewProviderToken
@@ -213,7 +215,6 @@ class OpenId implements ProviderAuthenticationInterface
 
     /**
      * @param Configuration $configuration
-     * @return void
      */
     public function setConfiguration(Configuration $configuration): void
     {
@@ -230,6 +231,7 @@ class OpenId implements ProviderAuthenticationInterface
 
     /**
      * @param array<string> $claims
+     *
      * @return array<int,AccessGroup>
      */
     public function getUserAccessGroupsFromClaims(array $claims): array
@@ -239,10 +241,10 @@ class OpenId implements ProviderAuthenticationInterface
         $customConfiguration = $this->provider->getConfiguration()->getCustomConfiguration();
         foreach ($customConfiguration->getACLConditions()->getRelations() as $authorizationRule) {
             $claimValue = $authorizationRule->getClaimValue();
-            if (!in_array($claimValue, $this->provider->getAclConditionsMatches())) {
+            if (! in_array($claimValue, $this->provider->getAclConditionsMatches(), true)) {
                 $this->info(
-                    "Configured claim value not found in user claims",
-                    ["claim_value" => $claimValue]
+                    'Configured claim value not found in user claims',
+                    ['claim_value' => $claimValue]
                 );
 
                 continue;
@@ -250,6 +252,7 @@ class OpenId implements ProviderAuthenticationInterface
             // We ensure here to not duplicate access group while using their id as index
             $userAccessGroups[$authorizationRule->getAccessGroup()->getId()] = $authorizationRule->getAccessGroup();
         }
+
         return $userAccessGroups;
     }
 
@@ -263,6 +266,7 @@ class OpenId implements ProviderAuthenticationInterface
 
     /**
      * @param AuthenticationTokens $authenticationTokens
+     *
      * @return AuthenticationTokens|null
      */
     public function refreshToken(AuthenticationTokens $authenticationTokens): ?AuthenticationTokens

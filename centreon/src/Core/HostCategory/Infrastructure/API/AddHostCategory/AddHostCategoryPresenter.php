@@ -34,7 +34,6 @@ class AddHostCategoryPresenter extends AbstractPresenter
 {
     use LoggerTrait;
     private const ROUTE_NAME = 'FindHostCategory';
-
     private const ROUTE_HOST_CATEGORY_ID = 'hostCategoryId';
 
     public function __construct(

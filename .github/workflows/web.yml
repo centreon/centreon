@@ -264,6 +264,31 @@ jobs:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
 
+  php-cs-fixer:
+    runs-on: ubuntu-22.04
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
+
+      - name: Install Dependencies
+        run: composer install --optimize-autoloader
+        working-directory: centreon
+        shell: bash
+
+      - name: Run of php-cs-fixer
+        run: vendor/bin/php-cs-fixer fix --verbose --dry-run --diff
+        working-directory: centreon
+
   package:
     needs:
       [
@@ -373,7 +398,8 @@ jobs:
 
       - uses: docker/setup-buildx-action@v2
 
-      - uses: docker/build-push-action@v3
+      - name: Build and push fresh image
+        uses: docker/build-push-action@v3
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_fresh
@@ -382,22 +408,11 @@ jobs:
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
-          load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-
-      - uses: docker/build-push-action@v3
-        with:
-          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
-          target: web_fresh
-          context: .
-          build-args: |
-            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-version.outputs.major_version }}"
-          pull: false
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      - uses: docker/build-push-action@v3
+      - name: Build standard image
+        uses: docker/build-push-action@v3
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_standard
@@ -409,7 +424,8 @@ jobs:
           load: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      - uses: docker/build-push-action@v3
+      - name: Push standard image
+        uses: docker/build-push-action@v3
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_standard
