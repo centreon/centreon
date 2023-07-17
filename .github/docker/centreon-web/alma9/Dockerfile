@@ -26,7 +26,32 @@ COPY --chmod=755 ./.github/docker/centreon-web/alma9/entrypoint/container.d/* /u
 COPY --chmod=755 ./.github/docker/centreon-web/alma9/scripts/autoinstall.php /usr/share/centreon/
 COPY --chown=apache:apache ./.github/docker/centreon-web/alma9/configuration /usr/share/centreon/www/install/tmp/
 
-RUN <<EOF
+RUN bash -e <<EOF
+
+echo "[server]
+log_output=FILE
+general_log_file        = /var/lib/mysql/queries.log
+general_log             = 0
+slow_query_log_file     = /var/lib/mysql/slow_queries.log
+slow_query_log          = 1
+innodb_file_per_table   = 1
+innodb_flush_method     = O_DIRECT
+innodb_fast_shutdown    = 0
+innodb_log_file_size    = 16M
+skip-name-resolve       = 1
+key_buffer_size         = 16M
+read_buffer_size        = 60K
+sort_buffer_size        = 1M
+innodb_buffer_pool_size = 64M
+tmp_table_size          = 8M
+max_allowed_packet      = 16M
+thread_stack            = 192K
+thread_cache_size       = 8
+table_open_cache        = 2000
+table_definition_cache  = 1400
+performance_schema      = ON
+open_files_limit        = 32000
+" > /etc/my.cnf.d/container.cnf
 
 service mysql start
 mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
