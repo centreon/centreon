@@ -68,7 +68,7 @@ class ParametersValidation
     {
         $formattedName = ServiceTemplate::formatName($newName);
         if (
-            ! empty($formattedName)
+            '' !== ($formattedName ?? '')
             && $currentName !== $formattedName
             && $this->readServiceTemplateRepository->existsByName(
                 new TrimmedString($formattedName)
