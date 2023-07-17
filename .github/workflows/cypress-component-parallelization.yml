@@ -31,7 +31,7 @@ jobs:
     needs: [cypress-component-test-list]
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         spec: ${{ fromJson(needs.cypress-component-test-list.outputs.specs) }}
     name: ${{ matrix.spec }}
