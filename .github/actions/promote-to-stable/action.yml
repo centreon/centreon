@@ -61,6 +61,8 @@ runs:
           for ARTIFACT in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Promoting $ARTIFACT to stable."
             jf rt cp $ARTIFACT $TARGET_PATH --flat=true
+            echo "[DEBUG] - Promoting $ARTIFACT to stable internal."
+            jf rt cp $ARTIFACT $TARGET_PATH_INTERNAL --flat=true            
           done
         done
 
