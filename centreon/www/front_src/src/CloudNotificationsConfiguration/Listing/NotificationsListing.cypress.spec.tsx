@@ -8,13 +8,22 @@ import {
   labelDelete,
   labelDeleteNotification,
   labelDeleteNotificationWarning,
+  labelDiscard,
+  labelDuplicate,
   labelFailedToDeleteNotifications,
   labelFailedToDeleteSelectedNotifications,
+  labelNotificationName,
   labelNotificationSuccessfullyDeleted,
-  labelNotificationsSuccessfullyDeleted
+  labelNotificationSuccessfullyDuplicated,
+  labelNotificationsSuccessfullyDeleted,
+  labelPleaseEnterNameForDuplicatedNotification,
+  labelRequired,
+  labelThisNameAlreadyExists
 } from '../translatedLabels';
 import { notificationEndpoint } from '../EditPanel/api/endpoints';
-import { DeleteConfirmationDialog } from '../Actions';
+import { DeleteConfirmationDialog } from '../Actions/delete';
+import { listNotificationResponse } from '../EditPanel/testUtils';
+import { DuplicationForm } from '../Actions/duplicate';
 
 import { buildNotificationsEndpoint } from './api/endpoints';
 import {
@@ -38,6 +47,7 @@ const ListingWithQueryProvider = (): JSX.Element => {
           <>
             <Listing />
             <DeleteConfirmationDialog />
+            <DuplicationForm />
           </>
         </SnackbarProvider>
       </TestQueryProvider>
@@ -268,19 +278,26 @@ describe('Listing header: Delete button', () => {
 
     const warningMessage = `${labelFailedToDeleteNotifications}: notification1, notification2`;
 
+    cy.findByLabelText('Select row 1').click();
+    cy.findByLabelText('Select row 2').click();
+    cy.findByLabelText('Select row 3').click();
+
     cy.findByTestId('delete multiple notifications').click();
     cy.findByText(labelDelete).click();
 
     cy.waitForRequest('@deleteNotificationsRequest');
-    cy.findByText(warningMessage);
-
     cy.waitForRequest('@defaultRequest');
+    cy.findByText(warningMessage);
 
     cy.matchImageSnapshot();
   });
   it('displays an error message if the deletion of all notifications fails', () => {
     mockedBulkDelete(multipleNotificationsfailedResponse);
     cy.waitForRequest('@defaultRequest');
+
+    cy.findByLabelText('Select row 1').click();
+    cy.findByLabelText('Select row 2').click();
+    cy.findByLabelText('Select row 3').click();
 
     cy.findByTestId('delete multiple notifications').click();
     cy.findByText(labelDelete).click();
@@ -358,6 +375,128 @@ describe('Listing row actions: Delete button', () => {
     cy.waitForRequest('@deleteNotificationtRequest');
 
     cy.findByText('internal server error');
+
+    cy.matchImageSnapshot();
+  });
+});
+
+describe('Listing row actions: Duplicate button', () => {
+  beforeEach(() => {
+    cy.interceptAPIRequest({
+      alias: 'defaultRequest',
+      method: Method.GET,
+      path: buildNotificationsEndpoint(defaultQueryParams),
+      response: getListingResponse({})
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'getNotificationtRequest',
+      method: Method.GET,
+      path: notificationEndpoint({ id: 1 }),
+      response: listNotificationResponse
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'duplicateNotificationtRequest',
+      method: Method.POST,
+      path: notificationEndpoint({}),
+      response: { status: 'ok' }
+    });
+
+    cy.render(ListingWithQueryProvider);
+  });
+
+  it('display a confirmation dialog with a text field for the new notification name when the Duplicate button is clicked', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByTestId(labelDuplicate).eq(0).click();
+
+    cy.findByText(labelPleaseEnterNameForDuplicatedNotification).should(
+      'be.visible'
+    );
+    cy.findByLabelText(labelNotificationName).should('be.visible');
+    cy.findByText(labelDuplicate).should('be.disabled');
+    cy.findByText(labelDiscard).click();
+
+    cy.matchImageSnapshot();
+  });
+
+  it('validate that the new name is required and does not already exist', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByTestId(labelDuplicate).eq(0).click();
+
+    cy.waitForRequest('@getNotificationtRequest');
+
+    cy.findByLabelText(labelNotificationName).should('have.attr', 'required');
+    cy.findByLabelText(labelNotificationName).type('notification1');
+    cy.clickOutside();
+    cy.findByText(labelThisNameAlreadyExists);
+
+    cy.findByLabelText(labelNotificationName).clear();
+    cy.clickOutside();
+    cy.findByText(labelRequired);
+
+    cy.findByText(labelDiscard).click();
+
+    cy.matchImageSnapshot();
+  });
+
+  it('disable the confirm button if the name is empty or already exists', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByTestId(labelDuplicate).eq(0).click();
+    cy.findByLabelText(labelNotificationName).type('notification1');
+    cy.findByTestId('Confirm').should('be.disabled');
+
+    cy.findByLabelText(labelNotificationName).clear();
+    cy.findByTestId('Confirm').should('be.disabled');
+
+    cy.findByText(labelDiscard).click();
+
+    cy.matchImageSnapshot();
+  });
+
+  it('display a success message after a successful duplication', () => {
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findAllByTestId(labelDuplicate).eq(0).click();
+    cy.waitForRequest('@getNotificationtRequest');
+
+    cy.findByLabelText(labelNotificationName).type('New name');
+    cy.findByTestId('Confirm').click();
+
+    cy.waitForRequest('@duplicateNotificationtRequest');
+    cy.waitForRequest('@defaultRequest');
+
+    cy.findByText(labelNotificationSuccessfullyDuplicated);
+
+    cy.matchImageSnapshot();
+  });
+
+  it('display an error message upon failed duplication request', () => {
+    const errorMessage = 'internal server error';
+
+    cy.interceptAPIRequest({
+      alias: 'duplicateNotificationtRequest',
+      method: Method.POST,
+      path: notificationEndpoint({}),
+      response: {
+        code: '500',
+        message: errorMessage
+      },
+      statusCode: 500
+    });
+    cy.waitForRequest('@getNotificationRequest');
+
+    cy.findAllByTestId(labelDuplicate).click();
+
+    cy.findByLabelText(labelNotificationName).type('New name');
+    cy.findByTestId('Confirm').click();
+
+    cy.waitForRequest('@duplicateNotificationtRequest');
+
+    cy.findByText(errorMessage).should('be.visible');
 
     cy.matchImageSnapshot();
   });
