@@ -6,7 +6,6 @@
       "./types",
       "./node_modules/@types"
     ],
-    
   },
   "include": [
     "./www/front_src/src",
