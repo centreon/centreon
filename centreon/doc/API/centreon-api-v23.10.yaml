@@ -260,6 +260,8 @@ paths:
     $ref: './v23.10/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
     $ref: './v23.10/Configuration/HostTemplate/DeleteAndPartialUpdateHostTemplate.yaml'
+  /configuration/hosts:
+    $ref: './v23.10/Configuration/Host/AddHost.yaml'
   /configuration/hosts/categories:
     get:
       tags:
