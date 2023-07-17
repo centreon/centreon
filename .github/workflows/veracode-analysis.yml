@@ -44,6 +44,10 @@ jobs:
           module_directory: "${{ inputs.module_directory }}"
           cache_key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
 
+      - name: debug
+        run: |
+          echo "status = ${{ vars.VERACODE_QUALITY_GATE }}"
+
       - name: Set routing mode
         id: routing-mode
         run: |
@@ -52,12 +56,11 @@ jobs:
             echo "development_stage=Release" >> $GITHUB_OUTPUT
             echo "display_summary=false" >> $GITHUB_OUTPUT
           elif [[ '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'unstable' ]]; then
-            echo "fail_build=false" >> $GITHUB_OUTPUT
+            echo "fail_build=${{ vars.VERACODE_QUALITY_GATE }}" >> $GITHUB_OUTPUT
             echo "development_stage=Testing" >> $GITHUB_OUTPUT
             echo "display_summary=false" >> $GITHUB_OUTPUT
           else
-            echo "[DEBUG] - Grace period enabled"
-            echo "fail_build=false" >> $GITHUB_OUTPUT
+            echo "fail_build=${{ vars.VERACODE_QUALITY_GATE }}" >> $GITHUB_OUTPUT
             echo "development_stage=Development" >> $GITHUB_OUTPUT
             echo "display_summary=true" >> $GITHUB_OUTPUT
           fi
