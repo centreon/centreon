@@ -7,12 +7,12 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { IconButton } from '@centreon/ui';
 
 import {
+  askDeletePanelAtom,
   duplicatePanelDerivedAtom,
-  isEditingAtom,
-  removePanelDerivedAtom
+  isEditingAtom
 } from '../../atoms';
 
-import usePanelHeaderStyles from './usePanelStyles';
+import { usePanelHeaderStyles } from './usePanelStyles';
 
 interface PanelHeaderProps {
   id: string;
@@ -22,13 +22,13 @@ const PanelHeader = ({ id }: PanelHeaderProps): JSX.Element => {
   const { classes } = usePanelHeaderStyles();
 
   const isEditing = useAtomValue(isEditingAtom);
-  const removePanel = useSetAtom(removePanelDerivedAtom);
+  const setAskDeletePanel = useSetAtom(askDeletePanelAtom);
   const duplicatePanel = useSetAtom(duplicatePanelDerivedAtom);
 
   const remove = (event): void => {
     event.preventDefault();
 
-    removePanel(id);
+    setAskDeletePanel(id);
   };
 
   const duplicate = (event): void => {

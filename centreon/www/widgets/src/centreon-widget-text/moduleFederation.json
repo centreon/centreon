@@ -3,7 +3,8 @@
     "path": "/widgets/text",
     "federatedComponents": [
       "./text"
-    ]
+    ],
+    "title": "Generic text (example)"
   },
   "moduleFederationName": "widgettext",
   "moduleName": "centreon-widget-text"

@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-const usePanelHeaderStyles = makeStyles()((theme) => ({
+export const usePanelHeaderStyles = makeStyles()((theme) => ({
   panelActionsIcons: {
     columnGap: theme.spacing(1),
     display: 'flex',
@@ -11,4 +11,19 @@ const usePanelHeaderStyles = makeStyles()((theme) => ({
   }
 }));
 
-export default usePanelHeaderStyles;
+export const useAddWidgetPanelStyles = makeStyles()((theme) => ({
+  addWidgetPanel: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    justifyContent: 'space-evenly',
+    margin: theme.spacing(1, 2)
+  },
+  avatar: {
+    alignSelf: 'center',
+    backgroundColor: theme.palette.primary.main,
+    height: theme.spacing(10),
+    width: theme.spacing(10)
+  }
+}));

@@ -1,10 +1,13 @@
+export interface FederatedComponentsConfiguration {
+  federatedComponents: Array<string>;
+  panelMinHeight?: number;
+  panelMinWidth?: number;
+  path: string;
+  title?: string;
+}
+
 export interface FederatedModule {
-  federatedComponentsConfiguration: {
-    federatedComponents: Array<string>;
-    panelMinHeight?: number;
-    panelMinWidth?: number;
-    path: string;
-  };
+  federatedComponentsConfiguration: FederatedComponentsConfiguration;
   federatedPages: Array<PageComponent>;
   moduleFederationName: string;
   moduleName: string;

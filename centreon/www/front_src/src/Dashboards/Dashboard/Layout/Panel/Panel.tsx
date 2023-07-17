@@ -1,5 +1,3 @@
-import { FC } from 'react';
-
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { useMemoComponent } from '@centreon/ui';
@@ -10,12 +8,14 @@ import {
   setPanelOptionsDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
+import { AddWidgetPanel } from '../../AddWidget';
 
 interface Props {
   id: string;
+  isAddWidgetPanel?: boolean;
 }
 
-const Panel: FC<Props> = ({ id }) => {
+const Panel = ({ id, isAddWidgetPanel }: Props): JSX.Element => {
   const getPanelOptions = useAtomValue(getPanelOptionsDerivedAtom);
   const getPanelConfigurations = useAtomValue(
     getPanelConfigurationsDerivedAtom
@@ -31,7 +31,9 @@ const Panel: FC<Props> = ({ id }) => {
   };
 
   return useMemoComponent({
-    Component: (
+    Component: isAddWidgetPanel ? (
+      <AddWidgetPanel />
+    ) : (
       <FederatedComponent
         isFederatedWidget
         id={id}

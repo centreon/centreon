@@ -12,7 +12,7 @@ import { useStyles } from './DataTableEmptyState.styles';
 type ListEmptyStateProps = {
   canCreate?: boolean;
   labels: {
-    actions: {
+    actions?: {
       create: string;
     };
     title: string;
@@ -42,7 +42,7 @@ const DataTableEmptyState = ({
             iconVariant="start"
             onClick={() => onCreate?.()}
           >
-            {t(labels.actions.create)}
+            {t(labels.actions?.create || '')}
           </Button>
         )}
       </div>
