@@ -254,7 +254,7 @@ Cypress.Commands.add(
         return cy.exec(`docker pull ${image}`).then(() => cy.wrap(image));
       })
       .then((imageName) =>
-        cy.task('startContainer', { imageName, name, portBindings })
+        cy.task('startContainer', { image: imageName, name, portBindings })
       );
   }
 );
