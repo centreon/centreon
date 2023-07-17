@@ -85,7 +85,7 @@ properties:
   active_check_enabled:
     type: integer
     description: |
-      Indicates whether the active checks is enabled or not
+      Indicates whether active checks are enabled or not
 
       * `0` - STATUS_DISABLED
       * `1` - STATUS_ENABLED
@@ -132,7 +132,7 @@ properties:
 
       With the default time unit of 60s, this number will mean multiples of 1 minute.
 
-      A value of 0 disables re-notifications of contacts about problems for this host - only one problem notification will be sent out.
+      A value of 0 disables re-notifications of contacts about alerts for this host - only one alert notification will be sent out.
   notification_timeperiod_id:
     type: integer
     description: "Notification timeperiod ID"
@@ -154,7 +154,7 @@ properties:
     type: integer
     nullable: true
     description: |
-      Define the number of "time units" to wait before sending out the first problem notification when this host enters a non-UP state.
+      Define the number of "time units" to wait before sending out the first alert notification when this host enters a non-UP state.
 
       With the default time unit of 60s, this number will mean multiples of 1 minute.
   recovery_notification_delay:
@@ -233,7 +233,7 @@ properties:
   icon_id:
     type: integer
     nullable: true
-    description: "Define the image ID that should be associated with this host template"
+    description: "Define the ID of the image that should be associated with this host template"
     example: 1
   icon_alternative:
     type: string
@@ -258,8 +258,8 @@ properties:
     items:
       type: integer
     description: |
-      Define the parent host templates IDs that should be associated with this host template.
-      The order of the IDs determine the inheritance priority order.
+      Define the parent host template IDs that should be associated with this host template.
+      The order of the IDs determines the inheritance priority order.
     example: [3, 12]
   macros:
     type: array

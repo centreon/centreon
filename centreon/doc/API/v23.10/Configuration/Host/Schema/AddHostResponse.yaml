@@ -134,7 +134,7 @@ properties:
 
       With the default time unit of 60s, this number will mean multiples of 1 minute.
 
-      A value of 0 disables re-notifications of contacts about problems for this host - only one problem notification will be sent out.
+      A value of 0 disables re-notifications of contacts about problems for this host - only one alert notification will be sent out.
   notification_timeperiod_id:
     type: integer
     description: "Notification timeperiod ID"
@@ -156,7 +156,7 @@ properties:
     type: integer
     nullable: true
     description: |
-      Define the number of "time units" to wait before sending out the first problem notification when this host enters a non-UP state.
+      Define the number of "time units" to wait before sending out the first alert notification when this host enters a non-UP state.
 
       With the default time unit of 60s, this number will mean multiples of 1 minute.
   recovery_notification_delay:
@@ -235,13 +235,13 @@ properties:
   icon_id:
     type: integer
     nullable: true
-    description: "Define the image ID that should be associated with this host template"
+    description: "Define the ID of the image that should be associated with this host template"
     example: 1
   icon_alternative:
     type: string
     nullable: true
     maxLength: 200
-    description: "Define an optional string that is used in the alternative description of the icon image"
+    description: "Define an optional string that is used as the alternative description for the icon"
   comment:
     type: string
     nullable: true
@@ -279,7 +279,7 @@ properties:
     type: array
     description: |
       Host macros defined for the host.
-      Macros inherited from parent templates or command are not listed.
+      Macros inherited from parent templates or commands are not listed.
     items:
       type: object
       properties:
@@ -293,7 +293,7 @@ properties:
           description: |
             Value of the macro.
 
-            If macro.is_password property is set to true and macro.value will be set to null.
+            If the macro.is_password property is set to true, macro.value will be set to null.
           example: "macroValue"
         is_password:
           type: boolean

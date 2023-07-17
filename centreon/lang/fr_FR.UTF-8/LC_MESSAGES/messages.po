@@ -17902,7 +17902,7 @@ msgid "Error while adding a host"
 msgstr "Erreur lors de la création d'un hôte"
 
 msgid "Error while linking host categories to a host"
-msgstr "Erreur lors de la liaison de catégories d'hôte à un hôte"
+msgstr "Erreur lors de l'association de catégories d'hôte à un hôte"
 
 msgid "You are not allowed to add hosts"
 msgstr "Vous n'êtes pas autorisé à créer des hôtes"
@@ -17911,7 +17911,7 @@ msgid "Host #%d not found"
 msgstr "Hôte #%d introuvable"
 
 msgid "Host name should not start with '_Module_'"
-msgstr "Le nom d'hôte ne doitpas commencer par '_Module_'"
+msgstr "Le nom d'hôte ne doit pas commencer par '_Module_'"
 
 msgid "Error while retrieving a host"
 msgstr "Error lors de la récupération d'un hôte"
