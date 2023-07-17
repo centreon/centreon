@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,108 +25,70 @@ namespace Core\Security\ProviderConfiguration\Application\OpenId\UseCase\UpdateO
 
 class UpdateOpenIdConfigurationRequest
 {
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     public bool $isActive = false;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     public bool $isForced = false;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $baseUrl = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $authorizationEndpoint = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $tokenEndpoint = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $introspectionTokenEndpoint = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $userInformationEndpoint = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $endSessionEndpoint = null;
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     public array $connectionScopes = [];
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $loginClaim = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $clientId = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $clientSecret = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $authenticationType = null;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     public bool $verifyPeer = false;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     public bool $isAutoImportEnabled = false;
 
-    /**
-     * @var array{id: int, name: string}|null
-     */
+    /** @var array{id: int, name: string}|null */
     public ?array $contactTemplate = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $emailBindAttribute = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $userNameBindAttribute = null;
 
-    /**
-     * @var array<string, array<int|string, string|null>|string|bool>
-     */
+    /** @var array<string, array<int|string, string|null>|string|bool> */
     public array $rolesMapping = [
         'is_enabled' => false,
         'apply_only_first_role' => false,
         'attribute_path' => '',
         'endpoint' => [
             'type' => 'introspection_endpoint',
-            'custom_endpoint' => ''
+            'custom_endpoint' => '',
         ],
-        'relations' => []
+        'relations' => [],
     ];
 
     /**
@@ -143,19 +105,19 @@ class UpdateOpenIdConfigurationRequest
      * }
      */
     public array $authenticationConditions = [
-        "is_enabled" => false,
-        "attribute_path" => "",
-        "authorized_values" => [],
-        "trusted_client_addresses" => [],
-        "blacklist_client_addresses" => [],
-        "endpoint" => [
-            "type" => "introspection_endpoint",
-            "custom_endpoint" => null,
+        'is_enabled' => false,
+        'attribute_path' => '',
+        'authorized_values' => [],
+        'trusted_client_addresses' => [],
+        'blacklist_client_addresses' => [],
+        'endpoint' => [
+            'type' => 'introspection_endpoint',
+            'custom_endpoint' => null,
         ],
     ];
 
     /**
-    * @var array{
+     * @var array{
      *  "is_enabled": bool,
      *  "attribute_path": string,
      *  "endpoint": array{
@@ -169,13 +131,13 @@ class UpdateOpenIdConfigurationRequest
      * }
      */
     public array $groupsMapping = [
-        "is_enabled" => false,
-        "attribute_path" => "",
-        "endpoint" => [
-            "type" => "introspection_endpoint",
-            "custom_endpoint" => null,
+        'is_enabled' => false,
+        'attribute_path' => '',
+        'endpoint' => [
+            'type' => 'introspection_endpoint',
+            'custom_endpoint' => null,
         ],
-        "relations" => []
+        'relations' => [],
     ];
 
     public ?string $redirectUrl = null;
@@ -207,7 +169,7 @@ class UpdateOpenIdConfigurationRequest
             'authentication_conditions' => $this->authenticationConditions,
             'groups_mapping' => $this->groupsMapping,
             'roles_mapping' => $this->rolesMapping,
-            'redirect_url' => $this->redirectUrl
+            'redirect_url' => $this->redirectUrl,
         ];
     }
 }

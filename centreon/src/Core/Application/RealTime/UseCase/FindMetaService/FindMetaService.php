@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,26 +18,24 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Application\RealTime\UseCase\FindMetaService;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Domain\RealTime\Model\Downtime;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Core\Domain\RealTime\Model\MetaService;
-use Core\Domain\RealTime\Model\Acknowledgement;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Configuration\MetaService\Repository\ReadMetaServiceRepositoryInterface as ReadMetaServiceConfigurationRepositoryInterface;
+use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadDowntimeRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadMetaServiceRepositoryInterface;
 use Core\Domain\Configuration\Model\MetaService as MetaServiceConfiguration;
-use Core\Application\RealTime\UseCase\FindMetaService\FindMetaServiceResponse;
-use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
-use Core\Application\RealTime\UseCase\FindMetaService\FindMetaServicePresenterInterface;
-use Core\Application\Configuration\MetaService\Repository\ReadMetaServiceRepositoryInterface as
-    ReadMetaServiceConfigurationRepositoryInterface;
+use Core\Domain\RealTime\Model\Acknowledgement;
+use Core\Domain\RealTime\Model\Downtime;
+use Core\Domain\RealTime\Model\MetaService;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class FindMetaService
 {
@@ -64,16 +62,15 @@ class FindMetaService
     /**
      * @param int $metaId
      * @param FindMetaServicePresenterInterface $presenter
-     * @return void
      */
     public function __invoke(
         int $metaId,
         FindMetaServicePresenterInterface $presenter
     ): void {
         $this->info(
-            "Searching details for Meta Service",
+            'Searching details for Meta Service',
             [
-                "id" => $metaId
+                'id' => $metaId,
             ]
         );
 
@@ -83,12 +80,14 @@ class FindMetaService
             $metaServiceConfiguration = $this->configurationRepository->findMetaServiceById($metaId);
             if ($metaServiceConfiguration === null) {
                 $this->handleMetaServiceConfigurationNotFound($metaId, $presenter);
+
                 return;
             }
 
             $metaService = $this->repository->findMetaServiceById($metaId);
             if ($metaService === null) {
                 $this->handleMetaServiceNotFound($metaId, $presenter);
+
                 return;
             }
         } else {
@@ -105,6 +104,7 @@ class FindMetaService
             );
             if ($metaServiceConfiguration === null) {
                 $this->handleMetaServiceConfigurationNotFound($metaId, $presenter);
+
                 return;
             }
             $metaService = $this->repository->findMetaServiceByIdAndAccessGroupIds(
@@ -113,6 +113,7 @@ class FindMetaService
             );
             if ($metaService === null) {
                 $this->handleMetaServiceNotFound($metaId, $presenter);
+
                 return;
             }
         }
@@ -139,52 +140,11 @@ class FindMetaService
     }
 
     /**
-     * Handle Meta Service Configuration not found. This method will log the error and set the ResponseStatus
-     *
-     * @param int $metaId
-     * @param FindMetaServicePresenterInterface $presenter
-     * @return void
-     */
-    private function handleMetaServiceConfigurationNotFound(
-        int $metaId,
-        FindMetaServicePresenterInterface $presenter
-    ): void {
-        $this->error(
-            "Meta Service configuration not found",
-            [
-                'id' => $metaId,
-                'userId' => $this->contact->getId()
-            ]
-        );
-        $presenter->setResponseStatus(new NotFoundResponse('MetaService configuration'));
-    }
-
-    /**
-     * Handle Meta Service not found. This method will log the error and set the ResponseStatus
-     *
-     * @param int $metaId
-     * @param FindMetaServicePresenterInterface $presenter
-     * @return void
-     */
-    private function handleMetaServiceNotFound(
-        int $metaId,
-        FindMetaServicePresenterInterface $presenter
-    ): void {
-        $this->error(
-            "Meta Service not found",
-            [
-                'id' => $metaId,
-                'userId' => $this->contact->getId()
-            ]
-        );
-        $presenter->setResponseStatus(new NotFoundResponse('MetaService'));
-    }
-
-    /**
      * @param MetaService $metaService
      * @param MetaServiceConfiguration $metaServiceConfiguration
      * @param Downtime[] $downtimes
      * @param Acknowledgement|null $acknowledgement
+     *
      * @return FindMetaServiceResponse
      */
     public function createResponse(
@@ -227,5 +187,45 @@ class FindMetaService
         $findMetaServiceResponse->hasGraphData = $metaService->hasGraphData();
 
         return $findMetaServiceResponse;
+    }
+
+    /**
+     * Handle Meta Service Configuration not found. This method will log the error and set the ResponseStatus.
+     *
+     * @param int $metaId
+     * @param FindMetaServicePresenterInterface $presenter
+     */
+    private function handleMetaServiceConfigurationNotFound(
+        int $metaId,
+        FindMetaServicePresenterInterface $presenter
+    ): void {
+        $this->error(
+            'Meta Service configuration not found',
+            [
+                'id' => $metaId,
+                'userId' => $this->contact->getId(),
+            ]
+        );
+        $presenter->setResponseStatus(new NotFoundResponse('MetaService configuration'));
+    }
+
+    /**
+     * Handle Meta Service not found. This method will log the error and set the ResponseStatus.
+     *
+     * @param int $metaId
+     * @param FindMetaServicePresenterInterface $presenter
+     */
+    private function handleMetaServiceNotFound(
+        int $metaId,
+        FindMetaServicePresenterInterface $presenter
+    ): void {
+        $this->error(
+            'Meta Service not found',
+            [
+                'id' => $metaId,
+                'userId' => $this->contact->getId(),
+            ]
+        );
+        $presenter->setResponseStatus(new NotFoundResponse('MetaService'));
     }
 }

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,6 +33,7 @@ class FindSAMLConfigurationPresenter extends AbstractPresenter implements FindSA
 {
     /**
      * {@inheritDoc}
+     *
      * @param FindSAMLConfigurationResponse $data
      */
     public function present(mixed $data): void
@@ -52,7 +53,7 @@ class FindSAMLConfigurationPresenter extends AbstractPresenter implements FindSA
             'fullname_bind_attribute' => $data->userNameBindAttribute,
             'roles_mapping' => $data->aclConditions,
             'authentication_conditions' => $data->authenticationConditions,
-            'groups_mapping' => $data->groupsMapping
+            'groups_mapping' => $data->groupsMapping,
         ];
 
         parent::present($presenterResponse);

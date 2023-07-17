@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,6 @@ namespace Core\Security\Authentication\Infrastructure\Provider;
 
 use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
@@ -37,7 +36,6 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\CustomConfiguration;
 use DateInterval;
 use DateTimeImmutable;
-use InvalidArgumentException;
 use Pimple\Container;
 use Security\Domain\Authentication\Interfaces\WebSSOProviderInterface as LegacyWebSSOProviderInterface;
 
@@ -68,8 +66,9 @@ class WebSSO implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return Centreon
      * @throws \Exception
+     *
+     * @return Centreon
      */
     public function getLegacySession(): Centreon
     {
@@ -93,7 +92,7 @@ class WebSSO implements ProviderAuthenticationInterface
             'reach_api' => $user->hasAccessToApiConfiguration() ? 1 : 0,
             'reach_api_rt' => $user->hasAccessToApiRealTime() ? 1 : 0,
             'contact_theme' => $user->getTheme() ?? 'light',
-            'auth_type' => Provider::WEB_SSO
+            'auth_type' => Provider::WEB_SSO,
         ];
 
         $this->provider->setLegacySession(new \Centreon($sessionUserInfos));
@@ -110,6 +109,7 @@ class WebSSO implements ProviderAuthenticationInterface
     {
         /** @var WebSSOProvider $provider */
         $provider = $this->provider;
+
         return $provider->getConfiguration();
     }
 
@@ -123,6 +123,7 @@ class WebSSO implements ProviderAuthenticationInterface
 
     /**
      * @param AuthenticationTokens $authenticationTokens
+     *
      * @return AuthenticationTokens|null
      */
     public function refreshToken(AuthenticationTokens $authenticationTokens): ?AuthenticationTokens
@@ -160,6 +161,7 @@ class WebSSO implements ProviderAuthenticationInterface
 
     /**
      * @param LoginRequest $request
+     *
      * @throws SSOAuthenticationException
      */
     public function authenticateOrFail(LoginRequest $request): void
@@ -170,9 +172,10 @@ class WebSSO implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return ContactInterface
      * @throws SSOAuthenticationException
      * @throws \Exception
+     *
+     * @return ContactInterface
      */
     public function findUserOrFail(): ContactInterface
     {
@@ -193,6 +196,7 @@ class WebSSO implements ProviderAuthenticationInterface
 
     /**
      * @param string $ipAddress
+     *
      * @throws SSOAuthenticationException
      */
     public function ipIsAllowToConnect(string $ipAddress): void
@@ -201,34 +205,37 @@ class WebSSO implements ProviderAuthenticationInterface
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->getConfiguration()->getCustomConfiguration();
         if (in_array($ipAddress, $customConfiguration->getBlackListClientAddresses(), true)) {
-            $this->error('IP Blacklisted', ['ip' => '...' . substr($ipAddress, -5)]);
+            $this->error('IP Blacklisted', ['ip' => '...' . mb_substr($ipAddress, -5)]);
+
             throw SSOAuthenticationException::blackListedClient();
         }
         if (
-            !empty($customConfiguration->getTrustedClientAddresses())
-            && !in_array($ipAddress, $customConfiguration->getTrustedClientAddresses(), true)
+            ! empty($customConfiguration->getTrustedClientAddresses())
+            && ! in_array($ipAddress, $customConfiguration->getTrustedClientAddresses(), true)
         ) {
-            $this->error('IP not Whitelisted', ['ip' => '...' . substr($ipAddress, -5)]);
+            $this->error('IP not Whitelisted', ['ip' => '...' . mb_substr($ipAddress, -5)]);
+
             throw SSOAuthenticationException::notWhiteListedClient();
         }
     }
 
     /**
-     * Validate that login attribute is defined in server environment variables
+     * Validate that login attribute is defined in server environment variables.
+     *
      * @throws SSOAuthenticationException
      */
     public function validateLoginAttributeOrFail(): void
     {
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->getConfiguration()->getCustomConfiguration();
-        if (!$this->getConfiguration()->isActive()) {
+        if (! $this->getConfiguration()->isActive()) {
             return;
         }
 
         $this->info('Validating login header attribute');
-        if (!array_key_exists($customConfiguration->getLoginHeaderAttribute(), $_SERVER)) {
+        if (! array_key_exists($customConfiguration->getLoginHeaderAttribute(), $_SERVER)) {
             $this->error('login header attribute not found in server environment', [
-                'login_header_attribute' => $customConfiguration->getLoginHeaderAttribute()
+                'login_header_attribute' => $customConfiguration->getLoginHeaderAttribute(),
             ]);
 
             throw SSOAuthenticationException::missingRemoteLoginAttribute();
@@ -236,10 +243,11 @@ class WebSSO implements ProviderAuthenticationInterface
     }
 
     /**
-     * Extract username using configured regexp for login matching
+     * Extract username using configured regexp for login matching.
+     *
+     * @throws SSOAuthenticationException
      *
      * @return string
-     * @throws SSOAuthenticationException
      */
     public function extractUsernameFromLoginClaimOrFail(): string
     {
@@ -261,8 +269,9 @@ class WebSSO implements ProviderAuthenticationInterface
             if (empty($userAlias)) {
                 $this->error('Regex does not match anything', [
                     'regex' => $customConfiguration->getPatternMatchingLogin(),
-                    'subject' => $_SERVER[$customConfiguration->getLoginHeaderAttribute()]
+                    'subject' => $_SERVER[$customConfiguration->getLoginHeaderAttribute()],
                 ]);
+
                 throw SSOAuthenticationException::unableToRetrieveUsernameFromLoginClaim();
             }
         }
@@ -271,26 +280,27 @@ class WebSSO implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return void
      * @throws \Exception
      */
     public function importUser(): void
     {
-        throw new \Exception("Feature not available for WebSSO provider");
+        throw new \Exception('Feature not available for WebSSO provider');
     }
 
     /**
-     * Update user in data storage
+     * Update user in data storage.
      */
     public function updateUser(): void
     {
-        throw new \Exception("Feature not available for WebSSO provider");
+        throw new \Exception('Feature not available for WebSSO provider');
     }
 
     /**
      * @param string|null $token
-     * @return NewProviderToken
+     *
      * @throws \Exception
+     *
+     * @return NewProviderToken
      */
     public function getProviderToken(?string $token = null): NewProviderToken
     {

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -63,18 +63,19 @@ interface ProviderAuthenticationInterface
      * Refresh the provider token.
      *
      * @param AuthenticationTokens $authenticationTokens
+     *
      * @return AuthenticationTokens|null Return the new AuthenticationTokens object if success otherwise null
      */
     public function refreshToken(AuthenticationTokens $authenticationTokens): ?AuthenticationTokens;
 
     /**
-     *
      * @return ContactInterface|null
      */
     public function getAuthenticatedUser(): ?ContactInterface;
 
     /**
      * @param LoginRequest $request
+     *
      * @throws SSOAuthenticationException
      */
     public function authenticateOrFail(LoginRequest $request): void;
@@ -85,24 +86,22 @@ interface ProviderAuthenticationInterface
     public function findUserOrFail(): ContactInterface;
 
     /**
-     * Return the contact username
+     * Return the contact username.
      *
      * @return string
      */
     public function getUsername(): string;
 
     /**
-     * If isAutoImportEnabled method returns true, the user will be imported to the database
+     * If isAutoImportEnabled method returns true, the user will be imported to the database.
      */
     public function importUser(): void;
 
-    /**
-     * @return void
-     */
     public function updateUser(): void;
 
     /**
      * @param string|null $token
+     *
      * @return NewProviderToken
      */
     public function getProviderToken(?string $token = null): NewProviderToken;
@@ -118,14 +117,14 @@ interface ProviderAuthenticationInterface
     public function isAutoImportEnabled(): bool;
 
     /**
-     * Get User information gathered from IdP
+     * Get User information gathered from IdP.
      *
      * @return array<string,mixed>
      */
     public function getUserInformation(): array;
 
     /**
-     * Get information store in id_token JWT Payload
+     * Get information store in id_token JWT Payload.
      *
      * @return array<string,mixed>
      */

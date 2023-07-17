@@ -1,18 +1,18 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the spceific language governing permissions and
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  * For more information : contact@centreon.com
@@ -31,7 +31,6 @@ use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInte
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
-use Core\Security\Authentication\Domain\Model\ProviderToken;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Security\Domain\Authentication\Interfaces\LocalProviderInterface;
 use Security\Domain\Authentication\Model\LocalProvider;
@@ -42,9 +41,7 @@ class Local implements ProviderAuthenticationInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private string $username;
 
     /**
@@ -61,6 +58,7 @@ class Local implements ProviderAuthenticationInterface
 
     /**
      * @param LoginRequest $request
+     *
      * @throws Throwable
      */
     public function authenticateOrFail(LoginRequest $request): void
@@ -72,15 +70,16 @@ class Local implements ProviderAuthenticationInterface
 
         $this->provider->authenticateOrFail([
             'login' => $request->username,
-            'password' => $request->password
+            'password' => $request->password,
         ]);
 
         $this->username = $request->username;
     }
 
     /**
-     * @return ContactInterface
      * @throws \Exception
+     *
+     * @return ContactInterface
      */
     public function findUserOrFail(): ContactInterface
     {
@@ -91,6 +90,7 @@ class Local implements ProviderAuthenticationInterface
                 '[AUTHENTICATE] No contact could be found from provider',
                 ['provider_name' => $this->provider->getConfiguration()->getName()]
             );
+
             throw LegacyAuthenticationException::userNotFound();
         }
 
@@ -119,11 +119,11 @@ class Local implements ProviderAuthenticationInterface
      */
     public function importUser(): void
     {
-        throw new \Exception("Feature not available for Local provider");
+        throw new \Exception('Feature not available for Local provider');
     }
 
     /**
-     * Update user in data storage
+     * Update user in data storage.
      */
     public function updateUser(): void
     {
@@ -139,6 +139,8 @@ class Local implements ProviderAuthenticationInterface
     }
 
     /**
+     * @param ?string $token
+     *
      * @return NewProviderToken
      */
     public function getProviderToken(?string $token = null): NewProviderToken
@@ -188,6 +190,7 @@ class Local implements ProviderAuthenticationInterface
 
     /**
      * @param AuthenticationTokens $authenticationTokens
+     *
      * @return AuthenticationTokens|null
      */
     public function refreshToken(AuthenticationTokens $authenticationTokens): ?AuthenticationTokens

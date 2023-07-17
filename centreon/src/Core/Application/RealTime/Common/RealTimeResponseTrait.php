@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,40 +18,25 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Application\RealTime\Common;
 
+use Core\Domain\RealTime\Model\Acknowledgement;
+use Core\Domain\RealTime\Model\Downtime;
 use Core\Domain\RealTime\Model\Icon;
 use Core\Domain\RealTime\Model\Status;
-use Core\Tag\RealTime\Domain\Model\Tag;
-use Core\Domain\RealTime\Model\Downtime;
-use Core\Domain\RealTime\Model\Acknowledgement;
 use Core\Severity\RealTime\Domain\Model\Severity;
+use Core\Tag\RealTime\Domain\Model\Tag;
 
 trait RealTimeResponseTrait
 {
     /**
-     * Convert array of HostCategory models into an array made of scalars
-     *
-     * @param Tag[] $tags
-     * @return array<int, array<string, int|string>>
-     */
-    private function tagsToArray(array $tags): array
-    {
-        return array_map(
-            fn (Tag $tag) => [
-                'id' => $tag->getId(),
-                'name' => $tag->getName(),
-            ],
-            $tags
-        );
-    }
-
-    /**
-     * Converts an Icon model into an array
+     * Converts an Icon model into an array.
      *
      * @param Icon|null $icon
+     *
      * @return array<string, int|string|null>
      */
     public function iconToArray(?Icon $icon): array
@@ -61,14 +46,15 @@ trait RealTimeResponseTrait
             : [
                 'id' => $icon->getId(),
                 'name' => $icon->getName(),
-                'url' => $icon->getUrl()
+                'url' => $icon->getUrl(),
             ];
     }
 
     /**
-     * Converts an array of Downtimes entities into an array
+     * Converts an array of Downtimes entities into an array.
      *
      * @param Downtime[] $downtimes
+     *
      * @return array<int, array<string, mixed>>
      */
     public function downtimesToArray(array $downtimes): array
@@ -92,16 +78,17 @@ trait RealTimeResponseTrait
                 'internal_id' => $downtime->getEngineDowntimeId(),
                 'is_fixed' => $downtime->isFixed(),
                 'poller_id' => $downtime->getInstanceId(),
-                'is_started' => $downtime->isStarted()
+                'is_started' => $downtime->isStarted(),
             ],
             $downtimes
         );
     }
 
     /**
-     * Converts an Acknowledgement entity into an array
+     * Converts an Acknowledgement entity into an array.
      *
      * @param Acknowledgement|null $acknowledgement
+     *
      * @return array<string, mixed>
      */
     public function acknowledgementToArray(?Acknowledgement $acknowledgement): array
@@ -123,14 +110,33 @@ trait RealTimeResponseTrait
                 'is_sticky' => $acknowledgement->isSticky(),
                 'state' => $acknowledgement->getState(),
                 'type' => $acknowledgement->getType(),
-                'with_services' => $acknowledgement->isWithServices()
+                'with_services' => $acknowledgement->isWithServices(),
             ];
     }
 
     /**
-     * Converts Status model into an array for DTO
+     * Convert array of HostCategory models into an array made of scalars.
+     *
+     * @param Tag[] $tags
+     *
+     * @return array<int, array<string, int|string>>
+     */
+    private function tagsToArray(array $tags): array
+    {
+        return array_map(
+            fn (Tag $tag) => [
+                'id' => $tag->getId(),
+                'name' => $tag->getName(),
+            ],
+            $tags
+        );
+    }
+
+    /**
+     * Converts Status model into an array for DTO.
      *
      * @param Status $status
+     *
      * @return array<string, mixed>
      */
     private function statusToArray(Status $status): array
@@ -139,14 +145,15 @@ trait RealTimeResponseTrait
             'name' => $status->getName(),
             'code' => $status->getCode(),
             'severity_code' => $status->getOrder(),
-            'type' => $status->getType()
+            'type' => $status->getType(),
         ];
     }
 
     /**
-     * Converts Severity model into an array for DTO
+     * Converts Severity model into an array for DTO.
      *
      * @param Severity $severity
+     *
      * @return array<string, mixed>
      */
     private function severityToArray(Severity $severity): array
@@ -156,7 +163,7 @@ trait RealTimeResponseTrait
             'name' => $severity->getName(),
             'level' => $severity->getLevel(),
             'type' => $severity->getTypeAsString(),
-            'icon' => $this->iconToArray($severity->getIcon())
+            'icon' => $this->iconToArray($severity->getIcon()),
         ];
     }
 }

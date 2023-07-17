@@ -361,6 +361,7 @@ final class AddServiceTemplate
 
     /**
      * @param AddServiceTemplateRequest $request
+     * @param array $serviceCategoriesIds
      *
      * @throws ServiceTemplateException
      * @throws \Throwable
