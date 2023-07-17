@@ -1,4 +1,4 @@
-/* eslint-disable typescript-sort-keys/interface */
+/* eslint-disable typescript-sort-keys/interface,sort-keys-fix/sort-keys-fix */
 
 import { List } from './meta.models';
 
@@ -8,7 +8,11 @@ import { List } from './meta.models';
 
 export const resource = {
   dashboard: 'dashboard',
-  dashboards: 'dashboards'
+  dashboards: 'dashboards',
+  dashboardsContacts: 'dashboardsContacts',
+  dashboardsContactGroups: 'dashboardsContactGroups',
+  dashboardAccessRightsContactGroups: 'dashboardAccessRightsContactGroups',
+  dashboardAccessRightsContacts: 'dashboardAccessRightsContacts'
 } as const;
 
 /**
@@ -23,6 +27,11 @@ export type NamedEntity = {
 export enum DashboardRole {
   editor = 'editor',
   viewer = 'viewer'
+}
+
+export enum ContactType {
+  contact = 'contact',
+  contactGroup = 'contact_group'
 }
 
 /**
@@ -77,3 +86,53 @@ export type DashboardPanel = NamedEntity & {
   };
   widgetType: string;
 };
+
+/**
+ * dashboards contacts and contact groups
+ */
+
+export type DashboardsContact = NamedEntity & {
+  type: ContactType.contact;
+};
+
+export const isDashboardsContact = (
+  value: unknown
+): value is DashboardsContact =>
+  (value as DashboardsContact).type === ContactType.contact;
+
+export type DashboardsContactGroup = NamedEntity & {
+  type: ContactType.contactGroup;
+};
+
+export const isDashboardsContactGroup = (
+  value: unknown
+): value is DashboardsContactGroup =>
+  (value as DashboardsContactGroup).type === ContactType.contactGroup;
+
+/**
+ * dashboard access rights
+ */
+
+export type DashboardAccessRightsContact = NamedEntity & {
+  email?: string;
+  role: DashboardRole;
+  type: ContactType.contact;
+};
+
+export type DashboardAccessRightsContactGroup = NamedEntity & {
+  role: DashboardRole;
+  type: ContactType.contactGroup;
+};
+
+export type CreateAccessRightDto = {
+  dashboardId: NamedEntity['id'];
+} & Pick<
+  DashboardAccessRightsContact | DashboardAccessRightsContactGroup,
+  'id' | 'role'
+>;
+
+export type UpdateAccessRightDto = CreateAccessRightDto;
+
+export type DeleteAccessRightDto = {
+  dashboardId: NamedEntity['id'];
+} & Pick<NamedEntity, 'id'>;

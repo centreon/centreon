@@ -78,7 +78,7 @@ $lockedFilter = $displayLocked ? "" : "AND sv.service_locked = 0 ";
 //Service Template Model list
 if ($search) {
     $statement = $pearDB->prepare("SELECT SQL_CALC_FOUND_ROWS sv.service_id, sv.service_description," .
-        " sv.service_alias, sv.service_activate, sv.service_template_model_stm_id FROM service sv " .
+        " sv.service_alias, sv.service_template_model_stm_id FROM service sv " .
         "WHERE (sv.service_description LIKE :search OR sv.service_alias LIKE :search) " .
         "AND sv.service_register = '0' " .
         $lockedFilter .
@@ -86,7 +86,7 @@ if ($search) {
     $statement->bindValue(':search', '%' . $search . '%', \PDO::PARAM_STR);
 } else {
     $statement = $pearDB->prepare("SELECT SQL_CALC_FOUND_ROWS sv.service_id, sv.service_description," .
-        " sv.service_alias, sv.service_activate, sv.service_template_model_stm_id FROM service sv " .
+        " sv.service_alias, sv.service_template_model_stm_id FROM service sv " .
         "WHERE sv.service_register = '0' " . $lockedFilter .
         "ORDER BY service_description LIMIT :scope, :limit");
 }
@@ -143,18 +143,6 @@ for ($i = 0; $service = $statement->fetch(); $i++) {
     if (isset($lockedElements[$service['service_id']])) {
         $selectedElements->setAttribute('disabled', 'disabled');
     } else {
-        if ($service["service_activate"]) {
-            $moptions .= "<a href='main.php?p=" . $p . "&service_id=" . $service['service_id'] . "&o=u&limit=" .
-                $limit . "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-                "'><img src='img/icons/disabled.png' " .
-                "class='ico-14 margin_right' border='0' alt='" . _("Disabled") . "'></a>&nbsp;&nbsp;";
-        } else {
-            $moptions .= "<a href='main.php?p=" . $p . "&service_id=" . $service['service_id'] . "&o=s&limit=" .
-                $limit . "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-                "'><img src='img/icons/enabled.png' " .
-                "class='ico-14 margin_right' border='0' alt='" . _("Enabled") . "'></a>&nbsp;&nbsp;";
-        }
-        $moptions .= "&nbsp;";
         $moptions .= "<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) " .
             "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;" .
             "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
@@ -240,8 +228,6 @@ for ($i = 0; $service = $statement->fetch(); $i++) {
         ),
         "RowMenu_attempts" => getMyServiceField($service['service_id'], "service_max_check_attempts"),
         "RowMenu_link" => "main.php?p=" . $p . "&o=c&service_id=" . $service['service_id'],
-        "RowMenu_status" => $service["service_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_badge" => $service["service_activate"] ? "service_ok" : "service_critical",
         "RowMenu_options" => $moptions
     );
     $style != "two" ? $style = "two" : $style = "one";
@@ -290,9 +276,7 @@ $form->addElement(
         null => _("More actions..."),
         "m" => _("Duplicate"),
         "d" => _("Delete"),
-        "mc" => _("Massive Change"),
-        "ms" => _("Enable"),
-        "mu" => _("Disable")
+        "mc" => _("Massive Change")
     ),
     $attrs1
 );
@@ -322,9 +306,7 @@ $form->addElement(
         null => _("More actions..."),
         "m" => _("Duplicate"),
         "d" => _("Delete"),
-        "mc" => _("Massive Change"),
-        "ms" => _("Enable"),
-        "mu" => _("Disable")
+        "mc" => _("Massive Change")
     ),
     $attrs2
 );

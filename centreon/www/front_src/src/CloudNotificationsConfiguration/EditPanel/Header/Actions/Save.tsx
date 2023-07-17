@@ -27,7 +27,8 @@ const SaveAction = (): JSX.Element => {
   const { isSubmitting, isValid, dirty, submitForm } =
     useFormikContext<FormikValues>();
 
-  const { labelConfirm, setDialogOpen, dialogOpen } = useFormSubmit();
+  const { labelConfirm, panelMode, setDialogOpen, dialogOpen } =
+    useFormSubmit();
 
   const onClick = (): void => setDialogOpen(true);
 
@@ -38,6 +39,7 @@ const SaveAction = (): JSX.Element => {
   };
 
   const disabled = or(!isValid, !dirty);
+  const dataTestId = `${panelMode}-notification`;
 
   return (
     <Box>
@@ -54,6 +56,7 @@ const SaveAction = (): JSX.Element => {
       </IconButton>
       <ConfirmDialog
         confirmDisabled={isSubmitting}
+        data-testid={dataTestId}
         labelMessage={t(labelConfirm)}
         labelTitle={t(labelDoYouWantToConfirmAction)}
         open={dialogOpen}
