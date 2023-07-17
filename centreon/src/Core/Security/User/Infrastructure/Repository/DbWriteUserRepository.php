@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,11 +24,11 @@ declare(strict_types=1);
 namespace Core\Security\User\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Security\User\Domain\Model\User;
-use Core\Security\User\Domain\Model\UserPassword;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Security\User\Application\Repository\WriteUserRepositoryInterface;
+use Core\Security\User\Domain\Model\User;
+use Core\Security\User\Domain\Model\UserPassword;
 
 class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRepositoryInterface
 {
@@ -77,7 +77,7 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
     private function addPassword(UserPassword $password): void
     {
         $this->info('add new password for user in DBMS', [
-            'user_id' => $password->getUserId()
+            'user_id' => $password->getUserId(),
         ]);
         $statement = $this->db->prepare(
             $this->translateDbName(
@@ -92,14 +92,14 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
     }
 
     /**
-     * Delete old passwords to store only 3 last passwords
+     * Delete old passwords to store only 3 last passwords.
      *
-     * @param integer $userId
+     * @param int $userId
      */
     private function deleteOldPasswords(int $userId): void
     {
         $this->info('removing old passwords for user from DBMS', [
-            'user_id' => $userId
+            'user_id' => $userId,
         ]);
         $statement = $this->db->prepare(
             $this->translateDbName(
@@ -112,7 +112,7 @@ class DbWriteUserRepository extends AbstractRepositoryDRB implements WriteUserRe
         $statement->bindValue(':contactId', $userId, \PDO::PARAM_INT);
         $statement->execute();
 
-        //If 3 or more passwords are saved, delete the oldest ones.
+        // If 3 or more passwords are saved, delete the oldest ones.
         if (($result = $statement->fetchAll()) && count($result) > 3) {
             $maxCreationDateToDelete = $result[3]['creation_date'];
             $statement = $this->db->prepare(

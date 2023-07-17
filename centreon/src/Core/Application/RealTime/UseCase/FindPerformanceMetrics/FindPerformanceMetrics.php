@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,9 +26,9 @@ namespace Core\Application\RealTime\UseCase\FindPerformanceMetrics;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
-use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadIndexDataRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadMetricRepositoryInterface;
+use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
 use Core\Domain\RealTime\Model\IndexData;
 
 class FindPerformanceMetrics
@@ -50,7 +50,6 @@ class FindPerformanceMetrics
     /**
      * @param FindPerformanceMetricRequest $request
      * @param FindPerformanceMetricPresenterInterface $presenter
-     * @return void
      */
     public function __invoke(
         FindPerformanceMetricRequest $request,
@@ -61,7 +60,7 @@ class FindPerformanceMetrics
                 'Retrieve performance metrics',
                 [
                     'host_id' => $request->hostId,
-                    'service_id' => $request->serviceId
+                    'service_id' => $request->serviceId,
                 ]
             );
 
@@ -94,6 +93,7 @@ class FindPerformanceMetrics
 
     /**
      * @param int $index
+     *
      * @return string
      */
     private function generateDownloadFileNameByIndex(int $index): string

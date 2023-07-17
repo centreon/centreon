@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,168 +18,111 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Application\RealTime\UseCase\FindService;
 
+use Core\Application\RealTime\Common\RealTimeResponseTrait;
+use Core\Domain\RealTime\Model\Acknowledgement;
+use Core\Domain\RealTime\Model\Downtime;
 use Core\Domain\RealTime\Model\Host;
 use Core\Domain\RealTime\Model\Icon;
-use Core\Tag\RealTime\Domain\Model\Tag;
-use Core\Domain\RealTime\Model\Downtime;
+use Core\Domain\RealTime\Model\ResourceTypes\ServiceResourceType;
 use Core\Domain\RealTime\Model\Servicegroup;
 use Core\Domain\RealTime\Model\ServiceStatus;
-use Core\Domain\RealTime\Model\Acknowledgement;
 use Core\Severity\RealTime\Domain\Model\Severity;
-use Core\Application\RealTime\Common\RealTimeResponseTrait;
-use Core\Domain\RealTime\Model\ResourceTypes\ServiceResourceType;
+use Core\Tag\RealTime\Domain\Model\Tag;
 
 class FindServiceResponse
 {
     use RealTimeResponseTrait;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $isFlapping;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $isAcknowledged;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $isInDowntime;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $output;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $performanceData;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $commandLine;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $notificationNumber;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $lastStatusChange;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $lastNotification;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     public $latency;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     public $executionTime;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     public $statusChangePercentage;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $nextCheck;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $lastCheck;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $hasActiveChecks;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $hasPassiveChecks;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $lastTimeOk;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $checkAttempts;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $maxCheckAttempts;
 
-    /**
-     * @var array<string, int|string|null>
-     */
+    /** @var array<string, int|string|null> */
     public $icon;
 
-    /**
-     * @var array<array<string, mixed>>
-     */
+    /** @var array<array<string, mixed>> */
     public $groups;
 
-    /**
-     * @var array<array<string, mixed>>
-     */
+    /** @var array<array<string, mixed>> */
     public $categories;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     public $status;
 
-    /**
-     * @var array<array<string, mixed>>
-     */
+    /** @var array<array<string, mixed>> */
     public $downtimes;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     public $acknowledgement;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     public $host;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     public $hasGraphData;
 
-    /**
-     * @var array<string, mixed>|null
-     */
+    /** @var array<string, mixed>|null */
     public ?array $severity = null;
 
-    /*
-     * @var string
-     */
+    // @var string
     public string $type = ServiceResourceType::TYPE_NAME;
 
     /**
@@ -219,9 +162,10 @@ class FindServiceResponse
     }
 
     /**
-     * Converts an array of Servicegroups model into an array
+     * Converts an array of Servicegroups model into an array.
      *
      * @param Servicegroup[] $servicegroups
+     *
      * @return array<int, array<string, mixed>>
      */
     private function servicegroupsToArray(array $servicegroups): array
@@ -229,16 +173,17 @@ class FindServiceResponse
         return array_map(
             fn (Servicegroup $servicegroup) => [
                 'id' => $servicegroup->getId(),
-                'name' => $servicegroup->getName()
+                'name' => $servicegroup->getName(),
             ],
             $servicegroups
         );
     }
 
     /**
-     * Converts a Host entity into an array
+     * Converts a Host entity into an array.
      *
      * @param Host $host
+     *
      * @return array<string, mixed>
      */
     private function hostToArray(Host $host): array
@@ -248,7 +193,7 @@ class FindServiceResponse
             'id' => $host->getId(),
             'name' => $host->getName(),
             'status' => $this->statusToArray($host->getStatus()),
-            'monitoring_server_name' => $host->getMonitoringServerName()
+            'monitoring_server_name' => $host->getMonitoringServerName(),
         ];
     }
 }

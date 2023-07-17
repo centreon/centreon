@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,20 +18,20 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\Repository;
 
-use Core\Domain\RealTime\Model\Icon;
-use Centreon\Domain\Monitoring\Notes;
-use Centreon\Domain\Monitoring\ResourceStatus;
-use Core\Domain\RealTime\ResourceTypeInterface;
-use Core\Severity\RealTime\Domain\Model\Severity;
 use Centreon\Domain\Monitoring\Icon as LegacyIconModel;
+use Centreon\Domain\Monitoring\Notes;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use Centreon\Domain\Monitoring\ResourceStatus;
+use Core\Domain\RealTime\Model\Icon;
 use Core\Domain\RealTime\Model\ResourceTypes\HostResourceType;
+use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Infrastructure\Common\Repository\DbFactoryUtilitiesTrait;
-use Core\Domain\RealTime\Model\ResourceTypes\MetaServiceResourceType;
+use Core\Severity\RealTime\Domain\Model\Severity;
 
 class DbResourceFactory
 {
@@ -40,6 +40,7 @@ class DbResourceFactory
     /**
      * @param array<string,int|string|null> $record
      * @param ResourceTypeInterface[] $availableResourceTypes
+     *
      * @return ResourceEntity
      */
     public static function createFromRecord(array $record, array $availableResourceTypes): ResourceEntity
@@ -92,7 +93,6 @@ class DbResourceFactory
         $statusConfirmedAsString = (int) $record['status_confirmed'] === 1 ? 'H' : 'S';
         $tries = $record['check_attempts']
             . '/' . $record['max_check_attempts'] . ' (' . $statusConfirmedAsString . ')';
-
 
         $severity = null;
         if (! empty($record['severity_id'])) {
@@ -169,10 +169,11 @@ class DbResourceFactory
     }
 
     /**
-     * Returns status as string regarding the resource type
+     * Returns status as string regarding the resource type.
      *
      * @param string $resourceType
      * @param int $statusCode
+     *
      * @return string
      */
     private static function getStatusAsString(string $resourceType, int $statusCode): string
@@ -198,9 +199,10 @@ class DbResourceFactory
     }
 
     /**
-     * Normalizes the status severity code
+     * Normalizes the status severity code.
      *
      * @param int $severityCode
+     *
      * @return int
      */
     private static function normalizeSeverityCode(int $severityCode): int
@@ -216,10 +218,11 @@ class DbResourceFactory
     }
 
     /**
-     * Converts the resource type value stored as int into a string
+     * Converts the resource type value stored as int into a string.
      *
-     * @param integer $type
+     * @param int $type
      * @param ResourceTypeInterface[] $availableResourceTypes
+     *
      * @return string
      */
     private static function normalizeType(int $type, array $availableResourceTypes): string
@@ -227,7 +230,7 @@ class DbResourceFactory
         $normalizedType = '';
         foreach ($availableResourceTypes as $resourceType) {
             if ($resourceType->isValidForTypeId($type)) {
-                $normalizedType =  $resourceType->getName();
+                $normalizedType = $resourceType->getName();
             }
         }
 
@@ -235,11 +238,12 @@ class DbResourceFactory
     }
 
     /**
-     * Checks if the Resource has a parent to define
+     * Checks if the Resource has a parent to define.
      *
-     * @param integer $resourceTypeId
+     * @param int $resourceTypeId
      * @param ResourceTypeInterface[] $availableResourceTypes
-     * @return boolean
+     *
+     * @return bool
      */
     private static function resourceHasParent(int $resourceTypeId, array $availableResourceTypes): bool
     {
@@ -254,9 +258,10 @@ class DbResourceFactory
     }
 
     /**
-     * @param integer $resourceTypeId
+     * @param int $resourceTypeId
      * @param ResourceTypeInterface[] $availableResourceTypes
-     * @return boolean
+     *
+     * @return bool
      */
     private static function resourceHasInternalId(int $resourceTypeId, array $availableResourceTypes): bool
     {

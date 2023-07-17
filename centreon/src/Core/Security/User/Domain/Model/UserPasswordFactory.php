@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,13 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Security\User\Domain\Model;
 
-use Core\Security\User\Domain\Model\User;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Core\Security\User\Domain\Model\UserPassword;
 use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Security\User\Domain\Exception\UserPasswordException;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
 use Core\Security\ProviderConfiguration\Infrastructure\Local\Api\Exception\ConfigurationException;
+use Core\Security\User\Domain\Exception\UserPasswordException;
 
 class UserPasswordFactory
 {
@@ -39,8 +37,10 @@ class UserPasswordFactory
      * @param string $password
      * @param User $user
      * @param SecurityPolicy $securityPolicy
-     * @return UserPassword
+     *
      * @throws UserPasswordException|ConfigurationException
+     *
+     * @return UserPassword
      */
     public static function create(string $password, User $user, SecurityPolicy $securityPolicy): UserPassword
     {
@@ -67,15 +67,15 @@ class UserPasswordFactory
                 );
             }
         } catch (AssertionException) {
-            //Throw a generic user password exception to avoid returning a plain password in the AssertionException.
+            // Throw a generic user password exception to avoid returning a plain password in the AssertionException.
             throw UserPasswordException::passwordDoesnotMatchSecurityPolicy();
         }
 
-        //Verify that an old passwords is not reused
+        // Verify that an old passwords is not reused
         if ($securityPolicy->canReusePasswords() === false) {
             foreach ($user->getOldPasswords() as $oldPassword) {
                 if (password_verify($password, $oldPassword->getPasswordValue())) {
-                    throw  new ConfigurationException(_('Old password usage is disable'));
+                    throw new ConfigurationException(_('Old password usage is disable'));
                 }
             }
         }

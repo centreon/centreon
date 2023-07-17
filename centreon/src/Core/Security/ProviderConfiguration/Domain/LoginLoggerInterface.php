@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,7 @@ namespace Core\Security\ProviderConfiguration\Domain;
 use Exception;
 
 /**
- * This interface is used on authentication only
+ * This interface is used on authentication only.
  */
 interface LoginLoggerInterface
 {
@@ -34,7 +34,6 @@ interface LoginLoggerInterface
      * @param string $scope
      * @param string $message
      * @param array<string,string> $content
-     * @return void
      */
     public function info(string $scope, string $message, array $content = []): void;
 
@@ -42,7 +41,6 @@ interface LoginLoggerInterface
      * @param string $scope
      * @param string $message
      * @param array<string,string> $content
-     * @return void
      */
     public function debug(string $scope, string $message, array $content = []): void;
 
@@ -50,7 +48,6 @@ interface LoginLoggerInterface
      * @param string $scope
      * @param string $message
      * @param array<string,string> $content
-     * @return void
      */
     public function error(string $scope, string $message, array $content = []): void;
 
@@ -58,7 +55,6 @@ interface LoginLoggerInterface
      * @param string $scope
      * @param string $message
      * @param Exception $exception
-     * @return void
      */
     public function exception(string $scope, string $message, Exception $exception): void;
 }

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,24 +18,26 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\Configuration\NotificationPolicy\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
-use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
 
 abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDRB
 {
     use LoggerTrait;
 
     /**
-     * Find contacts from ids
+     * Find contacts from ids.
      *
      * @param int[] $contactIds
+     *
      * @return NotifiedContact[]
      */
     protected function findContactsByIds(array $contactIds): array
@@ -49,7 +51,7 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
         }
 
         $request = $this->translateDbName(
-            "SELECT
+            'SELECT
                 c.contact_id,
                 c.contact_alias,
                 c.contact_name,
@@ -67,7 +69,7 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
             INNER JOIN `:db`.timeperiod t1
                 ON t1.tp_id = c.timeperiod_tp_id
             INNER JOIN `:db`.timeperiod t2
-                ON t2.tp_id = c.timeperiod_tp_id2"
+                ON t2.tp_id = c.timeperiod_tp_id2'
         );
 
         $collector = new StatementCollector();
@@ -97,9 +99,10 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
     }
 
     /**
-     * Find contact groups from ids
+     * Find contact groups from ids.
      *
      * @param int[] $contactGroupIds
+     *
      * @return NotifiedContactGroup[]
      */
     protected function findContactGroupsByIds(array $contactGroupIds): array

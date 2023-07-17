@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,12 +23,15 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\Login;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Menu\Model\Page;
-use Security\Domain\Authentication\Model\Session;
-use Core\Application\Common\UseCase\PresenterInterface;
+use Centreon\Domain\Authentication\Exception\AuthenticationException as LegacyAuthenticationException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
+use Centreon\Domain\Menu\Model\Page;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Application\Common\UseCase\ErrorAuthenticationConditionsResponse;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
@@ -37,17 +40,14 @@ use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryIn
 use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Core\Security\Authentication\Domain\Model\NewProviderToken;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Application\Common\UseCase\ErrorAuthenticationConditionsResponse;
+use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Exception\PasswordExpiredException;
+use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
-use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
-use Centreon\Domain\Authentication\Exception\AuthenticationException as LegacyAuthenticationException;
-use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Security\Domain\Authentication\Model\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class Login
 {
@@ -85,6 +85,7 @@ final class Login
     /**
      * @param LoginRequest $loginRequest
      * @param PresenterInterface $presenter
+     *
      * @throws AuthenticationException
      */
     public function __invoke(LoginRequest $loginRequest, PresenterInterface $presenter): void
@@ -99,7 +100,7 @@ final class Login
             }
 
             $user = $this->provider->findUserOrFail();
-            if ($loginRequest->providerName === Provider::LOCAL && !$user->isAllowedToReachWeb()) {
+            if ($loginRequest->providerName === Provider::LOCAL && ! $user->isAllowedToReachWeb()) {
                 throw LegacyAuthenticationException::notAllowedToReachWebApplication();
             }
 
@@ -127,10 +128,12 @@ final class Login
                 'password_is_expired' => true,
             ]);
             $presenter->setResponseStatus($response);
+
             return;
         } catch (AuthenticationException $e) {
             $this->error('An error occurred during authentication', ['trace' => (string) $e]);
             $presenter->setResponseStatus(new UnauthorizedResponse($e->getMessage()));
+
             return;
         } catch (AclConditionsException $e) {
             $this->error('An error occured while matching your ACL conditions', ['trace' => (string) $e]);
@@ -138,6 +141,7 @@ final class Login
         } catch (AuthenticationConditionsException $ex) {
             $this->error('An error occured while matching your authentication conditions', ['trace' => (string) $ex]);
             $presenter->setResponseStatus(new ErrorAuthenticationConditionsResponse($ex->getMessage()));
+
             return;
         } catch (\Throwable $ex) {
             $this->error('An error occurred during authentication', ['trace' => (string) $ex]);
@@ -154,6 +158,7 @@ final class Login
      * @param NewProviderToken $providerToken
      * @param NewProviderToken|null $providerRefreshToken
      * @param string|null $clientIp
+     *
      * @throws AuthenticationException
      */
     private function createAuthenticationTokens(
@@ -166,7 +171,7 @@ final class Login
 
         $isAlreadyInTransaction = $this->dataStorageEngine->isAlreadyinTransaction();
 
-        if (!$isAlreadyInTransaction) {
+        if (! $isAlreadyInTransaction) {
             $this->dataStorageEngine->startTransaction();
         }
 
@@ -180,11 +185,11 @@ final class Login
                 $providerToken,
                 $providerRefreshToken
             );
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->dataStorageEngine->commitTransaction();
             }
         } catch (\Exception) {
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->dataStorageEngine->rollbackTransaction();
             }
 
@@ -197,6 +202,7 @@ final class Login
      *
      * @param ContactInterface $authenticatedUser
      * @param string|null $refererQueryParameters
+     *
      * @return string
      */
     private function getRedirectionUri(ContactInterface $authenticatedUser, ?string $refererQueryParameters): string
@@ -217,6 +223,7 @@ final class Login
      * build the redirection uri based on isReact page property.
      *
      * @param Page $defaultPage
+     *
      * @return string
      */
     private function buildDefaultRedirectionUri(Page $defaultPage): string
@@ -224,7 +231,7 @@ final class Login
         if ($defaultPage->isReact() === true) {
             return $defaultPage->getUrl();
         }
-        $redirectUri = "/main.php?p=" . $defaultPage->getPageNumber();
+        $redirectUri = '/main.php?p=' . $defaultPage->getPageNumber();
         if ($defaultPage->getUrlOptions() !== null) {
             $redirectUri .= $defaultPage->getUrlOptions();
         }
@@ -236,6 +243,7 @@ final class Login
      * Get a Page from referer page number.
      *
      * @param string|null $refererQueryParameters
+     *
      * @return Page|null
      */
     private function getRedirectionPageFromRefererQueryParameters(?string $refererQueryParameters): ?Page
@@ -252,7 +260,7 @@ final class Login
             parse_str($queryParameters['redirect'], $redirectionPageParameters);
             if (array_key_exists('p', $redirectionPageParameters)) {
                 $refererRedirectionPage = $this->menuService->findPageByTopologyPageNumber(
-                    (int)$redirectionPageParameters['p']
+                    (int) $redirectionPageParameters['p']
                 );
                 unset($redirectionPageParameters['p']);
                 if ($refererRedirectionPage !== null) {

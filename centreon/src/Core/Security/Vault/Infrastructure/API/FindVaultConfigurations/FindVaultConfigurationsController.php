@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Security\Vault\Infrastructure\API\FindVaultConfigurations;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\{
     FindVaultConfigurations,
     FindVaultConfigurationsRequest
@@ -33,7 +32,7 @@ use Core\Security\Vault\Application\UseCase\FindVaultConfigurations\{
 final class FindVaultConfigurationsController extends AbstractController
 {
     /**
-     * @param integer $vaultId
+     * @param int $vaultId
      * @param FindVaultConfigurations $useCase
      * @param FindVaultConfigurationsPresenter $presenter
      *
