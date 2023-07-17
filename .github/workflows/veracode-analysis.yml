@@ -52,12 +52,11 @@ jobs:
             echo "development_stage=Release" >> $GITHUB_OUTPUT
             echo "display_summary=false" >> $GITHUB_OUTPUT
           elif [[ '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'unstable' ]]; then
-            echo "fail_build=false" >> $GITHUB_OUTPUT
+            echo "fail_build=${{ vars.VERACODE_QUALITY_GATE }}" >> $GITHUB_OUTPUT
             echo "development_stage=Testing" >> $GITHUB_OUTPUT
             echo "display_summary=false" >> $GITHUB_OUTPUT
           else
-            echo "[DEBUG] - Grace period enabled"
-            echo "fail_build=false" >> $GITHUB_OUTPUT
+            echo "fail_build=${{ vars.VERACODE_QUALITY_GATE }}" >> $GITHUB_OUTPUT
             echo "development_stage=Development" >> $GITHUB_OUTPUT
             echo "display_summary=true" >> $GITHUB_OUTPUT
           fi
