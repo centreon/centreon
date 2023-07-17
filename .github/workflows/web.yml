@@ -451,9 +451,9 @@ jobs:
             --include-path-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-path.txt \
             --include-bin-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-bin.txt \
             --path-perms-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/path-perms.txt \
-            --tag ${{ env.project }}-slim-${{ matrix.os }} \
+            --tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-          docker tag ${{ env.project }}-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Push standard slim image
