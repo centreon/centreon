@@ -95,9 +95,7 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Load standard slim image
-        run: |
-          ls -la /tmp/cache/docker-image
-          docker load --input /tmp/cache/docker-image/docker-image-${{ inputs.image_name }}-slim-${{ inputs.os }}.tar
+        run: docker load --input /tmp/cache/docker-image/${{ inputs.image_name }}-slim-${{ inputs.os }}.tar
         shell: bash
 
       - name: Behat acceptance testing
