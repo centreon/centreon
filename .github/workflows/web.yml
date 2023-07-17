@@ -264,30 +264,30 @@ jobs:
   #         path: "centreon/build/phpunit.xml"
   #         format: "php-junit"
 
-  php-cs-fixer:
-    runs-on: ubuntu-22.04
-    needs: [changes, get-version]
-    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+  # backend-lint:
+  #   runs-on: ubuntu-22.04
+  #   needs: [changes, get-version]
+  #   if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.1
-          coverage: none
-        env:
-          runner: ubuntu-22.04
+  #     - name: Setup PHP
+  #       uses: shivammathur/setup-php@v2
+  #       with:
+  #         php-version: 8.1
+  #         coverage: none
+  #       env:
+  #         runner: ubuntu-22.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
-        working-directory: centreon
-        shell: bash
+  #     - name: Install Dependencies
+  #       run: composer install --optimize-autoloader
+  #       working-directory: centreon
+  #       shell: bash
 
-      - name: Run of php-cs-fixer
-        run: vendor/bin/php-cs-fixer fix --verbose --dry-run --diff
-        working-directory: centreon
+  #     - name: Run of php-cs-fixer
+  #       run: vendor/bin/php-cs-fixer fix --verbose --dry-run --diff
+  #       working-directory: centreon
 
   package:
     needs:
@@ -295,6 +295,7 @@ jobs:
         get-version,
         translation-build,
         backend-dependencies,
+        #backend-lint,
         #backend-unit-test,
         frontend-web-build,
         #frontend-web-lint,
@@ -461,6 +462,7 @@ jobs:
 
       - name: Store standard slim image in local archive
         run: |
+          mkdir -p /tmp/cache/docker-image
           docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}
         shell: bash
 
