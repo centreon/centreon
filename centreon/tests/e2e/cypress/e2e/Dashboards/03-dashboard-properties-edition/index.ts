@@ -3,11 +3,11 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 
 before(() => {
-  cy.startWebContainer({ version: 'develop' });
-  /*  cy.execInContainer({
+  cy.startWebContainer();
+  cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
-  }); */
+  });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
   );
