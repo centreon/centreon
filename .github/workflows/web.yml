@@ -472,14 +472,14 @@ jobs:
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
         shell: bash
 
       - name: Store standard slim image in cache
         uses: actions/cache/save@v3
         with:
           path: /tmp/cache/docker-image
-          key: docker-image-${{ env.project }}-slim-${{ matrix.os }}
+          key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
     needs: [get-version, changes, dockerize]

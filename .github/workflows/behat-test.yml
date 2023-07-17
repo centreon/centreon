@@ -91,11 +91,13 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: /tmp/cache/docker-image
-          key: docker-image-${{ inputs.image_name }}-slim-${{ inputs.os }}
+          key: docker-image-${{ inputs.image_name }}-slim-${{ inputs.os }}-${{ github.head_ref || github.ref_name }}
           fail-on-cache-miss: true
 
       - name: Load standard slim image
-        run: docker load --input /tmp/cache/docker-image/docker-image-${{ inputs.image_name }}-slim-${{ inputs.os }}.tar
+        run: |
+          ls -la /tmp/cache/docker-image
+          docker load --input /tmp/cache/docker-image/docker-image-${{ inputs.image_name }}-slim-${{ inputs.os }}.tar
         shell: bash
 
       - name: Behat acceptance testing
