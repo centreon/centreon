@@ -30,6 +30,9 @@ class ConfigurationTimePeriod
     public const ALL_TIME_PERIOD = '24x7';
 
     /**
+     * @param privatereadonlyint $id
+     * @param privatereadonlystring $name
+     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(

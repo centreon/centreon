@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,12 @@ namespace Core\Security\Vault\Application\UseCase\FindVaultConfiguration;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotFoundResponse, PresenterInterface};
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
-    ReadVaultRepositoryInterface,
-    ReadVaultConfigurationRepositoryInterface
+    ReadVaultConfigurationRepositoryInterface,
+    ReadVaultRepositoryInterface
 };
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class FindVaultConfiguration
 {

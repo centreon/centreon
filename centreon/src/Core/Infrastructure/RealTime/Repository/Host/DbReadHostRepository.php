@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,15 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Repository\Host;
 
-use Core\Domain\RealTime\Model\Host;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadHostRepositoryInterface;
+use Core\Domain\RealTime\Model\Host;
 
 class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepositoryInterface
 {
@@ -71,14 +72,14 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
             return false;
         }
 
-        $request = "
+        $request = '
             SELECT COUNT(h.host_id) AS total
             FROM `:dbstg`.`hosts` AS h
             INNER JOIN `:dbstg`.`centreon_acl` AS host_acl
                 ON host_acl.host_id = h.host_id
-                AND host_acl.group_id IN (" . implode(',', $accessGroupIds) . ")
+                AND host_acl.group_id IN (' . implode(',', $accessGroupIds) . ')
             WHERE h.host_id = :host_id AND h.enabled = 1
-        ";
+        ';
 
         $statement = $this->db->prepare($this->translateDbName($request));
 
@@ -94,6 +95,7 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
      *
      * @param int $hostId
      * @param string|null $accessGroupRequest
+     *
      * @return Host|null
      */
     private function findHost(int $hostId, ?string $accessGroupRequest = null): ?Host
@@ -135,9 +137,9 @@ class DbReadHostRepository extends AbstractRepositoryDRB implements ReadHostRepo
             INNER JOIN `:dbstg`.`instances` AS i ON i.instance_id = h.instance_id
             LEFT JOIN `:dbstg`.`customvariables` AS host_cvl ON host_cvl.host_id = h.host_id
                 AND host_cvl.service_id = 0
-                AND host_cvl.name = 'CRITICALITY_LEVEL'" .
-            ($accessGroupRequest !== null ? $accessGroupRequest : '') .
-            "WHERE  h.host_id = :host_id AND h.enabled = '1' AND h.name NOT LIKE '\_Module_BAM%'";
+                AND host_cvl.name = 'CRITICALITY_LEVEL'"
+            . ($accessGroupRequest !== null ? $accessGroupRequest : '')
+            . "WHERE  h.host_id = :host_id AND h.enabled = '1' AND h.name NOT LIKE '\_Module_BAM%'";
 
         $statement = $this->db->prepare($this->translateDbName($request));
 

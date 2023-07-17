@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,26 +29,29 @@ use Core\Domain\Configuration\User\Model\User;
 interface ReadUserRepositoryInterface
 {
     /**
-     * Find configured users
+     * Find configured users.
      *
      * @return User[]
      */
     public function findAllUsers(): array;
 
     /**
-     * Find user ids from a list of alias
+     * Find user ids from a list of alias.
      *
      * @param string[] $userAliases
+     *
      * @return int[]
      */
     public function findUserIdsByAliases(array $userAliases): array;
 
     /**
-     * Find user by its id
+     * Find user by its id.
      *
      * @param int $userId
-     * @return User|null
+     *
      * @throws AssertionFailedException
+     *
+     * @return User|null
      */
     public function findById(int $userId): ?User;
 

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,20 +18,21 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Platform\Application\UseCase\UpdateVersions;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Platform\Application\Validator\RequirementValidatorsInterface;
-use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
-use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
-use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
-use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
-use Core\Platform\Application\Repository\UpdateNotFoundException;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
+use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
+use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
+use Core\Platform\Application\Repository\UpdateNotFoundException;
+use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
+use Core\Platform\Application\Validator\RequirementValidatorsInterface;
 
 class UpdateVersions
 {
@@ -99,7 +100,7 @@ class UpdateVersions
     }
 
     /**
-     * Validate platform requirements or fail
+     * Validate platform requirements or fail.
      *
      * @throws \Exception
      */
@@ -111,19 +112,19 @@ class UpdateVersions
     }
 
     /**
-     * Lock update process
+     * Lock update process.
      */
     private function lockUpdate(): void
     {
         $this->info('Locking centreon update process...');
 
-        if (!$this->updateLocker->lock()) {
+        if (! $this->updateLocker->lock()) {
             throw UpdateVersionsException::updateAlreadyInProgress();
         }
     }
 
     /**
-     * Unlock update process
+     * Unlock update process.
      */
     private function unlockUpdate(): void
     {
@@ -133,11 +134,11 @@ class UpdateVersions
     }
 
     /**
-     * Get current version or fail
-     *
-     * @return string
+     * Get current version or fail.
      *
      * @throws \Exception
+     *
+     * @return string
      */
     private function getCurrentVersionOrFail(): string
     {
@@ -157,9 +158,10 @@ class UpdateVersions
     }
 
     /**
-     * Get available updates
+     * Get available updates.
      *
      * @param string $currentVersion
+     *
      * @return string[]
      */
     private function getAvailableUpdatesOrFail(string $currentVersion): array
@@ -181,7 +183,7 @@ class UpdateVersions
     }
 
     /**
-     * Run given version updates
+     * Run given version updates.
      *
      * @param string[] $versions
      *
@@ -191,7 +193,7 @@ class UpdateVersions
     {
         foreach ($versions as $version) {
             try {
-                $this->info("Running update $version");
+                $this->info("Running update {$version}");
                 $this->writeUpdateRepository->runUpdate($version);
             } catch (\Throwable $e) {
                 throw UpdateVersionsException::errorWhenApplyingUpdate($version, $e->getMessage(), $e);
@@ -200,7 +202,7 @@ class UpdateVersions
     }
 
     /**
-     * Run post update actions
+     * Run post update actions.
      *
      * @param string $currentVersion
      *
@@ -208,7 +210,7 @@ class UpdateVersions
      */
     private function runPostUpdate(string $currentVersion): void
     {
-        $this->info("Running post update actions");
+        $this->info('Running post update actions');
 
         try {
             $this->writeUpdateRepository->runPostUpdate($currentVersion);

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ class NewVaultConfiguration
         Assertion::maxLength($unencryptedRoleId, self::MAX_LENGTH, 'NewVaultConfiguration::roleId');
         Assertion::minLength($unencryptedSecretId, self::MIN_LENGTH, 'NewVaultConfiguration::secretId');
         Assertion::maxLength($unencryptedSecretId, self::MAX_LENGTH, 'NewVaultConfiguration::secretId');
-        $this->salt = $this->encryption->generateRandomString(NewVaultConfiguration::SALT_LENGTH);
+        $this->salt = $this->encryption->generateRandomString(self::SALT_LENGTH);
         $this->encryptedSecretId = $this->encrypt($unencryptedSecretId, $this->salt);
         $this->encryptedRoleId = $this->encrypt($unencryptedRoleId, $this->salt);
     }
@@ -156,9 +156,9 @@ class NewVaultConfiguration
      * @param string $unencrypted
      * @param string $salt
      *
-     * @return string
-     *
      * @throws \Exception
+     *
+     * @return string
      */
     private function encrypt(string $unencrypted, string $salt): string
     {
