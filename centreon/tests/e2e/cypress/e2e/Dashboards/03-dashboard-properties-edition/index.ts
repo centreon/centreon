@@ -3,11 +3,11 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 
 before(() => {
-  cy.startWebContainer();
-  cy.execInContainer({
+  cy.startWebContainer({ version: 'develop' });
+  /*  cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
-  });
+  }); */
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
   );
@@ -70,9 +70,9 @@ Then(
       `${dashboardToEdit.description}`
     );
 
-    cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.disabled');
+    cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.disabled');
 
-    cy.getByLabel({ label: 'cancel', tag: 'button' }).should('be.enabled');
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).should('be.enabled');
   }
 );
 
@@ -89,11 +89,11 @@ When(
 );
 
 Then('the user is allowed to update the dashboard', () => {
-  cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
+  cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
 });
 
 When('the user saves the dashboard with its new values', () => {
-  cy.getByLabel({ label: 'submit', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
 });
 
 Then(
@@ -130,7 +130,7 @@ Given(
 );
 
 When('the user leaves the update form without saving', () => {
-  cy.getByLabel({ label: 'cancel', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
 });
 
 Then('the dashboard has not been edited and features its former values', () => {
@@ -180,7 +180,7 @@ When('the user sets an empty name for this dashboard', () => {
 });
 
 Then('the user cannot save the dashboard in its current state', () => {
-  cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.disabled');
+  cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.disabled');
 });
 
 When('the user enters a new name for this dashboard', () => {
@@ -188,7 +188,7 @@ When('the user enters a new name for this dashboard', () => {
 });
 
 Then('the user can now save the dashboard', () => {
-  cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
+  cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
 });
 
 Given(
@@ -208,11 +208,11 @@ When('the user sets an empty description for this dashboard', () => {
 });
 
 Then('the user can save the dashboard with an empty description', () => {
-  cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
+  cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
 });
 
 When('the user saves the dashboard with the description field empty', () => {
-  cy.getByLabel({ label: 'submit', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
 });
 
 Then(
