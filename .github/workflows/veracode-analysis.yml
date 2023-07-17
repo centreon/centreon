@@ -44,10 +44,6 @@ jobs:
           module_directory: "${{ inputs.module_directory }}"
           cache_key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
 
-      - name: debug
-        run: |
-          echo "status = ${{ vars.VERACODE_QUALITY_GATE }}"
-
       - name: Set routing mode
         id: routing-mode
         run: |
