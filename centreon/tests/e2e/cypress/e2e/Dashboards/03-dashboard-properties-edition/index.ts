@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 
@@ -103,9 +103,9 @@ Then(
     const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
     cy.contains('Dashboards').should('be.visible');
     cy.contains('Update dashboard').should('not.exist');
-    cy.contains(dashboardToEdit.name).parent().should('not.exist');
-    cy.contains(dashboardToEdit.description).parent().should('not.exist');
-    cy.contains('dashboard-edited').parent().should('exist');
+    cy.contains(dashboardToEdit.name).should('not.exist');
+    cy.contains(dashboardToEdit.description).should('not.exist');
+    cy.contains('dashboard-edited').should('exist');
   }
 );
 
@@ -222,7 +222,7 @@ Then(
     const dashboardToEdit = dashboardsOnePage[dashboardsOnePage.length - 2];
     cy.contains('Dashboards').should('be.visible');
     cy.contains('Update dashboard').should('not.exist');
-    cy.contains(dashboardToEdit.name).parent().should('exist');
-    cy.contains(dashboardToEdit.description).parent().should('not.exist');
+    cy.contains(dashboardToEdit.name).should('exist');
+    cy.contains(dashboardToEdit.description).should('not.exist');
   }
 );
