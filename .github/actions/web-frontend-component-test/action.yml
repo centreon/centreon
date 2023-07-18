@@ -30,6 +30,12 @@ runs:
       working-directory: ${{ inputs.module }}
       shell: bash
 
+    - name: Restore Cypress binary
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/Cypress
+        key: cypress-cache-${{ runner.os }}-${{ hashFiles(inputs.dependencies_lock_file) }}
+
     - name: Install Cypress binary
       uses: nick-fields/retry@v2
       with:

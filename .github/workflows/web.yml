@@ -215,7 +215,7 @@ jobs:
           cache-dependency-path: centreon
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
         working-directory: centreon
 
       - name: Unit test

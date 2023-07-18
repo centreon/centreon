@@ -112,7 +112,6 @@ curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
 dnf install -y mariadb-server mariadb
 
 echo "[server]
-skip-grant-tables
 log_output=FILE
 general_log_file        = /var/lib/mysql/queries.log
 general_log             = 0

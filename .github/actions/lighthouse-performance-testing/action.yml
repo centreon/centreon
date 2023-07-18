@@ -49,8 +49,8 @@ runs:
         docker exec lighthouse-tests-centreon bash -c "centreon -u admin -p Centreon\!2021 -a APPLYCFG -v 1"
       shell: bash
 
-    - name: Install npm dependencies
-      run: pnpm install --frozen-lockfile
+    - name: Install dependencies
+      run: CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
       shell: bash
       working-directory: centreon/lighthouse
 
