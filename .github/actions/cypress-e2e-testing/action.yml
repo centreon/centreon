@@ -65,7 +65,7 @@ runs:
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
       with:
         browser: chrome
-        install-command: npm install --frozen-lockfile
+        install-command: pnpm install --frozen-lockfile
         cache-key: cypress-cache-${{ runner.os }}-${{ hashFiles(inputs.dependencies_lock_file) }}
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}

@@ -50,7 +50,7 @@ runs:
       with:
         browser: chrome
         component: true
-        install-command: npm install --frozen-lockfile
+        install-command: pnpm install --frozen-lockfile
         cache-key: cypress-cache-${{ runner.os }}-${{ hashFiles(inputs.dependencies_lock_file) }}
         working-directory: ${{ inputs.module }}
         spec: ${{ inputs.spec_file_path }}
