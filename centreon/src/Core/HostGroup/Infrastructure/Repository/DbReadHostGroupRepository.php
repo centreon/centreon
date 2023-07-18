@@ -374,12 +374,14 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         $concatenator = new SqlConcatenator();
 
         $concatenator->defineSelect(
-            'SELECT res.all_hostgroups
-            FROM `:db`.acl_resources res
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN `:db`.acl_groups ag
-                ON argr.acl_group_id = ag.acl_group_id'
+            <<<'SQL'
+                SELECT res.all_hostgroups
+                FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
         );
 
         $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
