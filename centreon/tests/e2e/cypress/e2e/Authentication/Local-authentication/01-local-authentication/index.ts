@@ -12,6 +12,7 @@ import {
 before(() => {
   cy.startWebContainer();
   initializeConfigACLAndGetLoginPage();
+  throw new Error('failure triggered by kduret');
 });
 
 beforeEach(() => {

@@ -6879,12 +6879,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "d94bc166c54e8dc10f96b120f9e30abe7dd204d7"
+                "reference": "66417fef38272e6f2a12e47fce65599a9173402e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/d94bc166c54e8dc10f96b120f9e30abe7dd204d7",
-                "reference": "d94bc166c54e8dc10f96b120f9e30abe7dd204d7",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/66417fef38272e6f2a12e47fce65599a9173402e",
+                "reference": "66417fef38272e6f2a12e47fce65599a9173402e",
                 "shasum": ""
             },
             "require": {
@@ -6935,7 +6935,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/MON-20421-docker-compose-compatibility"
             },
-            "time": "2023-07-17T12:47:22+00:00"
+            "time": "2023-07-17T15:12:11+00:00"
         },
         {
             "name": "composer/pcre",
