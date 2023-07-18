@@ -112,6 +112,7 @@ jobs:
           openid_image_version: ${{ inputs.major_version }}
           module: centreon
           feature_file_path: ${{ matrix.feature }}
+          dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
 
       - name: Upload test results
         if: failure()
