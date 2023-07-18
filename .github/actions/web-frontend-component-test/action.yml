@@ -19,38 +19,32 @@ runs:
         version: 7
         run_install: false
 
-    # - uses: actions/setup-node@v3
-    #   with:
-    #     node-version: 17
-    #     cache: pnpm
-    #     cache-dependency-path: ${{ inputs.dependencies_lock_file }}
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 17
+        cache: pnpm
+        cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
-    # - name: Install dependencies
-    #   run: pnpm install --frozen-lockfile
-    #   working-directory: ${{ inputs.module }}
-    #   shell: bash
+    - name: Install dependencies
+      run: CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
+      working-directory: ${{ inputs.module }}
+      shell: bash
 
-    # - name: Restore Cypress binary
-    #   uses: actions/cache@v3
-    #   with:
-    #     path: ~/.cache/Cypress
-    #     key: cypress-cache-${{ runner.os }}-${{ hashFiles(inputs.dependencies_lock_file) }}
-
-    # - name: Install Cypress binary
-    #   uses: nick-fields/retry@v2
-    #   with:
-    #     timeout_seconds: 120
-    #     max_attempts: 5
-    #     retry_wait_seconds: 30
-    #     retry_on: error
-    #     command: cd ${{ inputs.module }} && pnpm cypress install --force
+    - name: Install Cypress binary
+      uses: nick-fields/retry@v2
+      with:
+        timeout_seconds: 120
+        max_attempts: 10
+        retry_wait_seconds: 30
+        retry_on: error
+        command: cd ${{ inputs.module }} && pnpm cypress install --force
 
     - name: Cypress web component testing
       uses: cypress-io/github-action@v5
       with:
         browser: chrome
         component: true
-        install-command: pnpm install --frozen-lockfile
+        install: false
         cache-key: cypress-cache-${{ runner.os }}-${{ hashFiles(inputs.dependencies_lock_file) }}
         working-directory: ${{ inputs.module }}
         spec: ${{ inputs.spec_file_path }}
