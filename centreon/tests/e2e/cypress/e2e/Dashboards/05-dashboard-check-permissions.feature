@@ -5,4 +5,5 @@ Feature: As a Centreon User with dashboard administration rights,
 Scenario: Accessing all dashboards as an admin user
   Given an admin user on a platform with dashboards
   When the admin user accesses the dashboard library in list mode
-  Then a list of all the dashboards of the platform is displayed
+  Then the admin user can view all the dashboards configured on the platform
+  And the admin user can perform update operations on any of the dashboards

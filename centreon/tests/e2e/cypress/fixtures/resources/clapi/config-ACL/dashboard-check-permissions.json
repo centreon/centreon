@@ -1,0 +1,102 @@
+[
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "user-dashboard-administrator;user-dashboard-administrator;user-dashboard-administrator@centreon.test;Centreon@2023;0;1;en_US;local"
+    },
+    {
+        "action":"SETPARAM",
+        "object":"CONTACT",
+        "values":"user-dashboard-administrator;reach_api;1"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;alias-administrator-ACLMENU"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;0;Home;Dashboard;Administrator;"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "name-administrator-ACLGROUP;alias-administrator-ACLGROUP"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "name-administrator-ACLGROUP;name-administrator-ACLMENU"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "name-administrator-ACLGROUP;user-dashboard-administrator;"
+    },
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "user-dashboard-creator;user-dashboard-creator;user-dashboard-creator@centreon.test;Centreon@2023;0;1;en_US;local"
+    },
+    {
+        "action":"SETPARAM",
+        "object":"CONTACT",
+        "values":"user-dashboard-creator;reach_api;1"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "name-creator-ACLMENU;alias-creator-ACLMENU"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-creator-ACLMENU;0;Home;Dashboard;Creator;"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "name-creator-ACLGROUP;alias-creator-ACLGROUP"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "name-creator-ACLGROUP;name-creator-ACLMENU"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "name-creator-ACLGROUP;user-dashboard-creator;"
+    },
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "user-dashboard-viewer;user-dashboard-viewer;user-dashboard-viewer@centreon.test;Centreon@2023;0;1;en_US;local"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "name-viewer-ACLMENU;alias-viewer-ACLMENU"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-viewer-ACLMENU;0;Home;Dashboard;Viewer;"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "name-viewer-ACLGROUP;alias-viewer-ACLGROUP"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "name-viewer-ACLGROUP;name-viewer-ACLMENU"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "name-viewer-ACLGROUP;user-dashboard-viewer;"
+    }
+]

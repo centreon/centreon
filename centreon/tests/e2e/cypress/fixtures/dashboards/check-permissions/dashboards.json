@@ -1,0 +1,10 @@
+{
+    "fromAdministratorUser": {
+      "name": "dashboard-from-administrator-user",
+      "description": "by user-dashboard-administrator"
+    },
+    "fromCreatorUser": {
+      "name": "dashboard-from-creator-user",
+      "description": "by user-dashboard-creator"
+    }
+  }

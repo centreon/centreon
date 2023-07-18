@@ -373,6 +373,46 @@ Cypress.Commands.add(
   }
 );
 
+interface ShareUserToDashboardProps {
+  dashboardName: string;
+  role: string;
+  userName: string;
+}
+
+Cypress.Commands.add(
+  'shareUserToDashboard',
+  ({
+    dashboardName,
+    userName,
+    role
+  }: ShareUserToDashboardProps): Cypress.Chainable => {
+    const userId = cy
+      .request({
+        method: 'GET',
+        url: `/centreon/api/latest/configuration/users?search={"name":"${userName}"}`
+      })
+      .then(({ body }) => {
+        return body['result[0].id'];
+      });
+    const dashboardId = cy
+      .request({
+        method: 'GET',
+        url: `/centreon/api/latest/configuration/dashboards?search={"name":"${dashboardName}"}`
+      })
+      .then(({ body }) => {
+        return body['result[0].id'];
+      });
+
+    return cy.request({
+      body: {
+        role: `${role}`
+      },
+      method: 'PATCH',
+      url: `/configuration/dashboards/${dashboardId}/access_rights/contacts/${userId}`
+    });
+  }
+);
+
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
   return cy.waitUntil(() => {
     return cy.get('header div[data-cy="clock"]').then(($time) => {
@@ -412,6 +452,11 @@ declare global {
         rootItemNumber,
         subMenu
       }: NavigateToProps) => Cypress.Chainable;
+      shareUserToDashboard: ({
+        dashboardName,
+        userName,
+        role
+      }: ShareUserToDashboardProps) => Cypress.Chainable;
       startContainer: ({
         name,
         image
