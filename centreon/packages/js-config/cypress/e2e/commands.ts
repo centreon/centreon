@@ -232,6 +232,7 @@ Cypress.Commands.add(
           )
         ) {
           cy.log(`Local docker image found : ${found[1]}:${found[2]}`);
+          throw new Error(`Local docker image found : ${found[1]}:${found[2]}`);
 
           return cy.wrap(`${found[1]}:${found[2]}`);
         }
@@ -245,11 +246,14 @@ Cypress.Commands.add(
           )
         ) {
           cy.log(`Pulled remote docker image found : ${image}`);
+          throw new Error(`Pulled remote docker image found : ${image}`);
 
           return cy.wrap(image);
         }
 
         cy.log(`Pulling remote docker image : ${image}`);
+
+        throw new Error(`Pulling remote docker image : ${image}`);
 
         return cy.exec(`docker pull ${image}`).then(() => cy.wrap(image));
       })

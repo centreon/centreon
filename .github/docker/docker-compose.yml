@@ -1,16 +1,14 @@
 version: "3.2"
 services:
   web:
-    image: "docker.centreon.com/centreon/centreon-web-slim-alma9:develop"
+    image: "@WEB_IMAGE@"
     ports: ["80", "3306"]
     profiles: ["web"]
-    #links: ["openldap", "squid-simple", "squid-basic-auth", "mediawiki"]
 
   web-fresh:
     image: "@WEB_FRESH_IMAGE@"
     ports: ["80", "3306"]
     profiles: ["web-fresh"]
-    #links: ["openldap", "squid-simple", "squid-basic-auth", "mediawiki"]
 
   openldap:
     image: docker.centreon.com/centreon/mon-openldap:latest
