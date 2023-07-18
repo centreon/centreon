@@ -83,7 +83,7 @@ jobs:
       - if: ${{ contains(matrix.feature, 'RestApi') }}
         uses: actions/setup-node@v3
         with:
-          node-version: 17
+          node-version: 18
 
       - name: Install dependencies
         run: composer install --optimize-autoloader
