@@ -101,7 +101,7 @@ final class AddHost
                 $this->linkParentTemplates($request, $hostId);
                 $this->addMacros($request, $hostId);
                 // Note: host is not linked to any ACLsResource
-                $this->writeMonitoringServerRepository->signalChange($request->monitoringServerId);
+                $this->writeMonitoringServerRepository->notifyConfigurationChange($request->monitoringServerId);
 
                 $this->dataStorageEngine->commitTransaction();
             } catch (\Throwable $ex) {

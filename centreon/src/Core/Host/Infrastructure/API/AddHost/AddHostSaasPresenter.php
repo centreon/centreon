@@ -64,7 +64,7 @@ class AddHostSaasPresenter extends AbstractPresenter implements AddHostPresenter
                         'categories' => $response->categories,
                         'templates' => $response->templates,
                         'macros' => array_map(
-                            function ($macro) {
+                            function (array $macro) {
                                 return [
                                     'name' => $macro['name'],
                                     'value' => $macro['isPassword'] ? null : $macro['value'],

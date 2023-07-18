@@ -43,7 +43,7 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
     /**
      * @inheritDoc
      */
-    public function signalChange(int $monitoringServerId): void
+    public function notifyConfigurationChange(int $monitoringServerId): void
     {
         $this->debug('Signal configuration change on monitoring server with ID #' . $monitoringServerId);
 

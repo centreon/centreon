@@ -31,5 +31,5 @@ interface WriteMonitoringServerRepositoryInterface {
      *
      * @throws \Throwable
      */
-    public function signalChange(int $monitoringServerId): void;
+    public function notifyConfigurationChange(int $monitoringServerId): void;
 }

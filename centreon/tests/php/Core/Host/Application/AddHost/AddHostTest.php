@@ -588,6 +588,9 @@ it('should return created object on success (with admin user)', function (): voi
     $this->writeHostMacroRepository
         ->expects($this->exactly(2))
         ->method('add');
+    $this->writeMonitoringServerRepository
+        ->expects($this->once())
+        ->method('notifyConfigurationChange');
 
     $this->user
         ->expects($this->once())
@@ -775,6 +778,9 @@ it('should return created object on success (with non-admin user)', function ():
     $this->writeHostMacroRepository
         ->expects($this->exactly(2))
         ->method('add');
+    $this->writeMonitoringServerRepository
+        ->expects($this->once())
+        ->method('notifyConfigurationChange');
 
     $this->user
         ->expects($this->once())
