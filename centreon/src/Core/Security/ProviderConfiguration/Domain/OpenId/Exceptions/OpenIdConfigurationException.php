@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,7 @@ namespace Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions;
 class OpenIdConfigurationException extends \Exception
 {
     /**
-     * Exception thrown when token endpoint is needed but missing
+     * Exception thrown when token endpoint is needed but missing.
      *
      * @return self
      */
@@ -36,7 +36,7 @@ class OpenIdConfigurationException extends \Exception
     }
 
     /**
-     * Exception thrown when both user information endpoints are missing
+     * Exception thrown when both user information endpoints are missing.
      *
      * @return self
      */
@@ -46,9 +46,10 @@ class OpenIdConfigurationException extends \Exception
     }
 
     /**
-     * Exception thrown when auto import is enabled but mandatory parameters are missing
+     * Exception thrown when auto import is enabled but mandatory parameters are missing.
      *
      * @param string[] $missingAutoImportParameters
+     *
      * @return self
      */
     public static function missingAutoImportMandatoryParameters(array $missingAutoImportParameters): self
@@ -60,9 +61,10 @@ class OpenIdConfigurationException extends \Exception
     }
 
     /**
-     * Exception thrown when contact template link to configuration doesn't exist
+     * Exception thrown when contact template link to configuration doesn't exist.
      *
      * @param string $contactTemplateName
+     *
      * @return self
      */
     public static function contactTemplateNotFound(string $contactTemplateName): self
@@ -74,9 +76,10 @@ class OpenIdConfigurationException extends \Exception
     }
 
     /**
-     * Exception thrown when contact group link to configuration doesn't exist
+     * Exception thrown when contact group link to configuration doesn't exist.
      *
-     * @param integer $contactGroupId
+     * @param int $contactGroupId
+     *
      * @return self
      */
     public static function contactGroupNotFound(int $contactGroupId): self
@@ -88,9 +91,10 @@ class OpenIdConfigurationException extends \Exception
     }
 
     /**
-     * Exception thrown when mandatory parameters are missing
+     * Exception thrown when mandatory parameters are missing.
      *
      * @param array<string> $missingParameters
+     *
      * @return self
      */
     public static function missingMandatoryParameters(array $missingParameters): self
@@ -105,6 +109,7 @@ class OpenIdConfigurationException extends \Exception
      * Exception thrown when the Authentication Endpoints is not valid.
      *
      * @param string $endpoint
+     *
      * @return self
      */
     public static function invalidAuthenticationConditionsEndpoint(string $endpoint): self

@@ -35,17 +35,18 @@ runs:
         cache-dependency-path: ${{ inputs.module }}/pnpm-lock.yaml
 
     - name: Install dependencies
-      run: |
-        pnpm install --frozen-lockfile
-        pnpm cypress install --force
+      run: pnpm install --frozen-lockfile
       working-directory: ${{ inputs.module }}/tests/e2e
       shell: bash
 
-    - name: Format feature file path
-      id: formatFeatureFilePath
-      run:
-        echo "value=$(echo '${{ inputs.feature_file_path }}' | sed -e 's#/#-#g')" >> $GITHUB_OUTPUT
-      shell: bash
+    - name: Install Cypress binary
+      uses: nick-fields/retry@v2
+      with:
+        timeout_seconds: 120
+        max_attempts: 5
+        retry_wait_seconds: 30
+        retry_on: error
+        command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
 
     - name: Cypress end-to-end testing
       uses: cypress-io/github-action@v5

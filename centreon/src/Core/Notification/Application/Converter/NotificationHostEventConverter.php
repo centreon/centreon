@@ -30,16 +30,14 @@ class NotificationHostEventConverter
     private const CASE_UP_AS_BIT = 0b001;
     private const CASE_DOWN_AS_BIT = 0b010;
     private const CASE_UNREACHABLE_AS_BIT = 0b100;
-
     private const MAX_BITFLAGS = 0b111;
-
     private const CASE_UP_AS_STR = 'o';
     private const CASE_DOWN_AS_STR = 'd';
     private const CASE_UNREACHABLE_AS_STR = 'u';
 
     /**
      * Convert an array of NotificationHostEvent to a string.
-     * ex: [NotificationHostEvent::Down, NotificationHostEvent::Unreachable] => 'd,u'
+     * ex: [NotificationHostEvent::Down, NotificationHostEvent::Unreachable] => 'd,u'.
      *
      * @param NotificationHostEvent[] $events
      *
@@ -61,7 +59,7 @@ class NotificationHostEventConverter
 
     /**
      * Convert a string to an array of NotificationHostEvent.
-     * ex: 'd,u' => [NotificationHostEvent::Down, NotificationHostEvent::Unreachable]
+     * ex: 'd,u' => [NotificationHostEvent::Down, NotificationHostEvent::Unreachable].
      *
      * @param string $legacyStr
      *
@@ -131,7 +129,7 @@ class NotificationHostEventConverter
 
     /**
      * Convert an array of NotificationHostEvent into a bitFlags
-     * If the array contains NotificationHostEvent::None or is empty, an empty bitFlags will be returned
+     * If the array contains NotificationHostEvent::None or is empty, an empty bitFlags will be returned.
      *
      * @param NotificationHostEvent[] $enums
      *

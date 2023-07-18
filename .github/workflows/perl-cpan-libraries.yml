@@ -48,7 +48,6 @@ jobs:
             "common::sense",
             "Convert::Binary::C",
             "Convert::EBCDIC",
-            "Crypt::Argon2",
             "Crypt::Blowfish_PP",
             "DateTime::Format::Duration::ISO8601",
             "DBD::Sybase",
@@ -69,13 +68,10 @@ jobs:
             "HTTP::ProxyPAC",
             "JMX::Jmx4Perl",
             "JSON::Parse",
-            "JSON::Path",
             "JSON::WebToken",
-            "Libssh::Session",
             "LV",
             "MIME::Types",
             "MongoDB",
-            "Net::Curl::Easy",
             "Net::DHCP",
             "Net::FTPSSL",
             "Net::HTTPTunnel",
@@ -144,11 +140,6 @@ jobs:
           - name: "FFI::Platypus"
             build_distribs: "el8,el9"
             rpm_provides: "perl(FFI::Platypus::Buffer) perl(FFI::Platypus::Memory)"
-          - name: "JSON::Path"
-            version: "1.0.3"
-          - name: "Libssh::Session"
-            rpm_dependencies: "libssh"
-            deb_dependencies: "libssh2-1"
           - name: "Net::DHCP"
             rpm_provides: "perl(Net::DHCP::Constants) perl(Net::DHCP::Packet)"
           - name: "Statistics::Regression"

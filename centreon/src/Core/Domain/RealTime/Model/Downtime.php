@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Domain\RealTime\Model;
@@ -30,95 +31,62 @@ class Downtime
     public const HOST_TYPE_DOWNTIME = 0;
     public const SERVICE_TYPE_DOWNTIME = 1;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $entryTime;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $authorId;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $authorName;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isCancelled = false;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $comment;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $deletionTime;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $duration;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $endTime;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $engineDowntimeId;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isFixed = false;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $instanceId;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $startTime;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $actualStartTime;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $actualEndTime;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isStarted = false;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $withServices = false;
 
-    /**
-     * @var \DateTime
-     */
+    /** @var \DateTime */
     private $maxDate;
 
     /**
      * @param int $id
      * @param int $hostId
      * @param int $serviceId
+     *
      * @throws \Exception
      */
     public function __construct(
@@ -126,7 +94,7 @@ class Downtime
         private int $hostId,
         private int $serviceId
     ) {
-        $this->maxDate = (new \DateTime('', new \DateTimeZone("UTC")))
+        $this->maxDate = (new \DateTime('', new \DateTimeZone('UTC')))
             ->setDate(self::DOWNTIME_YEAR_MAX, 1, 1)
             ->setTime(0, 0)
             ->modify('- 1 minute');
@@ -150,8 +118,10 @@ class Downtime
 
     /**
      * @param \DateTime|null $entryTime
+     *
      * @throws \Centreon\Domain\Common\Assertion\AssertionException
      * @throws \Exception
+     *
      * @return self
      */
     public function setEntryTime(?\DateTime $entryTime): self
@@ -160,6 +130,7 @@ class Downtime
             Assertion::maxDate($entryTime, $this->maxDate, 'Downtime::entryTime');
         }
         $this->entryTime = $entryTime;
+
         return $this;
     }
 
@@ -173,11 +144,13 @@ class Downtime
 
     /**
      * @param int|null $authorId
+     *
      * @return self
      */
     public function setAuthorId(?int $authorId): self
     {
         $this->authorId = $authorId;
+
         return $this;
     }
 
@@ -191,11 +164,13 @@ class Downtime
 
     /**
      * @param string|null $authorName
+     *
      * @return self
      */
     public function setAuthorName(?string $authorName): self
     {
         $this->authorName = $authorName;
+
         return $this;
     }
 
@@ -225,11 +200,13 @@ class Downtime
 
     /**
      * @param bool $isCancelled
+     *
      * @return self
      */
     public function setCancelled(bool $isCancelled): self
     {
         $this->isCancelled = $isCancelled;
+
         return $this;
     }
 
@@ -243,11 +220,13 @@ class Downtime
 
     /**
      * @param string|null $comment
+     *
      * @return self
      */
     public function setComment(?string $comment): self
     {
         $this->comment = $comment;
+
         return $this;
     }
 
@@ -261,8 +240,10 @@ class Downtime
 
     /**
      * @param \DateTime|null $deletionTime
+     *
      * @throws \Centreon\Domain\Common\Assertion\AssertionException
      * @throws \Exception
+     *
      * @return self
      */
     public function setDeletionTime(?\DateTime $deletionTime): self
@@ -271,6 +252,7 @@ class Downtime
             Assertion::maxDate($deletionTime, $this->maxDate, 'Downtime::deletionTime');
         }
         $this->deletionTime = $deletionTime;
+
         return $this;
     }
 
@@ -284,11 +266,13 @@ class Downtime
 
     /**
      * @param int|null $duration
+     *
      * @return self
      */
     public function setDuration(?int $duration): self
     {
         $this->duration = $duration;
+
         return $this;
     }
 
@@ -302,8 +286,10 @@ class Downtime
 
     /**
      * @param \DateTime|null $endTime
+     *
      * @throws \Centreon\Domain\Common\Assertion\AssertionException
      * @throws \Exception
+     *
      * @return self
      */
     public function setEndTime(?\DateTime $endTime): self
@@ -312,6 +298,7 @@ class Downtime
             Assertion::maxDate($endTime, $this->maxDate, 'Downtime::endTime');
         }
         $this->endTime = $endTime;
+
         return $this;
     }
 
@@ -325,11 +312,13 @@ class Downtime
 
     /**
      * @param bool $isFixed
+     *
      * @return self
      */
     public function setFixed(bool $isFixed): self
     {
         $this->isFixed = $isFixed;
+
         return $this;
     }
 
@@ -343,11 +332,13 @@ class Downtime
 
     /**
      * @param int|null $engineDowntimeId
+     *
      * @return self
      */
     public function setEngineDowntimeId(?int $engineDowntimeId): self
     {
         $this->engineDowntimeId = $engineDowntimeId;
+
         return $this;
     }
 
@@ -361,11 +352,13 @@ class Downtime
 
     /**
      * @param int|null $instanceId
+     *
      * @return self
      */
     public function setInstanceId(?int $instanceId): self
     {
         $this->instanceId = $instanceId;
+
         return $this;
     }
 
@@ -379,8 +372,10 @@ class Downtime
 
     /**
      * @param \DateTime|null $startTime
+     *
      * @throws \Centreon\Domain\Common\Assertion\AssertionException
      * @throws \Exception
+     *
      * @return self
      */
     public function setStartTime(?\DateTime $startTime): self
@@ -389,6 +384,7 @@ class Downtime
             Assertion::maxDate($startTime, $this->maxDate, 'Downtime::startTime');
         }
         $this->startTime = $startTime;
+
         return $this;
     }
 
@@ -402,8 +398,10 @@ class Downtime
 
     /**
      * @param \DateTime|null $actualStartTime
+     *
      * @throws \Centreon\Domain\Common\Assertion\AssertionException
      * @throws \Exception
+     *
      * @return self
      */
     public function setActualStartTime(?\DateTime $actualStartTime): self
@@ -412,6 +410,7 @@ class Downtime
             Assertion::maxDate($actualStartTime, $this->maxDate, 'Downtime::actualStartTime');
         }
         $this->actualStartTime = $actualStartTime;
+
         return $this;
     }
 
@@ -425,8 +424,10 @@ class Downtime
 
     /**
      * @param \DateTime|null $actualEndTime
+     *
      * @throws \Centreon\Domain\Common\Assertion\AssertionException
      * @throws \Exception
+     *
      * @return self
      */
     public function setActualEndTime(?\DateTime $actualEndTime): self
@@ -435,6 +436,7 @@ class Downtime
             Assertion::maxDate($actualEndTime, $this->maxDate, 'Downtime::actualEndTime');
         }
         $this->actualEndTime = $actualEndTime;
+
         return $this;
     }
 
@@ -448,11 +450,13 @@ class Downtime
 
     /**
      * @param bool $isStarted
+     *
      * @return self
      */
     public function setStarted(bool $isStarted): self
     {
         $this->isStarted = $isStarted;
+
         return $this;
     }
 
@@ -466,11 +470,13 @@ class Downtime
 
     /**
      * @param bool $withServices
+     *
      * @return self
      */
     public function setWithServices(bool $withServices): self
     {
         $this->withServices = $withServices;
+
         return $this;
     }
 }

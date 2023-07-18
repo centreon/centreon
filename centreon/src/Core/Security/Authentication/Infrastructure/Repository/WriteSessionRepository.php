@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Repository;
@@ -58,7 +59,7 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
     {
         $this->writeTokenRepository->deleteExpiredSecurityTokens();
         $this->writeSessionTokenRepository->deleteSession($this->session->getId());
-        $centreon = $this->session->get("centreon");
+        $centreon = $this->session->get('centreon');
         $this->session->invalidate();
 
         if ($centreon && $centreon->user->authType === Provider::SAML) {
@@ -67,8 +68,8 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
             $configuration = $provider->getConfiguration();
             $customConfiguration = $configuration->getCustomConfiguration();
             if (
-                $configuration->isActive() &&
-                $customConfiguration->getLogoutFrom() === CustomConfiguration::LOGOUT_FROM_CENTREON_AND_IDP
+                $configuration->isActive()
+                && $customConfiguration->getLogoutFrom() === CustomConfiguration::LOGOUT_FROM_CENTREON_AND_IDP
             ) {
                 $this->info('Logout from Centreon and SAML IDP...');
                 $provider->logout(); // The redirection is done here by the IDP
@@ -77,9 +78,10 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
     }
 
     /**
-     * Start a session (included the legacy session)
+     * Start a session (included the legacy session).
      *
      * @param \Centreon $legacySession
+     *
      * @return bool
      */
     public function start(\Centreon $legacySession): bool

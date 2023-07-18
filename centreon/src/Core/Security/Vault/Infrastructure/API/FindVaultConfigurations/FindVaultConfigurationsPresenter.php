@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,13 +43,14 @@ class FindVaultConfigurationsPresenter extends AbstractPresenter implements Pres
 
     /**
      * {@inheritDoc}
+     *
      * @param FindVaultConfigurationsResponse $data
      */
     public function present(mixed $data): void
     {
         parent::present([
             'result' => $data->vaultConfigurations,
-            'meta' => $this->requestParameters->toArray()
+            'meta' => $this->requestParameters->toArray(),
         ]);
     }
 }

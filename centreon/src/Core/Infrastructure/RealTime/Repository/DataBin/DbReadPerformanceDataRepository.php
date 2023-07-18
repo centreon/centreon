@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,14 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Repository\DataBin;
 
-use PDO;
-use DateTimeInterface;
+use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
 use Core\Domain\RealTime\Model\Metric;
 use Core\Domain\RealTime\Model\MetricValue;
 use Core\Domain\RealTime\Model\PerformanceMetric;
-use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use DateTimeInterface;
+use PDO;
 
 class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements ReadPerformanceDataRepositoryInterface
 {
@@ -43,9 +43,12 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
     }
 
     /**
-     * Retrieves raw data_bin with filters
+     * Retrieves raw data_bin with filters.
      *
-     * @param  array<Metric> $metrics
+     * @param array<Metric> $metrics
+     * @param DateTimeInterface $startDate
+     * @param DateTimeInterface $endDate
+     *
      * @return iterable<PerformanceMetric>
      */
     public function findDataByMetricsAndDates(
@@ -70,9 +73,10 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
     }
 
     /**
-     * Generates SQL query statement to extract metric data from table data_bin
+     * Generates SQL query statement to extract metric data from table data_bin.
      *
-     * @param  array<Metric> $metrics
+     * @param array<Metric> $metrics
+     *
      * @return string
      */
     private function generateDataBinQuery(array $metrics): string
@@ -90,8 +94,8 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
 
         return sprintf(
             $pattern,
-            join(', ', ['ctime', ...$subQueryColumns]),
-            join(',', $metricIds)
+            implode(', ', ['ctime', ...$subQueryColumns]),
+            implode(',', $metricIds)
         );
     }
 
@@ -108,6 +112,7 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
 
     /**
      * @param array<string, mixed> $data
+     *
      * @return MetricValue[]
      */
     private function createMetricValues(array $data): array
@@ -118,6 +123,7 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
                 $metricValues[] = new MetricValue($columnName, (float) $columnValue);
             }
         }
+
         return $metricValues;
     }
 }
