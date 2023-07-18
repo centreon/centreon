@@ -210,9 +210,9 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 17
+          node-version: 18
           cache: pnpm
-          cache-dependency-path: centreon
+          cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
