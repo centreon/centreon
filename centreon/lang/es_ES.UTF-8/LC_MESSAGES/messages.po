@@ -15942,7 +15942,13 @@ msgstr ""
 # msgid 'Select time period / channels of notifications'
 # msgstr ""
 
-# msgid 'How many times would you like to duplicate selected notification?'
+# msgid "Notification Successfully duplicated"
+# msgstr ""
+
+# msgid "Failed to duplicate the notification"
+# msgstr ""
+
+# msgid "Please enter a name for the duplicated notification"
 # msgstr ""
 
 # msgid 'Delete notification?'
