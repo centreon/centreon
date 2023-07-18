@@ -186,3 +186,11 @@ default:
       paths: [ "%paths.base%/features/CloudHost.feature" ]
       contexts:
         - Centreon\Test\Api\Context\CloudPlatformContext
+    services:
+      paths: [ "%paths.base%/features/ServiceOnPrem.feature" ]
+      contexts:
+      - Centreon\Test\Behat\Api\Context\ApiContext
+    cloud_services:
+      paths: [ "%paths.base%/features/ServiceCloud.feature" ]
+      contexts:
+      - Centreon\Test\Api\Context\CloudPlatformContext
