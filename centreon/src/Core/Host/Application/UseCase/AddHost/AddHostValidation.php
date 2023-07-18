@@ -74,7 +74,7 @@ class AddHostValidation
             throw HostException::nameAlreadyExists($formattedName, $name);
         }
 
-        if (str_starts_with('_Module_', $name)) {
+        if (str_starts_with($name, '_Module_')) {
             throw HostException::nameIsInvalid();
         }
     }

@@ -68,6 +68,18 @@ it('throws an exception when name is already used', function (): void {
     HostException::nameAlreadyExists(Host::formatName('name test'), 'name test')->getMessage()
 );
 
+it('throws an exception when name is invalid', function (): void {
+    $this->readHostRepository
+        ->expects($this->once())
+        ->method('existsByName')
+        ->willReturn(false);
+
+    $this->validation->assertIsValidName('_Module_test');
+})->throws(
+    HostException::class,
+    HostException::nameIsInvalid()->getMessage()
+);
+
 it('throws an exception when monitoring server ID does not exist', function (): void {
     $this->readMonitoringServerRepository
         ->expects($this->once())
