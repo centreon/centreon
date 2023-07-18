@@ -3,7 +3,7 @@ import { makeStyles } from 'tss-react/mui';
 import { FormikValues, useFormikContext } from 'formik';
 
 import { labelDuplicate } from '../../../translatedLabels';
-import { DuplicateButton, useDuplicate } from '../../../Actions/duplicate';
+import { DuplicateButton, useDuplicate } from '../../../Actions/Duplicate';
 
 const useStyle = makeStyles<{ disabled: boolean }>()((theme, { disabled }) => ({
   icon: {

@@ -33,8 +33,8 @@ import {
   labelNotificationSuccessfullyDuplicated
 } from '../translatedLabels';
 import { notificationsNamesAtom } from '../atom';
-import { DeleteConfirmationDialog } from '../Actions/delete';
-import { DuplicationForm } from '../Actions/duplicate';
+import { DeleteConfirmationDialog } from '../Actions/Delete';
+import { DuplicationForm } from '../Actions/Duplicate';
 
 import { notificationEndpoint } from './api/endpoints';
 import { PanelMode } from './models';

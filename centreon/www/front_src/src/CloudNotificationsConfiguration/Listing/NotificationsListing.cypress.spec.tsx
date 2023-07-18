@@ -21,9 +21,9 @@ import {
   labelThisNameAlreadyExists
 } from '../translatedLabels';
 import { notificationEndpoint } from '../EditPanel/api/endpoints';
-import { DeleteConfirmationDialog } from '../Actions/delete';
+import { DeleteConfirmationDialog } from '../Actions/Delete';
 import { listNotificationResponse } from '../EditPanel/testUtils';
-import { DuplicationForm } from '../Actions/duplicate';
+import { DuplicationForm } from '../Actions/Duplicate';
 
 import { buildNotificationsEndpoint } from './api/endpoints';
 import {

@@ -6,7 +6,7 @@ import {
   isDuplicateDialogOpenAtom,
   isPanelOpenAtom
 } from '../../atom';
-import useDuplicateRequest from '../../api/useDuplicateRequest';
+import useDuplicateRequest from '../api/useDuplicateRequest';
 import {
   labelFailedToDuplicateNotification,
   labelNotificationSuccessfullyDuplicated

@@ -10,10 +10,10 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
-import { notificationdecoder } from '../EditPanel/api/decoders';
-import { notificationEndpoint } from '../EditPanel/api/endpoints';
-import { NotificationType } from '../EditPanel/models';
-import { adaptNotification as adaptFormFields } from '../EditPanel/api/adapters';
+import { notificationdecoder } from '../../EditPanel/api/decoders';
+import { notificationEndpoint } from '../../EditPanel/api/endpoints';
+import { NotificationType } from '../../EditPanel/models';
+import { adaptNotification as adaptFormFields } from '../../EditPanel/api/adapters';
 
 import { addNotificationEndpoint } from './endpoints';
 import { adaptNotification } from './adapters';

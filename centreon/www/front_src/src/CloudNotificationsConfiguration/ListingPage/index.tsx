@@ -7,8 +7,8 @@ import { ListingPage } from '@centreon/ui';
 import PanelEdit from '../EditPanel';
 import { isPanelOpenAtom } from '../atom';
 import Listing from '../Listing';
-import { DeleteConfirmationDialog } from '../Actions/delete';
-import { DuplicationForm } from '../Actions/duplicate';
+import { DeleteConfirmationDialog } from '../Actions/Delete';
+import { DuplicationForm } from '../Actions/Duplicate';
 
 import ListingPageHeader from './ListingPageHeader';
 

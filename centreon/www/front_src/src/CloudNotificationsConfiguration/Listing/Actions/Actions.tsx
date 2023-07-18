@@ -4,13 +4,13 @@ import { Box } from '@mui/material';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import { DeleteButton, useDelete } from '../../Actions/delete';
+import { DeleteButton, useDelete } from '../../Actions/Delete';
 import {
   labelDeleteNotification,
   labelDuplicate
 } from '../../translatedLabels';
 import { DeleteType } from '../../models';
-import { DuplicateButton, useDuplicate } from '../../Actions/duplicate';
+import { DuplicateButton, useDuplicate } from '../../Actions/Duplicate';
 
 import useStyles from './Actions.styles';
 

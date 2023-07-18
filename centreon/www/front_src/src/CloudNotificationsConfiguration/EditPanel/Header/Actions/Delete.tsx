@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { labelDeleteNotification } from '../../../translatedLabels';
 import { editedNotificationIdAtom } from '../../atom';
-import { DeleteButton, useDelete } from '../../../Actions/delete';
+import { DeleteButton, useDelete } from '../../../Actions/Delete';
 import { DeleteType } from '../../../models';
 
 const useStyle = makeStyles()((theme) => ({
