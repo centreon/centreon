@@ -390,7 +390,7 @@ describe('Listing row actions: Duplicate button', () => {
     });
 
     cy.interceptAPIRequest({
-      alias: 'getNotificationtRequest',
+      alias: 'getNotificationRequest',
       method: Method.GET,
       path: notificationEndpoint({ id: 1 }),
       response: listNotificationResponse
@@ -426,7 +426,7 @@ describe('Listing row actions: Duplicate button', () => {
 
     cy.findAllByTestId(labelDuplicate).eq(0).click();
 
-    cy.waitForRequest('@getNotificationtRequest');
+    cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelNotificationName).should('have.attr', 'required');
     cy.findByLabelText(labelNotificationName).type('notification1');
@@ -461,7 +461,7 @@ describe('Listing row actions: Duplicate button', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.findAllByTestId(labelDuplicate).eq(0).click();
-    cy.waitForRequest('@getNotificationtRequest');
+    cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelNotificationName).type('New name');
     cy.findByTestId('Confirm').click();
@@ -475,6 +475,8 @@ describe('Listing row actions: Duplicate button', () => {
   });
 
   it('display an error message upon failed duplication request', () => {
+    cy.waitForRequest('@defaultRequest');
+
     const errorMessage = 'internal server error';
 
     cy.interceptAPIRequest({
@@ -489,12 +491,13 @@ describe('Listing row actions: Duplicate button', () => {
     });
     cy.waitForRequest('@getNotificationRequest');
 
-    cy.findAllByTestId(labelDuplicate).click();
+    cy.findAllByTestId(labelDuplicate).eq(0).click();
 
     cy.findByLabelText(labelNotificationName).type('New name');
     cy.findByTestId('Confirm').click();
 
     cy.waitForRequest('@duplicateNotificationtRequest');
+    cy.waitForRequest('@defaultRequest');
 
     cy.findByText(errorMessage).should('be.visible');
 

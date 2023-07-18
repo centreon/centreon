@@ -582,7 +582,7 @@ describe('Edit Panel: Duplicate button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('disable the confirm button if the name is empty or already exists', () => {
+  it('disables the confirm button if the name is empty or already exists', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId(labelDuplicate).click();
@@ -597,7 +597,7 @@ describe('Edit Panel: Duplicate button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('display a success message upon successful duplication', () => {
+  it('displays a success message upon successful duplication', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findAllByTestId(labelDuplicate).click();
@@ -612,7 +612,7 @@ describe('Edit Panel: Duplicate button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('display an error message upon failed duplication request', () => {
+  it('displays an error message upon failed duplication request', () => {
     const errorMessage = 'internal server error';
 
     cy.interceptAPIRequest({
