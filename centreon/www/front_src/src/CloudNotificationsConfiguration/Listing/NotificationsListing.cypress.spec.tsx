@@ -86,7 +86,10 @@ const initialize = (): void => {
     response: getListingResponse({ limit: 20 })
   });
 
-  cy.render(ListingWithQueryProvider);
+  cy.viewport('macbook-13');
+  cy.mount({
+    Component: <ListingWithQueryProvider />
+  });
 };
 
 const columnToSort = getListingColumns()
