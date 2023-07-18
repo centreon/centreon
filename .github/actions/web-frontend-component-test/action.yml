@@ -31,6 +31,8 @@ runs:
       shell: bash
       env:
         CYPRESS_INSTALL_BINARY: "0"
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Install Cypress binary
       uses: nick-fields/retry@v2

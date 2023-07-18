@@ -45,6 +45,7 @@ runs:
       env:
         CYPRESS_INSTALL_BINARY: "0"
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Build frontend
       run: ${{ inputs.build_command }}

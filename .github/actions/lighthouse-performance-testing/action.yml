@@ -55,6 +55,8 @@ runs:
       working-directory: centreon/lighthouse
       env:
         CYPRESS_INSTALL_BINARY: "0"
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Run lighthouse
       run: pnpm run:lighthouse
