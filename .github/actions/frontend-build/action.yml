@@ -39,9 +39,12 @@ runs:
         cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
     - name: Install dependencies
-      run: CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
+      run: pnpm install --frozen-lockfile
       working-directory: ${{ inputs.base_directory }}
       shell: bash
+      env:
+        CYPRESS_INSTALL_BINARY: "0"
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
     - name: Build frontend
       run: ${{ inputs.build_command }}

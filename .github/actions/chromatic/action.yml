@@ -36,9 +36,11 @@ runs:
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
       - name: Install dependencies
-        run: CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
         working-directory: ${{ inputs.frontend_directory }}
         shell: bash
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
 
       - name: Publish to Chromatic
         uses: chromaui/action@v1

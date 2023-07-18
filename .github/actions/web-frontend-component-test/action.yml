@@ -26,9 +26,11 @@ runs:
         cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
     - name: Install dependencies
-      run: CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
+      run: pnpm install --frozen-lockfile
       working-directory: ${{ inputs.module }}
       shell: bash
+      env:
+        CYPRESS_INSTALL_BINARY: "0"
 
     - name: Install Cypress binary
       uses: nick-fields/retry@v2

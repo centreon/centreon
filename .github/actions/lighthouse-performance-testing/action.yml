@@ -50,9 +50,11 @@ runs:
       shell: bash
 
     - name: Install dependencies
-      run: CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
+      run: pnpm install --frozen-lockfile
       shell: bash
       working-directory: centreon/lighthouse
+      env:
+        CYPRESS_INSTALL_BINARY: "0"
 
     - name: Run lighthouse
       run: pnpm run:lighthouse

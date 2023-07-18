@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "591ee5fe684500e96557e339a2f9aef0",
+    "content-hash": "e9674ffa0102885663c8f66b234dfa87",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -6875,16 +6875,16 @@
         },
         {
             "name": "centreon/centreon-test-lib",
-            "version": "dev-MON-20421-docker-compose-compatibility",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "66417fef38272e6f2a12e47fce65599a9173402e"
+                "reference": "a38d6824ec7a35979331dcd2573c68a571194475"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/66417fef38272e6f2a12e47fce65599a9173402e",
-                "reference": "66417fef38272e6f2a12e47fce65599a9173402e",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/a38d6824ec7a35979331dcd2573c68a571194475",
+                "reference": "a38d6824ec7a35979331dcd2573c68a571194475",
                 "shasum": ""
             },
             "require": {
@@ -6909,6 +6909,7 @@
                 "behat/mink-selenium2-driver": "Mink driver using Selenium",
                 "phpstan/phpstan": "PHP static analysis"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -6933,9 +6934,9 @@
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
-                "source": "https://github.com/centreon/centreon-test-lib/tree/MON-20421-docker-compose-compatibility"
+                "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2023-07-17T15:12:11+00:00"
+            "time": "2023-07-18T11:37:24+00:00"
         },
         {
             "name": "composer/pcre",

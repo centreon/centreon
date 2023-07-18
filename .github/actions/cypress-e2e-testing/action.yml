@@ -38,9 +38,12 @@ runs:
         cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
     - name: Install dependencies
-      run: CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
+      run: pnpm install --frozen-lockfile
       working-directory: ${{ inputs.module }}/tests/e2e
       shell: bash
+      env:
+        CYPRESS_INSTALL_BINARY: "0"
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
     - name: Install Cypress binary
       uses: nick-fields/retry@v2
@@ -59,8 +62,7 @@ runs:
         CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.openid_image_version }}
       with:
         browser: chrome
-        install-command: pnpm install --frozen-lockfile
-        cache-key: cypress-cache-${{ runner.os }}-${{ hashFiles(inputs.dependencies_lock_file) }}
+        install: false
         working-directory: ${{ inputs.module }}/tests/e2e
         spec: cypress/e2e/**/${{ inputs.feature_file_path }}
         publish-summary: false

@@ -215,8 +215,11 @@ jobs:
           cache-dependency-path: centreon
 
       - name: Install dependencies
-        run: CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
         working-directory: centreon
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
       - name: Unit test
         run: pnpm t --silent --reporter=jest-junit
