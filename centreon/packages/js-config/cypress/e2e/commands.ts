@@ -218,25 +218,6 @@ Cypress.Commands.add(
     return cy
       .exec('docker image list --format "{{.Repository}}:{{.Tag}}"')
       .then(({ stdout }) => {
-        const found = image.match(/([a-z0-9._-]+):([a-z0-9._-]+)/);
-        if (
-          found &&
-          stdout.match(
-            new RegExp(
-              `^${found[1].replace(
-                /[-[\]{}()*+?.,\\^$|#\s]/g,
-                '\\$&'
-              )}:${found[2].replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}`,
-              'm'
-            )
-          )
-        ) {
-          cy.log(`Local docker image found : ${found[1]}:${found[2]}`);
-          throw new Error(`Local docker image found : ${found[1]}:${found[2]}`);
-
-          return cy.wrap(`${found[1]}:${found[2]}`);
-        }
-
         if (
           stdout.match(
             new RegExp(
@@ -245,14 +226,12 @@ Cypress.Commands.add(
             )
           )
         ) {
-          cy.log(`Pulled remote docker image found : ${image}`);
-          throw new Error(`Pulled remote docker image found : ${image}`);
+          cy.log(`Local docker image found : ${image}`);
 
           return cy.wrap(image);
         }
 
         cy.log(`Pulling remote docker image : ${image}`);
-
         throw new Error(`Pulling remote docker image : ${image}`);
 
         return cy.exec(`docker pull ${image}`).then(() => cy.wrap(image));
