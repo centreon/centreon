@@ -456,7 +456,7 @@ declare global {
         dashboardName,
         userName,
         role
-      }: ShareUserToDashboardProps) => Cypress.Chainable;
+      }: ShareDashboardToUserProps) => Cypress.Chainable;
       startContainer: ({
         name,
         image
