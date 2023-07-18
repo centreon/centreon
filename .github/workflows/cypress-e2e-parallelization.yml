@@ -28,7 +28,7 @@ on:
       dependencies_lock_file:
         required: true
         type: string
-        description: "The frontend dependencies log file path"
+        description: "The frontend dependencies lock file path"
     secrets:
       registry_username:
         required: true

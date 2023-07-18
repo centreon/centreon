@@ -5,7 +5,7 @@ inputs:
     description: "The frontend source directory"
     required: true
   dependencies_lock_file:
-    description: "The frontend dependencies log file path"
+    description: "The frontend dependencies lock file path"
     required: true
   project_token:
     description: "The Chromatic project token"

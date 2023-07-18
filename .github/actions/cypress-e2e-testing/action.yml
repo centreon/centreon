@@ -20,7 +20,7 @@ inputs:
     description: "feature file"
     required: true
   dependencies_lock_file:
-    description: "The frontend dependencies log file path"
+    description: "The frontend dependencies lock file path"
     required: true
 
 runs:
