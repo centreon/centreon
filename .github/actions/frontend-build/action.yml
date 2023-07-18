@@ -4,6 +4,9 @@ inputs:
   base_directory:
     description: The base directory
     required: true
+  dependencies_lock_file:
+    description: "The frontend dependencies log file path"
+    required: true
   index_file:
     description: The index.html file path
     required: false
@@ -16,10 +19,10 @@ inputs:
   static_cache_key:
     description: "The frontend static directory cache key"
     required: true
-  command:
+  build_command:
     description: The build command
     required: false
-    default: build
+    default: pnpm build
 
 runs:
   using: "composite"
@@ -33,7 +36,7 @@ runs:
       with:
         node-version: 18
         cache: pnpm
-        cache-dependency-path: ${{ inputs.base_directory }}
+        cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
@@ -41,7 +44,7 @@ runs:
       shell: bash
 
     - name: Build frontend
-      run: pnpm ${{ inputs.command }}
+      run: ${{ inputs.build_command }}
       working-directory: ${{ inputs.base_directory }}
       shell: bash
 

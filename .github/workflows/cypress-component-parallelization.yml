@@ -10,6 +10,10 @@ on:
       specs_path:
         required: true
         type: string
+      dependencies_lock_file:
+        required: true
+        type: string
+        description: "The frontend dependencies log file path"
 
 jobs:
   cypress-component-test-list:
@@ -44,6 +48,7 @@ jobs:
         with:
           module: ${{ inputs.module_name }}
           spec_file_path: ${{ inputs.specs_path }}/${{ matrix.spec }}
+          dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
 
       - name: Upload components tests Results
         if: failure()

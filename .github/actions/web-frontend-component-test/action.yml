@@ -7,6 +7,9 @@ inputs:
   spec_file_path:
     description: "Path of spec file."
     required: true
+  dependencies_lock_file:
+    description: "The frontend dependencies log file path"
+    required: true
 
 runs:
   using: "composite"
@@ -20,7 +23,7 @@ runs:
       with:
         node-version: 17
         cache: pnpm
-        cache-dependency-path: ${{ inputs.module }}
+        cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
     - name: Install dependencies
       run: pnpm install --frozen-lockfile

@@ -4,9 +4,9 @@ inputs:
   frontend_directory:
     description: "The frontend source directory"
     required: true
-  installation_directory:
-    description: "The installation directory"
-    required: false
+  dependencies_lock_file:
+    description: "The frontend dependencies log file path"
+    required: true
   module_name:
     description: "The module name"
     required: true
@@ -28,15 +28,15 @@ runs:
         with:
           node-version: 17
           cache: pnpm
-          cache-dependency-path: ${{ inputs.installation_directory || inputs.frontend_directory }}
+          cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        working-directory: ${{ inputs.installation_directory || inputs.frontend_directory }}
+        working-directory: ${{ inputs.frontend_directory }}
         shell: bash
 
       - name: Run ESLint
-        run: pnpm ${{ inputs.command }} -f json -o eslint-report.json --max-warnings 0
+        run: pnpm eslint -f json -o eslint-report.json --max-warnings 0
         working-directory: ${{ inputs.frontend_directory }}
         shell: bash
 

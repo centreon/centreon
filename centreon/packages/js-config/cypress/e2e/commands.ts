@@ -232,7 +232,6 @@ Cypress.Commands.add(
         }
 
         cy.log(`Pulling remote docker image : ${image}`);
-        throw new Error(`Pulling remote docker image : ${image}`);
 
         return cy.exec(`docker pull ${image}`).then(() => cy.wrap(image));
       })

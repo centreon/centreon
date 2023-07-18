@@ -25,6 +25,10 @@ on:
       package_directory:
         required: false
         type: string
+      dependencies_lock_file:
+        required: true
+        type: string
+        description: "The frontend dependencies log file path"
     secrets:
       registry_username:
         required: true

@@ -51,6 +51,7 @@ jobs:
       - uses: ./.github/actions/chromatic
         with:
           frontend_directory: ${{ env.directory }}
+          dependencies_lock_file: ${{ env.directory }}/pnpm-lock.yaml
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           project_token: ${{ secrets.CHROMATIC_TOKEN }}
           autoAcceptChanges: true
