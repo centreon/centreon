@@ -373,19 +373,19 @@ Cypress.Commands.add(
   }
 );
 
-interface ShareUserToDashboardProps {
+interface ShareDashboardToUserProps {
   dashboardName: string;
   role: string;
   userName: string;
 }
 
 Cypress.Commands.add(
-  'shareUserToDashboard',
+  'shareDashboardToUser',
   ({
     dashboardName,
     userName,
     role
-  }: ShareUserToDashboardProps): Cypress.Chainable => {
+  }: ShareDashboardToUserProps): Cypress.Chainable => {
     const userId = cy
       .request({
         method: 'GET',
@@ -452,7 +452,7 @@ declare global {
         rootItemNumber,
         subMenu
       }: NavigateToProps) => Cypress.Chainable;
-      shareUserToDashboard: ({
+      shareDashboardToUser: ({
         dashboardName,
         userName,
         role
