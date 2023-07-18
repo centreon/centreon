@@ -26,7 +26,8 @@ jobs:
         with:
           frontend_directory: ${{ env.directory }}
           module_name: centreon-ui-context
-          dependencies_lock_file: centreon/pnpm-lock.yaml
+          dependencies_lock_file: ${{ env.centreon_directory }}/pnpm-lock.yaml
+
 
   publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
