@@ -9,7 +9,6 @@ on:
 
 env:
   directory: "centreon/packages/ui"
-  centreon_directory: "centreon"
   package: "ui"
   base_branch: develop
 
@@ -24,7 +23,7 @@ jobs:
         with:
           frontend_directory: ${{ env.directory }}
           module_name: centreon-ui
-          dependencies_lock_file: ${{ env.centreon_directory }}/pnpm-lock.yaml
+          dependencies_lock_file: centreon/pnpm-lock.yaml
 
   cypress-component-testing:
     uses: ./.github/workflows/cypress-component-parallelization.yml
@@ -32,7 +31,7 @@ jobs:
       name: component
       module_name: centreon/packages/ui
       specs_path: src/**
-      dependencies_lock_file: ${{ env.centreon_directory }}/pnpm-lock.yaml
+      dependencies_lock_file: centreon/pnpm-lock.yaml
 
   unit-test:
     runs-on: ubuntu-22.04
@@ -46,7 +45,7 @@ jobs:
 
       - name: Install Centreon dependencies
         run: pnpm install
-        working-directory: ${{ env.centreon_directory }}
+        working-directory: centreon
 
       - name: Unit test
         run: pnpm t
