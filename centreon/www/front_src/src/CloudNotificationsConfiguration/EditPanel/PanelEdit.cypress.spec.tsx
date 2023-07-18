@@ -30,8 +30,7 @@ import {
   labelCancel,
   labelPleaseEnterNameForDuplicatedNotification,
   labelDiscard,
-  labelNotificationSuccessfullyDuplicated,
-  labelFailedToDuplicateNotification
+  labelNotificationSuccessfullyDuplicated
 } from '../translatedLabels';
 import { notificationsNamesAtom } from '../atom';
 import { DeleteConfirmationDialog } from '../Actions/delete';
