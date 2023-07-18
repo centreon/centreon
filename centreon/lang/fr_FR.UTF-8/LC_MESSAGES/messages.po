@@ -15568,13 +15568,13 @@ msgid "Select time period / channels of notifications"
 msgstr "Sélectionner la période / les canaux de notifications"
 
 msgid "Notification Successfully duplicated"
-msgstr ""
+msgstr "Notification dupliquée avec succès"
 
 msgid "Failed to duplicate the notification"
-msgstr ""
+msgstr "Échec de la duplication de la notification"
 
 msgid "Please enter a name for the duplicated notification"
-msgstr ""
+msgstr "Veuillez entrer un nom pour la notification dupliquée"
 
 msgid "Delete notification?"
 msgstr "Supprimer la notification?"
