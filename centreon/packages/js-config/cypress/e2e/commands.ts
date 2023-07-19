@@ -392,6 +392,8 @@ Cypress.Commands.add(
         url: `/centreon/api/latest/configuration/dashboards?search={"name":"${dashboardName}"}`
       })
     ]).then(([retrievedUser, retrievedDashboard]) => {
+      cy.log('retrievedUser', retrievedUser);
+      cy.log('retrievedDashboard', retrievedDashboard);
       const userId = retrievedUser.body.result[0].id;
       const dashboardId = retrievedDashboard.body.result[0].id;
 
