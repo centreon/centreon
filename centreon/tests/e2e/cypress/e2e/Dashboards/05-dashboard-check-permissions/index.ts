@@ -3,14 +3,14 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 
 before(() => {
-  cy.startWebContainer();
-  cy.execInContainer({
+  cy.startWebContainer({ version: 'develop' });
+  /*  cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-check-permissions.json'
-  );
+  ); */
 });
 
 beforeEach(() => {
@@ -39,9 +39,9 @@ beforeEach(() => {
   });
 });
 
-after(() => {
+/* after(() => {
   cy.stopWebContainer();
-});
+}); */
 
 afterEach(() => {
   cy.requestOnDatabase({
@@ -93,7 +93,16 @@ Then('the admin user can perform update operations on any dashboard', () => {
     `${dashboards.fromAdministratorUser.description} and admin`
   );
 
+  cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+
+  cy.reload();
+  cy.contains(`${dashboards.fromAdministratorUser.name}-edited`).should(
+    'exist'
+  );
+  cy.contains(`${dashboards.fromAdministratorUser.name} and admin`).should(
+    'exist'
+  );
 
   cy.contains(dashboards.fromCreatorUser.name)
     .parent()
@@ -108,15 +117,10 @@ Then('the admin user can perform update operations on any dashboard', () => {
     `${dashboards.fromCreatorUser.description} and admin`
   );
 
+  cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
 
   cy.reload();
-  cy.contains(`${dashboards.fromAdministratorUser.name}-edited`).should(
-    'exist'
-  );
-  cy.contains(`${dashboards.fromAdministratorUser.name} and admin`).should(
-    'exist'
-  );
   cy.contains(`${dashboards.fromCreatorUser.name}-edited`).should('exist');
   cy.contains(`${dashboards.fromCreatorUser.name} and admin`).should('exist');
 });
