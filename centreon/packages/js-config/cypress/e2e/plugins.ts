@@ -6,7 +6,6 @@
 import Docker from 'dockerode';
 import { addCucumberPreprocessorPlugin } from '@badeball/cypress-cucumber-preprocessor';
 import webpackPreprocessor from '@cypress/webpack-preprocessor';
-import cypressFailFast from 'cypress-fail-fast/plugin';
 
 const docker = new Docker();
 
@@ -42,8 +41,6 @@ const getWebpackOptions = (config): object => {
 
 export default async (on, config): Promise<void> => {
   await addCucumberPreprocessorPlugin(on, config);
-
-  await cypressFailFast(on, config);
 
   const webpackOptions = await getWebpackOptions(config);
   const options = {
