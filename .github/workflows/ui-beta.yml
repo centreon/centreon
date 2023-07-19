@@ -9,7 +9,6 @@ on:
 
 env:
   directory: "centreon/packages/ui"
-  centreon_directory: "centreon"
   package: "ui"
   base_branch: develop
 
@@ -23,8 +22,8 @@ jobs:
       - uses: ./.github/actions/frontend-lint
         with:
           frontend_directory: ${{ env.directory }}
-          installation_directory: ${{ env.centreon_directory }}
           module_name: centreon-ui
+          dependencies_lock_file: centreon/pnpm-lock.yaml
 
   cypress-component-testing:
     uses: ./.github/workflows/cypress-component-parallelization.yml
@@ -32,6 +31,7 @@ jobs:
       name: component
       module_name: centreon/packages/ui
       specs_path: src/**
+      dependencies_lock_file: centreon/pnpm-lock.yaml
 
   unit-test:
     runs-on: ubuntu-22.04
@@ -45,7 +45,7 @@ jobs:
 
       - name: Install Centreon dependencies
         run: pnpm install
-        working-directory: ${{ env.centreon_directory }}
+        working-directory: centreon
 
       - name: Unit test
         run: pnpm t
@@ -63,6 +63,7 @@ jobs:
         uses: ./.github/actions/chromatic
         with:
           frontend_directory: ${{ env.directory }}
+          dependencies_lock_file: centreon/pnpm-lock.yaml
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           project_token: ${{ secrets.CHROMATIC_TOKEN }}
           ignoreLastBuildOnBranch: true
@@ -81,5 +82,5 @@ jobs:
           directory: ${{ env.directory }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           npm_token: ${{ secrets.NPM_TOKEN }}
-          package: ${{ env.package }}
           release_branch: ${{ env.base_branch }}
+          package: ${{ env.package }}
