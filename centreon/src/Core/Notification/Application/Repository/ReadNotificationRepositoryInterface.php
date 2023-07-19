@@ -27,6 +27,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Common\Domain\TrimmedString;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Domain\Model\ConfigurationUser;
+use Core\Notification\Domain\Model\NotifiableResource;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
 use Core\Notification\Domain\Model\NotificationMessage;
@@ -153,4 +154,14 @@ interface ReadNotificationRepositoryInterface
      * @return Notification[]
      */
     public function findAll(?RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Return all notification resources (hosts, services, metaservices) and resources' events for activated
+     * notifications.
+     *
+     * @throws \Throwable
+     *
+     * @return NotifiableResource[]
+     */
+    public function findNotifiableResourcesForActivatedNotifications(): array;
 }

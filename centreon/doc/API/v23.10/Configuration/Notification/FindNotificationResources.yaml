@@ -13,10 +13,6 @@ get:
           schema:
             type: object
             properties:
-              hash:
-                type: string
-                description: "Hash of the response payload"
-                example: "b89eaac7e61417341b710b727768294d0e6a277b"
               result:
                 type: array
                 items:

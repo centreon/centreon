@@ -35,7 +35,8 @@ class ConfigurationUser
      */
     public function __construct(
         private readonly int $id,
-        private readonly string $name
+        private readonly string $name,
+        private readonly string $email
     ) {
         Assertion::positiveInt($id, 'User::id');
     }
@@ -58,5 +59,15 @@ class ConfigurationUser
     public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * Get the user email
+     *
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
     }
 }
