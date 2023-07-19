@@ -1,6 +1,5 @@
 import 'cypress-wait-until';
 import './commands';
-import 'cypress-fail-fast';
 
 Cypress.on('uncaught:exception', (err) => {
   if (
