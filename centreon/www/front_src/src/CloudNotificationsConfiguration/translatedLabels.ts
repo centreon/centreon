@@ -82,8 +82,7 @@ export const labelSelectContactsAndContactsGroups =
 export const labelTimePeriod24h7days = '24h/24h - 7/7 days';
 export const labelIncludeServicesForTheseHosts =
   'Include services for these hosts';
-export const labelNotificationSuccessfullyDuplicated =
-  'Notification Successfully duplicated';
+export const labelNotificationDuplicated = 'Notification duplicated';
 export const labelFailedToDuplicateNotification =
   'Failed to duplicate the notification';
 export const labelPleaseEnterNameForDuplicatedNotification =

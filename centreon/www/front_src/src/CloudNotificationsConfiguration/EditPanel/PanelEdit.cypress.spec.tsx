@@ -30,7 +30,7 @@ import {
   labelCancel,
   labelPleaseEnterNameForDuplicatedNotification,
   labelDiscard,
-  labelNotificationSuccessfullyDuplicated
+  labelNotificationDuplicated
 } from '../translatedLabels';
 import { notificationsNamesAtom } from '../atom';
 import { DeleteConfirmationDialog } from '../Actions/Delete';
@@ -607,7 +607,7 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.waitForRequest('@duplicateNotificationtRequest');
 
-    cy.findByText(labelNotificationSuccessfullyDuplicated);
+    cy.findByText(labelNotificationDuplicated);
 
     cy.matchImageSnapshot();
   });

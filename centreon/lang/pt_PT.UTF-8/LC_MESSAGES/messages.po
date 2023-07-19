@@ -16395,7 +16395,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid 'Select time period / channels of notifications'
 # msgstr ""
 
-# msgid "Notification Successfully duplicated"
+# msgid "Notification duplicated"
 # msgstr ""
 
 # msgid "Failed to duplicate the notification"

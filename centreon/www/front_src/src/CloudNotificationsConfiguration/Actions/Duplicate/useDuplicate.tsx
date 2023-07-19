@@ -9,7 +9,7 @@ import {
 import useDuplicateRequest from '../api/useDuplicateRequest';
 import {
   labelFailedToDuplicateNotification,
-  labelNotificationSuccessfullyDuplicated
+  labelNotificationDuplicated
 } from '../../translatedLabels';
 import { NotificationType } from '../../EditPanel/models';
 
@@ -58,7 +58,7 @@ const useDuplicate = (): UseDeleteState => {
 
   const { submit } = useDuplicateRequest({
     labelFailed: t(labelFailedToDuplicateNotification),
-    labelSuccess: t(labelNotificationSuccessfullyDuplicated),
+    labelSuccess: t(labelNotificationDuplicated),
     notificationId: notification?.id,
     onSettled,
     payload: notification?.notification

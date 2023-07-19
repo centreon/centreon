@@ -15567,8 +15567,8 @@ msgstr "Sélectionner les utilisateurs"
 msgid "Select time period / channels of notifications"
 msgstr "Sélectionner la période / les canaux de notifications"
 
-msgid "Notification Successfully duplicated"
-msgstr "Notification dupliquée avec succès"
+msgid "Notification duplicated"
+msgstr "Notification dupliquée"
 
 msgid "Failed to duplicate the notification"
 msgstr "Échec de la duplication de la notification"

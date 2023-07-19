@@ -14,7 +14,7 @@ import {
   labelFailedToDeleteSelectedNotifications,
   labelNotificationName,
   labelNotificationSuccessfullyDeleted,
-  labelNotificationSuccessfullyDuplicated,
+  labelNotificationDuplicated,
   labelNotificationsSuccessfullyDeleted,
   labelPleaseEnterNameForDuplicatedNotification,
   labelRequired,
@@ -472,7 +472,7 @@ describe('Listing row actions: Duplicate button', () => {
     cy.waitForRequest('@duplicateNotificationtRequest');
     cy.waitForRequest('@defaultRequest');
 
-    cy.findByText(labelNotificationSuccessfullyDuplicated);
+    cy.findByText(labelNotificationDuplicated);
 
     cy.matchImageSnapshot();
   });
