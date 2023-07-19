@@ -3,7 +3,7 @@ Feature: As a Centreon User with dashboard administration rights,
   so I can provision accesses or re-direct ownership if a user is not supposed to use Centreon anymore
 
 Scenario: Accessing all dashboards as an admin user
-  Given an admin user on a platform with dashboards
-  When the admin user accesses the dashboard library in list mode
+  Given an admin user is logged in on a platform with dashboards
+  When the admin user accesses the dashboard library
   Then the admin user can view all the dashboards configured on the platform
-  And the admin user can perform update operations on any of the dashboards
+  And the admin user can perform update operations on any dashboard
