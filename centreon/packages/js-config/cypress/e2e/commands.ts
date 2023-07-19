@@ -391,21 +391,21 @@ Cypress.Commands.add(
         method: 'GET',
         url: `/centreon/api/latest/configuration/dashboards?search={"name":"${dashboardName}"}`
       })
-    ]).then(([retrievedUser, retrievedDashboard]) => {
-      cy.log('retrievedUser', retrievedUser);
-      cy.log('retrievedDashboard', retrievedDashboard);
-      const userId = retrievedUser.body.result[0].id;
-      const dashboardId = retrievedDashboard.body.result[0].id;
+    ])
+      .then(([retrievedUser, retrievedDashboard]) => {
+        const userId = retrievedUser.body.result[0].id;
+        const dashboardId = retrievedDashboard.body.result[0].id;
 
-      cy.request({
-        body: {
-          id: userId,
-          role: `${role}`
-        },
-        method: 'POST',
-        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}/access_rights/contacts`
-      });
-    });
+        cy.request({
+          body: {
+            id: userId,
+            role: `${role}`
+          },
+          method: 'POST',
+          url: `/centreon/api/latest/configuration/dashboards/${dashboardId}/access_rights/contacts`
+        });
+      })
+      .catch((error) => cy.log(error));
   }
 );
 
