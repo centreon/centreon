@@ -16,6 +16,9 @@ inputs:
   path:
     description: "path"
     required: true
+  dependencies_lock_file:
+    description: "The frontend dependencies lock file path"
+    required: true
 runs:
   using: "composite"
   steps:
@@ -23,6 +26,14 @@ runs:
       with:
         version: 7
         run_install: false
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      env:
+        CYPRESS_INSTALL_BINARY: "0"
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
     - name: Setup PHP 8.1
       uses: shivammathur/setup-php@v2
@@ -49,12 +60,7 @@ runs:
         docker exec lighthouse-tests-centreon bash -c "centreon -u admin -p Centreon\!2021 -a APPLYCFG -v 1"
       shell: bash
 
-    - name: Install npm dependencies
-      run: pnpm install --frozen-lockfile
-      shell: bash
-      working-directory: centreon/lighthouse
-
     - name: Run lighthouse
       run: pnpm run:lighthouse
       shell: bash
-      working-directory: centreon/lighthouse
+      working-directory: ${{ inputs.path }}
