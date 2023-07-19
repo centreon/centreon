@@ -32,7 +32,7 @@ import {
   labelDiscard,
   labelNotificationDuplicated
 } from '../translatedLabels';
-import { notificationsNamesAtom } from '../atom';
+import { notificationsNamesAtom, panelWidthStorageAtom } from '../atom';
 import { DeleteConfirmationDialog } from '../Actions/Delete';
 import { DuplicationForm } from '../Actions/Duplicate';
 
@@ -44,6 +44,8 @@ import { listNotificationResponse } from './testUtils';
 import Form from '.';
 
 const store = createStore();
+store.set(panelWidthStorageAtom, 800);
+
 store.set(panelModeAtom, PanelMode.Edit);
 store.set(editedNotificationIdAtom, 1);
 store.set(notificationsNamesAtom, [
