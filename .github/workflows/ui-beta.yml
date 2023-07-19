@@ -9,7 +9,6 @@ on:
 
 env:
   directory: "centreon/packages/ui"
-  centreon_directory: "centreon"
   package: "ui"
   base_branch: dev-23.04.x
 
@@ -23,8 +22,8 @@ jobs:
       - uses: ./.github/actions/frontend-lint
         with:
           frontend_directory: ${{ env.directory }}
-          installation_directory: ${{ env.centreon_directory }}
           module_name: centreon-ui
+          dependencies_lock_file: centreon/pnpm-lock.yaml
 
   unit-test:
     runs-on: ubuntu-22.04
@@ -44,7 +43,7 @@ jobs:
 
       - name: Install Centreon dependencies
         run: pnpm install
-        working-directory: ${{ env.centreon_directory }}
+        working-directory: centreon
 
       - name: Build Storybook
         run: pnpm build:storybook
@@ -75,5 +74,6 @@ jobs:
           directory: ${{ env.directory }}
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           npm_token: ${{ secrets.NPM_TOKEN }}
+          release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
           release_branch: ${{ env.base_branch }}

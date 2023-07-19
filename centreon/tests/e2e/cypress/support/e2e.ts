@@ -1,3 +1,4 @@
+import 'cypress-fail-fast';
 import 'cypress-wait-until';
 import './commands';
 
