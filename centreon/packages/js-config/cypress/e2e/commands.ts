@@ -381,34 +381,28 @@ interface ShareDashboardToUserProps {
 
 Cypress.Commands.add(
   'shareDashboardToUser',
-  ({
-    dashboardName,
-    userName,
-    role
-  }: ShareDashboardToUserProps): Cypress.Chainable => {
-    const userId = cy
-      .request({
+  ({ dashboardName, userName, role }: ShareDashboardToUserProps): void => {
+    Promise.all([
+      cy.request({
         method: 'GET',
         url: `/centreon/api/latest/configuration/users?search={"name":"${userName}"}`
-      })
-      .then(({ body }) => {
-        return body['result[0].id'];
-      });
-    const dashboardId = cy
-      .request({
+      }),
+      cy.request({
         method: 'GET',
         url: `/centreon/api/latest/configuration/dashboards?search={"name":"${dashboardName}"}`
       })
-      .then(({ body }) => {
-        return body['result[0].id'];
-      });
+    ]).then(([retrievedUser, retrievedDashboard]) => {
+      const userId = retrievedUser.body.result[0].id;
+      const dashboardId = retrievedDashboard.body.result[0].id;
 
-    return cy.request({
-      body: {
-        role: `${role}`
-      },
-      method: 'PATCH',
-      url: `/configuration/dashboards/${dashboardId}/access_rights/contacts/${userId}`
+      cy.request({
+        body: {
+          id: userId,
+          role: `${role}`
+        },
+        method: 'POST',
+        url: `/centreon/api/latest/configuration/dashboards/${dashboardId}/access_rights/contacts`
+      });
     });
   }
 );
