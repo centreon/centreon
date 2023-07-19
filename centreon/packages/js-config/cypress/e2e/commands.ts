@@ -423,7 +423,7 @@ Cypress.Commands.add(
           url: `/centreon/api/latest/configuration/dashboards/${dashboardId}/access_rights/contacts`
         });
       })
-      .catch((error) => cy.log(error));
+      .catch((error) => console.log(error));
   }
 );
 
