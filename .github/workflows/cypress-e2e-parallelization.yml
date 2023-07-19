@@ -25,6 +25,10 @@ on:
       package_directory:
         required: false
         type: string
+      dependencies_lock_file:
+        required: true
+        type: string
+        description: "The frontend dependencies lock file path"
     secrets:
       registry_username:
         required: true
@@ -56,6 +60,10 @@ jobs:
         feature: ${{ fromJson(needs.cypress-e2e-test-list.outputs.features) }}
     name: ${{ matrix.feature }}
 
+    env:
+      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
+      SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -82,6 +90,19 @@ jobs:
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
+      - name: Restore standard slim image in cache
+        uses: actions/cache/restore@v3
+        with:
+          path: /tmp/cache/docker-image
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+          fail-on-cache-miss: true
+
+      - name: Load standard slim image
+        run: |
+          docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        shell: bash
+
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
@@ -91,6 +112,7 @@ jobs:
           openid_image_version: ${{ inputs.major_version }}
           module: centreon
           feature_file_path: ${{ matrix.feature }}
+          dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
 
       - name: Upload test results
         if: failure()
