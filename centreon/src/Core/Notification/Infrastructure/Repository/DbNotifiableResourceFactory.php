@@ -94,7 +94,7 @@ class DbNotifiableResourceFactory
                 continue;
             }
 
-            if ($record['host_events'] !== "0" || $record['host_events'] !== 0) {
+            if ($record['host_events'] !== '0') {
                 $currentHostEvents = NotificationHostEventConverter::fromBitFlags((int) $record['host_events']);
             } else {
                 $currentHostEvents = [];
@@ -117,8 +117,10 @@ class DbNotifiableResourceFactory
         }
 
         if (null === $currentHostEvents) {
-            if ($currentRecords[$index - 1]['host_events'] !== "0" || $currentRecords[$index - 1]['host_events'] !== 0) {
-                $currentHostEvents = NotificationHostEventConverter::fromBitFlags($currentRecords[$index - 1]['host_events']);
+            if ($currentRecords[$index - 1]['host_events'] !== "0") {
+                $currentHostEvents = NotificationHostEventConverter::fromBitFlags(
+                    $currentRecords[$index - 1]['host_events']
+                );
             } else {
                 $currentHostEvents = [];
             }
@@ -153,7 +155,7 @@ class DbNotifiableResourceFactory
     ): NotificationHost {
         $notificationServices = [];
         foreach ($records as $record) {
-            if ($record['service_events'] !== "0") {
+            if ($record['service_events'] !== '0') {
                 $currentServiceEvents = NotificationServiceEventConverter::fromBitFlags(
                     (int) $record['service_events']
                 );
@@ -163,6 +165,10 @@ class DbNotifiableResourceFactory
                 );
             } else {
                 $currentServiceEvents = [];
+            }
+
+            if ([] === $currentServiceEvents) {
+                continue;
             }
 
             $notificationServices[] = new NotificationService(

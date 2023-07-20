@@ -31,7 +31,6 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Contact\Domain\Model\ContactGroup;
-use Core\Infrastructure\Configuration\NotificationPolicy\Repository\DbNotifiedContactFactory;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Domain\Model\ConfigurationTimePeriod;
 use Core\Notification\Domain\Model\ConfigurationUser;
@@ -149,7 +148,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $this->info('Get all notification users for notification with ID #' . $notificationId);
 
         $request = $this->translateDbName(
-            'SELECT notification_id, user_id, contact.contact_name, contact.contact_email
+            'SELECT notification_id, user_id, contact.contact_name
             FROM `:db`.notification_user_relation
             JOIN contact ON user_id = contact_id
             WHERE notification_id = :notificationId'
@@ -161,7 +160,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $users = [];
 
         foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
-            $users[] = new ConfigurationUser($result['user_id'], $result['contact_name'], $result['contact_email']);
+            $users[] = new ConfigurationUser($result['user_id'], $result['contact_name']);
         }
 
         return $users;
