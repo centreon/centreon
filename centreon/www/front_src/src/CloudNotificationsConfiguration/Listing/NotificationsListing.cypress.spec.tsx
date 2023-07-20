@@ -409,7 +409,7 @@ describe('Listing row actions: Duplicate button', () => {
     cy.render(ListingWithQueryProvider);
   });
 
-  it('display a confirmation dialog with a text field for the new notification name when the Duplicate button is clicked', () => {
+  it('displays a confirmation dialog with a text field for the new notification name when the Duplicate button is clicked', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.findAllByTestId(labelDuplicate).eq(0).click();
@@ -424,7 +424,7 @@ describe('Listing row actions: Duplicate button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('validate that the new name is required and does not already exist', () => {
+  it('validates that the name field is required and does not already exist', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.findAllByTestId(labelDuplicate).eq(0).click();
@@ -445,7 +445,7 @@ describe('Listing row actions: Duplicate button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('disable the confirm button if the name is empty or already exists', () => {
+  it('disables the Confirm button if the name is empty or already exists', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.findAllByTestId(labelDuplicate).eq(0).click();
@@ -460,7 +460,7 @@ describe('Listing row actions: Duplicate button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('display a success message after a successful duplication', () => {
+  it('displays a success message after a successful duplication', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.findAllByTestId(labelDuplicate).eq(0).click();
@@ -477,7 +477,7 @@ describe('Listing row actions: Duplicate button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('display an error message upon failed duplication request', () => {
+  it('displays an error message upon failed duplication request', () => {
     cy.waitForRequest('@defaultRequest');
 
     const errorMessage = 'internal server error';

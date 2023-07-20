@@ -245,7 +245,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the "Include Services" checkbox controls the enabling and checking status of all host group services checkboxes', () => {
+  it('xonfirms that the "Include Services" checkbox controls the enabling and checking of all host group services checkboxes', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId('include Services').click();
@@ -566,7 +566,7 @@ describe('Edit Panel: Duplicate button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('validates that new name is required and not already taken', () => {
+  it('validates that name field is required and not already taken', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId(labelDuplicate).click();
@@ -584,7 +584,7 @@ describe('Edit Panel: Duplicate button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('disables the confirm button if the name is empty or already exists', () => {
+  it('disables the Confirm button if the name is empty or already exists', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId(labelDuplicate).click();
