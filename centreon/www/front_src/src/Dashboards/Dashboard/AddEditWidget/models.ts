@@ -10,4 +10,7 @@ export interface Widget {
 export interface WidgetPropertyProps {
   label: string;
   propertyName: string;
+  text?: {
+    multiline?: boolean;
+  };
 }

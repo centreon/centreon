@@ -11,7 +11,8 @@ import { getProperty } from './utils';
 
 const WidgetTextField = ({
   propertyName,
-  label
+  label,
+  text
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -32,6 +33,7 @@ const WidgetTextField = ({
       ariaLabel={t(label) as string}
       dataTestId={label}
       label={t(label)}
+      multiline={text?.multiline || false}
       value={value}
       onChange={change}
     />
