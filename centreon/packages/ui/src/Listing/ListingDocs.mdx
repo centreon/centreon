@@ -1,0 +1,61 @@
+{/* ListingDocs.mdx */}
+
+import { Meta, Story } from '@storybook/blocks';
+import * as ListingStories from './index.stories';
+
+<Meta of={ListingStories} />
+
+# Listing
+
+## Expand/collapse rows
+
+The listing supports rows expanding and collapsing.
+
+In order to use this feature, please follow the instructions:
+- (pre-requisite): Your data should have a child property that contains sub-items.
+```javascript
+[
+  {
+    "id": 1,
+    "festival": "Test",
+    "name": "Tom",
+    "counter": 3,
+    "description": "My description of Tom"
+  },
+  {
+    "id": 2,
+    "name": "Jane's group",
+    "festival": "fest",
+    "counter": 5,
+    "description": "My description of Jane's group",
+    "subItems": [
+      {
+        "id": 3,
+        "name": "Jane",
+        "counter": 0,
+        "description": "My description of Jane"
+      },
+    ]
+  }
+]
+```
+- Use the `subItems` property to configure how the component will handle your sub-items
+```javascript
+subItems={{
+  canCheckSubItems: false, // Display checkbox on sub items. Default: false
+  enable: true, // It enables or disable the row expand/collapse feature. Default: false
+  rowProperty: 'subItems' // Which property should be used to detect sub-items. Default: ''
+  labelExpand: 'Expand',
+  labelCollapse: 'Collapse'
+}}
+```
+- Finally, update the column configuration in order to display the expand/collapse caret
+```javascript
+{
+  Component: ButtonColumn,
+  displaySubItemsCaret: true, // Add this property
+  id: '#',
+  label: 'Custom',
+  type: ColumnType.component
+}
+```

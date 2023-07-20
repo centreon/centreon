@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,10 +34,8 @@ use Core\TimePeriod\Application\UseCase\AddTimePeriod\AddTimePeriodResponse;
 class AddTimePeriodsPresenter extends AbstractPresenter implements PresenterInterface
 {
     use LoggerTrait;
-
     private const ROUTE_NAME = 'FindTimePeriod';
     private const ROUTE_TIME_PERIOD_ID = 'id';
-
 
     /**
      * @param PresenterFormatterInterface $presenterFormatter

@@ -100,11 +100,12 @@ jobs:
       - uses: ./.github/actions/frontend-build
         with:
           base_directory: ${{ env.base_directory }}
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
           index_file: ${{ env.base_directory }}/www/index.html
           static_directory: ${{ env.base_directory }}/www/static
           index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
-          command: centreon:build
+          build_command: pnpm centreon:build
 
   frontend-widgets-build:
     needs: [get-version]
@@ -116,6 +117,7 @@ jobs:
       - uses: ./.github/actions/frontend-build
         with:
           base_directory: ${{ env.widgets_directory }}
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
           static_directory: ${{ env.widgets_directory }}/src
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
 
@@ -177,6 +179,7 @@ jobs:
         with:
           frontend_directory: ${{ env.base_directory }}
           module_name: centreon
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
 
   frontend-widgets-lint:
     runs-on: ubuntu-22.04
@@ -190,6 +193,7 @@ jobs:
         with:
           frontend_directory: ${{ env.widgets_directory }}
           module_name: centreon-widgets
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -206,13 +210,17 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 17
+          node-version: 18
           cache: pnpm
-          cache-dependency-path: centreon
+          cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         working-directory: centreon
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Unit test
         run: pnpm t --silent --reporter=jest-junit
@@ -231,6 +239,7 @@ jobs:
       name: component
       module_name: centreon
       specs_path: www/**
+      dependencies_lock_file: centreon/pnpm-lock.yaml
 
   backend-unit-test:
     runs-on: ubuntu-22.04
@@ -264,12 +273,38 @@ jobs:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
 
+  backend-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
+
+      - name: Install Dependencies
+        run: composer install --optimize-autoloader
+        working-directory: centreon
+        shell: bash
+
+      - name: Run of php-cs-fixer
+        run: vendor/bin/php-cs-fixer fix --verbose --dry-run --diff
+        working-directory: centreon
+
   package:
     needs:
       [
         get-version,
         translation-build,
         backend-dependencies,
+        backend-lint,
         backend-unit-test,
         frontend-web-build,
         frontend-web-lint,
@@ -365,7 +400,7 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
-        uses: actions/cache@v3
+        uses: actions/cache/restore@v3
         with:
           path: ./*.${{ steps.matrix_include.outputs.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
@@ -413,15 +448,10 @@ jobs:
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
-        run: |
-          wget -q https://downloads.dockerslim.com/releases/1.40.2/dist_linux.tar.gz
-          tar -xf dist_linux.tar.gz
-          mv dist_linux/docker-slim /usr/local/bin/
-          mv dist_linux/slim-sensor /usr/local/bin/
-          mv dist_linux/slim /usr/local/bin/
+        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.3
         shell: bash
 
-      - name: Build and push slim images
+      - name: Build standard slim image
         run: |
           slim build --show-clogs --show-blogs \
             --include-shell \
@@ -430,11 +460,35 @@ jobs:
             --include-path-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-path.txt \
             --include-bin-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-bin.txt \
             --path-perms-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/path-perms.txt \
-            --tag ${{ env.project }}-slim-${{ matrix.os }} \
+            --tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-          docker tag ${{ env.project }}-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-          docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
+
+      - name: Push standard slim image
+        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+        shell: bash
+
+      - name: Store standard slim image in local archive
+        run: |
+          mkdir -p /tmp/cache/docker-image
+          docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+        shell: bash
+
+      - name: Clear previous docker image from cache
+        run: |
+          curl \
+            -X DELETE \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
+        shell: bash
+
+      - name: Store standard slim image in cache
+        uses: actions/cache/save@v3
+        with:
+          path: /tmp/cache/docker-image
+          key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
     needs: [get-version, changes, dockerize]
@@ -495,6 +549,7 @@ jobs:
       major_version: ${{ needs.get-version.outputs.major_version }}
       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
       package_directory: centreon/tests/e2e/cypress/fixtures/packages
+      dependencies_lock_file: centreon/pnpm-lock.yaml
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
@@ -522,6 +577,7 @@ jobs:
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
+          dependencies_lock_file: centreon/pnpm-lock.yaml
 
       - name: Publish report to S3
         if: ${{ github.event_name == 'push' }}

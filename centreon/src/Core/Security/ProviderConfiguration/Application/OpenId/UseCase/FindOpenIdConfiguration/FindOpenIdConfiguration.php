@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,6 +52,7 @@ class FindOpenIdConfiguration
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
+
             return;
         }
 
@@ -60,6 +61,7 @@ class FindOpenIdConfiguration
 
     /**
      * @param Configuration $provider
+     *
      * @return FindOpenIdConfigurationResponse
      */
     private function createResponse(Configuration $provider): FindOpenIdConfigurationResponse
@@ -72,8 +74,8 @@ class FindOpenIdConfiguration
         $findOpenIdConfigurationResponse->baseUrl = $customConfiguration->getBaseUrl();
         $findOpenIdConfigurationResponse->authorizationEndpoint = $customConfiguration->getAuthorizationEndpoint();
         $findOpenIdConfigurationResponse->tokenEndpoint = $customConfiguration->getTokenEndpoint();
-        $findOpenIdConfigurationResponse->introspectionTokenEndpoint =
-            $customConfiguration->getIntrospectionTokenEndpoint();
+        $findOpenIdConfigurationResponse->introspectionTokenEndpoint
+            = $customConfiguration->getIntrospectionTokenEndpoint();
         $findOpenIdConfigurationResponse->userInformationEndpoint = $customConfiguration->getUserInformationEndpoint();
         $findOpenIdConfigurationResponse->endSessionEndpoint = $customConfiguration->getEndSessionEndpoint();
         $findOpenIdConfigurationResponse->connectionScopes = $customConfiguration->getConnectionScopes();
@@ -91,8 +93,8 @@ class FindOpenIdConfiguration
         $findOpenIdConfigurationResponse->aclConditions = FindOpenIdConfigurationResponse::aclConditionsToArray(
             $customConfiguration->getACLConditions()
         );
-        $findOpenIdConfigurationResponse->authenticationConditions =
-            $findOpenIdConfigurationResponse::authenticationConditionsToArray(
+        $findOpenIdConfigurationResponse->authenticationConditions
+            = $findOpenIdConfigurationResponse::authenticationConditionsToArray(
                 $customConfiguration->getAuthenticationConditions()
             );
         $findOpenIdConfigurationResponse->groupsMapping = $findOpenIdConfigurationResponse::groupsMappingToArray(

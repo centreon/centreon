@@ -1,54 +1,27 @@
-import { ReactElement, useMemo } from 'react';
+import { ReactElement, Suspense } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
 import { Modal } from '@centreon/ui/components';
 
-import {
-  labelCancel,
-  labelEditAccessRights,
-  labelUpdate
-} from '../../translatedLabels';
+import { labelEditAccessRights } from '../../translatedLabels';
 
 import { useDashboardAccessRights } from './useDashboardAccessRights';
+import { DashboardAccessRightsForm } from './DashboardAccessRightsForm';
 
 const DashboardAccessRightsModal = (): ReactElement => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { isDialogOpen, closeDialog, dashboard, submit, status } =
-    useDashboardAccessRights();
+  const { isDialogOpen, closeDialog } = useDashboardAccessRights();
 
   const { t } = useTranslation();
 
-  const labels = useMemo(
-    (): {
-      form: {
-        actions: {
-          cancel: string;
-          confirm: string;
-        };
-      };
-      modalTitle: string;
-    } => ({
-      form: {
-        actions: {
-          cancel: t(labelCancel),
-          confirm: t(labelUpdate)
-        }
-      },
-      modalTitle: t(labelEditAccessRights)
-    }),
-    []
-  );
-
   return (
-    <Modal open={isDialogOpen} onClose={closeDialog}>
-      <Modal.Header>{labels.modalTitle}</Modal.Header>
-      <Modal.Body />
-      <Modal.Actions
-        labels={labels.form.actions}
-        onCancel={closeDialog}
-        // onConfirm={submit}
-      />
+    <Modal open={isDialogOpen} size="medium" onClose={closeDialog}>
+      <Modal.Header>{t(labelEditAccessRights)}</Modal.Header>
+      <Modal.Body>
+        <Suspense>
+          <DashboardAccessRightsForm />
+        </Suspense>
+      </Modal.Body>
     </Modal>
   );
 };

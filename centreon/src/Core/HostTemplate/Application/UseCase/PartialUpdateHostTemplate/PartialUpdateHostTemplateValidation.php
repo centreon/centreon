@@ -72,6 +72,7 @@ class PartialUpdateHostTemplateValidation
      * Assert name is not already used.
      *
      * @param string $name
+     * @param HostTemplate $hostTemplate
      *
      * @throws HostTemplateException|\Throwable
      */

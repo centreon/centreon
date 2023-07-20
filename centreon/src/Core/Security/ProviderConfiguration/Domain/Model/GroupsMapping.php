@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,7 +28,7 @@ use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 /**
  * This class is designed to represent The mapping between OpenID Claims and Centreon Contact Groups.
  * Claims are gathered from the Response (attribute path) of an endpoint defined by the user.
- * e.g : "http://myprovider.com/my_authorizations" will return a response:
+ * e.g : "http://myprovider.com/my_authorizations" will return a response:.
  *
  * {
  *   "infos": {
@@ -46,10 +46,11 @@ use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 class GroupsMapping
 {
     /**
-     * @param boolean $isEnabled
+     * @param bool $isEnabled
      * @param string $attributePath
      * @param Endpoint|null $endpoint
      * @param array $contactGroupRelations
+     *
      * @throws ConfigurationException
      */
     public function __construct(
@@ -63,11 +64,13 @@ class GroupsMapping
 
     /**
      * @param ContactGroupRelation[] $contactGroupRelations
+     *
      * @return self
      */
     public function setContactGroupRelations(array $contactGroupRelations): self
     {
         $this->contactGroupRelations = $contactGroupRelations;
+
         return $this;
     }
 
@@ -104,10 +107,11 @@ class GroupsMapping
     }
 
     /**
-     * Validate that all mandatory parameters are correctly set when groups mapping are enabled
+     * Validate that all mandatory parameters are correctly set when groups mapping are enabled.
      *
-     * @param boolean $isEnabled
+     * @param bool $isEnabled
      * @param string $attributePath
+     *
      * @throws ConfigurationException
      */
     private function validateMandatoryParametersForEnabledGroupsMapping(
@@ -117,7 +121,7 @@ class GroupsMapping
         if ($isEnabled) {
             $mandatoryParameters = [];
             if (empty($attributePath)) {
-                $mandatoryParameters[] = "attribute_path";
+                $mandatoryParameters[] = 'attribute_path';
             }
             if (! empty($mandatoryParameters)) {
                 throw ConfigurationException::missingMandatoryParameters($mandatoryParameters);

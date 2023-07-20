@@ -36,7 +36,6 @@ class AddHostSeverityPresenter extends AbstractPresenter
     private const ROUTE_NAME = 'FindHostSeverity';
     private const ROUTE_HOST_SEVERITY_ID = 'hostSeverityId';
 
-
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
         readonly private Router $router

@@ -1,55 +1,36 @@
-import { useState } from 'react';
-
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
+import { FormikValues, useFormikContext } from 'formik';
 
-import DuplicateIcon from '@mui/icons-material/ContentCopy';
-import { Box } from '@mui/material';
-
-import { IconButton } from '@centreon/ui';
-
-import DuplicateDialog from '../../../Dialogs/DuplicateDialog';
 import { labelDuplicate } from '../../../translatedLabels';
+import { DuplicateButton, useDuplicate } from '../../../Actions/Duplicate';
 
-const useStyle = makeStyles()((theme) => ({
+const useStyle = makeStyles<{ disabled: boolean }>()((theme, { disabled }) => ({
   icon: {
+    color: disabled
+      ? theme.palette.action.disabled
+      : theme.palette.text.secondary,
     fontSize: theme.spacing(2)
   }
 }));
 
 const DuplicateAction = (): JSX.Element => {
-  const { classes } = useStyle();
-
+  const { initialValues, dirty } = useFormikContext<FormikValues>();
+  const { classes } = useStyle({ disabled: dirty });
   const { t } = useTranslation();
+  const { duplicateItem } = useDuplicate();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  const onClick = (): void => setDialogOpen(true);
-
-  const onCancel = (): void => {
-    setDialogOpen(false);
-  };
-
-  const onConfirm = (): void => {
-    setDialogOpen(false);
+  const onClick = (): void => {
+    duplicateItem({ id: initialValues.id, notification: initialValues });
   };
 
   return (
-    <Box>
-      <IconButton
-        disabled
-        ariaLabel={t(labelDuplicate)}
-        title={t(labelDuplicate)}
-        onClick={onClick}
-      >
-        <DuplicateIcon className={classes.icon} color="disabled" />
-      </IconButton>
-      <DuplicateDialog
-        open={dialogOpen}
-        onCancel={onCancel}
-        onConfirm={onConfirm}
-      />
-    </Box>
+    <DuplicateButton
+      ariaLabel={t(labelDuplicate) as string}
+      className={classes.icon}
+      disabled={dirty}
+      onClick={onClick}
+    />
   );
 };
 

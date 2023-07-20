@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,6 +52,7 @@ class FindSAMLConfiguration
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
+
             return;
         }
 
@@ -60,6 +61,7 @@ class FindSAMLConfiguration
 
     /**
      * @param Configuration $provider
+     *
      * @return FindSAMLConfigurationResponse
      */
     private function createResponse(Configuration $provider): FindSAMLConfigurationResponse
@@ -84,8 +86,8 @@ class FindSAMLConfiguration
         $response->aclConditions = FindSAMLConfigurationResponse::aclConditionsToArray(
             $customConfiguration->getACLConditions()
         );
-        $response->authenticationConditions =
-            $response::authenticationConditionsToArray(
+        $response->authenticationConditions
+            = $response::authenticationConditionsToArray(
                 $customConfiguration->getAuthenticationConditions()
             );
         $response->groupsMapping = $response::groupsMappingToArray(

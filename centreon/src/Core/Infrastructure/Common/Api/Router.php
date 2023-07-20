@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,30 +18,28 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Api;
 
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
+use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
- * Override symfony router to generate base URI
+ * Override symfony router to generate base URI.
  */
 class Router implements RouterInterface, RequestMatcherInterface, WarmableInterface
 {
     use HttpUrlTrait;
 
-    /**
-     * @var RouterInterface
-     */
+    /** @var RouterInterface */
     private RouterInterface $router;
-    /**
-     * @var RequestMatcherInterface
-     */
+
+    /** @var RequestMatcherInterface */
     private RequestMatcherInterface $requestMatcher;
 
     /**
@@ -57,7 +55,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
-     * Get router
+     * Get router.
      *
      * @return RouterInterface
      */
@@ -72,14 +70,15 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
      * @param string $name
      * @param array<string,mixed> $parameters
      * @param int $referenceType
-     * @return string
      *
      * @throws \Exception
+     *
+     * @return string
      */
     public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH): string
     {
         $parameters['base_uri'] = $this->getBaseUri();
-        if (!empty($parameters['base_uri'])) {
+        if (! empty($parameters['base_uri'])) {
             $parameters['base_uri'] .= '/';
         }
 
@@ -99,9 +98,8 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
      * {@inheritDoc}
      *
      * @param RequestContext $context
-     * @return void
      */
-    public function setContext(RequestContext $context)
+    public function setContext(RequestContext $context): void
     {
         $this->router->setContext($context);
     }

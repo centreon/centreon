@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef } from 'react';
 
 import {
   MutateOptions,
@@ -26,7 +26,7 @@ type UseUpdateDashboard<
 >;
 
 const useUpdateDashboard = (): UseUpdateDashboard => {
-  const [resourceId, setResourceId] = useState<string | null>(null);
+  const resourceIdRef = useRef<string | null>(null);
 
   const {
     mutateAsync,
@@ -34,7 +34,7 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
     mutate: omittedMutate,
     ...mutationData
   } = useMutationQuery<Dashboard>({
-    getEndpoint: () => `${dashboardsEndpoint}/${resourceId}`,
+    getEndpoint: () => `${dashboardsEndpoint}/${resourceIdRef.current}`,
     method: Method.PATCH
   });
 
@@ -73,10 +73,10 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
     /* eslint-enable @typescript-eslint/no-unused-vars */
     /* eslint-enable @typescript-eslint/no-explicit-any */
 
-    setResourceId(id);
+    resourceIdRef.current = id;
 
     return mutateAsync(apiAllowedVariables, {
-      mutationKey: [resource.dashboards, 'update', resourceId],
+      mutationKey: [resource.dashboards, 'update', resourceIdRef.current],
       onSettled: onSettledWithInvalidateQueries,
       ...restOptions
     });

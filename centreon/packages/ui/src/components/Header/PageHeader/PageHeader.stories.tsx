@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import {
+  Edit as EditIcon,
   Settings as SettingsIcon,
   StarOutline as StarOutlineIcon
 } from '@mui/icons-material';
@@ -81,6 +82,14 @@ export const WithMenu: Story = {
           variant="ghost"
         >
           Manage
+        </Button>
+        <Button
+          icon={<EditIcon />}
+          iconVariant="start"
+          size="small"
+          variant="ghost"
+        >
+          Edit
         </Button>
       </PageHeader.Actions>
     </PageHeader>

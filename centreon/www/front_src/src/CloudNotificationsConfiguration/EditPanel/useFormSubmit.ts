@@ -20,7 +20,7 @@ import {
 } from '../translatedLabels';
 import { isPanelOpenAtom } from '../atom';
 
-import { adaptNotifications } from './api/adapters';
+import { adaptNotification } from './api/adapters';
 import { PanelMode } from './models';
 import { editedNotificationIdAtom, panelModeAtom } from './atom';
 import { notificationEndpoint } from './api/endpoints';
@@ -68,7 +68,7 @@ const useForm = (): UseFormState => {
       ? labelSuccessfulNotificationAdded
       : labelSuccessfulEditNotification;
 
-    return mutateAsync(adaptNotifications(values))
+    return mutateAsync(adaptNotification(values))
       .then((response) => {
         const { isError } = response as ResponseError;
         if (isError) {
