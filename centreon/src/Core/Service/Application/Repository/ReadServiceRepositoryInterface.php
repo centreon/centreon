@@ -27,7 +27,6 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadServiceRepositoryInterface
 {
-
     /**
      * Indicates whether the service already exists.
      *
@@ -61,5 +60,4 @@ interface ReadServiceRepositoryInterface
      * @return int
      */
     public function findMonitoringServerId(int $serviceId): int;
-
 }

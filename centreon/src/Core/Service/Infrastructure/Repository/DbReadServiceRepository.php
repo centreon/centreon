@@ -83,7 +83,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
         $statement->execute();
 
-        return $statement->fetchColumn();
+        return (int) $statement->fetchColumn();
     }
 
     /**
@@ -142,5 +142,4 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
 
         return (bool) $statement->fetchColumn();
     }
-
 }

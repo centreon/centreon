@@ -38,7 +38,6 @@ use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
-
 final class DeleteService
 {
     use LoggerTrait;
@@ -48,6 +47,8 @@ final class DeleteService
      * @param WriteServiceRepositoryInterface $writeRepository
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param ContactInterface $user
+     * @param WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository
+     * @param DataStorageEngineInterface $storageEngine
      */
     public function __construct(
         private readonly ReadServiceRepositoryInterface $readRepository,
@@ -79,13 +80,13 @@ final class DeleteService
             }
 
             if ($this->user->isAdmin()) {
-                $isServiceValid = $this->readRepository->exists($serviceId);
+                $doesServiceExists = $this->readRepository->exists($serviceId);
             } else {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-                $isServiceValid = $this->readRepository->existsByAccessGroups($serviceId, $accessGroups);
+                $doesServiceExists = $this->readRepository->existsByAccessGroups($serviceId, $accessGroups);
             }
 
-            if ($isServiceValid === false) {
+            if ($doesServiceExists === false) {
                 $this->error('Service not found', ['service_id' => $serviceId]);
                 $presenter->setResponseStatus(new NotFoundResponse('Service'));
 
@@ -93,12 +94,15 @@ final class DeleteService
             }
 
             try {
+                $this->storageEngine->startTransaction();
+
                 $monitoringServerId = $this->readRepository->findMonitoringServerId($serviceId);
                 $this->writeRepository->delete($serviceId);
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($monitoringServerId);
 
                 $this->storageEngine->commitTransaction();
             } catch (\Throwable $ex) {
+                $this->error("Rollback of 'Delete Service' transaction.");
                 $this->storageEngine->rollbackTransaction();
 
                 throw $ex;
