@@ -28,8 +28,8 @@ use Centreon\Domain\Common\Assertion\Assertion;
 class ConfigurationResource
 {
     /**
-     * @param privatereadonlyint $id
-     * @param privatereadonlystring $name
+     * @param int $id
+     * @param string $name
      *
      * @throws \Assert\AssertionFailedException
      */
