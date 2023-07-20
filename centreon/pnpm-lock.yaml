@@ -533,11 +533,13 @@ importers:
 
   www/widgets:
     specifiers:
+      copy-webpack-plugin: ^11.0.0
       react: ^18.2.0
       webpack: ^5.78.0
     dependencies:
       react: 18.2.0
     devDependencies:
+      copy-webpack-plugin: 11.0.0_webpack@5.82.1
       webpack: 5.82.1
 
 packages:
@@ -9011,6 +9013,21 @@ packages:
     dependencies:
       is-what: 4.1.9
     dev: false
+
+  /copy-webpack-plugin/11.0.0_webpack@5.82.1:
+    resolution: {integrity: sha512-fX2MWpamkW0hZxMEg0+mYnA40LTosOSa5TqZ9GYIBzyJa9C3QUaMPSE2xAi/buNr8u89SfD9wHSQVBzrRa/SOQ==}
+    engines: {node: '>= 14.15.0'}
+    peerDependencies:
+      webpack: ^5.1.0
+    dependencies:
+      fast-glob: 3.2.12
+      glob-parent: 6.0.2
+      globby: 13.1.4
+      normalize-path: 3.0.0
+      schema-utils: 4.0.1
+      serialize-javascript: 6.0.1
+      webpack: 5.82.1
+    dev: true
 
   /core-js-compat/3.30.2:
     resolution: {integrity: sha512-nriW1nuJjUgvkEjIot1Spwakz52V9YkYHZAQG6A1eCgC8AA1p0zngrQEP9R0+V6hji5XilWKG1Bd0YRppmGimA==}

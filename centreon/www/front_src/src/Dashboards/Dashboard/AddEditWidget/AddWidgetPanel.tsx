@@ -8,7 +8,7 @@ import { labelAddAWidget } from '../translatedLabels';
 import { useAddWidgetPanelStyles } from '../Layout/Panel/usePanelStyles';
 import { isEditingAtom } from '../atoms';
 
-import useAddWidget from './useAddWidget';
+import useWidgetForm from './useWidgetModal';
 
 const AddWidgetPanel = (): JSX.Element => {
   const { t } = useTranslation();
@@ -17,13 +17,13 @@ const AddWidgetPanel = (): JSX.Element => {
 
   const { classes } = useAddWidgetPanelStyles();
 
-  const { openModal } = useAddWidget();
+  const { openModal } = useWidgetForm();
 
   return (
     <CardActionArea
       disabled={!isEditing}
       sx={{ height: '100%', width: '100%' }}
-      onClick={openModal}
+      onClick={() => openModal(null)}
     >
       <div className={classes.addWidgetPanel}>
         <Typography variant="h5">{t(labelAddAWidget)}</Typography>

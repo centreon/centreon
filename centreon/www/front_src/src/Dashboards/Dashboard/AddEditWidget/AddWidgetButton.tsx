@@ -11,7 +11,7 @@ import { Button } from '@centreon/ui/components';
 import { labelAddAWidget } from '../translatedLabels';
 import { dashboardAtom, isEditingAtom } from '../atoms';
 
-import useAddWidget from './useAddWidget';
+import useWidgetForm from './useWidgetModal';
 
 const AddWidgetButton = (): JSX.Element | null => {
   const { t } = useTranslation();
@@ -19,7 +19,7 @@ const AddWidgetButton = (): JSX.Element | null => {
   const isEditing = useAtomValue(isEditingAtom);
   const dashboard = useAtomValue(dashboardAtom);
 
-  const { openModal } = useAddWidget();
+  const { openModal } = useWidgetForm();
 
   const hasPanels = useMemo(
     () => !isEmpty(dashboard.layout),
@@ -37,7 +37,7 @@ const AddWidgetButton = (): JSX.Element | null => {
       icon={<AddIcon />}
       iconVariant="start"
       size="small"
-      onClick={openModal}
+      onClick={() => openModal(null)}
     >
       {t(labelAddAWidget)}
     </Button>

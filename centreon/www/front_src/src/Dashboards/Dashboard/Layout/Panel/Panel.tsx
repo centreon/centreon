@@ -8,7 +8,7 @@ import {
   setPanelOptionsDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
-import { AddWidgetPanel } from '../../AddWidget';
+import { AddWidgetPanel } from '../../AddEditWidget';
 
 interface Props {
   id: string;

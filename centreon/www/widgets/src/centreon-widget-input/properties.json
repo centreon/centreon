@@ -1,0 +1,12 @@
+{
+  "title": "Generic input (example)",
+  "description": "This is the description of the generic input widget",
+  "options": {
+    "text": {
+      "type": "textfield",
+      "defaultValue": "",
+      "label": "Text"
+    }
+  },
+  "moduleName": "centreon-widget-input"
+}

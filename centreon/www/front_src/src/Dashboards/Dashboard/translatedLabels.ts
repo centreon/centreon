@@ -17,3 +17,7 @@ export const labelNoWidgetFound = 'No widget found';
 export const labelDeleteAWidget = 'Delete a widget';
 export const labelDoYouWantToDeleteThisWidget =
   'Do you want to delete this widget?';
+export const labelWidgetsLibrary = 'Widgets library';
+export const labelPleaseChooseAWidgetToActivatePreview =
+  'Please choose a widget to activate the preview';
+export const labelEdit = 'Edit';

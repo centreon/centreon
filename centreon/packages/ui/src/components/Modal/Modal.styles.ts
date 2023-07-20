@@ -15,6 +15,10 @@ const useStyles = makeStyles()((theme) => ({
     },
     '&[data-size="small"] .MuiDialog-paper': {
       width: '400px'
+    },
+    '&[data-size="xlarge"] .MuiDialog-paper': {
+      maxWidth: '1200px',
+      width: 'calc(100% - 64px)'
     }
   },
   modalActions: {

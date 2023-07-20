@@ -24,3 +24,22 @@ export interface StyleMenuSkeleton {
   height?: number;
   width?: number;
 }
+
+export enum FederatedWidgetOptionType {
+  textfield = 'textfield'
+}
+
+export interface FederatedWidgetOption {
+  defaultValue: unknown;
+  label: string;
+  type: FederatedWidgetOptionType;
+}
+
+export interface FederatedWidgetProperties {
+  description: string;
+  moduleName: string;
+  options: {
+    [key: string]: FederatedWidgetOption;
+  };
+  title: string;
+}

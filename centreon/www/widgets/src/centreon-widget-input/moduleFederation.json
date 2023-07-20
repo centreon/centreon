@@ -5,8 +5,7 @@
       "./input"
     ],
     "panelMinHeight": 3,
-    "panelMinWidth": 4,
-    "title": "Generic input (example)"
+    "panelMinWidth": 4
   },
   "moduleFederationName": "widgetinput",
   "moduleName": "centreon-widget-input"

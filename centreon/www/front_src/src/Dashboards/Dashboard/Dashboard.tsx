@@ -21,7 +21,7 @@ import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
 import { isEditingAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
-import { AddWidgetButton, AddWidgetModal } from './AddWidget';
+import { AddWidgetButton, AddEditWidgetModal } from './AddEditWidget';
 import { DeleteWidgetModal } from './DeleteWidget';
 
 const Dashboard = (): ReactElement => {
@@ -92,7 +92,7 @@ const Dashboard = (): ReactElement => {
       </PageLayout.Body>
       <DashboardConfigModal />
       <DashboardAccessRightsModal />
-      <AddWidgetModal />
+      <AddEditWidgetModal />
       <DeleteWidgetModal />
     </PageLayout>
   );

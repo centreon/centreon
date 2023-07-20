@@ -5,7 +5,7 @@ import { Typography, TextField, Box } from '@mui/material';
 import { Module } from '@centreon/ui';
 
 interface Options {
-  input: string;
+  text: string;
 }
 interface Props {
   panelOptions?: Options;
@@ -19,14 +19,14 @@ const Input = ({
   store
 }: Props): JSX.Element => {
   const changeInput = (event): void => {
-    setPanelOptions({ input: event.target.value });
+    setPanelOptions({ text: event.target.value });
   };
 
   return (
     <Module maxSnackbars={1} seedName="text2" store={store}>
       <Box>
-        <TextField value={panelOptions?.input} onChange={changeInput} />
-        <Typography>{panelOptions?.input}</Typography>
+        <TextField value={panelOptions?.text} onChange={changeInput} />
+        <Typography>{panelOptions?.text}</Typography>
       </Box>
     </Module>
   );

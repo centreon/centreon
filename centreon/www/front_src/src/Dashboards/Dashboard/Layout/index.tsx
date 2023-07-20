@@ -58,12 +58,12 @@ const Layout = (): JSX.Element => {
     });
   };
 
-  const hasLayout = useMemo(
-    () => !isEmpty(dashboard.layout),
-    [dashboard.layout]
+  const showDefaultLayout = useMemo(
+    () => isEmpty(dashboard.layout) && isEditing,
+    [dashboard.layout, isEditing]
   );
 
-  const panels = hasLayout ? dashboard.layout : emptyLayout;
+  const panels = showDefaultLayout ? emptyLayout : dashboard.layout;
 
   return (
     <DashboardLayout.Layout
