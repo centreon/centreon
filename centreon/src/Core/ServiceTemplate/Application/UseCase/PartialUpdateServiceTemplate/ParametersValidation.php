@@ -66,9 +66,9 @@ class ParametersValidation
      */
     public function assertIsValidName(string $currentName, string $newName): void
     {
-        $formattedName = ServiceTemplate::formatName($newName);
+        $formattedName = ServiceTemplate::formatName($newName) ?? '';
         if (
-            '' !== ($formattedName ?? '')
+            '' !== $formattedName
             && $currentName !== $formattedName
             && $this->readServiceTemplateRepository->existsByName(
                 new TrimmedString($formattedName)

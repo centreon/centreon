@@ -277,6 +277,8 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
 
             return $newServiceTemplateId;
         } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
             if (! $isAlreadyInTransaction) {
                 $this->db->rollBack();
             }
@@ -333,6 +335,8 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
                 $this->db->commit();
             }
         } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
             if (! $alreadyInTransaction) {
                 $this->db->rollBack();
             }
@@ -367,6 +371,8 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
                 $this->db->commit();
             }
         } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
             if (! $alreadyInTransaction) {
                 $this->db->rollBack();
             }
@@ -530,6 +536,8 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
                 $this->db->commit();
             }
         } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
             if (! $isAlreadyInTransaction) {
                 $this->db->rollBack();
             }

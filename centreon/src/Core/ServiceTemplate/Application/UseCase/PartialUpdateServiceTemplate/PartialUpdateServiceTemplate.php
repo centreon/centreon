@@ -58,7 +58,7 @@ use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 use Utility\Difference\BasicDifference;
 
-class PartialUpdateServiceTemplate
+final class PartialUpdateServiceTemplate
 {
     use LoggerTrait;
 

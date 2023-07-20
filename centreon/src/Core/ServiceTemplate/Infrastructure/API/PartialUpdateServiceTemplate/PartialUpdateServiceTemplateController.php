@@ -79,7 +79,7 @@ use Symfony\Component\HttpFoundation\Response;
  *     macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>
  * }
  */
-class PartialUpdateServiceTemplateController extends AbstractController
+final class PartialUpdateServiceTemplateController extends AbstractController
 {
     use LoggerTrait;
 
