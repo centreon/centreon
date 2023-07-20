@@ -23,8 +23,17 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotificationsResources;
 
-final class FindNotificationsResourcesResponse
+class NotificationServiceDto
 {
-    /** @var array<NotifiableResourceDto> */
-    public array $notifiableResources = [];
+    /** @var int */
+    public int $id = 0;
+
+    /** @var string */
+    public string $name = '';
+
+    /** @var string|null */
+    public ?string $alias = null;
+
+    /** @var int */
+    public int $events = 0;
 }

@@ -34,4 +34,20 @@ class NotifiableResource
         private readonly array $hosts,
     ) {
     }
+
+    /**
+     * @return int
+     */
+    public function getNotificationId(): int
+    {
+        return $this->notificationId;
+    }
+
+    /**
+     * @return array<NotificationHost>
+     */
+    public function getHosts(): array
+    {
+        return $this->hosts;
+    }
 }

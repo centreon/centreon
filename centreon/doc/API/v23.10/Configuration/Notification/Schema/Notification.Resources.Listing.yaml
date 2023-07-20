@@ -1,5 +1,8 @@
 type: object
 properties:
+  notification_id:
+    type: integer
+    example: 2
   hosts:
     type: array
     items:

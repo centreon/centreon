@@ -27,6 +27,9 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Notification\Application\Converter\NotificationHostEventConverter;
+use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 
@@ -34,17 +37,35 @@ final class FindNotificationsResources
 {
     use LoggerTrait;
 
+    /**
+     * @param ContactInterface $contact
+     * @param ReadNotificationRepositoryInterface $notificationRepository
+     */
     public function __construct(
         private readonly ContactInterface $contact,
         private readonly ReadNotificationRepositoryInterface $notificationRepository
     ) {
     }
 
+    /**
+     * @param FindNotificationsResourcesPresenterInterface $presenter
+     * @param string $requestUID
+     *
+     * @throws \Throwable
+     */
     public function __invoke(FindNotificationsResourcesPresenterInterface $presenter, string $requestUID): void
     {
         try {
+            // ADD CHECK FOR CENTREON-BROKER USER
             if ($this->contact->isAdmin()) {
-                $notifiableResources = $this->notificationRepository->findNotifiableResourcesForActivatedNotifications();
+                $notifiableResources = $this->notificationRepository
+                    ->findNotifiableResourcesForActivatedNotifications();
+
+                if ([] === $notifiableResources) {
+                    $response = new NotFoundResponse('Notifiable resources');
+                } else {
+                    $response = $this->createResponseDto($notifiableResources);
+                }
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to list notification resources",
@@ -58,5 +79,46 @@ final class FindNotificationsResources
         }
 
         $presenter->presentResponse($response);
+    }
+
+    /**
+     * @param array<NotifiableResource> $notifiableResources
+     *
+     * @return FindNotificationsResourcesResponse
+     */
+    private function createResponseDto(array $notifiableResources): FindNotificationsResourcesResponse
+    {
+        $responseDto = new FindNotificationsResourcesResponse();
+        foreach ($notifiableResources as $notifiableResource) {
+            $notifiableResourceDto = new NotifiableResourceDto();
+            $notifiableResourceDto->notificationId = $notifiableResource->getNotificationId();
+            foreach ($notifiableResource->getHosts() as $notificationHost) {
+                $notificationHostDto = new NotificationHostDto();
+                $notificationHostDto->id = $notificationHost->getId();
+                $notificationHostDto->name = $notificationHost->getName();
+                $notificationHostDto->alias = $notificationHost->getAlias();
+                if ([] !== $notificationHost->getEvents()) {
+                    $notificationHostDto->events = NotificationHostEventConverter::toBitFlags(
+                        $notificationHost->getEvents()
+                    );
+                }
+                foreach ($notificationHost->getServices() as $notificationService) {
+                    $notificationServiceDto = new NotificationServiceDto();
+                    $notificationServiceDto->id = $notificationService->getId();
+                    $notificationServiceDto->name = $notificationService->getName();
+                    $notificationServiceDto->alias = $notificationService->getAlias();
+                    if ([] !== $notificationService->getEvents()) {
+                        $notificationServiceDto->events = NotificationServiceEventConverter::toBitFlags(
+                            $notificationService->getEvents()
+                        );
+                    }
+                    $notificationHostDto->services[] = $notificationServiceDto;
+                }
+                $notifiableResourceDto->hosts[] = $notificationHostDto;
+            }
+            $responseDto->notifiableResources[] = $notifiableResourceDto;
+        }
+
+        return $responseDto;
     }
 }

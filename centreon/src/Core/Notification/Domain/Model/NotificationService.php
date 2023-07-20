@@ -27,15 +27,47 @@ class NotificationService
 {
     /**
      * @param int $id
-     * @param string $serviceName
-     * @param string|null $serviceAlias
+     * @param string $name
+     * @param string|null $alias
      * @param array<NotificationServiceEvent> $events
      */
     public function __construct(
         private readonly int $id,
-        private readonly string $serviceName,
-        private readonly ?string $serviceAlias,
+        private readonly string $name,
+        private readonly ?string $alias,
         private readonly array $events
     ) {
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAlias(): ?string
+    {
+        return $this->alias;
+    }
+
+    /**
+     * @return array<NotificationServiceEvent>
+     */
+    public function getEvents(): array
+    {
+        return $this->events;
     }
 }

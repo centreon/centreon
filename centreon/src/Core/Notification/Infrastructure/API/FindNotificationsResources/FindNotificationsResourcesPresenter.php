@@ -37,6 +37,19 @@ class FindNotificationsResourcesPresenter extends AbstractPresenter implements P
      */
     public function presentResponse(FindNotificationsResourcesResponse|ResponseStatusInterface $response): void
     {
-        
+        if ($response instanceof FindNotificationsResourcesResponse) {
+            $result = [];
+            foreach ($response->notifiableResources as $notifiableResource) {
+                $result[] = [
+                    'notification_id' => $notifiableResource->notificationId,
+                    'hosts' => $notifiableResource->hosts
+                ];
+            }
+            $this->present([
+                'result' => $result
+            ]);
+        } else {
+            $this->setResponseStatus($response);
+        }
     }
 }
