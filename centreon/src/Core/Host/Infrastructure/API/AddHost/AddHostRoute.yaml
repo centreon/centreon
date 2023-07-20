@@ -1,0 +1,5 @@
+AddHost:
+  methods: POST
+  path: /configuration/hosts
+  controller: 'Core\Host\Infrastructure\API\AddHost\AddHostController'
+  condition: "request.attributes.get('version') >= 23.10"

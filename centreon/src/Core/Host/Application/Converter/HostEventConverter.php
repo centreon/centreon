@@ -73,7 +73,6 @@ class HostEventConverter
      * Convert a string to an array of HostEvent.
      * ex: 'd,u' => [HostEvent::Down, HostEvent::Unreachable].
      *
-     * @param string $events
      * @param string $legacyStr
      *
      * @return HostEvent[]
