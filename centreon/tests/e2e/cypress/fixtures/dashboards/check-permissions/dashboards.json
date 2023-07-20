@@ -6,5 +6,9 @@
     "fromCreatorUser": {
       "name": "dashboard-from-creator-user",
       "description": "by user-dashboard-creator"
+    },
+    "fromCurrentUser": {
+      "name": "dashboard-created-by-current-user",
+      "description": "by-current-user"
     }
   }

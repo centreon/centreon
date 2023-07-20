@@ -22,6 +22,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/latest/configuration/dashboards?'
   }).as('listAllDashboards');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/dashboards'
+  }).as('createDashboard');
   cy.loginByTypeOfUser({
     jsonName: 'user-dashboard-administrator',
     loginViaApi: true
@@ -57,7 +61,7 @@ Given('an admin user is logged in on a platform with dashboards', () => {
   });
 });
 
-When('the admin user accesses the dashboard library', () => {
+When('the admin user accesses the dashboards library', () => {
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
 });
 
@@ -104,7 +108,7 @@ Then(
 Then(
   'the admin user is allowed to access the edit mode for this dashboard',
   () => {
-    cy.get('button[data-testid="edit_dashboard"]').click();
+    cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.location('search').should('include', 'edit=true');
     cy.getByLabel({ label: 'add widget', tag: 'button' }).should('be.enabled');
     cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
@@ -134,3 +138,42 @@ Then("the admin user is allowed to update the dashboard's properties", () => {
     `${dashboards.fromAdministratorUser.description} and admin`
   ).should('exist');
 });
+
+Given('an admin user on the dashboards library', () => {
+  cy.loginByTypeOfUser({
+    jsonName: 'admin',
+    loginViaApi: true
+  });
+
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+});
+
+When('the admin user creates a new dashboard', () => {
+  cy.getByLabel({ label: 'create', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type(
+    dashboards.fromCurrentUser.name
+  );
+  cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
+    dashboards.fromCurrentUser.description
+  );
+  cy.getByTestId({ testId: 'submit' }).click();
+  cy.wait('@createDashboard');
+});
+
+Then(
+  'the dashboard is created and is noted as the creation of the admin user',
+  () => {
+    cy.getByLabel({ label: 'page header title' }).should(
+      'contain.text',
+      dashboards.fromCurrentUser.name
+    );
+    cy.getByLabel({ label: 'page header description' }).should(
+      'contain.text',
+      dashboards.fromCurrentUser.description
+    );
+    cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.get('admin admin').should('be.visible');
+    cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
+  }
+);
