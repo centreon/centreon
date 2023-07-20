@@ -30,6 +30,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -37,10 +38,10 @@ use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\Service\Application\UseCase\DeleteService\DeleteService;
-use Tests\Core\Service\Infrastructure\API\DeleteService\DeleteServicePresenterStub;
 
 beforeEach(closure: function (): void {
-    $this->presenter = new DeleteServicePresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
+    $this->presenter = new DefaultPresenter($this->presenterFormatter);
     $this->useCase = new DeleteService(
         $this->readRepository = $this->createMock(ReadServiceRepositoryInterface::class),
         $this->writeRepository = $this->createMock(WriteServiceRepositoryInterface::class),
@@ -59,9 +60,9 @@ it('should present a ForbiddenResponse when the user has insufficient rights', f
 
     ($this->useCase)(1, $this->presenter);
 
-    expect($this->presenter->response)
+    expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($this->presenter->response->getMessage())
+        ->and($this->presenter->getResponseStatus()->getMessage())
         ->toBe(ServiceException::deleteNotAllowed()->getMessage());
 });
 
@@ -82,9 +83,9 @@ it('should present a NotFoundResponse when the service is not found', function (
 
     ($this->useCase)(1, $this->presenter);
 
-    expect($this->presenter->response)
+    expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(NotFoundResponse::class)
-        ->and($this->presenter->response->getMessage())
+        ->and($this->presenter->getResponseStatus()->getMessage())
         ->toBe((new NotFoundResponse('Service'))->getMessage());
 });
 
@@ -105,9 +106,9 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
 
     ($this->useCase)(1, $this->presenter);
 
-    expect($this->presenter->response)
+    expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($this->presenter->response->getMessage())
+        ->and($this->presenter->getResponseStatus()->getMessage())
         ->toBe(ServiceException::errorWhileDeleting(new \Exception())->getMessage());
 });
 
@@ -136,11 +137,11 @@ it('should present a NoContentResponse when the service has been deleted', funct
         ->method('delete')
         ->with(1);
 
-    // $this->writeMonitoringServerRepository
-    //     ->expects($this->once())
-    //     ->method('notifyConfigurationChange');
+    $this->writeMonitoringServerRepository
+        ->expects($this->once())
+        ->method('notifyConfigurationChange');
 
     ($this->useCase)(1, $this->presenter);
 
-    expect($this->presenter->response)->toBeInstanceOf(NoContentResponse::class);
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });

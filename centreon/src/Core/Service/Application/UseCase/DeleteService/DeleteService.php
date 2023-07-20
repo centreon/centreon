@@ -95,7 +95,7 @@ final class DeleteService
             try {
                 $monitoringServerId = $this->readRepository->findMonitoringServerId($serviceId);
                 $this->writeRepository->delete($serviceId);
-                // $this->writeMonitoringServerRepository->notifyConfigurationChange($monitoringServerId);
+                $this->writeMonitoringServerRepository->notifyConfigurationChange($monitoringServerId);
 
                 $this->storageEngine->commitTransaction();
             } catch (\Throwable $ex) {
