@@ -42,7 +42,7 @@ class FindNotificationsResourcesPresenter extends AbstractPresenter implements P
             foreach ($response->notifiableResources as $notifiableResource) {
                 $result[] = [
                     'notification_id' => $notifiableResource->notificationId,
-                    'hosts' => $notifiableResource->hosts
+                    'hosts' => $notifiableResource->hosts,
                 ];
             }
             $this->present([

@@ -23,12 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\Repository;
 
-use Core\Notification\Domain\Model\NotificationHost;
-use Core\Notification\Domain\Model\NotifiableResource;
-use Core\Notification\Domain\Model\NotificationService;
-use Core\Notification\Domain\Model\NotificationHostEvent;
-use Core\Notification\Application\Converter\NotificationHostEventConverter;
-use Core\Notification\Application\Converter\NotificationServiceEventConverter;
+use Core\Notification\Domain\Model\{NotifiableResource, NotificationHost, NotificationService, NotificationHostEvent};
+use Core\Notification\Application\Converter\{NotificationHostEventConverter, NotificationServiceEventConverter};
 
 class DbNotifiableResourceFactory
 {
@@ -117,7 +113,7 @@ class DbNotifiableResourceFactory
         }
 
         if (null === $currentHostEvents) {
-            if ($currentRecords[$index - 1]['host_events'] !== "0") {
+            if ($currentRecords[$index - 1]['host_events'] !== '0') {
                 $currentHostEvents = NotificationHostEventConverter::fromBitFlags(
                     $currentRecords[$index - 1]['host_events']
                 );
@@ -159,7 +155,7 @@ class DbNotifiableResourceFactory
                 $currentServiceEvents = NotificationServiceEventConverter::fromBitFlags(
                     (int) $record['service_events']
                 );
-            } else if ($record['included_service_events'] !== "0") {
+            } else if ($record['included_service_events'] !== '0') {
                 $currentServiceEvents = NotificationServiceEventConverter::fromBitFlags(
                     (int) $record['included_service_events']
                 );

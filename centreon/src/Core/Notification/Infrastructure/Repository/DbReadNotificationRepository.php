@@ -350,41 +350,6 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
-     * Build Query for findAll with research parameters.
-     *
-     * @param SqlRequestParametersTranslator|null $sqlTranslator
-     *
-     * @return string
-     */
-    private function buildFindAllQuery(?SqlRequestParametersTranslator $sqlTranslator): string
-    {
-
-        $query = $this->translateDbName(
-            <<<'SQL'
-                    SELECT id, name, timeperiod_id, tp_name, is_activated
-                    FROM `:db`.notification
-                    INNER JOIN timeperiod ON timeperiod_id = tp_id
-                SQL
-        );
-
-        if ($sqlTranslator === null) {
-            return $query;
-        }
-
-        $sqlTranslator->setConcordanceArray([
-            'name' => 'notification.name',
-        ]);
-
-        $searchQuery = $sqlTranslator->translateSearchParameterToSql();
-        $query .= ! is_null($searchQuery) ? $searchQuery : '';
-
-        $paginationQuery = $sqlTranslator->translatePaginationToSql();
-        $query .= $paginationQuery;
-
-        return $query;
-    }
-
-    /**
      * @inheritDoc
      */
     public function findNotifiableResourcesForActivatedNotifications(): array
@@ -434,8 +399,41 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
 
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
-        $notifiableResources = DbNotifiableResourceFactory::createFromRecords($result);
+        return DbNotifiableResourceFactory::createFromRecords($result);
+    }
 
-        return $notifiableResources;
+    /**
+     * Build Query for findAll with research parameters.
+     *
+     * @param SqlRequestParametersTranslator|null $sqlTranslator
+     *
+     * @return string
+     */
+    private function buildFindAllQuery(?SqlRequestParametersTranslator $sqlTranslator): string
+    {
+
+        $query = $this->translateDbName(
+            <<<'SQL'
+                    SELECT id, name, timeperiod_id, tp_name, is_activated
+                    FROM `:db`.notification
+                    INNER JOIN timeperiod ON timeperiod_id = tp_id
+                SQL
+        );
+
+        if ($sqlTranslator === null) {
+            return $query;
+        }
+
+        $sqlTranslator->setConcordanceArray([
+            'name' => 'notification.name',
+        ]);
+
+        $searchQuery = $sqlTranslator->translateSearchParameterToSql();
+        $query .= ! is_null($searchQuery) ? $searchQuery : '';
+
+        $paginationQuery = $sqlTranslator->translatePaginationToSql();
+        $query .= $paginationQuery;
+
+        return $query;
     }
 }

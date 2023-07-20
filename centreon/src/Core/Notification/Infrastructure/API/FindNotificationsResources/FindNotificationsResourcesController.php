@@ -37,6 +37,7 @@ final class FindNotificationsResourcesController extends AbstractController
     /**
      * @param FindNotificationsResources $useCase
      * @param FindNotificationsResourcesPresenter $presenter
+     * @param Request $request
      *
      * @throws AccessDeniedException
      *
