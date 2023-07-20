@@ -34,6 +34,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 final class FindNotificationsResourcesController extends AbstractController
 {
     use LoggerTrait;
+
     /**
      * @param FindNotificationsResources $useCase
      * @param FindNotificationsResourcesPresenter $presenter
