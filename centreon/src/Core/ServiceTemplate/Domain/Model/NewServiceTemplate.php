@@ -147,10 +147,8 @@ class NewServiceTemplate
      */
     public function setName(string $name): void
     {
-        $name = ServiceTemplate::formatName($name);
-        if ($name === null) {
-            throw AssertionException::notNull($this->className . '::name');
-        }
+        $name = ServiceTemplate::formatName($name) ?? throw AssertionException::notNull($this->className . '::name');
+
         Assertion::notEmptyString($name, $this->className . '::name');
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, $this->className . '::name');
         Assertion::unauthorizedCharacters(
@@ -176,10 +174,8 @@ class NewServiceTemplate
      */
     public function setAlias(string $alias): void
     {
-        $alias = ServiceTemplate::formatName($alias);
-        if ($alias === null) {
-            throw AssertionException::notNull($this->className . '::alias');
-        }
+        $alias = ServiceTemplate::formatName($alias) ?? throw AssertionException::notNull($this->className . '::alias');
+
         Assertion::notEmptyString($alias, $this->className . '::alias');
         Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, $this->className . '::alias');
         Assertion::unauthorizedCharacters(
