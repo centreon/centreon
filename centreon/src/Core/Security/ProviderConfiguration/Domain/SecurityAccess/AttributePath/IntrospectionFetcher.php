@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- *  For more information : contact@centreon.com
+ * For more information : contact@centreon.com
+ *
  */
 
 declare(strict_types=1);
@@ -31,7 +32,6 @@ use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Repository\ReadAttributePathRepositoryInterface;
-use Symfony\Component\HttpFoundation\Response;
 
 class IntrospectionFetcher implements AttributePathFetcherInterface
 {
@@ -47,8 +47,10 @@ class IntrospectionFetcher implements AttributePathFetcherInterface
      * @param string $accessToken
      * @param Configuration $configuration
      * @param Endpoint $endpoint
-     * @return array<string,mixed>
+     *
      * @throws SSOAuthenticationException
+     *
+     * @return array<string,mixed>
      */
     public function fetch(string $accessToken, Configuration $configuration, Endpoint $endpoint): array
     {
@@ -62,13 +64,14 @@ class IntrospectionFetcher implements AttributePathFetcherInterface
         } catch (InvalidResponseException $invalidResponseException) {
             $this->loginLogger->exception(
                 $scope,
-                "Unable to get Introspection Information: %s, message: %s",
+                'Unable to get Introspection Information: %s, message: %s',
                 $invalidResponseException
             );
             $this->error(sprintf(
-                "[Error] Unable to get Introspection Token Information:, message: %s",
+                '[Error] Unable to get Introspection Token Information:, message: %s',
                 $invalidResponseException->getMessage()
             ));
+
             throw SSOAuthenticationException::requestForIntrospectionTokenFail();
         } catch (InvalidContentException $invalidContentException) {
             $content = $invalidContentException->getContent();
@@ -79,20 +82,22 @@ class IntrospectionFetcher implements AttributePathFetcherInterface
                     ? $content['error']
                     : 'No content in response')
             );
+
             throw SSOAuthenticationException::errorFromExternalProvider($configuration->getName());
         } catch (InvalidStatusCodeException $invalidStatusCodeException) {
             $this->loginLogger->exception(
                 $scope,
-                "Unable to get Introspection Information: %s, message: %s",
+                'Unable to get Introspection Information: %s, message: %s',
                 SSOAuthenticationException::requestForIntrospectionTokenFail()
             );
             $this->error(
                 sprintf(
-                    "invalid status code return by external provider, [%d] returned, [%d] expected",
+                    'invalid status code return by external provider, [%d] returned, [%d] expected',
                     $invalidStatusCodeException->getCode(),
                     200
                 )
             );
+
             throw SSOAuthenticationException::requestForIntrospectionTokenFail();
         }
     }

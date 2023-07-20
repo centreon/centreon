@@ -58,7 +58,12 @@ Cypress.Commands.add(
     if (subMenu) {
       cy.hoverRootMenuItem(rootItemNumber)
         .contains(subMenu)
-        .trigger('mouseover');
+        .trigger('mouseover')
+        .get('.MuiCollapse-wrapper')
+        .find('div[data-cy="collapse"]')
+        .should('be.visible')
+        .and('contain', page);
+
       cy.clickSubRootMenuItem(page);
 
       return;
@@ -92,29 +97,35 @@ Cypress.Commands.add(
 
 interface CopyFromContainerProps {
   destination: string;
+  name?: string;
   source: string;
 }
 
 Cypress.Commands.add(
   'copyFromContainer',
-  ({ source, destination }: CopyFromContainerProps) => {
-    return cy.exec(
-      `docker cp ${Cypress.env('dockerName')}:${source} "${destination}"`
-    );
+  ({
+    name = Cypress.env('dockerName'),
+    source,
+    destination
+  }: CopyFromContainerProps) => {
+    return cy.exec(`docker cp ${name}:${source} "${destination}"`);
   }
 );
 
 interface CopyToContainerProps {
   destination: string;
+  name?: string;
   source: string;
 }
 
 Cypress.Commands.add(
   'copyToContainer',
-  ({ source, destination }: CopyToContainerProps) => {
-    return cy.exec(
-      `docker cp ${source} ${Cypress.env('dockerName')}:${destination}`
-    );
+  ({
+    name = Cypress.env('dockerName'),
+    source,
+    destination
+  }: CopyToContainerProps) => {
+    return cy.exec(`docker cp ${source} ${name}:${destination}`);
   }
 );
 
@@ -205,10 +216,28 @@ Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
     return cy
-      .exec(`docker image inspect ${image} || docker pull ${image}`, {
-        timeout: 120000
+      .exec('docker image list --format "{{.Repository}}:{{.Tag}}"')
+      .then(({ stdout }) => {
+        if (
+          stdout.match(
+            new RegExp(
+              `^${image.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}`,
+              'm'
+            )
+          )
+        ) {
+          cy.log(`Local docker image found : ${image}`);
+
+          return cy.wrap(image);
+        }
+
+        cy.log(`Pulling remote docker image : ${image}`);
+
+        return cy.exec(`docker pull ${image}`).then(() => cy.wrap(image));
       })
-      .task('startContainer', { image, name, portBindings });
+      .then((imageName) =>
+        cy.task('startContainer', { image: imageName, name, portBindings })
+      );
   }
 );
 
@@ -273,26 +302,31 @@ Cypress.Commands.add(
       .exec(`mkdir -p "${logDirectory}"`)
       .copyFromContainer({
         destination: `${logDirectory}/broker`,
+        name,
         source: '/var/log/centreon-broker'
       })
       .copyFromContainer({
         destination: `${logDirectory}/engine`,
+        name,
         source: '/var/log/centreon-engine'
       })
       .copyFromContainer({
         destination: `${logDirectory}/centreon`,
+        name,
         source: '/var/log/centreon'
       })
       .then(() => {
         if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
           return cy.copyFromContainer({
             destination: `${logDirectory}/php`,
+            name,
             source: '/var/log/php-fpm'
           });
         }
 
         return cy.copyFromContainer({
-          destination: `${logDirectory}/php/`,
+          destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
+          name,
           source: '/var/log/php8.1-fpm-centreon-error.log'
         });
       })

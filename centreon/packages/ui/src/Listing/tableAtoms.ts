@@ -43,3 +43,5 @@ export const tableStyleDerivedAtom = atom(null, (get, set, { viewMode }) => {
     header: isExtendedMode ? extendedTableHeader : compactTableHeader
   });
 });
+
+export const subItemsPivotsAtom = atom<Array<number | string>>([]);

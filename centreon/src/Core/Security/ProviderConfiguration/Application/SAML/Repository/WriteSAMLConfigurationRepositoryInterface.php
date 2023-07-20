@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,20 +32,23 @@ interface WriteSAMLConfigurationRepositoryInterface
      * Update the SAML Provider.
      *
      * @param Configuration $configuration
+     *
      * @throws \Throwable
      */
     public function updateConfiguration(Configuration $configuration): void;
 
     /**
-     * Delete Authorization rules
+     * Delete Authorization rules.
+     *
      * @throws \Throwable
      */
     public function deleteAuthorizationRules(): void;
 
     /**
-     * Insert Authorization rules
+     * Insert Authorization rules.
      *
      * @param AuthorizationRule[] $authorizationRules
+     *
      * @throws \Throwable
      */
     public function insertAuthorizationRules(array $authorizationRules): void;

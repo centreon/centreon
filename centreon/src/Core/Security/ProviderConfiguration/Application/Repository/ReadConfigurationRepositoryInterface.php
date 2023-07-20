@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,23 +28,25 @@ use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 interface ReadConfigurationRepositoryInterface
 {
     /**
-     * Get provider configuration by name
+     * Get provider configuration by name.
      *
      * @param string $providerType
+     *
      * @return Configuration
      */
     public function getConfigurationByType(string $providerType): Configuration;
 
     /**
-     * Get provider configuration by id
+     * Get provider configuration by id.
      *
      * @param int $id
+     *
      * @return Configuration
      */
     public function getConfigurationById(int $id): Configuration;
 
     /**
-     * Get providers configurations
+     * Get providers configurations.
      *
      * @return Configuration[]
      */

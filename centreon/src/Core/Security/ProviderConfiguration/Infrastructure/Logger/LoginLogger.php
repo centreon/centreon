@@ -1,4 +1,25 @@
 <?php
+
+/*
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
 /*
  * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
@@ -25,9 +46,7 @@ use Pimple\Container;
 
 class LoginLogger implements LoginLoggerInterface
 {
-    /**
-     * @var CentreonUserLog
-     */
+    /** @var CentreonUserLog */
     private CentreonUserLog $logger;
 
     /**
@@ -46,7 +65,7 @@ class LoginLogger implements LoginLoggerInterface
     {
         $this->logger->insertLog(
             CentreonUserLog::TYPE_LOGIN,
-            "[$scope] [DEBUG] $message " . json_encode($content)
+            "[{$scope}] [DEBUG] {$message} " . json_encode($content)
         );
     }
 
@@ -57,7 +76,7 @@ class LoginLogger implements LoginLoggerInterface
     {
         $this->logger->insertLog(
             CentreonUserLog::TYPE_LOGIN,
-            "[$scope] [INFO] $message " . json_encode($content)
+            "[{$scope}] [INFO] {$message} " . json_encode($content)
         );
     }
 
@@ -69,7 +88,7 @@ class LoginLogger implements LoginLoggerInterface
         if (array_key_exists('error', $content)) {
             $this->logger->insertLog(
                 CentreonUserLog::TYPE_LOGIN,
-                "[$scope] [Error] $message" . json_encode($content)
+                "[{$scope}] [Error] {$message}" . json_encode($content)
             );
         }
     }
@@ -82,11 +101,10 @@ class LoginLogger implements LoginLoggerInterface
         $this->logger->insertLog(
             CentreonUserLog::TYPE_LOGIN,
             sprintf(
-                "[$scope] [ERROR] $message",
-                get_class($exception),
+                "[{$scope}] [ERROR] {$message}",
+                $exception::class,
                 $exception->getMessage()
             )
         );
     }
-
 }

@@ -5,26 +5,31 @@ import { cond, gt, always, T, isEmpty, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Box } from '@mui/material';
+import { Variant } from '@mui/material/styles/createTypography';
 
 import { Group, InputType } from '@centreon/ui';
 
 import {
   labelSelectResourcesAndEvents,
-  labelSelectUsers,
   labelSelectTimePeriodAndChannels,
   labelEmailTemplateForTheNotificationMessage,
   labelSubject,
   labelNotificationChannels,
   labelHostGroups,
   labelServiceGroups,
-  labelUsers,
   labelTimePeriod,
   labelSearchHostGroups,
-  labelSearchServiceGroups
+  labelSearchServiceGroups,
+  labelContactsGroups,
+  labelContacts,
+  labelSearchContactsGroups,
+  labelSearchContacts,
+  labelSelectContactsAndContactsGroups
 } from '../../translatedLabels';
 import { hostEvents, serviceEvents } from '../utils';
 import { EmailBody } from '../Channel';
 import {
+  contactsGroupsEndpoint,
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
@@ -48,18 +53,26 @@ const useFormInputs = ({ panelWidth }: Props): object => {
   const { classes } = useStyles({ isExtraFieldHidden });
   const { t } = useTranslation();
 
+  const titleAttributes = {
+    classes: { root: classes.titleGroup },
+    variant: 'subtitle1' as Variant
+  };
+
   const basicFormGroups: Array<Group> = [
     {
       name: t(labelSelectResourcesAndEvents),
-      order: 1
+      order: 1,
+      titleAttributes
     },
     {
-      name: t(labelSelectUsers),
-      order: 2
+      name: t(labelSelectContactsAndContactsGroups),
+      order: 2,
+      titleAttributes
     },
     {
       name: t(labelSelectTimePeriodAndChannels),
-      order: 3
+      order: 3,
+      titleAttributes
     }
   ];
 
@@ -169,7 +182,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
       type: InputType.Grid
     },
     {
-      additionalLabel: t(labelUsers),
+      additionalLabel: t(labelContacts),
       additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
@@ -179,9 +192,42 @@ const useFormInputs = ({ panelWidth }: Props): object => {
               additionalConditionParameters: [],
               endpoint: usersEndpoint
             },
-            dataTestId: 'Search users',
+            dataTestId: 'Search contacts',
             fieldName: 'users',
-            label: 'Search users',
+            label: t(labelSearchContacts),
+            required: true,
+            type: InputType.MultiConnectedAutocomplete
+          },
+          {
+            custom: {
+              Component: Box
+            },
+            fieldName: '',
+            label: '',
+            type: InputType.Custom
+          }
+        ],
+        gridTemplateColumns: handleGridTemplate(panelWidth)
+      },
+      group: basicFormGroups[1].name,
+      inputClassName: classes.input,
+      label: '',
+      type: InputType.Grid
+    },
+    {
+      additionalLabel: t(labelContactsGroups),
+      additionalLabelClassName: classes.additionalLabel,
+      fieldName: '',
+      grid: {
+        columns: [
+          {
+            connectedAutocomplete: {
+              additionalConditionParameters: [],
+              endpoint: contactsGroupsEndpoint
+            },
+            dataTestId: 'Search contact groups',
+            fieldName: 'contactgroups',
+            label: t(labelSearchContactsGroups),
             required: true,
             type: InputType.MultiConnectedAutocomplete
           },
@@ -256,7 +302,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
               ]
             },
             group: basicFormGroups[2].name,
-            label: 'Notification Channels',
+            label: t(labelNotificationChannels),
             type: InputType.Grid
           },
           {
@@ -301,7 +347,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
       },
       group: basicFormGroups[2].name,
       inputClassName: classes.input,
-      label: 'Notification channels',
+      label: t(labelNotificationChannels),
       type: InputType.Grid
     }
   ];

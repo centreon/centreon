@@ -95,7 +95,6 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategory1Name (2)',
-        'enabled' => 1,
         'comments' => 'hostTemplateChangeComments'
     );
 
@@ -159,7 +158,6 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategory1Name (2)',
-        'enabled' => 1,
         'comments' => 'hostTemplateChangeComments'
     );
 
@@ -223,7 +221,6 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         '2d_coords' => '48,29',
         '3d_coords' => '09,25,27',
         'severity_level' => 'hostCategory2Name (13)',
-        'enabled' => 1,
         'comments' => 'hostTemplateChangeCommentsChanged'
     );
 
@@ -288,7 +285,6 @@ class HostTemplateBasicsOperationsContext extends CentreonContext
         '2d_coords' => '48,29',
         '3d_coords' => '09,25,27',
         'severity_level' => 'hostCategory2Name (13)',
-        'enabled' => 1,
         'comments' => 'hostTemplateChangeCommentsChanged'
     );
 

@@ -18,6 +18,7 @@ declare module '@mui/material/styles/createPalette' {
 declare module '@mui/material/styles' {
   interface Palette {
     background: TypeBackground;
+    chip: TypeChip;
     header: TypeHeader;
     layout: TypeLayout;
     menu: TypeMenu;
@@ -36,6 +37,7 @@ declare module '@mui/material/styles' {
     warning: string;
   }
   interface PaletteOptions {
+    chip: TypeChip;
     header: TypeHeader;
     layout: TypeLayout;
     menu: TypeMenu;
@@ -113,6 +115,16 @@ declare module '@mui/material/styles' {
       };
     };
   }
+
+  interface TypeChip {
+    color: {
+      error: string;
+      info: string;
+      neutral: string;
+      success: string;
+      warning: string;
+    };
+  }
 }
 
 declare module '@mui/material/Button' {
@@ -151,6 +163,15 @@ export const lightPalette: PaletteOptions = {
     panelGroups: '#F5F5F5',
     paper: '#FFFFFF',
     tooltip: '#434E5B'
+  },
+  chip: {
+    color: {
+      error: '#FF6666',
+      info: '#1588D1',
+      neutral: BaseTokens.colorGrey300,
+      success: '#88B922',
+      warning: '#FD9B27'
+    }
   },
   divider: '#E3E3E3',
   error: {
@@ -193,7 +214,7 @@ export const lightPalette: PaletteOptions = {
       background: {
         active: BaseTokens.colorBlue50,
         default: 'transparent',
-        hover: BaseTokens.colorGrey50
+        hover: BaseTokens.colorGrey100
       },
       color: {
         active: BaseTokens.colorBlue400,
@@ -208,7 +229,7 @@ export const lightPalette: PaletteOptions = {
       background: {
         active: BaseTokens.colorBlue50,
         default: 'transparent',
-        hover: BaseTokens.colorGrey50
+        hover: BaseTokens.colorGrey100
       },
       color: {
         active: BaseTokens.colorBlue400,
@@ -282,6 +303,15 @@ export const darkPalette: PaletteOptions = {
     paper: '#212121',
     tooltip: '#AAB4C0'
   },
+  chip: {
+    color: {
+      error: '#D60101',
+      info: '#1CA9F4',
+      neutral: BaseTokens.colorGrey700,
+      success: '#5F8118',
+      warning: '#C55400'
+    }
+  },
   divider: '#666666',
   error: {
     contrastText: '#fff',
@@ -321,9 +351,9 @@ export const darkPalette: PaletteOptions = {
     background: BaseTokens.colorGrey950,
     button: {
       background: {
-        active: BaseTokens.colorBlue950,
+        active: BaseTokens.colorBlue900,
         default: 'transparent',
-        hover: BaseTokens.colorGrey950
+        hover: BaseTokens.colorGrey900
       },
       color: {
         active: BaseTokens.colorBlue600,
@@ -336,9 +366,9 @@ export const darkPalette: PaletteOptions = {
     },
     item: {
       background: {
-        active: BaseTokens.colorBlue950,
+        active: BaseTokens.colorBlue900,
         default: 'transparent',
-        hover: BaseTokens.colorGrey950
+        hover: BaseTokens.colorGrey900
       },
       color: {
         active: BaseTokens.colorBlue400,

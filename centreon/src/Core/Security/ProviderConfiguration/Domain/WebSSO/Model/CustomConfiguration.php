@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,6 @@ namespace Core\Security\ProviderConfiguration\Domain\WebSSO\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
-use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
 use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
 
 final class CustomConfiguration implements CustomConfigurationInterface, ProviderConfigurationInterface
@@ -88,7 +87,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, Provide
     }
 
     /**
-     * Validate ips
+     * Validate ips.
      */
     private function guard(): void
     {
