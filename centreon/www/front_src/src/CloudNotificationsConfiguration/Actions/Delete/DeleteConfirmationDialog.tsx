@@ -10,7 +10,7 @@ import {
   labelDelete,
   labelDeleteNotification,
   labelDeleteNotificationWarning
-} from '../translatedLabels';
+} from '../../translatedLabels';
 
 import { useDelete } from '.';
 

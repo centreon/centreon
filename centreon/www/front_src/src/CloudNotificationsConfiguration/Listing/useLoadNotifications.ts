@@ -57,7 +57,6 @@ const useLoadingNotifications = (): LoadNotifications => {
       limit,
       search
     ],
-    isPaginated: true,
     queryOptions: {
       refetchOnMount: false,
       suspense: false

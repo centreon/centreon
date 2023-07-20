@@ -74,7 +74,7 @@ export const notificationdecoder = JsonDecoder.object<NotificationType>(
     timeperiod,
     users: JsonDecoder.array(user, 'Users')
   },
-  'Notifications Listing',
+  'Notification Listing',
   {
     isActivated: 'is_activated'
   }
