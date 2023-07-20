@@ -48,6 +48,7 @@ const Layout = (): JSX.Element => {
 
       return {
         ...panel,
+        name: currentWidget?.name,
         options: currentWidget?.options,
         panelConfiguration: currentWidget?.panelConfiguration
       } as Panel;

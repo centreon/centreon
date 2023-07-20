@@ -52,6 +52,7 @@ export const setLayoutModeDerivedAtom = atom(
 
 interface AddPanelDerivedAtom {
   height?: number;
+  moduleName: string;
   options?: object;
   panelConfiguration: PanelConfiguration;
   width?: number;
@@ -72,7 +73,13 @@ export const addPanelDerivedAtom = atom(
   (
     get,
     setAtom,
-    { panelConfiguration, options, width, height }: AddPanelDerivedAtom
+    {
+      panelConfiguration,
+      options,
+      width,
+      height,
+      moduleName
+    }: AddPanelDerivedAtom
   ) => {
     const dashboard = get(dashboardAtom);
 
@@ -90,6 +97,7 @@ export const addPanelDerivedAtom = atom(
       i: id,
       minH: panelConfiguration?.panelMinHeight || 3,
       minW: panelConfiguration?.panelMinWidth || 3,
+      name: moduleName,
       options,
       panelConfiguration,
       static: false

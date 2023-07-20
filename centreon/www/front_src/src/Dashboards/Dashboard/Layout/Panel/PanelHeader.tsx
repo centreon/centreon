@@ -1,41 +1,38 @@
+import { useState } from 'react';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { CardHeader } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import { IconButton } from '@centreon/ui';
 
-import {
-  askDeletePanelAtom,
-  duplicatePanelDerivedAtom,
-  isEditingAtom
-} from '../../atoms';
+import { duplicatePanelDerivedAtom, isEditingAtom } from '../../atoms';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
+import MorePanelActions from './MorePanelActions';
 
 interface PanelHeaderProps {
   id: string;
 }
 
 const PanelHeader = ({ id }: PanelHeaderProps): JSX.Element => {
+  const [moreActionsOpen, setMoreActionsOpen] = useState(null);
+
   const { classes } = usePanelHeaderStyles();
 
   const isEditing = useAtomValue(isEditingAtom);
-  const setAskDeletePanel = useSetAtom(askDeletePanelAtom);
   const duplicatePanel = useSetAtom(duplicatePanelDerivedAtom);
-
-  const remove = (event): void => {
-    event.preventDefault();
-
-    setAskDeletePanel(id);
-  };
 
   const duplicate = (event): void => {
     event.preventDefault();
 
     duplicatePanel(id);
   };
+
+  const openMoreActions = (event): void => setMoreActionsOpen(event.target);
+  const closeMoreActions = (): void => setMoreActionsOpen(null);
 
   return (
     <CardHeader
@@ -45,9 +42,14 @@ const PanelHeader = ({ id }: PanelHeaderProps): JSX.Element => {
             <IconButton onClick={duplicate}>
               <ContentCopyIcon fontSize="small" />
             </IconButton>
-            <IconButton onClick={remove}>
-              <CloseIcon fontSize="small" />
+            <IconButton onClick={openMoreActions}>
+              <MoreVertIcon fontSize="small" />
             </IconButton>
+            <MorePanelActions
+              anchor={moreActionsOpen}
+              close={closeMoreActions}
+              id={id}
+            />
           </div>
         )
       }

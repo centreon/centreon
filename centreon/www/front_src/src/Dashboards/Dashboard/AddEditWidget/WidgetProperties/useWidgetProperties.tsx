@@ -28,8 +28,10 @@ export const useWidgetProperties = (): Array<WidgetPropertiesRenderer> => {
   const { federatedWidgetsProperties } = useFederatedWidgets();
 
   const widgetProperties =
-    find(propEq('moduleName', values.id), federatedWidgetsProperties || [])
-      ?.options || {};
+    find(
+      propEq('moduleName', values.moduleName),
+      federatedWidgetsProperties || []
+    )?.options || {};
 
   const inputs = useMemo(
     () =>

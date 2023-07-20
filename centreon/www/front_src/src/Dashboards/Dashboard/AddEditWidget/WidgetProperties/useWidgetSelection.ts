@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 
-import { filter, find, isNil, map, propEq } from 'ramda';
+import { equals, filter, find, isNil, map, propEq } from 'ramda';
 import { useFormikContext } from 'formik';
 
 import { SelectEntry } from '@centreon/ui';
@@ -16,6 +16,7 @@ interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
   searchWidgets: (event: ChangeEvent<HTMLInputElement>) => void;
   selectWidget: (widget: SelectEntry | null) => void;
+  selectedWidget: SelectEntry | undefined;
   widgets: Array<FederatedWidgetProperties>;
 }
 
@@ -25,7 +26,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const { federatedWidgetsProperties, federatedWidgets } =
     useFederatedWidgets();
 
-  const { setValues } = useFormikContext<Widget>();
+  const { setValues, values } = useFormikContext<Widget>();
 
   const filteredWidgets = filter(
     ({ title }) => title.includes(search),
@@ -48,6 +49,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     if (isNil(widget)) {
       setValues({
         id: null,
+        moduleName: null,
         options: {},
         panelConfiguration: null
       });
@@ -75,15 +77,21 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
 
     setValues({
       id: selectedWidget.moduleName,
+      moduleName: selectedWidget.moduleName,
       options,
       panelConfiguration: selectedWidget.federatedComponentsConfiguration
     });
   };
 
+  const selectedWidget = formattedWidgets.find(({ id }) =>
+    equals(values.moduleName, id)
+  );
+
   return {
     options: formattedWidgets,
     searchWidgets,
     selectWidget,
+    selectedWidget,
     widgets: filteredWidgets
   };
 };

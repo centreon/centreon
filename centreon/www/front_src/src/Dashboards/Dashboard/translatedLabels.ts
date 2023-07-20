@@ -21,3 +21,5 @@ export const labelWidgetsLibrary = 'Widgets library';
 export const labelPleaseChooseAWidgetToActivatePreview =
   'Please choose a widget to activate the preview';
 export const labelEdit = 'Edit';
+export const labelEditWidget = 'Edit widget';
+export const labelDeleteWidget = 'Delete widget';

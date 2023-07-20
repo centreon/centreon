@@ -62,12 +62,6 @@ const DashboardEditActions = ({
     if (searchParams.get('edit') === null) stopEditing();
   }, [searchParams]);
 
-  const askCancelConfirmation = (): void => {
-    if (!dirty) {
-      stopEditing();
-    }
-  };
-
   const saveAndProceed = (): void => {
     saveDashboard();
     switchPanelsEditionMode(false);
@@ -95,7 +89,7 @@ const DashboardEditActions = ({
         data-testid="cancel_dashboard"
         size="small"
         variant="ghost"
-        onClick={askCancelConfirmation}
+        onClick={stopEditing}
       >
         {t(labelExit)}
       </Button>

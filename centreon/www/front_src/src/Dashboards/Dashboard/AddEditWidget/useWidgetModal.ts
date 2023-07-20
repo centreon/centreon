@@ -28,6 +28,7 @@ const useWidgetModal = (): useWidgetModalState => {
     startTransition(() =>
       setWidgetFormInitialDataAtom({
         id: widget?.i || null,
+        moduleName: widget?.name || null,
         options: widget?.options || {},
         panelConfiguration: widget?.panelConfiguration || null
       })
@@ -40,6 +41,7 @@ const useWidgetModal = (): useWidgetModalState => {
     const panelConfiguration = values.panelConfiguration as PanelConfiguration;
     addPanel({
       height: panelConfiguration.panelMinHeight,
+      moduleName: values.moduleName || '',
       options: values.options,
       panelConfiguration,
       width: panelConfiguration.panelMinWidth

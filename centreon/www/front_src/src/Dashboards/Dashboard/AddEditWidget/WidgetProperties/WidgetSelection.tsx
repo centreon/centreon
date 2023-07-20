@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { find, propEq } from 'ramda';
 
-import { ListItemText, Typography } from '@mui/material';
+import { ListItemText } from '@mui/material';
 
 import { SingleAutocompleteField } from '@centreon/ui';
 
@@ -13,7 +13,7 @@ import { FederatedWidgetProperties } from 'www/front_src/src/federatedModules/mo
 
 const WidgetSelection = (): JSX.Element => {
   const { t } = useTranslation();
-  const { options, widgets, searchWidgets, selectWidget } =
+  const { options, widgets, searchWidgets, selectWidget, selectedWidget } =
     useWidgetSelection();
 
   const renderOption = (renderProps, option): JSX.Element => {
@@ -34,6 +34,7 @@ const WidgetSelection = (): JSX.Element => {
       label={t(labelWidgetsLibrary)}
       options={options}
       renderOption={renderOption}
+      value={selectedWidget || null}
       onChange={(_, newValue) => selectWidget(newValue)}
       onTextChange={searchWidgets}
     />
