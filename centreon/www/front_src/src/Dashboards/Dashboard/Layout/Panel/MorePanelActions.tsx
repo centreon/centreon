@@ -26,8 +26,6 @@ const MorePanelActions = ({ anchor, close, id }: Props): JSX.Element => {
 
   const { openModal } = useWidgetForm();
 
-  console.log(dashboard);
-
   const remove = (): void => {
     setAskDeletePanel(id);
   };
@@ -45,6 +43,7 @@ const MorePanelActions = ({ anchor, close, id }: Props): JSX.Element => {
             label: t(labelEditWidget),
             onClick: edit
           },
+          'divider',
           {
             Icon: DeleteIcon,
             label: t(labelDeleteWidget),
