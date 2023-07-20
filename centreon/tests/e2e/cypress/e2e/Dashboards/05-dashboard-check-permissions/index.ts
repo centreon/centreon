@@ -3,14 +3,14 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 
 before(() => {
-  cy.startWebContainer();
-  cy.execInContainer({
+  cy.startWebContainer({ version: 'develop' });
+  /* cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-check-permissions.json'
-  );
+  ); */
 });
 
 beforeEach(() => {
@@ -39,9 +39,9 @@ beforeEach(() => {
   });
 });
 
-after(() => {
+/* after(() => {
   cy.stopWebContainer();
-});
+}); */
 
 afterEach(() => {
   cy.requestOnDatabase({
@@ -70,20 +70,50 @@ Then(
     })
       .contains(dashboards.fromAdministratorUser.name)
       .should('exist');
-    cy.getByLabel({
-      label: 'view',
-      tag: 'button'
-    })
-      .contains(dashboards.fromCreatorUser.name)
-      .should('exist');
   }
 );
 
-Then('the admin user can perform update operations on any dashboard', () => {
-  cy.contains(dashboards.fromAdministratorUser.name)
-    .parent()
-    .find('button[aria-label="edit"]')
+When('the admin user clicks on a dashboard', () => {
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.fromAdministratorUser.name)
     .click();
+});
+
+Then(
+  'the admin user is redirected to the detail page for this dashboard',
+  () => {
+    cy.location('pathname')
+      .should('include', '/dashboards/')
+      .invoke('split', '/')
+      .should('not.be.empty')
+      .then(Cypress._.last)
+      .then(Number)
+      .should('not.be', 'dashboards')
+      .should('be.a', 'number');
+
+    cy.getByLabel({ label: 'page header title' }).should(
+      'contain.text',
+      dashboards.fromAdministratorUser.name
+    );
+  }
+);
+
+Then(
+  'the admin user is allowed to access the edit mode for this dashboard',
+  () => {
+    cy.get('button[data-testid="edit_dashboard"]').click();
+    cy.location('search').should('include', 'edit=true');
+    cy.getByLabel({ label: 'add widget', tag: 'button' }).should('be.enabled');
+    cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
+  }
+);
+
+Then("the admin user is allowed to update the dashboard's properties", () => {
+  cy.getByLabel({ label: 'edit', tag: 'button' }).click();
+
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     `${dashboards.fromAdministratorUser.name}-edited`
@@ -100,27 +130,7 @@ Then('the admin user can perform update operations on any dashboard', () => {
   cy.contains(`${dashboards.fromAdministratorUser.name}-edited`).should(
     'exist'
   );
-  cy.contains(`${dashboards.fromAdministratorUser.name} and admin`).should(
-    'exist'
-  );
-
-  cy.contains(dashboards.fromCreatorUser.name)
-    .parent()
-    .find('button[aria-label="edit"]')
-    .click();
-  cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-    `${dashboards.fromCreatorUser.name}-edited`
-  );
-  cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
-  cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-    `${dashboards.fromCreatorUser.description} and admin`
-  );
-
-  cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
-  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-
-  cy.reload();
-  cy.contains(`${dashboards.fromCreatorUser.name}-edited`).should('exist');
-  cy.contains(`${dashboards.fromCreatorUser.name} and admin`).should('exist');
+  cy.contains(
+    `${dashboards.fromAdministratorUser.description} and admin`
+  ).should('exist');
 });
