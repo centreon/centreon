@@ -566,7 +566,7 @@ describe('Edit Panel: Duplicate button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('validates that name field is required and not already taken', () => {
+  it('validates that name field is not empty and not already taken', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId(labelDuplicate).click();

@@ -424,7 +424,7 @@ describe('Listing row actions: Duplicate button', () => {
     cy.matchImageSnapshot();
   });
 
-  it('validates that the name field is required and does not already exist', () => {
+  it('validates that the name field is not empty and the name does not already exist', () => {
     cy.waitForRequest('@defaultRequest');
 
     cy.findAllByTestId(labelDuplicate).eq(0).click();
