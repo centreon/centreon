@@ -25,3 +25,5 @@ export const labelEditWidget = 'Edit widget';
 export const labelDeleteWidget = 'Delete widget';
 export const labelName = 'name';
 export const labelDescription = 'description';
+export const labelWidgetProperties = 'Widget properties';
+export const labelCommonProperties = 'Common properties';

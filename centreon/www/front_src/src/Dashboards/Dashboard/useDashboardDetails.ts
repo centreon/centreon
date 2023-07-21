@@ -2,15 +2,17 @@ import { useEffect } from 'react';
 
 import { useParams } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
-import { propOr } from 'ramda';
+import { equals, propOr } from 'ramda';
 
 import { useFetchQuery } from '@centreon/ui';
 
 import { dashboardsEndpoint } from '../api/endpoints';
 import { Dashboard, DashboardPanel, resource } from '../api/models';
 import { dashboardDecoder } from '../api/decoders';
+import useFederatedWidgets from '../../federatedModules/useFederatedWidgets';
+import { FederatedModule } from '../../federatedModules/models';
 
-import { Panel } from './models';
+import { Panel, PanelConfiguration } from './models';
 import { dashboardAtom } from './atoms';
 
 interface UseDashboardDetailsState {
@@ -19,28 +21,35 @@ interface UseDashboardDetailsState {
 }
 
 interface FormatPanelProps {
+  federatedWidgets: Array<FederatedModule> | null;
   panel: DashboardPanel;
   staticPanel?: boolean;
 }
 
 export const formatPanel = ({
   panel,
-  staticPanel = true
-}: FormatPanelProps): Panel => ({
-  h: panel.layout.height,
-  i: `${panel.id}`,
-  minH: panel.layout.minHeight,
-  minW: panel.layout.minWidth,
-  name: panel.name,
-  options: panel.widgetSettings,
-  panelConfiguration: {
-    path: panel.widgetType
-  },
-  static: staticPanel,
-  w: panel.layout.width,
-  x: panel.layout.x,
-  y: panel.layout.y
-});
+  staticPanel = true,
+  federatedWidgets = []
+}: FormatPanelProps): Panel => {
+  const federatedWidget = (federatedWidgets || []).find(({ moduleName }) =>
+    equals(moduleName, panel.name)
+  );
+
+  return {
+    h: panel.layout.height,
+    i: `${panel.id}`,
+    minH: panel.layout.minHeight,
+    minW: panel.layout.minWidth,
+    name: panel.name,
+    options: panel.widgetSettings,
+    panelConfiguration:
+      federatedWidget?.federatedComponentsConfiguration as PanelConfiguration,
+    static: staticPanel,
+    w: panel.layout.width,
+    x: panel.layout.x,
+    y: panel.layout.y
+  };
+};
 
 export const routerParams = {
   useParams
@@ -58,6 +67,8 @@ const useDashboardDetails = ({
 }: UseDashboardDetailsProps): UseDashboardDetailsState => {
   const setDashboard = useSetAtom(dashboardAtom);
 
+  const { federatedWidgets } = useFederatedWidgets();
+
   const { data: dashboard } = useFetchQuery({
     decoder: dashboardDecoder,
     getEndpoint: () => `${dashboardsEndpoint}/${dashboardId}`,
@@ -68,9 +79,10 @@ const useDashboardDetails = ({
 
   useEffect(() => {
     setDashboard({
-      layout: panels.map((panel) => formatPanel({ panel })) || []
+      layout:
+        panels.map((panel) => formatPanel({ federatedWidgets, panel })) || []
     });
-  }, [panels]);
+  }, [panels, federatedWidgets]);
 
   return {
     dashboard,

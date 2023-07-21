@@ -28,10 +28,12 @@ const MorePanelActions = ({ anchor, close, id }: Props): JSX.Element => {
 
   const remove = (): void => {
     setAskDeletePanel(id);
+    close();
   };
 
   const edit = (): void => {
     openModal(dashboard.layout.find((panel) => equals(panel.i, id)) || null);
+    close();
   };
 
   return (

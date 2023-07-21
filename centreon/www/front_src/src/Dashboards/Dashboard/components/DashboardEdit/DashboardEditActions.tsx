@@ -18,6 +18,7 @@ import {
   labelExit,
   labelSave
 } from '../../translatedLabels';
+import useFederatedWidgets from '../../../../federatedModules/useFederatedWidgets';
 
 interface DashboardEditActionsProps {
   panels?: Array<DashboardPanel>;
@@ -33,10 +34,14 @@ const DashboardEditActions = ({
     switchPanelsEditionModeDerivedAtom
   );
 
+  const { federatedWidgets } = useFederatedWidgets();
+
   const { saveDashboard } = useSaveDashboard();
 
   const dirty = useDashboardDirty(
-    (panels || []).map((panel) => formatPanel({ panel, staticPanel: false }))
+    (panels || []).map((panel) =>
+      formatPanel({ federatedWidgets, panel, staticPanel: false })
+    )
   );
 
   const [searchParams, setSearchParams] = useSearchParams();
