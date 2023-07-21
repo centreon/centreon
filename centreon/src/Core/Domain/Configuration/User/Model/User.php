@@ -45,7 +45,7 @@ class User extends NewUser
      * @param string $email
      * @param bool $isAdmin
      * @param string $theme
-     * @param protectedstring $userInterfaceDensity
+     * @param string $userInterfaceDensity
      *
      * @throws \Assert\AssertionFailedException
      */

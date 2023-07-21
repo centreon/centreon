@@ -42,7 +42,7 @@ final class DeleteNotificationsPresenter extends AbstractPresenter implements De
 
     /**
      * @param PresenterFormatterInterface $presenterFormatter
-     * @param privatereadonlyRouter $router
+     * @param Router $router
      */
     public function __construct(
         protected PresenterFormatterInterface $presenterFormatter,
