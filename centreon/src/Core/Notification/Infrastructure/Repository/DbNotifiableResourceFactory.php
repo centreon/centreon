@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\Notification\Infrastructure\Repository;
 
 use Core\Notification\Application\Converter\{NotificationHostEventConverter, NotificationServiceEventConverter};
-use Core\Notification\Domain\Model\{NotificationHost, NotificationHostEvent, NotifiableResource, NotificationService};
+use Core\Notification\Domain\Model\{NotifiableResource, NotificationHost, NotificationHostEvent, NotificationService};
 
 class DbNotifiableResourceFactory
 {

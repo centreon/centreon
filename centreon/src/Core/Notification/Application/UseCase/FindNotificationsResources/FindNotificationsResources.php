@@ -57,7 +57,6 @@ final class FindNotificationsResources
     public function __invoke(FindNotificationsResourcesPresenterInterface $presenter, string $requestUID): void
     {
         try {
-            // ADD CHECK FOR CENTREON-BROKER USER
             if ($this->contact->isAdmin()) {
                 $notifiableResources = $this->notificationRepository
                     ->findNotifiableResourcesForActivatedNotifications();
@@ -67,7 +66,7 @@ final class FindNotificationsResources
                 } else {
                     $responseJson = \json_encode($notifiableResources, JSON_THROW_ON_ERROR);
 
-                    $calculatedUid = \hash("md5", $responseJson);
+                    $calculatedUid = \hash('md5', $responseJson);
                     if ($calculatedUid === $requestUID) {
                         $response = new NotModifiedResponse();
                     } else {
@@ -90,7 +89,8 @@ final class FindNotificationsResources
     }
 
     /**
-     * @param array<NotifiableResource> $notifiableResources
+     * @param array $notifiableResources
+     * @param string $calculatedUid
      *
      * @return FindNotificationsResourcesResponse
      */
