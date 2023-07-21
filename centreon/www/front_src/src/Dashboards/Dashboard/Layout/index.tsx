@@ -8,6 +8,8 @@ import { DashboardLayout, getColumnsFromScreenSize } from '@centreon/ui';
 
 import { dashboardAtom, isEditingAtom } from '../atoms';
 import { Panel } from '../models';
+import { AddEditWidgetModal } from '../AddEditWidget';
+import { DeleteWidgetModal } from '../DeleteWidget';
 
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
@@ -67,31 +69,35 @@ const Layout = (): JSX.Element => {
   const panels = showDefaultLayout ? emptyLayout : dashboard.layout;
 
   return (
-    <DashboardLayout.Layout
-      changeLayout={changeLayout}
-      displayGrid={isEditing}
-      layout={panels}
-    >
-      {panels.map(({ i, panelConfiguration }) => {
-        return (
-          <DashboardLayout.Item
-            disablePadding={panelConfiguration?.isAddWidgetPanel}
-            header={
-              isEditing && !panelConfiguration?.isAddWidgetPanel ? (
-                <PanelHeader id={i} />
-              ) : undefined
-            }
-            id={i}
-            key={i}
-          >
-            <DashboardPanel
+    <>
+      <DashboardLayout.Layout
+        changeLayout={changeLayout}
+        displayGrid={isEditing}
+        layout={panels}
+      >
+        {panels.map(({ i, panelConfiguration }) => {
+          return (
+            <DashboardLayout.Item
+              disablePadding={panelConfiguration?.isAddWidgetPanel}
+              header={
+                isEditing && !panelConfiguration?.isAddWidgetPanel ? (
+                  <PanelHeader id={i} />
+                ) : undefined
+              }
               id={i}
-              isAddWidgetPanel={panelConfiguration?.isAddWidgetPanel}
-            />
-          </DashboardLayout.Item>
-        );
-      })}
-    </DashboardLayout.Layout>
+              key={i}
+            >
+              <DashboardPanel
+                id={i}
+                isAddWidgetPanel={panelConfiguration?.isAddWidgetPanel}
+              />
+            </DashboardLayout.Item>
+          );
+        })}
+      </DashboardLayout.Layout>
+      <AddEditWidgetModal />
+      <DeleteWidgetModal />
+    </>
   );
 };
 

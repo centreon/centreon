@@ -21,8 +21,7 @@ import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
 import { isEditingAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
-import { AddWidgetButton, AddEditWidgetModal } from './AddEditWidget';
-import { DeleteWidgetModal } from './DeleteWidget';
+import { AddWidgetButton } from './AddEditWidget';
 
 const Dashboard = (): ReactElement => {
   const { dashboardId } = routerParams.useParams();
@@ -92,8 +91,6 @@ const Dashboard = (): ReactElement => {
       </PageLayout.Body>
       <DashboardConfigModal />
       <DashboardAccessRightsModal />
-      <AddEditWidgetModal />
-      <DeleteWidgetModal />
     </PageLayout>
   );
 };

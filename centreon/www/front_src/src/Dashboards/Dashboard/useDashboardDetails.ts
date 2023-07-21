@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
 import { equals, propOr } from 'ramda';
 
-import { useFetchQuery } from '@centreon/ui';
+import { useDeepCompare, useFetchQuery } from '@centreon/ui';
 
 import { dashboardsEndpoint } from '../api/endpoints';
 import { Dashboard, DashboardPanel, resource } from '../api/models';
@@ -82,7 +82,7 @@ const useDashboardDetails = ({
       layout:
         panels.map((panel) => formatPanel({ federatedWidgets, panel })) || []
     });
-  }, [panels, federatedWidgets]);
+  }, useDeepCompare([panels, federatedWidgets]));
 
   return {
     dashboard,

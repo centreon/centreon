@@ -39,6 +39,7 @@ const useWidgetModal = (): useWidgetModalState => {
 
   const addWidget = (values: Widget): void => {
     const panelConfiguration = values.panelConfiguration as PanelConfiguration;
+
     addPanel({
       height: panelConfiguration.panelMinHeight,
       moduleName: values.moduleName || '',
