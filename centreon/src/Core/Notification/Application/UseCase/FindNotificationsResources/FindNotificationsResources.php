@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\NotModifiedResponse;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
@@ -64,7 +65,14 @@ final class FindNotificationsResources
                 if ([] === $notifiableResources) {
                     $response = new NotFoundResponse('Notifiable resources');
                 } else {
-                    $response = $this->createResponseDto($notifiableResources);
+                    $responseJson = \json_encode($notifiableResources, JSON_THROW_ON_ERROR);
+
+                    $calculatedUid = \hash("md5", $responseJson);
+                    if ($calculatedUid === $requestUID) {
+                        $response = new NotModifiedResponse();
+                    } else {
+                        $response = $this->createResponseDto($notifiableResources, $calculatedUid);
+                    }
                 }
             } else {
                 $this->error(
@@ -86,9 +94,10 @@ final class FindNotificationsResources
      *
      * @return FindNotificationsResourcesResponse
      */
-    private function createResponseDto(array $notifiableResources): FindNotificationsResourcesResponse
+    private function createResponseDto(array $notifiableResources, string $calculatedUid): FindNotificationsResourcesResponse
     {
         $responseDto = new FindNotificationsResourcesResponse();
+        $responseDto->uid = $calculatedUid;
         foreach ($notifiableResources as $notifiableResource) {
             $notifiableResourceDto = new NotifiableResourceDto();
             $notifiableResourceDto->notificationId = $notifiableResource->getNotificationId();

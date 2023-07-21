@@ -13,6 +13,9 @@ get:
           schema:
             type: object
             properties:
+              uid:
+                type: string
+                example: "547a4e6270e51d63b23b982097aa8386"
               result:
                 type: array
                 items:

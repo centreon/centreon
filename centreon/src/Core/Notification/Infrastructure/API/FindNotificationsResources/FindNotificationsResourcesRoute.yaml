@@ -1,4 +1,4 @@
-FindNotificationsResources:
+FindNotifiableResources:
   methods: GET
   path: /configuration/notifications/resources
   controller: 'Core\Notification\Infrastructure\API\FindNotificationsResources\FindNotificationsResourcesController'

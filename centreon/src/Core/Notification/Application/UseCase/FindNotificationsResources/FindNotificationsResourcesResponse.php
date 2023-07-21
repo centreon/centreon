@@ -25,6 +25,9 @@ namespace Core\Notification\Application\UseCase\FindNotificationsResources;
 
 final class FindNotificationsResourcesResponse
 {
+    /** @var string */
+    public string $uid = '';
+
     /** @var array<NotifiableResourceDto> */
     public array $notifiableResources = [];
 }

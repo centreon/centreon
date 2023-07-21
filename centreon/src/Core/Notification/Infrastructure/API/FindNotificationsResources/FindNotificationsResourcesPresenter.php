@@ -46,6 +46,7 @@ class FindNotificationsResourcesPresenter extends AbstractPresenter implements P
                 ];
             }
             $this->present([
+                'uid' => $response->uid,
                 'result' => $result,
             ]);
         } else {
