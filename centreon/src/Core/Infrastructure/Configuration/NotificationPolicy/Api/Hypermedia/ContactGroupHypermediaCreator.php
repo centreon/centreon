@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\Configuration\NotificationPolicy\Api\Hypermedia;
@@ -29,7 +30,6 @@ use Core\Infrastructure\Common\Api\HttpUrlTrait;
 class ContactGroupHypermediaCreator
 {
     use HttpUrlTrait;
-
     private const URI_CONFIGURATION_CONTACT_GROUP = '/main.php?p=60302&o=c&cg_id={contactGroupId}';
 
     /**
@@ -41,9 +41,10 @@ class ContactGroupHypermediaCreator
     }
 
     /**
-     * Create the configuration URI to the contact group regarding ACL
+     * Create the configuration URI to the contact group regarding ACL.
      *
      * @param int $contactGroupId
+     *
      * @return string|null
      */
     public function createContactGroupConfigurationUri(int $contactGroupId): ?string

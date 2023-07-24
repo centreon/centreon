@@ -1,0 +1,41 @@
+{
+  "result": [
+    {
+      "id": 1,
+      "name": "My Dashboard",
+      "description": "my description",
+      "created_at": "",
+      "updated_at": "",
+      "created_by": {
+        "id": 1,
+        "name": "Arnaud"
+      },
+      "updated_by": {
+        "id": 1,
+        "name": "Arnaud"
+      },
+      "own_role": "editor"
+    },
+    {
+      "id": 2,
+      "name": "My Dashboard 2",
+      "description": null,
+      "created_at": "",
+      "updated_at": "",
+      "created_by": {
+        "id": 2,
+        "name": "Tom"
+      },
+      "updated_by": {
+        "id": 2,
+        "name": "Tom"
+      },
+      "own_role": "viewer"
+    }
+  ],
+  "meta": {
+    "total": 2,
+    "page": 1,
+    "limit": 10
+  }
+}

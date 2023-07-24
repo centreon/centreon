@@ -1,0 +1,30 @@
+post:
+  tags:
+    - Host
+  summary: "Create a host configuration"
+  description: |
+    Create a host configuration
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/AddHostRequest.yaml'
+  responses:
+    '201':
+      description: "Object created"
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: 'Schema/AddHostResponse.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

@@ -1,4 +1,4 @@
-name: centreon-ui-merge
+name: centreon-ui-stable
 
 on:
   workflow_dispatch:
@@ -51,6 +51,7 @@ jobs:
       - uses: ./.github/actions/chromatic
         with:
           frontend_directory: ${{ env.directory }}
+          dependencies_lock_file: centreon/pnpm-lock.yaml
           pat: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
           project_token: ${{ secrets.CHROMATIC_TOKEN }}
           autoAcceptChanges: true

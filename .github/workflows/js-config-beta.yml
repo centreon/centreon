@@ -1,4 +1,4 @@
-name: centreon-js-config
+name: centreon-js-config-beta
 
 on:
   workflow_dispatch:
@@ -9,14 +9,12 @@ on:
 
 env:
   directory: "centreon/packages/js-config"
-  centreon_directory: "centreon"
   package: 'js-config'
   base_branch: develop
 
 jobs:
   publish-new-npm-beta-version:
     runs-on: ubuntu-22.04
-    needs: check-package-version
 
     steps:
       - uses: actions/checkout@v3
@@ -30,17 +28,3 @@ jobs:
           npm_token: ${{ secrets.NPM_TOKEN }}
           release_branch: ${{ env.base_branch }}
           package: ${{ env.package }}
-
-  check-package-version:
-    runs-on: ubuntu-22.04
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-          token: ${{ secrets.CENTREON_TECHNIQUE_TOKEN }}
-
-      - uses: ./.github/actions/check-package-version
-        with:
-          base_branch: ${{ env.base_branch }}
-          directory: ${{ env.directory }}

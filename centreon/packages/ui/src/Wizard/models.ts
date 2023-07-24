@@ -41,6 +41,7 @@ interface ConfirmDialogLabels {
 export interface WizardProps {
   actionsBarLabels?: ActionsBarLabels;
   confirmDialogLabels?: ConfirmDialogLabels;
+  displayConfirmDialog?: boolean;
   fullHeight?: boolean;
   initialValues?: FormikValues;
   onClose?: () => void;

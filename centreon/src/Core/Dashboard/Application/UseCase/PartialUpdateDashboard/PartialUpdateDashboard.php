@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\UseCase\PartialUpdateDashboard;
 
 use Assert\AssertionFailedException;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
@@ -37,10 +36,11 @@ use Core\Common\Application\Type\NoValue;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardPanelRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Dashboard\Domain\Model\DashboardRights;
 
 final class PartialUpdateDashboard
 {
@@ -50,12 +50,12 @@ final class PartialUpdateDashboard
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly WriteDashboardRepositoryInterface $writeDashboardRepository,
         private readonly ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
         private readonly WriteDashboardPanelRepositoryInterface $writeDashboardPanelRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
+        private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
-    )
-    {
+    ) {
     }
 
     /**
@@ -67,12 +67,11 @@ final class PartialUpdateDashboard
         int $dashboardId,
         PartialUpdateDashboardRequest $request,
         PartialUpdateDashboardPresenterInterface $presenter
-    ): void
-    {
+    ): void {
         try {
-            if ($this->contact->isAdmin()) {
+            if ($this->rights->hasAdminRole()) {
                 $response = $this->partialUpdateDashboardAsAdmin($dashboardId, $request);
-            } elseif ($this->contactCanPerformWriteOperations()) {
+            } elseif ($this->rights->canAccess()) {
                 $response = $this->partialUpdateDashboardAsContact($dashboardId, $request);
             } else {
                 $response = new ForbiddenResponse(DashboardException::accessNotAllowedForWriting());
@@ -114,8 +113,7 @@ final class PartialUpdateDashboard
     private function partialUpdateDashboardAsAdmin(
         int $dashboardId,
         PartialUpdateDashboardRequest $request
-    ): NoContentResponse|NotFoundResponse
-    {
+    ): NoContentResponse|NotFoundResponse {
         $dashboard = $this->readDashboardRepository->findOne($dashboardId);
         if (null === $dashboard) {
             return new NotFoundResponse('Dashboard');
@@ -133,27 +131,25 @@ final class PartialUpdateDashboard
      * @throws \Throwable
      * @throws DashboardException
      *
-     * @return NoContentResponse|NotFoundResponse
+     * @return NoContentResponse|NotFoundResponse|ForbiddenResponse
      */
     private function partialUpdateDashboardAsContact(
         int $dashboardId,
         PartialUpdateDashboardRequest $request
-    ): NoContentResponse|NotFoundResponse
-    {
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
-        $dashboard = $this->readDashboardRepository->findOneByAccessGroups($dashboardId, $accessGroups);
+    ): NoContentResponse|NotFoundResponse|ForbiddenResponse {
+        $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
         if (null === $dashboard) {
             return new NotFoundResponse('Dashboard');
+        }
+
+        $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard);
+        if (! $this->rights->canUpdate($sharingRoles)) {
+            return new ForbiddenResponse(DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboardId));
         }
 
         $this->updateDashboardAndSave($dashboard, $request);
 
         return new NoContentResponse();
-    }
-
-    private function contactCanPerformWriteOperations(): bool
-    {
-        return $this->contact->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_WRITE);
     }
 
     /**

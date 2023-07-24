@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,10 +27,9 @@ use Core\Domain\RealTime\Model\PerformanceMetric;
 
 class FindPerformanceMetricResponse
 {
-    /**
-     * @var PerformanceMetric[]
-     */
+    /** @var PerformanceMetric[] */
     public iterable $performanceMetrics = [];
+
     public string $filename;
 
     /**
@@ -45,6 +44,7 @@ class FindPerformanceMetricResponse
 
     /**
      * @param iterable<PerformanceMetric> $performanceMetrics
+     *
      * @return iterable<mixed>
      */
     private function performanceMetricToArray(iterable $performanceMetrics): iterable
@@ -56,13 +56,14 @@ class FindPerformanceMetricResponse
 
     /**
      * @param PerformanceMetric $performanceMetric
+     *
      * @return array<string, mixed>
      */
     private function formatPerformanceMetric(PerformanceMetric $performanceMetric): array
     {
         $formattedData = [
             'time' => $performanceMetric->getDateValue()->getTimestamp(),
-            'humantime' => $performanceMetric->getDateValue()->format('Y-m-d H:i:s')
+            'humantime' => $performanceMetric->getDateValue()->format('Y-m-d H:i:s'),
         ];
 
         foreach ($performanceMetric->getMetricValues() as $metricValue) {

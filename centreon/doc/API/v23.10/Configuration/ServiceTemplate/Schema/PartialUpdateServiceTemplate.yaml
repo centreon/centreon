@@ -7,3 +7,18 @@ properties:
       type: integer
       description: "Host template ID"
     example: [ 1, 2 ]
+  service_categories:
+    type: array
+    descriptions: "IDs of service categories linked to this service template."
+    items:
+      type: integer
+      description: "Service category ID"
+    example: [ 1, 2 ]
+  macros:
+    type: array
+    description: |
+      Macros defined for the service (directly or through a template or command inheritance)
+
+      If multiple macros are defined with the same name, only the last one will be saved.
+    items:
+      $ref: 'macro.yaml'

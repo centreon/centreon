@@ -21,8 +21,6 @@ export const labelSearchHostGroups = 'Search host groups';
 export const labelSelectUsers = 'Select users';
 export const labelSelectTimePeriodAndChannels =
   'Select time period / channels of notifications';
-export const labelDuplicateNotification =
-  'How many times would you like to duplicate selected notification?';
 export const labelDeleteNotification = 'Delete notification?';
 export const labelDeleteNotificationWarning = 'This action cannot be undone';
 export const labelReduceInformationPanel = 'Collapse information panel';
@@ -43,7 +41,8 @@ export const labelConfirmEditNotification = 'Confirm notification update';
 export const labelChooseAtLeastOneResource = 'Choose at least 1 resource';
 export const labelChooseAtleastOneServiceGroup =
   'Choose at least 1 service group';
-export const labelChooseAtleastOneUser = 'Choose at least 1 user';
+export const labelChooseAtleastOneContactOrContactGroup =
+  'Choose at least 1 contact or contact group';
 export const labelMessageFieldShouldNotBeEmpty =
   'The message field should not be empty!';
 export const labelClosePanel = 'Close the panel';
@@ -59,3 +58,32 @@ export const labelDoYouWantToQuitWithoutSaving =
   'Do you want to quit the form without saving the changes?';
 export const labelYourFormHasUnsavedChanges = 'Your form has unsaved changes';
 export const labelThisNameAlreadyExists = 'This name already exists';
+export const labelCancelAddNotification = 'Cancel notification creation';
+export const labelCancelEditNotification = 'Cancel notification update';
+export const labelCreateNotificationForTheFirstTime =
+  'Create notification for the first time';
+export const labelNotificationSuccessfullyDeleted =
+  'Notification deleted successfully';
+export const labelNotificationsSuccessfullyDeleted =
+  'The selected notifications have been deleted successfully';
+export const labelFailedToDeleteNotification =
+  'Failed to delete the notification';
+export const labelFailedToDeleteNotifications =
+  'Failed to delete the notifications';
+export const labelFailedToDeleteSelectedNotifications =
+  'Failed to delete the selected notifications';
+export const labelDeleteMultipleNotifications = 'delete multiple notifications';
+export const labelContacts = 'Contacts';
+export const labelContactsGroups = 'Contact groups';
+export const labelSearchContacts = 'Search contacts';
+export const labelSearchContactsGroups = 'Search contact groups';
+export const labelSelectContactsAndContactsGroups =
+  'Select contacts and contact groups';
+export const labelTimePeriod24h7days = '24h/24h - 7/7 days';
+export const labelIncludeServicesForTheseHosts =
+  'Include services for these hosts';
+export const labelNotificationDuplicated = 'Notification duplicated';
+export const labelFailedToDuplicateNotification =
+  'Failed to duplicate the notification';
+export const labelPleaseEnterNameForDuplicatedNotification =
+  'Please enter a name for the duplicated notification';

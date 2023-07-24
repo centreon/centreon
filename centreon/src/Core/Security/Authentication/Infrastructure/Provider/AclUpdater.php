@@ -1,18 +1,18 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the spceific language governing permissions and
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  * For more information : contact@centreon.com
@@ -23,22 +23,21 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Contact\Application\Repository\WriteContactGroupRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
 class AclUpdater implements AclUpdaterInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var ProviderAuthenticationInterface
-     */
+    /** @var ProviderAuthenticationInterface */
     private ProviderAuthenticationInterface $provider;
 
     /**
@@ -73,14 +72,20 @@ class AclUpdater implements AclUpdaterInterface
                 $this->updateAccessGroupsForUser($user, $userAccessGroups);
             }
 
-            if ($customConfiguration->getGroupsMapping()->isEnabled()) {
-                $this->updateContactGroupsForUser($user);
+            $groupMappings = $customConfiguration->getGroupsMapping();
+            if ($groupMappings->isEnabled()) {
+                $contactGroupRelations = $groupMappings->getContactGroupRelations();
+                $contactGroups = [];
+                foreach ($contactGroupRelations as $contactGroupRelation) {
+                    $contactGroups[] = $contactGroupRelation->getContactGroup();
+                }
+                $this->updateContactGroupsForUser($user, $contactGroups);
             }
         }
     }
 
     /**
-     * Delete and Insert Access Group:q!s for authenticated user
+     * Delete and Insert Access Groups for authenticated user.
      *
      * @param ContactInterface $user
      * @param AccessGroup[] $userAccessGroups
@@ -88,9 +93,9 @@ class AclUpdater implements AclUpdaterInterface
     private function updateAccessGroupsForUser(ContactInterface $user, array $userAccessGroups): void
     {
         try {
-            $this->info("Updating User Access Groups", [
-                "user_id" => $user->getId(),
-                "access_groups" => $userAccessGroups
+            $this->info('Updating User Access Groups', [
+                'user_id' => $user->getId(),
+                'access_groups' => $userAccessGroups,
             ]);
             $this->dataStorageEngine->startTransaction();
             $this->accessGroupRepository->deleteAccessGroupsForUser($user);
@@ -99,30 +104,26 @@ class AclUpdater implements AclUpdaterInterface
         } catch (\Exception $ex) {
             $this->dataStorageEngine->rollbackTransaction();
             $this->error('Error during ACL update', [
-                "user_id" => $user->getId(),
-                "access_groups" => $userAccessGroups,
-                "trace" => $ex->getTraceAsString()
+                'user_id' => $user->getId(),
+                'access_groups' => $userAccessGroups,
+                'trace' => $ex->getTraceAsString(),
             ]);
         }
     }
 
     /**
-     * Delete and Insert Contact Group for authenticated user
+     * Delete and Insert Contact Group for authenticated user.
      *
      * @param ContactInterface $user
+     * @param ContactGroup[] $contactGroups
      */
-    private function updateContactGroupsForUser(ContactInterface $user): void
+    private function updateContactGroupsForUser(ContactInterface $user, array $contactGroups): void
     {
-        /** @phpstan-ignore-next-line */
-        $contactGroups = $this->provider->getUserContactGroups();
-
         try {
             $this->info('Updating user contact group', [
-                "user_id" => $user->getId(),
-                "contact_group_id" => [
-                    array_map(function ($contactGroup) {
-                        return $contactGroup->getId();
-                    }, $contactGroups)
+                'user_id' => $user->getId(),
+                'contact_group_id' => [
+                    array_map(fn ($contactGroup) => $contactGroup->getId(), $contactGroups),
                 ],
             ]);
             $this->dataStorageEngine->startTransaction();
@@ -134,9 +135,9 @@ class AclUpdater implements AclUpdaterInterface
         } catch (\Exception $ex) {
             $this->dataStorageEngine->rollbackTransaction();
             $this->error('Error during contact group update', [
-                "user_id" => $user->getId(),
-                "contact_group_id" => $contactGroup->getId(),
-                "trace" => $ex->getTraceAsString()
+                'user_id' => $user->getId(),
+                'contact_group_id' => $contactGroup->getId(),
+                'trace' => $ex->getTraceAsString(),
             ]);
         }
     }

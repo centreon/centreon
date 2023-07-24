@@ -23,30 +23,27 @@ declare(strict_types=1);
 
 namespace Tests\Core\Dashboard\Application\UseCase\DeleteDashboard;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
 use Core\Dashboard\Application\UseCase\DeleteDashboard\DeleteDashboard;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Dashboard\Domain\Model\DashboardRights;
 
 beforeEach(function (): void {
-    $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class);
-    $this->writeDashboardRepository = $this->createMock(WriteDashboardRepositoryInterface::class);
-    $this->contact = $this->createMock(ContactInterface::class);
-
     $this->presenter = new DeleteDashboardPresenterStub();
     $this->useCase = new DeleteDashboard(
-        $this->readDashboardRepository,
-        $this->writeDashboardRepository,
-        $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->contact
+        $this->readDashboardRepository = $this->createMock(ReadDashboardRepositoryInterface::class),
+        $this->writeDashboardRepository = $this->createMock(WriteDashboardRepositoryInterface::class),
+        $this->readDashboardShareRepository = $this->createMock(ReadDashboardShareRepositoryInterface::class),
+        $this->rights = $this->createMock(DashboardRights::class),
+        $this->contact = $this->createMock(ContactInterface::class)
     );
 
     $this->testedDashboard = new Dashboard(
@@ -60,105 +57,107 @@ beforeEach(function (): void {
     );
 });
 
-it('should present an ErrorResponse when an exception is thrown', function (): void {
-    $this->contact
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->readDashboardRepository
-        ->expects($this->once())
-        ->method('existsOne')
-        ->willThrowException(new \Exception());
+it(
+    'should present an ErrorResponse when an exception is thrown',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('existsOne')->willThrowException(new \Exception());
 
-    ($this->useCase)($this->testedDashboardId, $this->presenter);
+        ($this->useCase)($this->testedDashboardId, $this->presenter);
 
-    expect($this->presenter->data)
-        ->toBeInstanceOf(ErrorResponse::class)
-        ->and($this->presenter->data->getMessage())
-        ->toBe(DashboardException::errorWhileDeleting()->getMessage());
-});
+        expect($this->presenter->data)
+            ->toBeInstanceOf(ErrorResponse::class)
+            ->and($this->presenter->data->getMessage())
+            ->toBe(DashboardException::errorWhileDeleting()->getMessage());
+    }
+);
 
-it('should present a ForbiddenResponse when the user does not have the correct role', function (): void {
-    $this->contact
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(false);
-    $this->contact
-        ->expects($this->atMost(2))
-        ->method('hasTopologyRole')
-        ->willReturnMap(
-            [
-                [Contact::ROLE_HOME_DASHBOARD_WRITE, false],
-            ]
-        );
+it(
+    'should present a ForbiddenResponse when the user does not have the correct role',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canAccess')->willReturn(false);
 
-    ($this->useCase)($this->testedDashboardId, $this->presenter);
+        ($this->useCase)($this->testedDashboardId, $this->presenter);
 
-    expect($this->presenter->data)
-        ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($this->presenter->data->getMessage())
-        ->toBe(DashboardException::accessNotAllowedForWriting()->getMessage());
-});
+        expect($this->presenter->data)
+            ->toBeInstanceOf(ForbiddenResponse::class)
+            ->and($this->presenter->data->getMessage())
+            ->toBe(DashboardException::accessNotAllowedForWriting()->getMessage());
+    }
+);
 
-it('should present a NoContentResponse as admin', function (): void {
-    $this->contact
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->readDashboardRepository
-        ->expects($this->once())
-        ->method('existsOne')
-        ->willReturn(true);
+it(
+    'should present a NoContentResponse as ADMIN',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(true);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('existsOne')->willReturn(true);
 
-    ($this->useCase)($this->testedDashboardId, $this->presenter);
+        ($this->useCase)($this->testedDashboardId, $this->presenter);
 
-    expect($this->presenter->data)
-        ->toBeInstanceOf(NoContentResponse::class);
-});
+        expect($this->presenter->data)
+            ->toBeInstanceOf(NoContentResponse::class);
+    }
+);
 
-it('should present a ForbiddenResponse as allowed READ user', function (): void {
-    $this->contact
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(false);
-    $this->contact
-        ->expects($this->atMost(2))
-        ->method('hasTopologyRole')
-        ->willReturnMap(
-            [
-                [Contact::ROLE_HOME_DASHBOARD_READ, true],
-                [Contact::ROLE_HOME_DASHBOARD_WRITE, false],
-            ]
-        );
-    $this->readDashboardRepository
-        ->expects($this->never())
-        ->method('findOneByAccessGroups');
+it(
+    'should present a NoContentResponse as allowed CREATOR user',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())
+            ->method('canDelete')->willReturn(true);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOneByContact')->willReturn($this->testedDashboard);
+        $this->writeDashboardRepository->expects($this->once())
+            ->method('delete');
 
-    ($this->useCase)($this->testedDashboardId, $this->presenter);
+        ($this->useCase)($this->testedDashboardId, $this->presenter);
 
-    expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class);
-});
+        expect($this->presenter->data)->toBeInstanceOf(NoContentResponse::class);
+    }
+);
 
-it('should present a NoContentResponse as allowed READ_WRITE user', function (): void {
-    $this->contact
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(false);
-    $this->contact
-        ->expects($this->atMost(2))
-        ->method('hasTopologyRole')
-        ->willReturnMap(
-            [
-                [Contact::ROLE_HOME_DASHBOARD_READ, false],
-                [Contact::ROLE_HOME_DASHBOARD_WRITE, true],
-            ]
-        );
-    $this->readDashboardRepository
-        ->expects($this->once())
-        ->method('existsOneByAccessGroups')
-        ->willReturn(true);
+it(
+    'should present a ForbiddenResponse as NOT allowed CREATOR user',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canAccess')->willReturn(true);
+        $this->rights->expects($this->once())
+            ->method('canDelete')->willReturn(false);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOneByContact')->willReturn($this->testedDashboard);
+        $this->writeDashboardRepository->expects($this->never())
+            ->method('delete');
 
-    ($this->useCase)($this->testedDashboardId, $this->presenter);
+        ($this->useCase)($this->testedDashboardId, $this->presenter);
 
-    expect($this->presenter->data)->toBeInstanceOf(NoContentResponse::class);
-});
+        expect($this->presenter->data)->toBeInstanceOf(ForbiddenResponse::class);
+    }
+);
+
+it(
+    'should present a NotFoundResponse when the dashboard does not exist',
+    function (): void {
+        $this->rights->expects($this->once())
+            ->method('hasAdminRole')->willReturn(false);
+        $this->rights->expects($this->once())
+            ->method('canAccess')->willReturn(true);
+        $this->readDashboardRepository->expects($this->once())
+            ->method('findOneByContact')->willReturn(null);
+
+        ($this->useCase)($this->testedDashboardId, $this->presenter);
+
+        expect($this->presenter->data)->toBeInstanceOf(NotFoundResponse::class);
+    }
+);

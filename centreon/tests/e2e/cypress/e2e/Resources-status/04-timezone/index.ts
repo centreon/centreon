@@ -33,6 +33,10 @@ const calculateMinuteInterval = (startDate: Date, endDate: Date): number => {
   const diffInMilliseconds = endDate.getTime() - startDate.getTime();
   const minutes = Math.abs(Math.floor(diffInMilliseconds / 60000));
 
+  cy.log(
+    `Diff in minutes between ${endDate.getTime()} and ${startDate.getTime()} is ${minutes}`
+  );
+
   return minutes;
 };
 
@@ -45,30 +49,45 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
+
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+  }).as('getLastestUserFilters');
+
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/downtime'
   }).as('postSaveDowntime');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_timezone&action=list*'
   }).as('getTimezonesList');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/monitoring/hosts/*/services/*/acknowledgements?limit=1'
   }).as('getAckToolTip');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_configuration_service&action=list&e=enable&page_limit=60&page=1'
   }).as('getServices');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/acknowledge'
   }).as('postAcknowledgments');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_performance_service&action=list&q=*&page_limit=20&page=1'
+  }).as('getCharts');
 });
 
 Given('a user authenticated in a Centreon server', () => {
@@ -80,6 +99,8 @@ Given('a user authenticated in a Centreon server', () => {
 
 Given('the platform is configured with at least one resource', () => {
   cy.reload();
+
+  cy.wait('@getLastestUserFilters');
 
   insertDtResources();
 
@@ -142,6 +163,11 @@ When('the user saves the form', () => {
     .eq(0)
     .contains('Save')
     .click();
+
+  cy.get('iframe#main-content')
+    .its('0.contentDocument.body')
+    .find('input[type="button"]')
+    .should('have.value', 'Modify');
 });
 
 Then('timezone information are updated on the banner', () => {
@@ -373,11 +399,13 @@ Then(
   () => {
     cy.waitUntil(
       () => {
+        cy.reload().wait('@getTimeZone');
+
         return cy
-          .reload()
-          .then(() =>
-            cy.getIframeBody().find('.ListTable tr:not(.ListHeader)').first()
-          )
+          .get('iframe#main-content')
+          .its('0.contentDocument.body')
+          .find('.ListTable tr:not(.ListHeader)')
+          .first()
           .children()
           .then((val) => {
             return val.text().trim() !== 'No downtime scheduled';
@@ -388,19 +416,23 @@ Then(
       }
     );
 
-    cy.wait('@getTimeZone');
-
     cy.getIframeBody()
       .find('.ListTable tr:not(.ListHeader) td')
       .eq(3)
       .then(($el) => {
         cy.getTimeFromHeader().then((localTime: string) => {
-          const dtTime = $el[0].textContent || '';
+          const downtimeStartTime = $el[0].textContent;
+
+          if (downtimeStartTime === null) {
+            throw new Error('Cannot get downtime start time');
+          }
+
+          cy.log(`Downtime start time : ${downtimeStartTime}`);
 
           expect(
             calculateMinuteInterval(
               convert12hFormatToDate(localTime),
-              new Date(dtTime)
+              new Date(downtimeStartTime)
             )
           ).to.be.lte(2);
         });
@@ -442,7 +474,11 @@ When('the user opens a chart from Monitoring>Performances>Graphs', () => {
 });
 
 When('the user selects a chart', () => {
+  cy.reload().wait('@getTimeZone');
+
   cy.getIframeBody().find('.select2-search__field').eq(0).type('Ping');
+
+  cy.wait('@getCharts');
 
   cy.getIframeBody()
     .find('ul[id="select2-select-chart-results"] li')

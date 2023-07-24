@@ -1,17 +1,3 @@
-msgid ""
-msgstr ""
-"Project-Id-Version: Centreon web 2.x\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-23 10:23+0000\n"
-"PO-Revision-Date: 2017-03-19 19:45+0100\n"
-"Last-Translator: Laurent Pinsivy <lpinsivy@centreon.com>\n"
-"Language-Team: Centreon team\n"
-"Language: fr\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.7.7\n"
 
 #: centreon-web/broker_field_translation.php:2
 #: centreon-web/www/install/centreon_broker_translation.php:44
@@ -11290,7 +11276,7 @@ msgstr "Voulez-vous vraiment débloquer cet utilisateur ?"
 
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
 msgid "The user(s) will be unblocked. Do you confirm the request?"
-msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l'action ?"
+msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l\\'action ?"
 
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
 msgid "Unblock"
@@ -15581,8 +15567,14 @@ msgstr "Sélectionner les utilisateurs"
 msgid "Select time period / channels of notifications"
 msgstr "Sélectionner la période / les canaux de notifications"
 
-msgid "How many times would you like to duplicate selected notification?"
-msgstr "Combien de fois souhaitez-vous dupliquer la notification sélectionnée ?"
+msgid "Notification duplicated"
+msgstr "Notification dupliquée"
+
+msgid "Failed to duplicate the notification"
+msgstr "Échec de la duplication de la notification"
+
+msgid "Please enter a name for the duplicated notification"
+msgstr "Veuillez entrer un nom pour la notification dupliquée"
 
 msgid "Delete notification?"
 msgstr "Supprimer la notification?"
@@ -15661,6 +15653,39 @@ msgstr "Votre formulaire comporte des modifications non enregistrées"
 
 msgid "This name already exists"
 msgstr "Ce nom existe déjà"
+
+msgid "Notification deleted successfully"
+msgstr "La notification a été supprimée avec succès"
+
+msgid "The selected notifications have been deleted successfully"
+msgstr "Les notifications sélectionnées ont été supprimées avec succès"
+
+msgid "Failed to delete the notification"
+msgstr "La notification n'a pas pu être supprimée"
+
+msgid "Failed to delete the notifications"
+msgstr "Les notifications n'ont pas pu être supprimées"
+
+msgid "Failed to delete the selected notifications"
+msgstr "Échec de la suppression des notifications sélectionnées"
+
+msgid "Search contacts"
+msgstr "Rechercher des contacts"
+
+msgid "Search contact groups"
+msgstr "Rechercher des groupes de contacts"
+
+msgid "Select contacts and contact groups"
+msgstr "Sélectionner les contacts et les groupes de contacts"
+
+msgid "24h/24h - 7/7 days"
+msgstr "24h/24h - 7/7 jours"
+
+msgid "Include services for these hosts"
+msgstr "Inclure les services pour ces hôtes"
+
+msgid "Failed to delete notifications"
+msgstr "Échec de la suppression des notifications"
 
 #: api/platform
 msgid "Unable to convert in remote server, no Central to link provided"
@@ -17533,6 +17558,12 @@ msgstr "Vérifier les ressources sélectionnées même en dehors de la période 
 msgid "Forced check command sent ! Please refresh the listing to update the data."
 msgstr "Commande de vérification forcée envoyée ! Veuillez actualiser le tableau pour mettre à jour les données."
 
+msgid "Need help with search bar usage?"
+msgstr "Besoin d'aide pour l'utilisation de la barre de recherche?"
+
+msgid "Find explanations and examples"
+msgstr "Trouvez des explications et des exemples"
+
 msgid "Developed by"
 msgstr "Développé par"
 
@@ -17696,6 +17727,12 @@ msgstr "Erreur durant l'ajout d'un tableau de bord"
 msgid "You are not allowed to perform write operations on dashboards"
 msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les tableaux de bord"
 
+msgid "You are not allowed to edit access rights on the dashboard #%d"
+msgstr "Vous n'êtes pas autorisé à éditer les droits d'accès du tableau de bord #%d"
+
+msgid "You cannot view access rights on the dashboard #%d"
+msgstr "Vous n'êtes pas autorisé à consulter les droits d'accès du tableau de bord #%d"
+
 msgid "Error while retrieving a dashboard"
 msgstr "Erreur durant la récupération d'un tableau de bord"
 
@@ -17705,8 +17742,8 @@ msgstr "Erreur durant la suppression d'un tableau de bord"
 msgid "Error while updating a dashboard"
 msgstr "Erreur lors de la mise à jour d'un tableau de bord"
 
-msgid "Error while trying to update a dashboard panel which belongs to another dashboard"
-msgstr "Erreur lors d'une tentative de mise à jour d'un panneau de tableau de bord qui appartient à un autre tableau de bord"
+msgid "Error while trying to update a widget which belongs to another dashboard"
+msgstr "Erreur lors d'une tentative de mise à jour d'un widget qui appartient à un autre tableau de bord"
 
 msgid "Error while searching for host templates"
 msgstr "Erreur lors de la recherche des modèles d'hôtes"
@@ -17819,5 +17856,68 @@ msgstr "Vous n'êtes pas autorisé à effectuer des actions d'écriture sur les 
 msgid "Host template #%d not found"
 msgstr "Modèle d'hôte #%d introuvable"
 
+msgid "The contact ID #%d does not exist"
+msgstr "L'ID du contact #%d n'existe pas"
+
+msgid "Error while retrieving the new dashboard share"
+msgstr "Erreur durant la récupération d'un nouveau partage de tableau de bord"
+
+msgid "Error while adding the dashboard share"
+msgstr "Erreur durant l'ajout d'un partage de tableau de bord"
+
+msgid "Error while searching for the dashboard shares"
+msgstr "Erreur durant la recherche de partages de tableau de bord"
+
+msgid "Error while deleting the dashboard share"
+msgstr "Erreur durant la suppression d'un partage de tableau de bord"
+
+msgid "Error while updating the dashboard share"
+msgstr "Erreur durant la mise à jour d'un partage de tableau de bord"
+
 msgid "Circular inheritance not allowed"
 msgstr "Héritage circulaire non autorisé"
+
+msgid "You are not allowed to display the details of the notification"
+msgstr "Vous n'êtes pas autorisé à afficher les détails de la notification"
+
+msgid "You are not allowed to update the notification configuration"
+msgstr "Vous n'êtes pas autorisé à mettre à jour la configuration de la notification"
+
+msgid "You are not allowed to delete a notification configuration"
+msgstr "Vous n'êtes pas autorisé à supprimer une configuration de notification"
+
+msgid "Error while deleting a notification configuration"
+msgstr "Erreur lors de la suppression de la configuration de notification"
+
+msgid "You are not allowed to access commands"
+msgstr "Vous n'êtes pas autorisé à accéder aux commandes"
+
+msgid "Error while searching for commands"
+msgstr "Erreur lors de la recherche de commandes"
+
+msgid "You are not allowed to partially update a notification configuration"
+msgstr "Vous n'êtes pas autorisé à effectuer la modification partielle d'une configuration de notification"
+
+msgid "Error while partially updating a notification configuration"
+msgstr "Erreur lors de la modification partielle d'une configuration de notification"
+
+msgid "Error while updating a notification configuration"
+msgstr "Erreur lors de la mise à jour de la configuration d'une notification"
+
+msgid "Error while adding a host"
+msgstr "Erreur lors de la création d'un hôte"
+
+msgid "Error while linking host categories to a host"
+msgstr "Erreur lors de l'association de catégories d'hôte à un hôte"
+
+msgid "You are not allowed to add hosts"
+msgstr "Vous n'êtes pas autorisé à créer des hôtes"
+
+msgid "Host #%d not found"
+msgstr "Hôte #%d introuvable"
+
+msgid "Host name should not start with '_Module_'"
+msgstr "Le nom d'hôte ne doit pas commencer par '_Module_'"
+
+msgid "Error while retrieving a host"
+msgstr "Error lors de la récupération d'un hôte"

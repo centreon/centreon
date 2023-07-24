@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,38 +25,24 @@ namespace Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWeb
 
 class FindWebSSOConfigurationResponse
 {
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public bool $isActive;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public bool $isForced;
 
-    /**
-     * @var array<string>
-     */
+    /** @var array<string> */
     public array $trustedClientAddresses;
 
-    /**
-     * @var array<string>
-     */
+    /** @var array<string> */
     public array $blacklistClientAddresses;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $loginHeaderAttribute;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $patternMatchingLogin;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $patternReplaceLogin;
 }

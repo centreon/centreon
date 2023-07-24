@@ -6,11 +6,16 @@ properties:
     example: "Notification-A"
   is_activated:
     type: boolean
-  timeperiod:
+  timeperiod_id:
     type: integer
     description: Timeperiod during which the notification is sent
   users:
     description: Users to whom the notification is sent
+    type: array
+    items:
+      type: integer
+  contactgroups:
+    description: Contact Groups to whom the notification is sent
     type: array
     items:
       type: integer

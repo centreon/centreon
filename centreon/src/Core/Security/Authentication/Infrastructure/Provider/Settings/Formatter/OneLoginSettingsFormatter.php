@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,6 @@ namespace Core\Security\Authentication\Infrastructure\Provider\Settings\Formatte
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class OneLoginSettingsFormatter implements SettingsFormatterInterface
@@ -43,6 +42,7 @@ class OneLoginSettingsFormatter implements SettingsFormatterInterface
 
     /**
      * @param CustomConfigurationInterface&CustomConfiguration $customConfiguration
+     *
      * @return array
      */
     public function format(CustomConfigurationInterface $customConfiguration): array

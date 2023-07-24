@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : user@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -27,8 +27,8 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Common\Domain\TrimmedString;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
-use Core\Notification\Domain\Model\NewNotification;
 use Core\Notification\Domain\Model\ConfigurationTimePeriod;
+use Core\Notification\Domain\Model\NewNotification;
 
 class NewNotificationFactory
 {

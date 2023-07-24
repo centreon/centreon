@@ -4,6 +4,9 @@ inputs:
   frontend_directory:
     description: "The frontend source directory"
     required: true
+  dependencies_lock_file:
+    description: "The frontend dependencies lock file path"
+    required: true
   project_token:
     description: "The Chromatic project token"
     required: true
@@ -28,14 +31,18 @@ runs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 17
+          node-version: 18
           cache: pnpm
-          cache-dependency-path: ${{ inputs.frontend_directory }}
+          cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         working-directory: ${{ inputs.frontend_directory }}
         shell: bash
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Publish to Chromatic
         uses: chromaui/action@v1

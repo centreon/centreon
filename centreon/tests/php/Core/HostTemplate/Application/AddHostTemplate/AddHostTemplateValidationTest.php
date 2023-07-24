@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\ServiceSeverity\Application\UseCase\AddServiceSeverity;
+namespace Tests\Core\HostTemplate\Application\UseCase\AddHostTemplate;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
-use Core\Common\Domain\CommandType;
+use Core\Command\Domain\Model\CommandType;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Exception\HostTemplateException;

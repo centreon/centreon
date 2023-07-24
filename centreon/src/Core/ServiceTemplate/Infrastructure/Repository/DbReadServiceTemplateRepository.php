@@ -36,6 +36,7 @@ use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\NotificationType;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 use Utility\SqlConcatenator;
 
 /**
@@ -82,7 +83,8 @@ use Utility\SqlConcatenator;
  *     esi_notes_url: string|null,
  *     graph_id: int|null,
  *     severity_id: int|null,
- *     host_template_ids: string|null
+ *     host_template_ids: string|null,
+ *     service_categories_ids: string|null
  * }
  */
 class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements ReadServiceTemplateRepositoryInterface
@@ -104,12 +106,14 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     {
         $request = <<<'SQL'
                 SELECT service_id,
-                       cg_additive_inheritance,
-                       contact_additive_inheritance,
-                       command_command_id,
-                       command_command_id2,
-                       command_command_id_arg,
-                       command_command_id_arg2,
+                       service.cg_additive_inheritance,
+                       service.contact_additive_inheritance,
+                       service.command_command_id,
+                       service.command_command_id2,
+                       service.command_command_id_arg,
+                       service.command_command_id_arg2,
+                       service.timeperiod_tp_id,
+                       service.timeperiod_tp_id2,
                        service_acknowledgement_timeout,
                        service_activate,
                        service_active_checks_enabled,
@@ -130,32 +134,31 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        service_normal_check_interval,
                        service_notification_interval,
                        service_notification_options,
-                       service_notifications_enabled,
-                       service_passive_checks_enabled,
                        service_recovery_notification_delay,
                        service_retry_check_interval,
                        service_template_model_stm_id,
                        service_first_notification_delay,
-                       timeperiod_tp_id,
-                       timeperiod_tp_id2,
                        esi.esi_action_url,
                        esi.esi_icon_image,
                        esi.esi_icon_image_alt,
                        esi.esi_notes,
                        esi.esi_notes_url,
                        esi.graph_id,
-                       scr.sc_id as severity_id,
-                       GROUP_CONCAT(hsr.host_host_id) AS host_template_ids
+                       severity.sc_id as severity_id,
+                       GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
                 FROM `:db`.service
                 LEFT JOIN `:db`.extended_service_information esi
                     ON esi.service_service_id = service.service_id
                 LEFT JOIN `:db`.service_categories_relation scr
                     ON scr.service_service_id = service.service_id
-                LEFT JOIN `:db`.service_categories sc
-                    ON sc.sc_id = scr.sc_id
-                    AND sc.level IS NOT NULL
-                LEFT JOIN `centreon`.host_service_relation hsr
+                LEFT JOIN `:db`.service_categories severity
+                    ON severity.sc_id = scr.sc_id
+                    AND severity.level IS NOT NULL
+                LEFT JOIN `:db`.host_service_relation hsr
                     ON hsr.service_service_id = service.service_id
+                LEFT JOIN `:db`.host
+                    ON host.host_id = hsr.host_host_id
+                    AND host.host_register = '0'
                 WHERE service.service_id = :id
                     AND service.service_register = '0'
                 GROUP BY service.service_id
@@ -193,12 +196,14 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $serviceTemplates = [];
         $request = <<<'SQL'
                 SELECT service_id,
-                       cg_additive_inheritance,
-                       contact_additive_inheritance,
-                       command_command_id,
-                       command_command_id2,
-                       command_command_id_arg,
-                       command_command_id_arg2,
+                       service.cg_additive_inheritance,
+                       service.contact_additive_inheritance,
+                       service.command_command_id,
+                       service.command_command_id2,
+                       service.command_command_id_arg,
+                       service.command_command_id_arg2,
+                       service.timeperiod_tp_id,
+                       service.timeperiod_tp_id2,
                        service_acknowledgement_timeout,
                        service_activate,
                        service_active_checks_enabled,
@@ -223,26 +228,27 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        service_retry_check_interval,
                        service_template_model_stm_id,
                        service_first_notification_delay,
-                       timeperiod_tp_id,
-                       timeperiod_tp_id2,
                        esi.esi_action_url,
                        esi.esi_icon_image,
                        esi.esi_icon_image_alt,
                        esi.esi_notes,
                        esi.esi_notes_url,
                        esi.graph_id,
-                       scr.sc_id as severity_id,
-                       group_concat(hsr.host_host_id) AS host_template_ids
+                       severity.sc_id as severity_id,
+                       GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
                 FROM `:db`.service
                 LEFT JOIN `:db`.extended_service_information esi
                     ON esi.service_service_id = service.service_id
                 LEFT JOIN `:db`.service_categories_relation scr
                     ON scr.service_service_id = service.service_id
-                LEFT JOIN `:db`.service_categories sc
-                    ON sc.sc_id = scr.sc_id
-                    AND sc.level IS NOT NULL
-                LEFT JOIN `centreon`.host_service_relation hsr
+                LEFT JOIN `:db`.service_categories severity
+                    ON severity.sc_id = scr.sc_id
+                    AND severity.level IS NOT NULL
+                LEFT JOIN `:db`.host_service_relation hsr
                     ON hsr.service_service_id = service.service_id
+                LEFT JOIN `:db`.host
+                    ON host.host_id = hsr.host_host_id
+                    AND host.host_register = '0'
             SQL;
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
@@ -303,6 +309,41 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findParents(int $serviceTemplateId): array
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                WITH RECURSIVE parents AS (
+                    SELECT * FROM `:db`.`service`
+                    WHERE `service_id` = :service_template_id
+                    UNION
+                    SELECT rel.* FROM `:db`.`service` AS rel, parents AS p
+                    WHERE rel.`service_id` = p.`service_template_model_stm_id`
+                )
+                SELECT `service_id` AS child_id, `service_template_model_stm_id` AS parent_id
+                FROM parents
+                WHERE `service_template_model_stm_id` IS NOT NULL
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':service_template_id', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $serviceTemplateInheritances = [];
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{child_id: int, parent_id: int} $result */
+            $serviceTemplateInheritances[] = new ServiceTemplateInheritance(
+                (int) $result['parent_id'],
+                (int) $result['child_id']
+            );
+        }
+
+        return $serviceTemplateInheritances;
     }
 
     /**

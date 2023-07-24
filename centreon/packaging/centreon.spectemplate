@@ -66,6 +66,8 @@ Requires(pre):  /usr/sbin/groupadd
 Requires(pre):  /usr/sbin/useradd
 Requires(post): /usr/sbin/groupdel
 Requires(post): /usr/sbin/userdel
+Requires:       centreon-broker >= %{thismajor}, centreon-broker < %{nextmajor}
+Requires:       centreon-engine-daemon >= %{thismajor}, centreon-engine-daemon < %{nextmajor}
 
 %description common
 %{COMMIT_HASH}
@@ -80,6 +82,7 @@ BuildRequires: systemd
 Requires:   centreon-common = %{version}-%{release}
 Requires:   centreon-perl-libs = %{version}-%{release}
 Requires:   centreon-poller = %{version}-%{release}
+Requires:   centreon-broker-cbd >= %{thismajor}, centreon-broker-cbd < %{nextmajor}
 Requires:   bc
 Requires:   cronie
 Requires:   initscripts
@@ -226,9 +229,7 @@ License:    Apache-2.0
 Requires:   centreon-common = %{version}-%{release}
 Requires:   centreon-trap = %{version}-%{release}
 Requires:   centreon-engine >= %{thismajor}, centreon-engine < %{nextmajor}
-Requires:   centreon-broker >= %{thismajor}, centreon-broker < %{nextmajor}
 Requires:   centreon-broker-cbmod >= %{thismajor}, centreon-broker-cbmod < %{nextmajor}
-Requires:   centreon-broker-storage >= %{thismajor}, centreon-broker-storage < %{nextmajor}
 Requires:   centreon-connector >= %{thismajor}, centreon-connector < %{nextmajor}
 Requires:   centreon-gorgone-centreon-config >= %{thismajor}, centreon-gorgone-centreon-config < %{nextmajor}
 Requires:   perl-DBD-MySQL
@@ -496,6 +497,14 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 %{_bindir}/rm -rf %{_localstatedir}/cache/centreon/config/broker %{_localstatedir}/cache/centreon/config/engine %{_localstatedir}/cache/centreon/config/export 2> /dev/null
 %{_bindir}/getent group centreon &>/dev/null || %{_sbindir}/groupadd -r centreon
 %{_bindir}/getent passwd centreon &>/dev/null || %{_sbindir}/useradd -g centreon -m -d %{_localstatedir}/spool/centreon -r centreon 2> /dev/null
+if [ "$(getent passwd centreon-broker)" ]; then
+  %{_sbindir}/usermod -a -G centreon-broker centreon
+  %{_sbindir}/usermod -a -G centreon centreon-broker
+fi
+if [ "$(getent passwd centreon-engine)" ]; then
+  %{_sbindir}/usermod -a -G centreon-engine centreon
+  %{_sbindir}/usermod -a -G centreon centreon-engine
+fi
 
 %post common
 #%selinux_modules_install %{_datadir}/selinux/packages/centreon/centreon_common.pp 2>/dev/null || :
@@ -512,6 +521,10 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 if [ "$1" = 0 ]; then
     %{_sbindir}/userdel -r centreon 2> /dev/null
     %{_sbindir}/groupdel centreon
+    %{_bindir}/gpasswd --delete centreon centreon-broker > /dev/null 2>&1 || :
+    %{_bindir}/gpasswd --delete centreon-broker centreon > /dev/null 2>&1 || :
+    %{_bindir}/gpasswd --delete centreon centreon-engine > /dev/null 2>&1 || :
+    %{_bindir}/gpasswd --delete centreon-engine centreon > /dev/null 2>&1 || :
 fi
 
 ######################################################

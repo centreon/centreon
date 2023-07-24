@@ -3,7 +3,7 @@ import { isNil } from 'ramda';
 
 import { useRequest, getData } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
-import type { User } from '@centreon/ui';
+import type { User } from '@centreon/ui-context';
 
 import { userDecoder } from '../api/decoders';
 import { userEndpoint } from '../api/endpoint';
@@ -44,11 +44,13 @@ const useUser = (): (() => null | Promise<void>) => {
           timezone,
           use_deprecated_pages: useDeprecatedPages,
           default_page: defaultPage,
-          user_interface_density
+          user_interface_density,
+          dashboard
         } = retrievedUser as User;
 
         setUser({
           alias,
+          dashboard,
           default_page: defaultPage || '/monitoring/resources',
           isExportButtonEnabled,
           locale: locale || 'en',

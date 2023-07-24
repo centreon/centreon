@@ -7,7 +7,7 @@ export const notificationListingEndpoint = `${baseEndpoint}/configuration/notifi
 interface Props {
   id?: number | null;
 }
-export const notificationtEndpoint = ({ id }: Props): string => {
+export const notificationEndpoint = ({ id }: Props): string => {
   if (isNil(id)) {
     return notificationListingEndpoint;
   }
@@ -19,3 +19,4 @@ export const hostsGroupsEndpoint = `${baseEndpoint}/configuration/hosts/groups`;
 export const serviceGroupsEndpoint = `${baseEndpoint}/configuration/services/groups`;
 export const businessViewsEndpoint = `${baseEndpoint}/bam/configuration/business-views`;
 export const usersEndpoint = `${baseEndpoint}/configuration/users`;
+export const contactsGroupsEndpoint = `${baseEndpoint}/configuration/contacts/groups`;

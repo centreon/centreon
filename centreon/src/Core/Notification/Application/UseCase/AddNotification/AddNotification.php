@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : user@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -34,6 +34,8 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
@@ -41,11 +43,11 @@ use Core\Notification\Application\Repository\WriteNotificationRepositoryInterfac
 use Core\Notification\Application\UseCase\AddNotification\Factory\NewNotificationFactory;
 use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationMessageFactory;
 use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationResourceFactory;
-use Core\Notification\Application\UseCase\AddNotification\Validator\NotificationUserValidator;
+use Core\Notification\Application\UseCase\AddNotification\Validator\NotificationValidator;
+use Core\Notification\Domain\Model\ConfigurationUser;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationMessage;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\ConfigurationUser;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -58,6 +60,7 @@ final class AddNotification
         private readonly WriteNotificationRepositoryInterface $writeNotificationRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactRepositoryInterface $contactRepository,
+        private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
         private readonly NotificationResourceRepositoryProviderInterface $resourceRepositoryProvider,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
@@ -98,8 +101,14 @@ final class AddNotification
             );
             $newResources = $notificationResourceFactory->createMultipleResource($request->resources);
 
-            $userValidator = new NotificationUserValidator();
-            $userValidator->validate($request->users, $this->contactRepository);
+            $validator = new NotificationValidator();
+            $validator->validateUsersAndContactGroups(
+                $request->users,
+                $request->contactGroups,
+                $this->contactRepository,
+                $this->contactGroupRepository,
+                $this->user
+            );
 
             try {
                 $this->dataStorageEngine->startTransaction();
@@ -108,6 +117,7 @@ final class AddNotification
 
                 $this->writeNotificationRepository->addMessages($newNotificationId, $newMessages);
                 $this->writeNotificationRepository->addUsers($newNotificationId, $request->users);
+                $this->writeNotificationRepository->addContactGroups($newNotificationId, $request->contactGroups);
                 $this->addResources($newNotificationId, $newResources);
 
                 $this->dataStorageEngine->commitTransaction();
@@ -123,6 +133,7 @@ final class AddNotification
             $presenter->present($this->createResponse(
                 $createdNotificationInformation['notification'],
                 $createdNotificationInformation['users'],
+                $createdNotificationInformation['contactgroups'],
                 $createdNotificationInformation['resources'],
                 $createdNotificationInformation['messages']
             ));
@@ -187,6 +198,7 @@ final class AddNotification
     /**
      * @param Notification $notification
      * @param ConfigurationUser[] $users
+     * @param ContactGroup[] $contactGroups
      * @param NotificationResource[] $resources
      * @param NotificationMessage[] $messages
      *
@@ -195,6 +207,7 @@ final class AddNotification
     private function createResponse(
         Notification $notification,
         array $users,
+        array $contactGroups,
         array $resources,
         array $messages,
     ): CreatedResponse {
@@ -220,6 +233,14 @@ final class AddNotification
         $response->users = array_map(
             static fn(ConfigurationUser $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
             $users
+        );
+
+        $response->contactGroups = array_map(
+            static fn(ContactGroup $contactGroup): array => [
+                'id' => $contactGroup->getId(),
+                'name' => $contactGroup->getName(),
+            ],
+            $contactGroups
         );
 
         foreach ($resources as $resource) {
@@ -258,6 +279,7 @@ final class AddNotification
      *  notification: Notification,
      *  messages: NotificationMessage[],
      *  users: ConfigurationUser[],
+     *  contactgroups: ContactGroup[],
      *  resources: NotificationResource[]
      * }
      */
@@ -268,6 +290,7 @@ final class AddNotification
                 ?? throw NotificationException::errorWhileRetrievingObject(),
             'messages' => $this->readNotificationRepository->findMessagesByNotificationId($newNotificationId),
             'users' => $this->readNotificationRepository->findUsersByNotificationId($newNotificationId),
+            'contactgroups' => $this->readNotificationRepository->findContactGroupsByNotificationId($newNotificationId),
             'resources' => $this->findResourcesByNotificationId($newNotificationId),
         ];
     }

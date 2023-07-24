@@ -86,7 +86,6 @@ class ServiceTemplateConfigurationContext extends CentreonContext
         'icon' => 'centreon (png)',
         'alt_icon' => 'serviceAltIcon',
         'severity' => 'serviceCategory2Name (2)',
-        'status' => 1,
         'comments' => 'serviceComments'
     );
 
@@ -144,7 +143,6 @@ class ServiceTemplateConfigurationContext extends CentreonContext
         'icon' => 'centreon (png)',
         'alt_icon' => 'serviceAltIcon',
         'severity' => 'serviceCategory2Name (2)',
-        'status' => 1,
         'comments' => 'serviceComments'
     );
 
@@ -202,7 +200,6 @@ class ServiceTemplateConfigurationContext extends CentreonContext
         'icon' => '',
         'alt_icon' => 'Empty',
         'severity' => 'serviceCategory1Name (3)',
-        'status' => 1,
         'comments' => 'serviceCommentsChanged'
     );
 
@@ -263,7 +260,6 @@ class ServiceTemplateConfigurationContext extends CentreonContext
         'icon' => '',
         'alt_icon' => 'Empty',
         'severity' => 'serviceCategory1Name (3)',
-        'status' => 1,
         'comments' => 'serviceCommentsChanged'
     );
 

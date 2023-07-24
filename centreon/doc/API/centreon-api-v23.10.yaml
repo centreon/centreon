@@ -6,9 +6,9 @@ info:
     + Added host severities endpoints (GET, PUT)
     + Added host categories endpoint (GET, PUT)
     + Added host group endpoints (GET, PUT)
-    + Added notification endpoint (POST)
-    + Added service templates endpoints (GET)
-    + Add host template endpoints (POST, DELETE, PATCH)
+    + Added notification endpoints (POST, PATCH)
+    + Added service templates endpoints (GET, POST, DELETE, PATCH)
+    + Added host template endpoints (POST, DELETE, PATCH)
     +
     # Updated features
     + Updated host template endpoint (GET)
@@ -54,6 +54,7 @@ tags:
   - name: Administration
   - name: Authentication
     description: "Login and logout endpoints to retrieve authentication token"
+  - name: Command
   - name: Downtime
   - name: Gorgone
   - name: Host
@@ -247,12 +248,20 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/commands:
+    $ref: "./v23.10/Configuration/Command/FindCommands.yaml"
   /configuration/notifications:
     $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
+  /configuration/notifications/_delete:
+    $ref: "./v23.10/Configuration/Notification/DeleteNotifications.yaml"
+  /configuration/notifications/{notification_id}:
+    $ref: "./v23.10/Configuration/Notification/Notification.yaml"
   /configuration/hosts/templates:
     $ref: './v23.10/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
     $ref: './v23.10/Configuration/HostTemplate/DeleteAndPartialUpdateHostTemplate.yaml'
+  /configuration/hosts:
+    $ref: './v23.10/Configuration/Host/AddHost.yaml'
   /configuration/hosts/categories:
     get:
       tags:
@@ -1547,135 +1556,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/users:
-    get:
-      tags:
-      - User
-      summary: Get configured users
-      description: |
-        Get list of configured users
-
-        The available parameters to **search** / **sort_by** are:
-
-        * id
-        * alias
-        * name
-        * email
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Configuration.User'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './v23.10/Configuration/Users/Users.yaml'
   /configuration/users/current/parameters:
-    get:
-      tags:
-      - User
-      summary: "List user parameters"
-      description: "List configured parameters for the current user"
-      responses:
-        '200':
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    description: Contact ID
-                    example: 1
-                  name:
-                    type: string
-                    description: Name of the current user
-                    example: Administrator
-                  alias:
-                    type: string
-                    description: Alias of the current user
-                    example: admin
-                  email:
-                    type: string
-                    description: Email of the current user
-                    example: admin@localhost
-                  timezone:
-                    type: string
-                    description: Timezone for the current user
-                    example: Europe/Paris
-                  locale:
-                    type: string
-                    nullable: true
-                    description: Locale of the current user
-                    example: en_US
-                  is_admin:
-                    type: boolean
-                    description: If the current user is an administrator
-                    example: true
-                  use_deprecated_pages:
-                    type: boolean
-                    description: Indicates if user wants to use deprecated monitoring pages
-                    example: false
-                  theme:
-                    type: string
-                    description: Selected theme of the current user
-                    example: light
-                  user_interface_density:
-                    type: string
-                    description: Selected user interface density for the current user
-                    example: extended
-                    default: compact
-                  default_page:
-                    type: string
-                    nullable: true
-                    description: Default page for the current user
-                    example: '/main.php?p=60901'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    patch:
-      tags:
-      - User
-      summary: Update a user
-      description: |
-        Update a user
-
-        The available parameters to be updated are :
-
-        * theme
-        * user_interface_density
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                theme:
-                  type: string
-                  description: Theme
-                  enum: [ light, dark ]
-                  example: light
-                user_interface_density:
-                  type: string
-                  description: User interface view mode
-                  enum: [ compact, extended ]
-                  example: extended
-      responses:
-        204:
-          description: "User updated"
-        403:
-          $ref: '#/components/responses/Forbidden'
-        500:
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './v23.10/Configuration/Users/CurrentParameters.yaml'
   /configuration/contacts/templates:
     get:
       tags:
@@ -1732,6 +1615,18 @@ paths:
     $ref: './v23.10/Configuration/Dashboard/Dashboards.yaml'
   /configuration/dashboards/{dashboard_id}:
     $ref: './v23.10/Configuration/Dashboard/Dashboard.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contacts:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContacts.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContact.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contactgroups:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContactGroups.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContactGroup.yaml'
+  /configuration/dashboards/contacts:
+    $ref: './v23.10/Configuration/Dashboard/Contacts.yaml'
+  /configuration/dashboards/contactgroups:
+    $ref: './v23.10/Configuration/Dashboard/ContactGroups.yaml'
   /configuration/access-groups:
     get:
       tags:
@@ -4376,33 +4271,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /platform/versions:
-    get:
-      tags:
-        - Platform
-      summary: "List versions of web, widgets and modules"
-      description: "List versions of web, widgets and modules"
-      responses:
-        '200':
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  web:
-                      $ref: '#/components/schemas/Platform.Versions'
-                  widgets:
-                    type: object
-                    properties:
-                      widgetName:
-                        type: object
-                        $ref: '#/components/schemas/Platform.Versions'
-                  modules:
-                    type: object
-                    properties:
-                      moduleName:
-                        type: object
-                        $ref: '#/components/schemas/Platform.Versions'
+    $ref: './v23.10/Platform/Versions.yaml'
   /platform/updates:
     $ref: "./v22.10/Administration/updates.yaml"
   /platform/installation/status:
@@ -6389,25 +6258,6 @@ components:
           type: string
           description: "Time range for the day"
           example: "00:00-06:00,07:00-08:00"
-    Configuration.User:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: User id
-          example: 1
-        alias:
-          type: string
-          description: User alias / login
-          example: admin
-        email:
-          type: string
-          description: email address
-          example: root@localhost
-        is_admin:
-          type: boolean
-          description: is admin or not
-          example: true
     Configuration.Host.Category:
       type: object
       properties:
@@ -8806,26 +8656,6 @@ components:
                 type: string
                 description: "Data on JSON Format"
                 example: "{\"action\":\"getthumbprint\",\"data\":{\"thumbprint\":\"xxxx_xxxxxxxxx\"},\"message\":\"ok\"}"
-    Platform.Versions:
-      type: object
-      description: "version"
-      properties:
-        version:
-          type: string
-          description: "Full Version"
-          example: 22.04.0
-        major:
-          type: string
-          description: "Major version"
-          example: "22"
-        minor:
-          type: string
-          description: "Minor version"
-          example: "04"
-        fix:
-          type: string
-          description: "Fix version"
-          example: "0"
     Administration.Vault.Configuration.Write:
       type: object
       required: [name, address, port, root_path, role_id, secret_id]

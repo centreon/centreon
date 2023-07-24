@@ -36,9 +36,44 @@ $errorMessage = "Couldn't modify resources table";
 $alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED, 
     MODIFY max_check_attempts SMALLINT UNSIGNED";
 
+$alterMetricsTable = function(CentreonDB $pearDBO) {
+    $pearDBO->query(
+        <<<'SQL'
+            ALTER TABLE `metrics`
+            MODIFY COLUMN `metric_name` VARCHAR(1021) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL
+            SQL
+    );
+};
+
+$enableDisabledServiceTemplates = function(CentreonDB $pearDB) {
+    $pearDB->query(
+        <<<'SQL'
+            UPDATE `service`
+                SET service_activate = '1'
+            WHERE service_register = '0'
+                AND service_activate = '0'
+            SQL
+    );
+};
+
+$enableDisabledHostTemplates = function(CentreonDB $pearDB) {
+    $pearDB->query(
+        <<<'SQL'
+            UPDATE `host`
+                SET host_activate = '1'
+            WHERE host_register = '0'
+                AND host_activate = '0'
+            SQL
+    );
+};
+
 try {
 
     $pearDBO->query($alterResourceTableStmnt);
+
+    $errorMessage = 'Impossible to alter metrics table';
+    $alterMetricsTable($pearDBO);
+
     $errorMessage = '';
     // Transactional queries
     if (! $pearDB->inTransaction()) {
@@ -46,6 +81,12 @@ try {
     }
     $errorMessage = "Unable to Delete nagios_path_img from options table";
     $removeNagiosPathImg($pearDB);
+
+    $errorMessage = 'Unable to activate deactivated service templates';
+    $enableDisabledServiceTemplates($pearDB);
+
+    $errorMessage = 'Unable to activate deactivated host templates';
+    $enableDisabledHostTemplates($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {

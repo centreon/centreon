@@ -1,7 +1,7 @@
 export const labelDashboards = 'Dashboards';
 export const labelDashboard = 'Dashboard';
 export const labelCreateADashboard = 'Create a dashboard';
-export const labelNoDashboardsFound = 'No dashboards found';
+export const labelNoDashboardsFound = 'No dashboards available';
 export const labelCancel = 'Cancel';
 export const labelCreate = 'Create';
 export const labelUpdate = 'Update';
@@ -11,10 +11,8 @@ export const labelDescription = 'Description';
 export const labelCreateDashboard = 'Create dashboard';
 export const labelUpdateDashboard = 'Update dashboard';
 export const labelDeleteDashboard = 'Delete dashboard';
-// note: the full sentence is 'Are you sure you want to delete <strong>{{name}}</strong> ?'
-export const labelDescriptionDeleteDashboardPartOne =
-  'Are you sure you want to delete ';
-export const labelDescriptionDeleteDashboardPartTwo = ' ?';
+export const labelDescriptionDeleteDashboard =
+  'Are you sure you want to delete <strong>{{name}}</strong> ?';
 
 export const labelDashboardCreated = 'Dashboard created';
 export const labelDashboardUpdated = 'Dashboard updated';
@@ -22,4 +20,20 @@ export const labelDashboardDeleted = 'Dashboard deleted';
 export const labelFailedToCreateDashboard = 'Failed to create the dashboard';
 export const labelFailedToUpdateDashboard = 'Failed to update the dashboard';
 export const labelFailedToDeleteDashboard = 'Failed to delete the dashboard';
-export const labelLoading = 'Loading';
+export const labelShareTheDashboard = 'Share the dashboard';
+
+export const labelEditAccessRights = 'Manage access rights';
+export const labelCopyLinkToDashboard = 'Copy link';
+export const labelCopyLinkToDashboardSuccess = 'Link copied';
+export const labelCopyLinkToDashboardError = 'Unable to copy the link';
+export const labelAdd = 'Add';
+export const labelContactGroupTag = 'group';
+export const labelContactNoOptionsText = 'No contacts found';
+export const labelContactPlaceholder = 'Add Contact...';
+export const labelAccessRightsListEmptyState = 'No access rights';
+export const labelAccessRightStateAdded = 'added';
+export const labelAccessRightStateRemoved = 'removed';
+export const labelAccessRightStateUpdated = 'updated';
+export const labelAccessRightsStatsAdded = 'added';
+export const labelAccessRightsStatsRemoved = 'removed';
+export const labelAccessRightsStatsUpdated = 'updated';

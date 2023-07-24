@@ -1,0 +1,95 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "ID of the notification"
+    example: 1
+  name:
+    type: string
+    description: "Name of the notification"
+    example: "notification-name"
+  timeperiod:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: "ID of the timeperiod"
+        example: 1
+      name:
+        type: string
+        description: "Name of the timeperiod"
+        example: "24x7"
+  is_activated:
+    type: boolean
+    description: "notification status"
+    example: true
+  messages:
+    type: array
+    items:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: "Channel used to send the notification"
+        subject:
+          type: string
+          description: "Subject of the message"
+        message:
+          type: string
+          description: "Content of the message"
+  users:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "ID of the user"
+        name:
+          type: string
+          description: "Name of the user"
+  contactgroups:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "ID of the contact group"
+        name:
+          type: string
+          description: "Name of the contact group"
+  resources:
+    type: array
+    items:
+      type: object
+      properties:
+        type:
+          type: string
+          description: "Type of resource"
+          example: "hostgroup"
+        events:
+          type: number
+          description: bitmask value of events
+          example: 5
+        ids:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+                description: "ID of the resource"
+                example: 1
+              name:
+                type: string
+                description: "Name of the resource"
+                example: "My Hostgroup"
+        extra:
+          type: object
+          properties:
+            event_services:
+              type: array
+              items:
+                type: number
+

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,32 +32,38 @@ interface ReadOpenIdConfigurationRepositoryInterface
 {
     /**
      * @param int $providerConfigurationId
+     *
      * @return array<AuthorizationRule>
      */
     public function getAuthorizationRulesByConfigurationId(int $providerConfigurationId): array;
 
     /**
-     * Get Contact Template
+     * Get Contact Template.
      *
      * @param int $contactTemplateId
-     * @return ContactTemplate|null
+     *
      * @throws \Throwable
+     *
+     * @return ContactTemplate|null
      */
     public function getContactTemplate(int $contactTemplateId): ?ContactTemplate;
 
     /**
-     * Get Contact Group
+     * Get Contact Group.
      *
      * @param int $contactGroupId
-     * @return ContactGroup|null
+     *
      * @throws \Throwable
+     *
+     * @return ContactGroup|null
      */
     public function getContactGroup(int $contactGroupId): ?ContactGroup;
 
     /**
-     * Get Contact Group Relations by provider configuration id
+     * Get Contact Group Relations by provider configuration id.
      *
      * @param int $providerConfigurationId
+     *
      * @return ContactGroupRelation[]
      */
     public function getContactGroupRelationsByConfigurationId(int $providerConfigurationId): array;

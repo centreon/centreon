@@ -469,6 +469,15 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             ->setRoles($user->getRoles())
             ->setTopologyRules($user->getTopologyRules())
             ->setAccessToApiRealTime($user->hasAccessToApiRealTime())
-            ->setAccessToApiConfiguration($user->hasAccessToApiConfiguration());
+            ->setAccessToApiConfiguration($user->hasAccessToApiConfiguration())
+            ->setLang($user->getLang())
+            ->setAllowedToReachWeb($user->isAllowedToReachWeb())
+            ->setToken($user->getToken())
+            ->setEncodedPassword($user->getEncodedPassword())
+            ->setTimezoneId($user->getTimezoneId())
+            ->setDefaultPage($user->getDefaultPage())
+            ->setUseDeprecatedPages($user->isUsingDeprecatedPages())
+            ->setTheme($user->getTheme())
+            ->setUserInterfaceDensity($user->getUserInterfaceDensity());
     }
 }

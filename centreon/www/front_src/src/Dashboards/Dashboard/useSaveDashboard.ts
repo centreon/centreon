@@ -4,7 +4,8 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import { getDashboardEndpoint } from './api/endpoints';
+import { getDashboardEndpoint } from '../api/endpoints';
+
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from './atoms';
 import { Panel, PanelDetailsToAPI } from './models';
 import { labelYourDashboardHasBeenSaved } from './translatedLabels';

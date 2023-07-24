@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,14 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Repository\DataBin;
 
-use PDO;
-use DateTimeInterface;
+use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
 use Core\Domain\RealTime\Model\Metric;
 use Core\Domain\RealTime\Model\MetricValue;
 use Core\Domain\RealTime\Model\PerformanceMetric;
-use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use DateTimeInterface;
+use PDO;
 
 class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements ReadPerformanceDataRepositoryInterface
 {
@@ -43,9 +43,12 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
     }
 
     /**
-     * Retrieves raw data_bin with filters
+     * Retrieves raw data_bin with filters.
      *
-     * @param  array<Metric> $metrics
+     * @param array<Metric> $metrics
+     * @param DateTimeInterface $startDate
+     * @param DateTimeInterface $endDate
+     *
      * @return iterable<PerformanceMetric>
      */
     public function findDataByMetricsAndDates(
@@ -70,28 +73,29 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
     }
 
     /**
-     * Generates SQL query statement to extract metric data from table data_bin
+     * Generates SQL query statement to extract metric data from table data_bin.
      *
-     * @param  array<Metric> $metrics
+     * @param array<Metric> $metrics
+     *
      * @return string
      */
     private function generateDataBinQuery(array $metrics): string
     {
         $metricIds = [];
         $subQueryColumns = [];
-        $subQueryPattern = 'AVG(CASE WHEN id_metric = %d THEN `value` end) AS %s';
+        $subQueryPattern = 'AVG(CASE WHEN id_metric = %d THEN `value` end) AS "%s"';
         foreach ($metrics as $metric) {
             $subQueryColumns[] = sprintf($subQueryPattern, $metric->getId(), $metric->getName());
             $metricIds[] = $metric->getId();
         }
 
         $pattern = 'SELECT %s FROM `:dbstg`.data_bin WHERE ';
-        $pattern .= ' ctime >= :start AND ctime < :end AND id_metric IN (%s) GROUP BY time';
+        $pattern .= ' ctime >= :start AND ctime < :end AND id_metric IN (%s) GROUP BY ctime';
 
         return sprintf(
             $pattern,
-            join(', ', ['ctime AS time', ...$subQueryColumns]),
-            join(',', $metricIds)
+            implode(', ', ['ctime', ...$subQueryColumns]),
+            implode(',', $metricIds)
         );
     }
 
@@ -100,7 +104,7 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
      */
     private function createPerformanceMetricFromDataBin(array $dataBin): PerformanceMetric
     {
-        $time = (new \DateTimeImmutable())->setTimestamp((int) $dataBin['time']);
+        $time = (new \DateTimeImmutable())->setTimestamp((int) $dataBin['ctime']);
         $metricValues = $this->createMetricValues($dataBin);
 
         return new PerformanceMetric($time, $metricValues);
@@ -108,16 +112,18 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
 
     /**
      * @param array<string, mixed> $data
+     *
      * @return MetricValue[]
      */
     private function createMetricValues(array $data): array
     {
         $metricValues = [];
         foreach ($data as $columnName => $columnValue) {
-            if ($columnName !== 'time') {
+            if ($columnName !== 'ctime') {
                 $metricValues[] = new MetricValue($columnName, (float) $columnValue);
             }
         }
+
         return $metricValues;
     }
 }
