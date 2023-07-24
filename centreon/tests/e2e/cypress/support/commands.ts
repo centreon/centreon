@@ -107,6 +107,13 @@ Cypress.Commands.add('logout', (): Cypress.Chainable => {
   return cy.contains('Logout').click();
 });
 
+Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
+  return cy.request({
+    method: 'GET',
+    url: '/centreon/authentication/logout'
+  });
+});
+
 Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   return cy.setUserTokenApiV1().then(() => {
     cy.executeActionViaClapi({
@@ -188,6 +195,7 @@ declare global {
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginKeycloack: (jsonName: string) => Cypress.Chainable;
       logout: () => Cypress.Chainable;
+      logoutViaAPI: () => Cypress.Chainable;
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;

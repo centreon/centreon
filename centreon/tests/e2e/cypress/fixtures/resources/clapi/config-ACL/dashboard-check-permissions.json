@@ -20,6 +20,11 @@
         "values": "name-administrator-ACLMENU;0;Home;Dashboard;Administrator;"
     },
     {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-administrator-ACLMENU;0;Monitoring;Resources Status"
+    },
+    {
         "action": "ADD",
         "object": "ACLGROUP",
         "values": "name-administrator-ACLGROUP;alias-administrator-ACLGROUP"
@@ -55,6 +60,11 @@
         "values": "name-creator-ACLMENU;0;Home;Dashboard;Creator;"
     },
     {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-creator-ACLMENU;0;Monitoring;Resources Status"
+    },
+    {
         "action": "ADD",
         "object": "ACLGROUP",
         "values": "name-creator-ACLGROUP;alias-creator-ACLGROUP"
@@ -83,6 +93,11 @@
         "action": "GRANTRW",
         "object": "ACLMENU",
         "values": "name-viewer-ACLMENU;0;Home;Dashboard;Viewer;"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "name-viewer-ACLMENU;0;Monitoring;Resources Status"
     },
     {
         "action": "ADD",

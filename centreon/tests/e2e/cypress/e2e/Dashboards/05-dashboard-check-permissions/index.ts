@@ -31,6 +31,7 @@ beforeEach(() => {
     loginViaApi: true
   });
   cy.insertDashboard({ ...dashboards.fromAdministratorUser });
+  cy.logoutViaAPI();
   cy.loginByTypeOfUser({
     jsonName: 'user-dashboard-creator',
     loginViaApi: true
@@ -41,6 +42,7 @@ beforeEach(() => {
     role: 'viewer',
     userName: 'user-dashboard-viewer'
   });
+  cy.logoutViaAPI();
 });
 
 after(() => {
@@ -52,12 +54,13 @@ afterEach(() => {
     database: 'centreon',
     query: 'DELETE FROM dashboard'
   });
+  cy.logout();
 });
 
 Given('an admin user is logged in on a platform with dashboards', () => {
   cy.loginByTypeOfUser({
     jsonName: 'admin',
-    loginViaApi: true
+    loginViaApi: false
   });
 });
 
@@ -142,7 +145,7 @@ Then("the admin user is allowed to update the dashboard's properties", () => {
 Given('an admin user on the dashboards library', () => {
   cy.loginByTypeOfUser({
     jsonName: 'admin',
-    loginViaApi: true
+    loginViaApi: false
   });
 
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
@@ -173,7 +176,8 @@ Then(
     );
     cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('admin admin').should('be.visible');
+    cy.contains('admin admin').should('be.visible');
     cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
   }
 );
