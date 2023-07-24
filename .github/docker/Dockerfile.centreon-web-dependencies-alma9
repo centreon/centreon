@@ -34,6 +34,7 @@ dnf install -y \
   net-snmp-perl \
   net-snmp-utils \
   openssl \
+  python3 \
   rrdtool \
   rrdtool-perl \
   rsync \
@@ -157,5 +158,7 @@ dnf install -y \
 dnf clean all --enablerepo=*
 
 EOF
+
+COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/init/* /etc/init.d/
