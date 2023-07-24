@@ -21,20 +21,21 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\FindNotificationsResources;
+namespace Core\Notification\Application\UseCase\FindNotifiableResources;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Notification\Domain\Model\NotifiableResource;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\NotModifiedResponse;
+use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
-use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotifiableResourceRepositoryInterface;
 
-final class FindNotificationsResources
+final class FindNotifiableResources
 {
     use LoggerTrait;
 
@@ -49,12 +50,12 @@ final class FindNotificationsResources
     }
 
     /**
-     * @param FindNotificationsResourcesPresenterInterface $presenter
+     * @param FindNotifiableResourcesPresenterInterface $presenter
      * @param string $requestUid
      *
      * @throws \Throwable
      */
-    public function __invoke(FindNotificationsResourcesPresenterInterface $presenter, string $requestUid): void
+    public function __invoke(FindNotifiableResourcesPresenterInterface $presenter, string $requestUid): void
     {
         try {
             if ($this->contact->isAdmin()) {
@@ -87,22 +88,22 @@ final class FindNotificationsResources
     }
 
     /**
-     * @param array $notifiableResources
+     * @param NotifiableResource[] $notifiableResources
      * @param string $calculatedUid
      *
-     * @return FindNotificationsResourcesResponse
+     * @return FindNotifiableResourcesResponse
      */
     private function createResponseDto(
         array $notifiableResources,
         string $calculatedUid
-    ): FindNotificationsResourcesResponse {
-        $responseDto = new FindNotificationsResourcesResponse();
+    ): FindNotifiableResourcesResponse {
+        $responseDto = new FindNotifiableResourcesResponse();
         $responseDto->uid = $calculatedUid;
         foreach ($notifiableResources as $notifiableResource) {
             $notifiableResourceDto = new NotifiableResourceDto();
             $notifiableResourceDto->notificationId = $notifiableResource->getNotificationId();
             foreach ($notifiableResource->getHosts() as $notificationHost) {
-                $notificationHostDto = new NotificationHostDto();
+                $notificationHostDto = new NotifiableHostDto();
                 $notificationHostDto->id = $notificationHost->getId();
                 $notificationHostDto->name = $notificationHost->getName();
                 $notificationHostDto->alias = $notificationHost->getAlias();
@@ -112,7 +113,7 @@ final class FindNotificationsResources
                     );
                 }
                 foreach ($notificationHost->getServices() as $notificationService) {
-                    $notificationServiceDto = new NotificationServiceDto();
+                    $notificationServiceDto = new NotifiableServiceDto();
                     $notificationServiceDto->id = $notificationService->getId();
                     $notificationServiceDto->name = $notificationService->getName();
                     $notificationServiceDto->alias = $notificationService->getAlias();

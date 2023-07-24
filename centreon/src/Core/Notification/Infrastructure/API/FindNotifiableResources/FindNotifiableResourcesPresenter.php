@@ -21,23 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Infrastructure\API\FindNotificationsResources;
+namespace Core\Notification\Infrastructure\API\FindNotifiableResources;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Notification\Application\UseCase\FindNotificationsResources\{
-    FindNotificationsResourcesPresenterInterface as PresenterInterface,
-    FindNotificationsResourcesResponse
+use Core\Notification\Application\UseCase\FindNotifiableResources\{
+    FindNotifiableResourcesPresenterInterface as PresenterInterface,
+    FindNotifiableResourcesResponse
 };
 
-class FindNotificationsResourcesPresenter extends AbstractPresenter implements PresenterInterface
+class FindNotifiableResourcesPresenter extends AbstractPresenter implements PresenterInterface
 {
     /**
      * @inheritDoc
      */
-    public function presentResponse(FindNotificationsResourcesResponse|ResponseStatusInterface $response): void
+    public function presentResponse(FindNotifiableResourcesResponse|ResponseStatusInterface $response): void
     {
-        if ($response instanceof FindNotificationsResourcesResponse) {
+        if ($response instanceof FindNotifiableResourcesResponse) {
             $result = [];
             foreach ($response->notifiableResources as $notifiableResource) {
                 $result[] = [

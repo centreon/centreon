@@ -27,7 +27,7 @@ class NotifiableResource
 {
     /**
      * @param int $notificationId
-     * @param array<NotificationHost> $hosts
+     * @param array<NotifiableHost> $hosts
      */
     public function __construct(
         private readonly int $notificationId,
@@ -44,7 +44,7 @@ class NotifiableResource
     }
 
     /**
-     * @return array<NotificationHost>
+     * @return array<NotifiableHost>
      */
     public function getHosts(): array
     {

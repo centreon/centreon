@@ -21,22 +21,13 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\FindNotificationsResources;
+namespace Core\Notification\Application\UseCase\FindNotifiableResources;
 
-class NotificationHostDto
+class NotifiableResourceDto
 {
     /** @var int */
-    public int $id = 0;
+    public int $notificationId = 0;
 
-    /** @var string */
-    public string $name = '';
-
-    /** @var string|null */
-    public ?string $alias = null;
-
-    /** @var int */
-    public int $events = 0;
-
-    /** @var array<NotificationServiceDto> */
-    public array $services = [];
+    /** @var array<NotifiableHostDto> */
+    public array $hosts = [];
 }

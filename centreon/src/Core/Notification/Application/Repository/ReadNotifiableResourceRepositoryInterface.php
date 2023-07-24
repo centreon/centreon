@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\Repository;
 
+use Core\Notification\Domain\Model\NotifiableResource;
+
 interface ReadNotifiableResourceRepositoryInterface
 {
     /**

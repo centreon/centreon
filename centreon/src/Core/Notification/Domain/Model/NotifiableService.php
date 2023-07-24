@@ -23,21 +23,19 @@ declare(strict_types=1);
 
 namespace Core\Notification\Domain\Model;
 
-class NotificationHost
+class NotifiableService
 {
     /**
      * @param int $id
      * @param string $name
      * @param string|null $alias
-     * @param array<NotificationHostEvent> $events
-     * @param array<NotificationService> $services
+     * @param array<NotificationServiceEvent> $events
      */
     public function __construct(
         private readonly int $id,
         private readonly string $name,
         private readonly ?string $alias,
-        private readonly array $events,
-        private readonly array $services = [],
+        private readonly array $events
     ) {
     }
 
@@ -66,18 +64,10 @@ class NotificationHost
     }
 
     /**
-     * @return array<NotificationHostEvent>
+     * @return array<NotificationServiceEvent>
      */
     public function getEvents(): array
     {
         return $this->events;
-    }
-
-    /**
-     * @return array<NotificationService>
-     */
-    public function getServices(): array
-    {
-        return $this->services;
     }
 }

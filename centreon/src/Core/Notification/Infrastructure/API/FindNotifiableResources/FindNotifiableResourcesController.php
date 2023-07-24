@@ -21,23 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Infrastructure\API\FindNotificationsResources;
+namespace Core\Notification\Infrastructure\API\FindNotifiableResources;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Notification\Application\UseCase\FindNotificationsResources\FindNotificationsResources;
+use Core\Notification\Application\UseCase\FindNotifiableResources\FindNotifiableResources;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-final class FindNotificationsResourcesController extends AbstractController
+final class FindNotifiableResourcesController extends AbstractController
 {
     use LoggerTrait;
 
     /**
-     * @param FindNotificationsResources $useCase
-     * @param FindNotificationsResourcesPresenter $presenter
+     * @param FindNotifiableResources $useCase
+     * @param FindNotifiableResourcesPresenter $presenter
      * @param Request $request
      *
      * @throws AccessDeniedException|\Throwable
@@ -46,21 +46,21 @@ final class FindNotificationsResourcesController extends AbstractController
      */
     public function __invoke(
         Request $request,
-        FindNotificationsResources $useCase,
-        FindNotificationsResourcesPresenter $presenter
+        FindNotifiableResources $useCase,
+        FindNotifiableResourcesPresenter $presenter
     ): Response {
 
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        $requestUID = $request->headers->get('X-Notifications-Resources-UID', null);
-        if (! \is_string($requestUID)) {
+        $requestUid = $request->headers->get('X-Notifications-Resources-UID', null);
+        if (! \is_string($requestUid)) {
             $presenter->presentResponse(new InvalidArgumentResponse('Missing header'));
             $this->error(
                 'Missing header "X-Notifications-Resources-UID"',
-                ['X-Notifications-Resources-UID' => $requestUID]
+                ['X-Notifications-Resources-UID' => $requestUid]
             );
         } else {
-            $useCase($presenter, $requestUID);
+            $useCase($presenter, $requestUid);
         }
 
         return $presenter->show();

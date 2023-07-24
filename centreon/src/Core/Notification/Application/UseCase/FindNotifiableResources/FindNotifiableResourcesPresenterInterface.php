@@ -21,13 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\FindNotificationsResources;
+namespace Core\Notification\Application\UseCase\FindNotifiableResources;
 
-final class FindNotificationsResourcesResponse
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+interface FindNotifiableResourcesPresenterInterface
 {
-    /** @var string */
-    public string $uid = '';
-
-    /** @var array<NotifiableResourceDto> */
-    public array $notifiableResources = [];
+    /**
+     * @param FindNotifiableResourcesResponse|ResponseStatusInterface $response
+     */
+    public function presentResponse(FindNotifiableResourcesResponse|ResponseStatusInterface $response): void;
 }

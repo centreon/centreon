@@ -19,7 +19,7 @@ get:
               result:
                 type: array
                 items:
-                  $ref: "Schema/Notification.Resources.Listing.yaml"
+                  $ref: "Schema/NotifiableResources.Listing.yaml"
     '304':
       $ref: "../../Common/Response/NotModified.yaml"
     '400':

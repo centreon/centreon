@@ -38,9 +38,9 @@ class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implement
 
     /**
      * @param DatabaseConnection $db
-     * @param \Traversable $notifiableResourceRequestProviders
+     * @param NotifiableResourceRequestProviderInterface[] $notifiableResourceRequestProviders
      */
-    public function __construct(DatabaseConnection $db, \Traversable $notifiableResourceRequestProviders)
+    public function __construct(DatabaseConnection $db, iterable $notifiableResourceRequestProviders)
     {
         $this->db = $db;
         $requestProvidersAsArray = \is_array($notifiableResourceRequestProviders)
