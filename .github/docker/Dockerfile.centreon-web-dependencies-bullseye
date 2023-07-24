@@ -146,7 +146,7 @@ apt-get clean
 
 EOF
 
-COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
+COPY --chmod=755 ./.github/docker/init/systemctl /bin/systemctl
 
 COPY --chmod=755 ./.github/docker/init/* /etc/init.d/
 
