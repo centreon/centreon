@@ -14,6 +14,7 @@ BuildRequires: perl-devel
 Requires:   bzip2
 Requires:   perl-Libssh-Session >= 0.8
 Requires:   perl-CryptX
+Requires:   perl-Mojolicious
 Requires:   perl(Archive::Tar)
 Requires:   perl(Schedule::Cron)
 Requires:   perl(ZMQ::FFI)
