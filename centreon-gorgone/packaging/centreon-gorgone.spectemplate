@@ -82,6 +82,7 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__cp} centreon-gorgone/contrib/gorgone_config_init.pl %{buildroot}%{_usr}/local/bin/
 %{__cp} centreon-gorgone/contrib/gorgone_audit.pl %{buildroot}%{_usr}/local/bin/
 %{__cp} centreon-gorgone/contrib/gorgone_install_plugins.pl %{buildroot}%{_usr}/local/bin/
+%{__cp} centreon-gorgone/contrib/gorgone_key_thumbprint.pl %{buildroot}%{_usr}/local/bin/
 
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/
