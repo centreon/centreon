@@ -26,8 +26,8 @@ namespace Core\Notification\Application\UseCase\FindNotifiableResources;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotFoundResponse, NotModifiedResponse};
-use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Converter\{NotificationHostEventConverter, NotificationServiceEventConverter};
+use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotifiableResourceRepositoryInterface;
 use Core\Notification\Domain\Model\NotifiableResource;
 
