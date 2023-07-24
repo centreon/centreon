@@ -9,6 +9,6 @@
     },
     "fromCurrentUser": {
       "name": "dashboard-created-by-current-user",
-      "description": "by-current-user"
+      "description": null
     }
   }
