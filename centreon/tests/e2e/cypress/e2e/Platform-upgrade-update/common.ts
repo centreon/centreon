@@ -266,7 +266,6 @@ When('administrator updates packages to current version', () => {
 });
 
 When('administrator runs the update procedure', () => {
-  cy.wait(9999999);
   cy.visit('/');
 
   cy.wait('@getStep1').then(() => {
