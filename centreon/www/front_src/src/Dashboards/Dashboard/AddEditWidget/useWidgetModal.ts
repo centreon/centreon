@@ -1,11 +1,16 @@
 import { startTransition } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
 
 import { Panel, PanelConfiguration } from '../models';
-import { addPanelDerivedAtom, setPanelOptionsDerivedAtom } from '../atoms';
+import {
+  addPanelDerivedAtom,
+  removePanelDerivedAtom,
+  setPanelOptionsDerivedAtom
+} from '../atoms';
 
-import { widgetFormInitialDataAtom } from './atoms';
+import { widgetFormInitialDataAtom, widgetPropertiesAtom } from './atoms';
 import { Widget } from './models';
 
 interface useWidgetModalState {
@@ -22,7 +27,9 @@ const useWidgetModal = (): useWidgetModalState => {
   );
 
   const addPanel = useSetAtom(addPanelDerivedAtom);
+  const deletePanel = useSetAtom(removePanelDerivedAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsDerivedAtom);
+  const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
   const openModal = (widget: Panel | null): void =>
     startTransition(() =>
@@ -35,7 +42,10 @@ const useWidgetModal = (): useWidgetModalState => {
     );
 
   const closeModal = (): void =>
-    startTransition(() => setWidgetFormInitialDataAtom(null));
+    startTransition(() => {
+      setWidgetFormInitialDataAtom(null);
+      setWidgetProperties(null);
+    });
 
   const addWidget = (values: Widget): void => {
     const panelConfiguration = values.panelConfiguration as PanelConfiguration;
@@ -51,6 +61,23 @@ const useWidgetModal = (): useWidgetModalState => {
   };
 
   const editWidget = (values: Widget): void => {
+    if (!equals(values.moduleName, widgetFormInitialData?.moduleName)) {
+      const panelConfiguration =
+        values.panelConfiguration as PanelConfiguration;
+
+      deletePanel(widgetFormInitialData?.id as string);
+      addPanel({
+        height: panelConfiguration.panelMinHeight,
+        moduleName: values.moduleName || '',
+        options: values.options,
+        panelConfiguration,
+        width: panelConfiguration.panelMinWidth
+      });
+      closeModal();
+
+      return;
+    }
+
     setPanelOptions({
       id: values.id as string,
       options: values.options
