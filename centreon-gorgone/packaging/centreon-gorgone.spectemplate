@@ -110,6 +110,7 @@ rm -rf %{buildroot}
 %attr(755, root, root) %{_usr}/local/bin/gorgone_config_init.pl
 %attr(755, root, root) %{_usr}/local/bin/gorgone_audit.pl
 %attr(750, root, root) %{_usr}/local/bin/gorgone_install_plugins.pl
+%attr(750, root, root) %{_usr}/local/bin/gorgone_key_thumbprint.pl
 %attr(755, root, root) %{_sysconfdir}/systemd/system/gorgoned.service
 %config(noreplace) %{_sysconfdir}/sysconfig/gorgoned
 %config(noreplace) %{_sysconfdir}/logrotate.d/gorgoned
