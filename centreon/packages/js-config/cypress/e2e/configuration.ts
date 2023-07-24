@@ -58,6 +58,7 @@ export default ({
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: true,
+    videoCompression: 0,
     videosFolder: `${resultsFolder}/videos`
   });
 };
