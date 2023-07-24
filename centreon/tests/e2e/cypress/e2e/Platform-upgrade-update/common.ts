@@ -2,17 +2,24 @@ import { insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
 
-const checkIfSystemUserRoot = (): Cypress.Chainable => {
-  return cy
-    .exec(`docker exec -i ${Cypress.env('dockerName')} whoami`)
-    .then(({ stdout }): Cypress.Chainable<null> | null => {
-      const isRoot = stdout === 'root';
-      if (isRoot) {
-        return null;
-      }
+const getCentreonPreviousMajorVersion = (majorVersionFrom: string): string => {
+  const match = majorVersionFrom.match(/^(\d+)\.(\d+)$/);
 
-      throw new Error(`System user is not root.`);
-    });
+  if (match === null) {
+    throw new Error(`Cannot parse major version ${majorVersionFrom}`);
+  }
+
+  let year = match[1];
+  let month = match[2];
+
+  if (month === '04') {
+    year = (Number(year) - 1).toString();
+    month = '10';
+  } else {
+    month = '04';
+  }
+
+  return `${year}.${month}`;
 };
 
 const getCentreonStableMinorVersions = (
@@ -253,7 +260,7 @@ const insertResources = (): Cypress.Chainable => {
 };
 
 export {
-  checkIfSystemUserRoot,
+  getCentreonPreviousMajorVersion,
   getCentreonStableMinorVersions,
   installCentreon,
   updatePlatformPackages,

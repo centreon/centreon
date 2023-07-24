@@ -154,3 +154,8 @@ jobs:
         with:
           path: ./*.${{ inputs.package_extension }}
           key: ${{ inputs.cache_key }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: packages-${{ inputs.package_extension }}
+          path: ./*.${{ inputs.package_extension }}
