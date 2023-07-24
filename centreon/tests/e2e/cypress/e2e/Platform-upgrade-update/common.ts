@@ -279,7 +279,7 @@ When('administrator runs the update procedure', () => {
     cy.get('.btc.bt_info').eq(0).click();
   });
 
-  cy.wait('@getStep3').get('.btc.bt_info').eq(0).click();
+  cy.wait('@getStep3').get('.btc.bt_info', { timeout: 15000 }).eq(0).click();
 
   cy.wait('@generatingCache')
     .get('span[style]', { timeout: 15000 })
