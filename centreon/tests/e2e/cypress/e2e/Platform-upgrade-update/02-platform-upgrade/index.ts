@@ -95,9 +95,9 @@ beforeEach(() => {
 Given(
   'a running platform in major {string} with {string} version',
   (major_version_from_expression: string, version_from_expression: string) => {
-    cy.getWebVersion().then(({ major_version, minor_version }) => {
+    cy.getWebVersion().then(({ major_version }) => {
       let major_version_from = '0';
-      switch (version_from_expression) {
+      switch (major_version_from_expression) {
         case 'n - 1':
           major_version_from = getCentreonPreviousMajorVersion(major_version);
           break;
