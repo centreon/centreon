@@ -5,7 +5,8 @@
     "text": {
       "type": "textfield",
       "defaultValue": "",
-      "label": "Text"
+      "label": "Generic text",
+      "required": true
     }
   },
   "moduleName": "centreon-widget-input"

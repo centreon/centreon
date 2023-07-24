@@ -1,20 +1,26 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { propEq, find } from 'ramda';
+import { useAtom } from 'jotai';
 
 import { Widget, WidgetPropertyProps } from '../models';
 import useFederatedWidgets from '../../../../federatedModules/useFederatedWidgets';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
+import { widgetPropertiesAtom } from '../atoms';
 
 import { WidgetTextField } from './Inputs';
 
-interface WidgetPropertiesRenderer {
+import { useDeepCompare } from 'packages/ui/src';
+
+export interface WidgetPropertiesRenderer {
   Component: (props: WidgetPropertyProps) => JSX.Element;
   key: string;
   props: {
     label: string;
     propertyName: string;
+    required?: boolean;
+    type: FederatedWidgetOptionType;
   };
 }
 
@@ -22,33 +28,49 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.textfield]: WidgetTextField
 };
 
-export const useWidgetProperties = (): Array<WidgetPropertiesRenderer> => {
-  const { values } = useFormikContext<Widget>();
+export const useWidgetProperties =
+  (): Array<WidgetPropertiesRenderer> | null => {
+    const { values, validateForm } = useFormikContext<Widget>();
 
-  const { federatedWidgetsProperties } = useFederatedWidgets();
+    const [widgetProperties, setWidgetProperties] =
+      useAtom(widgetPropertiesAtom);
 
-  const widgetProperties =
-    find(
-      propEq('moduleName', values.moduleName),
-      federatedWidgetsProperties || []
-    )?.options || {};
+    const { federatedWidgetsProperties } = useFederatedWidgets();
 
-  const inputs = useMemo(
-    () =>
-      Object.entries(widgetProperties).map(([key, value]) => {
-        const Component = propertiesInputType[value.type];
+    const selectedWidgetProperties =
+      find(
+        propEq('moduleName', values.moduleName),
+        federatedWidgetsProperties || []
+      )?.options || null;
 
-        return {
-          Component,
-          key,
-          props: {
-            label: 'Text',
-            propertyName: key
-          }
-        };
-      }),
-    [widgetProperties]
-  );
+    const inputs = useMemo(
+      () =>
+        selectedWidgetProperties
+          ? Object.entries(selectedWidgetProperties).map(([key, value]) => {
+              const Component = propertiesInputType[value.type];
 
-  return inputs;
-};
+              return {
+                Component,
+                key,
+                props: {
+                  label: value.label,
+                  propertyName: key,
+                  required: value.required,
+                  type: value.type
+                }
+              };
+            })
+          : null,
+      [selectedWidgetProperties]
+    );
+
+    useEffect(() => {
+      setWidgetProperties(inputs);
+    }, useDeepCompare([inputs]));
+
+    useEffect(() => {
+      validateForm();
+    }, useDeepCompare([widgetProperties]));
+
+    return inputs;
+  };

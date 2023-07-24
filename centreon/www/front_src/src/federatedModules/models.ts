@@ -32,6 +32,7 @@ export enum FederatedWidgetOptionType {
 export interface FederatedWidgetOption {
   defaultValue: unknown;
   label: string;
+  required?: boolean;
   type: FederatedWidgetOptionType;
 }
 

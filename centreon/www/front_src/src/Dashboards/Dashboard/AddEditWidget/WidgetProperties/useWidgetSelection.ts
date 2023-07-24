@@ -75,12 +75,16 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       {}
     );
 
-    setValues({
+    setValues((currentValues) => ({
       id: selectedWidget.moduleName,
       moduleName: selectedWidget.moduleName,
-      options,
+      options: {
+        ...options,
+        description: currentValues.options.description,
+        name: currentValues.options.name
+      },
       panelConfiguration: selectedWidget.federatedComponentsConfiguration
-    });
+    }));
   };
 
   const selectedWidget = formattedWidgets.find(({ id }) =>

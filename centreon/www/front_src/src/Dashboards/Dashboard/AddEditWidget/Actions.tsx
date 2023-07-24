@@ -14,10 +14,13 @@ interface Props {
 const Actions = ({ isAddingWidget, closeModal }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const { handleSubmit } = useFormikContext();
+  const { handleSubmit, isValid, dirty } = useFormikContext();
+
+  const isDisabled = !dirty || !isValid;
 
   return (
     <Modal.Actions
+      disabled={isDisabled}
       labels={{
         cancel: t(labelCancel),
         confirm: t(isAddingWidget ? labelAdd : labelEdit)
