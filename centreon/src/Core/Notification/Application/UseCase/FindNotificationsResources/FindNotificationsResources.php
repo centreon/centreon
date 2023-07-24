@@ -32,6 +32,7 @@ use Core\Application\Common\UseCase\NotModifiedResponse;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
+use Core\Notification\Application\Repository\ReadNotifiableResourceRepositoryInterface;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 
 final class FindNotificationsResources
@@ -44,7 +45,8 @@ final class FindNotificationsResources
      */
     public function __construct(
         private readonly ContactInterface $contact,
-        private readonly ReadNotificationRepositoryInterface $notificationRepository
+        private readonly ReadNotifiableResourceRepositoryInterface $readRepository
+        // private readonly ReadNotificationRepositoryInterface $notificationRepository
     ) {
     }
 
@@ -54,20 +56,21 @@ final class FindNotificationsResources
      *
      * @throws \Throwable
      */
-    public function __invoke(FindNotificationsResourcesPresenterInterface $presenter, string $requestUID): void
+    public function __invoke(FindNotificationsResourcesPresenterInterface $presenter, string $requestUid): void
     {
         try {
             if ($this->contact->isAdmin()) {
-                $notifiableResources = $this->notificationRepository
-                    ->findNotifiableResourcesForActivatedNotifications();
+                // $notifiableResources = $this->notificationRepository
+                //     ->findNotifiableResourcesForActivatedNotifications();
+
+                $notifiableResources = $this->readRepository->findAllForActivatedNotifications();
 
                 if ([] === $notifiableResources) {
                     $response = new NotFoundResponse('Notifiable resources');
                 } else {
                     $responseJson = \json_encode($notifiableResources, JSON_THROW_ON_ERROR);
-
                     $calculatedUid = \hash('md5', $responseJson);
-                    if ($calculatedUid === $requestUID) {
+                    if ($calculatedUid === $requestUid) {
                         $response = new NotModifiedResponse();
                     } else {
                         $response = $this->createResponseDto($notifiableResources, $calculatedUid);
@@ -94,8 +97,10 @@ final class FindNotificationsResources
      *
      * @return FindNotificationsResourcesResponse
      */
-    private function createResponseDto(array $notifiableResources, string $calculatedUid): FindNotificationsResourcesResponse
-    {
+    private function createResponseDto(
+        array $notifiableResources,
+        string $calculatedUid
+    ): FindNotificationsResourcesResponse {
         $responseDto = new FindNotificationsResourcesResponse();
         $responseDto->uid = $calculatedUid;
         foreach ($notifiableResources as $notifiableResource) {
