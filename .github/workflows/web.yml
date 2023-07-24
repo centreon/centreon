@@ -10,6 +10,8 @@ on:
     paths:
       - "centreon/**"
       - "!centreon/packages/**"
+      - "!centreon/.veracode"
+      - "!centreon/.veracode-exclusions"
   push:
     branches:
       - develop
@@ -19,6 +21,8 @@ on:
     paths:
       - "centreon/**"
       - "!centreon/packages/**"
+      - "!centreon/.veracode"
+      - "!centreon/.veracode-exclusions"
     tags:
       - centreon-*
 
