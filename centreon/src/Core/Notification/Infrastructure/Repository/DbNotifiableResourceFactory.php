@@ -25,11 +25,14 @@ namespace Core\Notification\Infrastructure\Repository;
 
 use Core\Notification\Application\Converter\{NotificationHostEventConverter, NotificationServiceEventConverter};
 use Core\Notification\Domain\Model\{NotifiableResource, NotificationHost, NotificationHostEvent, NotificationService};
+use Throwable;
 
 class DbNotifiableResourceFactory
 {
     /**
      * @param array<string,int|string> $records
+     *
+     * @throws Throwable
      *
      * @return array<NotifiableResource>
      */
@@ -53,10 +56,8 @@ class DbNotifiableResourceFactory
             $notifiableResources[] = self::createNotifiableResourceFromRecord($currentNotificationId, $currentRecords);
 
             $currentRecords = [];
-            if ($currentNotificationId !== $record['notification_id']) {
-                $currentRecords[] = $record;
-                $currentNotificationId = $record['notification_id'];
-            }
+            $currentRecords[] = $record;
+            $currentNotificationId = $record['notification_id'];
         }
 
         $notifiableResources[] = self::createNotifiableResourceFromRecord($currentNotificationId, $currentRecords);
@@ -67,6 +68,8 @@ class DbNotifiableResourceFactory
     /**
      * @param int $notificationId
      * @param array<string,int|string> $records
+     *
+     * @throws Throwable
      *
      * @return NotifiableResource
      */
@@ -106,10 +109,8 @@ class DbNotifiableResourceFactory
 
             $currentRecords = [];
             $index = 1;
-            if ($currentHostId !== $record['host_id']) {
-                $currentRecords[] = $record;
-                $currentHostId = $record['host_id'];
-            }
+            $currentRecords[] = $record;
+            $currentHostId = $record['host_id'];
         }
 
         if (null === $currentHostEvents) {
@@ -140,6 +141,8 @@ class DbNotifiableResourceFactory
      * @param array<NotificationHostEvent> $hostEvents
      * @param array<string,int|string> $records
      *
+     * @throws Throwable
+     *
      * @return NotificationHost
      */
     private static function createNotificationHostFromRecord(
@@ -155,7 +158,7 @@ class DbNotifiableResourceFactory
                 $currentServiceEvents = NotificationServiceEventConverter::fromBitFlags(
                     (int) $record['service_events']
                 );
-            } else if ($record['included_service_events'] !== '0') {
+            } elseif ($record['included_service_events'] !== '0') {
                 $currentServiceEvents = NotificationServiceEventConverter::fromBitFlags(
                     (int) $record['included_service_events']
                 );

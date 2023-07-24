@@ -40,7 +40,7 @@ final class FindNotificationsResourcesController extends AbstractController
      * @param FindNotificationsResourcesPresenter $presenter
      * @param Request $request
      *
-     * @throws AccessDeniedException
+     * @throws AccessDeniedException|\Throwable
      *
      * @return Response
      */

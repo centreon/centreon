@@ -59,7 +59,7 @@ class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implement
     {
         $providerSubRequests = $this->getRequestsFromProviders();
         $request = <<<SQL
-            ( $providerSubRequests )
+            {$providerSubRequests}
             ORDER BY `notification_id`, `host_id`, `service_id`;
             SQL;
 

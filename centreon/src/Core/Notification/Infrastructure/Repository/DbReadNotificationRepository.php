@@ -350,59 +350,6 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
-     * @inheritDoc
-     */
-    public function findNotifiableResourcesForActivatedNotifications(): array
-    {
-        $request = $this->translateDbName(
-            <<<'SQL'
-                SELECT n.`id` AS `notification_id`,
-                    hsr.`host_host_id` AS `host_id`,
-                    h.`host_name` AS `host_name`,
-                    h.`host_alias` AS `host_alias`,
-                    n.`hostgroup_events` AS `host_events`,
-                    s.`service_id` AS `service_id`,
-                    s.`service_description` AS `service_name`,
-                    s.`service_alias` AS `service_alias`,
-                    n.`servicegroup_events` AS `service_events`,
-                    0 AS `included_service_events`
-                FROM `:db`.`service` s
-                    INNER JOIN `:db`.`servicegroup_relation` sgr ON sgr.`service_service_id` = s.`service_id`
-                    INNER JOIN `:db`.`host_service_relation` hsr ON hsr.`service_service_id` = s.`service_id`
-                    INNER JOIN `:db`.`notification_sg_relation` nsgr ON nsgr.`sg_id` = sgr.`servicegroup_sg_id`
-                    INNER JOIN `:db`.`notification` n ON n.`id` = nsgr.`notification_id`
-                    INNER JOIN `:db`.`host` h ON h.`host_id` = hsr.`host_host_id`
-                WHERE n.`is_activated` = 1
-                UNION
-                SELECT n.`id` AS `notification_id`,
-                    h.`host_id` AS `host_id`,
-                    h.`host_name` AS `host_name`,
-                    h.`host_alias` AS `host_alias`,
-                    n.`hostgroup_events` AS `host_event`,
-                    hsr.`service_service_id` AS `service_id`,
-                    s.`service_description` AS `service_name`,
-                    s.`service_alias` AS `service_alias`,
-                    0 AS `service_events`,
-                    n.`included_service_events`
-                FROM `:db`.`host` h
-                    INNER JOIN `:db`.`hostgroup_relation` hgr ON hgr.`host_host_id` = h.`host_id`
-                    INNER JOIN `:db`.`host_service_relation` hsr ON hsr.`host_host_id` = h.`host_id`
-                    INNER JOIN `:db`.`notification_hg_relation` nhgr ON nhgr.`hg_id` = hgr.`hostgroup_hg_id`
-                    INNER JOIN `:db`.`notification` n ON n.`id` = nhgr.`notification_id`
-                    INNER JOIN `:db`.`service` s ON s.`service_id` = hsr.`service_service_id`
-                WHERE n.`is_activated` = 1
-                ORDER BY `notification_id`, `host_id`, `service_id`;
-                SQL
-        );
-        $statement = $this->db->prepare($request);
-        $statement->execute();
-
-        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-
-        return DbNotifiableResourceFactory::createFromRecords($result);
-    }
-
-    /**
      * Build Query for findAll with research parameters.
      *
      * @param SqlRequestParametersTranslator|null $sqlTranslator

@@ -33,7 +33,6 @@ use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotifiableResourceRepositoryInterface;
-use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 
 final class FindNotificationsResources
 {
@@ -41,18 +40,17 @@ final class FindNotificationsResources
 
     /**
      * @param ContactInterface $contact
-     * @param ReadNotificationRepositoryInterface $notificationRepository
+     * @param ReadNotifiableResourceRepositoryInterface $readRepository
      */
     public function __construct(
         private readonly ContactInterface $contact,
         private readonly ReadNotifiableResourceRepositoryInterface $readRepository
-        // private readonly ReadNotificationRepositoryInterface $notificationRepository
     ) {
     }
 
     /**
      * @param FindNotificationsResourcesPresenterInterface $presenter
-     * @param string $requestUID
+     * @param string $requestUid
      *
      * @throws \Throwable
      */
@@ -60,9 +58,6 @@ final class FindNotificationsResources
     {
         try {
             if ($this->contact->isAdmin()) {
-                // $notifiableResources = $this->notificationRepository
-                //     ->findNotifiableResourcesForActivatedNotifications();
-
                 $notifiableResources = $this->readRepository->findAllForActivatedNotifications();
 
                 if ([] === $notifiableResources) {

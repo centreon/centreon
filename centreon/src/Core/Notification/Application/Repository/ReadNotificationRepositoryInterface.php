@@ -154,14 +154,4 @@ interface ReadNotificationRepositoryInterface
      * @return Notification[]
      */
     public function findAll(?RequestParametersInterface $requestParameters): array;
-
-    /**
-     * Return all notification resources (hosts, services, metaservices) and resources' events for activated
-     * notifications.
-     *
-     * @throws \Throwable
-     *
-     * @return NotifiableResource[]
-     */
-    public function findNotifiableResourcesForActivatedNotifications(): array;
 }
