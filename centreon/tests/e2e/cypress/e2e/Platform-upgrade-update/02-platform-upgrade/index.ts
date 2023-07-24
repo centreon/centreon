@@ -129,11 +129,19 @@ Given(
 
                 return installCentreon(
                   `${major_version_from}.${stable_minor_versions[minor_version_index]}`
-                ).then(() => {
-                  return checkPlatformVersion(
-                    `${major_version_from}.${stable_minor_versions[minor_version_index]}`
-                  ).then(() => cy.visit('/'));
-                });
+                )
+                  .execInContainer({
+                    command: `bash -e <<EOF
+                  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${major_version}/el9/centreon-${major_version}.repo
+                  dnf config-manager --set-enabled 'centreon*'
+EOF`,
+                    name: Cypress.env('dockerName')
+                  })
+                  .then(() => {
+                    return checkPlatformVersion(
+                      `${major_version_from}.${stable_minor_versions[minor_version_index]}`
+                    ).then(() => cy.visit('/'));
+                  });
               }
             );
           });

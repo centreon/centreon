@@ -27,13 +27,13 @@ $errorMessage = '';
 
 $removeNagiosPathImg = function(CentreonDB $pearDB) {
     $selectStatement = $pearDB->query("SELECT 1 FROM options WHERE `key`='nagios_path_img'");
-    if($selectStatement->rowCount() > 0) {
+    if ($selectStatement->rowCount() > 0) {
         $pearDB->query("DELETE FROM options WHERE `key`='nagios_path_img'");
     }
 };
 //Change the type of check_attempt and max_check_attempts columns from table resources
 $errorMessage = "Couldn't modify resources table";
-$alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED, 
+$alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED,
     MODIFY max_check_attempts SMALLINT UNSIGNED";
 
 $alterMetricsTable = function(CentreonDB $pearDBO) {
@@ -67,12 +67,26 @@ $enableDisabledHostTemplates = function(CentreonDB $pearDB) {
     );
 };
 
-try {
+$addTopologyFeatureFlag = function(CentreonDB $pearDB) {
+    if (!$pearDB->isColumnExist('topology', 'topology_feature_flag')) {
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `topology`
+                ADD COLUMN `topology_feature_flag` varchar(255) DEFAULT NULL
+                AFTER `topology_OnClick`
+                SQL
+        );
+    }
+};
 
+try {
     $pearDBO->query($alterResourceTableStmnt);
 
     $errorMessage = 'Impossible to alter metrics table';
     $alterMetricsTable($pearDBO);
+
+    $errorMessage = 'Impossible to add column topology_feature_flag to topology table';
+    $addTopologyFeatureFlag($pearDB);
 
     $errorMessage = '';
     // Transactional queries
