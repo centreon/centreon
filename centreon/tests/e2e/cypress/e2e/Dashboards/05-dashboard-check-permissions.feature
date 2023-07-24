@@ -24,3 +24,8 @@ Scenario: Accessing all dashboards as a non-admin dashboard administrator user
   Then the dashboard administrator user is redirected to the detail page for this dashboard
   And the dashboard administrator user is allowed to access the edit mode for this dashboard
   And the dashboard administrator user is allowed to update the dashboard's properties
+
+Scenario: Creating a new dashboard as a non-admin dashboard administrator user
+  Given a non-admin user with the administrator role on the dashboard feature
+  When the dashboard administrator user creates a new dashboard
+  Then the dashboard is created and is noted as the creation of the dashboard administrator user

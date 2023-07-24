@@ -157,11 +157,10 @@ Given('an admin user on the dashboards library', () => {
     jsonName: 'admin',
     loginViaApi: false
   });
-
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
 });
 
 When('the admin user creates a new dashboard', () => {
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
   cy.getByLabel({ label: 'create', tag: 'button' }).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
     dashboards.fromCurrentUser.name
@@ -287,5 +286,47 @@ Then(
     cy.contains(
       `${dashboards.fromAdministratorUser.description} and ${dashboardAdministratorUser.login}`
     ).should('exist');
+  }
+);
+
+Given(
+  'a non-admin user with the administrator role on the dashboard feature',
+  () => {
+    cy.loginByTypeOfUser({
+      jsonName: dashboardAdministratorUser.login,
+      loginViaApi: false
+    });
+  }
+);
+
+When('the dashboard administrator user creates a new dashboard', () => {
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.getByLabel({ label: 'create', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Name', tag: 'input' }).type(
+    dashboards.fromCurrentUser.name
+  );
+  cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
+    `by ${dashboardAdministratorUser.login}`
+  );
+  cy.getByTestId({ testId: 'submit' }).click();
+  cy.wait('@createDashboard');
+});
+
+Then(
+  'the dashboard is created and is noted as the creation of the dashboard administrator user',
+  () => {
+    cy.getByLabel({ label: 'page header title' }).should(
+      'contain.text',
+      dashboards.fromCurrentUser.name
+    );
+    cy.getByLabel({ label: 'page header description' }).should(
+      'contain.text',
+      `by ${dashboardAdministratorUser.login}`
+    );
+    cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.contains(`${dashboardAdministratorUser.login}`).should('be.visible');
+    cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
   }
 );
