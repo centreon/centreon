@@ -85,6 +85,7 @@ class UpdateSAMLConfiguration
             $configuration = $provider->getConfiguration();
             $configuration->update($request->isActive, $request->isForced);
             $requestArray = $request->toArray();
+
             $requestArray['contact_template'] = $request->contactTemplate &&
             array_key_exists('id', $request->contactTemplate) !== null
                 ? $this->getContactTemplateOrFail($request->contactTemplate)
@@ -94,7 +95,6 @@ class UpdateSAMLConfiguration
                 $request->authenticationConditions
             );
             $requestArray["groups_mapping"] = $this->createGroupsMapping($request->groupsMapping);
-            $requestArray["is_active"] = $request->isActive;
             $configuration->setCustomConfiguration(new CustomConfiguration($requestArray));
             $this->updateConfiguration($configuration);
         } catch (AssertionException | AssertionFailedException | ConfigurationException $ex) {
@@ -372,9 +372,11 @@ class UpdateSAMLConfiguration
             $foundContactGroupsId[] = $foundAccessGroup->getId();
         }
         $nonExistentAccessGroupsIds = array_diff($contactGroupIds, $foundContactGroupsId);
-        $this->error("Access groups not found", [
-            "access_group_ids" => implode(', ', $nonExistentAccessGroupsIds)
-        ]);
+        if (! empty($nonExistentAccessGroupsIds)) {
+            $this->error("Access groups not found", [
+                "access_group_ids" => implode(', ', $nonExistentAccessGroupsIds)
+            ]);
+        }
     }
 
     /**

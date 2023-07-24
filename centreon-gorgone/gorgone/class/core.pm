@@ -962,6 +962,7 @@ sub handshake {
 
         my $message = $options{frame}->getFrame();
         if ($rv == 0 && $$message =~ /^(?:[\[a-zA-Z-_]+?\]\s+\[.*?\]|[\[a-zA-Z-_]+?\]\s*$)/) {
+            $self->{identity_infos}->{ $options{identity} }->{mtime} = time();
             gorgone::standard::library::update_identity_mtime(dbh => $self->{db_gorgone}, identity => $options{identity});
             return (0, $cipher_infos);
         }

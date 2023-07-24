@@ -7,7 +7,7 @@
     --color-checkbox-disabled-checked: var(--color-checkbox-disabled-border-rgba);
     --color-checkbox-disabled-checked-label-green: var(--color-success);
     --color-radiobutton-cheked-border: var(--color-checked-background-rgb);
-    --color-checked-background-rgb : var(--color-navy-bleu);
+    --color-checked-background-rgb: var(--color-navy-bleu);
     /*****************/
 
     /** Scrollbar color **/
@@ -20,7 +20,7 @@
 
     /** Body color **/
     --body-background: var(--color-primary-body-background-light);
-    --body-color:var(--color-martar);
+    --body-color: var(--color-martar);
     /*****************/
 
     /** Text aria color **/
@@ -32,35 +32,35 @@
     /** Select color **/
     --select-border-color: var(--color-ghost);
     --select-background: var(--color-white);
-    --select-color : var(--color-charcoal);
+    --select-color: var(--color-charcoal);
     --option-color: var(--color-charcoal);
     --input-select-background-color: var(--color-white);
     /******************/
 
     /** Input checkbox **/
     --input-border-color: var(--select-border-color);
-    --input-color : var(--select-color);
-    --md-checkbox--checked-background : var(--color-checked-background-rgb) ;
-    --md-checkbox-border-color : var(--color-black-rgba)  ;
-    --md-checkbox-background : var(--color-white) ;
-    --md-checkbox--disabled-border-color-before : var(--color-black-rgba-1);
-    --md-checkbox--disabled-checked-background-color-before  : var(--color-black-rgba-26);
-    --md-check-input-disabled-checked-before:  var(--color-success);
+    --input-color: var(--select-color);
+    --md-checkbox--checked-background: var(--color-checked-background-rgb);
+    --md-checkbox-border-color: var(--color-black-rgba);
+    --md-checkbox-background: var(--color-white);
+    --md-checkbox--disabled-border-color-before: var(--color-black-rgba-1);
+    --md-checkbox--disabled-checked-background-color-before: var(--color-black-rgba-26);
+    --md-check-input-disabled-checked-before: var(--color-success);
     --md-checkbox-checked-label-before-background-color: var(--color-primary-light);
     --md-checkbox-border-color-after: var(--color-white);
     /*********************/
 
     /** Radio button **/
-    --md-radio-checked-backgroud-color:  var(--color-primary-light);
-    --md-radio-kabel-color:  var(--color-astral-rgb);
+    --md-radio-checked-backgroud-color: var(--color-primary-light);
+    --md-radio-kabel-color: var(--color-astral-rgb);
     --md-radio-input-checked-label-before-border-color: var(--color-curious-blue);
-    --md-radio-label-before-border-color : var(--color-black-rgba-54);
-    --md-radio-label-after-background : var(--md-radio-checked-backgroud-color);
+    --md-radio-label-before-border-color: var(--color-black-rgba-54);
+    --md-radio-label-after-background: var(--md-radio-checked-backgroud-color);
     --md-radio-after-background-color: var(--md-radio-checked-backgroud-color);
     /******************/
 
     /** select **/
-    --select-background-color : var(--color-white);
+    --select-background-color: var(--color-white);
     /***********/
 
     /** select 2 style2.css **/
@@ -119,12 +119,12 @@
     /*************/
 
     /** HR **/
-    --hr-background-color : var(--color-very-light-grey);
+    --hr-background-color: var(--color-very-light-grey);
     /*******/
 
     /** P **/
-    --p-color-description-color : var(--color-grey-chateau);
-    --p-description-a-visited-color : var(--color-primary-dark);
+    --p-color-description-color: var(--color-grey-chateau);
+    --p-description-a-visited-color: var(--color-primary-dark);
     /******/
 
     /** Placeholder **/
@@ -132,46 +132,46 @@
     /****************/
 
     /** Wrappers **/
-    --center-box-border-color : var(--color-iron);
-    --border-radius-border-color : var(--center-box-border-color);
+    --center-box-border-color: var(--color-iron);
+    --border-radius-border-color: var(--center-box-border-color);
     /*************/
 
     /** Slider **/
-    --rotation-timer-background-color : var(--color-white-smack);
-    --rotation-timer-border-color : var(--color-ghost);
-    --ui-silder-handle-background-color :var(--color-ghost);
-    --ui-silder-handle-border-color : var(--color-grey-chateau);
-    --timer-value-color : var(--color-scorpion-2);
+    --rotation-timer-background-color: var(--color-white-smack);
+    --rotation-timer-border-color: var(--color-ghost);
+    --ui-silder-handle-background-color: var(--color-ghost);
+    --ui-silder-handle-border-color: var(--color-grey-chateau);
+    --timer-value-color: var(--color-scorpion-2);
     /*************/
 
     /** Select 2 **/
-    --select2-container-selection-background-color : var(--color-white);
-    --select2-container-selection-border-color : var(--color-silver);
-    --select2-selection-choice-remove-background-color : var(--color-alto-5);
-    --select2-selection-multiple-color : var(--color-tundora);
-    --select2-selection-multiple-border-color : var(--color-alto-5);
-    --select2-selection-multiple-content-border-color-top : var(--select2-selection-multiple-border-color);
-    --select2-selection-multiple-content-border-color-bottom : var(--select2-selection-multiple-border-color);
-    --select2-selection-multiple-content-border-color-right : var(--select2-selection-multiple-content-border-color-bottom);
-    --select2-selection-multiple-content-color : var(--color-navy-bleu);
-    --select2-selection-multiple-content-background-color : var(--color-alto-5);
-    --select2-results-option-highlighted-background-color : var(--color-tundora);
-    --select2-results-option-highlighted-color : var(--color-white);
-    --select2-results-option-highlighted-color-aria-selected : var(--color-primary-dark);
+    --select2-container-selection-background-color: var(--color-white);
+    --select2-container-selection-border-color: var(--color-silver);
+    --select2-selection-choice-remove-background-color: var(--color-alto-5);
+    --select2-selection-multiple-color: var(--color-tundora);
+    --select2-selection-multiple-border-color: var(--color-alto-5);
+    --select2-selection-multiple-content-border-color-top: var(--select2-selection-multiple-border-color);
+    --select2-selection-multiple-content-border-color-bottom: var(--select2-selection-multiple-border-color);
+    --select2-selection-multiple-content-border-color-right: var(--select2-selection-multiple-content-border-color-bottom);
+    --select2-selection-multiple-content-color: var(--color-navy-bleu);
+    --select2-selection-multiple-content-background-color: var(--color-alto-5);
+    --select2-results-option-highlighted-background-color: var(--color-tundora);
+    --select2-results-option-highlighted-color: var(--color-white);
+    --select2-results-option-highlighted-color-aria-selected: var(--color-primary-dark);
     --select2-results-option-highlighted-color-aria-selected-font-color: var(--color-white);
-    --selected2-results-header-background-color : var(--color-wild-sand);
-    --selected2-results-header-border-bottom-color :var(--color-white-lilac);
-    --select2-results-header-color : var(--color-primary-dark);
+    --selected2-results-header-background-color: var(--color-wild-sand);
+    --selected2-results-header-border-bottom-color: var(--color-white-lilac);
+    --select2-results-header-color: var(--color-primary-dark);
     /**************/
 
     /** Tooltip **/
-    --WzTtDi-border-color : var(--color-iron);
-    --WzTtDi-background-color : var(--color-white);
-    --WzTiTl-background-color : var(--color-white);
-    --wzclose-font-color : var(--color-primary-light);
-    --wzclose-background-color : var(--color-white);
-    --wzclose-border-color : var(--wzclose-font-color);
-    --WzBodyI-font-color : var(--color-black);
+    --WzTtDi-border-color: var(--color-iron);
+    --WzTtDi-background-color: var(--color-white);
+    --WzTiTl-background-color: var(--color-white);
+    --wzclose-font-color: var(--color-primary-light);
+    --wzclose-background-color: var(--color-white);
+    --wzclose-border-color: var(--wzclose-font-color);
+    --WzBodyI-font-color: var(--color-black);
     /*************/
 
     /** START : Colors  **/
@@ -180,87 +180,87 @@
 
     /** Badge **/
     --badge-color: var(--color-black);
-    --badge-a-color : var(--color-black);
+    --badge-a-color: var(--color-black);
     /***********/
 
     /** States **/
     --default-badge-background-color: var(--color-primary-light);
-    --host-down-danger-service-critical-background-color : var(--color-danger);
+    --host-down-danger-service-critical-background-color: var(--color-danger);
     --host-unreachable-unknown-background-color: var(--color-unknown);
-    --host-downtime-background-color : var(--color-mauve);
+    --host-downtime-background-color: var(--color-mauve);
     --service-ok-host-up-success-background-color: var(--color-success);
     --service-warning-background-color: var(--color-warning);
-    --pending-background-color :var(--color-pending);
+    --pending-background-color: var(--color-pending);
     --service-unknown-background-color: var(--color-ghost);
     --service-unknown-font-color: var(--color-black);
-    --info-background-color:var(--color-iris-blue);
-    --ack-background-color : var(--color-ack);
+    --info-background-color: var(--color-iris-blue);
+    --ack-background-color: var(--color-ack);
     --bdg-dtm-before-background-color: var(--color-mauve);
-    --bdg-dtm-before-color :var(--color-white);
-    --badge-downtime-background-color : var(--color-mauve);
-    --badge-undetermined :var(--color-iron);
-    --status-success-color:var(--color-white);
-    --status-ok-color : var(--color-black) ;
+    --bdg-dtm-before-color: var(--color-white);
+    --badge-downtime-background-color: var(--color-mauve);
+    --badge-undetermined: var(--color-iron);
+    --status-success-color: var(--color-white);
+    --status-ok-color: var(--color-black);
     /***********/
 
     /** START : Buttons **/
     --btc-color: var(--color-white);
-    --a-btc-color : var(--color-white);
-    --bt-default-background-color : var(--color-primary-light);
+    --a-btc-color: var(--color-white);
+    --bt-default-background-color: var(--color-primary-light);
     --bt-default-hover-background-color: var(--color-primary-hover);
     --bt-default-hover-font-color: var(--color-white);
     --btc-hover-color: var(--color-white);
-    --bt-success-background-color : var(--color-primary-light);
+    --bt-success-background-color: var(--color-primary-light);
     --bt-danger-background-color: var(--color-primary-light);
-    --bt-info-background-color : var(--color-primary-light);
+    --bt-info-background-color: var(--color-primary-light);
     --bt-info-hover-background-color: var(--color-primary-hover);
     --bt-info-hover-font-color: var(--color-white);
-    --bt-warning-background-color :var(--color-primary-light);
-    --bt-action-color-background-color : var(--color-primary-light);
-    --bt-action-color :var(--color-white);
+    --bt-warning-background-color: var(--color-primary-light);
+    --bt-action-color-background-color: var(--color-primary-light);
+    --bt-action-color: var(--color-white);
     --bt-action-border-color: var(--color-primary-light);
     --bt-action-hover-background-color: var(--color-primary-hover);
     --bt-action-hover-border-color: var(--color-primary-light);
     --bt-danger-hover-background-color: var(--color-primary-hover);
-    --bt-default-ui-state-hover-background-color : var(--color-oslo-gray);
-    --bt-default-ui-state-hover-color : var(--color-white);
+    --bt-default-ui-state-hover-background-color: var(--color-oslo-gray);
+    --bt-default-ui-state-hover-color: var(--color-white);
     --bt-success-ui-state-hover-background-color: var(--color-christi);
-    --bt-success-ui-state-hover-color:var(--color-white);
+    --bt-success-ui-state-hover-color: var(--color-white);
     --bt-success-hover-font-color: var(--color-white);
     --bt-danger-hover-font-color: var(--color-white);
 
     --bt-danger-ui-state-hover-background-color: var(--color-shiraz);
-    --bt-danger-ui-state-hover-color:var(--color-white);
+    --bt-danger-ui-state-hover-color: var(--color-white);
 
     --bt-info-ui-state-hover-background-color: var(--color-persian-green-2);
-    --bt-info-ui-state-hover-color:var(--color-white);
+    --bt-info-ui-state-hover-color: var(--color-white);
 
     --bt-warning-ui-state-hover-background-color: var(--color-golden-bell);
-    --bt-warning-ui-state-hover-color:var(--color-white);
-    --button-group-input-color:var(--color-white);
+    --bt-warning-ui-state-hover-color: var(--color-white);
+    --button-group-input-color: var(--color-white);
     /***********************/
 
     /** START : Form **/
-    --input-submit-color : var(--color-white);
+    --input-submit-color: var(--color-white);
     --add-new-entry-font-color: var(--color-primary-dark);
     /******************/
 
     /** START : Header **/
-    --header-background-color : var(--color-white-lilac);
+    --header-background-color: var(--color-white-lilac);
     /********************/
 
     /** START : Table **/
-    --list-table-small-border-color : var(--color-white-lilac);
+    --list-table-small-border-color: var(--color-white-lilac);
     /*******************/
 
     /** table font color **/
-    --table-font-color : var(--color-secondary);
+    --table-font-color: var(--color-secondary);
 
     /** START : Indicators **/
-    --resume-light : var(--color-athens-gray);
-    --resume-light-table-th-border-right : var(--color-white-lilac);
-    --resume-light-table-td-span-color : var(--color-white);
-    --resume-light-table-th-span-background-color : var(--color-persian-green);
+    --resume-light: var(--color-athens-gray);
+    --resume-light-table-th-border-right: var(--color-white-lilac);
+    --resume-light-table-td-span-color: var(--color-white);
+    --resume-light-table-th-span-background-color: var(--color-persian-green);
     /************************/
 
     /** START : Menu **/
@@ -268,21 +268,21 @@
     --a-background-color: transparent;
 
     /** Menu 1 **/
-    --menu-1-background-color : var(--color-scarpa-flow);
-    --menu-1-li-1-color : var(--color-white-lilac);
-    --menu-1-li-a-hover-background-color : var(--color-aluminium);
+    --menu-1-background-color: var(--color-scarpa-flow);
+    --menu-1-li-1-color: var(--color-white-lilac);
+    --menu-1-li-a-hover-background-color: var(--color-aluminium);
     /************/
 
     /** Menu 2 **/
-    --menu-2-a-color : var(--color-white-lilac);
-    --seperator-menu-2-color : var(--color-silver);
+    --menu-2-a-color: var(--color-white-lilac);
+    --seperator-menu-2-color: var(--color-silver);
     /************/
 
     /** Menu 3 **/
-    --t-menu-3-background-color : var(--color-white);
-    --title-menu-h4-color : var(--color-pasific-bleu);
-    --title-menu-bottom-border-color : var(--color-grey-chateau);
-    --div-menu-left-background-color :  var(--color-white);
+    --t-menu-3-background-color: var(--color-white);
+    --title-menu-h4-color: var(--color-pasific-bleu);
+    --title-menu-bottom-border-color: var(--color-grey-chateau);
+    --div-menu-left-background-color: var(--color-white);
     /************/
     --list-table-anchors-font-color: var(--color-dove-gray);
     --list-lvl-1-background-color: var(--color-botticeli);
@@ -295,7 +295,7 @@
     --list-one-font-color: none;
     --list-one-fix-background-color: var(--list-one-background-color);
     --list-hover-background-color: var(--color-listing-hover);
-    --listing-border-botom-color : var(--color-divider);
+    --listing-border-botom-color: var(--color-divider);
     --list-table-border-color: var(--color-divider);
     --list-one-hover-font-color: none;
     --list-two-background-color: var(--color-twilight-blue-2);
@@ -357,7 +357,7 @@
     --menu3-anchor-hover-font-color: var(--color-porsche);
     --menu3-background-color: var(--color-white);
     --date-font-color: var(--color-ghost);
-    --detail-chart-title-background-color:var(--color-periwinkle-gray);
+    --detail-chart-title-background-color: var(--color-periwinkle-gray);
     --header-text-font-color: var(--body-color);
     --chart-legend-color: var(--color-black);
 
@@ -826,4 +826,8 @@
     --custom-macros-template-background-color: var(--color-rayola);
     /* license manager error page variables */
     --license-manager-error-message-color: var(--color-primary-light);
+    /* widget progress bar value color */
+    --widget-progress-bar-value-color: var(--color-black);
+    /* bam acknowledge popup table */
+    --popup-th-color: var(--color-black);
 }
