@@ -103,12 +103,15 @@ interface CopyFromContainerProps {
 
 Cypress.Commands.add(
   'copyFromContainer',
-  ({
-    name = Cypress.env('dockerName'),
-    source,
-    destination
-  }: CopyFromContainerProps) => {
-    return cy.exec(`docker cp ${name}:${source} "${destination}"`);
+  (
+    {
+      name = Cypress.env('dockerName'),
+      source,
+      destination
+    }: CopyFromContainerProps,
+    options
+  ) => {
+    return cy.exec(`docker cp ${name}:${source} "${destination}"`, options);
   }
 );
 
@@ -120,12 +123,15 @@ interface CopyToContainerProps {
 
 Cypress.Commands.add(
   'copyToContainer',
-  ({
-    name = Cypress.env('dockerName'),
-    source,
-    destination
-  }: CopyToContainerProps) => {
-    return cy.exec(`docker cp ${source} ${name}:${destination}`);
+  (
+    {
+      name = Cypress.env('dockerName'),
+      source,
+      destination
+    }: CopyToContainerProps,
+    options
+  ) => {
+    return cy.exec(`docker cp ${source} ${name}:${destination}`, options);
   }
 );
 
@@ -324,11 +330,14 @@ Cypress.Commands.add(
           });
         }
 
-        return cy.copyFromContainer({
-          destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
-          name,
-          source: '/var/log/php8.1-fpm-centreon-error.log'
-        });
+        return cy.copyFromContainer(
+          {
+            destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
+            name,
+            source: '/var/log/php8.1-fpm-centreon-error.log'
+          },
+          { failOnNonZeroExit: false }
+        );
       })
       .exec(`chmod -R 755 "${logDirectory}"`)
       .stopContainer({ name });
