@@ -77,7 +77,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  *     severity_id: int|null,
  *     is_activated: boolean|null,
  *     is_locked: boolean|null,
- *     macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>
+ *     macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>,
  *     service_categories: list<int>|null
  * }
  */
