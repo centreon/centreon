@@ -14,9 +14,6 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-check-permissions.json'
   );
-});
-
-beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -48,16 +45,31 @@ beforeEach(() => {
   cy.logoutViaAPI();
 });
 
+beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/dashboards?'
+  }).as('listAllDashboards');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/dashboards'
+  }).as('createDashboard');
+});
+
 after(() => {
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: 'DELETE FROM dashboard'
+  });
   cy.stopWebContainer();
 });
 
 afterEach(() => {
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: 'DELETE FROM dashboard'
-  });
   cy.logout();
 });
 
@@ -132,10 +144,6 @@ Then(
 Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-  cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-    `${dashboards.fromAdministratorUser.name}-edited`
-  );
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
     `${dashboards.fromAdministratorUser.description} and admin`
@@ -145,9 +153,7 @@ Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
 
   cy.reload();
-  cy.contains(`${dashboards.fromAdministratorUser.name}-edited`).should(
-    'exist'
-  );
+  cy.contains(`${dashboards.fromAdministratorUser.name}`).should('exist');
   cy.contains(
     `${dashboards.fromAdministratorUser.description} and admin`
   ).should('exist');
@@ -268,10 +274,6 @@ Then(
   () => {
     cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-    cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
-    cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      `${dashboards.fromAdministratorUser.name}-edited`
-    );
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
       `${dashboards.fromAdministratorUser.description} and ${dashboardAdministratorUser.login}`
@@ -281,9 +283,7 @@ Then(
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
 
     cy.reload();
-    cy.contains(`${dashboards.fromAdministratorUser.name}-edited`).should(
-      'exist'
-    );
+    cy.contains(`${dashboards.fromAdministratorUser.name}`).should('exist');
     cy.contains(
       `${dashboards.fromAdministratorUser.description} and ${dashboardAdministratorUser.login}`
     ).should('exist');
@@ -408,10 +408,6 @@ Then(
   () => {
     cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-    cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
-    cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      `${dashboards.fromCreatorUser.name}-edited`
-    );
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
       `${dashboards.fromCreatorUser.description} and ${dashboardCreatorUser.login}`
@@ -421,7 +417,7 @@ Then(
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
 
     cy.reload();
-    cy.contains(`${dashboards.fromCreatorUser.name}-edited`).should('exist');
+    cy.contains(`${dashboards.fromCreatorUser.name}`).should('exist');
     cy.contains(
       `${dashboards.fromCreatorUser.description} and ${dashboardCreatorUser.login}`
     ).should('exist');
@@ -548,5 +544,5 @@ When('the dashboard viewer accesses the dashboards library', () => {
 });
 
 Then('the option to create a new dashboard is not displayed', () => {
-  cy.getByLabel({ label: 'create', tag: 'button' }).should('not exist');
+  cy.getByLabel({ label: 'create', tag: 'button' }).should('not.exist');
 });
