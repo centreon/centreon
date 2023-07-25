@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,11 +24,10 @@ declare(strict_types=1);
 namespace Core\Security\User\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Security\User\Domain\Model\User;
 use Centreon\Infrastructure\DatabaseConnection;
-use Core\Security\User\Infrastructure\Repository\DbUserFactory;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Security\User\Application\Repository\ReadUserRepositoryInterface;
+use Core\Security\User\Domain\Model\User;
 
 class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepositoryInterface
 {
@@ -48,13 +47,13 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
     public function findUserByAlias(string $alias): ?User
     {
         $this->info('Searching for user in DBMS', [
-            'user_alias' => $alias
+            'user_alias' => $alias,
         ]);
         $statement = $this->db->prepare(
-            "SELECT c.contact_alias, c.contact_id, c.login_attempts, c.blocking_time, cp.password, cp.creation_date
+            'SELECT c.contact_alias, c.contact_id, c.login_attempts, c.blocking_time, cp.password, cp.creation_date
             FROM contact c
             INNER JOIN contact_password cp ON c.contact_id = cp.contact_id
-            WHERE c.contact_alias = :alias ORDER BY cp.creation_date ASC"
+            WHERE c.contact_alias = :alias ORDER BY cp.creation_date ASC'
         );
         $statement->bindValue(':alias', $alias, \PDO::PARAM_STR);
         $statement->execute();

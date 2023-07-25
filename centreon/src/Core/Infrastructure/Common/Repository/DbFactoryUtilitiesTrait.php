@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,35 +18,35 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Repository;
 
 /**
  * This class is design to provide all common methods to handle db records.
- *
- * @package Core\Infrastructure\Common\Repository
  */
 trait DbFactoryUtilitiesTrait
 {
     /**
-     * Creates DateTime from timestamp
+     * Creates DateTime from timestamp.
      *
      * @param int|null $timestamp
+     *
      * @return \DateTime|null
      */
     public static function createDateTimeFromTimestamp(?int $timestamp): ?\DateTime
     {
-        return ($timestamp !== null
+        return $timestamp !== null
             ? (new \DateTime())->setTimestamp($timestamp)
-            : null
-        );
+            : null;
     }
 
     /**
-     * Creates DateTimeImmutable from timestamp
+     * Creates DateTimeImmutable from timestamp.
      *
      * @param int|string|null $timestamp
+     *
      * @return \DateTimeImmutable|null
      */
     public static function createDateTimeImmutableFromTimestamp(int|string|null $timestamp): ?\DateTimeImmutable
@@ -58,6 +58,7 @@ trait DbFactoryUtilitiesTrait
 
     /**
      * @param int|string|null $property
+     *
      * @return int|null
      */
     public static function getIntOrNull($property): ?int
@@ -67,6 +68,7 @@ trait DbFactoryUtilitiesTrait
 
     /**
      * @param float|string|null $property
+     *
      * @return float|null
      */
     public static function getFloatOrNull($property): ?float

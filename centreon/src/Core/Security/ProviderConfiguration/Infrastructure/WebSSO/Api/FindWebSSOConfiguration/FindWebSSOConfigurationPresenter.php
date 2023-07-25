@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,14 +25,15 @@ namespace Core\Security\ProviderConfiguration\Infrastructure\WebSSO\Api\FindWebS
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\FindWebSSOConfiguration\{
-    FindWebSSOConfigurationResponse,
-    FindWebSSOConfigurationPresenterInterface
+    FindWebSSOConfigurationPresenterInterface,
+    FindWebSSOConfigurationResponse
 };
 
 class FindWebSSOConfigurationPresenter extends AbstractPresenter implements FindWebSSOConfigurationPresenterInterface
 {
     /**
      * {@inheritDoc}
+     *
      * @param FindWebSSOConfigurationResponse $data
      */
     public function present(mixed $data): void
@@ -44,7 +45,7 @@ class FindWebSSOConfigurationPresenter extends AbstractPresenter implements Find
             'blacklist_client_addresses' => $data->blacklistClientAddresses,
             'login_header_attribute' => $data->loginHeaderAttribute,
             'pattern_matching_login' => $data->patternMatchingLogin,
-            'pattern_replace_login' => $data->patternReplaceLogin
+            'pattern_replace_login' => $data->patternReplaceLogin,
         ];
 
         parent::present($presenterResponse);

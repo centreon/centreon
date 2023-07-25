@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,144 +18,92 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Domain\RealTime\Model;
 
-use Core\Domain\RealTime\Model\Icon;
-use Core\Tag\RealTime\Domain\Model\Tag;
-use Core\Domain\RealTime\Model\Servicegroup;
-use Core\Domain\RealTime\Model\ServiceStatus;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Severity\RealTime\Domain\Model\Severity;
+use Core\Tag\RealTime\Domain\Model\Tag;
 
 class Service
 {
     public const MAX_NAME_LENGTH = 255;
 
-    /**
-     * @var Servicegroup[]
-     */
+    /** @var Servicegroup[] */
     private array $groups = [];
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     private $isInDowntime = false;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     private $isAcknowledged = false;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isNotificationEnabled = false;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $notificationNumber;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $commandLine;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $performanceData;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $output;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $lastStatusChange;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $lastNotification;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     private $latency;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     private $executionTime;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     private $statusChangePercentage;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $nextCheck;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $lastCheck;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $activeChecks = true;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $passiveChecks = false;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     private $lastTimeOk;
 
-    /**
-     * @var Icon|null
-     */
+    /** @var Icon|null */
     private $icon;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $maxCheckAttempts;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $checkAttempts;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     private $isFlapping = false;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     private $hasGraphData = false;
 
-    /**
-     * @var Tag[]
-     */
+    /** @var Tag[] */
     private array $categories = [];
 
-    /**
-     * @var Severity|null
-     */
+    /** @var Severity|null */
     private ?Severity $severity;
 
     /**
@@ -163,6 +111,7 @@ class Service
      * @param int $hostId
      * @param string $name
      * @param ServiceStatus $status
+     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
@@ -201,11 +150,13 @@ class Service
 
     /**
      * @param Servicegroup $group
+     *
      * @return self
      */
     public function addGroup(Servicegroup $group): self
     {
         $this->groups[] = $group;
+
         return $this;
     }
 
@@ -218,7 +169,7 @@ class Service
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isFlapping(): bool
     {
@@ -226,17 +177,19 @@ class Service
     }
 
     /**
-     * @param boolean $isFlapping
+     * @param bool $isFlapping
+     *
      * @return self
      */
     public function setIsFlapping(bool $isFlapping): self
     {
         $this->isFlapping = $isFlapping;
+
         return $this;
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isAcknowledged(): bool
     {
@@ -244,27 +197,31 @@ class Service
     }
 
     /**
-     * @param boolean $isAcknowledged
+     * @param bool $isAcknowledged
+     *
      * @return self
      */
     public function setIsAcknowledged(bool $isAcknowledged): self
     {
         $this->isAcknowledged = $isAcknowledged;
+
         return $this;
     }
 
     /**
-     * @param boolean $isInDowntime
+     * @param bool $isInDowntime
+     *
      * @return self
      */
     public function setIsInDowntime(bool $isInDowntime): self
     {
         $this->isInDowntime = $isInDowntime;
+
         return $this;
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isInDowntime(): bool
     {
@@ -281,21 +238,25 @@ class Service
 
     /**
      * @param string|null $output
+     *
      * @return self
      */
     public function setOutput(?string $output): self
     {
         $this->output = $output;
+
         return $this;
     }
 
     /**
      * @param string|null $performanceData
+     *
      * @return self
      */
     public function setPerformanceData(?string $performanceData): self
     {
         $this->performanceData = $performanceData;
+
         return $this;
     }
 
@@ -317,11 +278,13 @@ class Service
 
     /**
      * @param string|null $commandLine
+     *
      * @return self
      */
     public function setCommandLine(?string $commandLine): self
     {
         $this->commandLine = $commandLine;
+
         return $this;
     }
 
@@ -335,11 +298,13 @@ class Service
 
     /**
      * @param int|null $notificationNumber
+     *
      * @return self
      */
     public function setNotificationNumber(?int $notificationNumber): self
     {
         $this->notificationNumber = $notificationNumber;
+
         return $this;
     }
 
@@ -353,6 +318,7 @@ class Service
 
     /**
      * @param bool $isNotificationEnabled
+     *
      * @return self
      */
     public function setNotificationEnabled(bool $isNotificationEnabled): self
@@ -372,11 +338,13 @@ class Service
 
     /**
      * @param \DateTime|null $lastStatusChange
+     *
      * @return self
      */
     public function setLastStatusChange(?\DateTime $lastStatusChange): self
     {
         $this->lastStatusChange = $lastStatusChange;
+
         return $this;
     }
 
@@ -390,11 +358,13 @@ class Service
 
     /**
      * @param \DateTime|null $lastNotification
+     *
      * @return self
      */
     public function setLastNotification(?\DateTime $lastNotification): self
     {
         $this->lastNotification = $lastNotification;
+
         return $this;
     }
 
@@ -408,21 +378,25 @@ class Service
 
     /**
      * @param float|null $latency
+     *
      * @return self
      */
     public function setLatency(?float $latency): self
     {
         $this->latency = $latency;
+
         return $this;
     }
 
     /**
      * @param float|null $executionTime
+     *
      * @return self
      */
     public function setExecutionTime(?float $executionTime): self
     {
         $this->executionTime = $executionTime;
+
         return $this;
     }
 
@@ -436,11 +410,13 @@ class Service
 
     /**
      * @param float|null $statusChangePercentage
+     *
      * @return self
      */
     public function setStatusChangePercentage(?float $statusChangePercentage): self
     {
         $this->statusChangePercentage = $statusChangePercentage;
+
         return $this;
     }
 
@@ -462,11 +438,13 @@ class Service
 
     /**
      * @param \DateTime|null $nextCheck
+     *
      * @return self
      */
     public function setNextCheck(?\DateTime $nextCheck): self
     {
         $this->nextCheck = $nextCheck;
+
         return $this;
     }
 
@@ -480,26 +458,30 @@ class Service
 
     /**
      * @param \DateTime|null $lastCheck
+     *
      * @return self
      */
     public function setLastCheck(?\DateTime $lastCheck): self
     {
         $this->lastCheck = $lastCheck;
+
         return $this;
     }
 
     /**
-     * @param boolean $activeChecks
+     * @param bool $activeChecks
+     *
      * @return self
      */
     public function setActiveChecks(bool $activeChecks): self
     {
         $this->activeChecks = $activeChecks;
+
         return $this;
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasActiveChecks(): bool
     {
@@ -507,17 +489,19 @@ class Service
     }
 
     /**
-     * @param boolean $passiveChecks
+     * @param bool $passiveChecks
+     *
      * @return self
      */
     public function setPassiveChecks(bool $passiveChecks): self
     {
         $this->passiveChecks = $passiveChecks;
+
         return $this;
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasPassiveChecks(): bool
     {
@@ -526,11 +510,13 @@ class Service
 
     /**
      * @param \DateTime|null $lastTimeOk
+     *
      * @return self
      */
     public function setLastTimeOk(?\DateTime $lastTimeOk): self
     {
         $this->lastTimeOk = $lastTimeOk;
+
         return $this;
     }
 
@@ -543,13 +529,14 @@ class Service
     }
 
     /**
-     *
      * @param ?Icon $icon
+     *
      * @return self
      */
     public function setIcon(?Icon $icon): self
     {
         $this->icon = $icon;
+
         return $this;
     }
 
@@ -571,21 +558,25 @@ class Service
 
     /**
      * @param int|null $maxCheckAttempts
+     *
      * @return self
      */
     public function setMaxCheckAttempts(?int $maxCheckAttempts): self
     {
         $this->maxCheckAttempts = $maxCheckAttempts;
+
         return $this;
     }
 
     /**
      * @param int|null $checkAttempts
+     *
      * @return self
      */
     public function setCheckAttempts(?int $checkAttempts): self
     {
         $this->checkAttempts = $checkAttempts;
+
         return $this;
     }
 
@@ -606,7 +597,7 @@ class Service
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasGraphData(): bool
     {
@@ -614,12 +605,14 @@ class Service
     }
 
     /**
-     * @param boolean $hasGraphData
+     * @param bool $hasGraphData
+     *
      * @return self
      */
     public function setHasGraphData(bool $hasGraphData): self
     {
         $this->hasGraphData = $hasGraphData;
+
         return $this;
     }
 
@@ -633,18 +626,22 @@ class Service
 
     /**
      * @param Tag $category
+     *
      * @return self
      */
     public function addCategory(Tag $category): self
     {
         $this->categories[] = $category;
+
         return $this;
     }
 
     /**
      * @param Tag[] $categories
-     * @return self
+     *
      * @throws \TypeError
+     *
+     * @return self
      */
     public function setCategories(array $categories): self
     {
@@ -658,8 +655,10 @@ class Service
 
     /**
      * @param Servicegroup[] $groups
-     * @return self
+     *
      * @throws \TypeError
+     *
+     * @return self
      */
     public function setGroups(array $groups): self
     {
@@ -673,8 +672,10 @@ class Service
 
     /**
      * @param Severity|null $severity
-     * @return self
+     *
      * @throws \TypeError
+     *
+     * @return self
      */
     public function setSeverity(?Severity $severity): self
     {

@@ -1,3 +1,5 @@
+import { Provider, createStore } from 'jotai';
+
 import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
 
 import {
@@ -17,6 +19,7 @@ import {
   labelNotificationName,
   labelSubject
 } from '../translatedLabels';
+import { panelWidthStorageAtom } from '../atom';
 import { contactGroupsEndpoint } from '../../Authentication/api/endpoints';
 
 import {
@@ -34,14 +37,19 @@ import {
 
 import Form from '.';
 
+const store = createStore();
+store.set(panelWidthStorageAtom, 800);
+
 const PanelWithQueryProvider = (): JSX.Element => {
   return (
     <div style={{ height: '100vh' }}>
-      <TestQueryProvider>
-        <SnackbarProvider>
-          <Form marginBottom={0} />
-        </SnackbarProvider>
-      </TestQueryProvider>
+      <Provider store={store}>
+        <TestQueryProvider>
+          <SnackbarProvider>
+            <Form marginBottom={0} />
+          </SnackbarProvider>
+        </TestQueryProvider>
+      </Provider>
     </div>
   );
 };
@@ -82,11 +90,11 @@ const initialize = (): void => {
     response: contactGroupsResponse
   });
 
+  cy.viewport('macbook-13');
+
   cy.mount({
     Component: <PanelWithQueryProvider />
   });
-
-  cy.viewport('macbook-13');
 };
 
 describe('Panel: Creation mode', () => {

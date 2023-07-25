@@ -124,8 +124,7 @@ $searchS = null;
 $searchH = null;
 $searchP = null;
 
-if (isset($inputs['Search'])) {
-    $num = 0;
+if (isset($inputs['Search']) && $inputs['Search'] !== "" ) {
     $centreon->historySearch[$url] = array();
     $searchH = $inputs["searchH"];
     $centreon->historySearch[$url]["searchH"] = $searchH;
@@ -221,36 +220,52 @@ if (isset($inputs["o"]) && $inputs["o"] == "rb" && isset($inputs["id"])) {
 
 $search_string = "";
 $extTables = "";
+$queryParams = [];
 if ($searchH != "" || $searchS != "" || $searchP != "") {
     if ($searchH != "") {
-        $search_string .= " AND i.host_name LIKE '%" . htmlentities($searchH, ENT_QUOTES, 'UTF-8') . "%' ";
+        $search_string .= " AND i.host_name LIKE :searchH ";
+        $queryParams[':searchH'] = '%' . htmlentities($searchH, ENT_QUOTES, 'UTF-8') . '%';
     }
     if ($searchS != "") {
-        $search_string .= " AND i.service_description LIKE '%" . htmlentities($searchS, ENT_QUOTES, 'UTF-8') . "%' ";
+        $search_string .= " AND i.service_description LIKE :searchS ";
+        $queryParams[':searchS'] = '%' . htmlentities($searchS, ENT_QUOTES, 'UTF-8') . '%';
     }
     if ($searchP != "") {
         /* Centron Broker */
         $extTables = ", hosts h";
-        $search_string .= " AND i.host_id = h.host_id AND h.instance_id = " . $searchP;
+        $search_string .= " AND i.host_id = h.host_id AND h.instance_id = :searchP ";
+        $queryParams[':searchP'] = $searchP;
     }
 }
 
-$tab_class = array("0" => "list_one", "1" => "list_two");
-$storage_type = array(0 => "RRDTool", 2 => "RRDTool & MySQL");
-$yesOrNo = array(0 => "No", 1 => "Yes", 2 => "Rebuilding");
+$tab_class = ["0" => "list_one", "1" => "list_two"];
+$storage_type = [0 => "RRDTool", 2 => "RRDTool & MySQL"];
+$yesOrNo = [0 => "No", 1 => "Yes", 2 => "Rebuilding"];
 
-$data = array();
+$data = array ();
 $query = "SELECT SQL_CALC_FOUND_ROWS DISTINCT i.* FROM index_data i, metrics m" . $extTables .
-    " WHERE i.id = m.index_id $search_string ORDER BY host_name, service_description LIMIT " . $num * $limit .
-    ", $limit";
-$DBRESULT = $pearDBO->query($query);
-$rows = $pearDBO->query("SELECT FOUND_ROWS()")->fetchColumn();
+    " WHERE i.id = m.index_id $search_string ORDER BY host_name, service_description LIMIT :offset, :limit";
 
-for ($i = 0; $indexData = $DBRESULT->fetchRow(); $i++) {
-    $query = "SELECT * FROM metrics WHERE index_id = '" . $indexData["id"] . "' ORDER BY metric_name";
-    $DBRESULT2 = $pearDBO->query($query);
+$stmt = $pearDBO->prepare($query);
+
+$stmt->bindValue(':offset', $num * $limit, \PDO::PARAM_INT);
+$stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+
+// loop and inject search  values into queries
+foreach ($queryParams as $param => $value) {
+    $stmt->bindValue($param, $value, \PDO::PARAM_STR);
+}
+$stmt->execute();
+$stmt2 = $pearDBO->query("SELECT FOUND_ROWS()");
+$rows = $stmt2->fetchColumn();
+$query = "SELECT * FROM metrics WHERE index_id = :indexId ORDER BY metric_name";
+$stmt2 = $pearDBO->prepare($query);
+for ($i = 0; $indexData = $stmt->fetch(\PDO::FETCH_ASSOC); $i++) {
+    $stmt2->bindValue(':indexId', $indexData["id"], \PDO::PARAM_INT);
+    $stmt2->execute();
+
     $metric = "";
-    for ($im = 0; $metrics = $DBRESULT2->fetchRow(); $im++) {
+    for ($im = 0; $metrics = $stmt2->fetch(\PDO::FETCH_ASSOC); $im++) {
         if ($im) {
             $metric .= " - ";
         }

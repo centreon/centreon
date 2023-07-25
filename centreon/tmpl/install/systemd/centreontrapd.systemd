@@ -17,7 +17,7 @@
 ##
 
 [Unit]
-Description=Centreon Trapd Daemon is a Centreon program that manage traps
+Description=Centreon Trapd Daemon is a Centreon program that manages traps
 PartOf=centreon.service
 After=centreon.service
 ReloadPropagatedFrom=centreon.service

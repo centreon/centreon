@@ -16330,7 +16330,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Circular inheritance not allowed"
 #  msgstr ""
 
-#cloud notifications 
+#cloud notifications
 
 # msgid 'Notifications management'
 # msgstr ""
@@ -16395,7 +16395,13 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid 'Select time period / channels of notifications'
 # msgstr ""
 
-# msgid 'How many times would you like to duplicate selected notification?'
+# msgid "Notification duplicated"
+# msgstr ""
+
+# msgid "Failed to duplicate the notification"
+# msgstr ""
+
+# msgid "Please enter a name for the duplicated notification"
 # msgstr ""
 
 # msgid 'Delete notification?'
@@ -16563,5 +16569,23 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Common properties"
 # msgstr ""
 
-msgid "More actions"
+# msgid ""
 # msgstr ""
+
+#  msgid "Error while adding a host"
+#  msgstr ""
+
+#  msgid "Error while linking host categories to a host"
+#  msgstr ""
+
+#  msgid "You are not allowed to add hosts"
+#  msgstr ""
+
+#  msgid "Host #%d not found"
+#  msgstr ""
+
+#  msgid "Host name should not start with '_Module_'"
+#  msgstr ""
+
+#  msgid "Error while retrieving a host"
+#  msgstr ""

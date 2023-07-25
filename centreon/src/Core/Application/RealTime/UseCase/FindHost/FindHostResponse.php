@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,167 +18,110 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Application\RealTime\UseCase\FindHost;
 
-use Core\Domain\RealTime\Model\Icon;
-use Core\Tag\RealTime\Domain\Model\Tag;
+use Core\Application\RealTime\Common\RealTimeResponseTrait;
+use Core\Domain\RealTime\Model\Acknowledgement;
 use Core\Domain\RealTime\Model\Downtime;
 use Core\Domain\RealTime\Model\Hostgroup;
 use Core\Domain\RealTime\Model\HostStatus;
-use Core\Domain\RealTime\Model\Acknowledgement;
-use Core\Severity\RealTime\Domain\Model\Severity;
-use Core\Application\RealTime\Common\RealTimeResponseTrait;
+use Core\Domain\RealTime\Model\Icon;
 use Core\Domain\RealTime\Model\ResourceTypes\HostResourceType;
+use Core\Severity\RealTime\Domain\Model\Severity;
+use Core\Tag\RealTime\Domain\Model\Tag;
 
 class FindHostResponse
 {
     use RealTimeResponseTrait;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $timezone;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $alias;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $isFlapping;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $isAcknowledged;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $isInDowntime;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $output;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $performanceData;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $commandLine;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $notificationNumber;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $lastStatusChange;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $lastNotification;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     public $latency;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     public $executionTime;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     public $statusChangePercentage;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $nextCheck;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $lastCheck;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $hasActiveChecks;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $hasPassiveChecks;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $lastTimeUp;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $checkAttempts;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $maxCheckAttempts;
 
-    /**
-     * @var array<string, int|string|null>
-     */
+    /** @var array<string, int|string|null> */
     public $icon;
 
-    /**
-     * @var array<array<string, mixed>>
-     */
+    /** @var array<array<string, mixed>> */
     public $groups;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     public $status;
 
-    /**
-     * @var array<int, array<string, mixed>>
-     */
+    /** @var array<int, array<string, mixed>> */
     public $downtimes;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     public $acknowledgement;
 
-    /**
-     * @var array<array<string, mixed>>
-     */
+    /** @var array<array<string, mixed>> */
     public array $categories = [];
 
-    /**
-     * @var array<string, mixed>|null
-     */
+    /** @var array<string, mixed>|null */
     public ?array $severity = null;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public string $type = HostResourceType::TYPE_NAME;
 
     /**
@@ -217,9 +160,10 @@ class FindHostResponse
     }
 
     /**
-     * Converts an array of Hostgroups model into an array
+     * Converts an array of Hostgroups model into an array.
      *
      * @param Hostgroup[] $hostgroups
+     *
      * @return array<int, array<string, mixed>>
      */
     private function hostgroupsToArray(array $hostgroups): array
@@ -227,7 +171,7 @@ class FindHostResponse
         return array_map(
             fn (Hostgroup $hostgroup) => [
                 'id' => $hostgroup->getId(),
-                'name' => $hostgroup->getName()
+                'name' => $hostgroup->getName(),
             ],
             $hostgroups
         );

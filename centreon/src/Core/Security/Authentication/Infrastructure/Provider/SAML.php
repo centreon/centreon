@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -109,6 +109,7 @@ class SAML implements ProviderAuthenticationInterface
 
     /**
      * @param LoginRequest $request
+     *
      * @throws AclConditionsException
      * @throws Error
      * @throws ValidationError
@@ -123,24 +124,27 @@ class SAML implements ProviderAuthenticationInterface
         $this->auth = new Auth($this->formatter->format($customConfiguration));
         $this->auth->processResponse($_SESSION['AuthNRequestID'] ?? null);
         $errors = $this->auth->getErrors();
-        if (!empty($errors)) {
-            $ex =  ProcessAuthenticationResponseException::create();
+        if (! empty($errors)) {
+            $ex = ProcessAuthenticationResponseException::create();
             $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => $errors]);
+
             throw $ex;
         }
 
-        if (!$this->auth->isAuthenticated()) {
+        if (! $this->auth->isAuthenticated()) {
             $ex = UserNotAuthenticatedException::create();
             $this->loginLogger->error(Provider::SAML, $ex->getMessage());
+
             throw $ex;
         }
 
         $settings = $this->auth->getSettings();
         $metadata = $settings->getSPMetadata();
         $errors = $settings->validateMetadata($metadata);
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             $ex = InvalidMetadataException::create();
             $this->info($ex->getMessage(), ['errors' => $errors]);
+
             throw $ex;
         }
 
@@ -158,7 +162,7 @@ class SAML implements ProviderAuthenticationInterface
         $this->username = $attrs[0];
         CentreonSession::writeSessionClose('saml', [
             'samlSessionIndex' => $this->auth->getSessionIndex(),
-            'samlNameId' => $this->auth->getNameId()
+            'samlNameId' => $this->auth->getNameId(),
         ]);
 
         $this->loginLogger->info(Provider::SAML, 'checking security access rules');
@@ -168,8 +172,9 @@ class SAML implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return ContactInterface
      * @throws SSOAuthenticationException
+     *
+     * @return ContactInterface
      */
     public function findUserOrFail(): ContactInterface
     {
@@ -182,8 +187,9 @@ class SAML implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return ContactInterface|null
      * @throws Exception
+     *
+     * @return ContactInterface|null
      */
     public function getUser(): ?ContactInterface
     {
@@ -211,6 +217,7 @@ class SAML implements ProviderAuthenticationInterface
     {
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
+
         return $customConfiguration->isAutoImportEnabled();
     }
 
@@ -222,11 +229,11 @@ class SAML implements ProviderAuthenticationInterface
     {
         $user = $this->getUser();
         if ($this->isAutoImportEnabled() && $user === null) {
-            $this->info("Start auto import");
+            $this->info('Start auto import');
             $this->loginLogger->info($this->configuration->getType(), 'start auto import');
             $this->createUser();
             $user = $this->findUserOrFail();
-            $this->info("User imported: " . $user->getName());
+            $this->info('User imported: ' . $user->getName());
             $this->loginLogger->info(
                 $this->configuration->getType(),
                 'user imported',
@@ -243,16 +250,17 @@ class SAML implements ProviderAuthenticationInterface
     {
         $user = $this->getAuthenticatedUser();
         if ($this->isAutoImportEnabled() === true && $user === null) {
-            $this->info("Start auto import");
+            $this->info('Start auto import');
             $this->createUser();
             $user = $this->getAuthenticatedUser();
-            $this->info("User imported: " . $user->getName());
+            $this->info('User imported: ' . $user->getName());
         }
     }
 
     /**
-     * @return Centreon
      * @throws Exception
+     *
+     * @return Centreon
      */
     public function getLegacySession(): Centreon
     {
@@ -274,12 +282,12 @@ class SAML implements ProviderAuthenticationInterface
             'contact_autologin_key' => '',
             'contact_admin' => $user->isAdmin() ? '1' : '0',
             'default_page' => $user->getDefaultPage(),
-            'contact_location' => (string)$user->getTimezoneId(),
+            'contact_location' => (string) $user->getTimezoneId(),
             'show_deprecated_pages' => $user->isUsingDeprecatedPages(),
             'reach_api' => $user->hasAccessToApiConfiguration() ? 1 : 0,
             'reach_api_rt' => $user->hasAccessToApiRealTime() ? 1 : 0,
             'contact_theme' => $user->getTheme() ?? 'light',
-            'auth_type' => Provider::SAML
+            'auth_type' => Provider::SAML,
         ];
 
         $this->authenticatedUser = $user;
@@ -290,6 +298,7 @@ class SAML implements ProviderAuthenticationInterface
 
     /**
      * @param string|null $token
+     *
      * @return NewProviderToken
      */
     public function getProviderToken(?string $token = null): NewProviderToken
@@ -319,7 +328,6 @@ class SAML implements ProviderAuthenticationInterface
 
     /**
      * @param Configuration $configuration
-     * @return void
      */
     public function setConfiguration(Configuration $configuration): void
     {
@@ -336,6 +344,7 @@ class SAML implements ProviderAuthenticationInterface
 
     /**
      * @param array<string> $claims
+     *
      * @return array<int,AccessGroup>
      */
     public function getUserAccessGroupsFromClaims(array $claims): array
@@ -345,10 +354,10 @@ class SAML implements ProviderAuthenticationInterface
         $customConfiguration = $this->configuration->getCustomConfiguration();
         foreach ($customConfiguration->getACLConditions()->getRelations() as $authorizationRule) {
             $claimValue = $authorizationRule->getClaimValue();
-            if (!in_array($claimValue, $claims)) {
+            if (! in_array($claimValue, $claims, true)) {
                 $this->info(
-                    "Configured claim value not found in user claims",
-                    ["claim_value" => $claimValue]
+                    'Configured claim value not found in user claims',
+                    ['claim_value' => $claimValue]
                 );
 
                 continue;
@@ -356,6 +365,7 @@ class SAML implements ProviderAuthenticationInterface
             // We ensure here to not duplicate access group while using their id as index
             $userAccessGroups[$authorizationRule->getAccessGroup()->getId()] = $authorizationRule->getAccessGroup();
         }
+
         return $userAccessGroups;
     }
 
@@ -369,6 +379,7 @@ class SAML implements ProviderAuthenticationInterface
 
     /**
      * @param AuthenticationTokens $authenticationTokens
+     *
      * @return AuthenticationTokens|null
      */
     public function refreshToken(AuthenticationTokens $authenticationTokens): ?AuthenticationTokens
@@ -406,42 +417,9 @@ class SAML implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return void
-     * @throws Throwable
-     * @throws AssertionFailedException
-     */
-    private function createUser(): void
-    {
-        $customConfiguration = $this->configuration->getCustomConfiguration();
-        $this->info('Auto import starting...', ["user" => $this->username]);
-        $this->loginLogger->info(
-            $this->configuration->getType(),
-            'auto import starting...',
-            ['user' => $this->username]
-        );
-
-        $usernameAttrs = $this->auth->getAttribute($customConfiguration->getUserNameBindAttribute());
-        $emailAttrs = $this->auth->getAttribute($customConfiguration->getEmailBindAttribute());
-        if (!isset($usernameAttrs[0]) || !isset($emailAttrs[0])) {
-            throw InvalidArgumentProvidedException::create("invalid bind attributes provided for auto import");
-        }
-        $fullname = $usernameAttrs[0];
-        $email = $emailAttrs[0];
-
-        $alias = $this->username;
-        $user = new NewUser($alias, $fullname, $email);
-        $user->setContactTemplate($customConfiguration->getContactTemplate());
-        $this->userRepository->create($user);
-        $this->info('Auto import complete', [
-            "user_alias" => $alias,
-            "user_fullname" => $fullname,
-            "user_email" => $email
-        ]);
-    }
-
-    /**
-     * @return string
      * @throws Error
+     *
+     * @return string
      */
     public function login(): void
     {
@@ -450,12 +428,11 @@ class SAML implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return void
      * @throws Error
      */
     public function logout(): void
     {
-        $returnTo = "/login";
+        $returnTo = '/login';
         $parameters = [];
         $nameId = null;
         $sessionIndex = null;
@@ -475,11 +452,11 @@ class SAML implements ProviderAuthenticationInterface
 
     public function handleCallbackLogoutResponse(): void
     {
-        $this->info("SAML SLS invoked");
+        $this->info('SAML SLS invoked');
 
         /** @var SAML $provider */
         $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
-        if (isset($_SESSION) && isset($_SESSION['LogoutRequestID'])) {
+        if (isset($_SESSION, $_SESSION['LogoutRequestID'])  ) {
             $requestID = $_SESSION['LogoutRequestID'];
         } else {
             $requestID = null;
@@ -488,9 +465,43 @@ class SAML implements ProviderAuthenticationInterface
         $auth->processSLO(true, $requestID);
 
         // Avoid 'Open Redirect' attacks
-        if (isset($_GET['RelayState']) && Utils::getSelfURL() != $_GET['RelayState']) {
+        if (isset($_GET['RelayState']) && Utils::getSelfURL() !== $_GET['RelayState']) {
             $auth->redirectTo($_GET['RelayState']);
+
             exit;
         }
+    }
+
+    /**
+     * @throws Throwable
+     * @throws AssertionFailedException
+     */
+    private function createUser(): void
+    {
+        $customConfiguration = $this->configuration->getCustomConfiguration();
+        $this->info('Auto import starting...', ['user' => $this->username]);
+        $this->loginLogger->info(
+            $this->configuration->getType(),
+            'auto import starting...',
+            ['user' => $this->username]
+        );
+
+        $usernameAttrs = $this->auth->getAttribute($customConfiguration->getUserNameBindAttribute());
+        $emailAttrs = $this->auth->getAttribute($customConfiguration->getEmailBindAttribute());
+        if (! isset($usernameAttrs[0]) || ! isset($emailAttrs[0])) {
+            throw InvalidArgumentProvidedException::create('invalid bind attributes provided for auto import');
+        }
+        $fullname = $usernameAttrs[0];
+        $email = $emailAttrs[0];
+
+        $alias = $this->username;
+        $user = new NewUser($alias, $fullname, $email);
+        $user->setContactTemplate($customConfiguration->getContactTemplate());
+        $this->userRepository->create($user);
+        $this->info('Auto import complete', [
+            'user_alias' => $alias,
+            'user_fullname' => $fullname,
+            'user_email' => $email,
+        ]);
     }
 }

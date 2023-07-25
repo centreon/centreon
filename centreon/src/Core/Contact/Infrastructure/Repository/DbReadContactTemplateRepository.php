@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\RequestParameters\RequestParameters;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
@@ -32,9 +32,7 @@ use Core\Contact\Domain\Model\ContactTemplate;
 
 class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements ReadContactTemplateRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
     /**
@@ -51,7 +49,7 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
 
         $this->sqlRequestTranslator->setConcordanceArray([
             'id' => 'contact_id',
-            'name' => 'contact_name'
+            'name' => 'contact_name',
         ]);
     }
 
@@ -60,7 +58,7 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
      */
     public function findAll(): array
     {
-        $request = "SELECT SQL_CALC_FOUND_ROWS contact_id, contact_name FROM contact";
+        $request = 'SELECT SQL_CALC_FOUND_ROWS contact_id, contact_name FROM contact';
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
@@ -110,9 +108,9 @@ class DbReadContactTemplateRepository extends AbstractRepositoryDRB implements R
     public function find(int $id): ?ContactTemplate
     {
         $statement = $this->db->prepare(
-            "SELECT contact_id, contact_name FROM contact
+            'SELECT contact_id, contact_name FROM contact
                 WHERE contact_id = :id
-                AND contact_register = 0"
+                AND contact_register = 0'
         );
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
         $statement->execute();

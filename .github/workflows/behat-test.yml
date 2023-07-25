@@ -53,6 +53,10 @@ jobs:
         feature: ${{ fromJson(needs.behat-test-list.outputs.features) }}
     name: ${{ matrix.feature }}
 
+    env:
+      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
+      SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -75,28 +79,41 @@ jobs:
 
       - name: Setup docker compose
         run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.14.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
       - if: ${{ contains(matrix.feature, 'RestApi') }}
         uses: actions/setup-node@v3
         with:
-          node-version: 17
+          node-version: 18
 
       - name: Install dependencies
         run: composer install --optimize-autoloader
         working-directory: ${{ inputs.module_name }}
 
+      - name: Retore standard slim image in cache
+        uses: actions/cache/restore@v3
+        with:
+          path: /tmp/cache/docker-image
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+          fail-on-cache-miss: true
+
+      - name: Load standard slim image
+        run: |
+          docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        shell: bash
+
       - name: Behat acceptance testing
         run: |
-          WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-slim-${{ inputs.os }}:${{ github.head_ref || github.ref_name }}"
+          WEB_IMAGE="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
           rm -rf acceptance-logs && mkdir acceptance-logs
           rm -rf xunit-reports && mkdir xunit-reports
           sed \
             -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
-            -e "s#@WEB_FRESH_IMAGE@#${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-fresh-${{ inputs.os }}:${{ github.head_ref || github.ref_name }}#g" \
+            -e "s#@WEB_FRESH_IMAGE@#${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-fresh-${{ inputs.os }}:${{ env.IMAGE_TAG }}#g" \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
-          BASE_DIRECTORY=`pwd`
+          BASE_DIRECTORY=$(pwd)
           cd ${{ inputs.module_name }}
           ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
@@ -106,8 +123,7 @@ jobs:
 
       - if: failure()
         name: Display logs
-        run: |
-          find ./acceptance-logs -type f | grep '.txt' | xargs -r more | cat
+        run: find ./acceptance-logs -type f | grep '.txt' | xargs -r more | cat
         shell: bash
 
       - uses: actions/upload-artifact@v3

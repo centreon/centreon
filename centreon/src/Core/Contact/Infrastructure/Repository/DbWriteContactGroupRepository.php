@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,11 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
-use Core\Contact\Domain\Model\ContactGroup;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Contact\Application\Repository\WriteContactGroupRepositoryInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 
 class DbWriteContactGroupRepository extends AbstractRepositoryDRB implements WriteContactGroupRepositoryInterface
 {
@@ -45,7 +45,7 @@ class DbWriteContactGroupRepository extends AbstractRepositoryDRB implements Wri
     public function deleteContactGroupsForUser(ContactInterface $user): void
     {
         $statement = $this->db->prepare($this->translateDbName(
-            "DELETE FROM `:db`.contactgroup_contact_relation WHERE contact_contact_id = :userId"
+            'DELETE FROM `:db`.contactgroup_contact_relation WHERE contact_contact_id = :userId'
         ));
         $statement->bindValue(':userId', $user->getId(), \PDO::PARAM_INT);
         $statement->execute();
@@ -57,7 +57,7 @@ class DbWriteContactGroupRepository extends AbstractRepositoryDRB implements Wri
     public function insertContactGroupForUser(ContactInterface $user, ContactGroup $contactGroup): void
     {
         $statement = $this->db->prepare($this->translateDbName(
-            "INSERT INTO contactgroup_contact_relation VALUES (:userId, :contactGroupId)"
+            'INSERT INTO contactgroup_contact_relation VALUES (:userId, :contactGroupId)'
         ));
         $statement->bindValue(':userId', $user->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':contactGroupId', $contactGroup->getId(), \PDO::PARAM_INT);

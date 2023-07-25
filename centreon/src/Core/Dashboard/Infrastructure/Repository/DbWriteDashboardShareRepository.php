@@ -97,6 +97,7 @@ class DbWriteDashboardShareRepository extends AbstractRepositoryDRB implements W
 
         return 0 !== $statement->rowCount();
     }
+
     public function updateContactGroupShare(int $contactGroupId, int $dashboardId, DashboardSharingRole $role): bool
     {
         $query = <<<'SQL'
