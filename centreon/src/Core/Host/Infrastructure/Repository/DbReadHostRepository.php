@@ -260,6 +260,22 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             WHERE host_id = :host_id
               AND host_register = '1'
               AND argr.acl_group_id IN ({$subRequest})
+            UNION
+            SELECT 1
+            FROM `:db`.host
+            INNER JOIN `:db`.hostgroup_relation hr
+                ON hr.host_host_id = `host`.host_id
+            INNER JOIN `:db`.hostgroup hg
+                ON hg.hg_id = hr.hostgroup_hg_id
+            INNER JOIN `:db`.acl_resources_hg_relations arhgr
+                ON arhgr.hg_hg_id = hg.hg_id
+            INNER JOIN `:db`.acl_resources ar
+                ON ar.acl_res_id = arhgr.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON argr.acl_res_id = ar.acl_res_id
+            WHERE host_id = :host_id
+              AND host_register = '1'
+              AND argr.acl_group_id IN ({$subRequest})
             SQL
         );
 
