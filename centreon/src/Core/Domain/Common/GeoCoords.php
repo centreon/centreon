@@ -40,8 +40,8 @@ class GeoCoords implements \Stringable
     private const REGEX_FULL = '/^' . self::REGEX_LATITUDE . ',\s*' . self::REGEX_LONGITUDE . '$/';
 
     /**
-     * @param numeric-string $latitude
-     * @param numeric-string $longitude
+     * @param string $latitude
+     * @param string $longitude
      *
      * @throws InvalidGeoCoordException
      */

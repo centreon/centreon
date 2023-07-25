@@ -24,6 +24,9 @@ declare(strict_types=1);
 namespace Core\Service\Application\Repository;
 
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\Service\Domain\Model\Service;
+use Core\Service\Domain\Model\ServiceInheritance;
+use Core\Service\Domain\Model\ServiceNamesByHost;
 
 interface ReadServiceRepositoryInterface
 {
@@ -69,4 +72,48 @@ interface ReadServiceRepositoryInterface
      * @return list<int>
      */
     public function findServiceIdsLinkedToHostId(int $hostId): array;
+
+    /*
+     * Indicates whether the service template name already exists.
+     *
+     * @param list<int> $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceNamesByHost[]
+     */
+    public function findServiceNamesByHosts(array $hostIds): array;
+
+    /**
+     * Indicates whether the service template name already exists.
+     *
+     * @param int $hostId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceNamesByHost|null
+     */
+    public function findServiceNamesByHost(int $hostId): ?ServiceNamesByHost;
+
+    /**
+     * Find one service template.
+     *
+     * @param int $serviceId
+     *
+     * @throws \Throwable
+     *
+     * @return Service|null
+     */
+    public function findById(int $serviceId): ?Service;
+
+    /**
+     * Retrieves all service inheritances from a service template.
+     *
+     * @param int $serviceId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceInheritance[]
+     */
+    public function findParents(int $serviceId): array;
 }

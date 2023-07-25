@@ -21,36 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Service\Application\Repository;
+namespace Core\Service\Application\UseCase\AddService;
 
-use Core\Service\Domain\Model\NewService;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface WriteServiceRepositoryInterface
+interface AddServicePresenterInterface
 {
-    /**
-     * Delete a service by ID.
-     *
-     * @param int $serviceId
-     *
-     * @throws \Throwable
-     */
-    public function delete(int $serviceId): void;
-
-    /**
-     * Delete services by ID.
-     *
-     * @param int ...$serviceIds
-     */
-    public function deleteByIds(int ...$serviceIds): void;
-
-    /**
-     * Add a new service template.
-     *
-     * @param NewService $newService
-     *
-     * @throws \Throwable
-     *
-     * @return int
-     */
-    public function add(NewService $newService): int;
+    public function presentResponse(AddServiceResponse|ResponseStatusInterface $response): void;
 }
