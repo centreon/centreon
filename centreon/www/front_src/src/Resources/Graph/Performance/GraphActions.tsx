@@ -1,11 +1,12 @@
-import { MouseEvent, MutableRefObject, ReactNode, useState } from 'react';
+import { MouseEvent, MutableRefObject, useState } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from 'tss-react/mui';
 
+import WrenchIcon from '@mui/icons-material/Build';
 import LaunchIcon from '@mui/icons-material/Launch';
 import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
 import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
@@ -16,17 +17,17 @@ import {
   useLocaleDateTimeFormat,
 } from '@centreon/ui';
 
-import FederatedComponent from '../../../components/FederatedComponents';
 import { ResourceDetails } from '../../Details/models';
 import { CustomTimePeriod } from '../../Details/tabs/Graph/models';
 import { TimelineEvent } from '../../Details/tabs/Timeline/models';
 import memoizeComponent from '../../memoizedComponent';
-import { Resource } from '../../models';
+import { Resource, ResourceType } from '../../models';
 import {
   labelAsDisplayed,
   labelCSV,
   labelExport,
   labelMediumSize,
+  labelPerformanceGraphAD,
   labelPerformancePage,
   labelSmallSize,
 } from '../../translatedLabels';
@@ -39,9 +40,9 @@ import {
 
 interface Props {
   customTimePeriod?: CustomTimePeriod;
+  getIsModalOpened: (value: boolean) => void;
   open: boolean;
   performanceGraphRef: MutableRefObject<HTMLDivElement | null>;
-  renderAdditionalGraphActions?: ReactNode;
   resource?: Resource | ResourceDetails;
   timeline?: Array<TimelineEvent>;
 }
@@ -61,7 +62,7 @@ const GraphActions = ({
   timeline,
   performanceGraphRef,
   open,
-  renderAdditionalGraphActions,
+  getIsModalOpened,
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const theme = useTheme();
@@ -125,6 +126,14 @@ const GraphActions = ({
     });
   };
 
+  const isResourceAnomalyDetection = equals(
+    resource?.type,
+    ResourceType.anomalydetection,
+  );
+
+  const openModalAnomalyDetection = (): void => {
+    getIsModalOpened(true);
+  };
   if (!open) {
     return null;
   }
@@ -159,15 +168,18 @@ const GraphActions = ({
           >
             <SaveAsImageIcon fontSize="inherit" />
           </IconButton>
-          <>
-            <FederatedComponent
-              displayButtonConfiguration
-              buttonConfigurationData={{ resource }}
-              path="/anomaly-detection"
-              styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
-            />
-            {renderAdditionalGraphActions}
-          </>
+          {isResourceAnomalyDetection && (
+            <IconButton
+              disableTouchRipple
+              ariaLabel={t(labelPerformanceGraphAD) as string}
+              data-testid={labelPerformanceGraphAD}
+              size="small"
+              title={t(labelPerformanceGraphAD) as string}
+              onClick={openModalAnomalyDetection}
+            >
+              <WrenchIcon fontSize="inherit" />
+            </IconButton>
+          )}
           <Menu
             keepMounted
             anchorEl={menuAnchor}

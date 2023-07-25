@@ -210,6 +210,7 @@ const ExportablePerformanceGraphWithTimeline = ({
           graphActions={
             <MemoizedGraphActions
               customTimePeriod={customTimePeriod}
+              getIsModalOpened={getIsModalOpened}
               open={!isEditAnomalyDetectionDataDialogOpen}
               performanceGraphRef={
                 performanceGraphRef as unknown as MutableRefObject<HTMLDivElement | null>
