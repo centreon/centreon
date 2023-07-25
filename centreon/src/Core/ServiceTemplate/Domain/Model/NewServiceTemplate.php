@@ -39,11 +39,11 @@ class NewServiceTemplate
                  MAX_ACTION_URL_LENGTH = 65535,
                  MAX_ICON_ALT_LENGTH = 200;
 
+    protected string $className;
+
     private string $name;
 
     private string $alias;
-
-    private string $className;
 
     /** @var string[] */
     private array $commandArguments = [];
@@ -147,11 +147,8 @@ class NewServiceTemplate
      */
     public function setName(string $name): void
     {
-        $name = preg_replace('/\s{2,}/', ' ', $name);
-        if ($name === null) {
-            throw AssertionException::notNull($this->className . '::name');
-        }
-        $name = trim($name);
+        $name = ServiceTemplate::formatName($name) ?? throw AssertionException::notNull($this->className . '::name');
+
         Assertion::notEmptyString($name, $this->className . '::name');
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, $this->className . '::name');
         Assertion::unauthorizedCharacters(
@@ -177,11 +174,8 @@ class NewServiceTemplate
      */
     public function setAlias(string $alias): void
     {
-        $alias = preg_replace('/\s{2,}/', ' ', $alias);
-        if ($alias === null) {
-            throw AssertionException::notNull($this->className . '::alias');
-        }
-        $alias = trim($alias);
+        $alias = ServiceTemplate::formatName($alias) ?? throw AssertionException::notNull($this->className . '::alias');
+
         Assertion::notEmptyString($alias, $this->className . '::alias');
         Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, $this->className . '::alias');
         Assertion::unauthorizedCharacters(
@@ -208,6 +202,11 @@ class NewServiceTemplate
         $this->commandArguments[] = $commandArgument;
     }
 
+    public function resetCommandArguments(): void
+    {
+        $this->commandArguments = [];
+    }
+
     /**
      * @return list<string>
      */
@@ -224,6 +223,11 @@ class NewServiceTemplate
         $this->eventHandlerArguments[] = $eventHandlerArgument;
     }
 
+    public function resetEventHandlerArguments(): void
+    {
+        $this->eventHandlerArguments = [];
+    }
+
     /**
      * @return list<string>
      */
@@ -238,6 +242,11 @@ class NewServiceTemplate
     public function addNotificationType(NotificationType $notificationType): void
     {
         $this->notificationTypes[] = $notificationType;
+    }
+
+    public function resetNotificationTypes(): void
+    {
+        $this->notificationTypes = [];
     }
 
     /**

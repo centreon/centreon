@@ -13,6 +13,9 @@ Feature:
     """
     CONTACT;ADD;test;test;test@localhost.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;test;reach_api;1
+    SC;ADD;severity1;service-severity-alias
+    SC;setparam;severity1;sc_activate;1
+    SC;setseverity;severity1;42;logos/logo-centreon-colors.png
     """
 
     When I send a POST request to '/api/latest/configuration/services/templates' with body:
@@ -197,7 +200,7 @@ Feature:
       | name      | path |
       | newServiceTemplateId | id   |
 
-    When I send a GET request to '/api/latest/configuration/services/templates?search={"name": "service template test"}'
+    When I send a GET request to '/api/latest/configuration/services/templates?search={"id": "<newServiceTemplateId>"}'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
@@ -225,7 +228,7 @@ Feature:
             "limit": 10,
             "search": {
                 "$and": {
-                    "name": "service template test"
+                    "id": "<newServiceTemplateId>"
                 }
             },
             "sort_by": {},
@@ -237,13 +240,22 @@ Feature:
     When I send a PATCH request to '/api/latest/configuration/services/templates/<newServiceTemplateId>' with body:
     """
     {
+        "name": "new service template test",
+        "alias": "new service template alias",
+        "service_template_id": <templateB>,
+        "check_timeperiod_id": 2,
+        "note": "new note",
+        "note_url": "new note_url",
+        "action_url": "new action url",
+        "severity_id": 5,
+        "macros": [],
         "host_templates": [2, 3],
-        "macros": []
+        "service_categories": [1, 3]
     }
     """
     Then the response code should be "204"
 
-    When I send a GET request to '/api/latest/configuration/services/templates?search={"name": "service template test"}'
+    When I send a GET request to '/api/latest/configuration/services/templates?search={"id": <newServiceTemplateId>}'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
@@ -251,14 +263,14 @@ Feature:
         "result": [
             {
                 "id": <newServiceTemplateId>,
-                "name": "service template test",
-                "alias": "service template alias",
-                "service_template_id": <templateC>,
-                "check_timeperiod_id": 1,
-                "note": "note",
-                "note_url": "note_url",
-                "action_url": "action url",
-                "severity_id": null,
+                "name": "new service template test",
+                "alias": "new service template alias",
+                "service_template_id": <templateB>,
+                "check_timeperiod_id": 2,
+                "note": "new note",
+                "note_url": "new note_url",
+                "action_url": "new action url",
+                "severity_id": 5,
                 "host_templates": [
                     2,
                     3
@@ -271,7 +283,7 @@ Feature:
             "limit": 10,
             "search": {
                 "$and": {
-                    "name": "service template test"
+                    "id": <newServiceTemplateId>
                 }
             },
             "sort_by": {},
