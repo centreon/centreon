@@ -228,7 +228,7 @@ const Inputs = ({
                             )}
                             variant="body1"
                           >
-                            {t(inputProps.additionalLabel)}
+                            {inputProps.additionalLabel}
                           </Typography>
                         )}
                         <div className={inputProps?.inputClassName || ''}>

@@ -29,7 +29,7 @@ interface FieldsTableGetRequiredProps {
 export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
 
 export interface InputProps {
-  additionalLabel?: string;
+  additionalLabel?: string | JSX.Element;
   additionalLabelClassName?: string;
   additionalMemoProps?: Array<unknown>;
   autocomplete?: {
