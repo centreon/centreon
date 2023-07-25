@@ -31,17 +31,16 @@ import {
   labelPleaseEnterNameForDuplicatedNotification,
   labelDiscard,
   labelNotificationDuplicated
-} from '../translatedLabels';
-import { notificationsNamesAtom, panelWidthStorageAtom } from '../atom';
-import { DeleteConfirmationDialog } from '../Actions/Delete';
-import { DuplicationForm } from '../Actions/Duplicate';
+} from '../../translatedLabels';
+import { notificationsNamesAtom, panelWidthStorageAtom } from '../../atom';
+import { DeleteConfirmationDialog } from '../../Actions/Delete';
+import { DuplicationForm } from '../../Actions/Duplicate';
+import { notificationEndpoint } from '../api/endpoints';
+import { PanelMode } from '../models';
+import { editedNotificationIdAtom, panelModeAtom } from '../atom';
+import Form from '..';
 
-import { notificationEndpoint } from './api/endpoints';
-import { PanelMode } from './models';
-import { editedNotificationIdAtom, panelModeAtom } from './atom';
 import { listNotificationResponse } from './testUtils';
-
-import Form from '.';
 
 const store = createStore();
 store.set(panelWidthStorageAtom, 800);

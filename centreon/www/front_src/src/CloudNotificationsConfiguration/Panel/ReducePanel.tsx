@@ -12,7 +12,7 @@ import {
 } from '../translatedLabels';
 import { panelWidthStorageAtom } from '../atom';
 
-import useStyles from './Form.styles';
+import useStyles from './Form/Form.styles';
 
 const ReducePanelButton = (): JSX.Element => {
   const { classes } = useStyles();

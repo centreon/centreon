@@ -17,13 +17,12 @@ import {
   labelConfirmEditNotification,
   labelSuccessfulEditNotification,
   labelSuccessfulNotificationAdded
-} from '../translatedLabels';
-import { isPanelOpenAtom } from '../atom';
-
-import { adaptNotification } from './api/adapters';
-import { PanelMode } from './models';
-import { editedNotificationIdAtom, panelModeAtom } from './atom';
-import { notificationEndpoint } from './api/endpoints';
+} from '../../translatedLabels';
+import { isPanelOpenAtom } from '../../atom';
+import { adaptNotification } from '../api';
+import { PanelMode } from '../models';
+import { editedNotificationIdAtom, panelModeAtom } from '../atom';
+import { notificationEndpoint } from '../api/endpoints';
 
 interface UseFormState {
   dialogOpen: boolean;

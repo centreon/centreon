@@ -1,23 +1,14 @@
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { equals, path } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
+import { path } from 'ramda';
 
-import { ThemeMode } from '@centreon/ui-context';
 import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 
-import { labelTypeYourTextHere } from '../../translatedLabels';
-
-const useStyle = makeStyles()((theme) => ({
-  textEditor: {
-    backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
-      ? theme.palette.background.default
-      : theme.palette.common.white
-  }
-}));
+import { labelTypeYourTextHere } from '../../../translatedLabels';
+import { useStyles } from '../Inputs.styles';
 
 const EmailBody = (): JSX.Element => {
-  const { classes } = useStyle();
+  const { classes } = useStyles({});
 
   const { t } = useTranslation();
   const { setFieldValue, values, initialValues, errors, touched, handleBlur } =

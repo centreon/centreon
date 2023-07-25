@@ -2,7 +2,7 @@ import { equals, isNil } from 'ramda';
 
 import { ChannelsEnum, ResourcesTypeEnum } from '../models';
 
-import { EmailIcon } from './Channel/Icons';
+import { EmailIcon } from './FormInputs/Channel/Icons';
 import { EventsType } from './models';
 
 const emptyEmail =

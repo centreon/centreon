@@ -27,7 +27,8 @@ export const adaptNotification = ({
   name,
   serviceGroups,
   users,
-  contactgroups
+  contactgroups,
+  businessviews
 }): object => ({
   contactgroups: map(prop('id'), contactgroups),
   is_activated: isActivated,
@@ -52,7 +53,16 @@ export const adaptNotification = ({
       events: adaptEvents(serviceGroups.events),
       ids: map(prop('id'), serviceGroups.ids),
       type: serviceGroups.type
-    }
+    },
+    ...(businessviews
+      ? [
+          {
+            events: adaptEvents(businessviews.events),
+            ids: map(prop('id'), businessviews.ids),
+            type: businessviews.type
+          }
+        ]
+      : [])
   ],
   timeperiod_id: 1,
   users: map(prop('id'), users)

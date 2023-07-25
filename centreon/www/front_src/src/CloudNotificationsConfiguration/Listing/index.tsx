@@ -15,8 +15,8 @@ import {
   selectedRowsAtom,
   notificationsNamesAtom
 } from '../atom';
-import { editedNotificationIdAtom, panelModeAtom } from '../EditPanel/atom';
-import { PanelMode } from '../EditPanel/models';
+import { editedNotificationIdAtom, panelModeAtom } from '../Panel/atom';
+import { PanelMode } from '../Panel/models';
 
 import { Actions } from './Header';
 import useListingColumns from './columns';

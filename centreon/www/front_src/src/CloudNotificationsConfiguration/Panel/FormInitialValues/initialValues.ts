@@ -1,14 +1,26 @@
 import { TFunction } from 'i18next';
 
-import { ChannelsEnum, ResourcesTypeEnum } from '../models';
+import { ChannelsEnum, ResourcesTypeEnum } from '../../models';
 import {
   labelIncludeServicesForTheseHosts,
   labelTimePeriod24h7days
-} from '../translatedLabels';
+} from '../../translatedLabels';
+import { SlackIcon, EmailIcon, SmsIcon } from '../FormInputs/Channel/Icons';
+import { NotificationType } from '../models';
+import { emptyEmail, formatMessages, formatResource } from '../utils';
 
-import { SlackIcon, EmailIcon, SmsIcon } from './Channel/Icons';
-import { NotificationType } from './models';
-import { emptyEmail, formatMessages, formatResource } from './utils';
+const formatBV = (isBamModuleInstalled, resources): object => {
+  if (!isBamModuleInstalled) {
+    return {};
+  }
+
+  return {
+    businessviews: formatResource({
+      resourceType: ResourcesTypeEnum.BV,
+      resources
+    })
+  };
+};
 
 export const getInitialValues = ({
   name,
@@ -17,8 +29,12 @@ export const getInitialValues = ({
   messages,
   resources,
   contactgroups,
-  t
-}: NotificationType & { t: TFunction }): object => ({
+  t,
+  isBamModuleInstalled
+}: NotificationType & {
+  isBamModuleInstalled?: boolean;
+  t: TFunction;
+}): object => ({
   contactgroups,
   hostGroups: formatResource({ resourceType: ResourcesTypeEnum.HG, resources }),
   isActivated,
@@ -50,10 +66,31 @@ export const getInitialValues = ({
     checked: true,
     label: t(labelTimePeriod24h7days)
   },
-  users
+  users,
+  ...formatBV(!!isBamModuleInstalled, resources)
 });
 
-export const getEmptyInitialValues = (t: TFunction): object => ({
+const getBVInitialValue = (isBamModuleInstalled): object => {
+  if (!isBamModuleInstalled) {
+    return {};
+  }
+
+  return {
+    businessviews: {
+      events: [],
+      ids: [],
+      type: ResourcesTypeEnum.BV
+    }
+  };
+};
+
+export const getEmptyInitialValues = ({
+  t,
+  isBamModuleInstalled
+}: {
+  isBamModuleInstalled?: boolean;
+  t: TFunction;
+}): object => ({
   contactgroups: [],
   hostGroups: {
     events: [],
@@ -98,5 +135,6 @@ export const getEmptyInitialValues = (t: TFunction): object => ({
     subject: ''
   },
   timeperiod: { checked: true, label: t(labelTimePeriod24h7days) },
-  users: []
+  users: [],
+  ...getBVInitialValue(isBamModuleInstalled)
 });

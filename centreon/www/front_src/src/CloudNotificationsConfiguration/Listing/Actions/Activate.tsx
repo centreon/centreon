@@ -12,7 +12,7 @@ import {
   ResponseError
 } from '@centreon/ui';
 
-import { notificationEndpoint } from '../../EditPanel/api/endpoints';
+import { notificationEndpoint } from '../../Panel/api/endpoints';
 
 const Switch = styled(MUISwitch)(({ theme }) => ({
   '& .MuiSwitch-switchBase': {

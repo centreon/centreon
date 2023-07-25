@@ -4,18 +4,23 @@ import { useTranslation } from 'react-i18next';
 
 import { useFetchQuery } from '@centreon/ui';
 
+import { PanelMode } from '../models';
+import { notificationEndpoint } from '../api/endpoints';
+import { notificationdecoder } from '../api';
+import { editedNotificationIdAtom, panelModeAtom } from '../atom';
+
 import { getEmptyInitialValues, getInitialValues } from './initialValues';
-import { PanelMode } from './models';
-import { notificationEndpoint } from './api/endpoints';
-import { notificationdecoder } from './api/decoders';
-import { editedNotificationIdAtom, panelModeAtom } from './atom';
 
 interface UseFormState {
   initialValues: object;
   isLoading: boolean;
 }
 
-const useFormInitialValues = (): UseFormState => {
+const useFormInitialValues = ({
+  isBamModuleInstalled
+}: {
+  isBamModuleInstalled: boolean;
+}): UseFormState => {
   const { t } = useTranslation();
   const panelMode = useAtomValue(panelModeAtom);
   const editedNotificationId = useAtomValue(editedNotificationIdAtom);
@@ -33,8 +38,8 @@ const useFormInitialValues = (): UseFormState => {
 
   const initialValues =
     equals(panelMode, PanelMode.Edit) && data
-      ? getInitialValues({ ...data, t })
-      : getEmptyInitialValues(t);
+      ? getInitialValues({ ...data, isBamModuleInstalled, t })
+      : getEmptyInitialValues({ isBamModuleInstalled, t });
 
   const isLoading = equals(panelMode, PanelMode.Edit) ? loading : false;
 

@@ -20,9 +20,9 @@ import {
   labelRequired,
   labelThisNameAlreadyExists
 } from '../translatedLabels';
-import { notificationEndpoint } from '../EditPanel/api/endpoints';
+import { notificationEndpoint } from '../Panel/api/endpoints';
 import { DeleteConfirmationDialog } from '../Actions/Delete';
-import { listNotificationResponse } from '../EditPanel/testUtils';
+import { listNotificationResponse } from '../Panel/Tests/testUtils';
 import { DuplicationForm } from '../Actions/Duplicate';
 
 import { buildNotificationsEndpoint } from './api/endpoints';

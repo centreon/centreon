@@ -18,24 +18,24 @@ import {
   labelYourFormHasUnsavedChanges,
   labelNotificationName,
   labelSubject
-} from '../translatedLabels';
-import { panelWidthStorageAtom } from '../atom';
-import { contactGroupsEndpoint } from '../../Authentication/api/endpoints';
-
+} from '../../translatedLabels';
+import { panelWidthStorageAtom } from '../../atom';
+import { contactGroupsEndpoint } from '../../../Authentication/api/endpoints';
+import { platformVersionsAtom } from '../../../Main/atoms/platformVersionsAtom';
 import {
   hostsGroupsEndpoint,
   notificationEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
-} from './api/endpoints';
+} from '../api/endpoints';
+import Form from '..';
+
 import {
   usersResponse,
   hostGroupsResponse,
   serviceGroupsResponse,
   contactGroupsResponse
 } from './testUtils';
-
-import Form from '.';
 
 const store = createStore();
 store.set(panelWidthStorageAtom, 800);
@@ -205,5 +205,37 @@ describe('Panel: Creation mode', () => {
     cy.findByText(labelDoYouWantToQuitWithoutSaving);
 
     cy.matchImageSnapshot();
+  });
+});
+
+describe('Creation Panel: With Business Views', () => {
+  before(() => {
+    const platformVersions = {
+      isCloudPlatform: false,
+      modules: {
+        'centreon-bam-server': {
+          fix: '0',
+          major: '23',
+          minor: '10',
+          version: '23.10.0'
+        }
+      },
+      web: {
+        fix: '0',
+        major: '23',
+        minor: '10',
+        version: '23.10.0'
+      },
+      widgets: {}
+    };
+    store.set(platformVersionsAtom, platformVersions);
+  });
+  beforeEach(initialize);
+
+  it.only('dispalys  the businessViews field when the BAM module is installed', () => {
+    // cy.matchImageSnapshot();
+  });
+  it.only('hide the businessViews field when the BAM module is not installed', () => {
+    // cy.matchImageSnapshot();
   });
 });

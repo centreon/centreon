@@ -6,8 +6,8 @@ import { Button } from '@mui/material';
 
 import { labelAdd } from '../../translatedLabels';
 import { isPanelOpenAtom } from '../../atom';
-import { editedNotificationIdAtom, panelModeAtom } from '../../EditPanel/atom';
-import { PanelMode } from '../../EditPanel/models';
+import { editedNotificationIdAtom, panelModeAtom } from '../../Panel/atom';
+import { PanelMode } from '../../Panel/models';
 
 const AddAction = (): JSX.Element => {
   const { t } = useTranslation();

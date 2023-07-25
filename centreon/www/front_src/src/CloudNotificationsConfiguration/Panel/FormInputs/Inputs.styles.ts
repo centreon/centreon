@@ -1,7 +1,10 @@
 import { makeStyles } from 'tss-react/mui';
+import { equals } from 'ramda';
+
+import { ThemeMode } from '@centreon/ui-context';
 
 interface StyleProps {
-  isExtraFieldHidden: boolean;
+  isExtraFieldHidden?: boolean;
 }
 
 export const useStyles = makeStyles<StyleProps>()(
@@ -42,6 +45,19 @@ export const useStyles = makeStyles<StyleProps>()(
       backgroundColor: theme.palette.background.panelGroups,
       borderRadius: theme.spacing(0.5),
       padding: theme.spacing(1)
+    },
+    textEditor: {
+      backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
+        ? theme.palette.background.default
+        : theme.palette.common.white
+    },
+    timeperiod: {
+      alignItems: 'center',
+      display: 'flex',
+      gap: theme.spacing(2)
+    },
+    timeperiodTooltip: {
+      fontSize: theme.spacing(2.75)
     },
     titleGroup: {
       fontWeight: theme.typography.fontWeightBold

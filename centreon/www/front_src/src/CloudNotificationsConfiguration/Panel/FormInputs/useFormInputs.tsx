@@ -24,18 +24,23 @@ import {
   labelContacts,
   labelSearchContactsGroups,
   labelSearchContacts,
-  labelSelectContactsAndContactsGroups
+  labelSelectContactsAndContactsGroups,
+  labelSearchBusinessViews,
+  labelBusinessViews,
+  labelBusinessViewsEvents
 } from '../../translatedLabels';
 import { hostEvents, serviceEvents } from '../utils';
-import { EmailBody } from '../Channel';
 import {
+  businessViewsEndpoint,
   contactsGroupsEndpoint,
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
 } from '../api/endpoints';
 
+import { EmailBody } from './Channel';
 import { useStyles } from './Inputs.styles';
+import TimePeriodTitle from './TimePeriodTitle';
 
 const handleGridTemplate = cond([
   [gt(650), always('auto')],
@@ -43,11 +48,20 @@ const handleGridTemplate = cond([
   [T, always('repeat(2, 1fr)')]
 ]);
 
-interface Props {
+interface UseFormInputsProps {
+  isBamModuleInstalled?: boolean;
   panelWidth: number;
 }
 
-const useFormInputs = ({ panelWidth }: Props): object => {
+interface UseFormInputsState {
+  basicFormGroups: Array<Group>;
+  inputs;
+}
+
+const useFormInputs = ({
+  panelWidth,
+  isBamModuleInstalled
+}: UseFormInputsProps): UseFormInputsState => {
   const [isExtraFieldHidden, setIsExtraFieldHidden] = useState(false);
 
   const { classes } = useStyles({ isExtraFieldHidden });
@@ -178,9 +192,51 @@ const useFormInputs = ({ panelWidth }: Props): object => {
       },
       group: basicFormGroups[0].name,
       inputClassName: classes.hostInput,
-      label: 'Resources and events',
+      label: t(labelServiceGroups),
       type: InputType.Grid
     },
+    ...(isBamModuleInstalled
+      ? [
+          {
+            additionalLabel: t(labelBusinessViews),
+            additionalLabelClassName: classes.additionalLabel,
+            fieldName: '',
+            grid: {
+              alignItems: 'center',
+              columns: [
+                {
+                  connectedAutocomplete: {
+                    additionalConditionParameters: [],
+                    endpoint: businessViewsEndpoint
+                  },
+                  dataTestId: labelSearchBusinessViews,
+                  fieldName: 'businessviews.ids',
+                  label: t(labelSearchBusinessViews),
+                  required: true,
+                  type: InputType.MultiConnectedAutocomplete
+                },
+                {
+                  checkbox: {
+                    direction: 'horizontal',
+                    labelPlacement: 'top',
+                    options: serviceEvents
+                  },
+                  dataTestId: labelBusinessViewsEvents,
+                  fieldName: 'businessviews.events',
+                  getDisabled: (values) => isEmpty(values.businessviews.ids),
+                  label: t(labelBusinessViewsEvents),
+                  type: InputType.CheckboxGroup
+                }
+              ],
+              gridTemplateColumns: handleGridTemplate(panelWidth)
+            },
+            group: basicFormGroups[0].name,
+            inputClassName: classes.hostInput,
+            label: t(labelSearchBusinessViews),
+            type: InputType.Grid
+          }
+        ]
+      : []),
     {
       additionalLabel: t(labelContacts),
       additionalLabelClassName: classes.additionalLabel,
@@ -248,7 +304,7 @@ const useFormInputs = ({ panelWidth }: Props): object => {
       type: InputType.Grid
     },
     {
-      additionalLabel: t(labelTimePeriod),
+      additionalLabel: <TimePeriodTitle />,
       additionalLabelClassName: classes.additionalLabel,
       dataTestId: t(labelTimePeriod),
       fieldName: 'timeperiod',

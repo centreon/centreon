@@ -4,12 +4,12 @@ import { makeStyles } from 'tss-react/mui';
 
 import { Box } from '@mui/material';
 
-import { Panel } from '@centreon/ui';
+import { Panel as PanelComponent } from '@centreon/ui';
 import { ThemeMode } from '@centreon/ui-context';
 
 import { isPanelOpenAtom, panelWidthStorageAtom } from '../atom';
 
-import Form from './Form';
+import Form from './Form/Form';
 
 interface Props {
   marginBottom?: number;
@@ -28,7 +28,7 @@ const useStyle = makeStyles<Required<Props>>()((theme, { marginBottom }) => ({
   }
 }));
 
-const EditPanel = ({ marginBottom = 20 }: Props): JSX.Element => {
+const Panel = ({ marginBottom = 20 }: Props): JSX.Element => {
   const { classes } = useStyle({ marginBottom });
   const [panelWidth, setPanelWidth] = useAtom(panelWidthStorageAtom);
   const setIsPanelOpen = useSetAtom(isPanelOpenAtom);
@@ -37,7 +37,7 @@ const EditPanel = ({ marginBottom = 20 }: Props): JSX.Element => {
 
   return (
     <Box className={classes.panelContainer}>
-      <Panel
+      <PanelComponent
         className={classes.panel}
         selectedTab={<Form />}
         width={panelWidth}
@@ -48,4 +48,4 @@ const EditPanel = ({ marginBottom = 20 }: Props): JSX.Element => {
   );
 };
 
-export default EditPanel;
+export default Panel;

@@ -12,7 +12,7 @@ import {
   labelSave,
   labelDoYouWantToConfirmAction
 } from '../../../translatedLabels';
-import useFormSubmit from '../../useFormSubmit';
+import useFormSubmit from '../../Form/useFormSubmit';
 
 const useStyle = makeStyles()((theme) => ({
   icon: {
