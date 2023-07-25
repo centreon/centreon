@@ -17920,7 +17920,7 @@ msgid "Widgets library"
 msgstr "Bibliothèque de widgets"
 
 msgid "Please choose a widget to activate the preview"
-msgstr "Veuillez choisir un widget pour activer l'aperçu"
+msgstr "Sélectionnez un type de widget pour activer l'aperçu"
 
 msgid "Edit widget"
 msgstr "Éditer le widget"
