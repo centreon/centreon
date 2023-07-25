@@ -212,8 +212,8 @@ const MemoizedGraphActions = memoizeComponent<Props>({
   Component: GraphActions,
   memoProps: [
     'customTimePeriod',
-    'resourceParentName',
-    'resourceName',
+    'open',
+    'resource',
     'timeline',
     'performanceGraphRef',
     'renderAdditionalGraphActions',

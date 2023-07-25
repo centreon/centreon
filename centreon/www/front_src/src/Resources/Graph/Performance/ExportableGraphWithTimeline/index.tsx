@@ -208,19 +208,15 @@ const ExportablePerformanceGraphWithTimeline = ({
           endpoint={graphEndpoint}
           getPerformanceGraphRef={getPerformanceGraphRef}
           graphActions={
-            !isEditAnomalyDetectionDataDialogOpen && (
-              <MemoizedGraphActions
-                customTimePeriod={customTimePeriod}
-                getIsModalOpened={getIsModalOpened}
-                performanceGraphRef={
-                  performanceGraphRef as unknown as MutableRefObject<HTMLDivElement | null>
-                }
-                resourceName={resource?.name as string}
-                resourceParentName={resource?.parent?.name}
-                resourceType={resource?.type}
-                timeline={timeline}
-              />
-            )
+            <MemoizedGraphActions
+              customTimePeriod={customTimePeriod}
+              open={!isEditAnomalyDetectionDataDialogOpen}
+              performanceGraphRef={
+                performanceGraphRef as unknown as MutableRefObject<HTMLDivElement | null>
+              }
+              resource={resource}
+              timeline={timeline}
+            />
           }
           graphHeight={graphHeight}
           isEditAnomalyDetectionDataDialogOpen={
