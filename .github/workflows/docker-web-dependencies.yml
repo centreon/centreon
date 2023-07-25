@@ -24,7 +24,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [alma8, alma9]
+        distrib: [alma8]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
