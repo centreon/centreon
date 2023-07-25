@@ -5,6 +5,8 @@ import { createStore, Provider } from 'jotai';
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
 // @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
+import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properties.json';
+import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
@@ -14,9 +16,10 @@ import {
 } from '@centreon/ui-context';
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import { federatedWidgetsAtom } from '../../federatedModules/atoms';
-// import { unstable_Blocker } from 'react-router-dom';
-// import { router } from './useDashboardSaveBlocker';
+import {
+  federatedWidgetsAtom,
+  federatedWidgetsPropertiesAtom
+} from '../../federatedModules/atoms';
 import { DashboardRole } from '../api/models';
 import {
   dashboardsContactGroupsEndpoint,
@@ -26,8 +29,21 @@ import {
   getDashboardEndpoint
 } from '../api/endpoints';
 import { dialogStateAtom } from '../components/DashboardAccessRights/useDashboardAccessRights';
+import { labelDelete } from '../translatedLabels';
 
-import { labelEditDashboard } from './translatedLabels';
+import {
+  labelAdd,
+  labelAddAWidget,
+  labelDeleteAWidget,
+  labelDeleteWidget,
+  labelDoYouWantToDeleteThisWidget,
+  labelEdit,
+  labelEditDashboard,
+  labelEditWidget,
+  labelMoreActions,
+  labelName,
+  labelWidgetsLibrary
+} from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 import { Dashboard } from './Dashboard';
 
@@ -45,6 +61,10 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
 
   const store = createStore();
   store.set(federatedWidgetsAtom, federatedWidgets);
+  store.set(federatedWidgetsPropertiesAtom, [
+    widgetTextProperties,
+    widgetInputProperties
+  ]);
 
   return store;
 };
@@ -256,7 +276,69 @@ describe('Dashboard', () => {
     });
   });
 
-  describe('Add a widget', () => {
-    it('adds a widget');
+  describe('Add widget', () => {
+    it('adds a widget when a widget type is selected and the submission button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelEditDashboard).click();
+      cy.findByLabelText(labelAddAWidget).click();
+
+      cy.findByLabelText(labelWidgetsLibrary).click();
+      cy.contains('Generic input (example)').click();
+
+      cy.findByLabelText(labelName).type('Generic input');
+      cy.findByLabelText('Generic text').type('Text for the new widget');
+
+      cy.findByLabelText(labelAdd).click();
+
+      cy.contains('Text for the new widget').should('be.visible');
+
+      cy.matchImageSnapshot();
+    });
+  });
+
+  describe('Edit widget', () => {
+    it('edits a widget when the corresponding button is clicked, the widget type is changed the edit button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelMoreActions).click();
+      cy.contains(labelEditWidget).click();
+
+      cy.findByLabelText(labelWidgetsLibrary).click();
+      cy.contains('Generic input (example)').click();
+
+      cy.findByLabelText(labelName).type('Generic input');
+      cy.findByLabelText('Generic text').type('Text for the new widget');
+
+      cy.findByLabelText(labelEdit).click();
+
+      cy.contains('Text for the new widget').should('be.visible');
+
+      cy.matchImageSnapshot();
+    });
+  });
+
+  describe('Delete widget', () => {
+    it('deletes a widget when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelMoreActions).click();
+      cy.contains(labelDeleteWidget).click();
+
+      cy.contains(labelDeleteAWidget).should('be.visible');
+      cy.contains(labelDoYouWantToDeleteThisWidget).should('be.visible');
+
+      cy.findByLabelText(labelDelete).click();
+
+      cy.contains(labelAddAWidget).should('be.visible');
+
+      cy.matchImageSnapshot();
+    });
   });
 });

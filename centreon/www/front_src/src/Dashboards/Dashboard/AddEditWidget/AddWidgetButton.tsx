@@ -32,7 +32,7 @@ const AddWidgetButton = (): JSX.Element | null => {
 
   return (
     <Button
-      aria-label="add widget"
+      aria-label={t(labelAddAWidget) as string}
       data-testid="add-widget"
       icon={<AddIcon />}
       iconVariant="start"

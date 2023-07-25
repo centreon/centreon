@@ -75,6 +75,7 @@ const DashboardEditActions = ({
   if (!isEditing) {
     return (
       <Button
+        aria-label={t(labelEditDashboard) as string}
         data-testid="edit_dashboard"
         icon={<EditOutlinedIcon />}
         iconVariant="start"

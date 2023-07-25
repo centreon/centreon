@@ -28,3 +28,4 @@ export const labelDescription = 'Description';
 export const labelWidgetProperties = 'Widget properties';
 export const labelCommonProperties = 'Common properties';
 export const labelRequired = 'Required';
+export const labelMoreActions = 'More actions';
