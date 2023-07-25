@@ -42,6 +42,7 @@ import {
   labelEditWidget,
   labelMoreActions,
   labelName,
+  labelSelectAWidgetType,
   labelWidgetLibrary
 } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
@@ -316,6 +317,7 @@ describe('Dashboard', () => {
 
       cy.findByLabelText(labelEdit).click();
 
+      cy.contains(labelSelectAWidgetType).should('not.exist');
       cy.contains('Text for the new widget').should('be.visible');
 
       cy.matchImageSnapshot();
