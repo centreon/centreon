@@ -245,6 +245,10 @@ properties:
     description: "Severity ID."
     minimum: 1
     nullable: true
+  is_activated:
+    type: boolean
+    description: "Indicates whether the service template is activated or not"
+    example: true
   host_templates:
     type: array
     descriptions: "IDs of host templates linked to this service template."
@@ -259,10 +263,6 @@ properties:
       type: integer
       description: "Service category ID"
     example: [ 1, 2 ]
-  is_activated:
-    type: boolean
-    description: "Indicates whether the service template is activated or not"
-    example: true
   macros:
     type: array
     description: |

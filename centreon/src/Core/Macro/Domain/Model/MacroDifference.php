@@ -58,12 +58,9 @@ final class MacroDifference
         array $afterMacros,
     ): void {
         foreach ($afterMacros as $macroName => $macro) {
-            $directMacroMatch = $directMacros[$macroName]
-                ?? null;
-            $inheritedMacroMatch = $inheritedHostMacros[$macroName]
-                ?? null;
-            $commandMacroMatch = $inheritedCommandMacros[$macroName]
-                ?? null;
+            $directMacroMatch = $directMacros[$macroName] ?? null;
+            $inheritedMacroMatch = $inheritedHostMacros[$macroName] ?? null;
+            $commandMacroMatch = $inheritedCommandMacros[$macroName] ?? null;
 
             if ($directMacroMatch && $inheritedMacroMatch) {
                 if ($this->isIdenticalToInheritedMacro($macro, $inheritedMacroMatch)) {
