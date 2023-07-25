@@ -97,7 +97,9 @@ final class DeleteService
                 $this->storageEngine->startTransaction();
 
                 $monitoringServerId = $this->readRepository->findMonitoringServerId($serviceId);
+                $this->info("Delete service #{$serviceId}");
                 $this->writeRepository->delete($serviceId);
+                $this->info("Notify monitoiring server #{$monitoringServerId} of configuration change");
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($monitoringServerId);
 
                 $this->storageEngine->commitTransaction();

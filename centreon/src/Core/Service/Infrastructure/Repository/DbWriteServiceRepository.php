@@ -45,8 +45,13 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
      */
     public function delete(int $serviceId): void
     {
-        $this->info('Delete service by ID');
-        $request = $this->translateDbName('DELETE FROM `:db`.service WHERE service_id = :id');
+        $request = $this->translateDbName(
+            <<<'SQL'
+                DELETE FROM `:db`.service
+                WHERE service_id = :id
+                AND service_register = '1'
+                SQL
+        );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':id', $serviceId, \PDO::PARAM_INT);
         $statement->execute();

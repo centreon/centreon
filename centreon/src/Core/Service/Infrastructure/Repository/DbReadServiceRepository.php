@@ -127,11 +127,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             ->appendWhere(
                 <<<'SQL'
                     WHERE s.service_id = :service_id
-                    SQL
-            )
-            ->appendWhere(
-                <<<'SQL'
-                    WHERE s.service_register = '1'
+                    AND s.service_register = '1'
                     SQL
             )
             ->storeBindValue(':service_id', $serviceId, \PDO::PARAM_INT);
