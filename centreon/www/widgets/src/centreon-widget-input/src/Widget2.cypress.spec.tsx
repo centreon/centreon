@@ -6,7 +6,7 @@ describe('Text Widget', () => {
     cy.mount({
       Component: (
         <Widget
-          panelOptions={{ input: 'hello' }}
+          panelOptions={{ text: 'hello' }}
           setPanelOptions={setPanelOptions}
         />
       )
