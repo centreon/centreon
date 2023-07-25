@@ -16569,7 +16569,7 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Common properties"
 # msgstr ""
 
-# msgid ""
+# msgid "More actions"
 # msgstr ""
 
 #  msgid "Error while adding a host"
