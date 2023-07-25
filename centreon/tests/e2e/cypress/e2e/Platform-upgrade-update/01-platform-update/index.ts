@@ -1,12 +1,9 @@
-import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { Given } from '@badeball/cypress-cucumber-preprocessor';
 
-import { checkIfConfigurationIsExported } from '../../../commons';
 import {
   checkPlatformVersion,
-  dateBeforeLogin,
   getCentreonStableMinorVersions,
-  installCentreon,
-  updatePlatformPackages
+  installCentreon
 } from '../common';
 
 beforeEach(() => {

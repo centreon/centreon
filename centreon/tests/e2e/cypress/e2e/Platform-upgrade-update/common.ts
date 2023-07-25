@@ -45,8 +45,8 @@ EOF`,
     commandResult = cy
       .execInContainer({
         command: `bash -e <<EOF
-          rm -f /etc/apt/sources.list.d/centreon-unstable.list
-          rm -f /etc/apt/sources.list.d/centreon-testing.list
+          mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak
+          mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak
           apt-get update
 EOF`,
         name: Cypress.env('dockerName')
@@ -69,6 +69,24 @@ EOF`,
       stableVersions.push(Number(result[1]));
     });
 
+    if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
+      cy.execInContainer({
+        command: `bash -e <<EOF
+            dnf config-manager --set-enabled 'centreon-*'
+EOF`,
+        name: Cypress.env('dockerName')
+      });
+    } else {
+      cy.execInContainer({
+        command: `bash -e <<EOF
+            mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list
+            mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list
+            apt-get update
+EOF`,
+        name: Cypress.env('dockerName')
+      });
+    }
+
     return cy.wrap([...new Set(stableVersions)].sort((a, b) => a - b)); // remove duplicates and order
   });
 };
@@ -88,14 +106,15 @@ const installCentreon = (version: string): Cypress.Chainable => {
         systemctl start php-fpm
         systemctl start httpd
         mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
+        dnf config-manager --set-enabled 'centreon-*'
 EOF`,
       name: Cypress.env('dockerName')
     });
   } else {
     cy.execInContainer({
       command: `bash -e <<EOF
-        rm -f /etc/apt/sources.list.d/centreon-unstable.list
-        rm -f  /etc/apt/sources.list.d/centreon-testing.list
+        mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak
+        mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak
         apt-get update
         apt-get install -y centreon-web-apache=${version}-${Cypress.env(
         'WEB_IMAGE_OS'
@@ -108,6 +127,10 @@ EOF`,
         systemctl start php8.1-fpm
         systemctl start apache2
         mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"
+        mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list
+        mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list
+        apt-get update
+        usermod -a -G centreon-broker www-data # temporary fix (MON-20769)
 EOF`,
       name: Cypress.env('dockerName')
     });
@@ -219,13 +242,21 @@ EOF`,
 EOF`,
         name: Cypress.env('dockerName')
       });
+    })
+    .execInContainer({
+      command: `bash -e <<EOF
+        systemctl restart cbd
+        systemctl restart centengine
+        systemctl restart gorgoned
+EOF`,
+      name: Cypress.env('dockerName')
     });
 };
 
 const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
   const command = Cypress.env('WEB_IMAGE_OS').includes('alma')
     ? `rpm -qa | grep centreon-web | cut -d '-' -f3`
-    : `apt -qq list centreon-web | awk '{ print \\$2 }' | cut -d '-' -f1`;
+    : `apt list --installed centreon-web | awk '{ print \\$2 }' | cut -d '-' -f1`;
 
   return cy
     .exec(`docker exec -i ${Cypress.env('dockerName')} sh -c "${command}"`)
@@ -269,26 +300,29 @@ When('administrator runs the update procedure', () => {
   cy.visit('/');
 
   cy.wait('@getStep1').then(() => {
-    cy.get('.btc.bt_info').eq(0).click();
+    cy.get('.btc.bt_info').should('be.visible').click();
   });
 
   cy.wait('@getStep2').then(() => {
     cy.get('span[style]').each(($span) => {
       cy.wrap($span).should('have.text', 'Loaded');
     });
-    cy.get('.btc.bt_info').eq(0).click();
+    cy.get('.btc.bt_info').should('be.visible').click();
   });
 
-  cy.wait('@getStep3').get('.btc.bt_info', { timeout: 15000 }).eq(0).click();
+  cy.wait('@getStep3')
+    .get('.btc.bt_info', { timeout: 15000 })
+    .should('be.visible')
+    .click();
 
   cy.wait('@generatingCache')
     .get('span[style]', { timeout: 15000 })
     .each(($span) => {
       cy.wrap($span).should('have.text', 'OK');
     });
-  cy.get('.btc.bt_info', { timeout: 15000 }).eq(0).click();
+  cy.get('.btc.bt_info', { timeout: 15000 }).should('be.visible').click();
 
-  cy.wait('@getStep5').get('.btc.bt_success').eq(0).click();
+  cy.wait('@getStep5').get('.btc.bt_success').should('be.visible').click();
 });
 
 Then(
