@@ -233,7 +233,7 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [package]
+    needs: [get-version, package]
 
     strategy:
       matrix:
