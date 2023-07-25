@@ -39,16 +39,16 @@ class ClapiContext extends ApiContext
     private string $lastExportOutput = '';
 
     /**
-     * @Given the CLAPI import should success with these data:
+     * @Given the CLAPI commands should NOT have an output with these data:
      *
      * @param PyStringNode $data
      */
-    public function theClapiImportShouldSuccess(PyStringNode $data): void
+    public function theClapiCommandsShouldNotHaveAnOutput(PyStringNode $data): void
     {
         if (! $this->executeImport($data->getRaw())) {
             throw new \Exception(
                 sprintf(
-                    "The import failed with exit code '%d' and output:\n<<<\n%s\n>>>",
+                    "The commands got an exit code '%d' and output:\n<<<\n%s\n>>>",
                     $this->lastImportCode,
                     $this->lastImportOutput
                 )
@@ -57,28 +57,45 @@ class ClapiContext extends ApiContext
     }
 
     /**
-     * @Given the CLAPI import should fail with these data:
+     * @Given the CLAPI commands should have an output with these data:
      *
      * @param PyStringNode $data
      */
-    public function theClapiImportShouldFail(PyStringNode $data): void
+    public function theClapiCommandsShouldHaveAnOutput(PyStringNode $data): void
     {
         if ($this->executeImport($data->getRaw())) {
-            throw new \Exception('The import succeeded instead of failed.');
+            throw new \Exception('The commands output is empty.');
         }
     }
 
     /**
-     * @Given the CLAPI import output should contain :string
+     * @Given the CLAPI commands output should contain :string
      *
      * @param string $string
      */
-    public function theClapiImportOutputShouldContain(string $string): void
+    public function theClapiCommandsOutputShouldContain(string $string): void
     {
         if (! str_contains($this->lastImportOutput, $string)) {
             throw new \Exception(
                 sprintf(
                     "The output didn't contain the expected string\n<<<\n%s\n>>>",
+                    $this->lastImportOutput
+                )
+            );
+        }
+    }
+
+    /**
+     * @Given the CLAPI commands output should be
+     *
+     * @param PyStringNode $data
+     */
+    public function theClapiCommandsOutputShouldBe(PyStringNode $data): void
+    {
+        if (trim($this->lastImportOutput) !== trim($data->getRaw())) {
+            throw new \Exception(
+                sprintf(
+                    "The output didn't match the expected\n<<<\n%s\n>>>",
                     $this->lastImportOutput
                 )
             );
