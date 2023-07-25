@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAtom, useSetAtom, useAtomValue } from 'jotai';
 import { prop } from 'ramda';
@@ -95,7 +95,7 @@ const NotificationsListing = (): JSX.Element => {
       }}
       columns={columns}
       currentPage={(page || 1) - 1}
-      limit={listingData?.meta?.limit}
+      limit={listingData?.meta.limit}
       loading={loading}
       memoProps={[
         columns,
@@ -112,7 +112,7 @@ const NotificationsListing = (): JSX.Element => {
       selectedRows={selectedRows}
       sortField={sortf}
       sortOrder={sorto}
-      totalRows={listingData?.result?.length}
+      totalRows={listingData?.meta.total}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={setLimit}
       onPaginate={changePage}

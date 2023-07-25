@@ -25,8 +25,8 @@ import {
   labelFailedToDeleteSelectedNotifications,
   labelNotificationSuccessfullyDeleted,
   labelNotificationsSuccessfullyDeleted
-} from '../translatedLabels';
-import { DeleteType } from '../models';
+} from '../../translatedLabels';
+import { DeleteType } from '../../models';
 
 import {
   deleteMultipleNotificationEndpoint,

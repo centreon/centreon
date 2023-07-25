@@ -4,6 +4,7 @@ import { atomWithStorage } from 'jotai/utils';
 import {
   DeleteNotificationType,
   DeleteType,
+  DuplicateNotificationType,
   NotificationsType
 } from './models';
 
@@ -32,3 +33,8 @@ export const deleteNotificationAtom = atom<DeleteNotificationType>({
   type: DeleteType.SingleItem
 });
 export const isDeleteDialogOpenAtom = atom<boolean>(false);
+
+export const duplicatedNotificationAtom = atom<DuplicateNotificationType>({
+  id: null
+});
+export const isDuplicateDialogOpenAtom = atom<boolean>(false);

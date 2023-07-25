@@ -23,7 +23,7 @@ export const defaultQueryParams = {
     }
   },
   sort: { name: 'asc' },
-  total: 0
+  total: 56
 };
 
 export const fillNotifications = (numberOfRows: number): unknown => {
@@ -65,7 +65,7 @@ export const getListingResponse = ({
       page,
       search: {},
       sort_by: {},
-      total: 1
+      total: 56
     },
     result: fillNotifications(rows)
   };

@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/DeleteOutline';
 
 import { IconButton } from '@centreon/ui';
 
-import { labelDelete } from '../translatedLabels';
+import { labelDelete } from '../../translatedLabels';
 
 interface Props {
   ariaLabel?: string;

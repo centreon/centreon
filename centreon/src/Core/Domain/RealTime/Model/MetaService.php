@@ -98,7 +98,7 @@ class MetaService
      * @param int $serviceId
      * @param string $name
      * @param ServiceStatus $status
-     * @param privatestring $monitoringServerName
+     * @param string $monitoringServerName
      *
      * @throws \Assert\AssertionFailedException
      */

@@ -116,7 +116,7 @@ const DataCell = ({
           isRowHighlighted={isRowHighlighted}
           viewMode={viewMode}
           onClick={(e): void => {
-            if (!clickable || !column.displaySubItemsCaret) {
+            if (!clickable && !column.displaySubItemsCaret) {
               return;
             }
             e.preventDefault();

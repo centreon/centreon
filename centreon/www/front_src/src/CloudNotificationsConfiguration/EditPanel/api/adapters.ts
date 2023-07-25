@@ -13,14 +13,14 @@ const getBinaryEquivalence = cond([
   [T, always(0)]
 ]);
 
-const adaptEvents = (events: Array<EventsType>): number => {
+export const adaptEvents = (events: Array<EventsType>): number => {
   return pipe(
     map((item: EventsType) => getBinaryEquivalence(item)),
     sum
   )(events);
 };
 
-export const adaptNotifications = ({
+export const adaptNotification = ({
   hostGroups,
   isActivated,
   messages,

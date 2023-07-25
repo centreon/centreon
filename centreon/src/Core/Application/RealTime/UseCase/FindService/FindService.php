@@ -60,7 +60,7 @@ class FindService
      * @param ReadAcknowledgementRepositoryInterface $acknowledgementRepository
      * @param MonitoringServiceInterface $monitoringService
      * @param ReadTagRepositoryInterface $tagRepository
-     * @param privateReadSeverityRepositoryInterface $severityRepository
+     * @param ReadSeverityRepositoryInterface $severityRepository
      */
     public function __construct(
         private ReadServiceRepositoryInterface $repository,

@@ -31,9 +31,9 @@ class NotificationMessage
                  MAX_MESSAGE_LENGTH = 65535;
 
     /**
-     * @param protectedNotificationChannel $channel
-     * @param protectedstring $subject
-     * @param protectedstring $message
+     * @param NotificationChannel $channel
+     * @param string $subject
+     * @param string $message
      *
      * @throws \Assert\AssertionFailedException
      */

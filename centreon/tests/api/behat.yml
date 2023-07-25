@@ -178,3 +178,11 @@ default:
       paths: [ "%paths.base%/features/Command.feature" ]
       contexts:
       - Centreon\Test\Behat\Api\Context\ApiContext
+    hosts:
+      paths: [ "%paths.base%/features/Host.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext
+    cloud_hosts:
+      paths: [ "%paths.base%/features/CloudHost.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\CloudPlatformContext
