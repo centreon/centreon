@@ -87,3 +87,8 @@ export const labelFailedToDuplicateNotification =
   'Failed to duplicate the notification';
 export const labelPleaseEnterNameForDuplicatedNotification =
   'Please enter a name for the duplicated notification';
+export const labelTimePeridoTooltip =
+  'Notifications will only be sent during this time period';
+export const labelBusinessViews = 'Business views';
+export const labelSearchBusinessViews = 'Search Business Views';
+export const labelBusinessViewsEvents = 'Business Views events';

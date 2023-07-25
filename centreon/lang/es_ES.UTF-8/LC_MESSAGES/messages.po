@@ -16103,3 +16103,15 @@ msgstr ""
 
 #  msgid "Error while retrieving a host"
 #  msgstr ""
+
+# msgid "Notifications will only be sent during this time period"
+# msgstr ""
+
+# msgid "Business views"
+# msgstr ""
+
+# msgid "Search Business Views"
+# msgstr ""
+
+# msgid "Business Views events"
+# msgstr ""
