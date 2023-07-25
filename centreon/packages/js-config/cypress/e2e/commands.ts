@@ -330,6 +330,7 @@ Cypress.Commands.add(
           source: '/var/log/php8.1-fpm-centreon-error.log'
         });
       })
+      .exec(`chmod -R 755 "${logDirectory}"`)
       .stopContainer({ name });
   }
 );
