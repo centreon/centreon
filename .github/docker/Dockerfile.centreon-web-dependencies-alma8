@@ -14,7 +14,7 @@ dnf install -y epel-release
 
 curl -o centreon-release.rpm  https://yum.centreon.com/standard/22.10/el8/stable/noarch/RPMS/centreon-release-22.10-1.el8.noarch.rpm
 dnf install -y centreon-release.rpm
-rm -f centreon-release.rppm
+rm -f centreon-release.rpm
 dnf config-manager --set-enabled 'centreon*'
 
 #############################
@@ -161,4 +161,4 @@ dnf clean all --enablerepo=*
 
 EOF
 
-COPY --chmod=755 ./.github/docker/init/* /etc/init.d/
+COPY --chmod=755 ./.github/scripts/init/* /etc/init.d/
