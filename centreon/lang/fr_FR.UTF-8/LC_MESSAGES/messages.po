@@ -17934,9 +17934,6 @@ msgstr "Propriétés du widget"
 msgid "Common properties"
 msgstr "Propriétés communes"
 
-msgid "More actions"
-msgstr "Plus d'actions"
-
 msgid "Error while adding a host"
 msgstr "Erreur lors de la création d'un hôte"
 
