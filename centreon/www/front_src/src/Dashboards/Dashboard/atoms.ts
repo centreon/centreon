@@ -51,6 +51,7 @@ export const setLayoutModeDerivedAtom = atom(
 );
 
 interface AddPanelDerivedAtom {
+  fixedId?: string;
   height?: number;
   moduleName: string;
   options?: object;
@@ -78,12 +79,14 @@ export const addPanelDerivedAtom = atom(
       options,
       width,
       height,
-      moduleName
+      moduleName,
+      fixedId
     }: AddPanelDerivedAtom
   ) => {
     const dashboard = get(dashboardAtom);
 
-    const id = `panel_${panelConfiguration.path}_${length(dashboard.layout)}`;
+    const id =
+      fixedId || `panel_${panelConfiguration.path}_${length(dashboard.layout)}`;
 
     const columnsFromScreenSize = getColumnsFromScreenSize();
     const maxColumns = equals(columnsFromScreenSize, 1)

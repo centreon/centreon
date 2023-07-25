@@ -67,6 +67,7 @@ const useWidgetModal = (): useWidgetModalState => {
 
       deletePanel(widgetFormInitialData?.id as string);
       addPanel({
+        fixedId: widgetFormInitialData?.id || undefined,
         height: panelConfiguration.panelMinHeight,
         moduleName: values.moduleName || '',
         options: values.options,
