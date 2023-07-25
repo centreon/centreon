@@ -380,6 +380,7 @@ find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplac
 %{__install} -m 0755 centreon/bin/registerServerTopology.sh %buildroot%{_datadir}/centreon/bin/
 %{__install} -m 0755 centreon/bin/registerServerTopologyTemplate %buildroot%{_datadir}/centreon/bin/
 %{__install} -m 0755 centreon/bin/centreon-sanitize-images.php %buildroot%{_datadir}/centreon/bin/
+%{__install} -m 0755 centreon/bin/centreon-remove-duplicate-host-service-relations.php %buildroot%{_datadir}/centreon/bin/
 
 # Add new installation backup directory
 %{__install} -d -m 0775 %buildroot%{_localstatedir}/lib/centreon/installs
@@ -585,6 +586,7 @@ fi
 %{_datadir}/centreon/bin/centreon-partitioning.php
 %{_datadir}/centreon/bin/logAnalyserBroker
 %{_datadir}/centreon/bin/centreon-sanitize-images.php
+%{_datadir}/centreon/bin/centreon-remove-duplicate-host-service-relations.php
 %{_bindir}/centFillTrapDB
 %{_bindir}/centreon_trap_send
 %{_bindir}/centreonSyncPlugins
