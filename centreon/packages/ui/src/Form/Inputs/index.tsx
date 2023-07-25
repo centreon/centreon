@@ -1,7 +1,6 @@
 import { Fragment, useMemo } from 'react';
 
 import * as R from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 import { FormikValues, useFormikContext } from 'formik';
 
@@ -126,7 +125,6 @@ const Inputs = ({
   areGroupsOpen
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ groupDirection });
-  const { t } = useTranslation();
   const formikContext = useFormikContext<FormikValues>();
 
   const groupsName = R.pluck('name', groups);
