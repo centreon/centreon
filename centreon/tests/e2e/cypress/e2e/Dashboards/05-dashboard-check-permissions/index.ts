@@ -14,6 +14,9 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-check-permissions.json'
   );
+});
+
+beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -45,31 +48,16 @@ before(() => {
   cy.logoutViaAPI();
 });
 
-beforeEach(() => {
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards?'
-  }).as('listAllDashboards');
-  cy.intercept({
-    method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards'
-  }).as('createDashboard');
-});
-
 after(() => {
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: 'DELETE FROM dashboard'
-  });
   cy.stopWebContainer();
 });
 
 afterEach(() => {
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: 'DELETE FROM dashboard'
+  });
   cy.logout();
 });
 
