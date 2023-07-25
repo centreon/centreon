@@ -12,7 +12,7 @@ dnf config-manager --set-enabled powertools
 
 dnf install -y epel-release
 
-curl -o https://yum.centreon.com/standard/22.10/el8/stable/noarch/RPMS/centreon-release-22.10-1.el8.noarch.rpm
+curl -o centreon-release.rpm  https://yum.centreon.com/standard/22.10/el8/stable/noarch/RPMS/centreon-release-22.10-1.el8.noarch.rpm
 dnf install -y centreon-release.rpm
 rm -f centreon-release.rppm
 dnf config-manager --set-enabled 'centreon*'
@@ -53,8 +53,6 @@ dnf install -y \
   perl-DBD-SQLite \
   perl-DBI \
   perl-EV \
-  perl-FFI-CheckLib \
-  perl-FFI-Platypus \
   perl-HTML-Parser \
   perl-NetAddr-IP \
   perl-Net-Curl \
