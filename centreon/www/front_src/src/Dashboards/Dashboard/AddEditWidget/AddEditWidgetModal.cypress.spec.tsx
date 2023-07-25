@@ -16,7 +16,7 @@ import {
   labelName,
   labelPleaseChooseAWidgetToActivatePreview,
   labelSelectAWidgetType,
-  labelWidgetsLibrary
+  labelWidgetLibrary
 } from '../translatedLabels';
 import { labelCancel } from '../../translatedLabels';
 
@@ -89,7 +89,7 @@ describe('AddEditWidgetModal', () => {
       cy.contains(labelPleaseChooseAWidgetToActivatePreview).should(
         'be.visible'
       );
-      cy.findByLabelText(labelWidgetsLibrary).should('be.visible');
+      cy.findByLabelText(labelWidgetLibrary).should('be.visible');
       cy.findByLabelText(labelCancel).should('be.visible');
       cy.findByLabelText(labelAdd).should('be.visible');
 
@@ -97,7 +97,7 @@ describe('AddEditWidgetModal', () => {
     });
 
     it('enables the add button when a widget is selected and the properties are filled', () => {
-      cy.findByLabelText(labelWidgetsLibrary).click();
+      cy.findByLabelText(labelWidgetLibrary).click();
       cy.contains('Generic input (example)').click();
 
       cy.findByLabelText(labelAdd).should('be.disabled');
@@ -113,7 +113,7 @@ describe('AddEditWidgetModal', () => {
     it('keeps the name when a widget is selected, properties are filled and the widget type is changed', () => {
       const widgetName = 'Widget name';
 
-      cy.findByLabelText(labelWidgetsLibrary).click();
+      cy.findByLabelText(labelWidgetLibrary).click();
       cy.contains('Generic input (example)').click();
 
       cy.findByLabelText(labelName).type(widgetName);
@@ -121,7 +121,7 @@ describe('AddEditWidgetModal', () => {
 
       cy.findByLabelText(labelAdd).should('be.enabled');
 
-      cy.findByLabelText(labelWidgetsLibrary).click();
+      cy.findByLabelText(labelWidgetLibrary).click();
       cy.contains('Generic text (example)').click();
 
       cy.findByLabelText(labelName).should('have.value', widgetName);
@@ -151,7 +151,7 @@ describe('AddEditWidgetModal', () => {
     it('displays the modal with pre-filled values', () => {
       cy.contains(labelSelectAWidgetType).should('be.visible');
 
-      cy.findByLabelText(labelWidgetsLibrary).should(
+      cy.findByLabelText(labelWidgetLibrary).should(
         'have.value',
         'Generic text (example)'
       );
@@ -164,7 +164,7 @@ describe('AddEditWidgetModal', () => {
 
     it('changes the widget type when another widget is selected', () => {
       const widgetName = 'Edited widget name';
-      cy.findByLabelText(labelWidgetsLibrary).click();
+      cy.findByLabelText(labelWidgetLibrary).click();
       cy.contains('Generic input (example)').click();
 
       cy.findByLabelText(labelName).clear().type(widgetName);

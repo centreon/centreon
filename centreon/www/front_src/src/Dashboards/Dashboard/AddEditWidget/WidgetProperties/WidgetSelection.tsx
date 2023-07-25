@@ -5,7 +5,7 @@ import { ListItemText } from '@mui/material';
 
 import { SingleAutocompleteField } from '@centreon/ui';
 
-import { labelWidgetsLibrary } from '../../translatedLabels';
+import { labelWidgetLibrary } from '../../translatedLabels';
 
 import useWidgetSelection from './useWidgetSelection';
 
@@ -31,7 +31,7 @@ const WidgetSelection = (): JSX.Element => {
 
   return (
     <SingleAutocompleteField
-      label={t(labelWidgetsLibrary)}
+      label={t(labelWidgetLibrary)}
       options={options}
       renderOption={renderOption}
       value={selectedWidget || null}

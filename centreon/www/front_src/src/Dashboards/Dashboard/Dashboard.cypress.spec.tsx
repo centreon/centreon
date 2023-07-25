@@ -42,7 +42,7 @@ import {
   labelEditWidget,
   labelMoreActions,
   labelName,
-  labelWidgetsLibrary
+  labelWidgetLibrary
 } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 import { Dashboard } from './Dashboard';
@@ -285,7 +285,7 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelEditDashboard).click();
       cy.findByLabelText(labelAddAWidget).click();
 
-      cy.findByLabelText(labelWidgetsLibrary).click();
+      cy.findByLabelText(labelWidgetLibrary).click();
       cy.contains('Generic input (example)').click();
 
       cy.findByLabelText(labelName).type('Generic input');
@@ -300,7 +300,7 @@ describe('Dashboard', () => {
   });
 
   describe('Edit widget', () => {
-    it('edits a widget when the corresponding button is clicked, the widget type is changed the edit button is clicked', () => {
+    it('edits a widget when the corresponding button is clicked and the widget type is changed the edit button is clicked', () => {
       initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
@@ -308,7 +308,7 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelMoreActions).click();
       cy.contains(labelEditWidget).click();
 
-      cy.findByLabelText(labelWidgetsLibrary).click();
+      cy.findByLabelText(labelWidgetLibrary).click();
       cy.contains('Generic input (example)').click();
 
       cy.findByLabelText(labelName).type('Generic input');
