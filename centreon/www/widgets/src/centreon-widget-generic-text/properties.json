@@ -1,0 +1,13 @@
+{
+  "title": "Generic text",
+  "description": "A generic tewt widget",
+  "options": {
+    "text": {
+      "type": "rich-text",
+      "defaultValue": "",
+      "label": "Generic text",
+      "required": true
+    }
+  },
+  "moduleName": "centreon-widget-generic-text"
+}
