@@ -1627,6 +1627,260 @@ paths:
     $ref: './v23.10/Configuration/Dashboard/Contacts.yaml'
   /configuration/dashboards/contactgroups:
     $ref: './v23.10/Configuration/Dashboard/ContactGroups.yaml'
+  /monitoring/metrics:
+    get:
+      tags:
+       - Metrics
+      summary: "List metrics"
+      description: |
+        Get list of all metrics
+
+        The available parameters to **search** / **sort_by** are:
+        AND
+        * hostgroup.ids [1,2,3]
+        * hostcategory.ids
+        * host.ids
+        * servicegroup.ids
+        * servicecategory.ids
+        * service.ids
+      responses:
+       '200':
+        description: "OK"
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: number
+                    description: count of total of metrics
+                    example: 101
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        service_id:
+                          type: number
+                          description: service id
+                          example: 26
+                        resource_name:
+                          type: string
+                          description: concatenation of host name and service name
+                          example: Printers_Ping
+                        metrics:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: number
+                                description: id of the metric
+                                example: 1
+                              name:
+                                type: string
+                                description: name of the metric
+                                example: rta
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+  /monitoring/metrics/{id}:
+    get:
+      tags:
+       - Metrics
+      summary: "List metrics"
+      parameters:
+        - in: query
+          name: start
+          required: false
+          description: "Start date of metrics (default date is 24 hours in the past)"
+          schema:
+            type: string
+            format: date-time
+            example: '2020-02-18T00:00:00'
+        - in: query
+          name: end
+          required: false
+          description: "End date of metrics (default date is current date)"
+          schema:
+            type: string
+            format: date-time
+            example: '2020-02-19T00:00:00'
+      description: |
+        Get data for one metric
+
+        The available parameters to **search**
+        AND
+        * start
+        * end
+        OR
+        * last_data_only
+      responses:
+       '200':
+        description: "OK"
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metrics:
+                    type: object
+                    properties:
+                      index_id:
+                        type: string
+                        description: index id in centreon_storage.index_data table
+                        example: '4'
+                      metric_id:
+                        type: string
+                        description: metric id in centreon_storage.metrics table
+                        example: '29'
+                      metric:
+                        type: string
+                        description: name of the metric
+                        example: 'cpu'
+                      metric_legend:
+                        type: string
+                        description: name of the metric in legend
+                        example: 'cpu'
+                      unit:
+                        type: string
+                        description: metric unit
+                        example: '%'
+                      hidden:
+                        type: integer
+                        description: if the metric is hidden
+                        example: 0
+                      min:
+                        type: string
+                        description: min value
+                        example: '0'
+                      max:
+                        type: string
+                        description: max value
+                        example: '100'
+                      virtual:
+                        type: integer
+                        description: if the metric is virtual
+                        example: 0
+                      ds_data:
+                        type: object
+                        description: metric line properties
+                        properties:
+                          ds_min:
+                            type: string
+                            description: minimum value
+                            example: '1'
+                          ds_max:
+                            type: string
+                            description: maximum value
+                            example: '1'
+                          ds_minmax_int:
+                            type: string
+                            nullable: true
+                            description: unknown
+                            example: null
+                          ds_last:
+                            type: string
+                            description: last value
+                            example: '1'
+                          ds_average:
+                            type: string
+                            description: average value
+                            example: '1'
+                          ds_total:
+                            type: string
+                            nullable: true
+                            description: unknown
+                            example: null
+                          ds_tickness:
+                            type: string
+                            description: unknown
+                            example: '1'
+                          ds_color_line_mode:
+                            type: string
+                            description: unknown
+                            example: '1'
+                          ds_color_line:
+                            type: string
+                            description: color of the line
+                            example: '#666600'
+                      legend:
+                        type: string
+                        description: metric name in legend
+                        example: 'cpu (%)'
+                      stack:
+                        type: integer
+                        description: if the metric is stacked with other metrics
+                        example: 0
+                      warn:
+                        type: string
+                        nullable: true
+                        description: warning threshold
+                        example: null
+                      warn_low:
+                        type: string
+                        nullable: true
+                        description: low warning threshold
+                        example: null
+                      crit:
+                        type: string
+                        nullable: true
+                        description: critical threshold
+                        example: null
+                      crit_low:
+                        type: string
+                        nullable: true
+                        description: low critical threshold
+                        example: null
+                      ds_color_area_warn:
+                        type: string
+                        description: color of the area under warning threshold
+                        example: '#ff9a13'
+                      ds_color_area_crit:
+                        type: string
+                        description: color of the area under critical threshold
+                        example: '#e00b3d'
+                      ds_order:
+                        type: integer
+                        description: order used for stacking
+                        example: 0
+                      data:
+                        type: array
+                        items:
+                          type: number
+                          format: float
+                          description: value of the metric
+                        example:
+                          - 1.0
+                          - null
+                          - 1.0
+                      prints:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: string
+                            description: label to display in legend
+                            example: 'Last:1.00'
+                      minimum_value:
+                        type: number
+                        format: float
+                        description: minimum value
+                        example: 1.0
+                      maximum_value:
+                        type: number
+                        format: float
+                        description: maximum value
+                        example: 1.0
+                  times:
+                    type: array
+                    items:
+                      type: string
+                      format: date-time
+                      description: datetime of the tick
+                    example:
+                      - '2020-02-19T00:00:00'
+                      - '2020-02-19T00:05:00'
+                      - '2020-02-19T00:10:00'
   /configuration/access-groups:
     get:
       tags:
