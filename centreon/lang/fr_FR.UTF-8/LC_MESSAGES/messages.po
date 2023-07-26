@@ -17922,6 +17922,12 @@ msgstr "Le nom d'hôte ne doit pas commencer par '_Module_'"
 msgid "Error while retrieving a host"
 msgstr "Error lors de la récupération d'un hôte"
 
+msgid "You are not allowed to delete a service"
+msgstr "Vous n'êtes pas autorisé à supprimer un service"
+
+msgid "Error while deleting the service"
+msgstr "Erreur lors de la suppression du service"
+
 msgid "Notifications will only be sent during this time period"
 msgstr "Les notifications ne seront envoyées que pendant cette période"
 

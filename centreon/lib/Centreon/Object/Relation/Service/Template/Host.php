@@ -121,8 +121,8 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      * Delete host template / host relation
      * Order has importance
      *
-     * @param int $fkey
-     * @param int $skey
+     * @param ?int $fkey
+     * @param ?int $skey
      * @return void
      */
     public function delete($fkey, $skey = null)
