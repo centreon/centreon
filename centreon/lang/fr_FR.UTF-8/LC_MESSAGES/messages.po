@@ -17921,3 +17921,9 @@ msgstr "Le nom d'hôte ne doit pas commencer par '_Module_'"
 
 msgid "Error while retrieving a host"
 msgstr "Error lors de la récupération d'un hôte"
+
+msgid "You are not allowed to list notification resources"
+msgstr "Vous n'êtes pas autorisé à afficher les ressources des notifications"
+
+msgid "Error while listing notification resources"
+msgstr "Erreur lors de l'affichage des ressources des notifications"
