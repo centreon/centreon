@@ -1,10 +1,10 @@
 {
   "federatedComponentsConfiguration": {
-    "path": "/widgets/generic-text",
+    "path": "/widgets/generictext",
     "federatedComponents": [
-      "./generic-text"
+      "./generictext"
     ]
   },
   "moduleFederationName": "widgetgenerictext",
-  "moduleName": "centreon-widget-generic-text"
+  "moduleName": "centreon-widget-generictext"
 }

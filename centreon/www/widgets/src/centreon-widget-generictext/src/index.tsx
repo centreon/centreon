@@ -3,7 +3,7 @@ import { createStore } from 'jotai';
 import { Module, RichTextEditor } from '@centreon/ui';
 
 interface Options {
-  text: string;
+  genericText: string;
 }
 interface Props {
   panelOptions?: Options;
@@ -15,7 +15,7 @@ const GenericText = ({ panelOptions, store }: Props): JSX.Element => {
     <Module maxSnackbars={1} seedName="generic-text" store={store}>
       <RichTextEditor
         editable={false}
-        initialEditorState={panelOptions?.text}
+        initialEditorState={panelOptions?.genericText}
       />
     </Module>
   );
