@@ -8,10 +8,9 @@ import {
   labelPeriod,
   labelActions,
   labelStatus
-} from '../translatedLabels';
-
-import { FormatChannels, formatResourcesForListing } from './utils';
-import { Actions, Activate } from './Actions';
+} from '../../translatedLabels';
+import { FormatChannels, formatResourcesForListing } from '../utils';
+import { Actions, Activate } from '../Actions';
 
 export const defaultQueryParams = {
   limit: 10,
@@ -40,6 +39,10 @@ export const fillNotifications = (numberOfRows: number): unknown => {
       {
         count: Math.floor(Math.random() * 100),
         type: 'hostgroup'
+      },
+      {
+        count: Math.floor(Math.random() * 100),
+        type: 'businessview'
       }
     ],
     timeperiod: {

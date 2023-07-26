@@ -19,13 +19,14 @@ import {
   labelPleaseEnterNameForDuplicatedNotification,
   labelRequired,
   labelThisNameAlreadyExists
-} from '../translatedLabels';
-import { notificationEndpoint } from '../Panel/api/endpoints';
-import { DeleteConfirmationDialog } from '../Actions/Delete';
-import { listNotificationResponse } from '../Panel/Tests/testUtils';
-import { DuplicationForm } from '../Actions/Duplicate';
+} from '../../translatedLabels';
+import { notificationEndpoint } from '../../Panel/api/endpoints';
+import { getNotificationResponse } from '../../Panel/Tests/testUtils';
+import { DeleteConfirmationDialog } from '../../Actions/Delete';
+import { DuplicationForm } from '../../Actions/Duplicate';
+import { buildNotificationsEndpoint } from '../api/endpoints';
+import Listing from '..';
 
-import { buildNotificationsEndpoint } from './api/endpoints';
 import {
   defaultQueryParams,
   getListingColumns,
@@ -34,8 +35,6 @@ import {
   multipleNotificationsWarningResponse,
   multipleNotificationsfailedResponse
 } from './testUtils';
-
-import Listing from '.';
 
 const store = createStore();
 
@@ -396,7 +395,7 @@ describe('Listing row actions: Duplicate button', () => {
       alias: 'getNotificationRequest',
       method: Method.GET,
       path: notificationEndpoint({ id: 1 }),
-      response: listNotificationResponse
+      response: getNotificationResponse({})
     });
 
     cy.interceptAPIRequest({
