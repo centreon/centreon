@@ -95,7 +95,7 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: /tmp/cache/docker-image
-          key: no-docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
