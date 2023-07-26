@@ -14,6 +14,10 @@ default:
       paths: [ "%paths.base%/features/RealTimeCategory.feature" ]
       contexts:
         - Centreon\Test\Api\Context\RealTimeCategoryContext
+    clapi:
+      paths: [ "%paths.base%/features/Clapi.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\ClapiContext
     dashboard:
       paths:
         - "%paths.base%/features/DashboardWithOpenApi.feature"

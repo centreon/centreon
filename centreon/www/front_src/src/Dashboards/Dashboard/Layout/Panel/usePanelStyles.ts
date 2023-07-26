@@ -2,9 +2,10 @@ import { makeStyles } from 'tss-react/mui';
 
 export const usePanelHeaderStyles = makeStyles()((theme) => ({
   panelActionsIcons: {
-    columnGap: theme.spacing(1),
+    columnGap: theme.spacing(2),
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    marginRight: theme.spacing(1)
   },
   panelHeader: {
     padding: theme.spacing(0)
