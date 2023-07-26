@@ -55,7 +55,7 @@ class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implement
     /**
      * @inheritDoc
      */
-    public function findAllForActivatedNotifications(): array
+    public function findAllForActivatedNotifications(): ?array
     {
         $providerSubRequests = $this->getRequestsFromProviders();
         $request = <<<SQL
@@ -67,6 +67,9 @@ class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implement
         $statement->execute();
 
         $records = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        if ([] === $records) {
+            return null;
+        }
 
         return DbNotifiableResourceFactory::createFromRecords($records);
     }

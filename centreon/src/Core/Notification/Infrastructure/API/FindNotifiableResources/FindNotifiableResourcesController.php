@@ -27,8 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Notification\Application\UseCase\FindNotifiableResources\FindNotifiableResources;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\{Request, Response};
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class FindNotifiableResourcesController extends AbstractController
@@ -52,12 +51,12 @@ final class FindNotifiableResourcesController extends AbstractController
 
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
-        $requestUid = $request->headers->get('X-Notifications-Resources-UID', null);
+        $requestUid = $request->headers->get('X-Notifiable-Resources-UID', null);
         if (! \is_string($requestUid)) {
             $presenter->presentResponse(new InvalidArgumentResponse('Missing header'));
             $this->error(
-                'Missing header "X-Notifications-Resources-UID"',
-                ['X-Notifications-Resources-UID' => $requestUid]
+                'Missing header "X-Notifiable-Resources-UID"',
+                ['X-Notifiable-Resources-UID' => $requestUid]
             );
         } else {
             $useCase($presenter, $requestUid);

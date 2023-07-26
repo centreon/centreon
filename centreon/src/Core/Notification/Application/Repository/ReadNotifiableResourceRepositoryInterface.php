@@ -33,7 +33,7 @@ interface ReadNotifiableResourceRepositoryInterface
      *
      * @throws \Throwable
      *
-     * @return NotifiableResource[]
+     * @return NotifiableResource[]|null
      */
-    public function findAllForActivatedNotifications(): array;
+    public function findAllForActivatedNotifications(): ?array;
 }

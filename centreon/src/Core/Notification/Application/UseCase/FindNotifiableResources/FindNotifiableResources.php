@@ -55,9 +55,11 @@ final class FindNotifiableResources
     {
         try {
             if ($this->contact->isAdmin()) {
+                $this->info('Retrieving all notifiable resources');
                 $notifiableResources = $this->readRepository->findAllForActivatedNotifications();
 
-                if ([] === $notifiableResources) {
+                if (null === $notifiableResources) {
+                    $this->error('Notifiable resources not found');
                     $response = new NotFoundResponse('Notifiable resources');
                 } else {
                     $responseJson = \json_encode($notifiableResources, JSON_THROW_ON_ERROR);
