@@ -19,8 +19,8 @@ const useStyle = makeStyles()((theme) => ({
 }));
 
 const Title = ({ className }: Props): JSX.Element => {
-  const { cx, classes } = useStyle();
   const { t } = useTranslation();
+  const { cx, classes } = useStyle();
 
   return (
     <Typography className={cx(classes.title, className)} variant="h5">
