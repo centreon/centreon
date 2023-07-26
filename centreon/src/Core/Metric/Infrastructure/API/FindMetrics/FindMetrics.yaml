@@ -1,0 +1,5 @@
+FindNotifications:
+  methods: GET
+  path: /configuration/notifications
+  controller: 'Core\Metric\Infrastructure\API\FindMetrics\FindMetricsController'
+  condition: "request.attributes.get('version') >= 23.10"
