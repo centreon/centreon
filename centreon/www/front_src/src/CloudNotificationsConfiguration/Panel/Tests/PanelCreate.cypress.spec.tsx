@@ -99,7 +99,7 @@ const initialize = (): void => {
   });
 };
 
-describe('Panel: Creation mode', () => {
+describe('Create Panel', () => {
   beforeEach(initialize);
 
   it('displays the form', () => {
@@ -210,7 +210,7 @@ describe('Panel: Creation mode', () => {
   });
 });
 
-describe('Creation Panel: Business Views', () => {
+describe('Create Panel: Business Views', () => {
   before(() => {
     store.set(platformVersionsAtom, platformVersions);
   });
