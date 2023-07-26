@@ -92,14 +92,16 @@ jobs:
         working-directory: ${{ inputs.module_name }}
 
       - name: Retore standard slim image in cache
+        id: cache-docker-slim
         uses: actions/cache/restore@v3
         with:
           path: /tmp/cache/docker-image
-          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+          key: no-docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
       - name: Load standard slim image
+        if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
           docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
