@@ -30,7 +30,9 @@ import {
   labelCancel,
   labelPleaseEnterNameForDuplicatedNotification,
   labelDiscard,
-  labelNotificationDuplicated
+  labelNotificationDuplicated,
+  labelSearchBusinessViews,
+  labelBusinessViewsEvents
 } from '../../translatedLabels';
 import { notificationsNamesAtom, panelWidthStorageAtom } from '../../atom';
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
@@ -40,11 +42,12 @@ import { PanelMode } from '../models';
 import { editedNotificationIdAtom, panelModeAtom } from '../atom';
 import Form from '..';
 
-import { listNotificationResponse } from './testUtils';
+import { getNotificationResponse, platformVersions } from './testUtils';
+
+import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
 const store = createStore();
 store.set(panelWidthStorageAtom, 800);
-
 store.set(panelModeAtom, PanelMode.Edit);
 store.set(editedNotificationIdAtom, 1);
 store.set(notificationsNamesAtom, [
@@ -70,12 +73,16 @@ const PanelWithQueryProvider = (): JSX.Element => {
   );
 };
 
-const initialize = (): void => {
+const initialize = ({
+  isBamModuleInstalled
+}: {
+  isBamModuleInstalled: boolean;
+}): void => {
   cy.interceptAPIRequest({
     alias: 'getNotificationRequest',
     method: Method.GET,
     path: notificationEndpoint({ id: 1 }),
-    response: listNotificationResponse
+    response: getNotificationResponse({ isBamModuleInstalled })
   });
 
   cy.interceptAPIRequest({
@@ -107,9 +114,9 @@ const initialize = (): void => {
 };
 
 describe('Edit Panel', () => {
-  beforeEach(initialize);
+  beforeEach(() => initialize({ isBamModuleInstalled: false }));
 
-  it('Ensures that the header section displays all the expected actions', () => {
+  it('ensures that the header section displays all the expected actions', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelDeleteNotification).should('be.visible');
@@ -121,7 +128,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the notification name is properly rendered with the edited value and supports the capability for users to modify the name by interacting with the Edit icon', () => {
+  it('confirms that the notification name is properly rendered with the edited value and supports the capability for users to modify the name by interacting with the Edit icon', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     const notificationName = 'Notifications 1';
@@ -138,7 +145,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Ensures that the form handles an empty name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
+  it('ensures that the form handles an empty name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId(labelChangeName).click();
@@ -152,7 +159,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Ensures that the form handles an existing name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
+  it('ensures that the form handles an existing name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId(labelChangeName).click();
@@ -166,7 +173,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the "Expand/Collapse" button triggers the desired expansion or collapse of the panel, providing users with the ability to control its visibility and size', () => {
+  it('confirms that the "Expand/Collapse" button triggers the desired expansion or collapse of the panel, providing users with the ability to control its visibility and size', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByText(labelReduceInformationPanel).should('be.visible');
@@ -189,7 +196,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it("Ensures that the Save button's initial state is set to disabled", () => {
+  it("ensures that the Save button's initial state is set to disabled", () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelSave).should('be.disabled');
@@ -197,7 +204,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the Save button responds to field changes correctly, becoming enabled when a modification occurs and the form is error-free', () => {
+  it('confirms that the Save button responds to field changes correctly, becoming enabled when a modification occurs and the form is error-free', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelSave).should('be.disabled');
@@ -207,7 +214,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Displays host group resources and events with the edited notification values', () => {
+  it('displays host group resources and events with the edited notification values', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelSearchHostGroups).should('be.visible');
@@ -226,7 +233,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Ensures that the "Include Services" field presents the value of the edited notification', () => {
+  it('ensures that the "Include Services" field presents the value of the edited notification', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId('include Services').within(() => {
@@ -244,7 +251,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('xonfirms that the "Include Services" checkbox controls the enabling and checking of all host group services checkboxes', () => {
+  it('confirms that the "Include Services" checkbox controls the enabling and checking of all host group services checkboxes', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId('include Services').click();
@@ -259,7 +266,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Ensures that when the "Host Groups" field is empty, all event checkboxes are unchecked and the "Include Services" field is not visible.', () => {
+  it('ensures that when the "Host Groups" field is empty, all event checkboxes are unchecked and the "Include Services" field is not visible.', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId('include Services').should('be.visible');
@@ -281,7 +288,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Displays service groups and events fields with the edited notification values', () => {
+  it('displays service groups and events fields with the edited notification values', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelSearchServiceGroups).should('be.visible');
@@ -294,13 +301,13 @@ describe('Edit Panel', () => {
       cy.findAllByRole('checkbox').eq(0).should('not.be.checked');
       cy.findAllByRole('checkbox').eq(1).should('be.checked');
       cy.findAllByRole('checkbox').eq(2).should('be.checked');
-      cy.findAllByRole('checkbox').eq(2).should('be.checked');
+      cy.findAllByRole('checkbox').eq(3).should('be.checked');
     });
 
     cy.matchImageSnapshot();
   });
 
-  it('Ensures that when the Service Groups field is empty, all associated events are disabled and unchecked', () => {
+  it('ensures that when the Service Groups field is empty, all associated events are disabled and unchecked', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     for (let i = 0; i < 3; i += 1) {
@@ -317,7 +324,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Validates that when both resource fields are empty, the user interface responds by displaying an error message and disabling the Save button', () => {
+  it('validates that when both resource fields are empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     for (let i = 0; i < 7; i += 1) {
@@ -330,7 +337,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Displays the Contacts field with edited notification contacts', () => {
+  it('displays the Contacts field with edited notification contacts', () => {
     cy.waitForRequest('@getNotificationRequest');
     cy.get('[data-testid="Search contacts"]').as('fieldContacts');
 
@@ -344,7 +351,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Displays the Contact Groups field with edited notification contact groups', () => {
+  it('displays the Contact Groups field with edited notification contact groups', () => {
     cy.waitForRequest('@getNotificationRequest');
     cy.get('[data-testid="Search contact groups"]').as('fieldContactsGroups');
 
@@ -358,7 +365,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Validates that when the Contacts and Contact Groups fields are both empty, the user interface responds by displaying an error message and disabling the Save button', () => {
+  it('validates that when the Contacts and Contact Groups fields are both empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     for (let i = 0; i < 4; i += 1) {
@@ -375,7 +382,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Ensures that the time period checkbox is checked and disabled, indicating its pre-selected status', () => {
+  it('ensures that the time period checkbox is checked and disabled, indicating its pre-selected status', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId(labelTimePeriod).should('exist');
@@ -387,7 +394,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the three icons for notification channels are appropriately presented, with the email icon initially selected and the other icons disabled', () => {
+  it('confirms that the three icons for notification channels are appropriately presented, with the email icon initially selected and the other icons disabled', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId('Email').within(() => {
@@ -407,7 +414,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the Subject field is properly rendered with the edited notification subject', () => {
+  it('confirms that the Subject field is properly rendered with the edited notification subject', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelSubject).should('have.value', 'Notification');
@@ -415,7 +422,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Validates that when the Subject field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
+  it('validates that when the Subject field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelSubject).clear();
@@ -427,7 +434,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the Message field is properly rendered with the edited notification message', () => {
+  it('confirms that the Message field is properly rendered with the edited notification message', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId('EmailBody').contains('Bonjour');
@@ -436,7 +443,7 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Validates that when the Message field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
+  it('validates that when the Message field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByTestId('EmailBody').clear();
@@ -450,9 +457,9 @@ describe('Edit Panel', () => {
 });
 
 describe('Edit Panel : Confirm Dialog', () => {
-  beforeEach(initialize);
+  beforeEach(() => initialize({ isBamModuleInstalled: false }));
 
-  it('Confirms that the Save button triggers the display of a confirmation dialog, providing the user with an additional confirmation step before proceeding with the action', () => {
+  it('confirms that the Save button triggers the display of a confirmation dialog, providing the user with an additional confirmation step before proceeding with the action', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelSave).should('be.disabled');
@@ -465,7 +472,7 @@ describe('Edit Panel : Confirm Dialog', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the Confirm button triggers the sending of a PUT request', () => {
+  it('confirms that the Confirm button triggers the sending of a PUT request', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelActiveOrInactive).click();
@@ -484,7 +491,7 @@ describe('Edit Panel : Confirm Dialog', () => {
 });
 
 describe('Edit Panel: Delete button', () => {
-  beforeEach(initialize);
+  beforeEach(() => initialize({ isBamModuleInstalled: false }));
 
   it('displays a confirmation dialog containing the notification name upon clicking the Delete button', () => {
     cy.waitForRequest('@getNotificationRequest');
@@ -536,7 +543,7 @@ describe('Edit Panel: Delete button', () => {
 });
 
 describe('Edit Panel: Duplicate button', () => {
-  beforeEach(initialize);
+  beforeEach(() => initialize({ isBamModuleInstalled: false }));
 
   it('disables the Duplicate button when changes are made', () => {
     cy.waitForRequest('@getNotificationRequest');
@@ -636,6 +643,59 @@ describe('Edit Panel: Duplicate button', () => {
     cy.waitForRequest('@duplicateNotificationtRequest');
 
     cy.findByText(errorMessage).should('be.visible');
+
+    cy.matchImageSnapshot();
+  });
+});
+
+describe('Edit Panel: Business Views', () => {
+  before(() => {
+    store.set(platformVersionsAtom, platformVersions);
+  });
+  beforeEach(() => {
+    initialize({ isBamModuleInstalled: true });
+  });
+
+  it('displays Business Views and their events with the edited notification values', () => {
+    cy.findByTestId(labelSearchBusinessViews).should('be.visible');
+    cy.findByText('bv1').should('be.visible');
+    cy.findByText('bv2').should('be.visible');
+
+    cy.findByTestId(labelBusinessViewsEvents).within(() => {
+      cy.findAllByRole('checkbox').should('have.length', 4);
+      cy.findAllByRole('checkbox').eq(0).should('not.be.checked');
+      cy.findAllByRole('checkbox').eq(1).should('be.checked');
+      cy.findAllByRole('checkbox').eq(2).should('be.checked');
+      cy.findAllByRole('checkbox').eq(3).should('be.checked');
+    });
+
+    cy.matchImageSnapshot();
+  });
+  it('ensures that when the BA field is empty, all associated events are disabled and unchecked', () => {
+    cy.waitForRequest('@getNotificationRequest');
+
+    for (let i = 0; i < 3; i += 1) {
+      cy.findAllByTestId('CancelIcon').eq(7).click();
+    }
+
+    cy.findByTestId(labelBusinessViewsEvents).within(() => {
+      for (let i = 0; i < 4; i += 1) {
+        cy.findAllByRole('checkbox').eq(i).should('not.be.checked');
+        cy.findAllByRole('checkbox').eq(i).should('be.disabled');
+      }
+    });
+
+    cy.matchImageSnapshot();
+  });
+  it('validates that when all resource fields are empty, the user interface responds by displaying an error message and disabling the Save button', () => {
+    cy.waitForRequest('@getNotificationRequest');
+
+    for (let i = 0; i < 9; i += 1) {
+      cy.findAllByTestId('CancelIcon').eq(0).click();
+    }
+
+    cy.findAllByText(labelChooseAtLeastOneResource).should('have.length', 3);
+    cy.findByLabelText(labelSave).should('be.disabled');
 
     cy.matchImageSnapshot();
   });

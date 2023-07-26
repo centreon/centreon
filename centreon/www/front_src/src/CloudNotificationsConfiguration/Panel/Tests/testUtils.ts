@@ -1,4 +1,8 @@
-const listNotificationResponse = {
+const getNotificationResponse = ({
+  isBamModuleInstalled
+}: {
+  isBamModuleInstalled?: boolean;
+}): object => ({
   contactgroups: [
     {
       id: 1,
@@ -63,7 +67,25 @@ const listNotificationResponse = {
         }
       ],
       type: 'servicegroup'
-    }
+    },
+    ...(isBamModuleInstalled
+      ? [
+          {
+            events: 14,
+            ids: [
+              {
+                id: 1,
+                name: 'bv1'
+              },
+              {
+                id: 2,
+                name: 'bv2'
+              }
+            ],
+            type: 'businessview'
+          }
+        ]
+      : [])
   ],
   timeperiod: {
     id: 1,
@@ -79,7 +101,7 @@ const listNotificationResponse = {
       name: 'Guest'
     }
   ]
-};
+});
 
 const hostGroupsResponse = {
   meta: {
@@ -165,10 +187,30 @@ const contactGroupsResponse = {
   ]
 };
 
+const platformVersions = {
+  isCloudPlatform: false,
+  modules: {
+    'centreon-bam-server': {
+      fix: '0',
+      major: '23',
+      minor: '10',
+      version: '23.10.0'
+    }
+  },
+  web: {
+    fix: '0',
+    major: '23',
+    minor: '10',
+    version: '23.10.0'
+  },
+  widgets: {}
+};
+
 export {
   contactGroupsResponse,
   usersResponse,
-  listNotificationResponse,
+  getNotificationResponse,
   hostGroupsResponse,
-  serviceGroupsResponse
+  serviceGroupsResponse,
+  platformVersions
 };
