@@ -68,6 +68,12 @@ class AddServiceTemplateSaasPresenter extends AbstractPresenter implements AddSe
                             'is_password' => $macro->isPassword,
                             'description' => $macro->description,
                         ], $response->macros),
+                        'groups' => array_map(fn($group): array => [
+                            'id' => $group['serviceGroupId'],
+                            'name' => $group['serviceGroupName'],
+                            'host_template_id' => $group['hostTemplateId'],
+                            'host_template_name' => $group['hostTemplateName'],
+                        ], $response->groups),
                     ]
                 )
             );
