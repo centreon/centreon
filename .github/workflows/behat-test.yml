@@ -96,7 +96,8 @@ jobs:
         with:
           path: /tmp/cache/docker-image
           key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
-          fail-on-cache-miss: true
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
       - name: Load standard slim image
         run: |
