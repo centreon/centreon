@@ -24,7 +24,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../config/centreon.config.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 
-$centreonDb = new CentreonDB('centreon');
+$centreonDb = new CentreonDB(hostCentreon);
 
 $number = $centreonDb->exec(
     <<<'SQL'
