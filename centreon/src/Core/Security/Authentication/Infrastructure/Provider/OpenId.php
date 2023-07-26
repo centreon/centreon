@@ -301,4 +301,12 @@ class OpenId implements ProviderAuthenticationInterface
     {
         return $this->provider->getUserContactGroups();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAclConditionsMatches(): array
+    {
+        return $this->provider->getAclConditionsMatches();
+    }
 }
