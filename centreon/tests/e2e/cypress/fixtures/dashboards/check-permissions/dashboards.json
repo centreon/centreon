@@ -1,10 +1,14 @@
 {
-    "fromAdministratorUser": {
-      "name": "dashboard-from-administrator-user",
+    "fromAdminUser": {
+      "name": "dashboard-from-admin-user",
+      "description": "created by admin"
+    },
+    "fromDashboardAdministratorUser": {
+      "name": "dashboard-from-dashboard-administrator-user",
       "description": "created by user-dashboard-administrator"
     },
-    "fromCreatorUser": {
-      "name": "dashboard-from-creator-user",
+    "fromDashboardCreatorUser": {
+      "name": "dashboard-from-dashboard-creator-user",
       "description": "created by user-dashboard-creator"
     },
     "fromCurrentUser": {
