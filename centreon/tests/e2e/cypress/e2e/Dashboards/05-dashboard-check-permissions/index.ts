@@ -8,13 +8,13 @@ import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.j
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
+  /*  cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-check-permissions.json'
-  );
+  ); */
 });
 
 beforeEach(() => {
@@ -49,9 +49,9 @@ beforeEach(() => {
   cy.logoutViaAPI();
 });
 
-after(() => {
+/* after(() => {
   cy.stopWebContainer();
-});
+}); */
 
 afterEach(() => {
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
@@ -494,6 +494,21 @@ Then(
 Given(
   'a non-admin user with the dashboard viewer role is logged in on a platform with dashboards',
   () => {
+    cy.loginByTypeOfUser({
+      jsonName: dashboardAdministratorUser.login,
+      loginViaApi: true
+    });
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromCreatorUser.name)
+      .click();
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.contains(dashboardViewerUser.login).should('be.visible');
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+    cy.logoutViaAPI();
     cy.loginByTypeOfUser({
       jsonName: dashboardViewerUser.login,
       loginViaApi: false
