@@ -173,7 +173,7 @@ it('should raise an exception when the host templates IDs does not exist', funct
     $this->parametersValidation->assertHostTemplateIds([1, 2]);
 })->throws(
     ServiceTemplateException::class,
-    ServiceTemplateException::idsDoesNotExist('host_templates', [1])->getMessage()
+    ServiceTemplateException::idsDoNotExist('host_templates', [1])->getMessage()
 );
 
 it('should raise an exception when the service categories IDs does not exist as an administrator', function (): void {
@@ -191,7 +191,7 @@ it('should raise an exception when the service categories IDs does not exist as 
     $this->parametersValidation->assertServiceCategories([1, 2], $this->contact, []);
 })->throws(
     ServiceTemplateException::class,
-    ServiceTemplateException::idsDoesNotExist('service_categories', [1])->getMessage()
+    ServiceTemplateException::idsDoNotExist('service_categories', [1])->getMessage()
 );
 
 it('should raise an exception when the service categories IDs does not exist as a non-administrator', function ():
@@ -211,5 +211,5 @@ void {
     $this->parametersValidation->assertServiceCategories([1, 2], $this->contact, [3]);
 })->throws(
     ServiceTemplateException::class,
-    ServiceTemplateException::idsDoesNotExist('service_categories', [1])->getMessage()
+    ServiceTemplateException::idsDoNotExist('service_categories', [1])->getMessage()
 );
