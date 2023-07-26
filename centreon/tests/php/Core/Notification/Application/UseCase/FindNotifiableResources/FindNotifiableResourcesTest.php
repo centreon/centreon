@@ -65,7 +65,7 @@ it('should present a Not Found Response when there\'re no notifiable resources.'
     $this->readRepository
         ->expects($this->once())
         ->method('findAllForActivatedNotifications')
-        ->willReturn([]);
+        ->willReturn(null);
 
     $useCase($this->presenter, $requestUid);
 
