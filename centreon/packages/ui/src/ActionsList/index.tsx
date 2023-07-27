@@ -12,9 +12,9 @@ import {
 } from '@mui/material';
 
 interface ActionsType {
-  Icon: (props: SvgIconProps) => JSX.Element;
+  Icon?: (props: SvgIconProps) => JSX.Element;
   label: string;
-  onClick?: () => void;
+  onClick?: (e?) => void;
 }
 
 interface Props {
@@ -36,10 +36,12 @@ const ActionsList = ({ className, actions }: Props): JSX.Element => {
     <MenuList className={cx(classes.list, className)}>
       {actions?.map(({ Icon, label, onClick }) => {
         return (
-          <MenuItem aria-label={label} key={label} onClick={onClick}>
-            <ListItemIcon>
-              <Icon fontSize="small" />
-            </ListItemIcon>
+          <MenuItem aria-label={label} id={label} key={label} onClick={onClick}>
+            {Icon && (
+              <ListItemIcon>
+                <Icon fontSize="small" />
+              </ListItemIcon>
+            )}
             <ListItemText>{t(label)}</ListItemText>
           </MenuItem>
         );
