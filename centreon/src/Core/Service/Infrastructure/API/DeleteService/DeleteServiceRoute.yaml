@@ -1,0 +1,7 @@
+DeleteService:
+  methods: DELETE
+  path: /configuration/services/{serviceId}
+  requirements:
+    serviceId: '\d+'
+  controller: 'Core\Service\Infrastructure\API\DeleteService\DeleteServiceController'
+  condition: "request.attributes.get('version') >= 23.10"

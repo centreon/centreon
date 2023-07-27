@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Application\RealTime\Repository;
 
-use Core\Domain\RealTime\Model\Metric;
-use Core\Domain\RealTime\Model\PerformanceMetric;
+use Core\Metric\Domain\Model\Metric;
+use Core\Metric\Domain\Model\PerformanceMetric;
 use DateTimeInterface;
 
 interface ReadPerformanceDataRepositoryInterface

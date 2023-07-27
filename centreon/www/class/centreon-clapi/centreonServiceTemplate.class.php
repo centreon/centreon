@@ -844,139 +844,140 @@ class CentreonServiceTemplate extends CentreonObject
     }
 
     /**
-     * Magic method
+     * Magic method.
      *
      * @param string $name
      * @param array $args
-     * @return void
+     * @param mixed $arg
+     *
      * @throws CentreonClapiException
      */
-    public function __call($name, $arg)
+    public function __call($name, $arg): void
     {
-        /* Get the method name */
-        $name = strtolower($name);
-        /* Get the action and the object */
-        if (preg_match("/^(get|set|add|del)([a-zA-Z_]+)/", $name, $matches)) {
-            switch ($matches[2]) {
-                case "host":
-                    $class = "Centreon_Object_Host";
-                    $relclass = "Centreon_Object_Relation_Host_Service";
-                    break;
-                case "contact":
-                    $class = "Centreon_Object_Contact";
-                    $relclass = "Centreon_Object_Relation_Contact_Service";
-                    break;
-                case "contactgroup":
-                    $class = "Centreon_Object_Contact_Group";
-                    $relclass = "Centreon_Object_Relation_Contact_Group_Service";
-                    break;
-                case "trap":
-                    $class = "Centreon_Object_Trap";
-                    $relclass = "Centreon_Object_Relation_Trap_Service";
-                    break;
-                case "hosttemplate":
-                    $class = "Centreon_Object_Host_Template";
-                    $relclass = "Centreon_Object_Relation_Service_Template_Host";
-                    break;
-                case "category":
-                    $class = "Centreon_Object_Service_Category";
-                    $relclass = "Centreon_Object_Relation_Service_Category_Service";
-                    break;
-                default:
-                    throw new CentreonClapiException(self::UNKNOWN_METHOD);
-                    break;
+        // Get the method name
+        $name = mb_strtolower($name);
+
+        // Get the action and the object
+        if (! preg_match('/^(get|set|add|del)([a-zA-Z_]+)/', $name, $matches)) {
+            throw new CentreonClapiException(self::UNKNOWN_METHOD . 'PHP >> ' . __LINE__);
+        }
+        [, $action, $entity] = $matches;
+
+        switch ($entity) {
+            case 'host':
+                $class = \Centreon_Object_Host::class;
+                $relClass = \Centreon_Object_Relation_Host_Service::class;
+                break;
+            case 'contact':
+                $class = \Centreon_Object_Contact::class;
+                $relClass = \Centreon_Object_Relation_Contact_Service::class;
+                break;
+            case 'contactgroup':
+                $class = \Centreon_Object_Contact_Group::class;
+                $relClass = \Centreon_Object_Relation_Contact_Group_Service::class;
+                break;
+            case 'trap':
+                $class = \Centreon_Object_Trap::class;
+                $relClass = \Centreon_Object_Relation_Trap_Service::class;
+                break;
+            case 'hosttemplate':
+                $class = \Centreon_Object_Host_Template::class;
+                $relClass = \Centreon_Object_Relation_Service_Template_Host::class;
+                break;
+            case 'category':
+                $class = \Centreon_Object_Service_Category::class;
+                $relClass = \Centreon_Object_Relation_Service_Category_Service::class;
+                break;
+            default:
+                throw new CentreonClapiException(self::UNKNOWN_METHOD);
+        }
+
+        if (! class_exists($relClass) || ! class_exists($class)) {
+            throw new CentreonClapiException(self::UNKNOWN_METHOD . 'PHP >> ' . __LINE__);
+        }
+
+        // First argument mandatory for all
+        if (empty($arg[0])) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+
+        $args = explode($this->delim, $arg[0]);
+        $elements = $this->object->getList(
+            'service_id',
+            -1,
+            0,
+            null,
+            null,
+            [
+                'service_description' => $args[0],
+                'service_register' => 0,
+            ],
+            'AND'
+        );
+
+        if (empty($elements)) {
+            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $args[0]);
+        }
+        $serviceId = $elements[0]['service_id'];
+
+        $relObj = new $relClass($this->dependencyInjector);
+        $obj = new $class($this->dependencyInjector);
+        if ($action === 'get') {
+            $tab = $entity === 'hosttemplate'
+                ? $relObj->getTargetIdFromSourceId($relObj->getSecondKey(), $relObj->getFirstKey(), $serviceId)
+                : $relObj->getTargetIdFromSourceId($relObj->getFirstKey(), $relObj->getSecondKey(), $serviceId);
+            echo 'id' . $this->delim . 'name' . "\n";
+            foreach ($tab as $value) {
+                $tmp = $obj->getParameters($value, [$obj->getUniqueLabelField()]);
+                echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
             }
 
-            if (class_exists($relclass) && class_exists($class)) {
-                /* Parse arguments */
-                if (!isset($arg[0]) || !$arg[0]) {
-                    throw new CentreonClapiException(self::MISSINGPARAMETER);
-                }
-                $args = explode($this->delim, $arg[0]);
-                $elements = $this->object->getList(
-                    "service_id",
-                    -1,
-                    0,
-                    null,
-                    null,
-                    array(
-                        'service_description' => $args[0],
-                        'service_register' => 0
-                    ),
-                    "AND"
-                );
-                if (!count($elements)) {
-                    throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $args[0]);
-                }
-                $serviceId = $elements[0]['service_id'];
+            return;
+        }
 
-                $relobj = new $relclass($this->dependencyInjector);
-                $obj = new $class($this->dependencyInjector);
-                if ($matches[1] == "get") {
-                    $tab = $relobj->getTargetIdFromSourceId(
-                        $relobj->getFirstKey(),
-                        $relobj->getSecondKey(),
-                        $serviceId
-                    );
-                    echo "id" . $this->delim . "name" . "\n";
-                    foreach ($tab as $value) {
-                        $tmp = $obj->getParameters($value, array($obj->getUniqueLabelField()));
-                        echo $value . $this->delim . $tmp[$obj->getUniqueLabelField()] . "\n";
-                    }
-                } else {
-                    if (!isset($args[1])) {
-                        throw new CentreonClapiException(self::MISSINGPARAMETER);
-                    }
-                    $relation = $args[1];
-                    $relations = explode("|", $relation);
-                    $relationTable = array();
-                    foreach ($relations as $rel) {
-                        if ($matches[2] == "contact") {
-                            $tab = $obj->getIdByParameter("contact_alias", array($rel));
-                        } else {
-                            $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), array($rel));
-                        }
-                        if (!count($tab)) {
-                            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $rel);
-                        }
+        // Second argument mandatory for all but 'get'
+        if (! isset($args[1])) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
 
-                        $relationTable[] = $tab[0];
-                    }
-                    if ($matches[1] === "set" || $matches[1] === "add") {
-                        $relobj->delete(null, $serviceId);
-                    }
-
-                    if ($matches[2] === 'hosttemplate' && $matches[1] === 'add') {
-                        $existingRelationIds = $relobj->getTargetIdFromSourceId(
-                            $relobj->getSecondKey(),
-                            $relobj->getFirstKey(),
-                            $serviceId
-                        );
-                    } else {
-                        $existingRelationIds = $relobj->getTargetIdFromSourceId(
-                            $relobj->getFirstKey(),
-                            $relobj->getSecondKey(),
-                            $serviceId
-                        );
-                    }
-
-                    foreach ($relationTable as $relationId) {
-                        if ($matches[1] == "del") {
-                            $relobj->delete($relationId, $serviceId);
-                        } elseif ($matches[1] == "set" || $matches[1] == "add") {
-                            if (!in_array($relationId, $existingRelationIds)) {
-                                $relobj->insert($relationId, $serviceId);
-                            } else {
-                                throw new CentreonClapiException(self::OBJECTALREADYEXISTS);
-                            }
-                        }
-                    }
-                }
-            } else {
-                throw new CentreonClapiException(self::UNKNOWN_METHOD . "PHP >> " . __LINE__);
+        $relation = $args[1];
+        $relations = explode('|', $relation);
+        $relationTable = [];
+        foreach ($relations as $rel) {
+            $tab = $entity === 'contact'
+                ? $obj->getIdByParameter('contact_alias', [$rel])
+                : $obj->getIdByParameter($obj->getUniqueLabelField(), [$rel]);
+            if (empty($tab)) {
+                throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $rel);
             }
-        } else {
-            throw new CentreonClapiException(self::UNKNOWN_METHOD . "PHP >> " . __LINE__);
+
+            $relationTable[] = $tab[0];
+        }
+
+        if ($action === 'del') {
+            foreach ($relationTable as $relationId) {
+                $relObj->delete($relationId, $serviceId);
+            }
+
+            return;
+        }
+
+        if ($action === 'set') {
+            $relObj->delete(null, $serviceId);
+        }
+
+        $existingRelationIds = $entity === 'hosttemplate' && $action === 'add'
+            ? $relObj->getTargetIdFromSourceId($relObj->getSecondKey(), $relObj->getFirstKey(), $serviceId)
+            : $relObj->getTargetIdFromSourceId($relObj->getFirstKey(), $relObj->getSecondKey(), $serviceId);
+
+        if ($action === 'set' || $action === 'add') {
+            foreach ($relationTable as $relationId) {
+                if (in_array($relationId, $existingRelationIds, true)) {
+                    throw new CentreonClapiException(self::OBJECTALREADYEXISTS);
+                }
+
+                $relObj->insert($relationId, $serviceId);
+            }
         }
     }
 
