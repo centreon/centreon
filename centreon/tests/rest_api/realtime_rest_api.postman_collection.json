@@ -6561,7 +6561,7 @@
 									"  while(curDate-date < millis);",
 									"}",
 									"",
-									"wait(30000);"
+									"wait(40000);"
 								]
 							}
 						},
