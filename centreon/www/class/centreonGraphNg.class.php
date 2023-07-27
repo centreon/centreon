@@ -385,7 +385,7 @@ class CentreonGraphNg
             if (is_null($this->dsDefault)) {
                 $stmt = $this->db->prepare(
                     "SELECT ds_min, ds_max, ds_minmax_int, ds_last, ds_average, ds_total,
-                        ds_tickness, ds_color_line_mode, ds_color_line
+                        ds_tickness, ds_color_line_mode, ds_color_line, ds_invert
                      FROM giv_components_template WHERE default_tpl1 = '1'"
                 );
                 $stmt->execute();
@@ -1091,6 +1091,7 @@ class CentreonGraphNg
 
         $metricIndex = 1;
         $gprintsPos = 0;
+
         foreach ($this->graphData['metrics'] as &$metric) {
             $metric['data'] = array();
             $metric['prints'] = array();
@@ -1106,6 +1107,12 @@ class CentreonGraphNg
             $metric['minimum_value'] = null;
             $metric['maximum_value'] = null;
             $metric['average_value'] = null;
+            $lastValue = null;
+            $minimumValue = null;
+            $maximumValue = null;
+            $averageValue = null;
+            $isCurveInverted = (int) $this->metrics[$metric['metric_id']]['ds_data']['ds_invert'] === 1; 
+
             for (; $gprintsPos < $gprintsSize; $gprintsPos++) {
                 if (isset($rrdData['meta']['gprints'][$gprintsPos]['line'])) {
                     if ($rrdData['meta']['gprints'][$gprintsPos]['line'] == $metricFullname) {
@@ -1116,22 +1123,28 @@ class CentreonGraphNg
                 } elseif ($insert == 1) {
                     $metric['prints'][] = array_values($rrdData['meta']['gprints'][$gprintsPos]);
                     foreach (array_values($rrdData['meta']['gprints'][$gprintsPos]) as $gprintValue) {
-                        if (preg_match('/^(.+):((?:\d|\.)+)$/', $gprintValue, $matches)) {
-                            switch ($matches[1]) {
+                        if (preg_match('/^(.+):(-?(?:\d|\.)+)$/', $gprintValue, $matches)) {
+                            [, $valueType, $value] = $matches;
+                            switch ($valueType) {
                                 case 'Last':
-                                    $metric['last_value'] = (float) $matches[2];
+                                    $lastValue = (float) $value;
                                     break;
                                 case 'Min':
-                                    $metric['minimum_value'] = (float) $matches[2];
+                                    $minimumValue = (float) $value;
                                     break;
                                 case 'Max':
-                                    $metric['maximum_value'] = (float) $matches[2];
+                                    $maximumValue = (float) $value; 
                                     break;
                                 case 'Average':
-                                    $metric['average_value'] = (float) $matches[2];
+                                    $averageValue = (float) $value;
                                     break;
                             }
                         }
+
+                        $metric['last_value'] = $isCurveInverted ? abs($lastValue) : $lastValue;
+                        $metric['minimum_value'] = $isCurveInverted ? abs($maximumValue) : $minimumValue;
+                        $metric['maximum_value'] = $isCurveInverted ? abs($minimumValue) : $maximumValue;
+                        $metric['average_value'] = $isCurveInverted ? abs($averageValue) : $averageValue;
                     }
                 }
             }
