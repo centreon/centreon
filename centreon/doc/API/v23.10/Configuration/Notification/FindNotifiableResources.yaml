@@ -4,7 +4,7 @@ get:
   summary: "List all resources and events triggering a notification rule"
   description: |
     Return all resources: hosts, services, business activities and configured events
-    trigerring a notification rule.
+    triggering a notification rule.
   responses:
     '200':
       description: "OK"
