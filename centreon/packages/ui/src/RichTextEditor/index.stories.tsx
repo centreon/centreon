@@ -56,6 +56,11 @@ withCustomPlaceholder.args = {
   placeholder: 'Custom placeholder...'
 };
 
+export const withMacrosPlugin = Template.bind({});
+withMacrosPlugin.args = {
+  isMacrosButtonVisible: true
+};
+
 export const withEditableFalse = Template.bind({});
 withEditableFalse.args = {
   editable: false,
