@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Application\RealTime\UseCase\FindPerformanceMetrics;
+namespace Tests\Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricResponse;
+use Core\Metric\Domain\Model\MetricValue;
+use Core\Metric\Domain\Model\PerformanceMetric;
 use DateTimeImmutable;
-use Core\Domain\RealTime\Model\PerformanceMetric;
-use Core\Domain\RealTime\Model\MetricValue;
-use Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetricResponse;
 
 function createPerformanceMetric(
     string $date,
@@ -64,7 +64,7 @@ function generateExpectedResponseData(string $date, float $rta, float $packetLos
 it(
     'response contains properly formatted performanceMetrics',
     function (iterable $performanceMetrics, array $expectedResponseData, string $filename) {
-        $response = new FindPerformanceMetricResponse($performanceMetrics, $filename);
+        $response = new DownloadPerformanceMetricResponse($performanceMetrics, $filename);
 
         $this->assertTrue(property_exists($response, 'performanceMetrics'));
         $this->assertInstanceOf(\Generator::class, $response->performanceMetrics);

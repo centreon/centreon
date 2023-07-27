@@ -26,9 +26,9 @@ namespace Core\Infrastructure\RealTime\Repository\DataBin;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
-use Core\Domain\RealTime\Model\Metric;
-use Core\Domain\RealTime\Model\MetricValue;
-use Core\Domain\RealTime\Model\PerformanceMetric;
+use Core\Metric\Domain\Model\Metric;
+use Core\Metric\Domain\Model\MetricValue;
+use Core\Metric\Domain\Model\PerformanceMetric;
 use DateTimeInterface;
 use PDO;
 

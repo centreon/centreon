@@ -21,10 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\RealTime\UseCase\FindPerformanceMetrics;
+namespace Core\Metric\Application\Repository;
 
-use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Metric\Domain\Model\Metric;
 
-interface FindPerformanceMetricPresenterInterface extends PresenterInterface
+interface ReadMetricRepositoryInterface
 {
+    /**
+     * @param int $indexId
+     *
+     * @return array<Metric>
+     */
+    public function findMetricsByIndexId(int $indexId): array;
 }
