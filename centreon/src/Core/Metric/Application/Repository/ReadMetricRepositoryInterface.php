@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Metric\Application\Repository;
 
+use Core\Metric\Domain\Model\AggregateResourceMetrics;
 use Core\Metric\Domain\Model\Metric;
 
 interface ReadMetricRepositoryInterface
@@ -33,4 +34,25 @@ interface ReadMetricRepositoryInterface
      * @return array<Metric>
      */
     public function findMetricsByIndexId(int $indexId): array;
+
+    /**
+     * Get the filtered metrics with the count of total metrics
+     *
+     * @return AggregateResourceMetrics
+     */
+    public function findFilteredMetricsWithCount(): AggregateResourceMetrics;
+
+    /**
+     * Get the filtered metrics by accessgroups with the count of total metrics
+     *
+     * @return AggregateResourceMetrics
+     */
+    public function FindFilteredMetricsWithCountAndAccessGroups(array $accessGroups): AggregateResourceMetrics;
+
+    /**
+     * Get the filtered metrics
+     *
+     * @return Metric[]
+     */
+    public function findFilteredMetrics(): array;
 }

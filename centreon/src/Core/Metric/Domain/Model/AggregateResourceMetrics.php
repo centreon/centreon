@@ -21,11 +21,25 @@
 
 declare(strict_types=1);
 
-namespace Core\Metric\Application\UseCase\FindMetrics;
+namespace Core\Metric\Domain\Model;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-
-interface FindMetricsPresenterInterface
+class AggregateResourceMetrics
 {
-    public function presentResponse(FindMetricsResponse|ResponseStatusInterface $response): void;
+    public const MAXIMUM_METRICS_COUNT = 100;
+
+    public function __construct(
+        private readonly int $count,
+        private array $resourceMetrics,
+    ) {
+    }
+
+    public function getCount(): int
+    {
+        return $this->count;
+    }
+
+    public function getResourceMetrics(): array
+    {
+        return $this->resourceMetrics;
+    }
 }

@@ -23,15 +23,26 @@
 
 namespace Core\Metric\Infrastructure\API\FindMetrics;
 
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Metric\Application\UseCase\FindMetrics\FindMetricsPresenterInterface;
 use Core\Metric\Application\UseCase\FindMetrics\FindMetricsResponse;
-use Core\Metric\Application\UseCase\FindMetrics\ResponseStatusInterface;
 
 class FindMetricsPresenter extends AbstractPresenter implements FindMetricsPresenterInterface
 {
+    public function __construct(private RequestParametersInterface $requestParameters)
+    {
+    }
+    
     public function presentResponse(FindMetricsResponse|ResponseStatusInterface $response): void
     {
-        $this->present([]);
+        if ($response instanceof FindMetricsResponse) {
+            $this->present([
+                "count" => $response->count,
+                "result" => $response->resourceMetrics,
+                "meta" => $this->requestParameters->toArray()
+            ]);
+        }
     }
 }

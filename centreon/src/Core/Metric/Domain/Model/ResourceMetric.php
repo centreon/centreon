@@ -21,11 +21,39 @@
 
 declare(strict_types=1);
 
-namespace Core\Metric\Application\UseCase\FindMetrics;
+namespace Core\Metric\Domain\Model;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-
-interface FindMetricsPresenterInterface
+class ResourceMetric
 {
-    public function presentResponse(FindMetricsResponse|ResponseStatusInterface $response): void;
+    /**
+     * Undocumented function
+     *
+     * @param integer $serviceId
+     * @param string $resourceName
+     * @param Metric[] $metrics
+     */
+    public function __construct(
+        private readonly int $serviceId,
+        private readonly string $resourceName,
+        private readonly array $metrics
+    ) {
+    }
+
+    public function getServiceId(): int
+    {
+        return $this->serviceId;
+    }
+
+    public function getResourceName(): string
+    {
+        return $this->resourceName;
+    }
+
+    /**
+     * @return Metric[]
+     */
+    public function getMetrics(): array
+    {
+        return $this->metrics;
+    }
 }

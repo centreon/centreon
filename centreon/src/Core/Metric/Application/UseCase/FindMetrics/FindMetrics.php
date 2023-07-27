@@ -24,20 +24,63 @@ declare(strict_types=1);
 namespace Core\Metric\Application\UseCase\FindMetrics;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use MBI\Application\DataSource\Metric\UseCase\FindMetrics\FindMetricsPresenterInterface;
+use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
+use Core\Metric\Domain\Model\AggregateResourceMetrics;
+use Core\Metric\Domain\Model\Metric;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+
 
 final class FindMetrics
 {
-    public function __construct(private ContactInterface $user)
-    {
+    /**
+     * @param ContactInterface $user
+     * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
+     * @param ReadMetricRepositoryInterface $metricRepository
+     */
+    public function __construct(
+        private readonly ContactInterface $user,
+        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private readonly ReadMetricRepositoryInterface $metricRepository
+    ) {
     }
 
+    /**
+     * @param FindMetricsPresenterInterface $presenter
+     */
     public function __invoke(FindMetricsPresenterInterface $presenter): void
     {
         if ($this->user->isAdmin()) {
-
+            $resourceMetrics = $this->metricRepository->findFilteredMetricsWithCount();
         } else {
-
+            $accessGroups = $this->accessGroupRepository->findByContact($this->user);
+            $resourceMetrics = $this->metricRepository->findFilteredMetricsWithCountAndAccessGroups($accessGroups);
         }
+        $presenter->presentResponse($this->createResponse($resourceMetrics));
+    }
+
+    /**
+     * @param AggregateResourceMetrics $aggregateResourceMetrics
+     * @return FindMetricsResponse
+     */
+    private function createResponse(AggregateResourceMetrics $aggregateResourceMetrics): FindMetricsResponse
+    {
+        $response = new FindMetricsResponse();
+        $response->count = $aggregateResourceMetrics->getCount();
+        if ($aggregateResourceMetrics->getCount() < AggregateResourceMetrics::MAXIMUM_METRICS_COUNT) {
+            foreach($aggregateResourceMetrics->getResourceMetrics() as $resourceMetrics) {
+                $response->resourceMetrics[] = [
+                    "serviceId" => $resourceMetrics->getServiceId(),
+                    "resourceName" => $resourceMetrics->getResourceName(),
+                    "metrics" => array_map(function (Metric $metric) {
+                        return [
+                            "id" => $metric->getId(),
+                            "name" => $metric->getName(),
+                        ];
+                    }, $resourceMetrics->getMetrics())
+                ];
+            }
+        }
+
+        return $response;
     }
 }

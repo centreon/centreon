@@ -23,9 +23,19 @@ declare(strict_types=1);
 
 namespace Core\Metric\Application\UseCase\FindMetrics;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-
-interface FindMetricsPresenterInterface
+final class FindMetricsResponse
 {
-    public function presentResponse(FindMetricsResponse|ResponseStatusInterface $response): void;
+    public int $count = 0;
+
+    /**
+     * @var array<
+     *  serviceId: int,
+     *  resourceName: string,
+     *  metrics: array{
+     *   id: int
+     *   name: string
+     *  }
+     * >
+     */
+    public array $resourceMetrics = [];
 }

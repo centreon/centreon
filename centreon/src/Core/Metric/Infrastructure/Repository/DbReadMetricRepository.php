@@ -26,6 +26,7 @@ namespace Core\Metric\Infrastructure\Repository;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
+use Core\Metric\Domain\Model\AggregateResourceMetrics;
 use Core\Metric\Domain\Model\Metric;
 
 class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetricRepositoryInterface
@@ -62,5 +63,29 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         }
 
         return $metrics;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findFilteredMetricsWithCount(): AggregateResourceMetrics
+    {
+        return new AggregateResourceMetrics(1,[]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function FindFilteredMetricsWithCountAndAccessGroups(array $accessGroups): AggregateResourceMetrics
+    {
+        return new AggregateResourceMetrics(1,[]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findFilteredMetrics(): array
+    {
+        return [];
     }
 }
