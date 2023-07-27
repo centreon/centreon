@@ -220,4 +220,9 @@ class Local implements ProviderAuthenticationInterface
     {
         return [];
     }
+
+    public function getUserContactGroups(): array
+    {
+        return [];
+    }
 }
