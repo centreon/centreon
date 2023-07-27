@@ -25,7 +25,6 @@ namespace Core\Metric\Infrastructure\Repository;
 
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 use Core\Metric\Domain\Model\Metric;
 
