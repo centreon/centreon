@@ -57,7 +57,7 @@ it('should present a Forbidden Response when user doesn\'t have access to endpoi
         ->toBe(NotificationException::listResourcesNotAllowed()->getMessage());
 });
 
-it('should present a Not Found Response when there\'re no notifiable resources.', function () {
+it('should present a Not Found Response when there are no notifiable resources.', function () {
     $contact = (new Contact())->setAdmin(true)->setId(1);
     $requestUid = '';
 
