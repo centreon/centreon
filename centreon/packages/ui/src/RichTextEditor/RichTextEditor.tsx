@@ -24,6 +24,7 @@ export interface RichTextEditorProps {
   getEditorState?: (editorState: EditorState) => void;
   initialEditorState?: string;
   inputClassname?: string;
+  isMacrosButtonVisible?: boolean;
   minInputHeight?: number;
   namespace?: string;
   onBlur?: (e: string) => void;
@@ -92,7 +93,8 @@ const RichTextEditor = ({
   toolbarPositions = 'start',
   error,
   onBlur,
-  contentClassName
+  contentClassName,
+  isMacrosButtonVisible = false
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -122,7 +124,11 @@ const RichTextEditor = ({
     <LexicalComposer initialConfig={initialConfig}>
       <div className={classes.container}>
         <div className={classes.toolbar}>
-          <ToolbarPlugin editable={editable} getEditorState={getEditorState} />
+          <ToolbarPlugin
+            editable={editable}
+            getEditorState={getEditorState}
+            isMacrosButtonVisible={isMacrosButtonVisible}
+          />
         </div>
         <div>
           <RichTextPlugin
