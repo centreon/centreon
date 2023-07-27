@@ -134,4 +134,9 @@ interface ProviderAuthenticationInterface
      * @return string[]
      */
     public function getAclConditionsMatches(): array;
+
+    /**
+     * @return ContactGroup[]
+     */
+    public function getUserContactGroups(): array;
 }
