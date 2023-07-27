@@ -4,6 +4,7 @@ import {
   equals,
   find,
   findIndex,
+  inc,
   length,
   lensIndex,
   lensProp,
@@ -69,6 +70,8 @@ const getPanel = ({ id, layout }: GetPanelProps): Panel =>
 const getPanelIndex = ({ id, layout }: GetPanelProps): number =>
   findIndex(propEq('i', id), layout) as number;
 
+export const panelsLengthAtom = atom(0);
+
 export const addPanelDerivedAtom = atom(
   null,
   (
@@ -84,9 +87,15 @@ export const addPanelDerivedAtom = atom(
     }: AddPanelDerivedAtom
   ) => {
     const dashboard = get(dashboardAtom);
+    const panelsLength = get(panelsLengthAtom);
+
+    const increasedPanelsLength = inc(panelsLength);
 
     const id =
-      fixedId || `panel_${panelConfiguration.path}_${length(dashboard.layout)}`;
+      fixedId ||
+      `panel_${panelConfiguration.path}_${length(
+        dashboard.layout
+      )}_${increasedPanelsLength}`;
 
     const columnsFromScreenSize = getColumnsFromScreenSize();
     const maxColumns = equals(columnsFromScreenSize, 1)
@@ -154,6 +163,7 @@ export const addPanelDerivedAtom = atom(
     setAtom(dashboardAtom, {
       layout: newLayout
     });
+    setAtom(panelsLengthAtom, increasedPanelsLength);
   }
 );
 
@@ -231,7 +241,6 @@ export const duplicatePanelDerivedAtom = atom(
     const panel = find(propEq('i', title), dashboard.layout);
 
     setAtom(addPanelDerivedAtom, {
-      fixedId: `${panel?.i}_copy`,
       height: panel?.h,
       moduleName: panel?.name as string,
       options: panel?.options,

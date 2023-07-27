@@ -13,7 +13,7 @@ import useFederatedWidgets from '../../federatedModules/useFederatedWidgets';
 import { FederatedModule } from '../../federatedModules/models';
 
 import { Panel, PanelConfiguration } from './models';
-import { dashboardAtom } from './atoms';
+import { dashboardAtom, panelsLengthAtom } from './atoms';
 
 interface UseDashboardDetailsState {
   dashboard?: Dashboard;
@@ -66,6 +66,7 @@ const useDashboardDetails = ({
   dashboardId
 }: UseDashboardDetailsProps): UseDashboardDetailsState => {
   const setDashboard = useSetAtom(dashboardAtom);
+  const setPanelsLength = useSetAtom(panelsLengthAtom);
 
   const { federatedWidgets } = useFederatedWidgets();
 
@@ -82,6 +83,7 @@ const useDashboardDetails = ({
       layout:
         panels.map((panel) => formatPanel({ federatedWidgets, panel })) || []
     });
+    setPanelsLength(panels.length);
   }, useDeepCompare([panels, federatedWidgets]));
 
   return {
