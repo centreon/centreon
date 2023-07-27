@@ -21,31 +21,43 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\RealTime\Model;
+namespace Core\Metric\Domain\Model;
 
-class MetricValue
+use DateTimeInterface;
+
+class PerformanceMetric
 {
     /**
-     * @param string $name
-     * @param float $value
+     * @param DateTimeInterface $dateValue
+     * @param MetricValue[] $metricValues
      */
-    public function __construct(private string $name, private float $value)
-    {
+    public function __construct(
+        private DateTimeInterface $dateValue,
+        private array $metricValues = []
+    ) {
     }
 
     /**
-     * @return string
+     * @param MetricValue $metricValue
      */
-    public function getName(): string
+    public function addMetricValue(MetricValue $metricValue): void
     {
-        return $this->name;
+        $this->metricValues[] = $metricValue;
     }
 
     /**
-     * @return float
+     * @return MetricValue[]
      */
-    public function getValue(): float
+    public function getMetricValues(): array
     {
-        return $this->value;
+        return $this->metricValues;
+    }
+
+    /**
+     * @return DateTimeInterface
+     */
+    public function getDateValue(): DateTimeInterface
+    {
+        return $this->dateValue;
     }
 }

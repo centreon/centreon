@@ -21,17 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\RealTime\UseCase\FindPerformanceMetrics;
+namespace Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Application\RealTime\Repository\ReadIndexDataRepositoryInterface;
-use Core\Application\RealTime\Repository\ReadMetricRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
 use Core\Domain\RealTime\Model\IndexData;
+use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 
-class FindPerformanceMetrics
+class DownloadPerformanceMetrics
 {
     use LoggerTrait;
 
@@ -48,11 +48,11 @@ class FindPerformanceMetrics
     }
 
     /**
-     * @param FindPerformanceMetricRequest $request
+     * @param DownloadPerformanceMetricRequest $request
      * @param FindPerformanceMetricPresenterInterface $presenter
      */
     public function __invoke(
-        FindPerformanceMetricRequest $request,
+        DownloadPerformanceMetricRequest $request,
         PresenterInterface $presenter
     ): void {
         try {
@@ -75,7 +75,7 @@ class FindPerformanceMetrics
 
             $fileName = $this->generateDownloadFileNameByIndex($index);
             $this->info('Filename used to download metrics', ['filename' => $fileName]);
-            $presenter->present(new FindPerformanceMetricResponse($performanceMetrics, $fileName));
+            $presenter->present(new DownloadPerformanceMetricResponse($performanceMetrics, $fileName));
         } catch (\Throwable $ex) {
             $this->error(
                 'Impossible to retrieve performance metrics',

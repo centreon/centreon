@@ -21,16 +21,20 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\RealTime\Repository;
+namespace Core\Metric\Infrastructure\API\DownloadPerformanceMetrics;
 
-use Core\Domain\RealTime\Model\Metric;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetricResponse;
 
-interface ReadMetricRepositoryInterface
+class DownloadPerformanceMetricsPresenter extends AbstractPresenter
 {
     /**
-     * @param int $indexId
+     * {@inheritDoc}
      *
-     * @return array<Metric>
+     * @param FindPerformanceMetricResponse $data
      */
-    public function findMetricsByIndexId(int $indexId): array;
+    public function present(mixed $data): void
+    {
+        parent::present($data);
+    }
 }
