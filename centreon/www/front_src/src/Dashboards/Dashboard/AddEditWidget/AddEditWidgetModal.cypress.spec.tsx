@@ -4,8 +4,8 @@ import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/modul
 import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properties.json';
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
 import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
-import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-genericText/moduleFederation.json';
-import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-genericText/properties.json';
+import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
+import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
 
 import {
   federatedWidgetsAtom,
