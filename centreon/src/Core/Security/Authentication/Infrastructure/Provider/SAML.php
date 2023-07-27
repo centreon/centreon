@@ -27,7 +27,6 @@ use Assert\AssertionFailedException;
 use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
-use Centreon\Domain\Entity\ContactGroup;
 use Centreon\Domain\Log\LoggerTrait;
 use CentreonSession;
 use Core\Application\Configuration\User\Repository\WriteUserRepositoryInterface;
@@ -393,11 +392,11 @@ class SAML implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return ContactGroup[]
+     * @inheritDoc
      */
     public function getUserContactGroups(): array
     {
-        return [];
+        return $this->groupsMapping->getUserContactGroups();
     }
 
     public function getIdTokenPayload(): array

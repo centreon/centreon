@@ -29,6 +29,7 @@ use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Centreon\Domain\Entity\ContactGroup;
 
 interface ProviderAuthenticationInterface
 {
@@ -135,4 +136,9 @@ interface ProviderAuthenticationInterface
      * @return string[]
      */
     public function getAclConditionsMatches(): array;
+
+    /*
+     * @return ContactGroup[]
+     */
+    public function getUserContactGroups(): array;
 }
