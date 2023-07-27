@@ -21,23 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\RealTime\UseCase\FindPerformanceMetrics;
+namespace Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
-use DateTimeInterface;
+use Core\Application\Common\UseCase\PresenterInterface;
 
-class FindPerformanceMetricRequest
+interface DownloadPerformanceMetricPresenterInterface extends PresenterInterface
 {
-    /**
-     * @param int $hostId
-     * @param int $serviceId
-     * @param DateTimeInterface $startDate
-     * @param DateTimeInterface $endDate
-     */
-    public function __construct(
-        public int $hostId,
-        public int $serviceId,
-        public DateTimeInterface $startDate,
-        public DateTimeInterface $endDate
-    ) {
-    }
 }

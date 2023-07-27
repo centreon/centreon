@@ -21,12 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Core\Infrastructure\RealTime\Repository\FindMetric;
+namespace Core\Metric\Infrastructure\Repository;
 
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Application\RealTime\Repository\ReadMetricRepositoryInterface;
 use Core\Domain\RealTime\Model\Metric;
+use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 
 class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetricRepositoryInterface
 {

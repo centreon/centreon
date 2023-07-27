@@ -21,43 +21,23 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\RealTime\Model;
+namespace Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
 use DateTimeInterface;
 
-class PerformanceMetric
+class DownloadPerformanceMetricRequest
 {
     /**
-     * @param DateTimeInterface $dateValue
-     * @param MetricValue[] $metricValues
+     * @param int $hostId
+     * @param int $serviceId
+     * @param DateTimeInterface $startDate
+     * @param DateTimeInterface $endDate
      */
     public function __construct(
-        private DateTimeInterface $dateValue,
-        private array $metricValues = []
+        public int $hostId,
+        public int $serviceId,
+        public DateTimeInterface $startDate,
+        public DateTimeInterface $endDate
     ) {
-    }
-
-    /**
-     * @param MetricValue $metricValue
-     */
-    public function addMetricValue(MetricValue $metricValue): void
-    {
-        $this->metricValues[] = $metricValue;
-    }
-
-    /**
-     * @return MetricValue[]
-     */
-    public function getMetricValues(): array
-    {
-        return $this->metricValues;
-    }
-
-    /**
-     * @return DateTimeInterface
-     */
-    public function getDateValue(): DateTimeInterface
-    {
-        return $this->dateValue;
     }
 }

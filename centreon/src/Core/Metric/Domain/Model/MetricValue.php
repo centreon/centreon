@@ -21,24 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\RealTime\Model;
+namespace Core\Metric\Domain\Model;
 
-class Metric
+class MetricValue
 {
     /**
-     * @param int $id
      * @param string $name
+     * @param float $value
      */
-    public function __construct(private int $id, private string $name)
+    public function __construct(private string $name, private float $value)
     {
-    }
-
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
     }
 
     /**
@@ -47,5 +39,13 @@ class Metric
     public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * @return float
+     */
+    public function getValue(): float
+    {
+        return $this->value;
     }
 }
