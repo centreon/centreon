@@ -1639,12 +1639,12 @@ paths:
 
         The available parameters to **search** / **sort_by** are:
         AND
-        * hostgroup.ids [1,2,3]
-        * hostcategory.ids
-        * host.ids
-        * servicegroup.ids
-        * servicecategory.ids
-        * service.ids
+        * hostgroup.id
+        * hostcategory.id
+        * host.id
+        * servicegroup.id
+        * servicecategory.id
+        * service.id
       responses:
        '200':
         description: "OK"
