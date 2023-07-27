@@ -37,6 +37,7 @@ const EmailBody = (): JSX.Element => {
     Component: (
       <RichTextEditor
         editable
+        isMacrosButtonVisible
         contentClassName={classes.textEditor}
         editorState={value}
         error={(error as string) || undefined}
