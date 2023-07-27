@@ -15,6 +15,36 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-check-permissions.json'
   );
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/dashboards?'
+  }).as('listAllDashboards');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/configuration/dashboards'
+  }).as('createDashboard');
+  cy.loginByTypeOfUser({
+    jsonName: adminUser.login,
+    loginViaApi: true
+  });
+  cy.insertDashboard({ ...dashboards.fromAdminUser });
+  cy.logoutViaAPI();
+  cy.loginByTypeOfUser({
+    jsonName: dashboardAdministratorUser.login,
+    loginViaApi: true
+  });
+  cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
+  cy.logoutViaAPI();
+  cy.loginByTypeOfUser({
+    jsonName: dashboardCreatorUser.login,
+    loginViaApi: true
+  });
+  cy.insertDashboard({ ...dashboards.fromDashboardCreatorUser });
+  cy.logoutViaAPI();
 });
 
 beforeEach(() => {
@@ -30,35 +60,18 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
-  cy.loginByTypeOfUser({
-    jsonName: dashboardAdministratorUser.login,
-    loginViaApi: true
-  });
-  cy.insertDashboard({ ...dashboards.fromAdministratorUser });
-  cy.logoutViaAPI();
-  cy.loginByTypeOfUser({
-    jsonName: dashboardCreatorUser.login,
-    loginViaApi: true
-  });
-  cy.insertDashboard({ ...dashboards.fromCreatorUser });
-  cy.shareDashboardToUser({
-    dashboardName: dashboards.fromCreatorUser.name,
-    role: 'viewer',
-    userName: dashboardViewerUser.login
-  });
-  cy.logoutViaAPI();
 });
 
 after(() => {
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: 'DELETE FROM dashboard'
+  });
   cy.stopWebContainer();
 });
 
 afterEach(() => {
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: 'DELETE FROM dashboard'
-  });
   cy.logout();
 });
 
@@ -80,14 +93,21 @@ Then(
       label: 'view',
       tag: 'button'
     })
-      .contains(dashboards.fromAdministratorUser.name)
+      .contains(dashboards.fromAdminUser.name)
       .should('exist');
 
     cy.getByLabel({
       label: 'view',
       tag: 'button'
     })
-      .contains(dashboards.fromCreatorUser.name)
+      .contains(dashboards.fromDashboardAdministratorUser.name)
+      .should('exist');
+
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
       .should('exist');
   }
 );
@@ -97,7 +117,7 @@ When('the admin user clicks on a dashboard', () => {
     label: 'view',
     tag: 'button'
   })
-    .contains(dashboards.fromAdministratorUser.name)
+    .contains(dashboards.fromAdminUser.name)
     .click();
 });
 
@@ -115,12 +135,12 @@ Then(
 
     cy.getByLabel({ label: 'page header title' }).should(
       'contain.text',
-      dashboards.fromAdministratorUser.name
+      dashboards.fromAdminUser.name
     );
 
     cy.getByLabel({ label: 'page header description' }).should(
       'contain.text',
-      dashboards.fromAdministratorUser.description
+      dashboards.fromAdminUser.description
     );
   }
 );
@@ -140,11 +160,11 @@ Then("the admin user is allowed to update the dashboard's properties", () => {
 
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-    `${dashboards.fromAdministratorUser.name}-edited`
+    `${dashboards.fromAdminUser.name}-edited`
   );
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-    `${dashboards.fromAdministratorUser.description}, edited by ${adminUser.login}`
+    `${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
   );
 
   cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
@@ -153,11 +173,11 @@ Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.reload();
   cy.getByLabel({ label: 'page header title' }).should(
     'contain.text',
-    `${dashboards.fromAdministratorUser.name}-edited`
+    `${dashboards.fromAdminUser.name}-edited`
   );
   cy.getByLabel({ label: 'page header description' }).should(
     'contain.text',
-    `${dashboards.fromAdministratorUser.description}, edited by ${adminUser.login}`
+    `${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
   );
 });
 
@@ -221,14 +241,21 @@ Then(
       label: 'view',
       tag: 'button'
     })
-      .contains(dashboards.fromAdministratorUser.name)
+      .contains(dashboards.fromAdminUser.name)
       .should('exist');
 
     cy.getByLabel({
       label: 'view',
       tag: 'button'
     })
-      .contains(dashboards.fromCreatorUser.name)
+      .contains(dashboards.fromDashboardAdministratorUser.name)
+      .should('exist');
+
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
       .should('exist');
   }
 );
@@ -238,7 +265,7 @@ When('the dashboard administrator user clicks on a dashboard', () => {
     label: 'view',
     tag: 'button'
   })
-    .contains(dashboards.fromAdministratorUser.name)
+    .contains(dashboards.fromDashboardAdministratorUser.name)
     .click();
 });
 
@@ -256,12 +283,12 @@ Then(
 
     cy.getByLabel({ label: 'page header title' }).should(
       'contain.text',
-      dashboards.fromAdministratorUser.name
+      dashboards.fromDashboardAdministratorUser.name
     );
 
     cy.getByLabel({ label: 'page header description' }).should(
       'contain.text',
-      dashboards.fromAdministratorUser.description
+      dashboards.fromDashboardAdministratorUser.description
     );
   }
 );
@@ -283,11 +310,11 @@ Then(
 
     cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      `${dashboards.fromAdministratorUser.name}-edited`
+      `${dashboards.fromDashboardAdministratorUser.name}-edited`
     );
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      `${dashboards.fromAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
+      `${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
     );
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
@@ -296,11 +323,11 @@ Then(
     cy.reload();
     cy.getByLabel({ label: 'page header title' }).should(
       'contain.text',
-      `${dashboards.fromAdministratorUser.name}-edited`
+      `${dashboards.fromDashboardAdministratorUser.name}-edited`
     );
     cy.getByLabel({ label: 'page header description' }).should(
       'contain.text',
-      `${dashboards.fromAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
+      `${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
     );
   }
 );
@@ -368,14 +395,21 @@ Then(
       label: 'view',
       tag: 'button'
     })
-      .contains(dashboards.fromAdministratorUser.name)
+      .contains(dashboards.fromAdminUser.name)
       .should('not.exist');
 
     cy.getByLabel({
       label: 'view',
       tag: 'button'
     })
-      .contains(dashboards.fromCreatorUser.name)
+      .contains(dashboards.fromDashboardAdministratorUser.name)
+      .should('not.exist');
+
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
       .should('exist');
   }
 );
@@ -385,7 +419,7 @@ When('the dashboard editor user clicks on a dashboard', () => {
     label: 'view',
     tag: 'button'
   })
-    .contains(dashboards.fromCreatorUser.name)
+    .contains(dashboards.fromDashboardCreatorUser.name)
     .click();
 });
 
@@ -403,12 +437,12 @@ Then(
 
     cy.getByLabel({ label: 'page header title' }).should(
       'contain.text',
-      dashboards.fromCreatorUser.name
+      dashboards.fromDashboardCreatorUser.name
     );
 
     cy.getByLabel({ label: 'page header description' }).should(
       'contain.text',
-      dashboards.fromCreatorUser.description
+      dashboards.fromDashboardCreatorUser.description
     );
   }
 );
@@ -430,11 +464,11 @@ Then(
 
     cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      `${dashboards.fromCreatorUser.name}-edited`
+      `${dashboards.fromDashboardCreatorUser.name}-edited`
     );
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      `${dashboards.fromCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
+      `${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
     );
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
@@ -443,11 +477,11 @@ Then(
     cy.reload();
     cy.getByLabel({ label: 'page header title' }).should(
       'contain.text',
-      `${dashboards.fromCreatorUser.name}-edited`
+      `${dashboards.fromDashboardCreatorUser.name}-edited`
     );
     cy.getByLabel({ label: 'page header description' }).should(
       'contain.text',
-      `${dashboards.fromCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
+      `${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
     );
   }
 );
@@ -495,6 +529,23 @@ Given(
   'a non-admin user with the dashboard viewer role is logged in on a platform with dashboards',
   () => {
     cy.loginByTypeOfUser({
+      jsonName: dashboardAdministratorUser.login,
+      loginViaApi: true
+    });
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
+      .click();
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.contains(dashboardViewerUser.login).click();
+    cy.getByTestId({ testId: 'add' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.logoutViaAPI();
+    cy.loginByTypeOfUser({
       jsonName: dashboardViewerUser.login,
       loginViaApi: false
     });
@@ -512,14 +563,21 @@ Then(
       label: 'view',
       tag: 'button'
     })
-      .contains(dashboards.fromAdministratorUser.name)
+      .contains(dashboards.fromAdminUser.name)
       .should('not.exist');
 
     cy.getByLabel({
       label: 'view',
       tag: 'button'
     })
-      .contains(dashboards.fromCreatorUser.name)
+      .contains(dashboards.fromDashboardAdministratorUser.name)
+      .should('not.exist');
+
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
       .should('exist');
   }
 );
@@ -529,7 +587,7 @@ When('the dashboard viewer user clicks on a dashboard', () => {
     label: 'view',
     tag: 'button'
   })
-    .contains(dashboards.fromCreatorUser.name)
+    .contains(dashboards.fromDashboardCreatorUser.name)
     .click();
 });
 
@@ -547,11 +605,11 @@ Then(
 
     cy.getByLabel({ label: 'page header title' }).should(
       'contain.text',
-      dashboards.fromCreatorUser.name
+      dashboards.fromDashboardCreatorUser.name
     );
     cy.getByLabel({ label: 'page header description' }).should(
       'contain.text',
-      dashboards.fromCreatorUser.description
+      dashboards.fromDashboardCreatorUser.description
     );
   }
 );

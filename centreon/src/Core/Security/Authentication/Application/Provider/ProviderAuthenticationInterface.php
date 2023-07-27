@@ -129,4 +129,14 @@ interface ProviderAuthenticationInterface
      * @return array<string,mixed>
      */
     public function getIdTokenPayload(): array;
+
+    /**
+     * @return string[]
+     */
+    public function getAclConditionsMatches(): array;
+
+    /**
+     * @return ContactGroup[]
+     */
+    public function getUserContactGroups(): array;
 }

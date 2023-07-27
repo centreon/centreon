@@ -14,6 +14,10 @@ default:
       paths: [ "%paths.base%/features/RealTimeCategory.feature" ]
       contexts:
         - Centreon\Test\Api\Context\RealTimeCategoryContext
+    clapi:
+      paths: [ "%paths.base%/features/Clapi.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\ClapiContext
     dashboard:
       paths:
         - "%paths.base%/features/DashboardWithOpenApi.feature"
@@ -186,3 +190,11 @@ default:
       paths: [ "%paths.base%/features/CloudHost.feature" ]
       contexts:
         - Centreon\Test\Api\Context\CloudPlatformContext
+    services:
+      paths: [ "%paths.base%/features/ServiceOnPrem.feature" ]
+      contexts:
+      - Centreon\Test\Behat\Api\Context\ApiContext
+    cloud_services:
+      paths: [ "%paths.base%/features/ServiceCloud.feature" ]
+      contexts:
+      - Centreon\Test\Api\Context\CloudPlatformContext
