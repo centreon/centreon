@@ -36,7 +36,7 @@ class AccessGroup
     /**
      * @param int $id
      * @param string $name
-     * @param privatestring $alias
+     * @param string $alias
      */
     public function __construct(private int $id, private string $name, private string $alias)
     {

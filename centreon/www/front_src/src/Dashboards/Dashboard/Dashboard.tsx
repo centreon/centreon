@@ -76,7 +76,7 @@ const Dashboard = (): ReactElement => {
       <PageLayout.Body>
         <PageLayout.Actions>
           <span>
-            {!isEditing && (
+            {!isEditing && hasEditPermission(dashboard as DashboardType) && (
               <>
                 <IconButton
                   aria-label="edit"

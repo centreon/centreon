@@ -112,13 +112,16 @@ final class AddServiceTemplate
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             }
 
-            $nameToCheck = new TrimmedString(ServiceTemplate::formatName($request->name));
-            if ($this->readServiceTemplateRepository->existsByName($nameToCheck)) {
-                $presenter->presentResponse(
-                    new ConflictResponse(ServiceTemplateException::nameAlreadyExists((string) $nameToCheck))
-                );
+            $formattedName = ServiceTemplate::formatName($request->name);
+            if ($formattedName !== null) {
+                $nameToCheck = new TrimmedString($formattedName);
+                if ($this->readServiceTemplateRepository->existsByName($nameToCheck)) {
+                    $presenter->presentResponse(
+                        new ConflictResponse(ServiceTemplateException::nameAlreadyExists((string) $nameToCheck))
+                    );
 
-                return;
+                    return;
+                }
             }
 
             $this->assertParameters($request);
@@ -360,8 +363,7 @@ final class AddServiceTemplate
     }
 
     /**
-     * @param AddServiceTemplateRequest $request
-     * @param array $serviceCategoriesIds
+     * @param list<int> $serviceCategoriesIds
      *
      * @throws ServiceTemplateException
      * @throws \Throwable
@@ -369,7 +371,6 @@ final class AddServiceTemplate
     private function assertIsValidServiceCategories(array $serviceCategoriesIds): void
     {
         if (empty($serviceCategoriesIds)) {
-
             return;
         }
 
@@ -398,7 +399,6 @@ final class AddServiceTemplate
     private function linkServiceTemplateToServiceCategories(int $serviceTemplateId, AddServiceTemplateRequest $request): void
     {
         if (empty($request->serviceCategories)) {
-
             return;
         }
 

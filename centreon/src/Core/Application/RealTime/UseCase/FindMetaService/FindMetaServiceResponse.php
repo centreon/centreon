@@ -114,7 +114,7 @@ class FindMetaServiceResponse
      * @param ServiceStatus $status
      * @param Downtime[] $downtimes
      * @param Acknowledgement|null $acknowledgement
-     * @param publicstring $calculationType
+     * @param string $calculationType
      */
     public function __construct(
         public int $metaId,
