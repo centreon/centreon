@@ -9,7 +9,8 @@ export const getProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['options', propertyName], obj);
 
 const getYupValidatorType = cond([
-  [equals(FederatedWidgetOptionType.textfield), always(Yup.string())]
+  [equals(FederatedWidgetOptionType.textfield), always(Yup.string())],
+  [equals(FederatedWidgetOptionType.richText), always(Yup.string())]
 ]);
 
 interface BuildValidationSchemaProps {

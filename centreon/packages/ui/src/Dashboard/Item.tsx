@@ -41,9 +41,9 @@ const Item = forwardRef(
     }: DashboardItemProps,
     ref: ForwardedRef<HTMLDivElement>
   ): ReactElement => {
-    const { classes, cx } = useDashboardItemStyles();
-
     const hasHeader = !isNil(header);
+
+    const { classes, cx } = useDashboardItemStyles({ hasHeader });
 
     const listeners = {
       onMouseDown,

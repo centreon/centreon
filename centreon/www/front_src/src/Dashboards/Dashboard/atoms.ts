@@ -231,7 +231,9 @@ export const duplicatePanelDerivedAtom = atom(
     const panel = find(propEq('i', title), dashboard.layout);
 
     setAtom(addPanelDerivedAtom, {
+      fixedId: `${panel?.i}_copy`,
       height: panel?.h,
+      moduleName: panel?.name as string,
       options: panel?.options,
       panelConfiguration: panel?.panelConfiguration as PanelConfiguration,
       width: panel?.w

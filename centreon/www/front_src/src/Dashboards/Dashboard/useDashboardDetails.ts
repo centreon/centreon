@@ -72,7 +72,7 @@ const useDashboardDetails = ({
   const { data: dashboard } = useFetchQuery({
     decoder: dashboardDecoder,
     getEndpoint: () => `${dashboardsEndpoint}/${dashboardId}`,
-    getQueryKey: () => [resource.dashboards, dashboardId]
+    getQueryKey: () => [resource.dashboard, dashboardId]
   });
 
   const panels = getPanels(dashboard);

@@ -4,7 +4,7 @@
   "options": {
     "genericText": {
       "type": "rich-text",
-      "defaultValue": "",
+      "defaultValue": null,
       "label": "Generic text",
       "required": true
     }

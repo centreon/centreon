@@ -1,7 +1,9 @@
-import { ChangeEvent, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
+
+import { RichTextEditor } from '@centreon/ui';
 
 import { Widget, WidgetPropertyProps } from '../../models';
 
@@ -9,13 +11,11 @@ import { getProperty } from './utils';
 
 const WidgetRichTextEditor = ({
   propertyName,
-  label,
-  text,
-  required = false
-}: WidgetPropertyProps) => {
+  label
+}: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
 
-  const { errors, values, setFieldValue, setFieldTouched, touched } =
+  const { errors, values, setFieldValue, setFieldTouched } =
     useFormikContext<Widget>();
 
   const value = useMemo<string | undefined>(
@@ -28,15 +28,21 @@ const WidgetRichTextEditor = ({
     [getProperty({ obj: errors, propertyName })]
   );
 
-  const isTouched = useMemo<string | undefined>(
-    () => getProperty({ obj: touched, propertyName }),
-    [getProperty({ obj: touched, propertyName })]
-  );
-
-  const change = (event: ChangeEvent<HTMLInputElement>): void => {
+  const change = (newEditiorState: unknown): void => {
     setFieldTouched(`options.${propertyName}`, true);
-    setFieldValue(`options.${propertyName}`, event.target.value);
+    setFieldValue(`options.${propertyName}`, JSON.stringify(newEditiorState));
   };
+
+  return (
+    <RichTextEditor
+      editable
+      editorState={value || undefined}
+      error={error}
+      getEditorState={change}
+      initialEditorState={value || undefined}
+      placeholder={t(label) as string}
+    />
+  );
 };
 
 export default WidgetRichTextEditor;
