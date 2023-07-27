@@ -25,8 +25,9 @@ namespace Core\Metric\Infrastructure\Repository;
 
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Domain\RealTime\Model\Metric;
+
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
+use Core\Metric\Domain\Model\Metric;
 
 class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetricRepositoryInterface
 {
