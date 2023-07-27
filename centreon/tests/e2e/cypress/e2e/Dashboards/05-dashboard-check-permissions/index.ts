@@ -44,11 +44,6 @@ before(() => {
     loginViaApi: true
   });
   cy.insertDashboard({ ...dashboards.fromDashboardCreatorUser });
-  cy.shareDashboardToUser({
-    dashboardName: dashboards.fromDashboardCreatorUser.name,
-    role: 'viewer',
-    userName: dashboardViewerUser.login
-  });
   cy.logoutViaAPI();
 });
 
@@ -68,6 +63,10 @@ beforeEach(() => {
 });
 
 after(() => {
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: 'DELETE FROM dashboard'
+  });
   cy.stopWebContainer();
 });
 
@@ -398,6 +397,7 @@ Then(
     })
       .contains(dashboards.fromAdminUser.name)
       .should('not.exist');
+
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -540,8 +540,10 @@ Given(
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.contains(dashboardViewerUser.login).should('be.visible');
-    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.contains(dashboardViewerUser.login).click();
+    cy.getByTestId({ testId: 'add' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.logoutViaAPI();
     cy.loginByTypeOfUser({
       jsonName: dashboardViewerUser.login,
