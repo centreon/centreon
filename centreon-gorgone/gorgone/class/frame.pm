@@ -25,6 +25,7 @@ use warnings;
 
 use JSON::XS;
 use Try::Tiny;
+use MIME::Base64;
 
 sub new {
     my ($class, %options) = @_;
@@ -76,7 +77,7 @@ sub decrypt {
 
     my $plaintext;
     try {
-        $plaintext = $options->{cipher}->decrypt(${$self->{frame}}, $options->{key}, $options->{iv});
+        $plaintext = $options->{cipher}->decrypt(MIME::Base64::decode_base64(${$self->{frame}}), $options->{key}, $options->{iv});
     };
     if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z0-9_\-]+?\]/) {
         $self->{frame} = \$plaintext;
