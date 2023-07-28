@@ -17,10 +17,13 @@ on:
       stability:
         required: true
         type: string
+
     secrets:
       veracode_api_id:
         required: true
       veracode_api_key:
+        required: true
+      veracode_srcclr_token:
         required: true
 
 jobs:
@@ -49,11 +52,11 @@ jobs:
             echo "development_stage=Release" >> $GITHUB_OUTPUT
             echo "display_summary=false" >> $GITHUB_OUTPUT
           elif [[ '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'unstable' ]]; then
-            echo "fail_build=true" >> $GITHUB_OUTPUT
+            echo "fail_build=${{ vars.VERACODE_QUALITY_GATE }}" >> $GITHUB_OUTPUT
             echo "development_stage=Testing" >> $GITHUB_OUTPUT
-            echo "display_summary=true" >> $GITHUB_OUTPUT
+            echo "display_summary=false" >> $GITHUB_OUTPUT
           else
-            echo "fail_build=true" >> $GITHUB_OUTPUT
+            echo "fail_build=${{ vars.VERACODE_QUALITY_GATE }}" >> $GITHUB_OUTPUT
             echo "development_stage=Development" >> $GITHUB_OUTPUT
             echo "display_summary=true" >> $GITHUB_OUTPUT
           fi
@@ -72,21 +75,23 @@ jobs:
 
       - name: Get baseline files
         run: |
-          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
-          aws s3 ls "$BUCKET/filtered_results.json" || RESULT=$( echo $? )
+          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}"
+          aws s3 ls "$BUCKET/${{ github.base_ref || github.ref_name }}/results.json" || RESULT=$( echo $? )
           if [[ $RESULT -eq 0 ]]; then
-            aws s3 cp "$BUCKET/filtered_results.json" "/tmp/filtered_results.json"
-            echo "baseline_file=/tmp/filtered_results.json" >> $GITHUB_ENV
-            echo "create_baseline_from=filtered" >> $GITHUB_ENV
+            aws s3 cp "$BUCKET/${{ github.base_ref || github.ref_name }}/results.json" "/tmp/results.json"
+            echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
+            echo "create_baseline_from=standard" >> $GITHUB_ENV
           else
-            echo "[DEBUG] - Filtered baseline file not found in the bucket"
-            aws s3 ls "$BUCKET/results.json" || RESULT=$( echo $? )
+            RESULT=0
+            echo "[DEBUG] - Baseline file not found for branch ${{ github.base_ref || github.ref_name }}"
+            echo "[DEBUG] - Using dev-22.04.x's Baseline file"
+            aws s3 ls "$BUCKET/dev-22.04.x/results.json" || RESULT=$( echo $? )
             if [[ $RESULT -eq 0 ]]; then
-              aws s3 cp "$BUCKET/results.json" "/tmp/results.json"
+              aws s3 cp "$BUCKET/dev-22.04.x/results.json" "/tmp/results.json"
               echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
               echo "create_baseline_from=standard" >> $GITHUB_ENV
             else
-              echo "[DEBUG] - Standard baseline file not found in the bucket"
+              echo "[DEBUG] - dev-22.04.x's baseline file not found in the bucket"
               echo "baseline_file=" >> $GITHUB_ENV
               echo "create_baseline_from=" >> $GITHUB_ENV
             fi
@@ -98,16 +103,16 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
-        uses: veracode/Veracode-pipeline-scan-action@v1.0.3
+        uses: veracode/Veracode-pipeline-scan-action@v1.0.8
+        continue-on-error: true
         with:
-          vid: '${{ secrets.veracode_api_id }}'
-          vkey: '${{ secrets.veracode_api_key }}'
+          vid: "vera01ei-${{ secrets.veracode_api_id }}"
+          vkey: "vera01es-${{ secrets.veracode_api_key }}"
           file: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           baseline_file: "${{ env.baseline_file }}"
           create_baseline_from: "${{ env.create_baseline_from }}"
-          fail_build: false #TODO: Do not fail the jobs until grace period ends
-          #fail_build: '${{ needs.build.outputs.fail_build }}'
-          fail_on_severity: "Medium"
+          fail_build: '${{ needs.build.outputs.fail_build }}'
+          fail_on_severity: "'Very High','High'"
           timeout: 60
           development_stage: '${{ needs.build.outputs.development_stage }}'
           summary_display: '${{ needs.build.outputs.display_summary }}'
@@ -117,10 +122,15 @@ jobs:
         # only baseline files not generated from a development branch are saved
         if: needs.build.outputs.development_stage != 'Development'
         run: |
-          mv *results.json /tmp
-          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
-          aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
-          aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
+          BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
+          for BRANCH in "${BRANCHES[@]}"; do
+            if [[ "${{ github.ref_name }}" == "$BRANCH" ]]; then
+              mv *results.json /tmp
+              BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
+              aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
+              aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
+            fi
+          done
 
   policy-scan:
     needs: [build]
@@ -137,20 +147,61 @@ jobs:
           path: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
           key: "${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary"
 
-      - name: Run a sandbox scan
+      - name: Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
+        continue-on-error: true
         with:
           appname: "${{ inputs.module_name }}"
-          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_sha-${{ github.sha }}"
+          version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
           filepath: "${{ inputs.module_directory }}/${{ inputs.module_name }}-${{ github.sha }}-${{ github.run_id }}-veracode-binary.zip"
-          vid: '${{ secrets.veracode_api_id }}'
-          vkey: '${{ secrets.veracode_api_key }}'
+          vid: "vera01ei-${{ secrets.veracode_api_id }}"
+          vkey: "vera01es-${{ secrets.veracode_api_key }}"
           createprofile: true
           createsandbox: true
           sandboxname: "${{ github.ref_name }}"
-          criticality: "High"
-          scantimeout: 60
+          criticality: "Low"
+          scantimeout: 120
           includenewmodules: true
           scanallnonfataltoplevelmodules: true
           deleteincompletescan: 1
-          scanpollinginterval: 60 # time between two checks in seconds / [30 to 120]
+          scanpollinginterval: 120 # time between two checks in seconds / [30 to 120]
+
+  sca-scan:
+    needs: [build]
+    name: Run a SCA scan
+    # only stable and unstable maintenance branches will produce a report
+    if: github.ref_name == 'develop'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Preparing dependencies
+        run: |
+          cd ${{ inputs.module_directory }}
+          echo "[DEBUG] - package-lock.json scan disabled"
+
+          if [[ -f package-lock.json ]]; then
+            rm -f package-lock.json
+          fi
+
+          if [[ -f package.json ]]; then
+            rm -f package.json
+          fi
+
+      - name: SCA scan
+        env:
+          SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
+          SRCCLR_REGION: "ER"
+
+        uses: veracode/veracode-sca@v1.09
+        # This action is based on the following command:
+        # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan "./${{ inputs.module_directory }}" --debug
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          create-issues: false
+          fail-on-cvss: 8
+          path: "./${{ inputs.module_directory }}"
+          debug: true
