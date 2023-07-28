@@ -20,6 +20,11 @@ export const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     marginBottom: theme.spacing(1)
   },
+  macros: {
+    '& span': {
+      fontSize: theme.typography.caption.fontSize
+    }
+  },
   macrosButton: {
     marginBottom: theme.spacing(0.5)
   }

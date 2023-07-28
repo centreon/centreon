@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
 
@@ -20,6 +18,7 @@ interface ActionsType {
 interface Props {
   actions: Array<ActionsType>;
   className?: string;
+  listItemClassName?: string;
 }
 
 const useStyles = makeStyles()({
@@ -28,7 +27,11 @@ const useStyles = makeStyles()({
   }
 });
 
-const ActionsList = ({ className, actions }: Props): JSX.Element => {
+const ActionsList = ({
+  className,
+  listItemClassName,
+  actions
+}: Props): JSX.Element => {
   const { cx, classes } = useStyles();
   const { t } = useTranslation();
 
@@ -42,7 +45,9 @@ const ActionsList = ({ className, actions }: Props): JSX.Element => {
                 <Icon fontSize="small" />
               </ListItemIcon>
             )}
-            <ListItemText>{t(label)}</ListItemText>
+            <ListItemText className={listItemClassName}>
+              {t(label)}
+            </ListItemText>
           </MenuItem>
         );
       })}

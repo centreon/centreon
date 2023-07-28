@@ -11,6 +11,17 @@ import { useStyles } from '.';
 
 const LowPriority = 1;
 
+export const standardMacros = [
+  '{{SHORTDATETIME}}',
+  '{{LONGDATETIME}}',
+  '{{ALIAS}}',
+  '{{ID}}',
+  '{{NAME}}',
+  '{{OUTPUT}}',
+  '{{STATE}}',
+  '{{STATETYPE}}'
+];
+
 const MacrosButton = (): JSX.Element => {
   const { classes } = useStyles();
   const [arMacrosDiplayed, setAreMacrosDiplayed] = useState(false);
@@ -41,16 +52,10 @@ const MacrosButton = (): JSX.Element => {
     setAreMacrosDiplayed(true);
   };
 
-  const actions = [
-    { label: '{{SHORTDATETIME}}', onClick },
-    { label: '{{LONGDATETIME}}', onClick },
-    { label: '{{ALIAS}}', onClick },
-    { label: '{{ID}}', onClick },
-    { label: '{{NAME}}', onClick },
-    { label: '{{OUTPUT}}', onClick },
-    { label: '{{STATE}}', onClick },
-    { label: '{{STATETYPE}}', onClick }
-  ];
+  const actions = standardMacros.map((macro) => ({
+    label: macro,
+    onClick
+  }));
 
   return (
     <PopoverMenu
@@ -65,10 +70,13 @@ const MacrosButton = (): JSX.Element => {
           <MacrosIcon />
         </IconButton>
       }
-      // title="Macros"
     >
       {(): JSX.Element => (
-        <div>{arMacrosDiplayed && <ActionsList actions={actions} />}</div>
+        <div>
+          {arMacrosDiplayed && (
+            <ActionsList actions={actions} listItemClassName={classes.macros} />
+          )}
+        </div>
       )}
     </PopoverMenu>
   );
