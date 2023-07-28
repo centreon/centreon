@@ -1144,9 +1144,9 @@ class CentreonGraphNg
 
                         if ($isCurveInverted) {
                             // Avoid case when one of the value is NULL. The product by -1 will result in a float 0 (unwanted)
-                            $metric['minimum_value'] = $maximumValue !== null ? ($maximumValue * -1) : $maximumValue;
-                            $metric['maximum_value'] = $minimumValue !== null ? ($minimumValue * -1) : $minimumValue;
-                            $metric['average_value'] = $averageValue !== null ? ($averageValue * -1) : $averageValue;
+                            $metric['minimum_value'] = $maximumValue !== null ? (float) ($maximumValue * -1) : $maximumValue;
+                            $metric['maximum_value'] = $minimumValue !== null ? (float) ($minimumValue * -1) : $minimumValue;
+                            $metric['average_value'] = $averageValue !== null ? (float) ($averageValue * -1) : $averageValue;
                         } else {
                             $metric['minimum_value'] = $minimumValue !== null ? (float) $minimumValue : $minimumValue;
                             $metric['maximum_value'] = $maximumValue !== null ? (float) $maximumValue : $maximumValue;
