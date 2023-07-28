@@ -324,4 +324,9 @@ class WebSSO implements ProviderAuthenticationInterface
     {
         return [];
     }
+
+    public function getAclConditionsMatches(): array
+    {
+        return [];
+    }
 }

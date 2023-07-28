@@ -493,4 +493,12 @@ class SAML implements ProviderAuthenticationInterface
             exit;
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAclConditionsMatches(): array
+    {
+        return $this->rolesMapping->getConditionMatches();
+    }
 }
