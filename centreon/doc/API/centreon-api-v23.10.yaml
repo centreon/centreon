@@ -1653,10 +1653,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  count:
-                    type: number
-                    description: count of total of metrics
-                    example: 101
                   result:
                     type: array
                     items:
