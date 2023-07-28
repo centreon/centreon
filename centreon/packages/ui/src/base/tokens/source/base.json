@@ -137,6 +137,10 @@
         "value": "#101418",
         "type": "color"
       }
+    },
+    "white": {
+      "value": "#ffffff",
+      "type": "color"
     }
   }
 }

@@ -691,5 +691,24 @@
       "grey",
       "950"
     ]
+  },
+  {
+    "value": "#ffffff",
+    "type": "color",
+    "filePath": "src/base/tokens/source/base.json",
+    "isSource": true,
+    "original": {
+      "value": "#ffffff",
+      "type": "color"
+    },
+    "name": "color-white",
+    "attributes": {
+      "category": "color",
+      "type": "white"
+    },
+    "path": [
+      "color",
+      "white"
+    ]
   }
 ]
