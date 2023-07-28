@@ -106,7 +106,12 @@ const FloatingLinkEditor = ({
   const yOffset = tooltipPosition.y - rootElementY + 30;
 
   return (
-    <Popper open anchorEl={rootElement} placement="top-start">
+    <Popper
+      open
+      anchorEl={rootElement}
+      placement="top-start"
+      sx={{ zIndex: 'tooltip' }}
+    >
       <Paper
         sx={{
           transform: `translate3d(${xOffset}px, ${
