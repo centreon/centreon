@@ -1644,7 +1644,7 @@ paths:
         * host.id
         * servicegroup.id
         * servicecategory.id
-        * service.id
+        * service.name
       responses:
        '200':
         description: "OK"
