@@ -21,23 +21,24 @@
 
 declare(strict_types=1);
 
-namespace Core\Service\Application\Repository;
+namespace Core\Host\Infrastructure\API\DeleteHost;
 
-interface WriteServiceRepositoryInterface
+use Centreon\Application\Controller\AbstractController;
+use Core\Host\Application\UseCase\DeleteHost\DeleteHost;
+use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Symfony\Component\HttpFoundation\Response;
+
+class DeleteHostController extends AbstractController
 {
-    /**
-     * Delete a service by ID.
-     *
-     * @param int $serviceId
-     *
-     * @throws \Throwable
-     */
-    public function delete(int $serviceId): void;
+    public function __invoke(
+        DeleteHost $useCase,
+        DefaultPresenter $presenter,
+        int $hostId
+    ): Response {
+        $this->denyAccessUnlessGrantedForApiConfiguration();
 
-    /**
-     * Delete services by ID.
-     *
-     * @param int ...$serviceIds
-     */
-    public function deleteByIds(int ...$serviceIds): void;
+        $useCase($hostId, $presenter);
+
+        return $presenter->show();
+    }
 }

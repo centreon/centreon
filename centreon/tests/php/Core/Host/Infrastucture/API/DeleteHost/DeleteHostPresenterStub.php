@@ -21,23 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Service\Application\Repository;
+namespace Tests\Core\Host\Infrastucture\API\DeleteHost;
 
-interface WriteServiceRepositoryInterface
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+
+class DeleteHostPresenterStub extends AbstractPresenter
 {
-    /**
-     * Delete a service by ID.
-     *
-     * @param int $serviceId
-     *
-     * @throws \Throwable
-     */
-    public function delete(int $serviceId): void;
+    public ?ResponseStatusInterface $response;
 
-    /**
-     * Delete services by ID.
-     *
-     * @param int ...$serviceIds
-     */
-    public function deleteByIds(int ...$serviceIds): void;
+    public function setResponseStatus(?ResponseStatusInterface $responseStatus): void
+    {
+        $this->response = $responseStatus;
+    }
 }
