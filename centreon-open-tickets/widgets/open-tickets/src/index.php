@@ -146,7 +146,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
 
     FROM hosts h
     LEFT JOIN customvariables cv5 ON (
-        h.host_id = cv5.host_id AND cv5.service_id IS NULL AND cv5.name = '" . $macro_tickets['ticket_id'] . "'
+        h.host_id = cv5.host_id AND (cv5.service_id IS NULL OR cv5.service_id = 0) AND cv5.name = '" . $macro_tickets['ticket_id'] . "'
     )
     LEFT JOIN mod_open_tickets mop1 ON (
         cv5.value = mop1.ticket_value AND (
