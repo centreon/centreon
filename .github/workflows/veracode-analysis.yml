@@ -120,7 +120,7 @@ jobs:
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
-        if: needs.build.outputs.development_stage != 'Development'
+        if: success() && needs.build.outputs.development_stage != 'Development'
         run: |
           BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
           for BRANCH in "${BRANCHES[@]}"; do
@@ -167,7 +167,7 @@ jobs:
 
       - name: Promote Scan
         # only develop will be promoted to policy scan
-        if: github.ref_name == 'develop'
+        if: success() && github.ref_name == 'develop'
         env:
           VERACODE_API_ID: "${{ secrets.veracode_api_id }}"
           VERACODE_API_SECRET: "${{ secrets.veracode_api_key }}"
