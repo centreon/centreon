@@ -104,7 +104,7 @@ jobs:
 
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.8
-        continue-on-error: true
+        continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
           vkey: "vera01es-${{ secrets.veracode_api_key }}"
@@ -120,7 +120,7 @@ jobs:
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
-        if: needs.build.outputs.development_stage != 'Development'
+        if: success() && needs.build.outputs.development_stage != 'Development'
         run: |
           BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
           for BRANCH in "${BRANCHES[@]}"; do
@@ -138,7 +138,6 @@ jobs:
     # only stable and unstable maintenances branches will produce a report
     if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     steps:
       - name: Get build binary
@@ -149,7 +148,7 @@ jobs:
 
       - name: Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
-        continue-on-error: true
+        continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           appname: "${{ inputs.module_name }}"
           version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
@@ -166,19 +165,34 @@ jobs:
           deleteincompletescan: 1
           scanpollinginterval: 120 # time between two checks in seconds / [30 to 120]
 
+      - name: Promote Scan
+        # only develop will be promoted to policy scan
+        if: success() && github.ref_name == 'develop'
+        env:
+          VERACODE_API_ID: "${{ secrets.veracode_api_id }}"
+          VERACODE_API_SECRET: "${{ secrets.veracode_api_key }}"
+
+        # Action forked as API call hardcode '.com' route
+        uses: sc979/veracode-sandboxes-helper@v0.2
+        with:
+          activity: "promote-latest-scan"
+          app-name: "${{ inputs.module_name }}"
+          sandbox-name: "${{ github.ref_name }}"
+          delete-on-promote: false
+
   sca-scan:
     needs: [build]
     name: Run a SCA scan
     # only stable and unstable maintenance branches will produce a report
     if: github.ref_name == 'develop'
     runs-on: ubuntu-latest
-    continue-on-error: true
+    continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Preparing dependencies
+      - name: Removing pnpm dependencies
         run: |
           cd ${{ inputs.module_directory }}
           echo "[DEBUG] - package-lock.json scan disabled"
@@ -191,12 +205,17 @@ jobs:
             rm -f package.json
           fi
 
+          if [[ -f composer.lock ]]; then
+            echo "trigger_sca_scan=true" >> GITHUB_ENV
+          fi
+
       - name: SCA scan
+        if: env.trigger_sca_scan == 'true'
         env:
           SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
           SRCCLR_REGION: "ER"
 
-        uses: veracode/veracode-sca@v1.09
+        uses: sc979/veracode-sca@v1.10
         # This action is based on the following command:
         # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan "./${{ inputs.module_directory }}" --debug
         with:
