@@ -75,12 +75,7 @@ class AclUpdater implements AclUpdaterInterface
 
             $groupMappings = $customConfiguration->getGroupsMapping();
             if ($groupMappings->isEnabled()) {
-                $contactGroupRelations = $groupMappings->getContactGroupRelations();
-                $contactGroups = [];
-                foreach ($contactGroupRelations as $contactGroupRelation) {
-                    $contactGroups[] = $contactGroupRelation->getContactGroup();
-                }
-                $this->updateContactGroupsForUser($user, $contactGroups);
+                $this->updateContactGroupsForUser($user, $this->provider->getUserContactGroups());
             }
         }
     }

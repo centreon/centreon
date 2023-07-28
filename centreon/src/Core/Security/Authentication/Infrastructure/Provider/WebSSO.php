@@ -329,4 +329,9 @@ class WebSSO implements ProviderAuthenticationInterface
     {
         return [];
     }
+
+    public function getUserContactGroups(): array
+    {
+        return [];
+    }
 }
