@@ -370,6 +370,7 @@ importers:
       '@testing-library/jest-dom': ^5.16.5
       '@testing-library/react': ^13.4.0
       '@testing-library/react-hooks': ^8.0.1
+      '@types/cypress': ^1.1.3
       '@types/jest': ^27.5.0
       '@types/ramda': ^0.28.12
       '@types/react': ^18.0.26
@@ -462,6 +463,7 @@ importers:
       '@testing-library/jest-dom': 5.16.5
       '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
       '@testing-library/react-hooks': 8.0.1_vwm56pewxizjzye5i4fty6c2rm
+      '@types/cypress': 1.1.3
       '@types/jest': 27.5.2
       '@types/ramda': 0.28.25
       '@types/react': 18.2.6
@@ -10743,7 +10745,7 @@ packages:
     dependencies:
       confusing-browser-globals: 1.0.11
       eslint: 8.40.0
-      eslint-plugin-import: 2.27.5_ssl2j5f235wgkzbqzn5lpj2mey
+      eslint-plugin-import: 2.27.5_y6na5yzocvsvyzyspqtlmdb3ey
       object.assign: 4.1.4
       object.entries: 1.1.6
       semver: 6.3.0
@@ -10761,7 +10763,7 @@ packages:
     dependencies:
       eslint: 8.40.0
       eslint-config-airbnb-base: 15.0.0_e43qr7ng6kygh3xxr4conxr2wi
-      eslint-plugin-import: 2.27.5_ssl2j5f235wgkzbqzn5lpj2mey
+      eslint-plugin-import: 2.27.5_y6na5yzocvsvyzyspqtlmdb3ey
       eslint-plugin-jsx-a11y: 6.7.1_eslint@8.40.0
       eslint-plugin-react: 7.31.10_eslint@8.40.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.40.0
@@ -10784,7 +10786,7 @@ packages:
     peerDependencies:
       eslint-plugin-import: '>=1.4.0'
     dependencies:
-      eslint-plugin-import: 2.27.5_ssl2j5f235wgkzbqzn5lpj2mey
+      eslint-plugin-import: 2.27.5_y6na5yzocvsvyzyspqtlmdb3ey
     dev: true
 
   /eslint-import-resolver-node/0.3.7:
