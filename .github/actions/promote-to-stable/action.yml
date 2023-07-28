@@ -265,7 +265,7 @@ runs:
             curl -JOs $SRC_PATH
             FILENAME=$(basename $SRC_PATH)
             echo "[DEBUG] - Promoting testing artifact $FILENAME to stable."
-            curl --fail -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILENAME" $TARGET_PATH
+            curl --fail -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -H "Content-Type: multipart/form-data" --data-binary "@./$FILENAME" $TARGET_PATH/
             rm -f $FILENAME
             sleep 2
           done
