@@ -1107,7 +1107,6 @@ class CentreonGraphNg
             $metric['minimum_value'] = null;
             $metric['maximum_value'] = null;
             $metric['average_value'] = null;
-            $lastValue = null;
             $minimumValue = null;
             $maximumValue = null;
             $averageValue = null;
@@ -1127,24 +1126,32 @@ class CentreonGraphNg
                             [, $valueType, $value] = $matches;
                             switch ($valueType) {
                                 case 'Last':
-                                    $lastValue = (float) $value;
+                                    $lastValue = $value;
                                     break;
                                 case 'Min':
-                                    $minimumValue = (float) $value;
+                                    $minimumValue = $value;
                                     break;
                                 case 'Max':
-                                    $maximumValue = (float) $value; 
+                                    $maximumValue = $value;
                                     break;
                                 case 'Average':
-                                    $averageValue = (float) $value;
+                                    $averageValue = $value;
                                     break;
                             }
                         }
 
-                        $metric['last_value'] = $isCurveInverted ? abs($lastValue) : $lastValue;
-                        $metric['minimum_value'] = $isCurveInverted ? abs($maximumValue) : $minimumValue;
-                        $metric['maximum_value'] = $isCurveInverted ? abs($minimumValue) : $maximumValue;
-                        $metric['average_value'] = $isCurveInverted ? abs($averageValue) : $averageValue;
+                        $metric['last_value'] = (float) $lastValue;
+
+                        if ($isCurveInverted) {
+                            // Avoid case when one of the value is NULL. The product by -1 will result in a float 0 (unwanted)
+                            $metric['minimum_value'] = $maximumValue !== null ? ($maximumValue * -1) : $maximumValue;
+                            $metric['maximum_value'] = $minimumValue !== null ? ($minimumValue * -1) : $minimumValue;
+                            $metric['average_value'] = $averageValue !== null ? ($averageValue * -1) : $averageValue;
+                        } else {
+                            $metric['minimum_value'] = $minimumValue !== null ? (float) $minimumValue : $minimumValue;
+                            $metric['maximum_value'] = $maximumValue !== null ? (float) $maximumValue : $maximumValue;
+                            $metric['average_value'] = $averageValue !== null ? (float) $averageValue : $averageValue;
+                        }
                     }
                 }
             }
