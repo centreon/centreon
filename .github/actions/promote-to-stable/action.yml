@@ -255,7 +255,7 @@ runs:
 
         # Check if artifacts to promote
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
-        SRC_PATHS=$(curl -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" "https://apt.centreon.com/service/rest/v1/search/assets?repository=${ROOT_REPO_PATH}&keyword=*{{ inputs.major_version }}.${{ inputs.minor_version }}*&version=${{ inputs.major_version }}.${{ inputs.minor_version }}-${{ inputs.distrib }}" |jq -r '.items[].downloadUrl')
+        SRC_PATHS=$(curl -s -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" "https://apt.centreon.com/service/rest/v1/search/assets?repository=${ROOT_REPO_PATH}&keyword=*${{ inputs.major_version }}.${{ inputs.minor_version }}*&version=${{ inputs.major_version }}.${{ inputs.minor_version }}-${{ inputs.distrib }}" |jq -r '.items[].downloadUrl')
 
         # Checking if there are testing packages to promote and download them.
         if [[ ${SRC_PATHS[@]} ]]; then
