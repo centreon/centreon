@@ -1,5 +1,5 @@
 Name:       centreon-gorgone
-Version:    23.04.3
+Version:    23.04.4
 Release:    %{PACKAGE_RELEASE}%{?dist}
 Summary:    Perl daemon task handlers
 Group:      Applications/System
@@ -14,6 +14,7 @@ BuildRequires: perl-devel
 Requires:   bzip2
 Requires:   perl-Libssh-Session >= 0.8
 Requires:   perl-CryptX
+Requires:   perl-Mojolicious
 Requires:   perl(Archive::Tar)
 Requires:   perl(Schedule::Cron)
 Requires:   perl(ZMQ::FFI)
@@ -81,6 +82,7 @@ mkdir -p %{buildroot}/%{perl_vendorlib}/gorgone
 %{__cp} centreon-gorgone/contrib/gorgone_config_init.pl %{buildroot}%{_usr}/local/bin/
 %{__cp} centreon-gorgone/contrib/gorgone_audit.pl %{buildroot}%{_usr}/local/bin/
 %{__cp} centreon-gorgone/contrib/gorgone_install_plugins.pl %{buildroot}%{_usr}/local/bin/
+%{__cp} centreon-gorgone/contrib/gorgone_key_thumbprint.pl %{buildroot}%{_usr}/local/bin/
 
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone
 %{__install} -d %{buildroot}%{_sysconfdir}/centreon-gorgone/config.d/
@@ -108,6 +110,7 @@ rm -rf %{buildroot}
 %attr(755, root, root) %{_usr}/local/bin/gorgone_config_init.pl
 %attr(755, root, root) %{_usr}/local/bin/gorgone_audit.pl
 %attr(750, root, root) %{_usr}/local/bin/gorgone_install_plugins.pl
+%attr(750, root, root) %{_usr}/local/bin/gorgone_key_thumbprint.pl
 %attr(755, root, root) %{_sysconfdir}/systemd/system/gorgoned.service
 %config(noreplace) %{_sysconfdir}/sysconfig/gorgoned
 %config(noreplace) %{_sysconfdir}/logrotate.d/gorgoned
