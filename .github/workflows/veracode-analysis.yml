@@ -104,7 +104,7 @@ jobs:
 
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.8
-        continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' && true || false }}
+        continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
           vkey: "vera01es-${{ secrets.veracode_api_key }}"
@@ -148,7 +148,7 @@ jobs:
 
       - name: Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
-        continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' && true || false }}
+        continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           appname: "${{ inputs.module_name }}"
           version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
@@ -186,7 +186,7 @@ jobs:
     # only stable and unstable maintenance branches will produce a report
     if: github.ref_name == 'develop'
     runs-on: ubuntu-latest
-    continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' && true || false }}
+    continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
 
     steps:
       - name: Checkout
