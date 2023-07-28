@@ -1,4 +1,5 @@
 import RichTextEditor from './RichTextEditor';
+import { standardMacros } from './plugins/ToolbarPlugin/MacrosButton';
 
 interface CheckElementStyleOnRichTextEditorProps {
   check: boolean;
@@ -199,6 +200,34 @@ describe('Rich Text Editor', () => {
         'min-height',
         '200px'
       );
+    });
+  });
+
+  describe('Rich Text Editor with Macros Plugin', () => {
+    beforeEach(() => {
+      cy.mount({
+        Component: <RichTextEditor editable isMacrosButtonVisible />
+      });
+    });
+
+    it('displays the Macros buttons when the "isMacrosButtonVisible" prop is set to true', () => {
+      cy.findByLabelText('Macros').should('be.visible');
+      cy.findByLabelText('Macros').click();
+
+      standardMacros.forEach((macro) => {
+        cy.findByText(macro).should('be.visible');
+      });
+    });
+
+    it('ensures that the selected macro is inserted into the RichTextEditor', () => {
+      cy.get('[data-testid="RichTextEditor"]').type('macro : ');
+
+      cy.findByLabelText('Macros').click({});
+
+      standardMacros.forEach((macro) => {
+        cy.findByText(macro).should('be.visible').click({ force: true });
+        cy.get('[data-testid="RichTextEditor"]').should('contain', macro);
+      });
     });
   });
 });
