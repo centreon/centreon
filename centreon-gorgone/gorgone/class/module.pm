@@ -32,6 +32,7 @@ use JSON::XS;
 use Crypt::Mode::CBC;
 use Try::Tiny;
 use EV;
+use MIME::Base64;
 
 my %handlers = (DIE => {});
 
@@ -171,7 +172,7 @@ sub read_message {
         } else {
             my $plaintext;
             try {
-                $plaintext = $self->{cipher}->decrypt($message, $key, $self->{internal_crypt}->{iv});
+                $plaintext = $self->{cipher}->decrypt(MIME::Base64::decode_base64($message), $key, $self->{internal_crypt}->{iv});
             };
             if (defined($plaintext) && $plaintext =~ /^\[[A-Za-z_\-]+?\]/) {
                 $message = undef;
@@ -188,7 +189,7 @@ sub read_message {
     return (undef, 1);
 }
 
-sub send_internal_key {
+sub renew_internal_key {
     my ($self, %options) = @_;
 
     my $message = gorgone::standard::library::build_protocol(
@@ -203,9 +204,7 @@ sub send_internal_key {
         return -1;
     };
 
-    $options{socket}->send($message, ZMQ_DONTWAIT);
-    $self->event(socket => $options{socket});
-    return 0;
+    return (0, $message);
 }
 
 sub send_internal_action {
@@ -223,6 +222,7 @@ sub send_internal_action {
     $self->{logger}->writeLogDebug("[$self->{module_id}]$self->{container} internal message: $options->{message}");
 
     my $socket = defined($options->{socket}) ? $options->{socket} : $self->{internal_socket};
+    my $message_key;
     if ($self->{internal_crypt}->{enabled} == 1) {
         my $identity = gorgone::standard::library::zmq_get_routing_id(socket => $socket);
 
@@ -233,18 +233,20 @@ sub send_internal_action {
                 my ($rv, $genkey) = gorgone::standard::library::generate_symkey(
                     keysize => $self->get_core_config(name => 'internal_com_keysize')
                 );
-                ($rv) = $self->send_internal_key(
-                    socket => $socket,
+
+                ($rv, $message_key) = $self->renew_internal_key(
                     key => $genkey,
                     encrypt_key => defined($self->{internal_crypt}->{identity_keys}->{$identity}) ?
                         $self->{internal_crypt}->{identity_keys}->{$identity}->{key} : $self->{internal_crypt}->{core_keys}->[0]
                 );
                 return undef if ($rv == -1);
+
                 $self->{internal_crypt}->{identity_keys}->{$identity} = {
                     key => $genkey,
                     ctime => time()
                 };
             }
+
             $key = $self->{internal_crypt}->{identity_keys}->{$identity}->{key};
         }
 
@@ -254,8 +256,11 @@ sub send_internal_action {
             $self->{logger}->writeLogError("[$self->{module_id}]$self->{container} encrypt issue: $_");
             return undef;
         };
+
+        $options->{message} = MIME::Base64::encode_base64($options->{message}, '');
     }
 
+    $socket->send(MIME::Base64::encode_base64($message_key, ''), ZMQ_DONTWAIT) if (defined($message_key));
     $socket->send($options->{message}, ZMQ_DONTWAIT);
     if ($socket->has_error) {
         $self->{logger}->writeLogError(
