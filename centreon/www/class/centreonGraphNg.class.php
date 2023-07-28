@@ -1107,6 +1107,7 @@ class CentreonGraphNg
             $metric['minimum_value'] = null;
             $metric['maximum_value'] = null;
             $metric['average_value'] = null;
+            $lastValue = null;
             $minimumValue = null;
             $maximumValue = null;
             $averageValue = null;
