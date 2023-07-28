@@ -1,0 +1,10 @@
+{
+  "federatedComponentsConfiguration": {
+    "path": "/widgets/graph",
+    "federatedComponents": [
+      "./graph"
+    ]
+  },
+  "moduleFederationName": "widgetgraph",
+  "moduleName": "centreon-widget-graph"
+}
