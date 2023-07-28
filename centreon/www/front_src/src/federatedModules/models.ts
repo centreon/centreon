@@ -37,6 +37,9 @@ export interface FederatedWidgetOption {
 }
 
 export interface FederatedWidgetProperties {
+  data: {
+    [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
+  };
   description: string;
   moduleName: string;
   options: {

@@ -75,7 +75,16 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       {}
     );
 
+    const data = Object.entries(selectedWidgetProperties.data).reduce(
+      (acc, [key, value]) => ({
+        ...acc,
+        [key]: value.defaultValue
+      }),
+      {}
+    );
+
     setValues((currentValues) => ({
+      data,
       id: selectedWidget.moduleName,
       moduleName: selectedWidget.moduleName,
       options: {
