@@ -735,6 +735,6 @@ jobs:
           system_name: Alma8
           branch: develop
           configured_resources: false
-          installed_business_modules: false
+          install_business_modules: false
           instance_password: Centreon!2021
           cod_service_token: ${{ secrets.COD_SERVICE_TOKEN }}
