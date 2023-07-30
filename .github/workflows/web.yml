@@ -716,7 +716,7 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   deploy-platform-nightly:
-    needs: [get-version, deliver-rpm]
+    needs: [get-version]
     # if: ${{ github.event_name }} == '0 3 * * *'
     runs-on: [common]
     steps:
