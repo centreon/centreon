@@ -251,6 +251,10 @@ jobs:
             distrib: centos7
             distrib_rpm: el7
             module_name: web
+          - project: centreon-web
+            distrib: alma8
+            distrib_rpm: el8
+            module_name: web
 
     steps:
       - name: Checkout sources
@@ -276,6 +280,9 @@ jobs:
           file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
           target: web_fresh
           context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
@@ -285,6 +292,9 @@ jobs:
           file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
           target: web_standard
           context: .
+          build-args: |
+            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+            "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
           push: true
           tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
