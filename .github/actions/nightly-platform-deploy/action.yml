@@ -31,7 +31,7 @@ inputs:
   configured_resources:
     description: ""
     required: true
-  install_business_modules:
+  installed_business_modules:
     description: ""
     required: true
   instance_password:
