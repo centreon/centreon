@@ -11,22 +11,31 @@ inputs:
     description: "Business unit to use."
     required: true
   disk_size:
+    description: ""
     required: true
   poller_number:
+    description: ""
     required: true
   central_instance:
+    description: ""
     required: true
   poller_instance:
+    description: ""
     required: true
   system_name:
+    description: ""
     required: true
   branch:
+    description: ""
     required: true
   configured_resources:
+    description: ""
     required: true
   install_business_modules:
+    description: ""
     required: true
   instance_password:
+    description: ""
     required: true
 
 
