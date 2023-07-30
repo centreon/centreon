@@ -717,7 +717,7 @@ jobs:
 
   deploy-platform-nightly:
     needs: [get-version, deliver-rpm]
-    if: ${{ github.event_name }} == '0 3 * * *'
+    # if: ${{ github.event_name }} == '0 3 * * *'
     runs-on: [common]
     steps:
       - name: Trigger platform deployment
