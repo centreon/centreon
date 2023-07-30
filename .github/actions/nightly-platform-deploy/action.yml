@@ -37,6 +37,10 @@ inputs:
   instance_password:
     description: ""
     required: true
+  cod_service_token:
+    description: ""
+    required: true
+
 
 
 runs:
