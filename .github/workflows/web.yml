@@ -716,12 +716,21 @@ jobs:
           stability: ${{ needs.get-version.outputs.stability }}
 
   deploy-platform-nightly:
-    needs: [deliver-rpm]
-    if: github.event.schedule == '0 3 * * *'
+    needs: [get-version, deliver-rpm]
+    if: ${{ github.event_name }} == '0 3 * * *'
     runs-on: [common]
     steps:
       - name: Trigger platform deployment
         uses: ./.github/actions/nightly-platform-deploy
         with:
-          jambon: b
-          beurre: a
+          ref: main
+          bu: rd
+          disk_size: 30
+          poller_number: 1
+          central_instance: t3a.medium
+          poller_instance: t3a.medium
+          system_name: Alma8
+          branch: develop
+          configured_resources: false
+          install_business_modules: false
+          instance_password: Centreon!2021

@@ -3,6 +3,32 @@ description: "Deploy a platform with packages from nightly builds."
 inputs:
   deploy_type:
     description: "The type of platform deployment (install or update)."
+    required: false
+  ref:
+    description: "Reference branch for cod."
+    required: true
+  bu:
+    description: "Business unit to use."
+    required: true
+  disk_size:
+    required: true
+  poller_number:
+    required: true
+  central_instance:
+    required: true
+  poller_instance:
+    required: true
+  system_name:
+    required: true
+  branch:
+    required: true
+  configured_resources:
+    required: true
+  install_business_modules:
+    required: true
+  instance_password:
+    required: true
+
 
 runs:
   steps:
@@ -12,5 +38,5 @@ runs:
           -H "Authorization: Bearer ${{secrets.PAT}}" \
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/centreon/centreon-on-demand/actions/workflows/deploy.yml/dispatches \
-          -d '{"ref": "master", "inputs":{"bu":"rd", "disk_size":"", "poller_number":"", "central_instance":"", "poller_instance":"", "system_name":"", "centreon_branch":"", "configured_resources":"", "install_business_modules":"", "instance_password":"" }}'
+          -d '{"ref": "main", "inputs":{"bu":"rd", "disk_size":"${{ inputs.disk_size }}", "poller_number":"${{ inputs.poller_number }}", "central_instance":"${{ inputs.central_instance }}", "poller_instance":"${{ inputs.poller_instance }}", "system_name":"${{ inputs.system_name }}", "centreon_branch":"${{ inputs.centreon_branch }}", "configured_resources":"${{ inputs.configured_resources }}", "install_business_modules":"${{ installed_business_modules }}", "instance_password":"${{ instance_password }}" }}'
 
