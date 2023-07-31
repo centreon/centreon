@@ -46,7 +46,7 @@ class DbNotifiableResourceFactory
      *
      * @return \Generator|null
      */
-    public static function createFromRecords(iterable $records): ?\Generator
+    public static function createFromRecords(iterable $records): \Generator
     {
         $currentNotificationId = 0;
         $currentRecords = [];
@@ -70,10 +70,11 @@ class DbNotifiableResourceFactory
         }
 
         if ([] === $currentRecords) {
-            return null;
+            yield from [];
+        } else {
+            yield self::createNotifiableResourceFromRecord($currentNotificationId, $currentRecords);
         }
 
-        yield self::createNotifiableResourceFromRecord($currentNotificationId, $currentRecords);
     }
 
     /**

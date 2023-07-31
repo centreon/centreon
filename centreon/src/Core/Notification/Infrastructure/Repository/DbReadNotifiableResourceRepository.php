@@ -55,7 +55,7 @@ class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implement
     /**
      * @inheritDoc
      */
-    public function findAllForActivatedNotifications(): ?\Generator
+    public function findAllForActivatedNotifications(): \Generator
     {
         $providerSubRequests = $this->getRequestsFromProviders();
         $request = <<<SQL
