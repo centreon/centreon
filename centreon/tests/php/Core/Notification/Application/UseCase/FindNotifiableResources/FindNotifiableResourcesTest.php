@@ -57,24 +57,6 @@ it('should present a Forbidden Response when user doesn\'t have access to endpoi
         ->toBe(NotificationException::listResourcesNotAllowed()->getMessage());
 });
 
-// it('should present a Not Found Response when there are no notifiable resources.', function () {
-//     $contact = (new Contact())->setAdmin(true)->setId(1);
-//     $requestUid = '';
-
-//     $useCase = new FindNotifiableResources($contact, $this->readRepository);
-//     $this->readRepository
-//         ->expects($this->once())
-//         ->method('findAllForActivatedNotifications')
-//         ->willReturn(null);
-
-//     $useCase($this->presenter, $requestUid);
-
-//     expect($this->presenter->responseStatus)
-//         ->toBeInstanceOf(NotFoundResponse::class)
-//         ->and($this->presenter->responseStatus->getMessage())
-//         ->toBe('Notifiable resources not found');
-// });
-
 it('should present an Error Response when an unhandled error occurs.', function () {
     $contact = (new Contact())->setAdmin(true)->setId(1);
     $requestUid = '';
