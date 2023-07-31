@@ -116,9 +116,11 @@ EOF`,
         mv /etc/apt/sources.list.d/centreon-unstable.list /etc/apt/sources.list.d/centreon-unstable.list.bak
         mv /etc/apt/sources.list.d/centreon-testing.list /etc/apt/sources.list.d/centreon-testing.list.bak
         apt-get update
-        apt-get install -y centreon-web-apache=${version}-${Cypress.env(
-        'WEB_IMAGE_OS'
-      )} centreon-poller=${version}-${Cypress.env('WEB_IMAGE_OS')}
+        apt-get install -y \\
+          centreon-poller=${version}-${Cypress.env('WEB_IMAGE_OS')} \\
+          centreon-web-apache=${version}-${Cypress.env('WEB_IMAGE_OS')} \\
+          centreon-web=${version}-${Cypress.env('WEB_IMAGE_OS')} \\
+          centreon-common=${version}-${Cypress.env('WEB_IMAGE_OS')}
         mkdir -p /usr/lib/centreon-connector
         echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini
         sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql
