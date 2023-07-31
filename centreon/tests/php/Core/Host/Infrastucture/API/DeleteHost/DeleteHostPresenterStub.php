@@ -21,16 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\RealTime\Repository;
+namespace Tests\Core\Host\Infrastucture\API\DeleteHost;
 
-use Core\Domain\RealTime\Model\Metric;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface ReadMetricRepositoryInterface
+class DeleteHostPresenterStub extends AbstractPresenter
 {
-    /**
-     * @param int $indexId
-     *
-     * @return array<Metric>
-     */
-    public function findMetricsByIndexId(int $indexId): array;
+    public ?ResponseStatusInterface $response;
+
+    public function setResponseStatus(?ResponseStatusInterface $responseStatus): void
+    {
+        $this->response = $responseStatus;
+    }
 }

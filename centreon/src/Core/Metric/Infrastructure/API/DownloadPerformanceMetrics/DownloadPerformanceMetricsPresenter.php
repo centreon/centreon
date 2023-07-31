@@ -21,23 +21,20 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\RealTime\UseCase\FindPerformanceMetrics;
+namespace Core\Metric\Infrastructure\API\DownloadPerformanceMetrics;
 
-use DateTimeInterface;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetricResponse;
 
-class FindPerformanceMetricRequest
+class DownloadPerformanceMetricsPresenter extends AbstractPresenter
 {
     /**
-     * @param int $hostId
-     * @param int $serviceId
-     * @param DateTimeInterface $startDate
-     * @param DateTimeInterface $endDate
+     * {@inheritDoc}
+     *
+     * @param FindPerformanceMetricResponse $data
      */
-    public function __construct(
-        public int $hostId,
-        public int $serviceId,
-        public DateTimeInterface $startDate,
-        public DateTimeInterface $endDate
-    ) {
+    public function present(mixed $data): void
+    {
+        parent::present($data);
     }
 }

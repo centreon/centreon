@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\RealTime\UseCase\FindPerformanceMetrics;
+namespace Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
-use Core\Domain\RealTime\Model\PerformanceMetric;
+use Core\Metric\Domain\Model\PerformanceMetric;
 
-class FindPerformanceMetricResponse
+class DownloadPerformanceMetricResponse
 {
     /** @var PerformanceMetric[] */
     public iterable $performanceMetrics = [];

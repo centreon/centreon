@@ -86,6 +86,30 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         return (int) $statement->fetchColumn();
     }
 
+    public function findServiceIdsLinkedToHostId(int $hostId): array
+    {
+        $request = $this->translateDbName(<<<'SQL'
+            SELECT service.service_id
+            FROM `:db`.service
+            INNER JOIN `:db`.host_service_relation hsr
+                ON hsr.service_service_id = service.service_id
+            WHERE hsr.host_host_id = :host_id
+                AND service.service_register = '1'
+            SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $serviceIds = [];
+        while (($serviceId = $statement->fetchColumn()) !== false) {
+            $serviceIds[] = (int) $serviceId;
+        }
+
+        return $serviceIds;
+    }
+
     /**
      * @param int[] $accessGroupIds
      *
@@ -118,20 +142,16 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     private function existsService(SqlConcatenator $concatenator, int $serviceId): bool
     {
-        $concatenator
-            ->defineSelect(
+        $concatenator->defineSelect(
                 <<<'SQL'
                     SELECT 1
                     SQL
-            )
-            ->appendWhere(
+            )->appendWhere(
                 <<<'SQL'
                     WHERE s.service_id = :service_id
                     AND s.service_register = '1'
                     SQL
-            )
-            ->storeBindValue(':service_id', $serviceId, \PDO::PARAM_INT);
-
+            )->storeBindValue(':service_id', $serviceId, \PDO::PARAM_INT);
         $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
         $concatenator->bindValuesToStatement($statement);
         $statement->execute();

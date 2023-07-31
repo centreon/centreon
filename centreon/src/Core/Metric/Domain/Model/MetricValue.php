@@ -21,10 +21,31 @@
 
 declare(strict_types=1);
 
-namespace Core\Application\RealTime\UseCase\FindPerformanceMetrics;
+namespace Core\Metric\Domain\Model;
 
-use Core\Application\Common\UseCase\PresenterInterface;
-
-interface FindPerformanceMetricPresenterInterface extends PresenterInterface
+class MetricValue
 {
+    /**
+     * @param string $name
+     * @param float $value
+     */
+    public function __construct(private string $name, private float $value)
+    {
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return float
+     */
+    public function getValue(): float
+    {
+        return $this->value;
+    }
 }

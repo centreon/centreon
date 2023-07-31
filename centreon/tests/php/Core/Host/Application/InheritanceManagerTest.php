@@ -29,15 +29,15 @@ use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface
 it('return inheritance line in the expected order', function (): void {
     $hostId = 1;
     $parents = [
-        ['child_id'=> 5, 'parent_id'=> 9, 'order' => 2],
-        ['child_id'=> 1, 'parent_id'=> 2, 'order' => 0],
-        ['child_id'=> 2, 'parent_id'=> 3, 'order' => 0],
-        ['child_id'=> 2, 'parent_id'=> 4, 'order' => 1],
-        ['child_id'=> 3, 'parent_id'=> 4, 'order' => 0],
-        ['child_id'=> 4, 'parent_id'=> 5, 'order' => 0],
-        ['child_id'=> 5, 'parent_id'=> 8, 'order' => 1],
-        ['child_id'=> 5, 'parent_id'=> 6, 'order' => 0],
-        ['child_id'=> 6, 'parent_id'=> 7, 'order' => 0],
+        ['child_id' => 5, 'parent_id' => 9, 'order' => 2],
+        ['child_id' => 1, 'parent_id' => 2, 'order' => 0],
+        ['child_id' => 2, 'parent_id' => 3, 'order' => 0],
+        ['child_id' => 2, 'parent_id' => 4, 'order' => 1],
+        ['child_id' => 3, 'parent_id' => 4, 'order' => 0],
+        ['child_id' => 4, 'parent_id' => 5, 'order' => 0],
+        ['child_id' => 5, 'parent_id' => 8, 'order' => 1],
+        ['child_id' => 5, 'parent_id' => 6, 'order' => 0],
+        ['child_id' => 6, 'parent_id' => 7, 'order' => 0],
     ];
     $inheritanceLine = InheritanceManager::findInheritanceLine($hostId, $parents);
 
@@ -61,14 +61,14 @@ it('return false when a circular inheritance is detected', function (): void {
                 [
                     ['child_id' => 2, 'parent_id' => 3, 'order' => 0],
                     ['child_id' => 3, 'parent_id' => 4, 'order' => 0],
-                ]
+                ],
             ],
             [
                 5,
                 [
                     ['child_id' => 5, 'parent_id' => 6, 'order' => 0],
                     ['child_id' => 6, 'parent_id' => 1, 'order' => 0],
-                ]
+                ],
             ],
         ]);
 
@@ -92,14 +92,14 @@ it('return true when an inheritance tree is valid', function (): void {
                 [
                     ['child_id' => 2, 'parent_id' => 3, 'order' => 0],
                     ['child_id' => 3, 'parent_id' => 4, 'order' => 0],
-                ]
+                ],
             ],
             [
                 5,
                 [
                     ['child_id' => 5, 'parent_id' => 6, 'order' => 0],
                     ['child_id' => 6, 'parent_id' => 7, 'order' => 0],
-                ]
+                ],
             ],
         ]);
 

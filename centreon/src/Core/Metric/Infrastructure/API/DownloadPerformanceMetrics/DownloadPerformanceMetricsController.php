@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Infrastructure\RealTime\Api\DownloadPerformanceMetrics;
+namespace Core\Metric\Infrastructure\API\DownloadPerformanceMetrics;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetricRequest;
-use Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetrics;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricRequest;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetrics;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,12 +42,12 @@ class DownloadPerformanceMetricsController extends AbstractController
 
     private Request $request;
 
-    private FindPerformanceMetricRequest $performanceMetricRequest;
+    private DownloadPerformanceMetricRequest $performanceMetricRequest;
 
     public function __invoke(
         int $hostId,
         int $serviceId,
-        FindPerformanceMetrics $useCase,
+        DownloadPerformanceMetrics $useCase,
         Request $request,
         DownloadPerformanceMetricsPresenter $presenter
     ): Response {
@@ -72,7 +72,7 @@ class DownloadPerformanceMetricsController extends AbstractController
         $this->findStartDate();
         $this->findEndDate();
 
-        $this->performanceMetricRequest = new FindPerformanceMetricRequest(
+        $this->performanceMetricRequest = new DownloadPerformanceMetricRequest(
             $hostId,
             $serviceId,
             $this->startDate,

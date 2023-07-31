@@ -21,31 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\RealTime\Model;
+namespace Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
-class Metric
+use Core\Application\Common\UseCase\PresenterInterface;
+
+interface DownloadPerformanceMetricPresenterInterface extends PresenterInterface
 {
-    /**
-     * @param int $id
-     * @param string $name
-     */
-    public function __construct(private int $id, private string $name)
-    {
-    }
-
-    /**
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
 }

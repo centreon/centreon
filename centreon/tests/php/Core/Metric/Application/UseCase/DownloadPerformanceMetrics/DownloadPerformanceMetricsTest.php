@@ -21,19 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Application\RealTime\UseCase\FindPerformanceMetrics;
+namespace Tests\Core\Metric\Application\UseCase\DownloadPerformanceMetrics;
 
 use Core\Domain\RealTime\Model\IndexData;
 use DateTimeImmutable;
-use Core\Domain\RealTime\Model\MetricValue;
-use Core\Domain\RealTime\Model\PerformanceMetric;
-use Core\Application\RealTime\Repository\ReadMetricRepositoryInterface;
+use Core\Metric\Domain\Model\MetricValue;
+use Core\Metric\Domain\Model\PerformanceMetric;
+use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadIndexDataRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadPerformanceDataRepositoryInterface;
-use Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetrics;
-use Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetricRequest;
-use Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetricResponse;
-use Core\Application\RealTime\UseCase\FindPerformanceMetrics\FindPerformanceMetricPresenterInterface;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricPresenterInterface;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetrics;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricRequest;
+use Core\Metric\Application\UseCase\DownloadPerformanceMetrics\DownloadPerformanceMetricResponse;
 
 beforeEach(function () {
     $this->hostId = 1;
@@ -63,16 +63,16 @@ it(
 
         $metricRepository = $this->createMock(ReadMetricRepositoryInterface::class);
         $performanceDataRepository = $this->createMock(ReadPerformanceDataRepositoryInterface::class);
-        $presenter = $this->createMock(FindPerformanceMetricPresenterInterface::class);
+        $presenter = $this->createMock(DownloadPerformanceMetricPresenterInterface::class);
 
-        $performanceMetricRequest = new FindPerformanceMetricRequest(
+        $performanceMetricRequest = new DownloadPerformanceMetricRequest(
             $this->hostId,
             $this->serviceId,
             new DateTimeImmutable('2022-01-01'),
             new DateTimeImmutable('2023-01-01')
         );
 
-        $sut = new FindPerformanceMetrics($indexDataRepository, $metricRepository, $performanceDataRepository);
+        $sut = new DownloadPerformanceMetrics($indexDataRepository, $metricRepository, $performanceDataRepository);
 
         $sut($performanceMetricRequest, $presenter);
     }
@@ -85,7 +85,7 @@ it(
 
 it(
     'validate presenter response',
-    function (iterable $performanceData, FindPerformanceMetricResponse $expectedResponse) {
+    function (iterable $performanceData, DownloadPerformanceMetricResponse $expectedResponse) {
         $indexDataRepository = $this->createMock(ReadIndexDataRepositoryInterface::class);
         $indexDataRepository
             ->expects($this->once())
@@ -107,26 +107,26 @@ it(
             ->method('findDataByMetricsAndDates')
             ->willReturn($performanceData);
 
-        $presenter = $this->createMock(FindPerformanceMetricPresenterInterface::class);
+        $presenter = $this->createMock(DownloadPerformanceMetricPresenterInterface::class);
         $presenter
             ->expects($this->once())
             ->method('present')
             ->with($this->equalTo($expectedResponse));
 
-        $performanceMetricRequest = new FindPerformanceMetricRequest(
+        $performanceMetricRequest = new DownloadPerformanceMetricRequest(
             $this->hostId,
             $this->serviceId,
             new DateTimeImmutable('2022-02-01'),
             new DateTimeImmutable('2023-01-01')
         );
 
-        $sut = new FindPerformanceMetrics($indexDataRepository, $metricRepository, $performanceDataRepository);
+        $sut = new DownloadPerformanceMetrics($indexDataRepository, $metricRepository, $performanceDataRepository);
         $sut($performanceMetricRequest, $presenter);
     }
 )->with([
     [
         [['rta' => 0.01]],
-        new FindPerformanceMetricResponse(
+        new DownloadPerformanceMetricResponse(
             [
                 new PerformanceMetric(
                     new DateTimeImmutable(),
@@ -138,7 +138,7 @@ it(
     ],
     [
         [['rta' => 0.01], ['pl' => 0.02]],
-        new FindPerformanceMetricResponse(
+        new DownloadPerformanceMetricResponse(
             [
                 new PerformanceMetric(
                     new DateTimeImmutable(),

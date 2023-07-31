@@ -48,4 +48,13 @@ interface WriteHostRepositoryInterface
      * @throws \Throwable
      */
     public function addParent(int $childId, int $parentId, int $order): void;
+
+    /**
+     * Delete a host by ID.
+     *
+     * @param int $hostId
+     *
+     * @throws \Throwable
+     */
+    public function deleteById(int $hostId): void;
 }

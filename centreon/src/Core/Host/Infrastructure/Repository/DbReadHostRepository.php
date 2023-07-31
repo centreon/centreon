@@ -117,6 +117,26 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     /**
      * @inheritDoc
      */
+    public function exists(int $hostId): bool
+    {
+        $request = $this->translateDbName(<<<'SQL'
+            SELECT 1
+            FROM `:db`.host
+            WHERE host_id = :host_id
+              AND host_register = '1'
+            SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findById(int $hostId): ?Host
     {
         $request = $this->translateDbName(
@@ -216,6 +236,59 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         $statement->execute();
 
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByAccessGroups(int $hostId, array $accessGroups): bool
+    {
+        $bindValues = [];
+        foreach ($accessGroups as $index => $accessGroup) {
+            $bindValues[':access_group' . $index] = [\PDO::PARAM_INT => $accessGroup->getId()];
+        }
+        $subRequest = implode(',', array_keys($bindValues));
+        $request = $this->translateDbName(<<<SQL
+            SELECT 1
+            FROM `:db`.host
+            INNER JOIN `:db`.acl_resources_host_relations arhr
+                ON arhr.host_host_id = `host`.host_id
+            INNER JOIN `:db`.acl_resources ar
+                ON ar.acl_res_id = arhr.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON argr.acl_res_id = ar.acl_res_id
+            WHERE host_id = :host_id
+              AND host_register = '1'
+              AND argr.acl_group_id IN ({$subRequest})
+            UNION
+            SELECT 1
+            FROM `:db`.host
+            INNER JOIN `:db`.hostgroup_relation hr
+                ON hr.host_host_id = `host`.host_id
+            INNER JOIN `:db`.hostgroup hg
+                ON hg.hg_id = hr.hostgroup_hg_id
+            INNER JOIN `:db`.acl_resources_hg_relations arhgr
+                ON arhgr.hg_hg_id = hg.hg_id
+            INNER JOIN `:db`.acl_resources ar
+                ON ar.acl_res_id = arhgr.acl_res_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON argr.acl_res_id = ar.acl_res_id
+            WHERE host_id = :host_id
+              AND host_register = '1'
+              AND argr.acl_group_id IN ({$subRequest})
+            SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        foreach ($bindValues as $key => $data) {
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 
     /**

@@ -60,4 +60,13 @@ interface ReadServiceRepositoryInterface
      * @return int
      */
     public function findMonitoringServerId(int $serviceId): int;
+
+    /**
+     * Find all service IDs link to the host.
+     *
+     * @param int $hostId Host ID for which the services are linked
+     *
+     * @return list<int>
+     */
+    public function findServiceIdsLinkedToHostId(int $hostId): array;
 }

@@ -110,8 +110,8 @@ services:
         class: Core\Infrastructure\Common\Presenter\DownloadPresenter
         arguments: ['@Core\Infrastructure\Common\Presenter\CsvFormatter']
 
-    Core\Infrastructure\RealTime\Api\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenter:
-        class: Core\Infrastructure\RealTime\Api\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenter
+    Core\Metric\Infrastructure\API\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenter:
+        class: Core\Metric\Infrastructure\API\DownloadPerformanceMetrics\DownloadPerformanceMetricsPresenter
         arguments: ['@presenter.download.csv']
 
     # Authentication

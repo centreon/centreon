@@ -21,31 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Domain\RealTime\Model;
+namespace Core\Metric\Application\Repository;
 
-class MetricValue
+use Core\Metric\Domain\Model\Metric;
+
+interface ReadMetricRepositoryInterface
 {
     /**
-     * @param string $name
-     * @param float $value
+     * @param int $indexId
+     *
+     * @return array<Metric>
      */
-    public function __construct(private string $name, private float $value)
-    {
-    }
-
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @return float
-     */
-    public function getValue(): float
-    {
-        return $this->value;
-    }
+    public function findMetricsByIndexId(int $indexId): array;
 }
