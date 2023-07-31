@@ -26,8 +26,11 @@ namespace Core\Notification\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Notification\Application\Converter\NotificationHostEventConverter;
+use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface;
 use Core\Notification\Application\Repository\ReadNotifiableResourceRepositoryInterface as RepositoryInterface;
+use Core\Notification\Domain\Model\{NotifiableHost, NotifiableResource, NotifiableService};
 
 class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implements RepositoryInterface
 {
@@ -55,7 +58,7 @@ class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implement
     /**
      * @inheritDoc
      */
-    public function findAllForActivatedNotifications(): ?array
+    public function findAllForActivatedNotifications(): ?\Generator
     {
         $providerSubRequests = $this->getRequestsFromProviders();
         $request = <<<SQL
@@ -64,14 +67,10 @@ class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implement
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
-        $records = $statement->fetchAll(\PDO::FETCH_ASSOC);
-        if ([] === $records) {
-            return null;
-        }
-
-        return DbNotifiableResourceFactory::createFromRecords($records);
+        yield from DbNotifiableResourceFactory::createFromRecords($statement);
     }
 
     /**

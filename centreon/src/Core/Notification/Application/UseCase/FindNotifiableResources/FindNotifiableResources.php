@@ -56,20 +56,15 @@ final class FindNotifiableResources
         try {
             if ($this->contact->isAdmin()) {
                 $this->info('Retrieving all notifiable resources');
-                $notifiableResources = $this->readRepository->findAllForActivatedNotifications();
-
-                if (null === $notifiableResources) {
-                    $this->error('Notifiable resources not found');
-                    $response = new NotFoundResponse('Notifiable resources');
-                } else {
-                    $responseJson = \json_encode($notifiableResources, JSON_THROW_ON_ERROR);
+                $responseDto = $this->createResponseDto($this->readRepository->findAllForActivatedNotifications());
+                    $responseJson = \json_encode($responseDto, JSON_THROW_ON_ERROR);
                     $calculatedUid = \hash('md5', $responseJson);
                     if ($calculatedUid === $requestUid) {
                         $response = new NotModifiedResponse();
                     } else {
-                        $response = $this->createResponseDto($notifiableResources, $calculatedUid);
+                        $responseDto->uid = $calculatedUid;
+                        $response = $responseDto;
                     }
-                }
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to list notification resources",
@@ -87,16 +82,12 @@ final class FindNotifiableResources
 
     /**
      * @param NotifiableResource[] $notifiableResources
-     * @param string $calculatedUid
      *
      * @return FindNotifiableResourcesResponse
      */
-    private function createResponseDto(
-        array $notifiableResources,
-        string $calculatedUid
-    ): FindNotifiableResourcesResponse {
+    private function createResponseDto(iterable $notifiableResources): FindNotifiableResourcesResponse
+    {
         $responseDto = new FindNotifiableResourcesResponse();
-        $responseDto->uid = $calculatedUid;
         foreach ($notifiableResources as $notifiableResource) {
             $notifiableResourceDto = new NotifiableResourceDto();
             $notifiableResourceDto->notificationId = $notifiableResource->getNotificationId();

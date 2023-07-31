@@ -35,5 +35,5 @@ interface ReadNotifiableResourceRepositoryInterface
      *
      * @return NotifiableResource[]|null
      */
-    public function findAllForActivatedNotifications(): ?array;
+    public function findAllForActivatedNotifications(): ?iterable;
 }

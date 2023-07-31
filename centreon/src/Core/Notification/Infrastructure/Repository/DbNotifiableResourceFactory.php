@@ -44,11 +44,10 @@ class DbNotifiableResourceFactory
      *
      * @throws \Throwable
      *
-     * @return array<NotifiableResource>
+     * @return \Generator|null
      */
-    public static function createFromRecords(array $records): array
+    public static function createFromRecords(iterable $records): ?\Generator
     {
-        $notifiableResources = [];
         $currentNotificationId = 0;
         $currentRecords = [];
         foreach ($records as $record) {
@@ -63,16 +62,18 @@ class DbNotifiableResourceFactory
                 continue;
             }
 
-            $notifiableResources[] = self::createNotifiableResourceFromRecord($currentNotificationId, $currentRecords);
+            yield self::createNotifiableResourceFromRecord($currentNotificationId, $currentRecords);
 
             $currentRecords = [];
             $currentRecords[] = $record;
             $currentNotificationId = $record['notification_id'];
         }
 
-        $notifiableResources[] = self::createNotifiableResourceFromRecord($currentNotificationId, $currentRecords);
+        if ([] === $currentRecords) {
+            return null;
+        }
 
-        return $notifiableResources;
+        yield self::createNotifiableResourceFromRecord($currentNotificationId, $currentRecords);
     }
 
     /**
