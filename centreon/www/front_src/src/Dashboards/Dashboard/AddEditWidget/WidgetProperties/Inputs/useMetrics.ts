@@ -23,7 +23,7 @@ import { getDataProperty } from './utils';
 
 interface UseMetricsState {
   addMetric: () => void;
-  changeMetric: (index) => (_, newMetrics: Array<SelectEntry>) => void;
+  changeMetric: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
   changeService: (index) => (e: ChangeEvent<HTMLInputElement>) => void;
   deleteMetric: (index: number | string) => () => void;
   getMetricsFromService: (serviceId: number) => Array<SelectEntry>;
@@ -124,7 +124,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
   const changeMetric =
     (index) =>
     (_, newMetrics: Array<SelectEntry>): void => {
-      setFieldValue(`data.${propertyName}.${index}.metrics`, newMetrics);
+      setFieldValue(`data.${propertyName}.${index}.metrics`, newMetrics || []);
     };
 
   console.log(values);
