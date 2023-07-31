@@ -69,9 +69,7 @@ class DbNotifiableResourceFactory
             $currentNotificationId = $record['notification_id'];
         }
 
-        if ([] === $currentRecords) {
-            yield from [];
-        } else {
+        if ([] !== $currentRecords) {
             yield self::createNotifiableResourceFromRecord($currentNotificationId, $currentRecords);
         }
 
