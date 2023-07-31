@@ -10,7 +10,7 @@ type Props = {
   children: Array<ReactElement>;
   key: string | number;
   labelDelete: string;
-  onDeleteItem: (key: string | number) => void;
+  onDeleteItem: () => void;
 };
 
 export const Item = ({
@@ -21,8 +21,6 @@ export const Item = ({
 }: Props): JSX.Element => {
   const { classes } = useItemStyles();
 
-  const deleteItem = useCallback(() => onDeleteItem(key), [key]);
-
   return (
     <div className={classes.itemContainer}>
       <div className={classes.itemContent}>{children}</div>
@@ -32,7 +30,7 @@ export const Item = ({
         icon={<CloseIcon />}
         size="small"
         variant="ghost"
-        onClick={deleteItem}
+        onClick={onDeleteItem}
       />
     </div>
   );

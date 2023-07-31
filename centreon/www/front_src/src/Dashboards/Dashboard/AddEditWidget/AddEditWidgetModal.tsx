@@ -11,7 +11,12 @@ import { labelSelectAWidgetType } from '../translatedLabels';
 import useWidgetForm from './useWidgetModal';
 import { useAddWidgetStyles } from './addWidget.styles';
 import { Widget } from './models';
-import { Preview, WidgetProperties, WidgetSelection } from './WidgetProperties';
+import {
+  Preview,
+  WidgetData,
+  WidgetProperties,
+  WidgetSelection
+} from './WidgetProperties';
 import Actions from './Actions';
 import useValidationSchema from './useValidationSchema';
 
@@ -51,6 +56,7 @@ const AddWidgetModal = (): JSX.Element => {
                   <WidgetProperties />
                 </div>
               </div>
+              <WidgetData />
             </div>
           </Modal.Body>
           <Actions closeModal={closeModal} isAddingWidget={isAddingWidget} />

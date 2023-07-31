@@ -8,6 +8,9 @@ import { labelRequired } from '../../../translatedLabels';
 export const getProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['options', propertyName], obj);
 
+export const getDataProperty = <T>({ propertyName, obj }): T | undefined =>
+  path<T>(['data', propertyName], obj);
+
 const getYupValidatorType = cond([
   [equals(FederatedWidgetOptionType.textfield), always(Yup.string())]
 ]);

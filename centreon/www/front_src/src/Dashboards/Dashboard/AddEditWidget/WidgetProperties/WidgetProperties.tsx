@@ -11,11 +11,11 @@ import {
 } from '../../translatedLabels';
 
 import { WidgetTextField } from './Inputs';
-import { useWidgetProperties } from './useWidgetProperties';
+import { useWidgetInputs } from './useWidgetInputs';
 
 const WidgetProperties = (): JSX.Element => {
   const { t } = useTranslation();
-  const widgetProperties = useWidgetProperties();
+  const widgetProperties = useWidgetInputs('options');
 
   const isWidgetSelected = !isNil(widgetProperties);
 

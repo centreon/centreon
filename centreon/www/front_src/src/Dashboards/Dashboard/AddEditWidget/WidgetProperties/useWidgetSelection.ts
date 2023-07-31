@@ -48,6 +48,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const selectWidget = (widget: SelectEntry | null): void => {
     if (isNil(widget)) {
       setValues({
+        data: null,
         id: null,
         moduleName: null,
         options: {},
@@ -75,7 +76,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       {}
     );
 
-    const data = Object.entries(selectedWidgetProperties.data).reduce(
+    const data = Object.entries(selectedWidgetProperties.data || {}).reduce(
       (acc, [key, value]) => ({
         ...acc,
         [key]: value.defaultValue

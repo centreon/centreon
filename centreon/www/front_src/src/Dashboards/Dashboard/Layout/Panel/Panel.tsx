@@ -5,7 +5,7 @@ import { useMemoComponent } from '@centreon/ui';
 import {
   getPanelConfigurationsDerivedAtom,
   getPanelOptionsDerivedAtom,
-  setPanelOptionsDerivedAtom
+  setPanelOptionsAndDataDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
 import { AddWidgetPanel } from '../../AddEditWidget';
@@ -20,7 +20,7 @@ const Panel = ({ id, isAddWidgetPanel }: Props): JSX.Element => {
   const getPanelConfigurations = useAtomValue(
     getPanelConfigurationsDerivedAtom
   );
-  const setPanelOptions = useSetAtom(setPanelOptionsDerivedAtom);
+  const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
 
   const panelOptions = getPanelOptions(id);
 

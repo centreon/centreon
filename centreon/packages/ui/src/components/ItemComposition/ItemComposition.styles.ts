@@ -5,7 +5,8 @@ export const useItemCompositionStyles = makeStyles()((theme) => ({
     alignItems: 'flex-start',
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(2)
+    gap: theme.spacing(2),
+    width: '100%'
   }
 }));
 
@@ -14,10 +15,12 @@ export const useItemStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
-    gap: theme.spacing(1)
+    gap: theme.spacing(1),
+    width: '100%'
   },
   itemContent: {
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    width: '100%'
   }
 }));

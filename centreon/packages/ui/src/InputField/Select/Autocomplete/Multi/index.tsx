@@ -34,12 +34,14 @@ export interface Props
       'multiple'
     > {
   disableSortedOptions?: boolean;
+  optionProperty?: string;
 }
 
 const MultiAutocompleteField = ({
   value,
   options,
   disableSortedOptions = false,
+  optionProperty = 'name',
   ...props
 }: Props): JSX.Element => {
   const { classes } = useStyles();
@@ -52,7 +54,7 @@ const MultiAutocompleteField = ({
           root: classes.tag
         }}
         key={option.id}
-        label={option.name}
+        label={option[optionProperty]}
         size="medium"
         {...getTagProps({ index })}
       />

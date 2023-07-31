@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai';
 
 import { labelRequired } from '../translatedLabels';
 
-import { WidgetPropertiesRenderer } from './WidgetProperties/useWidgetProperties';
+import { WidgetPropertiesRenderer } from './WidgetProperties/useWidgetInputs';
 import { buildValidationSchema } from './WidgetProperties/Inputs/utils';
 import { widgetPropertiesAtom } from './atoms';
 

@@ -50,6 +50,7 @@ const Layout = (): JSX.Element => {
 
       return {
         ...panel,
+        data: currentWidget?.data,
         name: currentWidget?.name,
         options: currentWidget?.options,
         panelConfiguration: currentWidget?.panelConfiguration
