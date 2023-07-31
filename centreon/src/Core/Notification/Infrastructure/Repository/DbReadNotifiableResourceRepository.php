@@ -26,11 +26,8 @@ namespace Core\Notification\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
-use Core\Notification\Application\Converter\NotificationHostEventConverter;
-use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface;
 use Core\Notification\Application\Repository\ReadNotifiableResourceRepositoryInterface as RepositoryInterface;
-use Core\Notification\Domain\Model\{NotifiableHost, NotifiableResource, NotifiableService};
 
 class DbReadNotifiableResourceRepository extends AbstractRepositoryRDB implements RepositoryInterface
 {
