@@ -737,4 +737,4 @@ jobs:
           configured_resources: false
           install_business_modules: false
           instance_password: Centreon!2021
-          cod_service_token: ${{ secrets.COD_SERVICE_TOKEN }}
+          cod_service_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
