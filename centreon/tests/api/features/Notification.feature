@@ -1859,7 +1859,7 @@ Feature:
     And the JSON should be equal to:
       """
       {
-        "uid": "fe0dc47104e29eb0185eca031083841c",
+        "uid": "f60c7b9b4eef84773c804bbf4e5dfabc",
         "result": [
           {
             "notification_id": 1,
@@ -1987,6 +1987,6 @@ Feature:
       }
       """
 
-    When I add 'X-Notifiable-Resources-UID' header equal to 'fe0dc47104e29eb0185eca031083841c'
+    When I add 'X-Notifiable-Resources-UID' header equal to 'f60c7b9b4eef84773c804bbf4e5dfabc'
     And I send a GET request to '/api/latest/configuration/notifications/resources'
     Then the response code should be "304"
