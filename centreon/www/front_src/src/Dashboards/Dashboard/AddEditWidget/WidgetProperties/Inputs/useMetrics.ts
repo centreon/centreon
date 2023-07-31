@@ -30,6 +30,7 @@ interface UseMetricsState {
   hasNoResources: () => boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
+  metricCount: number | undefined;
   metrics: ListingModel<ServiceMetric> | undefined;
   serviceOptions: Array<SelectEntry>;
   value: Array<WidgetDataMetric>;
@@ -81,6 +82,8 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     [metrics?.result]
   );
 
+  const metricCount = metrics?.meta?.total;
+
   const hasNoResources = (): boolean => {
     if (!resources.length) {
       return true;
@@ -123,11 +126,9 @@ const useMetrics = (propertyName: string): UseMetricsState => {
 
   const changeMetric =
     (index) =>
-    (_, newMetrics: Array<SelectEntry>): void => {
+    (_, newMetrics: Array<SelectEntry> | null): void => {
       setFieldValue(`data.${propertyName}.${index}.metrics`, newMetrics || []);
     };
-
-  console.log(values);
 
   return {
     addMetric,
@@ -138,6 +139,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     hasNoResources,
     hasTooManyMetrics,
     isLoadingMetrics,
+    metricCount,
     metrics,
     serviceOptions,
     value: value || []
