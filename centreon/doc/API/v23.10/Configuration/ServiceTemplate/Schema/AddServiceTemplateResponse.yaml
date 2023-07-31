@@ -122,7 +122,7 @@ allOf:
 
           With the default time unit of 60s, this number will mean multiples of 1 minute.
 
-          A value of 0 disables re-notifications of contacts about problems for this service - only one problem notification will be sent out.
+          A value of 0 disables re-notifications of contacts about alerts for this service - only one alert notification will be sent out.
       notification_timeperiod_id:
         type: integer
         description: "Notification timeperiod ID."

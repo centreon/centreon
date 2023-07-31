@@ -181,7 +181,7 @@ it('should present a ConflictResponse when a host template does not exist', func
         ->toBe(ServiceTemplateException::idsDoNotExist('host_templates', [$request->hostTemplates[1]])->getMessage());
 });
 
-it('should present a ErrorResponse when an error occurs during host templates unlink', function (): void {
+it('should present an ErrorResponse when an error occurs during host templates unlink', function (): void {
     $request = new PartialUpdateServiceTemplateRequest(1);
     $request->hostTemplates = [1, 8];
 

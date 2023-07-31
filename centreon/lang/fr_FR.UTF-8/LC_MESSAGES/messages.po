@@ -17935,4 +17935,4 @@ msgid "Error while listing notification resources"
 msgstr "Erreur lors de l'affichage des ressources des notifications"
 
 msgid "Host template required in service group association is not linked to service template"
-msgstr "Le modèle d'hôte requis dans l'association de groupe de service n'est pas lié au modèle de service"
+msgstr "Le modèle d'hôte requis dans l'association du groupe de services n'est pas lié au modèle de service"
