@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Host\Application\Repository;
 
 use Core\Host\Domain\Model\Host;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostRepositoryInterface
 {
@@ -60,4 +61,23 @@ interface ReadHostRepositoryInterface
      * @return array<array{parent_id:int,child_id:int,order:int}>
      */
     public function findParents(int $hostId): array;
+
+    /**
+     * Indicates whether the host already exists.
+     *
+     * @param int $hostId
+     *
+     * @return bool
+     */
+    public function exists(int $hostId): bool;
+
+    /**
+     * Indicates whether the host already exists.
+     *
+     * @param int $hostId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return bool
+     */
+    public function existsByAccessGroups(int $hostId, array $accessGroups): bool;
 }

@@ -65,21 +65,15 @@ class AclUpdater implements AclUpdaterInterface
             $customConfiguration = $provider->getConfiguration()->getCustomConfiguration();
             $aclConditions = $customConfiguration->getACLConditions();
             if ($aclConditions->isEnabled()) {
+                $aclConditionMatches = $provider->getAclConditionsMatches();
                 /** @phpstan-ignore-next-line */
-                $claims = $aclConditions->getClaimValues();
-                /** @phpstan-ignore-next-line */
-                $userAccessGroups = $this->provider->getUserAccessGroupsFromClaims($claims);
+                $userAccessGroups = $this->provider->getUserAccessGroupsFromClaims($aclConditionMatches);
                 $this->updateAccessGroupsForUser($user, $userAccessGroups);
             }
 
             $groupMappings = $customConfiguration->getGroupsMapping();
             if ($groupMappings->isEnabled()) {
-                $contactGroupRelations = $groupMappings->getContactGroupRelations();
-                $contactGroups = [];
-                foreach ($contactGroupRelations as $contactGroupRelation) {
-                    $contactGroups[] = $contactGroupRelation->getContactGroup();
-                }
-                $this->updateContactGroupsForUser($user, $contactGroups);
+                $this->updateContactGroupsForUser($user, $this->provider->getUserContactGroups());
             }
         }
     }

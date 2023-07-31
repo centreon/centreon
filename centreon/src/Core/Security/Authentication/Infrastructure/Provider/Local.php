@@ -215,4 +215,14 @@ class Local implements ProviderAuthenticationInterface
     {
         return [];
     }
+
+    public function getAclConditionsMatches(): array
+    {
+        return [];
+    }
+
+    public function getUserContactGroups(): array
+    {
+        return [];
+    }
 }

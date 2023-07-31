@@ -22,7 +22,7 @@ const useDashboardUserPermissions = (): UseDashboardUserPermissions => {
     return (
       globalPermissions?.manageAllDashboards ||
       (globalPermissions?.createDashboards &&
-        equals(dashboard.ownRole, DashboardRole.editor)) ||
+        equals(dashboard?.ownRole, DashboardRole.editor)) ||
       false
     );
   };

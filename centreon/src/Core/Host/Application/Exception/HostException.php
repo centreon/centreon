@@ -36,6 +36,14 @@ class HostException extends \Exception
     }
 
     /**
+     * @return self
+     */
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete a host'));
+    }
+
+    /**
      * @param \Throwable $ex
      *
      * @return self
@@ -64,44 +72,47 @@ class HostException extends \Exception
     }
 
     /**
-     * @param string $propertieName
-     * @param int $propertieValue
+     * @param string $propertyName
+     * @param int $propertyValue
      *
      * @return self
      */
-    public static function idDoesNotExist(string $propertieName, int $propertieValue): self
+    public static function idDoesNotExist(string $propertyName, int $propertyValue): self
     {
-        return new self(sprintf(_("The %s with value '%d' does not exist"), $propertieName, $propertieValue), self::CODE_CONFLICT);
+        return new self(
+            sprintf(_("The %s with value '%d' does not exist"), $propertyName, $propertyValue),
+            self::CODE_CONFLICT
+        );
     }
 
     /**
-     * @param string $propertieName
-     * @param int[] $propertieValues
+     * @param string $propertyName
+     * @param int[] $propertyValues
      *
      * @return self
      */
-    public static function idsDoNotExist(string $propertieName, array $propertieValues): self
+    public static function idsDoNotExist(string $propertyName, array $propertyValues): self
     {
         return new self(
             sprintf(
                 _("The %s does not exist with ID(s) '%s'"),
-                $propertieName,
-                implode(',', $propertieValues)
+                $propertyName,
+                implode(',', $propertyValues)
             ),
             self::CODE_CONFLICT
         );
     }
 
     /**
-     * @param string $formatedName
+     * @param string $formattedName
      * @param string $originalName
      *
      * @return self
      */
-    public static function nameAlreadyExists(string $formatedName, string $originalName = 'undefined'): self
+    public static function nameAlreadyExists(string $formattedName, string $originalName = 'undefined'): self
     {
         return new self(
-            sprintf(_('The name %s (original name: %s) already exists'), $formatedName, $originalName),
+            sprintf(_('The name %s (original name: %s) already exists'), $formattedName, $originalName),
             self::CODE_CONFLICT
         );
     }
@@ -132,5 +143,14 @@ class HostException extends \Exception
     {
         return new self(_('Circular inheritance not allowed'), self::CODE_CONFLICT);
     }
-}
 
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function errorWhileDeleting(\Throwable $ex): self
+    {
+        return new self(_('Error while deleting the host'), 0, $ex);
+    }
+}

@@ -144,7 +144,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        esi.esi_notes,
                        esi.esi_notes_url,
                        esi.graph_id,
-                       severity.sc_id as severity_id,
+                       GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
                        GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
                 FROM `:db`.service
                 LEFT JOIN `:db`.extended_service_information esi
@@ -234,7 +234,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        esi.esi_notes,
                        esi.esi_notes_url,
                        esi.graph_id,
-                       severity.sc_id as severity_id,
+                       GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
                        GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
                 FROM `:db`.service
                 LEFT JOIN `:db`.extended_service_information esi
@@ -408,7 +408,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             $data['timeperiod_tp_id2'],
             $data['timeperiod_tp_id'],
             $data['esi_icon_image'],
-            $data['severity_id'],
+            $data['severity_id'] !== null ? (int) $data['severity_id'] : null,
             $data['service_max_check_attempts'],
             $data['service_normal_check_interval'],
             $data['service_retry_check_interval'],

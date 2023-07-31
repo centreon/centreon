@@ -38,7 +38,7 @@ use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Type\NoValue;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
@@ -50,23 +50,24 @@ use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInt
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
+use Core\ServiceTemplate\Application\Model\NotificationTypeConverter;
+use Core\ServiceTemplate\Application\Model\YesNoDefaultConverter;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 use Utility\Difference\BasicDifference;
 
-class PartialUpdateServiceTemplate
+final class PartialUpdateServiceTemplate
 {
     use LoggerTrait;
 
     /** @var AccessGroup[] */
-    private array $accessGroups;
+    private array $accessGroups = [];
 
     public function __construct(
         private readonly ReadServiceTemplateRepositoryInterface $readRepository,
         private readonly WriteServiceTemplateRepositoryInterface $writeRepository,
-        private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
@@ -74,6 +75,7 @@ class PartialUpdateServiceTemplate
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
         private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
+        private readonly ParametersValidation $validation,
         private readonly ContactInterface $user,
         private readonly DataStorageEngineInterface $storageEngine,
     ) {
@@ -109,7 +111,6 @@ class PartialUpdateServiceTemplate
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             }
 
-            $this->assertAllProperties($request);
             $this->updatePropertiesInTransaction($request, $serviceTemplate);
 
             $presenter->setResponseStatus(new NoContentResponse());
@@ -128,46 +129,6 @@ class PartialUpdateServiceTemplate
     }
 
     /**
-     * Check if all host template ids exist.
-     *
-     * @param list<int> $hostTemplatesIds
-     *
-     * @throws ServiceTemplateException
-     */
-    private function assertHostTemplateIds(array $hostTemplatesIds): void
-    {
-        $hostTemplateIds = array_unique($hostTemplatesIds);
-        $hostTemplateIdsFound = $this->readHostTemplateRepository->findAllExistingIds($hostTemplateIds);
-        if ([] !== ($idsNotFound = array_diff($hostTemplateIds, $hostTemplateIdsFound))) {
-            throw ServiceTemplateException::idsDoesNotExist('host_templates', $idsNotFound);
-        }
-    }
-
-    /**
-     * @param list<int> $serviceCategoriesIds
-     *
-     * @throws ServiceTemplateException
-     * @throws \Throwable
-     */
-    private function assertServiceCategories(array $serviceCategoriesIds): void
-    {
-        if ($this->user->isAdmin()) {
-            $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
-                $serviceCategoriesIds
-            );
-        } else {
-            $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIdsByAccessGroups(
-                $serviceCategoriesIds,
-                $this->accessGroups
-            );
-        }
-
-        if ([] !== ($idsNotFound = array_diff($serviceCategoriesIds, $serviceCategoriesIdsFound))) {
-            throw ServiceTemplateException::idsDoesNotExist('service_categories', $idsNotFound);
-        }
-    }
-
-    /**
      * @param PartialUpdateServiceTemplateRequest $request
      *
      * @throws \Throwable
@@ -177,6 +138,8 @@ class PartialUpdateServiceTemplate
         if (! is_array($request->hostTemplates)) {
             return;
         }
+
+        $this->validation->assertHostTemplateIds($request->hostTemplates);
 
         $this->info('Unlink existing host templates from service template', [
             'service_template_id' => $request->id,
@@ -200,6 +163,8 @@ class PartialUpdateServiceTemplate
         if (! is_array($request->serviceCategories)) {
             return;
         }
+
+        $this->validation->assertServiceCategories($request->serviceCategories, $this->user, $this->accessGroups);
 
         if ($this->user->isAdmin()) {
             $originalServiceCategories = $this->readServiceCategoryRepository->findByService($request->id);
@@ -251,6 +216,7 @@ class PartialUpdateServiceTemplate
         $this->debug('Start transaction');
         $this->storageEngine->startTransaction();
         try {
+            $this->updateServiceTemplate($serviceTemplate, $request);
             $this->linkServiceTemplateToHostTemplates($request);
             $this->linkServiceTemplateToServiceCategories($request);
             $this->updateMacros($request, $serviceTemplate);
@@ -262,24 +228,6 @@ class PartialUpdateServiceTemplate
             $this->storageEngine->rollbackTransaction();
 
             throw $ex;
-        }
-    }
-
-    /**
-     * Assertions are not required to update macros.
-     *
-     * @param PartialUpdateServiceTemplateRequest $request
-     *
-     * @throws ServiceTemplateException
-     * @throws \Throwable
-     */
-    private function assertAllProperties(PartialUpdateServiceTemplateRequest $request): void
-    {
-        if (! ($request->hostTemplates instanceof NoValue)) {
-            $this->assertHostTemplateIds($request->hostTemplates);
-        }
-        if (! ($request->serviceCategories instanceof NoValue)) {
-            $this->assertServiceCategories($request->serviceCategories);
         }
     }
 
@@ -380,5 +328,183 @@ class PartialUpdateServiceTemplate
         }
 
         return [$directMacros, $inheritedMacros, $commandMacros];
+    }
+
+    /**
+     * @param ServiceTemplate $serviceTemplate
+     * @param PartialUpdateServiceTemplateRequest $request
+     *
+     * @throws \Throwable
+     * @throws HostTemplateException
+     */
+    private function updateServiceTemplate(
+        ServiceTemplate $serviceTemplate,
+        PartialUpdateServiceTemplateRequest $request
+    ): void {
+        if (! $request->name instanceof NoValue) {
+            $this->validation->assertIsValidName($serviceTemplate->getName(), $request->name);
+            $serviceTemplate->setName($request->name);
+        }
+
+        if (! $request->alias instanceof NoValue) {
+            $serviceTemplate->setAlias($request->alias);
+        }
+
+        if (! $request->commandArguments instanceof NoValue) {
+            $serviceTemplate->setCommandArguments($request->commandArguments);
+        }
+
+        if (! $request->eventHandlerArguments instanceof NoValue) {
+            $serviceTemplate->setEventHandlerArguments($request->eventHandlerArguments);
+        }
+
+        if (! $request->notificationTypes instanceof NoValue) {
+            $serviceTemplate->resetNotificationTypes();
+            foreach (NotificationTypeConverter::fromBits($request->notificationTypes) as $notificationType) {
+                $serviceTemplate->addNotificationType($notificationType);
+            }
+        }
+
+        if (! $request->isContactAdditiveInheritance instanceof NoValue) {
+            $serviceTemplate->setContactAdditiveInheritance($request->isContactAdditiveInheritance);
+        }
+
+        if (! $request->isContactGroupAdditiveInheritance instanceof NoValue) {
+            $serviceTemplate->setContactGroupAdditiveInheritance($request->isContactGroupAdditiveInheritance);
+        }
+
+        if (! $request->isActivated instanceof NoValue) {
+            $serviceTemplate->setActivated($request->isActivated);
+        }
+
+        if (! $request->activeChecksEnabled instanceof NoValue) {
+            $serviceTemplate->setActiveChecks(YesNoDefaultConverter::fromInt($request->activeChecksEnabled));
+        }
+
+        if (! $request->passiveCheckEnabled instanceof NoValue) {
+            $serviceTemplate->setPassiveCheck(YesNoDefaultConverter::fromInt($request->passiveCheckEnabled));
+        }
+
+        if (! $request->volatility instanceof NoValue) {
+            $serviceTemplate->setVolatility(YesNoDefaultConverter::fromInt($request->volatility));
+        }
+
+        if (! $request->checkFreshness instanceof NoValue) {
+            $serviceTemplate->setCheckFreshness(YesNoDefaultConverter::fromInt($request->checkFreshness));
+        }
+
+        if (! $request->eventHandlerEnabled instanceof NoValue) {
+            $serviceTemplate->setEventHandlerEnabled(YesNoDefaultConverter::fromInt($request->eventHandlerEnabled));
+        }
+
+        if (! $request->flapDetectionEnabled instanceof NoValue) {
+            $serviceTemplate->setFlapDetectionEnabled(YesNoDefaultConverter::fromInt($request->flapDetectionEnabled));
+        }
+
+        if (! $request->notificationsEnabled instanceof NoValue) {
+            $serviceTemplate->setNotificationsEnabled(YesNoDefaultConverter::fromInt($request->notificationsEnabled));
+        }
+
+        if (! $request->comment instanceof NoValue) {
+            $serviceTemplate->setComment($request->comment);
+        }
+
+        if (! $request->note instanceof NoValue) {
+            $serviceTemplate->setNote($request->note);
+        }
+
+        if (! $request->noteUrl instanceof NoValue) {
+            $serviceTemplate->setNoteUrl($request->noteUrl);
+        }
+
+        if (! $request->actionUrl instanceof NoValue) {
+            $serviceTemplate->setActionUrl($request->actionUrl);
+        }
+
+        if (! $request->iconAlternativeText instanceof NoValue) {
+            $serviceTemplate->setIconAlternativeText($request->iconAlternativeText);
+        }
+
+        if (! $request->graphTemplateId instanceof NoValue) {
+            $this->validation->assertIsValidPerformanceGraph($request->graphTemplateId);
+            $serviceTemplate->setGraphTemplateId($request->graphTemplateId);
+        }
+
+        if (! $request->serviceTemplateParentId instanceof NoValue) {
+            $this->validation->assertIsValidServiceTemplate($request->serviceTemplateParentId);
+            $serviceTemplate->setServiceTemplateParentId($request->serviceTemplateParentId);
+        }
+
+        if (! $request->commandId instanceof NoValue) {
+            $this->validation->assertIsValidCommand($request->commandId);
+            $serviceTemplate->setCommandId($request->commandId);
+        }
+
+        if (! $request->eventHandlerId instanceof NoValue) {
+            $this->validation->assertIsValidEventHandler($request->eventHandlerId);
+            $serviceTemplate->setEventHandlerId($request->eventHandlerId);
+        }
+
+        if (! $request->notificationTimePeriodId instanceof NoValue) {
+            $this->validation->assertIsValidNotificationTimePeriod($request->notificationTimePeriodId);
+            $serviceTemplate->setNotificationTimePeriodId($request->notificationTimePeriodId);
+        }
+
+        if (! $request->checkTimePeriodId instanceof NoValue) {
+            $this->validation->assertIsValidTimePeriod($request->checkTimePeriodId);
+            $serviceTemplate->setCheckTimePeriodId($request->checkTimePeriodId);
+        }
+
+        if (! $request->iconId instanceof NoValue) {
+            $this->validation->assertIsValidIcon($request->iconId);
+            $serviceTemplate->setIconId($request->iconId);
+        }
+
+        if (! $request->severityId instanceof NoValue) {
+            $this->validation->assertIsValidSeverity($request->severityId);
+            $serviceTemplate->setSeverityId($request->severityId);
+        }
+
+        if (! $request->maxCheckAttempts instanceof NoValue) {
+            $serviceTemplate->setMaxCheckAttempts($request->maxCheckAttempts);
+        }
+
+        if (! $request->normalCheckInterval instanceof NoValue) {
+            $serviceTemplate->setNormalCheckInterval($request->normalCheckInterval);
+        }
+
+        if (! $request->retryCheckInterval instanceof NoValue) {
+            $serviceTemplate->setRetryCheckInterval($request->retryCheckInterval);
+        }
+
+        if (! $request->freshnessThreshold instanceof NoValue) {
+            $serviceTemplate->setFreshnessThreshold($request->freshnessThreshold);
+        }
+
+        if (! $request->lowFlapThreshold instanceof NoValue) {
+            $serviceTemplate->setLowFlapThreshold($request->lowFlapThreshold);
+        }
+
+        if (! $request->highFlapThreshold instanceof NoValue) {
+            $serviceTemplate->setHighFlapThreshold($request->highFlapThreshold);
+        }
+
+        if (! $request->notificationInterval instanceof NoValue) {
+            $serviceTemplate->setNotificationInterval($request->notificationInterval);
+        }
+
+        if (! $request->recoveryNotificationDelay instanceof NoValue) {
+            $serviceTemplate->setRecoveryNotificationDelay($request->recoveryNotificationDelay);
+        }
+
+        if (! $request->firstNotificationDelay instanceof NoValue) {
+            $serviceTemplate->setFirstNotificationDelay($request->firstNotificationDelay);
+        }
+
+        if (! $request->acknowledgementTimeout instanceof NoValue) {
+            $serviceTemplate->setAcknowledgementTimeout($request->acknowledgementTimeout);
+        }
+
+        $this->writeRepository->update($serviceTemplate);
     }
 }
