@@ -57,14 +57,14 @@ final class FindNotifiableResources
             if ($this->contact->isAdmin()) {
                 $this->info('Retrieving all notifiable resources');
                 $responseDto = $this->createResponseDto($this->readRepository->findAllForActivatedNotifications());
-                    $responseJson = \json_encode($responseDto, JSON_THROW_ON_ERROR);
-                    $calculatedUid = \hash('md5', $responseJson);
-                    if ($calculatedUid === $requestUid) {
-                        $response = new NotModifiedResponse();
-                    } else {
-                        $responseDto->uid = $calculatedUid;
-                        $response = $responseDto;
-                    }
+                $responseJson = \json_encode($responseDto, JSON_THROW_ON_ERROR);
+                $calculatedUid = \hash('md5', $responseJson);
+                if ($calculatedUid === $requestUid) {
+                    $response = new NotModifiedResponse();
+                } else {
+                    $responseDto->uid = $calculatedUid;
+                    $response = $responseDto;
+                }
             } else {
                 $this->error(
                     "User doesn't have sufficient rights to list notification resources",
