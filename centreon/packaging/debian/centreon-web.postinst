@@ -6,8 +6,15 @@ if [ "$1" = "configure" ] ; then
 
     chown -R centreon:centreon \
       /usr/share/centreon \
-      /var/log/centreon \
       /var/lib/centreon
+
+    # update rights only on directory to let rights on files created by www-data
+    chown centreon:centreon /var/log/centreon
+
+    # fix rights issue on previous updates
+    if [ -f "/var/log/centreon/rrdtool.log" ]; then
+      chown www-data:www-data /var/log/centreon/rrdtool.log
+    fi
 
     if [ -d "/var/log/centreon/symfony" ]; then
       chown -R www-data:www-data /var/log/centreon/symfony
