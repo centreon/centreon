@@ -727,7 +727,7 @@ jobs:
         uses: ./.github/actions/nightly-platform-deploy
         with:
           ref: main
-          bu: rd
+          bu: RD
           disk_size: 30
           poller_number: 1
           central_instance: t3a.medium
