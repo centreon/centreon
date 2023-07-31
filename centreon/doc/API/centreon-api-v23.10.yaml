@@ -257,7 +257,7 @@ paths:
   /configuration/notifications/{notification_id}:
     $ref: "./v23.10/Configuration/Notification/Notification.yaml"
   /configuration/notifications/resources:
-    $ref: "./v23.10/Configuration/Notification/FindNotifiableResources.yaml
+    $ref: "./v23.10/Configuration/Notification/FindNotifiableResources.yaml"
   /configuration/hosts/{host_id}:
     $ref: './v23.10/Configuration/Host/DeleteHost.yaml'
   /configuration/hosts/templates:
