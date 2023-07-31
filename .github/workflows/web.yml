@@ -733,7 +733,7 @@ jobs:
           central_instance: t3a.medium
           poller_instance: t3a.medium
           system_name: Alma8
-          branch: develop
+          centreon_branch: develop
           configured_resources: false
           install_business_modules: false
           instance_password: Centreon!2021
