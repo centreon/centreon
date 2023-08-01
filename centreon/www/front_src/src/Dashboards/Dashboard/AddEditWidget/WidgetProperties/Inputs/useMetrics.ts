@@ -1,12 +1,13 @@
-import { ChangeEvent, useMemo } from 'react';
+import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { equals, gt, pluck } from 'ramda';
+import { all, equals, gt, innerJoin, isEmpty, isNil, pluck } from 'ramda';
 
 import {
   ListingModel,
   SelectEntry,
   buildListingEndpoint,
+  useDeepCompare,
   useFetchQuery
 } from '@centreon/ui';
 
@@ -31,7 +32,6 @@ interface UseMetricsState {
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   metricCount: number | undefined;
-  metrics: ListingModel<ServiceMetric> | undefined;
   serviceOptions: Array<SelectEntry>;
   value: Array<WidgetDataMetric>;
 }
@@ -41,7 +41,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
 
   const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
 
-  const { data: metrics, isLoading: isLoadingMetrics } = useFetchQuery<
+  const { data: servicesMetrics, isLoading: isLoadingMetrics } = useFetchQuery<
     ListingModel<ServiceMetric>
   >({
     decoder: serviceMetricsDecoder,
@@ -61,7 +61,10 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       }),
     getQueryKey: () => ['metrics', JSON.stringify(resources)],
     queryOptions: {
-      enabled: !!resources.length,
+      enabled:
+        !isEmpty(resources) &&
+        all((resource) => !isEmpty(resource.resources), resources),
+      keepPreviousData: true,
       suspense: false
     }
   });
@@ -71,18 +74,18 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     [getDataProperty({ obj: values, propertyName })]
   );
 
-  const hasTooManyMetrics = gt(metrics?.meta?.total || 0, 100);
+  const hasTooManyMetrics = gt(servicesMetrics?.meta?.total || 0, 100);
 
   const serviceOptions = useMemo<Array<SelectEntry>>(
     () =>
-      (metrics?.result || []).map((metric) => ({
+      (servicesMetrics?.result || []).map((metric) => ({
         id: metric.serviceId,
         name: metric.resourceName
       })),
-    [metrics?.result]
+    [servicesMetrics?.result]
   );
 
-  const metricCount = metrics?.meta?.total;
+  const metricCount = servicesMetrics?.meta?.total;
 
   const hasNoResources = (): boolean => {
     if (!resources.length) {
@@ -111,7 +114,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
 
   const getMetricsFromService = (serviceId: number): Array<SelectEntry> => {
     return (
-      (metrics?.result || []).find((metric) =>
+      (servicesMetrics?.result || []).find((metric) =>
         equals(metric.serviceId, serviceId)
       )?.metrics || []
     );
@@ -130,6 +133,27 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       setFieldValue(`data.${propertyName}.${index}.metrics`, newMetrics || []);
     };
 
+  useEffect(() => {
+    if (isNil(servicesMetrics) && isEmpty(resources)) {
+      setFieldValue(`data.${propertyName}`, []);
+
+      return;
+    }
+
+    const baseServiceIds = pluck('serviceId', servicesMetrics?.result || []);
+
+    const intersectionBetweenServicesIdsAndValues = innerJoin(
+      (service, id) => equals(service.serviceId, id),
+      value || [],
+      baseServiceIds
+    );
+
+    setFieldValue(
+      `data.${propertyName}`,
+      intersectionBetweenServicesIdsAndValues
+    );
+  }, useDeepCompare([servicesMetrics, resources]));
+
   return {
     addMetric,
     changeMetric,
@@ -140,7 +164,6 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     hasTooManyMetrics,
     isLoadingMetrics,
     metricCount,
-    metrics,
     serviceOptions,
     value: value || []
   };

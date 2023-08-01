@@ -2,15 +2,16 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { buildListingDecoder } from '@centreon/ui';
 
-import { NamedEntity, ServiceMetric } from '../models';
+import { Metric, ServiceMetric } from '../models';
 
 const serviceMetricDecoder = JsonDecoder.object<ServiceMetric>(
   {
     metrics: JsonDecoder.array(
-      JsonDecoder.object<NamedEntity>(
+      JsonDecoder.object<Metric>(
         {
           id: JsonDecoder.number,
-          name: JsonDecoder.string
+          name: JsonDecoder.string,
+          unit: JsonDecoder.string
         },
         'Metric'
       ),

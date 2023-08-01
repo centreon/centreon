@@ -33,8 +33,12 @@ export interface NamedEntity {
   name: string;
 }
 
+export interface Metric extends NamedEntity {
+  unit: string;
+}
+
 export interface ServiceMetric {
-  metrics: Array<NamedEntity>;
+  metrics: Array<Metric>;
   resourceName: string;
   serviceId: number;
 }
