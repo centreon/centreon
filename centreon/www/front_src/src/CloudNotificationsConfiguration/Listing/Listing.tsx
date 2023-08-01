@@ -80,7 +80,7 @@ const NotificationsListing = (): JSX.Element => {
       rowCondition: (row): boolean => row?.isActivated
     },
     {
-      label: 'desactivated',
+      label: 'deactivated',
       rowCondition: (row): boolean => !row?.isActivated
     }
   ];

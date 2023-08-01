@@ -17932,7 +17932,7 @@ msgid "Notifications will only be sent during this time period"
 msgstr "Les notifications ne seront envoyées que pendant cette période"
 
 msgid "Search Business Views"
-msgstr "Rechercher des Vues Métiers"
+msgstr "Rechercher des Vues Métier"
 
 msgid "Business Views events"
-msgstr "Événements des vues Métiers"
+msgstr "Événements des Vues Métier"

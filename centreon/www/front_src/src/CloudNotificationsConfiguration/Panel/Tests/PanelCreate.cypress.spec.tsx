@@ -216,7 +216,7 @@ describe('Create Panel: Business Views', () => {
   });
   beforeEach(initialize);
 
-  it('dispalys  the businessViews field when the BAM module is installed', () => {
+  it('dispalys the businessViews field when the BAM module is installed', () => {
     cy.findByTestId(labelSearchBusinessViews).should('be.visible');
 
     cy.matchImageSnapshot();
