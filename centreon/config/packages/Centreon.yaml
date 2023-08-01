@@ -305,6 +305,8 @@ services:
             tags: ['platform.requirement.database.validators']
         Core\Notification\Application\Repository\NotificationResourceRepositoryInterface:
             tags: ['configuration.notification.resource.repositories']
+        Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface:
+            tags: ['configuration.notification.notifiable.resource.request.provider']
 
     Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurations:
         arguments:
@@ -496,3 +498,7 @@ services:
     Core\Notification\Infrastructure\Repository\NotificationResourceRepositoryProvider:
         arguments:
             $repositories: !tagged_iterator 'configuration.notification.resource.repositories'
+
+    Core\Notification\Infrastructure\Repository\DbReadNotifiableResourceRepository:
+        arguments:
+            $notifiableResourceRequestProviders: !tagged_iterator 'configuration.notification.notifiable.resource.request.provider'
