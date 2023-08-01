@@ -63,7 +63,7 @@ jobs:
 
       - name: debug condition
         run: |
-          echo "env trigger value = ${{ env.trigger_sca_scan }}
+          echo "env trigger value = ${{ env.trigger_sca_scan }}"
 
       - name: SCA scan
         if: env.trigger_sca_scan == 'true'
