@@ -29,8 +29,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
-use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
-use Core\Metric\Domain\Model\ResourceMetric;
+use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 
@@ -53,7 +52,7 @@ final class FindPerformanceMetrics
     }
 
     /**
-     * @param FindMetricsPresenterInterface $presenter
+     * @param FindPerformanceMetricsPresenterInterface $presenter
      */
     public function __invoke(FindPerformanceMetricsPresenterInterface $presenter): void
     {
@@ -79,7 +78,7 @@ final class FindPerformanceMetrics
      * Create Response
      *
      * @param ResourceMetric[] $resourceMetrics
-     * @return FindMetricsResponse
+     * @return FindPerformanceMetricsResponse
      */
     private function createResponse(array $resourceMetrics): FindPerformanceMetricsResponse
     {
@@ -89,16 +88,18 @@ final class FindPerformanceMetrics
             $resourceMetricDTO = new ResourceMetricDTO();
             $resourceMetricDTO->serviceId = $resourceMetric->getServiceId();
             $resourceMetricDTO->resourceName = $resourceMetric->getResourceName();
-            $resourceMetricDTO->metrics = array_map(function (PerformanceMetric $metric) {
-                return [
-                    "id" => $metric->getId(),
-                    "name" => $metric->getName(),
-                    "unit" => $metric->getUnit()
-                ];
-            }, $resourceMetric->getMetrics());
+            $resourceMetricDTO->metrics = array_map(
+                fn (PerformanceMetric $metric) => [
+                        "id" => $metric->getId(),
+                        "name" => $metric->getName(),
+                        "unit" => $metric->getUnit()
+                ],
+                $resourceMetric->getMetrics()
+            );
             $resourceMetricsResponse[] = $resourceMetricDTO;
         }
         $response->resourceMetrics = $resourceMetricsResponse;
+
         return $response;
     }
 }

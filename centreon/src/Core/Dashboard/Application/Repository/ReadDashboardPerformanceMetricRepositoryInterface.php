@@ -25,6 +25,7 @@ namespace Core\Dashboard\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadDashboardPerformanceMetricRepositoryInterface
 {

@@ -30,13 +30,13 @@ class ResourceMetricDTO
     public string $resourceName = '';
 
     /**
-     * @var array{
+     * @var array<
      *  array{
      *      id: int,
-     *      name: string
+     *      name: string,
      *      unit: string
      *  }
-     * }
+     * >
      */
     public array $metrics = [];
 }

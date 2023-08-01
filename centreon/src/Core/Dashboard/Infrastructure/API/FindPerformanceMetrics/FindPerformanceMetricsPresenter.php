@@ -38,7 +38,7 @@ class FindPerformanceMetricsPresenter extends AbstractPresenter implements FindP
         parent::__construct($presenterFormatter);
     }
 
-    public function presentResponse(FindPerformanceMetricsResponse|ResponseStatusInterface $response): void
+    public function presentResponse(FindPerformanceMetricsResponse | ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Domain\Model\Metric;
 
-use Core\Dashboard\Domain\Model\PerformanceMetric;
+use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 
 class ResourceMetric
 {
