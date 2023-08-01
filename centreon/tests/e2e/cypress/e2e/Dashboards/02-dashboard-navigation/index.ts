@@ -1,7 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { loginAsAdminViaApiV2 } from '../../../commons';
-import dashboardsOnePage from '../../../fixtures/dashboards/navigation/01-onepage.json';
+import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 
 before(() => {
   cy.startWebContainer();
@@ -12,6 +11,10 @@ before(() => {
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-configuration-creator.json'
   );
+});
+
+after(() => {
+  cy.stopWebContainer();
 });
 
 beforeEach(() => {
@@ -61,7 +64,7 @@ Then(
 );
 
 Given('a list of dashboards', () => {
-  cy.insertDashboardList('dashboards/navigation/01-onepage.json');
+  cy.insertDashboardList('dashboards/navigation/dashboards-single-page.json');
   cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
 });
 

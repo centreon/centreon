@@ -10,7 +10,8 @@ import IconClose from '@mui/icons-material/HighlightOff';
 const useStyles = makeStyles()((theme) => ({
   buttonClose: {
     position: 'absolute',
-    right: theme.spacing(0.5)
+    right: theme.spacing(0.5),
+    top: '40%'
   },
   tooltip: {
     backgroundColor: theme.palette.common.white,
@@ -72,7 +73,11 @@ const PersistentTooltip = ({
   );
 
   return (
-    <Tooltip classes={{ tooltip: classes.tooltip }} open={open} title={title}>
+    <Tooltip
+      classes={{ tooltip: classes.tooltip }}
+      open={openTooltip || open}
+      title={title}
+    >
       <IconButton
         aria-label={labelSearchHelp}
         size="small"

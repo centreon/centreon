@@ -6,6 +6,7 @@ import { useStyles } from './Modal.styles';
 
 export type ModalActionsProps = {
   children?: React.ReactNode;
+  disabled?: boolean;
   isDanger?: boolean;
   labels?: ModalActionsLabels;
   onCancel?: () => void;
@@ -22,7 +23,8 @@ const ModalActions = ({
   labels,
   onCancel,
   onConfirm,
-  isDanger = false
+  isDanger = false,
+  disabled
 }: ModalActionsProps): ReactElement => {
   const { classes } = useStyles();
 
@@ -42,6 +44,7 @@ const ModalActions = ({
           <Button
             aria-label={labels?.confirm}
             data-testid="confirm"
+            disabled={disabled}
             isDanger={isDanger}
             size="small"
             type="submit"

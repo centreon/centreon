@@ -52,12 +52,11 @@ jobs:
             echo "development_stage=Release" >> $GITHUB_OUTPUT
             echo "display_summary=false" >> $GITHUB_OUTPUT
           elif [[ '${{ github.event_name }}' != 'pull_request' && '${{ inputs.stability }}' == 'unstable' ]]; then
-            echo "fail_build=false" >> $GITHUB_OUTPUT
+            echo "fail_build=${{ vars.VERACODE_QUALITY_GATE }}" >> $GITHUB_OUTPUT
             echo "development_stage=Testing" >> $GITHUB_OUTPUT
             echo "display_summary=false" >> $GITHUB_OUTPUT
           else
-            echo "[DEBUG] - Grace period enabled"
-            echo "fail_build=false" >> $GITHUB_OUTPUT
+            echo "fail_build=${{ vars.VERACODE_QUALITY_GATE }}" >> $GITHUB_OUTPUT
             echo "development_stage=Development" >> $GITHUB_OUTPUT
             echo "display_summary=true" >> $GITHUB_OUTPUT
           fi
@@ -105,7 +104,7 @@ jobs:
 
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.8
-        continue-on-error: true
+        continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
           vkey: "vera01es-${{ secrets.veracode_api_key }}"
@@ -121,7 +120,7 @@ jobs:
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
-        if: needs.build.outputs.development_stage != 'Development'
+        if: success() && needs.build.outputs.development_stage != 'Development'
         run: |
           BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
           for BRANCH in "${BRANCHES[@]}"; do
@@ -133,13 +132,16 @@ jobs:
             fi
           done
 
+      - uses: geekyeggo/delete-artifact@v2
+        with:
+          name: "Veracode Pipeline-Scan Results"
+
   policy-scan:
     needs: [build]
     name: Run a sandbox scan
     # only stable and unstable maintenances branches will produce a report
     if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     steps:
       - name: Get build binary
@@ -150,7 +152,7 @@ jobs:
 
       - name: Sandbox scan
         uses: veracode/veracode-uploadandscan-action@master
-        continue-on-error: true
+        continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
           appname: "${{ inputs.module_name }}"
           version: "${{ inputs.major_version }}.${{ inputs.minor_version }}_runId-${{ github.run_id }}"
@@ -167,60 +169,62 @@ jobs:
           deleteincompletescan: 1
           scanpollinginterval: 120 # time between two checks in seconds / [30 to 120]
 
+      - name: Promote Scan
+        # only develop will be promoted to policy scan
+        if: success() && github.ref_name == 'develop'
+        env:
+          VERACODE_API_ID: "${{ secrets.veracode_api_id }}"
+          VERACODE_API_SECRET: "${{ secrets.veracode_api_key }}"
+
+        # Action forked as API call hardcode '.com' route
+        uses: sc979/veracode-sandboxes-helper@v0.2
+        with:
+          activity: "promote-latest-scan"
+          app-name: "${{ inputs.module_name }}"
+          sandbox-name: "${{ github.ref_name }}"
+          delete-on-promote: false
+
   sca-scan:
     needs: [build]
     name: Run a SCA scan
     # only stable and unstable maintenance branches will produce a report
-    if: github.ref_name == 'develop'
+    if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
-    continue-on-error: true
+    continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Preparing dependencies
+      - name: Removing pnpm dependencies
         run: |
           cd ${{ inputs.module_directory }}
-          REINSTALL_PACKAGE_JSON='true'
+          echo "[DEBUG] - package-lock.json scan disabled"
 
           if [[ -f package-lock.json ]]; then
-            echo "[DEBUG] - Found a 'package-lock.json'"
-            RESULT=0
-            npm ci --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
-            if [[ $RESULT -ne 0 ]]; then
-              echo "[DEBUG] - Failure of '$ npm ci'. Deleting the 'package-lock.json' to generate a new one"
-              rm -f package-lock.json
-            else
-              echo "[DEBUG] - 'package-lock.json' seems ready for analysis"
-              REINSTALL_PACKAGE_JSON='false'
-            fi
+            rm -f package-lock.json
           fi
 
-          if [[ -f package.json && $REINSTALL_PACKAGE_JSON != 'false' ]]; then
-            echo "[DEBUG] - Found a 'package.json'"
-            RESULT=0
-            echo "[DEBUG] - Generate a 'package-lock.json'"
-            npm i --package-lock-only --legacy-peer-dep --omit=dev 1>/dev/null || RESULT=$( echo $? )
-            if [[ $RESULT -ne 0 ]]; then
-              echo "[DEBUG] - Failure of '$ npm install'. Deleting the 'package.json' to avoid analysis failure"
-              rm -f package.json
-            else
-              echo "[DEBUG] - 'package-lock.json' ready for analysis"
-            fi
+          if [[ -f package.json ]]; then
+            rm -f package.json
+          fi
+
+          if [[ -f composer.lock ]]; then
+            echo "trigger_sca_scan=true" >> $GITHUB_ENV
           fi
 
       - name: SCA scan
+        if: env.trigger_sca_scan == 'true'
         env:
           SRCCLR_API_TOKEN: ${{ secrets.veracode_srcclr_token }}
           SRCCLR_REGION: "ER"
 
-        uses: veracode/veracode-sca@v1.09
+        uses: sc979/veracode-sca@v1.10
         # This action is based on the following command:
         # curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan "./${{ inputs.module_directory }}" --debug
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create-issues: false
-          fail-on-cvss: 8
+          fail-on-cvss: 9
           allow-dirty: true
           path: "./${{ inputs.module_directory }}"

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,9 +56,9 @@ class DbReadVaultRepository extends AbstractRepositoryDRB implements ReadVaultRe
         return ! empty($statement->fetch(\PDO::FETCH_ASSOC));
     }
 
-
     /**
      * {@inheritDoc}
+     *
      * @throws AssertionFailedException
      */
     public function findById(int $id): ?Vault

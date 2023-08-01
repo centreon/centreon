@@ -27,10 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Notification\Application\Converter\NotificationHostEventConverter;
-use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\UseCase\AddNotification\AddNotificationResponse;
-use Core\Notification\Domain\Model\NotificationResource;
 
 class AddNotificationPresenter extends AbstractPresenter
 {
@@ -57,6 +54,7 @@ class AddNotificationPresenter extends AbstractPresenter
                 'name' => $payload->name,
                 'timeperiod' => $payload->timeperiod,
                 'users' => $payload->users,
+                'contactgroups' => $payload->contactGroups,
                 'resources' => $payload->resources,
                 'messages' => $payload->messages,
                 'is_activated' => $payload->isActivated,

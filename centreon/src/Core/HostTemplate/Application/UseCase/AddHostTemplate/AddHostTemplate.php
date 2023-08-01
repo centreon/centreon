@@ -40,14 +40,14 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Host\Application\InheritanceManager;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
-use Core\HostMacro\Application\Repository\ReadHostMacroRepositoryInterface;
-use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
-use Core\HostMacro\Domain\Model\HostMacro;
-use Core\HostMacro\Domain\Model\HostMacroDifference;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
-use Core\HostTemplate\Domain\Model\MacroManager;
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
+use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
+use Core\Macro\Domain\Model\MacroDifference;
+use Core\Macro\Domain\Model\MacroManager;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class AddHostTemplate
@@ -250,7 +250,7 @@ final class AddHostTemplate
         );
 
         /**
-         * @var array<string,HostMacro> $inheritedMacros
+         * @var array<string,Macro> $inheritedMacros
          * @var array<string,CommandMacro> $commandMacros
          */
         [$inheritedMacros, $commandMacros]
@@ -262,7 +262,7 @@ final class AddHostTemplate
             $macros[$macro->getName()] = $macro;
         }
 
-        $macrosDiff = new HostMacroDifference();
+        $macrosDiff = new MacroDifference();
         $macrosDiff->compute([], $inheritedMacros, $commandMacros, $macros);
 
         MacroManager::setOrder($macrosDiff, $macros, []);
@@ -290,7 +290,7 @@ final class AddHostTemplate
      * @throws \Throwable
      *
      * @return array{
-     *      array<string,HostMacro>,
+     *      array<string,Macro>,
      *      array<string,CommandMacro>
      * }
      */
@@ -300,7 +300,7 @@ final class AddHostTemplate
         $inheritanceLine = InheritanceManager::findInheritanceLine($hostTemplateId, $templateParents);
         $existingHostMacros = $this->readHostMacroRepository->findByHostIds($inheritanceLine);
 
-        [, $inheritedMacros] = MacroManager::resolveInheritanceForHostMacro(
+        [, $inheritedMacros] = Macro::resolveInheritance(
             $existingHostMacros,
             $inheritanceLine,
             $hostTemplateId

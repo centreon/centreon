@@ -252,12 +252,20 @@ paths:
     $ref: "./v23.10/Configuration/Command/FindCommands.yaml"
   /configuration/notifications:
     $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
+  /configuration/notifications/_delete:
+    $ref: "./v23.10/Configuration/Notification/DeleteNotifications.yaml"
   /configuration/notifications/{notification_id}:
     $ref: "./v23.10/Configuration/Notification/Notification.yaml"
+  /configuration/notifications/resources:
+    $ref: "./v23.10/Configuration/Notification/FindNotifiableResources.yaml"
+  /configuration/hosts/{host_id}:
+    $ref: './v23.10/Configuration/Host/DeleteHost.yaml'
   /configuration/hosts/templates:
     $ref: './v23.10/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
     $ref: './v23.10/Configuration/HostTemplate/DeleteAndPartialUpdateHostTemplate.yaml'
+  /configuration/hosts:
+    $ref: './v23.10/Configuration/Host/AddHost.yaml'
   /configuration/hosts/categories:
     get:
       tags:
@@ -462,6 +470,8 @@ paths:
     $ref: "v23.10/Configuration/ServiceTemplate/AddOneAndFindServiceTemplates.yaml"
   /configuration/services/templates/{service_template_id}:
     $ref: "v23.10/Configuration/ServiceTemplate/PartialUpdateAndDeleteServiceTemplate.yaml"
+  /configuration/services/{service_id}:
+    $ref: "v23.10/Configuration/Service/DeleteService.yaml"
   /monitoring/services/categories:
     get:
       tags:
@@ -1611,6 +1621,18 @@ paths:
     $ref: './v23.10/Configuration/Dashboard/Dashboards.yaml'
   /configuration/dashboards/{dashboard_id}:
     $ref: './v23.10/Configuration/Dashboard/Dashboard.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contacts:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContacts.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContact.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contactgroups:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContactGroups.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContactGroup.yaml'
+  /configuration/dashboards/contacts:
+    $ref: './v23.10/Configuration/Dashboard/Contacts.yaml'
+  /configuration/dashboards/contactgroups:
+    $ref: './v23.10/Configuration/Dashboard/ContactGroups.yaml'
   /configuration/access-groups:
     get:
       tags:

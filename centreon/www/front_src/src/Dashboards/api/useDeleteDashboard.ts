@@ -9,7 +9,7 @@ import {
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
 import { Dashboard, DeleteDashboardDto, resource } from './models';
-import { dashboardsEndpoint } from './endpoints';
+import { getDashboardEndpoint } from './endpoints';
 
 type UseDeleteDashboard<
   TData extends null = null,
@@ -26,9 +26,9 @@ type UseDeleteDashboard<
 >;
 
 const useDeleteDashboard = (): UseDeleteDashboard => {
-  const [resourceId, setResourceId] = useState<DeleteDashboardDto['id'] | null>(
-    null
-  );
+  const [resourceId, setResourceId] = useState<
+    DeleteDashboardDto['id'] | undefined
+  >(undefined);
 
   const {
     mutateAsync,
@@ -36,7 +36,7 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
     mutate: omittedMutate,
     ...mutationData
   } = useMutationQuery<Dashboard>({
-    getEndpoint: () => `${dashboardsEndpoint}/${resourceId}`,
+    getEndpoint: () => getDashboardEndpoint(resourceId),
     method: Method.DELETE
   });
 

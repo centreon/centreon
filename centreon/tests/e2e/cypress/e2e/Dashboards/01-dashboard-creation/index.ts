@@ -1,6 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { loginAsAdminViaApiV2 } from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 
 before(() => {
@@ -44,7 +43,6 @@ afterEach(() => {
   });
 });
 
-
 Given(
   'a user with dashboard edition rights on the dashboard listing page',
   () => {
@@ -65,9 +63,9 @@ Then(
 
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
 
-    cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.disabled');
+    cy.getByTestId({ testId: 'submit' }).should('be.disabled');
 
-    cy.getByLabel({ label: 'cancel', tag: 'button' }).should('be.enabled');
+    cy.getByTestId({ testId: 'cancel' }).should('be.enabled');
   }
 );
 
@@ -85,12 +83,13 @@ Then(
       dashboards.requiredOnly.name
     );
 
-    cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
+    cy.getByTestId({ testId: 'submit' }).should('be.enabled');
   }
 );
 
 When('the user saves the dashboard', () => {
-  cy.getByLabel({ label: 'submit', tag: 'button' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
+
   cy.wait('@createDashboard');
 });
 
@@ -168,7 +167,7 @@ Given(
 );
 
 When('the user leaves the creation form without saving the dashboard', () => {
-  cy.getByLabel({ label: 'cancel', tag: 'button' }).click();
+  cy.getByTestId({ testId: 'cancel' }).click();
 });
 
 Then('the dashboard has not been created', () => {
@@ -195,5 +194,3 @@ Then('the form fields are empty', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('be.empty');
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
 });
-
-

@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
-use Core\Common\Domain\YesNoDefault;
-
 /**
  * This trait is here only to expose utility methods **only** to avoid duplicate code.
  * The methods SHOULD be "Pure" functions.

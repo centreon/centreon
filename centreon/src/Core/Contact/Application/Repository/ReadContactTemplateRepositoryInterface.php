@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,16 +28,17 @@ use Core\Contact\Domain\Model\ContactTemplate;
 interface ReadContactTemplateRepositoryInterface
 {
     /**
-     * Get all contact templates
+     * Get all contact templates.
      *
      * @return array<ContactTemplate>
      */
     public function findAll(): array;
 
     /**
-     * Find a contact template by id
+     * Find a contact template by id.
      *
-     * @param integer $id
+     * @param int $id
+     *
      * @return ContactTemplate|null
      */
     public function find(int $id): ?ContactTemplate;

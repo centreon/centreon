@@ -323,7 +323,7 @@ answer_with_createdir() {
         else
             first=1
             [ -d "$res" ] && break
-            yes_no_default "$(gettext "Do you want to create this directory ?") [$res]"
+            yes_no_default "$(gettext "Do you want to create this directory?") [$res]"
             if [ $? -eq 0 ] ; then
                 mkdir -p $res
                 if [ $? -ne 0 ] ; then
@@ -367,7 +367,7 @@ answer_with_createfile() {
         else
             first=1
             [ -f "$res" ] && break
-            yes_no_default "$(gettext "Do you want to create this file ?") [$res]"
+            yes_no_default "$(gettext "Do you want to create this file?") [$res]"
             if [ $? -eq 0 ] ; then
                 touch $res
                 if [ $? -ne 0 ] ; then
@@ -438,7 +438,7 @@ answer_with_creategroup() {
         if [ -n "$res" ]; then
             group_test "$res"
             if [ $? -ne 0 ] ; then
-                yes_no_default "$(gettext "Do you want to create this group ?") [$res]"
+                yes_no_default "$(gettext "Do you want to create this group?") [$res]"
                 if [ $? -eq 0 ]; then
                     group_create "$res"
                 fi
@@ -483,7 +483,7 @@ answer_with_createuser() {
         if [ -n "$res" ]; then
             user_test "$res"
             if [ $? -ne 0 ] ; then
-                yes_no_default "$(gettext "Do you want to create this user ?") [$res]"
+                yes_no_default "$(gettext "Do you want to create this user?") [$res]"
                 if [ $? -eq 0 ] ; then
                     user_create "$res" "$groups" "$description" "$home"
                 fi
@@ -623,7 +623,7 @@ group_create() {
 locate_plugindir() {
     testdir_clean "$PLUGIN_DIR" "PLUGIN_DIR"
     if [ -z "$PLUGIN_DIR" ] ; then
-        answer "$(gettext "Where is your monitoring plugins (libexec) directory ?")" "$DEFAULT_PLUGIN_DIR" "PLUGIN_DIR"
+        answer "$(gettext "Where is your monitoring plugins (libexec) directory?")" "$DEFAULT_PLUGIN_DIR" "PLUGIN_DIR"
         echo_success "$(gettext "Path" ) $PLUGIN_DIR" "$ok"
     fi
     PLUGIN_DIR=`trim ${PLUGIN_DIR%/}`
@@ -648,7 +648,7 @@ locate_init_d() {
             INIT_D="/usr/local/etc/rc.d"
         # Add most of init.d
         else
-            answer_with_testdir "$(gettext "Where is your init.d directory ?")" "$DEFAULT_INIT_D" "INIT_D"
+            answer_with_testdir "$(gettext "Where is your init.d directory?")" "$DEFAULT_INIT_D" "INIT_D"
             echo_success "$(gettext "Path" ) $INIT_D" "$ok"
         fi
     fi
@@ -664,7 +664,7 @@ locate_init_d() {
 locate_centreon_plugins() {
     testdir_clean "$CENTREON_PLUGINS" "CENTREON_PLUGINS"
     if [ -z "$CENTREON_PLUGINS" ] ; then
-        answer "$(gettext "Where is your centreon plugins directory ?")" "$DEFAULT_CENTREON_PLUGINS" "CENTREON_PLUGINS"
+        answer "$(gettext "Where is your centreon plugins directory?")" "$DEFAULT_CENTREON_PLUGINS" "CENTREON_PLUGINS"
         echo_success "$(gettext "Path" ) $CENTREON_PLUGINS" "$ok"
     fi
     CENTREON_PLUGINS=`trim ${CENTREON_PLUGINS%/}`
@@ -678,7 +678,7 @@ locate_centreon_plugins() {
 #----
 locate_gorgone_varlib() {
     if [ -z "$GORGONE_VARLIB" ] ; then
-        answer_with_testdir "$(gettext "Where is your gorgone module folder ?") [$DEFAULT_GORGONE_VARLIB]" "$DEFAULT_GORGONE_VARLIB" "GORGONE_VARLIB"
+        answer_with_testdir "$(gettext "Where is your gorgone module folder?") [$DEFAULT_GORGONE_VARLIB]" "$DEFAULT_GORGONE_VARLIB" "GORGONE_VARLIB"
     fi
     GORGONE_VARLIB=`trim ${GORGONE_VARLIB%/}`
     export GORGONE_VARLIB
@@ -692,7 +692,7 @@ locate_gorgone_varlib() {
 #----
 locate_gorgone_config() {
     if [ -z "$GORGONE_CONFIG" ] ; then
-        answer_with_testdir "$(gettext "Where is your gorgone configuration folder ?") [$DEFAULT_GORGONE_CONFIG]" "$DEFAULT_GORGONE_CONFIG" "GORGONE_CONFIG"
+        answer_with_testdir "$(gettext "Where is your gorgone configuration folder?") [$DEFAULT_GORGONE_CONFIG]" "$DEFAULT_GORGONE_CONFIG" "GORGONE_CONFIG"
     fi
     GORGONE_CONFIG=`trim ${GORGONE_CONFIG%/}`
     export GORGONE_CONFIG
@@ -702,7 +702,7 @@ locate_gorgone_config() {
 
 locate_monitoringengine_etc() {
     if [ -z "$MONITORINGENGINE_ETC" ]; then
-        answer_with_testdir "$(gettext "What is the Monitoring engine configuration directory ?") [$DEFAULT_MONITORINGENGINE_ETC]" "$DEFAULT_MONITORINGENGINE_ETC" "MONITORINGENGINE_ETC"
+        answer_with_testdir "$(gettext "What is the Monitoring engine configuration directory?") [$DEFAULT_MONITORINGENGINE_ETC]" "$DEFAULT_MONITORINGENGINE_ETC" "MONITORINGENGINE_ETC"
     fi
     MONITORINGENGINE_ETC=`trim ${MONITORINGENGINE_ETC%/}`
     export MONITORINGENGINE_ETC
@@ -711,7 +711,7 @@ locate_monitoringengine_etc() {
 
 locate_monitoringengine_log() {
     if [ -z "$MONITORINGENGINE_LOG" ]; then
-        answer_with_testdir "$(gettext "What is the Monitoring engine log directory ?") [$DEFAULT_MONITORINGENGINE_LOG]" "$DEFAULT_MONITORINGENGINE_LOG" "MONITORINGENGINE_LOG"
+        answer_with_testdir "$(gettext "What is the Monitoring engine log directory?") [$DEFAULT_MONITORINGENGINE_LOG]" "$DEFAULT_MONITORINGENGINE_LOG" "MONITORINGENGINE_LOG"
     fi
     MONITORINGENGINE_LOG=`trim ${MONITORINGENGINE_LOG%/}`
     export MONITORINGENGINE_LOG
@@ -720,7 +720,7 @@ locate_monitoringengine_log() {
 
 locate_broker_etc() {
     if [ -z "$BROKER_ETC" ]; then
-        answer_with_testdir "$(gettext "Where is the configuration directory for broker module ?") [$DEFAULT_BROKER_ETC]" "$DEFAULT_BROKER_ETC" "BROKER_ETC"
+        answer_with_testdir "$(gettext "Where is the configuration directory for the broker module?") [$DEFAULT_BROKER_ETC]" "$DEFAULT_BROKER_ETC" "BROKER_ETC"
     fi
     BROKER_ETC=`trim ${BROKER_ETC%/}`
     export BROKER_ETC
@@ -1052,7 +1052,7 @@ locate_mail() {
 locate_php_bin() {
     testfile_clean "$PHP_BIN" "PHP_BIN"
     if [ -z "$PHP_BIN" ] ; then
-        answer_with_testfile "$(gettext "Where is your php binary ? ")" "$DEFAULT_PHP_BIN" "PHP_BIN"
+        answer_with_testfile "$(gettext "Where is your php binary? ")" "$DEFAULT_PHP_BIN" "PHP_BIN"
         echo_success "$PHP_BIN" "$ok"
     fi
     PHP_BIN=`trim ${PHP_BIN%/}`
@@ -1087,7 +1087,7 @@ locate_cron_d() {
             CRON_D="/etc/cron.d"
         # Add most of init.d
         else
-            answer_with_testdir "$(gettext "Where is your cron.d directory ?")" "$DEFAULT_CRON_D" "CRON_D"
+            answer_with_testdir "$(gettext "Where is your cron.d directory?")" "$DEFAULT_CRON_D" "CRON_D"
             echo_success "Path $CRON_D" "$ok"
         fi
     fi
@@ -1107,7 +1107,7 @@ locate_logrotate_d() {
             LOGROTATE_D="/etc/logrotate.d"
         # Add most of init.d
         else
-            answer_with_testdir "$(gettext "Where is your logrotate.d directory ?")" "$DEFAULT_LOGROTATE_D" "LOGROTATE_D"
+            answer_with_testdir "$(gettext "Where is your logrotate.d directory?")" "$DEFAULT_LOGROTATE_D" "LOGROTATE_D"
             echo_success "Path $LOGROTATE_D" "$ok"
         fi
     fi
@@ -1204,14 +1204,14 @@ configureApache() {
         if [ -e $DIR_APACHE_CONF/centreon.conf ] ; then
             echo "$(gettext "Finding Apache Centreon configuration file")"
             echo_success "'$DIR_APACHE_CONF/centreon.conf' :" "$ok"
-            yes_no_default "$(gettext "Do you want to update Centreon Apache sub configuration file ?")"
+            yes_no_default "$(gettext "Do you want to update Centreon Apache sub configuration file?")"
             if [ "$?" -eq 0 ] ; then
                 write_config="1"
                 cp -f $DIR_APACHE_CONF/centreon.conf $DIR_APACHE_CONF/centreon.conf-bak >> $LOG_FILE 2>&1
                 echo_info "$(gettext "Backup Centreon Apache configuration completed")"
             fi
         else
-            yes_no_default "$(gettext "Do you want to add Centreon Apache sub configuration file ?")"
+            yes_no_default "$(gettext "Do you want to add the Centreon Apache sub configuration file?")"
             [ "$?" -eq 0 ] && write_config="1"
         fi
     else
@@ -1228,7 +1228,7 @@ configureApache() {
         # After finishing the configuration ->
         # reload apache ! (if admin wants :p)
         if [ "${APACHE_RELOAD:-0}" -eq 0 ] ; then
-            yes_no_default "$(gettext "Do you want to reload your Apache ?")"
+            yes_no_default "$(gettext "Do you want to reload your Apache?")"
             [ $? -eq 0 ] && reload_service_apache
         elif [ "${APACHE_RELOAD:-0}" -eq 1 ] ; then
             reload_service_apache
@@ -1292,7 +1292,7 @@ create_gorgone_configuration_structure() {
     # gorgone's config.d/30-centreon.yaml
     destination="$conf_folder/30-centreon.yaml"
     if [ -e $destination ] ; then
-        yes_no_default "$(gettext "A configuration file already exists. Do you want to overwrite it ?")"
+        yes_no_default "$(gettext "A configuration file already exists. Do you want to overwrite it?")"
         if [ $? -ne 0 ] ; then
             echo_info "$(gettext "If needed, please update") $destination" "$passed"
         else
@@ -1319,7 +1319,7 @@ __EOT__
     # centreon's config.yaml
     destination="$CENTREON_ETC/config.yaml"
     if [ -e $destination ] ; then
-        yes_no_default "$(gettext "A configuration file already exists. Do you want to overwrite it ?")"
+        yes_no_default "$(gettext "A configuration file already exists. Do you want to overwrite it?")"
         if [ $? -ne 0 ] ; then
             echo_info "$(gettext "If needed, please update") $destination" "$passed"
         else
@@ -1497,14 +1497,14 @@ configure_php_fpm() {
         if [ -e $DIR_PHP_FPM_CONF/centreon.conf ] ; then
             echo "$(gettext "Finding PHP FPM Centreon configuration file")"
             echo_success "'$DIR_PHP_FPM_CONF/centreon.conf' :" "$ok"
-            yes_no_default "$(gettext "Do you want to update Centreon PHP FPM sub configuration file ?")"
+            yes_no_default "$(gettext "Do you want to update Centreon PHP FPM sub configuration file?")"
             if [ "$?" -eq 0 ] ; then
                 write_config="1"
                 cp -f $DIR_PHP_FPM_CONF/centreon.conf $DIR_PHP_FPM_CONF/centreon.conf-bak >> $LOG_FILE 2>&1
                 echo_info "$(gettext "Backup Centreon PHP FPM configuration completed")"
             fi
         else
-            yes_no_default "$(gettext "Do you want to add Centreon PHP FPM sub configuration file ?")"
+            yes_no_default "$(gettext "Do you want to add the Centreon PHP FPM sub configuration file?")"
             [ "$?" -eq 0 ] && write_config="1"
         fi
     else
@@ -1523,7 +1523,7 @@ configure_php_fpm() {
 
         # Reload php-fpm ?
         if [ "${PHP_FPM_RELOAD:-0}" -eq 0 ] ; then
-            yes_no_default "$(gettext "Do you want to reload PHP FPM service ?")"
+            yes_no_default "$(gettext "Do you want to reload PHP FPM service?")"
             [ $? -eq 0 ] && reload_service_php_fpm
         elif [ "${PHP_FPM_RELOAD:-0}" -eq 1 ] ; then
             reload_service_php_fpm
@@ -1610,10 +1610,10 @@ prepare_sudo_config() {
 
     locate_sudo
     # find nagios binary if not define
-    [ -z "$MONITORINGENGINE_BINARY" ] && answer_with_testfile "$(gettext "What is the Monitoring engine binary ?") [$DEFAULT_MONITORINGENGINE_BINARY]" "$DEFAULT_MONITORINGENGINE_BINARY" "MONITORINGENGINE_BINARY"
+    [ -z "$MONITORINGENGINE_BINARY" ] && answer_with_testfile "$(gettext "What is the Monitoring engine binary?") [$DEFAULT_MONITORINGENGINE_BINARY]" "$DEFAULT_MONITORINGENGINE_BINARY" "MONITORINGENGINE_BINARY"
     [ -z "$MONITORINGENGINE_ETC" ] && locate_monitoringengine_etc
     [ -z "$BROKER_ETC" ] && locate_broker_etc
-    [ -z "$SERVICE_BINARY" ] && answer_with_testfile "$(gettext "Where is your service command binary ?")" "$(which service)" "SERVICE_BINARY"
+    [ -z "$SERVICE_BINARY" ] && answer_with_testfile "$(gettext "Where is your service command binary?")" "$(which service)" "SERVICE_BINARY"
     # Prepare sudo.conf
 
 	${CAT} <<- __EOT__ > $directory/centreon.sudo
@@ -1696,7 +1696,7 @@ configureSUDO() {
         if [ "${FORCE_SUDO_CONF:-0}" -eq 1 ] ; then
             no_force_sudo="0"
         else
-            yes_no_default "$(gettext "Do you want to configure your sudo ? (WARNING) ")"
+            yes_no_default "$(gettext "Do you want to configure your sudo? (WARNING) ")"
             no_force_sudo="$?"
         fi
         if [ $no_force_sudo -eq 0 ] ; then
@@ -1710,7 +1710,7 @@ configureSUDO() {
         if [ "${FORCE_SUDO_CONF:-0}" -eq 1 ] ; then
             no_force_sudo="0"
         else
-            yes_no_default "$(gettext "Do you want to reconfigure your sudo ? (WARNING) ")"
+            yes_no_default "$(gettext "Do you want to reconfigure your sudo? (WARNING) ")"
             no_force_sudo="$?"
         fi
         if [ $no_force_sudo -eq 0 ] ; then
@@ -2140,7 +2140,7 @@ check_centreon_user() {
         fi
     fi
     if [ -z "$CENTREON_USER" ] ; then
-        answer_with_createuser "$(gettext "What is the Centreon user ?") [$DEFAULT_CENTREON_USER]" "$DEFAULT_CENTREON_USER" "CENTREON_USER" "$groups" "$description" "$home"
+        answer_with_createuser "$(gettext "What is the Centreon user?") [$DEFAULT_CENTREON_USER]" "$DEFAULT_CENTREON_USER" "CENTREON_USER" "$groups" "$description" "$home"
     fi
     log "INFO" "$(gettext "Centreon user") : $CENTREON_USER"
     return 0
@@ -2161,7 +2161,7 @@ check_centreon_group() {
         fi
     fi
     if [ -z "$CENTREON_GROUP" ] ; then
-        answer_with_creategroup "$(gettext "What is the Centreon group ?") [$DEFAULT_CENTREON_GROUP]" "$DEFAULT_CENTREON_GROUP" "CENTREON_GROUP"
+        answer_with_creategroup "$(gettext "What is the Centreon group?") [$DEFAULT_CENTREON_GROUP]" "$DEFAULT_CENTREON_GROUP" "CENTREON_GROUP"
     fi
     log "INFO" "$(gettext "Centreon group") : $CENTREON_GROUP"
     return 0
@@ -2173,7 +2173,7 @@ check_centreon_group() {
 #----
 check_engine_user() {
     if [ -z "${MONITORINGENGINE_USER}" ]; then
-        answer_with_testuser "$(gettext "What is the Monitoring engine user ?") [$DEFAULT_MONITORINGENGINE_USER]" "$DEFAULT_MONITORINGENGINE_USER" "MONITORINGENGINE_USER"
+        answer_with_testuser "$(gettext "What is the Monitoring engine user?") [$DEFAULT_MONITORINGENGINE_USER]" "$DEFAULT_MONITORINGENGINE_USER" "MONITORINGENGINE_USER"
     fi
     log "INFO" "$(gettext "Monitoring engine user") : $MONITORINGENGINE_USER"
     return 0
@@ -2185,7 +2185,7 @@ check_engine_user() {
 #----
 check_broker_user() {
     if [ -z "${BROKER_USER}" ]; then
-        answer_with_testuser "$(gettext "What is the Broker user ?") [$DEFAULT_BROKER_USER]" "$DEFAULT_BROKER_USER" "BROKER_USER"
+        answer_with_testuser "$(gettext "What is the Broker user?") [$DEFAULT_BROKER_USER]" "$DEFAULT_BROKER_USER" "BROKER_USER"
     fi
     log "INFO" "$(gettext "Broker user") : $BROKER_USER"
     return 0
@@ -2203,7 +2203,7 @@ check_gorgone_user() {
         user_test "$GORGONE_USER"
     fi
     if [ -z "$GORGONE_USER" ] ; then
-        answer_with_testuser "$(gettext "What is the Gorgone user ?") [$DEFAULT_GORGONE_USER]" "$DEFAULT_GORGONE_USER" "GORGONE_USER"
+        answer_with_testuser "$(gettext "What is the Gorgone user?") [$DEFAULT_GORGONE_USER]" "$DEFAULT_GORGONE_USER" "GORGONE_USER"
     fi
     log "INFO" "$(gettext "Gorgone user") : $GORGONE_USER"
     return 0
@@ -2224,7 +2224,7 @@ check_gorgone_group() {
         fi
     fi
     if [ -z "$GORGONE_GROUP" ] ; then
-        answer_with_creategroup "$(gettext "What is the Gorgone group ?") [$DEFAULT_GORGONE_GROUP]" "$DEFAULT_GORGONE_GROUP" "GORGONE_GROUP"
+        answer_with_creategroup "$(gettext "What is the Gorgone group?") [$DEFAULT_GORGONE_GROUP]" "$DEFAULT_GORGONE_GROUP" "GORGONE_GROUP"
     fi
     log "INFO" "$(gettext "Centreon group") : $GORGONE_GROUP"
     return 0
@@ -2384,7 +2384,7 @@ clean_and_exit() {
     local trap_sig=${1:-0}
     if [ $trap_sig -eq 0 ] ; then
         echo -e "$(gettext "\nTrap interrupt, Centreon'll exit now and clean install")"
-        yes_no_default "$(gettext "Do you really want to quit Centreon install process ? ")" "$no"
+        yes_no_default "$(gettext "Do you really want to quit the Centreon install process? ")" "$no"
         if [ $? -eq 1 ] ; then
             echo "$(gettext "Continue...")"
             return 1
@@ -2432,7 +2432,7 @@ purge_centreon_tmp_dir() {
     local rc="0"
     while [ $not_clean -ne 0 ] ; do
         if [ "$silent" != "silent" ] ; then
-            yes_no_default "$(gettext "Do you want to remove the centreon temporary working space to continue installation ?")" "$yes"
+            yes_no_default "$(gettext "Do you want to remove the centreon temporary working space to continue installation?")" "$yes"
             rc=$?
         else
             rc=0
@@ -2480,7 +2480,7 @@ clean_sudo() {
 
     log "INFO" "$(gettext "New sudo file generate in:") $sudo_clean"
     if [ "$validate" -eq 1 ] ; then
-        yes_no_default "$(gettext "Do you want to clean your sudo files ? (clean centreon config)")"
+        yes_no_default "$(gettext "Do you want to clean your sudo files? (clean centreon config)")"
         RC="$?"
     fi
     if [ "$RC" -eq 0 -o "$validate" -eq 0 ] ; then

@@ -5,17 +5,13 @@ const useStyles = makeStyles()((theme) => ({
     padding: theme.spacing(0, 4, 2, 2)
   },
   groups: {
-    '& .groupText': {
-      fontSize: theme.typography.formTitle.fontSize,
-      fontWeight: theme.typography.fontWeightBold
-    },
     '&:hover': {
       background: theme.palette.background.listingHeader
     },
     background: theme.palette.background.listingHeader,
     color: theme.palette.common.white,
     flexDirection: 'row-reverse',
-    height: theme.spacing(5),
+    height: theme.spacing(3.75),
     justifyContent: 'space-between',
     paddingInline: theme.spacing(1.25)
   },

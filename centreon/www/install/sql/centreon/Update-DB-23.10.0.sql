@@ -4,9 +4,6 @@ INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`,
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Creator', '/home/dashboards', '1', '0', 104, 10402, '0', 'dashboard');
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Administrator', '/home/dashboards', '1', '0', 104, 10403, '0', 'dashboard');
 
-INSERT INTO `widget_models` (`title`,`version`,`description`,`url`,`directory`,`author`) VALUES ('centreon-widget-text','23.10.0','This is a sample widget with text','http://centreon.com','centreon-widget-text','Centreon');
-INSERT INTO `widget_models` (`title`,`version`,`description`,`url`,`directory`,`author`) VALUES ('centreon-widget-text2','23.10.0','This is a sample widget with text','http://centreon.com','centreon-widget-text2','Centreon');
-
 -- CREATE TABLES FOR DASHBOARD CONFIGURATION --
 
 CREATE TABLE IF NOT EXISTS `dashboard` (

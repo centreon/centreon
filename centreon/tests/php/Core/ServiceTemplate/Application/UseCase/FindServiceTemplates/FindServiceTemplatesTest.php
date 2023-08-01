@@ -21,6 +21,8 @@
 
 declare(strict_types=1);
 
+namespace Tests\Core\ServiceTemplate\Application\UseCase\FindServiceTemplates;
+
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;

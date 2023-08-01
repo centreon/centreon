@@ -25,7 +25,6 @@ namespace Core\ServiceCategory\Infrastructure\API\AddServiceCategory;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\ServiceCategory\Application\UseCase\AddServiceCategory\AddServiceCategory;
 use Core\ServiceCategory\Application\UseCase\AddServiceCategory\AddServiceCategoryRequest;

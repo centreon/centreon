@@ -25,11 +25,10 @@ namespace Core\Dashboard\Application\UseCase\AddDashboard;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Dashboard\Application\Model\DashboardSharingRoleConverter;
 use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Dashboard\Domain\Model\NewDashboard;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 final class AddDashboardFactory
 {

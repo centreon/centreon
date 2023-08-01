@@ -30,8 +30,10 @@ use Core\Application\Common\UseCase\{BodyResponseInterface,
     ErrorResponse,
     ForbiddenResponse,
     InvalidArgumentResponse,
+    MultiStatusResponse,
     NoContentResponse,
     NotFoundResponse,
+    NotModifiedResponse,
     PaymentRequiredResponse,
     ResponseStatusInterface,
     UnauthorizedResponse
@@ -84,6 +86,10 @@ class JsonFormatter implements PresenterFormatterInterface
                     return $this->generateJsonResponse($data, Response::HTTP_CREATED, $headers);
                 case $data instanceof NoContentResponse:
                     return $this->generateJsonResponse(null, Response::HTTP_NO_CONTENT, $headers);
+                case $data instanceof MultiStatusResponse:
+                    return $this->generateJsonResponse($data, Response::HTTP_MULTI_STATUS, $headers);
+                case $data instanceof NotModifiedResponse:
+                    return $this->generateJsonResponse($data, Response::HTTP_NOT_MODIFIED, $headers);
                 default:
                     return $this->generateJsonResponse($data, Response::HTTP_OK, $headers);
             }
@@ -150,7 +156,9 @@ class JsonFormatter implements PresenterFormatterInterface
         if (is_object($data)) {
             if ($data instanceof \Generator) {
                 $data = iterator_to_array($data);
-            } elseif ($data instanceof CreatedResponse) {
+            } else if ($data instanceof CreatedResponse) {
+                $data = $data->getPayload();
+            } else if ($data instanceof MultiStatusResponse) {
                 $data = $data->getPayload();
             }
         }

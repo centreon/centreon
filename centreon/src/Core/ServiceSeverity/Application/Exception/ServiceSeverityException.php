@@ -43,7 +43,7 @@ class ServiceSeverityException extends \Exception
         return new self(_('Error while searching for service severities'), 0, $ex);
     }
 
-     /**
+    /**
      * @return self
      */
     public static function deleteNotAllowed(): self

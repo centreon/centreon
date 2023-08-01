@@ -31,6 +31,8 @@ use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
@@ -50,17 +52,19 @@ use Core\Notification\Domain\Model\NotificationResource;
 use Core\Notification\Domain\Model\ConfigurationResource;
 use Core\Notification\Domain\Model\ConfigurationTimePeriod;
 use Core\Notification\Domain\Model\ConfigurationUser;
+use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\TimePeriod\Domain\Model\TimePeriod;
 
 beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
-    $this->presenter = new DefaultPresenter($this->presenterFormatter);
+    $this->presenter = new AddNotificationPresenter($this->presenterFormatter);
 
     $this->request = new AddNotificationRequest();
     $this->request->name = 'notification-name';
     $this->request->timeperiodId = 2;
     $this->request->users = [20, 21];
+    $this->request->contactGroups = [5,6];
     $this->request->resources = [
         ['type' => 'hostgroup', 'ids' => [12, 25], 'events' => 5, 'includeServiceEvents' => 1],
     ];
@@ -74,6 +78,7 @@ beforeEach(function (): void {
         $this->writeNotificationRepository = $this->createMock(WriteNotificationRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->contactRepository = $this->createMock(ContactRepositoryInterface::class),
+        $this->contactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
         $this->resourceRepositoryProvider = $this->createMock(NotificationResourceRepositoryProviderInterface::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
@@ -110,6 +115,11 @@ beforeEach(function (): void {
     $this->users = array_map(
         (fn($userId) => new ConfigurationUser($userId, "user_name_{$userId}")),
         $this->request->users
+    );
+
+    $this->contactGroups = array_map(
+        (fn($contactGroupIds) => new ContactGroup($contactGroupIds, "user_name_{$contactGroupIds}")),
+        $this->request->contactGroups
     );
 });
 
@@ -288,7 +298,7 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs does
 });
 
 it('should throw an InvalidArgumentResponse if at least one of the user IDs is not provided', function (): void {
-    $this->request->users = [];
+    $this->request->users = [10,12];
 
     $this->user
         ->expects($this->atLeast(1))
@@ -329,7 +339,7 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs is n
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(InvalidArgumentResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe(NotificationException::emptyArrayNotAllowed('user')->getMessage());
+        ->toBe(NotificationException::invalidId('users')->getMessage());
 });
 
 it('should present an ErrorResponse if the newly created service severity cannot be retrieved', function (): void {
@@ -370,6 +380,15 @@ it('should present an ErrorResponse if the newly created service severity cannot
         ->expects($this->once())
         ->method('exist')
         ->willReturn($this->request->users);
+    $this->contactGroupRepository
+        ->expects($this->once())
+        ->method('findByIds')
+        ->willReturn(
+            [
+                new ContactGroup($this->request->contactGroups[0], 'contactgroup'),
+                new ContactGroup($this->request->contactGroups[1], 'contactgroup_1')
+            ]
+        );
     $this->writeNotificationRepository
         ->expects($this->once())
         ->method('add')
@@ -435,6 +454,15 @@ it('should return created object on success', function (): void {
         ->expects($this->once())
         ->method('exist')
         ->willReturn($this->request->users);
+    $this->contactGroupRepository
+        ->expects($this->once())
+        ->method('findByIds')
+        ->willReturn(
+            [
+                new ContactGroup($this->request->contactGroups[0], 'contactgroup'),
+                new ContactGroup($this->request->contactGroups[1], 'contactgroup_1')
+            ]
+        );
     $this->writeNotificationRepository
         ->expects($this->once())
         ->method('add')
@@ -445,6 +473,9 @@ it('should return created object on success', function (): void {
     $this->writeNotificationRepository
         ->expects($this->once())
         ->method('addUsers');
+    $this->writeNotificationRepository
+        ->expects($this->once())
+        ->method('addContactGroups');
     $this->resourceRepository
         ->expects($this->once())
         ->method('add');
@@ -460,6 +491,10 @@ it('should return created object on success', function (): void {
         ->expects($this->once())
         ->method('findUsersByNotificationId')
         ->willReturn($this->users);
+    $this->readNotificationRepository
+        ->expects($this->once())
+        ->method('findContactGroupsByNotificationId')
+        ->willReturn($this->contactGroups);
     $this->resourceRepositoryProvider
         ->expects($this->once())
         ->method('getRepositories')
@@ -472,22 +507,20 @@ it('should return created object on success', function (): void {
         );
 
     ($this->useCase)($this->request, $this->presenter);
-
     expect($this->presenter->getPresentedData())->toBeInstanceOf(CreatedResponse::class);
     expect($this->presenter->getPresentedData()->getResourceId())->toBe($this->notification->getId());
 
     $payload = $this->presenter->getPresentedData()->getPayload();
-
-    expect($payload->name)
+    expect($payload['name'])
         ->toBe($this->notification->getName())
-        ->and($payload->timeperiod)
+        ->and($payload['timeperiod'])
         ->toBe([
             'id' => $this->notification->getTimePeriod()->getId(),
             'name' => $this->notification->getTimePeriod()->getName(),
         ])
-        ->and($payload->isActivated)
+        ->and($payload['is_activated'])
         ->toBe($this->notification->isActivated())
-        ->and($payload->users)
+        ->and($payload['users'])
         ->toBe(array_map(
             (fn($user) => [
                 'id' => $user->getId(),
@@ -495,7 +528,15 @@ it('should return created object on success', function (): void {
             ]),
             $this->users
         ))
-        ->and($payload->messages)
+        ->and($payload['contactgroups'])
+        ->toBe(array_map(
+            (fn($contactgroup) => [
+                'id' => $contactgroup->getId(),
+                'name' => $contactgroup->getName(),
+            ]),
+            $this->contactGroups
+        ))
+        ->and($payload['messages'])
         ->toBe(array_map(
             (fn($message) => [
                 'channel' => $message->getChannel()->value,
@@ -504,7 +545,7 @@ it('should return created object on success', function (): void {
             ]),
             $this->messages
         ))
-        ->and($payload->resources)
+        ->and($payload['resources'])
         ->toBe(array_map(
             (fn($resource) => [
                 'type' => $resource->getType(),

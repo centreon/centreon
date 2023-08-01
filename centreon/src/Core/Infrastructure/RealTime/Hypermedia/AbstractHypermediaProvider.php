@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Hypermedia;
 
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
-use Centreon\Domain\Contact\Contact;
 
 abstract class AbstractHypermediaProvider
 {
@@ -45,6 +45,7 @@ abstract class AbstractHypermediaProvider
 
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array<string, string|null>
      */
     public function createInternalUris(array $parameters): array
@@ -57,35 +58,47 @@ abstract class AbstractHypermediaProvider
     }
 
     /**
-     * Create configuration redirection uri
+     * Create configuration redirection uri.
      *
      * @param array<string, mixed> $parameters
+     *
      * @return string|null
      */
     abstract public function createForConfiguration(array $parameters): ?string;
 
     /**
-     * Create event logs redirection uri
+     * Create event logs redirection uri.
      *
      * @param array<string, int> $parameters
+     *
      * @return string|null
      */
     abstract public function createForEventLog(array $parameters): ?string;
 
     /**
-     * Create reporting redirection uri
+     * Create reporting redirection uri.
      *
      * @param array<string, int> $parameters
+     *
      * @return string|null
      */
     abstract public function createForReporting(array $parameters): ?string;
 
     /**
-     * Checks if contact has access to pages defined in roles
+     * @param array<string, int> $parameters
+     */
+    public function generateResourceDetailsUri(array $parameters): string
+    {
+        return $this->generateEndpoint(static::ENDPOINT_DETAILS, $parameters);
+    }
+
+    /**
+     * Checks if contact has access to pages defined in roles.
      *
      * @param ContactInterface $contact
      * @param string[] $topologyRoles
-     * @return boolean
+     *
+     * @return bool
      */
     protected function canContactAccessPages(ContactInterface $contact, array $topologyRoles): bool
     {
@@ -93,11 +106,12 @@ abstract class AbstractHypermediaProvider
     }
 
     /**
-     * Checks if contact has topology roles submited
+     * Checks if contact has topology roles submited.
      *
      * @param ContactInterface $contact
      * @param string[] $topologyRoles
-     * @return boolean
+     *
+     * @return bool
      */
     protected function hasTopologyAccess(ContactInterface $contact, array $topologyRoles): bool
     {
@@ -111,10 +125,11 @@ abstract class AbstractHypermediaProvider
     }
 
     /**
-     * Proxy method to generates endpoint call URI with parameters
+     * Proxy method to generates endpoint call URI with parameters.
      *
      * @param string $endpoint
      * @param array<string, mixed> $parameters
+     *
      * @return string
      */
     protected function generateEndpoint(string $endpoint, array $parameters): string
@@ -123,9 +138,11 @@ abstract class AbstractHypermediaProvider
     }
 
     /**
-     * Proxy method to generate an uri
+     * Proxy method to generate an uri.
+     *
      * @param string $uri
      * @param array<string, mixed> $parameters
+     *
      * @return string
      */
     protected function generateUri(string $uri, array $parameters): string
@@ -135,6 +152,7 @@ abstract class AbstractHypermediaProvider
 
     /**
      * @param array<string, integer> $parameters
+     *
      * @return string
      */
     protected function generateDowntimeEndpoint(array $parameters): string
@@ -143,17 +161,17 @@ abstract class AbstractHypermediaProvider
             'search' => json_encode([
                 RequestParameters::AGGREGATE_OPERATOR_AND => [
                     [
-                        'start_time' => [RequestParameters::OPERATOR_LESS_THAN => time(),],
-                        'end_time' => [RequestParameters::OPERATOR_GREATER_THAN => time(),],
+                        'start_time' => [RequestParameters::OPERATOR_LESS_THAN => time()],
+                        'end_time' => [RequestParameters::OPERATOR_GREATER_THAN => time()],
                         [
                             RequestParameters::AGGREGATE_OPERATOR_OR => [
-                                'is_cancelled' => [RequestParameters::OPERATOR_NOT_EQUAL => 1,],
-                                'deletion_time' => [RequestParameters::OPERATOR_GREATER_THAN => time(),],
+                                'is_cancelled' => [RequestParameters::OPERATOR_NOT_EQUAL => 1],
+                                'deletion_time' => [RequestParameters::OPERATOR_GREATER_THAN => time()],
                             ],
-                        ]
-                    ]
-                ]
-            ])
+                        ],
+                    ],
+                ],
+            ]),
         ];
 
         return $this->generateEndpoint(
@@ -172,13 +190,5 @@ abstract class AbstractHypermediaProvider
         }
 
         return $this->generateUri(static::URI_EVENT_LOGS, $urlParams);
-    }
-
-    /**
-     * @param array<string, int> $parameters
-     */
-    public function generateResourceDetailsUri(array $parameters): string
-    {
-        return $this->generateEndpoint(static::ENDPOINT_DETAILS, $parameters);
     }
 }

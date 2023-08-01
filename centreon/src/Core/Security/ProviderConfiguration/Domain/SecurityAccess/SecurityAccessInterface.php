@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- *  For more information : contact@centreon.com
+ * For more information : contact@centreon.com
+ *
  */
 
 declare(strict_types=1);
@@ -29,7 +30,7 @@ use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\Attr
 /**
  * Interface used by each security access controls: Authentication conditions, Roles mapping and Groups mapping
  * Security access controls are use in authentication to control access on OIDC and SAML, you probably find theme in
- * OIDC provider and SAML provider classes
+ * OIDC provider and SAML provider classes.
  *
  * <b>Important</b>: If all security access are enabled, they must all be satisfied to authorize the user
  *
@@ -42,19 +43,18 @@ interface SecurityAccessInterface
 {
     /**
      * Call this method to perform the control access, the process continues normally if you are authorized,
-     * otherwise an exception will be thrown
+     * otherwise an exception will be thrown.
      *
      * @param Configuration $configuration The authentication configuration
      * @param array<string,mixed> $identityProviderData Data fetched from the identity provider
      *
-     * @return void
      * @see AttributePathFetcherInterface
      */
     public function validate(Configuration $configuration, array $identityProviderData): void;
 
     /**
      * Get the condition that has matched between IdP and OpenID Configuration.
-     * This allow application to be able to define ACLs for authenticated user
+     * This allow application to be able to define ACLs for authenticated user.
      *
      * @return string[]
      */

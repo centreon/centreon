@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,17 +18,19 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\Configuration\NotificationPolicy\Repository;
 
-use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
 use Core\Domain\Configuration\Notification\Model\HostNotification;
+use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
 
 class DbContactHostNotificationFactory
 {
     /**
      * @param array<string,int|string|null> $notification
+     *
      * @return HostNotification
      */
     public static function createFromRecord(array $notification): HostNotification
@@ -58,9 +60,10 @@ class DbContactHostNotificationFactory
     }
 
     /**
-     * Convert single char referencing Host event into a string
+     * Convert single char referencing Host event into a string.
      *
      * @param string $event
+     *
      * @return string|null
      */
     private static function normalizeHostEvent(string $event): ?string

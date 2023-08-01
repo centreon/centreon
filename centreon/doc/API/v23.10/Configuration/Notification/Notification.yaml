@@ -69,3 +69,18 @@ patch:
     '403': { $ref: '../../Common/Response/Forbidden.yaml' }
     '404': { $ref: '../../Common/Response/NotFound.yaml' }
     '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
+
+delete:
+  tags:
+    - Notification
+  summary: "Delete a notification"
+  description: |
+    Delete a notification
+    This endpoint is accessible for SaaS platforms only
+  parameters:
+    - $ref: 'QueryParameter/NotificationId.yaml'
+  responses:
+    '204': { $ref: '../../Common/Response/NoContent.yaml' }
+    '403': { $ref: '../../Common/Response/Forbidden.yaml' }
+    '404': { $ref: '../../Common/Response/NotFound.yaml' }
+    '500': { $ref: '../../Common/Response/InternalServerError.yaml' }

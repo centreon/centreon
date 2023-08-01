@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,86 +36,57 @@ use TypeError;
 
 final class CustomConfiguration implements CustomConfigurationInterface, SAMLCustomConfigurationInterface
 {
-    const LOGOUT_FROM_CENTREON = false;
-    const LOGOUT_FROM_CENTREON_AND_IDP = true;
+    public const LOGOUT_FROM_CENTREON = false;
+    public const LOGOUT_FROM_CENTREON_AND_IDP = true;
 
-    /**
-     * @var array<AuthorizationRule>
-     */
+    /** @var array<AuthorizationRule> */
     private array $authorizationRules = [];
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     private bool $isAutoImportEnabled = false;
 
-    /**
-     * @var ContactTemplate|null
-     */
+    /** @var ContactTemplate|null */
     private ?ContactTemplate $contactTemplate = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $emailBindAttribute = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $userNameBindAttribute = null;
 
-    /**
-     * @var ContactGroup|null
-     */
+    /** @var ContactGroup|null */
     private ?ContactGroup $contactGroup = null;
 
-    /**
-     * @var ACLConditions
-     */
+    /** @var ACLConditions */
     private ACLConditions $aclConditions;
 
-    /**
-     * @var AuthenticationConditions
-     */
+    /** @var AuthenticationConditions */
     private AuthenticationConditions $authenticationConditions;
 
-    /**
-     * @var GroupsMapping
-     */
+    /** @var GroupsMapping */
     private GroupsMapping $groupsMapping;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private string $remoteLoginUrl = '';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private string $entityIdUrl = '';
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $publicCertificate = '';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private string $userIdAttribute = '';
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private bool $logoutFrom = true;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $logoutFromUrl = null;
 
     /**
      * @param array<string,mixed> $json
+     *
      * @throws ConfigurationException
      */
     public function __construct(array $json)
@@ -133,7 +104,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param string $value
-     * @return void
      */
     public function setRemoteLoginUrl(string $value): void
     {
@@ -150,7 +120,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param string $value
-     * @return void
      */
     public function setEntityIDUrl(string $value): void
     {
@@ -167,7 +136,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param string|null $value
-     * @return void
      */
     public function setPublicCertificate(?string $value): void
     {
@@ -184,7 +152,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param string $value
-     * @return void
      */
     public function setUserIdAttribute(string $value): void
     {
@@ -201,13 +168,11 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param bool $value
-     * @return void
      */
     public function setLogoutFrom(bool $value): void
     {
         $this->logoutFrom = $value;
     }
-
 
     /**
      * @return string|null
@@ -219,7 +184,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param string|null $value
-     * @return void
      */
     public function setLogoutFromUrl(?string $value): void
     {
@@ -260,7 +224,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param string $value
-     * @return void
      */
     public function setEmailBindAttribute(?string $value): void
     {
@@ -277,7 +240,6 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param string $value
-     * @return void
      */
     public function setUserNameBindAttribute(?string $value): void
     {
@@ -301,7 +263,8 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
     }
 
     /**
-     * @param boolean $isAutoImportEnabled
+     * @param bool $isAutoImportEnabled
+     *
      * @return self
      */
     public function setAutoImportEnabled(bool $isAutoImportEnabled): self
@@ -313,6 +276,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param ContactTemplate|null $contactTemplate
+     *
      * @return self
      */
     public function setContactTemplate(?ContactTemplate $contactTemplate): self
@@ -324,8 +288,10 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param AuthorizationRule[] $authorizationRules
-     * @return self
+     *
      * @throws TypeError
+     *
+     * @return self
      */
     public function setAuthorizationRules(array $authorizationRules): self
     {
@@ -339,6 +305,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param AuthorizationRule $authorizationRule
+     *
      * @return self
      */
     public function addAuthorizationRule(AuthorizationRule $authorizationRule): self
@@ -350,6 +317,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param ContactGroup|null $contactGroup
+     *
      * @return self
      */
     public function setContactGroup(?ContactGroup $contactGroup): self
@@ -361,11 +329,13 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param AuthenticationConditions $authenticationConditions
+     *
      * @return self
      */
     public function setAuthenticationConditions(AuthenticationConditions $authenticationConditions): self
     {
         $this->authenticationConditions = $authenticationConditions;
+
         return $this;
     }
 
@@ -379,11 +349,13 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param GroupsMapping $groupsMapping
+     *
      * @return self
      */
     public function setGroupsMapping(GroupsMapping $groupsMapping): self
     {
         $this->groupsMapping = $groupsMapping;
+
         return $this;
     }
 
@@ -397,6 +369,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param array<string,mixed> $json
+     *
      * @throws ConfigurationException
      */
     public function create(array $json): void
@@ -425,6 +398,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param ACLConditions $aclConditions
+     *
      * @return CustomConfiguration
      */
     private function setACLConditions(ACLConditions $aclConditions): self
@@ -436,7 +410,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
 
     /**
      * @param array<string,mixed> $json
-     * @return void
+     *
      * @throws ConfigurationException
      */
     private function validateMandatoryFields(array $json): void
@@ -451,12 +425,12 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         ];
 
         foreach ($mandatoryFields as $key) {
-            if (!array_key_exists($key, $json)) {
+            if (! array_key_exists($key, $json)) {
                 $emptyParameters[] = $key;
             }
         }
 
-        if (!empty($emptyParameters)) {
+        if (! empty($emptyParameters)) {
             throw ConfigurationException::missingMandatoryParameters($emptyParameters);
         }
 
@@ -469,19 +443,20 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         }
 
         if (
-            ($json['logout_from'] === true || (isset($json['is_forced']) && $json['is_forced'] === true)) &&
-            empty($json['logout_from_url'])
+            ($json['logout_from'] === true || (isset($json['is_forced']) && $json['is_forced'] === true))
+            && empty($json['logout_from_url'])
         ) {
             throw MissingLogoutUrlException::create();
         }
     }
 
     /**
-     * Validate mandatory parameters for auto import
+     * Validate mandatory parameters for auto import.
      *
      * @param ContactTemplate|null $contactTemplate
      * @param string|null $emailBindAttribute
      * @param string|null $userNameBindAttribute
+     *
      * @throws ConfigurationException
      */
     private function validateParametersForAutoImport(
@@ -499,7 +474,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, SAMLCus
         if (empty($userNameBindAttribute)) {
             $missingMandatoryParameters[] = 'fullname_bind_attribute';
         }
-        if (!empty($missingMandatoryParameters)) {
+        if (! empty($missingMandatoryParameters)) {
             throw ConfigurationException::missingAutoImportMandatoryParameters(
                 $missingMandatoryParameters
             );

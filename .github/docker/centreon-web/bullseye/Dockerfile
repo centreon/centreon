@@ -9,11 +9,11 @@ ENV DEBIAN_FRONTEND noninteractive
 
 COPY *.deb /tmp/debs-centreon/
 
-RUN <<EOF
+RUN bash -e <<EOF
 
 apt-get update
 
-rm -f /tmp/debs-centreon/centreon-${VERSION}*.deb /tmp/debs-centreon/centreon-central-${VERSION}*.deb
+rm -f /tmp/debs-centreon/centreon_${VERSION}*.deb /tmp/debs-centreon/centreon-central_${VERSION}*.deb
 apt-get install -y /tmp/debs-centreon/centreon-*.deb
 
 echo "date.timezone = Europe/Paris" >> /etc/php/8.1/mods-available/centreon.ini

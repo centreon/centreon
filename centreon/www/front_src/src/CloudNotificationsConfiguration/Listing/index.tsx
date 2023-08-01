@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAtom, useSetAtom, useAtomValue } from 'jotai';
 import { prop } from 'ramda';
@@ -15,10 +15,10 @@ import {
   selectedRowsAtom,
   notificationsNamesAtom
 } from '../atom';
-import { EditedNotificationIdAtom, panelModeAtom } from '../EditPanel/atom';
+import { editedNotificationIdAtom, panelModeAtom } from '../EditPanel/atom';
 import { PanelMode } from '../EditPanel/models';
 
-import Actions from './Actions/HeaderActions';
+import { Actions } from './Header';
 import useListingColumns from './columns';
 import useLoadingNotifications from './useLoadNotifications';
 
@@ -40,7 +40,7 @@ const NotificationsListing = (): JSX.Element => {
   const [isPannelOpen, setIsPannelOpen] = useAtom(isPanelOpenAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const setLimit = useSetAtom(limitAtom);
-  const setEditedNotificationId = useSetAtom(EditedNotificationIdAtom);
+  const setEditedNotificationId = useSetAtom(editedNotificationIdAtom);
   const setPanelMode = useSetAtom(panelModeAtom);
   const setNotificationsNames = useSetAtom(notificationsNamesAtom);
   const { loading, data: listingData, refetch } = useLoadingNotifications();
@@ -95,7 +95,7 @@ const NotificationsListing = (): JSX.Element => {
       }}
       columns={columns}
       currentPage={(page || 1) - 1}
-      limit={listingData?.meta?.limit}
+      limit={listingData?.meta.limit}
       loading={loading}
       memoProps={[
         columns,
@@ -112,7 +112,7 @@ const NotificationsListing = (): JSX.Element => {
       selectedRows={selectedRows}
       sortField={sortf}
       sortOrder={sorto}
-      totalRows={listingData?.result?.length}
+      totalRows={listingData?.meta.total}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={setLimit}
       onPaginate={changePage}

@@ -8,7 +8,8 @@
         "timeperiod_id",
         "users",
         "messages",
-        "resources"
+        "resources",
+        "contactgroups"
     ],
     "properties": {
         "name": {
@@ -18,6 +19,9 @@
             "type": "integer"
         },
         "users": {
+            "type": "array"
+        },
+        "contactgroups": {
             "type": "array"
         },
         "messages": {

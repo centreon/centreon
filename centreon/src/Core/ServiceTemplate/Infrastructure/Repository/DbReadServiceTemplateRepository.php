@@ -36,6 +36,7 @@ use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\NotificationType;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 use Utility\SqlConcatenator;
 
 /**
@@ -143,7 +144,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        esi.esi_notes,
                        esi.esi_notes_url,
                        esi.graph_id,
-                       severity.sc_id as severity_id,
+                       GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
                        GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
                 FROM `:db`.service
                 LEFT JOIN `:db`.extended_service_information esi
@@ -233,7 +234,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        esi.esi_notes,
                        esi.esi_notes_url,
                        esi.graph_id,
-                       severity.sc_id as severity_id,
+                       GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
                        GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
                 FROM `:db`.service
                 LEFT JOIN `:db`.extended_service_information esi
@@ -311,6 +312,41 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findParents(int $serviceTemplateId): array
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                WITH RECURSIVE parents AS (
+                    SELECT * FROM `:db`.`service`
+                    WHERE `service_id` = :service_template_id
+                    UNION
+                    SELECT rel.* FROM `:db`.`service` AS rel, parents AS p
+                    WHERE rel.`service_id` = p.`service_template_model_stm_id`
+                )
+                SELECT `service_id` AS child_id, `service_template_model_stm_id` AS parent_id
+                FROM parents
+                WHERE `service_template_model_stm_id` IS NOT NULL
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':service_template_id', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $serviceTemplateInheritances = [];
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{child_id: int, parent_id: int} $result */
+            $serviceTemplateInheritances[] = new ServiceTemplateInheritance(
+                (int) $result['parent_id'],
+                (int) $result['child_id']
+            );
+        }
+
+        return $serviceTemplateInheritances;
+    }
+
+    /**
      * @param _ServiceTemplate $data
      *
      * @throws AssertionFailedException
@@ -372,7 +408,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             $data['timeperiod_tp_id2'],
             $data['timeperiod_tp_id'],
             $data['esi_icon_image'],
-            $data['severity_id'],
+            $data['severity_id'] !== null ? (int) $data['severity_id'] : null,
             $data['service_max_check_attempts'],
             $data['service_normal_check_interval'],
             $data['service_retry_check_interval'],

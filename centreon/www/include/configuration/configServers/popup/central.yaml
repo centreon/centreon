@@ -4,6 +4,7 @@ gorgone:
   gorgonecore:
     privkey: "/var/lib/centreon-gorgone/.keys/rsakey.priv.pem"
     pubkey: "/var/lib/centreon-gorgone/.keys/rsakey.pub.pem"
+    id: 1
   modules:
     - name: httpserver
       package: "gorgone::modules::core::httpserver::hooks"

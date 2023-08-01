@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- *  For more information : contact@centreon.com
+ * For more information : contact@centreon.com
+ *
  */
 
 declare(strict_types=1);
@@ -46,8 +47,10 @@ class HttpUrlFetcher implements AttributePathFetcherInterface
      * @param string $accessToken
      * @param Configuration $configuration
      * @param Endpoint $endpoint
-     * @return array<string,mixed>
+     *
      * @throws SSOAuthenticationException
+     *
+     * @return array<string,mixed>
      */
     public function fetch(string $accessToken, Configuration $configuration, Endpoint $endpoint): array
     {
@@ -65,13 +68,13 @@ class HttpUrlFetcher implements AttributePathFetcherInterface
         } catch (InvalidStatusCodeException $invalidStatusCodeException) {
             $this->loginLogger->exception(
                 $scope,
-                "Unable to get custom endpoint information: %s, message: %s",
+                'Unable to get custom endpoint information: %s, message: %s',
                 SSOAuthenticationException::requestOnCustomEndpointFailed()
             );
 
             $this->error(
                 sprintf(
-                    "invalid status code return by external provider, [%d] returned, [%d] expected",
+                    'invalid status code return by external provider, [%d] returned, [%d] expected',
                     $invalidStatusCodeException->getCode(),
                     200
                 )

@@ -27,8 +27,6 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Dashboard\Domain\Model\Dashboard;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
-use Core\Dashboard\Domain\Model\Share\DashboardContactGroupShare;
-use Core\Dashboard\Domain\Model\Share\DashboardContactShare;
 
 class DashboardSharingRoles
 {

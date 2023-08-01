@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@ namespace Core\Security\Vault\Application\UseCase\FindVaultConfigurations;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\{ErrorResponse, NotFoundResponse, ForbiddenResponse, PresenterInterface};
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Application\Common\UseCase\{ErrorResponse, ForbiddenResponse, NotFoundResponse, PresenterInterface};
 use Core\Security\Vault\Application\Exceptions\VaultConfigurationException;
 use Core\Security\Vault\Application\Repository\{
-    ReadVaultRepositoryInterface,
-    ReadVaultConfigurationRepositoryInterface
+    ReadVaultConfigurationRepositoryInterface,
+    ReadVaultRepositoryInterface
 };
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
 
 final class FindVaultConfigurations
 {
@@ -51,7 +51,7 @@ final class FindVaultConfigurations
 
     /**
      * @param PresenterInterface $presenter
-     * @param integer $vaultId
+     * @param int $vaultId
      */
     public function __invoke(
         PresenterInterface $presenter,
@@ -105,7 +105,7 @@ final class FindVaultConfigurations
                 'vault_id' => $vaultConfiguration->getVault()->getId(),
                 'url' => $vaultConfiguration->getAddress(),
                 'port' => $vaultConfiguration->getPort(),
-                'root_path' => $vaultConfiguration->getRootPath()
+                'root_path' => $vaultConfiguration->getRootPath(),
             ],
             $vaultConfigurations
         );

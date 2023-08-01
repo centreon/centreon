@@ -74,6 +74,10 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        if ($this->hasAccessToAllServiceGroups($accessGroupIds)) {
+
+            return $this->findAll($requestParameters);
+        }
         $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
 
         return $this->retrieveServiceGroups($concatenator, $requestParameters);
@@ -99,6 +103,10 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        if ($this->hasAccessToAllServiceGroups($accessGroupIds)) {
+
+            return $this->findOne($serviceGroupId);
+        }
         $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
 
         return $this->retrieveServiceGroup($concatenator, $serviceGroupId);
@@ -124,6 +132,10 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        if ($this->hasAccessToAllServiceGroups($accessGroupIds)) {
+
+            return $this->existsOne($serviceGroupId);
+        }
         $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
 
         return $this->existsServiceGroup($concatenator, $serviceGroupId);
@@ -329,6 +341,49 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         $data = $statement->fetch(\PDO::FETCH_ASSOC);
 
         return $data ? $this->createServiceGroupFromArray($data) : null;
+    }
+
+    /**
+     * Determine if accessGroups give access to all serviceGroups
+     * true: all service groups are accessible
+     * false: all service groups are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllServiceGroups(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT res.all_servicegroups
+                FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

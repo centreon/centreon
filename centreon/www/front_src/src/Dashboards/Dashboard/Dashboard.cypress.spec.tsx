@@ -1,7 +1,9 @@
 /* eslint-disable import/no-unresolved,@typescript-eslint/no-unused-vars */
 
 import { createStore, Provider } from 'jotai';
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
 import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/moduleFederation.json';
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -16,10 +18,14 @@ import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 // import { unstable_Blocker } from 'react-router-dom';
 // import { router } from './useDashboardSaveBlocker';
 import { DashboardRole } from '../api/models';
-import { dashboardsEndpoint, getDashboardEndpoint } from '../api/endpoints';
+import {
+  dashboardsEndpoint,
+  getDashboardAccessRightsEndpoint,
+  getDashboardEndpoint
+} from '../api/endpoints';
 
-import { routerParams } from './useDashboardDetails';
 import { labelEditDashboard } from './translatedLabels';
+import { routerParams } from './useDashboardDetails';
 import { Dashboard } from './Dashboard';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
@@ -151,6 +157,22 @@ const initializeAndMount = ({
       path: `${dashboardsEndpoint}?**`,
       response: dashboards
     });
+  });
+
+  cy.fixture('Dashboards/Dashboard/accessRights.json').then((shares) => {
+    cy.interceptAPIRequest({
+      alias: 'getDashboardAccessRights',
+      method: Method.GET,
+      path: getDashboardAccessRightsEndpoint(1),
+      response: shares
+    });
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'putDashboardAccessRights',
+    method: Method.PUT,
+    path: getDashboardAccessRightsEndpoint(1),
+    statusCode: 204
   });
 
   cy.stub(routerParams, 'useParams').returns({ dashboardId: '1' });

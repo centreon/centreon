@@ -37,6 +37,13 @@ final class UpdateNotificationRequest
     public array $users = [];
 
     /**
+     * Contact Groups IDs.
+     *
+     * @var int[]
+     */
+    public array $contactGroups = [];
+
+    /**
      * @var array<array{
      *    type:string,
      *    ids:int[],

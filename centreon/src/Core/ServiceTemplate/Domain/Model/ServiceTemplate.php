@@ -25,11 +25,9 @@ namespace Core\ServiceTemplate\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Common\Domain\YesNoDefault;
-use Core\MonitoringServer\Model\MonitoringServer;
 
-class ServiceTemplate
+class ServiceTemplate extends NewServiceTemplate
 {
     public const MAX_NAME_LENGTH = NewServiceTemplate::MAX_NAME_LENGTH,
                  MAX_ALIAS_LENGTH = NewServiceTemplate::MAX_ALIAS_LENGTH,
@@ -38,12 +36,6 @@ class ServiceTemplate
                  MAX_NOTES_URL_LENGTH = NewServiceTemplate::MAX_NOTES_URL_LENGTH,
                  MAX_ACTION_URL_LENGTH = NewServiceTemplate::MAX_ACTION_URL_LENGTH,
                  MAX_ICON_ALT_LENGTH = NewServiceTemplate::MAX_ICON_ALT_LENGTH;
-
-    /** @var list<string> */
-    private array $commandArguments = [];
-
-    /** @var list<string> */
-    private array $eventHandlerArguments = [];
 
     /**
      * @param int $id
@@ -92,136 +84,98 @@ class ServiceTemplate
      */
     public function __construct(
         private readonly int $id,
-        private string $name,
-        private string $alias,
+        string $name,
+        string $alias,
         array $commandArguments = [],
         array $eventHandlerArguments = [],
-        private array $notificationTypes = [],
-        private array $hostTemplateIds = [],
-        private bool $contactAdditiveInheritance = false,
-        private bool $contactGroupAdditiveInheritance = false,
-        private bool $isActivated = true,
-        private bool $isLocked = false,
-        private YesNoDefault $activeChecks = YesNoDefault::Default,
-        private YesNoDefault $passiveCheck = YesNoDefault::Default,
-        private YesNoDefault $volatility = YesNoDefault::Default,
-        private YesNoDefault $checkFreshness = YesNoDefault::Default,
-        private YesNoDefault $eventHandlerEnabled = YesNoDefault::Default,
-        private YesNoDefault $flapDetectionEnabled = YesNoDefault::Default,
-        private YesNoDefault $notificationsEnabled = YesNoDefault::Default,
-        private ?string $comment = null,
-        private ?string $note = null,
-        private ?string $noteUrl = null,
-        private ?string $actionUrl = null,
-        private ?string $iconAlternativeText = null,
-        private ?int $graphTemplateId = null,
-        private ?int $serviceTemplateParentId = null,
-        private ?int $commandId = null,
-        private ?int $eventHandlerId = null,
-        private ?int $notificationTimePeriodId = null,
-        private ?int $checkTimePeriodId = null,
-        private ?int $iconId = null,
-        private ?int $severityId = null,
-        private ?int $maxCheckAttempts = null,
-        private ?int $normalCheckInterval = null,
-        private ?int $retryCheckInterval = null,
-        private ?int $freshnessThreshold = null,
-        private ?int $lowFlapThreshold = null,
-        private ?int $highFlapThreshold = null,
-        private ?int $notificationInterval = null,
-        private ?int $recoveryNotificationDelay = null,
-        private ?int $firstNotificationDelay = null,
-        private ?int $acknowledgementTimeout = null,
+        array $notificationTypes = [],
+        array $hostTemplateIds = [],
+        bool $contactAdditiveInheritance = false,
+        bool $contactGroupAdditiveInheritance = false,
+        bool $isActivated = true,
+        bool $isLocked = false,
+        YesNoDefault $activeChecks = YesNoDefault::Default,
+        YesNoDefault $passiveCheck = YesNoDefault::Default,
+        YesNoDefault $volatility = YesNoDefault::Default,
+        YesNoDefault $checkFreshness = YesNoDefault::Default,
+        YesNoDefault $eventHandlerEnabled = YesNoDefault::Default,
+        YesNoDefault $flapDetectionEnabled = YesNoDefault::Default,
+        YesNoDefault $notificationsEnabled = YesNoDefault::Default,
+        ?string $comment = null,
+        ?string $note = null,
+        ?string $noteUrl = null,
+        ?string $actionUrl = null,
+        ?string $iconAlternativeText = null,
+        ?int $graphTemplateId = null,
+        ?int $serviceTemplateParentId = null,
+        ?int $commandId = null,
+        ?int $eventHandlerId = null,
+        ?int $notificationTimePeriodId = null,
+        ?int $checkTimePeriodId = null,
+        ?int $iconId = null,
+        ?int $severityId = null,
+        ?int $maxCheckAttempts = null,
+        ?int $normalCheckInterval = null,
+        ?int $retryCheckInterval = null,
+        ?int $freshnessThreshold = null,
+        ?int $lowFlapThreshold = null,
+        ?int $highFlapThreshold = null,
+        ?int $notificationInterval = null,
+        ?int $recoveryNotificationDelay = null,
+        ?int $firstNotificationDelay = null,
+        ?int $acknowledgementTimeout = null,
     ) {
-        $className = (new \ReflectionClass($this))->getShortName();
-        Assertion::positiveInt($id, "{$className}::id");
-        foreach (
-            [
-                'name' => self::MAX_NAME_LENGTH,
-                'alias' => self::MAX_ALIAS_LENGTH,
-                'comment' => self::MAX_COMMENT_LENGTH,
-                'note' => self::MAX_NOTES_LENGTH,
-                'noteUrl' => self::MAX_NOTES_URL_LENGTH,
-                'actionUrl' => self::MAX_ACTION_URL_LENGTH,
-                'iconAlternativeText' => self::MAX_ICON_ALT_LENGTH,
-            ] as $field => $limitation
-        ) {
-            $propertyValue = $this->{$field};
-            if (in_array($field, ['name', 'alias'], true)) {
-                $propertyValue = preg_replace('/\s{2,}/', ' ', $propertyValue);
-                if ($propertyValue === null) {
-                    throw AssertionException::notNull($className . '::' . $field);
-                }
-                Assertion::unauthorizedCharacters(
-                    $propertyValue,
-                    MonitoringServer::ILLEGAL_CHARACTERS,
-                    $className . '::' . $field
-                );
-            }
-            if ($propertyValue !== null) {
-                $this->{$field} = trim($propertyValue);
-                Assertion::notEmptyString($this->{$field}, "{$className}::{$field}");
-                Assertion::maxLength($this->{$field}, $limitation, "{$className}::{$field}");
-            }
+        $this->className = (new \ReflectionClass($this))->getShortName();
+        Assertion::positiveInt($id, "{$this->className}::id");
+
+        parent::__construct($name, $alias);
+        $this->setComment($comment);
+        $this->setNote($note);
+        $this->setNoteUrl($noteUrl);
+        $this->setActionUrl($actionUrl);
+        $this->setIconAlternativeText($iconAlternativeText);
+        $this->setServiceTemplateParentId($serviceTemplateParentId);
+        $this->setCommandId($commandId);
+        $this->setEventHandlerId($eventHandlerId);
+        $this->setNotificationTimePeriodId($notificationTimePeriodId);
+        $this->setCheckTimePeriodId($checkTimePeriodId);
+        $this->setIconId($iconId);
+        $this->setGraphTemplateId($graphTemplateId);
+        $this->setSeverityId($severityId);
+        $this->setHostTemplateIds($hostTemplateIds);
+        $this->setMaxCheckAttempts($maxCheckAttempts);
+        $this->setNormalCheckInterval($normalCheckInterval);
+        $this->setRetryCheckInterval($retryCheckInterval);
+        $this->setFreshnessThreshold($freshnessThreshold);
+        $this->setNotificationInterval($notificationInterval);
+        $this->setRecoveryNotificationDelay($recoveryNotificationDelay);
+        $this->setFirstNotificationDelay($firstNotificationDelay);
+        $this->setAcknowledgementTimeout($acknowledgementTimeout);
+        $this->setLowFlapThreshold($lowFlapThreshold);
+        $this->setHighFlapThreshold($highFlapThreshold);
+        $this->setContactAdditiveInheritance($contactAdditiveInheritance);
+        $this->setContactGroupAdditiveInheritance($contactGroupAdditiveInheritance);
+        $this->setActivated($isActivated);
+        $this->setLocked($isLocked);
+        $this->setActiveChecks($activeChecks);
+        $this->setPassiveCheck($passiveCheck);
+        $this->setVolatility($volatility);
+        $this->setCheckFreshness($checkFreshness);
+        $this->setEventHandlerEnabled($eventHandlerEnabled);
+        $this->setFlapDetectionEnabled($flapDetectionEnabled);
+        $this->setNotificationsEnabled($notificationsEnabled);
+
+        foreach (self::stringifyArguments($commandArguments) as $commandArgument) {
+            $this->addCommandArgument($commandArgument);
         }
 
-        // Assertions on ForeignKeys
-        $foreignKeys = [
-            'serviceTemplateParentId',
-            'commandId',
-            'eventHandlerId',
-            'notificationTimePeriodId',
-            'checkTimePeriodId',
-            'iconId',
-            'graphTemplateId',
-            'severityId',
-        ];
-        foreach ($foreignKeys as $propertyName) {
-            $propertyValue = $this->{$propertyName};
-            if ($propertyValue !== null) {
-                Assertion::positiveInt($propertyValue, "{$className}::{$propertyName}");
-            }
+        foreach (self::stringifyArguments($eventHandlerArguments) as $eventHandlerArgument) {
+            $this->addEventHandlerArgument($eventHandlerArgument);
         }
 
-        foreach ($this->hostTemplateIds as $hostTemplateId) {
-            Assertion::positiveInt($hostTemplateId, $className . '::hostTemplateIds');
-        }
-
-        $properties = [
-            'maxCheckAttempts',
-            'normalCheckInterval',
-            'retryCheckInterval',
-            'freshnessThreshold',
-            'notificationInterval',
-            'recoveryNotificationDelay',
-            'firstNotificationDelay',
-            'acknowledgementTimeout',
-            'lowFlapThreshold',
-            'highFlapThreshold',
-        ];
-        foreach ($properties as $propertyName) {
-            $propertyValue = $this->{$propertyName};
-            if ($propertyValue !== null) {
-                Assertion::min($propertyValue, 0, "{$className}::{$propertyName}");
-            }
-        }
-
-        $this->commandArguments = [];
-        foreach ($commandArguments as $argument) {
-            if (is_scalar($argument)) {
-                $this->commandArguments[] = (string) $argument;
-            }
-        }
-
-        $this->eventHandlerArguments = [];
-        foreach ($eventHandlerArguments as $argument) {
-            if (is_scalar($argument)) {
-                $this->eventHandlerArguments[] = (string) $argument;
-            }
-        }
-
-        foreach ($this->notificationTypes as $type) {
-            Assertion::isInstanceOf($type, NotificationType::class, "{$className}::notificationTypes");
+        foreach ($notificationTypes as $type) {
+            Assertion::isInstanceOf($type, NotificationType::class, "{$this->className}::notificationTypes");
+            $this->addNotificationType($type);
         }
     }
 
@@ -234,327 +188,48 @@ class ServiceTemplate
     }
 
     /**
-     * @return string
+     * @param list<string> $eventHandlerArguments
      */
-    public function getName(): string
+    public function setEventHandlerArguments(array $eventHandlerArguments): void
     {
-        return $this->name;
+        $this->resetEventHandlerArguments();
+        foreach (self::stringifyArguments($eventHandlerArguments) as $eventHandlerArgument) {
+            $this->addEventHandlerArgument($eventHandlerArgument);
+        }
     }
 
     /**
-     * @return string
+     * @param list<string> $commandArguments
      */
-    public function getAlias(): string
+    public function setCommandArguments(array $commandArguments): void
     {
-        return $this->alias;
+        $this->resetCommandArguments();
+        foreach (self::stringifyArguments($commandArguments) as $commandArgument) {
+            $this->addCommandArgument($commandArgument);
+        }
+    }
+
+    public static function formatName(string $name): ?string
+    {
+        $value = preg_replace('/\s{2,}/', ' ', $name);
+
+        return ($value !== null) ? trim((string) $value) : null;
     }
 
     /**
+     * @param list<mixed> $arguments
+     *
      * @return list<string>
      */
-    public function getCommandArguments(): array
+    public static function stringifyArguments(array $arguments): array
     {
-        return $this->commandArguments;
-    }
+        $stringifiedArguments = [];
+        foreach ($arguments as $argument) {
+            if (is_scalar($argument)) {
+                $stringifiedArguments[] = (string) $argument;
+            }
+        }
 
-    /**
-     * @return list<string>
-     */
-    public function getEventHandlerArguments(): array
-    {
-        return $this->eventHandlerArguments;
-    }
-
-    /**
-     * @return NotificationType[]
-     */
-    public function getNotificationTypes(): array
-    {
-        return $this->notificationTypes;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isContactAdditiveInheritance(): bool
-    {
-        return $this->contactAdditiveInheritance;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isContactGroupAdditiveInheritance(): bool
-    {
-        return $this->contactGroupAdditiveInheritance;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isActivated(): bool
-    {
-        return $this->isActivated;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isLocked(): bool
-    {
-        return $this->isLocked;
-    }
-
-    /**
-     * @return YesNoDefault
-     */
-    public function getActiveChecks(): YesNoDefault
-    {
-        return $this->activeChecks;
-    }
-
-    /**
-     * @return YesNoDefault
-     */
-    public function getPassiveCheck(): YesNoDefault
-    {
-        return $this->passiveCheck;
-    }
-
-    /**
-     * @return YesNoDefault
-     */
-    public function getVolatility(): YesNoDefault
-    {
-        return $this->volatility;
-    }
-
-    /**
-     * @return YesNoDefault
-     */
-    public function getCheckFreshness(): YesNoDefault
-    {
-        return $this->checkFreshness;
-    }
-
-    /**
-     * @return YesNoDefault
-     */
-    public function getEventHandlerEnabled(): YesNoDefault
-    {
-        return $this->eventHandlerEnabled;
-    }
-
-    /**
-     * @return YesNoDefault
-     */
-    public function getFlapDetectionEnabled(): YesNoDefault
-    {
-        return $this->flapDetectionEnabled;
-    }
-
-    /**
-     * @return YesNoDefault
-     */
-    public function getNotificationsEnabled(): YesNoDefault
-    {
-        return $this->notificationsEnabled;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getComment(): ?string
-    {
-        return $this->comment;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getNote(): ?string
-    {
-        return $this->note;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getNoteUrl(): ?string
-    {
-        return $this->noteUrl;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getActionUrl(): ?string
-    {
-        return $this->actionUrl;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getIconAlternativeText(): ?string
-    {
-        return $this->iconAlternativeText;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getGraphTemplateId(): ?int
-    {
-        return $this->graphTemplateId;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getServiceTemplateParentId(): ?int
-    {
-        return $this->serviceTemplateParentId;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getCommandId(): ?int
-    {
-        return $this->commandId;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getEventHandlerId(): ?int
-    {
-        return $this->eventHandlerId;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getNotificationTimePeriodId(): ?int
-    {
-        return $this->notificationTimePeriodId;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getCheckTimePeriodId(): ?int
-    {
-        return $this->checkTimePeriodId;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getIconId(): ?int
-    {
-        return $this->iconId;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getSeverityId(): ?int
-    {
-        return $this->severityId;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getMaxCheckAttempts(): ?int
-    {
-        return $this->maxCheckAttempts;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getNormalCheckInterval(): ?int
-    {
-        return $this->normalCheckInterval;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getRetryCheckInterval(): ?int
-    {
-        return $this->retryCheckInterval;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getFreshnessThreshold(): ?int
-    {
-        return $this->freshnessThreshold;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getLowFlapThreshold(): ?int
-    {
-        return $this->lowFlapThreshold;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getHighFlapThreshold(): ?int
-    {
-        return $this->highFlapThreshold;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getNotificationInterval(): ?int
-    {
-        return $this->notificationInterval;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getRecoveryNotificationDelay(): ?int
-    {
-        return $this->recoveryNotificationDelay;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getFirstNotificationDelay(): ?int
-    {
-        return $this->firstNotificationDelay;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getAcknowledgementTimeout(): ?int
-    {
-        return $this->acknowledgementTimeout;
-    }
-
-    public static function formatName(string $name): string
-    {
-        return (string) preg_replace('/\s{2,}/', ' ', $name);
-    }
-
-    /**
-     * @return list<int>
-     */
-    public function getHostTemplateIds(): array
-    {
-        return $this->hostTemplateIds;
+        return $stringifiedArguments;
     }
 }

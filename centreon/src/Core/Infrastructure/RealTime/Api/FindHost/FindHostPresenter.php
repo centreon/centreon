@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,20 +18,19 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Api\FindHost;
 
 use CentreonDuration;
-use Symfony\Component\HttpFoundation\Response;
-use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Infrastructure\Common\Presenter\PresenterTrait;
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator;
-use Core\Application\RealTime\UseCase\FindHost\FindHostResponse;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Application\RealTime\UseCase\FindHost\FindHostPresenterInterface;
+use Core\Application\RealTime\UseCase\FindHost\FindHostResponse;
+use Core\Infrastructure\Common\Api\HttpUrlTrait;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Infrastructure\Common\Presenter\PresenterTrait;
+use Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator;
 
 class FindHostPresenter extends AbstractPresenter implements FindHostPresenterInterface
 {
@@ -93,7 +92,7 @@ class FindHostPresenter extends AbstractPresenter implements FindHostPresenterIn
 
         $acknowledgement = null;
 
-        if (!empty($response->acknowledgement)) {
+        if (! empty($response->acknowledgement)) {
             // Convert Acknowledgement dates into ISO 8601 format
             $acknowledgement = $response->acknowledgement;
             $acknowledgement['entry_time'] = $this->formatDateToIso8601($response->acknowledgement['entry_time']);
@@ -109,10 +108,10 @@ class FindHostPresenter extends AbstractPresenter implements FindHostPresenterIn
             $formattedDatesDowntimes[$key] = $downtime;
             $formattedDatesDowntimes[$key]['start_time'] = $this->formatDateToIso8601($downtime['start_time']);
             $formattedDatesDowntimes[$key]['end_time'] = $this->formatDateToIso8601($downtime['end_time']);
-            $formattedDatesDowntimes[$key]['actual_start_time'] =
-                $this->formatDateToIso8601($downtime['actual_start_time']);
-            $formattedDatesDowntimes[$key]['actual_end_time'] =
-                $this->formatDateToIso8601($downtime['actual_end_time']);
+            $formattedDatesDowntimes[$key]['actual_start_time']
+                = $this->formatDateToIso8601($downtime['actual_start_time']);
+            $formattedDatesDowntimes[$key]['actual_end_time']
+                = $this->formatDateToIso8601($downtime['actual_end_time']);
             $formattedDatesDowntimes[$key]['entry_time'] = $this->formatDateToIso8601($downtime['entry_time']);
             $formattedDatesDowntimes[$key]['deletion_time'] = $this->formatDateToIso8601($downtime['deletion_time']);
         }
@@ -120,21 +119,21 @@ class FindHostPresenter extends AbstractPresenter implements FindHostPresenterIn
         $presenterResponse['downtimes'] = $formattedDatesDowntimes;
 
         /**
-         * Remove ':' character from the timezone string
+         * Remove ':' character from the timezone string.
          */
-        $presenterResponse['timezone'] = !empty($response->timezone)
+        $presenterResponse['timezone'] = ! empty($response->timezone)
             ? preg_replace('/^:/', '', $response->timezone)
             : null;
 
         /**
-         * Calculate the duration
+         * Calculate the duration.
          */
         $presenterResponse['duration'] = $response->lastStatusChange !== null
             ? CentreonDuration::toString(time() - $response->lastStatusChange->getTimestamp())
             : null;
 
         /**
-         * Convert dates to ISO 8601 format
+         * Convert dates to ISO 8601 format.
          */
         $presenterResponse['next_check'] = $this->formatDateToIso8601($response->nextCheck);
         $presenterResponse['last_check'] = $this->formatDateToIso8601($response->lastCheck);
@@ -143,18 +142,18 @@ class FindHostPresenter extends AbstractPresenter implements FindHostPresenterIn
         $presenterResponse['last_notification'] = $this->formatDateToIso8601($response->lastNotification);
 
         /**
-         * Creating the 'tries' entry
+         * Creating the 'tries' entry.
          */
         $tries = $response->checkAttempts . '/' . $response->maxCheckAttempts;
         $statusType = $response->status['type'] === 0 ? 'S' : 'H';
         $presenterResponse['tries'] = $tries . '(' . $statusType . ')';
 
         /**
-         * Creating Hypermedias
+         * Creating Hypermedias.
          */
         $parameters = [
             'type' => $response->type,
-            'hostId' => $response->hostId
+            'hostId' => $response->hostId,
         ];
 
         $endpoints = $this->hypermediaCreator->createEndpoints($parameters);
@@ -163,7 +162,7 @@ class FindHostPresenter extends AbstractPresenter implements FindHostPresenterIn
             'notification_policy' => $endpoints['notification_policy'],
             'timeline' => $endpoints['timeline'],
             'timeline_download' => $endpoints['timeline_download'],
-            'details' => $endpoints['details']
+            'details' => $endpoints['details'],
         ];
 
         $presenterResponse['links']['uris'] = $this->hypermediaCreator->createInternalUris($parameters);

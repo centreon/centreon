@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\Configuration\MetaService\Repository;
@@ -31,6 +32,7 @@ class DbMetaServiceFactory
 
     /**
      * @param array<string,int|string|null> $data
+     *
      * @return MetaService
      */
     public static function createFromRecord(array $data): MetaService
@@ -55,18 +57,19 @@ class DbMetaServiceFactory
             (int) $data['meta_selection_mode'],
             self::normalizeDataSourceType((int) $data['data_source_type'])
         ))
-        ->setWarningThreshold(self::getIntOrNull($data['warning']))
-        ->setCriticalThreshold(self::getIntOrNull($data['critical']))
-        ->setOutput($output)
-        ->setMetric($metric)
-        ->setActivated((int) $data['is_activated'] === 1)
-        ->setRegexpSearchServices($regexSearchServices);
+            ->setWarningThreshold(self::getIntOrNull($data['warning']))
+            ->setCriticalThreshold(self::getIntOrNull($data['critical']))
+            ->setOutput($output)
+            ->setMetric($metric)
+            ->setActivated((int) $data['is_activated'] === 1)
+            ->setRegexpSearchServices($regexSearchServices);
     }
 
     /**
-     * This function will normalize the calculation type coming from the database
+     * This function will normalize the calculation type coming from the database.
      *
      * @param string|null $calculationType
+     *
      * @return string
      */
     private static function normalizeCalculationType(?string $calculationType): string
@@ -81,9 +84,10 @@ class DbMetaServiceFactory
     }
 
     /**
-     * This function will normalize the data source type coming from the database
+     * This function will normalize the data source type coming from the database.
      *
      * @param int|null $dataSourceType
+     *
      * @return string
      */
     private static function normalizeDataSourceType(?int $dataSourceType): string

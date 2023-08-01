@@ -23,13 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\Notification\Application\UseCase\FindNotification;
 
-use Assert\AssertionFailedException;
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Contact;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
@@ -166,6 +164,11 @@ it('should present a FindNotificationResponse when everything is OK', function (
         [Contact::ROLE_CONFIGURATION_NOTIFICATIONS_READ_WRITE]
     );
 
+    $contactGroups = [
+        new ContactGroup(1,'contactgroup_1'),
+        new ContactGroup(2,'contactgroup_2'),
+    ];
+
     $notification = new Notification(1, 'notification', new ConfigurationTimePeriod(1, '24x7'), false);
     $notificationMessage = new NotificationMessage(
         NotificationChannel::from('Slack'),
@@ -194,6 +197,11 @@ it('should present a FindNotificationResponse when everything is OK', function (
         ->expects($this->once())
         ->method('findUsersByNotificationId')
         ->willReturn([$notificationUser]);
+
+    $this->notificationRepository
+        ->expects($this->once())
+        ->method('findContactGroupsByNotificationId')
+        ->willReturn($contactGroups);
 
     $this->repositoryProvider
         ->expects($this->once())
@@ -228,6 +236,10 @@ it('should present a FindNotificationResponse when everything is OK', function (
         ->and($this->presenter->response->users)->toBeArray()
         ->and($this->presenter->response->users[0]['id'])->toBe(3)
         ->and($this->presenter->response->users[0]['name'])->toBe('test-user')
+        ->and($this->presenter->response->contactGroups[0]['id'])->toBe(1)
+        ->and($this->presenter->response->contactGroups[0]['name'])->toBe('contactgroup_1')
+        ->and($this->presenter->response->contactGroups[1]['id'])->toBe(2)
+        ->and($this->presenter->response->contactGroups[1]['name'])->toBe('contactgroup_2')
         ->and($this->presenter->response->resources)->toBeArray()
         ->and($this->presenter->response->resources[0]['type'])->toBe(NotificationResource::HOSTGROUP_RESOURCE_TYPE)
         ->and($this->presenter->response->resources[0]['events'])->toBe([NotificationHostEvent::Unreachable])

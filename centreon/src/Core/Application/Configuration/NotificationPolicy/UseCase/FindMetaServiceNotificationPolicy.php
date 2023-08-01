@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,23 +18,23 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Application\Configuration\NotificationPolicy\UseCase;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
-use Core\Domain\RealTime\Model\MetaService as RealtimeMetaService;
-use Centreon\Domain\Engine\EngineConfiguration;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Engine\EngineConfiguration;
+use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
+use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationReadRepositoryInterface;
+use Centreon\Domain\MetaServiceConfiguration\Model\MetaServiceConfiguration;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Configuration\Notification\Repository\ReadMetaServiceNotificationRepositoryInterface;
+use Core\Application\RealTime\Repository\ReadMetaServiceRepositoryInterface as ReadRealTimeMetaServiceRepositoryInterface;
 use Core\Domain\Configuration\Notification\Model\NotifiedContact;
 use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
-use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
-use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationReadRepositoryInterface;
-use Core\Application\Configuration\Notification\Repository\ReadMetaServiceNotificationRepositoryInterface;
-use Core\Application\RealTime\Repository\ReadMetaServiceRepositoryInterface as
-    ReadRealTimeMetaServiceRepositoryInterface;
+use Core\Domain\RealTime\Model\MetaService as RealtimeMetaService;
 
 class FindMetaServiceNotificationPolicy
 {
@@ -67,6 +67,7 @@ class FindMetaServiceNotificationPolicy
         $host = $this->findMetaService($metaServiceId);
         if ($host === null) {
             $this->handleMetaServiceNotFound($metaServiceId, $presenter);
+
             return;
         }
 
@@ -78,12 +79,14 @@ class FindMetaServiceNotificationPolicy
         $realtimeMetaService = $this->readRealTimeMetaServiceRepository->findMetaServiceById($metaServiceId);
         if ($realtimeMetaService === null) {
             $this->handleMetaServiceNotFound($metaServiceId, $presenter);
+
             return;
         }
 
         $engineConfiguration = $this->engineService->findCentralEngineConfiguration();
         if ($engineConfiguration === null) {
             $this->handleEngineHostConfigurationNotFound($presenter);
+
             return;
         }
         $this->overrideMetaServiceNotificationByEngineConfiguration($engineConfiguration, $realtimeMetaService);
@@ -98,9 +101,29 @@ class FindMetaServiceNotificationPolicy
     }
 
     /**
-     * Find host by id
+     * @param NotifiedContact[] $notifiedContacts
+     * @param NotifiedContactGroup[] $notifiedContactGroups
+     * @param bool $isNotificationEnabled
+     *
+     * @return FindNotificationPolicyResponse
+     */
+    public function createResponse(
+        array $notifiedContacts,
+        array $notifiedContactGroups,
+        bool $isNotificationEnabled,
+    ): FindNotificationPolicyResponse {
+        return new FindNotificationPolicyResponse(
+            $notifiedContacts,
+            $notifiedContactGroups,
+            $isNotificationEnabled,
+        );
+    }
+
+    /**
+     * Find host by id.
      *
      * @param int $metaServiceId
+     *
      * @return MetaServiceConfiguration|null
      */
     private function findMetaService(int $metaServiceId): ?MetaServiceConfiguration
@@ -125,7 +148,7 @@ class FindMetaServiceNotificationPolicy
         FindNotificationPolicyPresenterInterface $presenter,
     ): void {
         $this->error(
-            "Meta service not found",
+            'Meta service not found',
             [
                 'id' => $metaServiceId,
                 'userId' => $this->contact->getId(),
@@ -141,7 +164,7 @@ class FindMetaServiceNotificationPolicy
         FindNotificationPolicyPresenterInterface $presenter,
     ): void {
         $this->error(
-            "Central engine configuration not found",
+            'Central engine configuration not found',
             [
                 'userId' => $this->contact->getId(),
             ]
@@ -151,7 +174,7 @@ class FindMetaServiceNotificationPolicy
 
     /**
      * If engine configuration related to the meta service has notification disabled,
-     * it overrides meta service notification status
+     * it overrides meta service notification status.
      *
      * @param EngineConfiguration $engineConfiguration
      * @param RealtimeMetaService $realtimeMetaService
@@ -161,28 +184,10 @@ class FindMetaServiceNotificationPolicy
         RealtimeMetaService $realtimeMetaService,
     ): void {
         if (
-            $engineConfiguration->getNotificationsEnabledOption() ===
-                EngineConfiguration::NOTIFICATIONS_OPTION_DISABLED
+            $engineConfiguration->getNotificationsEnabledOption()
+                === EngineConfiguration::NOTIFICATIONS_OPTION_DISABLED
         ) {
             $realtimeMetaService->setNotificationEnabled(false);
         }
-    }
-
-    /**
-     * @param NotifiedContact[] $notifiedContacts
-     * @param NotifiedContactGroup[] $notifiedContactGroups
-     * @param bool $isNotificationEnabled
-     * @return FindNotificationPolicyResponse
-     */
-    public function createResponse(
-        array $notifiedContacts,
-        array $notifiedContactGroups,
-        bool $isNotificationEnabled,
-    ): FindNotificationPolicyResponse {
-        return new FindNotificationPolicyResponse(
-            $notifiedContacts,
-            $notifiedContactGroups,
-            $isNotificationEnabled,
-        );
     }
 }

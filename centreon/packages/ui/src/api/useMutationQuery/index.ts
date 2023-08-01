@@ -26,7 +26,7 @@ export type UseMutationQueryProps<T> = {
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
   fetchHeaders?: HeadersInit;
-  getEndpoint: (payload) => string;
+  getEndpoint: (_meta?: Record<string, unknown> | unknown) => string;
   httpCodesBypassErrorSnackbar?: Array<number>;
   method: Method;
 } & Omit<UseMutationOptions<T>, 'mutationFn'>;
@@ -45,17 +45,22 @@ const useMutationQuery = <T extends object>({
   defaultFailureMessage,
   fetchHeaders,
   httpCodesBypassErrorSnackbar = [],
-  method
+  method,
+  onMutate,
+  onError
 }: UseMutationQueryProps<T>): UseMutationQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
 
   const queryData = useMutation<T | ResponseError>(
-    (payload): Promise<T | ResponseError> =>
-      customFetch<T>({
+    // @ts-expect-error useMutation / useMutationQuery is not typed correctly
+    (_payload: Record<string, unknown> | null): Promise<T | ResponseError> => {
+      const { _meta, ...payload } = _payload || {};
+
+      return customFetch<T>({
         catchError,
         decoder,
         defaultFailureMessage,
-        endpoint: getEndpoint(payload),
+        endpoint: getEndpoint(_meta),
         headers: new Headers({
           'Content-Type': 'application/x-www-form-urlencoded',
           ...fetchHeaders
@@ -63,7 +68,12 @@ const useMutationQuery = <T extends object>({
         isMutation: true,
         method,
         payload
-      })
+      });
+    },
+    {
+      onError,
+      onMutate
+    }
   );
 
   const manageError = (): void => {

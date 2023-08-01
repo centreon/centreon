@@ -35,7 +35,7 @@ monitoring.metric.downloadPerformanceMetrics:
     requirements:
         hostId: '\d+'
         serviceId: '\d+'
-    controller: 'Core\Infrastructure\RealTime\Api\DownloadPerformanceMetrics\DownloadPerformanceMetricsController'
+    controller: 'Core\Metric\Infrastructure\API\DownloadPerformanceMetrics\DownloadPerformanceMetricsController'
     condition: "request.attributes.get('version') >= 22.10"
 
 monitoring.metric.getServiceStatusMetrics:

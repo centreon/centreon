@@ -27,18 +27,67 @@ $errorMessage = '';
 
 $removeNagiosPathImg = function(CentreonDB $pearDB) {
     $selectStatement = $pearDB->query("SELECT 1 FROM options WHERE `key`='nagios_path_img'");
-    if($selectStatement->rowCount() > 0) {
+    if ($selectStatement->rowCount() > 0) {
         $pearDB->query("DELETE FROM options WHERE `key`='nagios_path_img'");
     }
 };
 //Change the type of check_attempt and max_check_attempts columns from table resources
 $errorMessage = "Couldn't modify resources table";
-$alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED, 
+$alterResourceTableStmnt = "ALTER TABLE resources MODIFY check_attempts SMALLINT UNSIGNED,
     MODIFY max_check_attempts SMALLINT UNSIGNED";
 
-try {
+$alterMetricsTable = function(CentreonDB $pearDBO) {
+    $pearDBO->query(
+        <<<'SQL'
+            ALTER TABLE `metrics`
+            MODIFY COLUMN `metric_name` VARCHAR(1021) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL
+            SQL
+    );
+};
 
+$enableDisabledServiceTemplates = function(CentreonDB $pearDB) {
+    $pearDB->query(
+        <<<'SQL'
+            UPDATE `service`
+                SET service_activate = '1'
+            WHERE service_register = '0'
+                AND service_activate = '0'
+            SQL
+    );
+};
+
+$enableDisabledHostTemplates = function(CentreonDB $pearDB) {
+    $pearDB->query(
+        <<<'SQL'
+            UPDATE `host`
+                SET host_activate = '1'
+            WHERE host_register = '0'
+                AND host_activate = '0'
+            SQL
+    );
+};
+
+$addTopologyFeatureFlag = function(CentreonDB $pearDB) {
+    if (!$pearDB->isColumnExist('topology', 'topology_feature_flag')) {
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `topology`
+                ADD COLUMN `topology_feature_flag` varchar(255) DEFAULT NULL
+                AFTER `topology_OnClick`
+                SQL
+        );
+    }
+};
+
+try {
     $pearDBO->query($alterResourceTableStmnt);
+
+    $errorMessage = 'Impossible to alter metrics table';
+    $alterMetricsTable($pearDBO);
+
+    $errorMessage = 'Impossible to add column topology_feature_flag to topology table';
+    $addTopologyFeatureFlag($pearDB);
+
     $errorMessage = '';
     // Transactional queries
     if (! $pearDB->inTransaction()) {
@@ -46,6 +95,12 @@ try {
     }
     $errorMessage = "Unable to Delete nagios_path_img from options table";
     $removeNagiosPathImg($pearDB);
+
+    $errorMessage = 'Unable to activate deactivated service templates';
+    $enableDisabledServiceTemplates($pearDB);
+
+    $errorMessage = 'Unable to activate deactivated host templates';
+    $enableDisabledHostTemplates($pearDB);
 
     $pearDB->commit();
 } catch (\Exception $e) {

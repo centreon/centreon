@@ -8,9 +8,9 @@ import { panelWidthStorageAtom } from '../atom';
 
 import useStyles from './Form.styles';
 import useFormInputs from './FormInputs/useFormInputs';
-import useValidationSchema from './validationSchema';
+import useValidationSchema from './useValidationSchema';
 import ReducePanel from './ReducePanel';
-import Header from './Header';
+import { Header } from './Header';
 import useFormSubmit from './useFormSubmit';
 import useFormInitialValues from './useFormInitialValues';
 

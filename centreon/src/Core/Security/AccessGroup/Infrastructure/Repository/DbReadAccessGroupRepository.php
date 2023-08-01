@@ -1,48 +1,44 @@
 <?php
 
 /*
-* Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-* For more information : contact@centreon.com
-*
-*/
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
 
 declare(strict_types=1);
 
 namespace Core\Security\AccessGroup\Infrastructure\Repository;
 
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
+use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 /**
  * Database repository for the access groups.
- *
- * @package Centreon\Infrastructure\Security
  */
 final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements ReadAccessGroupRepositoryInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
     /**
@@ -59,7 +55,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
 
         $this->sqlRequestTranslator->setConcordanceArray([
             'id' => 'acl_group_id',
-            'name' => 'acl_group_name'
+            'name' => 'acl_group_name',
         ]);
     }
 
@@ -68,7 +64,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
      */
     public function findAllWithFilter(): array
     {
-        $request = "SELECT SQL_CALC_FOUND_ROWS * FROM acl_groups";
+        $request = 'SELECT SQL_CALC_FOUND_ROWS * FROM acl_groups';
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
         $request .= $searchRequest !== null
             ? $searchRequest . ' AND '
@@ -117,7 +113,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
         if (! is_null($contactId = $contact->getId())) {
             /**
              * Retrieve all access group from contact
-             * and contact groups linked to contact
+             * and contact groups linked to contact.
              */
             $statement = $this->db->prepare(
                 "SELECT * FROM acl_groups
@@ -140,9 +136,11 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
                 while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
                     $accessGroups[] = DbAccessGroupFactory::createFromRecord($result);
                 }
+
                 return $accessGroups;
             }
         }
+
         return $accessGroups;
     }
 
@@ -151,7 +149,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
      */
     public function findByContactWithFilter(ContactInterface $contact): array
     {
-        $request = "SELECT SQL_CALC_FOUND_ROWS * FROM acl_groups";
+        $request = 'SELECT SQL_CALC_FOUND_ROWS * FROM acl_groups';
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
         $request .= $searchRequest !== null
             ? $searchRequest . ' AND '
@@ -212,7 +210,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
     public function findByIds(array $accessGroupIds): array
     {
         $this->debug('Getting Access Group by Ids', [
-            "ids" => implode(", ", $accessGroupIds)
+            'ids' => implode(', ', $accessGroupIds),
         ]);
         $queryBindValues = [];
         foreach ($accessGroupIds as $accessGroupId) {
@@ -225,7 +223,7 @@ final class DbReadAccessGroupRepository extends AbstractRepositoryDRB implements
         $accessGroups = [];
         $boundIds = implode(', ', array_keys($queryBindValues));
         $statement = $this->db->prepare(
-            "SELECT * FROM acl_groups WHERE acl_group_id IN ($boundIds)"
+            "SELECT * FROM acl_groups WHERE acl_group_id IN ({$boundIds})"
         );
         foreach ($queryBindValues as $bindKey => $accessGroupId) {
             $statement->bindValue($bindKey, $accessGroupId, \PDO::PARAM_INT);

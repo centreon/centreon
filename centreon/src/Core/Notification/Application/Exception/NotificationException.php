@@ -91,4 +91,24 @@ class NotificationException extends \Exception
     {
         return new self(_('Error while partially updating a notification configuration'));
     }
+
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete a notification configuration'));
+    }
+
+    public static function errorWhileDeletingObject(): self
+    {
+        return new self(_('Error while deleting a notification configuration'));
+    }
+
+    public static function listResourcesNotAllowed(): self
+    {
+        return new self(_('You are not allowed to list notification resources'));
+    }
+
+    public static function errorWhileListingResources(): self
+    {
+        return new self(_('Error while listing notification resources'));
+    }
 }

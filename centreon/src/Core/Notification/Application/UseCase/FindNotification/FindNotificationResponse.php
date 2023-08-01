@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : user@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Notification\Application\UseCase\FindNotification;
 
-use Core\Notification\Application\Converter\NotificationHostEventConverter;
-use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Domain\Model\NotificationHostEvent;
 use Core\Notification\Domain\Model\NotificationServiceEvent;
 
@@ -56,6 +54,14 @@ final class FindNotificationResponse
      * }>
      */
     public array $users = [];
+
+    /**
+     * @var array<array{
+     *  id: int,
+     *  name: string
+     * }>
+     */
+    public array $contactGroups = [];
 
     /**
      * @var array<array{

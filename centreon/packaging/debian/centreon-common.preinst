@@ -1,12 +1,15 @@
 #!/bin/sh
 
-if [ "$1" = "configure" ] ; then
-  if [ "$(getent passwd centreon-broker)" ]; then
-    usermod -a -G centreon-broker centreon
-    usermod -a -G centreon centreon-broker
-  fi
-  if [ "$(getent passwd centreon-engine)" ]; then
-    usermod -a -G centreon-engine centreon
-    usermod -a -G centreon centreon-engine
-  fi
+if [ ! "$(getent passwd centreon)" ]; then
+  # User will have a shell. Not secure but require refactoring otherwise.
+  adduser --system --group --shell /bin/bash --home /var/lib/centreon centreon
+fi
+
+if [ "$(getent passwd centreon-broker)" ]; then
+  usermod -a -G centreon-broker centreon
+  usermod -a -G centreon centreon-broker
+fi
+if [ "$(getent passwd centreon-engine)" ]; then
+  usermod -a -G centreon-engine centreon
+  usermod -a -G centreon centreon-engine
 fi
