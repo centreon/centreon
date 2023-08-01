@@ -38,20 +38,20 @@ class FindPerformanceMetricsPresenter extends AbstractPresenter implements FindP
         parent::__construct($presenterFormatter);
     }
 
-    public function presentResponse(FindPerformanceMetricsResponse | ResponseStatusInterface $response): void
+    public function presentResponse(FindPerformanceMetricsResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
             $this->present([
-                "result" => array_map(function(ResourceMetricDTO $resourceMetric){
+                'result' => array_map(function (ResourceMetricDTO $resourceMetric){
                     return [
                         'service_id' => $resourceMetric->serviceId,
                         'resource_name' => $resourceMetric->resourceName,
-                        'metrics' => $resourceMetric->metrics
+                        'metrics' => $resourceMetric->metrics,
                     ];
                 },$response->resourceMetrics),
-                "meta" => $this->requestParameters->toArray()
+                'meta' => $this->requestParameters->toArray(),
             ]);
         }
     }

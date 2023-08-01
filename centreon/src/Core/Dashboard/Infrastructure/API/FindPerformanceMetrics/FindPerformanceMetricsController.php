@@ -29,11 +29,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class FindPerformanceMetricsController extends AbstractController
 {
-    public function __invoke(FindPerformanceMetrics $useCase, FindPerformanceMetricsPresenter $presenter, ): Response
+    public function __invoke(FindPerformanceMetrics $useCase, FindPerformanceMetricsPresenter $presenter): Response
     {
         $this->denyAccessUnlessGrantedForAPIConfiguration();
 
         $useCase($presenter);
+
         return $presenter->show();
     }
 }

@@ -32,7 +32,6 @@ use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
-
 final class FindPerformanceMetrics
 {
     use LoggerTrait;
@@ -68,6 +67,7 @@ final class FindPerformanceMetrics
         } catch (\Throwable $ex) {
             $this->error('An error occured while retrieving metrics', ['trace' => (string) $ex]);
             $presenter->presentResponse(new ErrorResponse('An error occured while retrieving metrics'));
+
             return;
         }
 
@@ -75,24 +75,25 @@ final class FindPerformanceMetrics
     }
 
     /**
-     * Create Response
+     * Create Response.
      *
      * @param ResourceMetric[] $resourceMetrics
+     *
      * @return FindPerformanceMetricsResponse
      */
     private function createResponse(array $resourceMetrics): FindPerformanceMetricsResponse
     {
         $response = new FindPerformanceMetricsResponse();
         $resourceMetricsResponse = [];
-        foreach($resourceMetrics as $resourceMetric) {
+        foreach ($resourceMetrics as $resourceMetric) {
             $resourceMetricDTO = new ResourceMetricDTO();
             $resourceMetricDTO->serviceId = $resourceMetric->getServiceId();
             $resourceMetricDTO->resourceName = $resourceMetric->getResourceName();
             $resourceMetricDTO->metrics = array_map(
                 fn (PerformanceMetric $metric) => [
-                        "id" => $metric->getId(),
-                        "name" => $metric->getName(),
-                        "unit" => $metric->getUnit()
+                    'id' => $metric->getId(),
+                    'name' => $metric->getName(),
+                    'unit' => $metric->getUnit(),
                 ],
                 $resourceMetric->getMetrics()
             );
