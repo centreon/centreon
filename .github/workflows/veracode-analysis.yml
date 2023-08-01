@@ -30,7 +30,6 @@ jobs:
   sca-scan:
     name: Run a SCA scan
     # only stable and unstable maintenance branches will produce a report
-    if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
     continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
 
