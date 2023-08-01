@@ -1669,3 +1669,59 @@ Feature:
 
     When I send a GET request to '/api/latest/configuration/dashboards/contactgroups'
     Then the response code should be "404"
+
+  Scenario:
+    Given I am logged in
+    And a feature flag "notification" of bitmask 2
+    When I send a GET request to '/{{base_uri}}/dashboard/monitoring/metrics/performances?search={"$and":[{"service.name":{"$in":["Ping"]}}'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+      "result": [
+        {
+          "id": 26,
+          "name": "Centreon-Server_Ping",
+          "metrics": [
+            {
+              "id": 1,
+              "name": "rta",
+              "unit": "ms"
+            },
+            {
+              "id": 2,
+              "name": "pl",
+              "unit": "%"
+            },
+            {
+              "id": 3,
+              "name": "rtmax",
+              "unit": "ms"
+            },
+            {
+              "id": 4,
+              "name": "rtmin",
+              "unit": "ms"
+            }
+          ]
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "limit": 10,
+        "search": {
+          "$and": [
+            {
+              "service.name": {
+                "$in": [
+                  "Ping"
+                ]
+              }
+            }
+          ]
+        },
+        "sort_by": {},
+        "total": 4
+      }
+    }
+    """

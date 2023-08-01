@@ -28,6 +28,10 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetrics;
+use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetricsResponse;
+use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\ResourceMetricDTO;
+use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
+use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function() {
@@ -58,5 +62,180 @@ it('should present an ErrorResponse when something occurs in the repository', fu
     expect($presenter->data)->toBeInstanceOf(ErrorResponse::class)
         ->and($presenter->data->getMessage())
         ->toBe('An error occured while retrieving metrics');
+});
 
+it('should present a FindPerformanceMetricsResponse when metrics are found', function() {
+
+    $useCase = new FindPerformanceMetrics(
+        $this->adminUser,
+        $this->requestParameters,
+        $this->accessGroupRepository,
+        $this->readDashboardPerformanceMetric
+    );
+
+    $response = [
+        new ResourceMetric(
+            1,
+            "Centreon-Server_Ping",
+            [
+                new PerformanceMetric(1,'pl','%'),
+                new PerformanceMetric(2,'rta','ms'),
+                new PerformanceMetric(3,'rtmax','ms'),
+                new PerformanceMetric(4,'rtmin','ms'),
+            ]
+        ),
+        new ResourceMetric(
+            2,
+            "Centreon-Server_Traffic",
+            [
+                new PerformanceMetric(5,'traffic_in','M'),
+                new PerformanceMetric(6,'traffic_out','M'),
+            ]
+        )
+    ];
+
+    $this->readDashboardPerformanceMetric
+        ->expects($this->once())
+        ->method('findByRequestParameters')
+        ->willReturn($response);
+
+    $presenter = new FindDashboardPerformanceMetricsPresenterStub();
+    $useCase($presenter);
+    expect($presenter->data)->toBeInstanceOf(FindPerformanceMetricsResponse::class)
+        ->and($presenter->data->resourceMetrics)
+        ->toBeArray()
+        ->and($presenter->data->resourceMetrics[0])
+        ->toBeInstanceOf(ResourceMetricDTO::class)
+        ->and($presenter->data->resourceMetrics[0]->serviceId)->toBe(1)
+        ->and($presenter->data->resourceMetrics[0]->resourceName)->toBe('Centreon-Server_Ping')
+        ->and($presenter->data->resourceMetrics[0]->metrics)->toBe(
+            [
+                [
+                    'id' => 1,
+                    'name' => 'pl',
+                    'unit' => '%'
+                ],
+                [
+                    'id' => 2,
+                    'name' => 'rta',
+                    'unit' => 'ms'
+                ],
+                [
+                    'id' => 3,
+                    'name' => 'rtmax',
+                    'unit' => 'ms'
+                ],
+                [
+                    'id' => 4,
+                    'name' => 'rtmin',
+                    'unit' => 'ms'
+                ],
+            ]
+        )
+        ->and($presenter->data->resourceMetrics[1])
+        ->toBeInstanceOf(ResourceMetricDTO::class)
+        ->and($presenter->data->resourceMetrics[1]->serviceId)->toBe(2)
+        ->and($presenter->data->resourceMetrics[1]->resourceName)->toBe('Centreon-Server_Traffic')
+        ->and($presenter->data->resourceMetrics[1]->metrics)->toBe(
+            [
+                [
+                    'id' => 5,
+                    'name' => 'traffic_in',
+                    'unit' => 'M'
+                ],
+                [
+                    'id' => 6,
+                    'name' => 'traffic_out',
+                    'unit' => 'M'
+                ],
+            ]
+        );
+});
+
+it('should present a FindPerformanceMetricsResponse when metrics are found as non-admin', function() {
+
+    $useCase = new FindPerformanceMetrics(
+        $this->nonAdminUser,
+        $this->requestParameters,
+        $this->accessGroupRepository,
+        $this->readDashboardPerformanceMetric
+    );
+
+    $response = [
+        new ResourceMetric(
+            1,
+            "Centreon-Server_Ping",
+            [
+                new PerformanceMetric(1,'pl','%'),
+                new PerformanceMetric(2,'rta','ms'),
+                new PerformanceMetric(3,'rtmax','ms'),
+                new PerformanceMetric(4,'rtmin','ms'),
+            ]
+        ),
+        new ResourceMetric(
+            2,
+            "Centreon-Server_Traffic",
+            [
+                new PerformanceMetric(5,'traffic_in','M'),
+                new PerformanceMetric(6,'traffic_out','M'),
+            ]
+        )
+    ];
+
+    $this->readDashboardPerformanceMetric
+        ->expects($this->once())
+        ->method('FindByRequestParametersAndAccessGroups')
+        ->willReturn($response);
+
+    $presenter = new FindDashboardPerformanceMetricsPresenterStub();
+    $useCase($presenter);
+    expect($presenter->data)->toBeInstanceOf(FindPerformanceMetricsResponse::class)
+        ->and($presenter->data->resourceMetrics)
+        ->toBeArray()
+        ->and($presenter->data->resourceMetrics[0])
+        ->toBeInstanceOf(ResourceMetricDTO::class)
+        ->and($presenter->data->resourceMetrics[0]->serviceId)->toBe(1)
+        ->and($presenter->data->resourceMetrics[0]->resourceName)->toBe('Centreon-Server_Ping')
+        ->and($presenter->data->resourceMetrics[0]->metrics)->toBe(
+            [
+                [
+                    'id' => 1,
+                    'name' => 'pl',
+                    'unit' => '%'
+                ],
+                [
+                    'id' => 2,
+                    'name' => 'rta',
+                    'unit' => 'ms'
+                ],
+                [
+                    'id' => 3,
+                    'name' => 'rtmax',
+                    'unit' => 'ms'
+                ],
+                [
+                    'id' => 4,
+                    'name' => 'rtmin',
+                    'unit' => 'ms'
+                ],
+            ]
+        )
+        ->and($presenter->data->resourceMetrics[1])
+        ->toBeInstanceOf(ResourceMetricDTO::class)
+        ->and($presenter->data->resourceMetrics[1]->serviceId)->toBe(2)
+        ->and($presenter->data->resourceMetrics[1]->resourceName)->toBe('Centreon-Server_Traffic')
+        ->and($presenter->data->resourceMetrics[1]->metrics)->toBe(
+            [
+                [
+                    'id' => 5,
+                    'name' => 'traffic_in',
+                    'unit' => 'M'
+                ],
+                [
+                    'id' => 6,
+                    'name' => 'traffic_out',
+                    'unit' => 'M'
+                ],
+            ]
+        );
 });
