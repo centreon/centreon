@@ -82,9 +82,10 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $statement = $this->db->prepare($this->translateDbName($request));
         $boundValues = [];
         if (! empty($subRequestsInformation)) {
-            $boundValues = array_reduce($subRequestsInformation, function ($acc, $subRequestInformation) {
-                return [...$acc, ...$subRequestInformation['bindValues']];
-            }, []);
+            foreach($subRequestsInformation as $subRequestInformation) {
+                $boundValues[] = $subRequestInformation['bindValues'];
+            }
+            $boundValues = array_merge(...$boundValues);
         }
         foreach ($boundValues as $bindToken => $bindValueInformation){
             foreach ($bindValueInformation as $bindValue => $paramType) {
