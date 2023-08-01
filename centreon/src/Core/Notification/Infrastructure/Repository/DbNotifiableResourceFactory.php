@@ -28,6 +28,9 @@ use Core\Notification\Domain\Model\{NotifiableHost, NotifiableResource, Notifiab
 
 class DbNotifiableResourceFactory
 {
+    public const NO_HOST_EVENTS = '0';
+    public const NO_SERVICE_EVENTS = '0';
+
     /**
      * @param array<int,array{
      *  notification_id: int,
@@ -115,7 +118,7 @@ class DbNotifiableResourceFactory
                 continue;
             }
 
-            if ($record['host_events'] !== '0') {
+            if ($record['host_events'] !== self::NO_HOST_EVENTS) {
                 $currentHostEvents = NotificationHostEventConverter::fromBitFlags((int) $record['host_events']);
             }
 
@@ -133,7 +136,7 @@ class DbNotifiableResourceFactory
             $currentHostId = $record['host_id'];
         }
 
-        if ($currentRecords[$index - 1]['host_events'] !== '0') {
+        if ($currentRecords[$index - 1]['host_events'] !== self::NO_HOST_EVENTS) {
             $currentHostEvents = NotificationHostEventConverter::fromBitFlags(
                 $currentRecords[$index - 1]['host_events']
             );
@@ -182,13 +185,13 @@ class DbNotifiableResourceFactory
         $notificationServices = [];
         $currentServiceEvents = [];
         foreach ($records as $record) {
-            if ($record['service_events'] !== '0') {
+            if ($record['service_events'] !== self::NO_SERVICE_EVENTS) {
                 $currentServiceEvents = NotificationServiceEventConverter::fromBitFlags(
                     (int) $record['service_events']
                 );
             }
 
-            if ($record['included_service_events'] !== '0') {
+            if ($record['included_service_events'] !== self::NO_SERVICE_EVENTS) {
                 $currentServiceEvents = NotificationServiceEventConverter::fromBitFlags(
                     (int) $record['included_service_events']
                 );
