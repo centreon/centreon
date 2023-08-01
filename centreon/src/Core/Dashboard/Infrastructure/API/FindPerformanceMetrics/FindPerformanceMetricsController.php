@@ -31,7 +31,7 @@ final class FindPerformanceMetricsController extends AbstractController
 {
     public function __invoke(FindPerformanceMetrics $useCase, FindPerformanceMetricsPresenter $presenter): Response
     {
-        $this->denyAccessUnlessGrantedForAPIConfiguration();
+        $this->denyAccessUnlessGrantedForApiRealtime();
 
         $useCase($presenter);
 

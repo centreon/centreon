@@ -30,7 +30,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 interface ReadDashboardPerformanceMetricRepositoryInterface
 {
     /**
-     * Get metrics filtered by request parameters with the count of total metrics.
+     * Get metrics filtered by request parameters.
      *
      * @param RequestParametersInterface $requestParameters
      *
@@ -39,7 +39,7 @@ interface ReadDashboardPerformanceMetricRepositoryInterface
     public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
 
     /**
-     * Get metrics filtered by request parameters and accessgroups with the count of total metrics.
+     * Get metrics filtered by request parameters and accessgroups.
      *
      * @param RequestParametersInterface $requestParameters
      * @param AccessGroup[] $accessGroups
