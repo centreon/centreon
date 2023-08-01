@@ -1658,11 +1658,11 @@ paths:
                     items:
                       type: object
                       properties:
-                        service_id:
+                        id:
                           type: number
                           description: service id
                           example: 26
-                        resource_name:
+                        name:
                           type: string
                           description: concatenation of host name and service name
                           example: Printers_Ping
