@@ -17,3 +17,4 @@ export * from './panelSize';
 export * from './sanitizedHTML';
 export * from './docsURL';
 export * from './useInfiniteScrollListing';
+export * from './calculateDaysUntilLicenseExpiration';
