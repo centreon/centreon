@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Metric\Domain\Model\ResourceMetric;
+use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 
 interface ReadDashboardPerformanceMetricRepositoryInterface
 {
@@ -34,7 +34,7 @@ interface ReadDashboardPerformanceMetricRepositoryInterface
      *
      * @return ResourceMetric[]
      */
-    public function findByRequestParametersWithCount(RequestParametersInterface $requestParameters): array;
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
 
     /**
      * Get metrics filtered by request parameters and accessgroups with the count of total metrics
@@ -43,12 +43,5 @@ interface ReadDashboardPerformanceMetricRepositoryInterface
      * @param AccessGroup[] $accessGroups
      * @return ResourceMetric[]
      */
-    public function FindByRequestParametersAndAccessGroupsWithCount(RequestParametersInterface $requestParameters, array $accessGroups): array;
-
-    /**
-     * Get metrics filtered by request parameters
-     *
-     * @return Metric[]
-     */
-    public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
+    public function FindByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): array;
 }

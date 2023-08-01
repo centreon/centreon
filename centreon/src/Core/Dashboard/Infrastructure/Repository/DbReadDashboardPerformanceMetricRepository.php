@@ -42,10 +42,10 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $this->db = $db;
     }
 
-        /**
+    /**
      * @inheritDoc
      */
-    public function findByRequestParametersWithCount(RequestParametersInterface $requestParameters): array
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): array
     {
         $request =
         <<<'SQL'
@@ -134,22 +134,114 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     /**
      * @inheritDoc
      */
-    public function FindByRequestParametersAndAccessGroupsWithCount(RequestParametersInterface $requestParameters, array $accessGroups): array
-    {
-        return [];
+    public function FindByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups
+    ): array {
+        $request =
+        <<<'SQL'
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                m.metric_id, m.metric_name, m.unit_name, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id
+                FROM `:dbstg`.`metrics` AS m
+                INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
+                INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
+            SQL;
+
+        $accessGroupIds = array_map(
+            function ($accessGroup) {
+                return $accessGroup->getId();
+            },
+            $accessGroups
+        );
+
+        $request .= ' INNER JOIN `:dbstg`.`centreon_acl` acl
+            ON acl.service_id = r.id
+            AND r.type = 0
+            AND acl.group_id IN (' . implode(',', $accessGroupIds) . ') ';
+
+        $search = $requestParameters->getSearch();
+        $subRequestsInformation = [];
+        if (! empty($search) && array_key_exists('$and', $search)) {
+            $subRequestsInformation = $this->getSubRequestsInformation($search);
+            $request .= $this->buildSubRequestForTags($subRequestsInformation);
+        }
+
+        $request .= <<<SQL
+            WHERE r.enabled = 1
+        SQL;
+
+        if (! empty($subRequestsInformation)) {
+            $request .= $subRequestsInformation['service']['request'] ?? '';
+            $request .= $subRequestsInformation['host']['request'] ?? '';
+        }
+
+        $request .=
+            <<<'SQL'
+                LIMIT 0, 100
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $boundValues = [];
+        if (!empty($subRequestsInformation)) {
+            $boundValues = array_reduce($subRequestsInformation, function($acc, $subRequestInformation) {
+                $acc = [...$acc,...$subRequestInformation['bindValues']];
+
+                return $acc;
+            }, []);
+        }
+        foreach ($boundValues as $bindToken => $bindValueInformation){
+            foreach($bindValueInformation as $bindValue => $paramType) {
+                $statement->bindValue($bindToken, $bindValue, $paramType);
+            }
+        }
+        $statement->execute();
+
+        $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
+
+        $resourceMetrics = [];
+        if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
+            $requestParameters->setTotal((int) $total);
+            if ($total > self::MAXIMUM_METRICS_COUNT) {
+                return $resourceMetrics;
+            }
+        }
+
+        if (($records = $statement->fetchAll(\PDO::FETCH_ASSOC)) !== false) {
+            $metricsInformation = [];
+            foreach ($records as $record) {
+                if (! array_key_exists($record['service_id'], $metricsInformation)) {
+                    $metricsInformation[$record['service_id']] = [
+                        'service_id' => $record['service_id'],
+                        'resource_name' => $record['resource_name'],
+                        'metrics' => []
+                    ];
+                }
+                $metricsInformation[$record['service_id']]['metrics'][] = new PerformanceMetric(
+                    $record['metric_id'],
+                    $record['metric_name'],
+                    $record['unit_name']
+                );
+            }
+            foreach ($metricsInformation as $information) {
+                $resourceMetrics[] = new ResourceMetric(
+                    $information['service_id'],
+                    $information['resource_name'],
+                    $information['metrics']
+                );
+            }
+        }
+
+        return $resourceMetrics;
     }
 
     /**
-     * @inheritDoc
-     */
-    public function findByRequestParameters(RequestParametersInterface $requestParameters): array
-    {
-        return [];
-    }
-
-    /**
-     * @param array<mixed> $search
-     * @return array
+     * build the sub request for service filter
+     *
+     * @param array<string> $serviceNames
+     * @return array{
+     *  'request' => string
+     *  'bindValues' => array<string<array<int,int>>>
+     * }
      */
     private function buildSubRequestForServiceFilter(array $serviceNames): array
     {
@@ -169,6 +261,15 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }
     }
 
+    /**
+     * build the sub request for host filter
+     *
+     * @param int[] $hostIds
+     * @return array{
+     *  'request' => string
+     *  'bindValues' => array<string<array<int,int>>>
+     * }
+     */
     private function buildSubRequestForHostFilter($hostIds): array
     {
         $bindHostIds = [];
@@ -186,6 +287,15 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }
     }
 
+    /**
+     * build the sub request for host group filter
+     *
+     * @param int[] $hostGroupIds
+     * @return array{
+     *  'request' => string
+     *  'bindValues' => array<string<array<int,int>>>
+     * }
+     */
     private function buildSubRequestForHostGroupFilter(array $hostGroupIds): array
     {
         $bindValues = [];
@@ -210,6 +320,15 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         ];
     }
 
+    /**
+     * build the sub request for host category filter
+     *
+     * @param int[] $hostCategoryIds
+     * @return array{
+     *  'request' => string
+     *  'bindValues' => array<string<array<int,int>>>
+     * }
+     */
     private function buildSubRequestForHostCategoryFilter(array $hostCategoryIds): array
     {
         $bindValues = [];
@@ -234,6 +353,15 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         ];
     }
 
+    /**
+     * build the sub request for service group filter
+     *
+     * @param int[] $serviceGroupIds
+     * @return array{
+     *  'request' => string
+     *  'bindValues' => array<string<array<int,int>>>
+     * }
+     */
     private function buildSubRequestForServiceGroupFilter(array $serviceGroupIds): array
     {
         $bindValues = [];
@@ -254,6 +382,15 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         ];
     }
 
+    /**
+     * build the sub request for service category filter
+     *
+     * @param int[] $serviceCategoryIds
+     * @return array{
+     *  'request' => string
+     *  'bindValues' => array<string<array<int,int>>>
+     * }
+     */
     private function buildSubRequestForServiceCategoryFilter(array $serviceCategoryIds): array
     {
         $bindValues = [];
@@ -274,6 +411,20 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         ];
     }
 
+    /**
+     * Get request and bind values information for each search filter
+     *
+     * @param array{
+     *  '$and': array<string,mixed>
+     * } $search
+     *
+     * @return array<string, array<
+     *  array{
+     *      'request' => string
+     *      'bindValues' => array<string<array<int,int>>>
+     *  }
+     * >
+     */
     private function getSubRequestsInformation(array $search): array
     {
         $searchParameters = $search['$and'];
@@ -332,6 +483,17 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         return $subRequestsInformation;
     }
 
+    /**
+     * Build the subrequest for tags filter
+     *
+     * @param array<string, array<
+     *  array{
+     *      'request' => string
+     *      'bindValues' => array<string<array<int,int>>>
+     *  } $subRequestInformation
+     *
+     * @return string
+     */
     private function buildSubRequestForTags(array $subRequestInformation): string
     {
         $request = '';

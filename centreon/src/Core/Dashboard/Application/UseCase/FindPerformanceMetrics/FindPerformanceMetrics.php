@@ -40,8 +40,9 @@ final class FindPerformanceMetrics
 
     /**
      * @param ContactInterface $user
+     * @param RequestParametersInterface $requestParameters
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
-     * @param ReadMetricRepositoryInterface $metricRepository
+     * @param ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository
      */
     public function __construct(
         private readonly ContactInterface $user,
@@ -58,10 +59,12 @@ final class FindPerformanceMetrics
     {
         try {
             if ($this->user->isAdmin()) {
-                $resourceMetrics = $this->dashboardMetricRepository->findByRequestParametersWithCount($this->requestParameters);
+                $this->info('find metrics for admin user');
+                $resourceMetrics = $this->dashboardMetricRepository->findByRequestParameters($this->requestParameters);
             } else {
+                $this->info('find metrics for non-admin user');
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
-                $resourceMetrics = $this->dashboardMetricRepository->FindByRequestParametersAndAccessGroupsWithCount($this->requestParameters, $accessGroups);
+                $resourceMetrics = $this->dashboardMetricRepository->FindByRequestParametersAndAccessGroups($this->requestParameters, $accessGroups);
             }
         } catch (\Throwable $ex) {
             $this->error('An error occured while retrieving metrics', ['trace' => (string) $ex]);
@@ -73,6 +76,8 @@ final class FindPerformanceMetrics
     }
 
     /**
+     * Create Response
+     *
      * @param ResourceMetric[] $resourceMetrics
      * @return FindMetricsResponse
      */

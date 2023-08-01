@@ -38,5 +38,5 @@ class ResourceMetricDTO
      *  }
      * }
      */
-    public array $metrics =[];
+    public array $metrics = [];
 }
