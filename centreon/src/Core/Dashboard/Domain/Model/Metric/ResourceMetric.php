@@ -21,25 +21,40 @@
 
 declare(strict_types=1);
 
-namespace Core\Metric\Domain\Model;
+namespace Core\Dashboard\Domain\Model\Metric;
 
-class AggregateResourceMetrics
+use Core\Dashboard\Domain\Model\PerformanceMetric;
+
+class ResourceMetric
 {
-    public const MAXIMUM_METRICS_COUNT = 100;
-
+    /**
+     *
+     * @param integer $serviceId
+     * @param string $resourceName
+     * @param PerformanceMetric[] $metrics
+     */
     public function __construct(
-        private readonly int $count,
-        private array $resourceMetrics,
+        private readonly int $serviceId,
+        private readonly string $resourceName,
+        private readonly array $metrics
     ) {
     }
 
-    public function getCount(): int
+    public function getServiceId(): int
     {
-        return $this->count;
+        return $this->serviceId;
     }
 
-    public function getResourceMetrics(): array
+    public function getResourceName(): string
     {
-        return $this->resourceMetrics;
+        return $this->resourceName;
+    }
+
+    /**
+     * @return PerformanceMetric[]
+     */
+    public function getMetrics(): array
+    {
+        return $this->metrics;
     }
 }

@@ -19,21 +19,14 @@
  *
  */
 
- declare(strict_types=1);
+declare(strict_types=1);
 
-namespace Core\Metric\Infrastructure\API\FindMetrics;
+namespace Core\Dashboard\Application\UseCase\FindPerformanceMetrics;
 
-use Centreon\Application\Controller\AbstractController;
-use Core\Metric\Application\UseCase\FindMetrics\FindMetrics;
-use Symfony\Component\HttpFoundation\Response;
-
-final class FindMetricsController extends AbstractController
+final class FindPerformanceMetricsResponse
 {
-    public function __invoke(FindMetrics $useCase, FindMetricsPresenter $presenter, ): Response
-    {
-        $this->denyAccessUnlessGrantedForAPIConfiguration();
-
-        $useCase($presenter);
-        return $presenter->show();
-    }
+    /**
+     * @var ResourceMetricDTO[]
+     */
+    public array $resourceMetrics = [];
 }

@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Metric\Application\UseCase\FindMetrics;
+namespace Core\Dashboard\Application\UseCase\FindPerformanceMetrics;
 
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface FindMetricsPresenterInterface
+interface FindPerformanceMetricsPresenterInterface
 {
-    public function presentResponse(FindMetricsResponse|ResponseStatusInterface $response): void;
+    public function presentResponse(FindPerformanceMetricsResponse|ResponseStatusInterface $response): void;
 }

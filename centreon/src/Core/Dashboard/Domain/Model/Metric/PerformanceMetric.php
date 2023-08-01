@@ -21,16 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Core\Metric\Application\Repository;
+namespace Core\Dashboard\Domain\Model\Metric;
 
-use Core\Metric\Domain\Model\Metric;
-
-interface ReadMetricRepositoryInterface
+class PerformanceMetric
 {
-    /**
-     * @param int $indexId
-     *
-     * @return array<Metric>
-     */
-    public function findMetricsByIndexId(int $indexId): array;
+    public function __construct(private int $id, private string $name, private string $unit)
+    {
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getUnit(): string
+    {
+        return $this->unit;
+    }
 }

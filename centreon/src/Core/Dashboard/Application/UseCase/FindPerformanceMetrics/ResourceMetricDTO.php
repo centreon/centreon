@@ -21,39 +21,22 @@
 
 declare(strict_types=1);
 
-namespace Core\Metric\Domain\Model;
+namespace Core\Dashboard\Application\UseCase\FindPerformanceMetrics;
 
-class ResourceMetric
+class ResourceMetricDTO
 {
-    /**
-     * Undocumented function
-     *
-     * @param integer $serviceId
-     * @param string $resourceName
-     * @param Metric[] $metrics
-     */
-    public function __construct(
-        private readonly int $serviceId,
-        private readonly string $resourceName,
-        private readonly array $metrics
-    ) {
-    }
+    public int $serviceId = 0;
 
-    public function getServiceId(): int
-    {
-        return $this->serviceId;
-    }
-
-    public function getResourceName(): string
-    {
-        return $this->resourceName;
-    }
+    public string $resourceName = '';
 
     /**
-     * @return Metric[]
+     * @var array{
+     *  array{
+     *      id: int,
+     *      name: string
+     *      unit: string
+     *  }
+     * }
      */
-    public function getMetrics(): array
-    {
-        return $this->metrics;
-    }
+    public array $metrics =[];
 }
