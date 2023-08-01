@@ -67,10 +67,12 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 WHERE r.enabled = 1
             SQL;
 
-        if (! empty($subRequestsInformation)) {
-            $request .= $subRequestsInformation['service']['request'] ?? '';
-            $request .= $subRequestsInformation['host']['request'] ?? '';
-        }
+            if (! empty($subRequestsInformation['service'])) {
+                $request .= $subRequestsInformation['service']['request'];
+            }
+            if (! empty($subRequestsInformation['host'])) {
+                $request .= $subRequestsInformation['host']['request'];
+            }
 
         $request
             .= <<<'SQL'
@@ -179,9 +181,10 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $statement = $this->db->prepare($this->translateDbName($request));
         $boundValues = [];
         if (! empty($subRequestsInformation)) {
-            $boundValues = array_reduce($subRequestsInformation, function ($acc, $subRequestInformation) {
-                return [...$acc, ...$subRequestInformation['bindValues']];
-            }, []);
+            foreach($subRequestsInformation as $subRequestInformation) {
+                $boundValues[] = $subRequestInformation['bindValues'];
+            }
+            $boundValues = array_merge(...$boundValues);
         }
         foreach ($boundValues as $bindToken => $bindValueInformation){
             foreach ($bindValueInformation as $bindValue => $paramType) {
@@ -234,7 +237,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param non-empty-array<string> $serviceNames
      *
      * @return array{
-     *  request: non-falsy-string,
+     *  request: string,
      *  bindValues: array<mixed>
      * }
      */
@@ -260,7 +263,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param non-empty-array<int> $hostIds
      *
      * @return array{
-     *  request: non-falsy-string,
+     *  request: string,
      *  bindValues: array<mixed>
      * }
      */
@@ -285,7 +288,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param non-empty-array<int> $hostGroupIds
      *
      * @return array{
-     *  request: non-falsy-string,
+     *  request: string,
      *  bindValues: array<mixed>
      * }
      */
@@ -320,7 +323,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param non-empty-array<int> $hostCategoryIds
      *
      * @return array{
-     *  request: non-falsy-string,
+     *  request: string,
      *  bindValues: array<mixed>
      * }
      */
@@ -355,7 +358,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param non-empty-array<int> $serviceGroupIds
      *
      * @return array{
-     *  request: non-falsy-string,
+     *  request: string,
      *  bindValues: array<mixed>
      * }
      */
@@ -386,7 +389,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param non-empty-array<int> $serviceCategoryIds
      *
      * @return array{
-     *  request: non-falsy-string,
+     *  request: string,
      *  bindValues: array<mixed>
      * }
      */
@@ -415,17 +418,14 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * Get request and bind values information for each search filter.
      *
      * @param array{
-     *  $and: array<string,array{$in: string, array<string|int>}>
+     *  '$and': array<array<string,array{'$in': non-empty-array<string|int>}>>
      * } $search
-     * @param array $search
      *
      * @return array<
-     *  string, array<
-     *    array{
-     *      request: non-falsy-string,
-     *      bindValues: array<mixed>
+     *  string, array{
+     *    request: string,
+     *    bindValues: array<mixed>
      *   }
-     *   >
      * >
      */
     private function getSubRequestsInformation(array $search): array
@@ -490,12 +490,10 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * Build the subrequest for tags filter.
      *
      * @param array<
-     *  string, array<
-     *    array{
-     *      request: non-falsy-string,
-     *      bindValues: array<mixed>
+     *   string, array{
+     *     request: string,
+     *     bindValues: array<mixed>
      *   }
-     *   >
      * > $subRequestInformation
      *
      * @return string
