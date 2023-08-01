@@ -117,7 +117,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $collector = new StatementCollector();
         $request = $this->generateFindResourcesRequest($filter, $collector);
 
-        $this->fetchResources($request, $collector);
+        $this->fetchResources($filter, $request, $collector);
 
         return $this->resources;
     }
@@ -128,24 +128,22 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $collector = new StatementCollector();
         $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
         $request = $this->generateFindResourcesRequest($filter, $collector, $accessGroupRequest);
-        $this->fetchResources($request, $collector);
+        $this->fetchResources($filter, $request, $collector);
 
         return $this->resources;
     }
 
     /**
      * Only return resources that has performance data available in order to display graphs.
-     *
-     * @param ResourceEntity[] $resources
-     *
-     * @return ResourceEntity[]
      */
-    public function extractResourcesWithGraphData(array $resources): array
+    public function extractResourcesWithGraphData(): void
     {
-        return array_values(array_filter(
-            $resources,
-            fn (ResourceEntity $resource) => $resource->hasGraph(),
-        ));
+        $this->resources = array_values(
+            array_filter(
+                $this->resources,
+                fn (ResourceEntity $resource) => $resource->hasGraph(),
+            )
+        );
     }
 
     /**
@@ -415,7 +413,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         return sprintf(' AND (%s)', implode(' OR ', $orConditions));
     }
 
-    private function fetchResources(string $request, StatementCollector $collector): void
+    private function fetchResources(ResourceFilter $filter, string $request, StatementCollector $collector): void
     {
         $statement = $this->db->prepare(
             $this->translateDbName($request)
@@ -438,6 +436,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         while ($resourceRecord = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
+        }
+
+        // Apply only_with_performance_data
+        if ($filter->getOnlyWithPerformanceData() === true) {
+            $this->extractResourcesWithGraphData();
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) count($this->resources));
         }
 
         $iconIds = $this->getIconIdsFromResources();

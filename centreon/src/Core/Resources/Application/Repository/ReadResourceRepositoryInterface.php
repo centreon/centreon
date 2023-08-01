@@ -33,7 +33,7 @@ interface ReadResourceRepositoryInterface
      *
      * @param ResourceFilter $filter
      *
-     * @return \Centreon\Domain\Monitoring\Resource[]
+     * @return ResourceEntity[]
      */
     public function findResources(ResourceFilter $filter): array;
 
@@ -43,16 +43,12 @@ interface ReadResourceRepositoryInterface
      * @param ResourceFilter $filter
      * @param int[] $accessGroupIds
      *
-     * @return \Centreon\Domain\Monitoring\Resource[]
+     * @return ResourceEntity[]
      */
     public function findResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): array;
 
     /**
      * Get list of resources with graph data.
-     *
-     * @param ResourceEntity[] $resources
-     *
-     * @return ResourceEntity[]
      */
-    public function extractResourcesWithGraphData(array $resources): array;
+    public function extractResourcesWithGraphData(): void;
 }
