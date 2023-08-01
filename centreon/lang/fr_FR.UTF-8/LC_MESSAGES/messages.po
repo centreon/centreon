@@ -17928,6 +17928,12 @@ msgstr "Vous n'êtes pas autorisé à supprimer un service"
 msgid "Error while deleting the service"
 msgstr "Erreur lors de la suppression du service"
 
+msgid "You are not allowed to list notification resources"
+msgstr "Vous n'êtes pas autorisé à afficher les ressources des notifications"
+
+msgid "Error while listing notification resources"
+msgstr "Erreur lors de l'affichage des ressources des notifications"
+
 msgid "Notifications will only be sent during this time period"
 msgstr "Les notifications ne seront envoyées que pendant cette période"
 
