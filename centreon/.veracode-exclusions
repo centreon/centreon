@@ -2,6 +2,7 @@ features
 GPL_LIB
 lang
 tests
+doc
 node_modules
 www/include/common/javascript/marked.js
 www/include/common/javascript/jquery
