@@ -19,6 +19,7 @@ export interface WidgetPropertiesRenderer {
   props: {
     label: string;
     propertyName: string;
+    propertyType: string;
     required?: boolean;
     type: FederatedWidgetOptionType;
   };
@@ -60,6 +61,7 @@ export const useWidgetInputs = (
               props: {
                 label: value.label,
                 propertyName: key,
+                propertyType: widgetKey,
                 required: value.required,
                 type: value.type
               }

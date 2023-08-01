@@ -1,7 +1,7 @@
 import { ChangeEvent, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { T, always, cond, equals } from 'ramda';
+import { T, always, cond, equals, isEmpty } from 'ramda';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
@@ -10,6 +10,7 @@ import {
   labelHost,
   labelHostCategory,
   labelHostGroup,
+  labelPleaseSelectAResource,
   labelService
 } from '../../../translatedLabels';
 import { baseEndpoint } from '../../../../../api/endpoint';
@@ -25,6 +26,7 @@ interface UseResourcesState {
     index: number
   ) => (_, resources: Array<SelectEntry>) => void;
   deleteResource: (index: number) => () => void;
+  error: string | null;
   getResourceResourceBaseEndpoint: (
     resourceType: string
   ) => (parameters) => string;
@@ -60,12 +62,21 @@ const resourceTypeBaseEndpoints = {
 };
 
 const useResources = (propertyName: string): UseResourcesState => {
-  const { values, setFieldValue } = useFormikContext<Widget>();
+  const { values, setFieldValue, setFieldTouched, touched } =
+    useFormikContext<Widget>();
 
   const value = useMemo<Array<WidgetDataResource> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
     [getDataProperty({ obj: values, propertyName })]
   );
+
+  const isTouched = useMemo<boolean | undefined>(
+    () => getDataProperty({ obj: touched, propertyName }),
+    [getDataProperty({ obj: touched, propertyName })]
+  );
+
+  const errorToDisplay =
+    isTouched && isEmpty(value) ? labelPleaseSelectAResource : null;
 
   const changeResourceType =
     (index: number) => (e: ChangeEvent<HTMLInputElement>) => {
@@ -79,6 +90,7 @@ const useResources = (propertyName: string): UseResourcesState => {
   const changeResources =
     (index: number) => (_, resources: Array<SelectEntry>) => {
       setFieldValue(`data.${propertyName}.${index}.resources`, resources);
+      setFieldTouched(`data.${propertyName}`, true, false);
     };
 
   const addResource = (): void => {
@@ -96,6 +108,7 @@ const useResources = (propertyName: string): UseResourcesState => {
       `data.${propertyName}`,
       (value || []).filter((_, i) => !equals(i, index))
     );
+    setFieldTouched(`data.${propertyName}`, true, false);
   };
 
   const getResourceResourceBaseEndpoint =
@@ -119,6 +132,7 @@ const useResources = (propertyName: string): UseResourcesState => {
     changeResourceType,
     changeResources,
     deleteResource,
+    error: errorToDisplay,
     getResourceResourceBaseEndpoint,
     getSearchField,
     resourceTypeOptions,

@@ -1,7 +1,20 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { all, equals, gt, innerJoin, isEmpty, isNil, pluck } from 'ramda';
+import {
+  all,
+  equals,
+  flatten,
+  gt,
+  includes,
+  innerJoin,
+  isEmpty,
+  isNil,
+  length,
+  pipe,
+  pluck,
+  uniq
+} from 'ramda';
 
 import {
   ListingModel,
@@ -19,6 +32,7 @@ import {
 } from '../../models';
 import { metricsEndpoint } from '../../api/endpoints';
 import { serviceMetricsDecoder } from '../../api/decoders';
+import { labelPleaseSelectAMetric } from '../../../translatedLabels';
 
 import { getDataProperty } from './utils';
 
@@ -27,8 +41,12 @@ interface UseMetricsState {
   changeMetric: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
   changeService: (index) => (e: ChangeEvent<HTMLInputElement>) => void;
   deleteMetric: (index: number | string) => () => void;
+  error: string | null;
+  getMetricOptionDisabled: (metricOption) => boolean;
   getMetricsFromService: (serviceId: number) => Array<SelectEntry>;
+  getOptionLabel: (metric) => string;
   hasNoResources: () => boolean;
+  hasReachedTheLimitOfUnits: boolean;
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   metricCount: number | undefined;
@@ -37,7 +55,8 @@ interface UseMetricsState {
 }
 
 const useMetrics = (propertyName: string): UseMetricsState => {
-  const { values, setFieldValue } = useFormikContext<Widget>();
+  const { values, setFieldValue, setFieldTouched, touched } =
+    useFormikContext<Widget>();
 
   const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
 
@@ -74,6 +93,11 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     [getDataProperty({ obj: values, propertyName })]
   );
 
+  const isTouched = useMemo<boolean | undefined>(
+    () => getDataProperty({ obj: touched, propertyName }),
+    [getDataProperty({ obj: touched, propertyName })]
+  );
+
   const hasTooManyMetrics = gt(servicesMetrics?.meta?.total || 0, 100);
 
   const serviceOptions = useMemo<Array<SelectEntry>>(
@@ -86,6 +110,18 @@ const useMetrics = (propertyName: string): UseMetricsState => {
   );
 
   const metricCount = servicesMetrics?.meta?.total;
+
+  const errorToDisplay =
+    isTouched && isEmpty(value) ? labelPleaseSelectAMetric : null;
+
+  const unitsFromSelectedMetrics = pipe(
+    pluck('metrics'),
+    flatten,
+    pluck('unit'),
+    uniq
+  )(value || []);
+
+  const hasReachedTheLimitOfUnits = equals(length(unitsFromSelectedMetrics), 2);
 
   const hasNoResources = (): boolean => {
     if (!resources.length) {
@@ -106,10 +142,9 @@ const useMetrics = (propertyName: string): UseMetricsState => {
   };
 
   const deleteMetric = (index: number | string) => (): void => {
-    setFieldValue(
-      `data.${propertyName}`,
-      (value || []).filter((_, i) => !equals(i, index))
-    );
+    const newServiceMetrics = (value || []).filter((_, i) => !equals(i, index));
+    setFieldValue(`data.${propertyName}`, newServiceMetrics);
+    setFieldTouched(`data.${propertyName}`, true, false);
   };
 
   const getMetricsFromService = (serviceId: number): Array<SelectEntry> => {
@@ -118,6 +153,18 @@ const useMetrics = (propertyName: string): UseMetricsState => {
         equals(metric.serviceId, serviceId)
       )?.metrics || []
     );
+  };
+
+  const getMetricOptionDisabled = (metricOption): boolean => {
+    if (!hasReachedTheLimitOfUnits) {
+      return false;
+    }
+
+    return !includes(metricOption.unit, unitsFromSelectedMetrics);
+  };
+
+  const getOptionLabel = (metric): string => {
+    return `${metric.name} (${metric.unit})`;
   };
 
   const changeService =
@@ -131,6 +178,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     (index) =>
     (_, newMetrics: Array<SelectEntry> | null): void => {
       setFieldValue(`data.${propertyName}.${index}.metrics`, newMetrics || []);
+      setFieldTouched(`data.${propertyName}`, true, false);
     };
 
   useEffect(() => {
@@ -159,8 +207,12 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     changeMetric,
     changeService,
     deleteMetric,
+    error: errorToDisplay,
+    getMetricOptionDisabled,
     getMetricsFromService,
+    getOptionLabel,
     hasNoResources,
+    hasReachedTheLimitOfUnits,
     hasTooManyMetrics,
     isLoadingMetrics,
     metricCount,

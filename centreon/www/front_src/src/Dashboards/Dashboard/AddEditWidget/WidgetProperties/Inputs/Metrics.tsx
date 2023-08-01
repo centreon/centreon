@@ -1,9 +1,9 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { isNil } from 'ramda';
+import { isEmpty, isNil } from 'ramda';
 import pluralize from 'pluralize';
 
-import { Typography } from '@mui/material';
+import { FormHelperText, Typography } from '@mui/material';
 
 import { ItemComposition } from '@centreon/ui/components';
 
@@ -14,6 +14,7 @@ import {
   labelMetrics,
   labelPleaseSelectAResource,
   labelServiceName,
+  labelTheLimiteOf2UnitsHasBeenReached,
   labelTooManyMetricsAddMoreFilterOnResources
 } from '../../../translatedLabels';
 import { WidgetPropertyProps } from '../../models';
@@ -38,7 +39,11 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     getMetricsFromService,
     changeMetric,
     metricCount,
-    isLoadingMetrics
+    isLoadingMetrics,
+    error,
+    getMetricOptionDisabled,
+    getOptionLabel,
+    hasReachedTheLimitOfUnits
   } = useMetrics(propertyName);
 
   const canDisplayMetricsSelection = !hasNoResources() && !hasTooManyMetrics;
@@ -52,6 +57,16 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
               metricCount
             )})`
           : t(labelMetrics)}
+        {hasReachedTheLimitOfUnits && (
+          <Typography
+            component="span"
+            sx={{ color: 'warning.main' }}
+            variant="body2"
+          >
+            {' '}
+            {t(labelTheLimiteOf2UnitsHasBeenReached)}
+          </Typography>
+        )}
       </Typography>
       {hasNoResources() && (
         <Typography>{t(labelPleaseSelectAResource)}</Typography>
@@ -81,7 +96,14 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
               />
               <MultiAutocompleteField
                 className={classes.resources}
-                disabled={isNil(service.serviceId) || isLoadingMetrics}
+                disabled={
+                  isNil(service.serviceId) ||
+                  isEmpty(service.serviceId) ||
+                  isLoadingMetrics
+                }
+                getOptionDisabled={getMetricOptionDisabled}
+                getOptionLabel={getOptionLabel}
+                getTagLabel={getOptionLabel}
                 label={t(labelMetrics)}
                 limitTags={1}
                 options={getMetricsFromService(service.serviceId)}
@@ -92,6 +114,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           ))}
         </ItemComposition>
       )}
+      {error && <FormHelperText error>{t(error)}</FormHelperText>}
     </div>
   );
 };

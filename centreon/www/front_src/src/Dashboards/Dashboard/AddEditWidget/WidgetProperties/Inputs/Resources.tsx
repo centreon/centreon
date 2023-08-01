@@ -2,7 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 
-import { Typography } from '@mui/material';
+import { FormHelperText, Typography } from '@mui/material';
 
 import { ItemComposition } from '@centreon/ui/components';
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
@@ -34,7 +34,8 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     deleteResource,
     changeResources,
     getResourceResourceBaseEndpoint,
-    getSearchField
+    getSearchField,
+    error
   } = useResources(propertyName);
 
   return (
@@ -76,6 +77,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
           </ItemComposition.Item>
         ))}
       </ItemComposition>
+      {error && <FormHelperText error>{t(error)}</FormHelperText>}
     </div>
   );
 };

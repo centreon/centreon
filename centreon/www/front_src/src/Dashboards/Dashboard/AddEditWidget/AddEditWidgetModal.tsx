@@ -40,6 +40,8 @@ const AddWidgetModal = (): JSX.Element => {
     >
       <Modal.Header>{t(labelSelectAWidgetType)}</Modal.Header>
       <Formik<Widget>
+        validateOnBlur
+        validateOnChange
         initialValues={widgetFormInitialData as Widget}
         validationSchema={schema}
         onSubmit={isAddingWidget ? addWidget : editWidget}

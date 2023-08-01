@@ -44,3 +44,6 @@ export const labelTooManyMetricsAddMoreFilterOnResources =
   'Too many metrics, add more filter on resources';
 export const labelServiceName = 'Service name';
 export const labelMetric = 'Metric';
+export const labelPleaseSelectAMetric = 'Please select a metric';
+export const labelTheLimiteOf2UnitsHasBeenReached =
+  'The limit of 2 units has been reached';
