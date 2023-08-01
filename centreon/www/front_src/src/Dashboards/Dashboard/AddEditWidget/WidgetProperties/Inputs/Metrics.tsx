@@ -3,7 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { isEmpty, isNil } from 'ramda';
 import pluralize from 'pluralize';
 
-import { FormHelperText, Typography } from '@mui/material';
+import {
+  Avatar,
+  CircularProgress,
+  FormHelperText,
+  Typography
+} from '@mui/material';
 
 import { ItemComposition } from '@centreon/ui/components';
 
@@ -48,26 +53,34 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   const canDisplayMetricsSelection = !hasNoResources() && !hasTooManyMetrics;
 
+  const title = metricCount
+    ? `${t(labelMetrics)} (${metricCount} ${pluralize(
+        labelMetric,
+        metricCount
+      )})`
+    : t(labelMetrics);
+
+  const header = (
+    <div className={classes.resourcesHeader}>
+      <Avatar className={classes.resourcesHeaderAvatar}>2</Avatar>
+      <Typography>{title}</Typography>
+      {hasReachedTheLimitOfUnits && (
+        <Typography
+          component="span"
+          sx={{ color: 'warning.main' }}
+          variant="body2"
+        >
+          {' '}
+          {t(labelTheLimiteOf2UnitsHasBeenReached)}
+        </Typography>
+      )}
+      {isLoadingMetrics && <CircularProgress size={16} />}
+    </div>
+  );
+
   return (
     <div className={classes.resourcesContainer}>
-      <Typography>
-        {metricCount
-          ? `${t(labelMetrics)} (${metricCount} ${pluralize(
-              labelMetric,
-              metricCount
-            )})`
-          : t(labelMetrics)}
-        {hasReachedTheLimitOfUnits && (
-          <Typography
-            component="span"
-            sx={{ color: 'warning.main' }}
-            variant="body2"
-          >
-            {' '}
-            {t(labelTheLimiteOf2UnitsHasBeenReached)}
-          </Typography>
-        )}
-      </Typography>
+      {header}
       {hasNoResources() && (
         <Typography>{t(labelPleaseSelectAResource)}</Typography>
       )}
@@ -91,22 +104,20 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
                 disabled={isLoadingMetrics}
                 label={t(labelServiceName) as string}
                 options={serviceOptions}
-                selectedOptionId={service.serviceId}
+                selectedOptionId={service.id}
                 onChange={changeService(index)}
               />
               <MultiAutocompleteField
                 className={classes.resources}
                 disabled={
-                  isNil(service.serviceId) ||
-                  isEmpty(service.serviceId) ||
-                  isLoadingMetrics
+                  isNil(service.id) || isEmpty(service.id) || isLoadingMetrics
                 }
                 getOptionDisabled={getMetricOptionDisabled}
                 getOptionLabel={getOptionLabel}
                 getTagLabel={getOptionLabel}
                 label={t(labelMetrics)}
                 limitTags={1}
-                options={getMetricsFromService(service.serviceId)}
+                options={getMetricsFromService(service.id)}
                 value={service.metrics || []}
                 onChange={changeMetric(index)}
               />

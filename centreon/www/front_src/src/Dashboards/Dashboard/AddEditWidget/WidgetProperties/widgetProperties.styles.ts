@@ -8,7 +8,7 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
   },
   widgetDataContent: {
     display: 'grid',
-    gap: theme.spacing(1),
+    gap: theme.spacing(2),
     gridTemplateColumns: '1fr 1fr'
   },
   widgetDataItem: {

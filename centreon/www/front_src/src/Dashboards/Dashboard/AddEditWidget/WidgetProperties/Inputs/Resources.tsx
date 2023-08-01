@@ -2,7 +2,13 @@
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 
-import { FormHelperText, Typography } from '@mui/material';
+import {
+  Avatar,
+  Chip,
+  Divider,
+  FormHelperText,
+  Typography
+} from '@mui/material';
 
 import { ItemComposition } from '@centreon/ui/components';
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
@@ -40,7 +46,11 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
 
   return (
     <div className={classes.resourcesContainer}>
-      <Typography>{t(labelResources)}</Typography>
+      <div className={classes.resourcesHeader}>
+        <Avatar className={classes.resourcesHeaderAvatar}>1</Avatar>
+        <Typography>{t(labelResources)}</Typography>
+        <Divider className={classes.resourcesHeaderDivider} />
+      </div>
       <ItemComposition labelAdd={t(labelAdd)} onAddItem={addResource}>
         {value.map((resource, index) => (
           <ItemComposition.Item

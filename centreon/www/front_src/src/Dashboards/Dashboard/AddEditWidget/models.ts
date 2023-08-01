@@ -24,8 +24,8 @@ export interface WidgetDataResource {
   resources: Array<SelectEntry>;
 }
 export interface WidgetDataMetric {
+  id: number;
   metrics: Array<SelectEntry>;
-  serviceId: number;
 }
 
 export interface NamedEntity {
@@ -37,8 +37,6 @@ export interface Metric extends NamedEntity {
   unit: string;
 }
 
-export interface ServiceMetric {
+export interface ServiceMetric extends NamedEntity {
   metrics: Array<Metric>;
-  resourceName: string;
-  serviceId: number;
 }

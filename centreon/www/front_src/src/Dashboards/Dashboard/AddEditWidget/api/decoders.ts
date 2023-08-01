@@ -6,6 +6,7 @@ import { Metric, ServiceMetric } from '../models';
 
 const serviceMetricDecoder = JsonDecoder.object<ServiceMetric>(
   {
+    id: JsonDecoder.number,
     metrics: JsonDecoder.array(
       JsonDecoder.object<Metric>(
         {
@@ -17,14 +18,9 @@ const serviceMetricDecoder = JsonDecoder.object<ServiceMetric>(
       ),
       'Metrics'
     ),
-    resourceName: JsonDecoder.string,
-    serviceId: JsonDecoder.number
+    name: JsonDecoder.string
   },
-  'Service Metric',
-  {
-    resourceName: 'resource_name',
-    serviceId: 'service_id'
-  }
+  'Service Metric'
 );
 
 export const serviceMetricsDecoder = buildListingDecoder({

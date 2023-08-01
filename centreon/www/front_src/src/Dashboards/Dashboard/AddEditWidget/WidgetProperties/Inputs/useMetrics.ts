@@ -60,7 +60,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
 
   const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
 
-  const { data: servicesMetrics, isLoading: isLoadingMetrics } = useFetchQuery<
+  const { data: servicesMetrics, isFetching: isLoadingMetrics } = useFetchQuery<
     ListingModel<ServiceMetric>
   >({
     decoder: serviceMetricsDecoder,
@@ -102,9 +102,9 @@ const useMetrics = (propertyName: string): UseMetricsState => {
 
   const serviceOptions = useMemo<Array<SelectEntry>>(
     () =>
-      (servicesMetrics?.result || []).map((metric) => ({
-        id: metric.serviceId,
-        name: metric.resourceName
+      (servicesMetrics?.result || []).map(({ id, name }) => ({
+        id,
+        name
       })),
     [servicesMetrics?.result]
   );
@@ -135,8 +135,8 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     setFieldValue(`data.${propertyName}`, [
       ...(value || []),
       {
-        metrics: [],
-        serviceId: ''
+        id: '',
+        metrics: []
       }
     ]);
   };
@@ -147,11 +147,10 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     setFieldTouched(`data.${propertyName}`, true, false);
   };
 
-  const getMetricsFromService = (serviceId: number): Array<SelectEntry> => {
+  const getMetricsFromService = (id: number): Array<SelectEntry> => {
     return (
-      (servicesMetrics?.result || []).find((metric) =>
-        equals(metric.serviceId, serviceId)
-      )?.metrics || []
+      (servicesMetrics?.result || []).find((metric) => equals(metric.id, id))
+        ?.metrics || []
     );
   };
 
@@ -170,7 +169,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
   const changeService =
     (index) =>
     (e: ChangeEvent<HTMLInputElement>): void => {
-      setFieldValue(`data.${propertyName}.${index}.serviceId`, e.target.value);
+      setFieldValue(`data.${propertyName}.${index}.id`, e.target.value);
       setFieldValue(`data.${propertyName}.${index}.metrics`, []);
     };
 
@@ -188,10 +187,10 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       return;
     }
 
-    const baseServiceIds = pluck('serviceId', servicesMetrics?.result || []);
+    const baseServiceIds = pluck('id', servicesMetrics?.result || []);
 
     const intersectionBetweenServicesIdsAndValues = innerJoin(
-      (service, id) => equals(service.serviceId, id),
+      (service, id) => equals(service.id, id),
       value || [],
       baseServiceIds
     );
