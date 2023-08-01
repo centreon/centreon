@@ -82,7 +82,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $statement = $this->db->prepare($this->translateDbName($request));
         $boundValues = [];
         if (! empty($subRequestsInformation)) {
-            foreach($subRequestsInformation as $subRequestInformation) {
+            foreach ($subRequestsInformation as $subRequestInformation) {
                 $boundValues[] = $subRequestInformation['bindValues'];
             }
             $boundValues = array_merge(...$boundValues);
@@ -182,7 +182,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $statement = $this->db->prepare($this->translateDbName($request));
         $boundValues = [];
         if (! empty($subRequestsInformation)) {
-            foreach($subRequestsInformation as $subRequestInformation) {
+            foreach ($subRequestsInformation as $subRequestInformation) {
                 $boundValues[] = $subRequestInformation['bindValues'];
             }
             $boundValues = array_merge(...$boundValues);
@@ -421,6 +421,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param array{
      *  '$and': array<array<string,array{'$in': non-empty-array<string|int>}>>
      * } $search
+     * @param array $search
      *
      * @return array<
      *  string, array{
