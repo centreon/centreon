@@ -296,6 +296,8 @@ sub periodic_exec {
         $connector->{logger}->writeLogInfo("[" . $connector->{module_id} . "] $$ has quit");
         exit(0);
     }
+
+    $connector->event();
 }
 
 sub run {
