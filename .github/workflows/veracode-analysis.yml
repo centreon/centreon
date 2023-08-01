@@ -210,7 +210,7 @@ jobs:
           fi
 
           if [[ -f composer.lock ]]; then
-            echo "trigger_sca_scan=true" >> GITHUB_ENV
+            echo "trigger_sca_scan=true" >> $GITHUB_ENV
           fi
 
       - name: SCA scan
