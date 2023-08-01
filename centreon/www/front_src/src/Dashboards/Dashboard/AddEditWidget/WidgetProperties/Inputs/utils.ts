@@ -68,8 +68,8 @@ const getYupValidatorType = ({
           .of(
             Yup.object()
               .shape({
-                metrics: Yup.array().of(metricSchema).min(1),
-                serviceId: Yup.number().required(t(labelRequired) as string)
+                id: Yup.number().required(t(labelRequired) as string),
+                metrics: Yup.array().of(metricSchema).min(1)
               })
               .optional()
           )
