@@ -1685,7 +1685,7 @@ paths:
                                 example: '%'
                   meta:
                     $ref: '#/components/schemas/Meta'
-  /monitoring/dashboard/performances/metrics/{id}:
+  /monitoring/dashboard/metrics/performances/data:
     get:
       tags:
        - Metrics

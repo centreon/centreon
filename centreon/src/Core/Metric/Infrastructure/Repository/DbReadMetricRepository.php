@@ -63,4 +63,9 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
 
         return $metrics;
     }
+
+    public function findServicesByMetricIds(array $metricIds): array
+    {
+        
+    }
 }

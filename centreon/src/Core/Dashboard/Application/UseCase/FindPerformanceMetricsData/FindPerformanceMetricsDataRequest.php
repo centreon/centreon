@@ -21,25 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Metric\Application\Repository;
+namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
-use Centreon\Domain\Monitoring\Service;
-use Core\Metric\Domain\Model\Metric;
-
-interface ReadMetricRepositoryInterface
+final class FindPerformanceMetricsDataRequest
 {
-    /**
-     * @param int $indexId
-     *
-     * @return array<Metric>
-     */
-    public function findMetricsByIndexId(int $indexId): array;
+    public ?\DateTimeImmutable $startDate = null;
 
-    /**
-     * Undocumented function
-     *
-     * @param int[] $metricIds
-     * @return Service[]
-     */
-    public function findServicesByMetricIds(array $metricIds): array;
+    public ?\DateTimeImmutable $endDate = null;
 }
