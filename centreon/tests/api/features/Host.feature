@@ -1,7 +1,7 @@
 Feature:
-  In order to check the hosts
+  In order to check the host
   As a logged in user
-  I want to find hosts using api
+  I want to perform certain operations on hosts using api
 
   Background:
     Given a running instance of Centreon Web API
@@ -432,3 +432,19 @@ Feature:
         "is_activated": false
       }
       """
+
+  Scenario: Delete a host
+    Given I am logged in
+    And the following CLAPI import data:
+    """
+    HOST;ADD;test;Test host;127.0.0.1;generic-host;central;
+    HOST;APPLYTPL;test
+    CONTACT;ADD;test;test;test@localhost.com;Centreon@2023;0;1;en_US;local
+    CONTACT;setparam;test;reach_api;1
+    """
+    When I send a DELETE request to '/api/v23.10/configuration/hosts/14'
+    Then the response code should be "204"
+
+    Given I am logged in with "test"/"Centreon@2023"
+    When I send a DELETE request to '/api/v23.10/configuration/hosts/14'
+    Then the response code should be "403"

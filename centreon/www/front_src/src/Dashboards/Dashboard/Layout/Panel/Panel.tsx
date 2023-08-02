@@ -12,6 +12,7 @@ import { isGenericText } from '../../utils';
 
 interface Props {
   id: string;
+  isAddWidgetPanel?: boolean;
 }
 
 const Panel = ({ id }: Props): JSX.Element => {

@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Entity\ContactGroup;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -299,7 +298,7 @@ class OpenId implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return ContactGroup[]
+     * @inheritDoc
      */
     public function getUserContactGroups(): array
     {

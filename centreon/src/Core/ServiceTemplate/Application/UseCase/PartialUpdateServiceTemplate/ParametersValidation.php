@@ -216,7 +216,7 @@ class ParametersValidation
         $hostTemplateIds = array_unique($hostTemplatesIds);
         $hostTemplateIdsFound = $this->readHostTemplateRepository->findAllExistingIds($hostTemplateIds);
         if ([] !== ($idsNotFound = array_diff($hostTemplateIds, $hostTemplateIdsFound))) {
-            throw ServiceTemplateException::idsDoesNotExist('host_templates', $idsNotFound);
+            throw ServiceTemplateException::idsDoNotExist('host_templates', $idsNotFound);
         }
     }
 
@@ -245,7 +245,7 @@ class ParametersValidation
         }
 
         if ([] !== ($idsNotFound = array_diff($serviceCategoriesIds, $serviceCategoriesIdsFound))) {
-            throw ServiceTemplateException::idsDoesNotExist('service_categories', $idsNotFound);
+            throw ServiceTemplateException::idsDoNotExist('service_categories', $idsNotFound);
         }
     }
 }

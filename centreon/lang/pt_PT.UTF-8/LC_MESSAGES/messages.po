@@ -16589,3 +16589,12 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 #  msgid "Error while retrieving a host"
 #  msgstr ""
+
+#  msgid "You are not allowed to delete a service"
+#  msgstr ""
+
+#  msgid "Error while deleting the service"
+#  msgstr ""
+
+#  msgid "Host template required in service group association is not linked to service template"
+#  msgstr ""

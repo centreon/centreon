@@ -69,7 +69,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Restore packages
-        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-update') }}"
+        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         uses: actions/cache@v3
         with:
           path: ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
@@ -77,7 +77,7 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Move packages
-        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-update') }}"
+        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         run: |
           mkdir -p ${{ inputs.package_directory }}
           mv ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
@@ -91,13 +91,16 @@ jobs:
           password: ${{ secrets.registry_password }}
 
       - name: Restore standard slim image in cache
+        id: cache-docker-slim
         uses: actions/cache/restore@v3
         with:
           path: /tmp/cache/docker-image
           key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
-          fail-on-cache-miss: true
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
       - name: Load standard slim image
+        if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
           docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
@@ -149,8 +152,7 @@ jobs:
           path: ${{ inputs.name }}-json-reports
 
       - name: Merge reports
-        run: |
-          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+        run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
         shell: bash
 
       - name: Publish report
