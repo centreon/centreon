@@ -3,7 +3,6 @@ GPL_LIB
 lang
 tests
 node_modules
-vendor
 www/include/common/javascript/marked.js
 www/include/common/javascript/jquery
 www/lib/wz_tooltip/wz_tooltip.js
