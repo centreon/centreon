@@ -564,6 +564,8 @@ sub send_internal_response {
             $self->{logger}->writeLogError("[core] encrypt issue: $_");
             return undef;
         };
+
+        $message = MIME::Base64::encode_base64($message, '');
     }
 
     $self->{internal_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
@@ -590,6 +592,8 @@ sub send_internal_message {
             $self->{logger}->writeLogError("[core] encrypt issue: $_");
             return undef;
         };
+
+        $message = MIME::Base64::encode_base64($message, '');
     }
 
     $self->{internal_socket}->send($options{identity}, ZMQ_DONTWAIT | ZMQ_SNDMORE);
