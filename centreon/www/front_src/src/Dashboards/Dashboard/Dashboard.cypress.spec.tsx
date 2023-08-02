@@ -47,6 +47,7 @@ import {
 } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 import { Dashboard } from './Dashboard';
+import { dashboardAtom } from './atoms';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {
   const federatedWidgets = [
@@ -302,7 +303,7 @@ describe('Dashboard', () => {
 
   describe('Edit widget', () => {
     it('edits a widget when the corresponding button is clicked and the widget type is changed the edit button is clicked', () => {
-      initializeAndMount(editorRoles);
+      const store = initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
 
@@ -318,7 +319,19 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelEdit).click();
 
       cy.contains(labelSelectAWidgetType).should('not.exist');
-      cy.contains('Text for the new widget').should('be.visible');
+      cy.contains('Text for the new widget')
+        .should('be.visible')
+        .then(() => {
+          const dashboard = store.get(dashboardAtom);
+
+          assert.equal(dashboard.layout.length, 1);
+          assert.exists(dashboard.layout[0].data);
+          assert.equal(
+            dashboard.layout[0].options?.text,
+            'Text for the new widget'
+          );
+          assert.equal(dashboard.layout[0].name, 'centreon-widget-input');
+        });
 
       cy.matchImageSnapshot();
     });

@@ -54,7 +54,7 @@ const resourceTypeOptions = [
   }
 ];
 
-const resourceTypeBaseEndpoints = {
+export const resourceTypeBaseEndpoints = {
   [WidgetResourceType.host]: '/hosts',
   [WidgetResourceType.hostCategory]: '/hosts/categories',
   [WidgetResourceType.hostGroup]: '/hostgroups',
