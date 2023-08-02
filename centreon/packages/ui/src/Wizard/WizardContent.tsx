@@ -7,11 +7,10 @@ import { makeStyles } from 'tss-react/mui';
 import { WizardContentProps } from './models';
 import ActionsBar from './ActionsBar';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   content: {
     height: '100%',
-    overflow: 'auto',
-    padding: theme.spacing(2, 3, 1, 3)
+    overflow: 'auto'
   },
   form: {
     display: 'flex',
