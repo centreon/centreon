@@ -7305,10 +7305,6 @@ components:
           type: integer
           description: "Downtime duration in seconds"
           example: 3600
-        author_id:
-          type: integer
-          description: "ID of the contact who requested the downtime"
-          example: 3
         comment:
           type: string
           description: "Comment of the downtime"
