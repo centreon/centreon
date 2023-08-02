@@ -42,7 +42,7 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
-class DeleteHost
+final class DeleteHost
 {
     use LoggerTrait;
 
