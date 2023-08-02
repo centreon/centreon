@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { path, pipe, propEq, find } from 'ramda';
 
 interface Props {
@@ -14,12 +15,9 @@ export const calculateDaysUntilLicenseExpiration = ({
     path(['license', 'expiration_date'])
   ) as (data) => string;
 
-  const currentDate = new Date();
-  const expirationDate = new Date(getExpirationDate(response));
-
-  const daysUntilExpiration = Math.floor(
-    (expirationDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  const currentDate = dayjs();
+  const expirationDate = dayjs(getExpirationDate(response));
+  const daysUntilExpiration = expirationDate.diff(currentDate, 'day');
 
   return daysUntilExpiration;
 };
