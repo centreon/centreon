@@ -16,6 +16,7 @@ Feature:
     SC;ADD;severity1;service-severity-alias
     SC;setparam;severity1;sc_activate;1
     SC;setseverity;severity1;42;logos/logo-centreon-colors.png
+    SG;ADD;ServiceGroupA;ServiceGroupA
     """
 
     When I send a POST request to '/api/latest/configuration/services/templates' with body:
@@ -149,6 +150,12 @@ Feature:
                 "is_password": false,
                 "description": null
             }
+        ],
+        "service_groups": [
+            {
+                "service_group_id": 1,
+                "host_template_id": 3
+            }
         ]
     }
     """
@@ -192,6 +199,14 @@ Feature:
                 "value": "E1",
                 "is_password": false,
                 "description": ""
+            }
+        ],
+        "groups": [
+            {
+                "id": 1,
+                "name": "ServiceGroupA",
+                "host_template_id": 3,
+                "host_template_name": "Servers-Linux"
             }
         ]
     }

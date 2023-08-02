@@ -21,12 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Common\Domain;
+namespace Tests\Core\Host\Application\Converter;
 
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Domain\Model\HostEvent;
 use ValueError;
-
 
 it('trim the legacy string when converting to enum array', function (): void {
     $events = HostEventConverter::fromString('  d ,  u  ');

@@ -119,4 +119,7 @@ final class AddServiceTemplateResponse
 
     /** @var array<array{id:int,name:string}> */
     public array $categories = [];
+
+    /** @var array<array{serviceGroupId:int,serviceGroupName:string,hostTemplateId:int,hostTemplateName:string}> */
+    public array $groups = [];
 }
