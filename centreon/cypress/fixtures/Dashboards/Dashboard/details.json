@@ -15,7 +15,7 @@
   "panels": [
     {
       "id": 1,
-      "name": "My widget",
+      "name": "centreon-widget-text",
       "widget_type": "/widgets/text",
       "layout": {
         "x": 0,
