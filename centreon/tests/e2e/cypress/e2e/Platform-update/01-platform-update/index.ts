@@ -16,7 +16,8 @@ beforeEach(() => {
         `current centreon web version is ${major_version}.${minor_version}, then update cannot be tested`
       );
 
-      return Cypress.runner.stop();
+      //return Cypress.runner.stop();
+      return null;
     }
 
     cy.intercept({
@@ -108,7 +109,8 @@ Given(
           `current centreon web version is ${major_version}.${minor_version}, then update cannot be tested`
         );
 
-        return Cypress.runner.stop();
+        //return Cypress.runner.stop();
+        return null;
       }
 
       return getCentreonStableMinorVersions(major_version).then(
@@ -116,7 +118,8 @@ Given(
           if (stable_minor_versions.length === 0) {
             cy.log(`centreon web is currently not available as stable`);
 
-            return Cypress.runner.stop();
+            //return Cypress.runner.stop();
+            return null;
           }
           let minor_version_index = 0;
           if (version_from_expression === 'first minor') {
@@ -138,7 +141,8 @@ Given(
             if (minor_version_index <= 0) {
               cy.log(`Not needed to test ${version_from_expression} version.`);
 
-              return Cypress.runner.stop();
+              //return Cypress.runner.stop();
+              return null;
             }
           }
 
