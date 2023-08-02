@@ -37,8 +37,8 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   getRequestHeaders?: HeadersInit;
   initialPage: number;
   labelKey?: string;
-  searchConditions?: Array<ConditionsSearchParameter>;
   queryKey?: string;
+  searchConditions?: Array<ConditionsSearchParameter>;
 }
 
 const ConnectedAutocompleteField = (
@@ -91,13 +91,17 @@ const ConnectedAutocompleteField = (
           search: searchParameter
         });
       },
-      getQueryKey: () => [`autocomplete-${queryKey || props.label}`, page, searchParameter],
+      getQueryKey: () => [
+        `autocomplete-${queryKey || props.label}`,
+        page,
+        searchParameter
+      ],
       isPaginated: true,
       queryOptions: {
+        cacheTime: 0,
         enabled: false,
-        suspense: false,
         staleTime: 0,
-        cacheTime: 0
+        suspense: false
       }
     });
 

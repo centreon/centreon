@@ -29,6 +29,7 @@ const Preview = (): JSX.Element | null => {
       <FederatedComponent
         isFederatedWidget
         id={values.id}
+        panelData={values.data}
         panelOptions={values.options}
         path={values.panelConfiguration?.path || ''}
       />

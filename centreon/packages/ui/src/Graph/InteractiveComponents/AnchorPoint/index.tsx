@@ -1,3 +1,5 @@
+import { alpha } from '@mui/system';
+
 interface Props {
   lineColor: string;
   x: number;
@@ -9,7 +11,7 @@ const Point = ({ lineColor, x, y }: Props): JSX.Element => {
     <circle
       cx={x}
       cy={y}
-      fill="white"
+      fill={alpha(lineColor, 0.5)}
       r={4}
       stroke={lineColor}
       strokeWidth={2}

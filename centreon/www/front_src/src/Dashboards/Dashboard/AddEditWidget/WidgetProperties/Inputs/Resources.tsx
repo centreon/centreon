@@ -2,13 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
 
-import {
-  Avatar,
-  Chip,
-  Divider,
-  FormHelperText,
-  Typography
-} from '@mui/material';
+import { Avatar, Divider, FormHelperText, Typography } from '@mui/material';
 
 import { ItemComposition } from '@centreon/ui/components';
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';

@@ -36,12 +36,13 @@ export const formatPanel = ({
   );
 
   return {
+    data: panel.widgetSettings.data,
     h: panel.layout.height,
     i: `${panel.id}`,
     minH: panel.layout.minHeight,
     minW: panel.layout.minWidth,
     name: panel.name,
-    options: panel.widgetSettings,
+    options: panel.widgetSettings.options,
     panelConfiguration:
       federatedWidget?.federatedComponentsConfiguration as PanelConfiguration,
     static: staticPanel,

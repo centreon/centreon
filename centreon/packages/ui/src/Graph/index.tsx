@@ -52,36 +52,41 @@ const WrapperGraph = ({
     return (
       <LoadingSkeleton
         displayTitleSkeleton={header?.displayTitle ?? true}
-        graphHeight={height}
+        graphHeight={height || 200}
       />
     );
   }
 
   return (
-    <div ref={graphRef as MutableRefObject<HTMLDivElement>}>
+    <div
+      ref={graphRef as MutableRefObject<HTMLDivElement>}
+      style={{ height: '100%', width: '100%' }}
+    >
       <Responsive.ParentSize>
         {({
           height: responsiveHeight,
           width: responsiveWidth
-        }): JSX.Element => (
-          <Graph
-            annotationEvent={annotationEvent}
-            axis={axis}
-            displayAnchor={displayAnchor}
-            graphData={adjustedData}
-            graphInterval={{ end, start }}
-            graphRef={graphRef}
-            header={header}
-            height={height ?? responsiveHeight}
-            legend={legend}
-            loading={loading}
-            shapeLines={shapeLines}
-            timeShiftZones={timeShiftZones}
-            tooltip={tooltip}
-            width={width ?? responsiveWidth}
-            zoomPreview={zoomPreview}
-          />
-        )}
+        }): JSX.Element => {
+          return (
+            <Graph
+              annotationEvent={annotationEvent}
+              axis={axis}
+              displayAnchor={displayAnchor}
+              graphData={adjustedData}
+              graphInterval={{ end, start }}
+              graphRef={graphRef}
+              header={header}
+              height={height || responsiveHeight}
+              legend={legend}
+              loading={loading}
+              shapeLines={shapeLines}
+              timeShiftZones={timeShiftZones}
+              tooltip={tooltip}
+              width={width ?? responsiveWidth}
+              zoomPreview={zoomPreview}
+            />
+          );
+        }}
       </Responsive.ParentSize>
     </div>
   );

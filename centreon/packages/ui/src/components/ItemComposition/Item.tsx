@@ -1,4 +1,4 @@
-import { ReactElement, useCallback } from 'react';
+import { ReactElement } from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -8,14 +8,12 @@ import { useItemStyles } from './ItemComposition.styles';
 
 type Props = {
   children: Array<ReactElement>;
-  key: string | number;
   labelDelete: string;
   onDeleteItem: () => void;
 };
 
 export const Item = ({
   onDeleteItem,
-  key,
   children,
   labelDelete
 }: Props): JSX.Element => {

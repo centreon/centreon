@@ -1,3 +1,3 @@
 import { baseEndpoint } from '../../../api/endpoints';
 
-export const metricsEndpoint = `http://localhost:5005/centreon/api/latest/monitoring/metrics`;
+export const metricsEndpoint = `${baseEndpoint}/monitoring/dashboard/metrics/performances`;

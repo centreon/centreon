@@ -13,7 +13,19 @@ import { routerParams } from './useDashboardDetails';
 
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
   layout.map(
-    ({ h, i, panelConfiguration, w, x, y, minH, minW, options, name }) => ({
+    ({
+      h,
+      i,
+      panelConfiguration,
+      w,
+      x,
+      y,
+      minH,
+      minW,
+      options,
+      data,
+      name
+    }) => ({
       id: Number(i),
       layout: {
         height: h,
@@ -24,8 +36,9 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
         y
       },
       name: name || '',
-      widget_settings: (options || {}) as {
-        [key: string]: unknown;
+      widget_settings: {
+        data,
+        options
       },
       widget_type: panelConfiguration.path
     })

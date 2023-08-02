@@ -34,8 +34,8 @@ export interface Props
       'multiple'
     > {
   disableSortedOptions?: boolean;
-  optionProperty?: string;
   getTagLabel?: (option) => string;
+  optionProperty?: string;
 }
 
 const MultiAutocompleteField = ({

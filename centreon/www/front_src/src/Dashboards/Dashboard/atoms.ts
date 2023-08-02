@@ -173,16 +173,19 @@ export const removePanelDerivedAtom = atom(
   }
 );
 
-export const getPanelOptionsDerivedAtom = atom((get) => {
+export const getPanelOptionsAndDataDerivedAtom = atom((get) => {
   const dashboard = get(dashboardAtom);
 
-  return (id: string): object | undefined => {
-    const panelOptions = getPanel({
+  return (id: string): { data?: object; options?: object } => {
+    const panel = getPanel({
       id,
       layout: dashboard.layout
-    })?.options;
+    });
 
-    return panelOptions;
+    return {
+      data: panel?.data,
+      options: panel?.options
+    };
   };
 });
 

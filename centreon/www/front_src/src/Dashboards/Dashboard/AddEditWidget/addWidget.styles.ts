@@ -9,7 +9,7 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
       "widgetData widgetProperties"
     `,
     gridTemplateColumns: '2fr 1fr',
-    gridTemplateRows: '200px auto'
+    gridTemplateRows: 'minmax(300px, auto) auto'
   },
   preview: {
     alignItems: 'center',

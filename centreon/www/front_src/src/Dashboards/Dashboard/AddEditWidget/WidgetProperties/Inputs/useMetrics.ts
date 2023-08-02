@@ -181,7 +181,11 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     };
 
   useEffect(() => {
-    if (isNil(servicesMetrics) && isEmpty(resources)) {
+    if (isNil(servicesMetrics)) {
+      return;
+    }
+
+    if (isEmpty(resources)) {
       setFieldValue(`data.${propertyName}`, []);
 
       return;

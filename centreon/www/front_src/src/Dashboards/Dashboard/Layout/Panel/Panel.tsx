@@ -4,7 +4,7 @@ import { useMemoComponent } from '@centreon/ui';
 
 import {
   getPanelConfigurationsDerivedAtom,
-  getPanelOptionsDerivedAtom,
+  getPanelOptionsAndDataDerivedAtom,
   setPanelOptionsAndDataDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
@@ -16,13 +16,15 @@ interface Props {
 }
 
 const Panel = ({ id, isAddWidgetPanel }: Props): JSX.Element => {
-  const getPanelOptions = useAtomValue(getPanelOptionsDerivedAtom);
+  const getPanelOptionsAndData = useAtomValue(
+    getPanelOptionsAndDataDerivedAtom
+  );
   const getPanelConfigurations = useAtomValue(
     getPanelConfigurationsDerivedAtom
   );
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
 
-  const panelOptions = getPanelOptions(id);
+  const panelOptionsAndData = getPanelOptionsAndData(id);
 
   const panelConfigurations = getPanelConfigurations(id);
 
@@ -37,12 +39,13 @@ const Panel = ({ id, isAddWidgetPanel }: Props): JSX.Element => {
       <FederatedComponent
         isFederatedWidget
         id={id}
-        panelOptions={panelOptions}
+        panelData={panelOptionsAndData?.data}
+        panelOptions={panelOptionsAndData?.options}
         path={panelConfigurations.path}
         setPanelOptions={changePanelOptions}
       />
     ),
-    memoProps: [id, panelOptions]
+    memoProps: [id, panelOptionsAndData]
   });
 };
 
