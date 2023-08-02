@@ -8,9 +8,9 @@ import UndoRedoButtons from './UndoRedoButtons';
 import MacrosButton from './MacrosButton';
 
 interface Props {
+  displayMacrosButton?: boolean;
   editable: boolean;
   getEditorState?: (editorState: EditorState) => void;
-  isMacrosButtonVisible?: boolean;
 }
 
 export const useStyles = makeStyles()((theme) => ({
@@ -33,7 +33,7 @@ export const useStyles = makeStyles()((theme) => ({
 const ToolbarPlugin = ({
   getEditorState,
   editable,
-  isMacrosButtonVisible
+  displayMacrosButton
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
 
@@ -42,7 +42,7 @@ const ToolbarPlugin = ({
       <UndoRedoButtons />
       <Divider flexItem orientation="vertical" />
       <FormatButtons getEditorState={getEditorState} />
-      {isMacrosButtonVisible && (
+      {displayMacrosButton && (
         <>
           <Divider flexItem orientation="vertical" />
           <MacrosButton />

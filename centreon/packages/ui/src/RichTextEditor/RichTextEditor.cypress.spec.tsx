@@ -206,11 +206,11 @@ describe('Rich Text Editor', () => {
   describe('Rich Text Editor with Macros Plugin', () => {
     beforeEach(() => {
       cy.mount({
-        Component: <RichTextEditor editable isMacrosButtonVisible />
+        Component: <RichTextEditor displayMacrosButton editable />
       });
     });
 
-    it('displays the Macros button when the "isMacrosButtonVisible" prop is set to true', () => {
+    it('displays the Macros button when the "displayMacrosButton" prop is set to true', () => {
       cy.findByLabelText('Macros').should('be.visible');
       cy.findByLabelText('Macros').click();
 

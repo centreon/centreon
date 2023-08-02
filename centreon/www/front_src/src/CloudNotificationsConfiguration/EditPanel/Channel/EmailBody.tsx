@@ -36,8 +36,8 @@ const EmailBody = (): JSX.Element => {
   return useMemoComponent({
     Component: (
       <RichTextEditor
+        displayMacrosButton
         editable
-        isMacrosButtonVisible
         contentClassName={classes.textEditor}
         editorState={value}
         error={(error as string) || undefined}
