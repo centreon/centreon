@@ -31,6 +31,7 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\UseCase\AddHost\AddHostValidation;
 use Core\Host\Domain\Model\Host;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
+use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
@@ -51,6 +52,7 @@ beforeEach(function (): void {
         $this->readTimezoneRepository = $this->createMock(ReadTimezoneRepositoryInterface::class),
         $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
         $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
+        $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class)
     );
@@ -197,6 +199,41 @@ it('throws an exception when category ID does not exist with non-admin user', fu
 })->throws(
     HostException::class,
     HostException::idsDoNotExist('categories', [1,3])->getMessage()
+);
+
+it('throws an exception when group ID does not exist with admin user', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostGroupRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->willReturn([]);
+
+    $this->validation->assertAreValidGroups([1,3]);
+})->throws(
+    HostException::class,
+    HostException::idsDoNotExist('groups', [1,3])->getMessage()
+);
+
+it('throws an exception when group ID does not exist with non-admin user', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact');
+    $this->readHostGroupRepository
+        ->expects($this->once())
+        ->method('existByAccessGroups')
+        ->willReturn([]);
+
+    $this->validation->assertAreValidGroups([1,3]);
+})->throws(
+    HostException::class,
+    HostException::idsDoNotExist('groups', [1,3])->getMessage()
 );
 
 it('throws an exception when parent template ID creates a circular inheritance', function (): void {
