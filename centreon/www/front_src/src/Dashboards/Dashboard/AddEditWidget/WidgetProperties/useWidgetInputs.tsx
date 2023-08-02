@@ -2,16 +2,16 @@ import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { propEq, find } from 'ramda';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { Widget, WidgetPropertyProps } from '../models';
-import useFederatedWidgets from '../../../../federatedModules/useFederatedWidgets';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
 import { widgetPropertiesAtom } from '../atoms';
 
 import { WidgetMetrics, WidgetResources, WidgetTextField } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
+import { federatedWidgetsPropertiesAtom } from 'www/front_src/src/federatedModules/atoms';
 
 export interface WidgetPropertiesRenderer {
   Component: (props: WidgetPropertyProps) => JSX.Element;
@@ -39,8 +39,9 @@ export const useWidgetInputs = (
   const { values, validateForm } = useFormikContext<Widget>();
 
   const [widgetProperties, setWidgetProperties] = useAtom(widgetPropertiesAtom);
-
-  const { federatedWidgetsProperties } = useFederatedWidgets();
+  const federatedWidgetsProperties = useAtomValue(
+    federatedWidgetsPropertiesAtom
+  );
 
   const selectedWidgetProperties =
     find(

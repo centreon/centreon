@@ -5,7 +5,7 @@ import { T, always, cond, equals, isEmpty } from 'ramda';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
-import { Widget, WidgetDataResource } from '../../models';
+import { Widget, WidgetDataResource, WidgetResourceType } from '../../models';
 import {
   labelHost,
   labelHostCategory,
@@ -37,28 +37,28 @@ interface UseResourcesState {
 
 const resourceTypeOptions = [
   {
-    id: 'host-group',
+    id: WidgetResourceType.hostGroup,
     name: labelHostGroup
   },
   {
-    id: 'host-category',
+    id: WidgetResourceType.hostCategory,
     name: labelHostCategory
   },
   {
-    id: 'host',
+    id: WidgetResourceType.host,
     name: labelHost
   },
   {
-    id: 'service',
+    id: WidgetResourceType.service,
     name: labelService
   }
 ];
 
 const resourceTypeBaseEndpoints = {
-  host: '/hosts',
-  'host-category': '/hosts/categories',
-  'host-group': '/hostgroups',
-  service: '/services'
+  [WidgetResourceType.host]: '/hosts',
+  [WidgetResourceType.hostCategory]: '/hosts/categories',
+  [WidgetResourceType.hostGroup]: '/hostgroups',
+  [WidgetResourceType.service]: '/services'
 };
 
 const useResources = (propertyName: string): UseResourcesState => {

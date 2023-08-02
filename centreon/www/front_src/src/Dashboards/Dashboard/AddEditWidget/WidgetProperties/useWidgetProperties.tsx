@@ -2,12 +2,12 @@ import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { propEq, find } from 'ramda';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { Widget, WidgetPropertyProps } from '../models';
-import useFederatedWidgets from '../../../../federatedModules/useFederatedWidgets';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
 import { widgetPropertiesAtom } from '../atoms';
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 
 import { WidgetTextField } from './Inputs';
 
@@ -34,8 +34,9 @@ export const useWidgetProperties =
 
     const [widgetProperties, setWidgetProperties] =
       useAtom(widgetPropertiesAtom);
-
-    const { federatedWidgetsProperties } = useFederatedWidgets();
+    const federatedWidgetsProperties = useAtomValue(
+      federatedWidgetsPropertiesAtom
+    );
 
     const selectedWidgetProperties =
       find(

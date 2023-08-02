@@ -48,6 +48,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
       <ItemComposition labelAdd={t(labelAdd)} onAddItem={addResource}>
         {value.map((resource, index) => (
           <ItemComposition.Item
+            className={classes.resourceCompositionItem}
             key={`${index}`}
             labelDelete={t(labelDelete)}
             onDeleteItem={deleteResource(index)}

@@ -40,3 +40,10 @@ export interface Metric extends NamedEntity {
 export interface ServiceMetric extends NamedEntity {
   metrics: Array<Metric>;
 }
+
+export enum WidgetResourceType {
+  host = 'host',
+  hostCategory = 'host-category',
+  hostGroup = 'host-group',
+  service = 'service'
+}

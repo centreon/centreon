@@ -17,12 +17,13 @@ interface Props {
 const LineChart = ({ panelData }: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { t } = useTranslation();
-  const { graphData, start, end, isGraphLoading } = useGraphQuery({
-    baseEndpoint: graphEndpoint,
-    metrics: panelData.metrics
-  });
+  const { graphData, start, end, isGraphLoading, isMetricIdsEmpty } =
+    useGraphQuery({
+      baseEndpoint: graphEndpoint,
+      metrics: panelData.metrics
+    });
 
-  if (isNil(graphData) && !isGraphLoading) {
+  if (isNil(graphData) && (!isGraphLoading || isMetricIdsEmpty)) {
     return (
       <Typography className={classes.noDataFound} variant="h5">
         {t(labelNoDataFound)}

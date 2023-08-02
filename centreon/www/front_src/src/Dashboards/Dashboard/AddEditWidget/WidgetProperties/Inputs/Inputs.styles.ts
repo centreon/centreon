@@ -1,16 +1,17 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useResourceStyles = makeStyles()((theme) => ({
+  resourceCompositionItem: {
+    display: 'grid',
+    gridTemplateColumns: '136px 1fr'
+  },
   resourceType: {
-    borderRadius: `${theme.shape.borderRadius}px 0px 0px ${theme.shape.borderRadius}px`,
-    width: '136px'
+    borderRadius: `${theme.shape.borderRadius}px 0px 0px ${theme.shape.borderRadius}px`
   },
   resources: {
     '& .MuiInputBase-root': {
       borderRadius: `0px ${theme.shape.borderRadius}px ${theme.shape.borderRadius}px 0px`
-    },
-    flexGrow: 1,
-    maxWidth: '272px'
+    }
   },
   resourcesContainer: {
     display: 'flex',

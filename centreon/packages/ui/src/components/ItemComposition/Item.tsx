@@ -10,18 +10,20 @@ type Props = {
   children: Array<ReactElement>;
   labelDelete: string;
   onDeleteItem: () => void;
+  className?: string;
 };
 
 export const Item = ({
   onDeleteItem,
   children,
-  labelDelete
+  labelDelete,
+  className
 }: Props): JSX.Element => {
-  const { classes } = useItemStyles();
+  const { classes, cx } = useItemStyles();
 
   return (
     <div className={classes.itemContainer}>
-      <div className={classes.itemContent}>{children}</div>
+      <div className={cx(classes.itemContent, className)}>{children}</div>
       <IconButton
         aria-label={labelDelete}
         data-testid={labelDelete}

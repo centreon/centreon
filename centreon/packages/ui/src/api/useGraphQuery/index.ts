@@ -16,6 +16,7 @@ interface UseMetricsQueryState {
   graphData: GraphData | undefined;
   isGraphLoading: boolean;
   start: string;
+  isMetricIdsEmpty: boolean;
 }
 
 enum TimePeriod {
@@ -70,7 +71,8 @@ const useGraphQuery = ({
     end,
     graphData: formattedGraphData,
     isGraphLoading: isFetching || (isLoading && !isEmpty(metricIds)),
-    start
+    start,
+    isMetricIdsEmpty: isEmpty(metricIds)
   };
 };
 

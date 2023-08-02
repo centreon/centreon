@@ -28,7 +28,8 @@ import {
   ServiceMetric,
   Widget,
   WidgetDataMetric,
-  WidgetDataResource
+  WidgetDataResource,
+  WidgetResourceType
 } from '../../models';
 import { metricsEndpoint } from '../../api/endpoints';
 import { serviceMetricsDecoder } from '../../api/decoders';
@@ -54,6 +55,13 @@ interface UseMetricsState {
   value: Array<WidgetDataMetric>;
 }
 
+const resourceTypeQueryParameter = {
+  [WidgetResourceType.host]: 'host.id',
+  [WidgetResourceType.hostCategory]: 'hostcategory.id',
+  [WidgetResourceType.hostGroup]: 'hostgroup.id',
+  [WidgetResourceType.service]: 'service.name'
+};
+
 const useMetrics = (propertyName: string): UseMetricsState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
@@ -70,7 +78,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
         parameters: {
           search: {
             lists: resources.map((resource) => ({
-              field: resource.resourceType,
+              field: resourceTypeQueryParameter[resource.resourceType],
               values: equals(resource.resourceType, 'service')
                 ? pluck('name', resource.resources)
                 : pluck('id', resource.resources)

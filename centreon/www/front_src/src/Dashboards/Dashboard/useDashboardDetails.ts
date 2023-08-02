@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useParams } from 'react-router-dom';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, propOr } from 'ramda';
 
 import { useDeepCompare, useFetchQuery } from '@centreon/ui';
@@ -9,8 +9,8 @@ import { useDeepCompare, useFetchQuery } from '@centreon/ui';
 import { dashboardsEndpoint } from '../api/endpoints';
 import { Dashboard, DashboardPanel, resource } from '../api/models';
 import { dashboardDecoder } from '../api/decoders';
-import useFederatedWidgets from '../../federatedModules/useFederatedWidgets';
 import { FederatedModule } from '../../federatedModules/models';
+import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 
 import { Panel, PanelConfiguration } from './models';
 import { dashboardAtom } from './atoms';
@@ -66,9 +66,8 @@ type UseDashboardDetailsProps = {
 const useDashboardDetails = ({
   dashboardId
 }: UseDashboardDetailsProps): UseDashboardDetailsState => {
+  const federatedWidgets = useAtomValue(federatedWidgetsAtom);
   const setDashboard = useSetAtom(dashboardAtom);
-
-  const { federatedWidgets } = useFederatedWidgets();
 
   const { data: dashboard } = useFetchQuery({
     decoder: dashboardDecoder,

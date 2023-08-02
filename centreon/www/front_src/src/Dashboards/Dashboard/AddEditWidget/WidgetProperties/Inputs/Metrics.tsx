@@ -93,6 +93,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
         <ItemComposition labelAdd={t(labelAdd)} onAddItem={addMetric}>
           {value.map((service, index) => (
             <ItemComposition.Item
+              className={classes.resourceCompositionItem}
               key={`${index}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteMetric(index)}
