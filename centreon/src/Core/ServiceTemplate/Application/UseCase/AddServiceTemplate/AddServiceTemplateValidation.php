@@ -21,63 +21,53 @@
 
 declare(strict_types=1);
 
-namespace Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate;
+namespace Core\ServiceTemplate\Application\UseCase\AddServiceTemplate;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
-use Core\Common\Domain\TrimmedString;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
+use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
-use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
-class ParametersValidation
+class AddServiceTemplateValidation
 {
     use LoggerTrait;
 
+    /**
+     * @param ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository
+     * @param ReadServiceSeverityRepositoryInterface $serviceSeverityRepository
+     * @param ReadPerformanceGraphRepositoryInterface $performanceGraphRepository
+     * @param ReadCommandRepositoryInterface $commandRepository
+     * @param ReadTimePeriodRepositoryInterface $timePeriodRepository
+     * @param ReadViewImgRepositoryInterface $imageRepository
+     * @param ReadHostTemplateRepositoryInterface $readHostTemplateRepository
+     * @param ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository
+     * @param ReadServiceGroupRepositoryInterface $readServiceGroupRepository
+     * @param ContactInterface $user
+     * @param AccessGroup[] $accessGroups
+     */
     public function __construct(
         private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
-        private readonly ReadCommandRepositoryInterface $commandRepository,
-        private readonly ReadTimePeriodRepositoryInterface $timePeriodRepository,
         private readonly ReadServiceSeverityRepositoryInterface $serviceSeverityRepository,
         private readonly ReadPerformanceGraphRepositoryInterface $performanceGraphRepository,
+        private readonly ReadCommandRepositoryInterface $commandRepository,
+        private readonly ReadTimePeriodRepositoryInterface $timePeriodRepository,
         private readonly ReadViewImgRepositoryInterface $imageRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
+        private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
+        private readonly ContactInterface $user,
+        public array $accessGroups = []
     ) {
-    }
-
-    /**
-     * Assert name is not already used.
-     *
-     * @param string $currentName
-     * @param string $newName
-     *
-     * @throws ServiceTemplateException
-     * @throws \Throwable
-     */
-    public function assertIsValidName(string $currentName, string $newName): void
-    {
-        $formattedName = ServiceTemplate::formatName($newName) ?? '';
-        if (
-            '' !== $formattedName
-            && $currentName !== $formattedName
-            && $this->readServiceTemplateRepository->existsByName(
-                new TrimmedString($formattedName)
-            )
-        ) {
-            $this->error('Service template name already exists', ['name' => $newName]);
-
-            throw ServiceTemplateException::nameAlreadyExists($formattedName);
-        }
     }
 
     /**
@@ -142,6 +132,39 @@ class ParametersValidation
     }
 
     /**
+     * @param int|null $iconId
+     *
+     * @throws ServiceTemplateException
+     * @throws \Throwable
+     */
+    public function assertIsValidIcon(?int $iconId): void
+    {
+        if ($iconId !== null && ! $this->imageRepository->existsOne($iconId)) {
+            $this->error('Icon does not exist', ['icon_id' => $iconId]);
+
+            throw ServiceTemplateException::idDoesNotExist('icon_id', $iconId);
+        }
+    }
+
+    /**
+     * @param int|null $notificationTimePeriodId
+     *
+     * @throws ServiceTemplateException
+     * @throws \Throwable
+     */
+    public function assertIsValidNotificationTimePeriod(?int $notificationTimePeriodId): void
+    {
+        if ($notificationTimePeriodId !== null && ! $this->timePeriodRepository->exists($notificationTimePeriodId)) {
+            $this->error(
+                'Notification time period does not exist',
+                ['notification_timeperiod_id' => $notificationTimePeriodId]
+            );
+
+            throw ServiceTemplateException::idDoesNotExist('notification_timeperiod_id', $notificationTimePeriodId);
+        }
+    }
+
+    /**
      * @param int|null $severityId
      *
      * @throws ServiceTemplateException
@@ -172,80 +195,83 @@ class ParametersValidation
     }
 
     /**
-     * @param int|null $notificationTimePeriodId
+     * @param list<int> $hostTemplateIds
      *
      * @throws ServiceTemplateException
-     * @throws \Throwable
      */
-    public function assertIsValidNotificationTimePeriod(?int $notificationTimePeriodId): void
+    public function assertIsValidHostTemplates(array $hostTemplateIds): void
     {
-        if ($notificationTimePeriodId !== null && ! $this->timePeriodRepository->exists($notificationTimePeriodId)) {
-            $this->error(
-                'Notification time period does not exist',
-                ['notification_timeperiod_id' => $notificationTimePeriodId]
-            );
-
-            throw ServiceTemplateException::idDoesNotExist('notification_timeperiod_id', $notificationTimePeriodId);
+        if (! empty($hostTemplateIds)) {
+            $hostTemplateIds = array_unique($hostTemplateIds);
+            $hostTemplateIdsFound = $this->readHostTemplateRepository->findAllExistingIds($hostTemplateIds);
+            if ([] !== ($diff = array_diff($hostTemplateIds, $hostTemplateIdsFound))) {
+                throw ServiceTemplateException::idsDoNotExist('host_templates', $diff);
+            }
         }
     }
 
     /**
-     * @param int|null $iconId
+     * @param int[] $serviceCategoriesIds
      *
      * @throws ServiceTemplateException
      * @throws \Throwable
      */
-    public function assertIsValidIcon(?int $iconId): void
+    public function assertIsValidServiceCategories(array $serviceCategoriesIds): void
     {
-        if ($iconId !== null && ! $this->imageRepository->existsOne($iconId)) {
-            $this->error('Icon does not exist', ['icon_id' => $iconId]);
+        if (empty($serviceCategoriesIds)) {
 
-            throw ServiceTemplateException::idDoesNotExist('icon_id', $iconId);
+            return;
         }
-    }
 
-    /**
-     * Check if all host template ids exist.
-     *
-     * @param list<int> $hostTemplatesIds
-     *
-     * @throws ServiceTemplateException
-     */
-    public function assertHostTemplateIds(array $hostTemplatesIds): void
-    {
-        $hostTemplateIds = array_unique($hostTemplatesIds);
-        $hostTemplateIdsFound = $this->readHostTemplateRepository->findAllExistingIds($hostTemplateIds);
-        if ([] !== ($idsNotFound = array_diff($hostTemplateIds, $hostTemplateIdsFound))) {
-            throw ServiceTemplateException::idsDoNotExist('host_templates', $idsNotFound);
-        }
-    }
-
-    /**
-     * @param list<int> $serviceCategoriesIds
-     * @param ContactInterface $contact
-     * @param AccessGroup[] $accessGroups
-     *
-     * @throws ServiceTemplateException
-     * @throws \Throwable
-     */
-    public function assertServiceCategories(
-        array $serviceCategoriesIds,
-        ContactInterface $contact,
-        array $accessGroups
-    ): void {
-        if ($contact->isAdmin()) {
+        if ($this->user->isAdmin()) {
             $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
                 $serviceCategoriesIds
             );
         } else {
             $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIdsByAccessGroups(
                 $serviceCategoriesIds,
-                $accessGroups
+                $this->accessGroups
             );
         }
 
         if ([] !== ($idsNotFound = array_diff($serviceCategoriesIds, $serviceCategoriesIdsFound))) {
             throw ServiceTemplateException::idsDoNotExist('service_categories', $idsNotFound);
+        }
+    }
+
+    /**
+     * @param ServiceGroupDto[] $serviceGroups
+     * @param int[] $hostTemplateIds
+     *
+     * @throws ServiceTemplateException
+     * @throws \Throwable
+     */
+    public function assertIsValidServiceGroups(array $serviceGroups, array $hostTemplateIds): void
+    {
+        if (empty($serviceGroups)) {
+
+            return;
+        }
+
+        $serviceGroupIds = [];
+        foreach ($serviceGroups as $serviceGroup) {
+            if (false === in_array($serviceGroup->hostTemplateId, $hostTemplateIds, true)) {
+                throw ServiceTemplateException::invalidServiceGroupAssociation();
+            }
+            $serviceGroupIds[] = $serviceGroup->serviceGroupId;
+        }
+
+        if ($this->user->isAdmin()) {
+            $serviceGroupIdsFound = $this->readServiceGroupRepository->exist($serviceGroupIds);
+        } else {
+            $serviceGroupIdsFound = $this->readServiceGroupRepository->existByAccessGroups(
+                $serviceGroupIds,
+                $this->accessGroups
+            );
+        }
+
+        if ([] !== ($idsNotFound = array_diff($serviceGroupIds, $serviceGroupIdsFound))) {
+            throw ServiceTemplateException::idsDoNotExist('service_groups', $idsNotFound);
         }
     }
 }
