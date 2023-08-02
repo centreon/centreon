@@ -69,7 +69,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Restore packages
-        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-update') }}"
+        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         uses: actions/cache@v3
         with:
           path: ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
@@ -77,7 +77,7 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Move packages
-        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-update') }}"
+        if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         run: |
           mkdir -p ${{ inputs.package_directory }}
           mv ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
@@ -152,8 +152,7 @@ jobs:
           path: ${{ inputs.name }}-json-reports
 
       - name: Merge reports
-        run: |
-          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+        run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
         shell: bash
 
       - name: Publish report

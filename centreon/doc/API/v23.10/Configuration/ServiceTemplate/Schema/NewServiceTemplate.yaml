@@ -263,6 +263,22 @@ properties:
       type: integer
       description: "Service category ID"
     example: [ 1, 2 ]
+  service_groups:
+    type: array
+    descriptions: "Service group / host template associations to be linked to this service template."
+    items:
+      type: object
+      properties:
+        service_group_id:
+          type: integer
+          description: "Service group ID"
+          example: 1
+        host_template_id:
+          type: integer
+          description: |
+            Host template ID to be paired with the service template for the service group / template association.
+            The host template ID must be defined in the host_templates list.
+          example: 2
   macros:
     type: array
     description: |
