@@ -256,6 +256,10 @@ paths:
     $ref: "./v23.10/Configuration/Notification/DeleteNotifications.yaml"
   /configuration/notifications/{notification_id}:
     $ref: "./v23.10/Configuration/Notification/Notification.yaml"
+  /configuration/notifications/resources:
+    $ref: "./v23.10/Configuration/Notification/FindNotifiableResources.yaml"
+  /configuration/hosts/{host_id}:
+    $ref: './v23.10/Configuration/Host/DeleteHost.yaml'
   /configuration/hosts/templates:
     $ref: './v23.10/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:
@@ -7555,10 +7559,6 @@ components:
           type: integer
           description: "Downtime duration in seconds"
           example: 3600
-        author_id:
-          type: integer
-          description: "ID of the contact who requested the downtime"
-          example: 3
         comment:
           type: string
           description: "Comment of the downtime"

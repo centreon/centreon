@@ -1,0 +1,5 @@
+DeleteHost:
+  methods: DELETE
+  path: /configuration/hosts/{hostId}
+  controller: 'Core\Host\Infrastructure\API\DeleteHost\DeleteHostController'
+  condition: "request.attributes.get('version') >= 23.10"
