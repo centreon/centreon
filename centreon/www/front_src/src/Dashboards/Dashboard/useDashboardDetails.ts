@@ -70,8 +70,6 @@ const useDashboardDetails = ({
 
   const { federatedWidgets } = useFederatedWidgets();
 
-  const { federatedWidgets } = useFederatedWidgets();
-
   const { data: dashboard } = useFetchQuery({
     decoder: dashboardDecoder,
     getEndpoint: () => `${dashboardsEndpoint}/${dashboardId}`,
