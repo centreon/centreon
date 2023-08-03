@@ -1697,7 +1697,7 @@ paths:
       parameters:
         - in: query
           name: start
-          required: false
+          required: true
           description: "Start date of metrics (default date is 24 hours in the past)"
           schema:
             type: string
@@ -1705,19 +1705,22 @@ paths:
             example: '2020-02-18T00:00:00'
         - in: query
           name: end
-          required: false
+          required: true
           description: "End date of metrics (default date is current date)"
           schema:
             type: string
             format: date-time
             example: '2020-02-19T00:00:00'
+        - in: query
+          name: metricIds
+          required: true
+          description: "Ids of the metric"
+          schema:
+            type: array
+            items:
+              type: number
       description: |
-        Get data for one metric
-
-        The available parameters to **search**
-        AND
-        * start
-        * end
+        Get data for given metrics
       responses:
        '200':
         description: "OK"
@@ -1725,7 +1728,10 @@ paths:
             application/json:
               schema:
                 properties:
-                
+                  base:
+                    type: number
+                    example: 1000
+                    description: Base to scale data on graph
                   metrics:
                     type: array
                     items:
