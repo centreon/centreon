@@ -2,7 +2,6 @@ import { lazy, useState, Suspense, useRef, useEffect } from 'react';
 
 import { equals, isNil, path } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-import { useNavigate } from 'react-router-dom';
 
 import { Box } from '@mui/material';
 
