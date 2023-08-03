@@ -107,7 +107,7 @@ jobs:
       #     docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
       #   shell: bash
 
-      - run: docker pull docker.centreon.com/centreon/${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+      - run: docker pull docker.centreon.com/centreon/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
