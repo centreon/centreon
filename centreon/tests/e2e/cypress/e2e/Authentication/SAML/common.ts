@@ -1,13 +1,13 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
-const keycloakURL = Cypress.env('OPENID_IMAGE_URL');
+const keycloakURL = `${Cypress.env('OPENID_IMAGE_URL')}/realms/Centreon_SSO`;
 
 const SAMLConfigVales = {
-  entityID: `${keycloakURL}/realms/Centreon_SSO`,
+  entityID: keycloakURL,
   loginAttribute: 'email',
-  logoutURL: `${keycloakURL}/realms/Centreon_SSO/protocol/saml`,
-  remoteLoginURL: `${keycloakURL}/realms/Centreon_SSO/protocol/saml/clients/platform-saml-2`,
+  logoutURL: `${keycloakURL}/protocol/saml`,
+  remoteLoginURL: `${keycloakURL}/protocol/saml/clients/centreon`,
   x509Certificate:
-    'MIICrTCCAZUCBgGFOHJWgDANBgkqhkiG9w0BAQsFADAaMRgwFgYDVQQDDA9wbGF0Zm9ybS1zYW1sLTIwHhcNMjIxMjIyMDYwNjM1WhcNMzIxMjIyMDYwODE1WjAaMRgwFgYDVQQDDA9wbGF0Zm9ybS1zYW1sLTIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDwHVxEbRpy2/LC9AbGLQqyzTlm5HxeUJDNdI5pcZvzA8mHqRIhhe6uYL1zN9q/NhC8ptHQ323eE9j5FJRG1QSpbJ9ThhEleieLYNyxfjWv/wyI12ULswGlayFDTn/4ZZeRGMR5ELJ/a8kSWfESWxWS+a3Cu+WsJBDkA34BwTxMxFF9CcGQfxP05QqJOivDpRt9BqDnW2crsIlzYKwFkSCwUoJfyzfr96Tp6nI7rmOwIERjc2qNIJtybzKMUydlmZ/yN/qYZjB8kJibsianIOJYFwkdQZ/l2yztzlsgfcr78xIu7lfWdYFfdqdqrzFOpqzIeZXpItLPQV1Mvnneof/fAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAN28Y2R3LIMWKogZt4f1tTy+5lVIHnhQz/ZEMGQCxiBJlT+wInhebuxRWyGcYAZsnwLgTYIntpPYkw+fpO6Grd2+Oz8+Uq2v13vlWouKGqf07UVImTebhVNAHNa78WuUVrbZzomh99HcFaSqlv/pCpTqFV0MOqyhSq2HB+Qkgb9XCbvzukVaLvtQ+ym5BS2SIDLF0wDBCpgRQeMzSD4IHB4jDaOvrxmyeJd8tY/98eTcLeplYepuf836VjedXW4UpvbbSsJSwDYF3j4gvUTGcTsq+2hhVrnEbrTA8bHIjQ40hUguEZ1Vrk5vvXXoScKf5BiTeSBN2cGHuFy20oHvstg='
+    'MIICpzCCAY8CBgGFydyVcDANBgkqhkiG9w0BAQsFADAXMRUwEwYDVQQDDAxDZW50cmVvbl9TU08wHhcNMjMwMTE5MTE0NzM0WhcNMzMwMTE5MTE0OTE0WjAXMRUwEwYDVQQDDAxDZW50cmVvbl9TU08wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCCpNndecGJI2xOaNQXDDvwDwo/beQ7Q4HW/ck1BNkE13IgPf5GRpvP2jp/1IZsx92vQ2Ub9g5urNG/jo3nZzsUUIdTICsN9Bq2OIjYU9Uxmc1PpHzklN/SqZWbKXOw8EzqXkQ3YNXHqL9omJJ5JMxe4zg758zlvOUh3I44XhMy6PKgeReJIm+HxYJ8SKeu/XVRI7Uiyav5L2M85ED3kqiI3iPrGfLQzv8zqkTeNfuZIeigqI+M8MqRxR3Qf0UlmWA3ZAzsoxJUU+e0tHnD7MhgyRLfg76FjQ1U7Tv7X/h8uqRthjTbva5v0k0M85z21C85UrHxpS3e/HJFInrkJredAgMBAAEwDQYJKoZIhvcNAQELBQADggEBADQANd/iYhefXpcqXC+co3fEe7IaZ93XelZzJ5S4OAR5dHnhMMlMQnnscW/nH8NAEwWRImJPfOEcKun8rBUphZZJxi2WHHj5ilhGdNtcyZzh0sufyIQav/QMreGmDEj/J/uRfmG15Lj1wJB6mw+O4kuwJj/8DzxK6/sQYPisJuXrSWrDmcpvShvbo59JbVjdYK49WXVDbl++7hrwiOYuCQ/uodQYgvChZnIQbL4O6TbG4OLy+prFd5FBsEQds8ZNXoLWM5bCUz+bz4N68fAqhtPR8+yR+pIrE7/cvRaRCmgnG0s61JBZVxHoT4dbMJUTTSSS4dWCUUNhMCIFtEKL06c='
 };
 
 const configureSAML = (): Cypress.Chainable => {

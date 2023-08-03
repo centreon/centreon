@@ -8,10 +8,33 @@ import {
 
 before(() => {
   cy.startWebContainer()
-    .startOpenIdProviderContainer()
+    // .startOpenIdProviderContainer()
     .then(() => {
       initializeSAMLUser();
     });
+});
+
+beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/administration/authentication/providers/saml'
+  }).as('getSAMLProvider');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/authentication/providers/configurations'
+  }).as('getCentreonAuthConfigs');
+  cy.intercept({
+    method: 'PUT',
+    url: '/centreon/api/latest/administration/authentication/providers/saml'
+  }).as('updateSAMLProvider');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/authentication/providers/configurations/local'
+  }).as('postLocalAuthentification');
 });
 
 Given('an administrator is logged on the platform', () => {
