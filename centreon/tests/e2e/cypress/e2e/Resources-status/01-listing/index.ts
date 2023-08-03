@@ -1,4 +1,10 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import {
+  After,
+  Before,
+  Given,
+  When,
+  Then
+} from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   insertResourceFixtures,
@@ -8,18 +14,18 @@ import {
 } from '../common';
 import { loginAsAdminViaApiV2 } from '../../../commons';
 
-before(() => {
+Before(() => {
   cy.startWebContainer();
 
-  // insertResourceFixtures()
-  //   .then(loginAsAdminViaApiV2)
-  //   .then(() =>
-  //     cy
-  //       .fixture('resources/filters.json')
-  //       .then((filters) => setUserFilter(filters))
-  //   );
+  insertResourceFixtures()
+    .then(loginAsAdminViaApiV2)
+    .then(() =>
+      cy
+        .fixture('resources/filters.json')
+        .then((filters) => setUserFilter(filters))
+    );
 });
-/*
+
 beforeEach(() => {
   cy.intercept({
     method: 'POST',
@@ -34,19 +40,18 @@ beforeEach(() => {
     url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
   }).as('getFilters');
 });
-*/
 
 Then('the unhandled problems filter is selected', (): void => {
-  // cy.visit('/');
-  // cy.contains('Unhandled alerts');
+  cy.visit('/');
+  cy.contains('Unhandled alerts');
 });
 
 Then('only non-ok resources are displayed', () => {
-  // cy.contains('service_test_ack');
-  // cy.contains('service_test_ok').should('not.exist');
-  // cy.contains('Critical');
-  // cy.get('header').parent().children().eq(1).contains('Ok').should('not.exist');
-  // cy.get('header').parent().children().eq(1).contains('Up').should('not.exist');
+  cy.contains('service_test_ack');
+  cy.contains('service_test_ok').should('not.exist');
+  cy.contains('Critical');
+  cy.get('header').parent().children().eq(1).contains('Ok').should('not.exist');
+  cy.get('header').parent().children().eq(1).contains('Up').should('not.exist');
 });
 
 When('I put in some criterias', () => {
@@ -92,6 +97,6 @@ Then(
   }
 );
 
-after(() => {
+After(() => {
   cy.stopWebContainer();
 });

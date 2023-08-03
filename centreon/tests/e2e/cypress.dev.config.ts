@@ -1,12 +1,13 @@
+/* eslint-disable no-console */
 // import configuration from '@centreon/js-config/cypress/e2e/configuration';
 
-// import { execSync } from 'child_process';
+import { execSync } from 'child_process';
 
 import { defineConfig } from 'cypress';
 import createBundler from '@bahmutov/cypress-esbuild-preprocessor';
 import Docker from 'dockerode';
 import { addCucumberPreprocessorPlugin } from '@badeball/cypress-cucumber-preprocessor';
-import webpackPreprocessor from '@cypress/webpack-preprocessor';
+//import webpackPreprocessor from '@cypress/webpack-preprocessor';
 import createEsbuildPlugin from '@badeball/cypress-cucumber-preprocessor/esbuild';
 import cypressOnFix from 'cypress-on-fix';
 
@@ -26,6 +27,7 @@ const setupNodeEvents = async (
       plugins: [createEsbuildPlugin(config)]
     })
   );
+
   /*
   on(
     'file:preprocessor',
@@ -72,6 +74,13 @@ const setupNodeEvents = async (
     return launchOptions;
   });
 
+  // on('before:run', (details) => {
+  //   execSync('export CYPRESS_BASE_URL=http://0.0.0.0:4000');
+  //   process.env.CYPRESS_BASE_URL = 'http://0.0.0.0:4000';
+  //   process.env.BASE_URL = 'http://0.0.0.0:4000';
+  //   config.baseUrl = 'http://0.0.0.0:4000';
+  // });
+
   interface PortBinding {
     destination: number;
     source: number;
@@ -88,21 +97,22 @@ const setupNodeEvents = async (
   }
 
   on('task', {
-    startContainer: ({
+    startContainer: async ({
       image,
       name,
       portBindings = []
     }: StartContainerProps) => {
       console.log(`Starting container ${image}`);
-      return null;
-
-      /*
 
       const webContainers = await docker.listContainers({
         all: true,
         filters: { name: [name] }
       });
       if (webContainers.length) {
+        console.log(
+          `Container ${image} already started : baseUrl has probably changed and reloaded the test`
+        );
+
         return webContainers[0];
       }
 
@@ -133,17 +143,14 @@ const setupNodeEvents = async (
         Tty: true,
         name
       });
-      console.log(`Container ${image} started`);
 
       await container.start();
 
       console.log(`Container ${image} started`);
 
       return container;
-      */
     },
-    stopContainer: ({ name }: StopContainerProps) => {
-      /*
+    stopContainer: async ({ name }: StopContainerProps) => {
       const container = await docker.getContainer(name);
 
       console.log(`Stopping container ${name}`);
@@ -152,7 +159,6 @@ const setupNodeEvents = async (
       await container.remove();
 
       console.log(`Container ${name} killed and removed`);
-      */
 
       return null;
     }
@@ -182,7 +188,6 @@ export default defineConfig({
     dockerName: 'centreon-dev'
   },
   execTimeout: 60000,
-  /*
   reporter: 'mochawesome',
   reporterOptions: {
     html: false,
@@ -191,7 +196,6 @@ export default defineConfig({
     reportDir: `${resultsFolder}/reports`,
     reportFilename: '[name]-report.json'
   },
-  */
   requestTimeout: 10000,
   retries: 0,
   screenshotsFolder: `${resultsFolder}/screenshots`,

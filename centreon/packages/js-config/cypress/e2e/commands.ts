@@ -260,21 +260,20 @@ Cypress.Commands.add(
 
     const image = `docker.centreon.com/centreon/centreon-web${slimSuffix}-${os}:${version}`;
 
+    const baseUrl = 'http://0.0.0.0:4000';
+
+    Cypress.config('baseUrl', baseUrl);
+
+    cy.startContainer({
+      image,
+      name,
+      portBindings: [{ destination: 4000, source: 80 }]
+    });
+
     return cy
-      .startContainer({
-        image,
-        name,
-        portBindings: [{ destination: 4000, source: 80 }]
-      })
-      .then(() => {
-        const baseUrl = 'http://0.0.0.0:4000';
-
-        Cypress.config('baseUrl', baseUrl);
-
-        return cy.exec(
-          `npx wait-on ${baseUrl}/centreon/api/latest/platform/installation/status`
-        );
-      })
+      .exec(
+        `npx wait-on ${baseUrl}/centreon/api/latest/platform/installation/status`
+      )
       .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
       .setUserTokenApiV1();
   }
