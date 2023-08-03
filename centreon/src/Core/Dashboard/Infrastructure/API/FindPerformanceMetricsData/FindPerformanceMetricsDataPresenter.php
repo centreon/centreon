@@ -52,6 +52,7 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
 
     /**
      * @param string[] $times
+     *
      * @return \DateTime[]
      */
     private function formatTimeStampToISO8601(array $times): array
