@@ -44,6 +44,11 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
+            $this->present([
+                'base' => $response->base,
+                'metrics' => $response->metricsData,
+                'times' => $response->times,
+            ]);
         }
     }
 }

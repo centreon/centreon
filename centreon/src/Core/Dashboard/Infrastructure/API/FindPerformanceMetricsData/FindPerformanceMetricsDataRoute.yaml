@@ -1,4 +1,4 @@
-FindMetrics:
+FindPerformanceMetricsData:
   methods: GET
   path: /monitoring/dashboard/metrics/performances/data
   controller: 'Core\Dashboard\Infrastructure\API\FindPerformanceMetricsData\FindPerformanceMetricsDataController'

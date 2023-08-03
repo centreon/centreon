@@ -25,7 +25,7 @@ namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
-use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface;
+use Core\Dashboard\Domain\Model\Metric\PerformanceMetricsData;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 
 final class FindPerformanceMetricsData
@@ -43,7 +43,8 @@ final class FindPerformanceMetricsData
     ): void {
         try {
             if ($this->user->IsAdmin()) {
-                $this->findPerformanceMetricsDataAsAdmin($request);
+                $performanceMetricsData = $this->findPerformanceMetricsDataAsAdmin($request);
+                $presenter->presentResponse($this->createResponse($performanceMetricsData));
             } else {
                 // $this->findPerformanceMetricsDataAsNonAdmin($request);
             }
@@ -56,15 +57,30 @@ final class FindPerformanceMetricsData
      * Undocumented function
      *
      * @param FindPerformanceMetricsDataRequest $request
-     * @return PerformanceMetrics[]
+     * @return PerformanceMetricsData
      */
-    private function findPerformanceMetricsDataAsAdmin(FindPerformanceMetricsDataRequest $request): array
-    {
-        // $services = $this->metricRepository->findServicesByMetricIds();
-        if ($request->startDate !== null && $request->endDate !== null) {
-            // return $this->metricRepositoryLegacy->setContact($this->user)->findMetricsByService($request->startDate, $request->endDate);
-        } else {
-            // return $this->metricRepositoryLegacy->setContact($this->user)->findMetricsByService();
+    private function findPerformanceMetricsDataAsAdmin(
+        FindPerformanceMetricsDataRequest $request
+    ): PerformanceMetricsData {
+        $services = $this->metricRepository->findServicesByMetricIds($request->metricIds);
+        $metricsData = [];
+        foreach($services as $service) {
+            $metricsData[] = $this->metricRepositoryLegacy
+                ->setContact($this->user)
+                ->findMetricsByService($service, $request->startDate, $request->endDate);
         }
+        $factory = new PerformanceMetricsDataFactory();
+        $metricsData = $factory->createFromRecords($metricsData, $request->metricIds);
+        return $metricsData;
+    }
+
+    private function createResponse(PerformanceMetricsData $performanceMetricsData): FindPerformanceMetricsDataResponse
+    {
+        $response = new FindPerformanceMetricsDataResponse();
+        $response->base = $performanceMetricsData->getBase();
+        $response->metricsData = $performanceMetricsData->getMetricsData();
+        $response->times = $performanceMetricsData->getTimes();
+
+        return $response;
     }
 }

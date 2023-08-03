@@ -1718,165 +1718,165 @@ paths:
         AND
         * start
         * end
-        OR
-        * last_data_only
       responses:
        '200':
         description: "OK"
         content:
             application/json:
               schema:
-                type: object
                 properties:
+                
                   metrics:
-                    type: object
-                    properties:
-                      index_id:
-                        type: string
-                        description: index id in centreon_storage.index_data table
-                        example: '4'
-                      metric_id:
-                        type: string
-                        description: metric id in centreon_storage.metrics table
-                        example: '29'
-                      metric:
-                        type: string
-                        description: name of the metric
-                        example: 'cpu'
-                      metric_legend:
-                        type: string
-                        description: name of the metric in legend
-                        example: 'cpu'
-                      unit:
-                        type: string
-                        description: metric unit
-                        example: '%'
-                      hidden:
-                        type: integer
-                        description: if the metric is hidden
-                        example: 0
-                      min:
-                        type: string
-                        description: min value
-                        example: '0'
-                      max:
-                        type: string
-                        description: max value
-                        example: '100'
-                      virtual:
-                        type: integer
-                        description: if the metric is virtual
-                        example: 0
-                      ds_data:
+                    type: array
+                    items:
                         type: object
-                        description: metric line properties
                         properties:
-                          ds_min:
+                          index_id:
                             type: string
+                            description: index id in centreon_storage.index_data table
+                            example: '4'
+                          metric_id:
+                            type: string
+                            description: metric id in centreon_storage.metrics table
+                            example: '29'
+                          metric:
+                            type: string
+                            description: name of the metric
+                            example: 'cpu'
+                          metric_legend:
+                            type: string
+                            description: name of the metric in legend
+                            example: 'cpu'
+                          unit:
+                            type: string
+                            description: metric unit
+                            example: '%'
+                          hidden:
+                            type: integer
+                            description: if the metric is hidden
+                            example: 0
+                          min:
+                            type: string
+                            description: min value
+                            example: '0'
+                          max:
+                            type: string
+                            description: max value
+                            example: '100'
+                          virtual:
+                            type: integer
+                            description: if the metric is virtual
+                            example: 0
+                          ds_data:
+                            type: object
+                            description: metric line properties
+                            properties:
+                              ds_min:
+                                type: string
+                                description: minimum value
+                                example: '1'
+                              ds_max:
+                                type: string
+                                description: maximum value
+                                example: '1'
+                              ds_minmax_int:
+                                type: string
+                                nullable: true
+                                description: unknown
+                                example: null
+                              ds_last:
+                                type: string
+                                description: last value
+                                example: '1'
+                              ds_average:
+                                type: string
+                                description: average value
+                                example: '1'
+                              ds_total:
+                                type: string
+                                nullable: true
+                                description: unknown
+                                example: null
+                              ds_tickness:
+                                type: string
+                                description: unknown
+                                example: '1'
+                              ds_color_line_mode:
+                                type: string
+                                description: unknown
+                                example: '1'
+                              ds_color_line:
+                                type: string
+                                description: color of the line
+                                example: '#666600'
+                          legend:
+                            type: string
+                            description: metric name in legend
+                            example: 'cpu (%)'
+                          stack:
+                            type: integer
+                            description: if the metric is stacked with other metrics
+                            example: 0
+                          warn:
+                            type: string
+                            nullable: true
+                            description: warning threshold
+                            example: null
+                          warn_low:
+                            type: string
+                            nullable: true
+                            description: low warning threshold
+                            example: null
+                          crit:
+                            type: string
+                            nullable: true
+                            description: critical threshold
+                            example: null
+                          crit_low:
+                            type: string
+                            nullable: true
+                            description: low critical threshold
+                            example: null
+                          ds_color_area_warn:
+                            type: string
+                            description: color of the area under warning threshold
+                            example: '#ff9a13'
+                          ds_color_area_crit:
+                            type: string
+                            description: color of the area under critical threshold
+                            example: '#e00b3d'
+                          ds_order:
+                            type: integer
+                            description: order used for stacking
+                            example: 0
+                          data:
+                            type: array
+                            items:
+                              type: number
+                              format: float
+                              description: value of the metric
+                            example:
+                              - 1.0
+                              - null
+                              - 1.0
+                          prints:
+                            type: array
+                            items:
+                              type: array
+                              items:
+                                type: string
+                                description: label to display in legend
+                                example: 'Last:1.00'
+                          minimum_value:
+                            type: number
+                            format: float
                             description: minimum value
-                            example: '1'
-                          ds_max:
-                            type: string
+                            example: 1.0
+                          maximum_value:
+                            type: number
+                            format: float
                             description: maximum value
-                            example: '1'
-                          ds_minmax_int:
-                            type: string
-                            nullable: true
-                            description: unknown
-                            example: null
-                          ds_last:
-                            type: string
-                            description: last value
-                            example: '1'
-                          ds_average:
-                            type: string
-                            description: average value
-                            example: '1'
-                          ds_total:
-                            type: string
-                            nullable: true
-                            description: unknown
-                            example: null
-                          ds_tickness:
-                            type: string
-                            description: unknown
-                            example: '1'
-                          ds_color_line_mode:
-                            type: string
-                            description: unknown
-                            example: '1'
-                          ds_color_line:
-                            type: string
-                            description: color of the line
-                            example: '#666600'
-                      legend:
-                        type: string
-                        description: metric name in legend
-                        example: 'cpu (%)'
-                      stack:
-                        type: integer
-                        description: if the metric is stacked with other metrics
-                        example: 0
-                      warn:
-                        type: string
-                        nullable: true
-                        description: warning threshold
-                        example: null
-                      warn_low:
-                        type: string
-                        nullable: true
-                        description: low warning threshold
-                        example: null
-                      crit:
-                        type: string
-                        nullable: true
-                        description: critical threshold
-                        example: null
-                      crit_low:
-                        type: string
-                        nullable: true
-                        description: low critical threshold
-                        example: null
-                      ds_color_area_warn:
-                        type: string
-                        description: color of the area under warning threshold
-                        example: '#ff9a13'
-                      ds_color_area_crit:
-                        type: string
-                        description: color of the area under critical threshold
-                        example: '#e00b3d'
-                      ds_order:
-                        type: integer
-                        description: order used for stacking
-                        example: 0
-                      data:
-                        type: array
-                        items:
-                          type: number
-                          format: float
-                          description: value of the metric
-                        example:
-                          - 1.0
-                          - null
-                          - 1.0
-                      prints:
-                        type: array
-                        items:
-                          type: array
-                          items:
-                            type: string
-                            description: label to display in legend
-                            example: 'Last:1.00'
-                      minimum_value:
-                        type: number
-                        format: float
-                        description: minimum value
-                        example: 1.0
-                      maximum_value:
-                        type: number
-                        format: float
-                        description: maximum value
-                        example: 1.0
+                            example: 1.0
                   times:
                     type: array
                     items:
@@ -4052,214 +4052,173 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  global:
-                    type: object
-                    properties:
-                      title:
-                        type: string
-                        description: title of the graph
-                        example: 'graph title'
-                      start:
-                        type: string
-                        format: date-time
-                        description: datetime of the start interval
-                        example: '2020-02-18T00:00:00'
-                      end:
-                        type: string
-                        format: date-time
-                        description: datetime of the end interval
-                        example: '2020-02-19T00:00:00'
-                      vertical-label:
-                        type: string
-                        description: vertical label (should not be used cause multiple y-axis possible)
-                        example: 'Value'
-                      base:
+                  type: object
+                  properties:
+                    base:
                         type: string
                         description: base scale
-                        example: '1024'
-                      width:
-                        type: string
-                        description: width of the graph (should not be used)
-                        example: '550'
-                      height:
-                        type: string
-                        description: height of the graph (should not be used)
-                        example: '140'
-                      lower-limit:
-                        type: string
-                        description: lower value of the graph
-                        example: '0'
-                      scaled:
-                        type: integer
-                        description: if the graph needs to be automatically scaled
-                        example: 1
-                      multiple_services:
-                        type: boolean
-                        description: if multiple services are selected (always false)
-                        example: false
-                  metrics:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        index_id:
-                          type: string
-                          description: index id in centreon_storage.index_data table
-                          example: '4'
-                        metric_id:
-                          type: string
-                          description: metric id in centreon_storage.metrics table
-                          example: '29'
-                        metric:
-                          type: string
-                          description: name of the metric
-                          example: 'cpu'
-                        metric_legend:
-                          type: string
-                          description: name of the metric in legend
-                          example: 'cpu'
-                        unit:
-                          type: string
-                          description: metric unit
-                          example: '%'
-                        hidden:
-                          type: integer
-                          description: if the metric is hidden
-                          example: 0
-                        min:
-                          type: string
-                          description: min value
-                          example: '0'
-                        max:
-                          type: string
-                          description: max value
-                          example: '100'
-                        virtual:
-                          type: integer
-                          description: if the metric is virtual
-                          example: 0
-                        ds_data:
-                          type: object
-                          description: metric line properties
-                          properties:
-                            ds_min:
-                              type: string
-                              description: minimum value
-                              example: '1'
-                            ds_max:
-                              type: string
-                              description: maximum value
-                              example: '1'
-                            ds_minmax_int:
-                              type: string
-                              nullable: true
-                              description: unknown
-                              example: null
-                            ds_last:
-                              type: string
-                              description: last value
-                              example: '1'
-                            ds_average:
-                              type: string
-                              description: average value
-                              example: '1'
-                            ds_total:
-                              type: string
-                              nullable: true
-                              description: unknown
-                              example: null
-                            ds_tickness:
-                              type: string
-                              description: unknown
-                              example: '1'
-                            ds_color_line_mode:
-                              type: string
-                              description: unknown
-                              example: '1'
-                            ds_color_line:
-                              type: string
-                              description: color of the line
-                              example: '#666600'
-                        legend:
-                          type: string
-                          description: metric name in legend
-                          example: 'cpu (%)'
-                        stack:
-                          type: integer
-                          description: if the metric is stacked with other metrics
-                          example: 0
-                        warn:
-                          type: string
-                          nullable: true
-                          description: warning threshold
-                          example: null
-                        warn_low:
-                          type: string
-                          nullable: true
-                          description: low warning threshold
-                          example: null
-                        crit:
-                          type: string
-                          nullable: true
-                          description: critical threshold
-                          example: null
-                        crit_low:
-                          type: string
-                          nullable: true
-                          description: low critical threshold
-                          example: null
-                        ds_color_area_warn:
-                          type: string
-                          description: color of the area under warning threshold
-                          example: '#ff9a13'
-                        ds_color_area_crit:
-                          type: string
-                          description: color of the area under critical threshold
-                          example: '#e00b3d'
-                        ds_order:
-                          type: integer
-                          description: order used for stacking
-                          example: 0
-                        data:
-                          type: array
-                          items:
-                            type: number
-                            format: float
-                            description: value of the metric
-                          example:
-                            - 1.0
-                            - null
-                            - 1.0
-                        prints:
-                          type: array
-                          items:
+                        example: 1024
+                    metrics:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          index_id:
+                            type: string
+                            description: index id in centreon_storage.index_data table
+                            example: '4'
+                          metric_id:
+                            type: string
+                            description: metric id in centreon_storage.metrics table
+                            example: '29'
+                          metric:
+                            type: string
+                            description: name of the metric
+                            example: 'cpu'
+                          metric_legend:
+                            type: string
+                            description: name of the metric in legend
+                            example: 'cpu'
+                          unit:
+                            type: string
+                            description: metric unit
+                            example: '%'
+                          hidden:
+                            type: integer
+                            description: if the metric is hidden
+                            example: 0
+                          min:
+                            type: string
+                            description: min value
+                            example: '0'
+                          max:
+                            type: string
+                            description: max value
+                            example: '100'
+                          virtual:
+                            type: integer
+                            description: if the metric is virtual
+                            example: 0
+                          ds_data:
+                            type: object
+                            description: metric line properties
+                            properties:
+                              ds_min:
+                                type: string
+                                description: minimum value
+                                example: '1'
+                              ds_max:
+                                type: string
+                                description: maximum value
+                                example: '1'
+                              ds_minmax_int:
+                                type: string
+                                nullable: true
+                                description: unknown
+                                example: null
+                              ds_last:
+                                type: string
+                                description: last value
+                                example: '1'
+                              ds_average:
+                                type: string
+                                description: average value
+                                example: '1'
+                              ds_total:
+                                type: string
+                                nullable: true
+                                description: unknown
+                                example: null
+                              ds_tickness:
+                                type: string
+                                description: unknown
+                                example: '1'
+                              ds_color_line_mode:
+                                type: string
+                                description: unknown
+                                example: '1'
+                              ds_color_line:
+                                type: string
+                                description: color of the line
+                                example: '#666600'
+                          legend:
+                            type: string
+                            description: metric name in legend
+                            example: 'cpu (%)'
+                          stack:
+                            type: integer
+                            description: if the metric is stacked with other metrics
+                            example: 0
+                          warn:
+                            type: string
+                            nullable: true
+                            description: warning threshold
+                            example: null
+                          warn_low:
+                            type: string
+                            nullable: true
+                            description: low warning threshold
+                            example: null
+                          crit:
+                            type: string
+                            nullable: true
+                            description: critical threshold
+                            example: null
+                          crit_low:
+                            type: string
+                            nullable: true
+                            description: low critical threshold
+                            example: null
+                          ds_color_area_warn:
+                            type: string
+                            description: color of the area under warning threshold
+                            example: '#ff9a13'
+                          ds_color_area_crit:
+                            type: string
+                            description: color of the area under critical threshold
+                            example: '#e00b3d'
+                          ds_order:
+                            type: integer
+                            description: order used for stacking
+                            example: 0
+                          data:
                             type: array
                             items:
-                              type: string
-                              description: label to display in legend
-                              example: 'Last:1.00'
-                        minimum_value:
-                          type: number
-                          format: float
-                          description: minimum value
-                          example: 1.0
-                        maximum_value:
-                          type: number
-                          format: float
-                          description: maximum value
-                          example: 1.0
-                  times:
-                    type: array
-                    items:
-                      type: string
-                      format: date-time
-                      description: datetime of the tick
-                    example:
-                      - '2020-02-19T00:00:00'
-                      - '2020-02-19T00:05:00'
-                      - '2020-02-19T00:10:00'
+                              type: number
+                              format: float
+                              description: value of the metric
+                            example:
+                              - 1.0
+                              - null
+                              - 1.0
+                          prints:
+                            type: array
+                            items:
+                              type: array
+                              items:
+                                type: string
+                                description: label to display in legend
+                                example: 'Last:1.00'
+                          minimum_value:
+                            type: number
+                            format: float
+                            description: minimum value
+                            example: 1.0
+                          maximum_value:
+                            type: number
+                            format: float
+                            description: maximum value
+                            example: 1.0
+                    times:
+                      type: array
+                      items:
+                        type: string
+                        format: date-time
+                        description: datetime of the tick
+                      example:
+                        - '2020-02-19T00:00:00'
+                        - '2020-02-19T00:05:00'
+                        - '2020-02-19T00:10:00'
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':

@@ -244,8 +244,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     private function buildSubRequestForServiceFilter(array $serviceNames): array
     {
-        foreach ($serviceNames as $serviceName) {
-            $bindServiceNames[':service_' . $serviceName] = [$serviceName => \PDO::PARAM_STR];
+        foreach ($serviceNames as $key => $serviceName) {
+            $bindServiceNames[':service_name' . $key] = [$serviceName => \PDO::PARAM_STR];
         }
         $bindTokens = implode(', ', array_keys($bindServiceNames));
 

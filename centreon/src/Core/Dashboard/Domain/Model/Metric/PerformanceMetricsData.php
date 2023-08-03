@@ -21,25 +21,30 @@
 
 declare(strict_types=1);
 
-namespace Core\Metric\Application\Repository;
+namespace Core\Dashboard\Domain\Model\Metric;
 
-use Centreon\Domain\Monitoring\Service;
-use Core\Metric\Domain\Model\Metric;
-
-interface ReadMetricRepositoryInterface
+class PerformanceMetricsData
 {
-    /**
-     * @param int $indexId
-     *
-     * @return array<Metric>
-     */
-    public function findMetricsByIndexId(int $indexId): array;
 
-    /**
-     * Find Service by Metric Ids.
-     *
-     * @param int[] $metricIds
-     * @return Service[]
-     */
-    public function findServicesByMetricIds(array $metricIds): array;
+    public function __construct(
+        private readonly int $base,
+        private readonly array $metricsData,
+        private readonly array $times
+    ) {
+    }
+
+    public function getBase(): int
+    {
+        return $this->base;
+    }
+
+    public function getMetricsData(): array
+    {
+        return $this->metricsData;
+    }
+
+    public function getTimes(): array
+    {
+        return $this->times;
+    }
 }

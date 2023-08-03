@@ -25,6 +25,15 @@ namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
 final class FindPerformanceMetricsDataResponse
 {
-    /** @var ResourceMetricDTO[] */
-    public array $metrics = [];
+    public int $base;
+
+    /**
+     * @var array<string,mixed>
+     */
+    public array $metricsData;
+
+    /**
+     * @var int[]
+     */
+    public array $times;
 }

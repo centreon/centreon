@@ -25,7 +25,12 @@ namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
 final class FindPerformanceMetricsDataRequest
 {
-    public ?\DateTimeImmutable $startDate = null;
+    public ?\DateTime $startDate = null;
 
-    public ?\DateTimeImmutable $endDate = null;
+    public ?\DateTime $endDate = null;
+
+    /**
+     * @var int[]
+     */
+    public array $metricIds = [];
 }
