@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
