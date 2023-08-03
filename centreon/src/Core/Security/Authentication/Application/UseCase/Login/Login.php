@@ -133,15 +133,19 @@ final class Login
             $presenter->setResponseStatus($response);
             return;
         } catch (AuthenticationException $e) {
+            $this->error('An error occured while authenticating through OIDC', ['trace' => (string) $e]);
             $presenter->setResponseStatus(new UnauthorizedResponse($e->getMessage()));
             return;
         } catch (AclConditionsException $e) {
+            $this->error('An error occured while matching your ACL conditions', ['trace' => (string) $e]);
             $presenter->setResponseStatus(new ErrorAclConditionsResponse($e->getMessage()));
         } catch (AuthenticationConditionsException $ex) {
+            $this->error('An error occured while matching your authentication conditions', ['trace' => (string) $ex]);
             $presenter->setResponseStatus(new ErrorAuthenticationConditionsResponse($ex->getMessage()));
             return;
         } catch (\Throwable $ex) {
-            $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
+            $this->error('An error occured while authenticating through OIDC', ['trace' => (string) $ex]);
+            $presenter->setResponseStatus(new ErrorResponse('An error occured while authenticating through OIDC'));
             return;
         }
     }

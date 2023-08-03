@@ -1,4 +1,4 @@
-name: centreon-js-config-merge
+name: centreon-js-config-stable
 
 on:
   workflow_dispatch:

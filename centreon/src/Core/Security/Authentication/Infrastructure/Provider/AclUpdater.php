@@ -69,7 +69,7 @@ class AclUpdater implements AclUpdaterInterface
                 /** @phpstan-ignore-next-line */
                 $claims = $aclConditions->getClaimValues();
                 /** @phpstan-ignore-next-line */
-                $userAccessGroups = $this->provider->getUserAccessGroupsFromClaims($claims);
+                $userAccessGroups = $this->provider->getUserAccessGroupsFromClaims();
                 $this->updateAccessGroupsForUser($user, $userAccessGroups);
             }
 
