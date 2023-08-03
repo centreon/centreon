@@ -39,6 +39,7 @@ interface ReadMetricRepositoryInterface
      * Find Service by Metric Ids.
      *
      * @param int[] $metricIds
+     *
      * @return Service[]
      */
     public function findServicesByMetricIds(array $metricIds): array;

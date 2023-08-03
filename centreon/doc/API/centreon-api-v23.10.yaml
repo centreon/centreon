@@ -4213,12 +4213,10 @@ paths:
                       type: array
                       items:
                         type: string
-                        format: date-time
+                        format: timestamp
                         description: datetime of the tick
                       example:
-                        - '2020-02-19T00:00:00'
-                        - '2020-02-19T00:05:00'
-                        - '2020-02-19T00:10:00'
+                        - "1690965300"
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':

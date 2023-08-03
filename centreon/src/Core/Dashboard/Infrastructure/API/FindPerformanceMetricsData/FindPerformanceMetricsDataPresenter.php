@@ -23,7 +23,6 @@
 
 namespace Core\Dashboard\Infrastructure\API\FindPerformanceMetricsData;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataPresenterInterface;
@@ -33,7 +32,6 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements FindPerformanceMetricsDataPresenterInterface
 {
     public function __construct(
-        private RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter
     ) {
         parent::__construct($presenterFormatter);

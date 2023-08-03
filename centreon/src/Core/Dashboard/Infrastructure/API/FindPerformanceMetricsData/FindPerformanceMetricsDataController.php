@@ -29,17 +29,15 @@ use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanc
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Constraints\Type as TypeConstraint;
-use Symfony\Component\Validator\Constraints\DateTime as DateTimeConstraint;
+use Symfony\Component\Validator\Validation;
 
 final class FindPerformanceMetricsDataController extends AbstractController
 {
     use LoggerTrait;
-
-    private const START_DATE_PARAMETER="start";
-    private const END_DATE_PARAMETER="end";
-    private const METRIC_IDS_PARAMETER="metricIds";
+    private const START_DATE_PARAMETER = 'start';
+    private const END_DATE_PARAMETER = 'end';
+    private const METRIC_IDS_PARAMETER = 'metricIds';
 
     public function __invoke(
         FindPerformanceMetricsData $useCase,
@@ -58,7 +56,9 @@ final class FindPerformanceMetricsDataController extends AbstractController
     /**
      * Retrieves date attribute from http request.
      *
-     * @return array {
+     * @param Request $request
+     *
+     * @return array{
      *  start: \DateTime,
      *  end: \DateTime,
      *  metricIds: array<int>
@@ -68,6 +68,7 @@ final class FindPerformanceMetricsDataController extends AbstractController
     {
         $startParameter = $request->query->get(self::START_DATE_PARAMETER);
         $endParameter = $request->query->get(self::END_DATE_PARAMETER);
+        /** @var string|null $metricIdsParameter */
         $metricIdsParameter = $request->query->get(self::METRIC_IDS_PARAMETER);
         if ($startParameter === null || $endParameter === null || $metricIdsParameter === null) {
             throw new \InvalidArgumentException('Missing mandatory properties');
@@ -80,17 +81,22 @@ final class FindPerformanceMetricsDataController extends AbstractController
         try {
             $start = new \DateTime((string) $startParameter);
             $end = new \DateTime((string) $endParameter);
-        } catch( \Exception $ex) {
-            $this->error('Invalid Date format', ['trace' => (string) $ex]);
-            throw new \InvalidArgumentException('Invalid Date format');
+            $metricIds = json_decode((string) $metricIdsParameter, true);
+        } catch ( \Exception $ex) {
+            $this->error('Invalid parameters format', ['trace' => (string) $ex]);
+
+            throw new \InvalidArgumentException('Invalid parameters format');
         }
 
-        $metricIds = json_decode($metricIdsParameter, true);
+        if (! is_array($metricIds) || [] === $metricIds)  {
+            throw new \InvalidArgumentException('invalid metric ids provided');
+        }
+
         foreach ($metricIds as $metricId) {
             $validationConstraints[] = $validator->validate($metricId, $integerConstraint);
         }
 
-        foreach($validationConstraints as $validationConstraint) {
+        foreach ($validationConstraints as $validationConstraint) {
             if ($validationConstraint->count() > 0) {
                 throw new \InvalidArgumentException('Invalid metric ID format');
             }
@@ -99,21 +105,24 @@ final class FindPerformanceMetricsDataController extends AbstractController
         return [
             'start' => $start,
             'end' => $end,
-            'metricIds' => $metricIds
+            'metricIds' => $metricIds,
         ];
     }
 
     /**
      * Create the Request DTO with the query parameters.
      *
+     * @param Request $request
+     *
      * @return FindPerformanceMetricsDataRequest
      */
     private function createRequest(Request $request): FindPerformanceMetricsDataRequest
     {
         $parameterFromRequest = $this->validateAndRetrieveParametersFromRequest($request);
-        $requestDto = new FindPerformanceMetricsDataRequest();
-        $requestDto->startDate = $parameterFromRequest['start'];
-        $requestDto->endDate = $parameterFromRequest['end'];
+        $requestDto = new FindPerformanceMetricsDataRequest(
+            $parameterFromRequest['start'],
+            $parameterFromRequest['end']
+        );
         $requestDto->metricIds = $parameterFromRequest['metricIds'];
 
         return $requestDto;

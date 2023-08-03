@@ -83,13 +83,13 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         $metricIdQuery = implode(', ',array_keys($bindValues));
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                SELECT DISTINCT id.host_id, id.service_id FROM `:dbstg`.index_data AS id
-                INNER JOIN `:dbstg`.metrics AS m ON m.index_id = id.id
-                WHERE m.metric_id IN ($metricIdQuery)
-            SQL
+                    SELECT DISTINCT id.host_id, id.service_id FROM `:dbstg`.index_data AS id
+                    INNER JOIN `:dbstg`.metrics AS m ON m.index_id = id.id
+                    WHERE m.metric_id IN ({$metricIdQuery})
+                SQL
         ));
 
-        foreach($bindValues as $bindToken => $bindValue) {
+        foreach ($bindValues as $bindToken => $bindValue) {
             $statement->bindValue($bindToken, $bindValue, \PDO::PARAM_INT);
         }
         $statement->execute();

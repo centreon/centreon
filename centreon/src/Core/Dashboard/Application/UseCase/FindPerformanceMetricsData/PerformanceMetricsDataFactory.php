@@ -27,6 +27,12 @@ use Core\Dashboard\Domain\Model\Metric\PerformanceMetricsData;
 
 class PerformanceMetricsDataFactory
 {
+    /**
+     * @param array<int<0, max>, array> $metricsData
+     * @param int[] $metricIds
+     *
+     * @return PerformanceMetricsData
+     */
     public function createFromRecords(array $metricsData, array $metricIds): PerformanceMetricsData
     {
         $metricBases = [];
@@ -38,15 +44,17 @@ class PerformanceMetricsDataFactory
             $times[] = $metricData['times'];
         }
         $base = $this->getHighestBase($metricBases);
-        $metricsInfo = $this->removeUnwantedMetrics($metrics, $metricIds);
+        $metricsInfo = $this->filterMetricsByMetricId($metrics, $metricIds);
         $times = $this->getTimes($times);
+
         return new PerformanceMetricsData($base, $metricsInfo, $times);
     }
 
     /**
-     * Get The highest base of all metrics
+     * Get The highest base of all metrics.
      *
      * @param int[] $bases
+     *
      * @return int
      */
     private function getHighestBase(array $bases): int
@@ -55,17 +63,24 @@ class PerformanceMetricsDataFactory
     }
 
     /**
-     * Remove useless metrics
+     * Filter the metrics to keep only the needed metrics.
      *
-     * @param array<string,mixed> $metricsData
-     * @return array<string,mixed>
+     * @param array<
+     *      array{
+     *        metric_id: int,
+     *        mixed
+     *      }
+     *    > $metricsData
+     * @param int[] $metricIds
+     *
+     * @return array<int<0, max>, mixed>
      */
-    private function removeUnwantedMetrics(array $metricsData, array $metricIds): array
+    private function filterMetricsByMetricId(array $metricsData, array $metricIds): array
     {
         $metrics = [];
-        foreach($metricsData as $metricData) {
+        foreach ($metricsData as $metricData) {
             foreach ($metricData as $metric) {
-                if(in_array($metric['metric_id'], $metricIds)) {
+                if (in_array($metric['metric_id'], $metricIds, true)) {
                     $metrics[] = $metric;
                 }
             }
@@ -77,11 +92,12 @@ class PerformanceMetricsDataFactory
     /**
      * Get the different times of metric.
      *
-     * @param array<array<int>> $metricsData
-     * @return int[]
+     * @param array<array<string>> $times
+     *
+     * @return string[]
      */
-    private function getTimes(array $metricsData): array
+    private function getTimes(array $times): array
     {
-        return array_unique(array_merge($metricsData));
+        return $times[0];
     }
 }

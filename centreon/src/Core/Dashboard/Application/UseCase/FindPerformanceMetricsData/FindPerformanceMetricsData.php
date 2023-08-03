@@ -24,12 +24,15 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetricsData;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 
 final class FindPerformanceMetricsData
 {
+    use LoggerTrait;
+
     public function __construct(
         private readonly ContactInterface $user,
         private readonly MetricRepositoryInterface $metricRepositoryLegacy,
@@ -43,20 +46,25 @@ final class FindPerformanceMetricsData
     ): void {
         try {
             if ($this->user->IsAdmin()) {
+                $this->info('Retrieving metrics data for admin user', [
+                    'user_id' => $this->user->getId(),
+                    'metric_ids' => implode(', ', $request->metricIds),
+                ]);
                 $performanceMetricsData = $this->findPerformanceMetricsDataAsAdmin($request);
                 $presenter->presentResponse($this->createResponse($performanceMetricsData));
-            } else {
+            }  
                 // $this->findPerformanceMetricsDataAsNonAdmin($request);
-            }
-        } catch(\Throwable $ex) {
-
+            
+        } catch (\Throwable $ex) {
+            $this->error('An error occured while retrieving metrics data', ['trace' => (string) $ex]);
         }
     }
 
     /**
-     * Undocumented function
+     * find Performance Metrics Data for an admin user.
      *
      * @param FindPerformanceMetricsDataRequest $request
+     *
      * @return PerformanceMetricsData
      */
     private function findPerformanceMetricsDataAsAdmin(
@@ -64,14 +72,17 @@ final class FindPerformanceMetricsData
     ): PerformanceMetricsData {
         $services = $this->metricRepository->findServicesByMetricIds($request->metricIds);
         $metricsData = [];
-        foreach($services as $service) {
+        foreach ($services as $service) {
+            /**
+             * array<int<0, max>, array>.
+             */
             $metricsData[] = $this->metricRepositoryLegacy
                 ->setContact($this->user)
                 ->findMetricsByService($service, $request->startDate, $request->endDate);
         }
         $factory = new PerformanceMetricsDataFactory();
-        $metricsData = $factory->createFromRecords($metricsData, $request->metricIds);
-        return $metricsData;
+
+        return $factory->createFromRecords($metricsData, $request->metricIds);
     }
 
     private function createResponse(PerformanceMetricsData $performanceMetricsData): FindPerformanceMetricsDataResponse

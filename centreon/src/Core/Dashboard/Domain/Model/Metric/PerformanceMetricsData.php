@@ -25,7 +25,11 @@ namespace Core\Dashboard\Domain\Model\Metric;
 
 class PerformanceMetricsData
 {
-
+    /**
+     * @param int $base
+     * @param array<string,mixed> $metricsData
+     * @param string[] $times
+     */
     public function __construct(
         private readonly int $base,
         private readonly array $metricsData,
@@ -38,11 +42,17 @@ class PerformanceMetricsData
         return $this->base;
     }
 
+    /**
+     * @return array<string,mixed>
+     */
     public function getMetricsData(): array
     {
         return $this->metricsData;
     }
 
+    /**
+     * @return string[]
+     */
     public function getTimes(): array
     {
         return $this->times;
