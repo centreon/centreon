@@ -39,7 +39,9 @@ const MacrosButton = (): JSX.Element => {
   editor.registerCommand(
     INSERT_MACROS_COMMAND,
     (payload: string) => {
-      if (!editor) return false;
+      if (!editor) {
+        return false;
+      }
 
       document.execCommand('insertText', false, payload);
 
