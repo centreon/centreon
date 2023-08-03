@@ -53,9 +53,15 @@ export default async (on, config): Promise<void> => {
     if ((browser as { name }).name === 'chrome') {
       launchOptions.args.push('--disable-gpu');
       launchOptions.args.push('--auto-open-devtools-for-tabs');
+      launchOptions.args.push('--disable-extensions');
+      launchOptions.args.push('--hide-scrollbars');
+      launchOptions.args.push('--mute-audio');
+      launchOptions.args.push('--hide-scrollbars');
+      /*
       launchOptions.args = launchOptions.args.filter(
         (element) => element !== '--disable-dev-shm-usage'
       );
+      */
     }
 
     return launchOptions;
