@@ -66,7 +66,7 @@ it('should present an ErrorResponse when something occurs in the repository', fu
         ->method('findByRequestParameters')
         ->willThrowException(new \Exception('An error occured'));
 
-    $presenter = new FindDashboardPerformanceMetricsPresenterStub();
+    $presenter = new FindPerformanceMetricsPresenterStub();
     $useCase($presenter);
 
     expect($presenter->data)->toBeInstanceOf(ErrorResponse::class)
@@ -115,7 +115,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
         ->method('findByRequestParameters')
         ->willReturn($response);
 
-    $presenter = new FindDashboardPerformanceMetricsPresenterStub();
+    $presenter = new FindPerformanceMetricsPresenterStub();
     $useCase($presenter);
     expect($presenter->data)->toBeInstanceOf(FindPerformanceMetricsResponse::class)
         ->and($presenter->data->resourceMetrics)
@@ -209,7 +209,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
         ->method('FindByRequestParametersAndAccessGroups')
         ->willReturn($response);
 
-    $presenter = new FindDashboardPerformanceMetricsPresenterStub();
+    $presenter = new FindPerformanceMetricsPresenterStub();
     $useCase($presenter);
     expect($presenter->data)->toBeInstanceOf(FindPerformanceMetricsResponse::class)
         ->and($presenter->data->resourceMetrics)
@@ -276,7 +276,7 @@ it('should present a ForbiddenResponse when user has unsufficient rights', funct
         ->method('canAccess')
         ->willReturn(false);
 
-    $presenter = new FindDashboardPerformanceMetricsPresenterStub();
+    $presenter = new FindPerformanceMetricsPresenterStub();
     $useCase($presenter);
 
     expect($presenter->data)->toBeInstanceOf(ForbiddenResponse::class)
