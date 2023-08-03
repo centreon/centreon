@@ -141,10 +141,10 @@ const Graph = ({
             height={graphHeight}
             width={width}
           />
-          <svg height={graphHeight} ref={graphSvgRef} width="100%">
+          <svg height={graphHeight + margin.top} ref={graphSvgRef} width="100%">
             <Group.Group left={margin.left} top={margin.top}>
               <Grids
-                height={graphHeight}
+                height={graphHeight - margin.top}
                 leftScale={leftScale}
                 width={graphWidth}
                 xScale={xScale}
@@ -157,7 +157,7 @@ const Graph = ({
                   ...axis
                 }}
                 graphInterval={graphInterval}
-                height={graphHeight}
+                height={graphHeight - margin.top}
                 leftScale={leftScale}
                 rightScale={rightScale}
                 width={graphWidth}
@@ -168,7 +168,7 @@ const Graph = ({
                 displayAnchor={displayAnchor}
                 displayedLines={displayedLines}
                 graphSvgRef={graphSvgRef}
-                height={graphHeight}
+                height={graphHeight - margin.top}
                 leftScale={leftScale}
                 rightScale={rightScale}
                 timeSeries={timeSeries}
