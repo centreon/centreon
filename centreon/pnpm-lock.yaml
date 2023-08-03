@@ -506,6 +506,7 @@ importers:
       '@types/dockerode': ^3.3.16
       '@types/node': ^14.14.44
       cypress: ^12.17.2
+      cypress-multi-reporters: ^1.6.3
       cypress-on-fix: ^1.0.2
       cypress-wait-until: ^2.0.0
       dockerode: ^3.3.5
@@ -526,6 +527,7 @@ importers:
       '@types/dockerode': 3.3.17
       '@types/node': 14.18.47
       cypress: 12.17.2
+      cypress-multi-reporters: 1.6.3
       cypress-on-fix: 1.0.2
       cypress-wait-until: 2.0.0
       dockerode: 3.3.5
@@ -9656,6 +9658,18 @@ packages:
       msw: 0.49.1_typescript@4.9.5
       node-match-path: 0.6.3
       prop-types: 15.8.1
+    dev: true
+
+  /cypress-multi-reporters/1.6.3:
+    resolution: {integrity: sha512-klb9pf6oAF4WCLHotu9gdB8ukYBdeTzbEMuESKB3KT54HhrZj65vQxubAgrULV5H2NWqxHdUhlntPbKZChNvEw==}
+    engines: {node: '>=6.0.0'}
+    peerDependencies:
+      mocha: '>=3.1.2'
+    dependencies:
+      debug: 4.3.4
+      lodash: 4.17.21
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /cypress-on-fix/1.0.2:

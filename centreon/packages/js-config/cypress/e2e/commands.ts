@@ -262,7 +262,7 @@ Cypress.Commands.add(
 
     const baseUrl = 'http://0.0.0.0:4000';
 
-    Cypress.config('baseUrl', baseUrl);
+    //Cypress.config('baseUrl', baseUrl);
 
     cy.startContainer({
       image,

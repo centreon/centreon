@@ -1,6 +1,5 @@
 import {
   After,
-  Before,
   Given,
   When,
   Then
@@ -14,7 +13,7 @@ import {
 } from '../common';
 import { loginAsAdminViaApiV2 } from '../../../commons';
 
-Before(() => {
+before(() => {
   cy.startWebContainer();
 
   insertResourceFixtures()

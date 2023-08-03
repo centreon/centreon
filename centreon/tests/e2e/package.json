@@ -21,6 +21,7 @@
     "@types/dockerode": "^3.3.16",
     "@types/node": "^14.14.44",
     "cypress": "^12.17.2",
+    "cypress-multi-reporters": "^1.6.3",
     "cypress-on-fix": "^1.0.2",
     "cypress-wait-until": "^2.0.0",
     "dockerode": "^3.3.5",
