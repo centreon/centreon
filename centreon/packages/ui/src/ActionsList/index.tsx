@@ -1,6 +1,4 @@
 /* eslint-disable react/no-array-index-key */
-import * as React from 'react';
-
 import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
 import { equals } from 'ramda';
@@ -15,14 +13,15 @@ import {
 } from '@mui/material';
 
 interface ActionsType {
-  Icon: (props: SvgIconProps) => JSX.Element;
+  Icon?: (props: SvgIconProps) => JSX.Element;
   label: string;
-  onClick?: () => void;
+  onClick?: (e?) => void;
 }
 
 interface Props {
   actions: Array<ActionsType | 'divider'>;
   className?: string;
+  listItemClassName?: string;
 }
 
 const useStyles = makeStyles()({
@@ -31,7 +30,11 @@ const useStyles = makeStyles()({
   }
 });
 
-const ActionsList = ({ className, actions }: Props): JSX.Element => {
+const ActionsList = ({
+  className,
+  listItemClassName,
+  actions
+}: Props): JSX.Element => {
   const { cx, classes } = useStyles();
   const { t } = useTranslation();
 
@@ -45,11 +48,15 @@ const ActionsList = ({ className, actions }: Props): JSX.Element => {
         const { label, Icon, onClick } = action as ActionsType;
 
         return (
-          <MenuItem aria-label={label} key={label} onClick={onClick}>
-            <ListItemIcon>
-              <Icon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>{t(label)}</ListItemText>
+          <MenuItem aria-label={label} id={label} key={label} onClick={onClick}>
+            {Icon && (
+              <ListItemIcon>
+                <Icon fontSize="small" />
+              </ListItemIcon>
+            )}
+            <ListItemText className={listItemClassName}>
+              {t(label)}
+            </ListItemText>
           </MenuItem>
         );
       })}
