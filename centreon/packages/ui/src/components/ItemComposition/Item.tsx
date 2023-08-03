@@ -8,9 +8,9 @@ import { useItemStyles } from './ItemComposition.styles';
 
 type Props = {
   children: Array<ReactElement>;
+  className?: string;
   labelDelete: string;
   onDeleteItem: () => void;
-  className?: string;
 };
 
 export const Item = ({
