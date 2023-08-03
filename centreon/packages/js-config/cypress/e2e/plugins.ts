@@ -52,6 +52,7 @@ export default async (on, config): Promise<void> => {
   on('before:browser:launch', (browser = {}, launchOptions) => {
     if ((browser as { name }).name === 'chrome') {
       launchOptions.args.push('--disable-gpu');
+      launchOptions.args.push('--auto-open-devtools-for-tabs');
       launchOptions.args = launchOptions.args.filter(
         (element) => element !== '--disable-dev-shm-usage'
       );
