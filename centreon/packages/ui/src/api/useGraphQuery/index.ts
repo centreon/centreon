@@ -6,8 +6,8 @@ import { GraphData, useFetchQuery } from '../..';
 import { ServiceMetric } from './models';
 
 interface UseMetricsQueryProps {
-  metrics: Array<ServiceMetric>;
   baseEndpoint: string;
+  metrics: Array<ServiceMetric>;
   timePeriod?: TimePeriod;
 }
 
@@ -15,24 +15,36 @@ interface UseMetricsQueryState {
   end: string;
   graphData: GraphData | undefined;
   isGraphLoading: boolean;
-  start: string;
   isMetricIdsEmpty: boolean;
+  start: string;
 }
 
 enum TimePeriod {
-  lastDay = 'last_day',
+  lastDay = 'last_day'
 }
 
-const getStartEndFromTimePeriod = (timePeriod: TimePeriod): { start: string; end: string } => {
+const getStartEndFromTimePeriod = (
+  timePeriod: TimePeriod
+): { end: string; start: string } => {
   return cond([
-    [T, always({ start: dayjs().subtract(1, 'day').toISOString(), end: dayjs().toISOString() })]
-  ])(timePeriod)
+    [
+      T,
+      always({
+        end: dayjs().toISOString(),
+        start: dayjs().subtract(1, 'day').toISOString()
+      })
+    ]
+  ])(timePeriod);
+};
+
+interface PerformanceGraphData extends Omit<GraphData, 'global'> {
+  base: number;
 }
 
 const useGraphQuery = ({
   metrics,
   baseEndpoint,
-  timePeriod = TimePeriod.lastDay,
+  timePeriod = TimePeriod.lastDay
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const metricIds = pipe(
     pluck('metrics'),
@@ -47,7 +59,7 @@ const useGraphQuery = ({
     data: graphData,
     isFetching,
     isLoading
-  } = useFetchQuery<GraphData>({
+  } = useFetchQuery<PerformanceGraphData>({
     getEndpoint: () =>
       `${baseEndpoint}?metricIds=${metricIds}&start=${start}&end=${end}`,
     getQueryKey: () => ['graph', metricIds],
@@ -59,11 +71,12 @@ const useGraphQuery = ({
 
   const formattedGraphData = graphData
     ? {
-        ...graphData,
         global: {
-          base: 1000,
+          base: graphData.base,
           title: ''
-        }
+        },
+        metrics: graphData.metrics,
+        times: graphData.times
       }
     : undefined;
 
@@ -71,8 +84,8 @@ const useGraphQuery = ({
     end,
     graphData: formattedGraphData,
     isGraphLoading: isFetching || (isLoading && !isEmpty(metricIds)),
-    start,
-    isMetricIdsEmpty: isEmpty(metricIds)
+    isMetricIdsEmpty: isEmpty(metricIds),
+    start
   };
 };
 
