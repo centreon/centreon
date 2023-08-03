@@ -286,21 +286,6 @@ sub action_proxycloseconnection {
     $self->{clients}->{ $data->{id} }->{class} = undef;
 }
 
-sub action_proxystopreadchannel {
-    my ($self, %options) = @_;
-
-    my ($code, $data) = $self->json_decode(argument => $options{data});
-    return if ($code == 1);
-
-    return if (!defined($self->{clients}->{ $data->{id} }));
-
-    $self->{logger}->writeLogInfo("[proxy] Stop read channel for $data->{id}");
-
-    $self->{clients}->{ $data->{id} }->{com_read_internal} = 0;
-
-    delete $self->{watchers}->{ $data->{id} };
-}
-
 sub close_connections {
     my ($self, %options) = @_;
 
@@ -408,9 +393,6 @@ sub proxy {
     } elsif ($action eq 'PROXYCLOSECONNECTION') {
         $connector->action_proxycloseconnection(data => $data);
         return ;
-    } elsif ($action eq 'PROXYSTOPREADCHANNEL') {
-        $connector->action_proxystopreadchannel(data => $data);
-        return ;
     }
 
     if ($target_complete !~ /^(.+)~~(.+)$/) {
@@ -429,6 +411,7 @@ sub proxy {
         $target_direct = 0;
     }
     if (!defined($connector->{clients}->{$target_client}->{class})) {
+        $connector->{logger}->writeLogInfo("[proxy] connect for $target_client");
         if ($connector->connect(id => $target_client) != 0) {
             $connector->send_log(
                 code => GORGONE_ACTION_FINISH_KO,
@@ -476,6 +459,8 @@ sub event {
 
     my $socket;
     if (defined($options{channel})) {
+        #$self->{logger}->writeLogDebug("[proxy] event channel $options{channel} delete: $self->{clients}->{ $options{channel} }->{delete} com_read_internal: $self->{clients}->{ $options{channel} }->{com_read_internal}")
+        #    if (defined($self->{clients}->{ $options{channel} }));
         return if (
             defined($self->{clients}->{ $options{channel} }) && 
             ($self->{clients}->{ $options{channel} }->{com_read_internal} == 0 || $self->{clients}->{ $options{channel} }->{delete} == 1)
@@ -516,8 +501,13 @@ sub periodic_exec {
             $connector->{clients}->{$_}->{class} = undef;
             $connector->{clients}->{$_}->{delete} = 0;
             $connector->{clients}->{$_}->{com_read_internal} = 0;
+            $connector->{logger}->writeLogInfo("[proxy] periodic close connection for $_");
             next;
         }
+    }
+
+    foreach (keys %{$connector->{clients}}) {
+        $connector->event(channel => $_);
     }
 
     if ($connector->{stop} == 1) {

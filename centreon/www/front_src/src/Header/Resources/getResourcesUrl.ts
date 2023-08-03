@@ -97,5 +97,6 @@ export {
   warningCriterias,
   okCriterias,
   unhandledStateCriterias,
-  getServiceResourcesUrl
+  getServiceResourcesUrl,
+  getResourcesUrl
 };

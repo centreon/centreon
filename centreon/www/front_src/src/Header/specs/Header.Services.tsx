@@ -118,7 +118,6 @@ export default (): void =>
       });
 
       it('redirects on click on the counter', () => {
-        // given
         const serviceStubs = {
           critical: { unhandled: '12' },
           ok: '12134',
@@ -133,28 +132,28 @@ export default (): void =>
 
         cy.url().should(
           'include',
-          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22CRITICAL%22,%22name%22:%22Critical%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
+          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22CRITICAL%22,%22name%22:%22Critical%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
         );
 
         cy.get('@unknownCounter').click();
 
         cy.url().should(
           'include',
-          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22UNKNOWN%22,%22name%22:%22Unknown%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
+          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22UNKNOWN%22,%22name%22:%22Unknown%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
         );
 
         cy.get('@okCounter').click();
 
         cy.url().should(
           'include',
-          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22OK%22,%22name%22:%22Ok%22}]},{%22name%22:%22states%22,%22value%22:[]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
+          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22OK%22,%22name%22:%22Ok%22}]},{%22name%22:%22states%22,%22value%22:[]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
         );
 
         cy.get('@warningCounter').click();
 
         cy.url().should(
           'include',
-          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22WARNING%22,%22name%22:%22Warning%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
+          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22WARNING%22,%22name%22:%22Warning%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
         );
       });
     });
@@ -209,32 +208,32 @@ export default (): void =>
           const expectedOrderAndContent = [
             {
               count: '1/2',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"service","name":"Service"}]},{"name":"statuses","value":[{"id":"CRITICAL","name":"Critical"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
+              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[]},{"name":"statuses","value":[{"id":"CRITICAL","name":"Critical"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
               label: labelCritical
             },
             {
               count: '1/2',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"service","name":"Service"}]},{"name":"statuses","value":[{"id":"WARNING","name":"Warning"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
+              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[]},{"name":"statuses","value":[{"id":"WARNING","name":"Warning"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
               label: labelWarning
             },
             {
               count: '1/2',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"service","name":"Service"}]},{"name":"statuses","value":[{"id":"UNKNOWN","name":"Unknown"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
+              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[]},{"name":"statuses","value":[{"id":"UNKNOWN","name":"Unknown"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
               label: labelUnknown
             },
             {
               count: '1',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"service","name":"Service"}]},{"name":"statuses","value":[{"id":"OK","name":"Ok"}]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
+              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[]},{"name":"statuses","value":[{"id":"OK","name":"Ok"}]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
               label: labelOk
             },
             {
               count: '1',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"service","name":"Service"}]},{"name":"statuses","value":[{"id":"PENDING","name":"Pending"}]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
+              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[]},{"name":"statuses","value":[{"id":"PENDING","name":"Pending"}]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
               label: labelPending
             },
             {
               count: '8',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"service","name":"Service"}]},{"name":"statuses","value":[]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
+              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[]},{"name":"statuses","value":[{"id":"OK","name":"Ok"},{"id":"PENDING","name":"Pending"},{"id":"UNKNOWN","name":"Unknown"},{"id":"WARNING","name":"Warning"},{"id":"CRITICAL","name":"Critical"}]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
               label: labelAll
             }
           ];

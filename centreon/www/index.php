@@ -171,8 +171,14 @@ if (isset($_GET["autologin"]) && $_GET["autologin"]) {
 function updateCentreonBaseUri(): void
 {
     $requestUri = htmlspecialchars($_SERVER['REQUEST_URI']) ?: '/centreon/';
-    $basePath = '/' . trim(explode('index.php', $requestUri)[0], "/") . '/';
-    $basePath = str_replace('//', '/', $basePath);
+    // Regular expression pattern to match the string between slashes
+    $pattern = "/\/([^\/]+)\//";
+    preg_match($pattern, $requestUri, $matches);
+    if (isset($matches[0]) && $matches[0] !== '') {
+        $basePath = str_replace('//', '/', $matches[0]);
+    } else {
+        $basePath = '/centreon/';
+    }
     $indexHtmlPath = './index.html';
     $indexHtmlContent = file_get_contents($indexHtmlPath);
 

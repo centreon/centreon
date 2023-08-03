@@ -9,10 +9,12 @@ const getPackageInformations = async () => {
 }
 
 try {
-  const branchName = core.getInput('branch_name');
+  const gitBranchName = core.getInput('branch_name');
+
+  const tag = gitBranchName === 'develop' ? 'latest' : gitBranchName;
 
   getPackageInformations().then((package) => {
-    core.setOutput("package_version", package['dist-tags'][branchName] || '')
+    core.setOutput("package_version", package['dist-tags'][tag] || '')
   });
 } catch (error) {
   core.setFailed(error.message);

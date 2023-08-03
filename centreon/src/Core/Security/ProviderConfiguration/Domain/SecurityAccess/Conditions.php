@@ -125,4 +125,12 @@ class Conditions implements SecurityAccessInterface
         $this->info("Conditions found", ["conditions" => $conditionMatches]);
         $this->loginLogger->info($scope, "Conditions found", $conditionMatches);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getConditionMatches(): array
+    {
+        return [];
+    }
 }

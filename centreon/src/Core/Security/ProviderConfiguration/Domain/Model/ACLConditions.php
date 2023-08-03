@@ -96,10 +96,6 @@ class ACLConditions
             return $relation->getClaimValue();
         }, $this->relations);
 
-        if ($this->applyOnlyFirstRole) {
-            $values = [$values[0]];
-        }
-
         return $values;
     }
 

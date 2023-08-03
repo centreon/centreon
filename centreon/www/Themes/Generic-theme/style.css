@@ -886,6 +886,14 @@ form#AjaxBankBasic {
     height: 12px;
 }
 
+.img_box {
+    margin: 0px;
+    padding: 0px;
+    width: 26px;
+    height: 26px;
+    position: absolute;
+}
+
 /* ------- END : Table -----------*/
 
 
@@ -2938,6 +2946,10 @@ ul.module_list {
     background-color: var(--ui-progress-bar-value-background-color) !important
 }
 
+.widget-progressbar-value {
+    color: var(--widget-progress-bar-value-color) !important
+}
+
 .section-expand {
     height: 95%;
     margin-bottom: 20px;
@@ -3100,4 +3112,9 @@ ul.module_list {
     height: 100%;
     position: absolute;
     width: 100%;
+}
+/* popup tables of bam */
+.popup_volante table:nth-child(1) tr:nth-child(1) td {
+    color: var(--popup-th-color);
+    font-size: 13px;
 }

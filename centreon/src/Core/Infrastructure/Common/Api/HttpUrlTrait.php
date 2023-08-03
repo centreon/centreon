@@ -31,7 +31,7 @@ trait HttpUrlTrait
     /**
      * @var ServerBag|null
      */
-    private ?ServerBag $httpServerBag;
+    private ?ServerBag $httpServerBag = null;
 
     /**
      * @param RequestStack $requestStack

@@ -79,18 +79,18 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
     {
         $metricIds = [];
         $subQueryColumns = [];
-        $subQueryPattern = 'AVG(CASE WHEN id_metric = %d THEN `value` end) AS %s';
+        $subQueryPattern = 'AVG(CASE WHEN id_metric = %d THEN `value` end) AS "%s"';
         foreach ($metrics as $metric) {
             $subQueryColumns[] = sprintf($subQueryPattern, $metric->getId(), $metric->getName());
             $metricIds[] = $metric->getId();
         }
 
         $pattern = 'SELECT %s FROM `:dbstg`.data_bin WHERE ';
-        $pattern .= ' ctime >= :start AND ctime < :end AND id_metric IN (%s) GROUP BY time';
+        $pattern .= ' ctime >= :start AND ctime < :end AND id_metric IN (%s) GROUP BY ctime';
 
         return sprintf(
             $pattern,
-            join(', ', ['ctime AS time', ...$subQueryColumns]),
+            join(', ', ['ctime', ...$subQueryColumns]),
             join(',', $metricIds)
         );
     }
@@ -100,7 +100,7 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
      */
     private function createPerformanceMetricFromDataBin(array $dataBin): PerformanceMetric
     {
-        $time = (new \DateTimeImmutable())->setTimestamp((int) $dataBin['time']);
+        $time = (new \DateTimeImmutable())->setTimestamp((int) $dataBin['ctime']);
         $metricValues = $this->createMetricValues($dataBin);
 
         return new PerformanceMetric($time, $metricValues);
@@ -114,7 +114,7 @@ class DbReadPerformanceDataRepository extends AbstractRepositoryDRB implements R
     {
         $metricValues = [];
         foreach ($data as $columnName => $columnValue) {
-            if ($columnName !== 'time') {
+            if ($columnName !== 'ctime') {
                 $metricValues[] = new MetricValue($columnName, (float) $columnValue);
             }
         }

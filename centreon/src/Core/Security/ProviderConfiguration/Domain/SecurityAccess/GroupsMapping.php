@@ -183,4 +183,12 @@ class GroupsMapping implements SecurityAccessInterface
     {
         return $this->userContactGroups;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getConditionMatches(): array
+    {
+        return [];
+    }
 }

@@ -27,7 +27,6 @@ use Assert\AssertionFailedException;
 use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
-use Centreon\Domain\Entity\ContactGroup;
 use Centreon\Domain\Log\LoggerTrait;
 use CentreonSession;
 use Core\Application\Configuration\User\Repository\WriteUserRepositoryInterface;
@@ -143,6 +142,12 @@ class SAML implements ProviderAuthenticationInterface
             $this->info($ex->getMessage(), ['errors' => $errors]);
             throw $ex;
         }
+
+        $this->loginLogger->info(
+            Provider::SAML , 
+            'User information: ' . json_encode($this->auth->getAttributes())
+        );
+        $this->info('User information: ', $this->auth->getAttributes());
 
         $attrs = $this->auth->getAttribute($customConfiguration->getUserIdAttribute());
         if ($attrs === null) {
@@ -387,11 +392,11 @@ class SAML implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return ContactGroup[]
+     * @inheritDoc
      */
     public function getUserContactGroups(): array
     {
-        return [];
+        return $this->groupsMapping->getUserContactGroups();
     }
 
     public function getIdTokenPayload(): array
@@ -486,5 +491,13 @@ class SAML implements ProviderAuthenticationInterface
             $auth->redirectTo($_GET['RelayState']);
             exit;
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAclConditionsMatches(): array
+    {
+        return $this->rolesMapping->getConditionMatches();
     }
 }

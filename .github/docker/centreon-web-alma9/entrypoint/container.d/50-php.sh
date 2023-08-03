@@ -1,4 +1,3 @@
 #!/bin/sh
 
-mkdir -p /run/php-fpm
-/usr/sbin/php-fpm
+systemctl start php-fpm

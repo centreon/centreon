@@ -71,10 +71,25 @@ class ModuleSource extends SourceAbstract
      */
     public function install(string $id): ?Module
     {
+        /**
+         * Do not try to install the module if the package is not installed (deb or rpm)
+         */
+        if (($module = $this->getDetail($id)) === null) {
+            throw ModuleException::cannotFindModuleDetails($id);
+        }
+        /**
+         * Check if the module has dependencies
+         * if it does, then check if those dependencies are installed or need updates
+         * if not installed -> install the dependency
+         * if not up to date -> update the dependency
+         */
         $this->installOrUpdateDependencies($id);
 
-        return parent::install($id);
-    }
+        /**
+         * Do not execute the install process for the module if it is already installed
+         */
+        return $module->isInstalled() === false ? parent::install($id) : $module;
+  }
 
     /**
      * {@inheritDoc}
