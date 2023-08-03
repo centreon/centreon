@@ -24,7 +24,7 @@ const configureSAML = (): Cypress.Chainable => {
   cy.getByLabel({
     label: 'Copy/paste x.509 certificate',
     tag: 'textarea'
-  }).type(SAMLConfigVales.x509Certificate);
+  }).type(SAMLConfigVales.x509Certificate, { force: true });
 
   cy.getByLabel({
     label: 'User ID (login) attribute for Centreon user',
@@ -55,7 +55,7 @@ const navigateToSAMLConfigPage = (): Cypress.Chainable => {
     .getByLabel({ label: 'Identity provider' })
     .eq(0)
     .contains('Identity provider')
-    .click();
+    .click({ force: true });
 };
 
 const initializeSAMLUser = (): Cypress.Chainable => {
