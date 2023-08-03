@@ -51,6 +51,9 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     hasReachedTheLimitOfUnits
   } = useMetrics(propertyName);
 
+  const addButtonDisabled =
+    hasNoResources() || hasTooManyMetrics || !metricCount;
+
   const canDisplayMetricsSelection = !hasNoResources() && !hasTooManyMetrics;
 
   const title = metricCount
@@ -90,7 +93,11 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
         </Typography>
       )}
       {canDisplayMetricsSelection && (
-        <ItemComposition labelAdd={t(labelAdd)} onAddItem={addMetric}>
+        <ItemComposition
+          addbuttonDisabled={addButtonDisabled}
+          labelAdd={t(labelAdd)}
+          onAddItem={addMetric}
+        >
           {value.map((service, index) => (
             <ItemComposition.Item
               className={classes.resourceCompositionItem}

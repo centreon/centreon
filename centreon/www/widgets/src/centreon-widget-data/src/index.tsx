@@ -6,7 +6,7 @@ interface Props {
   store: ReturnType<typeof createStore>;
 }
 
-const Text = ({ store }: Props): JSX.Element => {
+const Data = ({ store }: Props): JSX.Element => {
   return (
     <Module maxSnackbars={1} seedName="text" store={store}>
       <div
@@ -22,4 +22,4 @@ const Text = ({ store }: Props): JSX.Element => {
   );
 };
 
-export default Text;
+export default Data;
