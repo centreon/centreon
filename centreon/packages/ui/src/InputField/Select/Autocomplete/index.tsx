@@ -201,7 +201,7 @@ const AutocompleteField = ({
       autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
       autoSizeDefaultWidth={autoSizeDefaultWidth}
       classes={{
-        root: classes.textfield,
+        root: classes.textfield
       }}
       error={error}
       externalValueForAutoSize={autocompleteProps?.value?.name}
