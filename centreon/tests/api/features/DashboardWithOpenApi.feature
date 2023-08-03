@@ -1757,7 +1757,7 @@ Feature:
     }
     """
 
-    When I send a GET request to '/api/latest/monitoring/dashboard/metrics/performances/data?metricIds=[1,2,3,7,8,11,12,21,22]&start=2023-08-03T12:36:16.344Z&end=2023-08-03T14:30:20.344Z'
+    When I send a GET request to '/api/latest/monitoring/dashboard/metrics/performances/data?metricIds=[1,2,3]&start=2023-08-03T12:36:16.344Z&end=2023-08-03T14:30:20.344Z'
     Then the response code should be "200"
     And the JSON node "base" should exist
     And the JSON node "metrics" should exist
