@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { Meta, StoryObj } from '@storybook/react';
+import { Curve } from '@visx/visx';
 
 import { Button } from '@mui/material';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -333,6 +334,15 @@ export const Graph: Story = {
   ...Template,
   argTypes,
   args: argumentsData
+};
+
+export const GraphWithStepCurve: Story = {
+  ...Template,
+  argTypes,
+  args: {
+    ...argumentsData,
+    curve: Curve.curveStep
+  }
 };
 
 export const GraphWithTimePeriod: Story = {

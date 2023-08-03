@@ -19,8 +19,10 @@ import {
   canDisplayThreshold,
   requiredNumberLinesThreshold
 } from './Threshold/models';
+import { CurveType } from './models';
 
 interface Props extends GlobalAreaLines {
+  curve: CurveType;
   displayAnchor?: DisplayAnchor;
   displayedLines: Array<Line>;
   graphSvgRef: MutableRefObject<SVGSVGElement | null>;
@@ -44,7 +46,8 @@ const Lines = ({
   displayedLines,
   areaThresholdLines,
   areaStackedLines,
-  areaRegularLines
+  areaRegularLines,
+  curve
 }: Props): JSX.Element => {
   const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
     lines: displayedLines,
@@ -67,6 +70,7 @@ const Lines = ({
 
   const displayGuidingLines = displayAnchor?.displayGuidingLines ?? true;
   const commonStackedLinesProps = {
+    curve,
     displayAnchor: displayGuidingLines,
     graphHeight: height,
     graphSvgRef,
@@ -157,6 +161,7 @@ const Lines = ({
                   )}
                   <RegularLine
                     areaColor={areaColor}
+                    curve={curve}
                     filled={filled}
                     graphHeight={height}
                     highlight={highlight}

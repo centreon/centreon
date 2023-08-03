@@ -1,6 +1,6 @@
 import { MutableRefObject, useRef } from 'react';
 
-import { Responsive } from '@visx/visx';
+import { Curve, Responsive } from '@visx/visx';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 import 'dayjs/locale/es';
@@ -14,12 +14,14 @@ import Graph from './Graph';
 import LoadingSkeleton from './LoadingSkeleton';
 import { GlobalAreaLines, GraphData, GraphProps, LegendModel } from './models';
 import useGraphData from './useGraphData';
+import { CurveType } from './BasicComponents/Lines/models';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
 dayjs.extend(timezonePlugin);
 
 interface Props extends Partial<GraphProps> {
+  curve?: CurveType;
   data?: GraphData;
   end: string;
   legend: LegendModel;
@@ -43,7 +45,8 @@ const WrapperGraph = ({
   tooltip,
   annotationEvent,
   legend,
-  header
+  header,
+  curve = Curve.curveLinear
 }: Props): JSX.Element | null => {
   const { adjustedData } = useGraphData({ data, end, start });
   const graphRef = useRef<HTMLDivElement | null>(null);
@@ -71,6 +74,7 @@ const WrapperGraph = ({
             <Graph
               annotationEvent={annotationEvent}
               axis={axis}
+              curve={curve}
               displayAnchor={displayAnchor}
               graphData={adjustedData}
               graphInterval={{ end, start }}

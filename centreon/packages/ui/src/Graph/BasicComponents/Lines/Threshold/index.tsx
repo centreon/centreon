@@ -7,6 +7,7 @@ import {
   VariationThreshold
 } from '../../../models';
 import { TimeValue } from '../../../timeSeries/models';
+import { CurveType } from '../models';
 
 import BasicThreshold from './BasicThreshold';
 import Circle from './Circle';
@@ -16,6 +17,7 @@ import { WrapperThresholdLinesModel } from './models';
 import useScaleThreshold from './useScaleThreshold';
 
 interface Props extends WrapperThresholdLinesModel {
+  curve: CurveType;
   graphHeight: number;
   timeSeries: Array<TimeValue>;
 }
@@ -27,7 +29,8 @@ const WrapperThresholdLines = ({
   lines,
   rightScale,
   timeSeries,
-  xScale
+  xScale,
+  curve
 }: Props): JSX.Element | null => {
   const data = useScaleThreshold({
     areaThresholdLines,
@@ -44,6 +47,7 @@ const WrapperThresholdLines = ({
   const { getX, getY0, getY1, lineColorY0, lineColorY1, ...rest } = data;
 
   const commonProps = {
+    curve,
     fillAboveArea: lineColorY0,
     fillBelowArea: lineColorY1,
     getX,

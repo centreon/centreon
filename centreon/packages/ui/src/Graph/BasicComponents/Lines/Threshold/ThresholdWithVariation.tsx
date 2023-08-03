@@ -4,10 +4,12 @@ import { LinePath } from '@visx/shape';
 import { useTheme } from '@mui/material/styles';
 
 import { TimeValue } from '../../../timeSeries/models';
+import { CurveType } from '../models';
 
 import BasicThreshold from './BasicThreshold';
 
 interface Props {
+  curve: CurveType;
   getX: (timeValue: TimeValue) => number;
   getY0Variation: (timeValue: TimeValue) => number;
   getY1Variation: (timeValue: TimeValue) => number;
@@ -24,7 +26,8 @@ const ThresholdWithVariation = ({
   getY1Variation,
   graphHeight,
   lineColorY1,
-  lineColorY0
+  lineColorY0,
+  curve
 }: Props): JSX.Element => {
   const theme = useTheme();
 
@@ -40,6 +43,7 @@ const ThresholdWithVariation = ({
   return (
     <>
       <BasicThreshold
+        curve={curve}
         fillAboveArea={lineColorY1}
         fillBelowArea={lineColorY0}
         getX={getX}

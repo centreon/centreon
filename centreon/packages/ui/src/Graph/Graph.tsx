@@ -28,8 +28,10 @@ import {
 } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
 import { useIntersection } from './useGraphIntersection';
+import { CurveType } from './BasicComponents/Lines/models';
 
 interface Props extends GraphProps {
+  curve: CurveType;
   graphData: Data;
   graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
@@ -52,7 +54,8 @@ const Graph = ({
   tooltip,
   legend,
   graphRef,
-  header
+  header,
+  curve
 }: Props): JSX.Element => {
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -165,6 +168,7 @@ const Graph = ({
               />
 
               <Lines
+                curve={curve}
                 displayAnchor={displayAnchor}
                 displayedLines={displayedLines}
                 graphSvgRef={graphSvgRef}

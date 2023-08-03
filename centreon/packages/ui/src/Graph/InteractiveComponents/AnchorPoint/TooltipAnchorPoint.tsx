@@ -44,7 +44,8 @@ const TooltipAnchorPoint = ({
 
   const cardStyles = {
     backgroundColor: theme.palette.background.paper,
-    color: theme.palette.text.primary
+    color: theme.palette.text.primary,
+    padding: theme.spacing(0.25, 0.5)
   };
 
   return (
@@ -55,7 +56,7 @@ const TooltipAnchorPoint = ({
           style={{
             ...baseStyles,
             ...cardStyles,
-            transform: 'translateX(-65%)'
+            transform: 'translateX(-70%)'
           }}
           top={0}
         >
@@ -68,7 +69,7 @@ const TooltipAnchorPoint = ({
           style={{
             ...baseStyles,
             ...cardStyles,
-            transform: 'translateX(-70%) translateY(-80%)'
+            transform: 'translateX(-70%) translateY(-100%)'
           }}
           top={tooltipTopAxisYLeft}
         >
