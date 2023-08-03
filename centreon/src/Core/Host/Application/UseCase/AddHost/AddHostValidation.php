@@ -31,6 +31,7 @@ use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
+use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
@@ -53,6 +54,7 @@ class AddHostValidation
         private readonly ReadTimezoneRepositoryInterface $readTimezoneRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
+        private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $user
     ) {
@@ -212,6 +214,28 @@ class AddHostValidation
 
         if ([] !== ($invalidIds = array_diff($categoryIds, $validCategoryIds))) {
             throw HostException::idsDoNotExist('categories', $invalidIds);
+        }
+    }
+
+    /**
+     * Assert group IDs are valid.
+     *
+     * @param int[] $groupIds
+     *
+     * @throws HostException
+     * @throws \Throwable
+     */
+    public function assertAreValidGroups(array $groupIds): void
+    {
+        if ($this->user->isAdmin()) {
+            $validGroupIds = $this->readHostGroupRepository->exist($groupIds);
+        } else {
+            $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+            $validGroupIds = $this->readHostGroupRepository->existByAccessGroups($groupIds, $accessGroups);
+        }
+
+        if ([] !== ($invalidIds = array_diff($groupIds, $validGroupIds))) {
+            throw HostException::idsDoNotExist('groups', $invalidIds);
         }
     }
 

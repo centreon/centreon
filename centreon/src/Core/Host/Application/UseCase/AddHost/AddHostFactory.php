@@ -27,6 +27,7 @@ use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Domain\Model\Host;
 use Core\HostCategory\Domain\Model\HostCategory;
+use Core\HostGroup\Domain\Model\HostGroup;
 use Core\Macro\Domain\Model\Macro;
 
 final class AddHostFactory
@@ -36,6 +37,7 @@ final class AddHostFactory
      * @param HostCategory[] $hostCategories
      * @param array<array{id:int,name:string}> $parentTemplates
      * @param Macro[] $macros
+     * @param HostGroup[] $hostGroups
      *
      * @throws \Throwable
      *
@@ -46,6 +48,7 @@ final class AddHostFactory
         array $hostCategories,
         array $parentTemplates,
         array $macros,
+        array $hostGroups,
     ): AddHostResponse {
         $dto = new AddHostResponse();
 
@@ -95,6 +98,11 @@ final class AddHostFactory
         $dto->categories = array_map(
             fn(HostCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
             $hostCategories
+        );
+
+        $dto->groups = array_map(
+            fn(HostGroup $group) => ['id' => $group->getId(), 'name' => $group->getName()],
+            $hostGroups
         );
 
         $dto->templates = array_map(
