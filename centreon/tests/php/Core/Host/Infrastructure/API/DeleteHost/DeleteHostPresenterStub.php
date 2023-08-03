@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Host\Infrastucture\API\DeleteHost;
+namespace Tests\Core\Host\Infrastructure\API\DeleteHost;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;

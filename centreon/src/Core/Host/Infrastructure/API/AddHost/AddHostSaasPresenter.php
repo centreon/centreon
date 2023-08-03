@@ -61,8 +61,33 @@ class AddHostSaasPresenter extends AbstractPresenter implements AddHostPresenter
                         'timezone_id' => $response->timezoneId,
                         'severity_id' => $response->severityId,
                         'check_timeperiod_id' => $response->checkTimeperiodId,
-                        'categories' => $response->categories,
-                        'templates' => $response->templates,
+                        'categories' => array_map(
+                            function (array $category) {
+                                return [
+                                    'id' => $category['id'],
+                                    'name' => $category['name'],
+                                ];
+                            },
+                            $response->categories
+                        ),
+                        'groups' => array_map(
+                            function (array $group) {
+                                return [
+                                    'id' => $group['id'],
+                                    'name' => $group['name'],
+                                ];
+                            },
+                            $response->groups
+                        ),
+                        'templates' => array_map(
+                            function (array $template) {
+                                return [
+                                    'id' => $template['id'],
+                                    'name' => $template['name'],
+                                ];
+                            },
+                            $response->templates
+                        ),
                         'macros' => array_map(
                             function (array $macro) {
                                 return [
