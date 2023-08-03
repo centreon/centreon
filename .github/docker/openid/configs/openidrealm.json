@@ -449,6 +449,28 @@
     "notBefore" : 0,
     "groups" : [ "/Notification", "/Supervisors" ]
   }, {
+    "id" : "b97ff966-7350-43ec-93f8-c40488530f58",
+    "createdTimestamp" : 1674129027829,
+    "username" : "saml",
+    "enabled" : true,
+    "totp" : false,
+    "emailVerified" : true,
+    "email" : "saml@localhost",
+    "firstName": "SAML",
+    "lastName": "SAML",
+    "credentials" : [ {
+      "id" : "b19183c1-5fee-413d-ab8a-2d9b2e6c1c79",
+      "type" : "password",
+      "createdDate" : 1674129126806,
+      "secretData" : "{\"value\":\"W5oM7xMbCPNiSoPuUgs2FZnnTPqSpn6e5jYNahvCBB8OG93n+ZDYlg98DvU2LxfQfTWYpCbDj5CecoaPnQpyAA==\",\"salt\":\"SUL+Fl+aTnRB77YsdeIcAQ==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-centreon_sso", "centreon-editor" ],
+    "notBefore" : 0,
+    "groups" : [ "/Notification", "/Supervisors" ]
+  }, {
     "id" : "948c59ec-46ed-4d99-aa43-02900029b930",
     "createdTimestamp" : 1554245880023,
     "username" : "service-account-backend-service",
@@ -942,7 +964,7 @@
   }, {
     "id" : "cdaa29e7-24ba-48a7-b3a9-288769587d6a",
     "clientId" : "platform-saml-2",
-    "adminUrl" : "http://localhost:8081?acs=1",
+    "adminUrl" : "http://localhost:8080?acs=1",
     "surrogateAuthRequired" : false,
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
@@ -978,17 +1000,19 @@
       "id.token.as.detached.signature" : "false",
       "saml.assertion.signature" : "false",
       "saml.encrypt" : "false",
+      "saml_assertion_consumer_url_post": "http://localhost:4000/centreon/api/latest/saml/acs",
       "saml.server.signature" : "true",
       "saml_idp_initiated_sso_url_name" : "platform-saml-2",
       "exclude.session.state.from.auth.response" : "false",
       "saml.artifact.binding.identifier" : "VKxLJIEYr5OqZiiiA5CzH/jszKE=",
       "saml.artifact.binding" : "false",
+      "saml_single_logout_service_url_redirect": "http://localhost:4000/centreon/api/latest/saml/sls",
       "saml_force_name_id_format" : "false",
       "acr.loa.map" : "{}",
       "tls.client.certificate.bound.access.tokens" : "false",
       "saml.authnstatement" : "true",
       "display.on.consent.screen" : "false",
-      "saml_name_id_format" : "username",
+      "saml_name_id_format" : "email",
       "token.response.type.bearer.lower-case" : "false",
       "saml.onetimeuse.condition" : "false",
       "saml_signature_canonicalization_method" : "http://www.w3.org/2001/10/xml-exc-c14n#"
