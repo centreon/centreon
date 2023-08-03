@@ -104,4 +104,52 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
 
         return $services;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServicesByMetricIdsAndAccessGroups(array $metricIds, array $accessGroups): array
+    {
+        if (empty($metricIds)) {
+            return [];
+        }
+
+        $bindValues = [];
+        foreach ($metricIds as $metricId) {
+            $bindValues[':metricid_' . $metricId] = $metricId;
+        }
+
+        $metricIdQuery = implode(', ',array_keys($bindValues));
+        $accessGroupIds = array_map(
+            fn ($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+        $accessGroupIdsQuery = implode(',', $accessGroupIds);
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                    SELECT DISTINCT id.host_id, id.service_id FROM `:dbstg`.index_data AS id
+                    INNER JOIN `:dbstg`.metrics AS m ON m.index_id = id.id
+                    INNER JOIN `:dbstg`.`centreon_acl` acl
+                    ON acl.service_id = id.service_id
+                    AND acl.group_id IN ({$accessGroupIdsQuery})
+                    WHERE m.metric_id IN ({$metricIdQuery})
+                SQL
+        ));
+
+        foreach ($bindValues as $bindToken => $bindValue) {
+            $statement->bindValue($bindToken, $bindValue, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $records = $statement->fetchAll();
+        $services = [];
+        foreach ($records as $record) {
+            $services[] = (new Service())
+                ->setId($record['service_id'])
+                ->setHost((new Host())->setId($record['host_id']));
+        }
+
+        return $services;
+    }
 }

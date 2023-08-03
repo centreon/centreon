@@ -27,7 +27,10 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface;
+use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -47,6 +50,7 @@ final class FindPerformanceMetrics
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository,
+        private readonly DashboardRights $rights,
     ) {
     }
 
@@ -56,14 +60,28 @@ final class FindPerformanceMetrics
     public function __invoke(FindPerformanceMetricsPresenterInterface $presenter): void
     {
         try {
+            if (! $this->rights->canAccess()) {
+                $presenter->presentResponse(new ForbiddenResponse(
+                    DashboardException::accessNotAllowed()->getMessage()
+                ));
+
+                return;
+            }
             if ($this->user->isAdmin()) {
                 $this->info('find metrics for admin user');
+
                 $resourceMetrics = $this->dashboardMetricRepository->findByRequestParameters($this->requestParameters);
             } else {
                 $this->info('find metrics for non-admin user');
+
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
-                $resourceMetrics = $this->dashboardMetricRepository->FindByRequestParametersAndAccessGroups($this->requestParameters, $accessGroups);
+                $resourceMetrics = $this->dashboardMetricRepository->FindByRequestParametersAndAccessGroups(
+                    $this->requestParameters,
+                    $accessGroups
+                );
             }
+
+            $presenter->presentResponse($this->createResponse($resourceMetrics));
         } catch (\Throwable $ex) {
             $this->error('An error occured while retrieving metrics', ['trace' => (string) $ex]);
             $presenter->presentResponse(new ErrorResponse('An error occured while retrieving metrics'));
@@ -71,7 +89,6 @@ final class FindPerformanceMetrics
             return;
         }
 
-        $presenter->presentResponse($this->createResponse($resourceMetrics));
     }
 
     /**

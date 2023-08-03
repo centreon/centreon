@@ -45,8 +45,21 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
             $this->present([
                 'base' => $response->base,
                 'metrics' => $response->metricsData,
-                'times' => $response->times,
+                'times' => $this->formatTimeStampToISO8601($response->times),
             ]);
         }
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param array $times
+     * @return array
+     */
+    private function formatTimeStampToISO8601(array $times): array
+    {
+        return array_map(function ($time) {
+            return (new \DateTime())->setTimeStamp((int) $time)->format(\DateTime::ATOM);
+        }, $times);
     }
 }

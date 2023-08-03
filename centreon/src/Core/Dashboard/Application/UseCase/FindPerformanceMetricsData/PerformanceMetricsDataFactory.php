@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetricsData;
+use Core\Metric\Application\Exception\MetricException;
 
 class PerformanceMetricsDataFactory
 {
@@ -39,6 +40,7 @@ class PerformanceMetricsDataFactory
         $metrics = [];
         $times = [];
         foreach ($metricsData as $metricData) {
+            $this->validateRrdFormat($metricData);
             $metricBases[] = $metricData['global']['base'];
             $metrics[] = $metricData['metrics'];
             $times[] = $metricData['times'];
@@ -80,6 +82,9 @@ class PerformanceMetricsDataFactory
         $metrics = [];
         foreach ($metricsData as $metricData) {
             foreach ($metricData as $metric) {
+                if (! array_key_exists('metric_id', $metric)) {
+                    MetricException::missingPropertyInMetricInformation('metric_id');
+                }
                 if (in_array($metric['metric_id'], $metricIds, true)) {
                     $metrics[] = $metric;
                 }
@@ -99,5 +104,25 @@ class PerformanceMetricsDataFactory
     private function getTimes(array $times): array
     {
         return $times[0];
+    }
+
+    /**
+     * Validate that the Rrd is correctly formatted
+     *
+     * @param array<string,mixed> $metricData
+     *
+     * @throws MetricException
+     */
+    private function validateRrdFormat(array $metricData): void
+    {
+        if (! array_key_exists('global', $metricData) || ! array_key_exists('base', $metricData['global'])) {
+            throw MetricException::missingPropertyInMetricInformation('base');
+        }
+        if (! array_key_exists('metrics', $metricData)) {
+            throw MetricException::missingPropertyInMetricInformation('metrics');
+        }
+        if (! array_key_exists('times', $metricData)) {
+            throw MetricException::missingPropertyInMetricInformation('times');
+        }
     }
 }

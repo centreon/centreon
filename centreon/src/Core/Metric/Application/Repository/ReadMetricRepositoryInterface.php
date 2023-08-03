@@ -43,4 +43,14 @@ interface ReadMetricRepositoryInterface
      * @return Service[]
      */
     public function findServicesByMetricIds(array $metricIds): array;
+
+    /**
+     * Find Service by Metric Ids.
+     *
+     * @param int[] $metricIds
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return Service[]
+     */
+    public function findServicesByMetricIdsAndAccessGroups(array $metricIds, array $accessGroups): array;
 }
