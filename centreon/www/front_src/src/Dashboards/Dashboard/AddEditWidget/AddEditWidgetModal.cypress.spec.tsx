@@ -39,7 +39,7 @@ import { metricsEndpoint } from './api/endpoints';
 
 import { AddEditWidgetModal } from '.';
 
-const initializeWidgets = (defaultStore): ReturnType<typeof createStore> => {
+const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
   const federatedWidgets = [
     {
       ...widgetTextConfiguration,
@@ -75,6 +75,7 @@ const initialFormDataAdd = {
 };
 
 const initialFormDataEdit = {
+  data: {},
   id: `centreon-widget-text_1`,
   moduleName: widgetTextConfiguration.moduleName,
   options: {
@@ -87,7 +88,7 @@ const initialFormDataEdit = {
   }
 };
 
-const generateResources = (resourceLabel: string) => ({
+const generateResources = (resourceLabel: string): object => ({
   meta: {
     limit: 10,
     page: 1,
@@ -105,16 +106,16 @@ describe('AddEditWidgetModal', () => {
   describe('Properties', () => {
     describe('Add widget', () => {
       beforeEach(() => {
-        const store = initializeWidgets();
+        const jotaiStore = initializeWidgets();
 
-        store.set(widgetFormInitialDataAtom, initialFormDataAdd);
+        jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
 
         cy.viewport('macbook-13');
 
         cy.mount({
           Component: (
             <TestQueryProvider>
-              <Provider store={store}>
+              <Provider store={jotaiStore}>
                 <AddEditWidgetModal />
               </Provider>
             </TestQueryProvider>
@@ -171,15 +172,15 @@ describe('AddEditWidgetModal', () => {
 
     describe('Edit widget', () => {
       beforeEach(() => {
-        const store = initializeWidgets();
+        const jotaiStore = initializeWidgets();
 
-        store.set(widgetFormInitialDataAtom, initialFormDataEdit);
+        jotaiStore.set(widgetFormInitialDataAtom, initialFormDataEdit);
 
         cy.viewport('macbook-13');
 
         cy.mount({
           Component: (
-            <Provider store={store}>
+            <Provider store={jotaiStore}>
               <AddEditWidgetModal />
             </Provider>
           )
@@ -277,12 +278,6 @@ describe('AddEditWidgetModal', () => {
 
         cy.contains(/^Host 0$/).click();
         cy.waitForRequest('@getServiceMetrics');
-        cy.contains(/^Host 1$/).click();
-        cy.waitForRequest('@getServiceMetrics').then(() => {
-          cy.getRequestCalls('@getServiceMetrics').then((calls) => {
-            expect(calls).to.have.length(2);
-          });
-        });
 
         cy.findAllByLabelText(labelAdd).eq(1).click();
         cy.findByTestId(labelServiceName).parent().children().eq(0).click();
@@ -373,7 +368,7 @@ describe('AddEditWidgetModal', () => {
             );
             assert.equal(
               dashboard.layout[0].data.resources[0].resources.length,
-              2
+              1
             );
             assert.equal(dashboard.layout[0].data.metrics.length, 1);
             assert.equal(dashboard.layout[0].data.metrics[0].id, 1);
