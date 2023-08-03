@@ -278,7 +278,11 @@ describe('AddEditWidgetModal', () => {
         cy.contains(/^Host 0$/).click();
         cy.waitForRequest('@getServiceMetrics');
         cy.contains(/^Host 1$/).click();
-        cy.waitForRequest('@getServiceMetrics');
+        cy.waitForRequest('@getServiceMetrics').then(() => {
+          cy.getRequestCalls('@getServiceMetrics').then((calls) => {
+            expect(calls).to.have.length(2);
+          });
+        });
 
         cy.findAllByLabelText(labelAdd).eq(1).click();
         cy.findByTestId(labelServiceName).parent().children().eq(0).click();
@@ -311,8 +315,6 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getHosts');
 
         cy.contains(/^Host 0$/).click();
-        cy.waitForRequest('@getServiceMetrics');
-        cy.contains(/^Host 1$/).click();
         cy.waitForRequest('@getServiceMetrics');
 
         cy.findAllByLabelText(labelAdd).eq(1).click();
@@ -347,8 +349,6 @@ describe('AddEditWidgetModal', () => {
         cy.waitForRequest('@getHosts');
 
         cy.contains(/^Host 0$/).click();
-        cy.waitForRequest('@getServiceMetrics');
-        cy.contains(/^Host 1$/).click();
         cy.waitForRequest('@getServiceMetrics');
 
         cy.findAllByLabelText(labelAdd).eq(1).click();
