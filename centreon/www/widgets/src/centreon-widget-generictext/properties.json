@@ -1,6 +1,7 @@
 {
   "title": "Generic text",
-  "description": "The Generic Text widget lets you add free form text to your dashboards to add section titles or information etc...",
+  "description": "The Generic Text widget lets you add free form text to your dashboards to add section titles or information, etc...",
+
   "options": {
     "genericText": {
       "type": "rich-text",
