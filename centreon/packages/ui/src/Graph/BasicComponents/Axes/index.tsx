@@ -34,8 +34,6 @@ const Axes = ({
   const { format } = useLocaleDateTimeFormat();
   const { lines } = data;
 
-  console.log(height);
-
   const { axisLeft, axisRight } = useAxisY({ data, graphHeight: height });
 
   const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
