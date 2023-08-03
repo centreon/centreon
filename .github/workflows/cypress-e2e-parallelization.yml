@@ -121,7 +121,7 @@ jobs:
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
 
       - name: Upload test results
-        if: failure()
+        #if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results
