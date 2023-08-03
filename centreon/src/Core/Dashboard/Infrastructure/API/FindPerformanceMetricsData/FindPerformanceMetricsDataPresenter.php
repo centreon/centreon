@@ -57,8 +57,6 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
      */
     private function formatTimeStampToISO8601(array $times): array
     {
-        return array_map(function ($time) {
-            return (new \DateTime())->setTimeStamp((int) $time)->format(\DateTime::ATOM);
-        }, $times);
+        return array_map(fn ($time) => (new \DateTime())->setTimeStamp((int) $time)->format(\DateTime::ATOM), $times);
     }
 }
