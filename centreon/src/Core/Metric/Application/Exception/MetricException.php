@@ -29,4 +29,9 @@ class MetricException extends \Exception
     {
         return new self(sprintf(_('missing property in the metric information: %s'), $property));
     }
+
+    public static function metricsNotFound(): self
+    {
+        return new self(_('metrics not found'));
+    }
 }

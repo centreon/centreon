@@ -114,6 +114,9 @@ final class FindPerformanceMetricsData
                 $request->endDate
             );
         }
+        if (empty($metricsData)) {
+            throw MetricException::metricsNotFound();
+        }
         $factory = new PerformanceMetricsDataFactory();
 
         return $factory->createFromRecords($metricsData, $request->metricIds);
@@ -146,6 +149,9 @@ final class FindPerformanceMetricsData
                 $request->startDate,
                 $request->endDate
             );
+        }
+        if (empty($metricsData)) {
+            throw MetricException::metricsNotFound();
         }
         $factory = new PerformanceMetricsDataFactory();
 
