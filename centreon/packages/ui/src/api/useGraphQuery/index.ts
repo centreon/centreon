@@ -61,7 +61,7 @@ const useGraphQuery = ({
     isLoading
   } = useFetchQuery<PerformanceGraphData>({
     getEndpoint: () =>
-      `${baseEndpoint}?metricIds=${metricIds}&start=${start}&end=${end}`,
+      `${baseEndpoint}?metricIds=[${metricIds}]&start=${start}&end=${end}`,
     getQueryKey: () => ['graph', metricIds],
     queryOptions: {
       enabled: !isEmpty(metricIds),
