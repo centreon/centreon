@@ -107,7 +107,7 @@ class PerformanceMetricsDataFactory
     }
 
     /**
-     * Validate that the Rrd is correctly formatted
+     * Validate that the Rrd is correctly formatted.
      *
      * @param array<string,mixed> $metricData
      *

@@ -44,6 +44,7 @@ final class FindPerformanceMetrics
      * @param RequestParametersInterface $requestParameters
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param ReadDashboardPerformanceMetricRepositoryInterface $dashboardMetricRepository
+     * @param DashboardRights $rights
      */
     public function __construct(
         private readonly ContactInterface $user,

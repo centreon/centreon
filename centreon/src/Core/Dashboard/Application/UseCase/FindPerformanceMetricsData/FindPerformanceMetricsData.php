@@ -72,7 +72,7 @@ final class FindPerformanceMetricsData
             } else {
                 $this->info('Retrieving metrics data for non admin user', [
                     'user_id' => $this->user->getId(),
-                    'metric_ids' => implode(', ', $request->metricIds)
+                    'metric_ids' => implode(', ', $request->metricIds),
                 ]);
 
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
@@ -93,10 +93,10 @@ final class FindPerformanceMetricsData
      *
      * @param FindPerformanceMetricsDataRequest $request
      *
-     * @return PerformanceMetricsData
-     *
      * @throws MetricException
      * @throws \Throwable
+     *
+     * @return PerformanceMetricsData
      */
     private function findPerformanceMetricsDataAsAdmin(
         FindPerformanceMetricsDataRequest $request
@@ -125,10 +125,10 @@ final class FindPerformanceMetricsData
      * @param FindPerformanceMetricsDataRequest $request
      * @param AccessGroup[] $accessGroups
      *
-     * @return PerformanceMetricsData
-     *
      * @throws MetricException
      * @throws \Throwable
+     *
+     * @return PerformanceMetricsData
      */
     private function findPerformanceMetricsDataAsNonAdmin(
         FindPerformanceMetricsDataRequest $request,
