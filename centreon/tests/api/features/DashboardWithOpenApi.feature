@@ -1677,7 +1677,10 @@ Feature:
     CONTACT;setparam;test-user;reach_api_rt;1
     ACLRESOURCE;add;ACL Resource test;my alias
     ACLRESOURCE;grant_hostgroup;ACL Resource test;Linux-Servers
+    ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
     ACLGROUP;add;ACL Group test;my alias
+    ACLGROUP;addmenu;ACL Group test;name-viewer-ACLMENU
     ACLGROUP;addresource;ACL Group test;ACL Resource test
     ACLGROUP;addcontact;ACL Group test;test-user
     """
