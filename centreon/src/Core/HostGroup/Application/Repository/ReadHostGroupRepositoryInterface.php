@@ -99,6 +99,31 @@ interface ReadHostGroupRepositoryInterface
     public function existsOneByAccessGroups(int $hostGroupId, array $accessGroups): bool;
 
     /**
+     * Check existence of a list of host groups.
+     * Return the ids of the existing groups.
+     *
+     * @param int[] $hostGroupIds
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function exist(array $hostGroupIds): array;
+
+    /**
+     * Check existence of a list of host groups by access groups.
+     * Return the ids of the existing groups.
+     *
+     * @param int[] $hostGroupIds
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function existByAccessGroups(array $hostGroupIds, array $accessGroups): array;
+
+    /**
      * Tells whether the host group name already exists.
      * This method does not need an acl version of it.
      *
@@ -109,4 +134,27 @@ interface ReadHostGroupRepositoryInterface
      * @return bool
      */
     public function nameAlreadyExists(string $hostGroupName): bool;
+
+    /**
+     * Find host groups linked to a host (no ACLs).
+     *
+     * @param int $hostId
+     *
+     * @throws \Throwable
+     *
+     * @return HostGroup[]
+     */
+    public function findByHost(int $hostId): array;
+
+    /**
+     * Find host groups linked to a host by access groups.
+     *
+     * @param int $hostId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return HostGroup[]
+     */
+    public function findByHostAndAccessGroups(int $hostId, array $accessGroups): array;
 }

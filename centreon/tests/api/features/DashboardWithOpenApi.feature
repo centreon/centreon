@@ -1704,8 +1704,7 @@ Feature:
       ]
     }
     """
-    And I wait 20 seconds
-    When I send a GET request to '/api/latest/monitoring/dashboard/metrics/performances?search={"$and":[{"service.name":{"$in":["Ping"]}}]}'
+    When I wait to get 1 result from '/api/latest/monitoring/dashboard/metrics/performances?search={"$and":[{"service.name":{"$in":["Ping"]}}]}' (tries: 30)
     Then the response code should be "200"
     And the JSON should be equal to:
     """
