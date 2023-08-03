@@ -49,7 +49,7 @@ jobs:
         id: list-features
         run: |
           cd ${{ inputs.module_name }}
-          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | grep -i downtime | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
     needs: [cypress-e2e-test-list]
@@ -61,8 +61,7 @@ jobs:
     name: ${{ matrix.feature }}
 
     env:
-      # IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
-      IMAGE_TAG: develop
+      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
@@ -91,37 +90,35 @@ jobs:
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
-      # - name: Restore standard slim image in cache
-      #   id: cache-docker-slim
-      #   uses: actions/cache/restore@v3
-      #   with:
-      #     path: /tmp/cache/docker-image
-      #     key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
-      #   env:
-      #     SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+      - name: Restore standard slim image in cache
+        id: cache-docker-slim
+        uses: actions/cache/restore@v3
+        with:
+          path: /tmp/cache/docker-image
+          key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
 
-      # - name: Load standard slim image
-      #   if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
-      #   run: |
-      #     docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-      #     docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-      #   shell: bash
-
-      - run: docker pull docker.centreon.com/centreon/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+      - name: Load standard slim image
+        if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
+        run: |
+          docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
+          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        shell: bash
 
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
           name: ${{ inputs.name }}
           web_image_os: ${{ inputs.os }}
-          web_image_version: develop
+          web_image_version: ${{ github.head_ref || github.ref_name }}
           openid_image_version: ${{ inputs.major_version }}
           module: centreon
           feature_file_path: ${{ matrix.feature }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
 
       - name: Upload test results
-        #if: failure()
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results
