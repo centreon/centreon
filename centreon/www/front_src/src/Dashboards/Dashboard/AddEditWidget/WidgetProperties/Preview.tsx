@@ -4,9 +4,12 @@ import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
+import { RichTextEditor } from '@centreon/ui';
+
 import FederatedComponent from '../../../../components/FederatedComponents';
 import { Widget } from '../models';
 import { labelPleaseChooseAWidgetToActivatePreview } from '../../translatedLabels';
+import { isGenericText } from '../../utils';
 
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
@@ -26,12 +29,19 @@ const Preview = (): JSX.Element | null => {
 
   return (
     <div className={classes.previewPanel}>
-      <FederatedComponent
-        isFederatedWidget
-        id={values.id}
-        panelOptions={values.options}
-        path={values.panelConfiguration?.path || ''}
-      />
+      {isGenericText(values.panelConfiguration?.path) ? (
+        <RichTextEditor
+          editable={false}
+          editorState={values.options?.genericText}
+        />
+      ) : (
+        <FederatedComponent
+          isFederatedWidget
+          id={values.id}
+          panelOptions={values.options}
+          path={values.panelConfiguration?.path || ''}
+        />
+      )}
     </div>
   );
 };
