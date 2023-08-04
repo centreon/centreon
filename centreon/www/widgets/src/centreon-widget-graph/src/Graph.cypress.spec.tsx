@@ -79,7 +79,7 @@ describe('Graph Widget', () => {
     initializeComponent();
 
     cy.waitForRequest('@getLineChart').then(({ request }) => {
-      expect(request.url.search).to.include('metricIds=1,2,3');
+      expect(request.url.search).to.include('metricIds=[1,2,3]');
     });
 
     cy.contains('cpu (%)').should('be.visible');
