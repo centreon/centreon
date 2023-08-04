@@ -53,9 +53,7 @@ const navigateToSAMLConfigPage = (): Cypress.Chainable => {
 
   return cy
     .getByLabel({ label: 'Identity provider' })
-    .eq(0)
-    .contains('Identity provider')
-    .click({ force: true });
+    .click();
 };
 
 const initializeSAMLUser = (): Cypress.Chainable => {
