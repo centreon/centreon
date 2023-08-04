@@ -8,7 +8,12 @@ import { Widget, WidgetPropertyProps } from '../models';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
 import { widgetPropertiesAtom } from '../atoms';
 
-import { WidgetMetrics, WidgetResources, WidgetTextField } from './Inputs';
+import {
+  WidgetMetrics,
+  WidgetResources,
+  WidgetRichTextEditor,
+  WidgetTextField
+} from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
 import { federatedWidgetsPropertiesAtom } from 'www/front_src/src/federatedModules/atoms';
@@ -28,7 +33,8 @@ export interface WidgetPropertiesRenderer {
 export const propertiesInputType = {
   [FederatedWidgetOptionType.textfield]: WidgetTextField,
   [FederatedWidgetOptionType.resources]: WidgetResources,
-  [FederatedWidgetOptionType.metrics]: WidgetMetrics
+  [FederatedWidgetOptionType.metrics]: WidgetMetrics,
+  [FederatedWidgetOptionType.richText]: WidgetRichTextEditor
 };
 
 const DefaultComponent = (): JSX.Element => <div />;

@@ -332,12 +332,12 @@ describe('Dashboard', () => {
           const dashboard = store.get(dashboardAtom);
 
           assert.equal(dashboard.layout.length, 2);
-          assert.exists(dashboard.layout[0].data);
+          assert.exists(dashboard.layout[1].data);
           assert.equal(
-            dashboard.layout[0].options?.text,
+            dashboard.layout[1].options?.text,
             'Text for the new widget'
           );
-          assert.equal(dashboard.layout[0].name, 'centreon-widget-input');
+          assert.equal(dashboard.layout[1].name, 'centreon-widget-input');
         });
 
       cy.matchImageSnapshot();
