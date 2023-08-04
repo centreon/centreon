@@ -27,7 +27,7 @@ class PerformanceMetricsData
 {
     /**
      * @param int $base
-     * @param array<string,mixed> $metricsData
+     * @param array<int<0, max>, mixed> $metricsData
      * @param string[] $times
      */
     public function __construct(

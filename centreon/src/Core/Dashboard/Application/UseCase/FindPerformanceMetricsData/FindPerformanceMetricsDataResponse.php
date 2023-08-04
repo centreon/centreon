@@ -30,6 +30,6 @@ final class FindPerformanceMetricsDataResponse
     /** @var array<string,mixed> */
     public array $metricsData;
 
-    /** @var int[] */
+    /** @var string[] */
     public array $times;
 }

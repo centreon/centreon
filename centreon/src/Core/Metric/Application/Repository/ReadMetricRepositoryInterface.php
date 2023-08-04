@@ -25,6 +25,7 @@ namespace Core\Metric\Application\Repository;
 
 use Centreon\Domain\Monitoring\Service;
 use Core\Metric\Domain\Model\Metric;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadMetricRepositoryInterface
 {

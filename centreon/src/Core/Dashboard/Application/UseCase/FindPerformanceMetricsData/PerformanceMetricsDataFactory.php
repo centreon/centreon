@@ -29,7 +29,7 @@ use Core\Metric\Application\Exception\MetricException;
 class PerformanceMetricsDataFactory
 {
     /**
-     * @param array<int<0, max>, array> $metricsData
+     * @param array<int<0, max>, array<mixed>> $metricsData
      * @param int[] $metricIds
      *
      * @return PerformanceMetricsData
