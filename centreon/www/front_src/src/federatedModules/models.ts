@@ -28,6 +28,7 @@ export interface StyleMenuSkeleton {
 export enum FederatedWidgetOptionType {
   metrics = 'metrics',
   resources = 'resources',
+  richText = 'rich-text',
   textfield = 'textfield'
 }
 

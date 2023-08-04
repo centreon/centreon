@@ -6,6 +6,8 @@ import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/mod
 import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
 import widgetDataConfiguration from 'centreon-widgets/centreon-widget-data/moduleFederation.json';
 import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
+import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
+import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 
@@ -52,6 +54,10 @@ const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
     {
       ...widgetDataConfiguration,
       moduleFederationName: 'centreon-widget-data/src'
+    },
+    {
+      ...widgetGenericTextConfiguration,
+      moduleFederationName: 'centreon-widget-genericText/src'
     }
   ];
 
@@ -60,7 +66,8 @@ const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
   store.set(federatedWidgetsPropertiesAtom, [
     widgetTextProperties,
     widgetInputProperties,
-    widgetDataProperties
+    widgetDataProperties,
+    widgetGenericTextProperties
   ]);
 
   return store;
@@ -217,6 +224,29 @@ describe('AddEditWidgetModal', () => {
 
         cy.matchImageSnapshot();
       });
+    });
+
+    it('displays the preview of the generic text widget when the generic text widget type is selected', () => {
+      cy.findByLabelText(labelWidgetLibrary).click();
+      cy.contains(/^Generic text$/).click();
+
+      cy.findAllByLabelText('RichTextEditor').eq(1).type('Hello ');
+      cy.findByLabelText('bold').click();
+      cy.findAllByLabelText('RichTextEditor').eq(1).type('World');
+      cy.findByLabelText('bold').click();
+      cy.findAllByLabelText('RichTextEditor').eq(1).type(`
+      
+      
+      Hello!
+      https://centreon.com`);
+
+      cy.findAllByLabelText('RichTextEditor').eq(0).contains('Hello World');
+      cy.findAllByLabelText('RichTextEditor').eq(0).contains('Hello!');
+      cy.findAllByLabelText('RichTextEditor')
+        .eq(0)
+        .contains('https://centreon.com');
+
+      cy.matchImageSnapshot();
     });
   });
 

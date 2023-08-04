@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
 import { getDashboardEndpoint } from '../api/endpoints';
+import { resource } from '../api/models';
 
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from './atoms';
 import { Panel, PanelDetailsToAPI } from './models';
@@ -71,7 +72,7 @@ const useSaveDashboard = (): UseSaveDashboardState => {
       showSuccessMessage(t(labelYourDashboardHasBeenSaved));
       switchPanelsEditionMode(false);
       queryClient.invalidateQueries({
-        queryKey: ['dashboard', dashboardId]
+        queryKey: [resource.dashboard, dashboardId]
       });
     });
   };

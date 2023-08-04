@@ -13,7 +13,7 @@ import { FederatedModule } from '../../federatedModules/models';
 import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 
 import { Panel, PanelConfiguration } from './models';
-import { dashboardAtom } from './atoms';
+import { dashboardAtom, panelsLengthAtom } from './atoms';
 
 interface UseDashboardDetailsState {
   dashboard?: Dashboard;
@@ -68,11 +68,12 @@ const useDashboardDetails = ({
 }: UseDashboardDetailsProps): UseDashboardDetailsState => {
   const federatedWidgets = useAtomValue(federatedWidgetsAtom);
   const setDashboard = useSetAtom(dashboardAtom);
+  const setPanelsLength = useSetAtom(panelsLengthAtom);
 
   const { data: dashboard } = useFetchQuery({
     decoder: dashboardDecoder,
     getEndpoint: () => `${dashboardsEndpoint}/${dashboardId}`,
-    getQueryKey: () => [resource.dashboards, dashboardId]
+    getQueryKey: () => [resource.dashboard, dashboardId]
   });
 
   const panels = getPanels(dashboard);
@@ -82,6 +83,7 @@ const useDashboardDetails = ({
       layout:
         panels.map((panel) => formatPanel({ federatedWidgets, panel })) || []
     });
+    setPanelsLength(panels.length);
   }, useDeepCompare([panels, federatedWidgets]));
 
   return {

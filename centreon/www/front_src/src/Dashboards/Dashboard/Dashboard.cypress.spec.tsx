@@ -7,6 +7,8 @@ import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/modul
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
 import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properties.json';
 import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
+import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
+import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
@@ -58,6 +60,10 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
     {
       ...widgetInputConfiguration,
       moduleFederationName: 'centreon-widget-input/src'
+    },
+    {
+      ...widgetGenericTextConfiguration,
+      moduleFederationName: 'centreon-widget-generictext/src'
     }
   ];
 
@@ -65,7 +71,8 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
   store.set(federatedWidgetsAtom, federatedWidgets);
   store.set(federatedWidgetsPropertiesAtom, [
     widgetTextProperties,
-    widgetInputProperties
+    widgetInputProperties,
+    widgetGenericTextProperties
   ]);
 
   return store;
@@ -307,7 +314,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
-      cy.findByLabelText(labelMoreActions).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelEditWidget).click();
 
       cy.findByLabelText(labelWidgetLibrary).click();
@@ -343,7 +350,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
-      cy.findByLabelText(labelMoreActions).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelDeleteWidget).click();
 
       cy.contains(labelDeleteAWidget).should('be.visible');

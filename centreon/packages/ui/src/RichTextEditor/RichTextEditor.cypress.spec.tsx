@@ -121,7 +121,7 @@ describe('Rich Text Editor', () => {
 
           cy.wrap(element)
             .should('have.attr', 'rel')
-            .and('match', /^noopener/);
+            .and('match', /^noreferrer/);
 
           cy.wrap(element)
             .should('have.attr', 'target')
