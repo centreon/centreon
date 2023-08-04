@@ -66,22 +66,25 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
   })
 );
 
-export const useDashboardItemStyles = makeStyles()((theme) => ({
-  widgetContainer: {
-    height: '100%',
-    width: '100%'
-  },
-  widgetContent: {
-    height: '100%'
-  },
-  widgetHeader: {
-    '&:hover': {
-      backgroundColor: theme.palette.action.hover
+export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
+  (theme, { hasHeader }) => ({
+    widgetContainer: {
+      height: '100%',
+      width: '100%'
     },
-    cursor: 'move',
-    padding: theme.spacing(0.5, 2)
-  },
-  widgetPadding: {
-    padding: theme.spacing(1, 2)
-  }
-}));
+    widgetContent: {
+      height: '100%'
+    },
+    widgetHeader: {
+      '&:hover': {
+        backgroundColor: theme.palette.action.hover
+      },
+      cursor: 'move',
+      padding: theme.spacing(0.5, 2)
+    },
+    widgetPadding: {
+      overflowX: 'auto',
+      padding: hasHeader ? theme.spacing(1, 2, 2) : theme.spacing(1, 2)
+    }
+  })
+);

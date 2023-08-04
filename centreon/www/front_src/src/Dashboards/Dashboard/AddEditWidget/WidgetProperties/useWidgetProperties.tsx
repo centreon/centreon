@@ -9,7 +9,7 @@ import useFederatedWidgets from '../../../../federatedModules/useFederatedWidget
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
 import { widgetPropertiesAtom } from '../atoms';
 
-import { WidgetTextField } from './Inputs';
+import { WidgetRichTextEditor, WidgetTextField } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
 
@@ -25,7 +25,8 @@ export interface WidgetPropertiesRenderer {
 }
 
 export const propertiesInputType = {
-  [FederatedWidgetOptionType.textfield]: WidgetTextField
+  [FederatedWidgetOptionType.textfield]: WidgetTextField,
+  [FederatedWidgetOptionType.richText]: WidgetRichTextEditor
 };
 
 export const useWidgetProperties =
