@@ -29,6 +29,14 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/authentication/providers/configurations/local'
   }).as('postLocalAuthentification');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/contacts/templates?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
+  }).as('getListContactTemplates');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/include/common/userTimezone.php'
+  }).as('getTimeZone');
 });
 
 Given('an administrator is logged on the platform', () => {
@@ -43,17 +51,14 @@ When('the administrator activates the auto-import option for SAML', () => {
     tag: 'input'
   }).check();
 
+  configureSAML();
+
+  cy.getByLabel({ label: 'Auto import users' }).click();
+
   cy.getByLabel({
     label: 'Enable auto import',
     tag: 'input'
   }).check();
-
-  configureSAML();
-
-  cy.getByLabel({ label: 'Auto import users' })
-    .eq(0)
-    .contains('Auto import users')
-    .click({ force: true });
 
   cy.getByLabel({
     label: 'Contact template',
@@ -72,17 +77,18 @@ When('the administrator activates the auto-import option for SAML', () => {
     .should('have.value', 'contact_template');
 
   cy.getByLabel({
-    label: 'Email attribute path',
+    label: 'Email attribute',
     tag: 'input'
   })
     .clear()
     .type('email');
+
   cy.getByLabel({
-    label: 'Fullname attribute path',
+    label: 'Full name attribute',
     tag: 'input'
   })
     .clear()
-    .type('name');
+    .type('given_name');
 
   cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
@@ -111,7 +117,7 @@ Then(
       .its('response.statusCode')
       .should('eq', 200);
 
-    getUserContactId('saml').then((samlId) => {
+    getUserContactId('saml@localhost').then((samlId) => {
       cy.visit(`/centreon/main.php?p=60301&o=c&contact_id=${samlId}`)
         .wait('@getTimeZone')
         .getIframeBody()
@@ -119,7 +125,7 @@ Then(
         .within(() => {
           cy.getByTestId({ tag: 'input', testId: 'contact_alias' }).should(
             'have.value',
-            'saml'
+            'saml@localhost'
           );
           cy.getByTestId({ tag: 'input', testId: 'contact_name' }).should(
             'have.value',
