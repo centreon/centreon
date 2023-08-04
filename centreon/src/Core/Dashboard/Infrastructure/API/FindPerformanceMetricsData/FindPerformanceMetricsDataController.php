@@ -82,7 +82,7 @@ final class FindPerformanceMetricsDataController extends AbstractController
             $start = new \DateTime((string) $startParameter);
             $end = new \DateTime((string) $endParameter);
             $metricIds = json_decode((string) $metricIdsParameter, true);
-        } catch ( \Exception $ex) {
+        } catch ( \Throwable $ex) {
             $this->error('Invalid parameters format', ['trace' => (string) $ex]);
 
             throw new \InvalidArgumentException('Invalid parameters format');

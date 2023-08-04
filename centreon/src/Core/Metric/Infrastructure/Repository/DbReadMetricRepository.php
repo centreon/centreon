@@ -71,7 +71,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      */
     public function findServicesByMetricIds(array $metricIds): array
     {
-        if (empty($metricIds)) {
+        if ([] === $metricIds) {
             return [];
         }
 
@@ -110,7 +110,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      */
     public function findServicesByMetricIdsAndAccessGroups(array $metricIds, array $accessGroups): array
     {
-        if (empty($metricIds)) {
+        if ([] === $metricIds) {
             return [];
         }
 
@@ -121,7 +121,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
 
         $metricIdQuery = implode(', ',array_keys($bindValues));
         $accessGroupIds = array_map(
-            fn ($accessGroup) => $accessGroup->getId(),
+            fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
         $accessGroupIdsQuery = implode(',', $accessGroupIds);
