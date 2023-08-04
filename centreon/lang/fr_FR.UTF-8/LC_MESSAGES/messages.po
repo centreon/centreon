@@ -17968,10 +17968,10 @@ msgid "Host template required in service group association is not linked to serv
 msgstr "Le modèle d'hôte requis dans l'association du groupe de services n'est pas lié au modèle de service"
 
 msgid "Missing property in the metric information: %s"
-msgstr "Propriété manquante dans les informations de métrique: %s"
+msgstr "Propriété manquante dans les informations de la métrique : %s"
 
 msgid "Metrics not found"
-msgstr "Métriques non trouvée"
+msgstr "Métriques non trouvées"
 
 msgid "An error occured while retrieving metrics data"
-msgstr "Une erreur est surbvenue lors de la récupération des données de métriques"
+msgstr "Une erreur est survenue lors de la récupération des données de métriques"
