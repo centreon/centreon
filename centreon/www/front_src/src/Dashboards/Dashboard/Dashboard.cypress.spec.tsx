@@ -331,7 +331,7 @@ describe('Dashboard', () => {
         .then(() => {
           const dashboard = store.get(dashboardAtom);
 
-          assert.equal(dashboard.layout.length, 1);
+          assert.equal(dashboard.layout.length, 2);
           assert.exists(dashboard.layout[0].data);
           assert.equal(
             dashboard.layout[0].options?.text,

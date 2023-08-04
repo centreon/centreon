@@ -111,6 +111,24 @@ const store = createStore();
 
 describe('AddEditWidgetModal', () => {
   describe('Properties', () => {
+    beforeEach(() => {
+      const jotaiStore = initializeWidgets();
+
+      jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
+
+      cy.viewport('macbook-13');
+
+      cy.mount({
+        Component: (
+          <TestQueryProvider>
+            <Provider store={jotaiStore}>
+              <AddEditWidgetModal />
+            </Provider>
+          </TestQueryProvider>
+        )
+      });
+    });
+
     describe('Add widget', () => {
       beforeEach(() => {
         const jotaiStore = initializeWidgets();
