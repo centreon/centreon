@@ -150,7 +150,7 @@ final class FindPerformanceMetricsData
                 $request->endDate
             );
         }
-        if (empty($metricsData)) {
+        if ([] === $metricsData) {
             throw MetricException::metricsNotFound();
         }
         $factory = new PerformanceMetricsDataFactory();

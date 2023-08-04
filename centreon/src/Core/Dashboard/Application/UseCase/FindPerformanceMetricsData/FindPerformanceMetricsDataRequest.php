@@ -29,8 +29,8 @@ final class FindPerformanceMetricsDataRequest
     public array $metricIds = [];
 
     public function __construct(
-        public \DateTime $startDate,
-        public \DateTime $endDate,
+        public \DateTimeInterface $startDate,
+        public \DateTimeInterface $endDate,
     ) {
     }
 }
