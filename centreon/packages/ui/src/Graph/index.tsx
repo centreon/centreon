@@ -26,6 +26,7 @@ interface Props extends Partial<GraphProps> {
   end: string;
   legend: LegendModel;
   loading: boolean;
+  marginBottom?: number;
   shapeLines?: GlobalAreaLines;
   start: string;
 }
@@ -46,7 +47,8 @@ const WrapperGraph = ({
   annotationEvent,
   legend,
   header,
-  curve = Curve.curveLinear
+  curve = Curve.curveLinear,
+  marginBottom = 0
 }: Props): JSX.Element | null => {
   const { adjustedData } = useGraphData({ data, end, start });
   const graphRef = useRef<HTMLDivElement | null>(null);
@@ -83,6 +85,7 @@ const WrapperGraph = ({
               height={height || responsiveHeight}
               legend={legend}
               loading={loading}
+              marginBottom={marginBottom}
               shapeLines={shapeLines}
               timeShiftZones={timeShiftZones}
               tooltip={tooltip}

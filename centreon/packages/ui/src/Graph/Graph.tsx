@@ -36,6 +36,7 @@ interface Props extends GraphProps {
   graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
   legend?: LegendModel;
+  marginBottom: number;
   shapeLines?: GlobalAreaLines;
 }
 
@@ -55,7 +56,8 @@ const Graph = ({
   legend,
   graphRef,
   header,
-  curve
+  curve,
+  marginBottom
 }: Props): JSX.Element => {
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
@@ -70,6 +72,7 @@ const Graph = ({
       ? (height || 0) -
         margin.top -
         margin.bottom -
+        marginBottom -
         (legendRef.current?.getBoundingClientRect().height || 0)
       : 0;
 

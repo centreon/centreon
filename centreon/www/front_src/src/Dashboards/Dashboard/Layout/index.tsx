@@ -74,6 +74,7 @@ const Layout = (): JSX.Element => {
       <DashboardLayout.Layout
         changeLayout={changeLayout}
         displayGrid={isEditing}
+        isStatic={!isEditing}
         layout={panels}
       >
         {panels.map(({ i, panelConfiguration }) => {
