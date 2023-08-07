@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import adminUser from '../../../fixtures/users/admin.json';
@@ -31,19 +32,19 @@ before(() => {
     jsonName: adminUser.login,
     loginViaApi: true
   });
-  cy.insertDashboard({ ...dashboards.fromAdminUser });
+  cy.insertDashboard(dashboards.fromAdminUser);
   cy.logoutViaAPI();
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: true
   });
-  cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
+  cy.insertDashboard(dashboards.fromDashboardAdministratorUser);
   cy.logoutViaAPI();
   cy.loginByTypeOfUser({
     jsonName: dashboardCreatorUser.login,
     loginViaApi: true
   });
-  cy.insertDashboard({ ...dashboards.fromDashboardCreatorUser });
+  cy.insertDashboard(dashboards.fromDashboardCreatorUser);
   cy.logoutViaAPI();
 });
 
@@ -128,7 +129,7 @@ Then(
       .should('include', '/dashboards/')
       .invoke('split', '/')
       .should('not.be.empty')
-      .then(Cypress._.last)
+      .then(last)
       .then(Number)
       .should('not.be', 'dashboards')
       .should('be.a', 'number');
@@ -316,7 +317,7 @@ Then(
       .should('include', '/dashboards/')
       .invoke('split', '/')
       .should('not.be.empty')
-      .then(Cypress._.last)
+      .then(last)
       .then(Number)
       .should('not.be', 'dashboards')
       .should('be.a', 'number');
@@ -513,7 +514,7 @@ Then(
       .should('include', '/dashboards/')
       .invoke('split', '/')
       .should('not.be.empty')
-      .then(Cypress._.last)
+      .then(last)
       .then(Number)
       .should('not.be', 'dashboards')
       .should('be.a', 'number');
@@ -721,7 +722,7 @@ Then(
       .should('include', '/dashboards/')
       .invoke('split', '/')
       .should('not.be.empty')
-      .then(Cypress._.last)
+      .then(last)
       .then(Number)
       .should('not.be', 'dashboards')
       .should('be.a', 'number');
