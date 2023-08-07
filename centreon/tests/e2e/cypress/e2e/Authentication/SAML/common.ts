@@ -34,7 +34,7 @@ const configureSAML = (): Cypress.Chainable => {
   cy.getByLabel({
     label: 'Both identity provider and Centreon UI',
     tag: 'input'
-  }).check();
+  }).check({ force: true });
 
   return cy
     .getByLabel({ label: 'Logout URL', tag: 'input' })
@@ -51,9 +51,7 @@ const navigateToSAMLConfigPage = (): Cypress.Chainable => {
 
   cy.wait('@getSAMLProvider');
 
-  return cy
-    .getByLabel({ label: 'Identity provider' })
-    .click();
+  return cy.getByLabel({ label: 'Identity provider' }).click();
 };
 
 const initializeSAMLUser = (): Cypress.Chainable => {
