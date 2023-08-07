@@ -17993,3 +17993,12 @@ msgstr "Veuillez sélectionner une métrique"
 
 msgid "The limit of 2 units has been reached"
 msgstr "La limite de 2 unités a été atteinte"
+
+msgid "Missing property in the metric information: %s"
+msgstr "Propriété manquante dans les informations de la métrique : %s"
+
+msgid "Metrics not found"
+msgstr "Métriques non trouvées"
+
+msgid "An error occured while retrieving metrics data"
+msgstr "Une erreur est survenue lors de la récupération des données de métriques"

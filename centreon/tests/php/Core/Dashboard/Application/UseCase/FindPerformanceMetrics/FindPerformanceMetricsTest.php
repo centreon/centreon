@@ -26,10 +26,13 @@ namespace Tests\Core\Dashboard\Application\UseCase\FindPerformanceMetrics;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetrics;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetricsResponse;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\ResourceMetricDTO;
+use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -40,6 +43,7 @@ beforeEach(function() {
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
     $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->readDashboardPerformanceMetric = $this->createMock(ReadDashboardPerformanceMetricRepositoryInterface::class);
+    $this->rights = $this->createMock(DashboardRights::class);
 });
 
 it('should present an ErrorResponse when something occurs in the repository', function() {
@@ -48,15 +52,21 @@ it('should present an ErrorResponse when something occurs in the repository', fu
         $this->adminUser,
         $this->requestParameters,
         $this->accessGroupRepository,
-        $this->readDashboardPerformanceMetric
+        $this->readDashboardPerformanceMetric,
+        $this->rights
     );
+
+    $this->rights
+        ->expects($this->once())
+        ->method('canAccess')
+        ->willReturn(true);
 
     $this->readDashboardPerformanceMetric
         ->expects($this->once())
         ->method('findByRequestParameters')
         ->willThrowException(new \Exception('An error occured'));
 
-    $presenter = new FindDashboardPerformanceMetricsPresenterStub();
+    $presenter = new FindPerformanceMetricsPresenterStub();
     $useCase($presenter);
 
     expect($presenter->data)->toBeInstanceOf(ErrorResponse::class)
@@ -70,7 +80,8 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
         $this->adminUser,
         $this->requestParameters,
         $this->accessGroupRepository,
-        $this->readDashboardPerformanceMetric
+        $this->readDashboardPerformanceMetric,
+        $this->rights
     );
 
     $response = [
@@ -94,12 +105,17 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
         )
     ];
 
+    $this->rights
+        ->expects($this->once())
+        ->method('canAccess')
+        ->willReturn(true);
+
     $this->readDashboardPerformanceMetric
         ->expects($this->once())
         ->method('findByRequestParameters')
         ->willReturn($response);
 
-    $presenter = new FindDashboardPerformanceMetricsPresenterStub();
+    $presenter = new FindPerformanceMetricsPresenterStub();
     $useCase($presenter);
     expect($presenter->data)->toBeInstanceOf(FindPerformanceMetricsResponse::class)
         ->and($presenter->data->resourceMetrics)
@@ -158,7 +174,8 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
         $this->nonAdminUser,
         $this->requestParameters,
         $this->accessGroupRepository,
-        $this->readDashboardPerformanceMetric
+        $this->readDashboardPerformanceMetric,
+        $this->rights
     );
 
     $response = [
@@ -182,12 +199,17 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
         )
     ];
 
+    $this->rights
+        ->expects($this->once())
+        ->method('canAccess')
+        ->willReturn(true);
+
     $this->readDashboardPerformanceMetric
         ->expects($this->once())
         ->method('FindByRequestParametersAndAccessGroups')
         ->willReturn($response);
 
-    $presenter = new FindDashboardPerformanceMetricsPresenterStub();
+    $presenter = new FindPerformanceMetricsPresenterStub();
     $useCase($presenter);
     expect($presenter->data)->toBeInstanceOf(FindPerformanceMetricsResponse::class)
         ->and($presenter->data->resourceMetrics)
@@ -238,4 +260,26 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
                 ],
             ]
         );
+});
+
+it('should present a ForbiddenResponse when user has unsufficient rights', function () {
+    $useCase = new FindPerformanceMetrics(
+        $this->nonAdminUser,
+        $this->requestParameters,
+        $this->accessGroupRepository,
+        $this->readDashboardPerformanceMetric,
+        $this->rights
+    );
+
+    $this->rights
+        ->expects($this->once())
+        ->method('canAccess')
+        ->willReturn(false);
+
+    $presenter = new FindPerformanceMetricsPresenterStub();
+    $useCase($presenter);
+
+    expect($presenter->data)->toBeInstanceOf(ForbiddenResponse::class)
+    ->and($presenter->data->getMessage())
+    ->toBe(DashboardException::accessNotAllowed()->getMessage());
 });
