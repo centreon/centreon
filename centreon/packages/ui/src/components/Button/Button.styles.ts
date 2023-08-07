@@ -2,9 +2,20 @@ import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
+    '&[data-size="medium"]': {
+      fontSize: '16px',
+      height: 'unset',
+      lineHeight: '24px'
+    },
+
     '&[data-size="small"]': {
-      paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(2)
+      '&[data-variant="primary"], &[data-variant="secondary"]': {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2)
+      },
+      fontSize: '14px',
+      height: 'unset',
+      lineHeight: '22px'
     },
 
     '&[data-variant="primary"]:not(:disabled)': {
@@ -23,7 +34,10 @@ const useStyles = makeStyles()((theme) => ({
 
       borderColor: theme.palette.primary.main,
       color: theme.palette.primary.main
-    }
+    },
+
+    textWrap: 'noWrap',
+    transition: 'unset'
   }
 }));
 

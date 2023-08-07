@@ -1,4 +1,14 @@
 const listNotificationResponse = {
+  contactgroups: [
+    {
+      id: 1,
+      name: 'contact-group1'
+    },
+    {
+      id: 2,
+      name: 'contact-group2'
+    }
+  ],
   id: 1,
   is_activated: false,
   messages: [
@@ -14,7 +24,7 @@ const listNotificationResponse = {
     {
       events: 3,
       extra: {
-        events_services: 3
+        event_services: 3
       },
       ids: [
         {
@@ -135,7 +145,28 @@ const usersResponse = {
   ]
 };
 
+const contactGroupsResponse = {
+  meta: {
+    limit: 10,
+    page: 1,
+    search: {},
+    sort_by: {},
+    total: 1
+  },
+  result: [
+    {
+      id: 1,
+      name: 'contact_group1'
+    },
+    {
+      id: 2,
+      name: 'contact_group2'
+    }
+  ]
+};
+
 export {
+  contactGroupsResponse,
   usersResponse,
   listNotificationResponse,
   hostGroupsResponse,

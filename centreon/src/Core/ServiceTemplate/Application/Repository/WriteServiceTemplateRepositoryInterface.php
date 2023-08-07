@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\ServiceTemplate\Application\Repository;
 
 use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 
 interface WriteServiceTemplateRepositoryInterface
 {
@@ -55,7 +56,7 @@ interface WriteServiceTemplateRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function linkToHostTemplates(int $serviceTemplateId, array $hostTemplateIds): void;
+    public function linkToHosts(int $serviceTemplateId, array $hostTemplateIds): void;
 
     /**
      * Unlink all host templates from the service template.
@@ -64,5 +65,14 @@ interface WriteServiceTemplateRepositoryInterface
      *
      * @throws \Throwable
      */
-    public function unlinkHostTemplates(int $serviceTemplateId): void;
+    public function unlinkHosts(int $serviceTemplateId): void;
+
+    /**
+     * Update a service template.
+     *
+     * @param ServiceTemplate $serviceTemplate
+     *
+     * @throws \Throwable
+     */
+    public function update(ServiceTemplate $serviceTemplate): void;
 }

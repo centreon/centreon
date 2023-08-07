@@ -23,14 +23,22 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/acknowledge'
   }).as('postAcknowledgments');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
+
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+  }).as('getLastestUserFilters');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
   }).as('getTimeZone');
+
   cy.intercept('/centreon/api/latest/monitoring/resources*').as(
     'monitoringEndpoint'
   );
@@ -123,6 +131,8 @@ Then(
 Then(
   'the previously selected resource is marked as acknowledged in the listing with the corresponding color',
   () => {
+    cy.wait('@getLastestUserFilters');
+
     cy.getByLabel({ label: 'State filter' }).click();
 
     cy.get('[data-value="all"]').click();
@@ -198,6 +208,8 @@ Given(
 Then(
   'the previously selected resources are marked as acknowledged in the listing with the corresponding color',
   () => {
+    cy.wait('@getLastestUserFilters');
+
     cy.getByLabel({ label: 'State filter' }).click();
 
     cy.get('[data-value="all"]').click();
@@ -360,6 +372,8 @@ When('the {string} resource is marked as acknowledged', (resource: string) => {
       resourceName = hostChildInAcknowledgementName;
       break;
   }
+
+  cy.wait('@getLastestUserFilters');
 
   cy.getByLabel({ label: 'State filter' }).click();
 

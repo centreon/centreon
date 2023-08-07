@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Tests\Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Option\Option;
+use Centreon\Domain\Option\OptionService;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -34,19 +36,26 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Application\InheritanceManager;
+use Core\Host\Domain\Model\HostEvent;
+use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
-use Core\HostMacro\Application\Repository\ReadHostMacroRepositoryInterface;
-use Core\HostMacro\Application\Repository\WriteHostMacroRepositoryInterface;
-use Core\HostMacro\Domain\Model\HostMacro;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate\PartialUpdateHostTemplate;
 use Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate\PartialUpdateHostTemplateRequest;
+use Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate\PartialUpdateHostTemplateValidation;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
+use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function () {
@@ -60,10 +69,6 @@ beforeEach(function () {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
 
-    $this->hostTemplate = $this->createMock(HostTemplate::class);
-    $this->hostTemplateId = 1;
-    $this->checkCommandId = 1;
-
     $this->useCase = new PartialUpdateHostTemplate(
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
         $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
@@ -72,16 +77,123 @@ beforeEach(function () {
         $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
         $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class),
+        $this->validation = $this->createMock(PartialUpdateHostTemplateValidation::class),
+        $this->optionService = $this->createMock(OptionService::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
     );
 
+    $this->inheritanceModeOption = new Option();
+    $this->inheritanceModeOption->setName('inheritanceMode')->setValue('1');
+
+    // Settup host template
+    $this->hostTemplateId = 1;
+    $this->checkCommandId = 1;
+
+    $this->originalHostTemplate = new HostTemplate(
+        id: $this->hostTemplateId,
+        name: 'host_template_name',
+        alias: 'host_template_alias',
+        snmpVersion: SnmpVersion::Three,
+        snmpCommunity: 'someCommunity',
+        noteUrl: 'some note url',
+        note: 'a note',
+        actionUrl: 'some action url',
+        comment: 'a comment'
+    );
+
     $this->request = new PartialUpdateHostTemplateRequest();
+    $this->request->name = $this->originalHostTemplate->getName() . ' edit  ';
+    $this->request->alias = $this->originalHostTemplate->getAlias() . ' edit  ';
+    $this->request->snmpVersion = SnmpVersion::Two->value;
+    $this->request->snmpCommunity = 'snmpCommunity-value edit';
+    $this->request->timezoneId = 1;
+    $this->request->severityId = 1;
+    $this->request->checkCommandId = $this->checkCommandId;
+    $this->request->checkCommandArgs = ['arg1', 'arg2'];
+    $this->request->checkTimeperiodId = 1;
+    $this->request->maxCheckAttempts = 5;
+    $this->request->normalCheckInterval = 5;
+    $this->request->retryCheckInterval = 5;
+    $this->request->activeCheckEnabled = 1;
+    $this->request->passiveCheckEnabled = 1;
+    $this->request->notificationEnabled = 1;
+    $this->request->notificationOptions = HostEventConverter::toBitFlag([HostEvent::Down, HostEvent::Unreachable]);
+    $this->request->notificationInterval = 5;
+    $this->request->notificationTimeperiodId = 2;
+    $this->request->addInheritedContactGroup = true;
+    $this->request->addInheritedContact = true;
+    $this->request->firstNotificationDelay = 5;
+    $this->request->recoveryNotificationDelay = 5;
+    $this->request->acknowledgementTimeout = 5;
+    $this->request->freshnessChecked = 1;
+    $this->request->freshnessThreshold = 5;
+    $this->request->flapDetectionEnabled = 1;
+    $this->request->lowFlapThreshold = 5;
+    $this->request->highFlapThreshold = 5;
+    $this->request->eventHandlerEnabled = 1;
+    $this->request->eventHandlerCommandId = 2;
+    $this->request->eventHandlerCommandArgs = ["arg3", "  arg4"];
+    $this->request->noteUrl = 'noteUrl-value edit';
+    $this->request->note = 'note-value edit';
+    $this->request->actionUrl = 'actionUrl-value edit';
+    $this->request->iconId = 1;
+    $this->request->iconAlternative = 'iconAlternative-value';
+    $this->request->comment = 'comment-value edit';
+    $this->request->isActivated = false;
+
+    $this->editedHostTemplate = new HostTemplate(
+        id: $this->hostTemplateId,
+        name: $this->request->name,
+        alias: $this->request->alias,
+        snmpVersion: SnmpVersion::from($this->request->snmpVersion),
+        snmpCommunity: $this->request->snmpCommunity,
+        timezoneId: $this->request->timezoneId,
+        severityId: $this->request->severityId,
+        checkCommandId: $this->request->checkCommandId,
+        checkCommandArgs: ['arg1', 'test2'],
+        checkTimeperiodId: $this->request->checkTimeperiodId,
+        maxCheckAttempts: $this->request->maxCheckAttempts,
+        normalCheckInterval: $this->request->normalCheckInterval,
+        retryCheckInterval: $this->request->retryCheckInterval,
+        activeCheckEnabled: YesNoDefaultConverter::fromScalar($this->request->activeCheckEnabled),
+        passiveCheckEnabled: YesNoDefaultConverter::fromScalar($this->request->passiveCheckEnabled),
+        notificationEnabled: YesNoDefaultConverter::fromScalar($this->request->notificationEnabled),
+        notificationOptions: HostEventConverter::fromBitFlag($this->request->notificationOptions),
+        notificationInterval: $this->request->notificationInterval,
+        notificationTimeperiodId: $this->request->notificationTimeperiodId,
+        addInheritedContactGroup: $this->request->addInheritedContactGroup,
+        addInheritedContact: $this->request->addInheritedContact,
+        firstNotificationDelay: $this->request->firstNotificationDelay,
+        recoveryNotificationDelay: $this->request->recoveryNotificationDelay,
+        acknowledgementTimeout: $this->request->acknowledgementTimeout,
+        freshnessChecked: YesNoDefaultConverter::fromScalar($this->request->freshnessChecked),
+        freshnessThreshold: $this->request->freshnessThreshold,
+        flapDetectionEnabled: YesNoDefaultConverter::fromScalar($this->request->flapDetectionEnabled),
+        lowFlapThreshold: $this->request->lowFlapThreshold,
+        highFlapThreshold: $this->request->highFlapThreshold,
+        eventHandlerEnabled: YesNoDefaultConverter::fromScalar($this->request->eventHandlerEnabled),
+        eventHandlerCommandId: $this->request->eventHandlerCommandId,
+        eventHandlerCommandArgs: $this->request->eventHandlerCommandArgs,
+        noteUrl: $this->request->noteUrl,
+        note: $this->request->note,
+        actionUrl: $this->request->actionUrl,
+        iconId: $this->request->iconId,
+        iconAlternative: $this->request->iconAlternative,
+        comment: $this->request->comment,
+        isActivated: $this->request->isActivated,
+        isLocked: false,
+    );
+
+    // Settup parent templates
+    $this->parentTemplates = [2, 3];
+    $this->request->templates = $this->parentTemplates;
 
     // Settup macros
-    $this->macroA = new HostMacro($this->hostTemplateId, 'macroNameA', 'macroValueA');
+    $this->macroA = new Macro($this->hostTemplateId, 'macroNameA', 'macroValueA');
     $this->macroA->setOrder(0);
-    $this->macroB = new HostMacro($this->hostTemplateId, 'macroNameB', 'macroValueB');
+    $this->macroB = new Macro($this->hostTemplateId, 'macroNameB', 'macroValueB');
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'commandMacroName');
     $this->commandMacros = [
@@ -92,7 +204,8 @@ beforeEach(function () {
         $this->macroB->getName() => $this->macroB,
     ];
     $this->inheritanceLineIds = [
-        ['parent_id' => 2, 'child_id' => 1, 'order' => 1],
+        ['child_id' => 1, 'parent_id' => $this->parentTemplates[0], 'order' => 0],
+        ['child_id' => $this->parentTemplates[0], 'parent_id' => $this->parentTemplates[1], 'order' => 1],
     ];
 
     $this->request->macros = [
@@ -117,6 +230,8 @@ beforeEach(function () {
     $this->request->categories = [$this->categoryB->getId()];
 
 });
+
+// Generic usecase tests
 
 it('should present a ForbiddenResponse when a user has insufficient rights', function (): void {
     $this->user
@@ -187,7 +302,9 @@ it('should present a InvalidArgumentResponse when the host template is locked', 
         ->toBe(HostTemplateException::hostIsLocked($hostTemplate->getId())->getMessage());
 });
 
-it('should present a ConflictResponse when a host category does not exist', function () {
+ // Tests for host template
+
+it('should present a ConflictResponse when name is already used', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -195,15 +312,297 @@ it('should present a ConflictResponse when a host category does not exist', func
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
-        ->willReturn($this->hostTemplate);
-    $this->hostTemplate
-        ->expects($this->atLeastOnce())
-        ->method('getId')
-        ->willReturn($this->hostTemplateId);
-    $this->hostTemplate
-        ->expects($this->atLeastOnce())
-        ->method('getCheckCommandId')
-        ->willReturn($this->checkCommandId);
+        ->willReturn($this->originalHostTemplate);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidName')
+        ->willThrowException(
+            HostTemplateException::nameAlreadyExists(
+                HostTemplate::formatName($this->request->name),
+                $this->request->name
+            )
+        );
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(
+            HostTemplateException::nameAlreadyExists(
+                HostTemplate::formatName($this->request->name),
+                $this->request->name
+            )->getMessage()
+        );
+});
+
+it('should present a ConflictResponse when host severity ID is not valid', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidSeverity')
+        ->willThrowException(
+            HostTemplateException::idDoesNotExist('severityId', $this->request->severityId)
+        );
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(HostTemplateException::idDoesNotExist('severityId', $this->request->severityId)->getMessage());
+});
+
+it('should present a ConflictResponse when a host timezone ID is not valid', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidTimezone')
+        ->willThrowException(
+            HostTemplateException::idDoesNotExist('timezoneId', $this->request->timezoneId)
+        );
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(HostTemplateException::idDoesNotExist('timezoneId', $this->request->timezoneId)->getMessage());
+});
+
+it('should present a ConflictResponse when a timeperiod ID is not valid', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidTimePeriod')
+        ->willThrowException(
+            HostTemplateException::idDoesNotExist(
+                'checkTimeperiodId',
+                $this->request->checkTimeperiodId
+            )
+        );
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(
+            HostTemplateException::idDoesNotExist(
+                'checkTimeperiodId',
+                $this->request->checkTimeperiodId
+            )->getMessage()
+        );
+});
+
+it('should present a ConflictResponse when a command ID is not valid', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidCommand')
+        ->willThrowException(
+            HostTemplateException::idDoesNotExist(
+                'checkCommandId',
+                $this->request->checkCommandId
+            )
+        );
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(
+            HostTemplateException::idDoesNotExist(
+                'checkCommandId',
+                $this->request->checkCommandId
+            )->getMessage()
+        );
+});
+
+it('should present a ConflictResponse when the host icon ID is not valid', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidIcon')
+        ->willThrowException(
+            HostTemplateException::idDoesNotExist(
+                'iconId',
+                $this->request->iconId
+            )
+        );
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(
+            HostTemplateException::idDoesNotExist(
+                'iconId',
+                $this->request->iconId
+            )->getMessage()
+        );
+});
+
+// Tests for parents templates
+
+it('should present a ConflictResponse when a parent template ID is not valid', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+
+    // Host template
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
+    $this->writeHostTemplateRepository
+        ->expects($this->once())
+        ->method('update');
+
+    // Parent templates
+    $this->validation
+        ->expects($this->once())
+        ->method('assertAreValidTemplates')
+        ->willThrowException(HostTemplateException::idsDoNotExist('templates', $this->request->templates));
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId );
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(
+            HostTemplateException::idsDoNotExist(
+                'templates',
+                 $this->request->templates
+            )->getMessage()
+        );
+});
+
+it('should present a ConflictResponse when a parent template create a circular inheritance', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+
+    // Host template
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
+    $this->writeHostTemplateRepository
+        ->expects($this->once())
+        ->method('update');
+
+    // Parent templates
+    $this->validation
+        ->expects($this->once())
+        ->method('assertAreValidTemplates')
+        ->willThrowException(HostTemplateException::circularTemplateInheritance());
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId );
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(
+            HostTemplateException::circularTemplateInheritance()->getMessage()
+        );
+});
+
+// Tests for categories
+
+it('should present a ConflictResponse when a host category does not exist', function () {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+
+    // Host template
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
+    $this->writeHostTemplateRepository
+        ->expects($this->once())
+        ->method('update');
+
+    // Parent templates
+    $this->writeHostTemplateRepository
+        ->expects($this->once())
+        ->method('deleteParents');
+    $this->writeHostTemplateRepository
+        ->expects($this->exactly(2))
+        ->method('addParent');
+
+    // Macros
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findParents')
@@ -216,7 +615,6 @@ it('should present a ConflictResponse when a host category does not exist', func
         ->expects($this->once())
         ->method('findByCommandIdAndType')
         ->willReturn($this->commandMacros);
-
     $this->writeHostMacroRepository
         ->expects($this->once())
         ->method('delete');
@@ -227,14 +625,11 @@ it('should present a ConflictResponse when a host category does not exist', func
         ->expects($this->once())
         ->method('update');
 
-    $this->user
-        ->expects($this->atLeast(2))
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->readHostCategoryRepository
+    // Categories
+    $this->validation
         ->expects($this->once())
-        ->method('exist')
-        ->willReturn([]);
+        ->method('assertAreValidCategories')
+        ->willThrowException(HostTemplateException::idsDoNotExist('categories', $this->request->categories));
 
     ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
 
@@ -244,23 +639,50 @@ it('should present a ConflictResponse when a host category does not exist', func
         ->toBe(HostTemplateException::idsDoNotExist('categories', $this->request->categories)->getMessage());
 });
 
+// Test for successful request
+
 it('should present a NoContentResponse on success', function () {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+    $this->user
+        ->expects($this->exactly(2))
+        ->method('isAdmin')
+        ->willReturn(true);
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
-        ->willReturn($this->hostTemplate);
-    $this->hostTemplate
-        ->expects($this->atLeastOnce())
-        ->method('getId')
-        ->willReturn($this->hostTemplateId);
-    $this->hostTemplate
-        ->expects($this->atLeastOnce())
-        ->method('getCheckCommandId')
-        ->willReturn($this->checkCommandId);
+        ->willReturn($this->originalHostTemplate);
+
+    // Host template
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
+
+    $this->validation->expects($this->once())->method('assertIsValidSeverity');
+    $this->validation->expects($this->once())->method('assertIsValidTimezone');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidTimePeriod');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidCommand');
+    $this->validation->expects($this->once())->method('assertIsValidIcon');
+
+    $this->writeHostTemplateRepository
+        ->expects($this->once())
+        ->method('update');
+
+    // Parent templates
+    $this->validation
+        ->expects($this->once())
+        ->method('assertAreValidTemplates');
+    $this->writeHostTemplateRepository
+        ->expects($this->once())
+        ->method('deleteParents');
+    $this->writeHostTemplateRepository
+        ->expects($this->exactly(2))
+        ->method('addParent');
+
+    // Macros
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findParents')
@@ -273,7 +695,6 @@ it('should present a NoContentResponse on success', function () {
         ->expects($this->once())
         ->method('findByCommandIdAndType')
         ->willReturn($this->commandMacros);
-
     $this->writeHostMacroRepository
         ->expects($this->once())
         ->method('delete');
@@ -284,23 +705,17 @@ it('should present a NoContentResponse on success', function () {
         ->expects($this->once())
         ->method('update');
 
-    $this->user
-        ->expects($this->atLeast(3))
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->readHostCategoryRepository
+    // Categories
+    $this->validation
         ->expects($this->once())
-        ->method('exist')
-        ->willReturn([$this->categoryB->getId()]);
+        ->method('assertAreValidCategories');
     $this->readHostCategoryRepository
         ->expects($this->once())
         ->method('findByHost')
         ->willReturn([$this->categoryA]);
-
     $this->writeHostCategoryRepository
         ->expects($this->once())
         ->method('linkToHost');
-
     $this->writeHostCategoryRepository
         ->expects($this->once())
         ->method('unlinkFromHost');

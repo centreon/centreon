@@ -170,6 +170,8 @@ class DbReadDashboardPanelRepository extends AbstractRepositoryDRB implements Re
                 return $array;
             }
         } catch (\JsonException $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
             throw new RepositoryException('Dashboard widget settings could not be JSON decoded.', $ex->getCode(), $ex);
         }
 

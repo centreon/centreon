@@ -45,3 +45,8 @@ properties:
     format: date-time
     nullable: true
     description: "Last update date (ISO8601)"
+
+  own_role:
+    type: string
+    enum: [ viewer, editor ]
+    description: "The role current user owns on this dashboard."

@@ -28,6 +28,7 @@ use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplatePresenterInterface;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplateResponse;
+use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\MacroDto;
 use Core\ServiceTemplate\Infrastructure\Model\NotificationTypeConverter;
 use Core\ServiceTemplate\Infrastructure\Model\YesNoDefaultConverter;
 
@@ -83,6 +84,22 @@ class AddServiceTemplateOnPremPresenter extends AbstractPresenter implements Add
                         'host_templates' => $response->hostTemplateIds,
                         'is_activated' => $response->isActivated,
                         'is_locked' => $response->isLocked,
+                        'macros' => array_map(fn(MacroDto $macro): array => [
+                            'name' => $macro->name,
+                            'value' => $macro->value,
+                            'is_password' => $macro->isPassword,
+                            'description' => $macro->description,
+                        ], $response->macros),
+                        'categories' => array_map(fn($category): array => [
+                            'id' => $category['id'],
+                            'name' => $category['name'],
+                        ], $response->categories),
+                        'groups' => array_map(fn($group): array => [
+                            'id' => $group['serviceGroupId'],
+                            'name' => $group['serviceGroupName'],
+                            'host_template_id' => $group['hostTemplateId'],
+                            'host_template_name' => $group['hostTemplateName'],
+                        ], $response->groups),
                     ]
                 )
             );

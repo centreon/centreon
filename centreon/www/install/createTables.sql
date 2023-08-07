@@ -2509,6 +2509,18 @@ CREATE TABLE IF NOT EXISTS `notification_user_relation` (
     REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `notification_contactgroup_relation` (
+  `notification_id` INT UNSIGNED NOT NULL,
+  `contactgroup_id` INT NOT NULL,
+  UNIQUE KEY `notification_contactgroup_relation_unique_index` (`notification_id`,`contactgroup_id`),
+  CONSTRAINT `notification_contactgroup_relation_notification_id`
+    FOREIGN KEY (`notification_id`)
+    REFERENCES `notification` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `notification_contactgroup_relation_contactgroup_id`
+    FOREIGN KEY (`contactgroup_id`)
+    REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS `notification_hg_relation` (
   `notification_id` INT UNSIGNED NOT NULL,
   `hg_id` INT NOT NULL,
@@ -2568,6 +2580,38 @@ CREATE TABLE IF NOT EXISTS `dashboard_panel` (
   CONSTRAINT `parent_dashboard_id`
     FOREIGN KEY (`dashboard_id`)
     REFERENCES `dashboard` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_contact_relation` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `dashboard_id` INT UNSIGNED NOT NULL,
+  `contact_id` int(11) NOT NULL,
+  `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer',
+  PRIMARY KEY (`id`),
+  KEY `role_index` (`role`),
+  UNIQUE KEY `dashboard_contact_relation_unique` (`dashboard_id`,`contact_id`),
+  CONSTRAINT `dashboard_contact_relation_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `dashboard_contact_relation_contact_id`
+    FOREIGN KEY (`contact_id`)
+    REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_contactgroup_relation` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `dashboard_id` INT UNSIGNED NOT NULL,
+  `contactgroup_id` int(11) NOT NULL,
+  `role` enum('viewer','editor') NOT NULL DEFAULT 'viewer',
+  PRIMARY KEY (`id`),
+  KEY `role_index` (`role`),
+  UNIQUE KEY `dashboard_contactgroup_relation_unique` (`dashboard_id`,`contactgroup_id`),
+  CONSTRAINT `dashboard_contactgroup_relation_dashboard_id`
+    FOREIGN KEY (`dashboard_id`)
+    REFERENCES `dashboard` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `dashboard_contactgroup_relation_contactgroup_id`
+    FOREIGN KEY (`contactgroup_id`)
+    REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

@@ -112,4 +112,7 @@ final class AddHostTemplateResponse
 
     /** @var array<array{id:int,name:string}> */
     public array $templates = [];
+
+    /** @var array<array{name:string,value:null|string,isPassword:bool,description:string}> */
+    public array $macros = [];
 }

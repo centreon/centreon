@@ -108,4 +108,7 @@ final class AddHostTemplateRequest
 
     /** @var int[] */
     public array $templates = [];
+
+    /** @var array<array{name:string,value:null|string,is_password:bool,description:null|string}> */
+    public array $macros = [];
 }

@@ -11,15 +11,27 @@ import {
 } from '../translatedLabels';
 
 import { FormatChannels, formatResourcesForListing } from './utils';
-import Actions from './Actions/RowActions';
-import ActionActivate from './Actions/RowActions/Activate';
+import { Actions, Activate } from './Actions';
+
+export const defaultQueryParams = {
+  limit: 10,
+  page: 1,
+  search: {
+    regex: {
+      fields: ['name'],
+      value: ''
+    }
+  },
+  sort: { name: 'asc' },
+  total: 56
+};
 
 export const fillNotifications = (numberOfRows: number): unknown => {
   return Array.from(Array(numberOfRows).keys()).map((index) => ({
     channels: ['Email'],
-    id: index,
+    id: index + 1,
     is_activated: !!(index % 2),
-    name: `notification${index}`,
+    name: `notification${index + 1}`,
     resources: [
       {
         count: Math.floor(Math.random() * 100),
@@ -32,7 +44,7 @@ export const fillNotifications = (numberOfRows: number): unknown => {
     ],
     timeperiod: {
       id: 1,
-      name: '24h'
+      name: '24h/24 - 7/7 days'
     },
     user_count: Math.floor(Math.random() * 100)
   }));
@@ -40,10 +52,12 @@ export const fillNotifications = (numberOfRows: number): unknown => {
 
 export const getListingResponse = ({
   page = 1,
-  limit = 10
+  limit = 10,
+  rows = 56
 }: {
   limit?: number;
   page?: number;
+  rows?: number;
 }): object => {
   return {
     meta: {
@@ -51,9 +65,9 @@ export const getListingResponse = ({
       page,
       search: {},
       sort_by: {},
-      total: 1
+      total: 56
     },
-    result: fillNotifications(56)
+    result: fillNotifications(rows)
   };
 };
 
@@ -109,7 +123,7 @@ export const getListingColumns = (): Array<Column> => [
     type: ColumnType.component
   },
   {
-    Component: ActionActivate,
+    Component: Activate,
     clickable: true,
     disablePadding: false,
     id: 'isActivated',
@@ -120,15 +134,62 @@ export const getListingColumns = (): Array<Column> => [
   }
 ];
 
-export const defaultQueryParams = {
-  limit: 10,
-  page: 1,
-  search: {
-    regex: {
-      fields: ['name'],
-      value: ''
+export const multipleNotificationsSuccessResponse = {
+  results: [
+    {
+      href: '/configuration/notification/1',
+      message: null,
+      status: 204
+    },
+    {
+      href: '/configuration/notification/2',
+      message: null,
+      status: 204
+    },
+    {
+      href: '/configuration/notification/3',
+      message: null,
+      status: 204
     }
-  },
-  sort: { name: 'asc' },
-  total: 0
+  ]
+};
+
+export const multipleNotificationsWarningResponse = {
+  results: [
+    {
+      href: '/configuration/notification/1',
+      message: 'not found',
+      status: 404
+    },
+    {
+      href: '/configuration/notification/2',
+      message: 'internal server error',
+      status: 500
+    },
+    {
+      href: '/configuration/notification/3',
+      message: null,
+      status: 204
+    }
+  ]
+};
+
+export const multipleNotificationsfailedResponse = {
+  results: [
+    {
+      href: '/configuration/notification/1',
+      message: 'internal server error',
+      status: 500
+    },
+    {
+      href: '/configuration/notification/2',
+      message: 'internal server error',
+      status: 500
+    },
+    {
+      href: '/configuration/notification/3',
+      message: 'not found',
+      status: 404
+    }
+  ]
 };

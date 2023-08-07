@@ -56,6 +56,7 @@ Feature:
       | name        | path |
       | hostGroupId | id   |
     Then the response code should be "201"
+    And the header location should be equal to '/centreon/api/latest/configuration/hosts/groups/<hostGroupId>'
     And the JSON should be equal to:
     """
     {

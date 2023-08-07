@@ -793,28 +793,37 @@ class CentreonAPI
         $handle = fopen($filename, 'r');
         if ($handle) {
             $i = 0;
-            while ($string = fgets($handle)) {
+            while (($string = fgets($handle)) !== false) {
                 $i++;
-                $tab = preg_split('/;/', $string);
-                if (strlen(trim($string)) != 0 && !preg_match('/^\{OBJECT_TYPE\}/', $string)) {
-                    $this->object = trim($tab[0]);
-                    $this->action = trim($tab[1]);
-                    $this->variables = trim(substr($string, strlen($tab[0] . ";" . $tab[1] . ";")));
-                    if ($this->debug == 1) {
-                        print "Object : " . $this->object . "\n";
-                        print "Action : " . $this->action . "\n";
-                        print "VARIABLES : " . $this->variables . "\n\n";
-                    }
-                    try {
-                        $this->launchActionForImport();
-                    } catch (CentreonClapiException $e) {
-                        echo "Line $i : " . $e->getMessage() . "\n";
-                    } catch (\Exception $e) {
-                        echo "Line $i : " . $e->getMessage() . "\n";
-                    }
-                    if ($this->return_code) {
-                        $globalReturn = 1;
-                    }
+
+                $string = trim($string);
+                if (
+                    $string === ''
+                    || str_starts_with($string, '#')
+                    || str_starts_with($string, '{OBJECT_TYPE}')
+                ) {
+                    continue;
+                }
+
+                $tab = explode(';', $string, 3);
+                $this->object = trim($tab[0]);
+                $this->action = trim($tab[1]);
+                $this->variables = trim($tab[2]);
+
+                if ($this->debug == 1) {
+                    print "Object : " . $this->object . "\n";
+                    print "Action : " . $this->action . "\n";
+                    print "VARIABLES : " . $this->variables . "\n\n";
+                }
+                try {
+                    $this->launchActionForImport();
+                } catch (CentreonClapiException $e) {
+                    echo "Line $i : " . $e->getMessage() . "\n";
+                } catch (\Exception $e) {
+                    echo "Line $i : " . $e->getMessage() . "\n";
+                }
+                if ($this->return_code) {
+                    $globalReturn = 1;
                 }
             }
             fclose($handle);

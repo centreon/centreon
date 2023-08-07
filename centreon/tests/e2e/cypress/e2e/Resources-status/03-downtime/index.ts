@@ -20,10 +20,17 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
+
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+  }).as('getLastestUserFilters');
+
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/downtime'
   }).as('postSaveDowntime');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
@@ -34,7 +41,7 @@ Given('the user have the necessary rights to page Resource Status', () => {
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: true
-  });
+  }).wait('@getLastestUserFilters');
 
   cy.get(searchInput).should('exist');
 });

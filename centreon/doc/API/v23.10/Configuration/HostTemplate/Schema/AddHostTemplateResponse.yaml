@@ -266,3 +266,32 @@ properties:
        type: string
        description: "Define a parent host template name that is associated with this host template"
        example: 'parent-template-name'
+  macros:
+    type: array
+    description: |
+      Host macros defined for the host.
+      Macros inherited from parent templates or command are not listed.
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Name of the macro"
+          example: "MacroName"
+        value:
+          type: string
+          nullable: true
+          description: |
+            Value of the macro.
+
+            If macro.is_password property is set to true and macro.value will be set to null.
+          example: "macroValue"
+        is_password:
+          type: boolean
+          description: "Indicates whether the macro value is a password or not"
+          example: false
+        description:
+          type: string
+          nullable: true
+          description: "Macro description"
+          example: "Some text to describe the macro"

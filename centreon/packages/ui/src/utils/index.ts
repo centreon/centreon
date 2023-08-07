@@ -14,4 +14,6 @@ export * from './useMemoComponent';
 export * from './useThemeMode';
 export * from './useViewportIntersection';
 export * from './panelSize';
-export { default as sanitizedHTML } from './sanitizedHTML';
+export * from './sanitizedHTML';
+export * from './docsURL';
+export * from './useInfiniteScrollListing';

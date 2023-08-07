@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Domain\Configuration\Notification\Model;
 
 use Core\Domain\Configuration\Notification\Exception\NotificationException;
-use Core\Domain\Configuration\Notification\Model\NotificationInterface;
 use Core\Domain\Configuration\TimePeriod\Model\TimePeriod;
 
 class HostNotification implements NotificationInterface
@@ -34,7 +33,6 @@ class HostNotification implements NotificationInterface
                  EVENT_HOST_FLAPPING = 'FLAPPING',
                  EVENT_HOST_DOWN = 'DOWN',
                  EVENT_HOST_UNREACHABLE = 'UNREACHABLE';
-
     public const HOST_EVENTS = [
         self::EVENT_HOST_DOWN,
         self::EVENT_HOST_FLAPPING,
@@ -43,9 +41,7 @@ class HostNotification implements NotificationInterface
         self::EVENT_HOST_UNREACHABLE,
     ];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $events = [];
 
     /**
@@ -74,15 +70,18 @@ class HostNotification implements NotificationInterface
 
     /**
      * @param string $event
-     * @return self
+     *
      * @throws NotificationException
+     *
+     * @return self
      */
     public function addEvent(string $event): self
     {
-        if (in_array($event, self::HOST_EVENTS) === false) {
+        if (in_array($event, self::HOST_EVENTS, true) === false) {
             throw NotificationException::badEvent($event);
         }
         $this->events[] = $event;
+
         return $this;
     }
 }

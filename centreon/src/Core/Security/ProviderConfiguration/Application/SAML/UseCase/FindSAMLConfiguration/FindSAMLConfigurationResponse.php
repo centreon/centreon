@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,74 +32,46 @@ use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 
 class FindSAMLConfigurationResponse
 {
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     public bool $isActive = false;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     public bool $isForced = false;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     public bool $isAutoImportEnabled = false;
 
-    /**
-     * @var array<string,int|string>|null
-     */
+    /** @var array<string,int|string>|null */
     public ?array $contactTemplate = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $emailBindAttribute = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $userNameBindAttribute = null;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public string $remoteLoginUrl = '';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public string $entityIdUrl = '';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public ?string $publicCertificate = '';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public string $userIdAttribute = '';
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public bool $logoutFrom = true;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public ?string $logoutFromUrl = null;
 
-    /**
-     * @var array<string, array<int|string, string|null>|string|bool>
-     */
+    /** @var array<string, array<int|string, string|null>|string|bool> */
     public array $aclConditions = [];
 
-    /**
-     * @var array<string,bool|string|string[]>
-     */
+    /** @var array<string,bool|string|string[]> */
     public array $authenticationConditions = [];
 
     /**
@@ -123,18 +95,20 @@ class FindSAMLConfigurationResponse
 
     /**
      * @param ContactTemplate $contactTemplate
+     *
      * @return array<string,int|string>
      */
     public static function contactTemplateToArray(ContactTemplate $contactTemplate): array
     {
         return [
-            "id" => $contactTemplate->getId(),
-            "name" => $contactTemplate->getName(),
+            'id' => $contactTemplate->getId(),
+            'name' => $contactTemplate->getName(),
         ];
     }
 
     /**
      * @param AuthorizationRule[] $authorizationRules
+     *
      * @return array<array{claim_value: string, access_group:array{id: int, name: string}}>
      */
     public static function authorizationRulesToArray(array $authorizationRules): array
@@ -143,16 +117,17 @@ class FindSAMLConfigurationResponse
             return [
                 'claim_value' => $authorizationRule->getClaimValue(),
                 'access_group' => [
-                    "id" => $authorizationRule->getAccessGroup()->getId(),
-                    "name" => $authorizationRule->getAccessGroup()->getName()
+                    'id' => $authorizationRule->getAccessGroup()->getId(),
+                    'name' => $authorizationRule->getAccessGroup()->getName(),
                 ],
-                'priority' => $authorizationRule->getPriority()
+                'priority' => $authorizationRule->getPriority(),
             ];
         }, $authorizationRules);
     }
 
     /**
      * @param AuthenticationConditions $authenticationConditions
+     *
      * @return array{
      *  "is_enabled": bool,
      *  "attribute_path": string,
@@ -168,14 +143,15 @@ class FindSAMLConfigurationResponse
     public static function authenticationConditionsToArray(AuthenticationConditions $authenticationConditions): array
     {
         return [
-            "is_enabled" => $authenticationConditions->isEnabled(),
-            "attribute_path" => $authenticationConditions->getAttributePath(),
-            "authorized_values" => $authenticationConditions->getAuthorizedValues()
+            'is_enabled' => $authenticationConditions->isEnabled(),
+            'attribute_path' => $authenticationConditions->getAttributePath(),
+            'authorized_values' => $authenticationConditions->getAuthorizedValues(),
         ];
     }
 
     /**
      * @param GroupsMapping $groupsMapping
+     *
      * @return array{
      *  "is_enabled": bool,
      *  "attribute_path": string,
@@ -194,16 +170,18 @@ class FindSAMLConfigurationResponse
      */
     public static function groupsMappingToArray(GroupsMapping $groupsMapping): array
     {
-        $relations =  self::contactGroupRelationsToArray($groupsMapping->getContactGroupRelations());
+        $relations = self::contactGroupRelationsToArray($groupsMapping->getContactGroupRelations());
+
         return [
-            "is_enabled" => $groupsMapping->isEnabled(),
-            "attribute_path" => $groupsMapping->getAttributePath(),
-            "relations" => $relations
+            'is_enabled' => $groupsMapping->isEnabled(),
+            'attribute_path' => $groupsMapping->getAttributePath(),
+            'relations' => $relations,
         ];
     }
 
     /**
      * @param ContactGroupRelation[] $contactGroupRelations
+     *
      * @return array<array{
      *   "group_value": string,
      *   "contact_group": array{
@@ -219,8 +197,8 @@ class FindSAMLConfigurationResponse
                 'group_value' => $contactGroupRelation->getClaimValue(),
                 'contact_group' => [
                     'id' => $contactGroupRelation->getContactGroup()->getId(),
-                    'name' => $contactGroupRelation->getContactGroup()->getName()
-                ]
+                    'name' => $contactGroupRelation->getContactGroup()->getName(),
+                ],
             ],
             $contactGroupRelations
         );
@@ -228,16 +206,18 @@ class FindSAMLConfigurationResponse
 
     /**
      * @param ACLConditions $aclConditions
+     *
      * @return array<string, array<int|string,string|null|array<mixed>>|string|bool>
      */
     public static function aclConditionsToArray(ACLConditions $aclConditions): array
     {
-        $relations =  self::authorizationRulesToArray($aclConditions->getRelations());
+        $relations = self::authorizationRulesToArray($aclConditions->getRelations());
+
         return [
-            "is_enabled" => $aclConditions->isEnabled(),
+            'is_enabled' => $aclConditions->isEnabled(),
             'apply_only_first_role' => $aclConditions->onlyFirstRoleIsApplied(),
-            "attribute_path" => $aclConditions->getAttributePath(),
-            "relations" => $relations
+            'attribute_path' => $aclConditions->getAttributePath(),
+            'relations' => $relations,
         ];
     }
 }

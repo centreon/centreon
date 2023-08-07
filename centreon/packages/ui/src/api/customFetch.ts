@@ -10,6 +10,7 @@ interface ApiErrorResponse {
 
 export interface ResponseError {
   additionalInformation?;
+  data?;
   isError: boolean;
   message: string;
   statusCode: number;
@@ -78,6 +79,15 @@ export const customFetch = <T>({
               additionalInformation: data,
               isError: true,
               message: data.message || defaultFailureMessage,
+              statusCode: response.status
+            };
+          }
+
+          if (equals(response.status, 207)) {
+            return {
+              data: data.results,
+              isError: false,
+              message: '',
               statusCode: response.status
             };
           }

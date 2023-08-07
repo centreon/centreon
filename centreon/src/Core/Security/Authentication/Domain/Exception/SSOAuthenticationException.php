@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,9 +26,10 @@ namespace Core\Security\Authentication\Domain\Exception;
 class SSOAuthenticationException extends \Exception
 {
     /**
-     * Exception thrown when tokens are expired
+     * Exception thrown when tokens are expired.
      *
      * @param string $providerName
+     *
      * @return self
      */
     public static function tokensExpired(string $providerName): self
@@ -37,7 +38,7 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when request for connection token failed
+     * Exception thrown when request for connection token failed.
      *
      * @return self
      */
@@ -47,9 +48,10 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the external provider return an error
+     * Exception thrown when the external provider return an error.
      *
      * @param string $providerName
+     *
      * @return self
      */
     public static function errorFromExternalProvider(string $providerName): self
@@ -58,7 +60,7 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the request for refresh token failed
+     * Exception thrown when the request for refresh token failed.
      *
      * @return self
      */
@@ -68,7 +70,7 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the request for introspection token failed
+     * Exception thrown when the request for introspection token failed.
      *
      * @return self
      */
@@ -78,7 +80,7 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the request for user information failed
+     * Exception thrown when the request for user information failed.
      *
      * @return self
      */
@@ -88,7 +90,7 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the IP is blacklisted
+     * Exception thrown when the IP is blacklisted.
      *
      * @return self
      */
@@ -98,7 +100,7 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the IP is not whitelisted
+     * Exception thrown when the IP is not whitelisted.
      *
      * @return self
      */
@@ -108,10 +110,11 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the login claim was not found
+     * Exception thrown when the login claim was not found.
      *
      * @param string $providerName
      * @param string $loginClaim
+     *
      * @return self
      */
     public static function loginClaimNotFound(string $providerName, string $loginClaim): self
@@ -124,9 +127,10 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when no Authorization Code has been return
+     * Exception thrown when no Authorization Code has been return.
      *
      * @param string $providerName
+     *
      * @return self
      */
     public static function noAuthorizationCode(string $providerName): self
@@ -135,7 +139,7 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when no refresh token could be found
+     * Exception thrown when no refresh token could be found.
      *
      * @return self
      */
@@ -145,7 +149,7 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the username can't be extract with matching regexp
+     * Exception thrown when the username can't be extract with matching regexp.
      *
      * @return self
      */
@@ -155,27 +159,28 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when bind attributes for auto import are not found in user informations from external provider
+     * Exception thrown when bind attributes for auto import are not found in user informations from external provider.
      *
      * @param array<string> $missingAttributes
+     *
      * @return self
      */
     public static function autoImportBindAttributeNotFound(array $missingAttributes): self
     {
         return new self(sprintf(
             _('The following bound attributes are missing: %s'),
-            implode(", ", $missingAttributes)
+            implode(', ', $missingAttributes)
         ));
     }
 
     /**
-     * Exception thrown when the id_token couldn't be decoded
+     * Exception thrown when the id_token couldn't be decoded.
      *
      * @return self
      */
     public static function unableToDecodeIdToken(): self
     {
-        return new self(_("An error occured while decoding Identity Provider ID Token"));
+        return new self(_('An error occured while decoding Identity Provider ID Token'));
     }
 
     /**
@@ -187,7 +192,7 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the request to authentication condition fail
+     * Exception thrown when the request to authentication condition fail.
      *
      * @return self
      */
@@ -197,7 +202,7 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the request to authentication condition fail
+     * Exception thrown when the request to authentication condition fail.
      *
      * @return self
      */
@@ -207,9 +212,10 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the user is authenticated on IDP but the contact does not exist in the database
+     * Exception thrown when the user is authenticated on IDP but the contact does not exist in the database.
      *
      * @param string $alias
+     *
      * @return self
      */
     public static function aliasNotFound(string $alias): self
@@ -218,10 +224,11 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the user is authenticated on IDP but the contact does not exist in the database
+     * Exception thrown when the user is authenticated on IDP but the contact does not exist in the database.
      *
      * @param string $message
      * @param int $code
+     *
      * @return self
      */
     public static function withMessageAndCode(string $message, int $code): self
@@ -230,7 +237,7 @@ class SSOAuthenticationException extends \Exception
     }
 
     /**
-     * Exception thrown when the request to custom endpoint fail
+     * Exception thrown when the request to custom endpoint fail.
      *
      * @return self
      */

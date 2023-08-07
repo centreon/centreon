@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Dashboard\Application\UseCase\AddDashboard;
 
 use Core\Dashboard\Application\UseCase\AddDashboard\Response\UserResponseDto;
+use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 
 final class AddDashboardResponse
 {
@@ -35,6 +36,7 @@ final class AddDashboardResponse
         public ?UserResponseDto $updatedBy = null,
         public \DateTimeImmutable $createdAt = new \DateTimeImmutable(),
         public \DateTimeImmutable $updatedAt = new \DateTimeImmutable(),
+        public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
     ) {
     }
 }

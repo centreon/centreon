@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,6 +52,7 @@ class SecurityPolicy
      * @param int|null $passwordExpirationDelay
      * @param string[] $passwordExpirationExcludedUserAliases
      * @param int|null $delayBeforeNewPassword
+     *
      * @throws AssertionException
      */
     public function __construct(
@@ -113,6 +114,7 @@ class SecurityPolicy
 
     /**
      * @param int $passwordMinimumLength
+     *
      * @return self
      */
     public function setPasswordMinimumLength(int $passwordMinimumLength): self
@@ -132,11 +134,13 @@ class SecurityPolicy
 
     /**
      * @param bool $hasUppercase
+     *
      * @return self
      */
     public function setUppercase(bool $hasUppercase): self
     {
         $this->hasUppercase = $hasUppercase;
+
         return $this;
     }
 
@@ -150,11 +154,13 @@ class SecurityPolicy
 
     /**
      * @param bool $hasLowercase
+     *
      * @return self
      */
     public function setLowercase(bool $hasLowercase): self
     {
         $this->hasLowercase = $hasLowercase;
+
         return $this;
     }
 
@@ -168,11 +174,13 @@ class SecurityPolicy
 
     /**
      * @param bool $hasNumber
+     *
      * @return self
      */
     public function setNumber(bool $hasNumber): self
     {
         $this->hasNumber = $hasNumber;
+
         return $this;
     }
 
@@ -186,11 +194,13 @@ class SecurityPolicy
 
     /**
      * @param bool $hasSpecialCharacter
+     *
      * @return self
      */
     public function setSpecialCharacter(bool $hasSpecialCharacter): self
     {
         $this->hasSpecialCharacter = $hasSpecialCharacter;
+
         return $this;
     }
 
@@ -204,11 +214,13 @@ class SecurityPolicy
 
     /**
      * @param bool $canReusePasswords
+     *
      * @return self
      */
     public function setReusePassword(bool $canReusePasswords): self
     {
         $this->canReusePasswords = $canReusePasswords;
+
         return $this;
     }
 
@@ -222,11 +234,13 @@ class SecurityPolicy
 
     /**
      * @param int|null $attempts
+     *
      * @return self
      */
     public function setAttempts(?int $attempts): self
     {
         $this->attempts = $attempts;
+
         return $this;
     }
 
@@ -240,11 +254,13 @@ class SecurityPolicy
 
     /**
      * @param int|null $blockingDuration
+     *
      * @return self
      */
     public function setBlockingDuration(?int $blockingDuration): self
     {
         $this->blockingDuration = $blockingDuration;
+
         return $this;
     }
 
@@ -258,11 +274,13 @@ class SecurityPolicy
 
     /**
      * @param int|null $passwordExpirationDelay
+     *
      * @return self
      */
     public function setPasswordExpirationDelay(?int $passwordExpirationDelay): self
     {
         $this->passwordExpirationDelay = $passwordExpirationDelay;
+
         return $this;
     }
 
@@ -276,11 +294,13 @@ class SecurityPolicy
 
     /**
      * @param string[] $passwordExpirationExcludedUserAliases
+     *
      * @return self
      */
     public function setPasswordExpirationExcludedUserAliases(array $passwordExpirationExcludedUserAliases): self
     {
         $this->passwordExpirationExcludedUserAliases = $passwordExpirationExcludedUserAliases;
+
         return $this;
     }
 
@@ -294,11 +314,13 @@ class SecurityPolicy
 
     /**
      * @param int|null $delayBeforeNewPassword
+     *
      * @return self
      */
     public function setDelayBeforeNewPassword(?int $delayBeforeNewPassword): self
     {
         $this->delayBeforeNewPassword = $delayBeforeNewPassword;
+
         return $this;
     }
 }

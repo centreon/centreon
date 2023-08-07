@@ -8,3 +8,5 @@ export const Modal = Object.assign(ModalRoot, {
   Body: ModalBody,
   Header: ModalHeader
 });
+
+export type { ModalActionsLabels } from './ModalActions';

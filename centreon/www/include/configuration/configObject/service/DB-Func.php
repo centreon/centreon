@@ -1237,7 +1237,7 @@ function insertService($ret = array(), $macro_on_demand = null)
         : $rq .= "NULL, ";
     isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null
         ? $rq .= "'" . $ret["service_activate"]["service_activate"] . "',"
-        : $rq .= "NULL,";
+        : $rq .= "'1',";
     isset($ret["service_acknowledgement_timeout"]) && $ret["service_acknowledgement_timeout"] != null
         ? $rq .= "'" . $ret["service_acknowledgement_timeout"] . "'"
         : $rq .= "NULL";
@@ -1542,7 +1542,7 @@ function updateService($service_id = null, $from_MC = false, $params = array())
     $rq .= "service_activate = ";
     isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null
         ? $rq .= "'" . $ret["service_activate"]["service_activate"] . "' "
-        : $rq .= "NULL ";
+        : $rq .= "'1' ";
     $rq .= "WHERE service_id = '" . $service_id . "'";
     $dbResult = $pearDB->query($rq);
 
@@ -1738,9 +1738,10 @@ function updateService_MC($service_id = null, $params = array())
     if (isset($ret["geo_coords"]) && $ret["geo_coords"] != null) {
         $rq .= "geo_coords = '" . $ret["geo_coords"] . "', ";
     }
-    if (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null) {
-        $rq .= "service_activate = '" . $ret["service_activate"]["service_activate"] . "', ";
-    }
+
+    $rq .= (isset($ret["service_activate"]["service_activate"]) && $ret["service_activate"]["service_activate"] != null)
+        ? "service_activate = '" . $ret["service_activate"]["service_activate"] . "', "
+        : "service_activate = '1', ";
 
     if (strcmp("UPDATE service SET ", $rq)) {
         // Delete last ',' in request

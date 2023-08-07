@@ -86,7 +86,7 @@ export interface Tab {
 
 export interface Props {
   className?: string;
-  header: React.ReactElement;
+  header?: React.ReactElement;
   headerBackgroundColor?: string;
   labelClose?: string;
   minWidth?: number;

@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\Repository;
 
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadDashboardRepositoryInterface
 {
@@ -41,18 +41,18 @@ interface ReadDashboardRepositoryInterface
     public function findByRequestParameter(?RequestParametersInterface $requestParameters): array;
 
     /**
-     * Find all dashboards by access groups.
+     * Find all dashboards by contact.
      *
-     * @param AccessGroup[] $accessGroups
      * @param RequestParametersInterface|null $requestParameters
+     * @param ContactInterface $contact
      *
      * @throws \Throwable
      *
      * @return Dashboard[]
      */
-    public function findByRequestParameterAndAccessGroups(
-        array $accessGroups,
-        ?RequestParametersInterface $requestParameters
+    public function findByRequestParameterAndContact(
+        ?RequestParametersInterface $requestParameters,
+        ContactInterface $contact
     ): array;
 
     /**
@@ -67,16 +67,16 @@ interface ReadDashboardRepositoryInterface
     public function findOne(int $dashboardId): ?Dashboard;
 
     /**
-     * Find one dashboard with access groups.
+     * Find one dashboard with the shared contact.
      *
      * @param int $dashboardId
-     * @param AccessGroup[] $accessGroups
+     * @param ContactInterface $contact
      *
      * @throws \Throwable
      *
      * @return Dashboard|null
      */
-    public function findOneByAccessGroups(int $dashboardId, array $accessGroups): ?Dashboard;
+    public function findOneByContact(int $dashboardId, ContactInterface $contact): ?Dashboard;
 
     /**
      * Tells whether the dashboard exists.
@@ -90,14 +90,14 @@ interface ReadDashboardRepositoryInterface
     public function existsOne(int $dashboardId): bool;
 
     /**
-     * Tells whether the dashboard exists but with access groups.
+     * Tells whether the dashboard exists but with the contact.
      *
      * @param int $dashboardId
-     * @param AccessGroup[] $accessGroups
+     * @param ContactInterface $contact
      *
      * @throws \Throwable
      *
      * @return bool
      */
-    public function existsOneByAccessGroups(int $dashboardId, array $accessGroups): bool;
+    public function existsOneByContact(int $dashboardId, ContactInterface $contact): bool;
 }

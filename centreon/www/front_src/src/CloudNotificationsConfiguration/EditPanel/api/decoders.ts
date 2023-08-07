@@ -32,7 +32,7 @@ const resourceExtraType = JsonDecoder.object<ResourceExtraType>(
   },
   'Resource Extra Type',
   {
-    eventsServices: 'events_services'
+    eventsServices: 'event_services'
   }
 );
 
@@ -65,6 +65,7 @@ const message = JsonDecoder.object<MessageType>(
 
 export const notificationdecoder = JsonDecoder.object<NotificationType>(
   {
+    contactgroups: JsonDecoder.array(user, 'Contactgroups'),
     id: JsonDecoder.number,
     isActivated: JsonDecoder.boolean,
     messages: JsonDecoder.array(message, 'Messages'),
@@ -73,14 +74,8 @@ export const notificationdecoder = JsonDecoder.object<NotificationType>(
     timeperiod,
     users: JsonDecoder.array(user, 'Users')
   },
-  'Notifications Listing',
+  'Notification Listing',
   {
-    id: 'id',
-    isActivated: 'is_activated',
-    messages: 'messages',
-    name: 'name',
-    resources: 'resources',
-    timeperiod: 'timeperiod',
-    users: 'users'
+    isActivated: 'is_activated'
   }
 );

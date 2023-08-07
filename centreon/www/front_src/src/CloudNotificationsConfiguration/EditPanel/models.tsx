@@ -53,6 +53,7 @@ export interface ResourceType {
 }
 
 export interface NotificationType {
+  contactgroups: Array<UserType>;
   id: number;
   isActivated: boolean;
   messages: Array<MessageType>;

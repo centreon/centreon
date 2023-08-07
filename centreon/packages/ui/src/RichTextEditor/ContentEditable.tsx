@@ -152,7 +152,7 @@ const ContentEditable = ({
       <div
         aria-label={namespace}
         className={cx(
-          isTextEmpty && classes.emptyInput,
+          editable && isTextEmpty && classes.emptyInput,
           classes.input,
           inputClassname
         )}

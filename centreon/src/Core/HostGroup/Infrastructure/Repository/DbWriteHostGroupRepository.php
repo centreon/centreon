@@ -131,6 +131,35 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
     }
 
     /**
+     * @inheritDoc
+     */
+    public function linkToHost(int $hostId, array $groupIds): void
+    {
+        if ($groupIds === []) {
+            return;
+        }
+
+        $bindValues = [];
+        $subQuery = [];
+        foreach ($groupIds as $key => $groupId) {
+            $bindValues[":group_id_{$key}"] = $groupId;
+            $subQuery[] = "(:group_id_{$key}, :host_id)";
+        }
+
+        $statement = $this->db->prepare($this->translateDbName(
+            'INSERT INTO `:db`.`hostgroup_relation` (hostgroup_hg_id, host_host_id) VALUES '
+            . implode(', ', $subQuery)
+        ));
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
      * @param \PDOStatement $statement
      * @param HostGroup|NewHostGroup $newHostGroup
      */

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,27 +23,26 @@ declare(strict_types=1);
 
 namespace Core\Severity\RealTime\Domain\Model;
 
-use Core\Domain\RealTime\Model\Icon;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Core\Domain\RealTime\Model\Icon;
 
 class Severity
 {
     public const MAX_NAME_LENGTH = 255;
-
     public const SERVICE_SEVERITY_TYPE_ID = 0,
                  HOST_SEVERITY_TYPE_ID = 1;
-
     public const TYPES_AS_STRING = [
         self::HOST_SEVERITY_TYPE_ID => 'host',
-        self::SERVICE_SEVERITY_TYPE_ID => 'service'
+        self::SERVICE_SEVERITY_TYPE_ID => 'service',
     ];
 
     /**
-     * @param integer $id
+     * @param int $id
      * @param string $name
-     * @param integer $level
-     * @param integer $type
+     * @param int $level
+     * @param int $type
      * @param Icon $icon
+     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
@@ -65,7 +64,7 @@ class Severity
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getId(): int
     {
@@ -81,7 +80,7 @@ class Severity
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getLevel(): int
     {
@@ -97,7 +96,7 @@ class Severity
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getType(): int
     {

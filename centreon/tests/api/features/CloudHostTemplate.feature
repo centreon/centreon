@@ -95,7 +95,21 @@ Feature:
         "note": "note-value",
         "action_url": "actionUrl-value",
         "categories": [2],
-        "templates": []
+        "templates": [],
+        "macros": [
+          {
+            "name": "nameA",
+            "value": "valueA",
+            "is_password": false,
+            "description": "some text"
+          },
+          {
+            "name": "nameB",
+            "value": "valueB",
+            "is_password": true,
+            "description": null
+          }
+        ]
       }
       """
     Then the response code should be "201"
@@ -120,7 +134,21 @@ Feature:
             "name": "host-cat1"
           }
         ],
-        "templates": []
+        "templates": [],
+        "macros": [
+          {
+            "name": "NAMEA",
+            "value": "valueA",
+            "is_password": false,
+            "description": "some text"
+          },
+          {
+            "name": "NAMEB",
+            "value": null,
+            "is_password": true,
+            "description": null
+          }
+        ]
       }
       """
 
@@ -149,6 +177,7 @@ Feature:
       """
     And I am logged in with "ala"/"Centreon@2022"
 
+    # use invalid category ID
     When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
       """
       {
@@ -168,6 +197,7 @@ Feature:
       """
     Then the response code should be "409"
 
+    # use invalid template ID
     When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
       """
       {
@@ -193,6 +223,7 @@ Feature:
       """
     And I am logged in with "ala"/"Centreon@2022"
 
+    # macro should not appear in response as they are inherited from parent template
     When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
       """
       {
@@ -207,7 +238,21 @@ Feature:
         "note": "note-value",
         "action_url": "actionUrl-value",
         "categories": [2],
-        "templates": [15]
+        "templates": [15],
+        "macros": [
+          {
+            "name": "nameA",
+            "value": "valueA",
+            "is_password": false,
+            "description": "some text"
+          },
+          {
+            "name": "nameB",
+            "value": "valueB",
+            "is_password": true,
+            "description": null
+          }
+        ]
       }
       """
     Then the response code should be "201"
@@ -237,16 +282,31 @@ Feature:
             "id": 15,
             "name": "host_template_name_A"
           }
-        ]
+        ],
+        "macros": []
       }
       """
 
   Scenario: Host template partial update
-    # TODO : complete 204 result with GET /hosts/template/<hostTemplateId> to check results
+    # TODO : complete 204 result with GET /hosts/template/<hostTemplateId> to check results for parents, categories and macros
     Given I am logged in
     And the following CLAPI import data:
       """
       HTPL;ADD;htpl-name-1;htpl-alias-1;;;;
+      HC;ADD;severity1;host-severity-alias
+      HC;setseverity;severity1;42;logos/logo-centreon-colors.png
+      HC;ADD;host-cat1;host-cat1-alias
+      HC;ADD;host-cat2;host-cat2-alias
+      CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
+      CONTACT;setparam;ala;reach_api;1
+      ACLMENU;add;ACL Menu test;my alias
+      ACLMENU;grantrw;ACL Menu test;1;Configuration;Hosts;Templates
+      ACLRESOURCE;add;ACL Resource test;my alias
+      ACLRESOURCE;addfilter_hostcategory;ACL Resource test;host-cat2
+      ACLGROUP;add;ACL Group test;my alias
+      ACLGROUP;addmenu;ACL Group test;ACL Menu test
+      ACLGROUP;addresource;ACL Group test;ACL Resource test
+      ACLGROUP;addcontact;ACL Group test;ala
       """
 
     When I send a GET request to '/api/latest/configuration/hosts/templates?search={"name":{"$lk":"htpl-%"}}'
@@ -265,6 +325,8 @@ Feature:
       {}
       """
     Then the response code should be "204"
+
+    # Test macros
 
     When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
       """
@@ -307,12 +369,8 @@ Feature:
       """
     Then the response code should be "204"
 
-    Given the following CLAPI import data:
-      """
-      HC;ADD;severity1;host-severity-alias
-      HC;setseverity;severity1;42;logos/logo-centreon-colors.png
-      HC;ADD;host-cat1;host-cat1-alias
-      """
+    # Test categories
+
     When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
       """
       {
@@ -337,21 +395,7 @@ Feature:
       """
     Then the response code should be "409"
 
-    Given the following CLAPI import data:
-      """
-      HC;ADD;host-cat2;host-cat2-alias
-      CONTACT;ADD;ala;ala;ala@localhost.com;Centreon@2022;0;1;en_US;local
-      CONTACT;setparam;ala;reach_api;1
-      ACLMENU;add;ACL Menu test;my alias
-      ACLMENU;grantrw;ACL Menu test;1;Configuration;Hosts;Templates
-      ACLRESOURCE;add;ACL Resource test;my alias
-      ACLRESOURCE;addfilter_hostcategory;ACL Resource test;host-cat2
-      ACLGROUP;add;ACL Group test;my alias
-      ACLGROUP;addmenu;ACL Group test;ACL Menu test
-      ACLGROUP;addresource;ACL Group test;ACL Resource test
-      ACLGROUP;addcontact;ACL Group test;ala
-      """
-    And I am logged in with "ala"/"Centreon@2022"
+    Given I am logged in with "ala"/"Centreon@2022"
 
     When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
       """
@@ -365,6 +409,96 @@ Feature:
       """
       {
         "categories": [3]
+      }
+      """
+    Then the response code should be "204"
+
+    # Test parent templates
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "templates": [99]
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "templates": [<hostTemplateId>]
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "templates": []
+      }
+      """
+    Then the response code should be "204"
+
+    When I send a POST request to '/api/latest/configuration/hosts/templates' with body:
+      """
+      {
+        "name": "parent template name",
+        "alias": "parent-template-alias"
+      }
+      """
+    And I store response values in:
+      | name     | path |
+      | parentId | id   |
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "templates": [<parentId>]
+      }
+      """
+    Then the response code should be "204"
+
+    # Test regular properties
+
+    Given I am logged in
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "name": "htpl-name-1",
+        "alias": "htpl-alias-1",
+        "snmp_version": "2c",
+        "snmp_community": "   snmpCommunity-value",
+        "timezone_id": 1,
+        "severity_id": 1,
+        "check_timeperiod_id": 1,
+        "note_url": "noteUrl-value",
+        "note": "note-value",
+        "action_url": "actionUrl-value"
+      }
+      """
+    Then the response code should be "204"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "name": "parent template name"
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "severity_id": 2
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a PATCH request to '/api/latest/configuration/hosts/templates/<hostTemplateId>' with body:
+      """
+      {
+        "name": "htpl-name-1-edited"
       }
       """
     Then the response code should be "204"

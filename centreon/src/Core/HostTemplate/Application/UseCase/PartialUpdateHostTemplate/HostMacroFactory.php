@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Core\HostTemplate\Application\UseCase\PartialUpdateHostTemplate;
 
 use Assert\AssertionFailedException;
-use Core\HostMacro\Domain\Model\HostMacro;
+use Core\Macro\Domain\Model\Macro;
 
 final class HostMacroFactory
 {
@@ -34,20 +34,20 @@ final class HostMacroFactory
      *
      * @param array{name:string,value:string|null,is_password:bool,description:string|null} $data
      * @param int $hostTemplateId
-     * @param array<string,HostMacro> $directMacros
-     * @param array<string,HostMacro> $inheritedMacros
+     * @param array<string,Macro> $directMacros
+     * @param array<string,Macro> $inheritedMacros
      *
      * @throws \Throwable
      * @throws AssertionFailedException
      *
-     * @return HostMacro
+     * @return Macro
      */
     public static function create(
         array $data,
         int $hostTemplateId,
         array $directMacros,
         array $inheritedMacros
-    ): HostMacro {
+    ): Macro {
         $macroName = mb_strtoupper($data['name']);
         $macroValue = $data['value'] ?? '';
         $passwordHasNotChanged = (null === $data['value']) && $data['is_password'];
@@ -61,7 +61,7 @@ final class HostMacroFactory
             };
         }
 
-        $macro = new HostMacro(
+        $macro = new Macro(
             $hostTemplateId,
             $data['name'],
             $macroValue,

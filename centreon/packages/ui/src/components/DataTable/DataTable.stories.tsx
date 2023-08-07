@@ -40,3 +40,12 @@ export const AsEmptyState: Story = {
     isEmpty: true
   }
 };
+
+export const withFixedHeightContainer: Story = {
+  args: { ...Default.args },
+  render: (args) => (
+    <div style={{ height: '400px' }}>
+      <DataTable {...args} />
+    </div>
+  )
+};

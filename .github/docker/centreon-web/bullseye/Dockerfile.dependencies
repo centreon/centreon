@@ -42,6 +42,7 @@ apt-get install -y \
   apt-transport-https \
   ca-certificates \
   curl \
+  jq \
   python3 \
   software-properties-common \
   sudo

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- *  For more information : contact@centreon.com
+ * For more information : contact@centreon.com
+ *
  */
 
 declare(strict_types=1);
@@ -35,6 +36,7 @@ class ACLConditions
      * @param string $attributePath
      * @param Endpoint $endpoint
      * @param AuthorizationRule[] $relations
+     *
      * @throws ACLConditionsException
      */
     public function __construct(
@@ -92,15 +94,7 @@ class ACLConditions
      */
     public function getClaimValues(): array
     {
-        $values = array_map(function ($relation) {
-            return $relation->getClaimValue();
-        }, $this->relations);
-
-        if ($this->applyOnlyFirstRole) {
-            $values = [$values[0]];
-        }
-
-        return $values;
+        return array_map(fn ($relation) => $relation->getClaimValue(), $this->relations);
     }
 
     /**
@@ -112,12 +106,13 @@ class ACLConditions
             'is_enabled' => $this->isEnabled,
             'apply_only_first_role' => $this->applyOnlyFirstRole,
             'attribute_path' => $this->attributePath,
-            'endpoint' => $this->endpoint->toArray()
+            'endpoint' => $this->endpoint->toArray(),
         ];
     }
 
     /**
-     * Check mandatory parameters
+     * Check mandatory parameters.
+     *
      * @throws ACLConditionsException
      */
     private function guard(): void
@@ -125,7 +120,7 @@ class ACLConditions
         if ($this->isEnabled) {
             $missing = [];
 
-            if (!strlen($this->attributePath)) {
+            if (! mb_strlen($this->attributePath)) {
                 $missing[] = 'attribute_path';
             }
 
@@ -133,7 +128,7 @@ class ACLConditions
                 $missing[] = 'relations';
             }
 
-            if (!empty($missing)) {
+            if (! empty($missing)) {
                 throw ACLConditionsException::missingFields($missing);
             }
         }

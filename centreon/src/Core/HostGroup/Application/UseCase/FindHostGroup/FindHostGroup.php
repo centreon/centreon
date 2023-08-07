@@ -29,12 +29,9 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Application\Common\UseCase\PresenterInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
-use Core\HostGroup\Infrastructure\API\FindHostGroup\FindHostGroupPresenterOnPrem;
-use Core\HostGroup\Infrastructure\API\FindHostGroup\FindHostGroupPresenterSaas;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class FindHostGroup
@@ -50,6 +47,7 @@ final class FindHostGroup
 
     /**
      * @param int $hostGroupId
+     * @param FindHostGroupPresenterInterface $presenter
      */
     public function __invoke(int $hostGroupId, FindHostGroupPresenterInterface $presenter): void
     {

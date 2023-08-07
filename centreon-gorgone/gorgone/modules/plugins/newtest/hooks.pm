@@ -65,12 +65,9 @@ sub init {
 
 sub routing {
     my (%options) = @_;
-    
-    my $data;
-    eval {
-        $data = JSON::XS->new->decode($options{data});
-    };
-    if ($@) {
+
+    my $data = $options{frame}->decodeData();
+    if (!defined($data)) {
         $options{logger}->writeLogError("[newtest] Cannot decode json data: $@");
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
@@ -83,11 +80,11 @@ sub routing {
     }
     
     if ($options{action} eq 'NEWTESTREADY') {
-        $containers->{$data->{container_id}}->{ready} = 1;
+        $containers->{ $data->{container_id} }->{ready} = 1;
         return undef;
     }
     
-    if (!defined($data->{container_id}) || !defined($last_containers->{$data->{container_id}})) {
+    if (!defined($data->{container_id}) || !defined($last_containers->{ $data->{container_id} })) {
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
             code => GORGONE_ACTION_FINISH_KO,
@@ -98,7 +95,7 @@ sub routing {
         return undef;
     }
     
-    if (gorgone::class::core::waiting_ready(ready => \$containers->{$data->{container_id}}->{ready}) == 0) {
+    if (gorgone::class::core::waiting_ready(ready => \$containers->{ $data->{container_id} }->{ready}) == 0) {
         gorgone::standard::library::add_history({
             dbh => $options{dbh},
              code => GORGONE_ACTION_FINISH_KO,
@@ -112,7 +109,7 @@ sub routing {
     $options{gorgone}->send_internal_message(
         identity => 'gorgone-newtest-' . $data->{container_id},
         action => $options{action},
-        data => $options{data},
+        raw_data_ref => $options{frame}->getRawData(),
         token => $options{token}
     );
 }
@@ -180,7 +177,7 @@ sub broadcast {
         $options{gorgone}->send_internal_message(
             identity => 'gorgone-newtest-' . $container_id,
             action => $options{action},
-            raw_data_ref => $options{frame}->getRawData(),
+            frame => $options{frame},
             token => $options{token}
         );
     }

@@ -1,0 +1,29 @@
+
+get:
+  tags:
+    - Platform
+  summary: "List versions of web, widgets and modules"
+  description: "List versions of web, widgets and modules"
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              web:
+                $ref: 'Schema/Version.yaml'
+
+              widgets:
+                type: object
+                additionalProperties:
+                  schema: { $ref: 'Schema/Version.yaml' }
+
+              modules:
+                type: object
+                additionalProperties:
+                  schema: { $ref: 'Schema/Version.yaml' }
+
+              is_cloud_platform:
+                type: boolean

@@ -2736,7 +2736,7 @@ function sanitizeFormHostParameters(array $ret): array
                 $bindParams[':' . $inputName] = [
                     \PDO::PARAM_STR => in_array($inputValue[$inputName], ['0', '1', '2'])
                         ? $inputValue[$inputName]
-                        : null
+                        : '1'
                 ];
                 break;
         }

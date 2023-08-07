@@ -1,0 +1,29 @@
+{
+    "meta":{
+       "limit":5,
+       "page":1,
+       "total":5
+    },
+    "result":[
+       {
+          "id":0,
+          "name":"My Option 1"
+       },
+       {
+          "id":1,
+          "name":"My Option 2"
+       },
+       {
+        "id":2,
+        "name":"My Option 3"
+     },
+     {
+        "id":3,
+        "name":"My Option 4"
+     },
+     {
+        "id":4,
+        "name":"My Option 5"
+     }
+    ]
+ }

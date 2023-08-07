@@ -27,6 +27,7 @@ use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostTemplate\Domain\Model\HostTemplate;
+use Core\Macro\Domain\Model\Macro;
 
 final class AddHostTemplateFactory
 {
@@ -34,6 +35,7 @@ final class AddHostTemplateFactory
      * @param HostTemplate $hostTemplate
      * @param HostCategory[] $hostCategories
      * @param array<array{id:int,name:string}> $parentTemplates
+     * @param Macro[] $macros
      *
      * @throws \Throwable
      *
@@ -43,6 +45,7 @@ final class AddHostTemplateFactory
         HostTemplate $hostTemplate,
         array $hostCategories,
         array $parentTemplates,
+        array $macros,
     ): AddHostTemplateResponse {
         $dto = new AddHostTemplateResponse();
 
@@ -95,6 +98,18 @@ final class AddHostTemplateFactory
         $dto->templates = array_map(
             fn($template) => ['id' => $template['id'], 'name' => $template['name']],
             $parentTemplates
+        );
+
+        $dto->macros = array_map(
+            static function (Macro $macro): array {
+                return [
+                    'name' => $macro->getName(),
+                    'value' => $macro->getValue(),
+                    'isPassword' => $macro->isPassword(),
+                    'description' => $macro->getDescription(),
+                ];
+            },
+            $macros
         );
 
         return $dto;

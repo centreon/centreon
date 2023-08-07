@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Platform\Infrastructure\Repository;
 
-use Pimple\Container;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
+use Pimple\Container;
 use Symfony\Component\Filesystem\Filesystem;
-use Centreon\Domain\Repository\RepositoryException;
 
 class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpdateRepositoryInterface
 {
@@ -78,7 +78,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Backup installation directory
+     * Backup installation directory.
      *
      * @param string $currentVersion
      */
@@ -87,7 +87,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
         $backupDirectory = $this->libDir . '/installs/install-' . $currentVersion . '-' . date('Ymd_His');
 
         $this->info(
-            "Backing up installation directory",
+            'Backing up installation directory',
             [
                 'source' => $this->installDir,
                 'destination' => $backupDirectory,
@@ -101,12 +101,12 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Remove installation directory
+     * Remove installation directory.
      */
     private function removeInstallDirectory(): void
     {
         $this->info(
-            "Removing installation directory",
+            'Removing installation directory',
             [
                 'installation_directory' => $this->installDir,
             ],
@@ -116,7 +116,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Run sql queries on monitoring database
+     * Run sql queries on monitoring database.
      *
      * @param string $version
      */
@@ -130,7 +130,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Run php upgrade script
+     * Run php upgrade script.
      *
      * @param string $version
      */
@@ -146,7 +146,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Run sql queries on configuration database
+     * Run sql queries on configuration database.
      *
      * @param string $version
      */
@@ -160,7 +160,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Run php post upgrade script
+     * Run php post upgrade script.
      *
      * @param string $version
      */
@@ -176,7 +176,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Update version information
+     * Update version information.
      *
      * @param string $version
      */
@@ -192,10 +192,9 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Run sql file and use temporary file to store last executed line
+     * Run sql file and use temporary file to store last executed line.
      *
      * @param string $filePath
-     * @return void
      */
     private function runSqlFile(string $filePath): void
     {
@@ -227,6 +226,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
                                     $this->executeQuery($query);
                                 } catch (RepositoryException $ex) {
                                     $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
                                     throw $ex;
                                 }
 
@@ -237,6 +237,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
                     }
                 } catch (\Throwable $ex) {
                     $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
                     throw $ex;
                 } finally {
                     fclose($fileStream);
@@ -246,9 +247,10 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Get stored executed queries count in temporary file to retrieve next query to run in case of an error occurred
+     * Get stored executed queries count in temporary file to retrieve next query to run in case of an error occurred.
      *
      * @param string $tmpFile
+     *
      * @return int
      */
     private function getAlreadyExecutedQueriesCount(string $tmpFile): int
@@ -265,7 +267,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Write executed queries count in temporary file to retrieve upgrade when an error occurred
+     * Write executed queries count in temporary file to retrieve upgrade when an error occurred.
      *
      * @param string $tmpFile
      * @param int $count
@@ -281,9 +283,10 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Check if a line a sql comment
+     * Check if a line a sql comment.
      *
      * @param string $line
+     *
      * @return bool
      */
     private function isSqlComment(string $line): bool
@@ -292,9 +295,10 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Check if a query is complete (trailing semicolon)
+     * Check if a query is complete (trailing semicolon).
      *
      * @param string $query
+     *
      * @return bool
      */
     private function isSqlCompleteQuery(string $query): bool
@@ -303,7 +307,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     }
 
     /**
-     * Execute sql query
+     * Execute sql query.
      *
      * @param string $query
      *
@@ -315,6 +319,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
             $this->db->query($query);
         } catch (\Exception $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
             throw new RepositoryException('Cannot execute query: ' . $query, 0, $ex);
         }
     }

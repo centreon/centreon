@@ -89,6 +89,7 @@ Cypress.Commands.add('waitForRequestAndVerifyBody', (requestAlias, body) => {
 declare global {
   namespace Cypress {
     interface Chainable {
+      clickOutside: () => Cypress.Chainable;
       render: (options) => Cypress.Chainable;
       waitFiltersAndListingRequests: () => Cypress.Chainable;
       waitForRequestAndVerifyBody: (requestAlias, body) => Cypress.Chainable;

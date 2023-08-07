@@ -38,6 +38,12 @@ final class AddServiceTemplateRequest
     /** @var list<int> */
     public array $hostTemplateIds = [];
 
+    /** @var list<int> */
+    public array $serviceCategories = [];
+
+    /** @var ServiceGroupDto[] */
+    public array $serviceGroups = [];
+
     public int|null $notificationTypes = null;
 
     public bool $isContactAdditiveInheritance = false;
@@ -105,4 +111,7 @@ final class AddServiceTemplateRequest
     public int|null $firstNotificationDelay = null;
 
     public int|null $acknowledgementTimeout = null;
+
+    /** @var MacroDto[] */
+    public array $macros = [];
 }

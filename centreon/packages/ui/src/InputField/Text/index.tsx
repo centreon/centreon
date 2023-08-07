@@ -166,7 +166,6 @@ const TextField = forwardRef(
                 },
                 className
               ),
-              disableUnderline: true,
               endAdornment: (
                 <OptionalLabelInputAdornment label={label} position="end">
                   {EndAdornment ? (

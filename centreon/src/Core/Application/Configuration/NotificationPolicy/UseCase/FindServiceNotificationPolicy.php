@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,26 +18,27 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Application\Configuration\NotificationPolicy\UseCase;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\HostConfiguration\Host;
-use Centreon\Domain\ServiceConfiguration\Service;
-use Core\Domain\RealTime\Model\Service as RealtimeService;
-use Centreon\Domain\Engine\EngineConfiguration;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Domain\Configuration\Notification\Model\NotifiedContact;
-use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Centreon\Domain\Engine\EngineConfiguration;
 use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
+use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationRepositoryInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationRepositoryInterface;
+use Centreon\Domain\ServiceConfiguration\Service;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Configuration\Notification\Repository\ReadServiceNotificationRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadHostRepositoryInterface as ReadRealTimeHostRepositoryInterface;
 use Core\Application\RealTime\Repository\ReadServiceRepositoryInterface as ReadRealTimeServiceRepositoryInterface;
+use Core\Domain\Configuration\Notification\Model\NotifiedContact;
+use Core\Domain\Configuration\Notification\Model\NotifiedContactGroup;
+use Core\Domain\RealTime\Model\Service as RealtimeService;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 class FindServiceNotificationPolicy
 {
@@ -80,12 +81,14 @@ class FindServiceNotificationPolicy
         $host = $this->findHost($hostId);
         if ($host === null) {
             $this->handleHostNotFound($hostId, $presenter);
+
             return;
         }
 
         $service = $this->findService($hostId, $serviceId);
         if ($service === null) {
             $this->handleServiceNotFound($hostId, $serviceId, $presenter);
+
             return;
         }
 
@@ -95,12 +98,14 @@ class FindServiceNotificationPolicy
         $realtimeService = $this->readRealTimeServiceRepository->findServiceById($hostId, $serviceId);
         if ($realtimeService === null) {
             $this->handleServiceNotFound($hostId, $serviceId, $presenter);
+
             return;
         }
 
         $engineConfiguration = $this->engineService->findEngineConfigurationByHost($host);
         if ($engineConfiguration === null) {
             $this->handleEngineHostConfigurationNotFound($hostId, $presenter);
+
             return;
         }
         $this->overrideServiceNotificationByEngineConfiguration($engineConfiguration, $realtimeService);
@@ -115,9 +120,29 @@ class FindServiceNotificationPolicy
     }
 
     /**
-     * Find host by id
+     * @param NotifiedContact[] $notifiedContacts
+     * @param NotifiedContactGroup[] $notifiedContactGroups
+     * @param bool $isNotificationEnabled
+     *
+     * @return FindNotificationPolicyResponse
+     */
+    public function createResponse(
+        array $notifiedContacts,
+        array $notifiedContactGroups,
+        bool $isNotificationEnabled,
+    ): FindNotificationPolicyResponse {
+        return new FindNotificationPolicyResponse(
+            $notifiedContacts,
+            $notifiedContactGroups,
+            $isNotificationEnabled,
+        );
+    }
+
+    /**
+     * Find host by id.
      *
      * @param int $hostId
+     *
      * @return Host|null
      */
     private function findHost(int $hostId): ?Host
@@ -144,10 +169,11 @@ class FindServiceNotificationPolicy
     }
 
     /**
-     * Find service by id
+     * Find service by id.
      *
      * @param int $hostId
      * @param int $serviceId
+     *
      * @return Service|null
      */
     private function findService(int $hostId, int $serviceId): ?Service
@@ -188,7 +214,7 @@ class FindServiceNotificationPolicy
         FindNotificationPolicyPresenterInterface $presenter,
     ): void {
         $this->error(
-            "Host not found",
+            'Host not found',
             [
                 'id' => $hostId,
                 'userId' => $this->contact->getId(),
@@ -208,7 +234,7 @@ class FindServiceNotificationPolicy
         FindNotificationPolicyPresenterInterface $presenter,
     ): void {
         $this->error(
-            "Service not found",
+            'Service not found',
             [
                 'host_id' => $hostId,
                 'service_id' => $serviceId,
@@ -228,7 +254,7 @@ class FindServiceNotificationPolicy
         FindNotificationPolicyPresenterInterface $presenter,
     ): void {
         $this->error(
-            "Engine configuration not found for Host",
+            'Engine configuration not found for Host',
             [
                 'host_id' => $hostId,
                 'userId' => $this->contact->getId(),
@@ -240,7 +266,7 @@ class FindServiceNotificationPolicy
 
     /**
      * If engine configuration related to the host has notification disabled,
-     * it overrides host notification status
+     * it overrides host notification status.
      *
      * @param EngineConfiguration $engineConfiguration
      * @param RealtimeService $realtimeService
@@ -250,28 +276,10 @@ class FindServiceNotificationPolicy
         RealtimeService $realtimeService,
     ): void {
         if (
-            $engineConfiguration->getNotificationsEnabledOption() ===
-                EngineConfiguration::NOTIFICATIONS_OPTION_DISABLED
+            $engineConfiguration->getNotificationsEnabledOption()
+                === EngineConfiguration::NOTIFICATIONS_OPTION_DISABLED
         ) {
             $realtimeService->setNotificationEnabled(false);
         }
-    }
-
-    /**
-     * @param NotifiedContact[] $notifiedContacts
-     * @param NotifiedContactGroup[] $notifiedContactGroups
-     * @param bool $isNotificationEnabled
-     * @return FindNotificationPolicyResponse
-     */
-    public function createResponse(
-        array $notifiedContacts,
-        array $notifiedContactGroups,
-        bool $isNotificationEnabled,
-    ): FindNotificationPolicyResponse {
-        return new FindNotificationPolicyResponse(
-            $notifiedContacts,
-            $notifiedContactGroups,
-            $isNotificationEnabled,
-        );
     }
 }
