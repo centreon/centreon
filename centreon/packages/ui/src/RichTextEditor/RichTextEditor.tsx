@@ -3,11 +3,14 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
+import { HeadingNode } from '@lexical/rich-text';
+import { ListItemNode, ListNode } from '@lexical/list';
 import anylogger from 'anylogger';
 import { makeStyles } from 'tss-react/mui';
 import { EditorState } from 'lexical';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { equals } from 'ramda';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 
 import { Typography } from '@mui/material';
 
@@ -108,7 +111,7 @@ const RichTextEditor = ({
     editable,
     editorState: initialEditorState,
     namespace,
-    nodes: [AutoLinkNode, LinkNode],
+    nodes: [AutoLinkNode, LinkNode, HeadingNode, ListItemNode, ListNode],
     onError,
     theme: {
       link: classes.link,
@@ -159,6 +162,7 @@ const RichTextEditor = ({
           <HistoryPlugin />
           <LinkPlugin />
           <AutoCompleteLinkPlugin />
+          <ListPlugin />
           <FloatingLinkEditorPlugin editable={editable} />
           {error && <Typography className={classes.error}>{error}</Typography>}
         </div>

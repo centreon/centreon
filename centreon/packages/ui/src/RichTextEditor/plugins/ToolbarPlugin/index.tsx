@@ -6,6 +6,7 @@ import { Divider } from '@mui/material';
 import FormatButtons from './FormatButtons';
 import UndoRedoButtons from './UndoRedoButtons';
 import MacrosButton from './MacrosButton';
+import BlockButtons from './BlockButtons';
 
 interface Props {
   displayMacrosButton?: boolean;
@@ -40,6 +41,8 @@ const ToolbarPlugin = ({
   return editable ? (
     <div className={classes.container}>
       <UndoRedoButtons />
+      <Divider flexItem orientation="vertical" />
+      <BlockButtons />
       <Divider flexItem orientation="vertical" />
       <FormatButtons getEditorState={getEditorState} />
       {displayMacrosButton && (

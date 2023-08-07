@@ -57,8 +57,8 @@ interface Props {
   minInputHeight: number;
   namespace: string;
   onBlur?: (e: string) => void;
-  resetEditorToInitialStateCondition?: () => boolean;
   placeholder: string;
+  resetEditorToInitialStateCondition?: () => boolean;
 }
 
 const ContentEditable = ({
@@ -130,7 +130,9 @@ const ContentEditable = ({
     editor.setEditorState(newEditorState);
   }, [editorState]);
 
-  const isTextEmpty = isEmpty(root);
+  const isTextEmpty =
+    isEmpty(root) &&
+    !editor.getEditorState().toJSON().root.children?.[0]?.children?.length;
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>): void => {
     setFocused(false);
