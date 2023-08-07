@@ -1669,3 +1669,144 @@ Feature:
 
     When I send a GET request to '/api/latest/configuration/dashboards/contactgroups'
     Then the response code should be "404"
+
+  Scenario: Find performances metrics for panel edition
+    Given the following CLAPI import data:
+    """
+    CONTACT;ADD;test-user;test-user;test-user@localservice.com;Centreon@2022;0;1;en_US;local
+    CONTACT;setparam;test-user;reach_api_rt;1
+    ACLRESOURCE;add;ACL Resource test;my alias
+    ACLRESOURCE;grant_hostgroup;ACL Resource test;Linux-Servers
+    ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
+    ACLGROUP;add;ACL Group test;my alias
+    ACLGROUP;addmenu;ACL Group test;name-viewer-ACLMENU
+    ACLGROUP;addresource;ACL Group test;ACL Resource test
+    ACLGROUP;addcontact;ACL Group test;test-user
+    """
+    And I am logged in
+    And a feature flag "dashboard" of bitmask 3
+    And the configuration is generated and exported
+    And I send a POST request to '/api/latest/monitoring/resources/check' with body:
+    """
+    {
+      "check": {
+        "is_forced": true
+      },
+      "resources": [
+        {
+          "type": "service",
+          "id": 26,
+          "parent": {
+            "id": 14
+          }
+        }
+      ]
+    }
+    """
+    When I wait to get 1 result from '/api/latest/monitoring/dashboard/metrics/performances?search={"$and":[{"service.name":{"$in":["Ping"]}}]}' (tries: 30)
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+      "result": [
+        {
+          "id": 26,
+          "name": "Centreon-Server_Ping",
+          "metrics": [
+            {
+              "id": 1,
+              "name": "rta",
+              "unit": "ms"
+            },
+            {
+              "id": 2,
+              "name": "pl",
+              "unit": "%"
+            },
+            {
+              "id": 3,
+              "name": "rtmax",
+              "unit": "ms"
+            },
+            {
+              "id": 4,
+              "name": "rtmin",
+              "unit": "ms"
+            }
+          ]
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "limit": 10,
+        "search": {
+          "$and": [
+            {
+              "service.name": {
+                "$in": [
+                  "Ping"
+                ]
+              }
+            }
+          ]
+        },
+        "sort_by": {},
+        "total": 4
+      }
+    }
+    """
+
+    Given I am logged in with "test-user"/"Centreon@2022"
+    When I send a GET request to '/api/latest/monitoring/dashboard/metrics/performances?search={"$and":[{"host.id":{"$in":[14]}}]}'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+      "result": [
+        {
+          "id": 26,
+          "name": "Centreon-Server_Ping",
+          "metrics": [
+            {
+              "id": 1,
+              "name": "rta",
+              "unit": "ms"
+            },
+            {
+              "id": 2,
+              "name": "pl",
+              "unit": "%"
+            },
+            {
+              "id": 3,
+              "name": "rtmax",
+              "unit": "ms"
+            },
+            {
+              "id": 4,
+              "name": "rtmin",
+              "unit": "ms"
+            }
+          ]
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "limit": 10,
+        "search": {
+          "$and": [
+            {
+              "host.id": {
+                "$in": [
+                  14
+                ]
+              }
+            }
+          ]
+        },
+        "sort_by": {},
+        "total": 4
+      }
+    }
+    """
