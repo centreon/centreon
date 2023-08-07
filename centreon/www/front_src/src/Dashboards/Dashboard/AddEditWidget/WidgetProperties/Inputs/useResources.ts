@@ -58,8 +58,19 @@ export const resourceTypeBaseEndpoints = {
   [WidgetResourceType.host]: '/hosts',
   [WidgetResourceType.hostCategory]: '/hosts/categories',
   [WidgetResourceType.hostGroup]: '/hostgroups',
-  [WidgetResourceType.service]: '/services'
+  [WidgetResourceType.service]: '/resources'
 };
+
+const resourceQueryParameters = [
+  {
+    name: 'types',
+    value: ['service']
+  },
+  {
+    name: 'only_with_performance_data',
+    value: true
+  }
+];
 
 const useResources = (propertyName: string): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
@@ -116,6 +127,9 @@ const useResources = (propertyName: string): UseResourcesState => {
     (parameters): string => {
       return buildListingEndpoint({
         baseEndpoint: `${baseEndpoint}/monitoring${resourceTypeBaseEndpoints[resourceType]}`,
+        customQueryParameters: equals(resourceType, WidgetResourceType.service)
+          ? resourceQueryParameters
+          : undefined,
         parameters
       });
     };
@@ -123,7 +137,6 @@ const useResources = (propertyName: string): UseResourcesState => {
   const getSearchField = (resourceType: string): string =>
     cond([
       [equals('host'), always('host.name')],
-      [equals('service'), always('service.display_name')],
       [T, always('name')]
     ])(resourceType);
 

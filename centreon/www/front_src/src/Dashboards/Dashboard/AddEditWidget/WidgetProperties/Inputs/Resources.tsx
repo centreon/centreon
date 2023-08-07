@@ -69,11 +69,6 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
                 resource.resourceType
               )}
               label={t(labelSelectAResource)}
-              labelKey={
-                equals(resource.resourceType, 'service')
-                  ? 'display_name'
-                  : undefined
-              }
               limitTags={2}
               queryKey={`${resource.resourceType}-${index}`}
               value={resource.resources || []}
