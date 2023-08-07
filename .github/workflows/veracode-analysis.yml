@@ -104,7 +104,7 @@ jobs:
 
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.8
-        continue-on-error: true
+        continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         timeout-minutes: 1
 
         with:
