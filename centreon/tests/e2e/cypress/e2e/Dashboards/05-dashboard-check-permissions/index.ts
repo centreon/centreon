@@ -151,7 +151,7 @@ Then(
   () => {
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.location('search').should('include', 'edit=true');
-    cy.getByLabel({ label: 'add widget', tag: 'button' }).should('be.enabled');
+    cy.get('button[type=button]').contains('Add a widget').should('exist');
     cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
   }
 );
@@ -339,7 +339,7 @@ Then(
   () => {
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.location('search').should('include', 'edit=true');
-    cy.getByLabel({ label: 'add widget', tag: 'button' }).should('be.enabled');
+    cy.get('button[type=button]').contains('Add a widget').should('exist');
     cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
   }
 );
@@ -536,7 +536,7 @@ Then(
   () => {
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.location('search').should('include', 'edit=true');
-    cy.getByLabel({ label: 'add widget', tag: 'button' }).should('be.enabled');
+    cy.get('button[type=button]').contains('Add a widget').should('exist');
     cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
   }
 );
