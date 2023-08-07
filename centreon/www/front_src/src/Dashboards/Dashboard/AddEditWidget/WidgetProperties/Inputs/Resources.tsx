@@ -1,6 +1,5 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
 
 import { Avatar, Divider, FormHelperText, Typography } from '@mui/material';
 
