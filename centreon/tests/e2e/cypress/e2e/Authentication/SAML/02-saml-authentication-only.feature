@@ -4,9 +4,9 @@ Feature: SAML authentication
     So that Platform users can use existing authentication services to authenticate
 
 Background:
-  Given an administrator is logged on the platform
+    Given an administrator is logged on the platform
 
-  Scenario: SAML Authentication mode 
-      Given an administrator is logged on the platform
-      When the administrator sets authentication mode to SAML only
-      Then only existing users on Centreon must be able to authenticate with only SAML protocol
+    Scenario: SAML Authentication mode 
+        Given an administrator is logged on the platform
+        When the administrator sets authentication mode to SAML only
+        Then only existing users on Centreon must be able to authenticate with only SAML protocol
