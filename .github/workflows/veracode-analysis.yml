@@ -105,6 +105,8 @@ jobs:
       - name: Pipeline scan
         uses: veracode/Veracode-pipeline-scan-action@v1.0.8
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
+        timeout-minutes: 1
+
         with:
           vid: "vera01ei-${{ secrets.veracode_api_id }}"
           vkey: "vera01es-${{ secrets.veracode_api_key }}"
@@ -142,6 +144,7 @@ jobs:
     # only stable and unstable maintenances branches will produce a report
     if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
+    timeout-minutes: 1
 
     steps:
       - name: Get build binary
