@@ -90,7 +90,7 @@ jobs:
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
-      - name: Restore standard slim image in cache
+      - name: Restore standard slim image from cache
         id: cache-docker-slim
         uses: actions/cache/restore@v3
         continue-on-error: true
