@@ -21,18 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Dashboard\Application\UseCase\FindPerformanceMetrics;
+namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
-use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetricsPresenterInterface;
-use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetricsResponse;
-
-class FindDashboardPerformanceMetricsPresenterStub implements FindPerformanceMetricsPresenterInterface
+final class FindPerformanceMetricsDataResponse
 {
-    public ResponseStatusInterface|FindPerformanceMetricsResponse $data;
+    public int $base;
 
-    public function presentResponse(FindPerformanceMetricsResponse|ResponseStatusInterface $data): void
-    {
-        $this->data = $data;
-    }
+    /** @var array<string,mixed> */
+    public array $metricsData;
+
+    /** @var string[] */
+    public array $times;
 }

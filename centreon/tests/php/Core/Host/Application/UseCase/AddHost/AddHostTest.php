@@ -51,6 +51,9 @@ use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
+use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
+use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
+use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
@@ -66,20 +69,22 @@ beforeEach(function (): void {
     );
 
     $this->useCase = new AddHost(
-        $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class),
-        $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
-        $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
-        $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
-        $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
-        $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class),
-        $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
-        $this->readCommandMacroRepository = $this->createMock(ReadCommandMacroRepositoryInterface::class),
-        $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class),
-        $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
-        $this->optionService = $this->createMock(OptionService::class),
-        $this->user = $this->createMock(ContactInterface::class),
-        $this->validation = $this->createMock(AddHostValidation::class),
+        writeHostRepository: $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class),
+        readHostRepository: $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
+        writeMonitoringServerRepository: $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
+        readHostTemplateRepository: $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
+        readHostCategoryRepository: $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
+        readHostGroupRepository: $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
+        writeHostCategoryRepository: $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class),
+        writeHostGroupRepository: $this->writeHostGroupRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
+        readAccessGroupRepository: $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        readHostMacroRepository: $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
+        readCommandMacroRepository: $this->readCommandMacroRepository = $this->createMock(ReadCommandMacroRepositoryInterface::class),
+        writeHostMacroRepository: $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class),
+        dataStorageEngine: $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
+        optionService: $this->optionService = $this->createMock(OptionService::class),
+        user: $this->user = $this->createMock(ContactInterface::class),
+        validation: $this->validation = $this->createMock(AddHostValidation::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -180,6 +185,13 @@ beforeEach(function (): void {
         $this->categoryB = new HostCategory(13, 'cat-name-B', 'cat-alias-B'),
     ];
     $this->request->categories = [$this->categoryA->getId(), $this->categoryB->getId()];
+
+    // Settup groups
+    $this->groups = [
+        $this->groupA = new HostGroup(6, 'grp-name-A', 'grp-alias-A', '', '', '', null, null, null, null, '', true),
+        $this->groupB = new HostGroup(7, 'grp-name-B', 'grp-alias-B', '', '', '', null, null, null, null, '', true),
+    ];
+    $this->request->groups = [$this->groupA->getId(), $this->groupB->getId()];
 
     // Settup parent templates
     $this->request->templates = [4, 8];
@@ -481,6 +493,40 @@ it('should present a ConflictResponse when a host category ID is not valid', fun
         );
 });
 
+it('should present a ConflictResponse when a host group ID is not valid', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertAreValidGroups')
+        ->willThrowException(
+            HostException::idsDoNotExist(
+                'groups',
+                [$this->request->groups[1]]
+            )
+        );
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->response)
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->presenter->response->getMessage())
+        ->toBe(
+            HostException::idsDoNotExist(
+                'groups',
+                [$this->request->groups[1]]
+            )->getMessage()
+        );
+});
+
 it('should present a ConflictResponse when a parent template ID is not valid', function (): void {
     $this->user
         ->expects($this->once())
@@ -568,6 +614,11 @@ it('should return created object on success (with admin user)', function (): voi
         ->expects($this->once())
         ->method('linkToHost');
 
+    $this->validation->expects($this->once())->method('assertAreValidGroups');
+    $this->writeHostGroupRepository
+        ->expects($this->once())
+        ->method('linkToHost');
+
     $this->validation->expects($this->once())->method('assertAreValidTemplates');
     $this->writeHostRepository
         ->expects($this->exactly(2))
@@ -604,6 +655,10 @@ it('should return created object on success (with admin user)', function (): voi
         ->expects($this->once())
         ->method('findByHost')
         ->willReturn($this->categories);
+    $this->readHostGroupRepository
+        ->expects($this->once())
+        ->method('findByHost')
+        ->willReturn($this->groups);
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findNamesByIds')
@@ -706,8 +761,16 @@ it('should return created object on success (with admin user)', function (): voi
             (fn($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
             $this->categories
         ))
+        ->and($response->groups)
+        ->toBe(array_map(
+            (fn($group) => ['id' => $group->getId(), 'name' => $group->getName()]),
+            $this->groups
+        ))
         ->and($response->templates)
-        ->toBe($this->parentTemplates)
+        ->toBe(array_map(
+            (fn($template) => ['id' => $template['id'], 'name' => $template['name']]),
+            $this->parentTemplates
+        ))
         ->and($response->macros)
         ->toBe(array_map(
             (fn($macro) => [
@@ -750,6 +813,11 @@ it('should return created object on success (with non-admin user)', function ():
 
     $this->validation->expects($this->once())->method('assertAreValidCategories');
     $this->writeHostCategoryRepository
+        ->expects($this->once())
+        ->method('linkToHost');
+
+    $this->validation->expects($this->once())->method('assertAreValidGroups');
+    $this->writeHostGroupRepository
         ->expects($this->once())
         ->method('linkToHost');
 
@@ -797,6 +865,10 @@ it('should return created object on success (with non-admin user)', function ():
         ->expects($this->once())
         ->method('findByHostAndAccessGroups')
         ->willReturn($this->categories);
+    $this->readHostGroupRepository
+        ->expects($this->once())
+        ->method('findByHostAndAccessGroups')
+        ->willReturn($this->groups);
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findNamesByIds')
@@ -899,15 +971,23 @@ it('should return created object on success (with non-admin user)', function ():
             (fn($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
             $this->categories
         ))
+        ->and($response->groups)
+        ->toBe(array_map(
+            (fn($group) => ['id' => $group->getId(), 'name' => $group->getName()]),
+            $this->groups
+        ))
         ->and($response->templates)
-        ->toBe($this->parentTemplates)
+        ->toBe(array_map(
+            (fn($template) => ['id' => $template['id'], 'name' => $template['name']]),
+            $this->parentTemplates
+        ))
         ->and($response->macros)
         ->toBe(array_map(
             (fn($macro) => [
                 'name' => $macro->getName(),
                 'value' => $macro->getValue(),
-            'isPassword' => $macro->isPassword(),
-            'description' => $macro->getDescription(),
+                'isPassword' => $macro->isPassword(),
+                'description' => $macro->getDescription(),
             ]),
             $this->hostMacros
         ))

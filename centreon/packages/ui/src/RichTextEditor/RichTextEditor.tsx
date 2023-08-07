@@ -18,6 +18,7 @@ import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 
 export interface RichTextEditorProps {
   contentClassName?: string;
+  displayMacrosButton?: boolean;
   editable: boolean;
   editorState?: string;
   error?: string;
@@ -92,7 +93,8 @@ const RichTextEditor = ({
   toolbarPositions = 'start',
   error,
   onBlur,
-  contentClassName
+  contentClassName,
+  displayMacrosButton = false
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -122,7 +124,11 @@ const RichTextEditor = ({
     <LexicalComposer initialConfig={initialConfig}>
       <div className={classes.container}>
         <div className={classes.toolbar}>
-          <ToolbarPlugin editable={editable} getEditorState={getEditorState} />
+          <ToolbarPlugin
+            displayMacrosButton={displayMacrosButton}
+            editable={editable}
+            getEditorState={getEditorState}
+          />
         </div>
         <div>
           <RichTextPlugin

@@ -36,11 +36,11 @@ overrides:
       - perl
       - libssh
     conflicts:
-      - perl-Net-Curl-debuginfo
+      - perl-Libssh-Session-debuginfo
     replaces:
-      - perl-Net-Curl-debuginfo
+      - perl-Libssh-Session-debuginfo
     provides:
-      - perl-Net-Curl-debuginfo
+      - perl-Libssh-Session-debuginfo
       - perl(Libssh::Session)
       - perl(Libssh::Sftp)
   deb:
