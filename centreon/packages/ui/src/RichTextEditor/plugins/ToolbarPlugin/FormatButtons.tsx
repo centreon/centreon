@@ -169,6 +169,7 @@ const FormatButtons = ({ getEditorState }: Props): JSX.Element => {
         <IconButton
           ariaLabel={type}
           className={cx(isSelected && classes.buttonSelected)}
+          disabled={!editor.isEditable()}
           key={type}
           size="medium"
           title={type}

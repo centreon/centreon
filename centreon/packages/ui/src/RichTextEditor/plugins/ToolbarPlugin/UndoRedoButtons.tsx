@@ -64,7 +64,7 @@ const UndoRedoButtons = (): JSX.Element => {
     <>
       <IconButton
         ariaLabel={translatedUndo}
-        disabled={!canUndo}
+        disabled={!canUndo || !editor.isEditable()}
         title={translatedUndo}
         tooltipPlacement="top"
         onClick={undo}
@@ -73,7 +73,7 @@ const UndoRedoButtons = (): JSX.Element => {
       </IconButton>
       <IconButton
         ariaLabel={translatedRedo}
-        disabled={!canRedo}
+        disabled={!canRedo || !editor.isEditable()}
         title={translatedRedo}
         tooltipPlacement="top"
         onClick={redo}

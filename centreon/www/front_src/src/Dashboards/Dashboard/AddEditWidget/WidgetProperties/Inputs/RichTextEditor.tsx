@@ -11,7 +11,8 @@ import { getProperty } from './utils';
 
 const WidgetRichTextEditor = ({
   propertyName,
-  label
+  label,
+  disabledCondition
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -29,13 +30,14 @@ const WidgetRichTextEditor = ({
   );
 
   const change = (newEditiorState: unknown): void => {
-    setFieldTouched(`options.${propertyName}`, true);
+    setFieldTouched(`options.${propertyName}`, true, false);
     setFieldValue(`options.${propertyName}`, JSON.stringify(newEditiorState));
   };
 
   return (
     <RichTextEditor
       editable
+      disabled={disabledCondition?.(values)}
       editorState={value || undefined}
       error={error}
       getEditorState={change}

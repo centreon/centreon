@@ -65,6 +65,7 @@ const MacrosButton = (): JSX.Element => {
         <IconButton
           ariaLabel="Macros"
           className={classes.macrosButton}
+          disabled={!editor.isEditable()}
           title="Macros"
           tooltipPlacement="top"
           onClick={displayMacros}

@@ -115,6 +115,7 @@ export { default as SnackbarProvider } from './Snackbar/SnackbarProvider';
 export { default as PersistentTooltip } from './InputField/Search/PersistentTooltip';
 export * from './Form';
 export { InputType } from './Form/Inputs/models';
+export { default as FormSwitch } from './Form/Inputs/Switch';
 export type {
   InputProps,
   InputPropsWithoutGroup,

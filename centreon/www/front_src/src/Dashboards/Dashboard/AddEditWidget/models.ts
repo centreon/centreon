@@ -11,6 +11,7 @@ export interface Widget {
 }
 
 export interface WidgetPropertyProps {
+  disabledCondition?: (values: Widget) => boolean;
   label: string;
   propertyName: string;
   required?: boolean;

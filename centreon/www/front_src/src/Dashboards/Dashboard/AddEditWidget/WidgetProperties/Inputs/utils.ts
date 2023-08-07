@@ -1,4 +1,4 @@
-import { always, cond, equals, path } from 'ramda';
+import { always, cond, equals, path, split } from 'ramda';
 import * as Yup from 'yup';
 import { TFunction } from 'i18next';
 
@@ -10,10 +10,10 @@ import {
 } from '../../../translatedLabels';
 
 export const getProperty = <T>({ propertyName, obj }): T | undefined =>
-  path<T>(['options', propertyName], obj);
+  path<T>(['options', ...split('.', propertyName)], obj);
 
 export const getDataProperty = <T>({ propertyName, obj }): T | undefined =>
-  path<T>(['data', propertyName], obj);
+  path<T>(['data', ...split('.', propertyName)], obj);
 
 const namedEntitySchema = Yup.object().shape({
   id: Yup.number().required(),

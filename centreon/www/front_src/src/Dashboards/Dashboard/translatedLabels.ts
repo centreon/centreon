@@ -47,3 +47,4 @@ export const labelMetric = 'Metric';
 export const labelPleaseSelectAMetric = 'Please select a metric';
 export const labelTheLimiteOf2UnitsHasBeenReached =
   'The limit of 2 units has been reached';
+export const labelDisplayDescription = 'Display description';

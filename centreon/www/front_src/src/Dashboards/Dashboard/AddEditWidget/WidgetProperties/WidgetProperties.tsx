@@ -1,16 +1,20 @@
 import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Divider, Typography } from '@mui/material';
+import { Box, Divider, Typography } from '@mui/material';
+
+import { FormSwitch, InputType } from '@centreon/ui';
 
 import {
   labelCommonProperties,
   labelDescription,
+  labelDisplayDescription,
   labelName,
   labelWidgetProperties
 } from '../../translatedLabels';
+import { Widget } from '../models';
 
-import { WidgetTextField } from './Inputs';
+import { WidgetRichTextEditor, WidgetTextField } from './Inputs';
 import { useWidgetInputs } from './useWidgetInputs';
 
 const WidgetProperties = (): JSX.Element => {
@@ -26,11 +30,29 @@ const WidgetProperties = (): JSX.Element => {
       {isWidgetSelected && (
         <>
           <Typography variant="h6">{t(labelWidgetProperties)}</Typography>
-          <WidgetTextField required label={labelName} propertyName="name" />
-          <WidgetTextField
+          <WidgetTextField label={labelName} propertyName="name" />
+          <Box
+            sx={{
+              alignItems: 'center',
+              display: 'flex',
+              justifyContent: 'space-between'
+            }}
+          >
+            <Typography>
+              <strong>{t(labelDescription)}</strong>
+            </Typography>
+            <FormSwitch
+              fieldName="options.description.enabled"
+              label={t(labelDisplayDescription)}
+              type={InputType.Switch}
+            />
+          </Box>
+          <WidgetRichTextEditor
+            disabledCondition={(values: Widget) =>
+              !values.options.description?.enabled
+            }
             label={labelDescription}
-            propertyName="description"
-            text={{ multiline: true }}
+            propertyName="description.content"
           />
           {hasProperties && (
             <>

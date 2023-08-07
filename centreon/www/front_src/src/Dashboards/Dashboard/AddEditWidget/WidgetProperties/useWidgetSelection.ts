@@ -57,7 +57,12 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
         data: null,
         id: null,
         moduleName: null,
-        options: {},
+        options: {
+          description: {
+            content: null,
+            enabled: true
+          }
+        },
         panelConfiguration: null
       });
 
@@ -96,7 +101,10 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       moduleName: selectedWidget.moduleName,
       options: {
         ...options,
-        description: currentValues.options.description,
+        description: currentValues.options.description || {
+          content: null,
+          enabled: true
+        },
         name: currentValues.options.name
       },
       panelConfiguration: selectedWidget.federatedComponentsConfiguration
