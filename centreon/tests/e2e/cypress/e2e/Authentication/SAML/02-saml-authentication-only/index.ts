@@ -38,7 +38,7 @@ beforeEach(() => {
 });
 
 Given('an administrator is logged on the platform', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin' });
+  cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true });
 });
 
 When('the administrator sets authentication mode to SAML only', () => {
