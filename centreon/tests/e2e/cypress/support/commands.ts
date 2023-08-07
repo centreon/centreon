@@ -104,7 +104,7 @@ Cypress.Commands.add(
 Cypress.Commands.add('logout', (): Cypress.Chainable => {
   cy.getByLabel({ label: 'Profile' }).click();
 
-  return cy.contains('Logout').click();
+  return cy.contains(/^Logout$/).click();
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
