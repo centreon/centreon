@@ -2,6 +2,9 @@ import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Box, Divider, Typography } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import { Tooltip } from '@centreon/ui/components';
 
 import {
   labelCommonProperties,
@@ -9,6 +12,7 @@ import {
   labelDisplayDescription,
   labelName,
   labelOpenLinksInNewTab,
+  labelOpenLinksInNewTabTooltip,
   labelWidgetProperties
 } from '../../translatedLabels';
 import { Widget } from '../models';
@@ -53,6 +57,15 @@ const WidgetProperties = (): JSX.Element => {
             propertyName="description.content"
           />
           <WidgetSwitch
+            endAdornment={
+              <Tooltip
+                followCursor={false}
+                label={t(labelOpenLinksInNewTabTooltip)}
+                position="top"
+              >
+                <InfoOutlinedIcon color="primary" fontSize="small" />
+              </Tooltip>
+            }
             label={labelOpenLinksInNewTab}
             propertyName="openLinksInNewTab"
           />

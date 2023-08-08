@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import { SelectEntry } from '@centreon/ui';
 
 import { PanelConfiguration } from '../models';
@@ -12,6 +14,7 @@ export interface Widget {
 
 export interface WidgetPropertyProps {
   disabledCondition?: (values: Widget) => boolean;
+  endAdornment?: ReactNode;
   label: string;
   propertyName: string;
   required?: boolean;

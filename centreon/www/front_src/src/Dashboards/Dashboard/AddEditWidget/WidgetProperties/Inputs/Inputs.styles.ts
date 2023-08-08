@@ -35,3 +35,12 @@ export const useResourceStyles = makeStyles()((theme) => ({
     flexGrow: 1
   }
 }));
+
+export const useSwitchStyles = makeStyles()((theme) => ({
+  switch: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(1)
+  }
+}));
