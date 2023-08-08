@@ -24,7 +24,7 @@ export enum Method {
   PUT = 'PUT'
 }
 
-Cypress.Commands.add('mount', ({ Component, options }) => {
+Cypress.Commands.add('mount', ({ Component, options = {} }) => {
   const wrapped = (
     <ThemeProvider>
       <Box
@@ -135,7 +135,7 @@ declare global {
         props: InterceptAPIRequestProps<T>
       ) => Cypress.Chainable;
       interceptRequest: (method, path, mock, alias) => Cypress.Chainable;
-      mount: ({ Component, options = {} }: MountProps) => Cypress.Chainable;
+      mount: ({ Component, options }: MountProps) => Cypress.Chainable;
       moveSortableElement: ({ ariaLabel, direction }) => void;
       moveSortableElementUsingAriaLabel: ({ ariaLabel, direction }) => void;
       waitForRequest: (alias) => Cypress.Chainable;
