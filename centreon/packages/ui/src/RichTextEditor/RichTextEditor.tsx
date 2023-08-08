@@ -32,6 +32,7 @@ export interface RichTextEditorProps {
   minInputHeight?: number;
   namespace?: string;
   onBlur?: (e: string) => void;
+  openLinkInNewTab?: boolean;
   placeholder?: string;
   resetEditorToInitialStateCondition?: () => boolean;
   toolbarPositions?: 'start' | 'end';
@@ -99,7 +100,8 @@ const RichTextEditor = ({
   onBlur,
   contentClassName,
   displayMacrosButton = false,
-  disabled = false
+  disabled = false,
+  openLinkInNewTab = true
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -162,9 +164,12 @@ const RichTextEditor = ({
           />
           <HistoryPlugin />
           <LinkPlugin />
-          <AutoCompleteLinkPlugin />
+          <AutoCompleteLinkPlugin openLinkInNewTab={openLinkInNewTab} />
           <ListPlugin />
-          <FloatingLinkEditorPlugin editable={editable} />
+          <FloatingLinkEditorPlugin
+            editable={editable}
+            openLinkInNewTab={openLinkInNewTab}
+          />
           {error && <Typography className={classes.error}>{error}</Typography>}
         </div>
       </div>

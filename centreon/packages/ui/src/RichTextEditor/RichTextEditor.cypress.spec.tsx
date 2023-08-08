@@ -144,6 +144,34 @@ describe('Rich Text Editor', () => {
           cy.wrap(element).should('not.have.attr', 'target');
         });
     });
+
+    it('does not allow to open links in a new tab', () => {
+      cy.mount({
+        Component: <RichTextEditor editable openLinkInNewTab={false} />
+      });
+
+      cy.get('[data-testid="RichTextEditor"]').type('cypress');
+      cy.get('[data-testid="RichTextEditor"]').focus().type('{selectAll}');
+
+      cy.get('#link').click();
+
+      cy.findByLabelText('Saved link').should('have.text', 'https://');
+
+      cy.findByLabelText('Edit link').click();
+      cy.get('#InputLinkField').type('www.centreon.com').type('{enter}');
+
+      cy.findByText('cypress').parent().should('not.have.attr', 'target');
+
+      cy.get('[data-testid="RichTextEditor"]').focus().clear();
+
+      cy.get('[data-testid="RichTextEditor"]')
+        .focus()
+        .type('https://centreon.com');
+
+      cy.findByText('https://centreon.com')
+        .parent()
+        .should('not.have.attr', 'target');
+    });
   });
 
   describe('Rich Text Editor not editable', () => {
