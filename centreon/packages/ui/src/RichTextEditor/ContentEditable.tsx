@@ -47,7 +47,6 @@ const useStyles = makeStyles<StyleProps>()(
 
 interface Props {
   className?: string;
-  disabled: boolean;
   editable: boolean;
   editorState?: string;
   error?: string;
@@ -73,8 +72,7 @@ const ContentEditable = ({
   initialEditorState,
   error,
   onBlur,
-  className,
-  disabled
+  className
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ editable, error, minInputHeight });
   const { t } = useTranslation();

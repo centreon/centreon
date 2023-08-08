@@ -14,6 +14,7 @@ import {
   $isRangeSelection,
   $isRootOrShadowRoot,
   COMMAND_PRIORITY_CRITICAL,
+  EditorState,
   SELECTION_CHANGE_COMMAND
 } from 'lexical';
 import {

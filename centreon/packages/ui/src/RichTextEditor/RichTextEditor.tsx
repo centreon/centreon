@@ -11,6 +11,7 @@ import { EditorState } from 'lexical';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { equals } from 'ramda';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 
 import { Typography } from '@mui/material';
 
@@ -113,7 +114,7 @@ const RichTextEditor = ({
     editable,
     editorState: initialEditorState,
     namespace,
-    nodes: [AutoLinkNode, LinkNode, HeadingNode, ListItemNode, ListNode],
+    nodes: [AutoLinkNode, LinkNode, HeadingNode, ListNode, ListItemNode],
     onError,
     theme: {
       link: classes.link,
@@ -135,7 +136,6 @@ const RichTextEditor = ({
             disabled={disabled}
             displayMacrosButton={displayMacrosButton}
             editable={editable}
-            getEditorState={getEditorState}
           />
         </div>
         <div>
@@ -144,7 +144,6 @@ const RichTextEditor = ({
             contentEditable={
               <ContentEditable
                 className={contentClassName || ''}
-                disabled={disabled}
                 editable={editable}
                 editorState={editorState}
                 error={error}
@@ -164,8 +163,9 @@ const RichTextEditor = ({
           />
           <HistoryPlugin />
           <LinkPlugin />
-          <AutoCompleteLinkPlugin openLinkInNewTab={openLinkInNewTab} />
           <ListPlugin />
+          <OnChangePlugin onChange={getEditorState} />
+          <AutoCompleteLinkPlugin openLinkInNewTab={openLinkInNewTab} />
           <FloatingLinkEditorPlugin
             editable={editable}
             openLinkInNewTab={openLinkInNewTab}

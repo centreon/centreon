@@ -61,7 +61,8 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
           description: {
             content: null,
             enabled: true
-          }
+          },
+          openLinksInNewTab: true
         },
         panelConfiguration: null
       });
@@ -105,7 +106,8 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
           content: null,
           enabled: true
         },
-        name: currentValues.options.name
+        name: currentValues.options.name,
+        openLinksInNewTab: currentValues.options.openLinksInNewTab || true
       },
       panelConfiguration: selectedWidget.federatedComponentsConfiguration
     }));

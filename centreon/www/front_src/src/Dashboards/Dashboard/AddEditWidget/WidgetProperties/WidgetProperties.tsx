@@ -3,18 +3,17 @@ import { useTranslation } from 'react-i18next';
 
 import { Box, Divider, Typography } from '@mui/material';
 
-import { FormSwitch, InputType } from '@centreon/ui';
-
 import {
   labelCommonProperties,
   labelDescription,
   labelDisplayDescription,
   labelName,
+  labelOpenLinksInNewTab,
   labelWidgetProperties
 } from '../../translatedLabels';
 import { Widget } from '../models';
 
-import { WidgetRichTextEditor, WidgetTextField } from './Inputs';
+import { WidgetRichTextEditor, WidgetSwitch, WidgetTextField } from './Inputs';
 import { useWidgetInputs } from './useWidgetInputs';
 
 const WidgetProperties = (): JSX.Element => {
@@ -41,10 +40,9 @@ const WidgetProperties = (): JSX.Element => {
             <Typography>
               <strong>{t(labelDescription)}</strong>
             </Typography>
-            <FormSwitch
-              fieldName="options.description.enabled"
-              label={t(labelDisplayDescription)}
-              type={InputType.Switch}
+            <WidgetSwitch
+              label={labelDisplayDescription}
+              propertyName="description.enabled"
             />
           </Box>
           <WidgetRichTextEditor
@@ -53,6 +51,10 @@ const WidgetProperties = (): JSX.Element => {
             }
             label={labelDescription}
             propertyName="description.content"
+          />
+          <WidgetSwitch
+            label={labelOpenLinksInNewTab}
+            propertyName="openLinksInNewTab"
           />
           {hasProperties && (
             <>

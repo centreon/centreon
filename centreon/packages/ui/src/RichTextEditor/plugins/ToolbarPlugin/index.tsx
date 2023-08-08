@@ -12,7 +12,6 @@ interface Props {
   disabled: boolean;
   displayMacrosButton?: boolean;
   editable: boolean;
-  getEditorState?: (editorState: EditorState) => void;
 }
 
 export const useStyles = makeStyles()((theme) => ({
@@ -33,7 +32,6 @@ export const useStyles = makeStyles()((theme) => ({
 }));
 
 const ToolbarPlugin = ({
-  getEditorState,
   editable,
   displayMacrosButton,
   disabled
@@ -46,7 +44,7 @@ const ToolbarPlugin = ({
       <Divider flexItem orientation="vertical" />
       <BlockButtons disabled={disabled} />
       <Divider flexItem orientation="vertical" />
-      <FormatButtons disabled={disabled} getEditorState={getEditorState} />
+      <FormatButtons disabled={disabled} />
       {displayMacrosButton && (
         <>
           <Divider flexItem orientation="vertical" />
