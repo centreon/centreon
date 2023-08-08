@@ -9,7 +9,7 @@ import { Tooltip } from '@centreon/ui/components';
 import {
   labelCommonProperties,
   labelDescription,
-  labelDisplayDescription,
+  labelShowDescription,
   labelName,
   labelOpenLinksInNewTab,
   labelOpenLinksInNewTabTooltip,
@@ -45,7 +45,7 @@ const WidgetProperties = (): JSX.Element => {
               <strong>{t(labelDescription)}</strong>
             </Typography>
             <WidgetSwitch
-              label={labelDisplayDescription}
+              label={labelShowDescription}
               propertyName="description.enabled"
             />
           </Box>

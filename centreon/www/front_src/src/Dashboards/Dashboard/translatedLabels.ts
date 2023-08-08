@@ -47,7 +47,7 @@ export const labelMetric = 'Metric';
 export const labelPleaseSelectAMetric = 'Please select a metric';
 export const labelTheLimiteOf2UnitsHasBeenReached =
   'The limit of 2 units has been reached';
-export const labelDisplayDescription = 'Display description';
+export const labelShowDescription = 'Show description';
 export const labelOpenLinksInNewTab = 'Open links in new tab';
 export const labelOpenLinksInNewTabTooltip =
   'By turning this option off, all links included in the widget will open in the same tab when clicked.';

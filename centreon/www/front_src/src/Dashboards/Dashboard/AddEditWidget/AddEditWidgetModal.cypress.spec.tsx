@@ -18,7 +18,7 @@ import {
 import {
   labelAdd,
   labelDelete,
-  labelDisplayDescription,
+  labelShowDescription,
   labelEdit,
   labelMetrics,
   labelName,
@@ -174,7 +174,7 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelName).type('Generic input');
         cy.findByLabelText('Generic text').type('Text');
-        cy.findByLabelText(labelDisplayDescription).should('be.checked');
+        cy.findByLabelText(labelShowDescription).should('be.checked');
         cy.findByLabelText(labelOpenLinksInNewTab).should('be.checked');
 
         cy.findByLabelText(labelAdd).should('be.enabled');
@@ -212,7 +212,7 @@ describe('AddEditWidgetModal', () => {
           'true'
         );
 
-        cy.findByLabelText(labelDisplayDescription).uncheck();
+        cy.findByLabelText(labelShowDescription).uncheck();
 
         cy.findByLabelText('RichTextEditor').should(
           'have.attr',
