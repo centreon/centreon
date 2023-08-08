@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { configureOpenIDConnect, getUserContactId } from '../common';
+import { configureOpenIDConnect } from '../common';
+import { getUserContactId } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer().startOpenIdProviderContainer();

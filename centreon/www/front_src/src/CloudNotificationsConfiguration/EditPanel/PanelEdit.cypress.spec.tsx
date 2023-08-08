@@ -100,11 +100,11 @@ const initialize = (): void => {
     path: notificationEndpoint({}),
     response: { status: 'ok' }
   });
+  cy.viewport('macbook-13');
+
   cy.mount({
     Component: <PanelWithQueryProvider />
   });
-
-  cy.viewport('macbook-13');
 };
 
 describe('Edit Panel', () => {
@@ -408,14 +408,6 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the Subject field is properly rendered with the edited notification subject', () => {
-    cy.waitForRequest('@getNotificationRequest');
-
-    cy.findByLabelText(labelSubject).should('have.value', 'Notification');
-
-    cy.matchImageSnapshot();
-  });
-
   it('Validates that when the Subject field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
@@ -428,8 +420,10 @@ describe('Edit Panel', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the Message field is properly rendered with the edited notification message', () => {
+  it('Confirms that the Message and Subject fields are properly rendered with the edited notification message', () => {
     cy.waitForRequest('@getNotificationRequest');
+
+    cy.findByLabelText(labelSubject).should('have.value', 'Notification');
 
     cy.findByTestId('EmailBody').contains('Bonjour');
     cy.findByTestId('EmailBody').contains('Cordialement');

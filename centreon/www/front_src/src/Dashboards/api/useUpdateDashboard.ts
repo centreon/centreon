@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import {
   MutateOptions,
   UseMutationResult,
@@ -9,7 +7,7 @@ import {
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
 import { Dashboard, resource, UpdateDashboardDto } from './models';
-import { dashboardsEndpoint } from './endpoints';
+import { getDashboardEndpoint } from './endpoints';
 
 type UseUpdateDashboard<
   TData extends Dashboard = Dashboard,
@@ -26,15 +24,13 @@ type UseUpdateDashboard<
 >;
 
 const useUpdateDashboard = (): UseUpdateDashboard => {
-  const resourceIdRef = useRef<string | null>(null);
-
   const {
     mutateAsync,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mutate: omittedMutate,
     ...mutationData
   } = useMutationQuery<Dashboard>({
-    getEndpoint: () => `${dashboardsEndpoint}/${resourceIdRef.current}`,
+    getEndpoint: ({ id }) => getDashboardEndpoint(id),
     method: Method.PATCH
   });
 
@@ -73,13 +69,19 @@ const useUpdateDashboard = (): UseUpdateDashboard => {
     /* eslint-enable @typescript-eslint/no-unused-vars */
     /* eslint-enable @typescript-eslint/no-explicit-any */
 
-    resourceIdRef.current = id;
-
-    return mutateAsync(apiAllowedVariables, {
-      mutationKey: [resource.dashboards, 'update', resourceIdRef.current],
-      onSettled: onSettledWithInvalidateQueries,
-      ...restOptions
-    });
+    return mutateAsync(
+      {
+        ...apiAllowedVariables,
+        _meta: {
+          id
+        }
+      },
+      {
+        mutationKey: [resource.dashboards, 'update', id],
+        onSettled: onSettledWithInvalidateQueries,
+        ...restOptions
+      }
+    );
   };
 
   return {
