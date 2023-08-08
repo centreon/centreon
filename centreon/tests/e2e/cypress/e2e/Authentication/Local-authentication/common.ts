@@ -40,25 +40,6 @@ const removeContact = (): Cypress.Chainable => {
   });
 };
 
-const getUserContactId = (userName: string): Cypress.Chainable => {
-  const query = `SELECT contact_id FROM contact WHERE contact_name = '${userName}';`;
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon <<< "${query}"`;
-
-  return cy
-    .exec(command, { failOnNonZeroExit: true, log: true })
-    .then(({ code, stdout, stderr }) => {
-      if (!stderr && code === 0) {
-        const idUser = parseInt(stdout.split('\n')[1], 10);
-
-        return cy.wrap(idUser || '0');
-      }
-
-      return cy.log(`Can't execute command on database.`);
-    });
-};
-
 const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
   {
     selector: '#Minimumpasswordlength',
@@ -160,7 +141,6 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
 export {
   millisecondsValueForSixMonth,
   millisecondsValueForFourHour,
-  getUserContactId,
   removeContact,
   initializeConfigACLAndGetLoginPage,
   checkDefaultsValueForm,

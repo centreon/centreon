@@ -4,6 +4,7 @@
 **/selinux/     @centreon/automation-reviewers
 **/project/     @centreon/automation-reviewers
 *.sh            @centreon/automation-reviewers
+**/packaging/   @centreon/automation-reviewers
 
 *.po            @centreon/centreon-documentation
 
