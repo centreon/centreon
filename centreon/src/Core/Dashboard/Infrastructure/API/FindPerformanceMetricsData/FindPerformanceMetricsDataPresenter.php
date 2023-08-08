@@ -27,14 +27,23 @@ use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataResponse;
+use Core\Infrastructure\Common\Presenter\JsonFormatter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Infrastructure\Common\Presenter\PresenterTrait;
+use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements FindPerformanceMetricsDataPresenterInterface
 {
+    use PresenterTrait;
+
     public function __construct(
         protected PresenterFormatterInterface $presenterFormatter
     ) {
         parent::__construct($presenterFormatter);
+        if ($presenterFormatter instanceof JsonFormatter) {
+            $presenterFormatter->setEncodingOptions(JsonResponse::DEFAULT_ENCODING_OPTIONS|JSON_PRESERVE_ZERO_FRACTION);
+        }
     }
 
     public function presentResponse(FindPerformanceMetricsDataResponse|ResponseStatusInterface $response): void
@@ -44,19 +53,64 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
         } else {
             $this->present([
                 'base' => $response->base,
-                'metrics' => $response->metricsData,
-                'times' => $this->formatTimeStampToISO8601($response->times),
+                'metrics' => $this->formatMetricsInformation($response->metricsInformation),
+                'times' => array_map(fn ($date) => $this->formatDateToIso8601($date), $response->times),
             ]);
         }
     }
 
     /**
-     * @param string[] $times
+     * format Metrics information to array
      *
-     * @return \DateTime[]
+     * @param MetricInformation[] $metricsInformation
+     *
+     * @return array<string,int|string|null|array<string|null>>
      */
-    private function formatTimeStampToISO8601(array $times): array
+    private function formatMetricsInformation(array $metricsInformation): array
     {
-        return array_map(fn ($time) => (new \DateTime())->setTimeStamp((int) $time)->format(\DateTime::ATOM), $times);
+        return array_map( function (MetricInformation $metricInformation) {
+            $generalInformation = $metricInformation->getGeneralInformation();
+            $dataSource = $metricInformation->getDataSource();
+            $thresholdInformation = $metricInformation->getThresholdInformation();
+            $realTimeDataInformation = $metricInformation->getRealTimeDataInformation();
+            return [
+                'index_id' => $generalInformation->getIndexId(),
+                'metric_id' => $generalInformation->getId(),
+                'metric' => $generalInformation->getName(),
+                'metric_legend' => $generalInformation->getAlias(),
+                'unit' => $generalInformation->getUnit(),
+                'hidden' => (int) $generalInformation->isHidden(),
+                'min' => $realTimeDataInformation->getMinimumValueLimit(),
+                'max' => $realTimeDataInformation->getMaximumValueLimit(),
+                'virtual' => (int) $generalInformation->isVirtual(),
+                'ds_data' => [
+                    'ds_color_line' => $dataSource->getLineColor(),
+                    'ds_color_line_mode' => (string) $dataSource->getColorMode(),
+                    'ds_max' => $dataSource->getMaximum() !== null ? (string) $dataSource->getMaximum() : null,
+                    'ds_min' => $dataSource->getMinimum() !== null ? (string) $dataSource->getMinimum() : null,
+                    'ds_minmax_int' => $dataSource->getMinMax() !== null ? (string) $dataSource->getMinMax() : null,
+                    'ds_average' => $dataSource->getAverageValue() !== null ? (string) $dataSource->getAverageValue() : null,
+                    'ds_last' => $dataSource->getLastValue() !== null ? (string) $dataSource->getLastValue() : null,
+                    'ds_total' => $dataSource->getTotal() !== null ? (string) $dataSource->getTotal() : null,
+                    'ds_tickness' => $dataSource->getTickness(),
+                ],
+                'legend' => $generalInformation->getLegend(),
+                'stack' => (int) $generalInformation->isStacked(),
+                'warn' => $thresholdInformation->getWarningThreshold(),
+                'warn_low' => $thresholdInformation->getWarningLowThreshold(),
+                'crit' => $thresholdInformation->getCriticalThreshold(),
+                'crit_low' => $thresholdInformation->getCriticalLowThreshold(),
+                'ds_color_area_warn' => $thresholdInformation->getColorWarning(),
+                'ds_color_area_crit' => $thresholdInformation->getColorCritical(),
+                'ds_order' => $generalInformation->getStackingOrder(),
+                'data' => $realTimeDataInformation->getValues(),
+                'prints' => $realTimeDataInformation->getLabels(),
+                'last_value' => $realTimeDataInformation->getLastValue(),
+                'minimum_value' => $realTimeDataInformation->getMinimumValue(),
+                'maximum_value' => $realTimeDataInformation->getMaximumValue(),
+                'average_value' => $realTimeDataInformation->getAverageValue()
+            ];
+        }, $metricsInformation);
     }
+
 }

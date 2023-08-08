@@ -44,6 +44,8 @@ class JsonFormatter implements PresenterFormatterInterface
 {
     use LoggerTrait;
 
+    protected ?int $encodingOptions = null;
+
     /**
      * {@inheritDoc}
      *
@@ -163,6 +165,17 @@ class JsonFormatter implements PresenterFormatterInterface
             }
         }
 
-        return new JsonResponse($data, $code, $headers);
+        $response = new JsonResponse(null, $code, $headers);
+        if ($this->encodingOptions !== null) {
+            $response->setEncodingOptions($this->encodingOptions);
+        }
+        $response->setData($data);
+
+        return $response;
+    }
+
+    public function setEncodingOptions(?int $encodingOptions): void
+    {
+        $this->encodingOptions = $encodingOptions;
     }
 }
