@@ -53,7 +53,7 @@ class PerformanceMetricsData
     }
 
     /**
-     * @return \DateTime[]
+     * @return \DateTimeImmutable[]
      */
     public function getTimes(): array
     {

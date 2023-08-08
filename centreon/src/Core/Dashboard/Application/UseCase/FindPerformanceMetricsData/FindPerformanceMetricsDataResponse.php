@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
+use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
+
 final class FindPerformanceMetricsDataResponse
 {
     public int $base;
@@ -30,6 +32,6 @@ final class FindPerformanceMetricsDataResponse
     /** @var MetricInformation[] */
     public array $metricsInformation;
 
-    /** @var string[] */
+    /** @var \DateTimeImmutable[] */
     public array $times;
 }
