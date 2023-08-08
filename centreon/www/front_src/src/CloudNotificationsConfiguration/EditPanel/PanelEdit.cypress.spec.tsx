@@ -100,11 +100,11 @@ const initialize = (): void => {
     path: notificationEndpoint({}),
     response: { status: 'ok' }
   });
+  cy.viewport('macbook-13');
+
   cy.mount({
     Component: <PanelWithQueryProvider />
   });
-
-  cy.viewport('macbook-13');
 };
 
 describe('Edit Panel', () => {
@@ -412,6 +412,11 @@ describe('Edit Panel', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelSubject).should('have.value', 'Notification');
+    cy.findByLabelText(labelSubject).type(' edited');
+    cy.findByLabelText(labelSubject).should(
+      'have.value',
+      'Notification edited'
+    );
 
     cy.matchImageSnapshot();
   });
