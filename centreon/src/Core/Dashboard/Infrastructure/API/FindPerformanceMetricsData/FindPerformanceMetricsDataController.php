@@ -35,6 +35,7 @@ use Symfony\Component\Validator\Validation;
 final class FindPerformanceMetricsDataController extends AbstractController
 {
     use LoggerTrait;
+
     private const START_DATE_PARAMETER = 'start';
     private const END_DATE_PARAMETER = 'end';
     private const METRIC_IDS_PARAMETER = 'metricIds';
@@ -123,6 +124,7 @@ final class FindPerformanceMetricsDataController extends AbstractController
             $parameterFromRequest['start'],
             $parameterFromRequest['end']
         );
+
         $requestDto->metricIds = $parameterFromRequest['metricIds'];
 
         return $requestDto;

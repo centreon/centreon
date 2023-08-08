@@ -27,8 +27,8 @@ final class FindPerformanceMetricsDataResponse
 {
     public int $base;
 
-    /** @var array<string,mixed> */
-    public array $metricsData;
+    /** @var MetricInformation[] */
+    public array $metricsInformation;
 
     /** @var string[] */
     public array $times;

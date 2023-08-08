@@ -23,13 +23,69 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
+use Centreon\Domain\Log\LoggerTrait;
+use Core\Metric\Domain\Model\MetricInformation\DataSource;
+use Core\Metric\Domain\Model\MetricInformation\GeneralInformation;
+use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
+use Core\Metric\Domain\Model\MetricInformation\RealTimeDataInformation;
+use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetricsData;
 use Core\Metric\Application\Exception\MetricException;
 
+/**
+ * @phpstan-type _Metrics array{
+ *      index_id: int,
+ *      metric_id: int,
+ *      metric: string,
+ *      metric_legend: string,
+ *      unit: string,
+ *      hidden: int,
+ *      legend: string,
+ *      virtual: int,
+ *      stack: int,
+ *      ds_order: int,
+ *      ds_data: array{
+ *        ds_min: ?string,
+ *        ds_max: ?string,
+ *        ds_minmax_int: ?string,
+ *        ds_last: ?string,
+ *        ds_average: ?string,
+ *        ds_total: ?string,
+ *        ds_tickness: int,
+ *        ds_color_line_mode: string,
+ *        ds_color_line: string
+ *      },
+ *      warn: ?float,
+ *      warn_low: ?float,
+ *      crit: ?float,
+ *      crit_low: ?float,
+ *      ds_color_area_warn: string,
+ *      ds_color_area_crit: string,
+ *      data: array<float|null>,
+ *      prints: array<array<string>>,
+ *      min: ?float,
+ *      max: ?float,
+ *      last_value: ?float,
+ *      minimum_value: ?float,
+ *      maximum_value: ?float,
+ *      average_value: ?float
+ *  }
+ *
+ * @phpstan-type _MetricData array{
+ *  global: array{
+ *      base: int
+ *  },
+ *  metrics: array<_Metrics>,
+ *  times: string[]
+ * }
+ */
 class PerformanceMetricsDataFactory
 {
+    use LoggerTrait;
+
     /**
-     * @param array<int<0, max>, array<mixed>> $metricsData
+     * @param array<_MetricData> $metricsData
      * @param int[] $metricIds
      *
      * @return PerformanceMetricsData
@@ -40,13 +96,12 @@ class PerformanceMetricsDataFactory
         $metrics = [];
         $times = [];
         foreach ($metricsData as $metricData) {
-            $this->validateRrdFormat($metricData);
             $metricBases[] = $metricData['global']['base'];
             $metrics[] = $metricData['metrics'];
             $times[] = $metricData['times'];
         }
         $base = $this->getHighestBase($metricBases);
-        $metricsInfo = $this->filterMetricsByMetricId($metrics, $metricIds);
+        $metricsInfo = $this->createMetricInformations($metrics, $metricIds);
         $times = $this->getTimes($times);
 
         return new PerformanceMetricsData($base, $metricsInfo, $times);
@@ -67,24 +122,16 @@ class PerformanceMetricsDataFactory
     /**
      * Filter the metrics to keep only the needed metrics.
      *
-     * @param array<
-     *      array{
-     *        metric_id: int,
-     *        mixed
-     *      }
-     *    > $metricsData
+     * @param array<_Metrics> $metricsData
      * @param int[] $metricIds
      *
-     * @return array<int<0, max>, mixed>
+     * @return array<_Metrics>
      */
     private function filterMetricsByMetricId(array $metricsData, array $metricIds): array
     {
         $metrics = [];
         foreach ($metricsData as $metricData) {
             foreach ($metricData as $metric) {
-                if (! array_key_exists('metric_id', $metric)) {
-                    MetricException::missingPropertyInMetricInformation('metric_id');
-                }
                 if (in_array($metric['metric_id'], $metricIds, true)) {
                     $metrics[] = $metric;
                 }
@@ -99,30 +146,82 @@ class PerformanceMetricsDataFactory
      *
      * @param array<array<string>> $times
      *
-     * @return string[]
+     * @return \DateTimeImmutable[]
      */
     private function getTimes(array $times): array
     {
-        return $times[0];
+        return array_map(fn (string $time): \DateTimeImmutable => (new \DateTimeImmutable())->setTimestamp((int) $time), $times[0]);
     }
 
     /**
-     * Validate that the Rrd is correctly formatted.
+     * Create Metric Information.
      *
-     * @param array<string,mixed> $metricData
+     * @param array<_Metrics> $metricData
+     * @param int[] $metricIds
+     *
+     * @return MetricInformation[]
      *
      * @throws MetricException
      */
-    private function validateRrdFormat(array $metricData): void
+    private function createMetricInformations(array $metricData, array $metricIds): array
     {
-        if (! array_key_exists('global', $metricData) || ! array_key_exists('base', $metricData['global'])) {
-            throw MetricException::missingPropertyInMetricInformation('base');
+        $metrics = $this->filterMetricsByMetricId($metricData, $metricIds);
+        $metricsInformation = [];
+        foreach ($metrics as $metric) {
+            try {
+                $generalInformation = new GeneralInformation(
+                    $metric['index_id'],
+                    $metric['metric_id'],
+                    $metric['metric'],
+                    $metric['metric_legend'],
+                    $metric['unit'],
+                    (bool) $metric['hidden'],
+                    $metric['legend'],
+                    (bool) $metric['virtual'],
+                    (bool) $metric['stack'],
+                    $metric['ds_order']
+                );
+                $dataSource = new DataSource(
+                    $metric['ds_data']['ds_min'] !== null ? (int) $metric['ds_data']['ds_min'] : null,
+                    $metric['ds_data']['ds_max'] !== null ? (int) $metric['ds_data']['ds_max'] : null,
+                    $metric['ds_data']['ds_minmax_int'] !== null ? (int) $metric['ds_data']['ds_minmax_int'] : null,
+                    $metric['ds_data']['ds_last'] !== null ? (int) $metric['ds_data']['ds_last'] : null,
+                    $metric['ds_data']['ds_average'] !== null ? (int) $metric['ds_data']['ds_average'] : null,
+                    $metric['ds_data']['ds_total'] !== null ? (int) $metric['ds_data']['ds_total'] : null,
+                    $metric['ds_data']['ds_tickness'],
+                    (int) $metric['ds_data']['ds_color_line_mode'],
+                    $metric['ds_data']['ds_color_line'],
+                );
+                $thresholdInformation = new ThresholdInformation(
+                    $metric['warn'] !== null ? (float) $metric['warn'] : null,
+                    $metric['warn_low'] !== null ? (float) $metric['warn_low'] : null,
+                    $metric['crit'] !== null ? (float) $metric['crit'] : null,
+                    $metric['crit_low'] !== null ? (float) $metric['crit_low'] : null,
+                    $metric['ds_color_area_warn'],
+                    $metric['ds_color_area_crit']
+                );
+                $realTimeDataInformation = new RealTimeDataInformation(
+                    $metric['data'],
+                    $metric['prints'],
+                    $metric['min'] !== null ? (float) $metric['min'] : null,
+                    $metric['max'] !== null ? (float) $metric['max'] : null,
+                    $metric['minimum_value'] !== null ? (float) $metric['minimum_value'] : null,
+                    $metric['maximum_value'] !== null ? (float) $metric['maximum_value'] : null,
+                    $metric['last_value'] !== null ? (float) $metric['last_value'] : null,
+                    $metric['average_value'] !== null ? (float) $metric['average_value'] : null
+                );
+                $metricsInformation[] = new MetricInformation(
+                    $generalInformation,
+                    $dataSource,
+                    $thresholdInformation,
+                    $realTimeDataInformation
+                );
+            } catch (\TypeError | AssertionException $ex) {
+                $this->error('Metric data are not correctly formatted', ['trace' => (string) $ex]);
+                throw MetricException::invalidMetricFormat();
+            }
         }
-        if (! array_key_exists('metrics', $metricData)) {
-            throw MetricException::missingPropertyInMetricInformation('metrics');
-        }
-        if (! array_key_exists('times', $metricData)) {
-            throw MetricException::missingPropertyInMetricInformation('times');
-        }
+
+        return $metricsInformation;
     }
 }

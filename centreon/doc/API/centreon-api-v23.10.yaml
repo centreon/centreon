@@ -1873,6 +1873,16 @@ paths:
                                 type: string
                                 description: label to display in legend
                                 example: 'Last:1.00'
+                          last_value:
+                            type: number
+                            nullable: true
+                            description: last value
+                            example: 5.0
+                          average_value:
+                            type: number
+                            nullable: true
+                            description: average value
+                            example: 5.64
                           minimum_value:
                             type: number
                             format: float
