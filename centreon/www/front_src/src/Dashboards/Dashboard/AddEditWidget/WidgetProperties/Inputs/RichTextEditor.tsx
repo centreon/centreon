@@ -29,6 +29,11 @@ const WidgetRichTextEditor = ({
     [getProperty({ obj: errors, propertyName })]
   );
 
+  const openLinksInNewTab = useMemo<boolean | undefined>(
+    () => getProperty({ obj: values, propertyName: 'openLinksInNewTab' }),
+    [getProperty({ obj: values, propertyName: 'openLinksInNewTab' })]
+  );
+
   const change = (newEditiorState: unknown): void => {
     setFieldTouched(`options.${propertyName}`, true, false);
     setFieldValue(`options.${propertyName}`, JSON.stringify(newEditiorState));
@@ -42,6 +47,7 @@ const WidgetRichTextEditor = ({
       error={error}
       getEditorState={change}
       initialEditorState={value || undefined}
+      openLinkInNewTab={openLinksInNewTab}
       placeholder={t(label) as string}
     />
   );

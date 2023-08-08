@@ -144,6 +144,7 @@ const RichTextEditor = ({
             contentEditable={
               <ContentEditable
                 className={contentClassName || ''}
+                disabled={disabled}
                 editable={editable}
                 editorState={editorState}
                 error={error}

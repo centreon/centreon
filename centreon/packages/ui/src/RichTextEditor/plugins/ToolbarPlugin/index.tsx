@@ -1,4 +1,3 @@
-import { EditorState } from 'lexical';
 import { makeStyles } from 'tss-react/mui';
 
 import { Divider } from '@mui/material';
