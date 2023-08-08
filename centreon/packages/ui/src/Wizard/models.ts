@@ -1,5 +1,7 @@
 import { FormikValues, FormikErrors, FormikHelpers } from 'formik';
 
+import { DialogProps } from '@mui/material';
+
 export interface StepComponentProps {
   disableNextOnSendingRequests: (sendingRequests: Array<boolean>) => void;
 }
@@ -38,7 +40,10 @@ interface ConfirmDialogLabels {
   labelTitle: string;
 }
 
+type ValueOf<T> = T[keyof T];
+
 export interface WizardProps {
+  [key: string]: ValueOf<DialogProps>;
   actionsBarLabels?: ActionsBarLabels;
   confirmDialogLabels?: ConfirmDialogLabels;
   displayConfirmDialog?: boolean;

@@ -21,17 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Host\Infrastucture\API\DeleteHost;
+namespace Tests\Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataPresenterInterface;
+use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataResponse;
 
-class DeleteHostPresenterStub extends AbstractPresenter
+class FindPerformanceMetricsDataPresenterStub implements FindPerformanceMetricsDataPresenterInterface
 {
-    public ?ResponseStatusInterface $response;
+    public ResponseStatusInterface|FindPerformanceMetricsDataResponse $data;
 
-    public function setResponseStatus(?ResponseStatusInterface $responseStatus): void
+    public function presentResponse(FindPerformanceMetricsDataResponse|ResponseStatusInterface $data): void
     {
-        $this->response = $responseStatus;
+        $this->data = $data;
     }
 }

@@ -33,7 +33,8 @@ Feature:
         "note": "note-value",
         "action_url": "actionUrl-value",
         "categories": [2],
-        "templates": [],
+        "groups": [60, 53],
+        "templates": [2],
         "macros": [
           {
             "name": "nameA",
@@ -74,7 +75,22 @@ Feature:
             "name": "host-cat1"
           }
         ],
-        "templates": [],
+        "groups": [
+          {
+            "id": 60,
+            "name": "Firewall"
+          },
+          {
+            "id": 53,
+            "name": "Linux-Servers"
+          }
+        ],
+        "templates": [
+          {
+            "id": 2,
+            "name": "generic-host"
+          }
+        ],
         "macros": [
           {
             "name": "NAMEA",
@@ -186,6 +202,7 @@ Feature:
         "note": "note-value",
         "action_url": "actionUrl-value",
         "categories": [],
+        "groups": [],
         "templates": [999]
       }
       """
@@ -194,6 +211,7 @@ Feature:
     Given the following CLAPI import data:
       """
       ACLRESOURCE;addfilter_hostcategory;ACL Resource test;host-cat1
+      ACLRESOURCE;grant_hostgroup;ACL Resource test;*
       """
 
     # macro should not appear in response as they are inherited from parent template
@@ -214,6 +232,7 @@ Feature:
         "note": "note-value",
         "action_url": "actionUrl-value",
         "categories": [2],
+        "groups": [53],
         "templates": [<hostTemplateId>],
         "macros": [
           {
@@ -253,6 +272,12 @@ Feature:
           {
             "id": 2,
             "name": "host-cat1"
+          }
+        ],
+        "groups": [
+          {
+            "id": 53,
+            "name": "Linux-Servers"
           }
         ],
         "templates": [

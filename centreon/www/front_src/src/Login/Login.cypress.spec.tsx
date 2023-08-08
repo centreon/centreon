@@ -424,8 +424,8 @@ describe('Custom login page with data', () => {
 
     cy.waitForRequest('@getLoginCustomization');
 
-    cy.findByAltText(labelCentreonLogo).should('be.visible');
-    cy.findByAltText(labelCentreonWallpaper).should('be.visible');
+    cy.findByTestId(labelCentreonLogo).should('be.visible');
+    cy.findByTestId(labelCentreonWallpaper).should('be.visible');
     cy.findByLabelText(labelAlias).should('be.visible');
     cy.findByLabelText(labelPassword).should('be.visible');
     cy.findByLabelText(labelConnect).should('be.visible');

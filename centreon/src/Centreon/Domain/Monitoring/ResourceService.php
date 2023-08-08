@@ -71,6 +71,10 @@ class ResourceService extends AbstractCentreonService implements ResourceService
             throw new ResourceException($ex->getMessage(), 0, $ex);
         }
 
+        if ($filter->getOnlyWithPerformanceData() === true) {
+            return $this->extractResourcesWithGraphData($list);
+        }
+
         return $list;
     }
 
