@@ -50,4 +50,4 @@ export const labelTheLimiteOf2UnitsHasBeenReached =
 export const labelShowDescription = 'Show description';
 export const labelOpenLinksInNewTab = 'Open links in new tab';
 export const labelOpenLinksInNewTabTooltip =
-  'By turning this option off, all links included in the widget will open in the same tab when clicked.';
+  'By turning off this option, all links included in the widget will be opened in the same tab when clicked.';
