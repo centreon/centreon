@@ -33,6 +33,10 @@ import { SingleAutocompleteField } from '../../..';
 
 import { useBlockButtonsStyles } from './ToolbarPlugin.styles';
 
+interface Props {
+  disabled: boolean;
+}
+
 const blockTypeToBlockName = {
   bullet: 'Bullet List',
   h1: 'Heading 1',
@@ -62,7 +66,7 @@ const blockTypeOptions = blockTypes.map((blockType) => ({
   name: blockTypeToBlockName[blockType]
 }));
 
-const BlockButtons = (): JSX.Element => {
+const BlockButtons = ({ disabled }: Props): JSX.Element => {
   const { classes } = useBlockButtonsStyles();
 
   const [blockType, setBlockType] =
@@ -123,15 +127,15 @@ const BlockButtons = (): JSX.Element => {
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
     const anchorNode = selection?.anchor.getNode();
-    const element = equals(anchorNode.getKey(), 'root')
+    const element = equals(anchorNode?.getKey(), 'root')
       ? anchorNode
       : $findMatchingParent(anchorNode, (e) => {
           const parent = e.getParent();
 
           return parent !== null && $isRootOrShadowRoot(parent);
-        }) || anchorNode.getTopLevelElementOrThrow();
+        }) || anchorNode?.getTopLevelElementOrThrow();
 
-    const elementKey = element.getKey();
+    const elementKey = element?.getKey();
     const elementDOM = editor.getElementByKey(elementKey);
 
     if (isNil(elementDOM)) {
@@ -180,6 +184,8 @@ const BlockButtons = (): JSX.Element => {
   return (
     <SingleAutocompleteField
       className={classes.autocomplete}
+      dataTestId="Block type"
+      disabled={disabled}
       label=""
       options={blockTypeOptions}
       value={value}

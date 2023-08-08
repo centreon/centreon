@@ -61,10 +61,11 @@ const getSelectedNode = (selection: RangeSelection): ElementNode | TextNode => {
 };
 
 interface Props {
+  disabled: boolean;
   getEditorState?: (editorState: EditorState) => void;
 }
 
-const FormatButtons = ({ getEditorState }: Props): JSX.Element => {
+const FormatButtons = ({ getEditorState, disabled }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
   const [isBold, setIsBold] = useState(false);
@@ -169,7 +170,7 @@ const FormatButtons = ({ getEditorState }: Props): JSX.Element => {
         <IconButton
           ariaLabel={type}
           className={cx(isSelected && classes.buttonSelected)}
-          disabled={!editor.isEditable()}
+          disabled={disabled}
           key={type}
           size="medium"
           title={type}

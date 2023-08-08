@@ -9,6 +9,7 @@ import MacrosButton from './MacrosButton';
 import BlockButtons from './BlockButtons';
 
 interface Props {
+  disabled: boolean;
   displayMacrosButton?: boolean;
   editable: boolean;
   getEditorState?: (editorState: EditorState) => void;
@@ -34,21 +35,22 @@ export const useStyles = makeStyles()((theme) => ({
 const ToolbarPlugin = ({
   getEditorState,
   editable,
-  displayMacrosButton
+  displayMacrosButton,
+  disabled
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
 
   return editable ? (
     <div className={classes.container}>
-      <UndoRedoButtons />
+      <UndoRedoButtons disabled={disabled} />
       <Divider flexItem orientation="vertical" />
-      <BlockButtons />
+      <BlockButtons disabled={disabled} />
       <Divider flexItem orientation="vertical" />
-      <FormatButtons getEditorState={getEditorState} />
+      <FormatButtons disabled={disabled} getEditorState={getEditorState} />
       {displayMacrosButton && (
         <>
           <Divider flexItem orientation="vertical" />
-          <MacrosButton />
+          <MacrosButton disabled={disabled} />
         </>
       )}
     </div>

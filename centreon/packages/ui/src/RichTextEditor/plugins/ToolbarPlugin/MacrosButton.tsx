@@ -11,6 +11,10 @@ import { useStyles } from '.';
 
 const LowPriority = 1;
 
+interface Props {
+  disabled: boolean;
+}
+
 export const standardMacros = [
   '{{SHORTDATETIME}}',
   '{{LONGDATETIME}}',
@@ -22,7 +26,7 @@ export const standardMacros = [
   '{{STATETYPE}}'
 ];
 
-const MacrosButton = (): JSX.Element => {
+const MacrosButton = ({ disabled }: Props): JSX.Element => {
   const { classes } = useStyles();
   const [arMacrosDiplayed, setAreMacrosDiplayed] = useState(false);
 
@@ -65,7 +69,7 @@ const MacrosButton = (): JSX.Element => {
         <IconButton
           ariaLabel="Macros"
           className={classes.macrosButton}
-          disabled={!editor.isEditable()}
+          disabled={disabled}
           title="Macros"
           tooltipPlacement="top"
           onClick={displayMacros}

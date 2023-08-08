@@ -130,6 +130,7 @@ const RichTextEditor = ({
       <div className={classes.container}>
         <div className={classes.toolbar}>
           <ToolbarPlugin
+            disabled={disabled}
             displayMacrosButton={displayMacrosButton}
             editable={editable}
             getEditorState={getEditorState}

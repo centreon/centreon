@@ -80,7 +80,6 @@ const ContentEditable = ({
   const { t } = useTranslation();
 
   const [editor] = useLexicalComposerContext();
-  const [isEditable, setEditable] = useState(false);
   const [isFocused, setFocused] = useState(false);
   const [root, setRoot] = useState('');
 
@@ -92,17 +91,11 @@ const ContentEditable = ({
   );
 
   useLayoutEffect(() => {
-    setEditable(editor.isEditable());
-
     if (editorState && !editable) {
       const newEditorState = editor.parseEditorState(editorState);
 
       editor.setEditorState(newEditorState);
     }
-
-    return editor.registerEditableListener((currentIsEditable) => {
-      setEditable(currentIsEditable);
-    });
   }, [editor, editorState]);
 
   useEffect(() => {
@@ -139,9 +132,7 @@ const ContentEditable = ({
     onBlur?.(event);
   };
 
-  useEffect(() => {
-    editor.setEditable(!disabled);
-  }, [disabled]);
+  const isEditable = editor.isEditable();
 
   return (
     <div

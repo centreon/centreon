@@ -18,7 +18,11 @@ import { labelRedo, labelUndo } from '../../translatedLabels';
 
 const LowPriority = 1;
 
-const UndoRedoButtons = (): JSX.Element => {
+interface Props {
+  disabled: boolean;
+}
+
+const UndoRedoButtons = ({ disabled }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const [canUndo, setCanUndo] = useState(false);
@@ -64,7 +68,7 @@ const UndoRedoButtons = (): JSX.Element => {
     <>
       <IconButton
         ariaLabel={translatedUndo}
-        disabled={!canUndo || !editor.isEditable()}
+        disabled={!canUndo || disabled}
         title={translatedUndo}
         tooltipPlacement="top"
         onClick={undo}
@@ -73,7 +77,7 @@ const UndoRedoButtons = (): JSX.Element => {
       </IconButton>
       <IconButton
         ariaLabel={translatedRedo}
-        disabled={!canRedo || !editor.isEditable()}
+        disabled={!canRedo || disabled}
         title={translatedRedo}
         tooltipPlacement="top"
         onClick={redo}
