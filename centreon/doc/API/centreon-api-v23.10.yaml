@@ -1716,9 +1716,9 @@ paths:
           required: true
           description: "Ids of the metric"
           schema:
-            type: array
-            items:
-              type: number
+            type: string
+            pattern: '^\[\d+(,\d+)*\]$'
+            description: should be in form [<id1>,<id2>,<id3>]
       description: |
         Get data for given metrics
       responses:
@@ -1738,11 +1738,11 @@ paths:
                         type: object
                         properties:
                           index_id:
-                            type: string
+                            type: number
                             description: index id in centreon_storage.index_data table
                             example: '4'
                           metric_id:
-                            type: string
+                            type: number
                             description: metric id in centreon_storage.metrics table
                             example: '29'
                           metric:
@@ -1758,19 +1758,21 @@ paths:
                             description: metric unit
                             example: '%'
                           hidden:
-                            type: integer
+                            type: number
                             description: if the metric is hidden
                             example: 0
                           min:
-                            type: string
+                            type: number
+                            nullable: true
                             description: min value
                             example: '0'
                           max:
-                            type: string
+                            type: number
+                            nullable: true
                             description: max value
                             example: '100'
                           virtual:
-                            type: integer
+                            type: number
                             description: if the metric is virtual
                             example: 0
                           ds_data:
@@ -1779,10 +1781,12 @@ paths:
                             properties:
                               ds_min:
                                 type: string
+                                nullable: true
                                 description: minimum value
                                 example: '1'
                               ds_max:
                                 type: string
+                                nullable: true
                                 description: maximum value
                                 example: '1'
                               ds_minmax_int:
@@ -1792,10 +1796,12 @@ paths:
                                 example: null
                               ds_last:
                                 type: string
+                                nullable: true
                                 description: last value
                                 example: '1'
                               ds_average:
                                 type: string
+                                nullable: true
                                 description: average value
                                 example: '1'
                               ds_total:
@@ -1804,7 +1810,7 @@ paths:
                                 description: unknown
                                 example: null
                               ds_tickness:
-                                type: string
+                                type: number
                                 description: unknown
                                 example: '1'
                               ds_color_line_mode:
@@ -1820,26 +1826,26 @@ paths:
                             description: metric name in legend
                             example: 'cpu (%)'
                           stack:
-                            type: integer
+                            type: number
                             description: if the metric is stacked with other metrics
                             example: 0
                           warn:
-                            type: string
+                            type: number
                             nullable: true
                             description: warning threshold
                             example: null
                           warn_low:
-                            type: string
+                            type: number
                             nullable: true
                             description: low warning threshold
                             example: null
                           crit:
-                            type: string
+                            type: number
                             nullable: true
                             description: critical threshold
                             example: null
                           crit_low:
-                            type: string
+                            type: number
                             nullable: true
                             description: low critical threshold
                             example: null
@@ -1860,6 +1866,7 @@ paths:
                             items:
                               type: number
                               format: float
+                              nullable: true
                               description: value of the metric
                             example:
                               - 1.0
@@ -1886,11 +1893,13 @@ paths:
                           minimum_value:
                             type: number
                             format: float
+                            nullable: true
                             description: minimum value
                             example: 1.0
                           maximum_value:
                             type: number
                             format: float
+                            nullable: true
                             description: maximum value
                             example: 1.0
                   times:

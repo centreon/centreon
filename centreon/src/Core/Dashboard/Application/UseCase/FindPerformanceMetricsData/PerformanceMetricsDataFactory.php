@@ -121,7 +121,7 @@ class PerformanceMetricsDataFactory
     /**
      * Filter the metrics to keep only the needed metrics.
      *
-     * @param array<_Metrics> $metricsData
+     * @param array<array<_Metrics>> $metricsData
      * @param int[] $metricIds
      *
      * @return array<_Metrics>
@@ -155,7 +155,7 @@ class PerformanceMetricsDataFactory
     /**
      * Create Metric Information.
      *
-     * @param array<_Metrics> $metricData
+     * @param array<array<_Metrics>> $metricData
      * @param int[] $metricIds
      *
      * @throws MetricException
