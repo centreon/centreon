@@ -100,6 +100,11 @@ class JsonFormatter implements PresenterFormatterInterface
         return $this->generateJsonResponse($data, Response::HTTP_OK, $headers);
     }
 
+    public function setEncodingOptions(?int $encodingOptions): void
+    {
+        $this->encodingOptions = $encodingOptions;
+    }
+
     /**
      * Format content on error.
      *
@@ -172,10 +177,5 @@ class JsonFormatter implements PresenterFormatterInterface
         $response->setData($data);
 
         return $response;
-    }
-
-    public function setEncodingOptions(?int $encodingOptions): void
-    {
-        $this->encodingOptions = $encodingOptions;
     }
 }
