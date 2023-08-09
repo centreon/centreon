@@ -57,8 +57,8 @@ interface Props {
   minInputHeight: number;
   namespace: string;
   onBlur?: (e: string) => void;
-  resetEditorToInitialStateCondition?: () => boolean;
   placeholder: string;
+  resetEditorToInitialStateCondition?: () => boolean;
 }
 
 const ContentEditable = ({
