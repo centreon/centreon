@@ -36,8 +36,8 @@ class RealTimeDataInformation
      * @param float|null $maximumValueLimit
      * @param float|null $minimumValue float handled as string to not lose decimals on *.O value
      * @param float|null $maximumValue float handled as string to not lose decimals on *.O value
-     * @param privatereadonly?float $lastValue
-     * @param privatereadonly?float $averageValue
+     * @param float|null $lastValue
+     * @param float|null $averageValue
      */
     public function __construct(
         private readonly array $values,
