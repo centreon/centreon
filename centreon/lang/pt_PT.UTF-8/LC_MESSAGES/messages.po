@@ -16623,6 +16623,21 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "Show description"
 # msgstr ""
 
+# msgid "The limit of 2 units has been reached"
+# msgstr ""
+
+# msgid "Refresh interval"
+# msgstr ""
+
+# msgid "Dashboard global interval (by default)"
+# msgstr ""
+
+# msgid "Custom refresh interval"
+# msgstr ""
+
+# msgid "second"
+# msgstr ""
+
 # msgid "Open links in new tab"
 # msgstr ""
 
@@ -16667,3 +16682,24 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "Business Views events"
 # msgstr ""
+
+# msgid "By turning off this option, all links included in the widget will be opened in the same tab."
+# msgstr ""
+
+#  msgid "You are not allowed to add a service"
+#  msgstr ""
+
+#  msgid "Error while adding the service"
+#  msgstr ""
+
+#  msgid "Error while retrieving a service"
+#  msgstr ""
+
+#  msgid "The check command cannot be null if the service template is null"
+#  msgstr ""
+
+#  msgid "The %s does not exist with id(s) '%s'"
+#  msgstr ""
+
+#  msgid "The service name '%s' already exists for host ID %d"
+#  msgstr ""
