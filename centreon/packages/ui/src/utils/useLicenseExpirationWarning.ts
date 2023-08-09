@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import dayjs from 'dayjs';
-import { path, pipe, propEq, find, lt } from 'ramda';
+import { path, pipe, propEq, find, lt, isNil } from 'ramda';
 
 import { useFetchQuery, useSnackbar } from '..';
 
@@ -32,8 +32,15 @@ export const useLicenseExpirationWarning = ({ module }: Props): void => {
 
   useEffect(() => {
     fetchQuery().then((response) => {
-      const expirationDate = dayjs(getExpirationDate(response));
-      const daysUntilExpiration = expirationDate.diff(currentDate, 'day');
+      const expirationDate = getExpirationDate(response);
+      if (isNil(expirationDate)) {
+        return;
+      }
+
+      const daysUntilExpiration = dayjs(expirationDate).diff(
+        currentDate,
+        'day'
+      );
 
       if (lt(daysUntilExpiration, 15)) {
         showWarningMessage(labelLicenseWarning(module, daysUntilExpiration));
