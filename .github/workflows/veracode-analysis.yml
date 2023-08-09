@@ -120,17 +120,13 @@ jobs:
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
-        if: success() && needs.build.outputs.development_stage != 'Development'
         run: |
-          BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
-          for BRANCH in "${BRANCHES[@]}"; do
-            if [[ "${{ github.ref_name }}" == "$BRANCH" ]]; then
-              mv *results.json /tmp
-              BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
-              aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
-              aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
-            fi
-          done
+          mv *results.json /tmp
+          ls /tmp | grep "*.json"
+
+          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/develop"
+          aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
+          aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
 
       - uses: geekyeggo/delete-artifact@v2
         with:
@@ -212,6 +208,15 @@ jobs:
           if [[ -f composer.lock ]]; then
             echo "trigger_sca_scan=true" >> $GITHUB_ENV
           fi
+
+          echo "npm version"
+          npm --version ||
+
+          echo "php version"
+          php --version ||
+
+          echo "composer version"
+          composer --version ||
 
       - name: SCA scan
         if: env.trigger_sca_scan == 'true'
