@@ -301,6 +301,7 @@ describe('Dashboard', () => {
 
       cy.findByLabelText(labelAdd).click();
 
+      cy.contains(labelSelectAWidgetType).should('not.exist');
       cy.contains('Text for the new widget').should('be.visible');
 
       cy.matchImageSnapshot();

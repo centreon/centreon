@@ -100,11 +100,11 @@ const initialize = (): void => {
     path: notificationEndpoint({}),
     response: { status: 'ok' }
   });
+  cy.viewport('macbook-13');
+
   cy.mount({
     Component: <PanelWithQueryProvider />
   });
-
-  cy.viewport('macbook-13');
 };
 
 describe('Edit Panel', () => {
@@ -136,6 +136,8 @@ describe('Edit Panel', () => {
     );
     cy.findByLabelText(labelNotificationName).should('have.attr', 'required');
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -146,6 +148,8 @@ describe('Edit Panel', () => {
 
     cy.findByLabelText(labelNotificationName).clear();
     cy.clickOutside();
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.findByText(labelRequired).should('be.visible');
     cy.findByLabelText(labelSave).should('be.disabled');
@@ -160,6 +164,8 @@ describe('Edit Panel', () => {
 
     cy.findByLabelText(labelNotificationName).clear().type('Notifications 2');
     cy.clickOutside();
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.findByText(labelThisNameAlreadyExists).should('be.visible');
     cy.findByLabelText(labelSave).should('be.disabled');
@@ -187,6 +193,8 @@ describe('Edit Panel', () => {
       );
     });
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -194,6 +202,8 @@ describe('Edit Panel', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -204,6 +214,8 @@ describe('Edit Panel', () => {
     cy.findByLabelText(labelSave).should('be.disabled');
     cy.findByLabelText(labelActiveOrInactive).click();
     cy.findByLabelText(labelSave).should('not.be.disabled');
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -224,6 +236,8 @@ describe('Edit Panel', () => {
       cy.findAllByRole('checkbox').eq(2).should('not.be.checked');
     });
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -242,6 +256,8 @@ describe('Edit Panel', () => {
       cy.findAllByRole('checkbox').eq(3).should('not.be.checked');
     });
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -257,6 +273,8 @@ describe('Edit Panel', () => {
       }
     });
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -266,18 +284,24 @@ describe('Edit Panel', () => {
     cy.findByTestId('include Services').should('be.visible');
     cy.findByTestId('Extra events services').should('be.visible');
 
-    for (let i = 0; i < 4; i += 1) {
-      cy.findAllByTestId('CancelIcon').eq(0).click();
-    }
+    Array(4)
+      .fill(0)
+      .forEach(() => {
+        cy.findAllByTestId('CancelIcon').eq(0).click();
+      });
 
     cy.findByTestId('Host groups events').within(() => {
-      for (let i = 0; i < 3; i += 1) {
-        cy.findAllByRole('checkbox').eq(i).should('not.be.checked');
-      }
+      Array(3)
+        .fill(0)
+        .forEach((_, index) => {
+          cy.findAllByRole('checkbox').eq(index).should('not.be.checked');
+        });
     });
 
     cy.findByTestId('include Services').should('not.exist');
     cy.findByTestId('Extra events services').should('not.exist');
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -298,6 +322,8 @@ describe('Edit Panel', () => {
       cy.findAllByRole('checkbox').eq(2).should('be.checked');
     });
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -315,6 +341,8 @@ describe('Edit Panel', () => {
       }
     });
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -327,6 +355,8 @@ describe('Edit Panel', () => {
 
     cy.findAllByText(labelChooseAtLeastOneResource).should('have.length', 2);
     cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -342,6 +372,8 @@ describe('Edit Panel', () => {
         cy.findByText('Guest').should('be.visible');
       });
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -355,6 +387,8 @@ describe('Edit Panel', () => {
         cy.findByText('contact-group1').should('be.visible');
         cy.findByText('contact-group2').should('be.visible');
       });
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -373,6 +407,8 @@ describe('Edit Panel', () => {
     );
     cy.findByLabelText(labelSave).should('be.disabled');
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -384,6 +420,8 @@ describe('Edit Panel', () => {
       cy.findByRole('checkbox').should('be.checked');
       cy.findByRole('checkbox').should('be.disabled');
     });
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -405,13 +443,7 @@ describe('Edit Panel', () => {
       cy.findByRole('checkbox').should('be.disabled');
     });
 
-    cy.matchImageSnapshot();
-  });
-
-  it('Confirms that the Subject field is properly rendered with the edited notification subject', () => {
-    cy.waitForRequest('@getNotificationRequest');
-
-    cy.findByLabelText(labelSubject).should('have.value', 'Notification');
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -425,14 +457,20 @@ describe('Edit Panel', () => {
     cy.findByText(labelRequired).should('be.visible');
     cy.findByLabelText(labelSave).should('be.disabled');
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the Message field is properly rendered with the edited notification message', () => {
+  it('Confirms that the Message and Subject fields are properly rendered with the edited notification message', () => {
     cy.waitForRequest('@getNotificationRequest');
+
+    cy.findByLabelText(labelSubject).should('have.value', 'Notification');
 
     cy.findByTestId('EmailBody').contains('Bonjour');
     cy.findByTestId('EmailBody').contains('Cordialement');
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -445,6 +483,8 @@ describe('Edit Panel', () => {
 
     cy.findByText(labelMessageFieldShouldNotBeEmpty).should('be.visible');
     cy.findByLabelText(labelSave).should('be.disabled');
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -463,6 +503,8 @@ describe('Edit Panel : Confirm Dialog', () => {
     cy.findByText(labelDoYouWantToConfirmAction);
     cy.findByText(labelConfirmEditNotification);
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -479,6 +521,8 @@ describe('Edit Panel : Confirm Dialog', () => {
     });
 
     cy.findByText(labelSuccessfulEditNotification).should('be.visible');
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -497,6 +541,8 @@ describe('Edit Panel: Delete button', () => {
     cy.findByText(labelDeleteNotificationWarning);
     cy.findByText(labelCancel).click();
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
   it('displays a success message after successful deletion', () => {
@@ -509,6 +555,8 @@ describe('Edit Panel: Delete button', () => {
     cy.waitForRequest('@getNotificationRequest');
 
     cy.findByText(labelNotificationSuccessfullyDeleted);
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -532,6 +580,8 @@ describe('Edit Panel: Delete button', () => {
 
     cy.findByText('internal server error');
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 });
@@ -548,6 +598,8 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.findByTestId(labelDuplicate).should('be.disabled');
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -562,6 +614,8 @@ describe('Edit Panel: Duplicate button', () => {
     cy.findByLabelText(labelNotificationName).should('be.visible');
     cy.findByText(labelDuplicate).should('be.disabled');
     cy.findByText(labelDiscard).click();
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -581,6 +635,8 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.findByText(labelDiscard).click();
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -596,6 +652,8 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.findByText(labelDiscard).click();
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -610,6 +668,8 @@ describe('Edit Panel: Duplicate button', () => {
     cy.waitForRequest('@duplicateNotificationtRequest');
 
     cy.findByText(labelNotificationDuplicated);
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
@@ -637,6 +697,8 @@ describe('Edit Panel: Duplicate button', () => {
     cy.waitForRequest('@duplicateNotificationtRequest');
 
     cy.findByText(errorMessage).should('be.visible');
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });

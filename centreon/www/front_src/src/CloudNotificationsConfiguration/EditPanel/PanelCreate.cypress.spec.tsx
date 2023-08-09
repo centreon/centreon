@@ -115,6 +115,8 @@ describe('Panel: Creation mode', () => {
     cy.findByLabelText(labelNotificationName).should('have.value', '');
     cy.findByLabelText(labelNotificationName).should('have.attr', 'required');
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.matchImageSnapshot();
   });
 
@@ -137,6 +139,8 @@ describe('Panel: Creation mode', () => {
     cy.findByTestId('EmailBody').type('Bonjour');
     cy.findByLabelText(labelSubject).type('subject');
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.findByLabelText(labelSave).should('not.be.disabled');
 
     cy.matchImageSnapshot();
@@ -158,6 +162,8 @@ describe('Panel: Creation mode', () => {
 
     cy.findByTestId('EmailBody').type('Bonjour');
     cy.findByLabelText(labelSubject).type('subject');
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.findByLabelText(labelSave).click();
 
@@ -184,6 +190,8 @@ describe('Panel: Creation mode', () => {
     cy.findByTestId('EmailBody').type('Bonjour');
     cy.findByLabelText(labelSubject).type('subject');
 
+    cy.get('#panel-content').scrollTo('top');
+
     cy.findByLabelText(labelSave).click();
 
     cy.findByLabelText('Confirm').click();
@@ -198,6 +206,8 @@ describe('Panel: Creation mode', () => {
     cy.findByLabelText(labelSearchHostGroups).click();
     cy.waitForRequest('@getHostsGroupsEndpoint');
     cy.findByText('Firewall').click();
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.findByLabelText(labelClosePanel).click();
 
