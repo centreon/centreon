@@ -28,7 +28,7 @@ use Centreon\Domain\Common\Assertion\Assertion;
 class RealTimeDataInformation
 {
     /**
-     * Undocumented function
+     * Undocumented function.
      *
      * @param array<float|null> $values
      * @param array<array<string>> $labels
@@ -36,6 +36,8 @@ class RealTimeDataInformation
      * @param float|null $maximumValueLimit
      * @param float|null $minimumValue float handled as string to not lose decimals on *.O value
      * @param float|null $maximumValue float handled as string to not lose decimals on *.O value
+     * @param privatereadonly?float $lastValue
+     * @param privatereadonly?float $averageValue
      */
     public function __construct(
         private readonly array $values,

@@ -42,7 +42,7 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
     ) {
         parent::__construct($presenterFormatter);
         if ($presenterFormatter instanceof JsonFormatter) {
-            $presenterFormatter->setEncodingOptions(JsonResponse::DEFAULT_ENCODING_OPTIONS|JSON_PRESERVE_ZERO_FRACTION);
+            $presenterFormatter->setEncodingOptions(JsonResponse::DEFAULT_ENCODING_OPTIONS | JSON_PRESERVE_ZERO_FRACTION);
         }
     }
 
@@ -60,7 +60,7 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
     }
 
     /**
-     * format Metrics information to array
+     * format Metrics information to array.
      *
      * @param MetricInformation[] $metricsInformation
      *
@@ -73,6 +73,7 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
             $dataSource = $metricInformation->getDataSource();
             $thresholdInformation = $metricInformation->getThresholdInformation();
             $realTimeDataInformation = $metricInformation->getRealTimeDataInformation();
+
             return [
                 'index_id' => $generalInformation->getIndexId(),
                 'metric_id' => $generalInformation->getId(),
@@ -108,9 +109,8 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
                 'last_value' => $realTimeDataInformation->getLastValue(),
                 'minimum_value' => $realTimeDataInformation->getMinimumValue(),
                 'maximum_value' => $realTimeDataInformation->getMaximumValue(),
-                'average_value' => $realTimeDataInformation->getAverageValue()
+                'average_value' => $realTimeDataInformation->getAverageValue(),
             ];
         }, $metricsInformation);
     }
-
 }

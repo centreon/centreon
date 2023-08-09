@@ -88,6 +88,4 @@ class GeneralInformation
     {
         return $this->stackingOrder;
     }
-
-
 }

@@ -25,13 +25,13 @@ namespace Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Dashboard\Domain\Model\Metric\PerformanceMetricsData;
+use Core\Metric\Application\Exception\MetricException;
 use Core\Metric\Domain\Model\MetricInformation\DataSource;
 use Core\Metric\Domain\Model\MetricInformation\GeneralInformation;
 use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
 use Core\Metric\Domain\Model\MetricInformation\RealTimeDataInformation;
 use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
-use Core\Dashboard\Domain\Model\Metric\PerformanceMetricsData;
-use Core\Metric\Application\Exception\MetricException;
 
 /**
  * @phpstan-type _Metrics array{
@@ -71,7 +71,6 @@ use Core\Metric\Application\Exception\MetricException;
  *      maximum_value: ?float,
  *      average_value: ?float
  *  }
- *
  * @phpstan-type _MetricData array{
  *  global: array{
  *      base: int
@@ -159,9 +158,9 @@ class PerformanceMetricsDataFactory
      * @param array<_Metrics> $metricData
      * @param int[] $metricIds
      *
-     * @return MetricInformation[]
-     *
      * @throws MetricException
+     *
+     * @return MetricInformation[]
      */
     private function createMetricInformations(array $metricData, array $metricIds): array
     {
@@ -216,8 +215,9 @@ class PerformanceMetricsDataFactory
                     $thresholdInformation,
                     $realTimeDataInformation
                 );
-            } catch (\TypeError | AssertionException $ex) {
+            } catch (\TypeError|AssertionException $ex) {
                 $this->error('Metric data are not correctly formatted', ['trace' => (string) $ex]);
+
                 throw MetricException::invalidMetricFormat();
             }
         }
