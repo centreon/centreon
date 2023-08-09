@@ -47,7 +47,7 @@ class Service
     /**
      * @param int $id
      * @param string $name
-     * @param list<int> $hostIds
+     * @param int $hostId
      * @param list<mixed> $commandArguments
      * @param list<mixed> $eventHandlerArguments
      * @param NotificationType[] $notificationTypes
@@ -90,7 +90,7 @@ class Service
     public function __construct(
         private readonly int $id,
         private string $name,
-        private array $hostIds,
+        private int $hostId,
         array $commandArguments = [],
         array $eventHandlerArguments = [],
         private array $notificationTypes = [],
@@ -130,6 +130,8 @@ class Service
     ) {
         $className = (new \ReflectionClass($this))->getShortName();
         Assertion::positiveInt($id, "{$className}::id");
+        Assertion::positiveInt($hostId, $className . '::hostId');
+
         foreach (
             [
                 'name' => self::MAX_NAME_LENGTH,
@@ -175,10 +177,6 @@ class Service
             if ($propertyValue !== null) {
                 Assertion::positiveInt($propertyValue, "{$className}::{$propertyName}");
             }
-        }
-
-        foreach ($this->hostIds as $hostTemplateId) {
-            Assertion::positiveInt($hostTemplateId, $className . '::hostTemplateIds');
         }
 
         $properties = [
@@ -529,10 +527,10 @@ class Service
     }
 
     /**
-     * @return list<int>
+     * @return int
      */
-    public function getHostIds(): array
+    public function getHostId(): int
     {
-        return $this->hostIds;
+        return $this->hostId;
     }
 }

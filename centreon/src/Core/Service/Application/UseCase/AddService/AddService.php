@@ -33,19 +33,16 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
-use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
-use Core\Common\Domain\TrimmedString;
-use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\Macro\Domain\Model\MacroDifference;
 use Core\Macro\Domain\Model\MacroManager;
-use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Exception\ServiceException;
@@ -57,10 +54,10 @@ use Core\Service\Domain\Model\ServiceInheritance;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
-use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
-use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
-use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
+use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
+use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
+use Core\ServiceGroup\Domain\Model\ServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 
 final class AddService
 {
@@ -70,22 +67,20 @@ final class AddService
     private array $accessGroups;
 
     public function __construct(
-        private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
+        private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
+        private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly WriteServiceRepositoryInterface $writeServiceRepository,
-        private readonly ReadServiceSeverityRepositoryInterface $serviceSeverityRepository,
-        private readonly ReadPerformanceGraphRepositoryInterface $performanceGraphRepository,
-        private readonly ReadCommandRepositoryInterface $commandRepository,
-        private readonly ReadTimePeriodRepositoryInterface $timePeriodRepository,
-        private readonly ReadViewImgRepositoryInterface $imageRepository,
-        private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
         private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
         private readonly DataStorageEngineInterface $storageEngine,
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
+        private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
+        private readonly WriteServiceGroupRepositoryInterface $writeServiceGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly AddServiceValidation $validation,
         private readonly OptionService $optionService,
         private readonly ContactInterface $user,
         private readonly bool $isCloudPlatform,
@@ -113,6 +108,7 @@ final class AddService
 
             if (! $this->user->isAdmin()) {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $this->validation->accessGroups = $this->accessGroups;
             }
 
             $this->assertParameters($request);
@@ -129,14 +125,19 @@ final class AddService
             }
             if ($this->user->isAdmin()) {
                 $serviceCategories = $this->readServiceCategoryRepository->findByService($newServiceId);
+                $serviceGroups = $this->readServiceGroupRepository->findByService($newServiceId);
             } else {
                 $serviceCategories = $this->readServiceCategoryRepository->findByServiceAndAccessGroups(
                     $newServiceId,
                     $this->accessGroups
                 );
+                $serviceGroups = $this->readServiceGroupRepository->findByServiceAndAccessGroups(
+                    $newServiceId,
+                    $this->accessGroups
+                );
             }
 
-            $presenter->presentResponse($this->createResponse($service, $serviceCategories));
+            $presenter->presentResponse($this->createResponse($service, $serviceCategories, $serviceGroups));
         } catch (AssertionFailedException $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -151,102 +152,6 @@ final class AddService
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(ServiceException::errorWhileAdding($ex)));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-        }
-    }
-
-    /**
-     * @param int|null $serviceTemplateId
-     *
-     * @throws ServiceException
-     * @throws \Throwable
-     */
-    public function assertIsValidServiceTemplate(?int $serviceTemplateId): void
-    {
-        if ($serviceTemplateId !== null && ! $this->readServiceTemplateRepository->exists($serviceTemplateId)) {
-            $this->error('Service does not exist', ['service_template_id' => $serviceTemplateId]);
-
-            throw ServiceException::idDoesNotExist('service_template_id', $serviceTemplateId);
-        }
-    }
-
-    /**
-     * @param int|null $commandId
-     * @param int|null $serviceTemplateId
-     *
-     * @throws ServiceException
-     */
-    public function assertIsValidCommandForOnPremPlatform(?int $commandId, ?int $serviceTemplateId): void
-    {
-        if ($commandId === null && $serviceTemplateId === null) {
-            throw ServiceException::checkCommandCannotBeNull();
-        }
-        if ($commandId !== null && ! $this->commandRepository->existsByIdAndCommandType($commandId, CommandType::Check))
-        {
-            $this->error('The check command does not exist', ['check_command_id' => $commandId]);
-
-            throw ServiceException::idDoesNotExist('check_command_id', $commandId);
-        }
-    }
-
-    /**
-     * @param int|null $eventHandlerId
-     *
-     * @throws ServiceException
-     */
-    public function assertIsValidEventHandler(?int $eventHandlerId): void
-    {
-        if ($eventHandlerId !== null && ! $this->commandRepository->exists($eventHandlerId)) {
-            $this->error('Event handler command does not exist', ['event_handler_command_id' => $eventHandlerId]);
-
-            throw ServiceException::idDoesNotExist('event_handler_command_id', $eventHandlerId);
-        }
-    }
-
-    /**
-     * @param int|null $timePeriodId
-     *
-     * @throws ServiceException
-     * @throws \Throwable
-     */
-    public function assertIsValidTimePeriod(?int $timePeriodId): void
-    {
-        if ($timePeriodId !== null && ! $this->timePeriodRepository->exists($timePeriodId)) {
-            $this->error('Time period does not exist', ['check_timeperiod_id' => $timePeriodId]);
-
-            throw ServiceException::idDoesNotExist('check_timeperiod_id', $timePeriodId);
-        }
-    }
-
-    /**
-     * @param int|null $iconId
-     *
-     * @throws ServiceException
-     * @throws \Throwable
-     */
-    public function assertIsValidIcon(?int $iconId): void
-    {
-        if ($iconId !== null && ! $this->imageRepository->existsOne($iconId)) {
-            $this->error('Icon does not exist', ['icon_id' => $iconId]);
-
-            throw ServiceException::idDoesNotExist('icon_id', $iconId);
-        }
-    }
-
-    /**
-     * @param int|null $notificationTimePeriodId
-     *
-     * @throws ServiceException
-     * @throws \Throwable
-     */
-    public function assertIsValidNotificationTimePeriod(?int $notificationTimePeriodId): void
-    {
-        if ($notificationTimePeriodId !== null && ! $this->timePeriodRepository->exists($notificationTimePeriodId)) {
-            $this->error(
-                'Notification time period does not exist',
-                ['notification_timeperiod_id' => $notificationTimePeriodId]
-            );
-
-            throw ServiceException::idDoesNotExist('notification_timeperiod_id', $notificationTimePeriodId);
         }
     }
 
@@ -310,101 +215,6 @@ final class AddService
     }
 
     /**
-     * @param int|null $severityId
-     *
-     * @throws ServiceException
-     * @throws \Throwable
-     */
-    private function assertIsValidSeverity(?int $severityId): void
-    {
-        if ($severityId !== null && ! $this->serviceSeverityRepository->exists($severityId)) {
-            $this->error('Service severity does not exist', ['severity_id' => $severityId]);
-
-            throw ServiceException::idDoesNotExist('severity_id', $severityId);
-        }
-    }
-
-    /**
-     * @param int|null $graphTemplateId
-     *
-     * @throws ServiceException
-     * @throws \Throwable
-     */
-    private function assertIsValidPerformanceGraph(?int $graphTemplateId): void
-    {
-        if ($graphTemplateId !== null && ! $this->performanceGraphRepository->exists($graphTemplateId)) {
-            $this->error('Performance graph does not exist', ['graph_template_id' => $graphTemplateId]);
-
-            throw ServiceException::idDoesNotExist('graph_template_id', $graphTemplateId);
-        }
-    }
-
-    /**
-     * @param list<int> $hostIds
-     *
-     * @throws ServiceException
-     */
-    private function assertIsValidHostsForOnPremPlatform(array $hostIds): void
-    {
-        if ($hostIds !== []) {
-            $hostIds = array_unique($hostIds);
-            $hostTemplateIdsFound = $this->user->isAdmin()
-                ? $this->readHostRepository->findAllExistingIds($hostIds)
-                : $this->readHostRepository->findAllExistingIdsByAccessGroups($hostIds, $this->accessGroups);
-
-            if ([] !== ($diff = array_diff($hostIds, $hostTemplateIdsFound))) {
-                throw ServiceException::idsDoesNotExist('hosts', $diff);
-            }
-        }
-    }
-
-    /**
-     * A host is mandatory for the SaaS platform.
-     *
-     * @param int $hostId
-     *
-     * @throws ServiceException
-     */
-    private function assertIsValidHostForSaasPlatform(int $hostId): void
-    {
-        $hostTemplateIdsFound = $this->user->isAdmin()
-                ? $this->readHostRepository->findAllExistingIds([$hostId])
-                : $this->readHostRepository->findAllExistingIdsByAccessGroups([$hostId], $this->accessGroups);
-        if ([] === $hostTemplateIdsFound) {
-            throw ServiceException::idDoesNotExist('host', $hostId);
-        }
-    }
-
-    /**
-     * @param list<int> $serviceCategoriesIds
-     *
-     * @throws ServiceException
-     * @throws \Throwable
-     */
-    private function assertIsValidServiceCategories(array $serviceCategoriesIds): void
-    {
-        if (empty($serviceCategoriesIds)) {
-
-            return;
-        }
-
-        if ($this->user->isAdmin()) {
-            $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
-                $serviceCategoriesIds
-            );
-        } else {
-            $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIdsByAccessGroups(
-                $serviceCategoriesIds,
-                $this->accessGroups
-            );
-        }
-
-        if ([] !== ($idsNotFound = array_diff($serviceCategoriesIds, $serviceCategoriesIdsFound))) {
-            throw ServiceException::idsDoesNotExist('service_categories', $idsNotFound);
-        }
-    }
-
-    /**
      * @param int $serviceId
      * @param AddServiceRequest $request
      *
@@ -425,14 +235,45 @@ final class AddService
     }
 
     /**
+     * @param int $serviceId
+     * @param AddServiceRequest $request
+     *
+     * @throws \Throwable
+     */
+    private function linkServiceToServiceGroups(int $serviceId, AddServiceRequest $request): void
+    {
+        if (empty($request->serviceGroups)) {
+
+            return;
+        }
+
+        $this->info(
+            'Link existing service groups to service',
+            ['service_groups' => $request->serviceGroups]
+        );
+
+        $serviceGroupRelations = [];
+        foreach ($request->serviceGroups as $serviceGroupId) {
+            $serviceGroupRelations[] = new ServiceGroupRelation(
+                $serviceGroupId,
+                $serviceId,
+                $request->hostId
+            );
+        }
+
+        $this->writeServiceGroupRepository->link($serviceGroupRelations);
+    }
+
+    /**
      * @param Service $service
      * @param ServiceCategory[] $serviceCategories
+     * @param array<array{relation:ServiceGroupRelation,serviceGroup:ServiceGroup}> $serviceGroups
      *
      * @throws \Throwable
      *
      * @return AddServiceResponse
      */
-    private function createResponse(Service $service, array $serviceCategories): AddServiceResponse
+    private function createResponse(Service $service, array $serviceCategories, array $serviceGroups): AddServiceResponse
     {
         $macros = $this->readServiceMacroRepository->findByServiceIds($service->getId());
 
@@ -465,16 +306,7 @@ final class AddService
         $response->checkTimePeriodId = $service->getCheckTimePeriodId();
         $response->iconId = $service->getIconId();
         $response->severityId = $service->getSeverityId();
-        if ($this->isCloudPlatform) {
-            $hostIds = $service->getHostIds();
-            $hostId = array_shift($hostIds);
-            if ($hostId === null) {
-                throw new \Exception('blablabla');
-            }
-            $response->hostId = $hostId;
-        } else {
-            $response->hostIds = $service->getHostIds();
-        }
+        $response->hostId = $service->getHostId();
         $response->maxCheckAttempts = $service->getMaxCheckAttempts();
         $response->normalCheckInterval = $service->getNormalCheckInterval();
         $response->retryCheckInterval = $service->getRetryCheckInterval();
@@ -500,6 +332,14 @@ final class AddService
             $serviceCategories
         );
 
+        $response->groups = array_map(
+            fn(array $group) => [
+                'id' => $group['serviceGroup']->getId(),
+                'name' => $group['serviceGroup']->getName(),
+            ],
+            $serviceGroups,
+        );
+
         return $response;
     }
 
@@ -511,22 +351,23 @@ final class AddService
      */
     private function assertParameters(AddServiceRequest $request): void
     {
-        $this->assertIsValidSeverity($request->severityId);
-        $this->assertIsValidPerformanceGraph($request->graphTemplateId);
-        $this->assertIsValidServiceTemplate($request->serviceTemplateParentId);
-        $this->assertIsValidEventHandler($request->eventHandlerId);
-        $this->assertIsValidTimePeriod($request->checkTimePeriodId);
-        $this->assertIsValidNotificationTimePeriod($request->notificationTimePeriodId);
-        $this->assertIsValidIcon($request->iconId);
-        if ($this->isCloudPlatform) {
-            // No assertion on the check command as it will be inherited from the service template.
-            $this->assertIsValidHostForSaasPlatform($request->hostId);
-        } else {
-            $this->assertIsValidCommandForOnPremPlatform($request->commandId, $request->serviceTemplateParentId);
-            $this->assertIsValidHostsForOnPremPlatform($request->hostIds);
+        $this->validation->assertIsValidSeverity($request->severityId);
+        $this->validation->assertIsValidPerformanceGraph($request->graphTemplateId);
+        $this->validation->assertIsValidServiceTemplate($request->serviceTemplateParentId);
+        $this->validation->assertIsValidEventHandler($request->eventHandlerId);
+        $this->validation->assertIsValidTimePeriod($request->checkTimePeriodId);
+        $this->validation->assertIsValidNotificationTimePeriod($request->notificationTimePeriodId);
+        $this->validation->assertIsValidIcon($request->iconId);
+        $this->validation->assertIsValidHost($request->hostId);
+        $this->validation->assertIsValidServiceCategories($request->serviceCategories);
+        // No assertion on the check command for Saas platform as it will be inherited from the service template.
+        if (! $this->isCloudPlatform) {
+            $this->validation->assertIsValidCommandForOnPremPlatform($request->commandId, $request->serviceTemplateParentId);
         }
-        $this->assertServiceName($request); // Should be called after assertion on host IDs
-        $this->assertIsValidServiceCategories($request->serviceCategories);
+
+        // Should be called after assertion on host IDs
+        $this->validation->assertServiceName($request);
+        $this->validation->assertIsValidServiceGroups($request->serviceGroups, $request->hostId);
     }
 
     /**
@@ -543,13 +384,22 @@ final class AddService
         $newServiceTemplate = $this->createNewService($request);
         $this->storageEngine->startTransaction();
         try {
-            $newServiceTemplateId = $this->writeServiceRepository->add($newServiceTemplate);
-            $this->addMacros($newServiceTemplateId, $request);
-            $this->linkServiceToServiceCategories($newServiceTemplateId, $request);
+            $newServiceId = $this->writeServiceRepository->add($newServiceTemplate);
+            $this->addMacros($newServiceId, $request);
+            $this->linkServiceToServiceCategories($newServiceId, $request);
+            $this->linkServiceToServiceGroups($newServiceId, $request);
+
+            if (($monitoringServer = $this->readMonitoringServerRepository->findByHost($request->hostId)))
+            {
+                $this->writeMonitoringServerRepository->notifyConfigurationChange($monitoringServer->getId());
+            }
+
             $this->storageEngine->commitTransaction();
 
-            return $newServiceTemplateId;
+            return $newServiceId;
         } catch (\Throwable $ex) {
+            $this->error("Rollback of 'Add Service' transaction.");
+
             $this->storageEngine->rollbackTransaction();
 
             throw $ex;
@@ -590,33 +440,5 @@ final class AddService
         }
 
         return [$inheritedMacros, $commandMacros];
-    }
-
-    /**
-     * @param AddServiceRequest $request
-     *
-     * @throws \Throwable
-     */
-    private function assertServiceName(AddServiceRequest $request): void
-    {
-        $nameToCheck = new TrimmedString(Service::formatName($request->name));
-        if ($this->isCloudPlatform) {
-            $serviceNamesByHost = $this->readServiceRepository->findServiceNamesByHost($request->hostId);
-            if ($serviceNamesByHost === null) {
-                // Should not be called if this assertion is called after assertion on host IDs
-                throw ServiceException::idDoesNotExist('host', $request->hostId);
-            }
-
-            if ($serviceNamesByHost->contains($nameToCheck)) {
-                throw ServiceException::nameAlreadyExists((string) $nameToCheck, $request->hostId);
-            }
-        } else {
-            $serviceNamesByHosts = $this->readServiceRepository->findServiceNamesByHosts($request->hostIds);
-            foreach ($serviceNamesByHosts as $serviceNamesByHost) {
-                if ($serviceNamesByHost->contains($nameToCheck)) {
-                    throw ServiceException::nameAlreadyExists((string) $nameToCheck, $serviceNamesByHost->getHostId());
-                }
-            }
-        }
     }
 }

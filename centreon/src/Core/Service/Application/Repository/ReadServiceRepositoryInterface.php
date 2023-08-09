@@ -73,17 +73,6 @@ interface ReadServiceRepositoryInterface
      */
     public function findServiceIdsLinkedToHostId(int $hostId): array;
 
-    /*
-     * Indicates whether the service template name already exists.
-     *
-     * @param list<int> $hostIds
-     *
-     * @throws \Throwable
-     *
-     * @return ServiceNamesByHost[]
-     */
-    public function findServiceNamesByHosts(array $hostIds): array;
-
     /**
      * Indicates whether the service template name already exists.
      *

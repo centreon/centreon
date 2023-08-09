@@ -175,42 +175,23 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     public function findServiceNamesByHost(int $hostId): ?ServiceNamesByHost
     {
-        return $this->findServiceNamesByHosts([$hostId])[0] ?? null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findServiceNamesByHosts(array $hostIds): array
-    {
-        $subRequest = implode(',', array_map(fn ($hostId): int => (int) $hostId, $hostIds));
-        $request = $this->translateDbName(<<<SQL
-            SELECT hsr.host_host_id AS host_id,
-                   GROUP_CONCAT(service.service_description SEPARATOR 0xA) AS service_names
+        $request = $this->translateDbName(<<<'SQL'
+            SELECT service.service_description as service_name
             FROM `:db`.service
             INNER JOIN `:db`.host_service_relation hsr
                 ON hsr.service_service_id = service.service_id
-            WHERE hsr.host_host_id IN ({$subRequest})
+            WHERE hsr.host_host_id = :host_id
                 AND service.service_register = '1'
-            GROUP BY host_id
             SQL
         );
-        $statement = $this->db->query($request);
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
 
-        $serviceNames = [];
-        if ($statement) {
-            while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-                /** @var array{host_id: int|string, service_names: string} $result */
-                if (($names = preg_split("|\R|", $result['service_names'])) !== false) {
-                    $serviceNames[] = new ServiceNamesByHost(
-                        (int) $result['host_id'],
-                        $names
-                    );
-                }
-            }
-        }
+        /** @var string[] $results */
+        $results = $statement->fetchAll(\PDO::FETCH_COLUMN);
 
-        return $serviceNames;
+        return new ServiceNamesByHost($hostId, $results);
     }
 
     /**
@@ -430,7 +411,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
 
         $hostIds = $data['host_ids'] !== null
             ? array_map(
-                fn (mixed $hostTemplateId): int => (int) $hostTemplateId,
+                fn (mixed $hostId): int => (int) $hostId,
                 explode(',', $data['host_ids'])
             )
             : [];
@@ -438,7 +419,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         return new Service(
             (int) $data['service_id'],
             $data['service_description'],
-            $hostIds,
+            $hostIds[0],
             $extractCommandArgument($data['command_command_id_arg']),
             $extractCommandArgument($data['command_command_id_arg2']),
             $this->createNotificationType($data['service_notification_options']),

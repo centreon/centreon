@@ -5,11 +5,14 @@
     "additionalProperties": false,
     "required": [
         "name",
-        "hosts"
+        "host_id"
     ],
     "properties": {
         "name": {
             "type": "string"
+        },
+        "host_id": {
+            "type": "integer"
         },
         "comment": {
             "type": [
@@ -247,12 +250,6 @@
                 }
             }
         },
-        "hosts": {
-            "type": "array",
-            "items": {
-                "type": "integer"
-            }
-        },
         "macros": {
             "type": "array",
             "items": {
@@ -286,6 +283,12 @@
             }
         },
         "service_categories": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        },
+        "service_groups": {
             "type": "array",
             "items": {
                 "type": "integer"

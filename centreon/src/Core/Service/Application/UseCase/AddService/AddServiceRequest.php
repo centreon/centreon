@@ -27,9 +27,6 @@ final class AddServiceRequest
 {
     public string $name = '';
 
-    /** @var list<int> */
-    public array $hostIds = [];
-
     public int $hostId = 0; // Only one host for SaaS platform
 
     /** @var int|null */
@@ -43,6 +40,9 @@ final class AddServiceRequest
 
     /** @var list<int> */
     public array $serviceCategories = [];
+
+    /** @var list<int> */
+    public array $serviceGroups = [];
 
     public int|null $notificationTypes = null;
 

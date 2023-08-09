@@ -56,10 +56,14 @@ class AddServiceSaasPresenter extends AbstractPresenter implements AddServicePre
                         'note_url' => $response->noteUrl,
                         'action_url' => $response->actionUrl,
                         'severity_id' => $response->severityId,
-                        'service_categories' => array_map(fn($category): array => [
+                        'categories' => array_map(fn($category): array => [
                             'id' => $category['id'],
                             'name' => $category['name'],
                         ], $response->categories),
+                        'groups' => array_map(fn($group): array => [
+                            'id' => $group['id'],
+                            'name' => $group['name'],
+                        ], $response->groups),
                         'macros' => array_map(fn(MacroDto $macro): array => [
                             'name' => $macro->name,
                             'value' => $macro->value,

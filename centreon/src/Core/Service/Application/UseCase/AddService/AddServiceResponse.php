@@ -34,9 +34,6 @@ final class AddServiceResponse
 
     public int $hostId = 0;
 
-    /** @var list<int> */
-    public array $hostIds = [];
-
     public string|null $comment = null;
 
     public int|null $acknowledgementTimeout;
@@ -117,6 +114,9 @@ final class AddServiceResponse
 
     /** @var array<array{id:int,name:string}> */
     public array $categories = [];
+
+    /** @var array<array{id:int,name:string}> */
+    public array $groups = [];
 
     public string|null $geoCoords = null;
 }

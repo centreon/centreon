@@ -38,7 +38,6 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 /**
  * @phpstan-type _ServiceTemplate = array{
  *     name: string,
- *     hosts: list<int>,
  *     host_id: int,
  *     comment: string|null,
  *     service_template_id: int|null,
@@ -79,10 +78,11 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  *     is_locked: boolean|null,
  *     geo_coords: array{longitude: string, latitude: string}|null,
  *     macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>,
- *     service_categories: list<int>|null
+ *     service_categories: list<int>|null,
+ *     service_groups: list<int>|null
  * }
  */
-class AddServiceController extends AbstractController
+final class AddServiceController extends AbstractController
 {
     use LoggerTrait;
 
@@ -137,6 +137,7 @@ class AddServiceController extends AbstractController
         $defaultOptionValue = YesNoDefaultConverter::toInt(YesNoDefault::Default);
         $dto = new AddServiceRequest();
         $dto->name = $request['name'];
+        $dto->hostId = $request['host_id'];
         $dto->comment = $request['comment'] ?? null;
         $dto->serviceTemplateParentId = $request['service_template_id'];
         $dto->commandId = $request['check_command_id'];
@@ -174,6 +175,7 @@ class AddServiceController extends AbstractController
         $dto->severityId = $request['severity_id'];
         $dto->isActivated = $request['is_activated'] ?? true;
         $dto->serviceCategories = $request['service_categories'] ?? [];
+        $dto->serviceGroups = $request['service_groups'] ?? [];
 
         foreach ($request['macros'] as $macro) {
             $dto->macros[] = new MacroDto(
@@ -184,14 +186,8 @@ class AddServiceController extends AbstractController
             );
         }
 
-        if ($isCloudPlatform) {
-            $dto->hostId = $request['host_id'];
-        } else {
-            $dto->hostIds = $request['hosts'];
-
-            if ($request['geo_coords'] !== null) {
-                $dto->geoCoords = $request['geo_coords']['longitude'] . ',' . $request['geo_coords']['latitude'];
-            }
+        if (! $isCloudPlatform && $request['geo_coords'] !== null) {
+            $dto->geoCoords = $request['geo_coords']['longitude'] . ',' . $request['geo_coords']['latitude'];
         }
 
         return $dto;

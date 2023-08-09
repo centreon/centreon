@@ -56,6 +56,12 @@
                 "type": "integer"
             }
         },
+        "service_groups": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        },
         "macros": {
             "type": "array",
             "items": {

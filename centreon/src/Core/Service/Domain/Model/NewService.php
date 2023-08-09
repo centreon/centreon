@@ -41,8 +41,7 @@ class NewService
 
     private string $name;
 
-    /** @var list<int> */
-    private array $hostIds = [];
+    private int $hostId;
 
     private string $className;
 
@@ -125,20 +124,17 @@ class NewService
 
     /**
      * @param string $name
-     * @param list<int> $hostIds
+     * @param int $hostId
      * @param int|null $commandId
      *
      * @throws AssertionFailedException
      */
-    public function __construct(string $name, array $hostIds, ?int $commandId)
+    public function __construct(string $name, int $hostId, ?int $commandId)
     {
         $this->className = (new \ReflectionClass($this))->getShortName();
         $this->setName($name);
+        $this->setHostId($hostId);
         $this->setCommandId($commandId);
-
-        foreach ($hostIds as $hostId) {
-            $this->addHostId($hostId);
-        }
     }
 
     /**
@@ -877,23 +873,11 @@ class NewService
     }
 
     /**
-     * @param list<int> $hostIds
-     *
-     * @throws AssertionFailedException
+     * @return int
      */
-    public function setHostIds(array $hostIds): void
+    public function getHostId(): int
     {
-        foreach ($hostIds as $hostId) {
-            $this->addHostId($hostId);
-        }
-    }
-
-    /**
-     * @return list<int>
-     */
-    public function getHostIds(): array
-    {
-        return $this->hostIds;
+        return $this->hostId;
     }
 
     /**
@@ -901,10 +885,10 @@ class NewService
      *
      * @throws AssertionFailedException
      */
-    public function addHostId(int $hostId): void
+    public function setHostId(int $hostId): void
     {
         Assertion::positiveInt($hostId, $this->className . '::hostId');
-        $this->hostIds[] = $hostId;
+        $this->hostId = $hostId;
     }
 
     /**

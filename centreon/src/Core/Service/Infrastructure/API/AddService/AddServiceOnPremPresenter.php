@@ -45,6 +45,7 @@ class AddServiceOnPremPresenter extends AbstractPresenter implements AddServiceP
                     [
                         'id' => $response->id,
                         'name' => $response->name,
+                        'host_id' => $response->hostId,
                         'comment' => $response->comment,
                         'service_template_id' => $response->serviceTemplateId,
                         'check_command_id' => $response->commandId,
@@ -80,7 +81,6 @@ class AddServiceOnPremPresenter extends AbstractPresenter implements AddServiceP
                         'icon_id' => $response->iconId,
                         'icon_alternative' => $response->iconAlternativeText,
                         'severity_id' => $response->severityId,
-                        'hosts' => $response->hostIds,
                         'is_activated' => $response->isActivated,
                         'macros' => array_map(fn(MacroDto $macro): array => [
                             'name' => $macro->name,
@@ -92,6 +92,10 @@ class AddServiceOnPremPresenter extends AbstractPresenter implements AddServiceP
                             'id' => $category['id'],
                             'name' => $category['name'],
                         ], $response->categories),
+                        'groups' => array_map(fn($group): array => [
+                            'id' => $group['id'],
+                            'name' => $group['name'],
+                        ], $response->groups),
                     ]
                 )
             );

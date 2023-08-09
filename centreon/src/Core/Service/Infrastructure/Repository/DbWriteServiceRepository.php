@@ -305,16 +305,16 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
         }
         try {
             $statement->execute();
-            $newServiceTemplateId = (int) $this->db->lastInsertId();
-            $this->addExtensionService($newServiceTemplateId, $newService);
-            $this->linkSeverity($newServiceTemplateId, $newService->getSeverityId());
-            $this->linkHosts($newServiceTemplateId, $newService->getHostIds());
+            $newServiceId = (int) $this->db->lastInsertId();
+            $this->addExtensionService($newServiceId, $newService);
+            $this->linkSeverity($newServiceId, $newService->getSeverityId());
+            $this->linkHost($newServiceId, $newService->getHostId());
 
             if (! $isAlreadyInTransaction) {
                 $this->db->commit();
             }
 
-            return $newServiceTemplateId;
+            return $newServiceId;
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
 
@@ -367,14 +367,14 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
     }
 
     /**
-     * Link host templates to service template.
+     * Link host to service template.
      *
      * @param int $serviceId
-     * @param list<int> $hostIds
+     * @param int $hostId
      *
      * @throws \PDOException
      */
-    private function linkHosts(int $serviceId, array $hostIds): void
+    private function linkHost(int $serviceId, int $hostId): void
     {
         $request = $this->translateDbName(<<<'SQL'
             INSERT INTO `:db`.host_service_relation
@@ -390,10 +390,8 @@ class DbWriteServiceRepository extends AbstractRepositoryRDB implements WriteSer
         );
         $statement = $this->db->prepare($request);
         $statement->bindParam(':service_id', $serviceId, \PDO::PARAM_INT);
-        foreach ($hostIds as $hostTemplateId) {
-            $statement->bindParam(':host_id', $hostTemplateId, \PDO::PARAM_INT);
-            $statement->execute();
-        }
+        $statement->bindParam(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
     }
 
     /**

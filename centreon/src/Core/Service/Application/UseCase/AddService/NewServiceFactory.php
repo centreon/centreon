@@ -42,10 +42,7 @@ class NewServiceFactory
      */
     public static function create(int $inheritanceMode, AddServiceRequest $request, bool $isCloudPlatform): NewService
     {
-        $hostIds = $isCloudPlatform
-            ? [$request->hostId]
-            : $request->hostIds;
-        $newService = new NewService($request->name, $hostIds, $request->commandId);
+        $newService = new NewService($request->name, $request->hostId, $request->commandId);
         foreach ($request->commandArguments as $argument) {
             $newService->addCommandArgument($argument);
         }

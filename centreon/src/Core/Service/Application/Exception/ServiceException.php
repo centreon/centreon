@@ -40,7 +40,7 @@ class ServiceException extends \Exception
      */
     public static function addNotAllowed(): self
     {
-        return new self(_('You are not allowed to add a service template'));
+        return new self(_('You are not allowed to add a service'));
     }
 
     /**
@@ -68,7 +68,7 @@ class ServiceException extends \Exception
      */
     public static function errorWhileAdding(\Throwable $ex): self
     {
-        return new self(_('Error while adding the service template'), 0, $ex);
+        return new self(_('Error while adding the service'), 0, $ex);
     }
 
     /**
@@ -76,7 +76,7 @@ class ServiceException extends \Exception
      */
     public static function errorWhileRetrieving(): self
     {
-        return new self(_('Error while retrieving a service template'));
+        return new self(_('Error while retrieving a service'));
     }
 
     /**
@@ -103,7 +103,7 @@ class ServiceException extends \Exception
      *
      * @return self
      */
-    public static function idsDoesNotExist(string $propertyName, array $propertyValue): self
+    public static function idsDoNotExist(string $propertyName, array $propertyValue): self
     {
         return new self(
             sprintf(
@@ -116,17 +116,17 @@ class ServiceException extends \Exception
     }
 
     /**
-     * @param string $serviceTemplateName
+     * @param string $serviceName
      * @param int $hostId
      *
      * @return self
      */
-    public static function nameAlreadyExists(string $serviceTemplateName, int $hostId): self
+    public static function nameAlreadyExists(string $serviceName, int $hostId): self
     {
         return new self(
             sprintf(
-                _('The service template name \'%s\' already exists for host ID %d'),
-                $serviceTemplateName,
+                _('The service name \'%s\' already exists for host ID %d'),
+                $serviceName,
                 $hostId
             ),
             self::CODE_CONFLICT
