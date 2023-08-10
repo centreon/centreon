@@ -1717,22 +1717,30 @@ Feature:
             {
               "id": 1,
               "name": "rta",
-              "unit": "ms"
+              "unit": "ms",
+              "warning_threshold": 200,
+              "critical_threshold": 400
             },
             {
               "id": 2,
               "name": "pl",
-              "unit": "%"
+              "unit": "%",
+              "warning_threshold": 20,
+              "critical_threshold": 50
             },
             {
               "id": 3,
               "name": "rtmax",
-              "unit": "ms"
+              "unit": "ms",
+              "warning_threshold": null,
+              "critical_threshold": null
             },
             {
               "id": 4,
               "name": "rtmin",
-              "unit": "ms"
+              "unit": "ms",
+              "warning_threshold": null,
+              "critical_threshold": null
             }
           ]
         }
@@ -2115,22 +2123,30 @@ Feature:
             {
               "id": 1,
               "name": "rta",
-              "unit": "ms"
+              "unit": "ms",
+              "warning_threshold": 200,
+              "critical_threshold": 400
             },
             {
               "id": 2,
               "name": "pl",
-              "unit": "%"
+              "unit": "%",
+              "warning_threshold": 20,
+              "critical_threshold": 50
             },
             {
               "id": 3,
               "name": "rtmax",
-              "unit": "ms"
+              "unit": "ms",
+              "warning_threshold": null,
+              "critical_threshold": null
             },
             {
               "id": 4,
               "name": "rtmin",
-              "unit": "ms"
+              "unit": "ms",
+              "warning_threshold": null,
+              "critical_threshold": null
             }
           ]
         }

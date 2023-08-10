@@ -89,18 +89,18 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
             1,
             "Centreon-Server_Ping",
             [
-                new PerformanceMetric(1,'pl','%'),
-                new PerformanceMetric(2,'rta','ms'),
-                new PerformanceMetric(3,'rtmax','ms'),
-                new PerformanceMetric(4,'rtmin','ms'),
+                new PerformanceMetric(1,'pl','%', 400.3, null),
+                new PerformanceMetric(2,'rta','ms', 20, 50),
+                new PerformanceMetric(3,'rtmax','ms', null, null),
+                new PerformanceMetric(4,'rtmin','ms', null, null),
             ]
         ),
         new ResourceMetric(
             2,
             "Centreon-Server_Traffic",
             [
-                new PerformanceMetric(5,'traffic_in','M'),
-                new PerformanceMetric(6,'traffic_out','M'),
+                new PerformanceMetric(5,'traffic_in','M', null, null),
+                new PerformanceMetric(6,'traffic_out','M', null, null),
             ]
         )
     ];
@@ -129,22 +129,30 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
                 [
                     'id' => 1,
                     'name' => 'pl',
-                    'unit' => '%'
+                    'unit' => '%',
+                    'warning_threshold' => 400.3,
+                    'critical_threshold' => null,
                 ],
                 [
                     'id' => 2,
                     'name' => 'rta',
-                    'unit' => 'ms'
+                    'unit' => 'ms',
+                    'warning_threshold' => 20.0,
+                    'critical_threshold' => 50.0,
                 ],
                 [
                     'id' => 3,
                     'name' => 'rtmax',
-                    'unit' => 'ms'
+                    'unit' => 'ms',
+                    'warning_threshold' => null,
+                    'critical_threshold' => null,
                 ],
                 [
                     'id' => 4,
                     'name' => 'rtmin',
-                    'unit' => 'ms'
+                    'unit' => 'ms',
+                    'warning_threshold' => null,
+                    'critical_threshold' => null,
                 ],
             ]
         )
@@ -157,12 +165,16 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
                 [
                     'id' => 5,
                     'name' => 'traffic_in',
-                    'unit' => 'M'
+                    'unit' => 'M',
+                    'warning_threshold' => null,
+                    'critical_threshold' => null,
                 ],
                 [
                     'id' => 6,
                     'name' => 'traffic_out',
-                    'unit' => 'M'
+                    'unit' => 'M',
+                    'warning_threshold' => null,
+                    'critical_threshold' => null,
                 ],
             ]
         );
@@ -183,18 +195,18 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
             1,
             "Centreon-Server_Ping",
             [
-                new PerformanceMetric(1,'pl','%'),
-                new PerformanceMetric(2,'rta','ms'),
-                new PerformanceMetric(3,'rtmax','ms'),
-                new PerformanceMetric(4,'rtmin','ms'),
+                new PerformanceMetric(1,'pl','%', 400.3, null),
+                new PerformanceMetric(2,'rta','ms', 20, 50),
+                new PerformanceMetric(3,'rtmax','ms', null, null),
+                new PerformanceMetric(4,'rtmin','ms', null, null),
             ]
         ),
         new ResourceMetric(
             2,
             "Centreon-Server_Traffic",
             [
-                new PerformanceMetric(5,'traffic_in','M'),
-                new PerformanceMetric(6,'traffic_out','M'),
+                new PerformanceMetric(5,'traffic_in','M', null, null),
+                new PerformanceMetric(6,'traffic_out','M', null, null),
             ]
         )
     ];
@@ -223,22 +235,30 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
                 [
                     'id' => 1,
                     'name' => 'pl',
-                    'unit' => '%'
+                    'unit' => '%',
+                    'warning_threshold' => 400.3,
+                    'critical_threshold' => null,
                 ],
                 [
                     'id' => 2,
                     'name' => 'rta',
-                    'unit' => 'ms'
+                    'unit' => 'ms',
+                    'warning_threshold' => 20.0,
+                    'critical_threshold' => 50.0,
                 ],
                 [
                     'id' => 3,
                     'name' => 'rtmax',
-                    'unit' => 'ms'
+                    'unit' => 'ms',
+                    'warning_threshold' => null,
+                    'critical_threshold' => null,
                 ],
                 [
                     'id' => 4,
                     'name' => 'rtmin',
-                    'unit' => 'ms'
+                    'unit' => 'ms',
+                    'warning_threshold' => null,
+                    'critical_threshold' => null,
                 ],
             ]
         )
@@ -251,12 +271,16 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
                 [
                     'id' => 5,
                     'name' => 'traffic_in',
-                    'unit' => 'M'
+                    'unit' => 'M',
+                    'warning_threshold' => null,
+                    'critical_threshold' => null,
                 ],
                 [
                     'id' => 6,
                     'name' => 'traffic_out',
-                    'unit' => 'M'
+                    'unit' => 'M',
+                    'warning_threshold' => null,
+                    'critical_threshold' => null,
                 ],
             ]
         );
