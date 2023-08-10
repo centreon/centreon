@@ -97,7 +97,9 @@ jobs:
             fi
           fi
 
-          ls /tmp/results.json
+          echo "[DEBUG] - downloaded baseline file details"
+          ls -la /tmp/results.json
+          echo "[DEBUG] - downloaded baseline report details"
           grep -C 5 '"line": 146' /tmp/results.json
 
       - uses: actions/setup-java@v3
@@ -122,22 +124,18 @@ jobs:
           issue_details: '${{ needs.build.outputs.display_summary }}'
 
       - name: Save baseline files
-        # only baseline files not generated from a development branch are saved
-        if: success() && needs.build.outputs.development_stage != 'Development'
+        # Debug mode - do not merge
         run: |
-          BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
-          for BRANCH in "${BRANCHES[@]}"; do
-            if [[ "${{ github.ref_name }}" == "$BRANCH" ]]; then
-              mv *results.json /tmp
-              BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
-              aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
-              aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
-            fi
-          done
+          echo "[DEBUG] - analysis file details"
+          ls -la *.json
+          echo "[DEBUG] - analysis report details"
+          grep -C 8 '"line": 146' /tmp/results.json
 
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: "Veracode Pipeline-Scan Results"
+          echo "[DEBUG] - downloaded baseline generation details"
+          ls -la /tmp/results.json
+          echo "[DEBUG] - downloaded baseline report details"
+          grep -C 8 '"line": 146' /tmp/results.json
+
 
   policy-scan:
     needs: [build]
