@@ -76,7 +76,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  *     severity_id: int|null,
  *     is_activated: boolean|null,
  *     is_locked: boolean|null,
- *     geo_coords: array{longitude: string, latitude: string}|null,
+ *     geo_coords: string|null,
  *     macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>,
  *     service_categories: list<int>|null,
  *     service_groups: list<int>|null
@@ -173,6 +173,7 @@ final class AddServiceController extends AbstractController
         $dto->iconId = $request['icon_id'] ?? null;
         $dto->iconAlternativeText = $request['icon_alternative'] ?? null;
         $dto->severityId = $request['severity_id'];
+        $dto->geoCoords = $request['geo_coords'] ?? '';
         $dto->isActivated = $request['is_activated'] ?? true;
         $dto->serviceCategories = $request['service_categories'] ?? [];
         $dto->serviceGroups = $request['service_groups'] ?? [];
@@ -184,10 +185,6 @@ final class AddServiceController extends AbstractController
                 (bool) $macro['is_password'],
                 $macro['description']
             );
-        }
-
-        if (! $isCloudPlatform && $request['geo_coords'] !== null) {
-            $dto->geoCoords = $request['geo_coords']['longitude'] . ',' . $request['geo_coords']['latitude'];
         }
 
         return $dto;

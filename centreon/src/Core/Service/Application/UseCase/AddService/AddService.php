@@ -317,6 +317,7 @@ final class AddService
         $response->recoveryNotificationDelay = $service->getRecoveryNotificationDelay();
         $response->firstNotificationDelay = $service->getFirstNotificationDelay();
         $response->acknowledgementTimeout = $service->getAcknowledgementTimeout();
+        $response->geoCoords = $service->getGeoCoords()?->__toString();
         $response->macros = array_map(
             fn(Macro $macro): MacroDto => new MacroDto(
                 $macro->getName(),

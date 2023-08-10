@@ -27,6 +27,7 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Common\Domain\YesNoDefault;
+use Core\Domain\Common\GeoCoords;
 use Core\MonitoringServer\Model\MonitoringServer;
 
 class Service
@@ -84,6 +85,7 @@ class Service
      * @param int|null $recoveryNotificationDelay
      * @param int|null $firstNotificationDelay
      * @param int|null $acknowledgementTimeout
+     * @param GeoCoords|null $geoCoords
      *
      * @throws AssertionFailedException
      */
@@ -127,6 +129,7 @@ class Service
         private ?int $recoveryNotificationDelay = null,
         private ?int $firstNotificationDelay = null,
         private ?int $acknowledgementTimeout = null,
+        private ?GeoCoords $geoCoords = null,
     ) {
         $className = (new \ReflectionClass($this))->getShortName();
         Assertion::positiveInt($id, "{$className}::id");
@@ -532,5 +535,13 @@ class Service
     public function getHostId(): int
     {
         return $this->hostId;
+    }
+
+    /**
+     * @return GeoCoords|null
+     */
+    public function getGeoCoords(): ?GeoCoords
+    {
+        return $this->geoCoords;
     }
 }

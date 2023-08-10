@@ -66,6 +66,7 @@ Feature:
         "note_url": "note_url",
         "action_url": "action url",
         "severity_id": null,
+        "geo_coords": "12.34,23.5",
         "service_categories": [1, 2],
         "macros": [
           {
@@ -96,6 +97,7 @@ Feature:
         "note": "note",
         "note_url": "note_url",
         "action_url": "action url",
+        "geo_coords": "12.34,23.5",
         "severity_id": null,
         "categories": [
           {

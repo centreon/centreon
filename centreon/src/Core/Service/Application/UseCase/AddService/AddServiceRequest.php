@@ -113,5 +113,5 @@ final class AddServiceRequest
     /** @var MacroDto[] */
     public array $macros = [];
 
-    public string|null $geoCoords = null;
+    public string $geoCoords = '';
 }

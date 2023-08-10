@@ -80,6 +80,7 @@ class AddServiceOnPremPresenter extends AbstractPresenter implements AddServiceP
                         'action_url' => $response->actionUrl,
                         'icon_id' => $response->iconId,
                         'icon_alternative' => $response->iconAlternativeText,
+                        'geo_coords' => $response->geoCoords,
                         'severity_id' => $response->severityId,
                         'is_activated' => $response->isActivated,
                         'macros' => array_map(fn(MacroDto $macro): array => [

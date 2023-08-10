@@ -95,13 +95,10 @@ class NewServiceFactory
         $newService->setRecoveryNotificationDelay($request->recoveryNotificationDelay);
         $newService->setFirstNotificationDelay($request->firstNotificationDelay);
         $newService->setAcknowledgementTimeout($request->acknowledgementTimeout);
-
-        if ($request->geoCoords !== null) {
-            [$longitude, $latitude] = explode(',', $request->geoCoords);
-            $newService->setGeoCoords(
-                new GeoCoords($longitude, $latitude)
-            );
-        }
+        $newService->setGeoCoords($request->geoCoords === ''
+            ? null
+            : GeoCoords::fromString($request->geoCoords)
+        );
 
         return $newService;
     }

@@ -237,18 +237,9 @@
         },
         "geo_coords": {
             "type": [
-              "object",
-              "null"
-            ],
-            "required": ["longitude", "latitude"],
-            "properties": {
-                "longitude": {
-                    "type": "number"
-                },
-                "latitude": {
-                    "type": "number"
-                }
-            }
+                "string",
+                "null"
+            ]
         },
         "macros": {
             "type": "array",

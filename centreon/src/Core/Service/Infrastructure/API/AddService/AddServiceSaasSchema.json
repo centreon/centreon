@@ -50,6 +50,12 @@
                 "integer"
             ]
         },
+        "geo_coords": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
         "service_categories": {
             "type": "array",
             "items": {

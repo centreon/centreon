@@ -55,6 +55,7 @@ class AddServiceSaasPresenter extends AbstractPresenter implements AddServicePre
                         'note' => $response->note,
                         'note_url' => $response->noteUrl,
                         'action_url' => $response->actionUrl,
+                        'geo_coords' => $response->geoCoords,
                         'severity_id' => $response->severityId,
                         'categories' => array_map(fn($category): array => [
                             'id' => $category['id'],

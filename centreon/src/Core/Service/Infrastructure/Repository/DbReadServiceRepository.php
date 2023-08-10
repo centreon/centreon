@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Domain\Common\GeoCoords;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Domain\Model\NotificationType;
@@ -81,7 +82,8 @@ use Utility\SqlConcatenator;
  *     graph_id: int|null,
  *     severity_id: int|null,
  *     host_ids: string|null,
- *     service_categories_ids: string|null
+ *     service_categories_ids: string|null,
+ *     geo_coords: string|null
  * }
  */
 class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServiceRepositoryInterface
@@ -209,6 +211,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                        service.command_command_id_arg2,
                        service.timeperiod_tp_id,
                        service.timeperiod_tp_id2,
+                       service.geo_coords,
                        service_acknowledgement_timeout,
                        service_activate,
                        service_active_checks_enabled,
@@ -455,7 +458,11 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             $data['service_notification_interval'],
             $data['service_recovery_notification_delay'],
             $data['service_first_notification_delay'],
-            $data['service_acknowledgement_timeout']
+            $data['service_acknowledgement_timeout'],
+            match ($geoCoords = $data['geo_coords']) {
+                null, '' => null,
+                default => GeoCoords::fromString($geoCoords),
+            },
         );
     }
 

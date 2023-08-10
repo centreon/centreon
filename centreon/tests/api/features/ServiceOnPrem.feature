@@ -95,6 +95,7 @@ Feature:
         "icon_id": 1,
         "icon_alternative": "icon_alternative",
         "severity_id": null,
+        "geo_coords": "12.34,23.5",
         "is_activated": true,
         "service_categories": [1, 2],
         "macros": [
@@ -161,6 +162,7 @@ Feature:
         "action_url": "action url",
         "icon_id": 1,
         "icon_alternative": "icon_alternative",
+        "geo_coords": "12.34,23.5",
         "severity_id": null,
         "is_activated": true,
         "macros": [
