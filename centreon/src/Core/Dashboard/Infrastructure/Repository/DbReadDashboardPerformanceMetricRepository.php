@@ -219,7 +219,9 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 $metricsInformation[$record['service_id']]['metrics'][] = new PerformanceMetric(
                     $record['metric_id'],
                     $record['metric_name'],
-                    $record['unit_name']
+                    $record['unit_name'],
+                    $record['warn'],
+                    $record['crit']
                 );
             }
             foreach ($metricsInformation as $information) {
