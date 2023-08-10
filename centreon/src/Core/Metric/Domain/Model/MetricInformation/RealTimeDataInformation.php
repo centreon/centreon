@@ -24,12 +24,11 @@ declare(strict_types=1);
 namespace Core\Metric\Domain\Model\MetricInformation;
 
 use Centreon\Domain\Common\Assertion\Assertion;
+use Centreon\Domain\Common\Assertion\AssertionException;
 
 class RealTimeDataInformation
 {
     /**
-     * Undocumented function.
-     *
      * @param array<float|null> $values
      * @param array<array<string>> $labels
      * @param float|null $minimumValueLimit
