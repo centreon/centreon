@@ -59,7 +59,7 @@ class ServiceInheritance
     }
 
     /**
-     * Return an ordered line of inheritance for a service template.
+     * Return an ordered line of inheritance for a service.
      * (This is a recursive method).
      *
      * @param int $serviceId

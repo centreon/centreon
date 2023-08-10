@@ -96,7 +96,7 @@ final class AddService
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_WRITE)) {
                 $this->error(
-                    "User doesn't have sufficient rights to add a service template",
+                    "User doesn't have sufficient rights to add a service",
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->presentResponse(
@@ -114,7 +114,7 @@ final class AddService
             $this->assertParameters($request);
             $newServiceId = $this->createService($request);
 
-            $this->info('New service template created', ['service_template_id' => $newServiceId]);
+            $this->info('New service created', ['service_id' => $newServiceId]);
             $service = $this->readServiceRepository->findById($newServiceId);
             if (! $service) {
                 $presenter->presentResponse(

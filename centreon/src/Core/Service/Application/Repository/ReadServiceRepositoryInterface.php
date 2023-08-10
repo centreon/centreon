@@ -74,7 +74,7 @@ interface ReadServiceRepositoryInterface
     public function findServiceIdsLinkedToHostId(int $hostId): array;
 
     /**
-     * Indicates whether the service template name already exists.
+     * Indicates whether the service name already exists.
      *
      * @param int $hostId
      *
@@ -85,7 +85,7 @@ interface ReadServiceRepositoryInterface
     public function findServiceNamesByHost(int $hostId): ?ServiceNamesByHost;
 
     /**
-     * Find one service template.
+     * Find one service.
      *
      * @param int $serviceId
      *
@@ -96,7 +96,7 @@ interface ReadServiceRepositoryInterface
     public function findById(int $serviceId): ?Service;
 
     /**
-     * Retrieves all service inheritances from a service template.
+     * Retrieves all service inheritances from a service.
      *
      * @param int $serviceId
      *

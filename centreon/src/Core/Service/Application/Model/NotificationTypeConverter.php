@@ -67,7 +67,7 @@ class NotificationTypeConverter
      *
      * @return int
      */
-    private static function toBit(NotificationType $notificationType): int
+    public static function toBit(NotificationType $notificationType): int
     {
         return match ($notificationType) {
             NotificationType::Warning => self::WARNING_AS_BIT,

@@ -13,6 +13,10 @@ allOf:
         type: integer
         description: "ID of the host linked to this service."
         example: 1
+      geo_coords:
+        type: string
+        description: "Geographic coordinates of the service"
+        example: "48.10,12.5"
       comment:
         type: string
         description: "Service comment."

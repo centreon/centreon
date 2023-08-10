@@ -44,7 +44,7 @@ interface WriteServiceRepositoryInterface
     public function deleteByIds(int ...$serviceIds): void;
 
     /**
-     * Add a new service template.
+     * Add a new service.
      *
      * @param NewService $newService
      *
