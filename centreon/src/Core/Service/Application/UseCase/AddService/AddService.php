@@ -94,7 +94,7 @@ final class AddService
     public function __invoke(AddServiceRequest $request, AddServicePresenterInterface $presenter): void
     {
         try {
-            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE)) {
+            if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_WRITE)) {
                 $this->error(
                     "User doesn't have sufficient rights to add a service template",
                     ['user_id' => $this->user->getId()]

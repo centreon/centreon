@@ -130,7 +130,8 @@ Feature:
       """
       {
         "name": "service test",
-        "host_id": 15
+        "host_id": 15,
+        "service_template_id": <templateA>
       }
       """
     Then the response code should be 409
