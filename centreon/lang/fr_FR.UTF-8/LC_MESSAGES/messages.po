@@ -17975,3 +17975,7 @@ msgstr "Métriques non trouvées"
 
 msgid "An error occured while retrieving metrics data"
 msgstr "Une erreur est survenue lors de la récupération des données de métriques"
+
+
+msgid "Invalid metric format"
+msgstr "Format de métrique invalide"

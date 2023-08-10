@@ -31,7 +31,7 @@ use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetrics;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetricsResponse;
-use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\ResourceMetricDTO;
+use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\ResourceMetricDto;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
@@ -121,7 +121,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
         ->and($presenter->data->resourceMetrics)
         ->toBeArray()
         ->and($presenter->data->resourceMetrics[0])
-        ->toBeInstanceOf(ResourceMetricDTO::class)
+        ->toBeInstanceOf(ResourceMetricDto::class)
         ->and($presenter->data->resourceMetrics[0]->serviceId)->toBe(1)
         ->and($presenter->data->resourceMetrics[0]->resourceName)->toBe('Centreon-Server_Ping')
         ->and($presenter->data->resourceMetrics[0]->metrics)->toBe(
@@ -157,7 +157,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found', fun
             ]
         )
         ->and($presenter->data->resourceMetrics[1])
-        ->toBeInstanceOf(ResourceMetricDTO::class)
+        ->toBeInstanceOf(ResourceMetricDto::class)
         ->and($presenter->data->resourceMetrics[1]->serviceId)->toBe(2)
         ->and($presenter->data->resourceMetrics[1]->resourceName)->toBe('Centreon-Server_Traffic')
         ->and($presenter->data->resourceMetrics[1]->metrics)->toBe(
@@ -227,7 +227,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
         ->and($presenter->data->resourceMetrics)
         ->toBeArray()
         ->and($presenter->data->resourceMetrics[0])
-        ->toBeInstanceOf(ResourceMetricDTO::class)
+        ->toBeInstanceOf(ResourceMetricDto::class)
         ->and($presenter->data->resourceMetrics[0]->serviceId)->toBe(1)
         ->and($presenter->data->resourceMetrics[0]->resourceName)->toBe('Centreon-Server_Ping')
         ->and($presenter->data->resourceMetrics[0]->metrics)->toBe(
@@ -263,7 +263,7 @@ it('should present a FindPerformanceMetricsResponse when metrics are found as no
             ]
         )
         ->and($presenter->data->resourceMetrics[1])
-        ->toBeInstanceOf(ResourceMetricDTO::class)
+        ->toBeInstanceOf(ResourceMetricDto::class)
         ->and($presenter->data->resourceMetrics[1]->serviceId)->toBe(2)
         ->and($presenter->data->resourceMetrics[1]->resourceName)->toBe('Centreon-Server_Traffic')
         ->and($presenter->data->resourceMetrics[1]->metrics)->toBe(

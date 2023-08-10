@@ -34,4 +34,9 @@ class MetricException extends \Exception
     {
         return new self(_('Metrics not found'));
     }
+
+    public static function invalidMetricFormat(): self
+    {
+        return new self (_('Invalid metric format'));
+    }
 }

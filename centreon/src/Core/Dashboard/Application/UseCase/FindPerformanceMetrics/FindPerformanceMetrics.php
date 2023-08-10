@@ -104,10 +104,10 @@ final class FindPerformanceMetrics
         $response = new FindPerformanceMetricsResponse();
         $resourceMetricsResponse = [];
         foreach ($resourceMetrics as $resourceMetric) {
-            $resourceMetricDTO = new ResourceMetricDTO();
-            $resourceMetricDTO->serviceId = $resourceMetric->getServiceId();
-            $resourceMetricDTO->resourceName = $resourceMetric->getResourceName();
-            $resourceMetricDTO->metrics = array_map(
+            $resourceMetricDto = new ResourceMetricDto();
+            $resourceMetricDto->serviceId = $resourceMetric->getServiceId();
+            $resourceMetricDto->resourceName = $resourceMetric->getResourceName();
+            $resourceMetricDto->metrics = array_map(
                 fn (PerformanceMetric $metric) => [
                     'id' => $metric->getId(),
                     'name' => $metric->getName(),
@@ -117,7 +117,7 @@ final class FindPerformanceMetrics
                 ],
                 $resourceMetric->getMetrics()
             );
-            $resourceMetricsResponse[] = $resourceMetricDTO;
+            $resourceMetricsResponse[] = $resourceMetricDto;
         }
         $response->resourceMetrics = $resourceMetricsResponse;
 
