@@ -128,8 +128,10 @@ jobs:
         run: |
           echo "[DEBUG] - analysis file details"
           ls -la *.json
-          echo "[DEBUG] - analysis report details"
+          echo "[DEBUG] - analysis results.json details"
           grep -C 18 '"line": 146' /tmp/results.json
+          echo "[DEBUG] - analysis filtered-results.json details"
+          cat /tmp/filtered_results.json
 
           echo "[DEBUG] - downloaded baseline generation details"
           ls -la /tmp/results.json
