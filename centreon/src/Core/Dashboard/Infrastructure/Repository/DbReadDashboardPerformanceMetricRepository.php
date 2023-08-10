@@ -50,7 +50,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $request
         = <<<'SQL'
                 SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                m.metric_id, m.metric_name, m.unit_name, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id
+                m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id
                 FROM `:dbstg`.`metrics` AS m
                 INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
                 INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
@@ -117,7 +117,9 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 $metricsInformation[$record['service_id']]['metrics'][] = new PerformanceMetric(
                     $record['metric_id'],
                     $record['metric_name'],
-                    $record['unit_name']
+                    $record['unit_name'],
+                    $record['warn'],
+                    $record['crit']
                 );
             }
             foreach ($metricsInformation as $information) {
@@ -142,7 +144,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $request
         = <<<'SQL'
                 SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                m.metric_id, m.metric_name, m.unit_name, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id
+                m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id
                 FROM `:dbstg`.`metrics` AS m
                 INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
                 INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
