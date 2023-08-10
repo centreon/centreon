@@ -41,21 +41,6 @@ interface ReadHostRepositoryInterface
     public function existsByName(string $hostName): bool;
 
     /**
-     * @param list<int> $hostIds
-     *
-     * @return list<int>
-     */
-    public function findAllExistingIds(array $hostIds): array;
-
-    /**
-     * @param list<int> $hostIds
-     * @param AccessGroup[] $accessGroups
-     *
-     * @return list<int>
-     */
-    public function findAllExistingIdsByAccessGroups(array $hostIds, array $accessGroups): array;
-
-    /**
      * Find a host by its id.
      *
      * @param int $hostId

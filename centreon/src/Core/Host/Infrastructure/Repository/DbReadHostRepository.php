@@ -134,46 +134,6 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         return (bool) $statement->fetchColumn();
     }
 
-    public function findAllExistingIds(array $hostIds): array
-    {
-        if ($hostIds === []) {
-            return [];
-        }
-
-        $subRequest = implode(
-            ',',
-            array_map(
-                static fn(mixed $hostId): int => (int) $hostId,
-                $hostIds
-            )
-        );
-        $request = $this->translateDbName(
-            <<<SQL
-                SELECT host_id
-                FROM `:db`.host
-                WHERE host_id IN ({$subRequest})
-                    AND host_register = '1'
-                SQL
-        );
-        $statement = $this->db->prepare($request);
-        $statement->execute();
-
-        $hostIdsFound = [];
-        while (($hostId = $statement->fetchColumn()) !== false) {
-            $hostIdsFound[] = (int) $hostId;
-        }
-
-        return $hostIdsFound;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findAllExistingIdsByAccessGroups(array $hostIds,array $accessGroups) : array
-    {
-        return [];
-    }
-
     /**
      * @inheritDoc
      */
