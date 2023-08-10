@@ -56,3 +56,15 @@ export const useRefreshIntervalStyles = makeStyles()((theme) => ({
     width: theme.spacing(10)
   }
 }));
+
+export const useThresholdStyles = makeStyles()((theme) => ({
+  threshold: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(1)
+  },
+  thresholdField: {
+    width: theme.spacing(10)
+  }
+}));

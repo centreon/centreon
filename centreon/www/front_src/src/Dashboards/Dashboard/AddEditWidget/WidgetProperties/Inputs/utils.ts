@@ -85,6 +85,16 @@ const getYupValidatorType = ({
         FederatedWidgetOptionType.refreshInterval
       ),
       always(Yup.string())
+    ],
+    [
+      equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.threshold),
+      always(
+        Yup.object().shape({
+          critical: Yup.number().nullable(),
+          enabled: Yup.boolean(),
+          warning: Yup.number().nullable()
+        })
+      )
     ]
   ])(widgetOptionType);
 

@@ -20,18 +20,13 @@ import {
 } from '../../../../translatedLabels';
 import { refreshIntervalAtom } from '../../../../atoms';
 import { useRefreshIntervalStyles } from '../Inputs.styles';
-
-enum RefreshIntervalOptions {
-  custom = 'custom',
-  default = 'default',
-  manual = 'manual'
-}
+import { RadioOptions } from '../../../models';
 
 interface UseRefreshIntervalState {
   changeRefreshIntervalOption: (event: ChangeEvent<HTMLInputElement>) => void;
   options: Array<{
     label: string | ReactNode;
-    value: RefreshIntervalOptions;
+    value: RadioOptions;
   }>;
   value?: string;
 }
@@ -62,19 +57,10 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
     setFieldValue(`options.${propertyName}`, event.target.value);
 
     const newInterval = cond([
-      [
-        equals<RefreshIntervalOptions>(RefreshIntervalOptions.default),
-        always(defaultInterval)
-      ],
-      [
-        equals<RefreshIntervalOptions>(RefreshIntervalOptions.custom),
-        always(customInterval)
-      ],
-      [
-        equals<RefreshIntervalOptions>(RefreshIntervalOptions.manual),
-        always(null)
-      ]
-    ])(event.target.value as RefreshIntervalOptions);
+      [equals<RadioOptions>(RadioOptions.default), always(defaultInterval)],
+      [equals<RadioOptions>(RadioOptions.custom), always(customInterval)],
+      [equals<RadioOptions>(RadioOptions.manual), always(null)]
+    ])(event.target.value as RadioOptions);
 
     setFieldValue(`options.${refreshIntervalCountProperty}`, newInterval);
   };
@@ -91,7 +77,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
   const options = [
     {
       label: t(labelDashboardGlobalInterval),
-      value: RefreshIntervalOptions.default
+      value: RadioOptions.default
     },
     {
       label: (
@@ -100,7 +86,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
           <TextField
             className={classes.customIntervalField}
             dataTestId={labelInterval}
-            disabled={!equals(RefreshIntervalOptions.custom, value)}
+            disabled={!equals(RadioOptions.custom, value)}
             label={t(labelInterval)}
             size="compact"
             type="number"
@@ -110,11 +96,11 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
           <Typography>{pluralize(t(labelSecond), customInterval)}</Typography>
         </Box>
       ),
-      value: RefreshIntervalOptions.custom
+      value: RadioOptions.custom
     },
     {
       label: t(labelManualRefresh),
-      value: RefreshIntervalOptions.manual
+      value: RadioOptions.manual
     }
   ];
 
