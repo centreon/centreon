@@ -21,11 +21,11 @@ import {
   labelServiceName,
   labelTheLimiteOf2UnitsHasBeenReached,
   labelTooManyMetricsAddMoreFilterOnResources
-} from '../../../translatedLabels';
-import { WidgetPropertyProps } from '../../models';
+} from '../../../../translatedLabels';
+import { WidgetPropertyProps } from '../../../models';
+import { useResourceStyles } from '../Inputs.styles';
 
 import useMetrics from './useMetrics';
-import { useResourceStyles } from './Inputs.styles';
 
 import { MultiAutocompleteField, SelectField } from 'packages/ui/src';
 

@@ -51,3 +51,10 @@ export const labelShowDescription = 'Show description';
 export const labelOpenLinksInNewTab = 'Open links in new tab';
 export const labelOpenLinksInNewTabTooltip =
   'By turning off this option, all links included in the widget will be opened in the same tab when clicked.';
+export const labelRefreshInterval = 'Refresh interval';
+export const labelDashboardGlobalInterval =
+  'Dashboard global interval (by default)';
+export const labelCustomRefreshInterval = 'Custom refresh interval';
+export const labelSecond = 'second';
+export const labelManualRefresh = 'Manual refresh';
+export const labelInterval = 'Interval';

@@ -46,7 +46,10 @@ const getYupValidatorType = ({
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.textfield),
       always(Yup.string())
     ],
-    [equals(FederatedWidgetOptionType.richText), always(Yup.string())],
+    [
+      equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.richText),
+      always(Yup.string())
+    ],
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.resources),
       always(
@@ -76,6 +79,12 @@ const getYupValidatorType = ({
           )
           .min(1, t(labelPleaseSelectAMetric) as string)
       )
+    ],
+    [
+      equals<FederatedWidgetOptionType>(
+        FederatedWidgetOptionType.refreshInterval
+      ),
+      always(Yup.string())
     ]
   ])(widgetOptionType);
 

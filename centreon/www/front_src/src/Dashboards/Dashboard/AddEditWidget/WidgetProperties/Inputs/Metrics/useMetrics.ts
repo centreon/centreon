@@ -30,12 +30,11 @@ import {
   WidgetDataMetric,
   WidgetDataResource,
   WidgetResourceType
-} from '../../models';
-import { metricsEndpoint } from '../../api/endpoints';
-import { serviceMetricsDecoder } from '../../api/decoders';
-import { labelPleaseSelectAMetric } from '../../../translatedLabels';
-
-import { getDataProperty } from './utils';
+} from '../../../models';
+import { metricsEndpoint } from '../../../api/endpoints';
+import { serviceMetricsDecoder } from '../../../api/decoders';
+import { labelPleaseSelectAMetric } from '../../../../translatedLabels';
+import { getDataProperty } from '../utils';
 
 interface UseMetricsState {
   addMetric: () => void;

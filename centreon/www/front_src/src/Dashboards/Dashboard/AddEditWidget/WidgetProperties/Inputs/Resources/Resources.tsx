@@ -12,10 +12,10 @@ import {
   labelResourceType,
   labelResources,
   labelSelectAResource
-} from '../../../translatedLabels';
+} from '../../../../translatedLabels';
+import { useResourceStyles } from '../Inputs.styles';
 
 import useResources from './useResources';
-import { useResourceStyles } from './Inputs.styles';
 
 interface Props {
   propertyName: string;

@@ -5,17 +5,20 @@ import { T, always, cond, equals, isEmpty } from 'ramda';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
-import { Widget, WidgetDataResource, WidgetResourceType } from '../../models';
+import {
+  Widget,
+  WidgetDataResource,
+  WidgetResourceType
+} from '../../../models';
 import {
   labelHost,
   labelHostCategory,
   labelHostGroup,
   labelPleaseSelectAResource,
   labelService
-} from '../../../translatedLabels';
-import { baseEndpoint } from '../../../../../api/endpoint';
-
-import { getDataProperty } from './utils';
+} from '../../../../translatedLabels';
+import { baseEndpoint } from '../../../../../../api/endpoint';
+import { getDataProperty } from '../utils';
 
 interface UseResourcesState {
   addResource: () => void;

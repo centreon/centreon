@@ -10,6 +10,7 @@ import { widgetPropertiesAtom } from '../atoms';
 
 import {
   WidgetMetrics,
+  WidgetRefreshInterval,
   WidgetResources,
   WidgetRichTextEditor,
   WidgetTextField
@@ -34,7 +35,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.textfield]: WidgetTextField,
   [FederatedWidgetOptionType.resources]: WidgetResources,
   [FederatedWidgetOptionType.metrics]: WidgetMetrics,
-  [FederatedWidgetOptionType.richText]: WidgetRichTextEditor
+  [FederatedWidgetOptionType.richText]: WidgetRichTextEditor,
+  [FederatedWidgetOptionType.refreshInterval]: WidgetRefreshInterval
 };
 
 const DefaultComponent = (): JSX.Element => <div />;
