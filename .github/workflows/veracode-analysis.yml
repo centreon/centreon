@@ -129,12 +129,12 @@ jobs:
           echo "[DEBUG] - analysis file details"
           ls -la *.json
           echo "[DEBUG] - analysis report details"
-          grep -C 8 '"line": 146' /tmp/results.json
+          grep -C 18 '"line": 146' /tmp/results.json
 
           echo "[DEBUG] - downloaded baseline generation details"
           ls -la /tmp/results.json
           echo "[DEBUG] - downloaded baseline report details"
-          grep -C 8 '"line": 146' /tmp/results.json
+          grep -C 18 '"line": 146' /tmp/results.json
 
 
   policy-scan:
