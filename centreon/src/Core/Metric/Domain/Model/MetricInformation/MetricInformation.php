@@ -21,42 +21,35 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Domain\Model\Metric;
+namespace Core\Metric\Domain\Model\MetricInformation;
 
-use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
-
-class PerformanceMetricsData
+class MetricInformation
 {
-    /**
-     * @param int $base
-     * @param MetricInformation[] $metricsInformation
-     * @param \DateTimeImmutable[] $times
-     */
     public function __construct(
-        private readonly int $base,
-        private readonly array $metricsInformation,
-        private readonly array $times
+        private readonly GeneralInformation $generalInformation,
+        private readonly DataSource $dataSource,
+        private readonly ThresholdInformation $thresholdInformation,
+        private readonly RealTimeDataInformation $realTimeDataInformation
     ) {
     }
 
-    public function getBase(): int
+    public function getGeneralInformation(): GeneralInformation
     {
-        return $this->base;
+        return $this->generalInformation;
     }
 
-    /**
-     * @return MetricInformation[]
-     */
-    public function getMetricsInformation(): array
+    public function getDataSource(): DataSource
     {
-        return $this->metricsInformation;
+        return $this->dataSource;
     }
 
-    /**
-     * @return \DateTimeImmutable[]
-     */
-    public function getTimes(): array
+    public function getThresholdInformation(): ThresholdInformation
     {
-        return $this->times;
+        return $this->thresholdInformation;
+    }
+
+    public function getRealTimeDataInformation(): RealTimeDataInformation
+    {
+        return $this->realTimeDataInformation;
     }
 }
