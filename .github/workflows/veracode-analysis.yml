@@ -98,6 +98,7 @@ jobs:
           fi
 
           ls /tmp/results.json
+          grep -C 5 '"line": 146' /tmp/results.json
 
       - uses: actions/setup-java@v3
         with:
