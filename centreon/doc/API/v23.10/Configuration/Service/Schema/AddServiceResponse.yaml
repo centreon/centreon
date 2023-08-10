@@ -12,7 +12,7 @@ allOf:
       host_id:
         type: integer
         description: "ID of the host linked to this service."
-        example: [ 1, 2 ]
+        example: 1
       comment:
         type: string
         description: "Service comment."
