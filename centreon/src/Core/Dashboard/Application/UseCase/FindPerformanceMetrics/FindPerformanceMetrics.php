@@ -113,7 +113,7 @@ final class FindPerformanceMetrics
                     'name' => $metric->getName(),
                     'unit' => $metric->getUnit(),
                     'warning_threshold' => $metric->getWarningHighThreshold(),
-                    'critical_threshold' => $metric->getCriticalHighThreshold()
+                    'critical_threshold' => $metric->getCriticalHighThreshold(),
                 ],
                 $resourceMetric->getMetrics()
             );
