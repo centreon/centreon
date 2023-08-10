@@ -97,6 +97,8 @@ jobs:
             fi
           fi
 
+          ls /tmp/results.json
+
       - uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
