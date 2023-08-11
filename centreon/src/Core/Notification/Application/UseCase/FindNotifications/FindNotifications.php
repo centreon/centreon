@@ -149,9 +149,7 @@ final class FindNotifications
         $resourcesCount = [];
         foreach ($repositories as $repository) {
             $count = $repository->findResourcesCountByNotificationIdsAndAccessGroups($notificationsIds, $accessGroups);
-            $repositoryName = $repository::class;
-            \preg_match('/Db([a-zA-Z]+)ResourceRepository/', $repositoryName, $matches);
-            $resourcesCount[\mb_strtolower($matches[1])] = $count;
+            $resourcesCount[$repository->resourceType()] = $count;
         }
 
         return $resourcesCount;
@@ -173,9 +171,7 @@ final class FindNotifications
         $resourcesCount = [];
         foreach ($repositories as $repository) {
             $count = $repository->findResourcesCountByNotificationIds($notificationsIds);
-            $repositoryName = $repository::class;
-            \preg_match('/Db([a-zA-Z]+)ResourceRepository$/', $repositoryName, $matches);
-            $resourcesCount[\mb_strtolower($matches[1])] = $count;
+            $resourcesCount[$repository->resourceType()] = $count;
         }
 
         return $resourcesCount;
