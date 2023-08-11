@@ -7,11 +7,15 @@ import {
   RadioGroup,
   Typography
 } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import { Tooltip } from '@centreon/ui/components';
 
 import { WidgetPropertyProps } from '../../../models';
 import {
   labelShowThresholds,
-  labelThreshold
+  labelThreshold,
+  labelThresholdsAreAutomaticallyHidden
 } from '../../../../translatedLabels';
 import { WidgetSwitch } from '..';
 import { useThresholdStyles } from '../Inputs.styles';
@@ -32,6 +36,15 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
         <strong>{t(labelThreshold)}</strong>
       </Typography>
       <WidgetSwitch
+        endAdornment={
+          <Tooltip
+            followCursor={false}
+            label={t(labelThresholdsAreAutomaticallyHidden)}
+            position="top"
+          >
+            <InfoOutlinedIcon color="primary" />
+          </Tooltip>
+        }
         label={t(labelShowThresholds)}
         propertyName={`${propertyName}.enabled`}
       />

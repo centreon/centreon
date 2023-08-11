@@ -91,7 +91,7 @@ const useThreshold = ({
     [getDataProperty({ obj: values, propertyName: 'metrics' })]
   );
 
-  const isThresholdDisabled = pipe(
+  const isMaxSelectedUnitReached = pipe(
     pluck('metrics'),
     flatten,
     pluck('unit'),
@@ -192,12 +192,12 @@ const useThreshold = ({
     };
 
   useEffect(() => {
-    if (!isThresholdDisabled) {
+    if (!isMaxSelectedUnitReached) {
       return;
     }
 
-    setFieldValue(enabledProp, false);
-  }, [isThresholdDisabled]);
+    setFieldValue(`options.${enabledProp}`, false);
+  }, [isMaxSelectedUnitReached]);
 
   return {
     changeCustom,
