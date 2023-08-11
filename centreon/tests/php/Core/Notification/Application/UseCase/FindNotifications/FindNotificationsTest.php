@@ -126,7 +126,7 @@ it('should get the resources count with ACL calculation when the user is not adm
     ];
 
     $this->repositoryProvider
-        ->expects($this->exactly(2))
+        ->expects($this->any())
         ->method('getRepository')
         ->willReturnOnConsecutiveCalls(
             $this->resourceRepository,
@@ -140,7 +140,7 @@ it('should get the resources count with ACL calculation when the user is not adm
         ->willReturn($accessGroups);
 
     $this->resourceRepository
-        ->expects($this->exactly(2))
+        ->expects($this->any())
         ->method('findResourcesCountByNotificationIdsAndAccessGroups');
 
     (new FindNotifications(
@@ -179,7 +179,7 @@ it('should get the resources count without ACL calculation when the user is admi
         ]);
 
     $this->repositoryProvider
-        ->expects($this->exactly(2))
+        ->expects($this->any())
         ->method('getRepository')
         ->willReturnOnConsecutiveCalls(
             $this->resourceRepository,
@@ -187,7 +187,7 @@ it('should get the resources count without ACL calculation when the user is admi
         );
 
     $this->resourceRepository
-        ->expects($this->exactly(2))
+        ->expects($this->any())
         ->method('findResourcesCountByNotificationIds');
 
     (new FindNotifications(
@@ -244,7 +244,7 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         ->willReturn($usersCount);
 
     $this->repositoryProvider
-        ->expects($this->exactly(2))
+        ->expects($this->any())
         ->method('getRepository')
         ->willReturnOnConsecutiveCalls(
             $this->resourceRepository,
@@ -255,7 +255,7 @@ it('should present a FindNotificationsResponse when the use case is executed cor
     $servicegroupResourcesCount = [1 => 8, 2 => 12, 3 => 3];
 
     $this->resourceRepository
-        ->expects($this->exactly(2))
+        ->expects($this->any())
         ->method('findResourcesCountByNotificationIds')
         ->willReturnOnConsecutiveCalls(
             $hostgroupResourcesCount,

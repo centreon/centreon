@@ -27,13 +27,11 @@ class NotificationCounts
 {
     /**
      * @param array<int,int> $notificationsUsersCount
-     * @param array<int,int> $hostgroupResourcesCount
-     * @param array<int,int> $servicegroupResourcesCount
+     * @param array<string,array<int,int> $resourceCount
      */
     public function __construct(
         private readonly array $notificationsUsersCount,
-        private readonly array $hostgroupResourcesCount,
-        private readonly array $servicegroupResourcesCount,
+        private readonly array $resourcesCount,
     ) {
     }
 
@@ -42,13 +40,8 @@ class NotificationCounts
         return $this->notificationsUsersCount[$notificationId] ?? 0;
     }
 
-    public function getHostgroupResourcesCountByNotificationId(int $notificationId): int
+    public function getResourcesCount(): array
     {
-        return $this->hostgroupResourcesCount[$notificationId] ?? 0;
-    }
-
-    public function getServicegroupResourcesCountByNotificationId(int $notificationId): int
-    {
-        return $this->servicegroupResourcesCount[$notificationId] ?? 0;
+        return $this->resourcesCount;
     }
 }
