@@ -16625,3 +16625,39 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 
 # msgid "The limit of 2 units has been reached"
 # msgstr ""
+
+# msgid "Refresh interval"
+# msgstr ""
+
+# msgid "Dashboard global interval (by default)"
+# msgstr "Intervalle global du tableau de bord (par défaut)"  
+
+# msgid "Custom refresh interval"
+# msgstr ""
+
+# msgid "second"
+# msgstr ""
+
+# msgid "Manual refresh"
+# msgstr ""
+
+# msgid "Interval"
+# msgstr ""
+
+# msgid "Threshold"
+# msgstr ""
+
+# msgid "Show thresholds"
+# msgstr ""
+
+# msgid "Warning threshold"
+# msgstr ""
+
+# msgid "Critical threshold"
+# msgstr ""
+
+# msgid "Custom"
+# msgstr ""
+
+# msgid "Thresholds are automatically hidden if you select 2 metric units"
+# msgstr ""
