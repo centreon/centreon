@@ -16172,3 +16172,12 @@ msgstr ""
 
 # msgid "The limit of 2 units has been reached"
 # msgstr ""
+
+# msgid "Show description"
+# msgstr ""
+
+# msgid "Open links in new tab"
+# msgstr ""
+
+# msgid "By turning off this option, all links included in the widget will be opened in the same tab when clicked."
+# msgstr ""
