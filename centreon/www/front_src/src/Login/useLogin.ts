@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { FormikHelpers, FormikValues } from 'formik';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   filter,
@@ -21,6 +21,7 @@ import { PlatformInstallationStatus } from '../api/models';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
 import useUser from '../Main/useUser';
 import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInformationsAtom';
+import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 import routeMap from '../reactRoutes/routeMap';
 import useInitializeTranslation from '../Main/useInitializeTranslation';
 import centreonLogo from '../assets/logo-centreon-colors.svg';
@@ -46,7 +47,6 @@ import {
 } from './models';
 import usePostLogin from './usePostLogin';
 import useWallpaper from './useWallpaper';
-import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
 interface UseLoginState {
   loginPageCustomisation: LoginPageCustomisation;
@@ -88,7 +88,6 @@ export const router = {
 const useLogin = (): UseLoginState => {
   const { t, i18n } = useTranslation();
   const { sendLogin } = usePostLogin();
-  const platformVersions = useAtomValue(platformVersionsAtom);
 
   const { data: providers } = useFetchQuery<Array<ProviderConfiguration>>({
     decoder: providersConfigurationDecoder,
@@ -99,7 +98,7 @@ const useLogin = (): UseLoginState => {
       suspense: false
     }
   });
-
+  const [platformVersions] = useAtom(platformVersionsAtom);
   const { data: loginPageCustomisationData, isFetching } =
     useFetchQuery<LoginPageCustomisation>({
       decoder: loginPageCustomisationDecoder,
@@ -107,9 +106,11 @@ const useLogin = (): UseLoginState => {
       getQueryKey: () => ['loginPageCustomisation'],
       httpCodesBypassErrorSnackbar: [404],
       queryOptions: {
+        enabled:
+          !isNil(platformVersions) &&
+          !!platformVersions.modules[`centreon-it-edition-extensions`],
         retry: false,
-        suspense: false,
-        enabled: !isNil(platformVersions) && !!platformVersions.modules[`centreon-it-edition-extensions`]
+        suspense: false
       }
     });
 
@@ -198,22 +199,22 @@ const useLogin = (): UseLoginState => {
   const wallpaper = useWallpaper();
 
   const loginPageCustomisation = isFetching
-  ? defaultLoginPageCustomisation
-  : {
-      customText:
-        loginPageCustomisationData?.customText ||
-        defaultLoginPageCustomisation.customText,
-      iconSource: loginPageCustomisationData?.iconSource || defaultLoginPageCustomisation.iconSource,
-      imageSource: loginPageCustomisationData?.imageSource || wallpaper,
-      platformName:
-        loginPageCustomisationData?.platformName ||
-        defaultLoginPageCustomisation.platformName,
-      textPosition:
-        loginPageCustomisationData?.textPosition ||
-        defaultLoginPageCustomisation.textPosition
-    };
-
-    console.log(isFetching, loginPageCustomisation);
+    ? defaultLoginPageCustomisation
+    : {
+        customText:
+          loginPageCustomisationData?.customText ||
+          defaultLoginPageCustomisation.customText,
+        iconSource:
+          loginPageCustomisationData?.iconSource ||
+          defaultLoginPageCustomisation.iconSource,
+        imageSource: loginPageCustomisationData?.imageSource || wallpaper,
+        platformName:
+          loginPageCustomisationData?.platformName ||
+          defaultLoginPageCustomisation.platformName,
+        textPosition:
+          loginPageCustomisationData?.textPosition ||
+          defaultLoginPageCustomisation.textPosition
+      };
 
   useEffect(() => {
     if (isEmpty(forcedProviders)) {
