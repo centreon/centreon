@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Infrastructure\Api\UpdateVersions;
+namespace Core\Platform\Infrastructure\API\UpdateVersions;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsPresenterInterface;

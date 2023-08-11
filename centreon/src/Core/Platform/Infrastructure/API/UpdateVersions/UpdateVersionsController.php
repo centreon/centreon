@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Infrastructure\Api\UpdateVersions;
+namespace Core\Platform\Infrastructure\API\UpdateVersions;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Contact;
