@@ -40,4 +40,4 @@ Feature:
 
         And I send a GET request to '/api/latest/platform/features'
         Then the response code should be "200"
-        And the JSON node "feature_flags.fake_flag_for_platform_features" should not exist
+        And the JSON node "feature_flags.fake_flag_for_platform_features" should be equal to "false"

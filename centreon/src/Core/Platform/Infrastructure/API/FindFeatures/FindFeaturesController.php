@@ -46,7 +46,7 @@ final class FindFeaturesController extends AbstractController
         FindFeatures $useCase,
         FindFeaturesPresenterInterface $presenter,
     ): Response {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
+        // This endpoint is public.
 
         $useCase($presenter);
 
