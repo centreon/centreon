@@ -51,6 +51,8 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     hasReachedTheLimitOfUnits
   } = useMetrics(propertyName);
 
+  // console.log(hasNoResources(), hasTooManyMetrics, metricCount);
+
   const addButtonDisabled =
     hasNoResources() || hasTooManyMetrics || !metricCount;
 
