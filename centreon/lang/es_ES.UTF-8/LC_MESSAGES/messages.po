@@ -16177,7 +16177,7 @@ msgstr ""
 # msgstr ""
 
 # msgid "Dashboard global interval (by default)"
-# msgstr "Intervalle global du tableau de bord (par défaut)"  
+# msgstr ""  
 
 # msgid "Custom refresh interval"
 # msgstr ""
@@ -16207,4 +16207,13 @@ msgstr ""
 # msgstr ""
 
 # msgid "Thresholds are automatically hidden if you select 2 metric units"
+# msgstr ""
+
+# msgid "Show description"
+# msgstr ""
+
+# msgid "Open links in new tab"
+# msgstr ""
+
+# msgid "By turning off this option, all links included in the widget will be opened in the same tab when clicked."
 # msgstr ""

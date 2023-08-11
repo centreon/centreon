@@ -18041,3 +18041,12 @@ msgstr "Personnalisé"
 
 msgid "Thresholds are automatically hidden if you select 2 metric units"
 msgstr "Les seuils sont automatiquement masqués si vous sélectionnez 2 unités de métrique"
+
+msgid "Show description"
+msgstr "Afficher la description"
+
+msgid "Open links in new tab"
+msgstr "Ouvrir les liens dans un nouvel onglet"
+
+msgid "By turning off this option, all links included in the widget will be opened in the same tab when clicked."
+msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet lorsqu'ils sont cliqués."
