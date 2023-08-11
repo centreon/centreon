@@ -33,7 +33,7 @@ use Core\Platform\Application\UseCase\UpdateVersions\{
 };
 use Symfony\Component\HttpFoundation\Request;
 
-class UpdateVersionsController extends AbstractController
+final class UpdateVersionsController extends AbstractController
 {
     use LoggerTrait;
 
