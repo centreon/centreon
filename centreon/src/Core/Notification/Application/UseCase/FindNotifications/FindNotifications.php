@@ -36,7 +36,6 @@ use Core\Notification\Application\Repository\NotificationResourceRepositoryProvi
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationChannel;
-use Core\Notification\Domain\Model\NotificationResource;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class FindNotifications
@@ -158,7 +157,7 @@ final class FindNotifications
     /**
      * Get count of resources by listed notifications id.
      *
-     * @param NotificationResourceRepositoryInterface[] $repository
+     * @param NotificationResourceRepositoryInterface[] $repositories
      * @param non-empty-array<int> $notificationsIds
      *
      * @throws \Throwable $ex

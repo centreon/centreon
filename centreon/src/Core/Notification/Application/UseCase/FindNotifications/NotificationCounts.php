@@ -27,7 +27,7 @@ class NotificationCounts
 {
     /**
      * @param array<int,int> $notificationsUsersCount
-     * @param array<string,array<int,int> $resourceCount
+     * @param array<string,array<int,int> $resourcesCount
      */
     public function __construct(
         private readonly array $notificationsUsersCount,
