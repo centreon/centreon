@@ -25,8 +25,13 @@ namespace Core\Dashboard\Domain\Model\Metric;
 
 class PerformanceMetric
 {
-    public function __construct(private int $id, private string $name, private string $unit)
-    {
+    public function __construct(
+        private int $id,
+        private string $name,
+        private string $unit,
+        private ?float $warningHighThreshold,
+        private ?float $criticalHighThreshold
+    ) {
     }
 
     public function getId(): int
@@ -42,5 +47,15 @@ class PerformanceMetric
     public function getUnit(): string
     {
         return $this->unit;
+    }
+
+    public function getWarningHighThreshold(): ?float
+    {
+        return $this->warningHighThreshold;
+    }
+
+    public function getCriticalHighThreshold(): ?float
+    {
+        return $this->criticalHighThreshold;
     }
 }

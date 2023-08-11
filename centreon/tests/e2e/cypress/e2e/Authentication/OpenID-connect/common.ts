@@ -60,25 +60,6 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
   });
 };
 
-const getUserContactId = (userName: string): Cypress.Chainable => {
-  const query = `SELECT contact_id FROM contact WHERE contact_alias = '${userName}';`;
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
-
-  return cy
-    .exec(command, { failOnNonZeroExit: true, log: true })
-    .then(({ code, stdout, stderr }) => {
-      if (!stderr && code === 0) {
-        const idUser = parseInt(stdout.split('\n')[1], 10);
-
-        return cy.wrap(idUser || '0');
-      }
-
-      return cy.log(`Can't execute command on database.`);
-    });
-};
-
 const getAccessGroupId = (accessGroupName: string): Cypress.Chainable => {
   const query = `SELECT acl_group_id FROM acl_groups WHERE acl_group_name = '${accessGroupName}';`;
   const command = `docker exec -i ${Cypress.env(
@@ -102,6 +83,5 @@ export {
   removeContact,
   initializeOIDCUserAndGetLoginPage,
   configureOpenIDConnect,
-  getUserContactId,
   getAccessGroupId
 };

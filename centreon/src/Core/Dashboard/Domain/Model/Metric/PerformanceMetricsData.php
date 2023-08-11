@@ -23,16 +23,18 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Domain\Model\Metric;
 
+use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
+
 class PerformanceMetricsData
 {
     /**
      * @param int $base
-     * @param array<int<0, max>, mixed> $metricsData
-     * @param string[] $times
+     * @param MetricInformation[] $metricsInformation
+     * @param \DateTimeImmutable[] $times
      */
     public function __construct(
         private readonly int $base,
-        private readonly array $metricsData,
+        private readonly array $metricsInformation,
         private readonly array $times
     ) {
     }
@@ -43,15 +45,15 @@ class PerformanceMetricsData
     }
 
     /**
-     * @return array<string,mixed>
+     * @return MetricInformation[]
      */
-    public function getMetricsData(): array
+    public function getMetricsInformation(): array
     {
-        return $this->metricsData;
+        return $this->metricsInformation;
     }
 
     /**
-     * @return string[]
+     * @return \DateTimeImmutable[]
      */
     public function getTimes(): array
     {

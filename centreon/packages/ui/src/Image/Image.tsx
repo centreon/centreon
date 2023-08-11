@@ -22,6 +22,10 @@ interface Props {
 
 const useStyles = makeStyles<Pick<Props, 'width' | 'height' | 'variant'>>()(
   (_, { width, height, variant }) => ({
+    fallbackContainer: {
+      height: '100%',
+      width: '100%'
+    },
     imageContent: {
       height,
       objectFit: variant,
@@ -41,14 +45,20 @@ const ImageContent = ({
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ height, variant, width });
   const isImageLoaded = useLoadImage({ alt, imageSrc: imagePath });
+
   if (!isImageLoaded) {
-    return fallback;
+    return (
+      <div className={classes.fallbackContainer} data-testid={alt}>
+        {fallback}
+      </div>
+    );
   }
 
   return (
     <img
       alt={alt}
       className={cx(classes.imageContent, className)}
+      data-testid={alt}
       src={imagePath}
     />
   );

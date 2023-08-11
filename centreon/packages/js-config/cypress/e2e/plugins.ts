@@ -51,10 +51,13 @@ export default async (on, config): Promise<void> => {
 
   on('before:browser:launch', (browser = {}, launchOptions) => {
     if ((browser as { name }).name === 'chrome') {
+      // flags description : https://github.com/GoogleChrome/chrome-launcher/blob/main/docs/chrome-flags-for-tools.md
       launchOptions.args.push('--disable-gpu');
-      launchOptions.args = launchOptions.args.filter(
-        (element) => element !== '--disable-dev-shm-usage'
-      );
+      launchOptions.args.push('--auto-open-devtools-for-tabs');
+      launchOptions.args.push('--disable-extensions');
+      launchOptions.args.push('--hide-scrollbars');
+      launchOptions.args.push('--mute-audio');
+      launchOptions.args.push('--hide-scrollbars');
     }
 
     return launchOptions;

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindPerformanceMetrics;
 
-class ResourceMetricDTO
+class ResourceMetricDto
 {
     public int $serviceId = 0;
 
