@@ -118,7 +118,7 @@ const currentDate = dayjs();
 describe('License', () => {
   beforeEach(initialize);
 
-  it('does not display a warning message when the license will expire in more than 15 days', () => {
+  it('does not display any warning message when the license expires in more than 15 days from the current date', () => {
     mockRequest({ expirationDate: currentDate.add(20, 'day') });
 
     cy.waitForRequest('@getLicenseInformations');
@@ -127,7 +127,7 @@ describe('License', () => {
       labelLicenseWarning('centreon-autodiscovery-server', 20)
     ).should('not.exist');
   });
-  it('displays a warning message when the license will expire until less than 15 days', () => {
+  it('displays a warning message when the license expires within 15 days', () => {
     mockRequest({ expirationDate: currentDate.add(10.5, 'day') });
 
     cy.findByText(labelLicenseWarning('centreon-autodiscovery-server', 10));

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 
 import dayjs from 'dayjs';
 import { path, pipe, propEq, find, lt, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { useFetchQuery, useSnackbar } from '..';
 
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export const useLicenseExpirationWarning = ({ module }: Props): void => {
+  const { t } = useTranslation();
   const { showWarningMessage } = useSnackbar();
 
   const { fetchQuery } = useFetchQuery({
@@ -43,7 +45,7 @@ export const useLicenseExpirationWarning = ({ module }: Props): void => {
       );
 
       if (lt(daysUntilExpiration, 15)) {
-        showWarningMessage(labelLicenseWarning(module, daysUntilExpiration));
+        showWarningMessage(t(labelLicenseWarning(module, daysUntilExpiration)));
       }
     });
   }, []);

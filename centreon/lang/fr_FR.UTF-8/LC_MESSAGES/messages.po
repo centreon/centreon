@@ -17980,5 +17980,5 @@ msgstr "Une erreur est survenue lors de la récupération des données de métri
 msgid "Invalid metric format"
 msgstr "Format de métrique invalide"
 
-msgid "License {{module}} will expire in {{expirationDate}} days"
+msgid "The {{module}} license will expire in {{expirationDate}} days"
 msgstr "La license {{module}} expirera dans {{expirationDate}} jours"
