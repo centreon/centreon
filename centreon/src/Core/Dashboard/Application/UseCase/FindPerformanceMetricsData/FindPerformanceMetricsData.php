@@ -162,7 +162,7 @@ final class FindPerformanceMetricsData
     {
         $response = new FindPerformanceMetricsDataResponse();
         $response->base = $performanceMetricsData->getBase();
-        $response->metricsData = $performanceMetricsData->getMetricsData();
+        $response->metricsInformation = $performanceMetricsData->getMetricsInformation();
         $response->times = $performanceMetricsData->getTimes();
 
         return $response;

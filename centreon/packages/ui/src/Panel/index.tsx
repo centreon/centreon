@@ -226,7 +226,9 @@ const Panel = React.forwardRef(
               className={classes.contentContainer}
               ref={ref as React.RefObject<HTMLDivElement>}
             >
-              <div className={classes.content}>{selectedTab}</div>
+              <div className={classes.content} id="panel-content">
+                {selectedTab}
+              </div>
             </div>
           </div>
         </Paper>

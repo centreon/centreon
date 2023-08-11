@@ -28,7 +28,7 @@ use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetricsPresenterInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\FindPerformanceMetricsResponse;
-use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\ResourceMetricDTO;
+use Core\Dashboard\Application\UseCase\FindPerformanceMetrics\ResourceMetricDto;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 class FindPerformanceMetricsPresenter extends AbstractPresenter implements FindPerformanceMetricsPresenterInterface
@@ -44,7 +44,7 @@ class FindPerformanceMetricsPresenter extends AbstractPresenter implements FindP
             $this->setResponseStatus($response);
         } else {
             $this->present([
-                'result' => array_map(function (ResourceMetricDTO $resourceMetric){
+                'result' => array_map(function (ResourceMetricDto $resourceMetric){
                     return [
                         'id' => $resourceMetric->serviceId,
                         'name' => $resourceMetric->resourceName,
