@@ -116,7 +116,7 @@ const useThreshold = ({
     head
   )(metrics || []);
 
-  const isdefault = equals<RadioOptions | undefined>(RadioOptions.default);
+  const isDefault = equals<RadioOptions | undefined>(RadioOptions.default);
 
   const options = [
     {
@@ -132,7 +132,7 @@ const useThreshold = ({
               <Typography>{t(labelCustom)}</Typography>
               <WidgetTextField
                 className={classes.thresholdField}
-                disabled={!enabled || isdefault(warningType)}
+                disabled={!enabled || isDefault(warningType)}
                 label={t(labelThreshold)}
                 propertyName={`${propertyName}.customWarning`}
                 text={{ size: 'compact', type: 'number' }}
@@ -158,7 +158,7 @@ const useThreshold = ({
               <Typography>{t(labelCustom)}</Typography>
               <WidgetTextField
                 className={classes.thresholdField}
-                disabled={!enabled || isdefault(warningType)}
+                disabled={!enabled || isDefault(criticalType)}
                 label={t(labelThreshold)}
                 propertyName={`${propertyName}.customCritical`}
                 text={{ size: 'compact', type: 'number' }}

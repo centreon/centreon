@@ -65,6 +65,6 @@ export const useThresholdStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1)
   },
   thresholdField: {
-    width: theme.spacing(10)
+    width: theme.spacing(8)
   }
 }));
