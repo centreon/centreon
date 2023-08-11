@@ -123,6 +123,7 @@ final class FindPerformanceMetricsDataController extends AbstractController
             $parameterFromRequest['start'],
             $parameterFromRequest['end']
         );
+
         $requestDto->metricIds = $parameterFromRequest['metricIds'];
 
         return $requestDto;
