@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { FormikHelpers, FormikValues } from 'formik';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   filter,
@@ -46,6 +46,7 @@ import {
 } from './models';
 import usePostLogin from './usePostLogin';
 import useWallpaper from './useWallpaper';
+import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
 interface UseLoginState {
   loginPageCustomisation: LoginPageCustomisation;
@@ -74,7 +75,7 @@ const getActiveProviders = filter<ProviderConfiguration>(
 
 const defaultLoginPageCustomisation: LoginPageCustomisation = {
   customText: null,
-  iconSource: null,
+  iconSource: centreonLogo,
   imageSource: null,
   platformName: null,
   textPosition: null
@@ -86,8 +87,8 @@ export const router = {
 
 const useLogin = (): UseLoginState => {
   const { t, i18n } = useTranslation();
-
   const { sendLogin } = usePostLogin();
+  const platformVersions = useAtomValue(platformVersionsAtom);
 
   const { data: providers } = useFetchQuery<Array<ProviderConfiguration>>({
     decoder: providersConfigurationDecoder,
@@ -99,7 +100,7 @@ const useLogin = (): UseLoginState => {
     }
   });
 
-  const { data: loginPageCustomisationData, isLoading } =
+  const { data: loginPageCustomisationData, isFetching } =
     useFetchQuery<LoginPageCustomisation>({
       decoder: loginPageCustomisationDecoder,
       getEndpoint: () => loginPageCustomisationEndpoint,
@@ -107,14 +108,13 @@ const useLogin = (): UseLoginState => {
       httpCodesBypassErrorSnackbar: [404],
       queryOptions: {
         retry: false,
-        suspense: false
+        suspense: false,
+        enabled: !isNil(platformVersions) && !!platformVersions.modules[`centreon-it-edition-extensions`]
       }
     });
 
   const { getInternalTranslation, getExternalTranslation } =
     useInitializeTranslation();
-
-  const wallpaper = useWallpaper();
 
   const { showSuccessMessage, showWarningMessage, showErrorMessage } =
     useSnackbar();
@@ -195,21 +195,25 @@ const useLogin = (): UseLoginState => {
 
   const activeProviders = getActiveProviders(externalProviders || []);
 
-  const loginPageCustomisation: LoginPageCustomisation = isLoading
-    ? defaultLoginPageCustomisation
-    : {
-        customText:
-          loginPageCustomisationData?.customText ||
-          defaultLoginPageCustomisation.customText,
-        iconSource: loginPageCustomisationData?.iconSource || centreonLogo,
-        imageSource: loginPageCustomisationData?.imageSource || wallpaper,
-        platformName:
-          loginPageCustomisationData?.platformName ||
-          defaultLoginPageCustomisation.platformName,
-        textPosition:
-          loginPageCustomisationData?.textPosition ||
-          defaultLoginPageCustomisation.textPosition
-      };
+  const wallpaper = useWallpaper();
+
+  const loginPageCustomisation = isFetching
+  ? defaultLoginPageCustomisation
+  : {
+      customText:
+        loginPageCustomisationData?.customText ||
+        defaultLoginPageCustomisation.customText,
+      iconSource: loginPageCustomisationData?.iconSource || centreonLogo,
+      imageSource: loginPageCustomisationData?.imageSource || wallpaper,
+      platformName:
+        loginPageCustomisationData?.platformName ||
+        defaultLoginPageCustomisation.platformName,
+      textPosition:
+        loginPageCustomisationData?.textPosition ||
+        defaultLoginPageCustomisation.textPosition
+    };
+
+    console.log(isFetching, loginPageCustomisation);
 
   useEffect(() => {
     if (isEmpty(forcedProviders)) {

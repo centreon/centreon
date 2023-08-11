@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-import { useSetAtom } from 'jotai';
-import { equals, not, pathEq } from 'ramda';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isNil, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -25,6 +25,7 @@ import { aclEndpoint, parametersEndpoint } from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
+import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
 const keepAliveEndpoint =
   './api/internal.php?object=centreon_keepalive&action=keepAlive';
@@ -58,6 +59,8 @@ const useApp = (): UseAppState => {
   const { sendRequest: logoutRequest } = useRequest({
     request: postData
   });
+
+  const platformVersion = useAtomValue(platformVersionsAtom);
 
   const { sendRequest: getCustomPlatformRequest } =
     useRequest<CustomLoginPlatform>({
@@ -127,11 +130,16 @@ const useApp = (): UseAppState => {
           logout();
         }
       });
-    getCustomPlatformRequest({
-      endpoint: loginPageCustomisationEndpoint
-    })
-      .then(({ platform_name }) => setPlaformName(platform_name))
-      .catch(() => undefined);
+    if(
+      !isNil(platformVersion?.modules)
+      && !!platformVersion?.modules[`centreon-it-edition-extensions`]
+    ) {
+        getCustomPlatformRequest({
+          endpoint: loginPageCustomisationEndpoint
+        })
+          .then(({ platform_name }) => setPlaformName(platform_name))
+          .catch(() => undefined);
+    }
   }, []);
 
   const hasMinArgument = (): boolean => equals(searchParams.get('min'), '1');
