@@ -54,7 +54,7 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           <RadioGroup row value={value} onChange={changeType(type)}>
             {radioButtons.map(({ content, value: radioValue }) => (
               <FormControlLabel
-                control={<Radio />}
+                control={<Radio data-testid={radioValue} />}
                 key={radioValue}
                 label={content}
                 value={radioValue}

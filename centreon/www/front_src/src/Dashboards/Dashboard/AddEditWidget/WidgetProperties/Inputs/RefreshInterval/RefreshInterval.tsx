@@ -35,7 +35,7 @@ const RefreshInterval = ({
       >
         {options.map(({ value: optionValue, label }) => (
           <FormControlLabel
-            control={<Radio />}
+            control={<Radio data-testid={optionValue} />}
             key={optionValue}
             label={label}
             value={optionValue}
