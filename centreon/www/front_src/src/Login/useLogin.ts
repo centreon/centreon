@@ -203,7 +203,7 @@ const useLogin = (): UseLoginState => {
       customText:
         loginPageCustomisationData?.customText ||
         defaultLoginPageCustomisation.customText,
-      iconSource: loginPageCustomisationData?.iconSource || centreonLogo,
+      iconSource: loginPageCustomisationData?.iconSource || defaultLoginPageCustomisation.iconSource,
       imageSource: loginPageCustomisationData?.imageSource || wallpaper,
       platformName:
         loginPageCustomisationData?.platformName ||
