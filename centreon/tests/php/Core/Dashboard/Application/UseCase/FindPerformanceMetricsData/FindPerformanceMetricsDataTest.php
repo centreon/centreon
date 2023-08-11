@@ -35,6 +35,9 @@ use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanc
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataResponse;
 use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
+use Core\Metric\Domain\Model\MetricInformation\GeneralInformation;
+use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
+use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function () {
@@ -191,16 +194,41 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
                 ],
                 'metrics' => [
                     [
+                        'index_id' => 1,
                         'metric_id' => 1,
-                        'metric_name' => 'pl',
-                    ],
-                    [
-                        'metric_id' => 2,
-                        'metric_name' => 'rta',
-                    ],
-                    [
-                        'metric_id' => 3,
-                        'metric_name' => 'rtmin'
+                        'metric' => 'pl',
+                        'metric_legend' => 'pl',
+                        'unit' => '%',
+                        'hidden' => 0,
+                        'legend' => 'Packet-Loss',
+                        'virtual' => 0,
+                        'stack' => 0,
+                        'ds_order' => 1,
+                        'ds_data' => [
+                            'ds_min' => null,
+                            'ds_max' => null,
+                            'ds_minmax_int' => null,
+                            'ds_last' => null,
+                            'ds_average' => null,
+                            'ds_total' => null,
+                            'ds_tickness' => 1,
+                            'ds_color_line_mode' => '0',
+                            'ds_color_line' => '#f0f'
+                        ],
+                        'warn' => null,
+                        'warn_low' => null,
+                        'crit' => null,
+                        'crit_low' => null,
+                        'ds_color_area_warn' => '#f0f',
+                        'ds_color_area_crit' => '#f0f',
+                        'data' => [0,0,0,null],
+                        'prints' => [['Min:0.0'],['Average:0.0']],
+                        'min' => null,
+                        'max' => null,
+                        'last_value' => null,
+                        'minimum_value' => null,
+                        'maximum_value' => null,
+                        'average_value' => null
                     ]
                 ],
                 'times' => [
@@ -211,21 +239,14 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
         );
 
     $useCase($presenter, $request);
-
     $this->expect($presenter->data)->toBeInstanceOf(FindPerformanceMetricsDataResponse::class);
     $this->expect($presenter->data->base)->toBe(1000);
-    $this->expect($presenter->data->metricsData)->toBe([
-        [
-            'metric_id' => 1,
-            'metric_name' => 'pl',
-        ],
-        [
-            'metric_id' => 3,
-            'metric_name' => 'rtmin'
-        ]
-    ]);
-    $this->expect($presenter->data->times)->toBe([
-        "1690732800",
-        "1690790400"
-    ]);
+    $this->expect($presenter->data->metricsInformation[0])->toBeInstanceOf(MetricInformation::class)
+        ->and($presenter->data->metricsInformation[0]->getGeneralInformation())
+        ->toBeInstanceOf(GeneralInformation::class)
+        ->and($presenter->data->metricsInformation[0]->getThresholdInformation())
+        ->toBeInstanceOf(ThresholdInformation::class);
+    $this->expect($presenter->data->times)->toBeArray()
+        ->and($presenter->data->times[0])->toBeInstanceOf(\DateTimeImmutable::class)
+        ->and($presenter->data->times[1])->toBeInstanceOf(\DateTimeImmutable::class);
 });
