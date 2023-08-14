@@ -61,6 +61,9 @@ interface Props {
   resetEditorToInitialStateCondition?: () => boolean;
 }
 
+const defaultState =
+  '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
+
 const ContentEditable = ({
   minInputHeight,
   inputClassname,
@@ -91,8 +94,10 @@ const ContentEditable = ({
   );
 
   useLayoutEffect(() => {
-    if (editorState && !editable) {
-      const newEditorState = editor.parseEditorState(editorState);
+    if (!editable) {
+      const newEditorState = editor.parseEditorState(
+        editorState || defaultState
+      );
 
       editor.setEditorState(newEditorState);
     }
