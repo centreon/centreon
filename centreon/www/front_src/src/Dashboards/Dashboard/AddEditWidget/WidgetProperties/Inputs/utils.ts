@@ -42,6 +42,7 @@ const getYupValidatorType = ({
     Array<FederatedWidgetOptionType>,
     Yup.StringSchema | Yup.AnyObjectSchema | Yup.ArraySchema<Yup.AnySchema>
   >([
+    [equals(FederatedWidgetOptionType.textfield), always(Yup.string())],
     [equals(FederatedWidgetOptionType.richText), always(Yup.string())],
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.resources),
