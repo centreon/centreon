@@ -7,7 +7,7 @@ import { labelCancel } from '../../translatedLabels';
 import { labelAdd, labelEdit } from '../translatedLabels';
 
 interface Props {
-  closeModal: () => void;
+  closeModal: (shouldAskForClosingConfirmation: boolean) => void;
   isAddingWidget: boolean;
 }
 
@@ -25,7 +25,7 @@ const Actions = ({ isAddingWidget, closeModal }: Props): JSX.Element => {
         cancel: t(labelCancel),
         confirm: t(isAddingWidget ? labelAdd : labelEdit)
       }}
-      onCancel={closeModal}
+      onCancel={() => closeModal(dirty)}
       onConfirm={handleSubmit}
     />
   );

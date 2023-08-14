@@ -1,6 +1,8 @@
 import React, { ReactElement } from 'react';
 
-import { Dialog as MuiDialog } from '@mui/material';
+import { equals } from 'ramda';
+
+import { Dialog as MuiDialog, Slide } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 
 import { AriaLabelingAttributes } from '../../@types/aria-attributes';
@@ -10,13 +12,15 @@ import { useStyles } from './Modal.styles';
 
 export type ModalProps = {
   children: React.ReactNode;
+  fullscreenMarginLeft?: string;
+  fullscreenMarginTop?: string;
   hasCloseButton?: boolean;
   onClose?: (
     event: object,
     reason: 'escapeKeyDown' | 'backdropClick' | 'closeButton'
   ) => void;
   open: boolean;
-  size?: 'small' | 'medium' | 'large' | 'xlarge';
+  size?: 'small' | 'medium' | 'large' | 'xlarge' | 'fullscreen';
 } & AriaLabelingAttributes;
 
 /** *
@@ -28,12 +32,20 @@ const Modal = ({
   onClose,
   open,
   size = 'small',
+  fullscreenMarginLeft,
+  fullscreenMarginTop,
   ...attr
 }: ModalProps): ReactElement => {
-  const { classes } = useStyles();
+  const { classes } = useStyles({ fullscreenMarginLeft, fullscreenMarginTop });
+
+  const isFullscreen = equals(size, 'fullscreen');
 
   return (
     <MuiDialog
+      TransitionComponent={isFullscreen ? Slide : undefined}
+      TransitionProps={{
+        direction: 'up'
+      }}
       className={classes.modal}
       data-size={size}
       open={open}

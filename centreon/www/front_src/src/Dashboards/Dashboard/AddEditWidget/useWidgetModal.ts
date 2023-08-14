@@ -1,4 +1,4 @@
-import { startTransition } from 'react';
+import { Dispatch, SetStateAction, startTransition, useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
@@ -15,13 +15,19 @@ import { Widget } from './models';
 
 interface useWidgetModalState {
   addWidget: (values: Widget) => void;
+  askBeforeCloseModal: (shouldAskForClosingConfirmation: boolean) => void;
+  askingBeforeCloseModal: boolean;
   closeModal: () => void;
+  discardChanges: () => void;
   editWidget: (values: Widget) => void;
   openModal: (widget: Panel | null) => void;
+  setAskingBeforeCloseModal: Dispatch<SetStateAction<boolean>>;
   widgetFormInitialData: Widget | null;
 }
 
 const useWidgetModal = (): useWidgetModalState => {
+  const [askingBeforeCloseModal, setAskingBeforeCloseModal] = useState(false);
+
   const [widgetFormInitialData, setWidgetFormInitialDataAtom] = useAtom(
     widgetFormInitialDataAtom
   );
@@ -46,6 +52,7 @@ const useWidgetModal = (): useWidgetModalState => {
     startTransition(() => {
       setWidgetFormInitialDataAtom(null);
       setWidgetProperties(null);
+      setAskingBeforeCloseModal(false);
     });
 
   const addWidget = (values: Widget): void => {
@@ -90,11 +97,29 @@ const useWidgetModal = (): useWidgetModalState => {
     closeModal();
   };
 
+  const askBeforeCloseModal = (shouldAskForClosingConfirmation): void => {
+    if (!shouldAskForClosingConfirmation) {
+      closeModal();
+
+      return;
+    }
+    setAskingBeforeCloseModal(true);
+  };
+
+  const discardChanges = (): void => {
+    setAskingBeforeCloseModal(false);
+    closeModal();
+  };
+
   return {
     addWidget,
+    askBeforeCloseModal,
+    askingBeforeCloseModal,
     closeModal,
+    discardChanges,
     editWidget,
     openModal,
+    setAskingBeforeCloseModal,
     widgetFormInitialData
   };
 };
