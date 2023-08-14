@@ -2,14 +2,9 @@
 import { useTranslation } from 'react-i18next';
 import { isEmpty, isNil } from 'ramda';
 
-import {
-  Avatar,
-  CircularProgress,
-  FormHelperText,
-  Typography
-} from '@mui/material';
+import { CircularProgress, FormHelperText, Typography } from '@mui/material';
 
-import { ItemComposition } from '@centreon/ui/components';
+import { Avatar, ItemComposition } from '@centreon/ui/components';
 
 import {
   labelAddMetric,
@@ -22,6 +17,7 @@ import {
   labelYouHaveTooManyMetrics
 } from '../../../translatedLabels';
 import { WidgetPropertyProps } from '../../models';
+import { useAddWidgetStyles } from '../../addWidget.styles';
 
 import useMetrics from './useMetrics';
 import { useResourceStyles } from './Inputs.styles';
@@ -30,6 +26,7 @@ import { MultiAutocompleteField, SelectField } from 'packages/ui/src';
 
 const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
+  const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
   const {
@@ -61,7 +58,9 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   const header = (
     <div className={classes.resourcesHeader}>
-      <Avatar className={classes.resourcesHeaderAvatar}>2</Avatar>
+      <Avatar compact className={avatarClasses.widgetAvatar}>
+        3
+      </Avatar>
       <Typography>{title}</Typography>
       {hasReachedTheLimitOfUnits && (
         <Typography

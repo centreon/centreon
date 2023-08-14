@@ -1,9 +1,9 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
 
-import { Avatar, Divider, FormHelperText, Typography } from '@mui/material';
+import { Divider, FormHelperText, Typography } from '@mui/material';
 
-import { ItemComposition } from '@centreon/ui/components';
+import { Avatar, ItemComposition } from '@centreon/ui/components';
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 
 import {
@@ -13,6 +13,7 @@ import {
   labelResources,
   labelSelectAResource
 } from '../../../translatedLabels';
+import { useAddWidgetStyles } from '../../addWidget.styles';
 
 import useResources from './useResources';
 import { useResourceStyles } from './Inputs.styles';
@@ -23,6 +24,7 @@ interface Props {
 
 const Resources = ({ propertyName }: Props): JSX.Element => {
   const { classes } = useResourceStyles();
+  const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
   const {
@@ -40,7 +42,9 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
   return (
     <div className={classes.resourcesContainer}>
       <div className={classes.resourcesHeader}>
-        <Avatar className={classes.resourcesHeaderAvatar}>1</Avatar>
+        <Avatar compact className={avatarClasses.widgetAvatar}>
+          2
+        </Avatar>
         <Typography>{t(labelResources)}</Typography>
         <Divider className={classes.resourcesHeaderDivider} />
       </div>

@@ -8,3 +8,4 @@ export * from './Tooltip';
 export * from './Menu';
 export * from './List';
 export * from './ItemComposition';
+export * from './Avatar';

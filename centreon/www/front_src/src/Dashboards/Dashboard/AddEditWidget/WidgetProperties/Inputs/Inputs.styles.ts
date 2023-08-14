@@ -24,13 +24,6 @@ export const useResourceStyles = makeStyles()((theme) => ({
     gap: theme.spacing(1),
     width: '100%'
   },
-  resourcesHeaderAvatar: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-    fontSize: theme.typography.body1.fontSize,
-    height: theme.spacing(2),
-    width: theme.spacing(2)
-  },
   resourcesHeaderDivider: {
     flexGrow: 1
   }
