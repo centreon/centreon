@@ -6,7 +6,7 @@ import { Paper } from '@mui/material';
 
 import { Modal } from '@centreon/ui/components';
 
-import { labelSelectAWidgetType } from '../translatedLabels';
+import { labelAddWidget, labelEditWidget } from '../translatedLabels';
 
 import useWidgetForm from './useWidgetModal';
 import { useAddWidgetStyles } from './addWidget.styles';
@@ -60,7 +60,9 @@ const AddWidgetModal = (): JSX.Element | null => {
           size="fullscreen"
           onClose={() => askBeforeCloseModal(dirty)}
         >
-          <Modal.Header>{t(labelSelectAWidgetType)}</Modal.Header>
+          <Modal.Header>
+            {t(isAddingWidget ? labelAddWidget : labelEditWidget)}
+          </Modal.Header>
           <>
             <Modal.Body>
               <div className={classes.container}>
@@ -76,10 +78,7 @@ const AddWidgetModal = (): JSX.Element | null => {
                 <WidgetData />
               </div>
             </Modal.Body>
-            <Actions
-              closeModal={askBeforeCloseModal}
-              isAddingWidget={isAddingWidget}
-            />
+            <Actions closeModal={askBeforeCloseModal} />
             <UnsavedChanges
               closeDialog={() => setAskingBeforeCloseModal(false)}
               discard={discardChanges}

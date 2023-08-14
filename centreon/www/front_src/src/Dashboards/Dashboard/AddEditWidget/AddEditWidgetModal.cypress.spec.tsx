@@ -29,7 +29,7 @@ import {
   labelSelectAResource,
   labelSelectAWidgetType,
   labelServiceName,
-  labelTheLimiteOf2UnitsHasBeenReached,
+  labelYouCanSelectUpToTwoMetricUnits,
   labelWidgetLibrary
 } from '../translatedLabels';
 import { labelCancel } from '../../translatedLabels';
@@ -360,7 +360,7 @@ describe('AddEditWidgetModal', () => {
         cy.contains('rtmax (ms)').click();
 
         cy.contains('Metrics (1 Metric)').should('be.visible');
-        cy.contains(labelTheLimiteOf2UnitsHasBeenReached).should('be.visible');
+        cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('be.visible');
 
         cy.findAllByLabelText(labelAdd).eq(2).should('be.enabled');
 

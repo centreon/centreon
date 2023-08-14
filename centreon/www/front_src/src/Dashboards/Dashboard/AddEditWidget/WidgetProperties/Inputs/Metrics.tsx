@@ -1,7 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
 import { isEmpty, isNil } from 'ramda';
-import pluralize from 'pluralize';
 
 import {
   Avatar,
@@ -13,14 +12,14 @@ import {
 import { ItemComposition } from '@centreon/ui/components';
 
 import {
-  labelAdd,
+  labelAddMetric,
+  labelAvailable,
   labelDelete,
-  labelMetric,
   labelMetrics,
   labelPleaseSelectAResource,
   labelServiceName,
-  labelTheLimiteOf2UnitsHasBeenReached,
-  labelTooManyMetricsAddMoreFilterOnResources
+  labelYouCanSelectUpToTwoMetricUnits,
+  labelYouHaveTooManyMetrics
 } from '../../../translatedLabels';
 import { WidgetPropertyProps } from '../../models';
 
@@ -57,10 +56,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const canDisplayMetricsSelection = !hasNoResources() && !hasTooManyMetrics;
 
   const title = metricCount
-    ? `${t(labelMetrics)} (${metricCount} ${pluralize(
-        labelMetric,
-        metricCount
-      )})`
+    ? `${t(labelMetrics)} (${metricCount} ${labelAvailable})`
     : t(labelMetrics);
 
   const header = (
@@ -74,7 +70,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           variant="body2"
         >
           {' '}
-          {t(labelTheLimiteOf2UnitsHasBeenReached)}
+          {t(labelYouCanSelectUpToTwoMetricUnits)}
         </Typography>
       )}
       {isLoadingMetrics && <CircularProgress size={16} />}
@@ -87,15 +83,10 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       {hasNoResources() && (
         <Typography>{t(labelPleaseSelectAResource)}</Typography>
       )}
-      {hasTooManyMetrics && (
-        <Typography>
-          {t(labelTooManyMetricsAddMoreFilterOnResources)}
-        </Typography>
-      )}
       {canDisplayMetricsSelection && (
         <ItemComposition
           addbuttonDisabled={addButtonDisabled}
-          labelAdd={t(labelAdd)}
+          labelAdd={t(labelAddMetric)}
           onAddItem={addMetric}
         >
           {value.map((service, index) => (
@@ -132,6 +123,11 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             </ItemComposition.Item>
           ))}
         </ItemComposition>
+      )}
+      {hasTooManyMetrics && (
+        <Typography sx={{ color: 'text.disabled' }}>
+          {t(labelYouHaveTooManyMetrics)}
+        </Typography>
       )}
       {error && <FormHelperText error>{t(error)}</FormHelperText>}
     </div>

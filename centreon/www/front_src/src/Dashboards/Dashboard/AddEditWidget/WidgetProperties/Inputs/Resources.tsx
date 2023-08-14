@@ -7,7 +7,7 @@ import { ItemComposition } from '@centreon/ui/components';
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 
 import {
-  labelAdd,
+  labelAddResource,
   labelDelete,
   labelResourceType,
   labelResources,
@@ -44,7 +44,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         <Typography>{t(labelResources)}</Typography>
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
-      <ItemComposition labelAdd={t(labelAdd)} onAddItem={addResource}>
+      <ItemComposition labelAdd={t(labelAddResource)} onAddItem={addResource}>
         {value.map((resource, index) => (
           <ItemComposition.Item
             className={classes.resourceCompositionItem}
