@@ -8,6 +8,7 @@ Feature: Vault Configuration API
 
   Scenario: Create a new vault configuration as an admin user
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And the endpoints are described in Centreon Web API documentation
     When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
@@ -24,6 +25,7 @@ Feature: Vault Configuration API
 
   Scenario: Create a new vault configuration as an admin user for vault provider that not exists
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And the endpoints are described in Centreon Web API documentation
     When I send a POST request to '/api/latest/administration/vaults/2/configurations' with body:
     """
@@ -45,6 +47,7 @@ Feature: Vault Configuration API
       CONTACT;setparam;kev;reach_api;1
     """
     And I am logged in with "kev"/"Centreon@2022"
+    And a feature flag "vault" of bitmask 2
 
     When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
@@ -73,6 +76,7 @@ Feature: Vault Configuration API
       CONTACT;setparam;kev;reach_api;0
     """
     And I am logged in with "kev"/"Centreon@2022"
+    And a feature flag "vault" of bitmask 2
 
     When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
@@ -89,6 +93,7 @@ Feature: Vault Configuration API
 
   Scenario: Create a new vault configuration as an admin user while the same vault configuration already exists
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -116,6 +121,7 @@ Feature: Vault Configuration API
 
   Scenario: Create a new vault configuration as an admin user with invalid parameter
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -131,6 +137,7 @@ Feature: Vault Configuration API
 
   Scenario: Update an existing vault configuration as an admin user
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -156,6 +163,7 @@ Feature: Vault Configuration API
 
   Scenario: Update a vault configuration that does not exist as an admin user
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     When I send a PUT request to '/api/latest/administration/vaults/1/configurations/1' with body:
     """
       {
@@ -169,6 +177,7 @@ Feature: Vault Configuration API
 
   Scenario: Update vault configuration as an admin user by setting address, port and root_path to be the same as in another existing one
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -205,6 +214,7 @@ Feature: Vault Configuration API
 
   Scenario: Delete vault configuration as an admin user
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -222,6 +232,7 @@ Feature: Vault Configuration API
 
   Scenario: Delete vault configuration as a non-admin user
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -245,6 +256,7 @@ Feature: Vault Configuration API
 
   Scenario: Delete vault configuration as an admin user while vault provider id does not exist
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -262,6 +274,7 @@ Feature: Vault Configuration API
 
   Scenario: Delete vault configuration as an admin user while vault configuration id does not exist
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -279,6 +292,7 @@ Feature: Vault Configuration API
 
   Scenario: List vault configurations by vault provider as an admin user
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -318,6 +332,7 @@ Feature: Vault Configuration API
 
   Scenario: List vault configurations by vault provider as a non-admin user
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -341,6 +356,7 @@ Feature: Vault Configuration API
 
   Scenario: List vault configurations by vault provider as an admin user while vault provider id does not exist
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -358,6 +374,7 @@ Feature: Vault Configuration API
 
   Scenario: List vault configurations by id as an admin user
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -388,6 +405,7 @@ Feature: Vault Configuration API
 
   Scenario: List vault configurations by id as a non-admin user
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -411,6 +429,7 @@ Feature: Vault Configuration API
 
   Scenario: List vault configurations by id as an admin user while vault provider id does not exist
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
@@ -428,6 +447,7 @@ Feature: Vault Configuration API
 
   Scenario: List vault configurations by id as an admin user while vault configuration id does not exist
     Given I am logged in
+    And a feature flag "vault" of bitmask 2
     And I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
     """
       {
