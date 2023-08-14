@@ -131,7 +131,7 @@ const RichTextEditor = ({
   onBlur,
   contentClassName,
   displayMacrosButton = false,
-  disabled = false,
+  disabled,
   openLinkInNewTab = true
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
