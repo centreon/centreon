@@ -443,10 +443,10 @@ describe('Login page without module it edition extensions installed', () => {
     setupBeforeEach();
   });
 
-  cy.waitForRequest('@getProvidersConfiguration');
-
   it('displays the login page when the IT edition extensions module is not installed', () => {
     mountComponentAndStubs();
+
+    cy.waitForRequest('@getProvidersConfiguration');
 
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
