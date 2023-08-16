@@ -195,6 +195,10 @@ const setupBeforeEach = (): void => {
 };
 
 describe('Login Page', () => {
+  beforeEach(() => {
+    setupBeforeEach();
+  });
+
   it('displays the login page', () => {
     mountComponentAndStubs();
 
@@ -434,6 +438,10 @@ describe('Custom login page with data', () => {
 });
 
 describe('Login page without module it edition extensions installed', () => {
+  beforeEach(() => {
+    setupBeforeEach();
+  });
+
   it('displays the login page when the IT edition extensions module is not installed', () => {
     mountComponentAndStubs();
 
