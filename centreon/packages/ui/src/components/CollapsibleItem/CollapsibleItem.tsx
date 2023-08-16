@@ -35,8 +35,8 @@ export const CollapsibleItem = ({
         }}
         expandIcon={<ExpandMoreIcon color="primary" />}
       >
-        <Typography color="primary">
-          <strong>{title}</strong>
+        <Typography color="primary" variant="h6">
+          {title}
         </Typography>
       </AccordionSummary>
       <AccordionDetails className={classes.accordionDetails}>
