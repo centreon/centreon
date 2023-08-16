@@ -130,7 +130,7 @@ const useApp = (): UseAppState => {
         }
       });
     if (
-      !! path(['modules', 'centreon-it-edition-extensions'], platformVersion)
+      path(['modules', 'centreon-it-edition-extensions'], platformVersion)
     ) {
       getCustomPlatformRequest({
         endpoint: loginPageCustomisationEndpoint
