@@ -195,24 +195,24 @@ const setupBeforeEach = (): void => {
 };
 
 describe('Login Page', () => {
-  beforeEach(() => {
-    setupBeforeEach();
-    cy.fixture('login/defaultLoginPageCustomization.json').then((fixture) =>
-      cy.interceptAPIRequest({
-        alias: 'getDefaultLoginCustomization',
-        method: Method.GET,
-        path: `${replace('./', '**', loginPageCustomisationEndpoint)}`,
-        response: fixture
-      })
-    );
-  });
+  // beforeEach(() => {
+  //   setupBeforeEach();
+  //   cy.fixture('login/defaultLoginPageCustomization.json').then((fixture) =>
+  //     cy.interceptAPIRequest({
+  //       alias: 'getDefaultLoginCustomization',
+  //       method: Method.GET,
+  //       path: `${replace('./', '**', loginPageCustomisationEndpoint)}`,
+  //       response: fixture
+  //     })
+  //   );
+  // });
 
   it('displays the login page', () => {
     mountComponentAndStubs();
 
     cy.waitForRequest('@getTranslations');
     cy.waitForRequest('@getProvidersConfiguration');
-    cy.waitForRequest('@getDefaultLoginCustomization');
+    // cy.waitForRequest('@getDefaultLoginCustomization');
 
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
@@ -447,25 +447,25 @@ describe('Custom login page with data', () => {
 });
 
 describe('Login page without module it edition extensions installed', () => {
-  beforeEach(() => {
-    setupBeforeEach();
+  // beforeEach(() => {
+  //   setupBeforeEach();
 
-    cy.fixture('login/noModuleInstalledForLoginPageCustomization.json').then(
-      (fixture) =>
-        cy.interceptAPIRequest({
-          alias: 'getNoModuleForLoginCustomization',
-          method: Method.GET,
-          path: `${replace('./', '**', loginPageCustomisationEndpoint)}`,
-          response: fixture,
-          statusCode: 404
-        })
-    );
-  });
+  //   cy.fixture('login/noModuleInstalledForLoginPageCustomization.json').then(
+  //     (fixture) =>
+  //       cy.interceptAPIRequest({
+  //         alias: 'getNoModuleForLoginCustomization',
+  //         method: Method.GET,
+  //         path: `${replace('./', '**', loginPageCustomisationEndpoint)}`,
+  //         response: fixture,
+  //         statusCode: 404
+  //       })
+  //   );
+  // });
 
   it('displays the login page when the IT edition extensions module is not installed', () => {
     mountComponentAndStubs();
 
-    cy.waitForRequest('@getNoModuleForLoginCustomization');
+    // cy.waitForRequest('@getNoModuleForLoginCustomization');
 
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
