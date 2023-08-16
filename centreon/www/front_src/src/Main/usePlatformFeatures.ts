@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 
 import { getData, useRequest } from '@centreon/ui';
 
@@ -20,7 +20,7 @@ const usePlatformFeatures = (): UsePlatformFeaturesState => {
     request: getData
   });
 
-  const [, setPlatformFeatures] = useAtom(platformFeaturesAtom);
+  const setPlatformFeatures = useSetAtom(platformFeaturesAtom);
 
   const getPlatformFeatures = useCallback((): void => {
     sendPlatformFeatures({ endpoint: platformFeaturesEndpoint }).then(
