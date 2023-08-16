@@ -462,3 +462,38 @@ Feature: Vault Configuration API
 
     When I send a GET request to '/api/latest/administration/vaults/1/configurations/2'
     Then the response code should be "404"
+
+  Scenario: Use vault configuration API when the feature flag is not activated
+    Given I am logged in
+    And a feature flag "vault" of bitmask 0
+    When I send a POST request to '/api/latest/administration/vaults/1/configurations' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8200,
+        "root_path": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+    Then the response code should be "404"
+
+    When I send a GET request to '/api/latest/administration/vaults/1/configurations'
+    Then the response code should be "404"
+
+    When I send a DELETE request to '/api/latest/administration/vaults/1/configurations/1'
+    Then the response code should be "404"
+
+    When I send a PUT request to '/api/latest/administration/vaults/1/configurations/1' with body:
+    """
+      {
+        "name": "myVaultConfiguration",
+        "address": "127.0.0.1",
+        "port": 8201,
+        "root_path": "myStorageFolder",
+        "role_id": "myRoleId",
+        "secret_id": "mySecretId"
+      }
+    """
+    Then the response code should be "404"
