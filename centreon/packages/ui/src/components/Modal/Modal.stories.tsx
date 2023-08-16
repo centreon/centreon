@@ -112,8 +112,12 @@ export const AsPassive: Story = {
 
 export const fullscreenWithCustomMargins: Story = {
   args: {
-    fullscreenMarginLeft: '40px',
-    fullscreenMarginTop: '90px',
+    fullscreenMargins: {
+      bottom: 20,
+      left: 40,
+      right: 10,
+      top: 90
+    },
     hasCloseButton: true,
     open: true,
     size: 'fullscreen'

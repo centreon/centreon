@@ -1,8 +1,10 @@
 import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles<{
-  fullscreenMarginLeft?: string;
-  fullscreenMarginTop?: string;
+  bottom?: number;
+  left?: number;
+  right?: number;
+  top?: number;
 }>()((theme, props) => ({
   modal: {
     '& .MuiDialog-paper': {
@@ -21,11 +23,14 @@ const useStyles = makeStyles<{
       justifyContent: 'flex-end'
     },
     '&[data-size="fullscreen"] .MuiDialog-paper': {
-      borderRadius: 0,
-      height: `calc(100vh - ${props?.fullscreenMarginTop || '0px'})`,
+      bottom: props?.bottom ?? 0,
+      left: props?.left ?? 0,
       margin: 0,
+      maxHeight: 'unset',
       maxWidth: 'unset',
-      width: `calc(100vw - ${props?.fullscreenMarginLeft || '0px'})`
+      position: 'absolute',
+      right: props?.right ?? 0,
+      top: props?.top ?? 0
     },
     '&[data-size="large"] .MuiDialog-paper': {
       maxWidth: '640px',

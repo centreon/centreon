@@ -12,8 +12,12 @@ import { useStyles } from './Modal.styles';
 
 export type ModalProps = {
   children: React.ReactNode;
-  fullscreenMarginLeft?: string;
-  fullscreenMarginTop?: string;
+  fullscreenMargins?: {
+    bottom?: number;
+    left?: number;
+    right?: number;
+    top?: number;
+  };
   hasCloseButton?: boolean;
   onClose?: (
     event: object,
@@ -32,11 +36,15 @@ const Modal = ({
   onClose,
   open,
   size = 'small',
-  fullscreenMarginLeft,
-  fullscreenMarginTop,
+  fullscreenMargins = {
+    bottom: 0,
+    left: 0,
+    right: 0,
+    top: 0
+  },
   ...attr
 }: ModalProps): ReactElement => {
-  const { classes } = useStyles({ fullscreenMarginLeft, fullscreenMarginTop });
+  const { classes } = useStyles(fullscreenMargins);
 
   const isFullscreen = equals(size, 'fullscreen');
 

@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
 
-import { Avatar as MUIAvatar } from '@mui/material';
+import { AvatarProps, Avatar as MUIAvatar } from '@mui/material';
 
 import { useAvatarStyles } from './Avatar.styles';
 
-interface Props {
+interface Props extends AvatarProps {
   children: ReactNode;
   className?: string;
   compact?: boolean;
@@ -13,12 +13,14 @@ interface Props {
 const Avatar = ({
   compact = false,
   children,
-  className
+  className,
+  ...attr
 }: Props): JSX.Element => {
   const { classes, cx } = useAvatarStyles();
 
   return (
     <MUIAvatar
+      {...attr}
       className={cx(classes.avatar, className)}
       data-compact={`${compact}`}
     >
