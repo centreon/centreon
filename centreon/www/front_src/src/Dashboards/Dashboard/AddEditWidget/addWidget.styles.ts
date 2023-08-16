@@ -33,9 +33,6 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
   widgetPropertiesContent: {
     backgroundColor: theme.palette.background.default,
     borderRadius: theme.shape.borderRadius,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(2),
     height: '100%',
     padding: theme.spacing(1)
   }

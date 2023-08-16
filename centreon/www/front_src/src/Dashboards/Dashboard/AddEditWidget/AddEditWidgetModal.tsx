@@ -55,8 +55,10 @@ const AddWidgetModal = (): JSX.Element | null => {
       {({ dirty }) => (
         <Modal
           open
-          fullscreenMarginLeft="48px"
-          fullscreenMarginTop="90px"
+          fullscreenMargins={{
+            left: 48,
+            top: 90
+          }}
           size="fullscreen"
           onClose={() => askBeforeCloseModal(dirty)}
         >

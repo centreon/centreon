@@ -56,3 +56,4 @@ export const labelYourWidgetHasBeenModified =
   'Your widget has been modified successfully!';
 export const labelYourWidgetHasBeenCreated =
   'Your widget has been created successfully!';
+export const labelValueSettings = 'Value settings';
