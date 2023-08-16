@@ -21,11 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Infrastructure\Api\UpdateVersions;
+namespace Tests\Core\Platform\Application\UseCase\FindFeatures;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsPresenterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Platform\Application\UseCase\FindFeatures\FindFeaturesPresenterInterface;
+use Core\Platform\Application\UseCase\FindFeatures\FindFeaturesResponse;
+use Core\Infrastructure\Common\API\DefaultPresenter;
 
-class UpdateVersionsPresenter extends AbstractPresenter implements UpdateVersionsPresenterInterface
+class FindFeaturesPresenterStub implements FindFeaturesPresenterInterface
 {
+    public FindFeaturesResponse|ResponseStatusInterface $data;
+
+    public function presentResponse(FindFeaturesResponse|ResponseStatusInterface $data): void
+    {
+        $this->data = $data;
+    }
 }

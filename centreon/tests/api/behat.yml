@@ -102,6 +102,14 @@ default:
       paths: [ "%paths.base%/features/PlatformUpdate.feature" ]
       contexts:
         - Centreon\Test\Api\Context\PlatformUpdateContext
+    platform_versions:
+      paths: [ "%paths.base%/features/PlatformVersions.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\CloudPlatformContext
+    platform_features:
+      paths: [ "%paths.base%/features/PlatformFeatures.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\CloudPlatformContext
     host_groups:
       paths: [ "%paths.base%/features/HostGroup.feature" ]
       contexts:

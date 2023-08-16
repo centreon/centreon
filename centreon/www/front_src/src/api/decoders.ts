@@ -43,3 +43,37 @@ export const platformInstallationStatusDecoder =
       isInstalled: 'is_installed'
     }
   );
+
+const versionDecoder = JsonDecoder.object<Version>(
+  {
+    fix: JsonDecoder.string,
+    major: JsonDecoder.string,
+    minor: JsonDecoder.string,
+    version: JsonDecoder.string
+  },
+  'Version'
+);
+
+export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
+  {
+    modules: JsonDecoder.dictionary(versionDecoder, 'Modules'),
+    web: versionDecoder,
+    widgets: JsonDecoder.dictionary(versionDecoder, 'Widgets')
+  },
+  'Platform versions',
+  {
+    modules: 'modules',
+    web: 'web',
+    widgets: 'widgets'
+  }
+);
+
+export const platformFeaturesDecoder = JsonDecoder.object<PlatformVersions>(
+  {
+    isCloudPlatform: JsonDecoder.boolean
+  },
+  'Platform features',
+  {
+    isCloudPlatform: 'is_cloud_platform'
+  }
+);

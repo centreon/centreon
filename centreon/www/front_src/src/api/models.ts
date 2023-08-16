@@ -11,3 +11,7 @@ export interface PlatformVersions {
   modules: Record<string, Version>;
   web: Version;
 }
+
+export interface PlatformFeatures {
+  isCloudPlatform: boolean;
+}
