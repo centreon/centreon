@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { equals, isNil, not, pathEq } from 'ramda';
+import { equals, isNil, not, pathEq, path } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -130,8 +130,7 @@ const useApp = (): UseAppState => {
         }
       });
     if (
-      !isNil(platformVersion?.modules) &&
-      !!platformVersion?.modules[`centreon-it-edition-extensions`]
+      !! path(['modules', 'centreon-it-edition-extensions'], platformVersion)
     ) {
       getCustomPlatformRequest({
         endpoint: loginPageCustomisationEndpoint

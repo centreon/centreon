@@ -12,6 +12,7 @@ import {
   propEq,
   reject,
   equals,
+  path,
   prop
 } from 'ramda';
 
@@ -107,8 +108,7 @@ const useLogin = (): UseLoginState => {
       httpCodesBypassErrorSnackbar: [404],
       queryOptions: {
         enabled:
-          !isNil(platformVersions) &&
-          !!platformVersions.modules[`centreon-it-edition-extensions`],
+          !! path(['modules', 'centreon-it-edition-extensions'], platformVersions),
         retry: false,
         suspense: false
       }
