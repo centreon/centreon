@@ -44,7 +44,7 @@ final class FindFeatures
             );
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $response = new ErrorResponse('Error while searching for the TODO');
+            $response = new ErrorResponse('Error while searching for feature flags');
         }
 
         $presenter->presentResponse($response);
