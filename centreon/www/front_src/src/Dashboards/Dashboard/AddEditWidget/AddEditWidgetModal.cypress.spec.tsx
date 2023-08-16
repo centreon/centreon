@@ -456,7 +456,7 @@ describe('AddEditWidgetModal', () => {
           });
       });
 
-      it.only('selects one metric when the widget allows only one metric', () => {
+      it('selects one metric when the widget allows only one metric', () => {
         cy.findByLabelText(labelWidgetLibrary).click();
         cy.contains('Generic data for single metric (example)').click();
 
@@ -476,6 +476,8 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByTestId(labelMetrics).click();
         cy.contains('pl (%)').click();
+
+        cy.matchImageSnapshot();
       });
     });
   });
