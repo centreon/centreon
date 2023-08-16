@@ -34,19 +34,16 @@ import { dialogStateAtom } from '../components/DashboardAccessRights/useDashboar
 import { labelDelete } from '../translatedLabels';
 
 import {
-  labelAdd,
   labelAddAWidget,
   labelAddWidget,
   labelDeleteAWidget,
   labelDeleteWidget,
   labelDoYouWantToDeleteThisWidget,
-  labelEdit,
   labelEditDashboard,
   labelEditWidget,
   labelMoreActions,
   labelName,
   labelSave,
-  labelSelectAWidgetType,
   labelWidgetLibrary
 } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
