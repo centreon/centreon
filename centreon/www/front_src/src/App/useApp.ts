@@ -129,9 +129,7 @@ const useApp = (): UseAppState => {
           logout();
         }
       });
-    if (
-      path(['modules', 'centreon-it-edition-extensions'], platformVersion)
-    ) {
+    if (path(['modules', 'centreon-it-edition-extensions'], platformVersion)) {
       getCustomPlatformRequest({
         endpoint: loginPageCustomisationEndpoint
       })

@@ -107,8 +107,10 @@ const useLogin = (): UseLoginState => {
       getQueryKey: () => ['loginPageCustomisation'],
       httpCodesBypassErrorSnackbar: [404],
       queryOptions: {
-        enabled:
-          !!path(['modules', 'centreon-it-edition-extensions'], platformVersions),
+        enabled: !!path(
+          ['modules', 'centreon-it-edition-extensions'],
+          platformVersions
+        ),
         retry: false,
         suspense: false
       }
