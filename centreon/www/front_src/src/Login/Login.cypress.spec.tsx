@@ -414,6 +414,7 @@ describe('Custom login page with data', () => {
     mountComponentAndStubs();
 
     cy.waitForRequest('@getLoginCustomization');
+    cy.waitForRequest('@getProvidersConfiguration');
 
     cy.findByTestId(labelCentreonLogo).should('be.visible');
     cy.findByTestId(labelCentreonWallpaper).should('be.visible');
@@ -441,6 +442,8 @@ describe('Login page without module it edition extensions installed', () => {
   beforeEach(() => {
     setupBeforeEach();
   });
+
+  cy.waitForRequest('@getProvidersConfiguration');
 
   it('displays the login page when the IT edition extensions module is not installed', () => {
     mountComponentAndStubs();
