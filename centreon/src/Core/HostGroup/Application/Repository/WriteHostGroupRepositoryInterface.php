@@ -50,4 +50,14 @@ interface WriteHostGroupRepositoryInterface
      * @throws \Throwable
      */
     public function update(HostGroup $hostGroup): void;
+
+    /**
+     * Link a list of groups to a host.
+     *
+     * @param int $hostId
+     * @param int[] $groupIds
+     *
+     * @throws \Throwable
+     */
+    public function linkToHost(int $hostId, array $groupIds): void;
 }

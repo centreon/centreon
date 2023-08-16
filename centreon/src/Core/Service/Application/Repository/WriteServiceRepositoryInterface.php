@@ -33,4 +33,11 @@ interface WriteServiceRepositoryInterface
      * @throws \Throwable
      */
     public function delete(int $serviceId): void;
+
+    /**
+     * Delete services by ID.
+     *
+     * @param int ...$serviceIds
+     */
+    public function deleteByIds(int ...$serviceIds): void;
 }

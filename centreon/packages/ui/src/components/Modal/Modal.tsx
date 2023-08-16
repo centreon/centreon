@@ -16,7 +16,7 @@ export type ModalProps = {
     reason: 'escapeKeyDown' | 'backdropClick' | 'closeButton'
   ) => void;
   open: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'xlarge';
 } & AriaLabelingAttributes;
 
 /** *

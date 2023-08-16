@@ -1,8 +1,6 @@
-import { FC } from 'react';
-
 import { useAtomValue, useSetAtom } from 'jotai';
 
-import { useMemoComponent } from '@centreon/ui';
+import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 
 import {
   getPanelConfigurationsDerivedAtom,
@@ -10,12 +8,14 @@ import {
   setPanelOptionsDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
+import { isGenericText } from '../../utils';
 
 interface Props {
   id: string;
+  isAddWidgetPanel?: boolean;
 }
 
-const Panel: FC<Props> = ({ id }) => {
+const Panel = ({ id }: Props): JSX.Element => {
   const getPanelOptions = useAtomValue(getPanelOptionsDerivedAtom);
   const getPanelConfigurations = useAtomValue(
     getPanelConfigurationsDerivedAtom
@@ -31,7 +31,14 @@ const Panel: FC<Props> = ({ id }) => {
   };
 
   return useMemoComponent({
-    Component: (
+    Component: isGenericText(panelConfigurations.path) ? (
+      <RichTextEditor
+        editable={false}
+        editorState={
+          (panelOptions as { genericText: string | undefined })?.genericText
+        }
+      />
+    ) : (
       <FederatedComponent
         isFederatedWidget
         id={id}

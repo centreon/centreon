@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import adminUser from '../../../fixtures/users/admin.json';
@@ -31,19 +32,19 @@ before(() => {
     jsonName: adminUser.login,
     loginViaApi: true
   });
-  cy.insertDashboard({ ...dashboards.fromAdminUser });
+  cy.insertDashboard(dashboards.fromAdminUser);
   cy.logoutViaAPI();
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: true
   });
-  cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
+  cy.insertDashboard(dashboards.fromDashboardAdministratorUser);
   cy.logoutViaAPI();
   cy.loginByTypeOfUser({
     jsonName: dashboardCreatorUser.login,
     loginViaApi: true
   });
-  cy.insertDashboard({ ...dashboards.fromDashboardCreatorUser });
+  cy.insertDashboard(dashboards.fromDashboardCreatorUser);
   cy.logoutViaAPI();
 });
 
@@ -77,7 +78,7 @@ afterEach(() => {
 
 Given('an admin user is logged in on a platform with dashboards', () => {
   cy.loginByTypeOfUser({
-    jsonName: 'admin',
+    jsonName: adminUser.login,
     loginViaApi: false
   });
 });
@@ -128,7 +129,7 @@ Then(
       .should('include', '/dashboards/')
       .invoke('split', '/')
       .should('not.be.empty')
-      .then(Cypress._.last)
+      .then(last)
       .then(Number)
       .should('not.be', 'dashboards')
       .should('be.a', 'number');
@@ -150,7 +151,7 @@ Then(
   () => {
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.location('search').should('include', 'edit=true');
-    cy.getByLabel({ label: 'add widget', tag: 'button' }).should('be.enabled');
+    cy.get('button[type=button]').contains('Add a widget').should('exist');
     cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
   }
 );
@@ -183,7 +184,7 @@ Then("the admin user is allowed to update the dashboard's properties", () => {
 
 Given('an admin user on the dashboards library', () => {
   cy.loginByTypeOfUser({
-    jsonName: 'admin',
+    jsonName: adminUser.login,
     loginViaApi: false
   });
 });
@@ -217,6 +218,46 @@ Then(
     cy.contains('admin admin').should('be.visible');
     cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+  }
+);
+
+Given('an admin user who has just created a dashboard', () => {
+  cy.loginByTypeOfUser({
+    jsonName: adminUser.login,
+    loginViaApi: false
+  });
+
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.fromCurrentUser.name)
+    .should('exist');
+});
+
+When('the admin user deletes the newly created dashboard', () => {
+  cy.contains(dashboards.fromCurrentUser.name)
+    .parent()
+    .find('button[aria-label="delete"]')
+    .click();
+
+  cy.contains('Delete dashboard').should('be.visible');
+
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+  cy.wait('@listAllDashboards');
+});
+
+Then(
+  "the admin's dashboard is deleted and does not appear anymore in the dashboards library",
+  () => {
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromCurrentUser.name)
+      .should('not.exist');
   }
 );
 
@@ -276,7 +317,7 @@ Then(
       .should('include', '/dashboards/')
       .invoke('split', '/')
       .should('not.be.empty')
-      .then(Cypress._.last)
+      .then(last)
       .then(Number)
       .should('not.be', 'dashboards')
       .should('be.a', 'number');
@@ -298,7 +339,7 @@ Then(
   () => {
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.location('search').should('include', 'edit=true');
-    cy.getByLabel({ label: 'add widget', tag: 'button' }).should('be.enabled');
+    cy.get('button[type=button]').contains('Add a widget').should('exist');
     cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
   }
 );
@@ -374,6 +415,49 @@ Then(
   }
 );
 
+Given('a dashboard administrator user who has just created a dashboard', () => {
+  cy.loginByTypeOfUser({
+    jsonName: dashboardAdministratorUser.login,
+    loginViaApi: false
+  });
+
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.fromCurrentUser.name)
+    .should('exist');
+});
+
+When(
+  'the dashboard administrator user deletes the newly created dashboard',
+  () => {
+    cy.contains(dashboards.fromCurrentUser.name)
+      .parent()
+      .find('button[aria-label="delete"]')
+      .click();
+
+    cy.contains('Delete dashboard').should('be.visible');
+
+    cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+    cy.wait('@listAllDashboards');
+  }
+);
+
+Then(
+  "the dashboard administrator's dashboard is deleted and does not appear anymore in the dashboards library",
+  () => {
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromCurrentUser.name)
+      .should('not.exist');
+  }
+);
+
 Given(
   'a non-admin user with the dashboard editor role is logged in on a platform with dashboards',
   () => {
@@ -430,7 +514,7 @@ Then(
       .should('include', '/dashboards/')
       .invoke('split', '/')
       .should('not.be.empty')
-      .then(Cypress._.last)
+      .then(last)
       .then(Number)
       .should('not.be', 'dashboards')
       .should('be.a', 'number');
@@ -452,7 +536,7 @@ Then(
   () => {
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
     cy.location('search').should('include', 'edit=true');
-    cy.getByLabel({ label: 'add widget', tag: 'button' }).should('be.enabled');
+    cy.get('button[type=button]').contains('Add a widget').should('exist');
     cy.getByLabel({ label: 'Exit', tag: 'button' }).click();
   }
 );
@@ -522,6 +606,46 @@ Then(
     cy.contains(`${dashboardCreatorUser.login}`).should('be.visible');
     cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
     cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+  }
+);
+
+Given('a dashboard editor user who has just created a dashboard', () => {
+  cy.loginByTypeOfUser({
+    jsonName: dashboardCreatorUser.login,
+    loginViaApi: false
+  });
+
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.fromCurrentUser.name)
+    .should('exist');
+});
+
+When('the dashboard editor user deletes the newly created dashboard', () => {
+  cy.contains(dashboards.fromCurrentUser.name)
+    .parent()
+    .find('button[aria-label="delete"]')
+    .click();
+
+  cy.contains('Delete dashboard').should('be.visible');
+
+  cy.getByLabel({ label: 'Delete', tag: 'button' }).click();
+  cy.wait('@listAllDashboards');
+});
+
+Then(
+  "the dashboard editor's dashboard is deleted and does not appear anymore in the dashboards library",
+  () => {
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromCurrentUser.name)
+      .should('not.exist');
   }
 );
 
@@ -598,7 +722,7 @@ Then(
       .should('include', '/dashboards/')
       .invoke('split', '/')
       .should('not.be.empty')
-      .then(Cypress._.last)
+      .then(last)
       .then(Number)
       .should('not.be', 'dashboards')
       .should('be.a', 'number');
@@ -635,4 +759,26 @@ When('the dashboard viewer accesses the dashboards library', () => {
 
 Then('the option to create a new dashboard is not displayed', () => {
   cy.getByLabel({ label: 'create', tag: 'button' }).should('not.exist');
+});
+
+Given('a dashboard viewer user who could not create a dashboard', () => {
+  cy.loginByTypeOfUser({
+    jsonName: dashboardViewerUser.login,
+    loginViaApi: false
+  });
+
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+});
+
+When('the dashboard viewer user tries to delete a dashboard', () => {
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.fromDashboardCreatorUser.name)
+    .should('exist');
+});
+
+Then('the button to delete a dashboard does not appear', () => {
+  cy.getByTestId({ testId: 'delete' }).should('not.exist');
 });

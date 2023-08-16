@@ -166,7 +166,7 @@ it('should present a ConflictResponse when a host template does not exist', func
         ->with($request->id)
         ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
 
-    $exception = ServiceTemplateException::idsDoesNotExist('host_templates', [$request->hostTemplates[1]]);
+    $exception = ServiceTemplateException::idsDoNotExist('host_templates', [$request->hostTemplates[1]]);
     $this->parametersValidation
         ->expects($this->once())
         ->method('assertHostTemplateIds')
@@ -178,10 +178,10 @@ it('should present a ConflictResponse when a host template does not exist', func
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ConflictResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe(ServiceTemplateException::idsDoesNotExist('host_templates', [$request->hostTemplates[1]])->getMessage());
+        ->toBe(ServiceTemplateException::idsDoNotExist('host_templates', [$request->hostTemplates[1]])->getMessage());
 });
 
-it('should present a ErrorResponse when an error occurs during host templates unlink', function (): void {
+it('should present an ErrorResponse when an error occurs during host templates unlink', function (): void {
     $request = new PartialUpdateServiceTemplateRequest(1);
     $request->hostTemplates = [1, 8];
 

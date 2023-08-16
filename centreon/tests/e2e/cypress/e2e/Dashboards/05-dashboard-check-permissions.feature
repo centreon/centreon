@@ -16,6 +16,11 @@ Scenario: Creating a new dashboard as an admin user
   When the admin user creates a new dashboard
   Then the dashboard is created and is noted as the creation of the admin user
 
+Scenario: Deleting a dashboard as an admin user
+  Given an admin user who has just created a dashboard
+  When the admin user deletes the newly created dashboard
+  Then the admin's dashboard is deleted and does not appear anymore in the dashboards library
+
 Scenario: Accessing all dashboards as a non-admin dashboard administrator user
   Given a non-admin user with the dashboard administrator role is logged in on a platform with dashboards
   When the dashboard administrator user accesses the dashboards library
@@ -30,7 +35,12 @@ Scenario: Creating a new dashboard as a non-admin dashboard administrator user
   When the dashboard administrator user creates a new dashboard
   Then the dashboard is created and is noted as the creation of the dashboard administrator user
 
-Scenario: Accessing the list of shared dashboards as a dashboard editor
+Scenario: Deleting a dashboard as a non-admin dashboard administrator user
+  Given a dashboard administrator user who has just created a dashboard
+  When the dashboard administrator user deletes the newly created dashboard
+  Then the dashboard administrator's dashboard is deleted and does not appear anymore in the dashboards library
+
+Scenario: Accessing the list of shared dashboards as a non-admin dashboard editor
   Given a non-admin user with the dashboard editor role is logged in on a platform with dashboards
   When the dashboard editor user accesses the dashboards library
   Then a list of the dashboards the dashboard editor user has access to is displayed
@@ -44,7 +54,12 @@ Scenario: Creating a new dashboard as a non-admin dashboard editor user
   When the dashboard editor user creates a new dashboard
   Then the dashboard is created and is noted as the creation of the dashboard editor user
 
-Scenario: Accessing the list of shared dashboards as a dashboard viewer
+Scenario: Deleting a dashboard as a non-admin dashboard editor user
+  Given a dashboard editor user who has just created a dashboard
+  When the dashboard editor user deletes the newly created dashboard
+  Then the dashboard editor's dashboard is deleted and does not appear anymore in the dashboards library
+
+Scenario: Accessing the list of shared dashboards as a non-admin dashboard viewer
   Given a non-admin user with the dashboard viewer role is logged in on a platform with dashboards
   When the dashboard viewer user accesses the dashboards library
   Then a list of the dashboards the dashboard viewer user has access to is displayed
@@ -56,3 +71,8 @@ Scenario: Inability to create a new dashboard as a non-admin dashboard viewer
   Given a non-admin user with the viewer role on the dashboard feature
   When the dashboard viewer accesses the dashboards library
   Then the option to create a new dashboard is not displayed
+
+Scenario: Inability to delete a dashboard as a non-admin dashboard viewer
+  Given a dashboard viewer user who could not create a dashboard
+  When the dashboard viewer user tries to delete a dashboard
+  Then the button to delete a dashboard does not appear

@@ -120,6 +120,7 @@ final class AddHostController extends AbstractController
              *     low_flap_threshold?: null|int,
              *     high_flap_threshold?: null|int,
              *     categories?: int[],
+             *     groups?: int[],
              *     templates?: int[],
              *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>,
              *     add_inherited_contact_group?: bool,
@@ -169,6 +170,7 @@ final class AddHostController extends AbstractController
             $dto->lowFlapThreshold = $data['low_flap_threshold'] ?? null;
             $dto->highFlapThreshold = $data['high_flap_threshold'] ?? null;
             $dto->categories = $data['categories'] ?? [];
+            $dto->groups = $data['groups'] ?? [];
             $dto->templates = $data['templates'] ?? [];
             $dto->macros = $data['macros'] ?? [];
             $dto->addInheritedContactGroup = $data['add_inherited_contact_group'] ?? false;
@@ -217,6 +219,7 @@ final class AddHostController extends AbstractController
              *     severity_id?: null|int,
              *     check_timeperiod_id?: null|int,
              *     categories?: int[],
+             *     groups?: int[],
              *     templates?: int[],
              *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>,
              *     is_activated?: bool
@@ -239,6 +242,7 @@ final class AddHostController extends AbstractController
             $dto->severityId = $data['severity_id'] ?? null;
             $dto->checkTimeperiodId = $data['check_timeperiod_id'] ?? null;
             $dto->categories = $data['categories'] ?? [];
+            $dto->groups = $data['groups'] ?? [];
             $dto->templates = $data['templates'] ?? [];
             $dto->macros = $data['macros'] ?? [];
             $dto->isActivated = $data['is_activated'] ?? true;

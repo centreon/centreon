@@ -1,7 +1,7 @@
 Feature:
-  In order to check the hosts
+  In order to check the host
   As a logged in user
-  I want to find hosts using api
+  I want to perform certain operations on hosts using api
 
   Background:
     Given a running instance of Centreon Web API
@@ -61,7 +61,8 @@ Feature:
         "add_inherited_contact": true,
         "is_activated": false,
         "categories": [2],
-        "templates": [],
+        "groups": [60, 53],
+        "templates": [2],
         "macros": [
           {
             "name": "nameA",
@@ -127,7 +128,22 @@ Feature:
             "name": "host-cat1"
           }
         ],
-        "templates": [],
+        "groups": [
+          {
+            "id": 60,
+            "name": "Firewall"
+          },
+          {
+            "id": 53,
+            "name": "Linux-Servers"
+          }
+        ],
+        "templates": [
+          {
+            "id": 2,
+            "name": "generic-host"
+          }
+        ],
         "macros": [
           {
             "name": "NAMEA",
@@ -247,6 +263,7 @@ Feature:
         "comment": "comment-value",
         "is_activated": false,
         "categories": [2],
+        "groups": [],
         "templates": []
       }
       """
@@ -298,6 +315,7 @@ Feature:
         "comment": "comment-value",
         "is_activated": false,
         "categories": [],
+        "groups": [],
         "templates": [999]
       }
       """
@@ -306,6 +324,7 @@ Feature:
     Given the following CLAPI import data:
       """
       ACLRESOURCE;addfilter_hostcategory;ACL Resource test;host-cat1
+      ACLRESOURCE;grant_hostgroup;ACL Resource test;*
       """
 
     # macro should not appear in response as they are inherited from parent template
@@ -354,6 +373,7 @@ Feature:
         "comment": "comment-value",
         "is_activated": false,
         "categories": [2],
+        "groups": [53],
         "templates": [<hostTemplateId>],
         "macros": [
           {
@@ -420,6 +440,12 @@ Feature:
             "name": "host-cat1"
           }
         ],
+        "groups": [
+          {
+            "id": 53,
+            "name": "Linux-Servers"
+          }
+        ],
         "templates": [
           {
             "id": <hostTemplateId>,
@@ -432,3 +458,19 @@ Feature:
         "is_activated": false
       }
       """
+
+  Scenario: Delete a host
+    Given I am logged in
+    And the following CLAPI import data:
+    """
+    HOST;ADD;test;Test host;127.0.0.1;generic-host;central;
+    HOST;APPLYTPL;test
+    CONTACT;ADD;test;test;test@localhost.com;Centreon@2023;0;1;en_US;local
+    CONTACT;setparam;test;reach_api;1
+    """
+    When I send a DELETE request to '/api/v23.10/configuration/hosts/14'
+    Then the response code should be "204"
+
+    Given I am logged in with "test"/"Centreon@2023"
+    When I send a DELETE request to '/api/v23.10/configuration/hosts/14'
+    Then the response code should be "403"

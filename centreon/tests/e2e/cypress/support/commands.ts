@@ -104,7 +104,14 @@ Cypress.Commands.add(
 Cypress.Commands.add('logout', (): Cypress.Chainable => {
   cy.getByLabel({ label: 'Profile' }).click();
 
-  return cy.contains('Logout').click();
+  return cy.contains(/^Logout$/).click();
+});
+
+Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
+  return cy.request({
+    method: 'GET',
+    url: '/centreon/authentication/logout'
+  });
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {

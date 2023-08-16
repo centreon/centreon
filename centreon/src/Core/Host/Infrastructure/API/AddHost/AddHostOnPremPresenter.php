@@ -85,8 +85,33 @@ class AddHostOnPremPresenter extends AbstractPresenter implements AddHostPresent
                         'event_handler_enabled' => $response->eventHandlerEnabled,
                         'check_command_args' => $response->checkCommandArgs,
                         'event_handler_command_args' => $response->eventHandlerCommandArgs,
-                        'categories' => $response->categories,
-                        'templates' => $response->templates,
+                        'categories' => array_map(
+                            function (array $category) {
+                                return [
+                                    'id' => $category['id'],
+                                    'name' => $category['name'],
+                                ];
+                            },
+                            $response->categories
+                        ),
+                        'groups' => array_map(
+                            function (array $group) {
+                                return [
+                                    'id' => $group['id'],
+                                    'name' => $group['name'],
+                                ];
+                            },
+                            $response->groups
+                        ),
+                        'templates' => array_map(
+                            function (array $template) {
+                                return [
+                                    'id' => $template['id'],
+                                    'name' => $template['name'],
+                                ];
+                            },
+                            $response->templates
+                        ),
                         'macros' => array_map(
                             function (array $macro) {
                                 return [
