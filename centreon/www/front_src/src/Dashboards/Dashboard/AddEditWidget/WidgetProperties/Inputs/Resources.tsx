@@ -36,7 +36,9 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     changeResources,
     getResourceResourceBaseEndpoint,
     getSearchField,
-    error
+    error,
+    addButtonHidden,
+    getOptionDisabled
   } = useResources(propertyName);
 
   return (
@@ -48,10 +50,15 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         <Typography>{t(labelResources)}</Typography>
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
-      <ItemComposition labelAdd={t(labelAddResource)} onAddItem={addResource}>
+      <ItemComposition
+        addButtonHidden={addButtonHidden}
+        labelAdd={t(labelAddResource)}
+        onAddItem={addResource}
+      >
         {value.map((resource, index) => (
           <ItemComposition.Item
             className={classes.resourceCompositionItem}
+            deleteButtonHidden={addButtonHidden}
             key={`${index}`}
             labelDelete={t(labelDelete)}
             onDeleteItem={deleteResource(index)}
@@ -71,6 +78,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               getEndpoint={getResourceResourceBaseEndpoint(
                 resource.resourceType
               )}
+              getOptionDisabled={getOptionDisabled}
               label={t(labelSelectAResource)}
               limitTags={2}
               queryKey={`${resource.resourceType}-${index}`}

@@ -7,6 +7,7 @@ import { Paper } from '@mui/material';
 import { Modal } from '@centreon/ui/components';
 
 import { labelAddWidget, labelEditWidget } from '../translatedLabels';
+import Title from '../../components/Title';
 
 import useWidgetForm from './useWidgetModal';
 import { useAddWidgetStyles } from './addWidget.styles';
@@ -63,7 +64,9 @@ const AddWidgetModal = (): JSX.Element | null => {
           onClose={() => askBeforeCloseModal(dirty)}
         >
           <Modal.Header>
-            {t(isAddingWidget ? labelAddWidget : labelEditWidget)}
+            <Title>
+              {t(isAddingWidget ? labelAddWidget : labelEditWidget)}
+            </Title>
           </Modal.Header>
           <>
             <Modal.Body>

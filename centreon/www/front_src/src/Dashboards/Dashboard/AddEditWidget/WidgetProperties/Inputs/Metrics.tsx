@@ -44,7 +44,8 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     error,
     getMetricOptionDisabled,
     getOptionLabel,
-    hasReachedTheLimitOfUnits
+    hasReachedTheLimitOfUnits,
+    addButtonHidden
   } = useMetrics(propertyName);
 
   const addButtonDisabled =
@@ -84,6 +85,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       )}
       {canDisplayMetricsSelection && (
         <ItemComposition
+          addButtonHidden={addButtonHidden}
           addbuttonDisabled={addButtonDisabled}
           labelAdd={t(labelAddMetric)}
           onAddItem={addMetric}
@@ -91,6 +93,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           {value.map((service, index) => (
             <ItemComposition.Item
               className={classes.resourceCompositionItem}
+              deleteButtonHidden={addButtonHidden}
               key={`${index}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteMetric(index)}

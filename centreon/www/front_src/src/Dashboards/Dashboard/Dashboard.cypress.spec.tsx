@@ -36,6 +36,7 @@ import { labelDelete } from '../translatedLabels';
 import {
   labelAdd,
   labelAddAWidget,
+  labelAddWidget,
   labelDeleteAWidget,
   labelDeleteWidget,
   labelDoYouWantToDeleteThisWidget,
@@ -44,6 +45,7 @@ import {
   labelEditWidget,
   labelMoreActions,
   labelName,
+  labelSave,
   labelSelectAWidgetType,
   labelWidgetLibrary
 } from './translatedLabels';
@@ -300,9 +302,9 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelName).type('Generic input');
       cy.findByLabelText('Generic text').type('Text for the new widget');
 
-      cy.findByLabelText(labelAdd).click();
+      cy.findAllByLabelText(labelSave).eq(1).click();
 
-      cy.contains(labelSelectAWidgetType).should('not.exist');
+      cy.contains(labelAddWidget).should('not.exist');
       cy.contains('Text for the new widget').should('be.visible');
 
       cy.matchImageSnapshot();
@@ -324,9 +326,9 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelName).type('Generic input');
       cy.findByLabelText('Generic text').type('Text for the new widget');
 
-      cy.findByLabelText(labelEdit).click();
+      cy.findAllByLabelText(labelSave).eq(1).click();
 
-      cy.contains(labelSelectAWidgetType).should('not.exist');
+      cy.contains(labelEditWidget).should('not.exist');
       cy.contains('Text for the new widget')
         .should('be.visible')
         .then(() => {

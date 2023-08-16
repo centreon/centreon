@@ -17,7 +17,11 @@ import {
   labelYourWidgetHasBeenModified
 } from '../translatedLabels';
 
-import { widgetFormInitialDataAtom, widgetPropertiesAtom } from './atoms';
+import {
+  singleMetricSectionAtom,
+  widgetFormInitialDataAtom,
+  widgetPropertiesAtom
+} from './atoms';
 import { Widget } from './models';
 
 interface useWidgetModalState {
@@ -45,6 +49,7 @@ const useWidgetModal = (): useWidgetModalState => {
   const deletePanel = useSetAtom(removePanelDerivedAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
+  const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
 
   const { showSuccessMessage } = useSnackbar();
 
@@ -64,6 +69,7 @@ const useWidgetModal = (): useWidgetModalState => {
       setWidgetFormInitialDataAtom(null);
       setWidgetProperties(null);
       setAskingBeforeCloseModal(false);
+      setSingleMetricSection(undefined);
     });
 
   const addWidget = (values: Widget): void => {

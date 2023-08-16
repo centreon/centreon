@@ -48,5 +48,6 @@ export interface FederatedWidgetProperties {
   options: {
     [key: string]: FederatedWidgetOption;
   };
+  singleMetricSelection?: boolean;
   title: string;
 }
