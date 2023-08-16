@@ -7,13 +7,13 @@ import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.j
 
 before(() => {
   cy.startWebContainer({ version: 'develop' });
-  /*  cy.execInContainer({
+  cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-check-permissions.json'
-  ); */
+  );
 });
 
 beforeEach(() => {
@@ -33,15 +33,15 @@ beforeEach(() => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: true
   });
-  cy.insertDashboard({ ...dashboards.fromAdministratorUser });
+  cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
   cy.logoutViaAPI();
   cy.loginByTypeOfUser({
     jsonName: dashboardCreatorUser.login,
     loginViaApi: true
   });
-  cy.insertDashboard({ ...dashboards.fromCreatorUser });
+  cy.insertDashboard({ ...dashboards.fromDashboardCreatorUser });
   cy.shareDashboardToUser({
-    dashboardName: dashboards.fromCreatorUser.name,
+    dashboardName: dashboards.fromDashboardCreatorUser.name,
     role: 'viewer',
     userName: dashboardViewerUser.login
   });
@@ -49,7 +49,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  // cy.stopWebContainer();
+  cy.stopWebContainer();
 });
 
 afterEach(() => {
@@ -74,19 +74,24 @@ When('the user selects the share option on a dashboard', () => {
     label: 'view',
     tag: 'button'
   })
-    .contains(dashboards.fromAdministratorUser.name)
+    .contains(dashboards.fromDashboardAdministratorUser.name)
     .click();
   cy.getByLabel({ label: 'share', tag: 'button' }).click();
 });
 
 Then('the user is redirected to the sharing list of the dashboard', () => {
   cy.contains('Manage access rights').should('be.visible');
+  cy.get('*[class^="MuiList-root"]').eq(4).should('exist');
 });
 
 Then('the creator of the dashboard is listed as its sole editor', () => {
-  cy.contains(`${dashboardAdministratorUser.login}`)
-    .should('be.visible')
-    .parent()
+  cy.get('*[class^="MuiList-root"]').eq(4).its('length').should('eq', 1);
+  cy.get('*[class^="MuiList-root"]')
+    .eq(4)
+    .children()
+    .eq(0)
+    .should('contain', `${dashboardAdministratorUser.login}`);
+  cy.getByTestId({ testId: 'role-input' })
+    .eq(1)
     .should('contain.text', 'editor');
-  cy.getByTestId({ testId: 'role-input' }).should('contain.text', 'editor');
 });
