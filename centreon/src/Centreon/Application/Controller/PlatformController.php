@@ -28,7 +28,6 @@ use Centreon\Domain\Platform\PlatformException;
 use Centreon\Domain\PlatformInformation\Model\PlatformInformationDtoValidator;
 use Centreon\Domain\PlatformInformation\UseCase\V20\UpdatePartiallyPlatformInformation;
 use Centreon\Domain\VersionHelper;
-use Core\Common\Infrastructure\FeatureFlags;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +42,6 @@ class PlatformController extends AbstractController
 {
     public function __construct(
         private readonly PlatformServiceInterface $informationService,
-        private readonly bool $isCloudPlatform
     ) {
     }
 
@@ -65,7 +63,6 @@ class PlatformController extends AbstractController
                 'web' => (object) $this->extractVersion($webVersion),
                 'modules' => (object) array_map($this->extractVersion(...), $modulesVersion),
                 'widgets' => (object) array_map($this->extractVersion(...), $widgetsVersion),
-                'is_cloud_platform' => $this->isCloudPlatform,
             ]
         );
     }

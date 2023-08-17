@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 
@@ -98,7 +99,7 @@ Then('the user is redirected to the newly created dashboard', () => {
     .should('include', '/dashboards/')
     .invoke('split', '/')
     .should('not.be.empty')
-    .then(Cypress._.last)
+    .then(last)
     .then(Number)
     .should('not.be', 'dashboards')
     .should('be.a', 'number'); // dashboard id
@@ -179,7 +180,7 @@ Then('the user is on the dashboards overview page', () => {
     .should('include', '/dashboards')
     .invoke('split', '/')
     .should('not.be.empty')
-    .then(Cypress._.last)
+    .then(last)
     .should('eq', 'dashboards'); // dashboards overview
 });
 

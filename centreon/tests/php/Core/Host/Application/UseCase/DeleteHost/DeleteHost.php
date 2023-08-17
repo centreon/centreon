@@ -31,10 +31,11 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
+use Core\Host\Application\UseCase\DeleteHost\DeleteHost;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
-use Tests\Core\Host\Infrastucture\API\DeleteHost\DeleteHostPresenterStub;
+use Tests\Core\Host\Infrastructure\API\DeleteHost\DeleteHostPresenterStub;
 
 beforeEach(closure: function (): void {
     $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class);
@@ -45,7 +46,7 @@ beforeEach(closure: function (): void {
     $this->storageEngine = $this->createMock(DataStorageEngineInterface::class);
     $this->presenter = new DeleteHostPresenterStub($this->createMock(PresenterFormatterInterface::class));
 
-    $this->useCase = new Core\Host\Application\UseCase\DeleteHost\DeleteHost(
+    $this->useCase = new DeleteHost(
         $this->readHostRepository,
         $this->writeHostRepository,
         $this->readServiceRepository,

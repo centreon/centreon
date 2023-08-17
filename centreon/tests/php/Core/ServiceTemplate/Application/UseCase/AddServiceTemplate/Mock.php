@@ -26,22 +26,20 @@ namespace Tests\Core\ServiceTemplate\Application\UseCase\AddServiceTemplate;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Option\OptionService;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
-use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
-use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
+use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
+use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplate;
-use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
+use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplateValidation;
 use PHPUnit\Framework\TestCase;
 use Tests\Core\ServiceTemplate\Infrastructure\API\AddServiceTemplate\AddServiceTemplatePresenterStub;
 
@@ -49,46 +47,25 @@ class Mock extends TestCase
 {
     public static function create(TestCase $testCase): void
     {
-        $testCase->readServiceTemplateRepository = $testCase->createMock(ReadServiceTemplateRepositoryInterface::class);
-        $testCase->writeServiceTemplateRepository = $testCase->createMock(
-            WriteServiceTemplateRepositoryInterface::class
-        );
-        $testCase->serviceSeverityRepository = $testCase->createMock(ReadServiceSeverityRepositoryInterface::class);
-        $testCase->performanceGraphRepository = $testCase->createMock(ReadPerformanceGraphRepositoryInterface::class);
-        $testCase->commandRepository = $testCase->createMock(ReadCommandRepositoryInterface::class);
-        $testCase->timePeriodRepository = $testCase->createMock(ReadTimePeriodRepositoryInterface::class);
-        $testCase->imageRepository = $testCase->createMock(ReadViewImgRepositoryInterface::class);
-        $testCase->readHostTemplateRepository = $testCase->createMock(ReadHostTemplateRepositoryInterface::class);
-        $testCase->readServiceMacroRepository = $testCase->createMock(ReadServiceMacroRepositoryInterface::class);
-        $testCase->readCommandMacroRepository = $testCase->createMock(ReadCommandMacroRepositoryInterface::class);
-        $testCase->writeServiceMacroRepository = $testCase->createMock(WriteServiceMacroRepositoryInterface::class);
-        $testCase->storageEngine = $testCase->createMock(DataStorageEngineInterface::class);
-        $testCase->readServiceCategoryRepository = $testCase->createMock(ReadServiceCategoryRepositoryInterface::class);
-        $testCase->writeServiceCategoryRepository = $testCase->createMock(WriteServiceCategoryRepositoryInterface::class);
-        $testCase->readAccessGroupRepository = $testCase->createMock(ReadAccessGroupRepositoryInterface::class);
-        $testCase->optionService = $testCase->createMock(OptionService::class);
-        $testCase->user = $testCase->createMock(ContactInterface::class);
         $testCase->useCasePresenter = new AddServiceTemplatePresenterStub(
             $testCase->createMock(PresenterFormatterInterface::class)
         );
         $testCase->addUseCase = new AddServiceTemplate(
-            $testCase->readServiceTemplateRepository,
-            $testCase->writeServiceTemplateRepository,
-            $testCase->serviceSeverityRepository,
-            $testCase->performanceGraphRepository,
-            $testCase->commandRepository,
-            $testCase->timePeriodRepository,
-            $testCase->imageRepository,
-            $testCase->readHostTemplateRepository,
-            $testCase->readServiceMacroRepository,
-            $testCase->readCommandMacroRepository,
-            $testCase->writeServiceMacroRepository,
-            $testCase->storageEngine,
-            $testCase->readServiceCategoryRepository,
-            $testCase->writeServiceCategoryRepository,
-            $testCase->readAccessGroupRepository,
-            $testCase->optionService,
-            $testCase->user
+            $testCase->readHostTemplateRepository = $testCase->createMock(ReadHostTemplateRepositoryInterface::class),
+            $testCase->readServiceTemplateRepository = $testCase->createMock(ReadServiceTemplateRepositoryInterface::class),
+            $testCase->writeServiceTemplateRepository = $testCase->createMock(WriteServiceTemplateRepositoryInterface::class),
+            $testCase->readServiceMacroRepository = $testCase->createMock(ReadServiceMacroRepositoryInterface::class),
+            $testCase->readCommandMacroRepository = $testCase->createMock(ReadCommandMacroRepositoryInterface::class),
+            $testCase->writeServiceMacroRepository = $testCase->createMock(WriteServiceMacroRepositoryInterface::class),
+            $testCase->storageEngine = $testCase->createMock(DataStorageEngineInterface::class),
+            $testCase->readServiceCategoryRepository = $testCase->createMock(ReadServiceCategoryRepositoryInterface::class),
+            $testCase->writeServiceCategoryRepository = $testCase->createMock(WriteServiceCategoryRepositoryInterface::class),
+            $testCase->readServiceGroupRepository = $testCase->createMock(ReadServiceGroupRepositoryInterface::class),
+            $testCase->writeServiceGroupRepository = $testCase->createMock(WriteServiceGroupRepositoryInterface::class),
+            $testCase->readAccessGroupRepository = $testCase->createMock(ReadAccessGroupRepositoryInterface::class),
+            $testCase->validation = $testCase->createMock(AddServiceTemplateValidation::class),
+            $testCase->optionService = $testCase->createMock(OptionService::class),
+            $testCase->user = $testCase->createMock(ContactInterface::class)
         );
     }
 
@@ -169,6 +146,24 @@ class Mock extends TestCase
                         break;
                     case 'writeServiceMacroRepository':
                         $testCase->writeServiceMacroRepository
+                            ->expects($testCase->exactly(count($option['expected'])))
+                            ->method($option['method'])
+                            ->will($testCase->returnValueMap($option['expected']));
+                        break;
+                    case 'writeServiceGroupRepository':
+                        $testCase->writeServiceGroupRepository
+                            ->expects($testCase->exactly(count($option['expected'])))
+                            ->method($option['method'])
+                            ->will($testCase->returnValueMap($option['expected']));
+                        break;
+                    case 'readServiceGroupRepository':
+                        $testCase->readServiceGroupRepository
+                            ->expects($testCase->exactly(count($option['expected'])))
+                            ->method($option['method'])
+                            ->will($testCase->returnValueMap($option['expected']));
+                        break;
+                    case 'readHostTemplateRepository':
+                        $testCase->readHostTemplateRepository
                             ->expects($testCase->exactly(count($option['expected'])))
                             ->method($option['method'])
                             ->will($testCase->returnValueMap($option['expected']));

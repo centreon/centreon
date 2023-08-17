@@ -3,6 +3,7 @@
 const path = require('path');
 
 const { merge } = require('webpack-merge');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const frontendBase = require('@centreon/js-config/webpack/base');
 const frontendModulePatch = require('@centreon/js-config/webpack/patch/module');
@@ -31,6 +32,16 @@ module.exports = ({ widgetName }) => {
       entry: {
         [`./src/${widgetName}/src/index`]: `./src/${widgetName}/src/index.tsx`
       },
+      plugins: [
+        new CopyWebpackPlugin({
+          patterns: [
+            {
+              from: `./src/${widgetName}/properties.json`,
+              to: `./properties.json`
+            }
+          ]
+        })
+      ],
       resolve: {
         alias: {
           '@centreon/ui/fonts': path.resolve(

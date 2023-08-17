@@ -17,6 +17,7 @@ import { useDashboardItemStyles } from './Dashboard.styles';
 interface DashboardItemProps {
   children: ReactElement;
   className?: string;
+  disablePadding?: boolean;
   header?: ReactElement;
   id: string;
   onMouseDown?: (e: MouseEvent<HTMLDivElement>) => void;
@@ -35,13 +36,14 @@ const Item = forwardRef(
       onMouseDown,
       onMouseUp,
       onTouchEnd,
-      id
+      id,
+      disablePadding = false
     }: DashboardItemProps,
     ref: ForwardedRef<HTMLDivElement>
   ): ReactElement => {
-    const { classes } = useDashboardItemStyles();
-
     const hasHeader = !isNil(header);
+
+    const { classes, cx } = useDashboardItemStyles({ hasHeader });
 
     const listeners = {
       onMouseDown,
@@ -69,7 +71,14 @@ const Item = forwardRef(
                 {header}
               </div>
             )}
-            <div className={classes.widgetContent}>{children}</div>
+            <div
+              className={cx(
+                classes.widgetContent,
+                !disablePadding && classes.widgetPadding
+              )}
+            >
+              {children}
+            </div>
           </Card>
         </div>
       ),

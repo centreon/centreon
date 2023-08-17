@@ -4,6 +4,7 @@ import {
   equals,
   find,
   findIndex,
+  inc,
   length,
   lensIndex,
   lensProp,
@@ -51,7 +52,9 @@ export const setLayoutModeDerivedAtom = atom(
 );
 
 interface AddPanelDerivedAtom {
+  fixedId?: string;
   height?: number;
+  moduleName: string;
   options?: object;
   panelConfiguration: PanelConfiguration;
   width?: number;
@@ -67,16 +70,32 @@ const getPanel = ({ id, layout }: GetPanelProps): Panel =>
 const getPanelIndex = ({ id, layout }: GetPanelProps): number =>
   findIndex(propEq('i', id), layout) as number;
 
+export const panelsLengthAtom = atom(0);
+
 export const addPanelDerivedAtom = atom(
   null,
   (
     get,
     setAtom,
-    { panelConfiguration, options, width, height }: AddPanelDerivedAtom
+    {
+      panelConfiguration,
+      options,
+      width,
+      height,
+      moduleName,
+      fixedId
+    }: AddPanelDerivedAtom
   ) => {
     const dashboard = get(dashboardAtom);
+    const panelsLength = get(panelsLengthAtom);
 
-    const id = `panel_${panelConfiguration.path}_${length(dashboard.layout)}`;
+    const increasedPanelsLength = inc(panelsLength);
+
+    const id =
+      fixedId ||
+      `panel_${panelConfiguration.path}_${length(
+        dashboard.layout
+      )}_${increasedPanelsLength}`;
 
     const columnsFromScreenSize = getColumnsFromScreenSize();
     const maxColumns = equals(columnsFromScreenSize, 1)
@@ -90,6 +109,7 @@ export const addPanelDerivedAtom = atom(
       i: id,
       minH: panelConfiguration?.panelMinHeight || 3,
       minW: panelConfiguration?.panelMinWidth || 3,
+      name: moduleName,
       options,
       panelConfiguration,
       static: false
@@ -143,8 +163,11 @@ export const addPanelDerivedAtom = atom(
     setAtom(dashboardAtom, {
       layout: newLayout
     });
+    setAtom(panelsLengthAtom, increasedPanelsLength);
   }
 );
+
+export const askDeletePanelAtom = atom<string | null>(null);
 
 export const removePanelDerivedAtom = atom(
   null,
@@ -219,6 +242,7 @@ export const duplicatePanelDerivedAtom = atom(
 
     setAtom(addPanelDerivedAtom, {
       height: panel?.h,
+      moduleName: panel?.name as string,
       options: panel?.options,
       panelConfiguration: panel?.panelConfiguration as PanelConfiguration,
       width: panel?.w

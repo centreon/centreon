@@ -1669,3 +1669,504 @@ Feature:
 
     When I send a GET request to '/api/latest/configuration/dashboards/contactgroups'
     Then the response code should be "404"
+
+  Scenario: Find performances metrics for panel edition
+    Given the following CLAPI import data:
+    """
+    CONTACT;ADD;test-user;test-user;test-user@localservice.com;Centreon@2022;0;1;en_US;local
+    CONTACT;setparam;test-user;reach_api_rt;1
+    ACLRESOURCE;add;ACL Resource test;my alias
+    ACLRESOURCE;grant_hostgroup;ACL Resource test;Linux-Servers
+    ACLMENU;add;name-viewer-ACLMENU;alias-viewer-ACLMENU
+    ACLMENU;grantrw;name-viewer-ACLMENU;0;Home;Dashboard;Viewer;
+    ACLGROUP;add;ACL Group test;my alias
+    ACLGROUP;addmenu;ACL Group test;name-viewer-ACLMENU
+    ACLGROUP;addresource;ACL Group test;ACL Resource test
+    ACLGROUP;addcontact;ACL Group test;test-user
+    """
+    And I am logged in
+    And a feature flag "dashboard" of bitmask 3
+    And the configuration is generated and exported
+    And I send a POST request to '/api/latest/monitoring/resources/check' with body:
+    """
+    {
+      "check": {
+        "is_forced": true
+      },
+      "resources": [
+        {
+          "type": "service",
+          "id": 26,
+          "parent": {
+            "id": 14
+          }
+        }
+      ]
+    }
+    """
+    When I wait to get 1 result from '/api/latest/monitoring/dashboard/metrics/performances?search={"$and":[{"service.name":{"$in":["Ping"]}}]}' (tries: 30)
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+      "result": [
+        {
+          "id": 26,
+          "name": "Centreon-Server_Ping",
+          "metrics": [
+            {
+              "id": 1,
+              "name": "rta",
+              "unit": "ms",
+              "warning_threshold": 200,
+              "critical_threshold": 400
+            },
+            {
+              "id": 2,
+              "name": "pl",
+              "unit": "%",
+              "warning_threshold": 20,
+              "critical_threshold": 50
+            },
+            {
+              "id": 3,
+              "name": "rtmax",
+              "unit": "ms",
+              "warning_threshold": null,
+              "critical_threshold": null
+            },
+            {
+              "id": 4,
+              "name": "rtmin",
+              "unit": "ms",
+              "warning_threshold": null,
+              "critical_threshold": null
+            }
+          ]
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "limit": 10,
+        "search": {
+          "$and": [
+            {
+              "service.name": {
+                "$in": [
+                  "Ping"
+                ]
+              }
+            }
+          ]
+        },
+        "sort_by": {},
+        "total": 4
+      }
+    }
+    """
+
+    When I send a GET request to '/api/latest/monitoring/dashboard/metrics/performances/data?metricIds=[1,2,3]&start=2023-09-08T04:40:16.344Z&end=2023-09-08T08:40:16.344Z'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+      "base": 1000,
+      "metrics": [
+          {
+              "index_id": 4,
+              "metric_id": 2,
+              "metric": "pl",
+              "metric_legend": "pl",
+              "unit": "%",
+              "hidden": 0,
+              "min": 0.0,
+              "max": 100.0,
+              "virtual": 0,
+              "ds_data": {
+                  "ds_color_line": "#F30B23",
+                  "ds_color_line_mode": "0",
+                  "ds_max": "1",
+                  "ds_min": null,
+                  "ds_minmax_int": null,
+                  "ds_average": "1",
+                  "ds_last": null,
+                  "ds_total": null,
+                  "ds_tickness": 1
+              },
+              "legend": "Packet Loss",
+              "stack": 0,
+              "warn": 20.0,
+              "warn_low": 0.0,
+              "crit": 50.0,
+              "crit_low": 0.0,
+              "ds_color_area_warn": "#ff9a13",
+              "ds_color_area_crit": "#e00b3d",
+              "ds_order": 1,
+              "data": [
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null
+              ],
+              "prints": [
+                  [
+                      "Max:nan"
+                  ],
+                  [
+                      "Average:nan"
+                  ]
+              ],
+              "last_value": 0.0,
+              "minimum_value": null,
+              "maximum_value": null,
+              "average_value": null
+          },
+          {
+              "index_id": 4,
+              "metric_id": 1,
+              "metric": "rta",
+              "metric_legend": "rta",
+              "unit": "ms",
+              "hidden": 0,
+              "min": 0.0,
+              "max": null,
+              "virtual": 0,
+              "ds_data": {
+                  "ds_color_line": "#29AFEE",
+                  "ds_color_line_mode": "0",
+                  "ds_max": null,
+                  "ds_min": null,
+                  "ds_minmax_int": null,
+                  "ds_average": "1",
+                  "ds_last": "1",
+                  "ds_total": null,
+                  "ds_tickness": 1
+              },
+              "legend": "Round-Trip Average Time",
+              "stack": 0,
+              "warn": 200.0,
+              "warn_low": 0.0,
+              "crit": 400.0,
+              "crit_low": 0.0,
+              "ds_color_area_warn": "#ff9a13",
+              "ds_color_area_crit": "#e00b3d",
+              "ds_order": 1,
+              "data": [
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null
+              ],
+              "prints": [
+                  [
+                      "Last:nan"
+                  ],
+                  [
+                      "Average:nan"
+                  ]
+              ],
+              "last_value": 0.0,
+              "minimum_value": null,
+              "maximum_value": null,
+              "average_value": null
+          },
+          {
+              "index_id": 4,
+              "metric_id": 3,
+              "metric": "rtmax",
+              "metric_legend": "rtmax",
+              "unit": "ms",
+              "hidden": 0,
+              "min": null,
+              "max": null,
+              "virtual": 0,
+              "ds_data": {
+                  "ds_color_line": "#525256",
+                  "ds_color_line_mode": "0",
+                  "ds_max": "1",
+                  "ds_min": null,
+                  "ds_minmax_int": null,
+                  "ds_average": null,
+                  "ds_last": "1",
+                  "ds_total": null,
+                  "ds_tickness": 2
+              },
+              "legend": "Round-Trip Maximum Time",
+              "stack": 0,
+              "warn": null,
+              "warn_low": null,
+              "crit": null,
+              "crit_low": null,
+              "ds_color_area_warn": "#ff9a13",
+              "ds_color_area_crit": "#e00b3d",
+              "ds_order": 2,
+              "data": [
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null
+              ],
+              "prints": [
+                  [
+                      "Last:nan"
+                  ],
+                  [
+                      "Max:nan"
+                  ]
+              ],
+              "last_value": 0.0,
+              "minimum_value": null,
+              "maximum_value": null,
+              "average_value": null
+          }
+      ],
+      "times": [
+          "2023-09-08T06:45:00+02:00",
+          "2023-09-08T06:50:00+02:00",
+          "2023-09-08T06:55:00+02:00",
+          "2023-09-08T07:00:00+02:00",
+          "2023-09-08T07:05:00+02:00",
+          "2023-09-08T07:10:00+02:00",
+          "2023-09-08T07:15:00+02:00",
+          "2023-09-08T07:20:00+02:00",
+          "2023-09-08T07:25:00+02:00",
+          "2023-09-08T07:30:00+02:00",
+          "2023-09-08T07:35:00+02:00",
+          "2023-09-08T07:40:00+02:00",
+          "2023-09-08T07:45:00+02:00",
+          "2023-09-08T07:50:00+02:00",
+          "2023-09-08T07:55:00+02:00",
+          "2023-09-08T08:00:00+02:00",
+          "2023-09-08T08:05:00+02:00",
+          "2023-09-08T08:10:00+02:00",
+          "2023-09-08T08:15:00+02:00",
+          "2023-09-08T08:20:00+02:00",
+          "2023-09-08T08:25:00+02:00",
+          "2023-09-08T08:30:00+02:00",
+          "2023-09-08T08:35:00+02:00",
+          "2023-09-08T08:40:00+02:00",
+          "2023-09-08T08:45:00+02:00",
+          "2023-09-08T08:50:00+02:00",
+          "2023-09-08T08:55:00+02:00",
+          "2023-09-08T09:00:00+02:00",
+          "2023-09-08T09:05:00+02:00",
+          "2023-09-08T09:10:00+02:00",
+          "2023-09-08T09:15:00+02:00",
+          "2023-09-08T09:20:00+02:00",
+          "2023-09-08T09:25:00+02:00",
+          "2023-09-08T09:30:00+02:00",
+          "2023-09-08T09:35:00+02:00",
+          "2023-09-08T09:40:00+02:00",
+          "2023-09-08T09:45:00+02:00",
+          "2023-09-08T09:50:00+02:00",
+          "2023-09-08T09:55:00+02:00",
+          "2023-09-08T10:00:00+02:00",
+          "2023-09-08T10:05:00+02:00",
+          "2023-09-08T10:10:00+02:00",
+          "2023-09-08T10:15:00+02:00",
+          "2023-09-08T10:20:00+02:00",
+          "2023-09-08T10:25:00+02:00",
+          "2023-09-08T10:30:00+02:00",
+          "2023-09-08T10:35:00+02:00",
+          "2023-09-08T10:40:00+02:00",
+          "2023-09-08T10:45:00+02:00"
+      ]
+    }
+    """
+
+    Given I am logged in with "test-user"/"Centreon@2022"
+    When I send a GET request to '/api/latest/monitoring/dashboard/metrics/performances?search={"$and":[{"host.id":{"$in":[14]}}]}'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+    """
+    {
+      "result": [
+        {
+          "id": 26,
+          "name": "Centreon-Server_Ping",
+          "metrics": [
+            {
+              "id": 1,
+              "name": "rta",
+              "unit": "ms",
+              "warning_threshold": 200,
+              "critical_threshold": 400
+            },
+            {
+              "id": 2,
+              "name": "pl",
+              "unit": "%",
+              "warning_threshold": 20,
+              "critical_threshold": 50
+            },
+            {
+              "id": 3,
+              "name": "rtmax",
+              "unit": "ms",
+              "warning_threshold": null,
+              "critical_threshold": null
+            },
+            {
+              "id": 4,
+              "name": "rtmin",
+              "unit": "ms",
+              "warning_threshold": null,
+              "critical_threshold": null
+            }
+          ]
+        }
+      ],
+      "meta": {
+        "page": 1,
+        "limit": 10,
+        "search": {
+          "$and": [
+            {
+              "host.id": {
+                "$in": [
+                  14
+                ]
+              }
+            }
+          ]
+        },
+        "sort_by": {},
+        "total": 4
+      }
+    }
+    """

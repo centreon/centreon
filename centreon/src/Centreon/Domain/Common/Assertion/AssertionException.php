@@ -545,4 +545,9 @@ class AssertionException extends \Assert\InvalidArgumentException
             $propertyPath
         );
     }
+
+    public static function invalidTypeInArray(string $type, string $propertyPath): self
+    {
+        return new self(sprintf('values type in the array are not [%s]', $type), self::INVALID_CHOICE, $propertyPath);
+    }
 }

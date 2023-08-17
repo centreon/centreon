@@ -73,7 +73,6 @@ const retrievedTranslations = {
 };
 
 const retrievedWeb = {
-  is_cloud_platform: false,
   modules: {},
   web: {
     fix: '0',

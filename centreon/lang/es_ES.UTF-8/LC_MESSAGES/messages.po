@@ -16110,6 +16110,9 @@ msgstr ""
 #  msgid "Error while deleting the service"
 #  msgstr ""
 
+#  msgid "Host template required in service group association is not linked to service template"
+#  msgstr ""
+
 # msgid "Notifications will only be sent during this time period"
 # msgstr ""
 

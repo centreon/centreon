@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { last } from 'ramda';
 
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
 
@@ -86,7 +87,7 @@ Then('the user is redirected to the detail page for this dashboard', () => {
     .should('include', '/dashboards/')
     .invoke('split', '/')
     .should('not.be.empty')
-    .then(Cypress._.last)
+    .then(last)
     .then(Number)
     .should('not.be', 'dashboards')
     .should('be.a', 'number'); // dashboard id

@@ -38,7 +38,8 @@ const Wizard = ({
   onClose = undefined,
   confirmDialogLabels = undefined,
   actionsBarLabels = actionsBarLabelsDefaultValues,
-  displayConfirmDialog
+  displayConfirmDialog,
+  ...rest
 }: WizardProps): JSX.Element => {
   const { classes } = useStyles();
   const [currentStep, setCurrentStep] = useState(0);
@@ -119,6 +120,7 @@ const Wizard = ({
         maxWidth={width}
         open={open}
         onClose={handleClose}
+        {...rest}
       >
         <Stepper currentStep={currentStep} steps={steps} />
         <Formik
