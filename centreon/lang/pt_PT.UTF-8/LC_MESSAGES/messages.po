@@ -16599,6 +16599,33 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 #  msgid "Host template required in service group association is not linked to service template"
 #  msgstr ""
 
+# msgid "No data found"
+# msgstr ""
+
+# msgid "Metrics dataset selection"
+# msgstr ""
+
+# msgid "Resource type"
+# msgstr ""
+
+# msgid "Select a resource"
+# msgstr ""
+
+# msgid "Please select a resource"
+# msgstr ""
+
+# msgid "Too many metrics, add more filter on resources"
+# msgstr ""
+
+# msgid "Service name"
+# msgstr ""
+
+# msgid "Please select a metric"
+# msgstr ""
+
+# msgid "The limit of 2 units has been reached"
+# msgstr ""
+
 # msgid "Notifications will only be sent during this time period"
 # msgstr ""
 
