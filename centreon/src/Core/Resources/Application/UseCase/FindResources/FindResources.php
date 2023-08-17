@@ -58,8 +58,7 @@ final class FindResources
     public function __invoke(
         FindResourcesPresenterInterface $presenter,
         ResourceFilter $filter
-    ): void
-    {
+    ): void {
         try {
             if ($this->contact->isAdmin()) {
                 $this->info('Find resources', ['request' => $this->requestParameters->toArray()]);
@@ -94,7 +93,7 @@ final class FindResources
     private function findResourcesAsUser(ResourceFilter $filter): FindResourcesResponse
     {
         $accessGroupIds = array_map(
-            fn (AccessGroup $accessGroup) => $accessGroup->getId(),
+            fn(AccessGroup $accessGroup) => $accessGroup->getId(),
             $this->accessGroupRepository->findByContact($this->contact)
         );
 

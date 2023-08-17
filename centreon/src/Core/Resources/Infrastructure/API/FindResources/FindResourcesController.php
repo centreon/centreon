@@ -36,7 +36,7 @@ final class FindResourcesController extends AbstractController
     public function __construct(private RequestValidator $validator)
     {
     }
-        
+
     /**
      * @param FindResources $useCase
      * @param FindResourcesPresenter $presenter
@@ -83,5 +83,5 @@ final class FindResourcesController extends AbstractController
             ->setMonitoringServerNames($filter[RequestValidator::MONITORING_SERVER_NAMES_PARAM_FILTER])
             ->setHostSeverityLevels($filter[RequestValidator::HOST_SEVERITY_LEVELS_PARAM_FILTER])
             ->setOnlyWithPerformanceData($filter[RequestValidator::FILTER_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY]);
-    } 
+    }
 }

@@ -88,7 +88,7 @@ final class FindResourcesRequestValidator
         $this->hasProviders($resourceTypes);
 
         $this->resourceTypes = array_map(
-            fn (ResourceTypeInterface $resourceType) => $resourceType->getName(),
+            fn(ResourceTypeInterface $resourceType) => $resourceType->getName(),
             iterator_to_array($resourceTypes)
         );
     }
@@ -189,8 +189,9 @@ final class FindResourcesRequestValidator
      * @param array<mixed> $value
      *
      * @throws \InvalidArgumentException
-     */ 
-    private function validateArray(string $parameterName, array $value): void {
+     */
+    private function validateArray(string $parameterName, array $value): void
+    {
         if (! is_array($value)) {
             throw new \InvalidArgumentException(
                 sprintf(
@@ -208,13 +209,13 @@ final class FindResourcesRequestValidator
      * @param array<int, string|int> $strings
      *
      * @throws \InvalidArgumentException
-     */ 
+     */
     private function validateArrayOfStringOrFail(string $parameterName, array $strings): void
     {
         $this->validateArray($parameterName, $strings);
 
         try {
-            (fn (string ...$items): array => $items)(...$strings);
+            (fn(string ...$items): array => $items)(...$strings);
         } catch (\TypeError) {
             $this->error(sprintf('values provided for %s should only be strings', $parameterName));
 
@@ -231,13 +232,13 @@ final class FindResourcesRequestValidator
      * @param array<int, string|int> $integers
      *
      * @throws \InvalidArgumentException
-     */ 
+     */
     private function validateArrayOfIntOrFail(string $parameterName, array $integers): void
     {
         $this->validateArray($parameterName, $integers);
 
         try {
-            (fn (int ...$items): array => $items)(...$integers);
+            (fn(int ...$items): array => $items)(...$integers);
         } catch (\TypeError) {
             $this->error(sprintf('Values provided for %s should only be integers', $parameterName));
 

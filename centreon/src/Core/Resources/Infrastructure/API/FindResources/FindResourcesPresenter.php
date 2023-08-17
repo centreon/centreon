@@ -38,7 +38,7 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
 {
     use PresenterTrait, HttpUrlTrait;
     private const IMAGE_DIRECTORY = '/img/media/',
-                  SERVICE_RESOURCE_TYPE = 'service';
+        SERVICE_RESOURCE_TYPE = 'service';
 
     /**
      * @param HypermediaCreator $hypermediaCreator
@@ -191,7 +191,7 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
         $isServiceTypedResource = $resource->type === self::SERVICE_RESOURCE_TYPE;
 
         $macrosConcordanceArray = [
-            '$HOSTADDRESS$' => $isServiceTypedResource ? $resource->parent?->fqdn : $resource->fqdn, 
+            '$HOSTADDRESS$' => $isServiceTypedResource ? $resource->parent?->fqdn : $resource->fqdn,
             '$HOSTNAME$' => $isServiceTypedResource ? $resource->parent?->name : $resource->name,
             '$HOSTSTATE$' => $isServiceTypedResource ? $resource->parent?->status?->name : $resource->status?->name,
             '$HOSTSTATEID$' => $isServiceTypedResource ? (string) $resource->parent?->status?->code : (string) $resource->status?->code,

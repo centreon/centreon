@@ -50,7 +50,7 @@ final class FindResourcesFactory
 
         foreach ($resources as $resource) {
             $resourceDto = new ResourceResponseDto();
-            $statusDto = $resource->getStatus() !== null ? self::createStatusResponseDto($resource->getStatus()) : null; 
+            $statusDto = $resource->getStatus() !== null ? self::createStatusResponseDto($resource->getStatus()) : null;
 
             $parentResource = $resource->getParent();
             $parentResourceDto = $parentResource !== null ? self::createParentResourceReponseDto($parentResource) : null;

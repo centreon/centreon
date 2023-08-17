@@ -141,7 +141,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->resources = array_values(
             array_filter(
                 $this->resources,
-                fn (ResourceEntity $resource) => $resource->hasGraph(),
+                fn(ResourceEntity $resource) => $resource->hasGraph(),
             )
         );
     }
@@ -311,7 +311,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         LEFT JOIN `:dbstg`.`resources` parent_resource
             ON parent_resource.id = resources.parent_id
             AND parent_resource.type = ' . self::RESOURCE_TYPE_HOST
-        . ' LEFT JOIN `:dbstg`.`severities`
+            . ' LEFT JOIN `:dbstg`.`severities`
             ON `severities`.severity_id = `resources`.severity_id
         LEFT JOIN `:dbstg`.`resources_tags` AS rtags
             ON `rtags`.resource_id = `resources`.resource_id
@@ -402,7 +402,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     private function addResourceAclSubRequest(array $accessGroupIds): string
     {
         $orConditions = array_map(
-            fn (ResourceACLProviderInterface $provider) => $provider->buildACLSubRequest($accessGroupIds),
+            fn(ResourceACLProviderInterface $provider) => $provider->buildACLSubRequest($accessGroupIds),
             iterator_to_array($this->resourceACLProviders)
         );
 
@@ -489,11 +489,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     {
         $resourcesWithIcons = array_filter(
             $this->resources,
-            fn (ResourceEntity $resource) => $resource->getIcon() !== null
+            fn(ResourceEntity $resource) => $resource->getIcon() !== null
         );
 
         return array_map(
-            fn (ResourceEntity $resource) => $resource->getIcon()?->getId(),
+            fn(ResourceEntity $resource) => $resource->getIcon()?->getId(),
             $resourcesWithIcons
         );
     }
@@ -505,11 +505,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     {
         $resourcesWithSeverities = array_filter(
             $this->resources,
-            fn (ResourceEntity $resource) => $resource->getSeverity() !== null
+            fn(ResourceEntity $resource) => $resource->getSeverity() !== null
         );
 
         return array_map(
-            fn (ResourceEntity $resource) => $resource->getSeverity()?->getIcon()?->getId(),
+            fn(ResourceEntity $resource) => $resource->getSeverity()?->getIcon()?->getId(),
             $resourcesWithSeverities
         );
     }
