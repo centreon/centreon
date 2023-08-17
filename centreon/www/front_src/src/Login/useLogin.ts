@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { FormikHelpers, FormikValues } from 'formik';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   filter,
@@ -99,7 +99,7 @@ const useLogin = (): UseLoginState => {
       suspense: false
     }
   });
-  const [platformVersions] = useAtom(platformVersionsAtom);
+  const platformVersions = useAtomValue(platformVersionsAtom);
   const { data: loginPageCustomisationData, isFetching } =
     useFetchQuery<LoginPageCustomisation>({
       decoder: loginPageCustomisationDecoder,
