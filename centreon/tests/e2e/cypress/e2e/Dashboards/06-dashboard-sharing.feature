@@ -35,3 +35,9 @@ Scenario: Adding write permissions of a dashboard to a contact group
   Given a non-admin editor user who has creator rights on a dashboard
   When the editor user sets write permissions on the dashboard to a contact group
   Then any member of the contact group has access to the dashboard in the dashboards library and can share it or update its properties
+
+Scenario: Overriding read permissions of a dashboard on a contact group's certain user
+  Given a non-admin editor user who has update rights on a dashboard with read permissions given to a contact group
+  When the editor user sets write permissions on the dashboard to a specific user of the contact group
+  Then the user whose permissions have been overridden can perform write operations on the dashboard
+  Then the other users of the contact group still have read-only permissions on the dashboard

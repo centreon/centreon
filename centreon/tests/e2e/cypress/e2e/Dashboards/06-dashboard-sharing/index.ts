@@ -12,11 +12,11 @@ import dashboardCGMember4 from '../../../fixtures/users/user-dashboard-cg-member
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
+  /* cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
-  cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
+  cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json'); */
 });
 
 beforeEach(() => {
@@ -47,7 +47,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  // cy.stopWebContainer();
 });
 
 afterEach(() => {
@@ -557,5 +557,145 @@ Then(
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
+  }
+);
+
+Given(
+  'a non-admin editor user who has update rights on a dashboard with read permissions given to a contact group',
+  () => {
+    cy.loginByTypeOfUser({
+      jsonName: dashboardCreatorUser.login,
+      loginViaApi: false
+    });
+
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
+      .click();
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.contains('dashboard-contact-group-creator').click();
+    cy.getByTestId({ testId: 'add' }).should('be.enabled');
+    cy.getByTestId({ testId: 'role-input' }).eq(0).click();
+    cy.get('[role="listbox"]').contains('viewer').click();
+    cy.getByTestId({ testId: 'add' }).click();
+
+    cy.get('*[class^="MuiList-root"]')
+      .eq(1)
+      .children()
+      .its('length')
+      .should('eq', 2);
+    cy.get('*[class^="MuiList-root"]')
+      .eq(1)
+      .children()
+      .eq(0)
+      .should('contain', 'dashboard-contact-group-creator');
+
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+
+    cy.reload();
+  }
+);
+
+When(
+  'the editor user sets write permissions on the dashboard to a specific user of the contact group',
+  () => {
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.contains(dashboardCGMember3.login).click();
+    cy.getByTestId({ testId: 'add' }).should('be.enabled');
+    cy.getByTestId({ testId: 'role-input' }).eq(0).click();
+    cy.get('[role="listbox"]').contains('editor').click();
+    cy.getByTestId({ testId: 'add' }).click();
+
+    cy.get('*[class^="MuiList-root"]')
+      .eq(1)
+      .children()
+      .its('length')
+      .should('eq', 3);
+    cy.get('*[class^="MuiList-root"]')
+      .eq(1)
+      .children()
+      .eq(0)
+      .should('contain', `${dashboardCGMember3.login}`);
+
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  }
+);
+
+Then(
+  'the user whose permissions have been overridden can perform write operations on the dashboard',
+  () => {
+    cy.logout();
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
+
+    cy.loginByTypeOfUser({
+      jsonName: dashboardCGMember3.login,
+      loginViaApi: false
+    });
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
+      .should('exist');
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
+      .click();
+    cy.location('pathname')
+      .should('include', '/dashboards/')
+      .invoke('split', '/')
+      .should('not.be.empty')
+      .then(last)
+      .then(Number)
+      .should('not.be', 'dashboards')
+      .should('be.a', 'number');
+
+    cy.getByTestId({ testId: 'edit' }).should('be.enabled');
+    cy.getByTestId({ testId: 'share' }).should('be.enabled');
+  }
+);
+
+Then(
+  'the other users of the contact group still have read-only permissions on the dashboard',
+  () => {
+    cy.logout();
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
+
+    cy.loginByTypeOfUser({
+      jsonName: dashboardCGMember4.login,
+      loginViaApi: false
+    });
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
+      .should('exist');
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
+      .click();
+    cy.location('pathname')
+      .should('include', '/dashboards/')
+      .invoke('split', '/')
+      .should('not.be.empty')
+      .then(last)
+      .then(Number)
+      .should('not.be', 'dashboards')
+      .should('be.a', 'number');
+
+    cy.getByTestId({ testId: 'edit' }).should('not.exist');
+    cy.getByTestId({ testId: 'share' }).should('not.exist');
   }
 );
