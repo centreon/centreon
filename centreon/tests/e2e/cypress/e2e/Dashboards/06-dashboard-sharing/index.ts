@@ -699,3 +699,99 @@ Then(
     cy.getByTestId({ testId: 'share' }).should('not.exist');
   }
 );
+
+Given(
+  "a dashboard featuring a dashboard administrator as editor, and three users who are not part of the dashboard's share list",
+  () => {
+    cy.loginByTypeOfUser({
+      jsonName: dashboardAdministratorUser.login,
+      loginViaApi: false
+    });
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardAdministratorUser.name)
+      .click();
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+  }
+);
+
+When('the admin user appoints one of the users as an editor', () => {
+  cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+  cy.contains(dashboardCreatorUser.login).click();
+  cy.getByTestId({ testId: 'add' }).should('be.enabled');
+  cy.getByTestId({ testId: 'role-input' }).eq(0).click();
+  cy.get('[role="listbox"]').contains('editor').click();
+  cy.getByTestId({ testId: 'add' }).click();
+  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.reload();
+});
+
+Then(
+  'the newly appointed editor user can appoint another user as an editor',
+  () => {
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.logout();
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
+
+    cy.loginByTypeOfUser({
+      jsonName: dashboardCreatorUser.login,
+      loginViaApi: false
+    });
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardAdministratorUser.name)
+      .click();
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.contains(dashboardCGMember3.login).click();
+    cy.getByTestId({ testId: 'add' }).should('be.enabled');
+    cy.getByTestId({ testId: 'role-input' }).eq(0).click();
+    cy.get('[role="listbox"]').contains('editor').click();
+    cy.getByTestId({ testId: 'add' }).click();
+
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload();
+
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.get('*[class^="MuiList-root"]')
+      .eq(1)
+      .children()
+      .contains(dashboardCGMember3.login)
+      .should('exist');
+
+    cy.get('[data-state="added"]').should('not.exist');
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+  }
+);
+
+Then(
+  'the newly appointed editor user can appoint another user as a viewer',
+  () => {
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.contains(dashboardViewerUser.login).click();
+    cy.getByTestId({ testId: 'add' }).should('be.enabled');
+    cy.getByTestId({ testId: 'role-input' }).eq(0).click();
+    cy.get('[role="listbox"]').contains('viewer').click();
+    cy.getByTestId({ testId: 'add' }).click();
+
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload();
+
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.get('*[class^="MuiList-root"]')
+      .eq(1)
+      .children()
+      .contains(dashboardViewerUser.login)
+      .should('exist');
+
+    cy.get('[data-state="added"]').should('not.exist');
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+  }
+);
