@@ -16643,5 +16643,5 @@ msgstr ""
 # msgid "Open links in new tab"
 # msgstr ""
 
-# msgid "By turning off this option, all links included in the widget will be opened in the same tab when clicked."
+# msgid "By turning off this option, all links included in the widget will be opened in the same tab."
 # msgstr ""
