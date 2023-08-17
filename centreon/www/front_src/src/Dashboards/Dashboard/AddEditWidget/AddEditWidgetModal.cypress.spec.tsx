@@ -4,8 +4,12 @@ import widgetTextConfiguration from 'centreon-widgets/centreon-widget-text/modul
 import widgetTextProperties from 'centreon-widgets/centreon-widget-text/properties.json';
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
 import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
+import widgetDataConfiguration from 'centreon-widgets/centreon-widget-data/moduleFederation.json';
+import widgetDataProperties from 'centreon-widgets/centreon-widget-data/properties.json';
 import widgetGenericTextConfiguration from 'centreon-widgets/centreon-widget-generictext/moduleFederation.json';
 import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generictext/properties.json';
+
+import { Method, TestQueryProvider } from '@centreon/ui';
 
 import {
   federatedWidgetsAtom,
@@ -13,20 +17,31 @@ import {
 } from '../../../federatedModules/atoms';
 import {
   labelAdd,
+  labelDelete,
   labelDescription,
   labelEdit,
+  labelMetrics,
   labelName,
   labelPleaseChooseAWidgetToActivatePreview,
+  labelPleaseSelectAResource,
+  labelResourceType,
+  labelSelectAResource,
   labelSelectAWidgetType,
+  labelServiceName,
+  labelTheLimiteOf2UnitsHasBeenReached,
   labelWidgetLibrary
 } from '../translatedLabels';
 import { labelCancel } from '../../translatedLabels';
+import { dashboardAtom } from '../atoms';
 
 import { widgetFormInitialDataAtom } from './atoms';
+import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/useResources';
+import { WidgetResourceType } from './models';
+import { metricsEndpoint } from './api/endpoints';
 
 import { AddEditWidgetModal } from '.';
 
-const initializeWidgets = (): ReturnType<typeof createStore> => {
+const initializeWidgets = (defaultStore?): ReturnType<typeof createStore> => {
   const federatedWidgets = [
     {
       ...widgetTextConfiguration,
@@ -37,16 +52,21 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
       moduleFederationName: 'centreon-widget-input/src'
     },
     {
+      ...widgetDataConfiguration,
+      moduleFederationName: 'centreon-widget-data/src'
+    },
+    {
       ...widgetGenericTextConfiguration,
       moduleFederationName: 'centreon-widget-genericText/src'
     }
   ];
 
-  const store = createStore();
+  const store = defaultStore || createStore();
   store.set(federatedWidgetsAtom, federatedWidgets);
   store.set(federatedWidgetsPropertiesAtom, [
     widgetTextProperties,
     widgetInputProperties,
+    widgetDataProperties,
     widgetGenericTextProperties
   ]);
 
@@ -54,6 +74,7 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
 };
 
 const initialFormDataAdd = {
+  data: {},
   id: null,
   moduleName: null,
   options: {},
@@ -61,6 +82,7 @@ const initialFormDataAdd = {
 };
 
 const initialFormDataEdit = {
+  data: {},
   id: `centreon-widget-text_1`,
   moduleName: widgetTextConfiguration.moduleName,
   options: {
@@ -73,68 +95,153 @@ const initialFormDataEdit = {
   }
 };
 
-describe('AddEditWidgetModal', () => {
-  describe('Add widget', () => {
-    beforeEach(() => {
-      const store = initializeWidgets();
+const generateResources = (resourceLabel: string): object => ({
+  meta: {
+    limit: 10,
+    page: 1,
+    total: 10
+  },
+  result: new Array(10).fill(null).map((_, index) => ({
+    id: index,
+    name: `${resourceLabel} ${index}`
+  }))
+});
 
-      store.set(widgetFormInitialDataAtom, initialFormDataAdd);
+const store = createStore();
+
+describe('AddEditWidgetModal', () => {
+  describe('Properties', () => {
+    beforeEach(() => {
+      const jotaiStore = initializeWidgets();
+
+      jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
 
       cy.viewport('macbook-13');
 
       cy.mount({
         Component: (
-          <Provider store={store}>
-            <AddEditWidgetModal />
-          </Provider>
+          <TestQueryProvider>
+            <Provider store={jotaiStore}>
+              <AddEditWidgetModal />
+            </Provider>
+          </TestQueryProvider>
         )
       });
     });
 
-    it('displays the modal', () => {
-      cy.contains(labelSelectAWidgetType).should('be.visible');
-      cy.contains(labelPleaseChooseAWidgetToActivatePreview).should(
-        'be.visible'
-      );
-      cy.findByLabelText(labelWidgetLibrary).should('be.visible');
-      cy.findByLabelText(labelCancel).should('be.visible');
-      cy.findByLabelText(labelAdd).should('be.visible');
+    describe('Add widget', () => {
+      beforeEach(() => {
+        const jotaiStore = initializeWidgets();
 
-      cy.matchImageSnapshot();
+        jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
+
+        cy.viewport('macbook-13');
+
+        cy.mount({
+          Component: (
+            <TestQueryProvider>
+              <Provider store={jotaiStore}>
+                <AddEditWidgetModal />
+              </Provider>
+            </TestQueryProvider>
+          )
+        });
+      });
+
+      it('displays the modal', () => {
+        cy.contains(labelSelectAWidgetType).should('be.visible');
+        cy.contains(labelPleaseChooseAWidgetToActivatePreview).should(
+          'be.visible'
+        );
+        cy.findByLabelText(labelWidgetLibrary).should('be.visible');
+        cy.findByLabelText(labelCancel).should('be.visible');
+        cy.findByLabelText(labelAdd).should('be.visible');
+
+        cy.matchImageSnapshot();
+      });
+
+      it('enables the add button when a widget is selected and the properties are filled', () => {
+        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.contains('Generic input (example)').click();
+
+        cy.findByLabelText(labelAdd).should('be.disabled');
+
+        cy.findByLabelText(labelName).type('Generic input');
+        cy.findByLabelText('Generic text').type('Text');
+
+        cy.findByLabelText(labelAdd).should('be.enabled');
+
+        cy.matchImageSnapshot();
+      });
+
+      it('keeps the name when a widget is selected, properties are filled and the widget type is changed', () => {
+        const widgetName = 'Widget name';
+
+        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.contains('Generic input (example)').click();
+
+        cy.findByLabelText(labelName).type(widgetName);
+        cy.findByLabelText('Generic text').type('Text');
+
+        cy.findByLabelText(labelAdd).should('be.enabled');
+
+        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.contains('Generic text (example)').click();
+
+        cy.findByLabelText(labelName).should('have.value', widgetName);
+        cy.findByLabelText(labelAdd).should('be.enabled');
+
+        cy.matchImageSnapshot();
+      });
     });
 
-    it('enables the add button when a widget is selected and the properties are filled', () => {
-      cy.findByLabelText(labelWidgetLibrary).click();
-      cy.contains('Generic input (example)').click();
+    describe('Edit widget', () => {
+      beforeEach(() => {
+        const jotaiStore = initializeWidgets();
 
-      cy.findByLabelText(labelAdd).should('be.disabled');
+        jotaiStore.set(widgetFormInitialDataAtom, initialFormDataEdit);
 
-      cy.findByLabelText(labelName).type('Generic input');
-      cy.findByLabelText('Generic text').type('Text');
+        cy.viewport('macbook-13');
 
-      cy.findByLabelText(labelAdd).should('be.enabled');
+        cy.mount({
+          Component: (
+            <Provider store={jotaiStore}>
+              <AddEditWidgetModal />
+            </Provider>
+          )
+        });
+      });
 
-      cy.matchImageSnapshot();
-    });
+      it('displays the modal with pre-filled values', () => {
+        cy.contains(labelSelectAWidgetType).should('be.visible');
 
-    it('keeps the name when a widget is selected, properties are filled and the widget type is changed', () => {
-      const widgetName = 'Widget name';
+        cy.findByLabelText(labelWidgetLibrary).should(
+          'have.value',
+          'Generic text (example)'
+        );
+        cy.findByLabelText(labelName).should('have.value', 'Widget name');
+        cy.findByLabelText(labelDescription).should(
+          'have.value',
+          'Description'
+        );
+        cy.findByLabelText(labelEdit).should('be.disabled');
 
-      cy.findByLabelText(labelWidgetLibrary).click();
-      cy.contains('Generic input (example)').click();
+        cy.matchImageSnapshot();
+      });
 
-      cy.findByLabelText(labelName).type(widgetName);
-      cy.findByLabelText('Generic text').type('Text');
+      it('changes the widget type when another widget is selected', () => {
+        const widgetName = 'Edited widget name';
+        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.contains('Generic input (example)').click();
 
-      cy.findByLabelText(labelAdd).should('be.enabled');
+        cy.findByLabelText(labelName).clear().type(widgetName);
+        cy.findByLabelText('Generic text').type('Text');
 
-      cy.findByLabelText(labelWidgetLibrary).click();
-      cy.contains('Generic text (example)').click();
+        cy.findByLabelText(labelName).should('have.value', widgetName);
+        cy.findByLabelText(labelEdit).should('be.enabled');
 
-      cy.findByLabelText(labelName).should('have.value', widgetName);
-      cy.findByLabelText(labelAdd).should('be.enabled');
-
-      cy.matchImageSnapshot();
+        cy.matchImageSnapshot();
+      });
     });
 
     it('displays the preview of the generic text widget when the generic text widget type is selected', () => {
@@ -161,49 +268,161 @@ describe('AddEditWidgetModal', () => {
     });
   });
 
-  describe('Edit widget', () => {
-    beforeEach(() => {
-      const store = initializeWidgets();
+  describe('Data', () => {
+    describe('Resources and metrics', () => {
+      beforeEach(() => {
+        initializeWidgets(store);
 
-      store.set(widgetFormInitialDataAtom, initialFormDataEdit);
+        store.set(widgetFormInitialDataAtom, initialFormDataAdd);
 
-      cy.viewport('macbook-13');
+        cy.viewport('macbook-13');
 
-      cy.mount({
-        Component: (
-          <Provider store={store}>
-            <AddEditWidgetModal />
-          </Provider>
-        )
+        cy.interceptAPIRequest({
+          alias: 'getHosts',
+          method: Method.GET,
+          path: `**${resourceTypeBaseEndpoints[WidgetResourceType.host]}**`,
+          response: generateResources('Host')
+        });
+
+        cy.fixture('Dashboards/Dashboard/serviceMetrics.json').then(
+          (serviceMetrics) => {
+            cy.interceptAPIRequest({
+              alias: 'getServiceMetrics',
+              method: Method.GET,
+              path: `${metricsEndpoint}**`,
+              response: serviceMetrics
+            });
+          }
+        );
+
+        cy.mount({
+          Component: (
+            <TestQueryProvider>
+              <Provider store={store}>
+                <AddEditWidgetModal />
+              </Provider>
+            </TestQueryProvider>
+          )
+        });
       });
-    });
 
-    it('displays the modal with pre-filled values', () => {
-      cy.contains(labelSelectAWidgetType).should('be.visible');
+      it('selects metrics when resources are selected', () => {
+        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.contains('Generic data (example)').click();
 
-      cy.findByLabelText(labelWidgetLibrary).should(
-        'have.value',
-        'Generic text (example)'
-      );
-      cy.findByLabelText(labelName).should('have.value', 'Widget name');
-      cy.findByLabelText(labelDescription).should('have.value', 'Description');
-      cy.findByLabelText(labelEdit).should('be.disabled');
+        cy.findByLabelText(labelName).type('Generic data');
 
-      cy.matchImageSnapshot();
-    });
+        cy.findAllByLabelText(labelAdd).eq(1).should('be.disabled');
 
-    it('changes the widget type when another widget is selected', () => {
-      const widgetName = 'Edited widget name';
-      cy.findByLabelText(labelWidgetLibrary).click();
-      cy.contains('Generic input (example)').click();
+        cy.findAllByLabelText(labelAdd).eq(0).click();
 
-      cy.findByLabelText(labelName).clear().type(widgetName);
-      cy.findByLabelText('Generic text').type('Text');
+        cy.findByTestId(labelResourceType).parent().children().eq(0).click();
+        cy.contains(/^Host$/).click();
 
-      cy.findByLabelText(labelName).should('have.value', widgetName);
-      cy.findByLabelText(labelEdit).should('be.enabled');
+        cy.contains(labelPleaseSelectAResource).should('be.visible');
 
-      cy.matchImageSnapshot();
+        cy.findByTestId(labelSelectAResource).click();
+        cy.waitForRequest('@getHosts');
+
+        cy.contains(/^Host 0$/).click();
+        cy.waitForRequest('@getServiceMetrics');
+
+        cy.findAllByLabelText(labelAdd).eq(1).click();
+        cy.findByTestId(labelServiceName).parent().children().eq(0).click();
+        cy.contains('Centreon-server_Ping').click();
+
+        cy.findByTestId(labelMetrics).click();
+        cy.contains('pl (%)').click();
+        cy.contains('rtmax (ms)').click();
+
+        cy.contains('Metrics (1 Metric)').should('be.visible');
+        cy.contains(labelTheLimiteOf2UnitsHasBeenReached).should('be.visible');
+
+        cy.findAllByLabelText(labelAdd).eq(2).should('be.enabled');
+
+        cy.matchImageSnapshot();
+      });
+
+      it('disables the Add button when metrics are removed from the dataset selection', () => {
+        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.contains('Generic data (example)').click();
+
+        cy.findByLabelText(labelName).type('Generic data');
+
+        cy.findAllByLabelText(labelAdd).eq(0).click();
+
+        cy.findByTestId(labelResourceType).parent().children().eq(0).click();
+        cy.contains(/^Host$/).click();
+
+        cy.findByTestId(labelSelectAResource).click();
+        cy.waitForRequest('@getHosts');
+
+        cy.contains(/^Host 0$/).click();
+        cy.waitForRequest('@getServiceMetrics');
+
+        cy.findAllByLabelText(labelAdd).eq(1).click();
+        cy.findByTestId(labelServiceName).parent().children().eq(0).click();
+        cy.contains('Centreon-server_Ping').click();
+
+        cy.findByTestId(labelMetrics).click();
+        cy.contains('pl (%)').click();
+        cy.contains('rtmax (ms)').click();
+
+        cy.findAllByLabelText(labelAdd).eq(2).should('be.enabled');
+
+        cy.findAllByLabelText(labelDelete).eq(1).click();
+
+        cy.findAllByLabelText(labelAdd).eq(2).should('be.disabled');
+
+        cy.matchImageSnapshot();
+      });
+
+      it('stores the data when a resource is selected, a metric is selected and the Add button is clicked', () => {
+        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.contains('Generic data (example)').click();
+
+        cy.findByLabelText(labelName).type('Generic data');
+
+        cy.findAllByLabelText(labelAdd).eq(0).click();
+
+        cy.findByTestId(labelResourceType).parent().children().eq(0).click();
+        cy.contains(/^Host$/).click();
+
+        cy.findByTestId(labelSelectAResource).click();
+        cy.waitForRequest('@getHosts');
+
+        cy.contains(/^Host 0$/).click();
+        cy.waitForRequest('@getServiceMetrics');
+
+        cy.findAllByLabelText(labelAdd).eq(1).click();
+        cy.findByTestId(labelServiceName).parent().children().eq(0).click();
+        cy.contains('Centreon-server_Ping').click();
+
+        cy.findByTestId(labelMetrics).click();
+        cy.contains('pl (%)').click();
+        cy.contains('rtmax (ms)').click();
+
+        cy.findAllByLabelText(labelAdd)
+          .eq(2)
+          .click()
+          .then(() => {
+            const dashboard = store.get(dashboardAtom);
+
+            assert.equal(dashboard.layout.length, 1);
+            assert.equal(dashboard.layout[0].data.resources.length, 1);
+            assert.equal(
+              dashboard.layout[0].data.resources[0].resourceType,
+              'host'
+            );
+            assert.equal(
+              dashboard.layout[0].data.resources[0].resources.length,
+              1
+            );
+            assert.equal(dashboard.layout[0].data.metrics.length, 1);
+            assert.equal(dashboard.layout[0].data.metrics[0].id, 1);
+            assert.equal(dashboard.layout[0].data.metrics[0].metrics.length, 2);
+          });
+      });
     });
   });
 });

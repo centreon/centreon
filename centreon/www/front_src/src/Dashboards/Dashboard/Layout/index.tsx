@@ -50,6 +50,7 @@ const Layout = (): JSX.Element => {
 
       return {
         ...panel,
+        data: currentWidget?.data,
         name: currentWidget?.name,
         options: currentWidget?.options,
         panelConfiguration: currentWidget?.panelConfiguration
@@ -73,6 +74,7 @@ const Layout = (): JSX.Element => {
       <DashboardLayout.Layout
         changeLayout={changeLayout}
         displayGrid={isEditing}
+        isStatic={!isEditing}
         layout={panels}
       >
         {panels.map(({ i, panelConfiguration }) => {

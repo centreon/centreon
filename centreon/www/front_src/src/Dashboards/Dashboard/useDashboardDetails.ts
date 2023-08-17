@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useParams } from 'react-router-dom';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, propOr } from 'ramda';
 
 import { useDeepCompare, useFetchQuery } from '@centreon/ui';
@@ -9,8 +9,8 @@ import { useDeepCompare, useFetchQuery } from '@centreon/ui';
 import { dashboardsEndpoint } from '../api/endpoints';
 import { Dashboard, DashboardPanel, resource } from '../api/models';
 import { dashboardDecoder } from '../api/decoders';
-import useFederatedWidgets from '../../federatedModules/useFederatedWidgets';
 import { FederatedModule } from '../../federatedModules/models';
+import { federatedWidgetsAtom } from '../../federatedModules/atoms';
 
 import { Panel, PanelConfiguration } from './models';
 import { dashboardAtom, panelsLengthAtom } from './atoms';
@@ -36,12 +36,13 @@ export const formatPanel = ({
   );
 
   return {
+    data: panel.widgetSettings.data,
     h: panel.layout.height,
     i: `${panel.id}`,
     minH: panel.layout.minHeight,
     minW: panel.layout.minWidth,
     name: panel.name,
-    options: panel.widgetSettings,
+    options: panel.widgetSettings.options,
     panelConfiguration:
       federatedWidget?.federatedComponentsConfiguration as PanelConfiguration,
     static: staticPanel,
@@ -65,10 +66,9 @@ type UseDashboardDetailsProps = {
 const useDashboardDetails = ({
   dashboardId
 }: UseDashboardDetailsProps): UseDashboardDetailsState => {
+  const federatedWidgets = useAtomValue(federatedWidgetsAtom);
   const setDashboard = useSetAtom(dashboardAtom);
   const setPanelsLength = useSetAtom(panelsLengthAtom);
-
-  const { federatedWidgets } = useFederatedWidgets();
 
   const { data: dashboard } = useFetchQuery({
     decoder: dashboardDecoder,

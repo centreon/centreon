@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 
 import { Widget } from './models';
-import { WidgetPropertiesRenderer } from './WidgetProperties/useWidgetProperties';
+import { WidgetPropertiesRenderer } from './WidgetProperties/useWidgetInputs';
 
 export const widgetFormInitialDataAtom = atom<Widget | null>(null);
 

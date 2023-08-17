@@ -26,6 +26,8 @@ export interface StyleMenuSkeleton {
 }
 
 export enum FederatedWidgetOptionType {
+  metrics = 'metrics',
+  resources = 'resources',
   richText = 'rich-text',
   textfield = 'textfield'
 }
@@ -38,6 +40,9 @@ export interface FederatedWidgetOption {
 }
 
 export interface FederatedWidgetProperties {
+  data: {
+    [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
+  };
   description: string;
   moduleName: string;
   options: {

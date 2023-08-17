@@ -5,11 +5,13 @@ import { useTheme } from '@mui/material/styles';
 
 import { adjustGraphData } from '../../../helpers/index';
 import { GraphData, PatternOrientation } from '../../../models';
+import { CurveType } from '../models';
 
 import BasicThreshold from './BasicThreshold';
 import useScaleThreshold from './useScaleThreshold';
 
 interface Props {
+  curve: CurveType;
   data: GraphData;
   graphHeight: number;
   id: string;
@@ -26,7 +28,8 @@ const ThresholdWithPatternLines = ({
   leftScale,
   rightScale,
   xScale,
-  id
+  id,
+  curve
 }: Props): JSX.Element | null => {
   const theme = useTheme();
 
@@ -47,6 +50,7 @@ const ThresholdWithPatternLines = ({
   return (
     <>
       <BasicThreshold
+        curve={curve}
         fillAboveArea={"url('#lines')"}
         fillBelowArea={"url('#lines')"}
         fillOpacity={0.8}
