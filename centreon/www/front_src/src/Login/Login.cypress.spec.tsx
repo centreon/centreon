@@ -45,6 +45,23 @@ const retrievedWeb = {
   }
 };
 
+const retrievedWebWithItEditionInstalled = {
+  modules: {
+    'centreon-it-edition-extensions': {
+      fix: '0',
+      major: '23',
+      minor: '10',
+      version: '23.10.0'
+    }
+  },
+  web: {
+    fix: '1',
+    major: '21',
+    minor: '10',
+    version: '21.10.1'
+  }
+};
+
 const retrievedTranslations = {
   en: {
     hello: 'Hello'
@@ -359,7 +376,7 @@ describe('Login Page', () => {
 describe('Default custom login page', () => {
   beforeEach(() => {
     setupBeforeEach();
-
+    store.set(platformVersionsAtom, retrievedWebWithItEditionInstalled);
     cy.fixture('login/defaultLoginPageCustomization.json').then((fixture) =>
       cy.interceptAPIRequest({
         alias: 'getDefaultLoginCustomization',
@@ -399,7 +416,7 @@ describe('Default custom login page', () => {
 describe('Custom login page with data', () => {
   beforeEach(() => {
     setupBeforeEach();
-
+    store.set(platformVersionsAtom, retrievedWebWithItEditionInstalled);
     cy.fixture('login/loginPageCustomization.json').then((fixture) =>
       cy.interceptAPIRequest({
         alias: 'getLoginCustomization',
