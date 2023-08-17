@@ -47,7 +47,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  //cy.stopWebContainer();
+  cy.stopWebContainer();
 });
 
 afterEach(() => {
