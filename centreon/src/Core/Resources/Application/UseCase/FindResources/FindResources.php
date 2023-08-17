@@ -88,12 +88,14 @@ final class FindResources
     /**
      * @param ResourceFilter $filter
      *
+     * @throws \Throwable
+     *
      * @return FindResourcesResponse
      */
     private function findResourcesAsUser(ResourceFilter $filter): FindResourcesResponse
     {
         $accessGroupIds = array_map(
-            fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
             $this->accessGroupRepository->findByContact($this->contact)
         );
 

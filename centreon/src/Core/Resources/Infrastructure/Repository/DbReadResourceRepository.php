@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Resources\Infrastructure\Repository;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
@@ -48,7 +49,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     private array $resources = [];
 
     /** @var ResourceTypeInterface[] */
-    private array $resourceTypes = [];
+    private array $resourceTypes;
 
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
@@ -85,12 +86,14 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      * @param \Traversable<ResourceTypeInterface> $resourceTypes
      * @param \Traversable<ResourceACLProviderInterface> $resourceACLProviders
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct(
         DatabaseConnection $db,
         SqlRequestParametersTranslator $sqlRequestTranslator,
         \Traversable $resourceTypes,
-        private \Traversable $resourceACLProviders
+        private readonly \Traversable $resourceACLProviders
     ) {
         $this->db = $db;
         $this->sqlRequestTranslator = $sqlRequestTranslator;
@@ -108,9 +111,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->resourceTypes = iterator_to_array($resourceTypes);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function findResources(ResourceFilter $filter): array
     {
         $this->resources = [];
@@ -141,7 +141,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         $this->resources = array_values(
             array_filter(
                 $this->resources,
-                fn(ResourceEntity $resource) => $resource->hasGraph(),
+                static fn(ResourceEntity $resource) => $resource->hasGraph(),
             )
         );
     }
@@ -158,15 +158,12 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     {
         $subRequest = '';
         $searchedTagNames = [];
-        $searchedTagTypes = [];
-        $searchedTags = [];
         $includeHostResourceType = false;
         $includeServiceResourceType = false;
         $searchedTags = [];
 
         if (! empty($filter->getHostgroupNames())) {
             $includeHostResourceType = true;
-            $searchedTagTypes[] = Tag::HOST_GROUP_TYPE_ID;
             foreach ($filter->getHostgroupNames() as $hostGroupName) {
                 $searchedTags[Tag::HOST_GROUP_TYPE_ID][] = $hostGroupName;
                 $searchedTagNames[] = $hostGroupName;
@@ -175,7 +172,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         if (! empty($filter->getServicegroupNames())) {
             $includeServiceResourceType = true;
-            $searchedTagTypes[] = Tag::SERVICE_GROUP_TYPE_ID;
             foreach ($filter->getServicegroupNames() as $serviceGroupName) {
                 $searchedTags[Tag::SERVICE_GROUP_TYPE_ID][] = $serviceGroupName;
                 $searchedTagNames[] = $serviceGroupName;
@@ -184,7 +180,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         if (! empty($filter->getServiceCategoryNames())) {
             $includeServiceResourceType = true;
-            $searchedTagTypes[] = Tag::SERVICE_CATEGORY_TYPE_ID;
             foreach ($filter->getServiceCategoryNames() as $serviceCategoryName) {
                 $searchedTags[Tag::SERVICE_CATEGORY_TYPE_ID][] = $serviceCategoryName;
                 $searchedTagNames[] = $serviceCategoryName;
@@ -193,7 +188,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         if (! empty($filter->getHostCategoryNames())) {
             $includeHostResourceType = true;
-            $searchedTagTypes[] = Tag::HOST_CATEGORY_TYPE_ID;
             foreach ($filter->getHostCategoryNames() as $hostCategoryName) {
                 $searchedTags[Tag::HOST_CATEGORY_TYPE_ID][] = $hostCategoryName;
                 $searchedTagNames[] = $hostCategoryName;
@@ -259,6 +253,15 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         return $subRequest;
     }
 
+    /**
+     * @param ResourceFilter $filter
+     * @param StatementCollector $collector
+     * @param string $accessGroupRequest
+     *
+     * @throws RepositoryException
+     *
+     * @return string
+     */
     private function generateFindResourcesRequest(
         ResourceFilter $filter,
         StatementCollector $collector,
@@ -398,11 +401,13 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
     /**
      * @param int[] $accessGroupIds
+     *
+     * @throws \InvalidArgumentException
      */
     private function addResourceAclSubRequest(array $accessGroupIds): string
     {
         $orConditions = array_map(
-            fn(ResourceACLProviderInterface $provider) => $provider->buildACLSubRequest($accessGroupIds),
+            static fn(ResourceACLProviderInterface $provider): string => $provider->buildACLSubRequest($accessGroupIds),
             iterator_to_array($this->resourceACLProviders)
         );
 
@@ -413,6 +418,14 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         return sprintf(' AND (%s)', implode(' OR ', $orConditions));
     }
 
+    /**
+     * @param ResourceFilter $filter
+     * @param string $request
+     * @param StatementCollector $collector
+     *
+     * @throws AssertionFailedException
+     * @throws \PDOException
+     */
     private function fetchResources(ResourceFilter $filter, string $request, StatementCollector $collector): void
     {
         $statement = $this->db->prepare(
@@ -420,7 +433,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         );
 
         foreach ($this->sqlRequestTranslator->getSearchValues() as $key => $data) {
-            /** @var int */
+            /** @var int $data_type */
             $data_type = key($data);
             $collector->addValue($key, current($data), $data_type);
         }
@@ -489,11 +502,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     {
         $resourcesWithIcons = array_filter(
             $this->resources,
-            fn(ResourceEntity $resource) => $resource->getIcon() !== null
+            static fn(ResourceEntity $resource): bool => null !== $resource->getIcon()
         );
 
         return array_map(
-            fn(ResourceEntity $resource) => $resource->getIcon()?->getId(),
+            static fn(ResourceEntity $resource): ?int => $resource->getIcon()?->getId(),
             $resourcesWithIcons
         );
     }
@@ -505,11 +518,11 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     {
         $resourcesWithSeverities = array_filter(
             $this->resources,
-            fn(ResourceEntity $resource) => $resource->getSeverity() !== null
+            static fn(ResourceEntity $resource): bool => null !== $resource->getSeverity()
         );
 
         return array_map(
-            fn(ResourceEntity $resource) => $resource->getSeverity()?->getIcon()?->getId(),
+            static fn(ResourceEntity $resource): ?int => $resource->getSeverity()?->getIcon()?->getId(),
             $resourcesWithSeverities
         );
     }
@@ -760,7 +773,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
 
         if (! empty($filter->getStatusTypes())) {
             foreach ($filter->getStatusTypes() as $statusType) {
-                if (array_key_exists($statusType, ResourceFilter::MAP_STATUS_TYPES)) {
+                if (\array_key_exists($statusType, ResourceFilter::MAP_STATUS_TYPES)) {
                     $sqlStatusTypes[] = 'resources.status_confirmed = ' . ResourceFilter::MAP_STATUS_TYPES[$statusType];
                 }
             }
@@ -803,6 +816,8 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      *
      * @param array<int, int|null> $iconIds
      *
+     * @throws \PDOException
+     *
      * @return array<int, array<string, string>>
      */
     private function getIconsDataForResources(array $iconIds): array
@@ -825,6 +840,13 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             $statement->execute(array_values($iconIds));
 
             while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                /** @var array{
+                 *     icon_id: int,
+                 *     icon_name: string,
+                 *     icon_path: string,
+                 *     icon_directory: string
+                 * } $record
+                 */
                 $icons[(int) $record['icon_id']] = [
                     'name' => $record['icon_name'],
                     'url' => $record['icon_directory'] . DIRECTORY_SEPARATOR . $record['icon_path'],

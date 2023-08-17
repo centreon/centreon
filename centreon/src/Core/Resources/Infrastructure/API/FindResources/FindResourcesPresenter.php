@@ -36,7 +36,8 @@ use Core\Resources\Application\UseCase\FindResources\Response\ResourceResponseDt
 
 class FindResourcesPresenter extends AbstractPresenter implements FindResourcesPresenterInterface
 {
-    use PresenterTrait, HttpUrlTrait;
+    use HttpUrlTrait;
+    use PresenterTrait;
     private const IMAGE_DIRECTORY = '/img/media/',
         SERVICE_RESOURCE_TYPE = 'service';
 
@@ -46,16 +47,13 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
      * @param PresenterFormatterInterface $presenterFormatter
      */
     public function __construct(
-        private HypermediaCreator $hypermediaCreator,
+        private readonly HypermediaCreator $hypermediaCreator,
         protected RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function presentResponse(FindResourcesResponse|ResponseStatusInterface $data): void
     {
         if ($data instanceof FindResourcesResponse) {

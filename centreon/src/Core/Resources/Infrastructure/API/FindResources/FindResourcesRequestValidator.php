@@ -78,23 +78,27 @@ final class FindResourcesRequestValidator
     private const AVAILABLE_STATUS_TYPES = ['hard', 'soft'];
 
     /** @var string[] */
-    private array $resourceTypes = [];
+    private array $resourceTypes;
 
     /**
      * @param \Traversable<ResourceTypeInterface> $resourceTypes
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct(\Traversable $resourceTypes)
     {
         $this->hasProviders($resourceTypes);
 
         $this->resourceTypes = array_map(
-            fn(ResourceTypeInterface $resourceType) => $resourceType->getName(),
+            static fn(ResourceTypeInterface $resourceType) => $resourceType->getName(),
             iterator_to_array($resourceTypes)
         );
     }
 
     /**
      * @param Request $request
+     *
+     * @throws \InvalidArgumentException
      *
      * @return array<string, array<int, string|int>|false>
      */
@@ -107,17 +111,20 @@ final class FindResourcesRequestValidator
 
         $filterData[self::FILTER_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY] = false;
 
+        $allowedQueryParameters = [
+            ...self::EXTRA_PARAMETERS_LIST,
+            self::FILTER_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY,
+        ];
+
         // Do not handle pagination query parameters and check that parameters are handled
         foreach ($request->query->all() as $param => $data) {
             // skip pagination parameters
-            if (in_array($param, ['search', 'limit', 'page', 'sort_by'], true)) {
+            if (\in_array($param, ['search', 'limit', 'page', 'sort_by'], true)) {
                 continue;
             }
 
             // handle short list of query parameters allowed
-            if (
-                ! in_array($param, [...self::EXTRA_PARAMETERS_LIST, self::FILTER_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY], true)
-            ) {
+            if (! \in_array($param, $allowedQueryParameters, true)) {
                 throw new \InvalidArgumentException('Request parameter provided not handled');
             }
 
@@ -131,6 +138,8 @@ final class FindResourcesRequestValidator
 
     /**
      * @param \Traversable<ResourceTypeInterface> $providers
+     *
+     * @throws \InvalidArgumentException
      */
     private function hasProviders(\Traversable $providers): void
     {
@@ -172,7 +181,7 @@ final class FindResourcesRequestValidator
                     $this->validateStatusTypesOrFail($name, $value);
                     break;
                 case self::FILTER_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY:
-                    if (! is_bool($value)) {
+                    if (! \is_bool($value)) {
                         throw new \InvalidArgumentException(
                             sprintf('Value provided for %s is not correctly formatted. Boolean expected', $name)
                         );
@@ -192,7 +201,7 @@ final class FindResourcesRequestValidator
      */
     private function validateArray(string $parameterName, array $value): void
     {
-        if (! is_array($value)) {
+        if (! \is_array($value)) {
             throw new \InvalidArgumentException(
                 sprintf(
                     'Value provided for %s is not correctly formatted. Array expected.',
@@ -215,7 +224,7 @@ final class FindResourcesRequestValidator
         $this->validateArray($parameterName, $strings);
 
         try {
-            (fn(string ...$items): array => $items)(...$strings);
+            (static fn(string ...$items): array => $items)(...$strings);
         } catch (\TypeError) {
             $this->error(sprintf('values provided for %s should only be strings', $parameterName));
 
@@ -238,7 +247,7 @@ final class FindResourcesRequestValidator
         $this->validateArray($parameterName, $integers);
 
         try {
-            (fn(int ...$items): array => $items)(...$integers);
+            (static fn(int ...$items): array => $items)(...$integers);
         } catch (\TypeError) {
             $this->error(sprintf('Values provided for %s should only be integers', $parameterName));
 
@@ -260,7 +269,7 @@ final class FindResourcesRequestValidator
     {
         $this->validateArrayOfStringOrFail($parameterName, $types);
         foreach ($types as $type) {
-            if (! in_array($type, $this->resourceTypes, true)) {
+            if (! \in_array($type, $this->resourceTypes, true)) {
                 throw new \InvalidArgumentException(
                     sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $type)
                 );
@@ -280,7 +289,7 @@ final class FindResourcesRequestValidator
     {
         $this->validateArrayOfStringOrFail($parameterName, $statuses);
         foreach ($statuses as $status) {
-            if (! in_array($status, self::AVAILABLE_STATUSES, true)) {
+            if (! \in_array($status, self::AVAILABLE_STATUSES, true)) {
                 throw new \InvalidArgumentException(
                     sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $status)
                 );
@@ -300,7 +309,7 @@ final class FindResourcesRequestValidator
     {
         $this->validateArrayOfStringOrFail($parameterName, $states);
         foreach ($states as $state) {
-            if (! in_array($state, self::AVAILABLE_STATES, true)) {
+            if (! \in_array($state, self::AVAILABLE_STATES, true)) {
                 throw new \InvalidArgumentException(
                     sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $state)
                 );
@@ -320,7 +329,7 @@ final class FindResourcesRequestValidator
     {
         $this->validateArrayOfStringOrFail($parameterName, $statusTypes);
         foreach ($statusTypes as $statusType) {
-            if (! in_array($statusType, self::AVAILABLE_STATUS_TYPES, true)) {
+            if (! \in_array($statusType, self::AVAILABLE_STATUS_TYPES, true)) {
                 throw new \InvalidArgumentException(
                     sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $statusType)
                 );

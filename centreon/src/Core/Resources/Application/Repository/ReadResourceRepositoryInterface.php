@@ -33,6 +33,8 @@ interface ReadResourceRepositoryInterface
      *
      * @param ResourceFilter $filter
      *
+     * @throws \Throwable
+     *
      * @return ResourceEntity[]
      */
     public function findResources(ResourceFilter $filter): array;
@@ -42,6 +44,8 @@ interface ReadResourceRepositoryInterface
      *
      * @param ResourceFilter $filter
      * @param int[] $accessGroupIds
+     *
+     * @throws \Throwable
      *
      * @return ResourceEntity[]
      */

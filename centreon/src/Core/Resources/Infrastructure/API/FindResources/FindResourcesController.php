@@ -27,13 +27,14 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Resources\Application\UseCase\FindResources\FindResources;
 use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidator as RequestValidator;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class FindResourcesController extends AbstractController
 {
-    public function __construct(private RequestValidator $validator)
+    public function __construct(private readonly RequestValidator $validator)
     {
     }
 
