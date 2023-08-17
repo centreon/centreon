@@ -312,6 +312,9 @@ describe('Login Page', () => {
   it('displays the password when the corresponding action is clicked', () => {
     mountComponentAndStubs();
 
+    cy.waitForRequest('@getTranslations');
+    cy.waitForRequest('@getProvidersConfiguration');
+
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
 
