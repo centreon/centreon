@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Infrastructure\FeatureFlags;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroup;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +43,7 @@ final class AddHostGroupController extends AbstractController
      * @param AddHostGroup $useCase
      * @param AddHostGroupPresenterSaas $saasPresenter
      * @param AddHostGroupPresenterOnPrem $onPremPresenter
-     * @param bool $isCloudPlatform
+     * @param FeatureFlags $flags
      *
      * @throws AccessDeniedException
      *
@@ -53,11 +54,11 @@ final class AddHostGroupController extends AbstractController
         AddHostGroup $useCase,
         AddHostGroupPresenterSaas $saasPresenter,
         AddHostGroupPresenterOnPrem $onPremPresenter,
-        bool $isCloudPlatform,
+        FeatureFlags $flags,
     ): Response {
         $this->denyAccessUnlessGrantedForAPIConfiguration();
 
-        if ($isCloudPlatform) {
+        if ($flags->isCloudPlatform()) {
             return $this->executeUseCaseSaas($useCase, $saasPresenter, $request);
         }
 
@@ -80,7 +81,7 @@ final class AddHostGroupController extends AbstractController
             /** @var array{
              *     name: string,
              *     alias?: ?string,
-             *     icon_id?: ?positive-int,
+             *     icon_id?: ?int,
              *     geo_coords?: ?string,
              *     is_activated?: bool
              * } $dataSent
@@ -125,8 +126,8 @@ final class AddHostGroupController extends AbstractController
              *     notes?: ?string,
              *     notes_url?: ?string,
              *     action_url?: ?string,
-             *     icon_id?: ?positive-int,
-             *     icon_map_id?: ?positive-int,
+             *     icon_id?: ?int,
+             *     icon_map_id?: ?int,
              *     rrd?: ?int,
              *     geo_coords?: ?string,
              *     comment?: ?string,

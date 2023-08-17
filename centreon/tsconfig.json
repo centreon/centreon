@@ -6,10 +6,10 @@
       "./types",
       "./node_modules/@types"
     ],
-    "module": "esnext"
   },
   "include": [
     "./www/front_src/src",
-    "./cypress"
+    "./cypress",
+    "packages/ui/src/utils/useDateTimePickerAdapter.ts"
   ]
 }

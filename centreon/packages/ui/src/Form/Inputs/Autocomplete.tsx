@@ -9,7 +9,7 @@ import { FormHelperText, Stack } from '@mui/material';
 import SingleAutocompleteField from '../../InputField/Select/Autocomplete';
 import { labelPressEnterToAccept } from '../translatedLabels';
 import MultiAutocompleteField from '../../InputField/Select/Autocomplete/Multi';
-import useMemoComponent from '../../utils/useMemoComponent';
+import { useMemoComponent } from '../../utils';
 import { SelectEntry } from '../../InputField/Select';
 
 import { InputPropsWithoutGroup, InputType } from './models';

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,30 +18,27 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\LogoutSession;
 
-use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 
 class LogoutSession
 {
     use LoggerTrait;
 
     /**
-     * @param WriteSessionTokenRepositoryInterface $writeSessionTokenRepository
      * @param WriteSessionRepositoryInterface $writeSessionRepository
-     * @param WriteTokenRepositoryInterface $writeTokenRepository
+     * @param ReadTokenRepositoryInterface $readTokenRepository
      */
     public function __construct(
-        private WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
-        private WriteSessionRepositoryInterface $writeSessionRepository,
-        private WriteTokenRepositoryInterface $writeTokenRepository,
+        private readonly WriteSessionRepositoryInterface $writeSessionRepository,
+        private readonly ReadTokenRepositoryInterface $readTokenRepository,
     ) {
     }
 
@@ -52,19 +49,17 @@ class LogoutSession
     public function __invoke(
         mixed $token,
         LogoutSessionPresenterInterface $presenter,
-    ): void {
+    ): void
+    {
         $this->info('Processing session logout...');
 
         if ($token === null || is_string($token) === false) {
             $this->debug('Try to logout without token');
             $presenter->setResponseStatus(new ErrorResponse(_('No session token provided')));
+
             return;
         }
 
-        $this->writeTokenRepository->deleteExpiredSecurityTokens();
-        $this->writeSessionTokenRepository->deleteSession($token);
         $this->writeSessionRepository->invalidate();
-
-        $presenter->setResponseStatus(new NoContentResponse());
     }
 }

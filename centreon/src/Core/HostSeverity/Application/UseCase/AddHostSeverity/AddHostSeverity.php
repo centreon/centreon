@@ -67,7 +67,7 @@ final class AddHostSeverity
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->setResponseStatus(
-                    new ForbiddenResponse(HostSeverityException::addNotAllowed()->getMessage())
+                    new ForbiddenResponse(HostSeverityException::writeActionsNotAllowed())
                 );
             } elseif ($this->readHostSeverityRepository->existsByName(new TrimmedString($request->name))) {
                 $this->error(
@@ -103,7 +103,7 @@ final class AddHostSeverity
                 $this->info('Add a new host severity', ['hostseverity_id' => $hostSeverityId]);
                 if (! $hostSeverity) {
                     $presenter->setResponseStatus(
-                        new ErrorResponse(HostSeverityException::errorWhileRetrievingJustCreated())
+                        new ErrorResponse(HostSeverityException::errorWhileRetrievingObject())
                     );
 
                     return;

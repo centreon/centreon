@@ -14,7 +14,8 @@ import {
   labelLatencyDetected,
   labelNoLatencyDetected,
   labelAllPollers,
-  labelConfigurePollers
+  labelConfigurePollers,
+  labelPollers
 } from './translatedLabels';
 import type { PollerStatusIconProps } from './PollerStatusIcon';
 import type { PollerSubMenuProps } from './PollerSubMenu/PollerSubMenu';
@@ -34,21 +35,20 @@ const getIssueSeverityCode = ({
 }): SeverityCode => {
   const issueExists = !isEmpty(issues) && !isNil(issues[key]);
 
-  if (issueExists && issues[key].warning.total > 0) {
+  if (issueExists && issues[key].warning?.total > 0) {
     return SeverityCode.Medium;
   }
 
-  if (issueExists && issues[key].critical.total > 0) {
+  if (issueExists && issues[key].critical?.total > 0) {
     return SeverityCode.High;
   }
 
-  return SeverityCode.Ok;
+  return SeverityCode.OK;
 };
 
 export const pollerConfigurationPageNumber = '60901';
 
 interface GetPollerPropsAdapterProps {
-  allowedPages: Array<string | Array<string>> | undefined;
   data: PollersIssuesList;
   isExportButtonEnabled: boolean;
   navigate: NavigateFunction;
@@ -56,6 +56,7 @@ interface GetPollerPropsAdapterProps {
 }
 
 export interface GetPollerPropsAdapterResult {
+  buttonLabel: string;
   iconSeverities: PollerStatusIconProps['iconSeverities'];
   subMenu: Omit<PollerSubMenuProps, 'closeSubMenu'>;
 }
@@ -63,7 +64,6 @@ export interface GetPollerPropsAdapterResult {
 export const getPollerPropsAdapter = ({
   data,
   t,
-  allowedPages,
   navigate,
   isExportButtonEnabled
 }: GetPollerPropsAdapterProps): GetPollerPropsAdapterResult => {
@@ -72,7 +72,7 @@ export const getPollerPropsAdapter = ({
   // api inconsistency return an empty array when there is no issues
   const formatedIssues = !is(Array, issues)
     ? Object.keys(issues)
-        .filter((key) => !!issues[key] && issues[key].total > 0)
+        .filter((key) => !!issues[key] && issues[key]?.total > 0)
         .map((key) => ({
           key,
           text: t(pollerIssueKeyToMessage[key]),
@@ -86,14 +86,14 @@ export const getPollerPropsAdapter = ({
   const topIconProps = {
     database: {
       label:
-        databaseSeverity === SeverityCode.Ok
+        databaseSeverity === SeverityCode.OK
           ? t(labelDatabaseUpdateAndActive)
           : t(labelDatabaseNotActive),
       severity: databaseSeverity
     },
     latency: {
       label:
-        latencySeverity === SeverityCode.Ok
+        latencySeverity === SeverityCode.OK
           ? t(labelNoLatencyDetected)
           : t(labelLatencyDetected),
       severity: latencySeverity
@@ -101,6 +101,7 @@ export const getPollerPropsAdapter = ({
   };
 
   const result = {
+    buttonLabel: t(labelPollers),
     iconSeverities: topIconProps,
     subMenu: {
       allPollerLabel: t(labelAllPollers),
@@ -109,7 +110,6 @@ export const getPollerPropsAdapter = ({
       },
       issues: formatedIssues,
       pollerConfig: {
-        isAllowed: allowedPages?.includes(pollerConfigurationPageNumber),
         label: t(labelConfigurePollers),
         redirect: (): void =>
           navigate(`/main.php?p=${pollerConfigurationPageNumber}`),

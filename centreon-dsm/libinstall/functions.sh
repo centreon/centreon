@@ -180,60 +180,42 @@ function pathfind_ret() {
 ## check on etc to find a specific file <p>
 ## Debian, Suse, Redhat, FreeBSD
 ## @param	variable to set a result
-## @return 0	OS found
-## @return 1	OS not found
 #----
-function find_OS() {
-	local distrib=$1
-	local dist_found=""
-	local system=""
-	local lsb_release=""
-	system="$(uname -s)"
-	if [ "$system" = "Linux" ] ; then
-		if [ "$(pathfind lsb_release; echo $?)" -eq "0" ] ; then
-			lsb_release="$(lsb_release -i -s)"
-		else
-			lsb_release="NOT_FOUND"
-		fi
-		if [ "$lsb_release" = "Debian" ] || \
-			[ "$lsb_release" = "Ubuntu" ] || \
-			[ -e "/etc/debian_version" ] ; then
-			dist_found="DEBIAN"
-			log "INFO" "$(gettext "GNU/Linux Debian Distribution")"
-		elif [ "$lsb_release" = "SUSE LINUX" ] || \
-			[ -e "/etc/SuSE-release" ] ; then
-			dist_found="SUSE"
-			log "INFO" "$(gettext "GNU/Linux Suse Distribution")"
-                elif [ "$lsb_release" = "openSUSE project" ] || \
-			[ -e "/etc/SuSE-release" ] ; then
-			dist_found="SUSE"
-			log "INFO" "$(gettext "GNU/openSUSE Distribution")"
-		elif [ "$lsb_release" = "RedHatEnterpriseES" ] || \
-			[ "$lsb_release" = "Fedora" ] || \
-			[ -e "/etc/redhat-release" ] ; then
-			dist_found="REDHAT"
-			log "INFO" "$(gettext "GNU/Linux Redhat Distribution")"
-		else
-			dist_found="NOT_FOUND"
-			log "INFO" "$(gettext "GNU/Linux distribution not found")"
-			return 1
-		fi
-	elif [ "$system" = "FreeBSD" ] ; then
-		dist_found="FREEBSD"
-		log "INFO" "$(gettext "FreeBSD System")"
-	elif [ "$system" = "AIX" ] ; then
-		dist_found="AIX"
-		log "INFO" "$(gettext "AIX System")"
-	elif [ "$system" = "SunOS" ] ; then
-		dist_found="SUNOS"
-		log "INFO" "$(gettext "SunOS System")"
-	else
-		dist_found="NOT_FOUND"
-		log "INFO" "$(gettext "System not found")"
-	fi
+find_OS() {
+    local distrib=$1
+    local dist_found=""
 
-	eval $distrib=$dist_found
-	return 0
+    # From https://unix.stackexchange.com/questions/6345/how-can-i-get-distribution-name-and-version-number-in-a-simple-shell-script
+    if [ -f /etc/os-release ]; then
+        # freedesktop.org and systemd
+        . /etc/os-release
+        dist_found=${ID}
+    elif type lsb_release >/dev/null 2>&1; then
+        # linuxbase.org
+        dist_found=$(lsb_release -si | sed -e 's/\(.*\)/\L\1/')
+    elif [ -f /etc/lsb-release ]; then
+        # For some versions of Debian/Ubuntu without lsb_release command
+        . /etc/lsb-release
+        dist_found=${DISTRIB_ID}
+    elif [ -f /etc/debian_version ]; then
+        # Older Debian/Ubuntu/etc.
+        dist_found=debian
+    elif [ -f /etc/centos-release ]; then
+        # CentOS
+        dist_found=centos
+    elif [ -f /etc/redhat-release ]; then
+        # Older Red Hat, CentOS, etc.
+        dist_found=centos
+    else
+        # Fall back to uname, e.g. "Linux <version>", also works for BSD, etc.
+        dist_found=$(uname -s)
+    fi
+
+    dist_found=$(echo $dist_found | tr [:lower:] [:upper:])
+
+    log "INFO" "Distribution found: $dist_found"
+
+    eval $distrib=$dist_found
 }
 
 #----

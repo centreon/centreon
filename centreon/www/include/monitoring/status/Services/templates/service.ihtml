@@ -45,7 +45,7 @@
         <td>
         <span class="consol_button">{$form.o1.html}</span>
 
-        <div class="Toolbar_TDSelectAction_Top">
+        <div class="Toolbar_TDSelectAction_Top ml-2">
             <span class="consol_button">
                 <div id="JS_monitoring_refresh" style="cursor:pointer" onclick="javascript:monitoring_refresh('');">
                     <span title='Refresh'>

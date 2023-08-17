@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,25 +18,20 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Domain\RealTime\Model;
 
 class Icon
 {
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $name;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $url;
 
     /**
@@ -49,11 +44,13 @@ class Icon
 
     /**
      * @param string|null $name
+     *
      * @return self
      */
     public function setName(?string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -67,16 +64,19 @@ class Icon
 
     /**
      * @param string|null $url
+     *
      * @return self
      */
     public function setUrl(?string $url): self
     {
         $this->url = $url;
+
         return $this;
     }
 
     /**
-     * @param integer|null $id
+     * @param int|null $id
+     *
      * @return self
      */
     public function setId(?int $id): self
@@ -87,7 +87,7 @@ class Icon
     }
 
     /**
-     * @return integer|null
+     * @return int|null
      */
     public function getId(): ?int
     {

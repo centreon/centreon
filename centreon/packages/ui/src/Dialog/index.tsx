@@ -12,6 +12,8 @@ import {
   CircularProgress
 } from '@mui/material';
 
+import { DataTestAttributes } from '../@types/data-attributes';
+
 interface StylesProps {
   contentWidth?: number;
 }
@@ -35,6 +37,7 @@ export type Props = {
   confirmDisabled?: boolean;
   contentWidth?: number;
   dialogActionsClassName?: string;
+  dialogConfirmButtonClassName?: string;
   dialogContentClassName?: string;
   dialogPaperClassName?: string;
   dialogTitleClassName?: string;
@@ -46,7 +49,8 @@ export type Props = {
   onConfirm: (event, value?) => void;
   open: boolean;
   submitting?: boolean;
-} & DialogProps;
+} & DialogProps &
+  DataTestAttributes;
 
 const Dialog = ({
   open,
@@ -65,6 +69,7 @@ const Dialog = ({
   dialogTitleClassName,
   dialogContentClassName,
   dialogActionsClassName,
+  dialogConfirmButtonClassName,
   ...rest
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ contentWidth });
@@ -91,13 +96,20 @@ const Dialog = ({
       )}
       <DialogActions className={dialogActionsClassName}>
         {onCancel && (
-          <Button color="primary" disabled={cancelDisabled} onClick={onCancel}>
+          <Button
+            color="primary"
+            data-testid="Cancel"
+            disabled={cancelDisabled}
+            onClick={onCancel}
+          >
             {labelCancel}
           </Button>
         )}
         <Button
           aria-label={labelConfirm || ''}
+          className={dialogConfirmButtonClassName}
           color="primary"
+          data-testid="Confirm"
           disabled={confirmDisabled}
           endIcon={submitting && <CircularProgress size={15} />}
           onClick={onConfirm}

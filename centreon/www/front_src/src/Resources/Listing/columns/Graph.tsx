@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isNil, not, path } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
@@ -50,8 +50,8 @@ const Graph = ({
   displayCompleteGraph
 }: GraphProps): JSX.Element => {
   const getGraphQueryParameters = useAtomValue(graphQueryParametersDerivedAtom);
-  const setIsListingGraphOpen = useUpdateAtom(isListingGraphOpenAtom);
-  const changeMousePositionAndTimeValue = useUpdateAtom(
+  const setIsListingGraphOpen = useSetAtom(isListingGraphOpenAtom);
+  const changeMousePositionAndTimeValue = useSetAtom(
     changeMousePositionAndTimeValueDerivedAtom
   );
 

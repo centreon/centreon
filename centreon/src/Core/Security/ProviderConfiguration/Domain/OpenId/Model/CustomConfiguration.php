@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,11 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\OpenId\Model;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\ProviderConfiguration\Domain\CustomConfigurationInterface;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\OpenIdConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use TypeError;
 
 final class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomConfigurationInterface
@@ -38,114 +41,75 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
     public const TYPE = 'openid';
     public const NAME = 'openid';
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $endSessionEndpoint = null;
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private array $connectionScopes = [];
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $loginClaim = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $authenticationType = null;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private bool $verifyPeer = false;
 
-    /**
-     * @var array<AuthorizationRule>
-     */
+    /** @var array<AuthorizationRule> */
     private array $authorizationRules = [];
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     private bool $isAutoImportEnabled = false;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $clientId = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $clientSecret = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $baseUrl = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $authorizationEndpoint = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $tokenEndpoint = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $introspectionTokenEndpoint = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $userInformationEndpoint = null;
 
-    /**
-     * @var ContactTemplate|null
-     */
+    /** @var ContactTemplate|null */
     private ?ContactTemplate $contactTemplate = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $emailBindAttribute = null;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private ?string $userNameBindAttribute = null;
 
-    /**
-     * @var ContactGroup|null
-     */
+    /** @var ContactGroup|null */
     private ?ContactGroup $contactGroup = null;
 
-    /**
-     * @var ACLConditions
-     */
+    /** @var ACLConditions */
     private ACLConditions $aclConditions;
 
-    /**
-     * @var AuthenticationConditions
-     */
+    /** @var AuthenticationConditions */
     private AuthenticationConditions $authenticationConditions;
 
-    /**
-     * @var GroupsMapping
-     */
+    /** @var GroupsMapping */
     private GroupsMapping $groupsMapping;
+
+    private ?string $redirectUrl;
 
     /**
      * @param array<string,mixed> $json
-     * @throws OpenIdConfigurationException
+     *
+     * @throws ConfigurationException
      */
     public function __construct(array $json)
     {
@@ -304,9 +268,9 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
         return $this->aclConditions;
     }
 
-
     /**
      * @param string|null $baseUrl
+     *
      * @return self
      */
     public function setBaseUrl(?string $baseUrl): self
@@ -318,6 +282,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string|null $authorizationEndpoint
+     *
      * @return self
      */
     public function setAuthorizationEndpoint(?string $authorizationEndpoint): self
@@ -329,6 +294,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string|null $tokenEndpoint
+     *
      * @return self
      */
     public function setTokenEndpoint(?string $tokenEndpoint): self
@@ -340,6 +306,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string|null $introspectionTokenEndpoint
+     *
      * @return self
      */
     public function setIntrospectionTokenEndpoint(?string $introspectionTokenEndpoint): self
@@ -351,6 +318,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string|null $userInformationEndpoint
+     *
      * @return self
      */
     public function setUserInformationEndpoint(?string $userInformationEndpoint): self
@@ -362,6 +330,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string|null $endSessionEndpoint
+     *
      * @return self
      */
     public function setEndSessionEndpoint(?string $endSessionEndpoint): self
@@ -373,6 +342,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string[] $connectionScopes
+     *
      * @return self
      */
     public function setConnectionScopes(array $connectionScopes): self
@@ -387,6 +357,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string $connectionScope
+     *
      * @return self
      */
     public function addConnectionScope(string $connectionScope): self
@@ -398,6 +369,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string|null $loginClaim
+     *
      * @return self
      */
     public function setLoginClaim(?string $loginClaim): self
@@ -409,6 +381,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string|null $clientId
+     *
      * @return self
      */
     public function setClientId(?string $clientId): self
@@ -420,6 +393,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string|null $clientSecret
+     *
      * @return self
      */
     public function setClientSecret(?string $clientSecret): self
@@ -431,6 +405,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string|null $authenticationType
+     *
      * @return self
      */
     public function setAuthenticationType(?string $authenticationType): self
@@ -442,6 +417,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param bool $verifyPeer
+     *
      * @return self
      */
     public function setVerifyPeer(bool $verifyPeer): self
@@ -452,7 +428,8 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
     }
 
     /**
-     * @param boolean $isAutoImportEnabled
+     * @param bool $isAutoImportEnabled
+     *
      * @return self
      */
     public function setAutoImportEnabled(bool $isAutoImportEnabled): self
@@ -464,6 +441,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param ContactTemplate|null $contactTemplate
+     *
      * @return self
      */
     public function setContactTemplate(?ContactTemplate $contactTemplate): self
@@ -475,6 +453,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string|null $emailBindAttribute
+     *
      * @return self
      */
     public function setEmailBindAttribute(?string $emailBindAttribute): self
@@ -486,6 +465,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param string|null $userNameBindAttribute
+     *
      * @return self
      */
     public function setUserNameBindAttribute(?string $userNameBindAttribute): self
@@ -497,8 +477,10 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param AuthorizationRule[] $authorizationRules
-     * @return self
+     *
      * @throws TypeError
+     *
+     * @return self
      */
     public function setAuthorizationRules(array $authorizationRules): self
     {
@@ -512,6 +494,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param AuthorizationRule $authorizationRule
+     *
      * @return self
      */
     public function addAuthorizationRule(AuthorizationRule $authorizationRule): self
@@ -523,6 +506,7 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param ContactGroup|null $contactGroup
+     *
      * @return self
      */
     public function setContactGroup(?ContactGroup $contactGroup): self
@@ -534,11 +518,13 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param AuthenticationConditions $authenticationConditions
+     *
      * @return self
      */
     public function setAuthenticationConditions(AuthenticationConditions $authenticationConditions): self
     {
         $this->authenticationConditions = $authenticationConditions;
+
         return $this;
     }
 
@@ -552,11 +538,13 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param GroupsMapping $groupsMapping
+     *
      * @return self
      */
     public function setGroupsMapping(GroupsMapping $groupsMapping): self
     {
         $this->groupsMapping = $groupsMapping;
+
         return $this;
     }
 
@@ -568,9 +556,22 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
         return $this->groupsMapping;
     }
 
+    public function getRedirectUrl(): ?string
+    {
+        return $this->redirectUrl;
+    }
+
+    public function setRedirectUrl(?string $redirectUrl): self
+    {
+        $this->redirectUrl = $redirectUrl;
+
+        return $this;
+    }
+
     /**
      * @param array<string,mixed> $json
-     * @throws OpenIdConfigurationException
+     *
+     * @throws ConfigurationException
      */
     public function create(array $json): void
     {
@@ -581,15 +582,15 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
         $this->setClientId($json['client_id']);
         $this->setAutoImportEnabled($json['auto_import']);
         $this->setClientSecret($json['client_secret']);
-        $this->setBaseUrl($json['base_url']);
-        $this->setAuthorizationEndpoint($json['authorization_endpoint']);
-        $this->setTokenEndpoint($json['token_endpoint']);
-        $this->setIntrospectionTokenEndpoint($json['introspection_token_endpoint']);
-        $this->setUserInformationEndpoint($json['userinfo_endpoint']);
+        $this->setBaseUrl($this->sanitizeEndpointValue($json['base_url']));
+        $this->setAuthorizationEndpoint($this->sanitizeEndpointValue($json['authorization_endpoint']));
+        $this->setTokenEndpoint($this->sanitizeEndpointValue($json['token_endpoint']));
+        $this->setIntrospectionTokenEndpoint($this->sanitizeEndpointValue($json['introspection_token_endpoint']));
+        $this->setUserInformationEndpoint($this->sanitizeEndpointValue($json['userinfo_endpoint']));
         $this->setContactTemplate($json['contact_template']);
         $this->setEmailBindAttribute($json['email_bind_attribute']);
         $this->setUserNameBindAttribute($json['fullname_bind_attribute']);
-        $this->setEndSessionEndpoint($json['endsession_endpoint']);
+        $this->setEndSessionEndpoint($this->sanitizeEndpointValue($json['endsession_endpoint']));
         $this->setConnectionScopes($json['connection_scopes']);
         $this->setLoginClaim($json['login_claim']);
         $this->setAuthenticationType($json['authentication_type']);
@@ -597,10 +598,12 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
         $this->setAuthenticationConditions($json['authentication_conditions']);
         $this->setACLConditions($json['roles_mapping']);
         $this->setGroupsMapping($json['groups_mapping']);
+        $this->setRedirectUrl($json['redirect_url']);
     }
 
     /**
      * @param ACLConditions $aclConditions
+     *
      * @return CustomConfiguration
      */
     private function setACLConditions(ACLConditions $aclConditions): self
@@ -612,8 +615,8 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
 
     /**
      * @param array<string,mixed> $json
-     * @return void
-     * @throws OpenIdConfigurationException
+     *
+     * @throws ConfigurationException
      */
     private function validateMandatoryFields(array $json): void
     {
@@ -632,12 +635,12 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
             }
         }
 
-        if (!empty($emptyParameters)) {
-            throw OpenIdConfigurationException::missingMandatoryParameters($emptyParameters);
+        if (! empty($emptyParameters)) {
+            throw ConfigurationException::missingMandatoryParameters($emptyParameters);
         }
 
         if (empty($json['introspection_token_endpoint']) && empty($json['userinfo_endpoint'])) {
-            throw OpenIdConfigurationException::missingInformationEndpoint();
+            throw ConfigurationException::missingInformationEndpoint();
         }
 
         if ($json['auto_import'] === true) {
@@ -650,12 +653,13 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
     }
 
     /**
-     * Validate mandatory parameters for auto import
+     * Validate mandatory parameters for auto import.
      *
      * @param ContactTemplate|null $contactTemplate
      * @param string|null $emailBindAttribute
      * @param string|null $userNameBindAttribute
-     * @throws OpenIdConfigurationException
+     *
+     * @throws ConfigurationException
      */
     private function validateParametersForAutoImport(
         ?ContactTemplate $contactTemplate,
@@ -672,10 +676,30 @@ final class CustomConfiguration implements CustomConfigurationInterface, OpenIdC
         if (empty($userNameBindAttribute)) {
             $missingMandatoryParameters[] = 'fullname_bind_attribute';
         }
-        if (!empty($missingMandatoryParameters)) {
-            throw OpenIdConfigurationException::missingAutoImportMandatoryParameters(
+        if (! empty($missingMandatoryParameters)) {
+            throw ConfigurationException::missingAutoImportMandatoryParameters(
                 $missingMandatoryParameters
             );
         }
+    }
+
+    /**
+     * Trim unnecessary spaces and slashes in endpoint and return a valid endpoint value.
+     *
+     * @param ?string $value
+     *
+     * @return ?string
+     */
+    private function sanitizeEndpointValue(?string $value): ?string
+    {
+        if ($value === null || mb_strlen(trim($value, ' /')) === 0) {
+            return null;
+        }
+
+        if (str_contains($value, 'http://') || str_contains($value, 'https://')) {
+            return ltrim(rtrim($value, ' /'));
+        }
+
+        return '/' . trim($value, ' /');
     }
 }

@@ -71,10 +71,25 @@ class ModuleSource extends SourceAbstract
      */
     public function install(string $id): ?Module
     {
+        /**
+         * Do not try to install the module if the package is not installed (deb or rpm)
+         */
+        if (($module = $this->getDetail($id)) === null) {
+            throw ModuleException::cannotFindModuleDetails($id);
+        }
+        /**
+         * Check if the module has dependencies
+         * if it does, then check if those dependencies are installed or need updates
+         * if not installed -> install the dependency
+         * if not up to date -> update the dependency
+         */
         $this->installOrUpdateDependencies($id);
 
-        return parent::install($id);
-    }
+        /**
+         * Do not execute the install process for the module if it is already installed
+         */
+        return $module->isInstalled() === false ? parent::install($id) : $module;
+  }
 
     /**
      * {@inheritDoc}
@@ -166,8 +181,7 @@ class ModuleSource extends SourceAbstract
             ->name(static::CONFIG_FILE)
             ->depth('== 0')
             ->sortByName()
-            ->in($path)
-        ;
+            ->in($path);
 
         foreach ($files as $file) {
             $result = $this->createEntityFromConfig($file->getPathName());
@@ -197,7 +211,7 @@ class ModuleSource extends SourceAbstract
         $entity->setVersion($info['mod_release']);
         $entity->setDescription($info['infos']);
         $entity->setKeywords($entity->getId());
-        $entity->setLicense($this->processLicense($entity->getId(), $info));
+        $entity->setLicense($this->getLicenseInformationForModule($entity->getId(), $info));
 
         if (array_key_exists('stability', $info) && $info['stability']) {
             $entity->setStability($info['stability']);
@@ -257,24 +271,49 @@ class ModuleSource extends SourceAbstract
 
     /**
      * Process license check and return license information
-     * @param string $moduleId the module id (slug)
-     * @param array<string,mixed> $info the info of the module from conf.php
-     * @return array<string,string|bool> the license information (required, expiration_date)
+     * @param string $slug the module id (slug)
+     * @param array<string,mixed> $information the information of the module from conf.php
+     * @return array<string,mixed> the license information
      */
-    protected function processLicense(string $moduleId, array $info): array
+    protected function getLicenseInformationForModule(string $slug, array $information): array
     {
-        $license = [
-            'required' => false
-        ];
-
-        if (!empty($info['require_license']) && $info['require_license'] === true) {
-            $license = [
-                'required' => true,
-                'expiration_date' => $this->license->getLicenseExpiration($moduleId)
-            ];
+        if (empty($information['require_license'])) {
+            return ['required' => false];
         }
 
-        return $license;
+        // if module requires a license, use License Manager to get information
+        $dependencyInjector = loadDependencyInjector();
+        $license = $dependencyInjector['lm.license'];
+        $license->setProductForModule($slug);
+        $licenseInFileData = $license->getData();
+
+        return [
+            'required' => true,
+            'expiration_date' => $this->license->getLicenseExpiration($slug),
+            'host_usage' => $this->getHostUsage(),
+            'is_valid' => $license->validate(),
+            'host_limit' => $licenseInFileData['licensing']['hosts']
+        ];
+    }
+
+    /**
+     * Return the number actively used.
+     *
+     * @return int|null
+     */
+    private function getHostUsage(): ?int
+    {
+        $database = new \CentreonDB();
+        $request = <<<SQL
+            SELECT COUNT(*) AS `num` FROM host WHERE host_register = "1"
+        SQL;
+
+        $statement = $database->query($request);
+        if ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            return (int) $record['num'];
+        }
+
+        return null;
     }
 
     /**

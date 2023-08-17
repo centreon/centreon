@@ -6,7 +6,7 @@ interface Props {
   wait: number;
 }
 
-const useDebounce = ({
+export const useDebounce = ({
   functionToDebounce,
   wait,
   memoProps = []
@@ -23,5 +23,3 @@ const useDebounce = ({
     }, wait);
   }, memoProps);
 };
-
-export default useDebounce;

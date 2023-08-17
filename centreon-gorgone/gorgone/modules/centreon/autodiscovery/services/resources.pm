@@ -99,6 +99,20 @@ sub get_audit_user_id {
     return (0, '', $user_id);
 }
 
+sub get_vault_configured {
+    my (%options) = @_;
+
+    my ($status, $datas) = $options{class_object_centreon}->custom_execute(
+        request => "SELECT count(id) FROM vault_configuration",
+        mode => 2
+    );
+    if ($status == -1 || !defined($datas->[0])) {
+        return (-1, 'cannot get number of vault configured');
+    }
+
+    return (0, '', $datas->[0]->[0]);
+}
+
 sub get_rules {
     my (%options) = @_;
     
@@ -374,7 +388,11 @@ sub get_hosts {
             if (defined($done_macro_host->{ $host_id })) {
                 $datas->{$host_id}->{macros} = $done_macro_host->{ $host_id };
             } else {
-                ($status, my $message, my $macros) = get_macros_host(host_id => $host_id, class_object_centreon => $options{class_object_centreon});
+                ($status, my $message, my $macros) = get_macros_host(
+                    host_id => $host_id,
+                    class_object_centreon => $options{class_object_centreon},
+                    vault_count => $options{vault_count}
+                );
                 if ($status == -1) {
                     return (-1, $message);
                 }
@@ -429,14 +447,22 @@ sub get_macros_host {
         }
 
         ($status, $datas) = $options{class_object_centreon}->custom_execute(
-            request => "SELECT host_macro_name, host_macro_value FROM on_demand_macro_host WHERE host_host_id = " . $lhost_id,
+            request => "SELECT host_macro_name, host_macro_value, is_password FROM on_demand_macro_host WHERE host_host_id = " . $lhost_id,
             mode => 2
         );
         if ($status == -1) {
             return (-1, 'get macro: cannot get on_demand_macro_host');
         }
         foreach (@$datas) {
-            set_macro(\%macros, $_->[0], $_->[1]);
+            my $macro_name = $_->[0];
+            my $macro_value = $_->[1];
+            my $is_password = $_->[2];
+            # Replace macro value if a vault is used
+            if ($options{vault_count} > 0 && defined($is_password) && $is_password == 1) {
+                set_macro(\%macros, $macro_name, "{" . $macro_name . "::secret::" . $macro_value . "}");
+            } else {
+                set_macro(\%macros, $macro_name, $macro_value);
+            }
         }
 
         ($status, $datas) = $options{class_object_centreon}->custom_execute(
@@ -471,6 +497,10 @@ sub substitute_service_discovery_command {
     
     $command =~ s/\$HOSTADDRESS\$/$options{host}->{host_address}/g;
     $command =~ s/\$HOSTNAME\$/$options{host}->{host_name}/g;
+
+    if ($options{vault_count} > 0) {
+        $command .= ' --pass-manager="centreonvault"';
+    }
     
     return $command;
 }

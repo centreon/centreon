@@ -57,7 +57,7 @@ final class AddHostSeverityController extends AbstractController
              *     name: string,
              *     alias: string,
              *     level: int,
-             *     icon_id: positive-int,
+             *     icon_id: int,
              *     is_activated?: bool,
              *     comment?: string|null
              * } $data
@@ -81,7 +81,7 @@ final class AddHostSeverityController extends AbstractController
      *     name: string,
      *     alias: string,
      *     level: int,
-     *     icon_id: positive-int,
+     *     icon_id: int,
      *     is_activated?: bool,
      *     comment?: string|null
      * } $data

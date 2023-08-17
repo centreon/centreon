@@ -1,13 +1,11 @@
 import { memo } from 'react';
 
 import { equals, props } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
 
 import { Tooltip } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import DraggableIcon from '../Header/SortableCell/DraggableIcon';
 import {
   Column,
   ColumnType,
@@ -17,48 +15,23 @@ import {
 import useStyleTable from '../useStyleTable';
 
 import EllipsisTypography from './EllipsisTypography';
+import { useStyles } from './DataCell.styles';
 
 import Cell from '.';
 
 interface Props {
-  areColumnsEditable: boolean;
   column: Column;
   disableRowCondition: (row) => boolean;
   getHighlightRowCondition?: (row) => boolean;
   isRowHovered: boolean;
   isRowSelected: boolean;
+  labelCollapse?: string;
+  labelExpand?: string;
   row?;
   rowColorConditions?: Array<RowColorCondition>;
+  subItemsRowProperty?: string;
   viewMode?: ListingVariant;
 }
-
-const useStyles = makeStyles()((theme) => ({
-  cell: {
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    display: 'flex',
-    height: '100%',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap'
-  },
-  componentColumn: {
-    width: theme.spacing(2.75)
-  },
-  headerCell: {
-    padding: theme.spacing(0, 0, 0, 1)
-  },
-  item: {
-    paddingLeft: theme.spacing(1.5)
-  },
-  rowNotHovered: {
-    color: theme.palette.text.secondary
-  },
-  text: {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap'
-  }
-}));
 
 const DataCell = ({
   row,
@@ -69,17 +42,22 @@ const DataCell = ({
   disableRowCondition,
   viewMode,
   getHighlightRowCondition,
-  areColumnsEditable
+  subItemsRowProperty,
+  labelCollapse,
+  labelExpand
 }: Props): JSX.Element | null => {
-  const { dataStyle } = useStyleTable({ viewMode });
   const { classes } = useStyles();
+  const { dataStyle } = useStyleTable({ viewMode });
 
   const commonCellProps = {
-    align: 'left' as const,
     disableRowCondition,
+    displaySubItemsCaret: column.displaySubItemsCaret,
     isRowHovered,
+    labelCollapse,
+    labelExpand,
     row,
-    rowColorConditions
+    rowColorConditions,
+    subItemsRowProperty
   };
 
   const isRowHighlighted = getHighlightRowCondition?.(row);
@@ -105,7 +83,7 @@ const DataCell = ({
 
       return (
         <Cell
-          className={classes.item}
+          className={classes.cell}
           isRowHighlighted={isRowHighlighted}
           style={{
             gridColumn
@@ -116,10 +94,7 @@ const DataCell = ({
           {isTruncated && (
             <Tooltip title={formattedString}>{typography}</Tooltip>
           )}
-          <>
-            {areColumnsEditable && <DraggableIcon />}
-            {!isTruncated && typography}
-          </>
+          {!isTruncated && typography}
         </Cell>
       );
     },
@@ -137,11 +112,11 @@ const DataCell = ({
 
       return (
         <Cell
-          className={classes.item}
+          className={classes.cell}
           isRowHighlighted={isRowHighlighted}
           viewMode={viewMode}
           onClick={(e): void => {
-            if (!clickable) {
+            if (!clickable && !column.displaySubItemsCaret) {
               return;
             }
             e.preventDefault();
@@ -149,31 +124,25 @@ const DataCell = ({
           }}
           {...commonCellProps}
         >
-          <>
-            {areColumnsEditable && (
-              <DraggableIcon className={classes.componentColumn} />
-            )}
-
-            <Component
-              isHovered={isRowHovered}
-              isSelected={isRowSelected}
-              renderEllipsisTypography={({
-                className,
-                formattedString
-              }): JSX.Element => {
-                return (
-                  <EllipsisTypography
-                    className={className}
-                    dataStyle={dataStyle}
-                    disableRowCondition={disableRowCondition(row)}
-                    formattedString={formattedString}
-                    isRowHovered={isRowHovered}
-                  />
-                );
-              }}
-              row={row}
-            />
-          </>
+          <Component
+            isHovered={isRowHovered}
+            isSelected={isRowSelected}
+            renderEllipsisTypography={({
+              className,
+              formattedString
+            }): JSX.Element => {
+              return (
+                <EllipsisTypography
+                  className={className}
+                  dataStyle={dataStyle}
+                  disableRowCondition={disableRowCondition(row)}
+                  formattedString={formattedString}
+                  isRowHovered={isRowHovered}
+                />
+              );
+            }}
+            row={row}
+          />
         </Cell>
       );
     }
@@ -228,12 +197,20 @@ const MemoizedDataCell = memo<Props>(
     );
     const nextIsTruncated = nextProps.column.isTruncated;
 
-    const prevRowColors = prevProps.rowColorConditions?.map(({ condition }) =>
-      condition(prevProps.row)
+    const previousRowConditions = prevProps.rowColorConditions?.map(
+      ({ condition }) => condition(prevProps.row)
     );
-    const nextRowColors = nextProps.rowColorConditions?.map(({ condition }) =>
-      condition(nextProps.row)
+    const nextRowConditions = nextProps.rowColorConditions?.map(
+      ({ condition }) => condition(nextProps.row)
     );
+
+    const previousRowColors = prevProps.rowColorConditions?.map(
+      ({ color }) => color
+    );
+    const nextRowColors = nextProps.rowColorConditions?.map(
+      ({ color }) => color
+    );
+
     const nextIsRowHighlighted = nextProps.getHighlightRowCondition?.(
       nextProps.row
     );
@@ -256,6 +233,7 @@ const MemoizedDataCell = memo<Props>(
       : nextProps.row;
 
     return (
+      equals(prevProps.row, nextProps.row) &&
       equals(previousIsComponentHovered, nextIsComponentHovered) &&
       equals(prevProps.isRowHovered, nextProps.isRowHovered) &&
       equals(previousFormattedString, nextFormattedString) &&
@@ -270,14 +248,15 @@ const MemoizedDataCell = memo<Props>(
         previousFormattedString ?? previousRowProps,
         nextFormattedString ?? nextRowProps
       ) &&
-      equals(prevRowColors, nextRowColors) &&
+      equals(previousRowConditions, nextRowConditions) &&
+      equals(previousRowColors, nextRowColors) &&
       equals(
         prevProps.disableRowCondition(prevProps.row),
         nextProps.disableRowCondition(nextProps.row)
       ) &&
       equals(previousIsRowHighlighted, nextIsRowHighlighted) &&
       equals(prevProps.viewMode, nextProps.viewMode) &&
-      equals(prevProps.areColumnsEditable, nextProps.areColumnsEditable)
+      equals(prevProps.subItemsRowProperty, nextProps.subItemsRowProperty)
     );
   }
 );

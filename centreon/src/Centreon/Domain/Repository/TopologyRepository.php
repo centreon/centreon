@@ -154,7 +154,7 @@ class TopologyRepository extends ServiceEntityRepository
     /**
      * Get list of topologies per user and filter by react pages if specified
      * @param CentreonUser $user
-     * @return array<mixed>|false
+     * @return array<Topology>
      */
     public function getTopologyList(CentreonUser $user)
     {
@@ -162,6 +162,7 @@ class TopologyRepository extends ServiceEntityRepository
 
         //base query
         $query = 'SELECT topology_id, topology_name, topology_page, topology_url, topology_url_opt, '
+            . 'topology_feature_flag, '
             . 'topology_group, topology_order, topology_parent, is_react, readonly, topology_show, is_deprecated '
             . 'FROM ' . Topology::TABLE;
 
@@ -181,8 +182,8 @@ class TopologyRepository extends ServiceEntityRepository
         $stmt->execute();
 
         $stmt->setFetchMode(PDO::FETCH_CLASS, Topology::class);
-        $topologies = $stmt->fetchAll();
-        return $topologies;
+
+        return $stmt->fetchAll() ?: [];
     }
 
     /**

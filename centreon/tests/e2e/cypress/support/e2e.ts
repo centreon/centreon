@@ -1,10 +1,13 @@
 import 'cypress-wait-until';
-import './Commands';
+import './commands';
 
 before(() => {
-  return cy
-    .exec(`npx wait-on ${Cypress.config().baseUrl}`)
-    .then(cy.setUserTokenApiV1);
+  Cypress.config('baseUrl', 'http://0.0.0.0:4000');
+
+  cy.intercept('/waiting-page', {
+    headers: { 'content-type': 'text/html' },
+    statusCode: 200
+  }).visit('/waiting-page');
 });
 
 Cypress.on('uncaught:exception', (err) => {

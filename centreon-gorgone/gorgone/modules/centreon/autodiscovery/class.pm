@@ -478,6 +478,12 @@ sub launchhostdiscovery {
         ]
     });
 
+    # plugins attribute format:
+    #    "plugins": {
+    #            "centreon-plugin-Cloud-Aws-Ec2-Api": 20220727,
+    #            ...
+    #    }
+
     $self->send_internal_action({
         action => 'COMMAND',
         target => $self->{hdisco_jobs_ids}->{$job_id}->{target},
@@ -490,7 +496,8 @@ sub launchhostdiscovery {
                     timeout => $timeout,
                     metadata => {
                         job_id => $job_id,
-                        source => 'autodiscovery-host-job-discovery'
+                        source => 'autodiscovery-host-job-discovery',
+                        pkg_install => $self->{hdisco_jobs_ids}->{$job_id}->{plugins}
                     }
                 }
             ]
@@ -677,22 +684,6 @@ sub discovery_add_host_result {
 
 sub discovery_command_result {
     my ($self, %options) = @_;
-
-=pod
-    use Devel::Size;
-    print "frame = " . (Devel::Size::total_size($options{frame}) / 1024 / 1024) . "==\n";
-
-    my $data = $options{frame}->getData();
-    print "data = " . (Devel::Size::total_size($data) / 1024 / 1024) . "==\n";
-
-    my $frame = $options{frame}->getFrame();
-    print "frame data = " . (Devel::Size::total_size($frame) / 1024 / 1024) . "==\n";
-
-    my $raw = $options{frame}->getRawData();
-    print "raw data = " . (Devel::Size::total_size($raw) / 1024 / 1024) . "==\n";
-
-    return 1;
-=cut
 
     my $data = $options{frame}->getData();
 

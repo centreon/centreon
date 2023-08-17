@@ -123,6 +123,9 @@ class CentreonCentbrokerCfg extends CentreonObject
                     "stats_activate",
                     "daemon",
                     "pool_size",
+                    "command_file",
+                    "log_directory",
+                    "log_filename",
                 ];
                 if (!in_array($params[1], $parametersWithoutPrefix)) {
                     $params[1] = 'config_' . $params[1];

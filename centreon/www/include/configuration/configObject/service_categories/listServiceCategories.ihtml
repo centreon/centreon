@@ -18,8 +18,8 @@
             { if $mode_access == 'w' }
             <td>
                 {$form.o1.html}
-                {if isset($ldap) && $ldap == "1" }<a href="{$msg.ldap_importL}" class="ml-1">{$msg.ldap_importT}</a>{/if}
-                <a href="{$msg.addL}" class="btc bt_success ml-1">{$msg.addT}</a>
+                {if isset($ldap) && $ldap == "1" }<a href="{$msg.ldap_importL}" class="ml-2">{$msg.ldap_importT}</a>{/if}
+                <a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
             </td>
             { else }
             <td>&nbsp;</td>
@@ -64,7 +64,7 @@
             <td class="Toolbar_TDSelectAction_Bottom">
                 {$form.o2.html}
                 {if isset($ldap) && $ldap == "1" }<a href="{$msg.ldap_importL}" class="ml-1">{$msg.ldap_importT}</a>{/if}
-                <a href="{$msg.addL}" class="btc bt_success" class="ml-1">{$msg.addT}</a>
+                <a href="{$msg.addL}" class="btc bt_success ml-2" >{$msg.addT}</a>
             </td>
             { else }
             <td>&nbsp;</td>

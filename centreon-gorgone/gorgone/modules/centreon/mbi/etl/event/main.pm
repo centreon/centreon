@@ -83,13 +83,22 @@ sub deleteEntriesForRebuild {
                 "DELETE FROM $options{name} WHERE time_id >= " . $utils->getDateEpoch($options{start}) . " AND time_id < " . $utils->getDateEpoch($options{end})
             ];
 	} else {
+        my $structure = $biTables->dumpTableStructure($options{name});
         my $partitionsPerf = $utils->getRangePartitionDate($options{start}, $options{end});
         foreach (@$partitionsPerf) {
-            push @$sql,
-                [
-                    "[PURGE] Truncate partition $_->{name} on table [$options{name}]",
-                    "ALTER TABLE $options{name} TRUNCATE PARTITION p$_->{name}"
-                ];
+            if ($structure =~ /p$_->{name}/m) {
+                push @$sql,
+                    [
+                        "[PURGE] Truncate partition $_->{name} on table [$options{name}]",
+                        "ALTER TABLE $options{name} TRUNCATE PARTITION p$_->{name}"
+                    ];
+            } else {
+                push @$sql,
+                    [
+                        '[PARTITIONS] Add partition [p' . $_->{name} . '] on table [' . $options{name} . ']',
+                        "ALTER TABLE `$options{name}` ADD PARTITION (PARTITION `p$_->{name}` VALUES LESS THAN(" . $_->{epoch} . "))"
+                    ];
+            }
         }
 	}
 

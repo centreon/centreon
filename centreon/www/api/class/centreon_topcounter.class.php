@@ -287,6 +287,9 @@ class CentreonTopCounter extends CentreonWebService
      */
     private function getPasswordRemainingTime(): ?int
     {
+        if ($this->centreon->user->authType === CentreonAuth::AUTH_TYPE_LDAP) {
+            return null;
+        }
         $passwordRemainingTime = null;
         $contact = new CentreonContact($this->pearDB);
         $passwordCreationDate = $contact->findLastPasswordCreationDate((int) $this->centreon->user->user_id);
@@ -591,7 +594,7 @@ class CentreonTopCounter extends CentreonWebService
     public function getHosts_status()
     {
         if (!$this->hasAccessToTopCounter) {
-            throw new \RestUnauthorizedException("You're not authorized to access resource datas");
+            throw new \RestUnauthorizedException("You're not authorized to access resource data");
         }
 
         if (
@@ -659,7 +662,7 @@ class CentreonTopCounter extends CentreonWebService
     public function getServicesStatus()
     {
         if (!$this->hasAccessToTopCounter) {
-            throw new \RestUnauthorizedException("You're not authorized to access resource datas");
+            throw new \RestUnauthorizedException("You're not authorized to access resource data");
         }
 
         if (

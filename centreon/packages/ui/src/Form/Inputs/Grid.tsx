@@ -23,14 +23,16 @@ const useStyles = makeStyles<StylesProps>()(
 );
 
 const Grid = ({ grid }: InputPropsWithoutGroup): JSX.Element => {
-  const { classes } = useStyles({
+  const { classes, cx } = useStyles({
     alignItems: grid?.alignItems,
     columns: grid?.columns.length,
     gridTemplateColumns: grid?.gridTemplateColumns
   });
 
+  const className = grid?.className || '';
+
   return (
-    <div className={classes.gridFields}>
+    <div className={cx(classes.gridFields, className)}>
       {grid?.columns.map((field) => {
         const Input = getInput(field.type);
 

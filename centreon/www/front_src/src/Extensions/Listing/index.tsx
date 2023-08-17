@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { find, propEq, pathEq, filter, isEmpty } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -374,6 +374,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
         <Stack direction="row" spacing={2}>
           <Button
             color="primary"
+            data-testid="update-all"
             disabled={disableUpdate}
             size="small"
             startIcon={<UpdateIcon />}
@@ -384,6 +385,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
           </Button>
           <Button
             color="primary"
+            data-testid="install-all"
             disabled={disableInstall}
             size="small"
             startIcon={<InstallIcon />}

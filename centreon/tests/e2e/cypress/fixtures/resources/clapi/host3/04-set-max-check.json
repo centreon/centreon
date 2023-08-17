@@ -1,0 +1,5 @@
+{
+    "action": "SETPARAM",
+    "object": "HOST",
+    "values": "test_host_ack;max_check_attempts;1"
+}

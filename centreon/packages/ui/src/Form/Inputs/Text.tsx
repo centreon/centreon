@@ -2,7 +2,17 @@ import { ChangeEvent, useCallback, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { useFormikContext, FormikValues } from 'formik';
-import { equals, isEmpty, not, path, split } from 'ramda';
+import {
+  equals,
+  gt,
+  isEmpty,
+  not,
+  path,
+  split,
+  type as variableType
+} from 'ramda';
+
+import { InputAdornment } from '@mui/material';
 
 import { TextField, useMemoComponent } from '../..';
 
@@ -56,16 +66,24 @@ const Text = ({
     ? path(fieldNamePath, errors)
     : undefined;
 
-  const passwordEndAdornment = useCallback(
-    (): JSX.Element | null =>
-      equals(type, InputType.Password) ? (
+  const EndAdornment = useCallback((): JSX.Element | null => {
+    if (equals(type, InputType.Password)) {
+      return (
         <PasswordEndAdornment
           changeVisibility={changeVisibility}
           isVisible={isVisible}
         />
-      ) : null,
-    [isVisible]
-  );
+      );
+    }
+
+    if (text?.endAdornment) {
+      return (
+        <InputAdornment position="end">{text?.endAdornment}</InputAdornment>
+      );
+    }
+
+    return null;
+  }, [isVisible]);
 
   const getInputType = (): string => {
     if (text?.type) {
@@ -80,17 +98,25 @@ const Text = ({
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
 
+  const isMultiline =
+    equals(variableType(text?.multilineRows), 'Number') &&
+    gt(text?.multilineRows || 0, 0);
+  const rows = isMultiline ? text?.multilineRows : undefined;
+
   return useMemoComponent({
     Component: (
       <TextField
         fullWidth
-        EndAdornment={passwordEndAdornment}
+        EndAdornment={EndAdornment}
         ariaLabel={t(label) || ''}
         dataTestId={dataTestId || ''}
         disabled={disabled}
         error={error as string | undefined}
         label={t(label)}
+        multiline={isMultiline}
+        placeholder={text?.placeholder}
         required={isRequired}
+        rows={rows}
         type={getInputType()}
         value={value || ''}
         onBlur={handleBlur(fieldName)}

@@ -9,3 +9,7 @@ override_dh_gencontrol:
 	dh_gencontrol -- -Tdebian/substvars
 
 override_dh_usrlocal:
+
+override_dh_auto_build:
+	sed -i "s#/etc/sysconfig#/etc/default#g" \
+		config/systemd/gorgoned-service

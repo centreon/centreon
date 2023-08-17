@@ -5,16 +5,30 @@ export enum ListingVariant {
   extended = 'extended'
 }
 
+export enum DashboardGlobalRole {
+  administrator = 'administrator',
+  creator = 'creator',
+  viewer = 'viewer'
+}
+
+export interface DashboardRolesAndPermissions {
+  createDashboards: boolean;
+  globalUserRole: DashboardGlobalRole;
+  manageAllDashboards: boolean;
+  viewDashboards: boolean;
+}
+
 export interface User {
   alias: string;
+  dashboard?: DashboardRolesAndPermissions | null;
   default_page?: string | null;
   isExportButtonEnabled: boolean;
   locale: string;
   name: string;
-  resourceStatusViewMode: ListingVariant;
   themeMode?: ThemeMode;
   timezone: string;
   use_deprecated_pages: boolean;
+  user_interface_density: ListingVariant;
 }
 
 export enum ThemeMode {

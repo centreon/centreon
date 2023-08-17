@@ -1,0 +1,13 @@
+type: object
+description: Type and content of the notification
+properties:
+  channel:
+    type: string
+    enum:
+      - 'Slack'
+      - 'Email'
+      - 'Sms'
+  subject:
+    type: string
+  message:
+    type: string

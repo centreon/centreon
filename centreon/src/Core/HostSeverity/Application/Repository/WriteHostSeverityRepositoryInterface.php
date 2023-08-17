@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostSeverity\Application\Repository;
 
+use Core\HostSeverity\Domain\Model\HostSeverity;
 use Core\HostSeverity\Domain\Model\NewHostSeverity;
 
 interface WriteHostSeverityRepositoryInterface
@@ -45,4 +46,13 @@ interface WriteHostSeverityRepositoryInterface
      * @return int
      */
     public function add(NewHostSeverity $hostSeverity): int;
+
+    /**
+     * Update a host severity.
+     *
+     * @param HostSeverity $hostSeverity
+     *
+     * @throws \Throwable
+     */
+    public function update(HostSeverity $hostSeverity): void;
 }

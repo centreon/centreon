@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
-import { useAtomValue } from 'jotai/utils';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { Grid } from '@mui/material';
 import IconRefresh from '@mui/icons-material/Refresh';

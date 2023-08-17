@@ -1,5 +1,3 @@
-import { map } from 'ramda';
-
 import {
   PasswordSecurityPolicy,
   PasswordSecurityPolicyToAPI
@@ -9,21 +7,32 @@ import {
   OpenidConfigurationToAPI,
   AuthConditions,
   AuthConditionsToApi,
-  RolesMappingToApi,
-  RolesMapping,
-  RolesRelation,
-  RolesRelationToAPI,
   Endpoint,
   EndpointToAPI,
   GroupsMapping,
   GroupsMappingToAPI,
-  GroupsRelation,
-  GroupsRelationToAPI
+  RolesMapping,
+  RolesMappingToApi
 } from '../Openid/models';
+import { SAMLConfiguration, SAMLConfigurationToAPI } from '../SAML/models';
 import {
   WebSSOConfiguration,
   WebSSOConfigurationToAPI
 } from '../WebSSO/models';
+import {
+  adaptGroupsRelationsToAPI,
+  adaptRolesRelationsToAPI
+} from '../shared/adapters';
+import {
+  SharedAuthenticationConditions,
+  SharedGroupsMapping,
+  SharedRolesMapping
+} from '../shared/models';
+import {
+  SharedAuthenticationConditionsToAPI,
+  SharedGroupsMappingToAPI,
+  SharedRolesMappingToAPI
+} from '../shared/modelsAPI';
 
 export const adaptPasswordSecurityPolicyFromAPI = (
   securityPolicy: PasswordSecurityPolicy
@@ -105,18 +114,6 @@ const adaptAuthentificationConditions = ({
   };
 };
 
-const adaptRolesRelationsToAPI = (
-  relations: Array<RolesRelation>
-): Array<RolesRelationToAPI> =>
-  map(
-    ({ claimValue, accessGroup, priority }) => ({
-      access_group_id: accessGroup.id,
-      claim_value: claimValue,
-      priority
-    }),
-    relations
-  );
-
 const adaptRolesMapping = ({
   applyOnlyFirstRole,
   attributePath,
@@ -132,17 +129,6 @@ const adaptRolesMapping = ({
     relations: adaptRolesRelationsToAPI(relations)
   };
 };
-
-const adaptGroupsRelationsToAPI = (
-  relations: Array<GroupsRelation>
-): Array<GroupsRelationToAPI> =>
-  map(
-    ({ groupValue, contactGroup }) => ({
-      contact_group_id: contactGroup.id,
-      group_value: groupValue
-    }),
-    relations
-  );
 
 const adaptGroupsMapping = ({
   attributePath,
@@ -179,7 +165,8 @@ export const adaptOpenidConfigurationToAPI = ({
   fullnameBindAttribute,
   authenticationConditions,
   rolesMapping,
-  groupsMapping
+  groupsMapping,
+  redirectUrl
 }: OpenidConfiguration): OpenidConfigurationToAPI => ({
   authentication_conditions: adaptAuthentificationConditions(
     authenticationConditions
@@ -200,6 +187,7 @@ export const adaptOpenidConfigurationToAPI = ({
   is_active: isActive,
   is_forced: isForced,
   login_claim: loginClaim || null,
+  redirect_url: redirectUrl || null,
   roles_mapping: adaptRolesMapping(rolesMapping),
   token_endpoint: tokenEndpoint || null,
   userinfo_endpoint: userinfoEndpoint || null,
@@ -222,4 +210,78 @@ export const adaptWebSSOConfigurationToAPI = ({
   pattern_matching_login: patternMatchingLogin || null,
   pattern_replace_login: patternReplaceLogin || null,
   trusted_client_addresses: trustedClientAddresses
+});
+
+const adaptSAMLRolesMapping = ({
+  applyOnlyFirstRole,
+  attributePath,
+  isEnabled,
+  relations
+}: SharedRolesMapping): SharedRolesMappingToAPI => {
+  return {
+    apply_only_first_role: applyOnlyFirstRole,
+    attribute_path: attributePath,
+    is_enabled: isEnabled,
+    relations: adaptRolesRelationsToAPI(relations)
+  };
+};
+
+const adaptSAMLGroupsMapping = ({
+  attributePath,
+  isEnabled,
+  relations
+}: SharedGroupsMapping): SharedGroupsMappingToAPI => {
+  return {
+    attribute_path: attributePath,
+    is_enabled: isEnabled,
+    relations: adaptGroupsRelationsToAPI(relations)
+  };
+};
+
+const adaptSAMLAuthentificationConditions = ({
+  attributePath,
+  isEnabled,
+  authorizedValues
+}: SharedAuthenticationConditions): SharedAuthenticationConditionsToAPI => {
+  return {
+    attribute_path: attributePath,
+    authorized_values: authorizedValues,
+    is_enabled: isEnabled
+  };
+};
+
+export const adaptSAMLConfigurationToAPI = ({
+  isActive,
+  isForced,
+  autoImport,
+  contactTemplate,
+  emailBindAttribute,
+  fullnameBindAttribute,
+  rolesMapping,
+  groupsMapping,
+  authenticationConditions,
+  certificate,
+  entityIdUrl,
+  logoutFrom,
+  logoutFromUrl,
+  remoteLoginUrl,
+  userIdAttribute
+}: SAMLConfiguration): SAMLConfigurationToAPI => ({
+  authentication_conditions: adaptSAMLAuthentificationConditions(
+    authenticationConditions
+  ),
+  auto_import: autoImport,
+  certificate,
+  contact_template: contactTemplate || null,
+  email_bind_attribute: emailBindAttribute || null,
+  entity_id_url: entityIdUrl,
+  fullname_bind_attribute: fullnameBindAttribute || null,
+  groups_mapping: adaptSAMLGroupsMapping(groupsMapping),
+  is_active: isActive,
+  is_forced: isForced,
+  logout_from: logoutFrom,
+  logout_from_url: logoutFromUrl,
+  remote_login_url: remoteLoginUrl,
+  roles_mapping: adaptSAMLRolesMapping(rolesMapping),
+  user_id_attribute: userIdAttribute
 });

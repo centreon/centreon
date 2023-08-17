@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 
 import { isNil, path } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { Paper, Stack, Typography } from '@mui/material';

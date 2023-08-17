@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,22 +18,23 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Platform\Application\UseCase\UpdateVersions;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Platform\Application\Validator\RequirementValidatorsInterface;
-use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
-use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
-use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
-use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
-use Core\Platform\Application\Repository\UpdateNotFoundException;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
+use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
+use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
+use Core\Platform\Application\Repository\UpdateNotFoundException;
+use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
+use Core\Platform\Application\Validator\RequirementValidatorsInterface;
 
-class UpdateVersions
+final class UpdateVersions
 {
     use LoggerTrait;
 
@@ -75,22 +76,22 @@ class UpdateVersions
             $this->unlockUpdate();
 
             $this->runPostUpdate($this->getCurrentVersionOrFail());
-        } catch (UpdateNotFoundException $e) {
+        } catch (UpdateNotFoundException $exception) {
             $this->error(
-                $e->getMessage(),
-                ['trace' => $e->getTraceAsString()],
+                $exception->getMessage(),
+                ['trace' => $exception->getTraceAsString()],
             );
 
             $presenter->setResponseStatus(new NotFoundResponse('Updates'));
 
             return;
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->error(
-                $e->getMessage(),
-                ['trace' => $e->getTraceAsString()],
+                $exception->getMessage(),
+                ['trace' => $exception->getTraceAsString()],
             );
 
-            $presenter->setResponseStatus(new ErrorResponse($e->getMessage()));
+            $presenter->setResponseStatus(new ErrorResponse($exception->getMessage()));
 
             return;
         }
@@ -99,7 +100,7 @@ class UpdateVersions
     }
 
     /**
-     * Validate platform requirements or fail
+     * Validate platform requirements or fail.
      *
      * @throws \Exception
      */
@@ -111,19 +112,19 @@ class UpdateVersions
     }
 
     /**
-     * Lock update process
+     * Lock update process.
      */
     private function lockUpdate(): void
     {
         $this->info('Locking centreon update process...');
 
-        if (!$this->updateLocker->lock()) {
+        if (! $this->updateLocker->lock()) {
             throw UpdateVersionsException::updateAlreadyInProgress();
         }
     }
 
     /**
-     * Unlock update process
+     * Unlock update process.
      */
     private function unlockUpdate(): void
     {
@@ -133,11 +134,11 @@ class UpdateVersions
     }
 
     /**
-     * Get current version or fail
-     *
-     * @return string
+     * Get current version or fail.
      *
      * @throws \Exception
+     *
+     * @return string
      */
     private function getCurrentVersionOrFail(): string
     {
@@ -145,8 +146,8 @@ class UpdateVersions
 
         try {
             $currentVersion = $this->readVersionRepository->findCurrentVersion();
-        } catch (\Exception $e) {
-            throw UpdateVersionsException::errorWhenRetrievingCurrentVersion($e);
+        } catch (\Exception $exception) {
+            throw UpdateVersionsException::errorWhenRetrievingCurrentVersion($exception);
         }
 
         if ($currentVersion === null) {
@@ -157,9 +158,10 @@ class UpdateVersions
     }
 
     /**
-     * Get available updates
+     * Get available updates.
      *
      * @param string $currentVersion
+     *
      * @return string[]
      */
     private function getAvailableUpdatesOrFail(string $currentVersion): array
@@ -173,15 +175,15 @@ class UpdateVersions
             );
 
             return $this->readUpdateRepository->findOrderedAvailableUpdates($currentVersion);
-        } catch (UpdateNotFoundException $e) {
-            throw $e;
-        } catch (\Throwable $e) {
-            throw UpdateVersionsException::errorWhenRetrievingAvailableUpdates($e);
+        } catch (UpdateNotFoundException $exception) {
+            throw $exception;
+        } catch (\Throwable $exception) {
+            throw UpdateVersionsException::errorWhenRetrievingAvailableUpdates($exception);
         }
     }
 
     /**
-     * Run given version updates
+     * Run given version updates.
      *
      * @param string[] $versions
      *
@@ -191,16 +193,16 @@ class UpdateVersions
     {
         foreach ($versions as $version) {
             try {
-                $this->info("Running update $version");
+                $this->info("Running update {$version}");
                 $this->writeUpdateRepository->runUpdate($version);
-            } catch (\Throwable $e) {
-                throw UpdateVersionsException::errorWhenApplyingUpdate($version, $e->getMessage(), $e);
+            } catch (\Throwable $exception) {
+                throw UpdateVersionsException::errorWhenApplyingUpdate($version, $exception->getMessage(), $exception);
             }
         }
     }
 
     /**
-     * Run post update actions
+     * Run post update actions.
      *
      * @param string $currentVersion
      *
@@ -208,12 +210,12 @@ class UpdateVersions
      */
     private function runPostUpdate(string $currentVersion): void
     {
-        $this->info("Running post update actions");
+        $this->info('Running post update actions');
 
         try {
             $this->writeUpdateRepository->runPostUpdate($currentVersion);
-        } catch (\Throwable $e) {
-            throw UpdateVersionsException::errorWhenApplyingPostUpdate($e);
+        } catch (\Throwable $exception) {
+            throw UpdateVersionsException::errorWhenApplyingPostUpdate($exception);
         }
     }
 }

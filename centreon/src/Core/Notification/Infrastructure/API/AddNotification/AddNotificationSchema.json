@@ -1,0 +1,75 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Add notification",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "name",
+        "timeperiod_id",
+        "users",
+        "contactgroups",
+        "messages",
+        "resources"
+    ],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "timeperiod_id": {
+            "type": "integer"
+        },
+        "users": {
+            "type": "array"
+        },
+        "contactgroups": {
+            "type": "array"
+        },
+        "messages": {
+            "type": "array",
+            "required": [
+                "channel",
+                "subject",
+                "message"
+            ],
+            "properties": {
+                "channel": {
+                    "type": "string",
+                    "enum": ["Email", "Sms", "Slack"]
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "resources": {
+            "type": "array",
+            "required": [
+                "type",
+                "ids",
+                "events"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "ids": {
+                    "type": "array"
+                },
+                "events": {
+                    "type": "integer"
+                },
+                "extra": {
+                    "event_services": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "is_activated": {
+            "type": "boolean"
+        }
+    }
+}

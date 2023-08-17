@@ -2,9 +2,19 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "title": "Schedule checks on resources",
     "type": "object",
-    "required": ["resources"],
+    "required": ["resources", "check"],
     "additionalProperties": false,
     "properties": {
+        "check": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["is_forced"],
+            "properties": {
+                "is_forced" : {
+                    "type": "boolean"
+                }
+            }
+        },
         "resources": {
             "type": "array",
             "items": {

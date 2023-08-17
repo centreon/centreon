@@ -21,14 +21,26 @@
 
 namespace CentreonCommand\Domain\Repository;
 
-use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
-use PDO;
-use CentreonCommand\Domain\Entity\Command;
 use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Centreon\Infrastructure\DatabaseConnection;
+use CentreonCommand\Domain\Entity\Command;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
-class CommandRepository extends ServiceEntityRepository implements PaginationRepositoryInterface
+class CommandRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
+    /**
+     * @var int $resultCountForPagination
+     */
+    private int $resultCountForPagination = 0;
+
+    /**
+     * @param DatabaseConnection $db
+     */
+    public function __construct(DatabaseConnection $db)
+    {
+        $this->db = $db;
+    }
 
     /**
      * {@inheritdoc}
@@ -45,7 +57,7 @@ class CommandRepository extends ServiceEntityRepository implements PaginationRep
         $collector = new StatementCollector();
 
         $sql .= ' WHERE `command_activate` = :active';
-        $collector->addValue(':active', true, PDO::PARAM_STR);
+        $collector->addValue(':active', true, \PDO::PARAM_STR);
 
         if ($filters !== null) {
             if (array_key_exists('search', $filters) && $filters['search']) {
@@ -58,7 +70,7 @@ class CommandRepository extends ServiceEntityRepository implements PaginationRep
                 foreach ($filters['ids'] as $x => $id) {
                     $key = ":id{$x}";
                     $idsListKey[] = $key;
-                    $collector->addValue($key, $id, PDO::PARAM_INT);
+                    $collector->addValue($key, $id, \PDO::PARAM_INT);
 
                     unset($x, $id);
                 }
@@ -76,11 +88,11 @@ class CommandRepository extends ServiceEntityRepository implements PaginationRep
 
         if ($limit !== null) {
             $sql .= ' LIMIT :limit';
-            $collector->addValue(':limit', $limit, PDO::PARAM_INT);
+            $collector->addValue(':limit', $limit, \PDO::PARAM_INT);
 
             if ($offset !== null) {
                 $sql .= ' OFFSET :offset';
-                $collector->addValue(':offset', $offset, PDO::PARAM_INT);
+                $collector->addValue(':offset', $offset, \PDO::PARAM_INT);
             }
         }
 
@@ -88,7 +100,14 @@ class CommandRepository extends ServiceEntityRepository implements PaginationRep
         $collector->bind($stmt);
 
         $stmt->execute();
-        $stmt->setFetchMode(PDO::FETCH_CLASS, Command::class);
+
+        $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
+
+        if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
+            $this->resultCountForPagination = $total;
+        }
+
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, Command::class);
         $result = $stmt->fetchAll();
 
         return $result;
@@ -99,6 +118,6 @@ class CommandRepository extends ServiceEntityRepository implements PaginationRep
      */
     public function getPaginationListTotal(): int
     {
-        return $this->db->numberRows();
+        return $this->resultCountForPagination;
     }
 }

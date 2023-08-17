@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNil, pick, type } from 'ramda';
 import { CSSObject } from 'tss-react';
 
@@ -47,10 +47,10 @@ const useStyleTable = ({
 }: TableStyle): TableStyleState => {
   const dataStyle = useAtomValue(tableStyleAtom);
 
-  const updateStyleTable = useUpdateAtom(tableStyleDerivedAtom);
+  const updateStyleTable = useSetAtom(tableStyleDerivedAtom);
 
   const getGridTemplateColumn = (): string => {
-    const checkbox = checkable ? '50px ' : '';
+    const checkbox = checkable ? 'fit-content(1rem) ' : ''; // SelectAction (checkbox) cell adjusts to content
 
     const columnTemplate = currentVisibleColumns
       ?.map(({ width, shortLabel }) => {

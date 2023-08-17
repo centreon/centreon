@@ -34,6 +34,7 @@ class AddHostCategoryPresenter extends AbstractPresenter
 {
     use LoggerTrait;
     private const ROUTE_NAME = 'FindHostCategory';
+    private const ROUTE_HOST_CATEGORY_ID = 'hostCategoryId';
 
     public function __construct(
         protected PresenterFormatterInterface $presenterFormatter,
@@ -60,19 +61,18 @@ class AddHostCategoryPresenter extends AbstractPresenter
                 'comment' => $payload->comment,
             ]);
 
-            // NOT setting location as required route does not currently exist
-            // try {
-            //     $this->setResponseHeaders([
-            //         'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $payload->id]),
-            //     ]);
-            // } catch (\Throwable $ex) {
-            //     $this->error('Impossible to generate the location header', [
-            //         'message' => $ex->getMessage(),
-            //         'trace' => $ex->getTraceAsString(),
-            //         'route' => self::ROUTE_NAME,
-            //         'payload' => $payload,
-            //     ]);
-            // }
+            try {
+                $this->setResponseHeaders([
+                    'Location' => $this->router->generate(self::ROUTE_NAME, [self::ROUTE_HOST_CATEGORY_ID => $payload->id]),
+                ]);
+            } catch (\Throwable $ex) {
+                $this->error('Impossible to generate the location header', [
+                    'message' => $ex->getMessage(),
+                    'trace' => $ex->getTraceAsString(),
+                    'route' => self::ROUTE_NAME,
+                    'payload' => $payload,
+                ]);
+            }
         }
         parent::present($data);
     }

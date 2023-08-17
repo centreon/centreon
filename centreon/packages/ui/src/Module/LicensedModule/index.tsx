@@ -1,4 +1,4 @@
-import Module, { ModuleProps } from '..';
+import Module, { ModuleProps } from '../index';
 
 import LicenseCheck, { LicenseCheckProps } from './LicenseCheck';
 

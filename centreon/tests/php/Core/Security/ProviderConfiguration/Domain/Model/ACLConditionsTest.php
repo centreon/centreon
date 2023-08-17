@@ -24,7 +24,7 @@ namespace Tests\Core\Security\ProviderConfiguration\Application\WebSSO\UseCase\F
 
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Exceptions\ACLConditionsException;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 
 beforeEach(function () {
     $this->custom_relative_url = '/info';

@@ -1,0 +1,4 @@
+{
+    "code": 404,
+    "message": "No route found for \"GET {url}/centreon"
+}

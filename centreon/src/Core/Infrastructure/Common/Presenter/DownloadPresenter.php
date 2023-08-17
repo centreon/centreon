@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,44 +23,39 @@ declare(strict_types=1);
 
 namespace Core\Infrastructure\Common\Presenter;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
+use Symfony\Component\HttpFoundation\Response;
 
-class DownloadPresenter extends AbstractPresenter implements DownloadInterface
+class DownloadPresenter implements PresenterFormatterInterface
 {
     private const CSV_FILE_EXTENSION = 'csv';
     private const JSON_FILE_EXTENSION = 'json';
 
     private string $downloadFileName = '';
 
+    public function __construct(readonly private PresenterFormatterInterface $formatter)
+    {
+    }
+
     /**
      * @inheritDoc
      */
-    public function present(mixed $data): void
+    public function format(mixed $data, array $headers): Response
     {
-        $originalHeaders = $this->getResponseHeaders();
-        $originalHeaders['Content-Type'] = 'application/force-download';
-        $originalHeaders['Content-Disposition'] = 'attachment; filename="' . $this->generateDownloadFileName() . '"';
-        $this->setResponseHeaders($originalHeaders);
-        parent::present($data);
+        $filename = $this->generateDownloadFileName($data->filename ?? 'export');
+        $headers['Content-Type'] = 'application/force-download';
+        $headers['Content-Disposition'] = 'attachment; filename="' . $filename . '"';
+
+        return $this->formatter->format($data->performanceMetrics, $headers);
     }
 
     /**
-     * @param string $fileName
-     * @return void
-     */
-    public function setDownloadFileName(string $fileName): void
-    {
-        $this->downloadFileName = $fileName;
-    }
-
-    /**
-     * Generates download file extension depending on presenter
+     * Generates download file extension depending on presenter.
      *
      * @return string
      */
     private function generateDownloadFileExtension(): string
     {
-        return match (get_class($this->presenterFormatter)) {
+        return match (get_class($this->formatter)) {
             CsvFormatter::class => self::CSV_FILE_EXTENSION,
             JsonFormatter::class => self::JSON_FILE_EXTENSION,
             default => '',
@@ -68,17 +63,16 @@ class DownloadPresenter extends AbstractPresenter implements DownloadInterface
     }
 
     /**
-     * Generates download file name (name + extension depending on used presenter)
+     * Generates download file name (name + extension depending on used presenter).
+     *
+     * @param string $filename
      *
      * @return string
      */
-    private function generateDownloadFileName(): string
+    private function generateDownloadFileName(string $filename): string
     {
         $fileExtension = $this->generateDownloadFileExtension();
-        if ($fileExtension === '') {
-            return $this->downloadFileName;
-        }
 
-        return $this->downloadFileName . '.' . $fileExtension;
+        return $fileExtension === '' ? $filename : $filename . '.' . $fileExtension;
     }
 }

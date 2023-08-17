@@ -20,13 +20,14 @@ import Option from '../Option';
 import TextField from '../../Text';
 import { SelectEntry } from '..';
 import { searchLabel } from '../../translatedLabels';
-import getNormalizedId from '../../../utils/getNormalizedId';
+import { getNormalizedId } from '../../../utils';
 
 export type Props = {
   autoFocus?: boolean;
   autoSize?: boolean;
   autoSizeCustomPadding?: number;
   autoSizeDefaultWidth?: number;
+  dataTestId?: string;
   displayOptionThumbnail?: boolean;
   displayPopupIcon?: boolean;
   endAdornment?: React.ReactElement;
@@ -153,6 +154,7 @@ const AutocompleteField = ({
   displayPopupIcon = true,
   autoFocus = false,
   hideInput = false,
+  dataTestId,
   autoSize = false,
   autoSizeDefaultWidth = 0,
   autoSizeCustomPadding,
@@ -206,7 +208,7 @@ const AutocompleteField = ({
       inputProps={{
         ...params.inputProps,
         'aria-label': label,
-        'data-testid': label,
+        'data-testid': dataTestId || label,
         id: getNormalizedId(label || '')
       }}
       label={label}

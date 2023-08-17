@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { pipe, isNil, sortBy, reject } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
@@ -67,8 +67,8 @@ const CriteriasContent = (): JSX.Element => {
   const isNonSelectableCriteria = (criteria: CriteriaModel): boolean =>
     pipe(({ name }) => name, getSelectableCriteriaByName, isNil)(criteria);
 
-  const applyCurrentFilter = useUpdateAtom(applyCurrentFilterDerivedAtom);
-  const clearFilter = useUpdateAtom(clearFilterDerivedAtom);
+  const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
+  const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
   return (
     <PopoverMenu

@@ -1,9 +1,11 @@
+export interface Poller {
+  id: number;
+  name: string;
+  since: number | string;
+}
+
 export interface AlertDetails {
-  poller: {
-    id: number;
-    name: string;
-    since: number | string;
-  };
+  poller: Array<Poller>;
   total: number;
 }
 

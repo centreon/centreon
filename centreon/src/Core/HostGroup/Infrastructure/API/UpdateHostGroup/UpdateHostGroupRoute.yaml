@@ -1,0 +1,7 @@
+UpdateHostGroup:
+  methods: PUT
+  path: /configuration/hosts/groups/{hostGroupId}
+  requirements:
+    hostGroupId: '\d+'
+  controller: 'Core\HostGroup\Infrastructure\API\UpdateHostGroup\UpdateHostGroupController'
+  condition: "request.attributes.get('version') >= 23.10"

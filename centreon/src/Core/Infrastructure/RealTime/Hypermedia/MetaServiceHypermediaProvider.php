@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Infrastructure\RealTime\Hypermedia;
 
 use Centreon\Domain\Contact\Contact;
-use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Domain\RealTime\Model\ResourceTypes\MetaServiceResourceType;
 
 class MetaServiceHypermediaProvider extends AbstractHypermediaProvider implements HypermediaProviderInterface
@@ -36,6 +35,7 @@ class MetaServiceHypermediaProvider extends AbstractHypermediaProvider implement
                  ENDPOINT_METRIC_LIST = 'centreon_application_find_meta_service_metrics',
                  ENDPOINT_DETAILS = 'centreon_application_monitoring_resource_details_meta_service',
                  ENDPOINT_SERVICE_DOWNTIME = 'monitoring.downtime.addMetaServiceDowntime',
+                 ENDPOINT_METASERVICE_CHECK = 'centreon_application_check_checkMetaService',
                  ENDPOINT_ACKNOWLEDGEMENT = 'centreon_application_acknowledgement_addmetaserviceacknowledgement',
                  ENDPOINT_NOTIFICATION_POLICY = 'configuration.metaservice.notification-policy',
                  URI_CONFIGURATION = '/main.php?p=60204&o=c&meta_id={metaId}',
@@ -56,7 +56,7 @@ class MetaServiceHypermediaProvider extends AbstractHypermediaProvider implement
     {
         $roles = [
             Contact::ROLE_CONFIGURATION_SERVICES_WRITE,
-            Contact::ROLE_CONFIGURATION_SERVICES_READ
+            Contact::ROLE_CONFIGURATION_SERVICES_READ,
         ];
 
         if (! $this->canContactAccessPages($this->contact, $roles)) {
@@ -85,20 +85,6 @@ class MetaServiceHypermediaProvider extends AbstractHypermediaProvider implement
     }
 
     /**
-     * @param array<string, int> $parameters
-     * @return string
-     */
-    private function generateAcknowledgementEndpoint(array $parameters): string
-    {
-        $acknowledgementFilter = ['limit' => 1];
-
-        return $this->generateEndpoint(
-            self::ENDPOINT_ACKNOWLEDGEMENT,
-            array_merge($parameters, $acknowledgementFilter)
-        );
-    }
-
-    /**
      * @inheritDoc
      */
     public function createEndpoints(array $parameters): array
@@ -117,6 +103,8 @@ class MetaServiceHypermediaProvider extends AbstractHypermediaProvider implement
                 ? $this->generateEndpoint(self::ENDPOINT_PERFORMANCE_GRAPH, $urlParams)
                 : null,
             'notification_policy' => $this->generateEndpoint(self::ENDPOINT_NOTIFICATION_POLICY, $urlParams),
+            'check' => $this->generateCheckEndpoint($urlParams),
+            'forced_check' => $this->generateForcedCheckEndpoint($urlParams),
         ];
     }
 
@@ -134,5 +122,44 @@ class MetaServiceHypermediaProvider extends AbstractHypermediaProvider implement
     public function convertCategoriesForPresenter(array $categories): array
     {
         return [];
+    }
+
+    /**
+     * @param array<string, int> $parameters
+     *
+     * @return string
+     */
+    private function generateAcknowledgementEndpoint(array $parameters): string
+    {
+        $acknowledgementFilter = ['limit' => 1];
+
+        return $this->generateEndpoint(
+            self::ENDPOINT_ACKNOWLEDGEMENT,
+            array_merge($parameters, $acknowledgementFilter)
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return string|null
+     */
+    private function generateCheckEndpoint(array $parameters): ?string
+    {
+        return ($this->contact->hasRole(Contact::ROLE_SERVICE_CHECK) || $this->contact->isAdmin())
+            ? $this->generateEndpoint(self::ENDPOINT_METASERVICE_CHECK, $parameters)
+            : null;
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return string|null
+     */
+    private function generateForcedCheckEndpoint(array $parameters): ?string
+    {
+        return ($this->contact->hasRole(Contact::ROLE_SERVICE_FORCED_CHECK) || $this->contact->isAdmin())
+            ? $this->generateEndpoint(self::ENDPOINT_METASERVICE_CHECK, $parameters)
+            : null;
     }
 }

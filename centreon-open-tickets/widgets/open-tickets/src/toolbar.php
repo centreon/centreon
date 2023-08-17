@@ -34,11 +34,11 @@ if (!isset($_SESSION['centreon']) || !isset($_POST['widgetId'])) {
 }
 
 $baseUri = (function() {
-    $paths = explode('/centreon/', htmlspecialchars($_SERVER['REQUEST_URI']), 2);
-    if (count($paths) > 1) {
-        return $paths[0] . '/centreon/';
-    }
-    return htmlspecialchars($_SERVER['REQUEST_URI']);
+    $scriptName = htmlspecialchars($_SERVER['SCRIPT_NAME']);
+    $paths = explode('/', $scriptName);
+    $baseUri = "/" . $paths[1] . "/";
+    return $baseUri;
+
 })();
 
 $smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';

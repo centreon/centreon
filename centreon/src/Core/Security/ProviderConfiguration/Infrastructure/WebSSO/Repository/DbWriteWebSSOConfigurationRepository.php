@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,11 +26,10 @@ namespace Core\Security\ProviderConfiguration\Infrastructure\WebSSO\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\WebSSOConfiguration;
 use Core\Security\ProviderConfiguration\Application\WebSSO\Repository\WriteWebSSOConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\WebSSO\Model\WebSSOConfiguration;
 
-class DbWriteWebSSOConfigurationRepository extends AbstractRepositoryDRB implements
-    WriteWebSSOConfigurationRepositoryInterface
+class DbWriteWebSSOConfigurationRepository extends AbstractRepositoryDRB implements WriteWebSSOConfigurationRepositoryInterface
 {
     use LoggerTrait;
 
@@ -67,6 +66,7 @@ class DbWriteWebSSOConfigurationRepository extends AbstractRepositoryDRB impleme
 
     /**
      * @param WebSSOConfiguration $configuration
+     *
      * @return array<string,mixed>
      */
     private function buildCustomConfigurationFromWebSSOConfiguration(WebSSOConfiguration $configuration): array
@@ -76,7 +76,7 @@ class DbWriteWebSSOConfigurationRepository extends AbstractRepositoryDRB impleme
             'blacklist_client_addresses' => $configuration->getBlacklistClientAddresses(),
             'login_header_attribute' => $configuration->getLoginHeaderAttribute(),
             'pattern_matching_login' => $configuration->getPatternMatchingLogin(),
-            'pattern_replace_login' => $configuration->getPatternReplaceLogin()
+            'pattern_replace_login' => $configuration->getPatternReplaceLogin(),
         ];
     }
 }

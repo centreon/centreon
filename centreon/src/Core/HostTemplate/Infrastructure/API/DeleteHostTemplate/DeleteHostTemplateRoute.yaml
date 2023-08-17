@@ -1,0 +1,7 @@
+DeleteHostTemplate:
+  methods: DELETE
+  path: /configuration/hosts/templates/{hostTemplateId}
+  requirements:
+    hostTemplateId: '\d+'
+  controller: 'Core\HostTemplate\Infrastructure\API\DeleteHostTemplate\DeleteHostTemplateController'
+  condition: "request.attributes.get('version') >= 23.10"

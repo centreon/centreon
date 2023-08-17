@@ -42,7 +42,7 @@ it('should throw an exception when host category name is empty', function () {
     new NewHostCategory('', $this->categoryAlias);
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmpty('NewHostCategory::name')
+    AssertionException::notEmptyString('NewHostCategory::name')
         ->getMessage()
 );
 
@@ -62,7 +62,7 @@ it('should throw an exception when host category alias is empty', function () {
     new NewHostCategory($this->categoryName, '');
 })->throws(
     \Assert\InvalidArgumentException::class,
-    AssertionException::notEmpty('NewHostCategory::alias')
+    AssertionException::notEmptyString('NewHostCategory::alias')
         ->getMessage()
 );
 

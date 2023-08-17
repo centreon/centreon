@@ -75,7 +75,7 @@ class AuthenticationService implements AuthenticationServiceInterface
         );
 
         try {
-            $provider = $this->providerFactory->create($configuration->getName());
+            $provider = $this->providerFactory->create($configuration->getType());
         } catch (ProviderException) {
             $this->notice('[AUTHENTICATION SERVICE] Provider not found');
             return false;

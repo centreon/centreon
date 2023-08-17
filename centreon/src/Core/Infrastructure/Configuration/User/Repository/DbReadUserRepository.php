@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,8 +28,8 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use Core\Domain\Configuration\User\Model\User;
 use Core\Application\Configuration\User\Repository\ReadUserRepositoryInterface;
+use Core\Domain\Configuration\User\Model\User;
 
 class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepositoryInterface
 {
@@ -55,16 +55,24 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
 
     /**
      * @inheritDoc
+     *
      * @throws AssertionFailedException
      */
     public function findAllUsers(): array
     {
         $this->info('Fetching users from database');
 
-        $request =
-            "SELECT SQL_CALC_FOUND_ROWS
-              contact_id, contact_alias, contact_name, contact_email, contact_admin, contact_theme
-            FROM `:db`.contact";
+        $request = <<<'SQL'
+            SELECT SQL_CALC_FOUND_ROWS
+                contact_id,
+                contact_alias,
+                contact_name,
+                contact_email,
+                contact_admin,
+                contact_theme,
+                user_interface_density
+            FROM `:db`.contact
+            SQL;
 
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
@@ -126,6 +134,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
              */
             return DbUserFactory::createFromRecord($result);
         }
+
         return null;
     }
 
@@ -149,9 +158,9 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
 
         $statement = $this->db->prepare(
             $this->translateDbName(
-                "SELECT contact_id
+                'SELECT contact_id
                 FROM `:db`.contact
-                WHERE contact_alias IN (" . implode(',', array_keys($bindValues)) . ")"
+                WHERE contact_alias IN (' . implode(',', array_keys($bindValues)) . ')'
             )
         );
 
@@ -180,7 +189,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
             'SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS
             WHERE TABLE_NAME = \'contact\' AND COLUMN_NAME = \'contact_theme\''
         );
-        if ($statement != false && $result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        if ($statement !== false && $result = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /**
              * @var array<string, string> $result
              */
@@ -191,6 +200,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
                 return $match[1];
             }
         }
+
         return [];
     }
 }

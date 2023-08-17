@@ -84,7 +84,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe(HostCategoryException::addNotAllowed()->getMessage());
+        ->toBe(HostCategoryException::writingActionsNotAllowed()->getMessage());
 });
 
 it('should present an InvalidArgumentResponse when name is already used', function () {
@@ -150,7 +150,7 @@ it('should present an ErrorResponse if the newly created host category cannot be
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe(HostCategoryException::errorWhileRetrievingJustCreated(new \Exception())->getMessage());
+        ->toBe(HostCategoryException::errorWhileRetrievingObject()->getMessage());
 });
 
 it('should return created object on success', function () {

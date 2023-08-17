@@ -5,7 +5,8 @@ export { default as refreshIntervalAtom } from './refreshIntervalAtom';
 export { default as cloudServicesAtom } from './cloudServicesAtom';
 export { default as acknowledgementAtom } from './acknowledgementAtom';
 export { default as resourceStorageOptimizationModeAtom } from './resourceStorageOptimizationMode';
-export { ThemeMode, ListingVariant } from './types';
+export { default as platformNameAtom } from './platformNameAtom';
+export { ThemeMode, ListingVariant, DashboardGlobalRole } from './types';
 
 export type {
   User,
@@ -15,5 +16,6 @@ export type {
   Downtime,
   CloudServices,
   Acknowledgement,
-  Acl
+  Acl,
+  DashboardRolesAndPermissions
 } from './types';

@@ -29,11 +29,10 @@ use Core\Domain\Common\GeoCoords;
 
 class ServiceGroup extends NewServiceGroup
 {
-    /** @var positive-int */
     private int $id;
 
     /**
-     * @param positive-int $id
+     * @param int $id
      * @param string $name
      * @param string $alias
      * @param GeoCoords|null $geoCoords
@@ -63,7 +62,7 @@ class ServiceGroup extends NewServiceGroup
     }
 
     /**
-     * @return positive-int
+     * @return int
      */
     public function getId(): int
     {

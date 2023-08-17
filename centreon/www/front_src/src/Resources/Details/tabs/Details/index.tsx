@@ -1,5 +1,5 @@
 import { equals, isNil } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { useTheme } from '@mui/material';
 

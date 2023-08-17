@@ -1,5 +1,3 @@
-import withMock from 'storybook-addon-mock';
-
 import { buildListingEndpoint } from '../../../..';
 import { SelectEntry } from '../..';
 import { Listing } from '../../../../api/models';
@@ -8,7 +6,6 @@ import SingleConnectedAutocompleteField from './Single';
 import MultiConnectedAutocompleteField from './Multi';
 
 export default {
-  decorators: [withMock],
   title: 'InputField/Autocomplete/Connected'
 };
 

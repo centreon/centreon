@@ -21,11 +21,11 @@
 
 namespace CentreonCommand\Application\Webservice;
 
+use Centreon\ServiceProvider;;
 use Centreon\Infrastructure\Webservice;
+use CentreonCommand\Domain\Entity\Command;
 use CentreonCommand\Application\Serializer;
 use CentreonCommand\Domain\Repository;
-use CentreonCommand\Domain\Entity\Command;
-use Centreon\ServiceProvider;
 
 /**
  * @OA\Tag(name="centreon_command", description="Resource for authorized access")

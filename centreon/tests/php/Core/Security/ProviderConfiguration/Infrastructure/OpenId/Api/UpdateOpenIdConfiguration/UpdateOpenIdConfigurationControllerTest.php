@@ -152,7 +152,8 @@ it('should execute the usecase properly', function () {
                     "custom_endpoint" => null
                 ],
                 "relations" => []
-            ]
+            ],
+            'redirect_url' => null
         ]);
 
         $this->request

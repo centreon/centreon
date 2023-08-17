@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,6 @@ namespace Core\Infrastructure\RealTime\Hypermedia;
 
 use Centreon\Domain\Contact\Contact;
 use Core\Domain\RealTime\Model\ResourceTypes\HostResourceType;
-use Core\Infrastructure\Common\Api\HttpUrlTrait;
 
 class HostHypermediaProvider extends AbstractHypermediaProvider implements HypermediaProviderInterface
 {
@@ -36,6 +35,7 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
                  URI_HOST_CATEGORY_CONFIGURATION = '/main.php?p=60104&o=c&hc_id={hostCategoryId}',
                  ENDPOINT_HOST_ACKNOWLEDGEMENT = 'centreon_application_acknowledgement_addhostacknowledgement',
                  ENDPOINT_DETAILS = 'centreon_application_monitoring_resource_details_host',
+                 ENDPOINT_HOST_CHECK = 'centreon_application_check_checkHost',
                  ENDPOINT_SERVICE_DOWNTIME = 'monitoring.downtime.addHostDowntime',
                  ENDPOINT_HOST_NOTIFICATION_POLICY = 'configuration.host.notification-policy',
                  ENDPOINT_HOST_TIMELINE = 'centreon_application_monitoring_gettimelinebyhost',
@@ -47,20 +47,6 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
     public function isValidFor(string $resourceType): bool
     {
         return $resourceType === HostResourceType::TYPE_NAME;
-    }
-
-    /**
-     * @param array<string, int> $parameters
-     * @return string
-     */
-    private function generateAcknowledgementEndpoint(array $parameters): string
-    {
-        $acknowledgementFilter = ['limit' => 1];
-
-        return $this->generateEndpoint(
-            self::ENDPOINT_HOST_ACKNOWLEDGEMENT,
-            array_merge($parameters, $acknowledgementFilter)
-        );
     }
 
     /**
@@ -79,7 +65,9 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
             ),
             'details' => $this->generateEndpoint(self::ENDPOINT_DETAILS, $urlParams),
             'downtime' => $this->generateDowntimeEndpoint($urlParams),
-            'acknowledgement' => $this->generateAcknowledgementEndpoint($urlParams)
+            'acknowledgement' => $this->generateAcknowledgementEndpoint($urlParams),
+            'check' => $this->generateCheckEndpoint($urlParams),
+            'forced_check' => $this->generateForcedCheckEndpoint($urlParams),
         ];
     }
 
@@ -90,7 +78,7 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
     {
         $roles = [
             Contact::ROLE_CONFIGURATION_HOSTS_WRITE,
-            Contact::ROLE_CONFIGURATION_HOSTS_READ
+            Contact::ROLE_CONFIGURATION_HOSTS_READ,
         ];
 
         if (! $this->canContactAccessPages($this->contact, $roles)) {
@@ -123,16 +111,17 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
     }
 
     /**
-     * Create hostgroup configuration redirection uri
+     * Create hostgroup configuration redirection uri.
      *
      * @param array<string, mixed> $parameters
+     *
      * @return string|null
      */
     public function createForGroup(array $parameters): ?string
     {
         $roles = [
             Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE,
-            Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ
+            Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ,
         ];
 
         if (! $this->canContactAccessPages($this->contact, $roles)) {
@@ -146,16 +135,17 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
     }
 
     /**
-     * Create host category configuration redirection uri
+     * Create host category configuration redirection uri.
      *
      * @param array<string, mixed> $parameters
+     *
      * @return string|null
      */
     public function createForCategory(array $parameters): ?string
     {
         $roles = [
             Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ_WRITE,
-            Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ
+            Contact::ROLE_CONFIGURATION_HOSTS_CATEGORIES_READ,
         ];
 
         if (! $this->canContactAccessPages($this->contact, $roles)) {
@@ -177,7 +167,7 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
             fn (array $group) => [
                 'id' => $group['id'],
                 'name' => $group['name'],
-                'configuration_uri' => $this->createForGroup(['hostgroupId' => $group['id']])
+                'configuration_uri' => $this->createForGroup(['hostgroupId' => $group['id']]),
             ],
             $groups
         );
@@ -192,9 +182,48 @@ class HostHypermediaProvider extends AbstractHypermediaProvider implements Hyper
             fn (array $category) => [
                 'id' => $category['id'],
                 'name' => $category['name'],
-                'configuration_uri' => $this->createForCategory(['categoryId' => $category['id']])
+                'configuration_uri' => $this->createForCategory(['categoryId' => $category['id']]),
             ],
             $categories
         );
+    }
+
+    /**
+     * @param array<string, int> $parameters
+     *
+     * @return string
+     */
+    private function generateAcknowledgementEndpoint(array $parameters): string
+    {
+        $acknowledgementFilter = ['limit' => 1];
+
+        return $this->generateEndpoint(
+            self::ENDPOINT_HOST_ACKNOWLEDGEMENT,
+            array_merge($parameters, $acknowledgementFilter)
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return string|null
+     */
+    private function generateCheckEndpoint(array $parameters): ?string
+    {
+        return ($this->contact->hasRole(Contact::ROLE_HOST_CHECK) || $this->contact->isAdmin())
+            ? $this->generateEndpoint(self::ENDPOINT_HOST_CHECK, $parameters)
+            : null;
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return string|null
+     */
+    private function generateForcedCheckEndpoint(array $parameters): ?string
+    {
+        return ($this->contact->hasRole(Contact::ROLE_HOST_FORCED_CHECK) || $this->contact->isAdmin())
+            ? $this->generateEndpoint(self::ENDPOINT_HOST_CHECK, $parameters)
+            : null;
     }
 }

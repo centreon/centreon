@@ -1,5 +1,5 @@
 import { path } from 'ramda';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { useRequest } from '@centreon/ui';
 

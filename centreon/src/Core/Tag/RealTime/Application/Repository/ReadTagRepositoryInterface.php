@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,22 +28,26 @@ use Core\Tag\RealTime\Domain\Model\Tag;
 interface ReadTagRepositoryInterface
 {
     /**
-     * Find all tags
+     * Find all tags.
      *
      * @param int $typeId
-     * @return Tag[]
+     *
      * @throws \Throwable
+     *
+     * @return Tag[]
      */
     public function findAllByTypeId(int $typeId): array;
 
     /**
-     * Find tags of type typeId linked to the resource (identified by id and parentId)
+     * Find tags of type typeId linked to the resource (identified by id and parentId).
      *
-     * @param integer $id
-     * @param integer $parentId
-     * @param integer $typeId
-     * @return Tag[]
+     * @param int $id
+     * @param int $parentId
+     * @param int $typeId
+     *
      * @throws \Throwable
+     *
+     * @return Tag[]
      */
     public function findAllByResourceAndTypeId(int $id, int $parentId, int $typeId): array;
 }

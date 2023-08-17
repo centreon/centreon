@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 
 import { useMemoComponent } from '../..';
-import getNormalizedId from '../../utils/getNormalizedId';
+import { getNormalizedId } from '../../utils';
 
 import { InputPropsWithoutGroup } from './models';
 

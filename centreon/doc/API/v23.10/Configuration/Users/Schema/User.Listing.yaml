@@ -1,0 +1,22 @@
+type: object
+properties:
+
+  id:
+    type: integer
+    description: User id
+    example: 1
+
+  alias:
+    type: string
+    description: User alias / login
+    example: admin
+
+  email:
+    type: string
+    description: email address
+    example: root@localhost
+
+  is_admin:
+    type: boolean
+    description: is admin or not
+    example: true

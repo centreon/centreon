@@ -39,7 +39,7 @@ class MassiveChangeHostsContext extends CentreonContext
         'alias' => 'hostCategoryAlias1',
         'severity' => 1,
         'severity_level' => 2,
-        'severity_icon' => '       centreon (png)'
+        'severity_icon' => 'centreon (png)'
     );
 
     protected $hostCategory2 = array(
@@ -112,14 +112,13 @@ class MassiveChangeHostsContext extends CentreonContext
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
-        'status_map_image' => '       centreon (png)',
+        'status_map_image' => 'centreon (png)',
         'geo_coordinates' => '2.3522219,48.856614',
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
-        'enabled' => 0,
         'comments' => 'hostMassiveChangeComments'
     );
 
@@ -181,14 +180,13 @@ class MassiveChangeHostsContext extends CentreonContext
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
-        'status_map_image' => '       centreon (png)',
+        'status_map_image' => 'centreon (png)',
         'geo_coordinates' => '2.3522219,48.856614',
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
-        'enabled' => 0,
         'comments' => 'hostMassiveChangeComments'
     );
 
@@ -250,14 +248,13 @@ class MassiveChangeHostsContext extends CentreonContext
         'url' => 'hostMassiveChangeUrl',
         'notes' => 'hostMassiveChangeNotes',
         'action_url' => 'hostMassiveChangeActionUrl',
-        'icon' => '       centreon (png)',
+        'icon' => 'centreon (png)',
         'alt_icon' => 'hostMassiveChangeIcon',
-        'status_map_image' => '       centreon (png)',
+        'status_map_image' => 'centreon (png)',
         'geo_coordinates' => '2.3522219,48.856614',
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
-        'enabled' => 0,
         'comments' => 'hostMassiveChangeComments'
     );
 

@@ -61,6 +61,32 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
         $statement->execute();
     }
 
+    public function update(HostGroup $hostGroup): void
+    {
+        $update = <<<'SQL'
+            UPDATE `:db`.`hostgroup`
+            SET
+                hg_name = :name,
+                hg_alias = :alias,
+                hg_notes = :notes,
+                hg_notes_url = :notes_url,
+                hg_action_url = :action_url,
+                hg_icon_image = :icon_image,
+                hg_map_icon_image = :map_icon_image,
+                hg_rrd_retention = :rrd_retention,
+                geo_coords = :geo_coords,
+                hg_comment = :comment,
+                hg_activate = :activate
+            WHERE
+                hg_id = :hostgroup_id
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($update));
+        $statement->bindValue(':hostgroup_id', $hostGroup->getId(), \PDO::PARAM_INT);
+        $this->bindValueOfHostGroup($statement, $hostGroup);
+        $statement->execute();
+    }
+
     /**
      * @inheritDoc
      */
@@ -102,6 +128,35 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
         $statement->execute();
 
         return (int) $this->db->lastInsertId();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function linkToHost(int $hostId, array $groupIds): void
+    {
+        if ($groupIds === []) {
+            return;
+        }
+
+        $bindValues = [];
+        $subQuery = [];
+        foreach ($groupIds as $key => $groupId) {
+            $bindValues[":group_id_{$key}"] = $groupId;
+            $subQuery[] = "(:group_id_{$key}, :host_id)";
+        }
+
+        $statement = $this->db->prepare($this->translateDbName(
+            'INSERT INTO `:db`.`hostgroup_relation` (hostgroup_hg_id, host_host_id) VALUES '
+            . implode(', ', $subQuery)
+        ));
+
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+
+        $statement->execute();
     }
 
     /**

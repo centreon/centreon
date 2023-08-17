@@ -18,7 +18,7 @@
         <tr class="ToolbarTR">
             <td>
                 {$form.o1.html}
-                <a class='btc bt_success' href="{$msg.addL}">{$msg.add}</a>
+                <a class='btc bt_success ml-1' href="{$msg.addL}">{$msg.add}</a>
             </td>
             <td class='toolbarPagination'>
                 {php}

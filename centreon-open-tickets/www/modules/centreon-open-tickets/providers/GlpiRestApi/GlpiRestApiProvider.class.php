@@ -922,7 +922,7 @@ class GlpiRestApiProvider extends AbstractProvider
                 $tpl->assign('string', $value['Value']);
                 $resultString = $tpl->fetch('eval.ihtml');
                 if ($resultString == '') {
-                    $resultstring = null;
+                    $resultString = null;
                 }
                 $ticketArguments[$this->internal_arg_name[$value['Arg']]] = $resultString;
             }

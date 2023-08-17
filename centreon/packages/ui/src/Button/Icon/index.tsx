@@ -6,7 +6,7 @@ import {
   Tooltip
 } from '@mui/material';
 
-import getNormalizedId from '../../utils/getNormalizedId';
+import { getNormalizedId } from '../../utils';
 
 const useStyles = makeStyles()((theme) => ({
   button: {

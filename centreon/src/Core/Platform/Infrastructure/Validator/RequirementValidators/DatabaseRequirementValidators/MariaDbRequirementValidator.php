@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidators;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface;
 use Centreon\Domain\VersionHelper;
+use Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface;
 
 class MariaDbRequirementValidator implements DatabaseRequirementValidatorInterface
 {
@@ -51,7 +51,7 @@ class MariaDbRequirementValidator implements DatabaseRequirementValidatorInterfa
             ],
         );
 
-        return strpos($versionComment, "MariaDB") !== false;
+        return str_contains($versionComment, 'MariaDB');
     }
 
     /**

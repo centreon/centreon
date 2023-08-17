@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- *  For more information : contact@centreon.com
+ * For more information : contact@centreon.com
+ *
  */
 
 declare(strict_types=1);
@@ -36,12 +37,13 @@ class Endpoint
     private const ALLOWED_TYPES = [
         self::INTROSPECTION,
         self::USER_INFORMATION,
-        self::CUSTOM
+        self::CUSTOM,
     ];
 
     /**
      * @param string $type
      * @param string|null $url
+     *
      * @throws InvalidEndpointException
      */
     public function __construct(
@@ -79,7 +81,7 @@ class Endpoint
     {
         return [
             'type' => $this->type,
-            'custom_endpoint' => $this->url
+            'custom_endpoint' => $this->url,
         ];
     }
 
@@ -88,28 +90,47 @@ class Endpoint
      */
     private function guardType(): void
     {
-        if (!in_array($this->type, self::ALLOWED_TYPES)) {
+        if (! in_array($this->type, self::ALLOWED_TYPES, true)) {
             throw InvalidEndpointException::invalidType();
         }
     }
 
     /**
-     * @return void
      * @throws InvalidEndpointException
      */
     private function guardUrl(): void
     {
-        if (
-            $this->type === self::CUSTOM &&
-            (
-                $this->url === null ||
-                (
-                    !str_starts_with($this->url, '/') &&
-                    filter_var($this->url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED) === false
+        if ($this->type === self::CUSTOM) {
+            $this->url = $this->sanitizeEndpointValue($this->url);
+            if (
+                $this->url === null
+                || (
+                    ! str_starts_with($this->url, '/')
+                    && filter_var($this->url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED) === false
                 )
-            )
-        ) {
-            throw InvalidEndpointException::invalidUrl();
+            ) {
+                throw InvalidEndpointException::invalidUrl();
+            }
         }
+    }
+
+    /**
+     * Trim unnecessary spaces and slashes in endpoint and return a valid endpoint value.
+     *
+     * @param ?string $value
+     *
+     * @return ?string
+     */
+    private function sanitizeEndpointValue(?string $value): ?string
+    {
+        if ($value === null || mb_strlen(trim($value, ' /')) === 0) {
+            return null;
+        }
+
+        if (str_contains($value, 'http://') || str_contains($value, 'https://')) {
+            return ltrim(rtrim($value, ' /'));
+        }
+
+        return '/' . trim($value, ' /');
     }
 }

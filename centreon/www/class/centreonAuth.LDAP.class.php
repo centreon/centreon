@@ -76,6 +76,9 @@ class CentreonAuthLDAP
          * Set contact Information
          */
         $this->contactInfos = $contactInfos;
+        if (!empty($this->contactInfos['contact_ldap_dn'])) {
+            $this->contactInfos['contact_ldap_dn'] = html_entity_decode($this->contactInfos['contact_ldap_dn']);
+        }
 
         /*
          * Keep password

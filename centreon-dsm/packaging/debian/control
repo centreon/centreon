@@ -18,7 +18,9 @@ Depends:
   ${misc:Depends}, 
   ${shlibs:Depends},
   centreon-dsm-client (>= ${centreon:version}~),
-  centreon-dsm-server (>= ${centreon:version}~)
+  centreon-dsm-server (>= ${centreon:version}~),
+  centreon-dsm-client (<< ${centreon:versionThreshold}~),
+  centreon-dsm-server (<< ${centreon:versionThreshold}~)
 
 Package: centreon-dsm-client
 Architecture: any
@@ -33,4 +35,5 @@ Description: Centreon-dsm server package
 Depends:
   ${misc:Depends}, 
   ${shlibs:Depends},
-  centreon-web (>= ${centreon:version}~)
+  centreon-web (>= ${centreon:version}~),
+  centreon-web (<< ${centreon:versionThreshold}~)

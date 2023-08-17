@@ -158,7 +158,7 @@ class CentreonDB extends \PDO
                     CentreonDBStatement::class,
                     [$this->log],
                 ],
-                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4',
+                PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
                 PDO::MYSQL_ATTR_LOCAL_INFILE => true,
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             ];
@@ -203,7 +203,9 @@ class CentreonDB extends \PDO
             );
         } catch (Exception $e) {
             if (php_sapi_name() !== "cli") {
-                $this->displayConnectionErrorPage($e->getMessage());
+                $this->displayConnectionErrorPage(
+                    $e->getCode() === 2002 ? "Unable to connect to database" : $e->getMessage()
+                );
             } else {
                 throw new Exception($e->getMessage());
             }

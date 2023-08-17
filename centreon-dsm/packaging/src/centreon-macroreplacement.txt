@@ -11,6 +11,7 @@ s:@CENTREON_RUNDIR@:/var/run/centreon:g
 s:@CENTREON_CACHEDIR@:/var/cache/centreon:g
 s:@CENTREON_VARLIB@:/var/lib/centreon:g
 s:@CENTREON_VARLOG@:/var/log/centreon:g
+s:@CENTREON_DSM_PATH@:/usr/share/centreon/www/modules/centreon-dsm/:g
 s:@CENTSTORAGE_BINDIR@:/usr/share/centreon/bin:g
 s:@CRONUSER@:centreon:g
 s:@INSTALL_DIR_CENTREON@:/usr/share/centreon:g

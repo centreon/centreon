@@ -250,6 +250,15 @@ if ($prepareSelect->execute()) {
                                 $centreon->CentreonLogAction->getHostName($tmp2["h"]),
                                 CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
                             );
+                            // If we can't find the host name in the DB, we can get it in the object name
+                            if (
+                                ((int) $host_name === -1 && str_contains($objectName, '/'))
+                                || str_contains($objectName, $host_name . '/')
+                            ) {
+                                $objectValues = explode('/', $objectName, 2);
+                                $host_name = $objectValues[0];
+                                $objectName = $objectValues[1];
+                            }
                         } elseif (count($tabHost) > 1) {
                             $hosts = array();
                             foreach ($tabHost as $key => $value) {

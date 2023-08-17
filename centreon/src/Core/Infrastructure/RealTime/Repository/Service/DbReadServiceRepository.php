@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,15 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Repository\Service;
 
-use Core\Domain\RealTime\Model\Service;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadServiceRepositoryInterface;
+use Core\Domain\RealTime\Model\Service;
 
 class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServiceRepositoryInterface
 {
@@ -70,14 +71,14 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
             return false;
         }
 
-        $request = "
+        $request = '
             SELECT COUNT(s.service_id) AS total
             FROM `:dbstg`.`services` AS s
             INNER JOIN `:dbstg`.`centreon_acl` AS service_acl
             ON service_acl.service_id = s.service_id AND service_acl.host_id = s.host_id
-            AND service_acl.group_id IN (" . implode(',', $accessGroupIds) . ")
+            AND service_acl.group_id IN (' . implode(',', $accessGroupIds) . ')
             WHERE s.service_id = :service_id AND s.host_id = :host_id AND s.enabled = 1
-        ";
+        ';
 
         $statement = $this->db->prepare($this->translateDbName($request));
 
@@ -93,6 +94,7 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
      * @param int $hostId
      * @param int $serviceId
      * @param string|null $accessGroupRequest
+     *
      * @return Service|null
      */
     private function findService(int $hostId, int $serviceId, ?string $accessGroupRequest = null): ?Service
@@ -137,9 +139,9 @@ class DbReadServiceRepository extends AbstractRepositoryDRB implements ReadServi
                 END AS `has_graph_data`
             FROM `:dbstg`.`services` AS s
             LEFT JOIN `:dbstg`.`customvariables` AS service_cvl ON service_cvl.service_id = s.service_id
-                AND service_cvl.name = 'CRITICALITY_LEVEL'" .
-            ($accessGroupRequest !== null ? $accessGroupRequest : '') .
-            "WHERE  s.service_id = :service_id AND s.host_id = :host_id AND s.enabled = '1'";
+                AND service_cvl.name = 'CRITICALITY_LEVEL'"
+            . ($accessGroupRequest !== null ? $accessGroupRequest : '')
+            . "WHERE  s.service_id = :service_id AND s.host_id = :host_id AND s.enabled = '1'";
 
         $statement = $this->db->prepare($this->translateDbName($request));
 

@@ -1,0 +1,8 @@
+in: path
+name: service_template_id
+required: true
+description: "Service template ID"
+schema:
+  type: integer
+  minimum: 1
+  example: 1

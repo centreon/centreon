@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,20 +30,20 @@ interface ReadVaultConfigurationRepositoryInterface
     /**
      * @param int $id
      *
-     * @return bool
-     *
      * @throws \Throwable
+     *
+     * @return bool
      */
     public function exists(int $id): bool;
 
     /**
      * @param string $address
-     * @param integer $port
+     * @param int $port
      * @param string $rootPath
      *
      * @throws \Throwable
      *
-     * @return boolean
+     * @return bool
      */
     public function existsSameConfiguration(string $address, int $port, string $rootPath): bool;
 
@@ -81,7 +81,7 @@ interface ReadVaultConfigurationRepositoryInterface
     public function findVaultConfigurationsByVault(int $vaultId): array;
 
     /**
-     * Get first vault configuration
+     * Get first vault configuration.
      *
      * @return VaultConfiguration|null
      */

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,47 +58,62 @@ final class PatchUser
      */
     public function __invoke(PatchUserRequest $request, PatchUserPresenterInterface $presenter): void
     {
-        $this->info('Update user');
+        $this->info('Updating user', ['request' => $request]);
         try {
             try {
                 $this->debug('Find user', ['user_id' => $request->userId]);
-                $user = $this->readUserRepository->findById($request->userId);
-                if ($user === null) {
+                if (($user = $this->readUserRepository->findById($request->userId)) === null) {
                     $this->userNotFound($request->userId, $presenter);
 
                     return;
                 }
             } catch (\Throwable $ex) {
                 $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
                 throw UserException::errorWhileSearchingForUser($ex);
             }
 
-            try {
-                $themes = $this->readUserRepository->findAvailableThemes();
-                $this->debug('User themes available', ['themes' => $themes]);
-                if (empty($themes)) {
-                    $this->unexpectedError('Abnormally empty list of themes', $presenter);
+            if ($request->theme !== null) {
+                try {
+                    if (($themes = $this->readUserRepository->findAvailableThemes()) === []) {
+                        $this->unexpectedError('Abnormally empty list of themes', $presenter);
+
+                        return;
+                    }
+
+                    $this->debug('User themes available', ['themes' => $themes]);
+
+                    if (! in_array($request->theme, $themes, true)) {
+                        $this->themeNotFound($request->theme, $presenter);
+
+                        return;
+                    }
+                } catch (\Throwable $ex) {
+                    $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+                    throw UserException::errorInReadingUserThemes($ex);
+                }
+
+                $user->setTheme($request->theme);
+                $this->debug('New theme', ['theme' => $request->theme]);
+            }
+
+            if ($request->userInterfaceDensity !== null) {
+                try {
+                    $user->setUserInterfaceDensity($request->userInterfaceDensity);
+                    $this->debug('New user interface view mode', ['mode' => $request->userInterfaceDensity]);
+                } catch (\InvalidArgumentException $ex) {
+                    $this->userInterfaceViewModeUnhandled($request->userInterfaceDensity, $presenter);
 
                     return;
                 }
-                if (!in_array($request->theme, $themes)) {
-                    $this->themeNotFound($request->theme, $presenter);
-
-                    return;
-                }
-            } catch (\Throwable $ex) {
-                $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-                throw UserException::errorInReadingUserThemes($ex);
             }
 
             try {
-                $this->debug('New theme', ['theme' => $request->theme]);
-                $user->setTheme($request->theme);
                 $this->writeUserRepository->update($user);
                 $this->updateUserSessions($request);
             } catch (\Throwable $ex) {
-                $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-                throw UserException::errorWhenUpdatingUserTheme($ex);
+                throw UserException::errorOnUpdatingUser($ex);
             }
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {
@@ -111,7 +126,7 @@ final class PatchUser
      * Update all user sessions.
      *
      * @param PatchUserRequest $request
-     * @return void
+     *
      * @throws \Throwable
      */
     private function updateUserSessions(PatchUserRequest $request): void
@@ -168,5 +183,15 @@ final class PatchUser
     {
         $this->error('Requested theme not found', ['theme' => $theme]);
         $presenter->setResponseStatus(new ErrorResponse(_('Requested theme not found')));
+    }
+
+    /**
+     * @param string $userInterfaceViewMode
+     * @param PresenterInterface $presenter
+     */
+    private function userInterfaceViewModeUnhandled(string $userInterfaceViewMode, PresenterInterface $presenter): void
+    {
+        $this->error('Requested user interface view mode not handled', ['mode' => $userInterfaceViewMode]);
+        $presenter->setResponseStatus(new ErrorResponse(_('Requested user interface view mode not handled')));
     }
 }

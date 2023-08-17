@@ -1,6 +1,6 @@
 import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 
 import { Theme } from '@mui/material';
 

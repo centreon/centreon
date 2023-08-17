@@ -1,0 +1,5 @@
+{
+    "action": "SETPARAM",
+    "object": "HOST",
+    "values": "test_host_ack;notifications_enabled;1"
+}

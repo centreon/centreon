@@ -260,7 +260,7 @@ sub save_centreon_previous_register {
             ' saas_model_id = ?,' .
             ' saas_metric_id = ?,' .
             ' saas_creation_date = ?, ' .
-            ' saas_update_date = ?'
+            ' saas_update_date = ?' .
             ' WHERE `id` = ?';
         $query_append = ';';
         push @bind_values, $self->{unregister_metrics_centreon}->{$_}->{saas_model_id}, $self->{unregister_metrics_centreon}->{$_}->{saas_metric_id},
@@ -605,7 +605,7 @@ sub action_saasregister {
     }
 
     if ($self->save_centreon_previous_register()) {
-        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot save previsous register' });
+        $self->send_log(code => GORGONE_ACTION_FINISH_KO, token => $options{token}, data => { message => 'cannot save previous register' });
         return 1;
     }
 

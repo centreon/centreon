@@ -1,3 +1,15 @@
+import {
+  GroupsRelation,
+  SharedAuthenticationConditions,
+  SharedGroupsMapping,
+  SharedRolesMapping
+} from '../shared/models';
+import {
+  SharedAuthenticationConditionsToAPI,
+  SharedGroupsMappingToAPI,
+  SharedRolesMappingToAPI
+} from '../shared/modelsAPI';
+
 export enum EndpointType {
   CustomEndpoint = 'custom_endpoint',
   IntrospectionEndpoint = 'introspection_endpoint',
@@ -7,28 +19,6 @@ export enum EndpointType {
 export interface NamedEntity {
   id: number;
   name: string;
-}
-
-export interface RolesRelation {
-  accessGroup: NamedEntity;
-  claimValue: string;
-  priority: number;
-}
-
-export interface RolesRelationToAPI {
-  access_group_id: number;
-  claim_value: string;
-  priority: number;
-}
-
-export interface GroupsRelation {
-  contactGroup: NamedEntity;
-  groupValue: string;
-}
-
-export interface GroupsRelationToAPI {
-  contact_group_id: number;
-  group_value: string;
 }
 
 export interface EndpointToAPI {
@@ -41,51 +31,33 @@ export interface Endpoint {
   type: EndpointType;
 }
 
-export interface RolesMapping {
-  applyOnlyFirstRole: boolean;
-  attributePath?: string | null;
+export interface RolesMapping extends SharedRolesMapping {
   endpoint: Endpoint;
-  isEnabled: boolean;
-  relations: Array<RolesRelation>;
 }
 
-export interface AuthConditions {
-  attributePath?: string | null;
-  authorizedValues: Array<string>;
+export interface AuthConditions extends SharedAuthenticationConditions {
   blacklistClientAddresses: Array<string>;
   endpoint: Endpoint;
-  isEnabled: boolean;
   trustedClientAddresses: Array<string>;
 }
 
-export interface RolesMappingToApi {
-  apply_only_first_role: boolean;
-  attribute_path?: string | null;
+export interface RolesMappingToApi extends SharedRolesMappingToAPI {
   endpoint: EndpointToAPI;
-  is_enabled: boolean;
-  relations: Array<RolesRelationToAPI>;
 }
 
-export interface GroupsMapping {
-  attributePath?: string | null;
+export interface GroupsMapping extends SharedGroupsMapping {
   endpoint: Endpoint;
-  isEnabled: boolean;
   relations: Array<GroupsRelation>;
 }
 
-export interface GroupsMappingToAPI {
-  attribute_path?: string | null;
+export interface GroupsMappingToAPI extends SharedGroupsMappingToAPI {
   endpoint: EndpointToAPI;
-  is_enabled: boolean;
-  relations: Array<GroupsRelationToAPI>;
 }
 
-export interface AuthConditionsToApi {
-  attribute_path?: string | null;
-  authorized_values: Array<string>;
+export interface AuthConditionsToApi
+  extends SharedAuthenticationConditionsToAPI {
   blacklist_client_addresses: Array<string>;
   endpoint: EndpointToAPI;
-  is_enabled: boolean;
   trusted_client_addresses: Array<string>;
 }
 
@@ -107,6 +79,7 @@ export interface OpenidConfiguration {
   isActive: boolean;
   isForced: boolean;
   loginClaim?: string | null;
+  redirectUrl?: string | null;
   rolesMapping: RolesMapping;
   tokenEndpoint: string | null;
   userinfoEndpoint?: string | null;
@@ -131,6 +104,7 @@ export interface OpenidConfigurationToAPI {
   is_active: boolean;
   is_forced: boolean;
   login_claim?: string | null;
+  redirect_url?: string | null;
   roles_mapping: RolesMappingToApi;
   token_endpoint: string | null;
   userinfo_endpoint?: string | null;

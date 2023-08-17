@@ -53,7 +53,11 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
     {
         parent::__construct();
         $this->pearDBMonitoring = new \CentreonDB('centstorage');
-        $this->centcore_file = _CENTREON_VARLIB_ . '/centcore.cmd';
+        if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
+            $this->centcore_file = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
+        } else {
+            $this->centcore_file = _CENTREON_VARLIB_ . '/centcore.cmd';
+        }
     }
 
     /**

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,15 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Repository\MetaService;
 
-use Core\Domain\RealTime\Model\MetaService;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadMetaServiceRepositoryInterface;
+use Core\Domain\RealTime\Model\MetaService;
 
 class DbReadMetaServiceRepository extends AbstractRepositoryDRB implements ReadMetaServiceRepositoryInterface
 {
@@ -64,11 +65,12 @@ class DbReadMetaServiceRepository extends AbstractRepositoryDRB implements ReadM
     /**
      * @param int $metaId
      * @param string|null $accessGroupRequest
+     *
      * @return MetaService|null
      */
     private function findMetaService(int $metaId, ?string $accessGroupRequest = null): ?MetaService
     {
-        $request = "SELECT
+        $request = 'SELECT
             SUBSTRING(s.description, 6) AS `id`,
             s.host_id,
             s.service_id,
@@ -102,13 +104,13 @@ class DbReadMetaServiceRepository extends AbstractRepositoryDRB implements ReadM
                     SELECT i.host_id, i.service_id
                     FROM `:dbstg`.metrics AS m, `:dbstg`.index_data AS i
                     WHERE i.host_id = s.host_id AND i.service_id = s.service_id
-                        AND i.id = m.index_id AND m.hidden = \"0\") THEN 1
+                        AND i.id = m.index_id AND m.hidden = "0") THEN 1
                 ELSE 0
             END AS `has_graph_data`
-        FROM `:dbstg`.`services` AS s " . ($accessGroupRequest !== null ? $accessGroupRequest : '') .
-        " INNER JOIN `:dbstg`.`hosts` sh ON sh.host_id = s.host_id" .
-        " INNER JOIN `:dbstg`.`instances` AS i ON i.instance_id = sh.instance_id" .
-        " WHERE s.description = :meta_id AND s.enabled = '1'";
+        FROM `:dbstg`.`services` AS s ' . ($accessGroupRequest !== null ? $accessGroupRequest : '')
+        . ' INNER JOIN `:dbstg`.`hosts` sh ON sh.host_id = s.host_id'
+        . ' INNER JOIN `:dbstg`.`instances` AS i ON i.instance_id = sh.instance_id'
+        . " WHERE s.description = :meta_id AND s.enabled = '1'";
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $statement->bindValue(':meta_id', 'meta_' . $metaId, \PDO::PARAM_STR);

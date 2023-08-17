@@ -15,7 +15,7 @@ export enum SeverityCode {
   Medium = 2,
   Low = 3,
   Pending = 4,
-  Ok = 5,
+  OK = 5,
   None = 6
 }
 
@@ -42,7 +42,7 @@ export const getStatusColors = ({
       backgroundColor: theme.palette.statusBackground.pending,
       color: palette.text.primary
     },
-    [SeverityCode.Ok]: {
+    [SeverityCode.OK]: {
       backgroundColor: theme.palette.statusBackground.success,
       color: palette.text.primary
     },

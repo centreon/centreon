@@ -580,7 +580,9 @@ class Broker extends AbstractObjectJSON
     }
 
     /**
-     * Generate complete proxy url
+     * Generate complete proxy url.
+     *
+     * @throws PDOException
      *
      * @return array with lua parameters
      */
@@ -588,68 +590,77 @@ class Broker extends AbstractObjectJSON
     {
         global $pearDB;
 
+        $sql = <<<'SQL'
+            SELECT
+              `key`,
+              `value`
+            FROM
+              `options`
+            WHERE
+              `key` IN (
+                'saas_token', 'saas_use_proxy', 'saas_url',
+                'proxy_url', 'proxy_port', 'proxy_user', 'proxy_password'
+              )
+            SQL;
+
+        /**
+         * @var array{
+         *     saas_token?: null|string,
+         *     saas_use_proxy?: null|string,
+         *     saas_url?: null|string,
+         *     proxy_url?: null|string,
+         *     proxy_port?: null|string,
+         *     proxy_user?: null|string,
+         *     proxy_password?: null|string
+         * } $options
+         */
+        $options = $pearDB->query($sql)->fetchAll(\PDO::FETCH_KEY_PAIR) ?: [];
+
         $luaParameters = [];
 
-        $stmt = $pearDB->query(
-            "SELECT * FROM options WHERE options.key IN ('saas_token', 'saas_use_proxy', 'saas_url')"
-        );
-        while ($item = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            if ($item['key'] == "saas_token") {
-                $luaParameters[] = [
-                    "type" => "string",
-                    "name" => "token",
-                    "value" => $item['value']
-                ];
-            } elseif ($item['key'] == "saas_url") {
-                $luaParameters[] = [
-                    "type" => "string",
-                    "name" => "destination",
-                    "value" => $item['value']
-                ];
-            } elseif (($item['key'] == "saas_use_proxy") && ($item['value'] == "1")) {
-                $proxyInfo = [];
-                $stmtProxy = $pearDB->query(
-                    "SELECT * FROM options WHERE options.key IN ('proxy_url', 'proxy_port', 'proxy_user', 'proxy_password')"
-                );
-                while ($data = $stmtProxy->fetch(PDO::FETCH_ASSOC)) {
-                    $proxyInfo[$data['key']] = $data['value'];
-                }
-
-                // Generate proxy URL
-                $proxy = '';
-                if (
-                    !empty($proxyInfo['proxy_user'])
-                    && !empty($proxyInfo['proxy_password'])
-                ) {
-                    $proxy = $proxyInfo['proxy_user'] . ':' . $proxyInfo['proxy_password'] . '@';
-                }
-
-                $proxy = (parse_url($proxyInfo['proxy_url'], PHP_URL_SCHEME)
-                            ? (parse_url($proxyInfo['proxy_url'], PHP_URL_SCHEME) . '://')
-                            : 'http://'
-                        ) .  $proxy;
-
-                $proxy .= (parse_url($proxyInfo['proxy_url'], PHP_URL_SCHEME))
-                    ? parse_url($proxyInfo['proxy_url'], PHP_URL_HOST)
-                    : parse_url($proxyInfo['proxy_url'], PHP_URL_PATH);
-                if (isset($proxyInfo['proxy_port']) && !empty($proxyInfo['proxy_port'])) {
-                    $proxy .= ':' . $proxyInfo['proxy_port'];
-                }
-
-                $luaParameters[] = [
-                    "type" => "string",
-                    "name" => "proxy",
-                    "value" => $proxy
-                ];
-            }
+        if (array_key_exists('saas_token', $options)) {
+            $luaParameters[] = [
+                'type' => 'string',
+                'name' => 'token',
+                'value' => $options['saas_token'],
+            ];
         }
+        if (array_key_exists('saas_url', $options)) {
+            $luaParameters[] = [
+                'type' => 'string',
+                'name' => 'destination',
+                'value' => $options['saas_url'],
+            ];
+        }
+        if (
+            ($options['saas_use_proxy'] ?? null) === '1'
+            && ($proxyUrl = $options['proxy_url'] ?? null)
+        ) {
+            $proxyScheme = parse_url($proxyUrl, PHP_URL_SCHEME);
 
-        $uuid = $this->getCentreonPlatformUuid();
+            $proxy = ($proxyScheme ?: 'http') . '://';
+            if (! empty($options['proxy_user']) && ! empty($options['proxy_password'])) {
+                $proxy .= $options['proxy_user'] . ':' . $options['proxy_password'] . '@';
+            }
+            if ($proxyScheme) {
+                $proxy .= parse_url($proxyUrl, PHP_URL_HOST);
+            } else {
+                $proxy .= parse_url($proxyUrl, PHP_URL_PATH);
+            }
+            if (! empty($options['proxy_port'])) {
+                $proxy .= ':' . $options['proxy_port'];
+            }
+            $luaParameters[] = [
+                'type' => 'string',
+                'name' => 'proxy',
+                'value' => $proxy,
+            ];
+        }
 
         $luaParameters[] = [
             'type' => 'string',
             'name' => 'centreon_platform_uuid',
-            'value' => $uuid
+            'value' => $this->getCentreonPlatformUuid(),
         ];
 
         return $luaParameters;

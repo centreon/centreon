@@ -34,10 +34,10 @@ runs:
 
     - name: Install action dependencies
       run: pnpm install
-      working-directory: ./.github/actions/get-latest-npm-beta-branch-version
+      working-directory: ./.github/actions/get-latest-npm-branch-version
       shell: bash
 
-    - uses: ./.github/actions/get-latest-npm-beta-branch-version
+    - uses: ./.github/actions/get-latest-npm-branch-version
       id: get-latest-npm-beta-branch-version
       with:
         package: ${{ inputs.package }}
@@ -56,7 +56,8 @@ runs:
 
     - name: Bump NPM package version
       run: |
-        npm version prerelease --preid ${{ github.head_ref }} --legacy-peer-deps
+        PREID=$(echo "${{ github.head_ref }}" | sed "s/\./-/g")
+        npm version prerelease --preid $PREID --legacy-peer-deps
         VERSION=$(node -p "require('./package.json').version")
         rm ../../package-lock.json
         echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -64,7 +65,7 @@ runs:
       shell: bash
 
     - name: Publish package to NPM (${{ env.TAG }})
-      uses: JS-DevTools/npm-publish@v1
+      uses: JS-DevTools/npm-publish@v2
       with:
         access: public
         package: ${{ env.directory }}/package.json

@@ -9,10 +9,12 @@ Standards-Version: 4.5.0
 Homepage: https://wwww.centreon.com
 
 Package: centreon-gorgone
-Architecture: any
+Architecture: all
 Depends:
   centreon-common (>= ${centreon:version}~),
+  centreon-common (<< ${centreon:versionThreshold}~),
   libdatetime-perl,
+  libtime-parsedate-perl,
   libtry-tiny-perl,
   libxml-simple-perl,
   libxml-libxml-simple-perl,

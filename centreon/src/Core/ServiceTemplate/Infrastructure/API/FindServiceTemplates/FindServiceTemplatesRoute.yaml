@@ -1,0 +1,5 @@
+FindServiceTemplates:
+  methods: GET
+  path: /configuration/services/templates
+  controller: 'Core\ServiceTemplate\Infrastructure\API\FindServiceTemplates\FindServiceTemplatesController'
+  condition: "request.attributes.get('version') >= 23.10"

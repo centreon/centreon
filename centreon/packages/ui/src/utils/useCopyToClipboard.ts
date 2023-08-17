@@ -10,7 +10,8 @@ interface Props {
   errorMessage: string;
   successMessage: string;
 }
-const useCopyToClipboard = ({
+
+export const useCopyToClipboard = ({
   successMessage,
   errorMessage
 }: Props): Result => {
@@ -53,5 +54,3 @@ const useCopyToClipboard = ({
 
   return { copy };
 };
-
-export default useCopyToClipboard;

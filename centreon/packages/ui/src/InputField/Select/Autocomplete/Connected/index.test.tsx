@@ -7,7 +7,7 @@ import {
   resetMocks,
   mockResponse,
   getFetchCall
-} from '../../../../testRenderer';
+} from '../../../../../test/testRenderer';
 import buildListingEndpoint from '../../../../api/buildListingEndpoint';
 import { ConditionsSearchParameter } from '../../../../api/buildListingEndpoint/models';
 import TestQueryProvider from '../../../../api/TestQueryProvider';

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
+ * Copyright 2005-2023 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -46,13 +46,18 @@ class Macro extends AbstractObject
     public function __construct(\Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
+
+        if (! $this->isVaultEnabled) {
+            $this->getVaultConfigurationStatus();
+        }
+
         $this->buildCache();
     }
 
     private function cacheMacroService()
     {
         $stmt = $this->backend_instance->db->prepare("SELECT 
-              svc_svc_id, svc_macro_name, svc_macro_value
+              svc_svc_id, svc_macro_name, svc_macro_value, is_password
             FROM on_demand_macro_service
         ");
         $stmt->execute();
@@ -60,11 +65,26 @@ class Macro extends AbstractObject
             if (!isset($this->macro_service_cache[$macro['svc_svc_id']])) {
                 $this->macro_service_cache[$macro['svc_svc_id']] = array();
             }
-            $this->macro_service_cache[$macro['svc_svc_id']][preg_replace(
+
+            # Modify macro value for Centreon Vault Storage
+            if (
+                $this->isVaultEnabled
+                && $macro['is_password'] === 1
+            ) {
+                $serviceMacroName = preg_replace(
+                    '/\$(_SERVICE.*)\$/',
+                    '$1',
+                    $macro['svc_macro_name']
+                );
+                $macro['svc_macro_value'] = sprintf("{%s::%s}", $serviceMacroName, $macro['svc_macro_value']);
+            }
+
+            $serviceMacroName = preg_replace(
                 '/\$_SERVICE(.*)\$/',
                 '_$1',
                 $macro['svc_macro_name']
-            )] = $macro['svc_macro_value'];
+            );
+            $this->macro_service_cache[$macro['svc_svc_id']][$serviceMacroName] = $macro['svc_macro_value'];
         }
     }
 
@@ -81,7 +101,7 @@ class Macro extends AbstractObject
         # We get unitary
         if (is_null($this->stmt_service)) {
             $this->stmt_service = $this->backend_instance->db->prepare("SELECT 
-                    svc_macro_name, svc_macro_value
+                    svc_macro_name, svc_macro_value, is_password
                 FROM on_demand_macro_service
                 WHERE svc_svc_id = :service_id
             ");
@@ -91,11 +111,21 @@ class Macro extends AbstractObject
         $this->stmt_host->execute();
         $this->macro_service_cache[$service_id] = array();
         while (($macro = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            $this->macro_service_cache[$service_id][preg_replace(
+            $serviceMacroName = preg_replace(
                 '/\$_SERVICE(.*)\$/',
                 '_$1',
                 $macro['svc_macro_name']
-            )] = $macro['svc_macro_value'];
+            );
+
+            # Modify macro value for Centreon Vault Storage
+            if (
+                $this->isVaultEnabled
+                && $macro['is_password'] === 1
+            ) {
+                $macro['svc_macro_value'] = sprintf("{%s::%s}", $serviceMacroName, $macro['svc_macro_value']);
+            }
+
+            $this->macro_service_cache[$service_id][$serviceMacroName] = $macro['svc_macro_value'];
         }
 
         return $this->macro_service_cache[$service_id];

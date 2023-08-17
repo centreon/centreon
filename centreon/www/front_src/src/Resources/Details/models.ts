@@ -41,6 +41,7 @@ export interface ResourceDetails extends NamedEntity {
   flapping: boolean;
   fqdn?: string;
   groups?: Array<Group>;
+  in_downtime: boolean;
   information: string;
   last_check: string;
   last_notification: string;

@@ -2,6 +2,8 @@ import type { Props as SingleAutocompleteFieldProps } from './InputField/Select/
 
 export { default as IconButton } from './Button/Icon';
 
+export { Checkbox, CheckboxGroup } from './Checkbox';
+
 export { default as SingleAutocompleteField } from './InputField/Select/Autocomplete';
 export type { SingleAutocompleteFieldProps };
 
@@ -27,6 +29,7 @@ export { default as SelectField } from './InputField/Select';
 export { default as IconPopoverMultiSelectField } from './InputField/Select/IconPopover';
 
 export { default as Listing, MemoizedListing } from './Listing';
+export { default as useStyleTable } from './Listing/useStyleTable';
 export type { Props as ListingProps } from './Listing';
 
 export { ColumnType } from './Listing/models';
@@ -81,15 +84,6 @@ export type {
 } from './api/buildListingEndpoint/models';
 export { default as buildListingDecoder } from './api/buildListingDecoder';
 
-export {
-  default as useLocaleDateTimeFormat,
-  dateTimeFormat,
-  dateFormat,
-  timeFormat
-} from './utils/useLocaleDateTimeFormat';
-
-export { default as useDebounce } from './utils/useDebounce';
-export { default as useIntersectionObserver } from './utils/useIntersectionObserver';
 export { default as ContentWithCircularLoading } from './ContentWithCircularProgress';
 export {
   setUrlQueryParameters,
@@ -100,12 +94,6 @@ export type {
   RegexSearchParameter,
   ListsSearchParameter
 } from './api/buildListingEndpoint/models';
-
-export {
-  default as useMemoComponent,
-  useDeepCompare
-} from './utils/useMemoComponent';
-export { default as useCopyToClipboard } from './utils/useCopyToClipboard';
 
 export { default as MenuSkeleton } from './MenuSkeleton';
 export { default as PopoverMenu } from './PopoverMenu';
@@ -121,11 +109,11 @@ export type { RootComponentProps } from './SortableItems';
 
 export { default as LoadingSkeleton } from './LoadingSkeleton';
 
-export { default as Module } from './Module';
+export { default as Module } from './Module/index';
 export { default as LicensedModule } from './Module/LicensedModule';
 export { default as SnackbarProvider } from './Snackbar/SnackbarProvider';
 export { default as PersistentTooltip } from './InputField/Search/PersistentTooltip';
-export { default as Form, GroupDirection } from './Form';
+export * from './Form';
 export { InputType } from './Form/Inputs/models';
 export type {
   InputProps,
@@ -142,8 +130,6 @@ export {
 } from './FileDropZone';
 export type { CustomDropZoneContentProps } from './FileDropZone';
 export { default as TestQueryProvider } from './api/TestQueryProvider';
-export * from './utils/useThemeMode';
-export * from './utils/typedMemo';
 export * from './FallbackPage/FallbackPage';
 export * from './Logo/CentreonLogo';
 export * from './TopCounterElements';
@@ -151,4 +137,9 @@ export { default as Image, ImageVariant } from './Image/Image';
 export { default as WallpaperPage } from './WallpaperPage';
 export { RichTextEditor } from './RichTextEditor';
 export { default as ActionsList } from './ActionsList';
-export { getStatusColors, SeverityCode } from './utils/statuses';
+
+export type { ResponseError, CatchErrorProps } from './api/customFetch';
+
+export * from './utils';
+export { default as FluidTypography } from './Typography/FluidTypography';
+export * from './Dashboard';

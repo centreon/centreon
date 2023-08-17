@@ -225,7 +225,7 @@ $attrCommands = array(
     'multiple' => true,
     'linkedObject' => 'centreonCommand'
 );
-$contactRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contactgroup&action=list';
+$contactRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contactgroup&action=list&type=local';
 $attrContactgroups = array(
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $contactRoute,

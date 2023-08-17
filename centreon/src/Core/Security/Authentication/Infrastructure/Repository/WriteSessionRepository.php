@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,19 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
-use Exception;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
+use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
+use Core\Security\Authentication\Infrastructure\Provider\SAML;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class WriteSessionRepository implements WriteSessionRepositoryInterface
@@ -34,8 +39,16 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
 
     /**
      * @param SessionInterface $session
+     * @param WriteSessionTokenRepositoryInterface $writeSessionTokenRepository
+     * @param WriteTokenRepositoryInterface $writeTokenRepository
+     * @param ProviderAuthenticationFactoryInterface $providerFactory
      */
-    public function __construct(private SessionInterface $session)
+    public function __construct(
+        private readonly SessionInterface $session,
+        private readonly WriteSessionTokenRepositoryInterface $writeSessionTokenRepository,
+        private readonly WriteTokenRepositoryInterface $writeTokenRepository,
+        private readonly ProviderAuthenticationFactoryInterface $providerFactory
+    )
     {
     }
 
@@ -44,13 +57,31 @@ class WriteSessionRepository implements WriteSessionRepositoryInterface
      */
     public function invalidate(): void
     {
+        $this->writeTokenRepository->deleteExpiredSecurityTokens();
+        $this->writeSessionTokenRepository->deleteSession($this->session->getId());
+        $centreon = $this->session->get('centreon');
         $this->session->invalidate();
+
+        if ($centreon && $centreon->user->authType === Provider::SAML) {
+            /** @var SAML $provider */
+            $provider = $this->providerFactory->create(Provider::SAML);
+            $configuration = $provider->getConfiguration();
+            $customConfiguration = $configuration->getCustomConfiguration();
+            if (
+                $configuration->isActive()
+                && $customConfiguration->getLogoutFrom() === CustomConfiguration::LOGOUT_FROM_CENTREON_AND_IDP
+            ) {
+                $this->info('Logout from Centreon and SAML IDP...');
+                $provider->logout(); // The redirection is done here by the IDP
+            }
+        }
     }
 
     /**
-     * Start a session (included the legacy session)
+     * Start a session (included the legacy session).
      *
      * @param \Centreon $legacySession
+     *
      * @return bool
      */
     public function start(\Centreon $legacySession): bool

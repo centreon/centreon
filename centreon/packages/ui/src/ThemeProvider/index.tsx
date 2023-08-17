@@ -1,22 +1,26 @@
 import * as React from 'react';
 
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { CSSInterpolation } from 'tss-react';
 import { equals } from 'ramda';
 
 import {
-  ThemeProvider as MuiThemeProvider,
-  Theme,
-  StyledEngineProvider,
+  ButtonProps,
   createTheme,
   InputBaseProps,
-  ButtonProps
+  StyledEngineProvider,
+  Theme,
+  ThemeProvider as MuiThemeProvider
 } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import { ThemeOptions } from '@mui/material/styles/createTheme';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
+import RobotoLightWoff2 from '@centreon/ui/fonts/roboto-light-webfont.woff2';
+import RobotoRegularWoff2 from '@centreon/ui/fonts/roboto-regular-webfont.woff2';
+import RobotoMediumWoff2 from '@centreon/ui/fonts/roboto-medium-webfont.woff2';
+import RobotoBoldWoff2 from '@centreon/ui/fonts/roboto-bold-webfont.woff2';
 
 import { getPalette } from './palettes';
 
@@ -32,7 +36,16 @@ declare module '@mui/material/TextField' {
   }
 }
 
-const getInputBaseRootStyle = ({ size }: InputBaseProps): CSSInterpolation => {
+const getInputBaseRootStyle = ({
+  size,
+  multiline
+}: InputBaseProps): CSSInterpolation => {
+  if (multiline) {
+    return {
+      padding: '0px'
+    };
+  }
+
   if (equals(size, 'compact')) {
     return {
       padding: '8px 8px',
@@ -135,41 +148,42 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     },
     MuiCssBaseline: {
       styleOverrides: (theme) => `
-        ::-webkit-scrollbar {
-          height: ${theme.spacing(1)};
-          width: ${theme.spacing(1)};
-          background-color: ${theme.palette.background.default};
-        }
-        ::-webkit-scrollbar-thumb {
-          background-color: ${
-            equals(mode, 'dark')
-              ? theme.palette.divider
-              : theme.palette.text.disabled
-          };
-          border-radius: ${theme.spacing(0.5)};
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background-color: ${theme.palette.primary.main};
-        }
-        * {
-          scrollbar-color: ${
-            equals(mode, 'dark')
-              ? theme.palette.divider
-              : theme.palette.text.disabled
-          } ${theme.palette.background.default};
-          scrollbar-width: thin;
-        }
         html {
           margin: 0;
           padding: 0;
           width: 100%;
           height: 100%;
+          text-rendering: optimizeLegibility;
         }
         body {
           background-color: ${theme.palette.background.paper};
           height: 100%;
           padding: 0;
           width: 100%;
+        }
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 300;
+          src: local('Roboto'), local('Roboto-Light'), url(${RobotoLightWoff2}) format('woff2');
+        }
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 400;
+          src: local('Roboto'), local('Roboto-Regular'), url(${RobotoRegularWoff2}) format('woff2');
+        }
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 500;
+          src: local('Roboto'), local('Roboto-Medium'), url(${RobotoMediumWoff2}) format('woff2');
+        }
+        @font-face {
+          font-family: 'Roboto';
+          font-style: normal;
+          font-weight: 700;
+          src: local('Roboto'), local('Roboto-Bold'), url(${RobotoBoldWoff2}) format('woff2');
         }
       `
     },
@@ -244,7 +258,8 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     },
     caption: {
       fontSize: '0.625rem'
-    }
+    },
+    fontFamily: 'Roboto, Arial'
   }
 });
 

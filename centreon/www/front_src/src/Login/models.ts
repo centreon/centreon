@@ -25,3 +25,11 @@ export interface ProviderConfiguration {
   isForced?: boolean;
   name: string;
 }
+
+export interface LoginPageCustomisation {
+  customText: string | null;
+  iconSource: string | null;
+  imageSource: string | null;
+  platformName: string | null;
+  textPosition: string | null;
+}

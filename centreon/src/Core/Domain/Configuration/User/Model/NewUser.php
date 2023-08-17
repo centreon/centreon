@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,7 @@ use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Contact\Domain\Model\ContactTemplate;
 
 /**
- * This class represent a User being created
+ * This class represent a User being created.
  */
 class NewUser
 {
@@ -39,33 +39,31 @@ class NewUser
                  MAX_EMAIL_LENGTH = 255,
                  MIN_THEME_LENGTH = 1,
                  MAX_THEME_LENGTH = 100,
+                 MAX_USER_INTERFACE_DENSITY_LENGTH = 100,
                  THEME_LIGHT = 'light',
-                 THEME_DARK = 'dark';
+                 THEME_DARK = 'dark',
+                 USER_INTERFACE_DENSITY_EXTENDED = 'extended',
+                 USER_INTERFACE_DENSITY_COMPACT = 'compact';
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected bool $isActivate = true;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected bool $isAdmin = false;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected string $theme = self::THEME_LIGHT;
 
-    /**
-     * @var ContactTemplate|null
-     */
+    /** @var ContactTemplate|null */
     protected ?ContactTemplate $contactTemplate = null;
+
+    protected string $userInterfaceDensity = self::USER_INTERFACE_DENSITY_COMPACT;
 
     /**
      * @param string $alias
      * @param string $name
      * @param string $email
+     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
@@ -88,14 +86,17 @@ class NewUser
 
     /**
      * @param string $alias
-     * @return self
+     *
      * @throws \Assert\AssertionFailedException
+     *
+     * @return self
      */
     public function setAlias(string $alias): self
     {
         Assertion::minLength($alias, self::MIN_ALIAS_LENGTH, 'User::alias');
         Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, 'User::alias');
         $this->alias = $alias;
+
         return $this;
     }
 
@@ -109,14 +110,17 @@ class NewUser
 
     /**
      * @param string $name
-     * @return self
+     *
      * @throws \Assert\AssertionFailedException
+     *
+     * @return self
      */
     public function setName(string $name): self
     {
         Assertion::minLength($name, self::MIN_ALIAS_LENGTH, 'User::name');
         Assertion::maxLength($name, self::MAX_ALIAS_LENGTH, 'User::name');
         $this->name = $name;
+
         return $this;
     }
 
@@ -130,8 +134,10 @@ class NewUser
 
     /**
      * @param string $email
-     * @return self
+     *
      * @throws \Assert\AssertionFailedException
+     *
+     * @return self
      */
     public function setEmail(string $email): self
     {
@@ -139,6 +145,7 @@ class NewUser
         Assertion::minLength($email, self::MIN_EMAIL_LENGTH, 'User::email');
         Assertion::maxLength($email, self::MAX_EMAIL_LENGTH, 'User::email');
         $this->email = $email;
+
         return $this;
     }
 
@@ -152,11 +159,13 @@ class NewUser
 
     /**
      * @param bool $isAdmin
+     *
      * @return self
      */
     public function setAdmin(bool $isAdmin): self
     {
         $this->isAdmin = $isAdmin;
+
         return $this;
     }
 
@@ -170,14 +179,17 @@ class NewUser
 
     /**
      * @param string $theme
-     * @return self
+     *
      * @throws \Assert\AssertionFailedException
+     *
+     * @return self
      */
     public function setTheme(string $theme): self
     {
         Assertion::minLength($theme, self::MIN_THEME_LENGTH, 'User::theme');
         Assertion::maxLength($theme, self::MAX_THEME_LENGTH, 'User::theme');
         $this->theme = $theme;
+
         return $this;
     }
 
@@ -191,6 +203,7 @@ class NewUser
 
     /**
      * @param ContactTemplate|null $contactTemplate
+     *
      * @return self
      */
     public function setContactTemplate(?ContactTemplate $contactTemplate): self
@@ -210,11 +223,53 @@ class NewUser
 
     /**
      * @param bool $isActivate
+     *
      * @return self
      */
     public function setActivate(bool $isActivate): self
     {
         $this->isActivate = $isActivate;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserInterfaceDensity(): string
+    {
+        return $this->userInterfaceDensity;
+    }
+
+    /**
+     * @param string $userInterfaceDensity
+     *
+     * @throws \Assert\AssertionFailedException
+     * @throws \InvalidArgumentException
+     *
+     * @return self
+     */
+    public function setUserInterfaceDensity(string $userInterfaceDensity): self
+    {
+        Assertion::notEmptyString(
+            $userInterfaceDensity,
+            'User::userInterfaceViewMode'
+        );
+
+        Assertion::maxLength(
+            $userInterfaceDensity,
+            self::MAX_USER_INTERFACE_DENSITY_LENGTH,
+            'User::userInterfaceViewMode'
+        );
+        
+        if (
+            $userInterfaceDensity !== self::USER_INTERFACE_DENSITY_EXTENDED
+            && $userInterfaceDensity !== self::USER_INTERFACE_DENSITY_COMPACT
+        ) {
+            throw new \InvalidArgumentException('User interface view mode provided not handled');
+        }
+
+        $this->userInterfaceDensity = $userInterfaceDensity;
 
         return $this;
     }

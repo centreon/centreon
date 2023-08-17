@@ -1,28 +1,34 @@
 {
   "results": [
-      {
-        "updatetime": "",
-        "host": "test_host",
-        "service": "service_test_ack",
-        "status": "2",
-        "output": "submit_status_2",
-        "perfdata": ""
-      },
-      {
-        "updatetime": "",
-        "host": "test_host",
-        "service": "service_test_dt",
-        "status": "2",
-        "output": "submit_status_2",
-        "perfdata": ""
-      },
-      {
-        "updatetime": "",
-        "host": "test_host",
-        "service": "service_test_ok",
-        "status": "0",
-        "output": "submit_status_2",
-        "perfdata": ""
-      }
+    {
+      "host": "test_host",
+      "status": "1",
+      "output": "submit_status_1",
+      "updatetime": ""
+    },
+    {
+      "updatetime": "",
+      "host": "test_host",
+      "service": "service_test_ack",
+      "status": "2",
+      "output": "submit_status_2",
+      "perfdata": ""
+    },
+    {
+      "updatetime": "",
+      "host": "test_host",
+      "service": "service_test_dt",
+      "status": "2",
+      "output": "submit_status_2",
+      "perfdata": ""
+    },
+    {
+      "updatetime": "",
+      "host": "test_host",
+      "service": "service_test_ok",
+      "status": "0",
+      "output": "submit_status_2",
+      "perfdata": ""
+    }
   ]
 }

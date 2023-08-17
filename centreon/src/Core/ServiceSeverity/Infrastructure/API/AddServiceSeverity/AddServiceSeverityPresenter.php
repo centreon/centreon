@@ -27,8 +27,6 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\CreatedResponse;
 use Core\ServiceSeverity\Application\UseCase\AddServiceSeverity\AddServiceSeverityResponse;
-use Core\Infrastructure\Common\Api\Router;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 class AddServiceSeverityPresenter extends AbstractPresenter
 {

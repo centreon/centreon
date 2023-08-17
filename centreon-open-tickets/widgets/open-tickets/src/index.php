@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
+ * Copyright 2016-2023 Centreon (http://www.centreon.com/)
  *
  * Centreon is a full-fledged industry-strength solution that meets
  * the needs in IT infrastructure and application monitoring for
@@ -20,6 +20,7 @@
  */
 
 require_once "../../require.php";
+require_once $centreon_path . 'bootstrap.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
@@ -27,9 +28,10 @@ require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
 require_once $centreon_path . 'www/class/centreonACL.class.php';
+require_once $centreon_path . 'www/class/centreonInstance.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
+require_once $centreon_path . 'www/class/centreonHostcategories.class.php';
 require_once $centreon_path . 'www/class/centreonService.class.php';
-
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
@@ -38,12 +40,12 @@ require_once $smartyDir . 'libs/Smarty.class.php';
 
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 
-session_start();
+CentreonSession::start(1);
 if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
     exit;
 }
 
-$db = new CentreonDB();
+$db = $dependencyInjector['configuration_db'];
 if (CentreonSession::checkSession(session_id(), $db) == 0) {
     exit();
 }
@@ -63,10 +65,20 @@ $media = new CentreonMedia($db);
 $rule = new Centreon_OpenTickets_Rule($db);
 
 $centreon = $_SESSION['centreon'];
-$widgetId = $_REQUEST['widgetId'];
-$page = $_REQUEST['page'];
 
-$dbb = new CentreonDB("centstorage");
+/**
+ * true: URIs will correspond to deprecated pages
+ * false: URIs will correspond to new page (Resource Status)
+ */
+$useDeprecatedPages = $centreon->user->doesShowDeprecatedPages();
+
+$widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
+$page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
+
+/**
+ * @var $dbb CentreonDB
+ */
+$dbb = $dependencyInjector['realtime_db'];
 $widgetObj = new CentreonWidget($centreon, $db);
 $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
@@ -76,8 +88,6 @@ if (!isset($preferences['rule'])) {
 
 $macro_tickets = $rule->getMacroNames($preferences['rule'], $widgetId);
 
-
-$aStateType = array("1" => "H", "0" => "S");
 $aColorHost = [
     0 => 'host_up',
     1 => 'host_down',
@@ -92,13 +102,17 @@ $aColorService = [
     3 => 'service_unknown',
     4 => 'pending'
 ];
-$stateLabels = array(
-    0 => "Ok",
-    1 => "Warning",
-    2 => "Critical",
-    3 => "Unknown",
-    4 => "Pending"
-);
+$stateLabels = [
+    0 => 'Ok',
+    1 => 'Warning',
+    2 => 'Critical',
+    3 => 'Unknown',
+    4 => 'Pending'
+];
+
+$aStateType = array("1" => "H", "0" => "S");
+$mainQueryParameters = [];
+
 // Build Query
 $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         h.name AS hostname,
@@ -143,10 +157,9 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         cv2.value AS criticality_id,
         cv.value AS criticality_level,
         h.icon_image
-
     FROM hosts h
     LEFT JOIN customvariables cv5 ON (
-        h.host_id = cv5.host_id AND cv5.service_id IS NULL AND cv5.name = '" . $macro_tickets['ticket_id'] . "'
+        h.host_id = cv5.host_id AND (cv5.service_id IS NULL OR cv5.service_id = 0) AND cv5.name = '" . $macro_tickets['ticket_id'] . "'
     )
     LEFT JOIN mod_open_tickets mop1 ON (
         cv5.value = mop1.ticket_value AND (
@@ -203,13 +216,13 @@ if (isset($preferences['service_description_search']) && $preferences['service_d
     }
 }
 $stateTab = [];
-if (isset($preferences['svc_warning']) && $preferences['svc_warning']) {
+if (! empty($preferences['svc_warning'])) {
     $stateTab[] = 1;
 }
-if (isset($preferences['svc_critical']) && $preferences['svc_critical']) {
+if (! empty($preferences['svc_critical'])) {
     $stateTab[] = 2;
 }
-if (isset($preferences['svc_unknown']) && $preferences['svc_unknown']) {
+if (! empty($preferences['svc_unknown'])) {
     $stateTab[] = 3;
 }
 
@@ -245,18 +258,16 @@ if (! empty($preferences['duration_filter'])) {
         }
     }
 }
-
-if (isset($preferences['hide_down_host']) && $preferences['hide_down_host']) {
+if (! empty($preferences['hide_down_host'])) {
     $query = CentreonUtils::conditionBuilder($query, " h.state != 1 ");
 }
-if (isset($preferences['hide_unreachable_host']) && $preferences['hide_unreachable_host']) {
+if (! empty($preferences['hide_unreachable_host'])) {
     $query = CentreonUtils::conditionBuilder($query, " h.state != 2 ");
 }
-
-if (isset($preferences['hide_disable_notif_host']) && $preferences['hide_disable_notif_host']) {
+if (! empty($preferences['hide_disable_notif_host'])) {
     $query = CentreonUtils::conditionBuilder($query, " h.notify != 0 ");
 }
-if (isset($preferences['hide_disable_notif_service']) && $preferences['hide_disable_notif_service']) {
+if (! empty($preferences['hide_disable_notif_service'])) {
     $query = CentreonUtils::conditionBuilder($query, " s.notify != 0 ");
 }
 
@@ -269,7 +280,7 @@ if (!isset($preferences['opened_tickets']) || $preferences['opened_tickets'] == 
     $query .= "       OR mop2.timestamp IS NOT NULL) ";
 }
 
-if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter']) {
+if (! empty($preferences['acknowledgement_filter'])) {
     if ($preferences['acknowledgement_filter'] == "ack") {
         $query = CentreonUtils::conditionBuilder($query, " s.acknowledged = 1");
     } elseif ($preferences['acknowledgement_filter'] == "nack") {
@@ -280,7 +291,7 @@ if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgeme
     }
 }
 
-if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
+if (! empty($preferences['downtime_filter'])) {
     if ($preferences['downtime_filter'] == "downtime") {
         $query = CentreonUtils::conditionBuilder($query, " s.scheduled_downtime_depth > 0 ");
     } elseif ($preferences['downtime_filter'] == "ndowntime") {
@@ -288,7 +299,7 @@ if (isset($preferences['downtime_filter']) && $preferences['downtime_filter']) {
     }
 }
 
-if (isset($preferences['state_type_filter']) && $preferences['state_type_filter']) {
+if (! empty($preferences['state_type_filter'])) {
     if ($preferences['state_type_filter'] == "hardonly") {
         $query = CentreonUtils::conditionBuilder($query, " s.state_type = 1 ");
     } elseif ($preferences['state_type_filter'] == "softonly") {
@@ -296,23 +307,98 @@ if (isset($preferences['state_type_filter']) && $preferences['state_type_filter'
     }
 }
 
-if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
+if (! empty($preferences['poller'])) {
+    $resultsPoller = explode(',', $preferences['poller']);
+    $queryPoller = '';
+
+    foreach ($resultsPoller as $resultPoller) {
+        if ($queryPoller !== '') {
+            $queryPoller .= ', ';
+        }
+        $queryPoller .= ':instance_id_' . $resultPoller;
+
+        $mainQueryParameters[] = [
+            'parameter' => ':instance_id_' . $resultPoller,
+            'value' => (int)$resultPoller,
+            'type' => PDO::PARAM_INT
+        ];
+    }
+    $instanceIdCondition = ' h.instance_id IN (' . $queryPoller . ')';
+    $query = CentreonUtils::conditionBuilder($query, $instanceIdCondition);
+}
+
+if (! empty($preferences['hostgroup'])) {
+    $results = explode(',', $preferences['hostgroup']);
+    $queryHG = '';
+    foreach ($results as $result) {
+        if ($queryHG !== '') {
+            $queryHG .= ', ';
+        }
+        $queryHG .= ":id_" . $result;
+        $mainQueryParameters[] = [
+            'parameter' => ':id_' . $result,
+            'value' => (int)$result,
+            'type' => PDO::PARAM_INT
+        ];
+    }
     $query = CentreonUtils::conditionBuilder(
         $query,
-        " s.host_id IN ( SELECT host_host_id FROM `" . $conf_centreon['db'] .
-        "`.hostgroup_relation WHERE hostgroup_hg_id = " . $dbb->escape($preferences['hostgroup']) . ")"
+        " s.host_id IN (
+            SELECT host_host_id
+            FROM `" . $conf_centreon['db'] . "`.hostgroup_relation
+            WHERE hostgroup_hg_id IN (" . $queryHG . ")
+        )"
     );
 }
-if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
+
+if (! empty($preferences['servicegroup'])) {
+    $resultsSG = explode(',', $preferences['servicegroup']);
+    $querySG = '';
+    foreach ($resultsSG as $resultSG) {
+        if ($querySG !== '') {
+            $querySG .= ', ';
+        }
+        $querySG .= ":id_" . $resultSG;
+        $mainQueryParameters[] = [
+            'parameter' => ':id_' . $resultSG,
+            'value' => (int)$resultSG,
+            'type' => PDO::PARAM_INT
+        ];
+    }
     $query = CentreonUtils::conditionBuilder(
         $query,
-        " s.service_id IN (SELECT service_service_id FROM `" . $conf_centreon['db'] .
-        "`.servicegroup_relation WHERE servicegroup_sg_id = " . $dbb->escape($preferences['servicegroup']) .
-        " UNION SELECT sgr.service_service_id FROM `" . $conf_centreon['db'] . "`.servicegroup_relation sgr, `" .
-        $conf_centreon['db'] . "`.host_service_relation hsr WHERE hsr.hostgroup_hg_id = sgr.hostgroup_hg_id " .
-        "AND sgr.servicegroup_sg_id = " . $dbb->escape($preferences['servicegroup']) . ") "
+        " s.service_id IN (
+            SELECT DISTINCT service_id
+            FROM services_servicegroups
+            WHERE servicegroup_id IN (" . $querySG . ")
+        )"
     );
 }
+
+if (! empty($preferences['hostcategories'])) {
+    $resultsHC = explode(',', $preferences['hostcategories']);
+    $queryHC = '';
+    foreach ($resultsHC as $resultHC) {
+        if ($queryHC !== '') {
+            $queryHC .= ', ';
+        }
+        $queryHC .= ":id_" . $resultHC;
+        $mainQueryParameters[] = [
+            'parameter' => ':id_' . $resultHC,
+            'value' => (int)$resultsHC,
+            'type' => PDO::PARAM_INT
+        ];
+    }
+    $query = CentreonUtils::conditionBuilder(
+        $query,
+        " s.host_id IN (
+            SELECT host_host_id
+            FROM `" . $conf_centreon['db'] . "`.hostcategories_relation
+            WHERE hostcategories_hc_id IN (" . $queryHC . ")
+        )"
+    );
+}
+
 if (isset($preferences["display_severities"]) &&
     $preferences["display_severities"] &&
     isset($preferences['criticality_filter']) &&
@@ -389,7 +475,15 @@ if (isset($preferences['order_by']) && $preferences['order_by'] != "") {
 $query .= "ORDER BY " . $orderBy;
 $query .= " LIMIT " . ($page * $preferences['entries']) . "," . $preferences['entries'];
 
-$res = $dbb->query($query);
+
+$res = $dbb->prepare($query);
+foreach ($mainQueryParameters as $parameter) {
+    $res->bindValue($parameter['parameter'], $parameter['value'], $parameter['type']);
+}
+
+unset($parameter, $mainQueryParameters);
+$res->execute();
+
 $nbRows = $dbb->query("SELECT FOUND_ROWS()")->fetchColumn();
 $data = array();
 $outputLength = $preferences['output_length'] ? $preferences['output_length'] : 50;

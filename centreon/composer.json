@@ -32,7 +32,8 @@
         "zircote/swagger-php": "^4.0",
         "pestphp/pest": "^1.21",
         "php-vfs/php-vfs": "^1.4",
-        "friendsofphp/php-cs-fixer": "^3.10"
+        "friendsofphp/php-cs-fixer": "^3.10",
+        "robertfausk/mink-panther-driver": "^1.1"
     },
     "require": {
         "beberlei/assert": "^3.3",
@@ -85,6 +86,7 @@
         "symfony/validator": "5.4.*",
         "symfony/yaml": "5.4.*",
         "psr/container": "1.1.1",
+        "onelogin/php-saml": "^4.1",
         "symfony/uid": "^6.2"
     },
     "autoload": {

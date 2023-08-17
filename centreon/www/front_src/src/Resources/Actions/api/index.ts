@@ -7,7 +7,6 @@ import { DowntimeToPost } from '../Resource/Downtime';
 
 import {
   acknowledgeEndpoint,
-  checkEndpoint,
   commentEndpoint,
   downtimeEndpoint
 } from './endpoint';
@@ -80,30 +79,6 @@ const setDowntimeOnResources =
     );
   };
 
-interface ResourcesWithRequestParams {
-  cancelToken: CancelToken;
-  resources: Array<Resource>;
-}
-
-const checkResources = ({
-  resources,
-  cancelToken
-}: ResourcesWithRequestParams): Promise<AxiosResponse> => {
-  const payload = resources.map(({ type, id, parent, service_id }) => ({
-    id: equals(type, ResourceType.anomalyDetection) ? service_id : id,
-    parent: parent ? { id: parent?.id } : null,
-    type: ResourceCategory[type]
-  }));
-
-  return axios.post(
-    checkEndpoint,
-    {
-      resources: payload
-    },
-    { cancelToken }
-  );
-};
-
 export interface CommentParameters {
   comment: string;
   date: string;
@@ -137,9 +112,4 @@ const commentResources =
     );
   };
 
-export {
-  acknowledgeResources,
-  setDowntimeOnResources,
-  checkResources,
-  commentResources
-};
+export { acknowledgeResources, setDowntimeOnResources, commentResources };

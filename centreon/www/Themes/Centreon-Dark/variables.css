@@ -239,5 +239,8 @@
     --chart-legend-color: var(--color-white);
     /* license manager error page variables */
     --license-manager-error-message-color: var(--color-primary-dark);
-    --centreon-logo-url: url(../../img/logo-centreon-white.svg);
+    /* widget progress bar value color */
+    --widget-progress-bar-value-color: var(--color-white);
+    /* bam acknowledge popup table */
+    --popup-th-color: var(--color-white);
 }

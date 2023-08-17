@@ -18,50 +18,46 @@ import {
   map,
   not,
   pick,
+  pluck,
   prop,
   propEq,
+  reduce,
   reject,
   slice,
   subtract,
   uniqBy
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
+import { useAtomValue } from 'jotai';
 
-import {
-  Box,
-  LinearProgress,
-  Table,
-  TableBody,
-  TableRow,
-  useTheme
-} from '@mui/material';
+import { Box, LinearProgress, Table, TableBody } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import useKeyObserver from '../utils/useKeyObserver';
-import useMemoComponent from '../utils/useMemoComponent';
+import { useKeyObserver, useMemoComponent } from '../utils';
 
 import ListingActionBar from './ActionBar';
 import Cell from './Cell';
 import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
 import getCumulativeOffset from './getCumulativeOffset';
-import ListingHeader, { headerHeight } from './Header/index';
 import {
   Column,
   ColumnConfiguration,
   PredefinedRowSelection,
   RowColorCondition,
   RowId,
-  SortOrder,
-  TableStyleAtom as TableStyle
+  SortOrder
 } from './models';
-import ListingRow from './Row';
-import ListingLoadingSkeleton from './Skeleton';
+import ListingRow from './Row/Row';
 import { labelNoResultFound } from './translatedLabels';
 import useResizeObserver from './useResizeObserver';
 import useStyleTable from './useStyleTable';
+import { loadingIndicatorHeight, useListingStyles } from './Listing.styles';
+import { EmptyResult } from './EmptyResult/EmptyResult';
+import { SkeletonLoader } from './Row/SkeletonLoaderRows';
+import { ListingHeader } from './Header';
+import { subItemsPivotsAtom } from './tableAtoms';
 
 const getVisibleColumns = ({
   columnConfiguration,
@@ -78,80 +74,18 @@ const getVisibleColumns = ({
   ) as Array<Column>;
 };
 
-const loadingIndicatorHeight = 3;
-
-interface StylesProps {
-  checkable: boolean;
-  currentVisibleColumns: Array<Column>;
-  dataStyle: TableStyle;
-  getGridTemplateColumn: string;
-  rows: Array<unknown>;
-  viewMode: ListingVariant;
+interface CustomStyle {
+  customStyleViewerModeContainer?: string;
+  customStyleViewerModeIcon?: string;
 }
-
-const useStyles = makeStyles<StylesProps>()(
-  (
-    theme,
-    { dataStyle, getGridTemplateColumn, rows, checkable, currentVisibleColumns }
-  ) => ({
-    actionBar: {
-      alignItems: 'center',
-      display: 'flex'
-    },
-    checkbox: {
-      justifyContent: 'center'
-    },
-    container: {
-      background: 'none',
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      width: '100%'
-    },
-    emptyDataCell: {
-      flexDirection: 'column',
-      gridColumn: `auto / span ${
-        checkable
-          ? currentVisibleColumns.length + 1
-          : currentVisibleColumns.length
-      }`,
-      justifyContent: 'center'
-    },
-    emptyDataRow: {
-      display: 'contents'
-    },
-    loadingIndicator: {
-      height: loadingIndicatorHeight,
-      width: '100%'
-    },
-    table: {
-      '.listingHeader div div': {
-        backgroundColor: theme.palette.background.listingHeader,
-        boxShadow: `-1px 0px 0px 0px ${theme.palette.background.listingHeader}`,
-        height: dataStyle.header.height,
-        padding: 0
-      },
-      alignItems: 'center',
-      display: 'grid',
-      gridTemplateColumns: getGridTemplateColumn,
-      gridTemplateRows: `${theme.spacing(dataStyle.header.height / 8)} repeat(${
-        rows?.length
-      }, ${dataStyle.body.height}px)`,
-      position: 'relative'
-    },
-    tableBody: {
-      display: 'contents',
-      'div:first-of-type': {
-        gridColumnStart: 1
-      },
-      position: 'relative'
-    },
-    tableWrapper: {
-      borderBottom: 'none',
-      overflow: 'auto'
-    }
-  })
-);
+interface ViewerModeConfiguration {
+  customStyle?: CustomStyle;
+  disabled?: boolean;
+  labelViewerMode?: string;
+  onClick: () => void;
+  testId?: string;
+  title?: string;
+}
 
 export interface Props<TRow> {
   actions?: JSX.Element;
@@ -176,7 +110,7 @@ export interface Props<TRow> {
   onRowClick?: (row: TRow) => void;
   onSelectColumns?: (selectedColumnIds: Array<string>) => void;
   onSelectRows?: (rows: Array<TRow>) => void;
-  onSort?: (sortParams) => void;
+  onSort?: (sortParams: { sortField: string; sortOrder: SortOrder }) => void;
   paginated?: boolean;
   predefinedRowsSelection?: Array<PredefinedRowSelection>;
   rowColorConditions?: Array<RowColorCondition>;
@@ -184,8 +118,16 @@ export interface Props<TRow> {
   selectedRows?: Array<TRow>;
   sortField?: string;
   sortOrder?: SortOrder;
+  subItems?: {
+    canCheckSubItems: boolean;
+    enable: boolean;
+    labelCollapse: string;
+    labelExpand: string;
+    rowProperty: string;
+  };
   totalRows?: number;
   viewMode?: ListingVariant;
+  viewerModeConfiguration?: ViewerModeConfiguration;
   widthToMoveTablePagination?: number;
 }
 
@@ -228,7 +170,15 @@ const Listing = <TRow extends { id: RowId }>({
   moveTablePagination,
   viewMode = ListingVariant.compact,
   widthToMoveTablePagination,
-  getHighlightRowCondition
+  getHighlightRowCondition,
+  viewerModeConfiguration,
+  subItems = {
+    canCheckSubItems: false,
+    enable: false,
+    labelCollapse: 'Collapse',
+    labelExpand: 'Expand',
+    rowProperty: ''
+  }
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -240,14 +190,6 @@ const Listing = <TRow extends { id: RowId }>({
     viewMode
   });
 
-  const { classes } = useStyles({
-    checkable,
-    currentVisibleColumns,
-    dataStyle,
-    getGridTemplateColumn,
-    rows,
-    viewMode
-  });
   const { t } = useTranslation();
 
   const [tableTopOffset, setTableTopOffset] = React.useState(0);
@@ -261,7 +203,36 @@ const Listing = <TRow extends { id: RowId }>({
   const containerRef = React.useRef<HTMLDivElement>();
   const actionBarRef = React.useRef<HTMLDivElement>();
 
-  const theme = useTheme();
+  const subItemsPivots = useAtomValue(subItemsPivotsAtom);
+
+  const rowsToDisplay = React.useMemo(
+    () =>
+      subItems?.enable
+        ? reduce<TRow, Array<TRow>>(
+            (acc, row): Array<TRow> => {
+              if (
+                row[subItems.rowProperty] &&
+                subItemsPivots.includes(row.id)
+              ) {
+                return [...acc, row, ...row[subItems.rowProperty]];
+              }
+
+              return [...acc, row];
+            },
+            [],
+            rows
+          )
+        : rows,
+    [rows, subItemsPivots, subItems]
+  );
+
+  const { classes, theme } = useListingStyles({
+    dataStyle,
+    getGridTemplateColumn,
+    limit,
+    rows: rowsToDisplay,
+    viewMode
+  });
 
   useResizeObserver({
     onResize: () => {
@@ -468,9 +439,9 @@ const Listing = <TRow extends { id: RowId }>({
 
     return `calc(100vh - ${tableTopOffset}px - ${
       actionBarRef.current?.offsetHeight
-    }px - ${headerHeight}px - ${loadingIndicatorHeight}px - ${theme.spacing(
-      1
-    )})`;
+    }px - ${
+      dataStyle.header.height
+    }px - ${loadingIndicatorHeight}px - ${theme.spacing(1)})`;
   };
 
   const changeLimit = (updatedLimit: string): void => {
@@ -492,6 +463,19 @@ const Listing = <TRow extends { id: RowId }>({
   }, [isShiftKeyDown, lastSelectionIndex]);
 
   const areColumnsEditable = not(isNil(onSelectColumns));
+
+  const allSubItemIds = React.useMemo(
+    () =>
+      reduce<TRow | number, Array<string | number>>(
+        (acc, row) => [
+          ...acc,
+          ...pluck('id', row[subItems?.rowProperty || ''] || [])
+        ],
+        [],
+        rows
+      ),
+    [rows, subItems]
+  );
 
   return (
     <>
@@ -520,6 +504,8 @@ const Listing = <TRow extends { id: RowId }>({
             moveTablePagination={moveTablePagination}
             paginated={paginated}
             totalRows={totalRows}
+            viewMode={viewMode}
+            viewerModeConfiguration={viewerModeConfiguration}
             widthToMoveTablePagination={widthToMoveTablePagination}
             onLimitChange={changeLimit}
             onPaginate={onPaginate}
@@ -564,14 +550,16 @@ const Listing = <TRow extends { id: RowId }>({
               component="div"
               onMouseLeave={clearHoveredRow}
             >
-              {rows.map((row, index) => {
+              {rowsToDisplay.map((row, index) => {
                 const isRowSelected = isSelected(row);
-
                 const isRowHovered = equals(hoveredRowId, getId(row));
+                const isSubItem = allSubItemIds.includes(row.id);
 
                 return (
                   <ListingRow
-                    checkable={checkable}
+                    checkable={
+                      checkable && (!isSubItem || subItems.canCheckSubItems)
+                    }
                     columnConfiguration={columnConfiguration}
                     columnIds={columns.map(prop('id'))}
                     disableRowCondition={disableRowCondition}
@@ -588,6 +576,7 @@ const Listing = <TRow extends { id: RowId }>({
                     row={row}
                     rowColorConditions={rowColorConditions}
                     shiftKeyDownRowPivot={shiftKeyDownRowPivot}
+                    subItemsPivots={subItemsPivots}
                     tabIndex={-1}
                     viewMode={viewMode}
                     visibleColumns={visibleColumns}
@@ -597,66 +586,64 @@ const Listing = <TRow extends { id: RowId }>({
                     onFocus={(): void => hoverRow(row)}
                     onMouseOver={(): void => hoverRow(row)}
                   >
-                    {checkable && (
-                      <Cell
-                        align="left"
-                        className={classes.checkbox}
-                        disableRowCondition={disableRowCondition}
-                        isRowHovered={isRowHovered}
-                        row={row}
-                        rowColorConditions={rowColorConditions}
-                        onClick={(event): void => selectRow(event, row)}
-                      >
-                        <Checkbox
-                          checked={isRowSelected}
-                          disabled={
-                            disableRowCheckCondition(row) ||
-                            disableRowCondition(row)
-                          }
-                          inputProps={{
-                            'aria-label': `Select row ${getId(row)}`
-                          }}
+                    {checkable &&
+                      (!isSubItem || subItems.canCheckSubItems ? (
+                        <Cell
+                          align="left"
+                          className={classes.checkbox}
+                          disableRowCondition={disableRowCondition}
+                          isRowHovered={isRowHovered}
+                          row={row}
+                          rowColorConditions={rowColorConditions}
+                          onClick={(event): void => selectRow(event, row)}
+                        >
+                          <Checkbox
+                            checked={isRowSelected}
+                            disabled={
+                              disableRowCheckCondition(row) ||
+                              disableRowCondition(row)
+                            }
+                            inputProps={{
+                              'aria-label': `Select row ${getId(row)}`
+                            }}
+                          />
+                        </Cell>
+                      ) : (
+                        <Cell
+                          align="left"
+                          disableRowCondition={disableRowCondition}
+                          isRowHovered={isRowHovered}
+                          row={row}
+                          rowColorConditions={rowColorConditions}
                         />
-                      </Cell>
-                    )}
+                      ))}
 
                     {visibleColumns.map((column) => (
                       <DataCell
-                        areColumnsEditable={areColumnsEditable}
                         column={column}
                         disableRowCondition={disableRowCondition}
                         getHighlightRowCondition={getHighlightRowCondition}
                         isRowHovered={isRowHovered}
                         isRowSelected={isRowSelected}
                         key={`${getId(row)}-${column.id}`}
+                        labelCollapse={subItems.labelCollapse}
+                        labelExpand={subItems.labelExpand}
                         row={row}
                         rowColorConditions={rowColorConditions}
+                        subItemsRowProperty={subItems?.rowProperty}
                         viewMode={viewMode}
                       />
                     ))}
                   </ListingRow>
                 );
               })}
-              {rows.length < 1 && (
-                <TableRow
-                  className={classes.emptyDataRow}
-                  component="div"
-                  tabIndex={-1}
-                >
-                  <Cell
-                    align="center"
-                    className={classes.emptyDataCell}
-                    disableRowCondition={(): boolean => false}
-                    isRowHovered={false}
-                  >
-                    {loading ? (
-                      <ListingLoadingSkeleton />
-                    ) : (
-                      t(labelNoResultFound)
-                    )}
-                  </Cell>
-                </TableRow>
-              )}
+
+              {rows.length < 1 &&
+                (loading ? (
+                  <SkeletonLoader rows={limit} />
+                ) : (
+                  <EmptyResult label={t(labelNoResultFound)} />
+                ))}
             </TableBody>
           </Table>
         </Box>

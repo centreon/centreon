@@ -42,7 +42,7 @@ class NewHostSeverity
      * @param string $name
      * @param string $alias
      * @param int $level
-     * @param positive-int $iconId FK
+     * @param int $iconId FK
      *
      * @throws AssertionFailedException
      */
@@ -57,9 +57,9 @@ class NewHostSeverity
 
         $shortName = (new \ReflectionClass($this))->getShortName();
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, $shortName . '::name');
-        Assertion::notEmpty($name, $shortName . '::name');
+        Assertion::notEmptyString($name, $shortName . '::name');
         Assertion::maxLength($alias, self::MAX_ALIAS_LENGTH, $shortName . '::alias');
-        Assertion::notEmpty($alias, $shortName . '::alias');
+        Assertion::notEmptyString($alias, $shortName . '::alias');
         Assertion::min($level, self::MIN_LEVEL_VALUE, $shortName . '::level');
         Assertion::max($level, self::MAX_LEVEL_VALUE, $shortName . '::level');
         Assertion::positiveInt($iconId, "{$shortName}::iconId");
@@ -123,6 +123,8 @@ class NewHostSeverity
 
     /**
      * @param string|null $comment
+     *
+     * @throws AssertionFailedException
      */
     public function setComment(?string $comment): void
     {

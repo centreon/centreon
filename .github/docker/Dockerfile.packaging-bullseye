@@ -1,9 +1,19 @@
-FROM docker.centreon.com/proxy/debian:bullseye
+FROM debian:bullseye
 
-RUN <<EOF
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN bash -e <<EOF
 
 apt-get update
-apt-get install -y debmake pbuilder dh-exec aptitude zstd
+
+apt-get install -y debmake pbuilder dh-exec aptitude zstd ca-certificates
+
+echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list
+
+apt-get update
+
+apt-get install -y nfpm
+
 apt-get clean
 
 EOF

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { isEmpty, pick } from 'ramda';
-import { useUpdateAtom, useAtomValue } from 'jotai/utils';
+import { useSetAtom, useAtomValue } from 'jotai';
 
 import { Typography } from '@mui/material';
 
@@ -53,7 +53,7 @@ const RemoteServerWizardStepTwo = ({
   });
 
   const pollerData = useAtomValue(remoteServerAtom);
-  const setWizard = useUpdateAtom(setRemoteServerWizardDerivedAtom);
+  const setWizard = useSetAtom(setRemoteServerWizardDerivedAtom);
 
   const filterOutDefaultPoller = (itemArr): Array<Poller> => {
     return itemArr.filter(({ id }) => id !== '1');

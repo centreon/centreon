@@ -1,7 +1,8 @@
+/* eslint-disable no-alert */
 /* eslint-disable react/prop-types */
-import { React, useState } from 'react';
+import { useState } from 'react';
 
-import { ComponentMeta, ComponentStory } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { equals, prop } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
@@ -12,11 +13,11 @@ import { ListingVariant } from '@centreon/ui-context';
 
 import { ListingProps } from '..';
 
-import { Column, ColumnType } from './models';
+import { Column, ColumnType, SortOrder } from './models';
 
 import Listing from '.';
 
-export default {
+const meta: Meta<typeof Listing> = {
   argTypes: {
     checkable: { control: 'boolean' },
     currentPage: { control: 'number' },
@@ -26,7 +27,10 @@ export default {
   },
   component: Listing,
   title: 'Listing'
-} as ComponentMeta<typeof Listing>;
+};
+export default meta;
+
+type Story = StoryObj<typeof Listing>;
 
 const useStyles = makeStyles()((theme) => ({
   listing: {
@@ -46,6 +50,12 @@ const ComponentColumn = ({ row, isSelected }): JSX.Element => (
       <b>{`${row.active ? 'active' : 'not active'}`}</b>
     </span>
   </>
+);
+
+const ButtonColumn = ({ row }): JSX.Element => (
+  <Button size="small" onClick={() => alert(JSON.stringify(row))}>
+    Click to reveal details about {row.name}
+  </Button>
 );
 
 const defaultColumns = [
@@ -131,9 +141,10 @@ const predefinedRowsSelection = [
   }
 ];
 
-const Story = ({
+const StoryTemplate = ({
   columns = defaultColumns,
   checkable = true,
+  viewerModeConfiguration,
   ...props
 }: Omit<ListingProps<Entity>, 'columns'> & {
   columns?: Array<Column>;
@@ -152,9 +163,10 @@ const Story = ({
         limit={listing.length}
         predefinedRowsSelection={predefinedRowsSelection}
         rowColorConditions={rowColorConditions}
-        rows={listing}
+        rows={props.rows ?? listing}
         selectedRows={selected}
         totalRows={listing.length}
+        viewerModeConfiguration={viewerModeConfiguration}
         onSelectRows={setSelected}
         {...props}
       />
@@ -162,35 +174,35 @@ const Story = ({
   );
 };
 
-export const normal = (): JSX.Element => <Story />;
+export const normal = (): JSX.Element => <StoryTemplate />;
 
-export const WithViewModeExtended = (): JSX.Element => {
+export const WithSpecifiedViewMode = (): JSX.Element => {
   const [viewMode, setViewMode] = useState(ListingVariant.extended);
   const newViewMode = equals(viewMode, ListingVariant.compact)
     ? ListingVariant.extended
     : ListingVariant.compact;
 
   return (
-    <>
-      <Button
-        color="primary"
-        size="small"
-        variant="contained"
-        onClick={(): void => setViewMode(newViewMode)}
-      >
-        Change view mode
-      </Button>
-      <Story viewMode={viewMode} />
-    </>
+    <StoryTemplate
+      viewMode={viewMode}
+      viewerModeConfiguration={{
+        onClick: () => setViewMode(newViewMode),
+        title: viewMode
+      }}
+    />
   );
 };
 
 export const loadingWithNoData = (): JSX.Element => {
-  return <Story loading rows={[]} totalRows={0} />;
+  return <StoryTemplate loading rows={[]} totalRows={0} />;
 };
 
 export const loadingWithData = (): JSX.Element => {
-  return <Story loading />;
+  return <StoryTemplate loading />;
+};
+
+export const asEmptyState = (): JSX.Element => {
+  return <StoryTemplate rows={[]} />;
 };
 
 const actions = (
@@ -199,12 +211,16 @@ const actions = (
   </Button>
 );
 
-export const withActions = (): JSX.Element => <Story actions={actions} />;
+export const withActions = (): JSX.Element => (
+  <StoryTemplate actions={actions} />
+);
 
-export const withoutCheckboxes = (): JSX.Element => <Story checkable={false} />;
+export const withoutCheckboxes = (): JSX.Element => (
+  <StoryTemplate checkable={false} />
+);
 
 export const withShortLabelColumns = (): JSX.Element => (
-  <Story columns={columnsWithShortLabel} />
+  <StoryTemplate columns={columnsWithShortLabel} />
 );
 
 const editableColumns = [
@@ -212,12 +228,14 @@ const editableColumns = [
     getFormattedString: ({ name }): string => name,
     id: 'name',
     label: 'Name',
+    sortable: true,
     type: ColumnType.string
   },
   {
     getFormattedString: ({ description }): string => description,
     id: 'description',
     label: 'Description',
+    sortable: true,
     type: ColumnType.string
   },
   {
@@ -245,40 +263,123 @@ const ListingWithEditableColumns = (): JSX.Element => {
     setSelectedColumnIds(defaultColumnIds);
   };
 
+  const [sortedRows, setSortedRows] = useState(listing);
+  const [sortParams, setSortParams] = useState({
+    sortField: editableColumns[0].id,
+    sortOrder: 'desc'
+  });
+
+  const onSort = (params: {
+    sortField: string;
+    sortOrder: SortOrder;
+  }): void => {
+    const rows = [...sortedRows];
+    rows.sort((a, b) =>
+      params.sortOrder === 'desc'
+        ? a[params.sortField]?.localeCompare(b[params.sortField])
+        : b[params.sortField]?.localeCompare(a[params.sortField])
+    );
+    setSortedRows(rows);
+    setSortParams(params);
+  };
+
   return (
-    <Story
+    <StoryTemplate
       columnConfiguration={{
         selectedColumnIds,
         sortable: true
       }}
       columns={editableColumns}
+      rows={sortedRows}
+      sortField={sortParams.sortField}
+      sortOrder={sortParams.sortOrder as SortOrder}
       onResetColumns={resetColumns}
       onSelectColumns={setSelectedColumnIds}
+      onSort={onSort}
     />
   );
 };
 
-export const withEditableColumns = (): JSX.Element => (
+export const withEditableAndSortableColumns = (): JSX.Element => (
   <ListingWithEditableColumns />
 );
 
-const TemplateListing: ComponentStory<typeof Listing> = (args) => (
-  <Listing
-    {...args}
-    columns={editableColumns}
-    disableRowCheckCondition={(row): boolean => row.disableCheckbox}
-    disableRowCondition={(row): boolean => row.disableRow}
-    predefinedRowsSelection={predefinedRowsSelection}
-    rowColorConditions={rowColorConditions}
-    rows={listing}
-  />
-);
+export const PlaygroundListing: Story = {
+  args: {
+    checkable: true,
+    columns: editableColumns,
+    currentPage: 1,
+    disableRowCheckCondition: (row): boolean => row.disableCheckbox,
+    disableRowCondition: (row): boolean => row.disableRow,
+    limit: 10,
+    loading: false,
+    predefinedRowsSelection,
+    rowColorConditions,
+    rows: listing,
+    totalRows: 10
+  }
+};
 
-export const PlaygroundListing = TemplateListing.bind({});
-PlaygroundListing.args = {
-  checkable: true,
-  currentPage: 1,
-  limit: 10,
-  loading: false,
-  totalRows: 10
+const listingWithSubItems = [...tenElements].map((_, index) => ({
+  active: false,
+  description: `Entity ${index}`,
+  disableCheckbox: false,
+  disableRow: false,
+  id: index,
+  name: `E${index}`,
+  selected: false,
+  subItems:
+    index % 2 === 0
+      ? [...tenElements].map((__, subIndex) => ({
+          active: false,
+          description: `Sub item ${subIndex + (index + 10) * 10} description`,
+          disableCheckbox: false,
+          disableRow: false,
+          id: subIndex + (index + 10) * 10,
+          name: `Sub Item ${subIndex + (index + 10) * 10}`,
+          selected: false
+        }))
+      : undefined
+}));
+
+const columnsWithSubItems = [
+  {
+    getFormattedString: ({ name }): string => name,
+    id: 'name',
+    label: 'Name',
+    type: ColumnType.string
+  },
+  {
+    getFormattedString: ({ description }): string => description,
+    id: 'description',
+    label: 'Description',
+    type: ColumnType.string
+  },
+  {
+    Component: ButtonColumn,
+    displaySubItemsCaret: true,
+    id: '#',
+    label: 'Custom',
+    type: ColumnType.component,
+    width: '350px'
+  }
+];
+
+export const ListingWithSubItems = {
+  args: {
+    checkable: true,
+    columns: columnsWithSubItems,
+    currentPage: 1,
+    limit: 10,
+    loading: false,
+    rows: listingWithSubItems,
+    subItems: {
+      canCheckSubItems: false,
+      enable: true,
+      labelCollapse: 'Collapse',
+      labelExpand: 'Expand',
+      rowProperty: 'subItems'
+    },
+    totalRows: 10
+  }
 };

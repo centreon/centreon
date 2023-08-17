@@ -82,8 +82,10 @@ export interface Acknowledgement {
 
 export interface ResourceEndpoints {
   acknowledgement?: string;
+  check?: string;
   details?: string;
   downtime?: string;
+  forced_check?: string;
   metrics?: string;
   performance_graph?: string;
   sensitivity?: string;

@@ -1,0 +1,5 @@
+AddDashboard:
+  methods: POST
+  path: /configuration/dashboards
+  controller: 'Core\Dashboard\Infrastructure\API\AddDashboard\AddDashboardController'
+  condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.dashboard')"

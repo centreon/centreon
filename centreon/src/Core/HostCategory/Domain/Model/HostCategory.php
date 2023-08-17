@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\HostCategory\Domain\Model;
 
+use Centreon\Domain\Common\Assertion\Assertion;
+
 class HostCategory extends NewHostCategory
 {
     /**
@@ -44,5 +46,31 @@ class HostCategory extends NewHostCategory
     public function getId(): int
     {
         return $this->id;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name): void
+    {
+        $name = trim($name);
+        $shortName = (new \ReflectionClass($this))->getShortName();
+        Assertion::maxLength($name, self::MAX_NAME_LENGTH, $shortName . '::name');
+        Assertion::notEmptyString($name, $shortName . '::name');
+
+        $this->name = $name;
+    }
+
+    /**
+     * @param string $alias
+     */
+    public function setAlias(string $alias): void
+    {
+        $alias = trim($alias);
+        $shortName = (new \ReflectionClass($this))->getShortName();
+        Assertion::maxLength($alias, self::MAX_NAME_LENGTH, $shortName . '::alias');
+        Assertion::notEmptyString($alias, $shortName . '::alias');
+
+        $this->alias = $alias;
     }
 }

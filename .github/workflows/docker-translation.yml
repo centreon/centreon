@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
     paths:
       - ".github/docker/Dockerfile.translation"
   pull_request:
@@ -32,7 +33,7 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}OMATION_
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 

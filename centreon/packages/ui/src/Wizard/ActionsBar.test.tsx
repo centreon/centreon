@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '../testRenderer';
+import { render, screen, fireEvent } from '../../test/testRenderer';
 
 import ActionsBar from './ActionsBar';
 

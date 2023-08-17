@@ -82,7 +82,7 @@ $centreon->historySearch[$url] = [
 $lockedFilter = $displayLocked ? "" : "AND host_locked = 0 ";
 
 // Host Template list
-$rq = "SELECT SQL_CALC_FOUND_ROWS host_id, host_name, host_alias, host_activate, host_template_model_htm_id " .
+$rq = "SELECT SQL_CALC_FOUND_ROWS host_id, host_name, host_alias, host_template_model_htm_id " .
     "FROM host " .
     "WHERE host_register = '0' " .
     $lockedFilter;
@@ -114,7 +114,6 @@ $tpl->assign("headerMenu_name", _("Name"));
 $tpl->assign("headerMenu_desc", _("Alias"));
 $tpl->assign("headerMenu_svChilds", _("Linked Services Templates"));
 $tpl->assign("headerMenu_parent", _("Templates"));
-$tpl->assign("headerMenu_status", _("Status"));
 $tpl->assign("headerMenu_options", _("Options"));
 
 $search = tidySearchKey($search, $advanced_search);
@@ -140,18 +139,6 @@ for ($i = 0; $host = $DBRESULT->fetch(); $i++) {
     if (isset($lockedElements[$host['host_id']])) {
         $selectedElements->setAttribute('disabled', 'disabled');
     } else {
-        if ($host["host_activate"]) {
-            $moptions .= "<a href='main.php?p=" . $p . "&host_id=" . $host['host_id'] . "&o=u&limit=" . $limit .
-                "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-                "'><img src='img/icons/disabled.png' " .
-                "class='ico-14 margin_right' border='0' alt='" . _("Disabled") . "'></a>&nbsp;&nbsp;";
-        } else {
-            $moptions .= "<a href='main.php?p=" . $p . "&host_id=" . $host['host_id'] . "&o=s&limit=" . $limit .
-                "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-                "'><img src='img/icons/enabled.png' " .
-                "class='ico-14 margin_right' border='0' alt='" . _("Enabled") . "'></a>&nbsp;&nbsp;";
-        }
-        $moptions .= "&nbsp;";
         $moptions .= "<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) " .
             "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) " .
             "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" " .
@@ -210,8 +197,6 @@ for ($i = 0; $host = $DBRESULT->fetch(); $i++) {
         "RowMenu_icone" => $host_icone,
         "RowMenu_svChilds" => count($svArr),
         "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr),
-        "RowMenu_status" => $host["host_activate"] ? _("Enabled") : _("Disabled"),
-        "RowMenu_badge" => $host["host_activate"] ? "service_ok" : "service_critical",
         "RowMenu_options" => $moptions,
         "isHostTemplateSvgFile" => $isHostTemplateSvgFile
     );
@@ -258,9 +243,7 @@ foreach (array('o1', 'o2') as $option) {
             null => _("More actions..."),
             "m" => _("Duplicate"),
             "d" => _("Delete"),
-            "mc" => _("Massive Change"),
-            "ms" => _("Enable"),
-            "mu" => _("Disable")
+            "mc" => _("Massive Change")
         ),
         $attrs1
     );

@@ -3,7 +3,7 @@ import { RefObject } from 'react';
 import { equals, last, not, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { Dayjs } from 'dayjs';
-import { useAtomValue } from 'jotai/utils';
+import { useAtomValue } from 'jotai';
 import { makeStyles } from 'tss-react/mui';
 
 import { Typography, Paper, Divider } from '@mui/material';
@@ -63,7 +63,12 @@ const useStyles = makeStyles()((theme) => ({
     margin: 0
   },
   timelineDot: {
+    '> div, svg': {
+      height: theme.spacing(2.75),
+      width: theme.spacing(2.75)
+    },
     alignItems: 'center',
+    boxSizing: 'content-box',
     display: 'grid',
     height: theme.spacing(3),
     justifyItems: 'center',

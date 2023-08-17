@@ -245,12 +245,11 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
          *     sc_description: string,
          *     sc_activate: '0'|'1',
          *     level: int,
-         *     icon_id: positive-int
+         *     icon_id: int
          * } $result
          */
         return $this->createServiceSeverityFromArray($result);
     }
-
 
     /**
      * @param SqlConcatenator $concatenator
@@ -293,7 +292,7 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
              *     sc_description: string,
              *     sc_activate: '0'|'1',
              *     level: int,
-             *     icon_id: positive-int
+             *     icon_id: int
              * } $result */
             $serviceSeverities[] = $this->createServiceSeverityFromArray($result);
         }
@@ -308,7 +307,7 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
      *     sc_description: string,
      *     sc_activate: '0'|'1',
      *     level: int,
-     *     icon_id: positive-int
+     *     icon_id: int
      * } $result
      *
      * @return ServiceSeverity

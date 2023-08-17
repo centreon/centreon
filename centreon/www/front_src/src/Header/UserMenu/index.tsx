@@ -2,8 +2,6 @@ import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
 
 import { useTranslation, withTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useAtom } from 'jotai';
-import { useUpdateAtom } from 'jotai/utils';
 import { equals, gt, isNil, not, __ } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
@@ -26,25 +24,16 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 import {
   MenuSkeleton,
-  postData,
   getData,
   useRequest,
-  useSnackbar,
   useLocaleDateTimeFormat
 } from '@centreon/ui';
-import { ThemeMode, userAtom } from '@centreon/ui-context';
+import { ThemeMode } from '@centreon/ui-context';
 
 import Clock from '../Clock';
 import useNavigation from '../../Navigation/useNavigation';
-import { areUserParametersLoadedAtom } from '../../Main/useUser';
-import { logoutEndpoint } from '../../api/endpoint';
-import reactRoutes from '../../reactRoutes/routeMap';
-import { passwordResetInformationsAtom } from '../../ResetPassword/passwordResetInformationsAtom';
-import {
-  selectedNavigationItemsAtom,
-  hoveredNavigationItemsAtom
-} from '../../Navigation/Sidebar/sideBarAtoms';
 import { userEndpoint } from '../api/endpoints';
+import routeMap from '../../reactRoutes/routeMap';
 
 import SwitchMode from './SwitchThemeMode';
 import {
@@ -52,8 +41,7 @@ import {
   labelEditProfile,
   labelLogout,
   labelPasswordWillExpireIn,
-  labelProfile,
-  labelYouHaveBeenLoggedOut
+  labelProfile
 } from './translatedLabels';
 
 const editProfileTopologyPage = '50104';
@@ -189,25 +177,12 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
   const autologinNode = useRef<HTMLTextAreaElement>();
   const refreshTimeout = useRef<NodeJS.Timeout>();
   const userIconRef = useRef<SVGSVGElement | null>(null);
-  const { sendRequest: logoutRequest } = useRequest({
-    request: postData
-  });
   const { sendRequest } = useRequest<UserData>({
     request: getData
   });
 
   const navigate = useNavigate();
-  const { showSuccessMessage } = useSnackbar();
   const { toHumanizedDuration } = useLocaleDateTimeFormat();
-
-  const [user, setUser] = useAtom(userAtom);
-
-  const setAreUserParametersLoaded = useUpdateAtom(areUserParametersLoadedAtom);
-  const setPasswordResetInformationsAtom = useUpdateAtom(
-    passwordResetInformationsAtom
-  );
-  const setSelectedNavigationItems = useUpdateAtom(selectedNavigationItemsAtom);
-  const setHoveredNavigationItems = useUpdateAtom(hoveredNavigationItemsAtom);
 
   const loadUserData = (): void => {
     sendRequest({ endpoint: userEndpoint })
@@ -223,21 +198,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
   };
 
   const logout = (): void => {
-    logoutRequest({
-      data: {},
-      endpoint: logoutEndpoint
-    }).then(() => {
-      setAreUserParametersLoaded(false);
-      setPasswordResetInformationsAtom(null);
-      setSelectedNavigationItems(null);
-      setHoveredNavigationItems(null);
-      navigate(reactRoutes.login);
-      showSuccessMessage(t(labelYouHaveBeenLoggedOut));
-      setUser({
-        ...user,
-        themeMode: ThemeMode.light
-      });
-    });
+    navigate(routeMap.logout);
   };
 
   const refreshData = (): void => {

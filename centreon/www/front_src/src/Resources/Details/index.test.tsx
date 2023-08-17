@@ -2,7 +2,7 @@ import { equals, reject, path } from 'ramda';
 import axios from 'axios';
 import mockDate from 'mockdate';
 import userEvent from '@testing-library/user-event';
-import { Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { BrowserRouter } from 'react-router-dom';
 
 import {
@@ -17,8 +17,12 @@ import {
   RenderResult,
   act,
   screen
-} from '@centreon/ui/src/testRenderer';
-import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+} from '@centreon/ui/test/testRenderer';
+import {
+  ListingVariant,
+  refreshIntervalAtom,
+  userAtom
+} from '@centreon/ui-context';
 
 import {
   labelMore,
@@ -246,6 +250,7 @@ const retrievedDetails = {
   fqdn: 'central.centreon.com',
   groups,
   id: resourceServiceId,
+  in_downtime: true,
   information:
     'OK - 127.0.0.1 rta 0.100ms lost 0%\n OK - 127.0.0.1 rta 0.99ms lost 0%\n OK - 127.0.0.1 rta 0.98ms lost 0%\n OK - 127.0.0.1 rta 0.97ms lost 0%',
   last_check: '2020-05-18T16:00Z',
@@ -564,14 +569,13 @@ let context: ResourceContext;
 const DetailsTest = (): JSX.Element => {
   const listingState = useListing();
   const detailState = useLoadDetails();
-  const filterState = useFilter();
+  useFilter();
 
   useDetails();
 
   context = {
     ...listingState,
-    ...detailState,
-    ...filterState
+    ...detailState
   } as ResourceContext;
 
   return (
@@ -583,20 +587,24 @@ const DetailsTest = (): JSX.Element => {
   );
 };
 
-const mockUser = {
+const retrievedUser = {
+  alias: 'Admin',
+  default_page: '/monitoring/resources',
   isExportButtonEnabled: true,
-  locale: 'en',
-  timezone: 'Europe/Paris'
+  locale: 'fr_FR.UTF8',
+  name: 'Admin',
+  timezone: 'Europe/Paris',
+  use_deprecated_pages: false,
+  user_interface_density: ListingVariant.compact
 };
 const mockRefreshInterval = 60;
 
+const store = createStore();
+store.set(userAtom, retrievedUser);
+store.set(refreshIntervalAtom, mockRefreshInterval);
+
 const DetailsWithJotai = (): JSX.Element => (
-  <Provider
-    initialValues={[
-      [userAtom, mockUser],
-      [refreshIntervalAtom, mockRefreshInterval]
-    ]}
-  >
+  <Provider store={store}>
     <DetailsTest />
   </Provider>
 );
@@ -618,7 +626,6 @@ Storage.prototype.setItem = mockedLocalStorageSetItem;
 describe(Details, () => {
   beforeEach(() => {
     mockDate.set(currentDateIsoString);
-    mockedAxios.get.mockResolvedValueOnce(retrievedFilters);
   });
 
   afterEach(() => {
@@ -628,8 +635,11 @@ describe(Details, () => {
     mockedLocalStorageGetItem.mockReset();
   });
 
-  it('displays resource details information', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+  // To migrate to Cypress
+  it.only('displays resource details information', async () => {
+    mockedAxios.get
+      .mockResolvedValueOnce(retrievedFilters)
+      .mockResolvedValueOnce({ data: retrievedDetails });
 
     setUrlQueryParameters([
       {

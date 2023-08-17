@@ -1,0 +1,7 @@
+DeleteDashboard:
+  methods: DELETE
+  path: /configuration/dashboards/{dashboardId}
+  requirements:
+    dashboardId: '\d+'
+  controller: 'Core\Dashboard\Infrastructure\API\DeleteDashboard\DeleteDashboardController'
+  condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.dashboard')"

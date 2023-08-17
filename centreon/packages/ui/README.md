@@ -6,11 +6,11 @@ A repository of Centreon UI Components
 
 To lint the code with ESlint, run:
 
-`npm run eslint`
+`pnpm eslint`
 
 You can also fix fixable linter errors by running:
 
-`npm run eslint:fix`
+`pnpm eslint:fix`
 
 # Storybook
 
@@ -18,33 +18,59 @@ You are using Storybook to visualize our components through stories.
 
 To start Storybook server, run:
 
-`npm run storybook`
+`pnpm storybook`
 
-# Tests
 
-We have two kind of tests:
- - Unit tests provided by Jest
- - End to End tests provided by Storyshot using Jest. Storyshot is an addon of Storybook that compares graphically our stories.
+# Add stories
 
-To run Unit tests:
+- Create a file named `index.stories.tsx` along side your component
+      
+- Add a title, the component and argTypes
+  
+  ```typescript
+  export default {
+    title: 'MyComponent',
+    Component: MyComponent,
+    argTypes: {
+      propA: { control: 'text' },
+      propB: { control: 'number' },
+    },
+  };
+  ```
 
-`npm run test`
+- Create a playground for your component
 
-or
+  ```typescript
+    const Template: ComponentStory<typeof MyComponent> = (args) => (
+      <MyComponent {...args} />
+    );
 
-`npm test`
+    export const Playground = Template.bind({});
+  ```
 
-or
+- Then add your story
 
-`npm t`
+  ```typescript
+    export const basic = Template.bind({});
+    basic.args = { propA: 'test', propB: 0 };
+  ```
 
-To run End to End tests:
-  - Build Storybook : `npm run build:storybook`
-  - Run all Storyshot tests : `npm run test:storyshot`
+# Tests architecture
 
-You can also test one or more Components using the following syntax:
+There are two kinds of tests in Centreon UI.
+- Jest + RTL and Cypress: Component testing. We want to migrate from Jest to Cypress
+- Chromatic: Chromatic is a tool that snapshots our stories and better handle snapshots changes using a review process
+
+
+### Run Jest tests
 
 ```bash
-npm run test:storyshot -- "Title" # Run Storyshot tests about Title component
-npm run test:storyshot -- "Breadcrumb|Title" # Run Storyshot tests about Title and Breadcrumb components
+pnpm t
+```
+
+### Run Cypress tests
+
+```bash
+pnpm cypress:ui # Opens the Cypress controlled browser to debug tests
+pnpm cypress:cli # Runs tests in the terminal
 ```

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,31 +35,37 @@ class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInte
      * @param Local $local
      * @param OpenId $openId
      * @param WebSSO $webSSO
+     * @param SAML $saml
      * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
      */
     public function __construct(
-        private Local $local,
-        private OpenId $openId,
-        private WebSSO $webSSO,
+        private readonly Local $local,
+        private readonly OpenId $openId,
+        private readonly WebSSO $webSSO,
+        private readonly SAML $saml,
         private ReadConfigurationRepositoryInterface $readConfigurationRepository
     ) {
     }
 
     /**
      * @param string $providerName
-     * @return ProviderAuthenticationInterface
+     * @param string $providerType
+     *
      * @throws ProviderException
+     *
+     * @return ProviderAuthenticationInterface
      */
-    public function create(string $providerName): ProviderAuthenticationInterface
+    public function create(string $providerType): ProviderAuthenticationInterface
     {
-        $provider = match ($providerName) {
+        $provider = match ($providerType) {
             Provider::LOCAL => $this->local,
             Provider::OPENID => $this->openId,
             Provider::WEB_SSO => $this->webSSO,
-            default => throw ProviderException::providerConfigurationNotFound($providerName)
+            Provider::SAML => $this->saml,
+            default => throw ProviderException::providerConfigurationNotFound($providerType)
         };
 
-        $provider->setConfiguration($this->readConfigurationRepository->getConfigurationByName($providerName));
+        $provider->setConfiguration($this->readConfigurationRepository->getConfigurationByType($providerType));
 
         return $provider;
     }

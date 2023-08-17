@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,10 +38,11 @@ class UriGenerator
     }
 
     /**
-     * Generates endpoint call URI with parameters
+     * Generates endpoint call URI with parameters.
      *
      * @param string $endpoint
      * @param array<string, mixed> $parameters
+     *
      * @return string
      */
     public function generateEndpoint(string $endpoint, array $parameters): string
@@ -56,10 +57,11 @@ class UriGenerator
      *   '{hostId}' => 10,
      *   '{serviceId} => 20,
      *    ...
-     * ]
+     * ].
      *
      * @param string $uri
      * @param array<string, mixed> $parameters
+     *
      * @return string
      */
     public function generateUri(string $uri, array $parameters): string

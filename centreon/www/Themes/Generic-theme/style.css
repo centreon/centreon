@@ -886,6 +886,14 @@ form#AjaxBankBasic {
     height: 12px;
 }
 
+.img_box {
+    margin: 0px;
+    padding: 0px;
+    width: 26px;
+    height: 26px;
+    position: absolute;
+}
+
 /* ------- END : Table -----------*/
 
 
@@ -1684,7 +1692,7 @@ div.update_readme,div.update_output {background-color:var(--update-read-me-outpu
 .line_downtime td, .tab .line_downtime td,
 .list_unreachable td,.tab .list_unreachable td,
 .row_disabled td, .tab .row_disabled td {
-    border-bottom: 1px solid var(--listing-border-botom-color);    
+    border-bottom: 1px solid var(--listing-border-botom-color);
 }
 
 
@@ -1704,8 +1712,8 @@ div.update_readme,div.update_output {background-color:var(--update-read-me-outpu
     font-weight:700;
     height:18px;
     vertical-align:middle;
-    border-bottom: 1px solid var(--listing-border-botom-color); 
-} 
+    border-bottom: 1px solid var(--listing-border-botom-color);
+}
 .ListColHeaderPicker        {padding:1px 3px;text-align:center;vertical-align:middle;width:10px;}
 .ListColHeaderCenter        {padding:1px 3px;text-align:center;}
 .ListColHeaderLeft      {padding:1px 3px;text-align:left;}
@@ -1878,13 +1886,25 @@ span.show-disabled[disabled]::after {
 .ToolbarTR td:first-child {
     width: 50%;
 }
-.ToolbarTR a.btc { display: inline-block; font-size: 1rem; height: 28px; line-height: 28px; padding: 0 10px; }
+.ToolbarTR a.btc { display: inline-block; font-size: 1rem; height: 28px; line-height: 29px; padding: 0 10px; }
+
+.ToolbarTR input[type="submit"].btc {
+    font-size: 1rem;
+    height: 28px;
+    line-height: 29px;
+    padding: 0 10px;
+}
+
+#mail_to {
+    margin-right: 4px;
+}
 
 .Toolbar_TDSelectAction_Top {
     border: 1px solid var(--toolbar-td-select-top-action-border-color);
     border-radius: 4px;
     padding: 3px 2px;
     margin-left: 6px;
+    margin-right: 4px;
     overflow: hidden;
     float: left;
 }
@@ -2926,6 +2946,10 @@ ul.module_list {
     background-color: var(--ui-progress-bar-value-background-color) !important
 }
 
+.widget-progressbar-value {
+    color: var(--widget-progress-bar-value-color) !important
+}
+
 .section-expand {
     height: 95%;
     margin-bottom: 20px;
@@ -2992,7 +3016,7 @@ ul.module_list {
 .bt-poller-action{
     line-height: 20px;
     font-size: 13.3333px;
-    margin: 4px 8px 0px 0px !important;
+    margin: 4px 16px 0px 0px !important;
 }
 
 .bt-poller-action:disabled {
@@ -3013,6 +3037,9 @@ ul.module_list {
 /* utilities */
 .ml-1 {
     margin-left: 8px;
+}
+.ml-2 {
+    margin-left: 16px;
 }
 .mr-1 {
     margin-right: 8px;
@@ -3086,11 +3113,8 @@ ul.module_list {
     position: absolute;
     width: 100%;
 }
-
-#centreonLogo {
-    background-image: var(--centreon-logo-url);
-    background-repeat: no-repeat;
-    object-fit: contain;
-    height: 50px;
-    width: 200px;
+/* popup tables of bam */
+.popup_volante table:nth-child(1) tr:nth-child(1) td {
+    color: var(--popup-th-color);
+    font-size: 13px;
 }

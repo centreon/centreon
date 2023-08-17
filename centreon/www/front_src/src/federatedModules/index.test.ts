@@ -12,12 +12,19 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 const retrievedWebVersions = {
   modules: {
     'centreon-bam-server': {
+      fix: '0',
+      major: '1',
+      minor: '0',
       version: '1.0.0'
     }
   },
   web: {
-    version: '21.10.1'
-  }
+    fix: '0',
+    major: '23',
+    minor: '04',
+    version: '23.04.1'
+  },
+  widgets: {}
 };
 
 describe('external components', () => {
