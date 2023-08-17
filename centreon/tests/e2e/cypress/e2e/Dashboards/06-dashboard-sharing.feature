@@ -25,3 +25,13 @@ Scenario: Adding an editor user to a dashboard
   Then the dashboard is featured in the second editor user's dashboards library
   When the second editor user clicks on the dashboard
   Then the second editor can visualize the dashboard's layout and can share it or update its properties
+
+Scenario: Adding read permissions of a dashboard to a contact group
+  Given a non-admin editor user with update rights on a dashboard
+  When the editor user sets read permissions on the dashboard to a contact group
+  Then any member of the contact group has access to the dashboard in the dashboards library but cannot share it or update its properties
+
+Scenario: Adding write permissions of a dashboard to a contact group
+    Given a non-admin user who has update rights on a dashboard
+    When the editor user sets write permissions on the dashboard to a contact group
+    Then any member of the contact group has access to the dashboard in the dashboards library and can share it or update its properties

@@ -5,16 +5,18 @@ import dashboards from '../../../fixtures/dashboards/check-permissions/dashboard
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.json';
+import dashboardCGMember1 from '../../../fixtures/users/user-dashboard-cg-member-1.json';
+import dashboardCGMember2 from '../../../fixtures/users/user-dashboard-cg-member-2.json';
+import dashboardCGMember3 from '../../../fixtures/users/user-dashboard-cg-member-3.json';
+import dashboardCGMember4 from '../../../fixtures/users/user-dashboard-cg-member-4.json';
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
+  /* cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
-  cy.executeCommandsViaClapi(
-    'resources/clapi/config-ACL/dashboard-check-permissions.json'
-  );
+  cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json'); */
 });
 
 beforeEach(() => {
@@ -45,7 +47,7 @@ beforeEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  //  cy.stopWebContainer();
 });
 
 afterEach(() => {
@@ -115,9 +117,8 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.getByLabel({ label: 'Open', tag: 'button' }).click();
   cy.contains(dashboardViewerUser.login).click();
   cy.getByTestId({ testId: 'add' }).should('be.enabled');
-  cy.getByTestId({ testId: 'role-input' })
-    .eq(0)
-    .should('contain.text', 'viewer');
+  cy.getByTestId({ testId: 'role-input' }).eq(0).click();
+  cy.get('[role="listbox"]').contains('viewer').click();
   cy.getByTestId({ testId: 'add' }).click();
 
   cy.get('*[class^="MuiList-root"]')
@@ -133,6 +134,7 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
 
   cy.get('[data-state="added"]').should('exist');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.reload();
 });
 
 Then(
@@ -242,6 +244,7 @@ When(
       .should('contain', `${dashboardCreatorUser.login}`);
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload();
   }
 );
 
@@ -306,5 +309,129 @@ Then(
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
+  }
+);
+
+Given('a non-admin editor user with update rights on a dashboard', () => {
+  cy.loginByTypeOfUser({
+    jsonName: dashboardCreatorUser.login,
+    loginViaApi: false
+  });
+
+  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+});
+
+When(
+  'the editor user sets read permissions on the dashboard to a contact group',
+  () => {
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
+      .click();
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.contains('dashboard-contact-group-viewer').click();
+    cy.getByTestId({ testId: 'add' }).should('be.enabled');
+    cy.getByTestId({ testId: 'role-input' }).eq(0).click();
+    cy.get('[role="listbox"]').contains('viewer').click();
+    cy.getByTestId({ testId: 'add' }).click();
+
+    cy.get('*[class^="MuiList-root"]')
+      .eq(1)
+      .children()
+      .its('length')
+      .should('eq', 2);
+    cy.get('*[class^="MuiList-root"]')
+      .eq(1)
+      .children()
+      .eq(0)
+      .should('contain', 'dashboard-contact-group-viewer');
+
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+
+    cy.reload();
+  }
+);
+
+Then(
+  'any member of the contact group has access to the dashboard in the dashboards library but cannot share it or update its properties',
+  () => {
+    cy.getByLabel({ label: 'share', tag: 'button' }).click();
+    cy.get('*[class^="MuiList-root"]')
+      .eq(1)
+      .children()
+      .contains('dashboard-contact-group-viewer')
+      .should('exist');
+    cy.getByTestId({ testId: 'role-input' })
+      .eq(0)
+      .contains('viewer')
+      .should('exist');
+    cy.get('[data-state="added"]').should('not.exist');
+    cy.getByLabel({ label: 'Cancel', tag: 'button' }).click();
+
+    cy.logout();
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
+
+    cy.loginByTypeOfUser({
+      jsonName: dashboardCGMember1.login,
+      loginViaApi: false
+    });
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
+      .should('exist');
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
+      .click();
+    cy.location('pathname')
+      .should('include', '/dashboards/')
+      .invoke('split', '/')
+      .should('not.be.empty')
+      .then(last)
+      .then(Number)
+      .should('not.be', 'dashboards')
+      .should('be.a', 'number');
+
+    cy.getByTestId({ testId: 'edit' }).should('not.exist');
+    cy.getByTestId({ testId: 'share' }).should('not.exist');
+    cy.logout();
+    cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
+
+    cy.loginByTypeOfUser({
+      jsonName: dashboardCGMember2.login,
+      loginViaApi: false
+    });
+    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
+      .should('exist');
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardCreatorUser.name)
+      .click();
+    cy.location('pathname')
+      .should('include', '/dashboards/')
+      .invoke('split', '/')
+      .should('not.be.empty')
+      .then(last)
+      .then(Number)
+      .should('not.be', 'dashboards')
+      .should('be.a', 'number');
+
+    cy.getByTestId({ testId: 'edit' }).should('not.exist');
+    cy.getByTestId({ testId: 'share' }).should('not.exist');
   }
 );
