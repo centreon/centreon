@@ -144,5 +144,5 @@ export type { ResponseError, CatchErrorProps } from './api/customFetch';
 export * from './utils';
 export { default as FluidTypography } from './Typography/FluidTypography';
 export * from './Dashboard';
-export { default as Graph } from './Graph';
-export type { GraphData } from './Graph/models';
+export { default as LineChart } from './Graph/LineChart';
+export type { LineChartData } from './Graph/LineChart/models';
