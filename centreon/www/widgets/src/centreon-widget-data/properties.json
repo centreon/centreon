@@ -1,0 +1,16 @@
+{
+  "title": "Generic data (example)",
+  "description": "This is the description of the data widget",
+  "options": {},
+  "data": {
+    "resources": {
+      "type": "resources",
+      "defaultValue": []
+    },
+    "metrics": {
+      "type": "metrics",
+      "defaultValue": []
+    }
+  },
+  "moduleName": "centreon-widget-data"
+}

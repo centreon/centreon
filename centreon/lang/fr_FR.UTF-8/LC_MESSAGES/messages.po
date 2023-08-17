@@ -17976,6 +17976,33 @@ msgstr "Événements des Vues Métier"
 msgid "Host template required in service group association is not linked to service template"
 msgstr "Le modèle d'hôte requis dans l'association du groupe de services n'est pas lié au modèle de service"
 
+msgid "No data found"
+msgstr "Aucune donnée trouvée"
+
+msgid "Metrics dataset selection"
+msgstr "Sélection du jeu de données de métriques"
+
+msgid "Resource type"
+msgstr "Type de ressource"
+
+msgid "Select a resource"
+msgstr "Sélectionner une ressource"
+
+msgid "Please select a resource"
+msgstr "Veuillez sélectionner une ressource"
+
+msgid "Too many metrics, add more filter on resources"
+msgstr "Trop de métriques, ajoutez plus de filtres sur les ressources"
+
+msgid "Service name"
+msgstr "Nom du service"
+
+msgid "Please select a metric"
+msgstr "Veuillez sélectionner une métrique"
+
+msgid "The limit of 2 units has been reached"
+msgstr "La limite de 2 unités a été atteinte"
+
 msgid "Missing property in the metric information: %s"
 msgstr "Propriété manquante dans les informations de la métrique : %s"
 
@@ -17984,7 +18011,6 @@ msgstr "Métriques non trouvées"
 
 msgid "An error occured while retrieving metrics data"
 msgstr "Une erreur est survenue lors de la récupération des données de métriques"
-
 
 msgid "Invalid metric format"
 msgstr "Format de métrique invalide"

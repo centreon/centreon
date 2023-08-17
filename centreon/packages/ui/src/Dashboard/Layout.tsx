@@ -16,6 +16,7 @@ interface DashboardLayoutProps<T> {
   changeLayout?: (newLayout: Array<Layout>) => void;
   children: Array<JSX.Element>;
   displayGrid?: boolean;
+  isStatic?: boolean;
   layout: Array<T>;
 }
 
@@ -23,9 +24,10 @@ const Layout = <T extends Layout>({
   children,
   changeLayout,
   displayGrid,
-  layout
+  layout,
+  isStatic = false
 }: DashboardLayoutProps<T>): JSX.Element => {
-  const { classes } = useDashboardLayoutStyles();
+  const { classes } = useDashboardLayoutStyles(isStatic);
 
   const [columns, setColumns] = useState(getColumnsFromScreenSize());
 
