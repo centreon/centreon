@@ -24,6 +24,3 @@ get:
                 type: object
                 additionalProperties:
                   schema: { $ref: 'Schema/Version.yaml' }
-
-              is_cloud_platform:
-                type: boolean
