@@ -530,7 +530,8 @@ class CentreonDowntime
                 h.host_id,
                 h.host_name,
                 s.service_id,
-                s.service_description
+                s.service_description,
+                s.service_register
             FROM downtime_period dtp,
                 downtime dt,
                 downtime_servicegroup_relation dtr,
@@ -558,7 +559,8 @@ class CentreonDowntime
                     h.host_id,
                     h.host_name,
                     s.service_id,
-                    s.service_description
+                    s.service_description,
+                    s.service_register
                 FROM downtime_period dtp,
                     downtime dt,
                     downtime_servicegroup_relation dtr,
@@ -580,6 +582,39 @@ class CentreonDowntime
         $statement = $this->db->query($request);
 
         while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            // we must separate real services from service templates. Because a service group can be linked to a stpl
+            if ($record['service_register'] == 0) {
+                foreach ($this->getServicesInfoFromSgRecords($record) as $serviceRecords) {
+                    $downtimes[] = $serviceRecords;
+                }
+
+                continue;
+            }
+            $downtimes[] = $record;
+        }
+
+        return $downtimes;
+    }
+
+    /**
+     * Get the list of hosts/services that are directly linked to service group through a service template
+     * 
+     * @param array A downtime record related to a service template
+     * @return array Downtime records for each service linked to the service template
+     */
+    protected function getServicesInfoFromSgRecords($record) {
+        $query ="SELECT h.host_name, h.host_id, s.service_id, s.service_description " 
+            . "FROM host h, service s, host_service_relation hsr "
+            . "WHERE s.service_id = hsr.service_service_id AND h.host_id=hsr.host_host_id "
+            . "AND s.service_template_model_stm_id = " . $record['service_id'];
+
+        $statement=$this->db->query($query);
+        
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            $record["host_id"] = $result["host_id"];
+            $record["host_name"] = $result["host_name"];
+            $record["service_id"] = $result["service_id"];
+            $record["service_description"] = $result["service_description"];
             $downtimes[] = $record;
         }
 
