@@ -34,7 +34,7 @@ use Core\Platform\Application\Repository\UpdateNotFoundException;
 use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
 use Core\Platform\Application\Validator\RequirementValidatorsInterface;
 
-class UpdateVersions
+final class UpdateVersions
 {
     use LoggerTrait;
 
@@ -76,22 +76,22 @@ class UpdateVersions
             $this->unlockUpdate();
 
             $this->runPostUpdate($this->getCurrentVersionOrFail());
-        } catch (UpdateNotFoundException $e) {
+        } catch (UpdateNotFoundException $exception) {
             $this->error(
-                $e->getMessage(),
-                ['trace' => $e->getTraceAsString()],
+                $exception->getMessage(),
+                ['trace' => $exception->getTraceAsString()],
             );
 
             $presenter->setResponseStatus(new NotFoundResponse('Updates'));
 
             return;
-        } catch (\Throwable $e) {
+        } catch (\Throwable $exception) {
             $this->error(
-                $e->getMessage(),
-                ['trace' => $e->getTraceAsString()],
+                $exception->getMessage(),
+                ['trace' => $exception->getTraceAsString()],
             );
 
-            $presenter->setResponseStatus(new ErrorResponse($e->getMessage()));
+            $presenter->setResponseStatus(new ErrorResponse($exception->getMessage()));
 
             return;
         }
@@ -146,8 +146,8 @@ class UpdateVersions
 
         try {
             $currentVersion = $this->readVersionRepository->findCurrentVersion();
-        } catch (\Exception $e) {
-            throw UpdateVersionsException::errorWhenRetrievingCurrentVersion($e);
+        } catch (\Exception $exception) {
+            throw UpdateVersionsException::errorWhenRetrievingCurrentVersion($exception);
         }
 
         if ($currentVersion === null) {
@@ -175,10 +175,10 @@ class UpdateVersions
             );
 
             return $this->readUpdateRepository->findOrderedAvailableUpdates($currentVersion);
-        } catch (UpdateNotFoundException $e) {
-            throw $e;
-        } catch (\Throwable $e) {
-            throw UpdateVersionsException::errorWhenRetrievingAvailableUpdates($e);
+        } catch (UpdateNotFoundException $exception) {
+            throw $exception;
+        } catch (\Throwable $exception) {
+            throw UpdateVersionsException::errorWhenRetrievingAvailableUpdates($exception);
         }
     }
 
@@ -195,8 +195,8 @@ class UpdateVersions
             try {
                 $this->info("Running update {$version}");
                 $this->writeUpdateRepository->runUpdate($version);
-            } catch (\Throwable $e) {
-                throw UpdateVersionsException::errorWhenApplyingUpdate($version, $e->getMessage(), $e);
+            } catch (\Throwable $exception) {
+                throw UpdateVersionsException::errorWhenApplyingUpdate($version, $exception->getMessage(), $exception);
             }
         }
     }
@@ -214,8 +214,8 @@ class UpdateVersions
 
         try {
             $this->writeUpdateRepository->runPostUpdate($currentVersion);
-        } catch (\Throwable $e) {
-            throw UpdateVersionsException::errorWhenApplyingPostUpdate($e);
+        } catch (\Throwable $exception) {
+            throw UpdateVersionsException::errorWhenApplyingPostUpdate($exception);
         }
     }
 }

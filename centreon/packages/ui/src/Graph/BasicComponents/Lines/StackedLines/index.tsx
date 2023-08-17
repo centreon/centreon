@@ -1,4 +1,4 @@
-import { Curve, Shape } from '@visx/visx';
+import { Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { all, isNil, map, not, nth, path, pipe, prop } from 'ramda';
 
@@ -7,8 +7,10 @@ import { StackValue } from '../../../InteractiveComponents/AnchorPoint/models';
 import { getFillColor } from '../../../common';
 import { getTime } from '../../../timeSeries';
 import { Line, TimeValue } from '../../../timeSeries/models';
+import { CurveType } from '../models';
 
 interface Props {
+  curve: CurveType;
   displayAnchor: boolean;
   lines: Array<Line>;
   timeSeries: Array<TimeValue>;
@@ -21,11 +23,12 @@ const StackLines = ({
   lines,
   yScale,
   xScale,
-  displayAnchor
+  displayAnchor,
+  curve
 }: Props): JSX.Element => {
   return (
     <Shape.AreaStack
-      curve={Curve.curveLinear}
+      curve={curve}
       data={timeSeries}
       defined={(d): boolean => {
         return pipe(

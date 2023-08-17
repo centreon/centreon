@@ -28,12 +28,15 @@ import {
 } from './models';
 import { getLeftScale, getRightScale, getXScale } from './timeSeries';
 import { useIntersection } from './useGraphIntersection';
+import { CurveType } from './BasicComponents/Lines/models';
 
 interface Props extends GraphProps {
+  curve: CurveType;
   graphData: Data;
   graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
   legend?: LegendModel;
+  marginBottom: number;
   shapeLines?: GlobalAreaLines;
 }
 
@@ -52,15 +55,26 @@ const Graph = ({
   tooltip,
   legend,
   graphRef,
-  header
+  header,
+  curve,
+  marginBottom
 }: Props): JSX.Element => {
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
   const { classes } = useStyles();
   const { isInViewport } = useIntersection({ element: graphRef?.current });
 
+  const legendRef = useRef<HTMLDivElement | null>(null);
+
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
-  const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
+  const graphHeight =
+    (height || 0) > 0
+      ? (height || 0) -
+        margin.top -
+        margin.bottom -
+        marginBottom -
+        (legendRef.current?.getBoundingClientRect().height || 0)
+      : 0;
 
   const { title, timeSeries, baseAxis, lines } = graphData;
 
@@ -83,7 +97,7 @@ const Graph = ({
       getLeftScale({
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
-        valueGraphHeight: graphHeight
+        valueGraphHeight: graphHeight - 35
       }),
     [displayedLines, timeSeries, graphHeight]
   );
@@ -93,7 +107,7 @@ const Graph = ({
       getRightScale({
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
-        valueGraphHeight: graphHeight
+        valueGraphHeight: graphHeight - 35
       }),
     [timeSeries, displayedLines, graphHeight]
   );
@@ -128,11 +142,15 @@ const Graph = ({
       />
       <ClickAwayListener onClickAway={graphTooltipData?.hideTooltip}>
         <div className={classes.container}>
-          <LoadingProgress display={loading} height={height} width={width} />
-          <svg height={height} ref={graphSvgRef} width="100%">
+          <LoadingProgress
+            display={loading}
+            height={graphHeight}
+            width={width}
+          />
+          <svg height={graphHeight + margin.top} ref={graphSvgRef} width="100%">
             <Group.Group left={margin.left} top={margin.top}>
               <Grids
-                height={graphHeight}
+                height={graphHeight - margin.top}
                 leftScale={leftScale}
                 width={graphWidth}
                 xScale={xScale}
@@ -145,7 +163,7 @@ const Graph = ({
                   ...axis
                 }}
                 graphInterval={graphInterval}
-                height={graphHeight}
+                height={graphHeight - margin.top}
                 leftScale={leftScale}
                 rightScale={rightScale}
                 width={graphWidth}
@@ -153,10 +171,11 @@ const Graph = ({
               />
 
               <Lines
+                curve={curve}
                 displayAnchor={displayAnchor}
                 displayedLines={displayedLines}
                 graphSvgRef={graphSvgRef}
-                height={graphHeight}
+                height={graphHeight - margin.top}
                 leftScale={leftScale}
                 rightScale={rightScale}
                 timeSeries={timeSeries}
@@ -189,7 +208,7 @@ const Graph = ({
           {(displayAnchor?.displayTooltipsGuidingLines ?? true) && (
             <TooltipAnchorPoint
               baseAxis={baseAxis}
-              graphHeight={graphHeight}
+              graphHeight={graphHeight - 35}
               graphWidth={graphWidth}
               leftScale={leftScale}
               lines={displayedLines}
@@ -198,18 +217,19 @@ const Graph = ({
               xScale={xScale}
             />
           )}
-
-          {displayLegend && (
-            <Legend
-              base={baseAxis}
-              displayAnchor={displayAnchor?.displayGuidingLines ?? true}
-              lines={newLines}
-              renderExtraComponent={legend?.renderExtraComponent}
-              timeSeries={timeSeries}
-            />
-          )}
         </div>
       </ClickAwayListener>
+      {displayLegend && (
+        <div ref={legendRef}>
+          <Legend
+            base={baseAxis}
+            displayAnchor={displayAnchor?.displayGuidingLines ?? true}
+            lines={newLines}
+            renderExtraComponent={legend?.renderExtraComponent}
+            timeSeries={timeSeries}
+          />
+        </div>
+      )}
     </>
   );
 };

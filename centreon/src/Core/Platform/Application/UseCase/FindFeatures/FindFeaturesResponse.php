@@ -21,11 +21,17 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Infrastructure\Api\UpdateVersions;
+namespace Core\Platform\Application\UseCase\FindFeatures;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsPresenterInterface;
-
-class UpdateVersionsPresenter extends AbstractPresenter implements UpdateVersionsPresenterInterface
+final class FindFeaturesResponse
 {
+    /**
+     * @param bool $isCloudPlatform
+     * @param array<string, bool> $featureFlags
+     */
+    public function __construct(
+        public bool $isCloudPlatform,
+        public array $featureFlags,
+    ) {
+    }
 }

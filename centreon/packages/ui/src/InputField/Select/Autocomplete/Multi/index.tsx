@@ -34,12 +34,17 @@ export interface Props
       'multiple'
     > {
   disableSortedOptions?: boolean;
+  getTagLabel?: (option) => string;
+  optionProperty?: string;
 }
 
 const MultiAutocompleteField = ({
   value,
   options,
   disableSortedOptions = false,
+  optionProperty = 'name',
+  getOptionLabel = (option): string => option.name,
+  getTagLabel = (option): string => option[optionProperty],
   ...props
 }: Props): JSX.Element => {
   const { classes } = useStyles();
@@ -52,7 +57,7 @@ const MultiAutocompleteField = ({
           root: classes.tag
         }}
         key={option.id}
-        label={option.name}
+        label={getTagLabel(option)}
         size="medium"
         {...getTagProps({ index })}
       />
@@ -84,7 +89,7 @@ const MultiAutocompleteField = ({
           key={option.id}
           {...(renderProps as React.HTMLAttributes<HTMLLIElement>)}
         >
-          <Option checkboxSelected={selected}>{option.name}</Option>
+          <Option checkboxSelected={selected}>{getOptionLabel(option)}</Option>
         </li>
       )}
       renderTags={renderTags}
