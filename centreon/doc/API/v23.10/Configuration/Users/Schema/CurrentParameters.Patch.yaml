@@ -1,0 +1,13 @@
+type: object
+properties:
+  theme:
+    type: string
+    description: Theme
+    enum: [ light, dark ]
+    example: light
+
+  user_interface_density:
+    type: string
+    description: User interface view mode
+    enum: [ compact, extended ]
+    example: extended

@@ -20,12 +20,14 @@ const DataTable = ({
   const { classes } = useStyles();
 
   return (
-    <div
-      className={classes.dataTable}
-      data-is-empty={isEmpty}
-      data-variant={variant}
-    >
-      {children}
+    <div className={classes.dataTableScrollContainer}>
+      <div
+        className={classes.dataTable}
+        data-is-empty={isEmpty}
+        data-variant={variant}
+      >
+        {children}
+      </div>
     </div>
   );
 };

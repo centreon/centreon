@@ -27,9 +27,6 @@
             "duration": {
                 "type": "integer"
             },
-            "author_id": {
-                "type": "integer"
-            },
             "comment": {
                 "type": "string"
             },

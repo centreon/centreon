@@ -1,4 +1,4 @@
 export type DashboardResource = {
-  description?: string;
+  description?: string | null;
   name: string;
 };

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,29 +24,29 @@ declare(strict_types=1);
 namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Contact\Domain\Model\ContactGroup;
-use Core\Contact\Domain\Model\ContactTemplate;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Centreon\Domain\Common\Assertion\AssertionException;
-use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
-use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
+use Core\Contact\Domain\Model\ContactGroup;
+use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
+use Core\Security\ProviderConfiguration\Application\SAML\Repository\WriteSAMLConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
-use Core\Security\ProviderConfiguration\Application\SAML\Repository\WriteSAMLConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 
 class UpdateSAMLConfiguration
 {
@@ -85,28 +85,30 @@ class UpdateSAMLConfiguration
             $configuration = $provider->getConfiguration();
             $configuration->update($request->isActive, $request->isForced);
             $requestArray = $request->toArray();
-            $requestArray['contact_template'] = $request->contactTemplate &&
-            array_key_exists('id', $request->contactTemplate) !== null
+
+            $requestArray['contact_template'] = $request->contactTemplate
+            && array_key_exists('id', $request->contactTemplate) !== null
                 ? $this->getContactTemplateOrFail($request->contactTemplate)
                 : null;
             $requestArray['roles_mapping'] = $this->createAclConditions($request->rolesMapping);
-            $requestArray["authentication_conditions"] = $this->createAuthenticationConditions(
+            $requestArray['authentication_conditions'] = $this->createAuthenticationConditions(
                 $request->authenticationConditions
             );
-            $requestArray["groups_mapping"] = $this->createGroupsMapping($request->groupsMapping);
-            $requestArray["is_active"] = $request->isActive;
+            $requestArray['groups_mapping'] = $this->createGroupsMapping($request->groupsMapping);
             $configuration->setCustomConfiguration(new CustomConfiguration($requestArray));
             $this->updateConfiguration($configuration);
-        } catch (AssertionException | AssertionFailedException | ConfigurationException $ex) {
+        } catch (AssertionException|AssertionFailedException|ConfigurationException $ex) {
             $this->error(
                 'Unable to create SAML Provider because one or several parameters are invalid',
                 ['trace' => $ex->getTraceAsString()]
             );
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
+
             return;
         } catch (\Throwable $ex) {
             $this->error('Error during SAML Provider Update', ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(new UpdateSAMLConfigurationErrorResponse($ex->getMessage()));
+
             return;
         }
 
@@ -114,20 +116,22 @@ class UpdateSAMLConfiguration
     }
 
     /**
-     * Get Contact template or throw an Exception
+     * Get Contact template or throw an Exception.
      *
      * @param array{id: int, name: string}|null $contactTemplateFromRequest
-     * @return ContactTemplate|null
+     *
      * @throws \Throwable|ConfigurationException
+     *
+     * @return ContactTemplate|null
      */
     private function getContactTemplateOrFail(?array $contactTemplateFromRequest): ?ContactTemplate
     {
         if ($contactTemplateFromRequest === null) {
             return null;
         }
-        if (($contactTemplate = $this->contactTemplateRepository->find($contactTemplateFromRequest["id"])) === null) {
+        if (($contactTemplate = $this->contactTemplateRepository->find($contactTemplateFromRequest['id'])) === null) {
             throw ConfigurationException::contactTemplateNotFound(
-                $contactTemplateFromRequest["name"]
+                $contactTemplateFromRequest['name']
             );
         }
 
@@ -135,11 +139,13 @@ class UpdateSAMLConfiguration
     }
 
     /**
-     * Create Authorization Rules
+     * Create Authorization Rules.
      *
      * @param array<array{claim_value: string, access_group_id: int, priority: int}> $authorizationRulesFromRequest
-     * @return AuthorizationRule[]
+     *
      * @throws \Throwable
+     *
+     * @return AuthorizationRule[]
      */
     private function createAuthorizationRules(array $authorizationRulesFromRequest): array
     {
@@ -157,14 +163,14 @@ class UpdateSAMLConfiguration
         $authorizationRules = [];
         foreach ($authorizationRulesFromRequest as $authorizationRule) {
             $accessGroup = $this->findAccessGroupFromFoundAccessGroups(
-                $authorizationRule["access_group_id"],
+                $authorizationRule['access_group_id'],
                 $foundAccessGroups
             );
             if ($accessGroup !== null) {
                 $authorizationRules[] = new AuthorizationRule(
-                    $authorizationRule["claim_value"],
+                    $authorizationRule['claim_value'],
                     $accessGroup,
-                    $authorizationRule["priority"]
+                    $authorizationRule['priority']
                 );
             }
         }
@@ -174,8 +180,10 @@ class UpdateSAMLConfiguration
 
     /**
      * @param array<string,bool|string|string[]|array<array{claim_value: string, access_group_id: int}>> $rolesMapping
-     * @return ACLConditions
+     *
      * @throws \Throwable
+     *
+     * @return ACLConditions
      */
     private function createAclConditions(array $rolesMapping): ACLConditions
     {
@@ -190,9 +198,8 @@ class UpdateSAMLConfiguration
         );
     }
 
-
     /**
-     * Add log for all the non existent access groups
+     * Add log for all the non existent access groups.
      *
      * @param int[] $accessGroupIdsFromRequest
      * @param AccessGroup[] $foundAccessGroups
@@ -204,17 +211,18 @@ class UpdateSAMLConfiguration
             $foundAccessGroupsId[] = $foundAccessGroup->getId();
         }
         $nonExistentAccessGroupsIds = array_diff($accessGroupIdsFromRequest, $foundAccessGroupsId);
-        $this->error("Access Groups not found", [
-            "access_group_ids" => implode(', ', $nonExistentAccessGroupsIds)
+        $this->error('Access Groups not found', [
+            'access_group_ids' => implode(', ', $nonExistentAccessGroupsIds),
         ]);
     }
 
     /**
      * Compare the access group id sent in request with Access groups from database
-     * Return the access group that have the same id than the access group id from the request
+     * Return the access group that have the same id than the access group id from the request.
      *
      * @param int $accessGroupIdFromRequest Access group id sent in the request
      * @param AccessGroup[] $foundAccessGroups Access groups found in data storage
+     *
      * @return AccessGroup|null
      */
     private function findAccessGroupFromFoundAccessGroups(
@@ -226,46 +234,50 @@ class UpdateSAMLConfiguration
                 return $foundAccessGroup;
             }
         }
+
         return null;
     }
 
     /**
-     * Return all unique access group id from request
+     * Return all unique access group id from request.
      *
      * @param array<array{claim_value: string, access_group_id: int}> $authorizationRulesFromRequest
+     *
      * @return int[]
      */
     private function getAccessGroupIds(array $authorizationRulesFromRequest): array
     {
         $accessGroupIds = [];
         foreach ($authorizationRulesFromRequest as $authorizationRules) {
-            $accessGroupIds[] = $authorizationRules["access_group_id"];
+            $accessGroupIds[] = $authorizationRules['access_group_id'];
         }
 
         return array_unique($accessGroupIds);
     }
 
     /**
-     * Update SAML Provider
+     * Update SAML Provider.
      *
      * @param Configuration $configuration
+     *
      * @throws \Throwable
      */
     private function updateConfiguration(Configuration $configuration): void
     {
         $isAlreadyInTransaction = $this->dataStorageEngine->isAlreadyinTransaction();
         try {
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->dataStorageEngine->startTransaction();
             }
             $this->info('Updating SAML Provider');
             $this->repository->updateConfiguration($configuration);
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->dataStorageEngine->commitTransaction();
             }
         } catch (\Throwable $ex) {
-            if (!$isAlreadyInTransaction) {
+            if (! $isAlreadyInTransaction) {
                 $this->dataStorageEngine->rollbackTransaction();
+
                 throw $ex;
             }
         }
@@ -285,21 +297,23 @@ class UpdateSAMLConfiguration
      *      "custom_endpoint":string|null
      *  }
      * } $authenticationConditionsParameters
-     * @return AuthenticationConditions
+     *
      * @throws ConfigurationException
+     *
+     * @return AuthenticationConditions
      */
     private function createAuthenticationConditions(array $authenticationConditionsParameters): AuthenticationConditions
     {
         return new AuthenticationConditions(
-            $authenticationConditionsParameters["is_enabled"],
-            $authenticationConditionsParameters["attribute_path"],
+            $authenticationConditionsParameters['is_enabled'],
+            $authenticationConditionsParameters['attribute_path'],
           null,
-            $authenticationConditionsParameters["authorized_values"],
+            $authenticationConditionsParameters['authorized_values'],
         );
     }
 
     /**
-     * Create Groups Mapping from data send to the request
+     * Create Groups Mapping from data send to the request.
      *
      * @param array{
      *  "is_enabled": bool,
@@ -314,32 +328,33 @@ class UpdateSAMLConfiguration
      *  }>
      * } $groupsMappingParameters
      *
-     * @return GroupsMapping
      * @throws ConfigurationException
      * @throws \Throwable
+     *
+     * @return GroupsMapping
      */
     private function createGroupsMapping(array $groupsMappingParameters): GroupsMapping
     {
-        $contactGroupIds = $this->getContactGroupIds($groupsMappingParameters["relations"]);
+        $contactGroupIds = $this->getContactGroupIds($groupsMappingParameters['relations']);
         $foundContactGroups = $this->contactGroupRepository->findByIds($contactGroupIds);
         $this->logNonExistentContactGroupsIds($contactGroupIds, $foundContactGroups);
         $contactGroupRelations = [];
-        foreach ($groupsMappingParameters["relations"] as $contactGroupRelation) {
+        foreach ($groupsMappingParameters['relations'] as $contactGroupRelation) {
             $contactGroup = $this->findContactGroupFromFoundcontactGroups(
-                $contactGroupRelation["contact_group_id"],
+                $contactGroupRelation['contact_group_id'],
                 $foundContactGroups
             );
             if ($contactGroup !== null) {
                 $contactGroupRelations[] = new ContactGroupRelation(
-                    $contactGroupRelation["group_value"],
+                    $contactGroupRelation['group_value'],
                     $contactGroup
                 );
             }
         }
 
         return new GroupsMapping(
-            $groupsMappingParameters["is_enabled"],
-            $groupsMappingParameters["attribute_path"],
+            $groupsMappingParameters['is_enabled'],
+            $groupsMappingParameters['attribute_path'],
            null,
             $contactGroupRelations
         );
@@ -347,20 +362,21 @@ class UpdateSAMLConfiguration
 
     /**
      * @param array<array{"group_value": string, "contact_group_id": int}> $contactGroupParameters
+     *
      * @return int[]
      */
     private function getContactGroupIds(array $contactGroupParameters): array
     {
         $contactGroupIds = [];
         foreach ($contactGroupParameters as $groupsMapping) {
-            $contactGroupIds[] = $groupsMapping["contact_group_id"];
+            $contactGroupIds[] = $groupsMapping['contact_group_id'];
         }
 
         return array_unique($contactGroupIds);
     }
 
     /**
-     * Add log for all the non existent contact groups
+     * Add log for all the non existent contact groups.
      *
      * @param int[] $contactGroupIds
      * @param ContactGroup[] $foundContactGroups
@@ -372,17 +388,20 @@ class UpdateSAMLConfiguration
             $foundContactGroupsId[] = $foundAccessGroup->getId();
         }
         $nonExistentAccessGroupsIds = array_diff($contactGroupIds, $foundContactGroupsId);
-        $this->error("Access groups not found", [
-            "access_group_ids" => implode(', ', $nonExistentAccessGroupsIds)
-        ]);
+        if (! empty($nonExistentAccessGroupsIds)) {
+            $this->error('Access groups not found', [
+                'access_group_ids' => implode(', ', $nonExistentAccessGroupsIds),
+            ]);
+        }
     }
 
     /**
      * Compare the contact group id sent in request with contact groups from database
-     * Return the contact group that have the same id than the contact group id from the request
+     * Return the contact group that have the same id than the contact group id from the request.
      *
      * @param int $contactGroupIdFromRequest contact group id sent in the request
      * @param ContactGroup[] $foundContactGroups contact groups found in data storage
+     *
      * @return ContactGroup|null
      */
     private function findContactGroupFromFoundcontactGroups(

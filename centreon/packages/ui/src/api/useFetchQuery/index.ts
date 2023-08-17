@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import 'ulog';
 import {
@@ -30,14 +30,13 @@ export interface UseFetchQueryProps<T> {
   >;
 }
 
-export interface UseFetchQueryState<T>
-  extends Omit<QueryObserverBaseResult, 'data'> {
+export type UseFetchQueryState<T> = {
   data?: T;
   fetchQuery: () => Promise<T | ResponseError>;
   prefetchNextPage: ({ page, getPrefetchQueryKey }) => void;
   prefetchPreviousPage: ({ page, getPrefetchQueryKey }) => void;
   prefetchQuery: ({ endpointParams, queryKey }) => void;
-}
+} & Omit<QueryObserverBaseResult, 'data'>;
 
 export interface PrefetchEndpointParams {
   page: number;
@@ -155,9 +154,11 @@ const useFetchQuery = <T extends object>({
     );
   };
 
-  const data = not(has('isError', queryData.data))
-    ? (queryData.data as T)
-    : undefined;
+  const data = useMemo(
+    () =>
+      not(has('isError', queryData.data)) ? (queryData.data as T) : undefined,
+    [queryData.data]
+  );
 
   const errorData = queryData.data as ResponseError | undefined;
 

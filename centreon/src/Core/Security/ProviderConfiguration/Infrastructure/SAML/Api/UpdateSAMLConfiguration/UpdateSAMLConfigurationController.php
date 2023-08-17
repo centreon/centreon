@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,15 +23,15 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Infrastructure\SAML\Api\UpdateSAMLConfiguration;
 
-use Centreon\Domain\Contact\Contact;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Centreon\Application\Controller\AbstractController;
+use Centreon\Domain\Contact\Contact;
 use Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration\{
     UpdateSAMLConfiguration,
     UpdateSAMLConfigurationPresenterInterface,
     UpdateSAMLConfigurationRequest
 };
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class UpdateSAMLConfigurationController extends AbstractController
 {
@@ -39,6 +39,7 @@ class UpdateSAMLConfigurationController extends AbstractController
      * @param UpdateSAMLConfiguration $useCase
      * @param Request $request
      * @param UpdateSAMLConfigurationPresenterInterface $presenter
+     *
      * @return object
      */
     public function __invoke(
@@ -63,12 +64,13 @@ class UpdateSAMLConfigurationController extends AbstractController
 
     /**
      * @param Request $request
+     *
      * @return UpdateSAMLConfigurationRequest
      */
     private function createUpdateSAMLConfigurationRequest(Request $request): UpdateSAMLConfigurationRequest
     {
         $json = (string) $request->getContent();
-        $requestData  = json_decode($json, true);
+        $requestData = json_decode($json, true);
         $updateRequest = new UpdateSAMLConfigurationRequest();
         $updateRequest->isActive = $requestData['is_active'];
         $updateRequest->isForced = $requestData['is_forced'];
@@ -83,8 +85,8 @@ class UpdateSAMLConfigurationController extends AbstractController
         $updateRequest->emailBindAttribute = $requestData['email_bind_attribute'];
         $updateRequest->userNameBindAttribute = $requestData['fullname_bind_attribute'];
         $updateRequest->rolesMapping = $requestData['roles_mapping'];
-        $updateRequest->authenticationConditions = $requestData["authentication_conditions"];
-        $updateRequest->groupsMapping = $requestData["groups_mapping"];
+        $updateRequest->authenticationConditions = $requestData['authentication_conditions'];
+        $updateRequest->groupsMapping = $requestData['groups_mapping'];
 
         return $updateRequest;
     }

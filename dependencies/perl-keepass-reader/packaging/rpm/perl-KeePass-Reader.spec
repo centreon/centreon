@@ -1,6 +1,6 @@
 Name:		perl-KeePass-Reader
 Version:	0.2
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Interface to KeePass V4 database files
 Group:		Development/Libraries
 License:	Apache2
@@ -11,6 +11,8 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  make
 BuildRequires:  perl(ExtUtils::MakeMaker)
+
+Requires: perl(Crypt::Argon2)
 
 %description
 KeePass::Reader is a perl interface to read KeePass version 4.

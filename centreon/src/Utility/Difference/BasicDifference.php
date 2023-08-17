@@ -28,20 +28,21 @@ namespace Utility\Difference;
  *
  * Note: indexes are preserved, up to you to use them or not.
  *
- * @implements DifferenceInterface<int|string>
+ * @template T of int|string
+ * @implements DifferenceInterface<T>
  */
 final class BasicDifference implements DifferenceInterface
 {
     /**
-     * @param array<int|string> $before
-     * @param array<int|string> $after
+     * @param array<T> $before
+     * @param array<T> $after
      */
     public function __construct(private readonly array $before, private readonly array $after)
     {
     }
 
     /**
-     * @return array<int|string>
+     * @return array<T>
      */
     public function getAdded(): array
     {
@@ -49,7 +50,7 @@ final class BasicDifference implements DifferenceInterface
     }
 
     /**
-     * @return array<int|string>
+     * @return array<T>
      */
     public function getRemoved(): array
     {
@@ -57,7 +58,7 @@ final class BasicDifference implements DifferenceInterface
     }
 
     /**
-     * @return array<int|string>
+     * @return array<T>
      */
     public function getCommon(): array
     {

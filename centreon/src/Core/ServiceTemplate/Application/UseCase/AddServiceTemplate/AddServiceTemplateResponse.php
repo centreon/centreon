@@ -103,6 +103,9 @@ final class AddServiceTemplateResponse
     /** @var NotificationType[] */
     public array $notificationTypes = [];
 
+    /** @var list<int> */
+    public array $hostTemplateIds = [];
+
     public int|null $recoveryNotificationDelay = null;
 
     public int|null $retryCheckInterval = null;
@@ -110,4 +113,13 @@ final class AddServiceTemplateResponse
     public int|null $serviceTemplateId = null;
 
     public int|null $severityId = null;
+
+    /** @var MacroDto[] */
+    public array $macros = [];
+
+    /** @var array<array{id:int,name:string}> */
+    public array $categories = [];
+
+    /** @var array<array{serviceGroupId:int,serviceGroupName:string,hostTemplateId:int,hostTemplateName:string}> */
+    public array $groups = [];
 }

@@ -1,12 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles()((theme) => ({
-  actions: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: theme.spacing(2),
-    justifyContent: 'flex-end'
-  },
+const useStyles = makeStyles()(() => ({
   dashboardForm: {
     display: 'flex',
     flexDirection: 'column',

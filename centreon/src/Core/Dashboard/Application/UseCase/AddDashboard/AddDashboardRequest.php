@@ -25,7 +25,9 @@ namespace Core\Dashboard\Application\UseCase\AddDashboard;
 
 final class AddDashboardRequest
 {
-    public string $name = '';
-
-    public string $description = '';
+    public function __construct(
+        public string $name = '',
+        public string $description = '',
+    ) {
+    }
 }

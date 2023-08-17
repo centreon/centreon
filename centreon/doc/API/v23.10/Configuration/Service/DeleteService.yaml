@@ -1,0 +1,16 @@
+delete:
+  tags:
+    - Service
+  summary: "Delete a service"
+  description: "Delete a service configuration"
+  parameters:
+    - $ref: 'QueryParameter/ServiceId.yaml'
+  responses:
+    '204':
+      $ref: '../../Common/Response/NoContent.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

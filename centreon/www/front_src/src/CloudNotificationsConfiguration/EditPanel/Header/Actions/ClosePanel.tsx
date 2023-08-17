@@ -10,7 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { ConfirmDialog, IconButton } from '@centreon/ui';
 
 import { isPanelOpenAtom } from '../../../atom';
-import { EditedNotificationIdAtom } from '../../atom';
+import { editedNotificationIdAtom } from '../../atom';
 import {
   labelClosePanel,
   labelDoYouWantToQuitWithoutSaving,
@@ -33,7 +33,7 @@ const ClosePanelAction = (): JSX.Element => {
 
   const [dialogOpen, setIsDialogOpen] = useState(false);
   const setIsPanelOpen = useSetAtom(isPanelOpenAtom);
-  const setEditedNotificationId = useSetAtom(EditedNotificationIdAtom);
+  const setEditedNotificationId = useSetAtom(editedNotificationIdAtom);
 
   const { dirty } = useFormikContext<FormikValues>();
 

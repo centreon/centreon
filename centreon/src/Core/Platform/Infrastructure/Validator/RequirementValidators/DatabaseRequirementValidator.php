@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,28 +24,21 @@ declare(strict_types=1);
 namespace Core\Platform\Infrastructure\Validator\RequirementValidators;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Platform\Application\Validator\RequirementValidatorInterface;
-use Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\DatabaseConnection;
+use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Core\Platform\Application\Validator\RequirementValidatorInterface;
 
 class DatabaseRequirementValidator extends AbstractRepositoryDRB implements RequirementValidatorInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private string $version = '';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private string $versionComment = '';
 
-    /**
-     * @var DatabaseRequirementValidatorInterface[]
-     */
+    /** @var DatabaseRequirementValidatorInterface[] */
     private $dbRequirementValidators;
 
     /**
@@ -90,7 +83,7 @@ class DatabaseRequirementValidator extends AbstractRepositoryDRB implements Requ
     }
 
     /**
-     * Get database version information
+     * Get database version information.
      *
      * @throws DatabaseRequirementException
      */
@@ -101,10 +94,10 @@ class DatabaseRequirementValidator extends AbstractRepositoryDRB implements Requ
         try {
             $statement = $this->db->query("SHOW VARIABLES WHERE Variable_name IN ('version', 'version_comment')");
             while ($statement !== false && is_array($row = $statement->fetch(\PDO::FETCH_ASSOC))) {
-                if ($row['Variable_name'] === "version") {
+                if ($row['Variable_name'] === 'version') {
                     $this->info('Retrieved DBMS version: ' . $row['Value']);
                     $this->version = $row['Value'];
-                } elseif ($row['Variable_name'] === "version_comment") {
+                } elseif ($row['Variable_name'] === 'version_comment') {
                     $this->info('Retrieved DBMS version comment: ' . $row['Value']);
                     $this->versionComment = $row['Value'];
                 }
@@ -117,11 +110,13 @@ class DatabaseRequirementValidator extends AbstractRepositoryDRB implements Requ
                     'trace' => $ex->getTraceAsString(),
                 ],
             );
+
             throw DatabaseRequirementException::errorWhenGettingDatabaseVersion($ex);
         }
 
         if (empty($this->version) || empty($this->versionComment)) {
             $this->info('Cannot retrieve the database version information');
+
             throw DatabaseRequirementException::cannotRetrieveVersionInformation();
         }
     }

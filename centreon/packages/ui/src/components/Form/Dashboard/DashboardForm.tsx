@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from 'react';
+import { ReactElement, useCallback, useMemo } from 'react';
 
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
@@ -6,17 +6,15 @@ import { useTranslation } from 'react-i18next';
 import { InputType } from '../../../Form/Inputs/models';
 import { Form, FormProps } from '../../../Form';
 import { FormVariant } from '../Form.models';
+import { FormActions, FormActionsProps } from '../FormActions';
 
 import { useStyles } from './DashboardForm.styles';
 import {
+  labelCharacters,
   labelMustBeAtLeast,
   labelMustBeMost,
   labelRequired
 } from './translatedLabels';
-import {
-  DashboardFormActions,
-  DashboardFormActionsProps
-} from './DashboardFormActions';
 import { DashboardResource } from './Dashboard.resource';
 
 export type DashboardFormProps = {
@@ -24,10 +22,10 @@ export type DashboardFormProps = {
   onSubmit?: FormProps<DashboardResource>['submit'];
   resource?: DashboardResource;
   variant?: FormVariant;
-} & Pick<DashboardFormActionsProps, 'onCancel'>;
+} & Pick<FormActionsProps, 'onCancel'>;
 
 export type DashboardFormLabels = {
-  actions: DashboardFormActionsProps['labels'];
+  actions: FormActionsProps['labels'];
   entity: Required<DashboardResource>;
 };
 
@@ -43,7 +41,7 @@ const DashboardForm = ({
 
   const formProps = useMemo<FormProps<DashboardResource>>(
     () => ({
-      initialValues: resource ?? { name: '' },
+      initialValues: resource ?? { description: null, name: '' },
       inputs: [
         {
           fieldName: 'name',
@@ -55,7 +53,7 @@ const DashboardForm = ({
         {
           fieldName: 'description',
           group: 'main',
-          label: labels?.entity?.description,
+          label: labels?.entity?.description || '',
           text: {
             multilineRows: 3
           },
@@ -65,9 +63,12 @@ const DashboardForm = ({
       submit: (values, bag) => onSubmit?.(values, bag),
       validationSchema: Yup.object().shape({
         description: Yup.string()
-          .label(labels?.entity?.description)
-          .max(180, ({ max, label }) => t(labelMustBeMost, { label, max }))
-          .optional()
+          .label(labels?.entity?.description || '')
+          .max(
+            180,
+            (p) =>
+              `${p.label} ${t(labelMustBeMost)} ${p.max} ${t(labelCharacters)}`
+          )
           .nullable(),
         name: Yup.string()
           .label(labels?.entity?.name)
@@ -79,9 +80,9 @@ const DashboardForm = ({
     [resource, labels, onSubmit]
   );
 
-  const FormActions = useCallback(
+  const Actions = useCallback(
     () => (
-      <DashboardFormActions
+      <FormActions<DashboardResource>
         labels={labels?.actions}
         variant={variant}
         onCancel={onCancel}
@@ -92,7 +93,7 @@ const DashboardForm = ({
 
   return (
     <div className={classes.dashboardForm}>
-      <Form<DashboardResource> {...formProps} Buttons={FormActions} />
+      <Form<DashboardResource> {...formProps} Buttons={Actions} />
     </div>
   );
 };

@@ -63,7 +63,8 @@ class SessionRepository extends AbstractRepositoryDRB implements SessionReposito
                 (SELECT UNIX_TIMESTAMP(NOW() - INTERVAL (`value` * 60) SECOND)
                 FROM `options`
                 wHERE `key` = \'session_expire\')
-            OR last_reload IS NULL'
+            OR last_reload IS NULL
+            OR session_id NOT IN (SELECT token FROM security_authentication_tokens)'
         );
         if (
             $sessionIdStatement !== false

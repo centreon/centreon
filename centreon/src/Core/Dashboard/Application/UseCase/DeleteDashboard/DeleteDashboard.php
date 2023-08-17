@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\DeleteDashboard;
 
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -33,8 +32,9 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\WriteDashboardRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Dashboard\Domain\Model\DashboardRights;
 use Throwable;
 
 final class DeleteDashboard
@@ -44,7 +44,8 @@ final class DeleteDashboard
     public function __construct(
         private readonly ReadDashboardRepositoryInterface $readDashboardRepository,
         private readonly WriteDashboardRepositoryInterface $writeDashboardRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly ReadDashboardShareRepositoryInterface $readDashboardShareRepository,
+        private readonly DashboardRights $rights,
         private readonly ContactInterface $contact
     ) {
     }
@@ -52,9 +53,9 @@ final class DeleteDashboard
     public function __invoke(int $dashboardId, DeleteDashboardPresenterInterface $presenter): void
     {
         try {
-            if ($this->contact->isAdmin()) {
+            if ($this->rights->hasAdminRole()) {
                 $presenter->presentResponse($this->deleteDashboardAsAdmin($dashboardId));
-            } elseif ($this->contactCanExecuteThisUseCase()) {
+            } elseif ($this->rights->canAccess()) {
                 $presenter->presentResponse($this->deleteDashboardAsContact($dashboardId));
             } else {
                 $this->error(
@@ -100,21 +101,20 @@ final class DeleteDashboard
      */
     private function deleteDashboardAsContact(int $dashboardId): ResponseStatusInterface
     {
-        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
+        $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
+        if (null === $dashboard) {
+            $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
 
-        if ($this->readDashboardRepository->existsOneByAccessGroups($dashboardId, $accessGroups)) {
-            $this->writeDashboardRepository->delete($dashboardId);
-
-            return new NoContentResponse();
+            return new NotFoundResponse('Dashboard');
         }
 
-        $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
+        $sharingRoles = $this->readDashboardShareRepository->getOneSharingRoles($this->contact, $dashboard);
+        if (! $this->rights->canDelete($sharingRoles)) {
+            return new ForbiddenResponse(DashboardException::dashboardAccessRightsNotAllowedForWriting($dashboardId));
+        }
 
-        return new NotFoundResponse('Dashboard');
-    }
+        $this->writeDashboardRepository->delete($dashboardId);
 
-    private function contactCanExecuteThisUseCase(): bool
-    {
-        return $this->contact->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_WRITE);
+        return new NoContentResponse();
     }
 }

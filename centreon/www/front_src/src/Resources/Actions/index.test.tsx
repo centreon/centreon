@@ -58,6 +58,7 @@ import {
   labelRefresh,
   labelSetDowntime,
   labelSetDowntimeOnServices,
+  labelStartTime,
   labelSubmit,
   labelSubmitStatus,
   labelUnknown,
@@ -488,7 +489,7 @@ describe(Actions, () => {
   });
 
   it('cannot send a downtime request when Downtime action is clicked and start date is greater than end date', async () => {
-    const { getByLabelText, getAllByText, findByText } = renderActions();
+    const { getAllByText, findByText, getByLabelText } = renderActions();
 
     const selectedResources = [host];
 
@@ -506,10 +507,21 @@ describe(Actions, () => {
 
     await findByText(labelDowntimeByAdmin);
 
-    userEvent.type(
-      getByLabelText(labelEndTime).querySelector('input') as HTMLElement,
-      '01/01/2019 12:34 AM'
-    );
+    const inputFieldStartTime = getByLabelText(labelStartTime).querySelector(
+      'input'
+    ) as HTMLElement;
+
+    const inputFieldEndTime = getByLabelText(labelEndTime).querySelector(
+      'input'
+    ) as HTMLElement;
+
+    fireEvent.change(inputFieldStartTime, {
+      target: { value: '05/03/2019 12:34 AM' }
+    });
+
+    fireEvent.change(inputFieldEndTime, {
+      target: { value: '05/02/2019 12:34 AM' }
+    });
 
     await waitFor(() =>
       expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeDisabled()

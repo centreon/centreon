@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\Configuration\MetaService\Repository;
@@ -68,11 +69,12 @@ class DbReadMetaServiceRepository extends AbstractRepositoryDRB implements ReadM
     /**
      * @param int $metaId
      * @param string|null $accessGroupRequest
+     *
      * @return MetaService|null
      */
     private function findMetaService(int $metaId, ?string $accessGroupRequest = null): ?MetaService
     {
-        $request = "SELECT ms.meta_id AS `id`,
+        $request = 'SELECT ms.meta_id AS `id`,
             ms.meta_name AS `name`,
             ms.meta_display AS `output`,
             ms.data_source_type AS `data_source_type`,
@@ -83,7 +85,7 @@ class DbReadMetaServiceRepository extends AbstractRepositoryDRB implements ReadM
             ms.critical,
             ms.meta_activate AS `is_activated`,
             ms.calcul_type AS `calculation_type`
-        FROM `:db`.meta_service ms";
+        FROM `:db`.meta_service ms';
 
         $request .= ' WHERE ms.meta_id = :meta_id';
 

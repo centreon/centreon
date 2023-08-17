@@ -1,0 +1,94 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Partial update of a service template on a 'Saas' platform",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "alias": {
+            "type": "string"
+        },
+        "service_template_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "check_timeperiod_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "note": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "note_url": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "action_url": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "severity_id": {
+             "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "host_templates": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        },
+        "service_categories": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        },
+        "macros": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "value",
+                    "is_password",
+                    "description"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "is_password": {
+                        "type": "boolean"
+                    },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

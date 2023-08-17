@@ -38,6 +38,7 @@ class AddHostGroupPresenterSaas extends DefaultPresenter implements AddHostGroup
     use PresenterTrait;
     use LoggerTrait;
     private const ROUTE_NAME = 'FindHostGroup';
+    private const ROUTE_HOST_GROUP_ID = 'hostGroupId';
 
     /**
      * @param PresenterFormatterInterface $presenterFormatter
@@ -72,7 +73,7 @@ class AddHostGroupPresenterSaas extends DefaultPresenter implements AddHostGroup
 
             try {
                 $this->setResponseHeaders([
-                    'Location' => $this->router->generate(self::ROUTE_NAME, ['id' => $data->id]),
+                    'Location' => $this->router->generate(self::ROUTE_NAME, [self::ROUTE_HOST_GROUP_ID => $data->id]),
                 ]);
             } catch (\Throwable $ex) {
                 $this->error('Impossible to generate the location header', [

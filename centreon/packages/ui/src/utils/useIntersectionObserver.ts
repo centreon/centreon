@@ -2,6 +2,7 @@ import { useRef, useCallback } from 'react';
 
 interface HookParam {
   action: () => void;
+  intersectionObserverOptions?: IntersectionObserverInit;
   loading: boolean;
   maxPage: number;
   page: number;
@@ -11,7 +12,8 @@ export const useIntersectionObserver = ({
   maxPage,
   page,
   loading,
-  action
+  action,
+  intersectionObserverOptions
 }: HookParam): ((node) => void) => {
   const observer = useRef<IntersectionObserver | null>(null);
   const lastElementRef = useCallback(
@@ -30,7 +32,7 @@ export const useIntersectionObserver = ({
         if (entry.isIntersecting && page < maxPage) {
           action();
         }
-      });
+      }, intersectionObserverOptions);
 
       if (node && observer.current) {
         observer.current.observe(node);

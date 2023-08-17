@@ -42,9 +42,7 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
     }
 
     /**
-     * @param int $dashboardId
-     *
-     * @throws \PDOException
+     * {@inheritDoc}
      */
     public function delete(int $dashboardId): void
     {
@@ -60,6 +58,9 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
         $statement->execute();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function add(NewDashboard $newDashboard): int
     {
         $insert = <<<'SQL'
@@ -90,6 +91,9 @@ class DbWriteDashboardRepository extends AbstractRepositoryRDB implements WriteD
         return (int) $this->db->lastInsertId();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function update(Dashboard $dashboard): void
     {
         $update = <<<'SQL'

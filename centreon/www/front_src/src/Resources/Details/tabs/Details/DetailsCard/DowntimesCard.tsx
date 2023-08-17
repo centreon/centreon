@@ -36,9 +36,14 @@ const DowntimesCard = ({ details }: Props): JSX.Element => {
           commentLine={comment}
           contentLines={[
             ...[
-              { prefix: t(labelFrom), time: start_time },
-              { prefix: t(labelTo), time: end_time }
-            ].map(({ prefix, time }) => `${prefix} ${toDateTime(time)}`)
+              { prefix: t(labelFrom), testId: 'From_date', time: start_time },
+              { prefix: t(labelTo), testId: 'To_date', time: end_time }
+            ].map(({ prefix, testId, time }) => {
+              return {
+                line: `${prefix} ${toDateTime(time)}`,
+                testId
+              };
+            })
           ]}
           key={`downtime-${start_time}-${end_time}`}
           title={t(labelDowntimeDuration)}

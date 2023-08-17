@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,6 @@ namespace Core\Infrastructure\RealTime\Hypermedia;
 
 use Centreon\Domain\Contact\Contact;
 use Core\Domain\RealTime\Model\ResourceTypes\ServiceResourceType;
-use Core\Infrastructure\Common\Api\HttpUrlTrait;
 
 class ServiceHypermediaProvider extends AbstractHypermediaProvider implements HypermediaProviderInterface
 {
@@ -59,7 +58,7 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
     {
         $roles = [
             Contact::ROLE_CONFIGURATION_SERVICES_WRITE,
-            Contact::ROLE_CONFIGURATION_SERVICES_READ
+            Contact::ROLE_CONFIGURATION_SERVICES_READ,
         ];
 
         if (! $this->canContactAccessPages($this->contact, $roles)) {
@@ -82,7 +81,7 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
             self::URI_REPORTING,
             [
                 '{serviceId}' => $parameters['serviceId'],
-                '{hostId}' => $parameters['hostId']
+                '{hostId}' => $parameters['hostId'],
             ]
         );
     }
@@ -98,25 +97,11 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
     }
 
     /**
-     * @param array<string, integer> $parameters
-     * @return string
-     */
-    private function generateAcknowledgementEndpoint(array $parameters): string
-    {
-        $acknowledgementFilter = ['limit' => 1];
-
-        return $this->generateEndpoint(
-            self::ENDPOINT_SERVICE_ACKNOWLEDGEMENT,
-            array_merge($parameters, $acknowledgementFilter)
-        );
-    }
-
-    /**
      * @inheritDoc
      */
     public function createEndpoints(array $parameters): array
     {
-        $urlParams = ['serviceId' => $parameters['serviceId'], 'hostId' => $parameters['hostId'],];
+        $urlParams = ['serviceId' => $parameters['serviceId'], 'hostId' => $parameters['hostId']];
 
         return [
             'details' => $this->generateEndpoint(self::ENDPOINT_DETAILS, $urlParams),
@@ -133,43 +118,22 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
             'downtime' => $this->generateDowntimeEndpoint($urlParams),
             'acknowledgement' => $this->generateAcknowledgementEndpoint($urlParams),
             'check' => $this->generateCheckEndpoint($urlParams),
-            'forced_check' => $this->generateForcedCheckEndpoint($urlParams)
+            'forced_check' => $this->generateForcedCheckEndpoint($urlParams),
         ];
     }
 
     /**
-     * @param array $parameters
-     * @return string|null
-     */
-    private function generateCheckEndpoint(array $parameters): ?string
-    {
-        return ($this->contact->hasRole(Contact::ROLE_SERVICE_CHECK) || $this->contact->isAdmin())
-            ? $this->generateEndpoint(self::ENDPOINT_SERVICE_CHECK, $parameters)
-            : null;
-    }
-
-    /**
-     * @param array $parameters
-     * @return string|null
-     */
-    private function generateForcedCheckEndpoint(array $parameters): ?string
-    {
-        return ($this->contact->hasRole(Contact::ROLE_SERVICE_FORCED_CHECK) || $this->contact->isAdmin())
-            ? $this->generateEndpoint(self::ENDPOINT_SERVICE_CHECK, $parameters)
-            : null;
-    }
-
-    /**
-     * Create servicegroup configuration redirection uri
+     * Create servicegroup configuration redirection uri.
      *
      * @param array<string, mixed> $parameters
+     *
      * @return string|null
      */
     public function createForGroup(array $parameters): ?string
     {
         $roles = [
             Contact::ROLE_CONFIGURATION_SERVICES_SERVICE_GROUPS_READ_WRITE,
-            Contact::ROLE_CONFIGURATION_SERVICES_SERVICE_GROUPS_READ
+            Contact::ROLE_CONFIGURATION_SERVICES_SERVICE_GROUPS_READ,
         ];
 
         if (! $this->canContactAccessPages($this->contact, $roles)) {
@@ -191,23 +155,24 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
             fn (array $group) => [
                 'id' => $group['id'],
                 'name' => $group['name'],
-                'configuration_uri' => $this->createForGroup(['servicegroupId' => $group['id']])
+                'configuration_uri' => $this->createForGroup(['servicegroupId' => $group['id']]),
             ],
             $groups
         );
     }
 
     /**
-     * Create service category configuration redirection uri
+     * Create service category configuration redirection uri.
      *
      * @param array<string, mixed> $parameters
+     *
      * @return string|null
      */
     public function createForCategory(array $parameters): ?string
     {
         $roles = [
             Contact::ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ_WRITE,
-            Contact::ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ
+            Contact::ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ,
         ];
 
         if (! $this->canContactAccessPages($this->contact, $roles)) {
@@ -229,9 +194,48 @@ class ServiceHypermediaProvider extends AbstractHypermediaProvider implements Hy
             fn (array $category) => [
                 'id' => $category['id'],
                 'name' => $category['name'],
-                'configuration_uri' => $this->createForCategory(['categoryId' => $category['id']])
+                'configuration_uri' => $this->createForCategory(['categoryId' => $category['id']]),
             ],
             $categories
         );
+    }
+
+    /**
+     * @param array<string, integer> $parameters
+     *
+     * @return string
+     */
+    private function generateAcknowledgementEndpoint(array $parameters): string
+    {
+        $acknowledgementFilter = ['limit' => 1];
+
+        return $this->generateEndpoint(
+            self::ENDPOINT_SERVICE_ACKNOWLEDGEMENT,
+            array_merge($parameters, $acknowledgementFilter)
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return string|null
+     */
+    private function generateCheckEndpoint(array $parameters): ?string
+    {
+        return ($this->contact->hasRole(Contact::ROLE_SERVICE_CHECK) || $this->contact->isAdmin())
+            ? $this->generateEndpoint(self::ENDPOINT_SERVICE_CHECK, $parameters)
+            : null;
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return string|null
+     */
+    private function generateForcedCheckEndpoint(array $parameters): ?string
+    {
+        return ($this->contact->hasRole(Contact::ROLE_SERVICE_FORCED_CHECK) || $this->contact->isAdmin())
+            ? $this->generateEndpoint(self::ENDPOINT_SERVICE_CHECK, $parameters)
+            : null;
     }
 }

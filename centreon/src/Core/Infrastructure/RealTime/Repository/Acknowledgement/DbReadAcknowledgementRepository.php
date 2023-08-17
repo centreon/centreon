@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,15 +18,15 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Infrastructure\RealTime\Repository\Acknowledgement;
 
 use Centreon\Infrastructure\DatabaseConnection;
-use Core\Domain\RealTime\Model\Acknowledgement;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Application\RealTime\Repository\ReadAcknowledgementRepositoryInterface;
-use Core\Infrastructure\RealTime\Repository\Acknowledgement\DbAcknowledgementFactory;
+use Core\Domain\RealTime\Model\Acknowledgement;
 
 class DbReadAcknowledgementRepository extends AbstractRepositoryDRB implements ReadAcknowledgementRepositoryInterface
 {
@@ -57,12 +57,13 @@ class DbReadAcknowledgementRepository extends AbstractRepositoryDRB implements R
     /**
      * @param int $hostId
      * @param int $serviceId
+     *
      * @return Acknowledgement|null
      */
     private function findOnGoingAcknowledegement(int $hostId, int $serviceId): ?Acknowledgement
     {
         $acknowledgement = null;
-        $sql = "SELECT ack.*, contact.contact_id AS author_id
+        $sql = 'SELECT ack.*, contact.contact_id AS author_id
                     FROM `:dbstg`.acknowledgements ack
                 LEFT JOIN `:db`.contact ON contact.contact_alias = ack.author
                 INNER JOIN (
@@ -71,7 +72,7 @@ class DbReadAcknowledgementRepository extends AbstractRepositoryDRB implements R
                     WHERE ack.host_id = :hostId
                     AND ack.service_id = :serviceId
                     AND ack.deletion_time IS NULL
-                ) ack_max ON ack_max.acknowledgement_id = ack.acknowledgement_id";
+                ) ack_max ON ack_max.acknowledgement_id = ack.acknowledgement_id';
 
         $statement = $this->db->prepare($this->translateDbName($sql));
         $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);

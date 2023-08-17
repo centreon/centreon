@@ -564,6 +564,8 @@ sub send_internal_response {
             $self->{logger}->writeLogError("[core] encrypt issue: $_");
             return undef;
         };
+
+        $message = MIME::Base64::encode_base64($message, '');
     }
 
     $self->{internal_socket}->send(pack('H*', $options{identity}), ZMQ_DONTWAIT | ZMQ_SNDMORE);
@@ -590,6 +592,8 @@ sub send_internal_message {
             $self->{logger}->writeLogError("[core] encrypt issue: $_");
             return undef;
         };
+
+        $message = MIME::Base64::encode_base64($message, '');
     }
 
     $self->{internal_socket}->send($options{identity}, ZMQ_DONTWAIT | ZMQ_SNDMORE);
@@ -962,6 +966,7 @@ sub handshake {
 
         my $message = $options{frame}->getFrame();
         if ($rv == 0 && $$message =~ /^(?:[\[a-zA-Z-_]+?\]\s+\[.*?\]|[\[a-zA-Z-_]+?\]\s*$)/) {
+            $self->{identity_infos}->{ $options{identity} }->{mtime} = time();
             gorgone::standard::library::update_identity_mtime(dbh => $self->{db_gorgone}, identity => $options{identity});
             return (0, $cipher_infos);
         }
@@ -1217,6 +1222,10 @@ sub check_exit_modules {
 sub periodic_exec {
     $gorgone->check_exit_modules();
     $gorgone->{listener}->check();
+    $gorgone->router_internal_event();
+    if (defined($gorgone->{external_socket})) {
+        $gorgone->router_external_event();
+    }
 }
 
 sub run {

@@ -1,6 +1,11 @@
+// TODO merge models on api level
+
 import ReactGridLayout from 'react-grid-layout';
 
+import { NamedEntity } from '../api/models';
+
 export interface PanelConfiguration {
+  isAddWidgetPanel?: boolean;
   panelMinHeight?: number;
   panelMinWidth?: number;
   path: string;
@@ -9,6 +14,7 @@ export interface PanelConfiguration {
 export type Layout = Array<ReactGridLayout.Layout>;
 
 export interface Panel extends ReactGridLayout.Layout {
+  name: string;
   options?: object;
   panelConfiguration: PanelConfiguration;
 }
@@ -17,33 +23,19 @@ export interface Dashboard {
   layout: Array<Panel>;
 }
 
-export interface NamedEntity {
-  id: number;
-  name: string;
-}
-
-export interface PanelDetails extends NamedEntity {
+export interface PanelDetailsToAPI extends NamedEntity {
   layout: {
     height: number;
-    minHeight: number;
-    minWidth: number;
+    min_height: number;
+    min_width: number;
     width: number;
     x: number;
     y: number;
   };
-  widgetSettings: {
+  widget_settings: {
     [key: string]: unknown;
   };
-  widgetType: string;
-}
-
-export interface DashboardDetails extends NamedEntity {
-  createdAt: string;
-  createdBy: NamedEntity;
-  description: string | null;
-  panels: Array<PanelDetails>;
-  updatedAt: string;
-  updatedBy: NamedEntity;
+  widget_type: string;
 }
 
 export interface QuitWithoutSavedDashboard extends Dashboard {

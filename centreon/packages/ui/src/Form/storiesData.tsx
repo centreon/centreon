@@ -179,6 +179,10 @@ export const basicFormInputs: Array<InputProps> = [
     fieldName: 'email',
     group: 'First group',
     label: 'Email',
+    text: {
+      endAdornment: <MailIcon />,
+      placeholder: 'Your email here'
+    },
     type: InputType.Text
   },
   {

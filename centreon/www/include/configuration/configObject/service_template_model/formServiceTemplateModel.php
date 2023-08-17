@@ -696,12 +696,6 @@ $form->addGroup($serviceStalOpt, 'service_stalOpts', _("Stalking Options"), '&nb
 ## Further informations
 #
 $form->addElement('header', 'furtherInfos', _("Additional Information"));
-$serviceActivation[] = $form->createElement('radio', 'service_activate', null, _("Enabled"), '1');
-$serviceActivation[] = $form->createElement('radio', 'service_activate', null, _("Disabled"), '0');
-$form->addGroup($serviceActivation, 'service_activate', _("Enable/disable resource"), '&nbsp;');
-if ($o != SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-    $form->setDefaults(array('service_activate' => '1'));
-}
 $form->addElement('textarea', 'service_comment', _("Comments"), $attrsTextarea);
 
 #

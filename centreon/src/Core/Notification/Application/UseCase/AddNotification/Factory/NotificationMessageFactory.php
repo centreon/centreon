@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : user@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -30,7 +30,7 @@ use Core\Notification\Domain\Model\NotificationMessage;
 class NotificationMessageFactory
 {
     /**
-     * Create a NotificationMessage
+     * Create a NotificationMessage.
      *
      * @param NotificationChannel $messageType
      * @param array{
@@ -38,8 +38,10 @@ class NotificationMessageFactory
      *  subject:string,
      *  message:string
      * } $message
-     * @return NotificationMessage
+     *
      * @throws \Assert\AssertionFailedException
+     *
+     * @return NotificationMessage
      */
     public static function create(NotificationChannel $messageType, array $message): NotificationMessage
     {
@@ -51,7 +53,7 @@ class NotificationMessageFactory
     }
 
     /**
-     * Create multiple NotificationMessage
+     * Create multiple NotificationMessage.
      *
      * @param array<array{
      *  channel:string,
@@ -59,8 +61,9 @@ class NotificationMessageFactory
      *  message:string
      * }> $messages
      *
-     * @return NotificationMessage[]
      * @throws \Assert\AssertionFailedException
+     *
+     * @return NotificationMessage[]
      */
     public static function createMultipleMessage(array $messages): array
     {

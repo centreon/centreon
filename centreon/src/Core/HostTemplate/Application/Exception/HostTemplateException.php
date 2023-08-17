@@ -52,6 +52,24 @@ class HostTemplateException extends \Exception
     }
 
     /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function linkHostCategories(\Throwable $ex): self
+    {
+        return new self(_('Error while linking host categories to a host template'), 0, $ex);
+    }
+
+    /**
+     * @return self
+     */
+    public static function partialUpdateHostTemplate(): self
+    {
+        return new self(_('Error while partially updating a host template'));
+    }
+
+    /**
      * @return self
      */
     public static function accessNotAllowed(): self
@@ -76,6 +94,24 @@ class HostTemplateException extends \Exception
     }
 
     /**
+     * @return self
+     */
+    public static function writeActionsNotAllowed(): self
+    {
+        return new self(_('You are not allowed to perform write actions on host templates'));
+    }
+
+    /**
+     * @param int $hostTemplateId
+     *
+     * @return self
+     */
+    public static function notFound(int $hostTemplateId): self
+    {
+        return new self(sprintf(_('Host template #%d not found'), $hostTemplateId));
+    }
+
+    /**
      * @param string $propertieName
      * @param int $propertieValue
      *
@@ -87,6 +123,24 @@ class HostTemplateException extends \Exception
     }
 
     /**
+     * @param string $propertieName
+     * @param int[] $propertieValues
+     *
+     * @return self
+     */
+    public static function idsDoNotExist(string $propertieName, array $propertieValues): self
+    {
+        return new self(
+            sprintf(
+                _("The %s does not exist with ID(s) '%s'"),
+                $propertieName,
+                implode(',', $propertieValues)
+            ),
+            self::CODE_CONFLICT
+        );
+    }
+
+    /**
      * @param string $formatedName
      * @param string $originalName
      *
@@ -94,7 +148,10 @@ class HostTemplateException extends \Exception
      */
     public static function nameAlreadyExists(string $formatedName, string $originalName = 'undefined'): self
     {
-        return new self(sprintf(_('The name %s (original name: %s) already exists'), $formatedName, $originalName), self::CODE_CONFLICT);
+        return new self(
+            sprintf(_('The name %s (original name: %s) already exists'), $formatedName, $originalName),
+            self::CODE_CONFLICT
+        );
     }
 
     /**
@@ -105,9 +162,22 @@ class HostTemplateException extends \Exception
         return new self(_('Error while retrieving a host template'));
     }
 
+    /**
+     * @param int $hostTemplateId
+     *
+     * @return self
+     */
     public static function hostIsLocked(int $hostTemplateId): self
     {
         return new self(sprintf(_('Host template #%d is locked (edition and deletion not allowed)'), $hostTemplateId));
+    }
+
+    /**
+     * @return self
+     */
+    public static function circularTemplateInheritance(): self
+    {
+        return new self(_('Circular inheritance not allowed'), self::CODE_CONFLICT);
     }
 }
 

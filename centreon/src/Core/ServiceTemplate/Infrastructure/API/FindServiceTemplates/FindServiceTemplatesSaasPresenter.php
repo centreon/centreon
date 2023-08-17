@@ -59,6 +59,7 @@ class FindServiceTemplatesSaasPresenter extends AbstractPresenter implements Fin
                     'note_url' => $dto->noteUrl,
                     'action_url' => $dto->actionUrl,
                     'severity_id' => $dto->severityId,
+                    'host_templates' => $dto->hostTemplateIds,
                     'is_locked' => $dto->isLocked,
                 ];
             }

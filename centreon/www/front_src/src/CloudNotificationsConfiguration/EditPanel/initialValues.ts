@@ -1,22 +1,25 @@
+import { TFunction } from 'i18next';
+
 import { ChannelsEnum, ResourcesTypeEnum } from '../models';
+import {
+  labelIncludeServicesForTheseHosts,
+  labelTimePeriod24h7days
+} from '../translatedLabels';
 
 import { SlackIcon, EmailIcon, SmsIcon } from './Channel/Icons';
 import { NotificationType } from './models';
-import {
-  emptyEmail,
-  formatEntityNamed,
-  formatMessages,
-  formatResource
-} from './utils';
+import { emptyEmail, formatMessages, formatResource } from './utils';
 
 export const getInitialValues = ({
   name,
   isActivated,
   users,
-  timeperiod,
   messages,
-  resources
-}: NotificationType): object => ({
+  resources,
+  contactgroups,
+  t
+}: NotificationType & { t: TFunction }): object => ({
+  contactgroups,
   hostGroups: formatResource({ resourceType: ResourcesTypeEnum.HG, resources }),
   isActivated,
   messages: formatMessages({ messageType: ChannelsEnum.Email, messages }),
@@ -43,22 +46,26 @@ export const getInitialValues = ({
     message: emptyEmail,
     subject: ''
   },
-  timeperiod: formatEntityNamed(timeperiod),
+  timeperiod: {
+    checked: true,
+    label: t(labelTimePeriod24h7days)
+  },
   users
 });
 
-export const emptyInitialValues = {
+export const getEmptyInitialValues = (t: TFunction): object => ({
+  contactgroups: [],
   hostGroups: {
     events: [],
     extra: {
       eventsServices: [],
       includeServices: {
         checked: false,
-        label: 'Include services for these hosts'
+        label: t(labelIncludeServicesForTheseHosts)
       }
     },
     ids: [],
-    type: 'Host groups'
+    type: ResourcesTypeEnum.HG
   },
   isActivated: true,
   messages: {
@@ -66,11 +73,11 @@ export const emptyInitialValues = {
     message: emptyEmail,
     subject: ''
   },
-  name: 'Notification #1',
+  name: '',
   serviceGroups: {
     events: [],
     ids: [],
-    type: 'Service groups'
+    type: ResourcesTypeEnum.SG
   },
   slack: {
     channel: {
@@ -90,6 +97,6 @@ export const emptyInitialValues = {
     message: emptyEmail,
     subject: ''
   },
-  timeperiod: { checked: true, label: '24h/24 - 7/7 days' },
+  timeperiod: { checked: true, label: t(labelTimePeriod24h7days) },
   users: []
-};
+});

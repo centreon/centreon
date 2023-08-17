@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ namespace Core\Security\Vault\Application\UseCase\CreateVaultConfiguration;
 
 use Assert\AssertionFailedException;
 use Assert\InvalidArgumentException;
-use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\Vault\Application\Exceptions\VaultException;
+use Core\Security\Vault\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Security\Vault\Domain\Model\NewVaultConfiguration;
 use Security\Interfaces\EncryptionInterface;
 
@@ -46,12 +46,14 @@ class NewVaultConfigurationFactory
      * This method will crypt $roleId and $secretId before instanciating NewVaultConfiguraiton.
      *
      * @param CreateVaultConfigurationRequest $request
-     * @return NewVaultConfiguration
+     *
      * @throws InvalidArgumentException
      * @throws AssertionFailedException
      * @throws VaultException
      * @throws \Exception
      * @throws \Throwable
+     *
+     * @return NewVaultConfiguration
      */
     public function create(CreateVaultConfigurationRequest $request): NewVaultConfiguration
     {

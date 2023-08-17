@@ -41,7 +41,7 @@ class PlatformUpdateContext extends ApiContext
             'web'
         );
         $this->getContainer()->execute(
-            'chown -R apache. /usr/share/centreon/www/install',
+            'chmod -R 777 /usr/share/centreon/www/install',
             'web'
         );
     }

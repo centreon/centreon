@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,7 +39,6 @@ use Throwable;
 class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implements ReadRepositoryInterface
 {
     /**
-
      * @param DatabaseConnection $db
      */
     public function __construct(DatabaseConnection $db)
@@ -48,22 +47,24 @@ class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implemen
     }
 
     /**
-     * Get Contact Template
+     * Get Contact Template.
      *
      * @param int $contactTemplateId
-     * @return ContactTemplate|null
+     *
      * @throws Throwable
+     *
+     * @return ContactTemplate|null
      */
     public function getContactTemplate(int $contactTemplateId): ?ContactTemplate
     {
         $statement = $this->db->prepare(
-            "SELECT
+            'SELECT
                 contact_id,
                 contact_name
             FROM contact
             WHERE
                 contact_id = :contactTemplateId
-                AND contact_register = 0"
+                AND contact_register = 0'
         );
         $statement->bindValue(':contactTemplateId', $contactTemplateId, \PDO::PARAM_INT);
         $statement->execute();
@@ -77,21 +78,23 @@ class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implemen
     }
 
     /**
-     * Get Contact Group
+     * Get Contact Group.
      *
      * @param int $contactGroupId
-     * @return ContactGroup|null
+     *
      * @throws Throwable
+     *
+     * @return ContactGroup|null
      */
     public function getContactGroup(int $contactGroupId): ?ContactGroup
     {
         $statement = $this->db->prepare(
-            "SELECT
+            'SELECT
                 cg_id,
                 cg_name
             FROM contactgroup
             WHERE
-                cg_id = :contactGroupId"
+                cg_id = :contactGroupId'
         );
         $statement->bindValue(':contactGroupId', $contactGroupId, \PDO::PARAM_INT);
         $statement->execute();
@@ -105,19 +108,21 @@ class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implemen
     }
 
     /**
-     * Get Authorization Rules
+     * Get Authorization Rules.
+     *
+     * @param int $providerConfigurationId
      *
      * @throws Throwable
-     * @param int $providerConfigurationId
+     *
      * @return array<AuthorizationRule>
      */
     public function getAuthorizationRulesByConfigurationId(int $providerConfigurationId): array
     {
         $statement = $this->db->prepare(
-            "SELECT * from security_provider_access_group_relation spagn
+            'SELECT * from security_provider_access_group_relation spagn
                 INNER JOIN acl_groups ON acl_group_id = spagn.access_group_id
                 WHERE spagn.provider_configuration_id = :providerConfigurationId
-                ORDER BY spagn.priority asc"
+                ORDER BY spagn.priority asc'
         );
         $statement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);
         $statement->execute();
@@ -127,22 +132,25 @@ class DbReadOpenIdConfigurationRepository extends AbstractRepositoryDRB implemen
             $accessGroup = DbAccessGroupFactory::createFromRecord($result);
             $authorizationRules[] = new AuthorizationRule($result['claim_value'], $accessGroup, $result['priority']);
         }
+
         return $authorizationRules;
     }
 
     /**
-     * Get Contact Group relations
+     * Get Contact Group relations.
      *
      * @param int $providerConfigurationId
-     * @return ContactGroupRelation[]
+     *
      * @throws \Throwable
+     *
+     * @return ContactGroupRelation[]
      */
     public function getContactGroupRelationsByConfigurationId(int $providerConfigurationId): array
     {
         $statement = $this->db->prepare(
-            "SELECT * FROM security_provider_contact_group_relation spcgn
+            'SELECT * FROM security_provider_contact_group_relation spcgn
                 INNER JOIN contactgroup ON cg_id = spcgn.contact_group_id
-                WHERE spcgn.provider_configuration_id = :providerConfigurationId"
+                WHERE spcgn.provider_configuration_id = :providerConfigurationId'
         );
         $statement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);
         $statement->execute();

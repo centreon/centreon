@@ -119,7 +119,6 @@ class MassiveChangeHostsContext extends CentreonContext
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
-        'enabled' => 0,
         'comments' => 'hostMassiveChangeComments'
     );
 
@@ -188,7 +187,6 @@ class MassiveChangeHostsContext extends CentreonContext
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
-        'enabled' => 0,
         'comments' => 'hostMassiveChangeComments'
     );
 
@@ -257,7 +255,6 @@ class MassiveChangeHostsContext extends CentreonContext
         '2d_coords' => '15,84',
         '3d_coords' => '15,84,76',
         'severity_level' => 'hostCategoryName1 (2)',
-        'enabled' => 0,
         'comments' => 'hostMassiveChangeComments'
     );
 

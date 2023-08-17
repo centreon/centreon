@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,138 +18,91 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Application\RealTime\UseCase\FindMetaService;
 
-use Core\Domain\RealTime\Model\Downtime;
-use Core\Domain\RealTime\Model\ServiceStatus;
-use Core\Domain\RealTime\Model\Acknowledgement;
 use Core\Application\RealTime\Common\RealTimeResponseTrait;
+use Core\Domain\RealTime\Model\Acknowledgement;
+use Core\Domain\RealTime\Model\Downtime;
 use Core\Domain\RealTime\Model\ResourceTypes\MetaServiceResourceType;
+use Core\Domain\RealTime\Model\ServiceStatus;
 
 class FindMetaServiceResponse
 {
     use RealTimeResponseTrait;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $isFlapping;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $isAcknowledged;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $isInDowntime;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $output;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $performanceData;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $commandLine;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $notificationNumber;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $lastStatusChange;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $lastNotification;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     public $latency;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     public $executionTime;
 
-    /**
-     * @var float|null
-     */
+    /** @var float|null */
     public $statusChangePercentage;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $nextCheck;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $lastCheck;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $hasActiveChecks;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $hasPassiveChecks;
 
-    /**
-     * @var \DateTime|null
-     */
+    /** @var \DateTime|null */
     public $lastTimeOk;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $checkAttempts;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $maxCheckAttempts;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     public $status;
 
-    /**
-     * @var array<array<string, mixed>>
-     */
+    /** @var array<array<string, mixed>> */
     public $downtimes;
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     public $acknowledgement;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     public $hasGraphData;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public string $type = MetaServiceResourceType::TYPE_NAME;
 
     /**
@@ -161,6 +114,7 @@ class FindMetaServiceResponse
      * @param ServiceStatus $status
      * @param Downtime[] $downtimes
      * @param Acknowledgement|null $acknowledgement
+     * @param string $calculationType
      */
     public function __construct(
         public int $metaId,

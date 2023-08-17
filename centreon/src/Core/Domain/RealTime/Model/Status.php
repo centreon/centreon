@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Domain\RealTime\Model;
@@ -29,13 +30,10 @@ abstract class Status
                  STATUS_ORDER_LOW = 3,
                  STATUS_ORDER_PENDING = 4,
                  STATUS_ORDER_OK = 5;
-
     public const STATUS_NAME_PENDING = 'PENDING',
                  STATUS_CODE_PENDING = 4;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     protected $order;
 
     /**
@@ -76,11 +74,13 @@ abstract class Status
 
     /**
      * @param int|null $order
+     *
      * @return static
      */
     public function setOrder(?int $order): static
     {
         $this->order = $order;
+
         return $this;
     }
 

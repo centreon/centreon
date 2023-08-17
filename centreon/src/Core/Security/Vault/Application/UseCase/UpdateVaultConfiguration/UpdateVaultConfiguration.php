@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ final class UpdateVaultConfiguration
 
             $this->writeVaultConfigurationRepository->update($vaultConfiguration);
             $presenter->setResponseStatus(new NoContentResponse());
-        } catch (InvalidArgumentException | AssertionException $ex) {
+        } catch (InvalidArgumentException|AssertionException $ex) {
             $this->error('Some parameters are not valid', ['trace' => $ex->getTraceAsString()]);
             $presenter->setResponseStatus(
                 new InvalidArgumentResponse($ex->getMessage())
@@ -146,9 +146,10 @@ final class UpdateVaultConfiguration
     /**
      * @param UpdateVaultConfigurationRequest $request
      * @param string $rootPath
+     *
      * @throws \Throwable
      *
-     * @return boolean
+     * @return bool
      */
     private function isVaultConfigurationAlreadyExists(UpdateVaultConfigurationRequest $request, string $rootPath): bool
     {
@@ -165,6 +166,7 @@ final class UpdateVaultConfiguration
     /**
      * @param UpdateVaultConfigurationRequest $request
      * @param VaultConfiguration $vaultConfiguration
+     *
      * @throws \Exception
      */
     private function updateVaultConfiguration(

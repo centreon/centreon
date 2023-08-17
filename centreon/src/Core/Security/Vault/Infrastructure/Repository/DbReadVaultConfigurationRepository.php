@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,12 +57,12 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<'SQL'
-                    SELECT conf.*, vault.name as vault_name
-                    FROM `:db`.`vault_configuration` conf
-                    INNER JOIN `:db`.`vault`
-                      ON vault.id = conf.vault_id
-                    WHERE `url`=:address AND `port`=:port AND `root_path`=:rootPath
-                SQL
+                        SELECT conf.*, vault.name as vault_name
+                        FROM `:db`.`vault_configuration` conf
+                        INNER JOIN `:db`.`vault`
+                          ON vault.id = conf.vault_id
+                        WHERE `url`=:address AND `port`=:port AND `root_path`=:rootPath
+                    SQL
             )
         );
         $statement->bindValue(':address', $address, \PDO::PARAM_STR);
@@ -115,19 +115,19 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
             [
                 'address' => $address,
                 'port' => $port,
-                'root_path' => $rootPath
+                'root_path' => $rootPath,
             ]
         );
 
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<'SQL'
-                    SELECT 1, vault.name as vault_name
-                    FROM `:db`.`vault_configuration` conf
-                    INNER JOIN `:db`.`vault`
-                      ON vault.id = conf.vault_id
-                    WHERE `url`=:address AND `port`=:port AND `root_path`=:rootPath
-                SQL
+                        SELECT 1, vault.name as vault_name
+                        FROM `:db`.`vault_configuration` conf
+                        INNER JOIN `:db`.`vault`
+                          ON vault.id = conf.vault_id
+                        WHERE `url`=:address AND `port`=:port AND `root_path`=:rootPath
+                    SQL
             )
         );
         $statement->bindValue(':address', $address, \PDO::PARAM_STR);
@@ -148,12 +148,12 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<'SQL'
-                    SELECT conf.*, vault.name as vault_name
-                    FROM `:db`.`vault_configuration` conf
-                    INNER JOIN `:db`.`vault`
-                      ON vault.id = conf.vault_id
-                    WHERE conf.`id`=:id
-                SQL
+                        SELECT conf.*, vault.name as vault_name
+                        FROM `:db`.`vault_configuration` conf
+                        INNER JOIN `:db`.`vault`
+                          ON vault.id = conf.vault_id
+                        WHERE conf.`id`=:id
+                    SQL
             )
         );
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
@@ -189,12 +189,12 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<'SQL'
-                    SELECT conf.*, vault.name as vault_name
-                    FROM `:db`.`vault_configuration` conf
-                    INNER JOIN `:db`.`vault`
-                      ON vault.id = conf.vault_id
-                    WHERE conf.`vault_id`=:vaultId
-                SQL
+                        SELECT conf.*, vault.name as vault_name
+                        FROM `:db`.`vault_configuration` conf
+                        INNER JOIN `:db`.`vault`
+                          ON vault.id = conf.vault_id
+                        WHERE conf.`vault_id`=:vaultId
+                    SQL
             )
         );
         $statement->bindValue(':vaultId', $vaultId, \PDO::PARAM_INT);
@@ -230,12 +230,12 @@ class DbReadVaultConfigurationRepository extends AbstractRepositoryDRB implement
         $statement = $this->db->query(
             $this->translateDbName(
                 <<<'SQL'
-                    SELECT conf.*, vault.name as vault_name
-                    FROM `:db`.`vault_configuration` conf
-                    INNER JOIN `:db`.`vault`
-                      ON vault.id = conf.vault_id
-                    LIMIT 1
-                SQL
+                        SELECT conf.*, vault.name as vault_name
+                        FROM `:db`.`vault_configuration` conf
+                        INNER JOIN `:db`.`vault`
+                          ON vault.id = conf.vault_id
+                        LIMIT 1
+                    SQL
             )
         );
 

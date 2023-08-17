@@ -20,10 +20,17 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
+
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+  }).as('getLastestUserFilters');
+
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/downtime'
   }).as('postSaveDowntime');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/userTimezone.php'
@@ -34,7 +41,7 @@ Given('the user have the necessary rights to page Resource Status', () => {
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: true
-  });
+  }).wait('@getLastestUserFilters');
 
   cy.get(searchInput).should('exist');
 });
@@ -215,7 +222,7 @@ Then('the user selects the checkbox and clicks on the "Cancel" action', () => {
 
   cy.getIframeBody().find('form input[name="submit2"]').as('cancelButton');
 
-  cy.get('@cancelButton').first().trigger('click');
+  cy.get('@cancelButton').first().click();
 });
 
 Then('the user confirms the cancellation of the downtime', () => {
@@ -227,11 +234,13 @@ Then('the user confirms the cancellation of the downtime', () => {
 Then('the line disappears from the listing', () => {
   cy.waitUntil(
     () => {
+      cy.reload().wait('@getTimeZone');
+
       return cy
-        .reload()
-        .then(() =>
-          cy.getIframeBody().find('.ListTable tr:not(.ListHeader)').first()
-        )
+        .get('iframe#main-content')
+        .its('0.contentDocument.body')
+        .find('.ListTable tr:not(.ListHeader)')
+        .first()
         .children()
         .then((val) => {
           return val.text().trim() === 'No downtime scheduled';
@@ -344,11 +353,13 @@ Then(
 Then('the lines disappears from the listing', () => {
   cy.waitUntil(
     () => {
+      cy.reload().wait('@getTimeZone');
+
       return cy
-        .reload()
-        .then(() =>
-          cy.getIframeBody().find('.ListTable tr:not(.ListHeader)').first()
-        )
+        .get('iframe#main-content')
+        .its('0.contentDocument.body')
+        .find('.ListTable tr:not(.ListHeader)')
+        .first()
         .children()
         .then((val) => {
           return val.text().trim() === 'No downtime scheduled';

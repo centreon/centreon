@@ -1,3 +1,5 @@
+import { Provider, createStore } from 'jotai';
+
 import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
 
 import {
@@ -6,7 +8,6 @@ import {
   labelDuplicate,
   labelActiveOrInactive,
   labelChangeName,
-  labelNotificationName,
   labelSearchHostGroups,
   labelSearchServiceGroups,
   labelDoYouWantToConfirmAction,
@@ -14,26 +15,41 @@ import {
   labelConfirmAddNotification,
   labelClosePanel,
   labelDoYouWantToQuitWithoutSaving,
-  labelYourFormHasUnsavedChanges
+  labelYourFormHasUnsavedChanges,
+  labelNotificationName,
+  labelSubject
 } from '../translatedLabels';
+import { panelWidthStorageAtom } from '../atom';
+import { contactGroupsEndpoint } from '../../Authentication/api/endpoints';
 
-import { notificationtEndpoint } from './api/endpoints';
+import {
+  hostsGroupsEndpoint,
+  notificationEndpoint,
+  serviceGroupsEndpoint,
+  usersEndpoint
+} from './api/endpoints';
 import {
   usersResponse,
   hostGroupsResponse,
-  serviceGroupsResponse
+  serviceGroupsResponse,
+  contactGroupsResponse
 } from './testUtils';
 
 import Form from '.';
 
+const store = createStore();
+store.set(panelWidthStorageAtom, 800);
+
 const PanelWithQueryProvider = (): JSX.Element => {
   return (
     <div style={{ height: '100vh' }}>
-      <TestQueryProvider>
-        <SnackbarProvider>
-          <Form />
-        </SnackbarProvider>
-      </TestQueryProvider>
+      <Provider store={store}>
+        <TestQueryProvider>
+          <SnackbarProvider>
+            <Form marginBottom={0} />
+          </SnackbarProvider>
+        </TestQueryProvider>
+      </Provider>
     </div>
   );
 };
@@ -42,76 +58,72 @@ const initialize = (): void => {
   cy.interceptAPIRequest({
     alias: 'addNotificationRequest',
     method: Method.POST,
-    path: notificationtEndpoint({}),
+    path: notificationEndpoint({}),
     response: { status: 'ok' }
   });
 
   cy.interceptAPIRequest({
     alias: 'getHostsGroupsEndpoint',
     method: Method.GET,
-    path: '**hosts/groups**',
+    path: `${hostsGroupsEndpoint}**`,
     response: hostGroupsResponse
   });
 
   cy.interceptAPIRequest({
     alias: 'getServiceGroupsEndpoint',
     method: Method.GET,
-    path: '**services/groups**',
+    path: `${serviceGroupsEndpoint}**`,
     response: serviceGroupsResponse
   });
 
   cy.interceptAPIRequest({
     alias: 'getUsersEndpoint',
     method: Method.GET,
-    path: '**users**',
+    path: `${usersEndpoint}**`,
     response: usersResponse
   });
+
+  cy.interceptAPIRequest({
+    alias: 'contactGroupsEndpoint',
+    method: Method.GET,
+    path: `${contactGroupsEndpoint}**`,
+    response: contactGroupsResponse
+  });
+
+  cy.viewport('macbook-13');
 
   cy.mount({
     Component: <PanelWithQueryProvider />
   });
-
-  cy.viewport(1200, 1000);
 };
 
-describe('Panel : Creation mode', () => {
+describe('Panel: Creation mode', () => {
   beforeEach(initialize);
 
-  it('Ensures that the header displays only the Save icon', () => {
+  it('displays the form', () => {
     cy.findByLabelText(labelSave).should('be.visible');
     cy.findByLabelText(labelDelete).should('not.exist');
     cy.findByLabelText(labelDuplicate).should('not.exist');
 
-    cy.matchImageSnapshot();
-  });
-
-  it('Confirms that the save button is correctly initialized in a disabled state', () => {
     cy.findByLabelText(labelSave).should('be.disabled');
 
-    cy.matchImageSnapshot();
-  });
-
-  it('Tests that the active/inactive checkbox is initially enabled.', () => {
     cy.findByLabelText(labelActiveOrInactive).should('be.visible');
     cy.findByLabelText(labelActiveOrInactive).should('not.be.disabled');
 
-    cy.matchImageSnapshot();
-  });
+    cy.findByTestId(labelChangeName).should('not.exist');
 
-  it('Confirms that the notification name is correctly initialized with the default value', () => {
-    cy.findByTestId(labelChangeName).click();
+    cy.findByLabelText(labelNotificationName).should('have.value', '');
+    cy.findByLabelText(labelNotificationName).should('have.attr', 'required');
 
-    cy.findByPlaceholderText(labelNotificationName).should(
-      'have.value',
-      'Notification #1'
-    );
+    cy.get('#panel-content').scrollTo('top');
 
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the Save button is correctly activated when all required fields are filled, and the form is error-free, allowing the user to save the form data', () => {
+  it('confirms that the Save button is correctly activated when all required fields are filled, and the form is error-free, allowing the user to save the form data', () => {
     cy.findByLabelText(labelSave).should('be.disabled');
 
+    cy.findByLabelText(labelNotificationName).type('notification#1');
     cy.findByLabelText(labelSearchHostGroups).click();
     cy.waitForRequest('@getHostsGroupsEndpoint');
     cy.findByText('Firewall').click();
@@ -120,31 +132,38 @@ describe('Panel : Creation mode', () => {
     cy.waitForRequest('@getServiceGroupsEndpoint');
     cy.findByText('MySQL-Servers').click();
 
-    cy.findByLabelText('Search users').click();
+    cy.findByLabelText('Search contacts').click();
     cy.waitForRequest('@getUsersEndpoint');
     cy.findByText('Guest').click();
 
     cy.findByTestId('EmailBody').type('Bonjour');
+    cy.findByLabelText(labelSubject).type('subject');
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.findByLabelText(labelSave).should('not.be.disabled');
 
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the Save button triggers the display of a confirmation dialog, providing the user with an additional confirmation step before proceeding with the action', () => {
+  it('confirms that the Save button triggers the display of a confirmation dialog, providing the user with an additional confirmation step before proceeding with the action', () => {
     cy.findByLabelText(labelSearchHostGroups).click();
     cy.waitForRequest('@getHostsGroupsEndpoint');
     cy.findByText('Firewall').click();
 
+    cy.findAllByLabelText(labelNotificationName).type('Notification1');
     cy.findByLabelText(labelSearchServiceGroups).click();
     cy.waitForRequest('@getServiceGroupsEndpoint');
     cy.findByText('MySQL-Servers').click();
 
-    cy.findByLabelText('Search users').click();
+    cy.findByLabelText('Search contacts').click();
     cy.waitForRequest('@getUsersEndpoint');
     cy.findByText('Guest').click();
 
     cy.findByTestId('EmailBody').type('Bonjour');
+    cy.findByLabelText(labelSubject).type('subject');
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.findByLabelText(labelSave).click();
 
@@ -154,20 +173,24 @@ describe('Panel : Creation mode', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Tests that a POST request is sent when the Confirm button is clicked', () => {
+  it('tests that the form is sent when the confirm button is clicked', () => {
     cy.findByLabelText(labelSearchHostGroups).click();
     cy.waitForRequest('@getHostsGroupsEndpoint');
     cy.findByText('Firewall').click();
 
+    cy.findAllByLabelText(labelNotificationName).type('Notification1');
     cy.findByLabelText(labelSearchServiceGroups).click();
     cy.waitForRequest('@getServiceGroupsEndpoint');
     cy.findByText('MySQL-Servers').click();
 
-    cy.findByLabelText('Search users').click();
+    cy.findByLabelText('Search contacts').click();
     cy.waitForRequest('@getUsersEndpoint');
     cy.findByText('Guest').click();
 
     cy.findByTestId('EmailBody').type('Bonjour');
+    cy.findByLabelText(labelSubject).type('subject');
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.findByLabelText(labelSave).click();
 
@@ -179,10 +202,12 @@ describe('Panel : Creation mode', () => {
     cy.matchImageSnapshot();
   });
 
-  it('Confirms that the Close button triggers the display of a confirmation dialog if the user has made some changes to the form', () => {
+  it('confirms that the Close button triggers the display of a confirmation dialog if the user has made some changes to the form', () => {
     cy.findByLabelText(labelSearchHostGroups).click();
     cy.waitForRequest('@getHostsGroupsEndpoint');
     cy.findByText('Firewall').click();
+
+    cy.get('#panel-content').scrollTo('top');
 
     cy.findByLabelText(labelClosePanel).click();
 

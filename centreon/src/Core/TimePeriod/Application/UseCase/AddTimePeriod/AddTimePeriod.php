@@ -32,8 +32,8 @@ use Core\Application\Common\UseCase\{
     ConflictResponse,
     CreatedResponse,
     ErrorResponse,
-    PresenterInterface,
-    InvalidArgumentResponse
+    InvalidArgumentResponse,
+    PresenterInterface
 };
 use Core\Common\Domain\TrimmedString;
 use Core\TimePeriod\Application\Exception\TimePeriodException;

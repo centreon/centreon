@@ -29,6 +29,8 @@ use Core\Dashboard\Domain\Model\NewDashboard;
 interface WriteDashboardRepositoryInterface
 {
     /**
+     * Add a dashboard.
+     *
      * @param NewDashboard $newDashboard
      *
      * @throws \Throwable
@@ -41,10 +43,14 @@ interface WriteDashboardRepositoryInterface
      * Delete a dashboard.
      *
      * @param int $dashboardId
+     *
+     * @throws \Throwable
      */
     public function delete(int $dashboardId): void;
 
     /**
+     * Update a dashboard.
+     *
      * @param Dashboard $dashboard
      *
      * @throws \Throwable

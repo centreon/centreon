@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,15 +18,16 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Category\RealTime\Infrastructure\Api\FindServiceCategory;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Category\RealTime\Application\UseCase\FindServiceCategory\FindServiceCategoryResponse;
+use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Category\RealTime\Application\UseCase\FindServiceCategory\FindServiceCategoryPresenterInterface;
+use Core\Category\RealTime\Application\UseCase\FindServiceCategory\FindServiceCategoryResponse;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 class FindServiceCategoryPresenter extends AbstractPresenter implements FindServiceCategoryPresenterInterface
 {
@@ -42,13 +43,14 @@ class FindServiceCategoryPresenter extends AbstractPresenter implements FindServ
 
     /**
      * {@inheritDoc}
+     *
      * @param FindServiceCategoryResponse $data
      */
     public function present(mixed $data): void
     {
         parent::present([
             'result' => $data->tags,
-            'meta' => $this->requestParameters->toArray()
+            'meta' => $this->requestParameters->toArray(),
         ]);
     }
 }

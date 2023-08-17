@@ -73,9 +73,14 @@ const retrievedTranslations = {
 };
 
 const retrievedWeb = {
+  modules: {},
   web: {
-    version: '21.10.1'
-  }
+    fix: '0',
+    major: '23',
+    minor: '04',
+    version: '23.04.1'
+  },
+  widgets: {}
 };
 
 const retrievedLoginConfiguration = {

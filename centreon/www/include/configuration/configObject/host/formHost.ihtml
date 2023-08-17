@@ -369,7 +369,7 @@
         <h4>{$form.header.HGlinks}</h4>
       </td>
     </tr>
-	{if !$msg.tpl}
+	{if !$msg.isHostTemplate}
 		{if $o == "mc"}
 			<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_hhg.label}</td><td class="FormRowValue">{$form.mc_mod_hhg.html}</td></tr>
 		{/if}
@@ -524,9 +524,9 @@
 		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="notes_url"> {$form.ehi_notes_url.label}</td><td class="FormRowValue">{$form.ehi_notes_url.html}</td></tr>
 		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="notes"> {$form.ehi_notes.label}</td><td class="FormRowValue">{$form.ehi_notes.html}</td></tr>
 		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="action_url"> {$form.ehi_action_url.label}</td><td class="FormRowValue">{$form.ehi_action_url.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="icon_image"> {$form.ehi_icon_image.label}</td><td class="FormRowValue">{$form.ehi_icon_image.html}&nbsp;&nbsp;<img id='ehi_icon_image_img' src='./img/blank.gif'></td></tr>
+		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="icon_image"> {$form.ehi_icon_image.label}</td><td class="FormRowValue">{$form.ehi_icon_image.html}&nbsp;&nbsp;<img id='ehi_icon_image_img' class="img_box" src='./img/blank.gif'></td></tr>
 		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="icon_image_alt"> {$form.ehi_icon_image_alt.label}</td><td class="FormRowValue">{$form.ehi_icon_image_alt.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="statusmap_image"> {$form.ehi_statusmap_image.label}</td><td class="FormRowValue">{$form.ehi_statusmap_image.html}&nbsp;&nbsp;<img id='ehi_statusmap_image_img' src='./img/blank.gif'></td></tr>
+		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="statusmap_image"> {$form.ehi_statusmap_image.label}</td><td class="FormRowValue">{$form.ehi_statusmap_image.html}&nbsp;&nbsp;<img id='ehi_statusmap_image_img' class="img_box" src='./img/blank.gif'></td></tr>
 		{if isset($form.geo_coords.label)}
 		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="geo_coords"> {$form.geo_coords.label}</td><td class="FormRowValue">{$form.geo_coords.html}</td></tr>
 		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="2d_coords"> {$form.ehi_2d_coords.label}</td><td class="FormRowValue">{$form.ehi_2d_coords.html}</td></tr>
@@ -542,7 +542,9 @@
 			<h4>{$form.header.furtherInfos}</h4>
 		  </td>
 		</tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="host_activate"> {$form.host_activate.label}</td><td class="FormRowValue">{$form.host_activate.html}</td></tr>
+		{if !$msg.isHostTemplate}
+			<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="host_activate"> {$form.host_activate.label}</td><td class="FormRowValue">{$form.host_activate.html}</td></tr>
+		{/if}
 		<tr class="list_one"><td class="FormRowField">{$form.host_comment.label}</td><td class="FormRowValue">{$form.host_comment.html}</td></tr>
 		{if $o == "a" || $o == "c"}
 			<tr class="list_lvl_2"><td class="ListColLvl2_name" colspan="2">

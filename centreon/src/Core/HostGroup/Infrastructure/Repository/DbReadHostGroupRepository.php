@@ -80,6 +80,12 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+
+        if ($this->hasAccessToAllHostGroups($accessGroupIds)) {
+
+            return $this->findAll($requestParameters);
+        }
+
         $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
 
         return $this->retrieveHostGroups($concatenator, $requestParameters);
@@ -105,6 +111,11 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+
+        if ($this->hasAccessToAllHostGroups($accessGroupIds)) {
+
+            return $this->findOne($hostGroupId);
+        }
         $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
 
         return $this->retrieveHostgroup($concatenator, $hostGroupId);
@@ -130,9 +141,42 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        if ($this->hasAccessToAllHostGroups($accessGroupIds)) {
+
+            return $this->existsOne($hostGroupId);
+        }
         $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
 
         return $this->existsHostGroup($concatenator, $hostGroupId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exist(array $hostGroupIds): array
+    {
+        $concatenator = $this->getFindHostGroupConcatenator();
+
+        return $this->existHostGroups($concatenator, $hostGroupIds);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existByAccessGroups(array $hostGroupIds, array $accessGroups): array
+    {
+        if ([] === $accessGroups) {
+            return [];
+        }
+
+        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        if ($this->hasAccessToAllHostGroups($accessGroupIds)) {
+
+            return $this->exist($hostGroupIds);
+        }
+        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+
+        return $this->existHostGroups($concatenator, $hostGroupIds);
     }
 
     /**
@@ -151,6 +195,35 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHost(int $hostId): array
+    {
+        $concatenator = $this->getFindHostGroupConcatenator();
+
+        return $this->retrieveHostGroupsByHost($concatenator, $hostId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostAndAccessGroups(int $hostId, array $accessGroups): array
+    {
+        if ([] === $accessGroups) {
+            return [];
+        }
+
+        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        if ($this->hasAccessToAllHostGroups($accessGroupIds)) {
+
+            return $this->findByHost($hostId);
+        }
+        $concatenator = $this->getFindHostGroupConcatenator($accessGroupIds);
+
+        return $this->retrieveHostGroupsByHost($concatenator, $hostId);
     }
 
     /**
@@ -279,6 +352,50 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
     /**
      * @param SqlConcatenator $concatenator
+     * @param int $hostId
+     *
+     * @throws InvalidGeoCoordException
+     * @throws RequestParametersTranslatorException
+     * @throws \InvalidArgumentException
+     * @throws \PDOException
+     * @throws AssertionFailedException
+     *
+     * @return list<HostGroup>
+     */
+    private function retrieveHostGroupsByHost(
+        SqlConcatenator $concatenator,
+        int $hostId
+    ): array {
+        $concatenator
+            ->appendJoins(
+                <<<'SQL'
+                    JOIN `hostgroup_relation` hg_rel
+                        ON hg.hg_id = hg_rel.hostgroup_hg_id
+                    SQL
+            )
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE hg_rel.host_host_id = :hostId
+                    SQL
+            )
+            ->storeBindValue(':hostId', $hostId, \PDO::PARAM_INT);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $hostGroups = [];
+        foreach ($statement as $result) {
+            /** @var HostGroupResultSet $result */
+            $hostGroups[] = $this->createHostGroupFromArray($result);
+        }
+
+        return $hostGroups;
+    }
+
+    /**
+     * @param SqlConcatenator $concatenator
      * @param int $hostGroupId
      *
      * @throws \PDOException
@@ -312,6 +429,37 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
 
     /**
      * @param SqlConcatenator $concatenator
+     * @param int[] $hostGroupIds
+     *
+     * @throws \PDOException
+     *
+     * @return int[]
+     */
+    private function existHostGroups(SqlConcatenator $concatenator, array $hostGroupIds): array
+    {
+        $concatenator
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT hg.hg_id
+                    SQL
+            )
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE hg.hg_id IN (:host_group_ids)
+                    SQL
+            )
+            ->storeBindValueMultiple(':host_group_ids', $hostGroupIds, \PDO::PARAM_INT);
+
+        // Prepare SQL + bind values
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @param SqlConcatenator $concatenator
      * @param int $hostGroupId
      *
      * @throws InvalidGeoCoordException
@@ -341,6 +489,49 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
         $data = $statement->fetch(\PDO::FETCH_ASSOC);
 
         return $data ? $this->createHostGroupFromArray($data) : null;
+    }
+
+    /**
+     * Determine if accessGroups give access to all hostGroups
+     * true: all host groups are accessible
+     * false: all host groups are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT res.all_hostgroups
+                FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

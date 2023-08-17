@@ -1,0 +1,9 @@
+type: object
+
+properties:
+
+  role:
+    type: string
+    enum: [ viewer, editor ]
+    description: "The role of the contact group for this dashboard."
+    example: "viewer"

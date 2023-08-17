@@ -1,5 +1,3 @@
-import { ReactElement } from 'react';
-
 import { ComponentMeta } from '@storybook/react';
 import { Layout } from 'react-grid-layout';
 
@@ -62,18 +60,18 @@ const generateLayout = (maxElements: number): Array<CustomLayout> => {
 };
 
 interface DashboardTemplateProps {
-  header?: ReactElement;
+  header?: JSX.Element;
   layout?: Array<CustomLayout>;
 }
 
-const Header = (): ReactElement => (
+const Header = (): JSX.Element => (
   <Typography variant="body2">The title</Typography>
 );
 
 const DashboardTemplate = ({
   header,
   layout = dashboardLayout
-}: DashboardTemplateProps): ReactElement => (
+}: DashboardTemplateProps): JSX.Element => (
   <DashboardLayout.Layout<CustomLayout> layout={layout}>
     {layout.map(({ i, content, shouldUseFluidTypography }) => (
       <DashboardLayout.Item header={header} key={i}>

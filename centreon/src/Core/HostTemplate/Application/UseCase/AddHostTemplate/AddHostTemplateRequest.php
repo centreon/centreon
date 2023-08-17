@@ -23,9 +23,6 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application\UseCase\AddHostTemplate;
 
-use Core\Common\Application\Converter\YesNoDefaultConverter;
-use Core\Common\Domain\YesNoDefault;
-
 final class AddHostTemplateRequest
 {
     public string $name = '';
@@ -105,4 +102,13 @@ final class AddHostTemplateRequest
     public string $comment = '';
 
     public bool $isActivated = true;
+
+    /** @var int[] */
+    public array $categories = [];
+
+    /** @var int[] */
+    public array $templates = [];
+
+    /** @var array<array{name:string,value:null|string,is_password:bool,description:null|string}> */
+    public array $macros = [];
 }
