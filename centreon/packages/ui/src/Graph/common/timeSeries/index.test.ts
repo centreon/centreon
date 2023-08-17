@@ -1,11 +1,11 @@
-import { GraphData } from '../../LineChart/models';
+import { LineChartData } from '../models';
 
 import * as timeSeries from '.';
 
 type TestCase = [number | null, string, 1000 | 1024, string | null];
 
 describe('timeSeries', () => {
-  const graphData: GraphData = {
+  const graphData: LineChartData = {
     global: {},
     metrics: [
       {

@@ -4,15 +4,16 @@ import { ScaleLinear } from 'd3-scale';
 import { useTheme } from '@mui/material/styles';
 
 import { adjustGraphData } from '../../../helpers/index';
-import { GraphData, PatternOrientation } from '../../../models';
+import { PatternOrientation } from '../../../models';
 import { CurveType } from '../models';
+import { LineChartData } from '../../../../common/models';
 
 import BasicThreshold from './BasicThreshold';
 import useScaleThreshold from './useScaleThreshold';
 
 interface Props {
   curve: CurveType;
-  data: GraphData;
+  data: LineChartData;
   graphHeight: number;
   id: string;
   leftScale: ScaleLinear<number, number>;

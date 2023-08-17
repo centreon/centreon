@@ -2,7 +2,8 @@ import { ReactNode } from 'react';
 
 import { ScaleLinear } from 'd3-scale';
 
-import { Line, Metric, TimeValue } from '../common/timeSeries/models';
+import { Line, TimeValue } from '../common/timeSeries/models';
+import { LineChartData } from '../common/models';
 
 import {
   AxisX,
@@ -16,12 +17,6 @@ import {
 import { TimelineEvent } from './InteractiveComponents/Annotations/models';
 import { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
 
-export interface LineChartData {
-  global;
-  metrics: Array<Metric>;
-  times: Array<string>;
-}
-
 export interface LineChartEndpoint {
   baseUrl: string;
   queryParameters: LineChartInterval;
@@ -33,7 +28,7 @@ export interface Data {
   title: string;
 }
 
-export enum LineChartIntervalProperty {
+export enum GraphIntervalProperty {
   end = 'end',
   start = 'start'
 }
@@ -43,7 +38,7 @@ export interface Interval {
   start: Date;
 }
 
-export interface LineChartInterval {
+export interface GraphInterval {
   end?: string;
   start?: string;
 }

@@ -145,4 +145,4 @@ export * from './utils';
 export { default as FluidTypography } from './Typography/FluidTypography';
 export * from './Dashboard';
 export { default as LineChart } from './Graph/LineChart';
-export type { LineChartData } from './Graph/LineChart/models';
+export type { LineChartData } from './Graph/common/models';

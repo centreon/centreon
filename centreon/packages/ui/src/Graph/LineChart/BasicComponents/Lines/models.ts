@@ -1,8 +1,8 @@
 import { ScaleLinear } from 'd3-scale';
 import { curveBasis } from '@visx/curve';
 
-import { GraphData } from '../../models';
 import { Line, TimeValue } from '../../../common/timeSeries/models';
+import { LineChartData } from '../../../common/models';
 
 import { FactorsVariation } from './Threshold/models';
 
@@ -31,7 +31,7 @@ export interface AreaRegularLines extends ShapeGraphData {
 }
 
 export interface AreaThreshold extends AreaRegularLines {
-  dataExclusionPeriods?: Array<GraphData>;
+  dataExclusionPeriods?: Array<LineChartData>;
   factors?: FactorsVariation;
   getCountDisplayedCircles?: (value: number) => void;
 }

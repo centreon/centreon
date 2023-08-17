@@ -24,7 +24,7 @@ import { margin } from './common';
 import {
   Data,
   GlobalAreaLines,
-  LineChartInterval,
+  GraphInterval,
   LineChartProps,
   LegendModel
 } from './models';
@@ -34,7 +34,7 @@ import { CurveType } from './BasicComponents/Lines/models';
 interface Props extends LineChartProps {
   curve: CurveType;
   graphData: Data;
-  graphInterval: LineChartInterval;
+  graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
   legend?: LegendModel;
   marginBottom: number;

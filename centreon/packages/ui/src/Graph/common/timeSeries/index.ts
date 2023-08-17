@@ -26,11 +26,13 @@ import {
   min,
   max,
   lt,
-  identity
+  identity,
+  head,
+  last
 } from 'ramda';
 
 import { margin } from '../../LineChart/common';
-import { GraphData } from '../../LineChart/models';
+import { LineChartData } from '../models';
 
 import {
   Metric,
@@ -76,7 +78,7 @@ const toTimeTickValue = (
   return { timeTick, ...getMetricsForIndex() };
 };
 
-const getTimeSeries = (graphData: GraphData): Array<TimeValue> => {
+const getTimeSeries = (graphData: LineChartData): Array<TimeValue> => {
   const isGreaterThanLowerLimit = (value): boolean => {
     const lowerLimit = path<number>(['global', 'lower-limit'], graphData);
 
@@ -133,7 +135,7 @@ const toLine = ({
   unit
 });
 
-const getLineData = (graphData: GraphData): Array<Line> =>
+const getLineData = (graphData: LineChartData): Array<Line> =>
   map(toLine, graphData.metrics);
 
 const getMin = (values: Array<number>): number => Math.min(...values);
@@ -481,6 +483,19 @@ const getTimeValue = ({
   return timeSeries[index];
 };
 
+const getMetricWithLatestData = (
+  graphData: LineChartData
+): Metric | undefined => {
+  const metric = head(graphData.metrics) as Metric;
+
+  const lastData = last(metric?.data || []);
+
+  return {
+    ...metric,
+    data: lastData ? [lastData] : []
+  };
+};
+
 export {
   getTimeSeries,
   getLineData,
@@ -508,5 +523,6 @@ export {
   formatMetricValue,
   getStackedYScale,
   getTimeValue,
-  bisectDate
+  bisectDate,
+  getMetricWithLatestData
 };

@@ -1,7 +1,7 @@
 import { T, always, cond, flatten, isEmpty, join, pipe, pluck } from 'ramda';
 import dayjs from 'dayjs';
 
-import { GraphData, useFetchQuery } from '../..';
+import { LineChartData, useFetchQuery } from '../..';
 
 import { ServiceMetric } from './models';
 
@@ -13,7 +13,7 @@ interface UseMetricsQueryProps {
 
 interface UseMetricsQueryState {
   end: string;
-  graphData: GraphData | undefined;
+  graphData: LineChartData | undefined;
   isGraphLoading: boolean;
   isMetricIdsEmpty: boolean;
   start: string;
@@ -37,7 +37,7 @@ const getStartEndFromTimePeriod = (
   ])(timePeriod);
 };
 
-interface PerformanceGraphData extends Omit<GraphData, 'global'> {
+interface PerformanceGraphData extends Omit<LineChartData, 'global'> {
   base: number;
 }
 

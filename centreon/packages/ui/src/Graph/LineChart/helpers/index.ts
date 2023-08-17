@@ -3,14 +3,15 @@ import { gt, gte, isEmpty, isNil, prop, propEq, reject, sortBy } from 'ramda';
 
 import { LinesData } from '../BasicComponents/Lines/models';
 import { dateFormat, timeFormat } from '../common';
-import { GetDate, GraphData, GraphInterval } from '../models';
+import { GetDate, GraphInterval } from '../models';
 import {
   getLineData,
   getTimeSeries,
   getTimeValue
 } from '../../common/timeSeries';
+import { LineChartData } from '../../common/models';
 
-export const adjustGraphData = (graphData: GraphData): LinesData => {
+export const adjustGraphData = (graphData: LineChartData): LinesData => {
   const lines = getLineData(graphData);
   const sortedLines = sortBy(prop('name'), lines);
   const displayedLines = reject(propEq('display', false), sortedLines);

@@ -10,14 +10,11 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 
+import { LineChartData } from '../common/models';
+
 import LineChart from './LineChart';
 import LoadingSkeleton from './LoadingSkeleton';
-import {
-  GlobalAreaLines,
-  LineChartData,
-  LineChartProps,
-  LegendModel
-} from './models';
+import { GlobalAreaLines, LineChartProps, LegendModel } from './models';
 import useLineChartData from './useLineChartData';
 import { CurveType } from './BasicComponents/Lines/models';
 

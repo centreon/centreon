@@ -11,6 +11,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 import TimePeriod from '../../TimePeriods';
+import { LineChartData } from '../common/models';
 
 import { dateTimeFormat } from './common';
 import {
@@ -32,7 +33,7 @@ import dataLastDay from './mockedData/lastDayThreshold.json';
 import dataLastMonth from './mockedData/lastMonth.json';
 import dataLastWeek from './mockedData/lastWeek.json';
 import dataZoomPreview from './mockedData/zoomPreview.json';
-import { LineChartData, Interval, ThresholdType, TooltipData } from './models';
+import { Interval, ThresholdType, TooltipData } from './models';
 
 import WrapperLineChart from './index';
 
