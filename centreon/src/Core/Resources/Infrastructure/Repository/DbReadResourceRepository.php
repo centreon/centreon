@@ -448,6 +448,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
         }
 
         while ($resourceRecord = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array<string,int|string|null> $resourceRecord */
             $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
         }
 

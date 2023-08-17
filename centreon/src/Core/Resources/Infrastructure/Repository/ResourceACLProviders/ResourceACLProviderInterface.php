@@ -25,8 +25,8 @@ namespace Core\Resources\Infrastructure\Repository\ResourceACLProviders;
 
 interface ResourceACLProviderInterface
 {
-    /*
-     * Build ACL sub request regarding access groups IDs for the given resource type
+    /**
+     * Build ACL sub request regarding access groups IDs for the given resource type.
      *
      * @param int[] $accessGroupIds
      * @return string

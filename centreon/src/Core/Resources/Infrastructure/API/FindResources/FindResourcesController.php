@@ -27,11 +27,13 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Resources\Application\UseCase\FindResources\FindResources;
 use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidator as RequestValidator;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
+/**
+ * @phpstan-import-type _RequestParameters from RequestValidator
+ */
 final class FindResourcesController extends AbstractController
 {
     public function __construct(private readonly RequestValidator $validator)
@@ -54,7 +56,6 @@ final class FindResourcesController extends AbstractController
     ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
-        // @var array<string, array<int, string|int>|false> $filter
         $filter = $this->validator->validateAndRetrieveRequestParameters($request);
 
         $useCase($presenter, $this->createResourceFilter($filter));
@@ -63,7 +64,7 @@ final class FindResourcesController extends AbstractController
     }
 
     /**
-     * @param array<string, array<int, string|int>|false> $filter
+     * @param _RequestParameters $filter
      *
      * @return ResourceFilter
      */
