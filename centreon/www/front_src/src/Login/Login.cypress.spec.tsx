@@ -292,6 +292,9 @@ describe('Login Page', () => {
   it('displays errors when fields are cleared', () => {
     mountComponentAndStubs();
 
+    cy.waitForRequest('@getTranslations');
+    cy.waitForRequest('@getProvidersConfiguration');
+
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
 

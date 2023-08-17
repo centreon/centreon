@@ -99,6 +99,7 @@ const useLogin = (): UseLoginState => {
       suspense: false
     }
   });
+  const [platformInstallationStatus] = useAtom(platformInstallationStatusAtom);
   const platformVersions = useAtomValue(platformVersionsAtom);
   const { data: loginPageCustomisationData, isFetching } =
     useFetchQuery<LoginPageCustomisation>({
@@ -124,7 +125,6 @@ const useLogin = (): UseLoginState => {
   const navigate = router.useNavigate();
   const loadUser = useUser();
 
-  const [platformInstallationStatus] = useAtom(platformInstallationStatusAtom);
   const setPasswordResetInformations = useSetAtom(
     passwordResetInformationsAtom
   );
