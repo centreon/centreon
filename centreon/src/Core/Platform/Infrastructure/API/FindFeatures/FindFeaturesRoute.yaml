@@ -1,0 +1,5 @@
+FindFeatures:
+  methods: GET
+  path: /platform/features
+  controller: 'Core\Platform\Infrastructure\API\FindFeatures\FindFeaturesController'
+  condition: "request.attributes.get('version') >= 23.04"

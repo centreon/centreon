@@ -21,27 +21,28 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\FindNotifications;
+namespace Core\Common\Application;
 
-class NotificationCounts
+/**
+ * This class is a facade to the feature flag system which consists in a simple JSON file saved in this project.
+ *
+ * This feature flags system is static by purpose.
+ *
+ * Each value is a flags bitmask depending on the current platform (On-Prem / Cloud).
+ */
+interface FeatureFlagsInterface
 {
     /**
-     * @param array<int,int> $notificationsUsersCount
-     * @param array<string,array<int,int> $resourcesCount
+     * Simple public exposition of the internal flag.
+     *
+     * @return bool
      */
-    public function __construct(
-        private readonly array $notificationsUsersCount,
-        private readonly array $resourcesCount,
-    ) {
-    }
+    public function isCloudPlatform(): bool;
 
-    public function getUsersCountByNotificationId(int $notificationId): int
-    {
-        return $this->notificationsUsersCount[$notificationId] ?? 0;
-    }
-
-    public function getResourcesCount(): array
-    {
-        return $this->resourcesCount;
-    }
+    /**
+     * Return all configured flags with their value.
+     *
+     * @return array<string, bool>
+     */
+    public function getAll(): array;
 }

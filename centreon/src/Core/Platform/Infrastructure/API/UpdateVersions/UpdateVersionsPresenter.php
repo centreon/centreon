@@ -21,27 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\FindNotifications;
+namespace Core\Platform\Infrastructure\API\UpdateVersions;
 
-class NotificationCounts
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsPresenterInterface;
+
+class UpdateVersionsPresenter extends AbstractPresenter implements UpdateVersionsPresenterInterface
 {
-    /**
-     * @param array<int,int> $notificationsUsersCount
-     * @param array<string,array<int,int> $resourcesCount
-     */
-    public function __construct(
-        private readonly array $notificationsUsersCount,
-        private readonly array $resourcesCount,
-    ) {
-    }
-
-    public function getUsersCountByNotificationId(int $notificationId): int
-    {
-        return $this->notificationsUsersCount[$notificationId] ?? 0;
-    }
-
-    public function getResourcesCount(): array
-    {
-        return $this->resourcesCount;
-    }
 }

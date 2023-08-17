@@ -4,3 +4,4 @@ export const platformInstallationStatusEndpoint = `${baseEndpoint}/platform/inst
 export const userEndpoint = `${baseEndpoint}/configuration/users/current/parameters`;
 export const logoutEndpoint = `${baseEndpoint}/authentication/logout`;
 export const platformVersionsEndpoint = `${baseEndpoint}/platform/versions`;
+export const platformFeaturesEndpoint = `${baseEndpoint}/platform/features`;
