@@ -263,6 +263,9 @@ describe('Login Page', () => {
     const useNavigate = mountComponentAndStubs();
     mockPostLoginInvalidCredentials();
 
+    cy.waitForRequest('@getTranslations');
+    cy.waitForRequest('@getProvidersConfiguration');
+
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
 
