@@ -45,6 +45,23 @@ const retrievedWeb = {
   }
 };
 
+const retrievedWebWithItEditionInstalled = {
+  modules: {
+    'centreon-it-edition-extensions': {
+      fix: '0',
+      major: '23',
+      minor: '10',
+      version: '23.10.0'
+    }
+  },
+  web: {
+    fix: '1',
+    major: '21',
+    minor: '10',
+    version: '21.10.1'
+  }
+};
+
 const retrievedTranslations = {
   en: {
     hello: 'Hello'
@@ -197,14 +214,6 @@ const setupBeforeEach = (): void => {
 describe('Login Page', () => {
   beforeEach(() => {
     setupBeforeEach();
-    cy.fixture('login/defaultLoginPageCustomization.json').then((fixture) =>
-      cy.interceptAPIRequest({
-        alias: 'getDefaultLoginCustomization',
-        method: Method.GET,
-        path: `${replace('./', '**', loginPageCustomisationEndpoint)}`,
-        response: fixture
-      })
-    );
   });
 
   it('displays the login page', () => {
@@ -212,7 +221,6 @@ describe('Login Page', () => {
 
     cy.waitForRequest('@getTranslations');
     cy.waitForRequest('@getProvidersConfiguration');
-    cy.waitForRequest('@getDefaultLoginCustomization');
 
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
@@ -255,6 +263,9 @@ describe('Login Page', () => {
     const useNavigate = mountComponentAndStubs();
     mockPostLoginInvalidCredentials();
 
+    cy.waitForRequest('@getTranslations');
+    cy.waitForRequest('@getProvidersConfiguration');
+
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
 
@@ -281,6 +292,9 @@ describe('Login Page', () => {
   it('displays errors when fields are cleared', () => {
     mountComponentAndStubs();
 
+    cy.waitForRequest('@getTranslations');
+    cy.waitForRequest('@getProvidersConfiguration');
+
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
 
@@ -303,6 +317,9 @@ describe('Login Page', () => {
 
   it('displays the password when the corresponding action is clicked', () => {
     mountComponentAndStubs();
+
+    cy.waitForRequest('@getTranslations');
+    cy.waitForRequest('@getProvidersConfiguration');
 
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
@@ -343,6 +360,9 @@ describe('Login Page', () => {
     const useNavigate = mountComponentAndStubs();
     mockPostLoginServerError();
 
+    cy.waitForRequest('@getTranslations');
+    cy.waitForRequest('@getProvidersConfiguration');
+
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
 
@@ -368,7 +388,7 @@ describe('Login Page', () => {
 describe('Default custom login page', () => {
   beforeEach(() => {
     setupBeforeEach();
-
+    store.set(platformVersionsAtom, retrievedWebWithItEditionInstalled);
     cy.fixture('login/defaultLoginPageCustomization.json').then((fixture) =>
       cy.interceptAPIRequest({
         alias: 'getDefaultLoginCustomization',
@@ -408,7 +428,7 @@ describe('Default custom login page', () => {
 describe('Custom login page with data', () => {
   beforeEach(() => {
     setupBeforeEach();
-
+    store.set(platformVersionsAtom, retrievedWebWithItEditionInstalled);
     cy.fixture('login/loginPageCustomization.json').then((fixture) =>
       cy.interceptAPIRequest({
         alias: 'getLoginCustomization',
@@ -423,6 +443,7 @@ describe('Custom login page with data', () => {
     mountComponentAndStubs();
 
     cy.waitForRequest('@getLoginCustomization');
+    cy.waitForRequest('@getProvidersConfiguration');
 
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
@@ -449,23 +470,12 @@ describe('Custom login page with data', () => {
 describe('Login page without module it edition extensions installed', () => {
   beforeEach(() => {
     setupBeforeEach();
-
-    cy.fixture('login/noModuleInstalledForLoginPageCustomization.json').then(
-      (fixture) =>
-        cy.interceptAPIRequest({
-          alias: 'getNoModuleForLoginCustomization',
-          method: Method.GET,
-          path: `${replace('./', '**', loginPageCustomisationEndpoint)}`,
-          response: fixture,
-          statusCode: 404
-        })
-    );
   });
 
   it('displays the login page when the IT edition extensions module is not installed', () => {
     mountComponentAndStubs();
 
-    cy.waitForRequest('@getNoModuleForLoginCustomization');
+    cy.waitForRequest('@getProvidersConfiguration');
 
     cy.findByAltText(labelCentreonLogo).should('be.visible');
     cy.findByAltText(labelCentreonWallpaper).should('be.visible');
