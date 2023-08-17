@@ -43,17 +43,17 @@ const Header = ({
     Component: (
       <div className={classes.header}>
         <div />
-        {displayTitle && (
-          <div>
+        <div>
+          {displayTitle && (
             <Typography align="center" variant="body1">
               {title}
             </Typography>
+          )}
 
-            <Typography align="center" style={{ height: 20 }} variant="body1">
-              {time}
-            </Typography>
-          </div>
-        )}
+          <Typography align="center" style={{ height: 20 }} variant="body1">
+            {time}
+          </Typography>
+        </div>
         {header?.extraComponent}
       </div>
     ),

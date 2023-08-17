@@ -1,0 +1,16 @@
+{
+  "title": "Graph",
+  "description": "Widget graph description (TBD)",
+  "options": {},
+  "data": {
+    "resources": {
+      "type": "resources",
+      "defaultValue": []
+    },
+    "metrics": {
+      "type": "metrics",
+      "defaultValue": []
+    }
+  },
+  "moduleName": "centreon-widget-graph"
+}

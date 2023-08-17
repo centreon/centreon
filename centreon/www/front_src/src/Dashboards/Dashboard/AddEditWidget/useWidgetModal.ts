@@ -7,7 +7,7 @@ import { Panel, PanelConfiguration } from '../models';
 import {
   addPanelDerivedAtom,
   removePanelDerivedAtom,
-  setPanelOptionsDerivedAtom
+  setPanelOptionsAndDataDerivedAtom
 } from '../atoms';
 
 import { widgetFormInitialDataAtom, widgetPropertiesAtom } from './atoms';
@@ -28,12 +28,13 @@ const useWidgetModal = (): useWidgetModalState => {
 
   const addPanel = useSetAtom(addPanelDerivedAtom);
   const deletePanel = useSetAtom(removePanelDerivedAtom);
-  const setPanelOptions = useSetAtom(setPanelOptionsDerivedAtom);
+  const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
   const openModal = (widget: Panel | null): void =>
     startTransition(() =>
       setWidgetFormInitialDataAtom({
+        data: widget?.data || {},
         id: widget?.i || null,
         moduleName: widget?.name || null,
         options: widget?.options || {},
@@ -51,6 +52,7 @@ const useWidgetModal = (): useWidgetModalState => {
     const panelConfiguration = values.panelConfiguration as PanelConfiguration;
 
     addPanel({
+      data: values.data || undefined,
       height: panelConfiguration.panelMinHeight,
       moduleName: values.moduleName || '',
       options: values.options,
@@ -67,6 +69,7 @@ const useWidgetModal = (): useWidgetModalState => {
 
       deletePanel(widgetFormInitialData?.id as string);
       addPanel({
+        data: values.data || undefined,
         fixedId: widgetFormInitialData?.id || undefined,
         height: panelConfiguration.panelMinHeight,
         moduleName: values.moduleName || '',
@@ -80,6 +83,7 @@ const useWidgetModal = (): useWidgetModalState => {
     }
 
     setPanelOptions({
+      data: values.data || undefined,
       id: values.id as string,
       options: values.options
     });

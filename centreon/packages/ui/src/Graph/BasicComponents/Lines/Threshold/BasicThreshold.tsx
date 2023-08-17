@@ -1,9 +1,10 @@
-import { curveBasis } from '@visx/curve';
 import { Threshold } from '@visx/threshold';
 
 import { TimeValue } from '../../../timeSeries/models';
+import { CurveType } from '../models';
 
 interface Props {
+  curve: CurveType;
   fillAboveArea: string;
   fillBelowArea: string;
   fillOpacity?: number;
@@ -24,7 +25,8 @@ const BasicThreshold = ({
   fillOpacity = 0.1,
   id,
   fillAboveArea,
-  fillBelowArea
+  fillBelowArea,
+  curve
 }: Props): JSX.Element => {
   return (
     <Threshold
@@ -38,7 +40,7 @@ const BasicThreshold = ({
       }}
       clipAboveTo={0}
       clipBelowTo={graphHeight}
-      curve={curveBasis}
+      curve={curve}
       data={timeSeries}
       id={id}
       x={getX}

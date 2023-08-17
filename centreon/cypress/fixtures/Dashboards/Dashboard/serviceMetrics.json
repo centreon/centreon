@@ -1,0 +1,25 @@
+{
+  "result": [
+      {
+        "id": 1,
+        "name": "Centreon-server_Ping",
+        "metrics": [
+            {
+              "id": 1,
+              "name": "rtmax",
+              "unit": "ms"
+            },
+            {
+              "id": 2,
+              "name": "pl",
+              "unit": "%"
+            }
+        ]
+      }
+    ],
+  "meta": {
+    "total": 1,
+    "page": 1,
+    "limit": 10
+  }
+}

@@ -52,6 +52,7 @@ export const setLayoutModeDerivedAtom = atom(
 );
 
 interface AddPanelDerivedAtom {
+  data?: object;
   fixedId?: string;
   height?: number;
   moduleName: string;
@@ -83,7 +84,8 @@ export const addPanelDerivedAtom = atom(
       width,
       height,
       moduleName,
-      fixedId
+      fixedId,
+      data
     }: AddPanelDerivedAtom
   ) => {
     const dashboard = get(dashboardAtom);
@@ -105,6 +107,7 @@ export const addPanelDerivedAtom = atom(
     const panelWidth = width || panelConfiguration?.panelMinWidth || maxColumns;
 
     const basePanelLayout = {
+      data,
       h: height || panelConfiguration?.panelMinHeight || 3,
       i: id,
       minH: panelConfiguration?.panelMinHeight || 3,
@@ -180,16 +183,19 @@ export const removePanelDerivedAtom = atom(
   }
 );
 
-export const getPanelOptionsDerivedAtom = atom((get) => {
+export const getPanelOptionsAndDataDerivedAtom = atom((get) => {
   const dashboard = get(dashboardAtom);
 
-  return (id: string): object | undefined => {
-    const panelOptions = getPanel({
+  return (id: string): { data?: object; options?: object } => {
+    const panel = getPanel({
       id,
       layout: dashboard.layout
-    })?.options;
+    });
 
-    return panelOptions;
+    return {
+      data: panel?.data,
+      options: panel?.options
+    };
   };
 });
 
@@ -203,13 +209,14 @@ export const getPanelConfigurationsDerivedAtom = atom((get) => {
 });
 
 interface SetPanelOptionsProps {
+  data?: object;
   id: string;
   options: object;
 }
 
-export const setPanelOptionsDerivedAtom = atom(
+export const setPanelOptionsAndDataDerivedAtom = atom(
   null,
-  (_, setAtom, { id, options }: SetPanelOptionsProps) => {
+  (_, setAtom, { id, options, data }: SetPanelOptionsProps) => {
     setAtom(dashboardAtom, (currentDashboard): Dashboard => {
       const panelIndex = getPanelIndex({
         id,
@@ -222,6 +229,7 @@ export const setPanelOptionsDerivedAtom = atom(
         lensIndex(panelIndex),
         {
           ...panel,
+          data,
           options
         },
         currentDashboard.layout
@@ -241,6 +249,7 @@ export const duplicatePanelDerivedAtom = atom(
     const panel = find(propEq('i', title), dashboard.layout);
 
     setAtom(addPanelDerivedAtom, {
+      data: panel?.data,
       height: panel?.h,
       moduleName: panel?.name as string,
       options: panel?.options,

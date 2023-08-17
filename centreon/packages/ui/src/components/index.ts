@@ -7,3 +7,4 @@ export * from './Layout';
 export * from './Tooltip';
 export * from './Menu';
 export * from './List';
+export * from './ItemComposition';

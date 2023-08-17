@@ -53,7 +53,7 @@ const TimeShiftZone = ({
       className={classes.translationZone}
       fill={
         equals(directionHovered, direction)
-          ? alpha(theme.palette.common.white, 0.5)
+          ? alpha(theme.palette.background.paper, 0.2)
           : 'transparent'
       }
       height={graphHeight}
