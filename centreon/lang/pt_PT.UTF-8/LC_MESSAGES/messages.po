@@ -16629,9 +16629,6 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "By turning off this option, all links included in the widget will be opened in the same tab when clicked."
 # msgstr ""
 
-# msgstr "Edit widget"
-# msgid ""
-
 # msgstr "Dataset selection"
 # msgid ""
 
