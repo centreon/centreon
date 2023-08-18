@@ -42,18 +42,19 @@ class NotificationMessage
         protected NotificationChannel $channel,
         protected string $subject = '',
         protected string $message = '',
-        protected string $messageFormatted = ''
+        protected string $formattedMessage = ''
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 
         $this->subject = trim($subject);
         $this->message = trim($message);
+        $this->formattedMessage = trim($formattedMessage);
 
         Assertion::notEmptyString($this->subject, "{$shortName}::subject");
         Assertion::notEmptyString($this->message, "{$shortName}::message");
         Assertion::maxLength($this->subject, self::MAX_SUBJECT_LENGTH, "{$shortName}::subject");
         Assertion::maxLength($this->message, self::MAX_MESSAGE_LENGTH, "{$shortName}::message");
-        Assertion::maxLength($this->message, self::MAX_MESSAGE_LENGTH, "{$shortName}::messageFormatted");
+        Assertion::maxLength($this->message, self::MAX_MESSAGE_LENGTH, "{$shortName}::formattedMessage");
     }
 
     public function getChannel(): NotificationChannel
@@ -73,6 +74,6 @@ class NotificationMessage
 
     public function getFormattedMessage(): string
     {
-        return $this->messageFormatted;
+        return $this->formattedMessage;
     }
 }
