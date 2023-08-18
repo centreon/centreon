@@ -56,7 +56,7 @@ final class FindResourcesController extends AbstractController
     ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
-        $filter = $this->validator->validateAndRetrieveRequestParameters($request);
+        $filter = $this->validator->validateAndRetrieveRequestParameters($request->query->all());
 
         $useCase($presenter, $this->createResourceFilter($filter));
 
@@ -71,19 +71,19 @@ final class FindResourcesController extends AbstractController
     private function createResourceFilter(array $filter): ResourceFilter
     {
         return (new ResourceFilter())
-            ->setTypes($filter[RequestValidator::RESOURCE_TYPE_PARAM_FILTER])
-            ->setStates($filter[RequestValidator::STATES_PARAM_FILTER])
-            ->setStatuses($filter[RequestValidator::STATUSES_PARAM_FILTER])
-            ->setStatusTypes($filter[RequestValidator::STATUS_TYPES_PARAM_FILTER])
-            ->setServicegroupNames($filter[RequestValidator::SERVICEGROUP_NAMES_PARAM_FILTER])
-            ->setServiceCategoryNames($filter[RequestValidator::SERVICE_CATEGORY_NAMES_PARAM_FILTER])
-            ->setServiceSeverityNames($filter[RequestValidator::SERVICE_SEVERITY_NAMES_PARAM_FILTER])
-            ->setServiceSeverityLevels($filter[RequestValidator::SERVICE_SEVERITY_LEVELS_PARAM_FILTER])
-            ->setHostgroupNames($filter[RequestValidator::HOST_CATEGORY_NAMES_PARAM_FILTER])
-            ->setHostCategoryNames($filter[RequestValidator::HOST_CATEGORY_NAMES_PARAM_FILTER])
-            ->setHostSeverityNames($filter[RequestValidator::HOST_CATEGORY_NAMES_PARAM_FILTER])
-            ->setMonitoringServerNames($filter[RequestValidator::MONITORING_SERVER_NAMES_PARAM_FILTER])
-            ->setHostSeverityLevels($filter[RequestValidator::HOST_SEVERITY_LEVELS_PARAM_FILTER])
-            ->setOnlyWithPerformanceData($filter[RequestValidator::FILTER_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY]);
+            ->setTypes($filter[RequestValidator::PARAM_RESOURCE_TYPE])
+            ->setStates($filter[RequestValidator::PARAM_STATES])
+            ->setStatuses($filter[RequestValidator::PARAM_STATUSES])
+            ->setStatusTypes($filter[RequestValidator::PARAM_STATUS_TYPES])
+            ->setServicegroupNames($filter[RequestValidator::PARAM_SERVICEGROUP_NAMES])
+            ->setServiceCategoryNames($filter[RequestValidator::PARAM_SERVICE_CATEGORY_NAMES])
+            ->setServiceSeverityNames($filter[RequestValidator::PARAM_SERVICE_SEVERITY_NAMES])
+            ->setServiceSeverityLevels($filter[RequestValidator::PARAM_SERVICE_SEVERITY_LEVELS])
+            ->setHostgroupNames($filter[RequestValidator::PARAM_HOST_CATEGORY_NAMES])
+            ->setHostCategoryNames($filter[RequestValidator::PARAM_HOST_CATEGORY_NAMES])
+            ->setHostSeverityNames($filter[RequestValidator::PARAM_HOST_CATEGORY_NAMES])
+            ->setMonitoringServerNames($filter[RequestValidator::PARAM_MONITORING_SERVER_NAMES])
+            ->setHostSeverityLevels($filter[RequestValidator::PARAM_HOST_SEVERITY_LEVELS])
+            ->setOnlyWithPerformanceData($filter[RequestValidator::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY]);
     }
 }

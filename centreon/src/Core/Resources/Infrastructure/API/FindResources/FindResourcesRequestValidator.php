@@ -26,7 +26,6 @@ namespace Core\Resources\Infrastructure\API\FindResources;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Domain\RealTime\ResourceTypeInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @phpstan-type _RequestParameters array{
@@ -49,39 +48,35 @@ use Symfony\Component\HttpFoundation\Request;
 final class FindResourcesRequestValidator
 {
     use LoggerTrait;
-    public const RESOURCE_TYPE_PARAM_FILTER = 'types';
-    public const STATES_PARAM_FILTER = 'states';
-    public const STATUSES_PARAM_FILTER = 'statuses';
-    public const HOSTGROUP_NAMES_PARAM_FILTER = 'hostgroup_names';
-    public const SERVICEGROUP_NAMES_PARAM_FILTER = 'servicegroup_names';
-    public const MONITORING_SERVER_NAMES_PARAM_FILTER = 'monitoring_server_names';
-    public const SERVICE_CATEGORY_NAMES_PARAM_FILTER = 'service_category_names';
-    public const HOST_CATEGORY_NAMES_PARAM_FILTER = 'host_category_names';
-    public const SERVICE_SEVERITY_NAMES_PARAM_FILTER = 'service_severity_names';
-    public const HOST_SEVERITY_NAMES_PARAM_FILTER = 'host_severity_names';
-    public const HOST_SEVERITY_LEVELS_PARAM_FILTER = 'host_severity_levels';
-    public const SERVICE_SEVERITY_LEVELS_PARAM_FILTER = 'service_severity_levels';
-    public const STATUS_TYPES_PARAM_FILTER = 'status_types';
-    public const FILTER_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY = 'only_with_performance_data';
 
-    /** @var _RequestParameters */
-    private const EMPTY_FILTERS = [
-        self::RESOURCE_TYPE_PARAM_FILTER => [],
-        self::STATES_PARAM_FILTER => [],
-        self::STATUSES_PARAM_FILTER => [],
-        self::HOSTGROUP_NAMES_PARAM_FILTER => [],
-        self::SERVICEGROUP_NAMES_PARAM_FILTER => [],
-        self::MONITORING_SERVER_NAMES_PARAM_FILTER => [],
-        self::SERVICE_CATEGORY_NAMES_PARAM_FILTER => [],
-        self::HOST_CATEGORY_NAMES_PARAM_FILTER => [],
-        self::SERVICE_SEVERITY_NAMES_PARAM_FILTER => [],
-        self::HOST_SEVERITY_NAMES_PARAM_FILTER => [],
-        self::HOST_SEVERITY_LEVELS_PARAM_FILTER => [],
-        self::SERVICE_SEVERITY_LEVELS_PARAM_FILTER => [],
-        self::STATUS_TYPES_PARAM_FILTER => [],
-        self::FILTER_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY => false,
-    ];
-    private const AVAILABLE_STATUSES = [
+    // Query parameters fields.
+    public const PARAM_RESOURCE_TYPE = 'types';
+    public const PARAM_STATES = 'states';
+    public const PARAM_STATUSES = 'statuses';
+    public const PARAM_HOSTGROUP_NAMES = 'hostgroup_names';
+    public const PARAM_SERVICEGROUP_NAMES = 'servicegroup_names';
+    public const PARAM_MONITORING_SERVER_NAMES = 'monitoring_server_names';
+    public const PARAM_SERVICE_CATEGORY_NAMES = 'service_category_names';
+    public const PARAM_HOST_CATEGORY_NAMES = 'host_category_names';
+    public const PARAM_SERVICE_SEVERITY_NAMES = 'service_severity_names';
+    public const PARAM_HOST_SEVERITY_NAMES = 'host_severity_names';
+    public const PARAM_HOST_SEVERITY_LEVELS = 'host_severity_levels';
+    public const PARAM_SERVICE_SEVERITY_LEVELS = 'service_severity_levels';
+    public const PARAM_STATUS_TYPES = 'status_types';
+    public const PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY = 'only_with_performance_data';
+
+    // Errors Codes for exceptions.
+    public const ERROR_UNKNOWN_PARAMETER = 1;
+    public const ERROR_NOT_A_RESOURCE_TYPE = 2;
+    public const ERROR_NOT_A_STATUS = 3;
+    public const ERROR_NOT_A_STATE = 4;
+    public const ERROR_NOT_A_STATUS_TYPE = 5;
+    public const ERROR_NOT_AN_ARRAY_OF_STRING = 6;
+    public const ERROR_NOT_AN_ARRAY_OF_INTEGER = 7;
+    public const ERROR_NOT_AN_ARRAY = 8;
+    public const ERROR_NOT_A_BOOLEAN = 9;
+    public const ERROR_NO_PROVIDERS = 10;
+    public const ALLOWED_STATUSES = [
         'OK',
         'WARNING',
         'CRITICAL',
@@ -91,15 +86,33 @@ final class FindResourcesRequestValidator
         'UP',
         'DOWN',
     ];
-    private const AVAILABLE_STATES = [
+    public const ALLOWED_STATES = [
         'unhandled_problems',
         'resources_problems',
         'in_downtime',
         'acknowledged',
     ];
-    private const AVAILABLE_STATUS_TYPES = [
+    public const ALLOWED_STATUS_TYPES = [
         'hard',
         'soft',
+    ];
+
+    /** @var _RequestParameters */
+    private const EMPTY_FILTERS = [
+        self::PARAM_RESOURCE_TYPE => [],
+        self::PARAM_STATES => [],
+        self::PARAM_STATUSES => [],
+        self::PARAM_HOSTGROUP_NAMES => [],
+        self::PARAM_SERVICEGROUP_NAMES => [],
+        self::PARAM_MONITORING_SERVER_NAMES => [],
+        self::PARAM_SERVICE_CATEGORY_NAMES => [],
+        self::PARAM_HOST_CATEGORY_NAMES => [],
+        self::PARAM_SERVICE_SEVERITY_NAMES => [],
+        self::PARAM_HOST_SEVERITY_NAMES => [],
+        self::PARAM_HOST_SEVERITY_LEVELS => [],
+        self::PARAM_SERVICE_SEVERITY_LEVELS => [],
+        self::PARAM_STATUS_TYPES => [],
+        self::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY => false,
     ];
     private const PAGINATION_PARAMETERS = [
         RequestParameters::NAME_FOR_LIMIT,
@@ -119,27 +132,32 @@ final class FindResourcesRequestValidator
      */
     public function __construct(\Traversable $resourceTypes)
     {
-        $this->hasProviders($resourceTypes);
-
         $this->resourceTypes = array_map(
-            static fn(ResourceTypeInterface $resourceType) => $resourceType->getName(),
+            static fn(ResourceTypeInterface $resourceType): string => $resourceType->getName(),
             iterator_to_array($resourceTypes)
         );
+
+        if ([] === $this->resourceTypes) {
+            throw new \InvalidArgumentException(
+                'You must add at least one provider',
+                self::ERROR_NO_PROVIDERS
+            );
+        }
     }
 
     /**
-     * @param Request $request
+     * @param array<mixed> $queryParameters
      *
      * @throws \InvalidArgumentException
      *
      * @return _RequestParameters
      */
-    public function validateAndRetrieveRequestParameters(Request $request): array
+    public function validateAndRetrieveRequestParameters(array $queryParameters): array
     {
         $filterData = self::EMPTY_FILTERS;
 
         // Do not handle pagination query parameters and check that parameters are handled
-        foreach ($request->query->all() as $param => $data) {
+        foreach ($queryParameters as $param => $data) {
             // skip pagination parameters
             if (\in_array($param, self::PAGINATION_PARAMETERS, true)) {
                 continue;
@@ -147,38 +165,41 @@ final class FindResourcesRequestValidator
 
             // do not allow query parameters not managed
             if (! \array_key_exists($param, $filterData)) {
-                throw new \InvalidArgumentException('Request parameter provided not handled');
+                throw new \InvalidArgumentException(
+                    'Request parameter provided not handled',
+                    self::ERROR_UNKNOWN_PARAMETER
+                );
             }
 
             $value = $this->tryJsonDecodeParameterValue($data);
 
             switch ($param) {
-                case self::RESOURCE_TYPE_PARAM_FILTER:
+                case self::PARAM_RESOURCE_TYPE:
                     $filterData[$param] = $this->ensureResourceTypeFilter($param, $value);
                     break;
-                case self::STATES_PARAM_FILTER:
+                case self::PARAM_STATES:
                     $filterData[$param] = $this->ensureStatesFilter($param, $value);
                     break;
-                case self::STATUSES_PARAM_FILTER:
+                case self::PARAM_STATUSES:
                     $filterData[$param] = $this->ensureStatusesFilter($param, $value);
                     break;
-                case self::HOSTGROUP_NAMES_PARAM_FILTER:
-                case self::SERVICEGROUP_NAMES_PARAM_FILTER:
-                case self::MONITORING_SERVER_NAMES_PARAM_FILTER:
-                case self::SERVICE_CATEGORY_NAMES_PARAM_FILTER:
-                case self::HOST_CATEGORY_NAMES_PARAM_FILTER:
-                case self::SERVICE_SEVERITY_NAMES_PARAM_FILTER:
-                case self::HOST_SEVERITY_NAMES_PARAM_FILTER:
+                case self::PARAM_HOSTGROUP_NAMES:
+                case self::PARAM_SERVICEGROUP_NAMES:
+                case self::PARAM_MONITORING_SERVER_NAMES:
+                case self::PARAM_SERVICE_CATEGORY_NAMES:
+                case self::PARAM_HOST_CATEGORY_NAMES:
+                case self::PARAM_SERVICE_SEVERITY_NAMES:
+                case self::PARAM_HOST_SEVERITY_NAMES:
                     $filterData[$param] = $this->ensureArrayOfString($param, $value);
                     break;
-                case self::HOST_SEVERITY_LEVELS_PARAM_FILTER:
-                case self::SERVICE_SEVERITY_LEVELS_PARAM_FILTER:
+                case self::PARAM_HOST_SEVERITY_LEVELS:
+                case self::PARAM_SERVICE_SEVERITY_LEVELS:
                     $filterData[$param] = $this->ensureArrayOfInteger($param, $value);
                     break;
-                case self::STATUS_TYPES_PARAM_FILTER:
+                case self::PARAM_STATUS_TYPES:
                     $filterData[$param] = $this->ensureStatusTypes($param, $value);
                     break;
-                case self::FILTER_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY:
+                case self::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY:
                     $filterData[$param] = $this->ensureBoolean($param, $value);
                     break;
             }
@@ -222,7 +243,7 @@ final class FindResourcesRequestValidator
             if (! \in_array($string, $this->resourceTypes, true)) {
                 $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
 
-                throw new \InvalidArgumentException($message);
+                throw new \InvalidArgumentException($message, self::ERROR_NOT_A_RESOURCE_TYPE);
             }
             $types[] = $string;
         }
@@ -238,16 +259,16 @@ final class FindResourcesRequestValidator
      *
      * @throws \InvalidArgumentException
      *
-     * @return list<value-of<self::AVAILABLE_STATUSES>>
+     * @return list<value-of<self::ALLOWED_STATUSES>>
      */
     private function ensureStatusesFilter(string $parameterName, mixed $values): array
     {
         $statuses = [];
         foreach ($this->ensureArrayOfString($parameterName, $values) as $string) {
-            if (! \in_array($string, self::AVAILABLE_STATUSES, true)) {
+            if (! \in_array($string, self::ALLOWED_STATUSES, true)) {
                 $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
 
-                throw new \InvalidArgumentException($message);
+                throw new \InvalidArgumentException($message, self::ERROR_NOT_A_STATUS);
             }
             $statuses[] = $string;
         }
@@ -263,16 +284,16 @@ final class FindResourcesRequestValidator
      *
      * @throws \InvalidArgumentException
      *
-     * @return list<value-of<self::AVAILABLE_STATES>>
+     * @return list<value-of<self::ALLOWED_STATES>>
      */
     private function ensureStatesFilter(string $parameterName, mixed $values): array
     {
         $states = [];
         foreach ($this->ensureArrayOfString($parameterName, $values) as $string) {
-            if (! \in_array($string, self::AVAILABLE_STATES, true)) {
+            if (! \in_array($string, self::ALLOWED_STATES, true)) {
                 $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
 
-                throw new \InvalidArgumentException($message);
+                throw new \InvalidArgumentException($message, self::ERROR_NOT_A_STATE);
             }
             $states[] = $string;
         }
@@ -288,16 +309,16 @@ final class FindResourcesRequestValidator
      *
      * @throws \InvalidArgumentException
      *
-     * @return list<value-of<self::AVAILABLE_STATUS_TYPES>>
+     * @return list<value-of<self::ALLOWED_STATUS_TYPES>>
      */
     private function ensureStatusTypes(string $parameterName, mixed $values): array
     {
         $statusTypes = [];
         foreach ($this->ensureArrayOfString($parameterName, $values) as $string) {
-            if (! \in_array($string, self::AVAILABLE_STATUS_TYPES, true)) {
+            if (! \in_array($string, self::ALLOWED_STATUS_TYPES, true)) {
                 $message = sprintf('Value provided for %s parameter is not supported (was: %s)', $parameterName, $string);
 
-                throw new \InvalidArgumentException($message);
+                throw new \InvalidArgumentException($message, self::ERROR_NOT_A_STATUS_TYPE);
             }
             $statusTypes[] = $string;
         }
@@ -323,7 +344,7 @@ final class FindResourcesRequestValidator
                 $message = sprintf('Values provided for %s should only be strings', $parameterName);
                 $this->error($message);
 
-                throw new \InvalidArgumentException($message);
+                throw new \InvalidArgumentException($message, self::ERROR_NOT_AN_ARRAY_OF_STRING);
             }
             $strings[] = $value;
         }
@@ -352,7 +373,7 @@ final class FindResourcesRequestValidator
                 $message = sprintf('Values provided for %s should only be integers', $parameterName);
                 $this->error($message);
 
-                throw new \InvalidArgumentException($message);
+                throw new \InvalidArgumentException($message, self::ERROR_NOT_AN_ARRAY_OF_INTEGER);
             }
             $integers[] = $value;
         }
@@ -375,7 +396,7 @@ final class FindResourcesRequestValidator
         if (! \is_array($value)) {
             $message = sprintf('Value provided for %s is not correctly formatted. Array expected.', $parameterName);
 
-            throw new \InvalidArgumentException($message);
+            throw new \InvalidArgumentException($message, self::ERROR_NOT_AN_ARRAY);
         }
 
         return $value;
@@ -395,22 +416,11 @@ final class FindResourcesRequestValidator
     {
         if (! \is_bool($value)) {
             throw new \InvalidArgumentException(
-                sprintf('Value provided for %s is not correctly formatted. Boolean expected', $parameterName)
+                sprintf('Value provided for %s is not correctly formatted. Boolean expected', $parameterName),
+                self::ERROR_NOT_A_BOOLEAN
             );
         }
 
         return $value;
-    }
-
-    /**
-     * @param \Traversable<ResourceTypeInterface> $providers
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function hasProviders(\Traversable $providers): void
-    {
-        if ($providers instanceof \Countable && \count($providers) === 0) {
-            throw new \InvalidArgumentException('You must add at least one provider');
-        }
     }
 }
