@@ -30,7 +30,7 @@
                 "channel",
                 "subject",
                 "message",
-                "message_formatted"
+                "formatted_message"
             ],
             "properties": {
                 "channel": {
@@ -43,7 +43,7 @@
                 "message": {
                     "type": "string"
                 },
-                "message_formatted": {
+                "formatted_message": {
                     "type": "string"
                 }
             }

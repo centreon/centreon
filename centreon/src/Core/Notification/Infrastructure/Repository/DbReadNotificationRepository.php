@@ -119,7 +119,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $this->info('Get all notification messages for notification with ID #' . $notificationId);
 
         $request = $this->translateDbName(
-            'SELECT id, channel, subject, message, message_formatted
+            'SELECT id, channel, subject, message, formatted_message
             FROM `:db`.notification_message
             WHERE notification_id = :notificationId'
         );
@@ -134,7 +134,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                 NotificationChannel::from($result['channel']),
                 $result['subject'],
                 $result['message'],
-                $result['message_formatted']
+                $result['formatted_message']
             );
         }
 

@@ -48,7 +48,7 @@ final class AddNotificationRequest
      *         channel:string,
      *         subject:string,
      *         message:string,
-     *         message_formatted:string
+     *         formatted_message:string
      *     }> $messages
      */
     public array $messages = [];

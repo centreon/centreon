@@ -226,7 +226,7 @@ final class AddNotification
                 'channel' => $message->getChannel()->value,
                 'subject' => $message->getSubject(),
                 'message' => $message->getRawMessage(),
-                'message_formatted' => $message->getFormattedMessage()
+                'formatted_message' => $message->getFormattedMessage()
             ],
             $messages
         );

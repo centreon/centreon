@@ -73,7 +73,7 @@ beforeEach(function (): void {
             'channel' => 'Slack',
             'subject' => 'some subject',
             'message' => 'some message',
-            'message_formatted' => '<h1> A Test Message </h1>'
+            'formatted_message' => '<h1> A Test Message </h1>'
         ],
     ];
     $this->request->isActivated = true;
@@ -103,7 +103,7 @@ beforeEach(function (): void {
             NotificationChannel::from($this->request->messages[0]['channel']),
             $this->request->messages[0]['subject'],
             $this->request->messages[0]['message'],
-            $this->request->messages[0]['message_formatted'],
+            $this->request->messages[0]['formatted_message'],
         ),
     ];
     $this->resources = [
@@ -548,7 +548,7 @@ it('should return created object on success', function (): void {
                 'channel' => $message->getChannel()->value,
                 'subject' => $message->getSubject(),
                 'message' => $message->getRawMessage(),
-                'message_formatted' => $message->getFormattedMessage(),
+                'formatted_message' => $message->getFormattedMessage(),
             ]),
             $this->messages
         ))

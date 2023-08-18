@@ -37,7 +37,7 @@ class NotificationMessageFactory
      *  channel:string,
      *  subject:string,
      *  message:string,
-     *  message_formatted:string
+     *  formatted_message:string
      * } $message
      *
      * @throws \Assert\AssertionFailedException
@@ -50,7 +50,7 @@ class NotificationMessageFactory
             $messageType,
             $message['subject'],
             $message['message'],
-            $message['message_formatted']
+            $message['formatted_message']
         );
     }
 
