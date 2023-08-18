@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,14 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Centreon\Infrastructure\Monitoring\Resource;
+namespace Tests\Core\Resources\Infrastructure\Repository;
 
-use Centreon\Domain\Monitoring\ResourceStatus;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
-use Core\Resources\Infrastructure\Repository\DbResourceFactory;
+use Centreon\Domain\Monitoring\ResourceStatus;
 use Core\Domain\RealTime\Model\ResourceTypes\ServiceResourceType;
+use Core\Resources\Infrastructure\Repository\DbResourceFactory;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->record = [
         'resource_id' => '9',
         'name' => 'Ping',
@@ -74,7 +74,7 @@ beforeEach(function () {
     $this->serviceResourceType = $this->createMock(ServiceResourceType::class);
 });
 
-it('should create a resource model from record', function () {
+it('should create a resource model from record', function (): void {
     $this->serviceResourceType
         ->expects($this->any())
         ->method('isValidForTypeId')
