@@ -34,7 +34,7 @@ class NotificationMessage
      * @param NotificationChannel $channel
      * @param string $subject
      * @param string $message
-     * @param string $messageFormatted
+     * @param string $formattedMessage
      *
      * @throws \Assert\AssertionFailedException
      */

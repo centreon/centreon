@@ -123,7 +123,7 @@ final class AddNotificationController extends AbstractController
                 'channel' => $messageData['channel'],
                 'subject' => $messageData['subject'],
                 'message' => $messageData['message'],
-                'formatted_message' => $messageData['formatted_message']
+                'formatted_message' => $messageData['formatted_message'],
             ];
         }
         foreach ($data['resources'] as $resourceData) {
