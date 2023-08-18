@@ -29,7 +29,8 @@
             "required": [
                 "channel",
                 "subject",
-                "message"
+                "message",
+                "message_formatted"
             ],
             "properties": {
                 "channel": {
@@ -40,6 +41,9 @@
                     "type": "string"
                 },
                 "message": {
+                    "type": "string"
+                },
+                "message_formatted": {
                     "type": "string"
                 }
             }

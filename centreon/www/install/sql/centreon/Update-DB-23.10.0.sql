@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS `notification_message` (
   `channel` enum('Email','Slack','Sms') DEFAULT 'Email',
   `subject` VARCHAR(255) NOT NULL,
   `message` TEXT NOT NULL,
+  `message_formatted` TEXT NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `notification_message_notification_id`
     FOREIGN KEY (`notification_id`)

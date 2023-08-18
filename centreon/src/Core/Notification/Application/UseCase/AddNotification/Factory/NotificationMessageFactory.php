@@ -36,7 +36,8 @@ class NotificationMessageFactory
      * @param array{
      *  channel:string,
      *  subject:string,
-     *  message:string
+     *  message:string,
+     *  message_formatted:string
      * } $message
      *
      * @throws \Assert\AssertionFailedException
@@ -48,7 +49,8 @@ class NotificationMessageFactory
         return new NotificationMessage(
             $messageType,
             $message['subject'],
-            $message['message']
+            $message['message'],
+            $message['message_formatted']
         );
     }
 

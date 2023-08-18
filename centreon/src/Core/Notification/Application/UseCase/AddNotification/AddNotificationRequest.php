@@ -47,7 +47,8 @@ final class AddNotificationRequest
     /** @var array<array{
      *         channel:string,
      *         subject:string,
-     *         message:string
+     *         message:string,
+     *         message_formatted:string
      *     }> $messages
      */
     public array $messages = [];

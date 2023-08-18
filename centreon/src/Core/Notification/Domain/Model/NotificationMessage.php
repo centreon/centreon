@@ -34,13 +34,15 @@ class NotificationMessage
      * @param NotificationChannel $channel
      * @param string $subject
      * @param string $message
+     * @param string $messageFormatted
      *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
         protected NotificationChannel $channel,
         protected string $subject = '',
-        protected string $message = ''
+        protected string $message = '',
+        protected string $messageFormatted = ''
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 
@@ -51,6 +53,7 @@ class NotificationMessage
         Assertion::notEmptyString($this->message, "{$shortName}::message");
         Assertion::maxLength($this->subject, self::MAX_SUBJECT_LENGTH, "{$shortName}::subject");
         Assertion::maxLength($this->message, self::MAX_MESSAGE_LENGTH, "{$shortName}::message");
+        Assertion::maxLength($this->message, self::MAX_MESSAGE_LENGTH, "{$shortName}::messageFormatted");
     }
 
     public function getChannel(): NotificationChannel
@@ -63,8 +66,13 @@ class NotificationMessage
         return $this->subject;
     }
 
-    public function getMessage(): string
+    public function getRawMessage(): string
     {
         return $this->message;
+    }
+
+    public function getFormattedMessage(): string
+    {
+        return $this->messageFormatted;
     }
 }

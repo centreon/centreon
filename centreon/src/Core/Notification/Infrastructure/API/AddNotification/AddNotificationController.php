@@ -67,7 +67,8 @@ final class AddNotificationController extends AbstractController
              *     messages: array<array{
              *         channel:string,
              *         subject:string,
-             *         message:string
+             *         message:string,
+             *         message_formatted:string
              *     }>,
              *     is_activated?: bool,
              * } $data
@@ -101,7 +102,8 @@ final class AddNotificationController extends AbstractController
      *     messages: array<array{
      *         channel:string,
      *         subject:string,
-     *         message:string
+     *         message:string,
+     *         message_formatted:string
      *     }>,
      *     is_activated?: bool,
      * } $data
@@ -121,6 +123,7 @@ final class AddNotificationController extends AbstractController
                 'channel' => $messageData['channel'],
                 'subject' => $messageData['subject'],
                 'message' => $messageData['message'],
+                'message_formatted' => $messageData['message_formatted']
             ];
         }
         foreach ($data['resources'] as $resourceData) {

@@ -11,3 +11,5 @@ properties:
     type: string
   message:
     type: string
+  message_formatted:
+    type: string
