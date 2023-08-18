@@ -57,7 +57,13 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
         data: null,
         id: null,
         moduleName: null,
-        options: {},
+        options: {
+          description: {
+            content: null,
+            enabled: true
+          },
+          openLinksInNewTab: true
+        },
         panelConfiguration: null
       });
 
@@ -96,8 +102,12 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       moduleName: selectedWidget.moduleName,
       options: {
         ...options,
-        description: currentValues.options.description,
-        name: currentValues.options.name
+        description: currentValues.options.description || {
+          content: null,
+          enabled: true
+        },
+        name: currentValues.options.name,
+        openLinksInNewTab: currentValues.options.openLinksInNewTab || true
       },
       panelConfiguration: selectedWidget.federatedComponentsConfiguration
     }));

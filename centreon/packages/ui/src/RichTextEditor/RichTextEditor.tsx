@@ -3,11 +3,15 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
+import { HeadingNode } from '@lexical/rich-text';
+import { ListItemNode, ListNode } from '@lexical/list';
 import anylogger from 'anylogger';
 import { makeStyles } from 'tss-react/mui';
 import { EditorState } from 'lexical';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { equals } from 'ramda';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 
 import { Typography } from '@mui/material';
 
@@ -18,6 +22,7 @@ import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 
 export interface RichTextEditorProps {
   contentClassName?: string;
+  disabled?: boolean;
   displayMacrosButton?: boolean;
   editable: boolean;
   editorState?: string;
@@ -28,6 +33,7 @@ export interface RichTextEditorProps {
   minInputHeight?: number;
   namespace?: string;
   onBlur?: (e: string) => void;
+  openLinkInNewTab?: boolean;
   placeholder?: string;
   resetEditorToInitialStateCondition?: () => boolean;
   toolbarPositions?: 'start' | 'end';
@@ -94,7 +100,9 @@ const RichTextEditor = ({
   error,
   onBlur,
   contentClassName,
-  displayMacrosButton = false
+  displayMacrosButton = false,
+  disabled = false,
+  openLinkInNewTab = true
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -106,7 +114,7 @@ const RichTextEditor = ({
     editable,
     editorState: initialEditorState,
     namespace,
-    nodes: [AutoLinkNode, LinkNode],
+    nodes: [AutoLinkNode, LinkNode, HeadingNode, ListNode, ListItemNode],
     onError,
     theme: {
       link: classes.link,
@@ -125,9 +133,9 @@ const RichTextEditor = ({
       <div className={classes.container}>
         <div className={classes.toolbar}>
           <ToolbarPlugin
+            disabled={disabled}
             displayMacrosButton={displayMacrosButton}
             editable={editable}
-            getEditorState={getEditorState}
           />
         </div>
         <div>
@@ -136,6 +144,7 @@ const RichTextEditor = ({
             contentEditable={
               <ContentEditable
                 className={contentClassName || ''}
+                disabled={disabled}
                 editable={editable}
                 editorState={editorState}
                 error={error}
@@ -155,8 +164,13 @@ const RichTextEditor = ({
           />
           <HistoryPlugin />
           <LinkPlugin />
-          <AutoCompleteLinkPlugin />
-          <FloatingLinkEditorPlugin editable={editable} />
+          <ListPlugin />
+          <OnChangePlugin onChange={getEditorState} />
+          <AutoCompleteLinkPlugin openLinkInNewTab={openLinkInNewTab} />
+          <FloatingLinkEditorPlugin
+            editable={editable}
+            openLinkInNewTab={openLinkInNewTab}
+          />
           {error && <Typography className={classes.error}>{error}</Typography>}
         </div>
       </div>

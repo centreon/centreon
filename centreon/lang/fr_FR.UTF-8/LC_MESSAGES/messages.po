@@ -18005,3 +18005,12 @@ msgstr "Une erreur est survenue lors de la récupération des données de métri
 
 msgid "Invalid metric format"
 msgstr "Format de métrique invalide"
+
+msgid "Show description"
+msgstr "Afficher la description"
+
+msgid "Open links in new tab"
+msgstr "Ouvrir les liens dans un nouvel onglet"
+
+msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
+msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."

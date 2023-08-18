@@ -18,10 +18,11 @@ import {
 import {
   labelAdd,
   labelDelete,
-  labelDescription,
+  labelShowDescription,
   labelEdit,
   labelMetrics,
   labelName,
+  labelOpenLinksInNewTab,
   labelPleaseChooseAWidgetToActivatePreview,
   labelPleaseSelectAResource,
   labelResourceType,
@@ -86,8 +87,13 @@ const initialFormDataEdit = {
   id: `centreon-widget-text_1`,
   moduleName: widgetTextConfiguration.moduleName,
   options: {
-    description: 'Description',
-    name: 'Widget name'
+    description: {
+      content:
+        '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
+      enabled: true
+    },
+    name: 'Widget name',
+    openLinksInNewTab: false
   },
   panelConfiguration: {
     federatedComponents: ['./text'],
@@ -168,6 +174,8 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelName).type('Generic input');
         cy.findByLabelText('Generic text').type('Text');
+        cy.findByLabelText(labelShowDescription).should('be.checked');
+        cy.findByLabelText(labelOpenLinksInNewTab).should('be.checked');
 
         cy.findByLabelText(labelAdd).should('be.enabled');
 
@@ -192,6 +200,25 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText(labelAdd).should('be.enabled');
 
         cy.matchImageSnapshot();
+      });
+
+      it('disables the description field when the display description checkbox is not checked', () => {
+        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.contains('Generic input (example)').click();
+
+        cy.findByLabelText('RichTextEditor').should(
+          'have.attr',
+          'contenteditable',
+          'true'
+        );
+
+        cy.findByLabelText(labelShowDescription).uncheck();
+
+        cy.findByLabelText('RichTextEditor').should(
+          'have.attr',
+          'contenteditable',
+          'false'
+        );
       });
     });
 
@@ -220,10 +247,7 @@ describe('AddEditWidgetModal', () => {
           'Generic text (example)'
         );
         cy.findByLabelText(labelName).should('have.value', 'Widget name');
-        cy.findByLabelText(labelDescription).should(
-          'have.value',
-          'Description'
-        );
+        cy.findByLabelText('RichTextEditor').contains('Description');
         cy.findByLabelText(labelEdit).should('be.disabled');
 
         cy.matchImageSnapshot();
@@ -248,11 +272,11 @@ describe('AddEditWidgetModal', () => {
       cy.findByLabelText(labelWidgetLibrary).click();
       cy.contains(/^Generic text$/).click();
 
-      cy.findAllByLabelText('RichTextEditor').eq(1).type('Hello ');
-      cy.findByLabelText('bold').click();
-      cy.findAllByLabelText('RichTextEditor').eq(1).type('World');
-      cy.findByLabelText('bold').click();
-      cy.findAllByLabelText('RichTextEditor').eq(1).type(`
+      cy.findAllByLabelText('RichTextEditor').eq(2).type('Hello ');
+      cy.findAllByLabelText('bold').eq(1).click();
+      cy.findAllByLabelText('RichTextEditor').eq(2).type('World');
+      cy.findAllByLabelText('bold').eq(1).click();
+      cy.findAllByLabelText('RichTextEditor').eq(2).type(`
       
       
       Hello!
