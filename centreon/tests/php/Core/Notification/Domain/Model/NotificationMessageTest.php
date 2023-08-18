@@ -92,3 +92,20 @@ it('should throw an exception when notification message content is too long', fu
         'NotificationMessage::message'
     )->getMessage()
 );
+
+it('should throw an exception when notification formatted message content is too long', function (): void {
+    new NotificationMessage(
+        $this->channel,
+        $this->subject,
+        $this->message,
+        str_repeat('a', NotificationMessage::MAX_MESSAGE_LENGTH + 1),
+    );
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::maxLength(
+        str_repeat('a', NotificationMessage::MAX_MESSAGE_LENGTH + 1),
+        NotificationMessage::MAX_MESSAGE_LENGTH + 1,
+        NotificationMessage::MAX_MESSAGE_LENGTH,
+        'NotificationMessage::formattedMessage'
+    )->getMessage()
+);

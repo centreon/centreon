@@ -54,7 +54,7 @@ class NotificationMessage
         Assertion::notEmptyString($this->message, "{$shortName}::message");
         Assertion::maxLength($this->subject, self::MAX_SUBJECT_LENGTH, "{$shortName}::subject");
         Assertion::maxLength($this->message, self::MAX_MESSAGE_LENGTH, "{$shortName}::message");
-        Assertion::maxLength($this->message, self::MAX_MESSAGE_LENGTH, "{$shortName}::formattedMessage");
+        Assertion::maxLength($this->formattedMessage, self::MAX_MESSAGE_LENGTH, "{$shortName}::formattedMessage");
     }
 
     public function getChannel(): NotificationChannel

@@ -43,7 +43,7 @@ Feature:
           "channel": "Slack",
           "subject": "Hello world !",
           "message": "just a small message",
-          "formatted_message": "just a small message"
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -119,7 +119,7 @@ Feature:
               "channel": "Slack",
               "subject": "Hello world !",
               "message": "just a small message",
-              "formatted_message": "just a small message"
+              "formatted_message": "a formatted message"
           }
       ],
       "is_activated": true
@@ -172,7 +172,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -205,7 +205,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -273,7 +273,7 @@ Feature:
                 "channel": "Slack",
                 "subject": "Hello world !",
                 "message": "just a small message",
-                "formatted_message": "just a small message"
+                "formatted_message": "a formatted message"
             }
         ],
         "is_activated": true
@@ -316,7 +316,7 @@ Feature:
           "channel": "Slack",
           "subject": "Hello world !",
           "message": "just a small message",
-          "formatted_message": "just a small message"
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -412,7 +412,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -506,7 +506,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -555,7 +555,7 @@ Feature:
           "channel": "Slack",
           "subject": "Hello world !",
           "message": "just a small message",
-          "formatted_message": "just a small message"
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -685,7 +685,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -799,7 +799,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -855,7 +855,7 @@ Feature:
           "channel": "Slack",
           "subject": "Hello world !",
           "message": "just a small message",
-          "formatted_message": "just a small message"
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -890,7 +890,7 @@ Feature:
           "channel": "Slack",
           "subject": "Hello world !",
           "message": "just a small message",
-          "formatted_message": "just a small message"
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -1020,7 +1020,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1048,7 +1048,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1143,7 +1143,7 @@ Feature:
           "channel": "Slack",
           "subject": "Hello world !",
           "message": "just a small message",
-          "formatted_message": "just a small message"
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -1196,7 +1196,7 @@ Feature:
           "channel": "Slack",
           "subject": "Hello world !",
           "message": "just a small message",
-          "formatted_message": "just a small message"
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -1259,7 +1259,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1320,7 +1320,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1375,7 +1375,7 @@ Feature:
           "channel": "Slack",
           "subject": "Hello world !",
           "message": "just a small message",
-          "formatted_message": "just a small message"
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -1432,7 +1432,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1487,7 +1487,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1545,7 +1545,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1590,7 +1590,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1670,7 +1670,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1702,7 +1702,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20],
@@ -1827,7 +1827,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [
@@ -1869,7 +1869,7 @@ Feature:
             "channel": "Slack",
             "subject": "Hello world !",
             "message": "just a small message",
-            "formatted_message": "just a small message"
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [
