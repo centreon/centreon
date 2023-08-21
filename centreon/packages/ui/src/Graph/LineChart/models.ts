@@ -19,7 +19,7 @@ import { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
 
 export interface LineChartEndpoint {
   baseUrl: string;
-  queryParameters: LineChartInterval;
+  queryParameters: GraphInterval;
 }
 export interface Data {
   baseAxis: number;

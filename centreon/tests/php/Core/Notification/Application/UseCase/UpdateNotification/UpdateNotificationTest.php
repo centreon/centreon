@@ -162,7 +162,8 @@ it('should present an InvalidArgumentResponse when a message has an empty subjec
         [
             "channel" => "Email",
             "subject" => "",
-            "message" => "This is my message"
+            "message" => "This is my message",
+            "formatted_message" => "<h1>This is my message</h1>",
         ]
     ];
 
@@ -199,7 +200,8 @@ it('should present a no content response when everything is ok', function (): vo
         [
             "channel" => "Email",
             "subject" => "Subject",
-            "message" => "This is my message"
+            "message" => "This is my message",
+            "formatted_message" => "<h1>This is my message</h1>",
         ]
     ];
     $request->resources = [

@@ -6573,6 +6573,9 @@ packages:
   /@types/node/14.18.54:
     resolution: {integrity: sha512-uq7O52wvo2Lggsx1x21tKZgqkJpvwCseBBPtX/nKQfpVlEsLOb11zZ1CRsWUKvJF0+lzuA9jwvA7Pr2Wt7i3xw==}
 
+  /@types/node/14.18.54:
+    resolution: {integrity: sha512-uq7O52wvo2Lggsx1x21tKZgqkJpvwCseBBPtX/nKQfpVlEsLOb11zZ1CRsWUKvJF0+lzuA9jwvA7Pr2Wt7i3xw==}
+
   /@types/node/16.18.31:
     resolution: {integrity: sha512-KPXltf4z4g517OlVJO9XQ2357CYw7fvuJ3ZuBynjXC5Jos9i+K7LvFb7bUIwtJXSZj0vTp9Q6NJBSQpkwwO8Zw==}
     dev: true

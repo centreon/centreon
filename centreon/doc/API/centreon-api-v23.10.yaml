@@ -4512,6 +4512,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /platform/features:
+    $ref: './v23.10/Platform/Features.yaml'
   /platform/versions:
     $ref: './v23.10/Platform/Versions.yaml'
   /platform/updates:
