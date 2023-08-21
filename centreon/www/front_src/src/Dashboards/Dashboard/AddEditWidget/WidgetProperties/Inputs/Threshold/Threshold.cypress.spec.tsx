@@ -75,7 +75,7 @@ const initializeComponent = ({ metrics, enabled = false }): void => {
 };
 
 describe('Thresold', () => {
-  it('displays the threshold with no selected metrics', () => {
+  it('does not display any default threshold values when no metrics are passed', () => {
     initializeComponent({ metrics: emptyMetrics });
 
     cy.contains(labelThreshold).should('be.visible');
