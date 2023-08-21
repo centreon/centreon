@@ -209,7 +209,7 @@ const checkIfUserNotificationsAreEnabled = (): void => {
         return null;
       }
 
-      throw new Error(`User notifications are not enabled.`);
+      throw new Error(`User notifications are disabled.`);
     }
   );
 };

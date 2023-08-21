@@ -23,6 +23,10 @@ Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
 });
 
+Cypress.Commands.add('disableListingAutoRefresh', (): Cypress.Chainable => {
+  return cy.getByTestId({ testId: 'Disable autorefresh' }).click();
+});
+
 Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   return cy.executeActionViaClapi({
     bodyContent: {
@@ -189,6 +193,7 @@ interface requestOnDatabaseProps {
 declare global {
   namespace Cypress {
     interface Chainable {
+      disableListingAutoRefresh: () => Cypress.Chainable;
       executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
       getByTestId: ({ tag, testId }: GetByTestIdProps) => Cypress.Chainable;

@@ -6,7 +6,7 @@ Feature: Add a downtime on a resource
 Background:
     Given the user have the necessary rights to page Resource Status
     And the user have the necessary rights to set downtime
-    And minimally one resource with and notifications enabled on user
+    And minimally one resource with notifications enabled on user
 
 Scenario: Set a downtime on resource with default settings
     Given a resource is selected
@@ -33,7 +33,7 @@ Scenario: Cancel a downtime on a resource
     And the resource should not be in Downtime anymore
 
 Scenario: Cancel multiple downtimes on multiple resources
-    Given multiple resources are on downtime
+    Given multiple resources are in downtime
     Given that you have to go to the downtime page
     When I search for the resources currently "In Downtime" in the list
     Then the user selects the checkboxes and clicks on the "Cancel" action
