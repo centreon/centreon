@@ -79,6 +79,22 @@ const getYupValidatorType = ({
           )
           .min(1, t(labelPleaseSelectAMetric) as string)
       )
+    ],
+    [
+      equals<FederatedWidgetOptionType>(
+        FederatedWidgetOptionType.refreshInterval
+      ),
+      always(Yup.string())
+    ],
+    [
+      equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.threshold),
+      always(
+        Yup.object().shape({
+          critical: Yup.number().nullable(),
+          enabled: Yup.boolean(),
+          warning: Yup.number().nullable()
+        })
+      )
     ]
   ])(widgetOptionType);
 

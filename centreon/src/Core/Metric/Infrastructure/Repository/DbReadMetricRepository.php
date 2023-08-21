@@ -29,6 +29,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
 use Core\Metric\Domain\Model\Metric;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetricRepositoryInterface
 {
