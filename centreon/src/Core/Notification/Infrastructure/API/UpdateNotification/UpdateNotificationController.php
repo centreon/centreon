@@ -93,7 +93,8 @@ final class UpdateNotificationController extends AbstractController
      *     messages: array<array{
      *         channel:string,
      *         subject:string,
-     *         message:string
+     *         message:string,
+     *         formatted_message:string
      *     }>,
      *     is_activated?: bool,
      * } $dataSent
@@ -110,6 +111,7 @@ final class UpdateNotificationController extends AbstractController
                 'channel' => $messageData['channel'],
                 'subject' => $messageData['subject'],
                 'message' => $messageData['message'],
+                'formatted_message' => $messageData['formatted_message'],
             ];
         }
         foreach ($dataSent['resources'] as $resourceData) {
