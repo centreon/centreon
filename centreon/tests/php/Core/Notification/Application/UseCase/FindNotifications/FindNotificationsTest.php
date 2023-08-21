@@ -48,7 +48,8 @@ beforeEach(function (): void {
     $this->presenter = new FindNotificationsPresenterStub($this->presenterFormatter);
     $this->notificationRepository = $this->createMock(ReadNotificationRepositoryInterface::class);
     $this->repositoryProvider = $this->createMock(NotificationResourceRepositoryProviderInterface::class);
-    $this->resourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
+    $this->hgResourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
+    $this->sgResourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
     $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
 });
 
@@ -125,13 +126,11 @@ it('should get the resources count with ACL calculation when the user is not adm
         new AccessGroup(2, 'acl-name-two', 'acl-alias-two'),
     ];
 
+    $repositories = [$this->hgResourceRepository, $this->sgResourceRepository];
     $this->repositoryProvider
-        ->expects($this->exactly(2))
-        ->method('getRepository')
-        ->willReturnOnConsecutiveCalls(
-            $this->resourceRepository,
-            $this->resourceRepository
-        );
+        ->expects($this->any())
+        ->method('getRepositories')
+        ->willReturn($repositories);
 
     $this->readAccessGroupRepository
         ->expects($this->once())
@@ -139,9 +138,11 @@ it('should get the resources count with ACL calculation when the user is not adm
         ->with($contact)
         ->willReturn($accessGroups);
 
-    $this->resourceRepository
-        ->expects($this->exactly(2))
-        ->method('findResourcesCountByNotificationIdsAndAccessGroups');
+    foreach ($repositories as $repository) {
+        $repository
+            ->expects($this->any())
+            ->method('findResourcesCountByNotificationIdsAndAccessGroups');
+    }
 
     (new FindNotifications(
         $contact,
@@ -178,17 +179,17 @@ it('should get the resources count without ACL calculation when the user is admi
             2 => 3,
         ]);
 
+    $repositories = [$this->hgResourceRepository, $this->sgResourceRepository];
     $this->repositoryProvider
-        ->expects($this->exactly(2))
-        ->method('getRepository')
-        ->willReturnOnConsecutiveCalls(
-            $this->resourceRepository,
-            $this->resourceRepository
-        );
+        ->expects($this->any())
+        ->method('getRepositories')
+        ->willReturn($repositories);
 
-    $this->resourceRepository
-        ->expects($this->exactly(2))
-        ->method('findResourcesCountByNotificationIds');
+    foreach ($repositories as $repository) {
+        $repository
+            ->expects($this->any())
+            ->method('findResourcesCountByNotificationIds');
+    }
 
     (new FindNotifications(
         $contact,
@@ -243,24 +244,34 @@ it('should present a FindNotificationsResponse when the use case is executed cor
         ->method('findUsersCountByNotificationIds')
         ->willReturn($usersCount);
 
+    $this->hgResourceRepository
+        ->expects($this->any())
+        ->method('resourceType')
+        ->willReturn('hostgroup');
+
+    $this->sgResourceRepository
+        ->expects($this->any())
+        ->method('resourceType')
+        ->willReturn('servicegroup');
+
+    $repositories = [$this->hgResourceRepository, $this->sgResourceRepository];
     $this->repositoryProvider
-        ->expects($this->exactly(2))
-        ->method('getRepository')
-        ->willReturnOnConsecutiveCalls(
-            $this->resourceRepository,
-            $this->resourceRepository
-        );
+        ->expects($this->any())
+        ->method('getRepositories')
+        ->willReturn($repositories);
 
     $hostgroupResourcesCount = [1 => 10, 2 => 5, 3 => 6];
     $servicegroupResourcesCount = [1 => 8, 2 => 12, 3 => 3];
+    $resourcesCount = [$hostgroupResourcesCount, $servicegroupResourcesCount];
 
-    $this->resourceRepository
-        ->expects($this->exactly(2))
-        ->method('findResourcesCountByNotificationIds')
-        ->willReturnOnConsecutiveCalls(
-            $hostgroupResourcesCount,
-            $servicegroupResourcesCount
-        );
+    $index = 0;
+    foreach ($repositories as $repository) {
+        $repository
+            ->expects($this->any())
+            ->method('findResourcesCountByNotificationIds')
+            ->willReturn($resourcesCount[$index]);
+        $index++;
+    }
 
     (new FindNotifications(
         $contact,

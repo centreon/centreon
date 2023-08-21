@@ -47,7 +47,7 @@ const useStyles = makeStyles<StyleProps>()(
 
 interface Props {
   className?: string;
-  disabled: boolean;
+  disabled?: boolean;
   editable: boolean;
   editorState?: string;
   error?: string;
@@ -94,10 +94,8 @@ const ContentEditable = ({
   );
 
   useLayoutEffect(() => {
-    if (!editable) {
-      const newEditorState = editor.parseEditorState(
-        editorState || defaultState
-      );
+    if (editorState && !editable) {
+      const newEditorState = editor.parseEditorState(editorState);
 
       editor.setEditorState(newEditorState);
     }

@@ -122,7 +122,12 @@ it('should get the resources with ACL calculation when the user is not admin', f
     );
 
     $notification = new Notification(1, 'notification', new ConfigurationTimePeriod(1, '24x7'), false);
-    $notificationMessage = new NotificationMessage(NotificationChannel::from('Slack'), 'Message subject', 'Message content');
+    $notificationMessage = new NotificationMessage(
+        NotificationChannel::from('Slack'),
+        'Message subject',
+        'Message content',
+        '<p>Message content</p>'
+    );
     $notificationUser = new ConfigurationUser(3, 'test-user');
 
     $this->notificationRepository
@@ -173,7 +178,8 @@ it('should present a FindNotificationResponse when everything is OK', function (
     $notificationMessage = new NotificationMessage(
         NotificationChannel::from('Slack'),
         'Message subject',
-        'Message content'
+        'Message content',
+        '<p>Message content</p>'
     );
     $notificationUser = new ConfigurationUser(3, 'test-user');
     $notificationResource = new NotificationResource(

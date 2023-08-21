@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-import { useSetAtom } from 'jotai';
-import { equals, not, pathEq } from 'ramda';
+import { useAtom, useSetAtom } from 'jotai';
+import { equals, not, pathEq, path } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -20,6 +20,7 @@ import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
 import reactRoutes from '../reactRoutes/routeMap';
+import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 
 import { aclEndpoint, parametersEndpoint } from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
@@ -65,6 +66,7 @@ const useApp = (): UseAppState => {
       request: getData
     });
 
+  const [platformVersion] = useAtom(platformVersionsAtom);
   const setDowntime = useSetAtom(downtimeAtom);
   const setRefreshInterval = useSetAtom(refreshIntervalAtom);
   const setAcl = useSetAtom(aclAtom);
@@ -127,11 +129,13 @@ const useApp = (): UseAppState => {
           logout();
         }
       });
-    getCustomPlatformRequest({
-      endpoint: loginPageCustomisationEndpoint
-    })
-      .then(({ platform_name }) => setPlaformName(platform_name))
-      .catch(() => undefined);
+    if (path(['modules', 'centreon-it-edition-extensions'], platformVersion)) {
+      getCustomPlatformRequest({
+        endpoint: loginPageCustomisationEndpoint
+      })
+        .then(({ platform_name }) => setPlaformName(platform_name))
+        .catch(() => undefined);
+    }
   }, []);
 
   const hasMinArgument = (): boolean => equals(searchParams.get('min'), '1');
