@@ -2,7 +2,7 @@ import { useTheme } from '@mui/material';
 
 export const margin = 40;
 
-export const barHeight = 60;
+export const barHeight = 50;
 
 export const groupMargin = 25;
 

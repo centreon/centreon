@@ -109,7 +109,7 @@ const ResponsiveSingleBar = ({
           {text}
           <animated.rect
             fill={barColor}
-            height={60}
+            height={barHeight}
             rx={4}
             style={springStyle}
             x={0}
