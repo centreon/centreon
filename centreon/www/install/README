@@ -1,5 +1,5 @@
 
-= Common tasks for editing database schemas and data = 
+= Common tasks for editing database schemas and data =
 
 **Notice**: Please make sure you use a version of mysqldump that outputs SQL keywords uppercase. I used the version 10.13 for the purpose of this tutorial.
 
