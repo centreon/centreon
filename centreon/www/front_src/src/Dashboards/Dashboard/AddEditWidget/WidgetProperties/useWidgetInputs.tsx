@@ -10,9 +10,11 @@ import { widgetPropertiesAtom } from '../atoms';
 
 import {
   WidgetMetrics,
+  WidgetRefreshInterval,
   WidgetResources,
   WidgetRichTextEditor,
-  WidgetTextField
+  WidgetTextField,
+  WidgetThreshold
 } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
@@ -34,7 +36,9 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.textfield]: WidgetTextField,
   [FederatedWidgetOptionType.resources]: WidgetResources,
   [FederatedWidgetOptionType.metrics]: WidgetMetrics,
-  [FederatedWidgetOptionType.richText]: WidgetRichTextEditor
+  [FederatedWidgetOptionType.richText]: WidgetRichTextEditor,
+  [FederatedWidgetOptionType.refreshInterval]: WidgetRefreshInterval,
+  [FederatedWidgetOptionType.threshold]: WidgetThreshold
 };
 
 const DefaultComponent = (): JSX.Element => <div />;

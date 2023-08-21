@@ -57,3 +57,18 @@ export const labelYourWidgetHasBeenModified =
 export const labelYourWidgetHasBeenCreated =
   'Your widget has been created successfully!';
 export const labelValueSettings = 'Value settings';
+export const labelRefreshInterval = 'Refresh interval';
+export const labelDashboardGlobalInterval =
+  'Dashboard global interval (by default)';
+export const labelCustomRefreshInterval = 'Custom refresh interval';
+export const labelSecond = 'second';
+export const labelManualRefresh = 'Manual refresh';
+export const labelInterval = 'Interval';
+export const labelThreshold = 'Threshold';
+export const labelShowThresholds = 'Show thresholds';
+export const labelWarningThreshold = 'Warning threshold';
+export const labelCriticalThreshold = 'Critical threshold';
+export const labelDefault = 'Default';
+export const labelCustom = 'Custom';
+export const labelThresholdsAreAutomaticallyHidden =
+  'Thresholds are automatically hidden if you select 2 metric units';

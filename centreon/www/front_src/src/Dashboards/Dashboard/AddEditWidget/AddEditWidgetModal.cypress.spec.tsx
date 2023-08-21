@@ -40,7 +40,7 @@ import {
 import { dashboardAtom } from '../atoms';
 
 import { widgetFormInitialDataAtom } from './atoms';
-import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/useResources';
+import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';
 import { WidgetResourceType } from './models';
 import { metricsEndpoint } from './api/endpoints';
 

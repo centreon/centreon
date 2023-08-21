@@ -2,6 +2,7 @@ import { ChangeEvent, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import { TextField } from '@centreon/ui';
 
@@ -13,7 +14,9 @@ const WidgetTextField = ({
   propertyName,
   label,
   text,
-  required = false
+  required = false,
+  disabled = false,
+  className
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -37,20 +40,29 @@ const WidgetTextField = ({
 
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldTouched(`options.${propertyName}`, true);
-    setFieldValue(`options.${propertyName}`, event.target.value);
+    const newText = equals(text?.type, 'number')
+      ? parseInt(event.target.value || '0', 10)
+      : event.target.value;
+    setFieldValue(`options.${propertyName}`, newText);
   };
+
+  const isCompact = equals(text?.size, 'compact');
 
   return (
     <TextField
       fullWidth
       ariaLabel={t(label) as string}
+      className={className}
       dataTestId={label}
+      disabled={disabled}
       error={isTouched && error}
       helperText={isTouched && error}
-      label={t(label)}
+      label={isCompact ? null : t(label) || ''}
       multiline={text?.multiline || false}
       required={required}
-      value={value || ''}
+      size={text?.size || 'small'}
+      type={text?.type || 'text'}
+      value={value ?? ''}
       onChange={change}
     />
   );
