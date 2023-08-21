@@ -11,12 +11,7 @@ import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generi
 import widgetSingleDataConfiguration from 'centreon-widgets/centreon-widget-singledata/moduleFederation.json';
 import widgetSingleDataProperties from 'centreon-widgets/centreon-widget-singledata/properties.json';
 
-import {
-  Method,
-  TestQueryProvider,
-  Method,
-  TestQueryProvider
-} from '@centreon/ui';
+import { Method, TestQueryProvider } from '@centreon/ui';
 
 import {
   federatedWidgetsAtom,
