@@ -11,8 +11,11 @@ export interface Version {
 }
 
 export interface PlatformVersions {
-  isCloudPlatform: boolean;
   modules: Record<string, Version>;
   web: Version;
   widgets: Record<string, Version>;
+}
+
+export interface PlatformFeatures {
+  isCloudPlatform: boolean;
 }

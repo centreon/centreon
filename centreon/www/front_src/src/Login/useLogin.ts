@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { FormikHelpers, FormikValues } from 'formik';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom, useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   filter,
@@ -12,6 +12,7 @@ import {
   propEq,
   reject,
   equals,
+  path,
   prop
 } from 'ramda';
 
@@ -21,6 +22,7 @@ import { PlatformInstallationStatus } from '../api/models';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
 import useUser from '../Main/useUser';
 import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInformationsAtom';
+import { platformVersionsAtom } from '../Main/atoms/platformVersionsAtom';
 import routeMap from '../reactRoutes/routeMap';
 import useInitializeTranslation from '../Main/useInitializeTranslation';
 import centreonLogo from '../assets/logo-centreon-colors.svg';
@@ -74,7 +76,7 @@ const getActiveProviders = filter<ProviderConfiguration>(
 
 const defaultLoginPageCustomisation: LoginPageCustomisation = {
   customText: null,
-  iconSource: null,
+  iconSource: centreonLogo,
   imageSource: null,
   platformName: null,
   textPosition: null
@@ -86,7 +88,6 @@ export const router = {
 
 const useLogin = (): UseLoginState => {
   const { t, i18n } = useTranslation();
-
   const { sendLogin } = usePostLogin();
 
   const { data: providers } = useFetchQuery<Array<ProviderConfiguration>>({
@@ -98,14 +99,19 @@ const useLogin = (): UseLoginState => {
       suspense: false
     }
   });
-
-  const { data: loginPageCustomisationData, isLoading } =
+  const [platformInstallationStatus] = useAtom(platformInstallationStatusAtom);
+  const platformVersions = useAtomValue(platformVersionsAtom);
+  const { data: loginPageCustomisationData, isFetching } =
     useFetchQuery<LoginPageCustomisation>({
       decoder: loginPageCustomisationDecoder,
       getEndpoint: () => loginPageCustomisationEndpoint,
       getQueryKey: () => ['loginPageCustomisation'],
       httpCodesBypassErrorSnackbar: [404],
       queryOptions: {
+        enabled: !!path(
+          ['modules', 'centreon-it-edition-extensions'],
+          platformVersions
+        ),
         retry: false,
         suspense: false
       }
@@ -114,14 +120,11 @@ const useLogin = (): UseLoginState => {
   const { getInternalTranslation, getExternalTranslation } =
     useInitializeTranslation();
 
-  const wallpaper = useWallpaper();
-
   const { showSuccessMessage, showWarningMessage, showErrorMessage } =
     useSnackbar();
   const navigate = router.useNavigate();
   const loadUser = useUser();
 
-  const [platformInstallationStatus] = useAtom(platformInstallationStatusAtom);
   const setPasswordResetInformations = useSetAtom(
     passwordResetInformationsAtom
   );
@@ -195,13 +198,17 @@ const useLogin = (): UseLoginState => {
 
   const activeProviders = getActiveProviders(externalProviders || []);
 
-  const loginPageCustomisation: LoginPageCustomisation = isLoading
+  const wallpaper = useWallpaper();
+
+  const loginPageCustomisation = isFetching
     ? defaultLoginPageCustomisation
     : {
         customText:
           loginPageCustomisationData?.customText ||
           defaultLoginPageCustomisation.customText,
-        iconSource: loginPageCustomisationData?.iconSource || centreonLogo,
+        iconSource:
+          loginPageCustomisationData?.iconSource ||
+          defaultLoginPageCustomisation.iconSource,
         imageSource: loginPageCustomisationData?.imageSource || wallpaper,
         platformName:
           loginPageCustomisationData?.platformName ||

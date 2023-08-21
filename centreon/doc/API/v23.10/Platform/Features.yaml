@@ -1,0 +1,21 @@
+
+get:
+  tags:
+    - Platform
+  summary: "List feature flags"
+  description: "List feature flags"
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              is_cloud_platform:
+                type: boolean
+
+              feature_flags:
+                type: object
+                additionalProperties:
+                  type: boolean
