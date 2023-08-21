@@ -74,7 +74,7 @@ const initializeComponent = ({ metrics, enabled = false }): void => {
   });
 };
 
-describe('Thresold', () => {
+describe('Threshold', () => {
   it('does not display any default threshold values when no metrics are passed', () => {
     initializeComponent({ metrics: emptyMetrics });
 
