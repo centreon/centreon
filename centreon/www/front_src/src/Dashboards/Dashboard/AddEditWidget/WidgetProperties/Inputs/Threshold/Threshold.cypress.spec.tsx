@@ -94,7 +94,7 @@ describe('Thresold', () => {
     cy.matchImageSnapshot();
   });
 
-  it('displays the threshold with selected metrics', () => {
+  it('displays the first metrics threshold values as default when some Resource metrics are passed', () => {
     initializeComponent({ metrics: selectedMetrics });
 
     cy.contains('Default (100)').should('be.visible');
