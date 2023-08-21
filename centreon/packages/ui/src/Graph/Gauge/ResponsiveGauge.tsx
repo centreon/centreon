@@ -1,11 +1,12 @@
 import { Group } from '@visx/group';
-import { T, always, cond, gt, head } from 'ramda';
+import { head } from 'ramda';
 import { Tooltip } from '@visx/visx';
 
-import { Fade, Theme, useTheme } from '@mui/material';
+import { Fade, useTheme } from '@mui/material';
 
 import { Metric } from '../common/timeSeries/models';
 import { formatMetricValue } from '../common/timeSeries';
+import { getColorFromDataAndTresholds } from '../common/utils';
 
 import Thresholds from './Thresholds';
 import PieData from './PieData';
@@ -20,27 +21,10 @@ interface Props {
   width: number;
 }
 
-interface GetColorFromDataProps {
-  data: number;
-  theme: Theme;
-  thresholds: Array<number>;
-}
-
 const baseStyles = {
   ...Tooltip.defaultStyles,
   textAlign: 'center'
 };
-
-const getColorFromData = ({
-  data,
-  thresholds,
-  theme
-}: GetColorFromDataProps): string =>
-  cond([
-    [gt(head(thresholds) as number), always(theme.palette.success.main)],
-    [gt(thresholds[1]), always(theme.palette.warning.main)],
-    [T, always(theme.palette.error.main)]
-  ])(data);
 
 const ResponsiveGauge = ({
   width,
@@ -71,7 +55,7 @@ const ResponsiveGauge = ({
     head(metric.data) as number
   );
 
-  const pieColor = getColorFromData({
+  const pieColor = getColorFromDataAndTresholds({
     data: metric.data[0],
     theme,
     thresholds
