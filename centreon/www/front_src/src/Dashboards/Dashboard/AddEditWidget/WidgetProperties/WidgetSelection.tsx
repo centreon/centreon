@@ -1,18 +1,24 @@
 import { useTranslation } from 'react-i18next';
 import { find, propEq } from 'ramda';
 
-import { ListItemText } from '@mui/material';
+import { Box, ListItemText } from '@mui/material';
 
 import { SingleAutocompleteField } from '@centreon/ui';
 
 import { labelWidgetLibrary } from '../../translatedLabels';
+import { useAddWidgetStyles } from '../addWidget.styles';
 
 import useWidgetSelection from './useWidgetSelection';
+import { useWidgetSelectionStyles } from './widgetProperties.styles';
 
 import { FederatedWidgetProperties } from 'www/front_src/src/federatedModules/models';
+import { Avatar } from 'packages/ui/src/components';
 
 const WidgetSelection = (): JSX.Element => {
   const { t } = useTranslation();
+  const { classes } = useWidgetSelectionStyles();
+  const { classes: avatarClasses } = useAddWidgetStyles();
+
   const { options, widgets, searchWidgets, selectWidget, selectedWidget } =
     useWidgetSelection();
 
@@ -30,14 +36,20 @@ const WidgetSelection = (): JSX.Element => {
   };
 
   return (
-    <SingleAutocompleteField
-      label={t(labelWidgetLibrary)}
-      options={options}
-      renderOption={renderOption}
-      value={selectedWidget || null}
-      onChange={(_, newValue) => selectWidget(newValue)}
-      onTextChange={searchWidgets}
-    />
+    <Box className={classes.widgetSelection}>
+      <Avatar compact className={avatarClasses.widgetAvatar}>
+        1
+      </Avatar>
+      <SingleAutocompleteField
+        className={classes.selectField}
+        label={t(labelWidgetLibrary)}
+        options={options}
+        renderOption={renderOption}
+        value={selectedWidget || null}
+        onChange={(_, newValue) => selectWidget(newValue)}
+        onTextChange={searchWidgets}
+      />
+    </Box>
   );
 };
 

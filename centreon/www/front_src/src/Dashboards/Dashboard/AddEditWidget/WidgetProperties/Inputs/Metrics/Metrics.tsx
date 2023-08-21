@@ -1,36 +1,31 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
 import { isEmpty, isNil } from 'ramda';
-import pluralize from 'pluralize';
+
+import { CircularProgress, FormHelperText, Typography } from '@mui/material';
+
+import { Avatar, ItemComposition } from '@centreon/ui/components';
+import { MultiAutocompleteField, SelectField } from '@centreon/ui';
 
 import {
-  Avatar,
-  CircularProgress,
-  FormHelperText,
-  Typography
-} from '@mui/material';
-
-import { ItemComposition } from '@centreon/ui/components';
-
-import {
-  labelAdd,
+  labelAddMetric,
+  labelAvailable,
   labelDelete,
-  labelMetric,
   labelMetrics,
   labelPleaseSelectAResource,
   labelServiceName,
-  labelTheLimiteOf2UnitsHasBeenReached,
-  labelTooManyMetricsAddMoreFilterOnResources
+  labelYouCanSelectUpToTwoMetricUnits,
+  labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
+import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 
 import useMetrics from './useMetrics';
 
-import { MultiAutocompleteField, SelectField } from 'packages/ui/src';
-
 const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
+  const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
   const {
@@ -48,7 +43,8 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     error,
     getMetricOptionDisabled,
     getOptionLabel,
-    hasReachedTheLimitOfUnits
+    hasReachedTheLimitOfUnits,
+    addButtonHidden
   } = useMetrics(propertyName);
 
   const addButtonDisabled =
@@ -57,15 +53,14 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const canDisplayMetricsSelection = !hasNoResources() && !hasTooManyMetrics;
 
   const title = metricCount
-    ? `${t(labelMetrics)} (${metricCount} ${pluralize(
-        labelMetric,
-        metricCount
-      )})`
+    ? `${t(labelMetrics)} (${metricCount} ${labelAvailable})`
     : t(labelMetrics);
 
   const header = (
     <div className={classes.resourcesHeader}>
-      <Avatar className={classes.resourcesHeaderAvatar}>2</Avatar>
+      <Avatar compact className={avatarClasses.widgetAvatar}>
+        3
+      </Avatar>
       <Typography>{title}</Typography>
       {hasReachedTheLimitOfUnits && (
         <Typography
@@ -74,7 +69,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           variant="body2"
         >
           {' '}
-          {t(labelTheLimiteOf2UnitsHasBeenReached)}
+          {t(labelYouCanSelectUpToTwoMetricUnits)}
         </Typography>
       )}
       {isLoadingMetrics && <CircularProgress size={16} />}
@@ -87,20 +82,17 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       {hasNoResources() && (
         <Typography>{t(labelPleaseSelectAResource)}</Typography>
       )}
-      {hasTooManyMetrics && (
-        <Typography>
-          {t(labelTooManyMetricsAddMoreFilterOnResources)}
-        </Typography>
-      )}
       {canDisplayMetricsSelection && (
         <ItemComposition
+          addButtonHidden={addButtonHidden}
           addbuttonDisabled={addButtonDisabled}
-          labelAdd={t(labelAdd)}
+          labelAdd={t(labelAddMetric)}
           onAddItem={addMetric}
         >
           {value.map((service, index) => (
             <ItemComposition.Item
               className={classes.resourceCompositionItem}
+              deleteButtonHidden={addButtonHidden}
               key={`${index}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteMetric(index)}
@@ -132,6 +124,11 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             </ItemComposition.Item>
           ))}
         </ItemComposition>
+      )}
+      {hasTooManyMetrics && (
+        <Typography sx={{ color: 'text.disabled' }}>
+          {t(labelYouHaveTooManyMetrics)}
+        </Typography>
       )}
       {error && <FormHelperText error>{t(error)}</FormHelperText>}
     </div>

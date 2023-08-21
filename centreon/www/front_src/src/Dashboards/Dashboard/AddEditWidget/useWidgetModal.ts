@@ -1,7 +1,10 @@
-import { startTransition } from 'react';
+import { Dispatch, SetStateAction, startTransition, useState } from 'react';
 
 import { useAtom, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
+import { useSnackbar } from '@centreon/ui';
 
 import { Panel, PanelConfiguration } from '../models';
 import {
@@ -9,19 +12,35 @@ import {
   removePanelDerivedAtom,
   setPanelOptionsAndDataDerivedAtom
 } from '../atoms';
+import {
+  labelYourWidgetHasBeenCreated,
+  labelYourWidgetHasBeenModified
+} from '../translatedLabels';
 
-import { widgetFormInitialDataAtom, widgetPropertiesAtom } from './atoms';
+import {
+  singleMetricSectionAtom,
+  widgetFormInitialDataAtom,
+  widgetPropertiesAtom
+} from './atoms';
 import { Widget } from './models';
 
 interface useWidgetModalState {
   addWidget: (values: Widget) => void;
+  askBeforeCloseModal: (shouldAskForClosingConfirmation: boolean) => void;
+  askingBeforeCloseModal: boolean;
   closeModal: () => void;
+  discardChanges: () => void;
   editWidget: (values: Widget) => void;
   openModal: (widget: Panel | null) => void;
+  setAskingBeforeCloseModal: Dispatch<SetStateAction<boolean>>;
   widgetFormInitialData: Widget | null;
 }
 
 const useWidgetModal = (): useWidgetModalState => {
+  const { t } = useTranslation();
+
+  const [askingBeforeCloseModal, setAskingBeforeCloseModal] = useState(false);
+
   const [widgetFormInitialData, setWidgetFormInitialDataAtom] = useAtom(
     widgetFormInitialDataAtom
   );
@@ -30,6 +49,9 @@ const useWidgetModal = (): useWidgetModalState => {
   const deletePanel = useSetAtom(removePanelDerivedAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
+  const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
+
+  const { showSuccessMessage } = useSnackbar();
 
   const openModal = (widget: Panel | null): void =>
     startTransition(() =>
@@ -46,6 +68,8 @@ const useWidgetModal = (): useWidgetModalState => {
     startTransition(() => {
       setWidgetFormInitialDataAtom(null);
       setWidgetProperties(null);
+      setAskingBeforeCloseModal(false);
+      setSingleMetricSection(undefined);
     });
 
   const addWidget = (values: Widget): void => {
@@ -59,6 +83,7 @@ const useWidgetModal = (): useWidgetModalState => {
       panelConfiguration,
       width: panelConfiguration.panelMinWidth
     });
+    showSuccessMessage(t(labelYourWidgetHasBeenCreated));
     closeModal();
   };
 
@@ -77,6 +102,7 @@ const useWidgetModal = (): useWidgetModalState => {
         panelConfiguration,
         width: panelConfiguration.panelMinWidth
       });
+      showSuccessMessage(t(labelYourWidgetHasBeenModified));
       closeModal();
 
       return;
@@ -87,14 +113,33 @@ const useWidgetModal = (): useWidgetModalState => {
       id: values.id as string,
       options: values.options
     });
+    showSuccessMessage(t(labelYourWidgetHasBeenModified));
+    closeModal();
+  };
+
+  const askBeforeCloseModal = (shouldAskForClosingConfirmation): void => {
+    if (!shouldAskForClosingConfirmation) {
+      closeModal();
+
+      return;
+    }
+    setAskingBeforeCloseModal(true);
+  };
+
+  const discardChanges = (): void => {
+    setAskingBeforeCloseModal(false);
     closeModal();
   };
 
   return {
     addWidget,
+    askBeforeCloseModal,
+    askingBeforeCloseModal,
     closeModal,
+    discardChanges,
     editWidget,
     openModal,
+    setAskingBeforeCloseModal,
     widgetFormInitialData
   };
 };

@@ -74,8 +74,8 @@ const initializeComponent = ({ metrics, enabled = false }): void => {
   });
 };
 
-describe('Thresold', () => {
-  it('displays the threshold with no selected metrics', () => {
+describe('Threshold', () => {
+  it('does not display any default threshold values when no metrics are passed', () => {
     initializeComponent({ metrics: emptyMetrics });
 
     cy.contains(labelThreshold).should('be.visible');
@@ -94,7 +94,7 @@ describe('Thresold', () => {
     cy.matchImageSnapshot();
   });
 
-  it('displays the threshold with selected metrics', () => {
+  it('displays the first metrics threshold values as default when some Resource metrics are passed', () => {
     initializeComponent({ metrics: selectedMetrics });
 
     cy.contains('Default (100)').should('be.visible');
