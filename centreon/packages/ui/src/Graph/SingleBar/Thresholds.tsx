@@ -1,8 +1,14 @@
 import { useTheme } from '@mui/material';
 
-export const margin = 10;
+export const margin = 40;
 
 export const barHeight = 60;
+
+export const groupMargin = 25;
+
+const lineMargin = 10;
+
+const thresholdLineHeight = 60 + 2 * lineMargin;
 
 interface Props {
   hideTooltip: () => void;
@@ -45,8 +51,8 @@ const Thresholds = ({
         strokeWidth={2}
         x1={xScale(warningValue)}
         x2={xScale(warningValue)}
-        y1={0}
-        y2={bottom}
+        y1={groupMargin + 3 * lineMargin}
+        y2={thresholdLineHeight + groupMargin + 3 * lineMargin}
       />
       <line
         stroke={theme.palette.error.main}
@@ -54,16 +60,16 @@ const Thresholds = ({
         strokeWidth={2}
         x1={xScale(criticalValue)}
         x2={xScale(criticalValue)}
-        y1={0}
-        y2={bottom}
+        y1={groupMargin + 3 * lineMargin}
+        y2={thresholdLineHeight + groupMargin + 3 * lineMargin}
       />
       <line
         stroke="transparent"
         strokeWidth={5}
         x1={xScale(warningValue)}
         x2={xScale(warningValue)}
-        y1={0}
-        y2={bottom}
+        y1={groupMargin + 3 * lineMargin}
+        y2={thresholdLineHeight + groupMargin + 3 * lineMargin}
         onMouseEnter={onMouseEnter({
           label: warningTooltipLabel,
           left: xScale(warningValue)
@@ -75,8 +81,8 @@ const Thresholds = ({
         strokeWidth={5}
         x1={xScale(criticalValue)}
         x2={xScale(criticalValue)}
-        y1={0}
-        y2={bottom}
+        y1={groupMargin + 3 * lineMargin}
+        y2={thresholdLineHeight + groupMargin + 3 * lineMargin}
         onMouseEnter={onMouseEnter({
           label: criticalTooltipLabel,
           left: xScale(criticalValue)

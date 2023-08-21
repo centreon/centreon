@@ -8,12 +8,15 @@ import { useSpring, animated } from '@react-spring/web';
 
 import { alpha, Fade, useTheme } from '@mui/material';
 
-import { getMetricWithLatestData } from '../common/timeSeries';
+import {
+  formatMetricValue,
+  getMetricWithLatestData
+} from '../common/timeSeries';
 import { Metric } from '../common/timeSeries/models';
 import { getColorFromDataAndTresholds } from '../common/utils';
 
 import { SingleBarProps } from './models';
-import Thresholds, { barHeight, margin } from './Thresholds';
+import Thresholds, { barHeight, groupMargin, margin } from './Thresholds';
 
 interface Props extends SingleBarProps {
   height: number;
@@ -51,16 +54,6 @@ const ResponsiveSingleBar = ({
     tooltipData
   } = Tooltip.useTooltip();
 
-  const xScale = useMemo(
-    () =>
-      scaleLinear<number>({
-        domain: [0, adaptedMaxValue],
-        range: [0, width],
-        round: true
-      }),
-    [width]
-  );
-
   const barColor = useMemo(
     () =>
       getColorFromDataAndTresholds({
@@ -69,6 +62,33 @@ const ResponsiveSingleBar = ({
         thresholds
       }),
     [latestMetricData, thresholds, theme]
+  );
+
+  const text = (
+    <text
+      dominantBaseline="middle"
+      style={{ fill: barColor, ...theme.typography.h3 }}
+      textAnchor="middle"
+      x="50%"
+      y={25}
+    >
+      {formatMetricValue({
+        base: 1000,
+        unit: metric.unit,
+        value: metric.data[0]
+      })}{' '}
+      {metric.unit}
+    </text>
+  );
+
+  const xScale = useMemo(
+    () =>
+      scaleLinear<number>({
+        domain: [0, adaptedMaxValue],
+        range: [0, width],
+        round: true
+      }),
+    [width]
   );
 
   const metricBarWidth = useMemo(
@@ -86,13 +106,14 @@ const ResponsiveSingleBar = ({
     <>
       <svg height={height} width={width}>
         <Group.Group>
+          {text}
           <animated.rect
             fill={barColor}
             height={60}
             rx={4}
             style={springStyle}
             x={0}
-            y={margin}
+            y={groupMargin + margin}
           />
           <Bar
             fill="transparent"
@@ -102,7 +123,7 @@ const ResponsiveSingleBar = ({
             stroke={alpha(theme.palette.text.primary, 0.3)}
             width={maxBarWidth}
             x={0}
-            y={margin}
+            y={groupMargin + margin}
           />
           <Thresholds
             hideTooltip={hideTooltip}
