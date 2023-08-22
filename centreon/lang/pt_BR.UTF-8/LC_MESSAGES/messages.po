@@ -16705,3 +16705,9 @@ msgstr ""
 
 # msgstr "Value settings"
 # msgid ""
+
+# msgid "Graph type"
+# msgstr ""
+
+# msgid "Value defined by metric"
+# msgstr ""

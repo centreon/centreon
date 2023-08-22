@@ -18044,3 +18044,9 @@ msgstr "Ouvrir les liens dans un nouvel onglet"
 
 msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
 msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
+
+msgid "Graph type"
+msgstr "Type de graphique"
+
+msgid "Value defined by metric"
+msgstr "Valeur définie par la métrique"
