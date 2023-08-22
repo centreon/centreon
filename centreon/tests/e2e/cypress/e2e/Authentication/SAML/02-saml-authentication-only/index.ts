@@ -83,5 +83,5 @@ Then(
 );
 
 after(() => {
-  cy.stopWebContainer().stopOpenIdProviderContainer();
+  cy.stopOpenIdProviderContainer().stopWebContainer();
 });

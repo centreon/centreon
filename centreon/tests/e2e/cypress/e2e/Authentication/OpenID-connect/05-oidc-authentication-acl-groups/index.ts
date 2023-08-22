@@ -51,8 +51,9 @@ Given('an administrator is logged in the platform', () => {
       rootItemNumber: 4
     })
     .get('div[role="tablist"] button:nth-child(2)')
-    .click()
-    .wait('@getOIDCProvider');
+    .click();
+
+  cy.wait('@getOIDCProvider');
 });
 
 When(
@@ -80,9 +81,7 @@ When(
     cy.getByLabel({
       label: 'Roles attribute path',
       tag: 'input'
-    })
-      .clear()
-      .type('realm_access.roles');
+    }).type('{selectall}{backspace}realm_access.roles');
     cy.getByLabel({
       label: 'Introspection endpoint',
       tag: 'input'
@@ -92,27 +91,21 @@ When(
     cy.getByLabel({
       label: 'Role value',
       tag: 'input'
-    })
-      .clear()
-      .type('centreon-editor');
+    }).type('{selectall}{backspace}centreon-editor');
     cy.getByLabel({
       label: 'ACL access group',
       tag: 'input'
-    })
-      .click({ force: true })
-      .wait('@getListAccesGroup')
-      .get('div[role="presentation"] ul li')
-      .click()
-      .getByLabel({
-        label: 'ACL access group',
-        tag: 'input'
-      })
-      .should('have.value', 'ALL');
-    cy.getByLabel({ label: 'save button', tag: 'button' })
-      .click()
-      .wait('@updateOIDCProvider')
-      .its('response.statusCode')
-      .should('eq', 204);
+    }).click({ force: true });
+
+    cy.wait('@getListAccesGroup').get('div[role="presentation"] ul li').click();
+
+    cy.getByLabel({
+      label: 'ACL access group',
+      tag: 'input'
+    }).should('have.value', 'ALL');
+
+    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+    cy.wait('@updateOIDCProvider').its('response.statusCode').should('eq', 204);
   }
 );
 
