@@ -88,8 +88,9 @@ class CentreonLogAction
         global $pearDBO;
 
         // Check if audit log option is activated
-        $optLogs = $pearDBO->query("SELECT audit_log_option FROM `config`");
-        $auditLog = $optLogs->fetch();
+        $optLogs = $pearDBO->prepare("SELECT audit_log_option FROM `config`");
+        $optLogs->execute();
+        $auditLog = $optLogs->fetch(PDO::FETCH_ASSOC);
 
         if (($auditLog) && ($auditLog['audit_log_option'] == '1')) {
             $str_query = "INSERT INTO `log_action`
@@ -121,10 +122,13 @@ class CentreonLogAction
     {
         global $pearDB;
 
-        $DBRESULT = $pearDB->query(
-            "SELECT contact_name FROM `contact` WHERE contact_id = '" . CentreonDB::escape($id) . "' LIMIT 1"
+        $DBRESULT = $pearDB->prepare(
+            "SELECT contact_name FROM `contact` WHERE contact_id = ':contact_id' LIMIT 1"
         );
-        while ($data = $DBRESULT->fetchRow()) {
+        $DBRESULT->bindParam('contact_id', $id);
+        $DBRESULT->execute();
+        /** @var  $name */
+        while ($data = $DBRESULT->fetch(PDO::FETCH_ASSOC)) {
             $name = $data["contact_name"];
         }
         $DBRESULT->closeCursor();
@@ -236,7 +240,7 @@ class CentreonLogAction
         $statement = $pearDBO->prepare("SELECT name FROM hosts WHERE host_id = :host_id");
         $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
         $statement->execute();
-        $info = $statement->fetchRow();
+        $info = $statement->fetch(PDO::FETCH_ASSOC);
 
         return $info['name'] ?? -1;
     }
@@ -245,16 +249,20 @@ class CentreonLogAction
     {
         global $pearDB, $pearDBO;
 
-        $query = "SELECT hg_name FROM hostgroup WHERE hg_id = " . $hg_id;
-        $DBRESULT2 = $pearDB->query($query);
-        $info = $DBRESULT2->fetchRow();
+        $query = "SELECT hg_name FROM hostgroup WHERE hg_id = :hg_id";
+        $DBRESULT2 = $pearDB->prepare($query);
+        $DBRESULT2->bindParam('hg_id', $hg_id);
+        $DBRESULT2->execute();
+        $info = $DBRESULT2->fetch(PDO::FETCH_ASSOC);
         if (isset($info['hg_name'])) {
             return $info['hg_name'];
         }
 
-        $query = "SELECT object_id, object_name FROM log_action WHERE object_type = 'service' AND object_id = $hg_id";
-        $DBRESULT2 = $pearDBO->query($query);
-        $info = $DBRESULT2->fetchRow();
+        $query = "SELECT object_id, object_name FROM log_action WHERE object_type = 'service' AND object_id = :hg_id";
+        $DBRESULT2 = $pearDBO->prepare($query);
+        $DBRESULT2->bindParam('hg_id', $hg_id);
+        $DBRESULT2->execute();
+        $info = $DBRESULT2->fetch(PDO::FETCH_ASSOC);
         if (isset($info['object_name'])) {
             return $info['object_name'];
         }
@@ -282,17 +290,21 @@ class CentreonLogAction
         $statement1->bindValue(':objectType', $objectType, \PDO::PARAM_STR);
         $statement1->execute();
         while ($row = $statement1->fetch(\PDO::FETCH_ASSOC)) {
-            $DBRESULT2 = $pearDBO->query(
+            $DBRESULT2 = $pearDBO->prepare(
                 "SELECT action_log_id,field_name,field_value
                 FROM `log_action_modification`
-                WHERE action_log_id = " . (int) $row['action_log_id']
+                WHERE action_log_id = :action_log_id"
             );
-            $macroPasswordStatement = $pearDBO->query(
+            $DBRESULT2->bindParam(':action_log_id', $row['action_log_id']);
+            $DBRESULT2->execute();
+            $macroPasswordStatement = $pearDBO->prepare(
                 "SELECT field_value
                     FROM `log_action_modification`
                     WHERE action_log_id = " . (int) $row['action_log_id'] . "
                     AND field_name = 'refMacroPassword'"
             );
+            $macroPasswordStatement->bindParam(':action_log_id', $row['action_log_id']);
+            $macroPasswordStatement->execute();
             $macroPasswordRef = [];
             if ($result = $macroPasswordStatement->fetch()) {
                 $macroPasswordRef = explode(',', $result['field_value']);
