@@ -10,8 +10,11 @@ import { Data, FormThreshold } from './models';
 extend(duration);
 
 interface Props {
+  globalRefreshInterval?: number;
   panelData: Data;
   panelOptions: {
+    refreshInterval: 'default' | 'custom';
+    refreshIntervalCustom?: number;
     singleMetricGraphType: 'text' | 'gauge' | 'bar';
     threshold: FormThreshold;
   };
@@ -21,10 +24,15 @@ interface Props {
 const SingleMetric = ({
   store,
   panelData,
-  panelOptions
+  panelOptions,
+  globalRefreshInterval
 }: Props): JSX.Element => (
   <Module maxSnackbars={1} seedName="widget-singlemetric" store={store}>
-    <Graph {...panelData} {...panelOptions} />
+    <Graph
+      {...panelData}
+      {...panelOptions}
+      globalRefreshInterval={globalRefreshInterval}
+    />
   </Module>
 );
 

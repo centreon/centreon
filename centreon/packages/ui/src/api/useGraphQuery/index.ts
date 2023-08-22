@@ -8,6 +8,7 @@ import { ServiceMetric } from './models';
 interface UseMetricsQueryProps {
   baseEndpoint: string;
   metrics: Array<ServiceMetric>;
+  refreshInterval?: number | false;
   timePeriod?: TimePeriod;
 }
 
@@ -44,7 +45,8 @@ interface PerformanceGraphData extends Omit<LineChartData, 'global'> {
 const useGraphQuery = ({
   metrics,
   baseEndpoint,
-  timePeriod = TimePeriod.lastDay
+  timePeriod = TimePeriod.lastDay,
+  refreshInterval = false
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const metricIds = pipe(
     pluck('metrics'),
@@ -65,6 +67,7 @@ const useGraphQuery = ({
     getQueryKey: () => ['graph', metricIds],
     queryOptions: {
       enabled: !isEmpty(metricIds),
+      refetchInterval: refreshInterval,
       suspense: false
     }
   });

@@ -1,5 +1,6 @@
 import { T, always, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import { Box, Typography } from '@mui/material';
 
@@ -17,7 +18,10 @@ import useThresholds from './useThresholds';
 import { useGraphStyles } from './Graph.styles';
 
 interface Props {
+  globalRefreshInterval?: number;
   metrics: Array<ServiceMetric>;
+  refreshInterval: 'default' | 'custom' | 'manual';
+  refreshIntervalCustom?: number;
   singleMetricGraphType: 'text' | 'gauge' | 'bar';
   threshold: FormThreshold;
 }
@@ -25,15 +29,27 @@ interface Props {
 const Graph = ({
   metrics,
   singleMetricGraphType,
-  threshold
+  threshold,
+  refreshInterval,
+  refreshIntervalCustom,
+  globalRefreshInterval
 }: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { classes: graphClasses } = useGraphStyles();
 
   const { t } = useTranslation();
+
+  const refreshIntervalToUse =
+    cond([
+      [equals('default'), always(globalRefreshInterval)],
+      [equals('custom'), always(refreshIntervalCustom)],
+      [equals('manual'), always(0)]
+    ])(refreshInterval) || false;
+
   const { graphData, isGraphLoading, isMetricIdsEmpty } = useGraphQuery({
     baseEndpoint: graphEndpoint,
-    metrics
+    metrics,
+    refreshInterval: refreshIntervalToUse ? refreshIntervalToUse * 1000 : false
   });
 
   const { thresholdLabels, thresholdValues } = useThresholds({
