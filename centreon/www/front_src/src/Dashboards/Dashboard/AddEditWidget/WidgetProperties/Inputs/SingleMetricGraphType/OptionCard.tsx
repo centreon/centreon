@@ -20,7 +20,12 @@ const OptionCard = ({ changeType, type, icon, value }: Props): JSX.Element => {
   const isSelected = equals(value, type);
 
   return (
-    <Card className={classes.graphTypeOption} key={type}>
+    <Card
+      className={classes.graphTypeOption}
+      data-selected={isSelected}
+      data-type={type}
+      key={type}
+    >
       <CardActionArea
         className={classes.graphTypeOption}
         onClick={changeType(type)}
