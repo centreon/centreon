@@ -14,6 +14,7 @@ import {
 } from '../common/timeSeries';
 import { Metric } from '../common/timeSeries/models';
 import { getColorFromDataAndTresholds } from '../common/utils';
+import { margins } from '../common/margins';
 
 import { SingleBarProps } from './models';
 import Thresholds, { barHeight, groupMargin, margin } from './Thresholds';
@@ -44,6 +45,9 @@ const ResponsiveSingleBar = ({
     Math.max(...thresholds) * 1.1,
     head(metric.data) as number
   );
+
+  const innerHeight = height;
+  const centerY = innerHeight / 4;
 
   const {
     showTooltip,
@@ -105,7 +109,7 @@ const ResponsiveSingleBar = ({
   return (
     <Box sx={{ position: 'relative' }}>
       <svg height={height} ref={svgRef} width={width}>
-        <Group.Group>
+        <Group.Group top={centerY - margins.bottom}>
           {text}
           <animated.rect
             fill={barColor}
