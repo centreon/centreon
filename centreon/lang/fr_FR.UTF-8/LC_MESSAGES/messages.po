@@ -18050,3 +18050,7 @@ msgstr "Ouvrir les liens dans un nouvel onglet"
 
 msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
 msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
+
+
+msgid "The {{module}} license will expire in {{expirationDate}} days"
+msgstr "La license {{module}} expirera dans {{expirationDate}} jours"
