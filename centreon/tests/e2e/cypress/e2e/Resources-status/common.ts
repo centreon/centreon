@@ -110,17 +110,6 @@ const insertResourceFixtures = (): Cypress.Chainable => {
   });
 };
 
-const insertDtResources = (): Cypress.Chainable => {
-  const dateBeforeLogin = new Date();
-
-  return cy
-    .setUserTokenApiV1()
-    .then(initializeResourceData)
-    .then(applyConfigurationViaClapi)
-    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
-    .then(() => checkServicesAreMonitored([{ name: serviceInDtName }]));
-};
-
 const insertAckResourceFixtures = (): Cypress.Chainable => {
   const dateBeforeLogin = new Date();
   let results;
@@ -299,6 +288,5 @@ export {
   clearCentengineLogs,
   tearDownAckResource,
   typeToSearchInput,
-  initializeResourceData,
-  insertDtResources
+  initializeResourceData
 };

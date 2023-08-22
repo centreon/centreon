@@ -1,18 +1,16 @@
-import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import {
+  Given,
+  Step,
+  Then,
+  When
+} from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  checkServicesAreMonitored,
-  submitResultsViaClapi,
-  updateFixturesResult
-} from '../../../commons';
-import {
-  actionBackgroundColors,
-  insertDtResources,
-  secondServiceInDtName,
-  serviceInAcknowledgementName,
-  serviceInDtName,
-  tearDownResource
-} from '../common';
+import { checkServicesAreMonitored } from '../../../commons';
+import { actionBackgroundColors } from '../common';
+
+const serviceInDtName = 'service_downtime_1';
+const secondServiceInDtName = 'service_downtime_2';
+const serviceInAcknowledgementName = 'service_ack_1';
 
 const chosenTZ = 'Africa/Casablanca';
 
@@ -40,11 +38,9 @@ const calculateMinuteInterval = (startDate: Date, endDate: Date): number => {
   return minutes;
 };
 
-before(() => {
-  cy.startWebContainer();
-});
-
 beforeEach(() => {
+  cy.startWebContainer();
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -84,6 +80,7 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/acknowledge'
   }).as('postAcknowledgments');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_performance_service&action=list&q=*&page_limit=20&page=1'
@@ -94,15 +91,40 @@ Given('a user authenticated in a Centreon server', () => {
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: true
-  });
+  }).wait('@getLastestUserFilters');
+
+  cy.disableListingAutoRefresh();
 });
 
 Given('the platform is configured with at least one resource', () => {
-  cy.reload();
-
-  cy.wait('@getLastestUserFilters');
-
-  insertDtResources();
+  cy.addHost({
+    activeCheckEnabled: false,
+    checkCommand: 'check_centreon_cpu',
+    name: 'host1',
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: 'host1',
+      maxCheckAttempts: 1,
+      name: serviceInDtName,
+      template: 'SNMP-DISK-/'
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: 'host1',
+      maxCheckAttempts: 1,
+      name: secondServiceInDtName,
+      template: 'Ping-LAN'
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: 'host1',
+      maxCheckAttempts: 1,
+      name: serviceInAcknowledgementName,
+      template: 'SNMP-DISK-/'
+    })
+    .applyPollerConfiguration();
 
   checkServicesAreMonitored([
     {
@@ -115,6 +137,8 @@ Given('the platform is configured with at least one resource', () => {
       name: serviceInAcknowledgementName
     }
   ]);
+
+  cy.refreshListing();
 
   cy.get('[aria-label="Add columns"]').click();
 
@@ -140,15 +164,16 @@ When('the user clicks on Timezone field in his profile menu', () => {
     .as('timezoneInput')
     .should('be.visible');
 
-  cy.get('@timezoneInput').click().wait('@getTimezonesList');
+  cy.get('@timezoneInput').click();
+  cy.wait('@getTimezonesList');
 });
 
 When('the user selects a Timezone \\/ Location', () => {
   cy.getIframeBody()
     .find('input[class="select2-search__field"]')
-    .clear()
-    .type(chosenTZ)
-    .wait('@getTimezonesList');
+    .type(`{selectall}{backspace}${chosenTZ}`);
+
+  cy.wait('@getTimezonesList');
 
   cy.getIframeBody()
     .find('ul[id="select2-contact_location-results"] li')
@@ -196,23 +221,20 @@ Then("new timezone information is displayed in user's profile menu", () => {
     .find('span[aria-labelledby="select2-contact_location-container"]')
     .eq(0)
     .should('contain.text', chosenTZ);
-
-  cy.logout();
-
-  tearDownResource();
 });
 
-Given('a user with a custom timezone set in his profile', () => {
-  cy.navigateTo({
-    page: 'My Account',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  }).wait('@getTimeZone');
+Given('a user with a custom timezone set in his profile', function _() {
+  Step(this, 'the user clicks on Timezone field in his profile menu');
+  Step(this, 'the user selects a Timezone / Location');
+  Step(this, 'the user saves the form');
+  Step(this, 'timezone information are updated on the banner');
 
-  cy.getIframeBody()
-    .find('span[aria-labelledby="select2-contact_location-container"]')
-    .eq(0)
-    .should('contain.text', chosenTZ);
+  cy.logout()
+    .loginByTypeOfUser({
+      jsonName: 'admin',
+      loginViaApi: true
+    })
+    .wait('@getLastestUserFilters');
 });
 
 When('the user creates a downtime on a resource', () => {
@@ -235,22 +257,19 @@ When('the user creates a downtime on a resource', () => {
     cy.contains('Downtime command sent').should('have.length', 1);
   });
 
-  cy.waitUntil(
-    () => {
-      return cy
-        .refreshListing()
-        .then(() => cy.contains(serviceInDtName))
-        .parent()
-        .then((val) => {
-          return (
-            val.css('background-color') === actionBackgroundColors.inDowntime
-          );
-        });
-    },
+  checkServicesAreMonitored([
     {
-      timeout: 15000
+      inDowntime: true,
+      name: serviceInDtName
     }
-  );
+  ]);
+
+  cy.refreshListing()
+    .then(() => cy.contains(serviceInDtName))
+    .parent()
+    .then((val) => {
+      return val.css('background-color') === actionBackgroundColors.inDowntime;
+    });
 });
 
 Then(
@@ -270,10 +289,6 @@ Then(
         ).to.be.lte(2);
       });
     });
-
-    cy.logout();
-
-    tearDownResource();
   }
 );
 
@@ -283,25 +298,23 @@ When('the user creates an acknowledgement on a resource', () => {
     rootItemNumber: 1
   });
 
-  updateFixturesResult().then((submitResult) => {
-    submitResultsViaClapi(submitResult).then(() => {
-      cy.waitUntil(
-        () => {
-          return cy
-            .refreshListing()
-            .then(() => cy.contains(serviceInAcknowledgementName))
-            .parent()
-            .parent()
-            .then((val) => {
-              return val.children()[7].textContent === 'submit_status_2';
-            });
-        },
-        {
-          timeout: 30000
-        }
-      );
-    });
-  });
+  cy.submitResults([
+    {
+      host: 'host1',
+      output: 'submit_status_2',
+      service: serviceInAcknowledgementName,
+      status: 'critical'
+    }
+  ]);
+
+  checkServicesAreMonitored([
+    {
+      name: serviceInAcknowledgementName,
+      output: 'submit_status_2'
+    }
+  ]);
+
+  cy.refreshListing();
 
   cy.contains(serviceInAcknowledgementName)
     .parent()
@@ -317,30 +330,29 @@ When('the user creates an acknowledgement on a resource', () => {
     cy.contains('Acknowledge command sent').should('have.length', 1);
   });
 
-  cy.waitUntil(
-    () => {
-      return cy
-        .refreshListing()
-        .then(() => cy.contains(serviceInAcknowledgementName))
-        .parent()
-        .then((val) => {
-          return (
-            val.css('background-color') === actionBackgroundColors.acknowledge
-          );
-        });
-    },
+  checkServicesAreMonitored([
     {
-      timeout: 30000
+      acknowledged: true,
+      name: serviceInAcknowledgementName
     }
-  );
+  ]);
+
+  cy.refreshListing()
+    .then(() => cy.contains(serviceInAcknowledgementName))
+    .parent()
+    .then((val) => {
+      return val.css('background-color') === actionBackgroundColors.acknowledge;
+    });
 });
 
 Then(
   'date and time fields of acknowledge resource should be based on the custom timezone of the user',
   () => {
-    cy.get(`span[aria-label="${serviceInAcknowledgementName} Acknowledged"]`)
-      .trigger('mouseover')
-      .wait('@getAckToolTip');
+    cy.get(
+      `span[aria-label="${serviceInAcknowledgementName} Acknowledged"]`
+    ).trigger('mouseover');
+
+    cy.wait('@getAckToolTip');
 
     cy.get('div[role="tooltip"]')
       .eq(1)
@@ -358,8 +370,6 @@ Then(
           ).to.be.lte(2);
         });
       });
-
-    tearDownResource();
   }
 );
 
@@ -372,11 +382,22 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
 
   cy.getIframeBody().contains('Add a downtime').click();
 
-  cy.wait('@getTimeZone');
+  cy.wait(['@getTimeZone', '@getTimeZone']);
 
-  cy.getIframeBody().find('label[for="service"]').click();
+  cy.get('iframe#main-content')
+    .its('0.contentDocument.body')
+    .find('tr#host_input .select2-container')
+    .should('be.visible');
 
-  cy.getIframeBody().find('.select2-container').eq(2).click();
+  cy.get('iframe#main-content')
+    .its('0.contentDocument.body')
+    .find('label[for="service"]')
+    .click();
+
+  cy.getIframeBody()
+    .find('tr#service_input .select2-container')
+    .should('be.visible')
+    .click();
 
   cy.wait('@getServices');
 
@@ -390,8 +411,9 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
     .find('input[name="submitA"]')
     .eq(0)
     .contains('Save')
-    .click()
-    .wait('@getTimeZone');
+    .click();
+
+  cy.wait('@getTimeZone');
 });
 
 Then(
@@ -437,8 +459,6 @@ Then(
           ).to.be.lte(2);
         });
       });
-
-    tearDownResource();
   }
 );
 
@@ -515,6 +535,6 @@ Then(
   }
 );
 
-after(() => {
+afterEach(() => {
   cy.stopWebContainer();
 });

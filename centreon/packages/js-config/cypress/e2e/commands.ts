@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import './commands/configuration';
+import './commands/monitoring';
 
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
