@@ -1,15 +1,17 @@
 import { memo } from 'react';
 
-import { Curve, Shape } from '@visx/visx';
+import { Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals, isNil, prop } from 'ramda';
 
 import { getTime } from '../../../timeSeries';
 import { TimeValue } from '../../../timeSeries/models';
 import { getFillColor } from '../../../common';
+import { CurveType } from '../models';
 
 interface Props {
   areaColor: string;
+  curve: CurveType;
   filled: boolean;
   graphHeight: number;
   highlight?: boolean;
@@ -35,10 +37,11 @@ const RegularLine = ({
   xScale,
   areaColor,
   transparency,
-  graphHeight
+  graphHeight,
+  curve
 }: Props): JSX.Element => {
   const props = {
-    curve: Curve.curveLinear,
+    curve,
     data: timeSeries,
     defined: (value): boolean => !isNil(value[metric]),
     opacity: 1,

@@ -1,0 +1,10 @@
+{
+  "federatedComponentsConfiguration": {
+    "path": "/widgets/data",
+    "federatedComponents": [
+      "./data"
+    ]
+  },
+  "moduleFederationName": "widgetdata",
+  "moduleName": "centreon-widget-data"
+}

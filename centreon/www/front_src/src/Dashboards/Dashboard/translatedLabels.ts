@@ -29,3 +29,40 @@ export const labelWidgetProperties = 'Widget properties';
 export const labelCommonProperties = 'Common properties';
 export const labelRequired = 'Required';
 export const labelMoreActions = 'More actions';
+export const labelMetricsDatasetSelection = 'Metrics dataset selection';
+export const labelResources = 'Resources';
+export const labelHostGroup = 'Host Group';
+export const labelHostCategory = 'Host Category';
+export const labelHost = 'Host';
+export const labelService = 'Service';
+export const labelDelete = 'Delete';
+export const labelResourceType = 'Resource type';
+export const labelSelectAResource = 'Select a resource';
+export const labelMetrics = 'Metrics';
+export const labelPleaseSelectAResource = 'Please select a resource';
+export const labelTooManyMetricsAddMoreFilterOnResources =
+  'Too many metrics, add more filter on resources';
+export const labelServiceName = 'Service name';
+export const labelMetric = 'Metric';
+export const labelPleaseSelectAMetric = 'Please select a metric';
+export const labelTheLimiteOf2UnitsHasBeenReached =
+  'The limit of 2 units has been reached';
+export const labelShowDescription = 'Show description';
+export const labelOpenLinksInNewTab = 'Open links in new tab';
+export const labelOpenLinksInNewTabTooltip =
+  'By turning off this option, all links included in the widget will be opened in the same tab when clicked.';
+export const labelRefreshInterval = 'Refresh interval';
+export const labelDashboardGlobalInterval =
+  'Dashboard global interval (by default)';
+export const labelCustomRefreshInterval = 'Custom refresh interval';
+export const labelSecond = 'second';
+export const labelManualRefresh = 'Manual refresh';
+export const labelInterval = 'Interval';
+export const labelThreshold = 'Threshold';
+export const labelShowThresholds = 'Show thresholds';
+export const labelWarningThreshold = 'Warning threshold';
+export const labelCriticalThreshold = 'Critical threshold';
+export const labelDefault = 'Default';
+export const labelCustom = 'Custom';
+export const labelThresholdsAreAutomaticallyHidden =
+  'Thresholds are automatically hidden if you select 2 metric units';

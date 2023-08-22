@@ -5,7 +5,6 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   $getSelection,
   $isRangeSelection,
-  EditorState,
   FORMAT_TEXT_COMMAND,
   RangeSelection,
   SELECTION_CHANGE_COMMAND,
@@ -61,10 +60,10 @@ const getSelectedNode = (selection: RangeSelection): ElementNode | TextNode => {
 };
 
 interface Props {
-  getEditorState?: (editorState: EditorState) => void;
+  disabled: boolean;
 }
 
-const FormatButtons = ({ getEditorState }: Props): JSX.Element => {
+const FormatButtons = ({ disabled }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
   const [isBold, setIsBold] = useState(false);
@@ -104,13 +103,6 @@ const FormatButtons = ({ getEditorState }: Props): JSX.Element => {
 
   useEffect(() => {
     return mergeRegister(
-      editor.registerUpdateListener(({ editorState }) => {
-        editorState.read(() => {
-          updateToolbar();
-        });
-
-        getEditorState?.(editorState);
-      }),
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
         () => {
@@ -169,6 +161,7 @@ const FormatButtons = ({ getEditorState }: Props): JSX.Element => {
         <IconButton
           ariaLabel={type}
           className={cx(isSelected && classes.buttonSelected)}
+          disabled={disabled}
           key={type}
           size="medium"
           title={type}

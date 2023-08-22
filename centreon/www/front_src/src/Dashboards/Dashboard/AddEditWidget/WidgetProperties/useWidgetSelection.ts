@@ -2,15 +2,19 @@ import { ChangeEvent, useState } from 'react';
 
 import { equals, filter, find, isNil, map, propEq } from 'ramda';
 import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
 
 import { SelectEntry } from '@centreon/ui';
 
-import useFederatedWidgets from '../../../../federatedModules/useFederatedWidgets';
 import {
   FederatedModule,
   FederatedWidgetProperties
 } from '../../../../federatedModules/models';
 import { Widget } from '../models';
+import {
+  federatedWidgetsAtom,
+  federatedWidgetsPropertiesAtom
+} from '../../../../federatedModules/atoms';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -23,8 +27,10 @@ interface UseWidgetSelectionState {
 const useWidgetSelection = (): UseWidgetSelectionState => {
   const [search, setSearch] = useState('');
 
-  const { federatedWidgetsProperties, federatedWidgets } =
-    useFederatedWidgets();
+  const federatedWidgets = useAtomValue(federatedWidgetsAtom);
+  const federatedWidgetsProperties = useAtomValue(
+    federatedWidgetsPropertiesAtom
+  );
 
   const { setValues, values } = useFormikContext<Widget>();
 
@@ -48,9 +54,16 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const selectWidget = (widget: SelectEntry | null): void => {
     if (isNil(widget)) {
       setValues({
+        data: null,
         id: null,
         moduleName: null,
-        options: {},
+        options: {
+          description: {
+            content: null,
+            enabled: true
+          },
+          openLinksInNewTab: true
+        },
         panelConfiguration: null
       });
 
@@ -75,13 +88,26 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       {}
     );
 
+    const data = Object.entries(selectedWidgetProperties.data || {}).reduce(
+      (acc, [key, value]) => ({
+        ...acc,
+        [key]: value.defaultValue
+      }),
+      {}
+    );
+
     setValues((currentValues) => ({
+      data,
       id: selectedWidget.moduleName,
       moduleName: selectedWidget.moduleName,
       options: {
         ...options,
-        description: currentValues.options.description,
-        name: currentValues.options.name
+        description: currentValues.options.description || {
+          content: null,
+          enabled: true
+        },
+        name: currentValues.options.name,
+        openLinksInNewTab: currentValues.options.openLinksInNewTab || true
       },
       panelConfiguration: selectedWidget.federatedComponentsConfiguration
     }));

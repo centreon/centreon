@@ -1,9 +1,14 @@
-import Paper from '@mui/material/Paper';
-import { Typography } from '@mui/material';
+import { Tooltip } from '@visx/visx';
+
+import { Typography, useTheme } from '@mui/material';
 
 import useTooltipAnchorPoint from './useTooltipAnchorPoint';
-import { useStyles } from './AnchorPoint.styles';
 import { TooltipAnchorModel } from './models';
+
+const baseStyles = {
+  ...Tooltip.defaultStyles,
+  textAlign: 'center'
+};
 
 const TooltipAnchorPoint = ({
   timeSeries,
@@ -15,12 +20,13 @@ const TooltipAnchorPoint = ({
   lines,
   baseAxis
 }: TooltipAnchorModel): JSX.Element => {
+  const theme = useTheme();
+
   const {
     tooltipDataAxisX,
     tooltipDataAxisYLeft,
     tooltipLeftAxisX,
     tooltipLeftAxisYLeft,
-    tooltipTopAxisX,
     tooltipTopAxisYLeft,
     tooltipDataAxisYRight,
     tooltipTopAxisYRight,
@@ -35,33 +41,53 @@ const TooltipAnchorPoint = ({
     timeSeries,
     xScale
   });
-  const { classes, cx } = useStyles({
-    tooltipLeftAxisX,
-    tooltipLeftAxisYLeft,
-    tooltipLeftAxisYRight,
-    tooltipTopAxisX,
-    tooltipTopAxisYLeft,
-    tooltipTopAxisYRight
-  });
+
+  const cardStyles = {
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.primary,
+    padding: theme.spacing(0.25, 0.5)
+  };
 
   return (
     <>
-      {tooltipDataAxisYLeft && (
-        <Paper className={cx(classes.tooltipAxis, classes.tooltipAxisLeftY)}>
-          <Typography variant="caption">{tooltipDataAxisYLeft}</Typography>
-        </Paper>
-      )}
       {tooltipDataAxisX && (
-        <Paper className={cx(classes.tooltipAxis, classes.tooltipAxisBottom)}>
+        <Tooltip.Tooltip
+          left={tooltipLeftAxisX}
+          style={{
+            ...baseStyles,
+            ...cardStyles,
+            transform: 'translateX(-70%)'
+          }}
+          top={0}
+        >
           <Typography variant="caption">{tooltipDataAxisX}</Typography>
-        </Paper>
+        </Tooltip.Tooltip>
+      )}
+      {tooltipDataAxisYLeft && (
+        <Tooltip.Tooltip
+          left={tooltipLeftAxisYLeft}
+          style={{
+            ...baseStyles,
+            ...cardStyles,
+            transform: 'translateX(-70%) translateY(-100%)'
+          }}
+          top={tooltipTopAxisYLeft}
+        >
+          <Typography variant="caption">{tooltipDataAxisYLeft}</Typography>
+        </Tooltip.Tooltip>
       )}
       {tooltipDataAxisYRight && (
-        <Paper
-          className={cx(classes.tooltipAxis, classes.tooltipLeftAxisRightY)}
+        <Tooltip.Tooltip
+          left={tooltipLeftAxisYRight}
+          style={{
+            ...baseStyles,
+            ...cardStyles,
+            transform: 'translateX(-70%)  translateY(-80%)'
+          }}
+          top={tooltipTopAxisYRight}
         >
           <Typography variant="caption">{tooltipDataAxisYRight}</Typography>
-        </Paper>
+        </Tooltip.Tooltip>
       )}
     </>
   );

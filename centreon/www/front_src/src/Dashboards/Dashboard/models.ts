@@ -14,6 +14,7 @@ export interface PanelConfiguration {
 export type Layout = Array<ReactGridLayout.Layout>;
 
 export interface Panel extends ReactGridLayout.Layout {
+  data?: object;
   name: string;
   options?: object;
   panelConfiguration: PanelConfiguration;

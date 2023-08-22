@@ -55,7 +55,7 @@ const Axes = ({
         numTicks={xTickCount}
         scale={xScale}
         tickFormat={formatAxisTick}
-        top={height}
+        top={height - 5}
       />
 
       {axisLeft.displayUnit && <UnitLabel unit={firstUnit} x={-4} />}

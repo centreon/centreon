@@ -9,14 +9,13 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
       "widgetData widgetProperties"
     `,
     gridTemplateColumns: '2fr 1fr',
-    gridTemplateRows: 'auto auto'
+    gridTemplateRows: 'minmax(300px, auto) auto'
   },
   preview: {
     alignItems: 'center',
     display: 'flex',
     gridArea: 'preview',
-    justifyContent: 'center',
-    minHeight: '200px'
+    justifyContent: 'center'
   },
   widgetData: {
     gridArea: 'widgetData'

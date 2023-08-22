@@ -18,7 +18,7 @@ import {
   labelExit,
   labelSave
 } from '../../translatedLabels';
-import useFederatedWidgets from '../../../../federatedModules/useFederatedWidgets';
+import { federatedWidgetsAtom } from '../../../../federatedModules/atoms';
 
 interface DashboardEditActionsProps {
   panels?: Array<DashboardPanel>;
@@ -29,12 +29,11 @@ const DashboardEditActions = ({
 }: DashboardEditActionsProps): ReactElement => {
   const { t } = useTranslation();
 
+  const federatedWidgets = useAtomValue(federatedWidgetsAtom);
   const isEditing = useAtomValue(isEditingAtom);
   const switchPanelsEditionMode = useSetAtom(
     switchPanelsEditionModeDerivedAtom
   );
-
-  const { federatedWidgets } = useFederatedWidgets();
 
   const { saveDashboard } = useSaveDashboard();
 

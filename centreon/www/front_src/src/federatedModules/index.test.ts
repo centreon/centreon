@@ -10,7 +10,6 @@ import { retrievedFederatedModule } from './mocks';
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const retrievedWebVersions = {
-  is_cloud_platform: false,
   modules: {
     'centreon-bam-server': {
       fix: '0',

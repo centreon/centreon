@@ -91,16 +91,24 @@ const versionDecoder = JsonDecoder.object<Version>(
 
 export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
   {
-    isCloudPlatform: JsonDecoder.boolean,
     modules: JsonDecoder.dictionary(versionDecoder, 'Modules'),
     web: versionDecoder,
     widgets: JsonDecoder.dictionary(versionDecoder, 'Widgets')
   },
   'Platform versions',
   {
-    isCloudPlatform: 'is_cloud_platform',
     modules: 'modules',
     web: 'web',
     widgets: 'widgets'
+  }
+);
+
+export const platformFeaturesDecoder = JsonDecoder.object<PlatformVersions>(
+  {
+    isCloudPlatform: JsonDecoder.boolean
+  },
+  'Platform features',
+  {
+    isCloudPlatform: 'is_cloud_platform'
   }
 );

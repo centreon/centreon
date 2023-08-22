@@ -17967,6 +17967,33 @@ msgstr "Erreur lors de l'affichage des ressources des notifications"
 msgid "Host template required in service group association is not linked to service template"
 msgstr "Le modèle d'hôte requis dans l'association du groupe de services n'est pas lié au modèle de service"
 
+msgid "No data found"
+msgstr "Aucune donnée trouvée"
+
+msgid "Metrics dataset selection"
+msgstr "Sélection du jeu de données de métriques"
+
+msgid "Resource type"
+msgstr "Type de ressource"
+
+msgid "Select a resource"
+msgstr "Sélectionner une ressource"
+
+msgid "Please select a resource"
+msgstr "Veuillez sélectionner une ressource"
+
+msgid "Too many metrics, add more filter on resources"
+msgstr "Trop de métriques, ajoutez plus de filtres sur les ressources"
+
+msgid "Service name"
+msgstr "Nom du service"
+
+msgid "Please select a metric"
+msgstr "Veuillez sélectionner une métrique"
+
+msgid "The limit of 2 units has been reached"
+msgstr "La limite de 2 unités a été atteinte"
+
 msgid "Missing property in the metric information: %s"
 msgstr "Propriété manquante dans les informations de la métrique : %s"
 
@@ -17976,9 +18003,54 @@ msgstr "Métriques non trouvées"
 msgid "An error occured while retrieving metrics data"
 msgstr "Une erreur est survenue lors de la récupération des données de métriques"
 
-
 msgid "Invalid metric format"
 msgstr "Format de métrique invalide"
+
+msgid "Refresh interval"
+msgstr "Intervalle de rafraîchissement"
+
+msgid "Dashboard global interval (by default)"
+msgstr "Intervalle global du tableau de bord (par défaut)"  
+
+msgid "Custom refresh interval"
+msgstr "Intervalle de rafraîchissement personnalisé"
+
+msgid "second"
+msgstr "seconde"
+
+msgid "Manual refresh"
+msgstr "Rafraîchissement manuel"
+
+msgid "Interval"
+msgstr "Intervalle"
+
+msgid "Threshold"
+msgstr "Seuil"
+
+msgid "Show thresholds"
+msgstr "Afficher les seuils"
+
+msgid "Warning threshold"
+msgstr "Seuil d'alerte"
+
+msgid "Critical threshold"
+msgstr "Seuil critique"
+
+msgid "Custom"
+msgstr "Personnalisé"
+
+msgid "Thresholds are automatically hidden if you select 2 metric units"
+msgstr "Les seuils sont automatiquement masqués si vous sélectionnez 2 unités de métrique"
+
+msgid "Show description"
+msgstr "Afficher la description"
+
+msgid "Open links in new tab"
+msgstr "Ouvrir les liens dans un nouvel onglet"
+
+msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
+msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
+
 
 msgid "The {{module}} license will expire in {{expirationDate}} days"
 msgstr "La license {{module}} expirera dans {{expirationDate}} jours"
