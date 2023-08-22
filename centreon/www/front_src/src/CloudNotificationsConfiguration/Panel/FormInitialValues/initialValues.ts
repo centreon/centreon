@@ -9,7 +9,11 @@ import { SlackIcon, EmailIcon, SmsIcon } from '../FormInputs/Channel/Icons';
 import { NotificationType } from '../models';
 import { emptyEmail, formatMessages, formatResource } from '../utils';
 
-const formatBV = (isBamModuleInstalled, resources): object => {
+interface FormatBV {
+  isBamModuleInstalled: boolean;
+  resources;
+}
+const formatBV = ({ isBamModuleInstalled, resources }: FormatBV): object => {
   if (!isBamModuleInstalled) {
     return {};
   }
@@ -67,7 +71,7 @@ export const getInitialValues = ({
     label: t(labelTimePeriod24h7days)
   },
   users,
-  ...formatBV(!!isBamModuleInstalled, resources)
+  ...formatBV({ isBamModuleInstalled: !!isBamModuleInstalled, resources })
 });
 
 const getBVInitialValue = (isBamModuleInstalled): object => {
