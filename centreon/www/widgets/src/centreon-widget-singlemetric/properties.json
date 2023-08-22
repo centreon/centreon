@@ -1,7 +1,11 @@
 {
   "title": "Single metric",
-  "description": "Widget single metrci description (TBD)",
+  "description": "Single metric description (TBD)",
   "options": {
+    "singleMetricGraphType": {
+      "type": "single-metric-graph-type",
+      "defaultValue": "text"
+    },
     "threshold": {
       "type": "threshold",
       "defaultValue": {

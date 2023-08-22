@@ -8,7 +8,7 @@ import { Metric } from '../common/timeSeries/models';
 import ResponsiveGauge from './ResponsiveGauge';
 
 interface Props {
-  data: LineChartData;
+  data?: LineChartData;
   thresholdTooltipLabels: Array<string>;
   thresholds: Array<number>;
 }
@@ -17,7 +17,10 @@ export const Gauge = ({
   thresholds,
   data,
   thresholdTooltipLabels
-}: Props): JSX.Element => {
+}: Props): JSX.Element | null => {
+  if (!data) {
+    return null;
+  }
   const sortedThresholds = sort(subtract, thresholds);
 
   const metric = getMetricWithLatestData(data) as Metric;

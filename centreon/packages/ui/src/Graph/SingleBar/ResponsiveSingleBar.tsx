@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { Group, Tooltip } from '@visx/visx';
 import { scaleLinear } from '@visx/scale';
@@ -6,7 +6,7 @@ import { head } from 'ramda';
 import { Bar } from '@visx/shape';
 import { useSpring, animated } from '@react-spring/web';
 
-import { alpha, Fade, useTheme } from '@mui/material';
+import { alpha, Box, Fade, useTheme } from '@mui/material';
 
 import {
   formatMetricValue,
@@ -53,6 +53,7 @@ const ResponsiveSingleBar = ({
     tooltipTop,
     tooltipData
   } = Tooltip.useTooltip();
+  const svgRef = useRef<SVGSVGElement | null>(null);
 
   const barColor = useMemo(
     () =>
@@ -85,10 +86,9 @@ const ResponsiveSingleBar = ({
     () =>
       scaleLinear<number>({
         domain: [0, adaptedMaxValue],
-        range: [0, width],
-        round: true
+        range: [0, width]
       }),
-    [width]
+    [width, adaptedMaxValue]
   );
 
   const metricBarWidth = useMemo(
@@ -103,8 +103,8 @@ const ResponsiveSingleBar = ({
   const springStyle = useSpring({ width: metricBarWidth });
 
   return (
-    <>
-      <svg height={height} width={width}>
+    <Box sx={{ position: 'relative' }}>
+      <svg height={height} ref={svgRef} width={width}>
         <Group.Group>
           {text}
           <animated.rect
@@ -140,14 +140,15 @@ const ResponsiveSingleBar = ({
           style={{
             ...baseStyles,
             backgroundColor: theme.palette.background.paper,
-            color: theme.palette.text.primary
+            color: theme.palette.text.primary,
+            transform: 'translate(-50%, -20px)'
           }}
           top={tooltipTop}
         >
           {tooltipData}
         </Tooltip.Tooltip>
       </Fade>
-    </>
+    </Box>
   );
 };
 

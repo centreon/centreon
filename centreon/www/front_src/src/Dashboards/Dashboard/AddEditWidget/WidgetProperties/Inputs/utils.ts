@@ -51,6 +51,12 @@ const getYupValidatorType = ({
       always(Yup.string())
     ],
     [
+      equals<FederatedWidgetOptionType>(
+        FederatedWidgetOptionType.singleMetricGraphType
+      ),
+      always(Yup.string())
+    ],
+    [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.resources),
       always(
         Yup.array()

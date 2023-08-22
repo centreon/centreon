@@ -13,6 +13,7 @@ interface DsData {
 
 export interface Metric {
   average_value: number | null;
+  crit: number | null;
   data: Array<number>;
   ds_data: DsData;
   legend: string;
@@ -20,6 +21,7 @@ export interface Metric {
   metric: string;
   minimum_value: number | null;
   unit: string;
+  warn: number | null;
 }
 
 type TimeSeries = { timeTick: string };

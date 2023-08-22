@@ -135,7 +135,7 @@ const useThreshold = ({
                 disabled={!enabled || isDefault(warningType)}
                 label={t(labelThreshold)}
                 propertyName={`${propertyName}.customWarning`}
-                text={{ size: 'compact', type: 'number' }}
+                text={{ size: 'compact', step: '0.01', type: 'number' }}
               />
             </Box>
           ),
@@ -161,7 +161,7 @@ const useThreshold = ({
                 disabled={!enabled || isDefault(criticalType)}
                 label={t(labelThreshold)}
                 propertyName={`${propertyName}.customCritical`}
-                text={{ size: 'compact', type: 'number' }}
+                text={{ size: 'compact', step: '0.01', type: 'number' }}
               />
             </Box>
           ),

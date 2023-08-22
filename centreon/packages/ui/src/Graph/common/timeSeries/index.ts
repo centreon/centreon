@@ -488,7 +488,7 @@ const getMetricWithLatestData = (
 ): Metric | undefined => {
   const metric = head(graphData.metrics) as Metric;
 
-  const lastData = last(metric?.data || []);
+  const lastData = last(metric?.data.filter((v) => v) || []);
 
   return {
     ...metric,

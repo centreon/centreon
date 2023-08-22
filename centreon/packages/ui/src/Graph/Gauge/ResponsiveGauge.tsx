@@ -1,8 +1,10 @@
+import { useRef } from 'react';
+
 import { Group } from '@visx/group';
 import { head } from 'ramda';
 import { Tooltip } from '@visx/visx';
 
-import { Fade, useTheme } from '@mui/material';
+import { Box, Fade, useTheme } from '@mui/material';
 
 import { Metric } from '../common/timeSeries/models';
 import { formatMetricValue } from '../common/timeSeries';
@@ -33,6 +35,8 @@ const ResponsiveGauge = ({
   metric,
   thresholdTooltipLabels
 }: Props): JSX.Element => {
+  const svgRef = useRef<SVGSVGElement>(null);
+
   const theme = useTheme();
 
   const {
@@ -61,9 +65,14 @@ const ResponsiveGauge = ({
     thresholds
   });
 
+  const svgTop = svgRef.current?.getBoundingClientRect().top || 0;
+  const svgLeft = svgRef.current?.getBoundingClientRect().left || 0;
+
+  console.log('svgTop', (tooltipTop || 0) - svgTop);
+
   return (
-    <>
-      <svg height={height} width={width}>
+    <Box sx={{ position: 'relative' }}>
+      <svg height={height} ref={svgRef} width={width}>
         <Group left={centerX + margin.left} top={centerY + margin.top}>
           <Thresholds
             adaptedMaxValue={adaptedMaxValue}
@@ -83,10 +92,14 @@ const ResponsiveGauge = ({
         </Group>
         <text
           dominantBaseline="middle"
-          style={{ fill: pieColor, ...theme.typography.h3 }}
+          style={{
+            fill: pieColor,
+            ...theme.typography.h3,
+            fontSize: Math.min(width, height) / 7
+          }}
           textAnchor="middle"
           x="50%"
-          y={180}
+          y={100 + Math.min(width, height) / 6}
         >
           {formatMetricValue({
             base: 1000,
@@ -98,19 +111,19 @@ const ResponsiveGauge = ({
       </svg>
       <Fade in={tooltipOpen}>
         <Tooltip.Tooltip
-          left={tooltipLeft}
+          left={(tooltipLeft || 0) - svgLeft}
           style={{
             ...baseStyles,
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.text.primary,
-            transform: 'translateX(-70%) translateY(-150%)'
+            transform: 'translate(-50%, 0)'
           }}
-          top={tooltipTop}
+          top={(tooltipTop || 0) - svgTop + 20}
         >
           {tooltipData}
         </Tooltip.Tooltip>
       </Fade>
-    </>
+    </Box>
   );
 };
 

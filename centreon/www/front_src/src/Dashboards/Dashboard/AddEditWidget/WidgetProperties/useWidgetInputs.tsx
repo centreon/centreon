@@ -13,6 +13,7 @@ import {
   WidgetRefreshInterval,
   WidgetResources,
   WidgetRichTextEditor,
+  WidgetSingleMetricGraphType,
   WidgetTextField,
   WidgetThreshold
 } from './Inputs';
@@ -38,7 +39,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.metrics]: WidgetMetrics,
   [FederatedWidgetOptionType.richText]: WidgetRichTextEditor,
   [FederatedWidgetOptionType.refreshInterval]: WidgetRefreshInterval,
-  [FederatedWidgetOptionType.threshold]: WidgetThreshold
+  [FederatedWidgetOptionType.threshold]: WidgetThreshold,
+  [FederatedWidgetOptionType.singleMetricGraphType]: WidgetSingleMetricGraphType
 };
 
 const DefaultComponent = (): JSX.Element => <div />;

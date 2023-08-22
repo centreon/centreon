@@ -41,7 +41,7 @@ const WidgetTextField = ({
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldTouched(`options.${propertyName}`, true);
     const newText = equals(text?.type, 'number')
-      ? parseInt(event.target.value || '0', 10)
+      ? Number(event.target.value)
       : event.target.value;
     setFieldValue(`options.${propertyName}`, newText);
   };
@@ -57,6 +57,9 @@ const WidgetTextField = ({
       disabled={disabled}
       error={isTouched && error}
       helperText={isTouched && error}
+      inputProps={{
+        step: text?.step || '1'
+      }}
       label={isCompact ? null : t(label) || ''}
       multiline={text?.multiline || false}
       required={required}

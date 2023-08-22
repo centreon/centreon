@@ -1,11 +1,11 @@
 import { scaleOrdinal } from '@visx/scale';
 import { Pie } from '@visx/shape';
-import { identity } from 'ramda';
+import { pluck } from 'ramda';
 
 import { useTheme } from '@mui/material';
 
 import AnimatedPie from './AnimatedPie';
-import { GaugeProps } from './models';
+import { GaugeProps, ThresholdType } from './models';
 
 export const thresholdThickness = 12;
 
@@ -20,14 +20,30 @@ const Thresholds = ({
 }: Omit<GaugeProps, 'width' | 'height'>): JSX.Element => {
   const theme = useTheme();
 
-  const adaptedThresholds = [...thresholds, adaptedMaxValue].map(
-    (threshold, index) => {
-      return threshold - (thresholds[index - 1] || 0);
+  const namedThresholds = [
+    {
+      name: ThresholdType.Success,
+      value: thresholds[0]
+    },
+    {
+      name: ThresholdType.Warning,
+      value: thresholds[1]
+    },
+    {
+      name: ThresholdType.Error,
+      value: adaptedMaxValue
     }
-  );
+  ];
+
+  const adaptedThresholds = namedThresholds.map(({ name, value }, index) => {
+    return {
+      name,
+      value: value - (namedThresholds[index - 1]?.value || 0)
+    };
+  });
 
   const getThresholdColor = scaleOrdinal({
-    domain: adaptedThresholds,
+    domain: pluck('name', adaptedThresholds),
     range: [
       theme.palette.success.main,
       theme.palette.warning.main,
@@ -42,20 +58,19 @@ const Thresholds = ({
       innerRadius={radius - thresholdThickness}
       outerRadius={radius}
       pieSortValues={() => -1}
-      pieValue={identity}
+      pieValue={(d) => d.value}
       startAngle={Math.PI / 2}
     >
       {(pie) => (
-        <AnimatedPie<number>
+        <AnimatedPie<{ name: ThresholdType; value: number }>
           {...pie}
           animate
-          getColor={(arc) => getThresholdColor(arc.data)}
-          getKey={(arc) => `${arc.data}`}
+          getColor={(arc) => getThresholdColor(arc.data.name)}
+          getKey={(arc) => `${arc.data.name}_${arc.data.value}`}
           hideTooltip={hideTooltip}
           metric={metric}
           showTooltip={showTooltip}
           thresholdTooltipLabels={thresholdTooltipLabels}
-          thresholds={adaptedThresholds}
         />
       )}
     </Pie>

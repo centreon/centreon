@@ -1,6 +1,6 @@
 import { PieArcDatum, ProvidedProps } from '@visx/shape/lib/shapes/Pie';
 import { useTransition, interpolate, animated } from '@react-spring/web';
-import { T, always, cond, equals } from 'ramda';
+import { equals } from 'ramda';
 
 import { Metric } from '../common/timeSeries/models';
 
@@ -31,23 +31,7 @@ type AnimatedPieProps<Datum> = ProvidedProps<Datum> & {
   metric?: Metric;
   showTooltip?: (args) => void;
   thresholdTooltipLabels?: Array<string>;
-  thresholds?: Array<number>;
 };
-
-interface GetThresholdTypeProps {
-  thresholdValue: number;
-  thresholds: Array<number>;
-}
-
-const getThresholdType = ({
-  thresholdValue,
-  thresholds
-}: GetThresholdTypeProps): ThresholdType =>
-  cond([
-    [equals(thresholds[1]), always(ThresholdType.Warning)],
-    [equals(thresholds[2]), always(ThresholdType.Error)],
-    [T, always(ThresholdType.Success)]
-  ])(thresholdValue);
 
 const AnimatedPie = <Datum,>({
   animate,
@@ -57,8 +41,7 @@ const AnimatedPie = <Datum,>({
   getColor,
   showTooltip,
   hideTooltip,
-  thresholdTooltipLabels = [],
-  thresholds = []
+  thresholdTooltipLabels = []
 }: AnimatedPieProps<Datum>): JSX.Element => {
   const transitions = useTransition<PieArcDatum<Datum>, AnimatedStyles>(arcs, {
     enter: enterUpdateTransition,
@@ -83,10 +66,7 @@ const AnimatedPie = <Datum,>({
           )}
           fill={getColor(arc)}
           onMouseEnter={(event) => {
-            const thresholdType = getThresholdType({
-              thresholdValue: arc.data as number,
-              thresholds
-            });
+            const thresholdType = arc.data.name;
 
             if (equals(thresholdType, ThresholdType.Success)) {
               return;
