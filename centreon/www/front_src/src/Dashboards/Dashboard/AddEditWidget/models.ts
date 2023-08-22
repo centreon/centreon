@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import { SelectEntry } from '@centreon/ui';
 
 import { PanelConfiguration } from '../models';
@@ -11,11 +13,17 @@ export interface Widget {
 }
 
 export interface WidgetPropertyProps {
+  className?: string;
+  disabled?: boolean;
+  disabledCondition?: (values: Widget) => boolean;
+  endAdornment?: ReactNode;
   label: string;
   propertyName: string;
   required?: boolean;
   text?: {
     multiline?: boolean;
+    size?: string;
+    type?: string;
   };
 }
 
@@ -34,7 +42,9 @@ export interface NamedEntity {
 }
 
 export interface Metric extends NamedEntity {
+  criticalThreshold: number | null;
   unit: string;
+  warningThreshold: number | null;
 }
 
 export interface ServiceMetric extends NamedEntity {
@@ -46,4 +56,10 @@ export enum WidgetResourceType {
   hostCategory = 'host-category',
   hostGroup = 'host-group',
   service = 'service'
+}
+
+export enum RadioOptions {
+  custom = 'custom',
+  default = 'default',
+  manual = 'manual'
 }

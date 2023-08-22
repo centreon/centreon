@@ -48,7 +48,8 @@ class NotificationMessageFactory
         return new NotificationMessage(
             $messageType,
             $message['subject'],
-            $message['message']
+            $message['message'],
+            $message['formatted_message']
         );
     }
 

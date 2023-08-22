@@ -35,3 +35,36 @@ export const useResourceStyles = makeStyles()((theme) => ({
     flexGrow: 1
   }
 }));
+
+export const useSwitchStyles = makeStyles()((theme) => ({
+  switch: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(1)
+  }
+}));
+
+export const useRefreshIntervalStyles = makeStyles()((theme) => ({
+  customInterval: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(1)
+  },
+  customIntervalField: {
+    width: theme.spacing(10)
+  }
+}));
+
+export const useThresholdStyles = makeStyles()((theme) => ({
+  threshold: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(1)
+  },
+  thresholdField: {
+    width: theme.spacing(8)
+  }
+}));

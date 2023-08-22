@@ -18014,3 +18014,48 @@ msgstr "Une erreur est survenue lors de la récupération des données de métri
 
 msgid "Invalid metric format"
 msgstr "Format de métrique invalide"
+
+msgid "Refresh interval"
+msgstr "Intervalle de rafraîchissement"
+
+msgid "Dashboard global interval (by default)"
+msgstr "Intervalle global du tableau de bord (par défaut)"  
+
+msgid "Custom refresh interval"
+msgstr "Intervalle de rafraîchissement personnalisé"
+
+msgid "second"
+msgstr "seconde"
+
+msgid "Manual refresh"
+msgstr "Rafraîchissement manuel"
+
+msgid "Interval"
+msgstr "Intervalle"
+
+msgid "Threshold"
+msgstr "Seuil"
+
+msgid "Show thresholds"
+msgstr "Afficher les seuils"
+
+msgid "Warning threshold"
+msgstr "Seuil d'alerte"
+
+msgid "Critical threshold"
+msgstr "Seuil critique"
+
+msgid "Custom"
+msgstr "Personnalisé"
+
+msgid "Thresholds are automatically hidden if you select 2 metric units"
+msgstr "Les seuils sont automatiquement masqués si vous sélectionnez 2 unités de métrique"
+
+msgid "Show description"
+msgstr "Afficher la description"
+
+msgid "Open links in new tab"
+msgstr "Ouvrir les liens dans un nouvel onglet"
+
+msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
+msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."

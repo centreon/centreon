@@ -144,9 +144,37 @@ describe('Rich Text Editor', () => {
           cy.wrap(element).should('not.have.attr', 'target');
         });
     });
+
+    it('does not allow to open links in a new tab', () => {
+      cy.mount({
+        Component: <RichTextEditor editable openLinkInNewTab={false} />
+      });
+
+      cy.get('[data-testid="RichTextEditor"]').type('cypress');
+      cy.get('[data-testid="RichTextEditor"]').focus().type('{selectAll}');
+
+      cy.get('#link').click();
+
+      cy.findByLabelText('Saved link').should('have.text', 'https://');
+
+      cy.findByLabelText('Edit link').click();
+      cy.get('#InputLinkField').type('www.centreon.com').type('{enter}');
+
+      cy.findByText('cypress').parent().should('not.have.attr', 'target');
+
+      cy.get('[data-testid="RichTextEditor"]').focus().clear();
+
+      cy.get('[data-testid="RichTextEditor"]')
+        .focus()
+        .type('https://centreon.com');
+
+      cy.findByText('https://centreon.com')
+        .parent()
+        .should('not.have.attr', 'target');
+    });
   });
 
-  describe('Disabled Rich Text Editor', () => {
+  describe('Rich Text Editor not editable', () => {
     beforeEach(() => {
       cy.mount({
         Component: (
@@ -169,6 +197,33 @@ describe('Rich Text Editor', () => {
       cy.findByLabelText('underline').should('not.exist');
       cy.findByLabelText('strikethrough').should('not.exist');
       cy.findByLabelText('link').should('not.exist');
+    });
+  });
+
+  describe('Rich Text Editor is disabled', () => {
+    beforeEach(() => {
+      cy.mount({
+        Component: (
+          <RichTextEditor
+            disabled
+            editable
+            initialEditorState={mockInititalStateToEditor}
+          />
+        )
+      });
+    });
+
+    it('displays editor when editable props is false and an initialState exist', () => {
+      cy.get('[data-testid="RichTextEditor"]')
+        .invoke('attr', 'contenteditable')
+        .should('eq', 'true');
+      cy.findByLabelText('Undo').should('be.disabled');
+      cy.findByLabelText('Redo').should('be.disabled');
+      cy.findByLabelText('bold').should('be.disabled');
+      cy.findByLabelText('italic').should('be.disabled');
+      cy.findByLabelText('underline').should('be.disabled');
+      cy.findByLabelText('strikethrough').should('be.disabled');
+      cy.findByLabelText('link').should('be.disabled');
     });
   });
 
@@ -227,6 +282,59 @@ describe('Rich Text Editor', () => {
       standardMacros.forEach((macro) => {
         cy.findByText(macro).should('be.visible').click({ force: true });
         cy.get('[data-testid="RichTextEditor"]').should('contain', macro);
+      });
+    });
+  });
+
+  describe('Block type', () => {
+    beforeEach(() => {
+      cy.mount({
+        Component: <RichTextEditor editable />
+      });
+    });
+
+    const testCases = [
+      {
+        blockType: 'Heading 1',
+        tag: 'h1'
+      },
+      {
+        blockType: 'Heading 2',
+        tag: 'h2'
+      },
+      {
+        blockType: 'Heading 3',
+        tag: 'h3'
+      },
+      {
+        blockType: 'Heading 4',
+        tag: 'h4'
+      },
+      {
+        blockType: 'Heading 5',
+        tag: 'h5'
+      },
+      {
+        blockType: 'Heading 6',
+        tag: 'h6'
+      },
+      {
+        blockType: 'Bullet List',
+        tag: 'ul'
+      },
+      {
+        blockType: 'Number List',
+        tag: 'ol'
+      }
+    ];
+
+    testCases.forEach(({ blockType, tag }) => {
+      it(`displays ${blockType} when the corresponding block type button is selected`, () => {
+        cy.get('[data-testid="RichTextEditor"]').type('Example');
+        cy.findByTestId('Block type').click();
+        cy.findByText(blockType).click();
+
+        cy.get('[data-testid="RichTextEditor"]').find(tag).should('be.visible');
       });
     });
   });

@@ -74,7 +74,8 @@ final class AddNotificationResponse
      * @var array<array{
      *         channel:string,
      *         subject:string,
-     *         message:string
+     *         message:string,
+     *         formatted_message:string
      *     }> $messages
      */
     public array $messages = [];

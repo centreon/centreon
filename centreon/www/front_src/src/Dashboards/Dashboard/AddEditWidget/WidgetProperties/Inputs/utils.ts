@@ -1,4 +1,4 @@
-import { always, cond, equals, path } from 'ramda';
+import { always, cond, equals, path, split } from 'ramda';
 import * as Yup from 'yup';
 import { TFunction } from 'i18next';
 
@@ -10,10 +10,10 @@ import {
 } from '../../../translatedLabels';
 
 export const getProperty = <T>({ propertyName, obj }): T | undefined =>
-  path<T>(['options', propertyName], obj);
+  path<T>(['options', ...split('.', propertyName)], obj);
 
 export const getDataProperty = <T>({ propertyName, obj }): T | undefined =>
-  path<T>(['data', propertyName], obj);
+  path<T>(['data', ...split('.', propertyName)], obj);
 
 const namedEntitySchema = Yup.object().shape({
   id: Yup.number().required(),
@@ -46,7 +46,10 @@ const getYupValidatorType = ({
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.textfield),
       always(Yup.string())
     ],
-    [equals(FederatedWidgetOptionType.richText), always(Yup.string())],
+    [
+      equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.richText),
+      always(Yup.string())
+    ],
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.resources),
       always(
@@ -75,6 +78,22 @@ const getYupValidatorType = ({
               .optional()
           )
           .min(1, t(labelPleaseSelectAMetric) as string)
+      )
+    ],
+    [
+      equals<FederatedWidgetOptionType>(
+        FederatedWidgetOptionType.refreshInterval
+      ),
+      always(Yup.string())
+    ],
+    [
+      equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.threshold),
+      always(
+        Yup.object().shape({
+          critical: Yup.number().nullable(),
+          enabled: Yup.boolean(),
+          warning: Yup.number().nullable()
+        })
       )
     ]
   ])(widgetOptionType);

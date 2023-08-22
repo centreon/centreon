@@ -27,6 +27,8 @@ import {
   QuitWithoutSavedDashboard
 } from './models';
 
+export const refreshIntervalAtom = atom(30);
+
 export const dashboardAtom = atom<Dashboard>({
   layout: []
 });

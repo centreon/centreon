@@ -16626,6 +16626,51 @@ msgstr "Você não salvou as alterações, deseja continuar?"
 # msgid "The limit of 2 units has been reached"
 # msgstr ""
 
+# msgid "Refresh interval"
+# msgstr ""
+
+# msgid "Dashboard global interval (by default)"
+# msgstr ""  
+
+# msgid "Custom refresh interval"
+# msgstr ""
+
+# msgid "second"
+# msgstr ""
+
+# msgid "Manual refresh"
+# msgstr ""
+
+# msgid "Interval"
+# msgstr ""
+
+# msgid "Threshold"
+# msgstr ""
+
+# msgid "Show thresholds"
+# msgstr ""
+
+# msgid "Warning threshold"
+# msgstr ""
+
+# msgid "Critical threshold"
+# msgstr ""
+
+# msgid "Custom"
+# msgstr ""
+
+# msgid "Thresholds are automatically hidden if you select 2 metric units"
+# msgstr ""
+
+# msgid "Show description"
+# msgstr ""
+
+# msgid "Open links in new tab"
+# msgstr ""
+
+# msgid "By turning off this option, all links included in the widget will be opened in the same tab."
+# msgstr ""
+
 # msgid "Notifications will only be sent during this time period"
 # msgstr ""
 
