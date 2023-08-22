@@ -1,7 +1,7 @@
 import { T, always, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 import { Gauge, GraphText, SingleBar, useGraphQuery } from '@centreon/ui';
 
@@ -14,6 +14,7 @@ import {
 import { useNoDataFoundStyles } from './NoDataFound.styles';
 import { graphEndpoint } from './api/endpoints';
 import useThresholds from './useThresholds';
+import { useGraphStyles } from './Graph.styles';
 
 interface Props {
   metrics: Array<ServiceMetric>;
@@ -27,6 +28,8 @@ const Graph = ({
   threshold
 }: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
+  const { classes: graphClasses } = useGraphStyles();
+
   const { t } = useTranslation();
   const { graphData, isGraphLoading, isMetricIdsEmpty } = useGraphQuery({
     baseEndpoint: graphEndpoint,
@@ -47,44 +50,53 @@ const Graph = ({
     );
   }
 
-  return cond([
-    [
-      equals('gauge'),
-      always(
-        <Gauge
-          data={graphData}
-          disabledThresholds={!threshold.enabled}
-          thresholdTooltipLabels={thresholdLabels}
-          thresholds={thresholdValues}
-        />
-      )
-    ],
-    [
-      equals('bar'),
-      always(
-        <SingleBar
-          data={graphData}
-          disabledThresholds={!threshold.enabled}
-          thresholdTooltipLabels={thresholdLabels}
-          thresholds={thresholdValues}
-        />
-      )
-    ],
-    [
-      T,
-      always(
-        <GraphText
-          data={graphData}
-          disabledThresholds={!threshold.enabled}
-          labels={{
-            critical: t(labelCritical),
-            warning: t(labelWarning)
-          }}
-          thresholds={thresholdValues}
-        />
-      )
-    ]
-  ])(singleMetricGraphType);
+  return (
+    <Box className={graphClasses.graphContainer}>
+      <Typography className={graphClasses.title} variant="h6">
+        {metrics[0]?.name}: {metrics[0]?.metrics[0]?.name}
+      </Typography>
+      <Box className={graphClasses.content}>
+        {cond([
+          [
+            equals('gauge'),
+            always(
+              <Gauge
+                data={graphData}
+                disabledThresholds={!threshold.enabled}
+                thresholdTooltipLabels={thresholdLabels}
+                thresholds={thresholdValues}
+              />
+            )
+          ],
+          [
+            equals('bar'),
+            always(
+              <SingleBar
+                data={graphData}
+                disabledThresholds={!threshold.enabled}
+                thresholdTooltipLabels={thresholdLabels}
+                thresholds={thresholdValues}
+              />
+            )
+          ],
+          [
+            T,
+            always(
+              <GraphText
+                data={graphData}
+                disabledThresholds={!threshold.enabled}
+                labels={{
+                  critical: t(labelCritical),
+                  warning: t(labelWarning)
+                }}
+                thresholds={thresholdValues}
+              />
+            )
+          ]
+        ])(singleMetricGraphType)}
+      </Box>
+    </Box>
+  );
 };
 
 export default Graph;

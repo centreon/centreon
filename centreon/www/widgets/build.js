@@ -5,10 +5,7 @@ const getWidgets = () => {
   return readdirSync('./src', { withFileTypes: true })
     .filter((value) => value.isDirectory())
     .map(({ name }) => name)
-    .filter(
-      (name) =>
-        name !== 'node_modules' && name === 'centreon-widget-singlemetric'
-    );
+    .filter((name) => name !== 'node_modules');
 };
 
 const getWebpackBuildConfiguration = () => {

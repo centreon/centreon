@@ -57,19 +57,19 @@ const useThresholds = ({
   const thresholdValues = [warning, critical];
   const thresholdLabels = [
     isDefaultWarning
-      ? `${t(labelWarningThreshold)}: ${formattedWarning}. ${t(
+      ? `${t(labelWarningThreshold)}: ${formattedWarning} ${metric?.unit}. ${t(
           labelValueDefinedByMetric
         )} ${metricName}`
-      : `${t(labelWarningThreshold)}: ${formattedWarning}. ${t(
+      : `${t(labelWarningThreshold)}: ${formattedWarning} ${metric?.unit}. ${t(
           labelValueCustomized
         )}`,
     isDefaultCritical
-      ? `${t(labelCriticalThreshold)}: ${formattedCritical}. ${t(
-          labelValueDefinedByMetric
-        )} ${metricName}`
-      : `${t(labelCriticalThreshold)}: ${formattedCritical}. ${t(
-          labelValueCustomized
-        )}`
+      ? `${t(labelCriticalThreshold)}: ${formattedCritical} ${
+          metric?.unit
+        }. ${t(labelValueDefinedByMetric)} ${metricName}`
+      : `${t(labelCriticalThreshold)}: ${formattedCritical} ${
+          metric?.unit
+        }. ${t(labelValueCustomized)}`
   ];
 
   return {

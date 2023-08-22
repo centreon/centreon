@@ -113,6 +113,7 @@ const ResponsiveSingleBar = ({
         <Group.Group top={centerY - margins.bottom}>
           {text}
           <animated.rect
+            data-testid={`${latestMetricData}-bar-${barColor}`}
             fill={barColor}
             height={barHeight}
             rx={4}

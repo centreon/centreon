@@ -51,38 +51,37 @@ const AnimatedPie = <Datum,>({
     update: enterUpdateTransition
   });
 
-  return transitions((props, arc, { key }) => {
-    return (
-      <g key={key}>
-        <animated.path
-          d={interpolate(
-            [props.startAngle, props.endAngle],
-            (startAngle, endAngle) =>
-              path({
-                ...arc,
-                endAngle,
-                startAngle
-              })
-          )}
-          fill={getColor(arc)}
-          onMouseEnter={(event) => {
-            const thresholdType = arc.data.name;
+  return transitions((props, arc, { key }) => (
+    <g key={key}>
+      <animated.path
+        d={interpolate(
+          [props.startAngle, props.endAngle],
+          (startAngle, endAngle) =>
+            path({
+              ...arc,
+              endAngle,
+              startAngle
+            })
+        )}
+        data-testid={`${arc.data?.value || arc.data}-arc`}
+        fill={getColor(arc)}
+        onMouseEnter={(event) => {
+          const thresholdType = arc.data.name;
 
-            if (equals(thresholdType, ThresholdType.Success)) {
-              return;
-            }
+          if (equals(thresholdType, ThresholdType.Success)) {
+            return;
+          }
 
-            showTooltip?.({
-              tooltipData: thresholdTooltipLabels[thresholdType],
-              tooltipLeft: event.clientX,
-              tooltipTop: event.clientY
-            });
-          }}
-          onMouseLeave={() => hideTooltip?.()}
-        />
-      </g>
-    );
-  });
+          showTooltip?.({
+            tooltipData: thresholdTooltipLabels[thresholdType],
+            tooltipLeft: event.clientX,
+            tooltipTop: event.clientY
+          });
+        }}
+        onMouseLeave={() => hideTooltip?.()}
+      />
+    </g>
+  ));
 };
 
 export default AnimatedPie;

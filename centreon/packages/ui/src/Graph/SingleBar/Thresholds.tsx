@@ -46,6 +46,7 @@ const Thresholds = ({
   return (
     <>
       <line
+        data-testid="warning-line"
         stroke={theme.palette.warning.main}
         strokeDasharray={4}
         strokeWidth={2}
@@ -55,6 +56,7 @@ const Thresholds = ({
         y2={thresholdLineHeight + groupMargin + 3 * lineMargin}
       />
       <line
+        data-testid="critical-line"
         stroke={theme.palette.error.main}
         strokeDasharray={4}
         strokeWidth={2}
@@ -64,6 +66,7 @@ const Thresholds = ({
         y2={thresholdLineHeight + groupMargin + 3 * lineMargin}
       />
       <line
+        data-testid="warning-line-tooltip"
         stroke="transparent"
         strokeWidth={5}
         x1={xScale(warningValue)}
@@ -77,6 +80,7 @@ const Thresholds = ({
         onMouseLeave={hideTooltip}
       />
       <line
+        data-testid="critical-line-tooltip"
         stroke="transparent"
         strokeWidth={5}
         x1={xScale(criticalValue)}

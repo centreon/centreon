@@ -51,13 +51,13 @@ const WidgetTextField = ({
   return (
     <TextField
       fullWidth
-      ariaLabel={t(label) as string}
       className={className}
       dataTestId={label}
       disabled={disabled}
       error={isTouched && error}
       helperText={isTouched && error}
       inputProps={{
+        'aria-label': t(label) as string,
         step: text?.step || '1'
       }}
       label={isCompact ? null : t(label) || ''}

@@ -452,6 +452,10 @@ describe('AddEditWidgetModal', () => {
             );
             assert.equal(dashboard.layout[0].data.metrics.length, 1);
             assert.equal(dashboard.layout[0].data.metrics[0].id, 1);
+            assert.equal(
+              dashboard.layout[0].data.metrics[0].name,
+              'Centreon-server_Ping'
+            );
             assert.equal(dashboard.layout[0].data.metrics[0].metrics.length, 2);
           });
       });
