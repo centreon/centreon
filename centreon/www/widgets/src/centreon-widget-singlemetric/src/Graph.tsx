@@ -3,10 +3,14 @@ import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import { Gauge, SingleBar, useGraphQuery } from '@centreon/ui';
+import { Gauge, GraphText, SingleBar, useGraphQuery } from '@centreon/ui';
 
 import { FormThreshold, ServiceMetric } from './models';
-import { labelNoDataFound } from './translatedLabels';
+import {
+  labelCritical,
+  labelNoDataFound,
+  labelWarning
+} from './translatedLabels';
 import { useNoDataFoundStyles } from './NoDataFound.styles';
 import { graphEndpoint } from './api/endpoints';
 import useThresholds from './useThresholds';
@@ -64,7 +68,19 @@ const Graph = ({
         />
       )
     ],
-    [T, always(<Typography>Text</Typography>)]
+    [
+      T,
+      always(
+        <GraphText
+          data={graphData}
+          labels={{
+            critical: t(labelCritical),
+            warning: t(labelWarning)
+          }}
+          thresholds={thresholdValues}
+        />
+      )
+    ]
   ])(singleMetricGraphType);
 };
 

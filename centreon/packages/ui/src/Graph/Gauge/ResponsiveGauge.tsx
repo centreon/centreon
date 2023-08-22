@@ -68,8 +68,6 @@ const ResponsiveGauge = ({
   const svgTop = svgRef.current?.getBoundingClientRect().top || 0;
   const svgLeft = svgRef.current?.getBoundingClientRect().left || 0;
 
-  console.log('svgTop', (tooltipTop || 0) - svgTop);
-
   return (
     <Box sx={{ position: 'relative' }}>
       <svg height={height} ref={svgRef} width={width}>

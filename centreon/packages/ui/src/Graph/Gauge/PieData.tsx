@@ -8,7 +8,7 @@ import { thresholdThickness } from './Thresholds';
 import AnimatedPie from './AnimatedPie';
 import { GaugeProps } from './models';
 
-const dataThickness = 50;
+const dataThickness = 45;
 
 interface GetColorFromDataProps {
   data: number;
