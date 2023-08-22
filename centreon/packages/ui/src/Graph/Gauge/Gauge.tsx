@@ -9,6 +9,7 @@ import ResponsiveGauge from './ResponsiveGauge';
 
 interface Props {
   data?: LineChartData;
+  disabledThresholds?: boolean;
   thresholdTooltipLabels: Array<string>;
   thresholds: Array<number>;
 }
@@ -16,7 +17,8 @@ interface Props {
 export const Gauge = ({
   thresholds,
   data,
-  thresholdTooltipLabels
+  thresholdTooltipLabels,
+  disabledThresholds
 }: Props): JSX.Element | null => {
   if (!data) {
     return null;
@@ -29,6 +31,7 @@ export const Gauge = ({
     <Responsive.ParentSize>
       {({ width, height }) => (
         <ResponsiveGauge
+          disabledThresholds={disabledThresholds}
           height={height}
           metric={metric}
           thresholdTooltipLabels={thresholdTooltipLabels}

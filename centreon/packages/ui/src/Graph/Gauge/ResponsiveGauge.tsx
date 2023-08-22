@@ -15,6 +15,7 @@ import Thresholds from './Thresholds';
 import PieData from './PieData';
 
 interface Props {
+  disabledThresholds?: boolean;
   height: number;
   metric: Metric;
   thresholdTooltipLabels: Array<string>;
@@ -32,7 +33,8 @@ const ResponsiveGauge = ({
   height,
   thresholds,
   metric,
-  thresholdTooltipLabels
+  thresholdTooltipLabels,
+  disabledThresholds
 }: Props): JSX.Element => {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -58,11 +60,13 @@ const ResponsiveGauge = ({
     head(metric.data) as number
   );
 
-  const pieColor = getColorFromDataAndTresholds({
-    data: metric.data[0],
-    theme,
-    thresholds
-  });
+  const pieColor = disabledThresholds
+    ? theme.palette.success.main
+    : getColorFromDataAndTresholds({
+        data: metric.data[0],
+        theme,
+        thresholds
+      });
 
   const svgTop = svgRef.current?.getBoundingClientRect().top || 0;
   const svgLeft = svgRef.current?.getBoundingClientRect().left || 0;
@@ -75,6 +79,7 @@ const ResponsiveGauge = ({
         <Group left={centerX + margins.left} top={centerY + height / 6}>
           <Thresholds
             adaptedMaxValue={adaptedMaxValue}
+            disabledThresholds={disabledThresholds}
             hideTooltip={hideTooltip}
             metric={metric}
             radius={radius}
@@ -84,6 +89,7 @@ const ResponsiveGauge = ({
           />
           <PieData
             adaptedMaxValue={adaptedMaxValue}
+            disabledThresholds={disabledThresholds}
             metric={metric}
             radius={radius}
             thresholds={thresholds}
@@ -108,7 +114,7 @@ const ResponsiveGauge = ({
           {metric.unit}
         </text>
       </svg>
-      <Fade in={tooltipOpen}>
+      <Fade in={tooltipOpen && !disabledThresholds}>
         <Tooltip.Tooltip
           left={(tooltipLeft || 0) - svgLeft}
           style={{

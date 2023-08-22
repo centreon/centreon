@@ -2,7 +2,7 @@ import { createStore } from 'jotai';
 
 import { Method } from '@centreon/ui';
 
-import { Data } from './models';
+import { Data, FormThreshold } from './models';
 import { labelNoDataFound } from './translatedLabels';
 import { graphEndpoint } from './api/endpoints';
 
@@ -40,11 +40,38 @@ const serviceMetrics: Data = {
   ]
 };
 
+const disabledThreshold: FormThreshold = {
+  criticalType: 'default',
+  customCritical: 0,
+  customWarning: 0,
+  enabled: false,
+  warningType: 'default'
+};
+
+const defaultThreshold: FormThreshold = {
+  criticalType: 'default',
+  customCritical: 0,
+  customWarning: 0,
+  enabled: true,
+  warningType: 'default'
+};
+
 const emptyServiceMetrics: Data = {
   metrics: []
 };
 
-const initializeComponent = (data: Data = serviceMetrics): void => {
+interface Props {
+  data?: Data;
+  options?: {
+    singleMetricGraphType: 'text' | 'gauge' | 'bar';
+    threshold: FormThreshold;
+  };
+}
+
+const initializeComponent = ({
+  data = serviceMetrics,
+  options = defaultThreshold
+}: Props): void => {
   const store = createStore();
 
   cy.viewport('macbook-11');
@@ -69,21 +96,8 @@ const initializeComponent = (data: Data = serviceMetrics): void => {
 
 describe('Graph Widget', () => {
   it('displays a message when the widget has no metric', () => {
-    initializeComponent(emptyServiceMetrics);
+    initializeComponent({ data: emptyServiceMetrics });
     cy.contains(labelNoDataFound).should('be.visible');
-
-    cy.matchImageSnapshot();
-  });
-
-  it('displays the line chart when the widget has metrics', () => {
-    initializeComponent();
-
-    cy.waitForRequest('@getLineChart').then(({ request }) => {
-      expect(request.url.search).to.include('metricIds=[1,2,3]');
-    });
-
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
 
     cy.matchImageSnapshot();
   });

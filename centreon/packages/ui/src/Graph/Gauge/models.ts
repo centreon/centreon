@@ -2,6 +2,7 @@ import { Metric } from '../common/timeSeries/models';
 
 export interface GaugeProps {
   adaptedMaxValue: number;
+  disabledThresholds?: boolean;
   height: number;
   hideTooltip: () => void;
   metric: Metric;

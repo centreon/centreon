@@ -33,13 +33,6 @@ const useThresholds = ({
 }: Props): UseThresholdsState => {
   const { t } = useTranslation();
 
-  if (!thresholds.enabled) {
-    return {
-      thresholdLabels: [],
-      thresholdValues: []
-    };
-  }
-
   const isDefaultWarning = equals(thresholds.warningType, 'default');
   const isDefaultCritical = equals(thresholds.criticalType, 'default');
 

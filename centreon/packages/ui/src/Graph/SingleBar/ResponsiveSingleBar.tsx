@@ -34,7 +34,8 @@ const ResponsiveSingleBar = ({
   thresholdTooltipLabels,
   thresholds,
   width,
-  height
+  height,
+  disabledThresholds
 }: Props): JSX.Element => {
   const theme = useTheme();
 
@@ -129,13 +130,15 @@ const ResponsiveSingleBar = ({
             x={0}
             y={groupMargin + margin}
           />
-          <Thresholds
-            hideTooltip={hideTooltip}
-            showTooltip={showTooltip}
-            thresholdTooltipLabels={thresholdTooltipLabels}
-            thresholds={thresholds}
-            xScale={xScale}
-          />
+          {!disabledThresholds && (
+            <Thresholds
+              hideTooltip={hideTooltip}
+              showTooltip={showTooltip}
+              thresholdTooltipLabels={thresholdTooltipLabels}
+              thresholds={thresholds}
+              xScale={xScale}
+            />
+          )}
         </Group.Group>
       </svg>
       <Fade in={tooltipOpen}>

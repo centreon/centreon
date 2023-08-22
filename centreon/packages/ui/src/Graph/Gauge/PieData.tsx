@@ -31,7 +31,8 @@ const PieData = ({
   metric,
   adaptedMaxValue,
   thresholds,
-  radius
+  radius,
+  disabledThresholds
 }: Omit<
   GaugeProps,
   'width' | 'height' | 'showTooltip' | 'hideTooltip' | 'thresholdTooltipLabels'
@@ -39,11 +40,13 @@ const PieData = ({
   const theme = useTheme();
 
   const pieData = [metric.data[0], adaptedMaxValue - metric.data[0]];
-  const pieColor = getColorFromData({
-    data: metric.data[0],
-    theme,
-    thresholds
-  });
+  const pieColor = disabledThresholds
+    ? theme.palette.success.main
+    : getColorFromData({
+        data: metric.data[0],
+        theme,
+        thresholds
+      });
 
   const getDataColor = scaleOrdinal({
     domain: pieData,

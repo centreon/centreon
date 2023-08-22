@@ -5,13 +5,16 @@ import duration from 'dayjs/plugin/duration';
 import { Module } from '@centreon/ui';
 
 import Graph from './Graph';
-import { Data } from './models';
+import { Data, FormThreshold } from './models';
 
 extend(duration);
 
 interface Props {
   panelData: Data;
-  panelOptions;
+  panelOptions: {
+    singleMetricGraphType: 'text' | 'gauge' | 'bar';
+    threshold: FormThreshold;
+  };
   store: ReturnType<typeof createStore>;
 }
 

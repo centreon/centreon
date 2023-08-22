@@ -132,7 +132,7 @@ const useThreshold = ({
               <Typography>{t(labelCustom)}</Typography>
               <WidgetTextField
                 className={classes.thresholdField}
-                disabled={!enabled || isDefault(warningType)}
+                disabled={isDefault(warningType)}
                 label={t(labelThreshold)}
                 propertyName={`${propertyName}.customWarning`}
                 text={{ size: 'compact', step: '0.01', type: 'number' }}
@@ -158,7 +158,7 @@ const useThreshold = ({
               <Typography>{t(labelCustom)}</Typography>
               <WidgetTextField
                 className={classes.thresholdField}
-                disabled={!enabled || isDefault(criticalType)}
+                disabled={isDefault(criticalType)}
                 label={t(labelThreshold)}
                 propertyName={`${propertyName}.customCritical`}
                 text={{ size: 'compact', step: '0.01', type: 'number' }}

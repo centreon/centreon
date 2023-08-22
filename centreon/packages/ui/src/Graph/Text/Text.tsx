@@ -13,6 +13,7 @@ import { useTextStyles } from './Text.styles';
 
 interface Props {
   data?: LineChartData;
+  disabledThresholds?: boolean;
   labels: {
     critical: string;
     warning: string;
@@ -23,7 +24,8 @@ interface Props {
 export const Text = ({
   thresholds,
   data,
-  labels
+  labels,
+  disabledThresholds
 }: Props): JSX.Element | null => {
   const theme = useTheme();
   const { classes } = useTextStyles();
@@ -51,26 +53,28 @@ export const Text = ({
         })}{' '}
         {metricUnit}
       </Typography>
-      <div className={classes.thresholds}>
-        <Typography sx={{ color: 'warning.main' }} variant="h5">
-          {labels.warning}
-          {': '}
-          {formatMetricValue({
-            unit: metricUnit,
-            value: thresholds[0]
-          })}{' '}
-          {metricUnit}
-        </Typography>
-        <Typography sx={{ color: 'error.main' }} variant="h5">
-          {labels.critical}
-          {': '}
-          {formatMetricValue({
-            unit: metricUnit,
-            value: thresholds[1]
-          })}{' '}
-          {metricUnit}
-        </Typography>
-      </div>
+      {!disabledThresholds && (
+        <div className={classes.thresholds}>
+          <Typography sx={{ color: 'warning.main' }} variant="h5">
+            {labels.warning}
+            {': '}
+            {formatMetricValue({
+              unit: metricUnit,
+              value: thresholds[0]
+            })}{' '}
+            {metricUnit}
+          </Typography>
+          <Typography sx={{ color: 'error.main' }} variant="h5">
+            {labels.critical}
+            {': '}
+            {formatMetricValue({
+              unit: metricUnit,
+              value: thresholds[1]
+            })}{' '}
+            {metricUnit}
+          </Typography>
+        </div>
+      )}
     </div>
   );
 };

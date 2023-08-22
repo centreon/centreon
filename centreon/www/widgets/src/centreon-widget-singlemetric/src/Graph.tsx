@@ -53,6 +53,7 @@ const Graph = ({
       always(
         <Gauge
           data={graphData}
+          disabledThresholds={!threshold.enabled}
           thresholdTooltipLabels={thresholdLabels}
           thresholds={thresholdValues}
         />
@@ -63,6 +64,7 @@ const Graph = ({
       always(
         <SingleBar
           data={graphData}
+          disabledThresholds={!threshold.enabled}
           thresholdTooltipLabels={thresholdLabels}
           thresholds={thresholdValues}
         />
@@ -73,6 +75,7 @@ const Graph = ({
       always(
         <GraphText
           data={graphData}
+          disabledThresholds={!threshold.enabled}
           labels={{
             critical: t(labelCritical),
             warning: t(labelWarning)

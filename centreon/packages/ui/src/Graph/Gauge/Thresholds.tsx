@@ -16,7 +16,8 @@ const Thresholds = ({
   showTooltip,
   hideTooltip,
   metric,
-  thresholdTooltipLabels
+  thresholdTooltipLabels,
+  disabledThresholds
 }: Omit<GaugeProps, 'width' | 'height'>): JSX.Element => {
   const theme = useTheme();
 
@@ -44,11 +45,17 @@ const Thresholds = ({
 
   const getThresholdColor = scaleOrdinal({
     domain: pluck('name', adaptedThresholds),
-    range: [
-      theme.palette.success.main,
-      theme.palette.warning.main,
-      theme.palette.error.main
-    ]
+    range: disabledThresholds
+      ? [
+          theme.palette.success.main,
+          theme.palette.success.main,
+          theme.palette.success.main
+        ]
+      : [
+          theme.palette.success.main,
+          theme.palette.warning.main,
+          theme.palette.error.main
+        ]
   });
 
   return (
