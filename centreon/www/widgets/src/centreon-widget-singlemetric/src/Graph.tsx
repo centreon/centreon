@@ -1,6 +1,5 @@
 import { T, always, cond, equals, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useAtomValue } from 'jotai';
 
 import { Box, Typography } from '@mui/material';
 

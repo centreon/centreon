@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { Card, CardActionArea, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import TitleIcon from '@mui/icons-material/Title';
 import SpeedIcon from '@mui/icons-material/Speed';
 import BarChartIcon from '@mui/icons-material/BarChart';
