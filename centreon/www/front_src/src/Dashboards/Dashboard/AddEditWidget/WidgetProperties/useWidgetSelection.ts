@@ -2,7 +2,7 @@ import { ChangeEvent, useState } from 'react';
 
 import { equals, filter, find, isNil, map, propEq } from 'ramda';
 import { useFormikContext } from 'formik';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 
 import { SelectEntry } from '@centreon/ui';
 
@@ -15,7 +15,6 @@ import {
   federatedWidgetsAtom,
   federatedWidgetsPropertiesAtom
 } from '../../../../federatedModules/atoms';
-import { singleMetricSectionAtom } from '../atoms';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -32,7 +31,6 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
-  const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
 
   const { setValues, values } = useFormikContext<Widget>();
 
@@ -97,8 +95,6 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       }),
       {}
     );
-
-    setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
 
     setValues((currentValues) => ({
       data,
