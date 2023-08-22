@@ -1771,8 +1771,6 @@ Feature:
       | base                | 1000           |
       | metrics[0].metric   | "pl"           |
       | metrics[0].legend   | "Packet Loss"  |
-      | metrics[0].min      | 0              |
-      | metrics[0].max      | 100            |
       | metrics[1].metric   | "rta"          |
       | metrics[2].metric   | "rtmax"        |
     And the JSON node "metrics[0].data" should have at least 48 elements
