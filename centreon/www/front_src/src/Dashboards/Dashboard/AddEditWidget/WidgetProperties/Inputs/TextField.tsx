@@ -40,9 +40,14 @@ const WidgetTextField = ({
 
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldTouched(`options.${propertyName}`, true);
-    const newText = equals(text?.type, 'number')
-      ? Number(event.target.value)
-      : event.target.value;
+
+    if (equals(text?.type, 'number')) {
+      setFieldValue(
+        `options.${propertyName}`,
+        equals(event.target.value, '') ? '' : Number(event.target.value)
+      );
+    }
+    const newText = event.target.value;
     setFieldValue(`options.${propertyName}`, newText);
   };
 
