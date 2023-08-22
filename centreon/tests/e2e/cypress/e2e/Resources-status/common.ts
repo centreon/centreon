@@ -4,7 +4,6 @@ import {
   getStatusNumberFromString,
   checkThatConfigurationIsExported,
   checkServicesAreMonitored,
-  loginAsAdminViaApiV2,
   submitResultsViaClapi,
   versionApi,
   insertFixture,
@@ -88,26 +87,6 @@ const initializeAckRessources = (): Cypress.Chainable => {
   ];
 
   return cy.wrap(Promise.all(files.map(insertFixture)));
-};
-
-const insertResourceFixtures = (): Cypress.Chainable => {
-  const dateBeforeLogin = new Date();
-
-  return updateFixturesResult().then((submitResults) => {
-    loginAsAdminViaApiV2()
-      .then(initializeResourceData)
-      .then(applyConfigurationViaClapi)
-      .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
-      .then(() =>
-        checkServicesAreMonitored([{ name: serviceInAcknowledgementName }])
-      )
-      .then(() => submitResultsViaClapi(submitResults))
-      .then(() =>
-        checkServicesAreMonitored([
-          { name: serviceInAcknowledgementName, output: 'submit_status' }
-        ])
-      );
-  });
 };
 
 const insertAckResourceFixtures = (): Cypress.Chainable => {
@@ -277,7 +256,6 @@ export {
   hostChildInAcknowledgementName,
   serviceInDtName,
   secondServiceInDtName,
-  insertResourceFixtures,
   setUserFilter,
   deleteUserFilter,
   tearDownResource,

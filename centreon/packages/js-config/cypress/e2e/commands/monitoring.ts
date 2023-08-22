@@ -3,18 +3,11 @@
 const apiBase = '/centreon/api';
 const apiActionV1 = `${apiBase}/index.php`;
 
-interface SubmitResult {
-  host: string;
-  output: string;
-  perfdata?: string | null;
-  service: string;
-  status: string;
-}
-
 const getStatusNumberFromString = (status: string): number => {
   const statuses = {
     critical: '2',
     down: '1',
+    ok: '0',
     unknown: '3',
     unreachable: '2',
     up: '0',
@@ -28,34 +21,44 @@ const getStatusNumberFromString = (status: string): number => {
   throw new Error(`Status ${status} does not exist`);
 };
 
+interface SubmitResult {
+  host: string;
+  output: string;
+  perfdata?: string | null;
+  service?: string | null;
+  status: string;
+}
+
 Cypress.Commands.add(
   'submitResults',
   (results: Array<SubmitResult>): Cypress.Chainable => {
-    results.forEach(({ host, output, perfdata = '', service, status }) => {
-      const timestampNow = Math.floor(Date.now() / 1000) - 15;
-      const updatetime = timestampNow.toString();
+    results.forEach(
+      ({ host, output, perfdata = '', service = null, status }) => {
+        const timestampNow = Math.floor(Date.now() / 1000) - 15;
+        const updatetime = timestampNow.toString();
 
-      cy.request({
-        body: {
-          results: [
-            {
-              host,
-              output,
-              perfdata,
-              service,
-              status: getStatusNumberFromString(status),
-              updatetime
-            }
-          ]
-        },
-        headers: {
-          'Content-Type': 'application/json',
-          'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
-        },
-        method: 'POST',
-        url: `${apiActionV1}?action=submit&object=centreon_submit_results`
-      });
-    });
+        const result = {
+          host,
+          output,
+          perfdata,
+          service,
+          status: getStatusNumberFromString(status),
+          updatetime
+        };
+
+        cy.request({
+          body: {
+            results: [result]
+          },
+          headers: {
+            'Content-Type': 'application/json',
+            'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
+          },
+          method: 'POST',
+          url: `${apiActionV1}?action=submit&object=centreon_submit_results`
+        });
+      }
+    );
 
     return cy.wrap(null);
   }

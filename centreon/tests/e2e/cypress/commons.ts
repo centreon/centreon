@@ -35,6 +35,7 @@ const getStatusNumberFromString = (status: string): number => {
   const statuses = {
     critical: '2',
     down: '1',
+    ok: '0',
     unknown: '3',
     unreachable: '2',
     up: '0',

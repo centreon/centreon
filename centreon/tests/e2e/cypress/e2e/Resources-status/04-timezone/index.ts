@@ -382,7 +382,7 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
 
   cy.getIframeBody().contains('Add a downtime').click();
 
-  cy.wait(['@getTimeZone', '@getTimeZone']);
+  cy.wait('@getTimeZone');
 
   cy.get('iframe#main-content')
     .its('0.contentDocument.body')
@@ -414,6 +414,8 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
     .click();
 
   cy.wait('@getTimeZone');
+
+  cy.url().should('match', /p=21001$/);
 });
 
 Then(
