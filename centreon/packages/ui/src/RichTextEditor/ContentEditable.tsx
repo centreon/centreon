@@ -132,6 +132,8 @@ const ContentEditable = ({
     onBlur?.(event);
   };
 
+  const isEditable = editor.isEditable();
+
   useEffect(() => {
     editor.setEditable(!disabled);
   }, [disabled]);
@@ -157,7 +159,7 @@ const ContentEditable = ({
           classes.input,
           inputClassname
         )}
-        contentEditable={editable}
+        contentEditable={isEditable}
         data-testid={namespace}
         ref={ref}
         onBlur={handleBlur}
