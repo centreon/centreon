@@ -168,7 +168,7 @@ Cypress.Commands.add(
           `{selectAll}{backspace}${credential.login}`
         );
         cy.getByLabel({ label: 'Password', tag: 'input' }).type(
-          `{selectAll}{backspace}${credential.credential.password}`
+          `{selectAll}{backspace}${credential.password}`
         );
       })
       .getByLabel({ label: 'Connect', tag: 'button' })
