@@ -165,7 +165,7 @@ Given('a saved custom filter', () => {
 
   cy.reload().wait('@getFilters');
 
-  cy.get(stateFilterContainer).click();
+  cy.get(stateFilterContainer).should('be.visible').click();
 
   cy.contains('OK services').should('exist');
 });
