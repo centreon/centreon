@@ -76,6 +76,8 @@ final class FindResourcesRequestValidator
     public const ERROR_NOT_AN_ARRAY = 8;
     public const ERROR_NOT_A_BOOLEAN = 9;
     public const ERROR_NO_PROVIDERS = 10;
+
+    /** Allowed values for statuses. */
     public const ALLOWED_STATUSES = [
         'OK',
         'WARNING',
@@ -86,12 +88,16 @@ final class FindResourcesRequestValidator
         'UP',
         'DOWN',
     ];
+
+    /** Allowed values for states. */
     public const ALLOWED_STATES = [
         'unhandled_problems',
         'resources_problems',
         'in_downtime',
         'acknowledged',
     ];
+
+    /** Allowed values for status types. */
     public const ALLOWED_STATUS_TYPES = [
         'hard',
         'soft',
@@ -114,6 +120,8 @@ final class FindResourcesRequestValidator
         self::PARAM_STATUS_TYPES => [],
         self::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY => false,
     ];
+
+    /** Query parameters that should be ignored but not forbidden. */
     private const PAGINATION_PARAMETERS = [
         RequestParameters::NAME_FOR_LIMIT,
         RequestParameters::NAME_FOR_PAGE,

@@ -29,23 +29,23 @@ use Core\Resources\Infrastructure\API\FindResources\FindResourcesRequestValidato
 $fakeProviderName = 'awesomeProvider';
 
 beforeEach(function () use ($fakeProviderName): void {
-    $this->expectInvalid = function (callable $function, int $code): void {
-        $message = 'It was expected to raise an ' . \InvalidArgumentException::class . ' with code ' . $code;
-        $failureMessage = null;
+    $this->expectInvalidArgumentException = function (callable $function, int $expectedCode): void {
+        $unexpected = 'It was expected to raise an ' . \InvalidArgumentException::class . " with code {$expectedCode}";
+
         try {
             $function();
-            $failureMessage = $message;
+            $this->fail($unexpected);
         } catch (\InvalidArgumentException $exception) {
-            if ($code !== $exception->getCode()) {
-                $failureMessage = $message . ' but got a code ' . $exception->getCode();
+            if ($expectedCode === $exception->getCode()) {
+                // We expect exactly this InvalidArgumentException with this code.
+                expect(true)->toBeTrue();
+
+                return;
             }
+
+            $this->fail($unexpected . ' but got a code ' . $exception->getCode());
         } catch (\Throwable $exception) {
-            $failureMessage = $message . ' but got a ' . $exception::class;
-        }
-        if ($failureMessage) {
-            $this->fail($failureMessage);
-        } else {
-            expect(true)->toBeTrue();
+            $this->fail($unexpected . ' but got a ' . $exception::class);
         }
     };
 
@@ -59,7 +59,7 @@ beforeEach(function () use ($fakeProviderName): void {
 it(
     'should fail if there are no providers',
     function (): void {
-        ($this->expectInvalid)(
+        ($this->expectInvalidArgumentException)(
             fn() => new Validator(new \EmptyIterator()),
             Validator::ERROR_NO_PROVIDERS
         );
@@ -67,7 +67,7 @@ it(
 );
 
 $dataset = [
-    ['not_valid_query_parameter', Validator::ERROR_UNKNOWN_PARAMETER, null],
+    ['not_a_valid_field', Validator::ERROR_UNKNOWN_PARAMETER, null],
     [Validator::PARAM_RESOURCE_TYPE, Validator::ERROR_NOT_A_RESOURCE_TYPE, ['foo']],
     [Validator::PARAM_RESOURCE_TYPE, Validator::ERROR_NOT_AN_ARRAY_OF_STRING, [123]],
     [Validator::PARAM_RESOURCE_TYPE, Validator::ERROR_NOT_AN_ARRAY, 'bar'],
@@ -92,8 +92,8 @@ $dataset = [
     [Validator::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY, Validator::ERROR_NOT_A_BOOLEAN, 42],
 ];
 
-foreach ($dataset as [$field, $errorCode, $value]) {
-    $message = match ($errorCode) {
+foreach ($dataset as [$field, $expectedCode, $value]) {
+    $message = match ($expectedCode) {
         Validator::ERROR_UNKNOWN_PARAMETER => 'is an unknown parameter',
         Validator::ERROR_NOT_A_RESOURCE_TYPE => 'is not a resource type',
         Validator::ERROR_NOT_A_STATUS => 'is not a status',
@@ -108,10 +108,10 @@ foreach ($dataset as [$field, $errorCode, $value]) {
     };
     it(
         "should fail if the field '{$field}' {$message}",
-        function () use ($field, $errorCode, $value): void {
-            ($this->expectInvalid)(
+        function () use ($field, $expectedCode, $value): void {
+            ($this->expectInvalidArgumentException)(
                 fn() => $this->fakeValidator->validateAndRetrieveRequestParameters([$field => $value]),
-                $errorCode
+                $expectedCode
             );
         }
     );
