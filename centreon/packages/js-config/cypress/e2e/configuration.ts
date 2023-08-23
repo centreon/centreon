@@ -18,13 +18,10 @@ interface ConfigurationOptions {
 export default ({
   specPattern,
   cypressFolder,
-  isDevelopment,
   dockerName,
   env
 }: ConfigurationOptions): Cypress.ConfigOptions => {
-  const resultsFolder = `${cypressFolder || 'cypress'}/results${
-    isDevelopment ? '/dev' : ''
-  }`;
+  const resultsFolder = `${cypressFolder || 'cypress'}/results`;
 
   const webImageVersion = execSync('git rev-parse --abbrev-ref HEAD')
     .toString('utf8')

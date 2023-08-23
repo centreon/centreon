@@ -110,7 +110,7 @@ Cypress.Commands.add(
       source,
       destination
     }: CopyFromContainerProps,
-    options
+    options?: Partial<Cypress.ExecOptions>
   ) => {
     return cy.exec(`docker cp ${name}:${source} "${destination}"`, options);
   }
@@ -130,7 +130,7 @@ Cypress.Commands.add(
       source,
       destination
     }: CopyToContainerProps,
-    options
+    options?: Partial<Cypress.ExecOptions>
   ) => {
     return cy.exec(`docker cp ${source} ${name}:${destination}`, options);
   }
@@ -455,8 +455,14 @@ declare global {
   namespace Cypress {
     interface Chainable {
       clickSubRootMenuItem: (page: string) => Cypress.Chainable;
-      copyFromContainer: (props: CopyFromContainerProps) => Cypress.Chainable;
-      copyToContainer: (props: CopyToContainerProps) => Cypress.Chainable;
+      copyFromContainer: (
+        props: CopyFromContainerProps,
+        options?: Partial<Cypress.ExecOptions>
+      ) => Cypress.Chainable;
+      copyToContainer: (
+        props: CopyToContainerProps,
+        options?: Partial<Cypress.ExecOptions>
+      ) => Cypress.Chainable;
       execInContainer: ({
         command,
         name
