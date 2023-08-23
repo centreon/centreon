@@ -65,7 +65,7 @@ class CentreonLogAction
      *  Inserts configuration into DB
      */
 
-    public function insertFieldsNameValue($logId, $fields): void
+    public function insertFieldsNameValue($logId, $fields)
     {
         global $pearDBO;
 
@@ -83,7 +83,7 @@ class CentreonLogAction
      *  Inserts logs : add, delete or modification of an object
      */
 
-    public function insertLog($object_type, $object_id, $object_name, $action_type, $fields = null): void
+    public function insertLog($object_type, $object_id, $object_name, $action_type, $fields = null)
     {
         global $pearDBO;
 
@@ -137,7 +137,7 @@ class CentreonLogAction
      * returns the list of actions ("create","delete","change","massive change", "enable", "disable")
      */
 
-    public function listAction($id, $object_type): array
+    public function listAction($id, $object_type)
     {
         global $pearDBO;
         $list_actions = array();
