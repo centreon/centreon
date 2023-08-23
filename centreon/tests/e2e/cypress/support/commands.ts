@@ -110,7 +110,7 @@ Cypress.Commands.add('logout', (): Cypress.Chainable => {
 
   cy.contains(/^Logout$/).click();
 
-  return cy.getByLabel({ label: 'Alias', tag: 'input' });
+  return cy.get('header div[data-cy="clock"]').should('not.exist');
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
