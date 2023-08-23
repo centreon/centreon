@@ -31,6 +31,9 @@ interface Props extends Partial<LineChartProps> {
   marginBottom?: number;
   shapeLines?: GlobalAreaLines;
   start: string;
+  thresholdLabels?: Array<string>;
+  thresholdUnit?: string;
+  thresholds?: Array<number>;
 }
 
 const WrapperLineChart = ({
@@ -50,7 +53,10 @@ const WrapperLineChart = ({
   legend,
   header,
   curve = Curve.curveLinear,
-  marginBottom = 0
+  marginBottom = 0,
+  thresholds,
+  thresholdUnit,
+  thresholdLabels
 }: Props): JSX.Element | null => {
   const { adjustedData } = useLineChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
@@ -89,6 +95,9 @@ const WrapperLineChart = ({
               loading={loading}
               marginBottom={marginBottom}
               shapeLines={shapeLines}
+              thresholdLabels={thresholdLabels}
+              thresholdUnit={thresholdUnit}
+              thresholds={thresholds}
               timeShiftZones={timeShiftZones}
               tooltip={tooltip}
               width={width ?? responsiveWidth}
