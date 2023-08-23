@@ -69,7 +69,7 @@ final class FindResourcesFactory
             $resourceDto->shortType = $resource->getShortType();
             $resourceDto->tries = $resource->getTries();
             $resourceDto->status = self::createNullableStatusResponseDto($resource->getStatus());
-            $resourceDto->parent = self::createNullableParentResourceReponseDto($parentResource);
+            $resourceDto->parent = self::createNullableParentResourceResponseDto($parentResource);
             $resourceDto->severity = self::createNullableSeverityResponseDto($resource->getSeverity());
             $resourceDto->icon = self::createNullableIconResponseDto($resource->getIcon());
             $resourceDto->actionUrl = $resource->getLinks()->getExternals()->getActionUrl();
@@ -121,7 +121,7 @@ final class FindResourcesFactory
      *
      * @return ($parentResource is null ? null : ParentResourceResponseDto)
      */
-    private static function createNullableParentResourceReponseDto(?ResourceEntity $parentResource): ?ParentResourceResponseDto
+    private static function createNullableParentResourceResponseDto(?ResourceEntity $parentResource): ?ParentResourceResponseDto
     {
         if (null === $parentResource) {
             return null;
