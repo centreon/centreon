@@ -2,7 +2,10 @@ import { TestQueryProvider, Method } from '@centreon/ui';
 
 import { buildNotificationsEndpoint } from '../Listing/api/endpoints';
 import { labelSearch } from '../translatedLabels';
-import { defaultQueryParams, getListingResponse } from '../Listing/testUtils';
+import {
+  defaultQueryParams,
+  getListingResponse
+} from '../Listing/Tests/testUtils';
 import useLoadingNotifications from '../Listing/useLoadNotifications';
 
 import Filter from '.';

@@ -17964,6 +17964,15 @@ msgstr "Vous n'êtes pas autorisé à afficher les ressources des notifications"
 msgid "Error while listing notification resources"
 msgstr "Erreur lors de l'affichage des ressources des notifications"
 
+msgid "Notifications will only be sent during this time period"
+msgstr "Les notifications ne seront envoyées que pendant cette période"
+
+msgid "Search Business Views"
+msgstr "Rechercher des Vues Métier"
+
+msgid "Business Views events"
+msgstr "Événements des Vues Métier"
+
 msgid "Host template required in service group association is not linked to service template"
 msgstr "Le modèle d'hôte requis dans l'association du groupe de services n'est pas lié au modèle de service"
 
