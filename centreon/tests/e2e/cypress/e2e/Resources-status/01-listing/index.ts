@@ -121,8 +121,7 @@ beforeEach(() => {
 });
 
 Then('the unhandled problems filter is selected', (): void => {
-  cy.visit('/');
-  cy.contains('Unhandled alerts');
+  cy.visit('/').wait('@getFilters').contains('Unhandled alerts');
 });
 
 Then('only non-ok resources are displayed', () => {

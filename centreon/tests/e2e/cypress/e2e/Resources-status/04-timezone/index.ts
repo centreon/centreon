@@ -231,8 +231,7 @@ Given('a user with a custom timezone set in his profile', function _() {
 
   cy.logout()
     .loginByTypeOfUser({
-      jsonName: 'admin',
-      loginViaApi: true
+      jsonName: 'admin'
     })
     .wait('@getLastestUserFilters');
 });

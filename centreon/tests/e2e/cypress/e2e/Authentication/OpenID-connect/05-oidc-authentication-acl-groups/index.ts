@@ -120,12 +120,14 @@ Then(
         .should('include', '/monitoring/resources')
         .logout();
 
-      cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
+      cy.getByLabel({ label: 'Alias', tag: 'input' }).should('be.visible');
     });
+
     cy.loginByTypeOfUser({ jsonName: 'admin' })
       .wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
+
     getAccessGroupId('ALL').then((groupId) => {
       cy.visit(`/centreon/main.php?p=50203&o=c&acl_group_id=${groupId}`)
         .wait('@getTimeZone')

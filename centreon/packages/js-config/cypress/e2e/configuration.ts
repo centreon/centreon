@@ -18,6 +18,7 @@ interface ConfigurationOptions {
 export default ({
   specPattern,
   cypressFolder,
+  isDevelopment,
   dockerName,
   env
 }: ConfigurationOptions): Cypress.ConfigOptions => {
@@ -55,6 +56,7 @@ export default ({
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: true,
+    videoCompression: isDevelopment ? 0 : 32,
     videosFolder: `${resultsFolder}/videos`
   });
 };

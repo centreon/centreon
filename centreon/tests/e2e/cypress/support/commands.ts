@@ -106,9 +106,11 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('logout', (): Cypress.Chainable => {
-  cy.getByLabel({ label: 'Profile' }).click();
+  cy.getByLabel({ label: 'Profile' }).should('exist').click();
 
-  return cy.contains(/^Logout$/).click();
+  cy.contains(/^Logout$/).click();
+
+  return cy.getByLabel({ label: 'Alias', tag: 'input' });
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {

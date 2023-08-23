@@ -160,12 +160,15 @@ Cypress.Commands.add(
         .visit(`${Cypress.config().baseUrl}`)
         .wait('@getNavigationList');
     }
+
     cy.visit(`${Cypress.config().baseUrl}`)
       .fixture(`users/${jsonName}.json`)
       .then((credential) => {
-        cy.getByLabel({ label: 'Alias', tag: 'input' }).type(credential.login);
+        cy.getByLabel({ label: 'Alias', tag: 'input' }).type(
+          `{selectAll}{backspace}${credential.login}`
+        );
         cy.getByLabel({ label: 'Password', tag: 'input' }).type(
-          credential.password
+          `{selectAll}{backspace}${credential.credential.password}`
         );
       })
       .getByLabel({ label: 'Connect', tag: 'button' })
@@ -452,16 +455,19 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
-  return cy.waitUntil(() => {
-    return cy.get('header div[data-cy="clock"]').then(($time) => {
+  return cy
+    .get('header div[data-cy="clock"]')
+    .should('be.visible')
+    .then(($time) => {
       const headerTime = $time.children()[1].textContent;
       if (headerTime?.match(/\d+:\d+/)) {
-        return headerTime;
+        cy.log(`header time is : ${headerTime}`);
+
+        return cy.wrap(headerTime);
       }
 
-      return false;
+      throw new Error(`header time is not displayed`);
     });
-  });
 });
 
 declare global {
