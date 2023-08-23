@@ -25,34 +25,6 @@ namespace Core\Resources\Application\UseCase\FindResources\Response;
 
 final class ResourceResponseDto
 {
-    /**
-     * @param int|null $id
-     * @param string|null $name
-     * @param string|null $type
-     * @param int|null $serviceId
-     * @param int|null $hostId
-     * @param string|null $alias
-     * @param string|null $fqdn
-     * @param IconResponseDto|null $icon
-     * @param ResourceStatusResponseDto|null $status
-     * @param bool $isInDowntime
-     * @param bool $isAcknowledged
-     * @param bool $withActiveChecks
-     * @param bool $withPassiveChecks
-     * @param \DateTimeImmutable|null $lastStatusChange
-     * @param string|null $tries
-     * @param string|null $information
-     * @param bool $areNotificationsEnabled
-     * @param string $monitoringServerName
-     * @param SeverityResponseDto|null $severity
-     * @param string|null $shortType
-     * @param string|null $uuid
-     * @param ParentResourceResponseDto|null $parent
-     * @param \DateTimeImmutable|null $lastCheck
-     * @param string|null $actionUrl
-     * @param NotesResponseDto|null $notes
-     * @param bool $hasGraphData
-     */
     public function __construct(
         public ?int $id = null,
         public ?string $name = null,
@@ -67,7 +39,7 @@ final class ResourceResponseDto
         public bool $isAcknowledged = false,
         public bool $withActiveChecks = false,
         public bool $withPassiveChecks = false,
-        public ?\DateTimeImmutable $lastStatusChange = null,
+        public ?\DateTimeInterface $lastStatusChange = null,
         public ?string $tries = null,
         public ?string $information = null,
         public bool $areNotificationsEnabled = false,
@@ -76,7 +48,7 @@ final class ResourceResponseDto
         public ?string $shortType = null,
         public ?string $uuid = null,
         public ?ParentResourceResponseDto $parent = null,
-        public ?\DateTimeImmutable $lastCheck = null,
+        public ?\DateTimeInterface $lastCheck = null,
         public ?string $actionUrl = null,
         public ?NotesResponseDto $notes = null,
         public bool $hasGraphData = false,

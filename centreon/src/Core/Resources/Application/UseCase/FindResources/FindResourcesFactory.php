@@ -49,16 +49,9 @@ final class FindResourcesFactory
         $response = new FindResourcesResponse();
 
         foreach ($resources as $resource) {
-            $resourceDto = new ResourceResponseDto();
-            $statusDto = $resource->getStatus() !== null ? self::createStatusResponseDto($resource->getStatus()) : null;
-
             $parentResource = $resource->getParent();
-            $parentResourceDto = $parentResource !== null ? self::createParentResourceReponseDto($parentResource) : null;
-            $severityDto = $resource->getSeverity() !== null ? self::createSeverityResponseDto($resource->getSeverity()) : null;
-            $notesDto = $resource->getLinks()->getExternals()->getNotes() !== null
-                ? self::createNotesResponseDto($resource->getLinks()->getExternals()->getNotes())
-                : null;
 
+            $resourceDto = new ResourceResponseDto();
             $resourceDto->uuid = $resource->getUuid();
             $resourceDto->id = $resource->getId();
             $resourceDto->name = $resource->getName();
@@ -75,21 +68,15 @@ final class FindResourcesFactory
             $resourceDto->monitoringServerName = $resource->getMonitoringServerName();
             $resourceDto->shortType = $resource->getShortType();
             $resourceDto->tries = $resource->getTries();
-            $resourceDto->status = $statusDto;
-            $resourceDto->parent = $parentResourceDto;
-            $resourceDto->severity = $severityDto;
-            $resourceDto->icon = $resource->getIcon() !== null ? self::createIconResponseDto($resource->getIcon()) : null;
+            $resourceDto->status = self::createNullableStatusResponseDto($resource->getStatus());
+            $resourceDto->parent = self::createNullableParentResourceReponseDto($parentResource);
+            $resourceDto->severity = self::createNullableSeverityResponseDto($resource->getSeverity());
+            $resourceDto->icon = self::createNullableIconResponseDto($resource->getIcon());
             $resourceDto->actionUrl = $resource->getLinks()->getExternals()->getActionUrl();
-            $resourceDto->notes = $notesDto;
+            $resourceDto->notes = self::createNullableNotesResponseDto($resource->getLinks()->getExternals()->getNotes());
             $resourceDto->hasGraphData = $resource->hasGraph();
-
-            $resourceDto->lastCheck = $resource->getLastCheck() !== null
-                ? \DateTimeImmutable::createFromMutable($resource->getLastCheck())
-                : null;
-
-            $resourceDto->lastStatusChange = $resource->getLastStatusChange() !== null
-                ? \DateTimeImmutable::createFromMutable($resource->getLastStatusChange())
-                : null;
+            $resourceDto->lastCheck = self::createNullableDateTimeImmutable($resource->getLastCheck());
+            $resourceDto->lastStatusChange = self::createNullableDateTimeImmutable($resource->getLastStatusChange());
 
             $response->resources[] = $resourceDto;
         }
@@ -98,26 +85,48 @@ final class FindResourcesFactory
     }
 
     /**
-     * @param Notes $note
+     * @param \DateTimeImmutable|\DateTime|null $date
      *
-     * @return NotesResponseDto
+     * @return ($date is null ? null : \DateTimeImmutable)
      */
-    private static function createNotesResponseDto(Notes $note): NotesResponseDto
+    private static function createNullableDateTimeImmutable(null|\DateTimeImmutable|\DateTime $date): ?\DateTimeImmutable
     {
+        return match (true) {
+            null === $date => null,
+            $date instanceof \DateTime => \DateTimeImmutable::createFromMutable($date),
+            $date instanceof \DateTimeImmutable => $date,
+        };
+    }
+
+    /**
+     * @param ?Notes $notes
+     *
+     * @return ($notes is null ? null : NotesResponseDto)
+     */
+    private static function createNullableNotesResponseDto(?Notes $notes): ?NotesResponseDto
+    {
+        if (null === $notes) {
+            return null;
+        }
+
         $dto = new NotesResponseDto();
-        $dto->url = $note->getUrl();
-        $dto->label = $note->getLabel();
+        $dto->url = $notes->getUrl();
+        $dto->label = $notes->getLabel();
 
         return $dto;
     }
 
     /**
-     * @param ResourceEntity $parentResource
+     * @param ?ResourceEntity $parentResource
      *
-     * @return ParentResourceResponseDto
+     * @return ($parentResource is null ? null : ParentResourceResponseDto)
      */
-    private static function createParentResourceReponseDto(ResourceEntity $parentResource): ParentResourceResponseDto
+    private static function createNullableParentResourceReponseDto(?ResourceEntity $parentResource): ?ParentResourceResponseDto
     {
+        if (null === $parentResource) {
+            return null;
+        }
+
         $dto = new ParentResourceResponseDto();
         $dto->uuid = $parentResource->getUuid();
         $dto->id = $parentResource->getId();
@@ -126,20 +135,22 @@ final class FindResourcesFactory
         $dto->shortType = $parentResource->getShortType();
         $dto->alias = $parentResource->getAlias();
         $dto->fqdn = $parentResource->getFqdn();
-        $dto->status = $parentResource->getStatus() !== null
-            ? self::createStatusResponseDto($parentResource->getStatus())
-            : null;
+        $dto->status = self::createNullableStatusResponseDto($parentResource->getStatus());
 
         return $dto;
     }
 
     /**
-     * @param ResourceStatus $status
+     * @param ?ResourceStatus $status
      *
-     * @return ResourceStatusResponseDto
+     * @return ($status is null ? null : ResourceStatusResponseDto)
      */
-    private static function createStatusResponseDto(ResourceStatus $status): ResourceStatusResponseDto
+    private static function createNullableStatusResponseDto(?ResourceStatus $status): ?ResourceStatusResponseDto
     {
+        if (null === $status) {
+            return null;
+        }
+
         $dto = new ResourceStatusResponseDto();
         $dto->code = $status->getCode();
         $dto->name = $status->getName();
@@ -149,29 +160,37 @@ final class FindResourcesFactory
     }
 
     /**
-     * @param Severity $severity
+     * @param ?Severity $severity
      *
-     * @return SeverityResponseDto
+     * @return ($severity is null ? null : SeverityResponseDto)
      */
-    private static function createSeverityResponseDto(Severity $severity): SeverityResponseDto
+    private static function createNullableSeverityResponseDto(?Severity $severity): ?SeverityResponseDto
     {
+        if (null === $severity) {
+            return null;
+        }
+
         $dto = new SeverityResponseDto();
         $dto->id = $severity->getId();
         $dto->name = $severity->getName();
         $dto->type = $severity->getType();
         $dto->level = $severity->getLevel();
-        $dto->icon = self::createIconResponseDto($severity->getIcon());
+        $dto->icon = self::createNullableIconResponseDto($severity->getIcon());
 
         return $dto;
     }
 
     /**
-     * @param LegacyIcon|Icon $icon
+     * @param LegacyIcon|Icon|null $icon
      *
-     * @return IconResponseDto
+     * @return ($icon is null ? null : IconResponseDto)
      */
-    private static function createIconResponseDto(LegacyIcon|Icon $icon): IconResponseDto
+    private static function createNullableIconResponseDto(null|LegacyIcon|Icon $icon): ?IconResponseDto
     {
+        if (null === $icon) {
+            return null;
+        }
+
         $dto = new IconResponseDto();
         $dto->id = $icon->getId();
         $dto->name = $icon->getName();
