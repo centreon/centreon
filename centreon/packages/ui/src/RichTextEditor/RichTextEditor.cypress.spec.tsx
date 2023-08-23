@@ -187,9 +187,11 @@ describe('Rich Text Editor', () => {
     });
 
     it('displays editor when editable props is false and an initialState exist', () => {
-      cy.get('[data-testid="RichTextEditor"]')
-        .invoke('attr', 'contenteditable')
-        .should('eq', 'false');
+      cy.get('[data-testid="RichTextEditor"]').should(
+        'have.attr',
+        'contenteditable',
+        'true'
+      );
       cy.findByLabelText('Undo').should('not.exist');
       cy.findByLabelText('Redo').should('not.exist');
       cy.findByLabelText('bold').should('not.exist');
@@ -214,9 +216,11 @@ describe('Rich Text Editor', () => {
     });
 
     it('displays editor when editable props is false and an initialState exist', () => {
-      cy.get('[data-testid="RichTextEditor"]')
-        .invoke('attr', 'contenteditable')
-        .should('eq', 'true');
+      cy.get('[data-testid="RichTextEditor"]').should(
+        'have.attr',
+        'contenteditable',
+        'false'
+      );
       cy.findByLabelText('Undo').should('be.disabled');
       cy.findByLabelText('Redo').should('be.disabled');
       cy.findByLabelText('bold').should('be.disabled');
