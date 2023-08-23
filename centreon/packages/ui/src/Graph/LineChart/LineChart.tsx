@@ -1,4 +1,4 @@
-import { MutableRefObject, useMemo, useRef } from 'react';
+import { MutableRefObject, useMemo, useRef, useState } from 'react';
 
 import { Group, Tooltip } from '@visx/visx';
 import { isNil } from 'ramda';
@@ -6,6 +6,7 @@ import { isNil } from 'ramda';
 import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
 
 import { getLeftScale, getRightScale, getXScale } from '../common/timeSeries';
+import { Line } from '../common/timeSeries/models';
 
 import Axes from './BasicComponents/Axes';
 import Grids from './BasicComponents/Grids';
@@ -72,11 +73,13 @@ const LineChart = ({
   thresholdUnit,
   thresholdLabels
 }: Props): JSX.Element => {
+  const { classes } = useStyles();
+
   const theme = useTheme();
 
+  const [linesGraph, setLinesGraph] = useState<Array<Line> | null>(null);
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
-  const { classes } = useStyles();
   const { isInViewport } = useIntersection({ element: graphRef?.current });
 
   const legendRef = useRef<HTMLDivElement | null>(null);
@@ -104,7 +107,9 @@ const LineChart = ({
 
   const { displayedLines, newLines } = useFilterLines({
     displayThreshold: canDisplayThreshold(shapeLines?.areaThresholdLines),
-    lines
+    lines,
+    linesGraph,
+    setLinesGraph
   });
 
   const xScale = useMemo(
@@ -280,6 +285,7 @@ const LineChart = ({
             displayAnchor={displayAnchor?.displayGuidingLines ?? true}
             lines={newLines}
             renderExtraComponent={legend?.renderExtraComponent}
+            setLinesGraph={setLinesGraph}
             timeSeries={timeSeries}
           />
         </div>

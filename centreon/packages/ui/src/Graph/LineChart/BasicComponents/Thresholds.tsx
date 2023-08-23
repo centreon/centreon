@@ -73,7 +73,7 @@ const Thresholds = ({
         return (
           <line
             data-testid={`threshold-${threshold}`}
-            key={`threshold-${threshold}`}
+            key={`threshold-${thresholdLabels?.[index]}-${threshold}`}
             stroke={getColor({
               index,
               theme
@@ -91,7 +91,7 @@ const Thresholds = ({
         return (
           <line
             data-testid={`threshold-${threshold}-tooltip`}
-            key={`threshold-${threshold}-tooltip`}
+            key={`threshold-${thresholdLabels?.[index]}-${threshold}-tooltip`}
             stroke="transparent"
             strokeWidth={4}
             x1={0}

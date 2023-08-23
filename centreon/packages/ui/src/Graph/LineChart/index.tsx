@@ -61,13 +61,17 @@ const WrapperLineChart = ({
   const { adjustedData } = useLineChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
 
-  if (loading || !adjustedData) {
+  if (loading && !adjustedData) {
     return (
       <LoadingSkeleton
         displayTitleSkeleton={header?.displayTitle ?? true}
         graphHeight={height || 200}
       />
     );
+  }
+
+  if (!adjustedData) {
+    return null;
   }
 
   return (

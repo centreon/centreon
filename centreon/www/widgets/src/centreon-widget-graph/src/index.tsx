@@ -10,15 +10,25 @@ import { Data, PanelOptions } from './models';
 extend(duration);
 
 interface Props {
+  globalRefreshInterval?: number;
   panelData: Data;
   panelOptions: PanelOptions;
   store: ReturnType<typeof createStore>;
 }
 
-const Input = ({ store, panelData, panelOptions }: Props): JSX.Element => {
+const Input = ({
+  store,
+  panelData,
+  panelOptions,
+  globalRefreshInterval
+}: Props): JSX.Element => {
   return (
     <Module maxSnackbars={1} seedName="widget-graph" store={store}>
-      <LineChart panelData={panelData} panelOptions={panelOptions} />
+      <LineChart
+        globalRefreshInterval={globalRefreshInterval}
+        panelData={panelData}
+        panelOptions={panelOptions}
+      />
     </Module>
   );
 };

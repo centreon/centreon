@@ -28,6 +28,7 @@ interface Props {
   limitLegendRows?: boolean;
   lines: Array<Line>;
   renderExtraComponent?: ReactNode;
+  setLinesGraph: Dispatch<SetStateAction<Array<Line> | null>>;
   timeSeries: Array<TimeValue>;
   toggable?: boolean;
 }
@@ -39,13 +40,14 @@ const MainLegend = ({
   toggable = true,
   limitLegendRows = true,
   renderExtraComponent,
-  displayAnchor = true
+  displayAnchor = true,
+  setLinesGraph
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ limitLegendRows });
   const theme = useTheme();
 
   const { selectMetricLine, clearHighlight, highlightLine, toggleMetricLine } =
-    useLegend({ lines });
+    useLegend({ lines, setLinesGraph });
 
   const { getFormattedValue } = useInteractiveValues({
     base,

@@ -7,7 +7,7 @@ import { Panel } from './models';
 import { dashboardAtom } from './atoms';
 
 const filterByProps = map(
-  pick(['h', 'i', 'minH', 'minW', 'options', 'w', 'x', 'y'])
+  pick(['h', 'i', 'minH', 'minW', 'options', 'w', 'x', 'y', 'data'])
 );
 
 const useDashboardDirty = (initialPanels: Array<Panel>): boolean => {
