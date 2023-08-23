@@ -4,7 +4,7 @@ import { SingleBarProps } from './models';
 import ResponsiveSingleBar from './ResponsiveSingleBar';
 
 const SingleBar = ({ data, ...props }: SingleBarProps): JSX.Element | null => {
-  if (!props.data) {
+  if (!data) {
     return null;
   }
 
