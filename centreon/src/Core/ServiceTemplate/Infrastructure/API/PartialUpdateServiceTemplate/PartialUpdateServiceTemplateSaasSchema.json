@@ -89,6 +89,24 @@
                     }
                 }
             }
+        },
+        "service_groups": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "host_template_id",
+                    "service_group_id"
+                ],
+                "properties": {
+                    "host_template_id": {
+                        "type": "integer"
+                    },
+                    "service_group_id": {
+                        "type": "integer"
+                    }
+                }
+            }
         }
     }
 }

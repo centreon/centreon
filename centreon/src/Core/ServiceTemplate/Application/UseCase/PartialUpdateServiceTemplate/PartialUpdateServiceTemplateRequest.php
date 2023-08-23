@@ -114,6 +114,9 @@ final class PartialUpdateServiceTemplateRequest
     /** @var MacroDto[]|NoValue */
     public array|NoValue $macros;
 
+    /** @var ServiceGroupDto[] */
+    public array|NoValue $serviceGroups;
+
     public function __construct(public int $id)
     {
         $this->name = new NoValue();
@@ -157,5 +160,6 @@ final class PartialUpdateServiceTemplateRequest
         $this->hostTemplates = new NoValue();
         $this->serviceCategories = new NoValue();
         $this->macros = new NoValue();
+        $this->serviceGroups = new NoValue();
     }
 }

@@ -30,6 +30,7 @@ use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\MacroDto;
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\PartialUpdateServiceTemplate;
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\PartialUpdateServiceTemplateRequest;
+use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\ServiceGroupDto;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -76,7 +77,8 @@ use Symfony\Component\HttpFoundation\Response;
  *     is_activated: boolean,
  *     host_templates: list<int>,
  *     service_categories: list<int>,
- *     macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>
+ *     macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>,
+ *     service_groups: array<array{host_template_id: int, service_group_id: int}>
  * }
  */
 final class PartialUpdateServiceTemplateController extends AbstractController
@@ -300,6 +302,15 @@ final class PartialUpdateServiceTemplateController extends AbstractController
                     $macro['description']
                 ),
                 $request['macros']
+            );
+        }
+
+        if (array_key_exists('service_groups', $request)) {
+            $serviceTemplate->serviceGroups = array_map(
+                fn(array $serviceGroup): ServiceGroupDto => new ServiceGroupDto(
+                    $serviceGroup['host_template_id'], $serviceGroup['service_group_id']
+                ),
+                $request['service_groups']
             );
         }
 
