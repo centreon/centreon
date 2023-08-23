@@ -308,7 +308,6 @@ it('should present a NoContentResponse when everything has gone well for an admi
     $request->notificationTypes = NotificationTypeConverter::toBits($notificationTypes);
     $request->isContactAdditiveInheritance = true;
     $request->isContactGroupAdditiveInheritance = true;
-    $request->isActivated = false;
     $request->activeChecksEnabled = YesNoDefaultConverter::toInt(YesNoDefault::No);
     $request->passiveCheckEnabled = YesNoDefaultConverter::toInt(YesNoDefault::Yes);
     $request->volatility = YesNoDefaultConverter::toInt(YesNoDefault::No);
@@ -520,7 +519,6 @@ it('should present a NoContentResponse when everything has gone well for an admi
         )->toBe(NotificationTypeConverter::toBits($notificationTypes))
         ->and($serviceTemplate->isContactAdditiveInheritance())->toBe($request->isContactAdditiveInheritance)
         ->and($serviceTemplate->isContactGroupAdditiveInheritance())->toBe($request->isContactGroupAdditiveInheritance)
-        ->and($serviceTemplate->isActivated())->toBe($request->isActivated)
         ->and($serviceTemplate->getActiveChecks())->toBe(
             \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->activeChecksEnabled)
         )->and($serviceTemplate->getPassiveCheck())->toBe(
