@@ -74,7 +74,6 @@ use Symfony\Component\HttpFoundation\Response;
  *     icon_id: int|null,
  *     icon_alternative: string|null,
  *     severity_id: int|null,
- *     is_activated: boolean,
  *     host_templates: list<int>,
  *     service_categories: list<int>,
  *     macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>,
@@ -279,10 +278,6 @@ final class PartialUpdateServiceTemplateController extends AbstractController
 
         if (array_key_exists('severity_id', $request)) {
             $serviceTemplate->severityId = $request['severity_id'];
-        }
-
-        if (array_key_exists('is_activated', $request)) {
-            $serviceTemplate->isActivated = $request['is_activated'];
         }
 
         if (array_key_exists('host_templates', $request)) {

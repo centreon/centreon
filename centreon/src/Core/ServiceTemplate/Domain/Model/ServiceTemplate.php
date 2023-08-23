@@ -47,7 +47,6 @@ class ServiceTemplate extends NewServiceTemplate
      * @param list<int> $hostTemplateIds
      * @param bool $contactAdditiveInheritance
      * @param bool $contactGroupAdditiveInheritance
-     * @param bool $isActivated
      * @param bool $isLocked
      * @param YesNoDefault $activeChecks
      * @param YesNoDefault $passiveCheck
@@ -92,7 +91,6 @@ class ServiceTemplate extends NewServiceTemplate
         array $hostTemplateIds = [],
         bool $contactAdditiveInheritance = false,
         bool $contactGroupAdditiveInheritance = false,
-        bool $isActivated = true,
         bool $isLocked = false,
         YesNoDefault $activeChecks = YesNoDefault::Default,
         YesNoDefault $passiveCheck = YesNoDefault::Default,
@@ -155,7 +153,6 @@ class ServiceTemplate extends NewServiceTemplate
         $this->setHighFlapThreshold($highFlapThreshold);
         $this->setContactAdditiveInheritance($contactAdditiveInheritance);
         $this->setContactGroupAdditiveInheritance($contactGroupAdditiveInheritance);
-        $this->setActivated($isActivated);
         $this->setLocked($isLocked);
         $this->setActiveChecks($activeChecks);
         $this->setPassiveCheck($passiveCheck);

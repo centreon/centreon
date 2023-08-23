@@ -412,10 +412,6 @@ final class PartialUpdateServiceTemplate
             $serviceTemplate->setContactGroupAdditiveInheritance($request->isContactGroupAdditiveInheritance);
         }
 
-        if (! $request->isActivated instanceof NoValue) {
-            $serviceTemplate->setActivated($request->isActivated);
-        }
-
         if (! $request->activeChecksEnabled instanceof NoValue) {
             $serviceTemplate->setActiveChecks(YesNoDefaultConverter::fromInt($request->activeChecksEnabled));
         }
