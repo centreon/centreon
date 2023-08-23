@@ -216,7 +216,7 @@ describe('Rich Text Editor', () => {
     it('displays editor when editable props is false and an initialState exist', () => {
       cy.get('[data-testid="RichTextEditor"]')
         .invoke('attr', 'contenteditable')
-        .should('eq', 'true');
+        .should('eq', 'false');
       cy.findByLabelText('Undo').should('be.disabled');
       cy.findByLabelText('Redo').should('be.disabled');
       cy.findByLabelText('bold').should('be.disabled');
