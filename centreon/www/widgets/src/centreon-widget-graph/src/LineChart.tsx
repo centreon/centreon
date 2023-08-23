@@ -35,7 +35,8 @@ const WidgetLineChart = ({
     useGraphQuery({
       baseEndpoint: graphEndpoint,
       metrics: panelData.metrics,
-      refreshInterval: refreshIntervalToUse
+      refreshInterval: refreshIntervalToUse,
+      timePeriod: panelOptions.timeperiod?.timePeriodType
     });
 
   const { thresholdLabels, thresholdValues } = useThresholds({

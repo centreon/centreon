@@ -1,4 +1,4 @@
-import { T, always, cond, flatten, isEmpty, join, pipe, pluck } from 'ramda';
+import { flatten, isEmpty, join, pipe, pluck } from 'ramda';
 import dayjs from 'dayjs';
 
 import { LineChartData, useFetchQuery } from '../..';
@@ -9,7 +9,7 @@ interface UseMetricsQueryProps {
   baseEndpoint: string;
   metrics: Array<ServiceMetric>;
   refreshInterval?: number | false;
-  timePeriod?: TimePeriod;
+  timePeriod?: number;
 }
 
 interface UseMetricsQueryState {
@@ -20,22 +20,13 @@ interface UseMetricsQueryState {
   start: string;
 }
 
-enum TimePeriod {
-  lastDay = 'last_day'
-}
-
 const getStartEndFromTimePeriod = (
-  timePeriod: TimePeriod
+  timePeriod: number
 ): { end: string; start: string } => {
-  return cond([
-    [
-      T,
-      always({
-        end: dayjs().toISOString(),
-        start: dayjs().subtract(1, 'day').toISOString()
-      })
-    ]
-  ])(timePeriod);
+  return {
+    end: dayjs().toISOString(),
+    start: dayjs().subtract(timePeriod, 'hour').toISOString()
+  };
 };
 
 interface PerformanceGraphData extends Omit<LineChartData, 'global'> {
@@ -45,7 +36,7 @@ interface PerformanceGraphData extends Omit<LineChartData, 'global'> {
 const useGraphQuery = ({
   metrics,
   baseEndpoint,
-  timePeriod = TimePeriod.lastDay,
+  timePeriod = 1,
   refreshInterval = false
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const metricIds = pipe(
@@ -55,16 +46,17 @@ const useGraphQuery = ({
     join(',')
   )(metrics);
 
-  const { end, start } = getStartEndFromTimePeriod(timePeriod);
-
   const {
     data: graphData,
     isFetching,
     isLoading
   } = useFetchQuery<PerformanceGraphData>({
-    getEndpoint: () =>
-      `${baseEndpoint}?metricIds=[${metricIds}]&start=${start}&end=${end}`,
-    getQueryKey: () => ['graph', metricIds],
+    getEndpoint: () => {
+      const { end, start } = getStartEndFromTimePeriod(timePeriod);
+
+      return `${baseEndpoint}?metricIds=[${metricIds}]&start=${start}&end=${end}`;
+    },
+    getQueryKey: () => ['graph', metricIds, timePeriod],
     queryOptions: {
       enabled: !isEmpty(metricIds),
       refetchInterval: refreshInterval,
@@ -82,6 +74,8 @@ const useGraphQuery = ({
         times: graphData.times
       }
     : undefined;
+
+  const { end, start } = getStartEndFromTimePeriod(timePeriod);
 
   return {
     end,

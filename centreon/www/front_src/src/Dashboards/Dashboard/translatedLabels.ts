@@ -73,3 +73,11 @@ export const labelCustom = 'Custom';
 export const labelThresholdsAreAutomaticallyHidden =
   'Thresholds are automatically hidden if you select 2 metric units';
 export const labelGraphType = 'Graph type';
+export const labelLastHour = 'Last hour';
+export const labelLast24Hours = 'Last 24 hours';
+export const labelLast7Days = 'Last 7 days';
+export const labelLast30Days = 'Last 30 days';
+export const labelLast3Months = 'Last 3 months';
+export const labelLast6Months = 'Last 6 months';
+export const labelLast12Months = 'Last 12 months';
+export const labelTimePeriod = 'Time period';
