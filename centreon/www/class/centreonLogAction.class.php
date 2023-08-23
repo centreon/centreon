@@ -94,13 +94,13 @@ class CentreonLogAction
         if (($auditLog) && ($auditLog['audit_log_option'] == '1')) {
             $str_query = "INSERT INTO `log_action`
                 (action_log_date, object_type, object_id, object_name, action_type, log_contact_id)
-                VALUES ('" . time() . "', ':object_type', ':object_id', 'object_name', 'action_type', ':user_id')";
+                VALUES ('" . time() . "', :object_type, :object_id, :object_name, :action_type, :user_id)";
             $statement1 = $pearDBO->prepare($str_query);
-            $statement1->bindParam('object_type', $object_type);
-            $statement1->bindParam('object_id', $object_id);
-            $statement1->bindParam('object_name', $object_name);
-            $statement1->bindParam('action_type', $action_type);
-            $statement1->bindParam('user_id', $this->logUser->user_id);
+            $statement1->bindParam(':object_type', $object_type);
+            $statement1->bindParam(':object_id', $object_id);
+            $statement1->bindParam(':object_name', $object_name);
+            $statement1->bindParam(':action_type', $action_type);
+            $statement1->bindParam(':user_id', $this->logUser->user_id);
             $statement1->execute();
 
 
@@ -124,7 +124,7 @@ class CentreonLogAction
         $DBRESULT = $pearDB->prepare(
             "SELECT contact_name FROM `contact` WHERE contact_id = ':contact_id' LIMIT 1"
         );
-        $DBRESULT->bindParam('contact_id', $id);
+        $DBRESULT->bindParam(':contact_id', $id);
         $DBRESULT->execute();
         /** @var  $name */
         while ($data = $DBRESULT->fetch(PDO::FETCH_ASSOC)) {
@@ -138,7 +138,7 @@ class CentreonLogAction
      * returns the list of actions ("create","delete","change","massive change", "enable", "disable")
      */
 
-    public function listAction($id, $object_type): array
+    public function listAction($id, $object_type)
     {
         global $pearDBO;
         $list_actions = array();
@@ -150,8 +150,8 @@ class CentreonLogAction
                 WHERE object_id =':id'
                 AND object_type = ':object_type' ORDER BY action_log_date DESC"
         );
-        $statement->bindParam('id', $id);
-        $statement->bindParam('object_type', $object_type);
+        $statement->bindParam(':id', $id);
+        $statement->bindParam(':object_type', $object_type);
         while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
             $list_actions[$i]["action_log_id"] = $data["action_log_id"];
             $list_actions[$i]["action_log_date"] = date("Y/m/d H:i", $data["action_log_date"]);
@@ -174,7 +174,7 @@ class CentreonLogAction
     /*
      *  returns list of host for this service
      */
-    public function getHostId($service_id): array|int
+    public function getHostId($service_id)
     {
         global $pearDBO;
 
@@ -189,7 +189,7 @@ class CentreonLogAction
                     ORDER BY action_log_date DESC 
                     LIMIT 1";
         $statement = $pearDBO->prepare($query);
-        $statement->bindParam('service_id', $service_id);
+        $statement->bindParam(':service_id', $service_id);
         $statement->execute();
         $info = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($info['field_value']) && $info['field_value'] != '') {
@@ -207,7 +207,7 @@ class CentreonLogAction
                     ORDER BY action_log_date DESC 
                     LIMIT 1";
         $statement = $pearDBO->prepare($query);
-        $statement->bindParam('service_id', $service_id);
+        $statement->bindParam(':service_id', $service_id);
         $statement->execute();
         $info = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($info['field_value']) && $info['field_value'] != '') {
@@ -221,23 +221,23 @@ class CentreonLogAction
         global $pearDB, $pearDBO;
 
         $statement = $pearDB->prepare("SELECT host_name FROM host WHERE host_register = '1' AND host_id = :host_id");
-        $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+        $statement->bindValue(':host_id', $host_id);
         $statement->execute();
-        $info = $statement->fetchRow();
+        $info = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($info['host_name'])) {
             return $info['host_name'];
         }
 
         $statement = $pearDBO->prepare("SELECT object_id, object_name FROM log_action WHERE object_type = 'service' AND object_id = :host_id");
-        $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+        $statement->bindValue(':host_id', $host_id);
         $statement->execute();
-        $info = $statement->fetchRow();
+        $info = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($info['object_name'])) {
             return $info['object_name'];
         }
 
         $statement = $pearDBO->prepare("SELECT name FROM hosts WHERE host_id = :host_id");
-        $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+        $statement->bindValue(':host_id', $host_id);
         $statement->execute();
         $info = $statement->fetchRow();
 
@@ -250,7 +250,7 @@ class CentreonLogAction
 
         $query = "SELECT hg_name FROM hostgroup WHERE hg_id = :hg_id";
         $DBRESULT2 = $pearDB->prepare($query);
-        $DBRESULT2->bindParam('hg_id', $hg_id);
+        $DBRESULT2->bindParam(':hg_id', $hg_id);
         $DBRESULT2->execute();
         $info = $DBRESULT2->fetch(PDO::FETCH_ASSOC);
         if (isset($info['hg_name'])) {
@@ -259,7 +259,7 @@ class CentreonLogAction
 
         $query = "SELECT object_id, object_name FROM log_action WHERE object_type = 'service' AND object_id = :hg_id";
         $DBRESULT2 = $pearDBO->prepare($query);
-        $DBRESULT2->bindParam('hg_id', $hg_id);
+        $DBRESULT2->bindParam(':hg_id', $hg_id);
         $DBRESULT2->execute();
         $info = $DBRESULT2->fetch(PDO::FETCH_ASSOC);
         if (isset($info['object_name'])) {
@@ -285,8 +285,8 @@ class CentreonLogAction
             WHERE object_id = :id
             AND object_type = :objectType ORDER BY action_log_date ASC
         ");
-        $statement1->bindValue(':id', $id, \PDO::PARAM_INT);
-        $statement1->bindValue(':objectType', $objectType, \PDO::PARAM_STR);
+        $statement1->bindValue(':id', $id);
+        $statement1->bindValue(':objectType', $objectType);
         $statement1->execute();
         while ($row = $statement1->fetch(\PDO::FETCH_ASSOC)) {
             $DBRESULT2 = $pearDBO->prepare(
@@ -299,13 +299,13 @@ class CentreonLogAction
             $macroPasswordStatement = $pearDBO->prepare(
                 "SELECT field_value
                     FROM `log_action_modification`
-                    WHERE action_log_id = " . (int) $row['action_log_id'] . "
+                    WHERE action_log_id = :action_log_id
                     AND field_name = 'refMacroPassword'"
             );
             $macroPasswordStatement->bindParam(':action_log_id', $row['action_log_id']);
             $macroPasswordStatement->execute();
             $macroPasswordRef = [];
-            if ($result = $macroPasswordStatement->fetch()) {
+            if ($result = $macroPasswordStatement->fetch(PDO::FETCH_ASSOC)) {
                 $macroPasswordRef = explode(',', $result['field_value']);
             }
             while ($field = $DBRESULT2->fetch()) {
