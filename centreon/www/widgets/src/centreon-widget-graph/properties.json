@@ -1,7 +1,31 @@
 {
   "title": "Graph",
   "description": "Widget graph description (TBD)",
-  "options": {},
+  "options": {
+    "threshold": {
+      "type": "threshold",
+      "defaultValue": {
+        "enabled": true,
+        "customCritical": null,
+        "criticalType": "default",
+        "customWarning": null,
+        "warningType": "default"
+      },
+      "label": "threshold"
+    },
+    "refreshInterval": {
+      "type": "refresh-interval",
+      "defaultValue": "default",
+      "label": "Interval"
+    },
+    "timeperiod": {
+      "type": "time-period",
+      "defaultValue": {
+        "start": null,
+        "end": null
+      }
+    }
+  },
   "data": {
     "resources": {
       "type": "resources",

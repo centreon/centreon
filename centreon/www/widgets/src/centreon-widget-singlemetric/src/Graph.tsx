@@ -3,7 +3,13 @@ import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
 
-import { Gauge, GraphText, SingleBar, useGraphQuery } from '@centreon/ui';
+import {
+  Gauge,
+  GraphText,
+  SingleBar,
+  useGraphQuery,
+  useRefreshInterval
+} from '@centreon/ui';
 
 import { FormThreshold, ServiceMetric } from './models';
 import {
@@ -38,17 +44,16 @@ const Graph = ({
 
   const { t } = useTranslation();
 
-  const refreshIntervalToUse =
-    cond([
-      [equals('default'), always(globalRefreshInterval)],
-      [equals('custom'), always(refreshIntervalCustom)],
-      [equals('manual'), always(0)]
-    ])(refreshInterval) || false;
+  const refreshIntervalToUse = useRefreshInterval({
+    globalRefreshInterval,
+    refreshInterval,
+    refreshIntervalCustom
+  });
 
   const { graphData, isGraphLoading, isMetricIdsEmpty } = useGraphQuery({
     baseEndpoint: graphEndpoint,
     metrics,
-    refreshInterval: refreshIntervalToUse ? refreshIntervalToUse * 1000 : false
+    refreshInterval: refreshIntervalToUse
   });
 
   const { thresholdLabels, thresholdValues } = useThresholds({

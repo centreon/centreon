@@ -5,19 +5,20 @@ import duration from 'dayjs/plugin/duration';
 import { Module } from '@centreon/ui';
 
 import LineChart from './LineChart';
-import { Data } from './models';
+import { Data, PanelOptions } from './models';
 
 extend(duration);
 
 interface Props {
   panelData: Data;
+  panelOptions: PanelOptions;
   store: ReturnType<typeof createStore>;
 }
 
-const Input = ({ store, panelData }: Props): JSX.Element => {
+const Input = ({ store, panelData, panelOptions }: Props): JSX.Element => {
   return (
     <Module maxSnackbars={1} seedName="widget-graph" store={store}>
-      <LineChart panelData={panelData} />
+      <LineChart panelData={panelData} panelOptions={panelOptions} />
     </Module>
   );
 };

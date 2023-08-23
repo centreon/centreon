@@ -14,3 +14,9 @@ export interface ServiceMetric extends NamedEntity {
 export interface Data {
   metrics: Array<ServiceMetric>;
 }
+
+export interface PanelOptions {
+  globalRefreshInterval?: number;
+  refreshInterval: 'default' | 'custom' | 'manual';
+  refreshIntervalCustom?: number;
+}

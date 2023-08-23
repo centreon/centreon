@@ -3,24 +3,33 @@ import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import { LineChart, useGraphQuery } from '@centreon/ui';
+import { LineChart, useGraphQuery, useRefreshInterval } from '@centreon/ui';
 
-import { Data } from './models';
+import { Data, PanelOptions } from './models';
 import { labelNoDataFound } from './translatedLabels';
 import { useNoDataFoundStyles } from './NoDataFound.styles';
 import { graphEndpoint } from './api/endpoints';
 
 interface Props {
   panelData: Data;
+  panelOptions: PanelOptions;
 }
 
-const WidgetLineChart = ({ panelData }: Props): JSX.Element => {
+const WidgetLineChart = ({ panelData, panelOptions }: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { t } = useTranslation();
+
+  const refreshIntervalToUse = useRefreshInterval({
+    globalRefreshInterval: panelOptions.globalRefreshInterval,
+    refreshInterval: panelOptions.refreshInterval,
+    refreshIntervalCustom: panelOptions.refreshIntervalCustom
+  });
+
   const { graphData, start, end, isGraphLoading, isMetricIdsEmpty } =
     useGraphQuery({
       baseEndpoint: graphEndpoint,
-      metrics: panelData.metrics
+      metrics: panelData.metrics,
+      refreshInterval: refreshIntervalToUse
     });
 
   if (isNil(graphData) && (!isGraphLoading || isMetricIdsEmpty)) {
