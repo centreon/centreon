@@ -15,3 +15,16 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
     width: '100%'
   }
 }));
+
+export const useWidgetSelectionStyles = makeStyles()((theme) => ({
+  selectField: {
+    flexGrow: 1
+  },
+  widgetSelection: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(1),
+    width: '100%'
+  }
+}));
