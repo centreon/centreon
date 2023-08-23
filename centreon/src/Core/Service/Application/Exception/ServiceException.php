@@ -107,7 +107,7 @@ class ServiceException extends \Exception
     {
         return new self(
             sprintf(
-                _('The %s does not exist with id(s) \'%s\''),
+                _("'%s' does not exist with ID(s) '%s'"),
                 $propertyName,
                 implode(',', $propertyValue)
             ),
@@ -125,7 +125,7 @@ class ServiceException extends \Exception
     {
         return new self(
             sprintf(
-                _('The service name \'%s\' already exists for host ID %d'),
+                _("'%s' service name already exists for host ID %d"),
                 $serviceName,
                 $hostId
             ),

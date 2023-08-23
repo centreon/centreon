@@ -18099,8 +18099,8 @@ msgstr "Erreur lors de la récupération d'un service"
 msgid "The check command cannot be null if the service template is null"
 msgstr "La commande de vérification ne peut être null si le modèle de service est null"
 
-msgid "The %s does not exist with id(s) '%s'"
-msgstr "%s n'existe pas avec les id(s) '%s'"
+msgid "'%s' does not exist with ID(s) '%s'"
+msgstr "'%s' n'existe pas avec le(s) ID(s) %s"
 
-msgid "The service name '%s' already exists for host ID %d"
-msgstr "Le nom du service '%s' existe déjà pour l'hôte ID %d"
+msgid "'%s' service name already exists for host ID %d"
+msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"

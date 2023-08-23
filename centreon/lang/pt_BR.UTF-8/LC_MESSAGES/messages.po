@@ -16709,8 +16709,8 @@ msgstr ""
 #  msgid "The check command cannot be null if the service template is null"
 #  msgstr ""
 
-#  msgid "The %s does not exist with id(s) '%s'"
+#  msgid "'%s' does not exist with ID(s) '%s'"
 #  msgstr ""
 
-#  msgid "The service name '%s' already exists for host ID %d"
+#  msgid "'%s' service name already exists for host ID %d"
 #  msgstr ""
