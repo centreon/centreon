@@ -3,15 +3,13 @@ import { useFormikContext } from 'formik';
 
 import { Modal } from '@centreon/ui/components';
 
-import { labelCancel } from '../../translatedLabels';
-import { labelAdd, labelEdit } from '../translatedLabels';
+import { labelExit, labelSave } from '../translatedLabels';
 
 interface Props {
-  closeModal: () => void;
-  isAddingWidget: boolean;
+  closeModal: (shouldAskForClosingConfirmation: boolean) => void;
 }
 
-const Actions = ({ isAddingWidget, closeModal }: Props): JSX.Element => {
+const Actions = ({ closeModal }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const { handleSubmit, isValid, dirty } = useFormikContext();
@@ -22,10 +20,10 @@ const Actions = ({ isAddingWidget, closeModal }: Props): JSX.Element => {
     <Modal.Actions
       disabled={isDisabled}
       labels={{
-        cancel: t(labelCancel),
-        confirm: t(isAddingWidget ? labelAdd : labelEdit)
+        cancel: t(labelExit),
+        confirm: t(labelSave)
       }}
-      onCancel={closeModal}
+      onCancel={() => closeModal(dirty)}
       onConfirm={handleSubmit}
     />
   );
