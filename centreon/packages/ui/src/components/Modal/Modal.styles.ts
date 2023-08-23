@@ -61,7 +61,8 @@ const useStyles = makeStyles<{
       color: theme.palette.text.secondary,
       margin: theme.spacing(1, 0, 1, 0),
       width: '90%'
-    }
+    },
+    height: '100%'
   },
   modalCloseButton: {
     position: 'absolute',
