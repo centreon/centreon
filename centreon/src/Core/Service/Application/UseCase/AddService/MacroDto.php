@@ -21,36 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Service\Application\Repository;
+namespace Core\Service\Application\UseCase\AddService;
 
-use Core\Service\Domain\Model\NewService;
-
-interface WriteServiceRepositoryInterface
+class MacroDto
 {
-    /**
-     * Delete a service by ID.
-     *
-     * @param int $serviceId
-     *
-     * @throws \Throwable
-     */
-    public function delete(int $serviceId): void;
-
-    /**
-     * Delete services by ID.
-     *
-     * @param int ...$serviceIds
-     */
-    public function deleteByIds(int ...$serviceIds): void;
-
-    /**
-     * Add a new service.
-     *
-     * @param NewService $newService
-     *
-     * @throws \Throwable
-     *
-     * @return int
-     */
-    public function add(NewService $newService): int;
+    public function __construct(
+        public string $name,
+        public ?string $value,
+        public bool $isPassword,
+        public ?string $description,
+    ) {
+    }
 }

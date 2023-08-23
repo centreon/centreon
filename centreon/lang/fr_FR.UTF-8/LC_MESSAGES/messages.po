@@ -18013,7 +18013,7 @@ msgid "Refresh interval"
 msgstr "Intervalle de rafraîchissement"
 
 msgid "Dashboard global interval (by default)"
-msgstr "Intervalle global du tableau de bord (par défaut)"  
+msgstr "Intervalle global du tableau de bord (par défaut)"
 
 msgid "Custom refresh interval"
 msgstr "Intervalle de rafraîchissement personnalisé"
@@ -18084,6 +18084,23 @@ msgstr "Paramètres de valeur"
 msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
 msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
 
-
 msgid "The {{module}} license will expire in {{expirationDate}} days"
 msgstr "La license {{module}} expirera dans {{expirationDate}} jours"
+
+msgid "You are not allowed to add a service"
+msgstr "Vous n'êtes pas autorisé à ajouter un service"
+
+msgid "Error while adding the service"
+msgstr "Erreur lors de l'ajout du service"
+
+msgid "Error while retrieving a service"
+msgstr "Erreur lors de la récupération d'un service"
+
+msgid "The check command cannot be null if the service template is null"
+msgstr "La commande de vérification ne peut être null si le modèle de service est null"
+
+msgid "'%s' does not exist with ID(s) '%s'"
+msgstr "'%s' n'existe pas avec le(s) ID(s) %s"
+
+msgid "'%s' service name already exists for host ID %d"
+msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"

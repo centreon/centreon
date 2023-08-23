@@ -21,36 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Service\Application\Repository;
+namespace Tests\Core\Service\Infrastructure\API\AddService;
 
-use Core\Service\Domain\Model\NewService;
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Service\Application\UseCase\AddService\AddServicePresenterInterface;
+use Core\Service\Application\UseCase\AddService\AddServiceResponse;
 
-interface WriteServiceRepositoryInterface
+class AddServicePresenterStub extends AbstractPresenter implements AddServicePresenterInterface
 {
-    /**
-     * Delete a service by ID.
-     *
-     * @param int $serviceId
-     *
-     * @throws \Throwable
-     */
-    public function delete(int $serviceId): void;
-
-    /**
-     * Delete services by ID.
-     *
-     * @param int ...$serviceIds
-     */
-    public function deleteByIds(int ...$serviceIds): void;
-
-    /**
-     * Add a new service.
-     *
-     * @param NewService $newService
-     *
-     * @throws \Throwable
-     *
-     * @return int
-     */
-    public function add(NewService $newService): int;
+    public ResponseStatusInterface|AddServiceResponse $response;
+    public function presentResponse(ResponseStatusInterface|AddServiceResponse $response): void
+    {
+        $this->response = $response;
+    }
 }

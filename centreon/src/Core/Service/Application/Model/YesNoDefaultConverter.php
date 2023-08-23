@@ -21,36 +21,27 @@
 
 declare(strict_types=1);
 
-namespace Core\Service\Application\Repository;
+namespace Core\Service\Application\Model;
 
-use Core\Service\Domain\Model\NewService;
+use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\Common\Domain\YesNoDefault;
 
-interface WriteServiceRepositoryInterface
+class YesNoDefaultConverter
 {
     /**
-     * Delete a service by ID.
+     * @param int $yesNoDefault
      *
-     * @param int $serviceId
+     * @throws \Assert\AssertionFailedException
      *
-     * @throws \Throwable
+     * @return YesNoDefault
      */
-    public function delete(int $serviceId): void;
-
-    /**
-     * Delete services by ID.
-     *
-     * @param int ...$serviceIds
-     */
-    public function deleteByIds(int ...$serviceIds): void;
-
-    /**
-     * Add a new service.
-     *
-     * @param NewService $newService
-     *
-     * @throws \Throwable
-     *
-     * @return int
-     */
-    public function add(NewService $newService): int;
+    public static function fromInt(int $yesNoDefault): YesNoDefault
+    {
+        return match ($yesNoDefault) {
+            0 => YesNoDefault::No,
+            1 => YesNoDefault::Yes,
+            2 => YesNoDefault::Default,
+            default => throw AssertionException::range($yesNoDefault, 0, 2)
+        };
+    }
 }
