@@ -59,7 +59,7 @@ afterEach(() => {
   cy.logout();
 });
 
-Given('a non-admin user who is on a list of shared dashboards', () => {
+Given('a non-admin user who is in a list of shared dashboards', () => {
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
