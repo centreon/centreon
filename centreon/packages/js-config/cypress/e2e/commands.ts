@@ -103,12 +103,15 @@ interface CopyFromContainerProps {
 
 Cypress.Commands.add(
   'copyFromContainer',
-  ({
-    name = Cypress.env('dockerName'),
-    source,
-    destination
-  }: CopyFromContainerProps) => {
-    return cy.exec(`docker cp ${name}:${source} "${destination}"`);
+  (
+    {
+      name = Cypress.env('dockerName'),
+      source,
+      destination
+    }: CopyFromContainerProps,
+    options
+  ) => {
+    return cy.exec(`docker cp ${name}:${source} "${destination}"`, options);
   }
 );
 
@@ -120,12 +123,15 @@ interface CopyToContainerProps {
 
 Cypress.Commands.add(
   'copyToContainer',
-  ({
-    name = Cypress.env('dockerName'),
-    source,
-    destination
-  }: CopyToContainerProps) => {
-    return cy.exec(`docker cp ${source} ${name}:${destination}`);
+  (
+    {
+      name = Cypress.env('dockerName'),
+      source,
+      destination
+    }: CopyToContainerProps,
+    options
+  ) => {
+    return cy.exec(`docker cp ${source} ${name}:${destination}`, options);
   }
 );
 
@@ -324,12 +330,16 @@ Cypress.Commands.add(
           });
         }
 
-        return cy.copyFromContainer({
-          destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
-          name,
-          source: '/var/log/php8.1-fpm-centreon-error.log'
-        });
+        return cy.copyFromContainer(
+          {
+            destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
+            name,
+            source: '/var/log/php8.1-fpm-centreon-error.log'
+          },
+          { failOnNonZeroExit: false }
+        );
       })
+      .exec(`chmod -R 755 "${logDirectory}"`)
       .stopContainer({ name });
   }
 );
@@ -391,6 +401,42 @@ Cypress.Commands.add(
   }
 );
 
+interface ShareDashboardToUserProps {
+  dashboardName: string;
+  role: string;
+  userName: string;
+}
+
+Cypress.Commands.add(
+  'shareDashboardToUser',
+  ({ dashboardName, userName, role }: ShareDashboardToUserProps): void => {
+    Promise.all([
+      cy.request({
+        method: 'GET',
+        url: `/centreon/api/latest/configuration/users?search={"name":"${userName}"}`
+      }),
+      cy.request({
+        method: 'GET',
+        url: `/centreon/api/latest/configuration/dashboards?search={"name":"${dashboardName}"}`
+      })
+    ])
+      .then(([retrievedUser, retrievedDashboard]) => {
+        const userId = retrievedUser.body.result[0].id;
+        const dashboardId = retrievedDashboard.body.result[0].id;
+
+        cy.request({
+          body: {
+            id: userId,
+            role: `${role}`
+          },
+          method: 'POST',
+          url: `/centreon/api/latest/configuration/dashboards/${dashboardId}/access_rights/contacts`
+        });
+      })
+      .catch((error) => console.log(error));
+  }
+);
+
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
   return cy.waitUntil(() => {
     return cy.get('header div[data-cy="clock"]').then(($time) => {
@@ -430,6 +476,11 @@ declare global {
         rootItemNumber,
         subMenu
       }: NavigateToProps) => Cypress.Chainable;
+      shareDashboardToUser: ({
+        dashboardName,
+        userName,
+        role
+      }: ShareDashboardToUserProps) => Cypress.Chainable;
       startContainer: ({
         name,
         image

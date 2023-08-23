@@ -76,15 +76,17 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
         $queryBinding = [];
         $bindedValues = [];
         foreach ($messages as $key => $message) {
-            $queryBinding[] = "(:notificationId, :channel_{$key}, :subject_{$key}, :message_{$key})";
+            $queryBinding[] = "(:notificationId, :channel_{$key}, :subject_{$key}, :message_{$key},"
+                . " :formatted_message_{$key})";
             $bindedValues[":channel_{$key}"] = $message->getChannel()->value;
             $bindedValues[":subject_{$key}"] = $message->getSubject();
-            $bindedValues[":message_{$key}"] = $message->getMessage();
+            $bindedValues[":message_{$key}"] = $message->getRawMessage();
+            $bindedValues[":formatted_message_{$key}"] = $message->getFormattedMessage();
         }
 
         $request = $this->translateDbName(
             'INSERT INTO `:db`.notification_message
-            (notification_id, channel, subject, message) VALUES '
+            (notification_id, channel, subject, message, formatted_message) VALUES '
             . implode(', ', $queryBinding)
         );
         $statement = $this->db->prepare($request);

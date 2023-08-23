@@ -42,7 +42,8 @@ Feature:
         {
           "channel": "Slack",
           "subject": "Hello world !",
-          "message": "just a small message"
+          "message": "just a small message",
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -117,7 +118,8 @@ Feature:
           {
               "channel": "Slack",
               "subject": "Hello world !",
-              "message": "just a small message"
+              "message": "just a small message",
+              "formatted_message": "a formatted message"
           }
       ],
       "is_activated": true
@@ -169,7 +171,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -201,7 +204,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -268,7 +272,8 @@ Feature:
             {
                 "channel": "Slack",
                 "subject": "Hello world !",
-                "message": "just a small message"
+                "message": "just a small message",
+                "formatted_message": "a formatted message"
             }
         ],
         "is_activated": true
@@ -310,7 +315,8 @@ Feature:
         {
           "channel": "Slack",
           "subject": "Hello world !",
-          "message": "just a small message"
+          "message": "just a small message",
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -405,7 +411,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -498,7 +505,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -546,7 +554,8 @@ Feature:
         {
           "channel": "Slack",
           "subject": "Hello world !",
-          "message": "just a small message"
+          "message": "just a small message",
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -675,7 +684,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -788,7 +798,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -843,7 +854,8 @@ Feature:
         {
           "channel": "Slack",
           "subject": "Hello world !",
-          "message": "just a small message"
+          "message": "just a small message",
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -877,7 +889,8 @@ Feature:
         {
           "channel": "Slack",
           "subject": "Hello world !",
-          "message": "just a small message"
+          "message": "just a small message",
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -1006,7 +1019,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1033,7 +1047,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1127,7 +1142,8 @@ Feature:
         {
           "channel": "Slack",
           "subject": "Hello world !",
-          "message": "just a small message"
+          "message": "just a small message",
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -1179,7 +1195,8 @@ Feature:
         {
           "channel": "Slack",
           "subject": "Hello world !",
-          "message": "just a small message"
+          "message": "just a small message",
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -1241,7 +1258,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1301,7 +1319,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1355,7 +1374,8 @@ Feature:
         {
           "channel": "Slack",
           "subject": "Hello world !",
-          "message": "just a small message"
+          "message": "just a small message",
+          "formatted_message": "a formatted message"
         }
       ],
       "users": [20,21],
@@ -1411,7 +1431,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1465,7 +1486,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1522,7 +1544,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1566,7 +1589,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1645,7 +1669,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20,21],
@@ -1676,7 +1701,8 @@ Feature:
           {
             "channel": "Slack",
             "subject": "Hello world !",
-            "message": "just a small message"
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
           }
         ],
         "users": [20],
@@ -1734,3 +1760,261 @@ Feature:
       "message": "You are not allowed to delete a notification configuration"
     }
     """
+
+  Scenario: List notifiable resources as centreon-broker user
+    Given the following CLAPI import data:
+      """
+      CONTACT;ADD;centreon-broker;centreon-broker;centreon-broker@localservice.com;Centreon@2022;1;1;en_US;local
+      ACLMENU;add;ACL Menu test;my alias
+      ACLMENU;GRANTRW;ACL Menu test;1;Configuration;Notifications;
+      ACLRESOURCE;add;ACL Resource test;my alias
+      ACLRESOURCE;grant_hostgroup;ACL Resource test;Linux-Servers
+      ACLRESOURCE;grant_hostgroup;ACL Resource test;Printers
+      ACLGROUP;add;ACL Group test;my alias
+      ACLGROUP;addmenu;ACL Group test;ACL Menu test
+      ACLGROUP;addresource;ACL Group test;ACL Resource test
+      ACLGROUP;addcontact;ACL Group test;test-user
+      SG;ADD;service-grp1;service-grp1-alias
+      ACLRESOURCE;grant_servicegroup;ACL Resource test;service-grp1
+      SG;ADD;service-grp2;service-grp2-alias
+      CONTACT;ADD;user-name1;user-alias1;user1@mail.com;Centreon!2021;0;0;;local
+      CONTACT;ADD;user-name2;user-alias2;user2@mail.com;Centreon!2021;0;0;;local
+      """
+    And I am logged in with "centreon-broker"/"Centreon@2022"
+    And a feature flag "notification" of bitmask 2
+
+    When I send a GET request to '/api/latest/configuration/notifications/resources'
+    Then the response code should be "400"
+
+    When I add 'X-Notifiable-Resources-UID' header equal to ''
+    And I send a GET request to '/api/latest/configuration/notifications/resources'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+      """
+      {
+        "uid": "2c083ee8d86dec12ec5247685a9bc05a",
+        "result": []
+      }
+      """
+
+    When I send a POST request to '/api/latest/configuration/notifications' with body:
+      """
+      {
+        "name": "notification-name",
+        "timeperiod_id": 2,
+        "resources": [
+          {
+            "type": "hostgroup",
+            "events": 5,
+            "ids": [
+              53,
+              56
+            ],
+            "extra": {
+              "event_services": 2
+            }
+          },
+          {
+            "type": "servicegroup",
+            "events": 5,
+            "ids": [
+              1
+            ]
+          }
+        ],
+        "messages": [
+          {
+            "channel": "Slack",
+            "subject": "Hello world !",
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
+          }
+        ],
+        "users": [
+          20,
+          21
+        ],
+        "contactgroups": [],
+        "is_activated": true
+      }
+      """
+    Then the response code should be "201"
+
+    And I send a POST request to '/api/latest/configuration/notifications' with body:
+      """
+      {
+        "name": "notification-name-2",
+        "timeperiod_id": 2,
+        "resources": [
+          {
+            "type": "hostgroup",
+            "events": 5,
+            "ids": [
+              53
+            ],
+            "extra": {
+              "event_services": 2
+            }
+          },
+          {
+            "type": "servicegroup",
+            "events": 5,
+            "ids": [
+              1
+            ]
+          }
+        ],
+        "messages": [
+          {
+            "channel": "Slack",
+            "subject": "Hello world !",
+            "message": "just a small message",
+            "formatted_message": "a formatted message"
+          }
+        ],
+        "users": [
+          20
+        ],
+        "contactgroups": [],
+        "is_activated": true
+      }
+      """
+    Then the response code should be "201"
+
+    When I add 'X-Notifiable-Resources-UID' header equal to 'hash'
+    And I send a GET request to '/api/latest/configuration/notifications/resources'
+    Then the response code should be "200"
+    And the JSON should be equal to:
+      """
+      {
+        "uid": "f60c7b9b4eef84773c804bbf4e5dfabc",
+        "result": [
+          {
+            "notification_id": 1,
+            "hosts": [
+              {
+                "id": 14,
+                "name": "Centreon-Server",
+                "alias": "Monitoring Server",
+                "events": 5,
+                "services": [
+                  {
+                    "id": 19,
+                    "name": "Disk-/",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 20,
+                    "name": "Disk-/home",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 21,
+                    "name": "Disk-/opt",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 22,
+                    "name": "Disk-/usr",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 23,
+                    "name": "Disk-/var",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 24,
+                    "name": "Load",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 25,
+                    "name": "Memory",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 26,
+                    "name": "Ping",
+                    "alias": null,
+                    "events": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "notification_id": 2,
+            "hosts": [
+              {
+                "id": 14,
+                "name": "Centreon-Server",
+                "alias": "Monitoring Server",
+                "events": 5,
+                "services": [
+                  {
+                    "id": 19,
+                    "name": "Disk-/",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 20,
+                    "name": "Disk-/home",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 21,
+                    "name": "Disk-/opt",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 22,
+                    "name": "Disk-/usr",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 23,
+                    "name": "Disk-/var",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 24,
+                    "name": "Load",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 25,
+                    "name": "Memory",
+                    "alias": null,
+                    "events": 2
+                  },
+                  {
+                    "id": 26,
+                    "name": "Ping",
+                    "alias": null,
+                    "events": 2
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+      """
+
+    When I add 'X-Notifiable-Resources-UID' header equal to 'f60c7b9b4eef84773c804bbf4e5dfabc'
+    And I send a GET request to '/api/latest/configuration/notifications/resources'
+    Then the response code should be "304"

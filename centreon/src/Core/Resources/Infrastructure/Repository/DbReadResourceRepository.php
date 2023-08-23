@@ -142,10 +142,10 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
      */
     public function extractResourcesWithGraphData(array $resources): array
     {
-        return array_filter(
+        return array_values(array_filter(
             $resources,
             fn (ResourceEntity $resource) => $resource->hasGraph(),
-        );
+        ));
     }
 
     /**

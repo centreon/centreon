@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\ServiceTemplate\Application\UseCase\AddServiceTemplate;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Contact;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -31,10 +32,13 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Domain\YesNoDefault;
 use Core\Macro\Domain\Model\Macro;
+use Core\ServiceGroup\Domain\Model\ServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplateRequest;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplateResponse;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\MacroDto;
+use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\ServiceGroupDto;
 use Core\ServiceTemplate\Domain\Model\NotificationType;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
@@ -73,6 +77,7 @@ function createAddServiceTemplateRequest(): AddServiceTemplateRequest
     $request->acknowledgementTimeout = null;
     $request->hostTemplateIds = [];
     $request->serviceCategories = [];
+    $request->serviceGroups = [];
 
     return $request;
 }
@@ -92,7 +97,7 @@ it('should present a ForbiddenResponse when the user has insufficient rights', f
         ->toBe(ServiceTemplateException::addNotAllowed()->getMessage());
 });
 
-it('should present an ErrorResponse when the user name already exists', function (): void {
+it('should present an ErrorResponse when the service template name already exists', function (): void {
     $name = 'fake_name';
 
     Mock::setMock($this, [
@@ -139,11 +144,12 @@ it('should present a ConflictResponse when the severity ID is not valid', functi
                 'expected' => false,
             ],
         ],
-        'serviceSeverityRepository' => [[
-            'arguments' => $request->severityId,
-            'expected' => false,
-        ]],
     ]);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidSeverity')
+        ->willThrowException(ServiceTemplateException::idDoesNotExist('severity_id', $request->severityId));
 
     ($this->addUseCase)($request, $this->useCasePresenter);
     expect($this->useCasePresenter->response)
@@ -169,15 +175,12 @@ it('should present a ConflictResponse when the performance graph ID is not valid
                 'expected' => false,
             ],
         ],
-        'serviceSeverityRepository' => [[
-            'arguments' => $request->severityId,
-            'expected' => true,
-        ]],
-        'performanceGraphRepository' => [[
-            'arguments' => $request->graphTemplateId,
-            'expected' => false,
-        ]],
     ]);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidPerformanceGraph')
+        ->willThrowException(ServiceTemplateException::idDoesNotExist('graph_template_id', $request->severityId));
 
     ($this->addUseCase)($request, $this->useCasePresenter);
     expect($this->useCasePresenter->response)
@@ -203,21 +206,13 @@ it('should present a ConflictResponse when the service template ID is not valid'
                 'arguments' => $request->name,
                 'expected' => false,
             ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->serviceTemplateParentId,
-                'expected' => false,
-            ],
         ],
-        'serviceSeverityRepository' => [[
-            'arguments' => $request->severityId,
-            'expected' => true,
-        ]],
-        'performanceGraphRepository' => [[
-            'arguments' => $request->graphTemplateId,
-            'expected' => true,
-        ]],
     ]);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidServiceTemplate')
+        ->willThrowException(ServiceTemplateException::idDoesNotExist('service_template_id', $request->severityId));
 
     ($this->addUseCase)($request, $this->useCasePresenter);
     expect($this->useCasePresenter->response)
@@ -244,28 +239,13 @@ it('should present a ConflictResponse when the command ID is not valid', functio
                 'arguments' => $request->name,
                 'expected' => false,
             ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->serviceTemplateParentId,
-                'expected' => true,
-            ],
-        ],
-        'serviceSeverityRepository' => [[
-            'arguments' => $request->severityId,
-            'expected' => true,
-        ]],
-        'performanceGraphRepository' => [[
-            'arguments' => $request->graphTemplateId,
-            'expected' => true,
-        ]],
-        'commandRepository' => [
-            [
-                'method' => 'existsByIdAndCommandType',
-                'arguments' => $request->commandId,
-                'expected' => false,
-            ],
         ],
     ]);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidCommand')
+        ->willThrowException(ServiceTemplateException::idDoesNotExist('check_command_id', $request->severityId));
 
     ($this->addUseCase)($request, $this->useCasePresenter);
     expect($this->useCasePresenter->response)
@@ -293,33 +273,18 @@ it('should present a ConflictResponse when the event handler ID is not valid', f
                 'arguments' => $request->name,
                 'expected' => false,
             ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->serviceTemplateParentId,
-                'expected' => true,
-            ],
-        ],
-        'serviceSeverityRepository' => [[
-            'arguments' => $request->severityId,
-            'expected' => true,
-        ]],
-        'performanceGraphRepository' => [[
-            'arguments' => $request->graphTemplateId,
-            'expected' => true,
-        ]],
-        'commandRepository' => [
-            [
-                'method' => 'existsByIdAndCommandType',
-                'arguments' => $request->commandId,
-                'expected' => true,
-            ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->eventHandlerId,
-                'expected' => false,
-            ],
         ],
     ]);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidCommand')
+        ->willThrowException(
+            ServiceTemplateException::idDoesNotExist(
+                'event_handler_command_id',
+                $request->eventHandlerId
+            )
+        );
 
     ($this->addUseCase)($request, $this->useCasePresenter);
     expect($this->useCasePresenter->response)
@@ -353,36 +318,18 @@ it('should present a ConflictResponse when the time period ID is not valid', fun
                 'arguments' => $request->name,
                 'expected' => false,
             ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->serviceTemplateParentId,
-                'expected' => true,
-            ],
         ],
-        'serviceSeverityRepository' => [[
-            'arguments' => $request->severityId,
-            'expected' => true,
-        ]],
-        'performanceGraphRepository' => [[
-            'arguments' => $request->graphTemplateId,
-            'expected' => true,
-        ]],
-        'commandRepository' => [
-            [
-                'method' => 'existsByIdAndCommandType',
-                'arguments' => $request->commandId,
-                'expected' => true,
-            ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->eventHandlerId,
-                'expected' => true,
-            ],
-        ],
-        'timePeriodRepository' => [[
-            'expected' => [[$request->checkTimePeriodId, false]],
-        ]],
     ]);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidTimePeriod')
+        ->willThrowException(
+            ServiceTemplateException::idDoesNotExist(
+                'check_timeperiod_id',
+                $request->checkTimePeriodId
+            )
+        );
 
     ($this->addUseCase)($request, $this->useCasePresenter);
     expect($this->useCasePresenter->response)
@@ -417,36 +364,18 @@ it('should present a ConflictResponse when the notification time period ID is no
                 'arguments' => $request->name,
                 'expected' => false,
             ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->serviceTemplateParentId,
-                'expected' => true,
-            ],
         ],
-        'serviceSeverityRepository' => [[
-            'arguments' => $request->severityId,
-            'expected' => true,
-        ]],
-        'performanceGraphRepository' => [[
-            'arguments' => $request->graphTemplateId,
-            'expected' => true,
-        ]],
-        'commandRepository' => [
-            [
-                'method' => 'existsByIdAndCommandType',
-                'arguments' => $request->commandId,
-                'expected' => true,
-            ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->eventHandlerId,
-                'expected' => true,
-            ],
-        ],
-        'timePeriodRepository' => [[
-            'expected' => [[$request->checkTimePeriodId, true], [$request->notificationTimePeriodId, false]],
-        ]],
     ]);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidNotificationTimePeriod')
+        ->willThrowException(
+            ServiceTemplateException::idDoesNotExist(
+                'notification_timeperiod_id',
+                $request->notificationTimePeriodId
+            )
+        );
 
     ($this->addUseCase)($request, $this->useCasePresenter);
     expect($this->useCasePresenter->response)
@@ -482,40 +411,18 @@ it('should present a ConflictResponse when the icon ID is not valid', function (
                 'arguments' => $request->name,
                 'expected' => false,
             ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->serviceTemplateParentId,
-                'expected' => true,
-            ],
         ],
-        'serviceSeverityRepository' => [[
-            'arguments' => $request->severityId,
-            'expected' => true,
-        ]],
-        'performanceGraphRepository' => [[
-            'arguments' => $request->graphTemplateId,
-            'expected' => true,
-        ]],
-        'commandRepository' => [
-            [
-                'method' => 'existsByIdAndCommandType',
-                'arguments' => $request->commandId,
-                'expected' => true,
-            ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->eventHandlerId,
-                'expected' => true,
-            ],
-        ],
-        'timePeriodRepository' => [[
-            'expected' => [[$request->checkTimePeriodId, true], [$request->notificationTimePeriodId, true]],
-        ]],
-        'imageRepository' => [[
-            'arguments' => $request->iconId,
-            'expected' => false,
-        ]],
     ]);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidIcon')
+        ->willThrowException(
+            ServiceTemplateException::idDoesNotExist(
+                'icon_id',
+                $request->iconId
+            )
+        );
 
     ($this->addUseCase)($request, $this->useCasePresenter);
     expect($this->useCasePresenter->response)
@@ -553,58 +460,25 @@ it('should present a ConflictResponse when the host template IDs are not valid',
                 'arguments' => $request->name,
                 'expected' => false,
             ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->serviceTemplateParentId,
-                'expected' => true,
-            ],
         ],
-        'serviceSeverityRepository' => [[
-            'arguments' => $request->severityId,
-            'expected' => true,
-        ]],
-        'performanceGraphRepository' => [[
-            'arguments' => $request->graphTemplateId,
-            'expected' => true,
-        ]],
-        'commandRepository' => [
-            [
-                'method' => 'existsByIdAndCommandType',
-                'arguments' => $request->commandId,
-                'expected' => true,
-            ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->eventHandlerId,
-                'expected' => true,
-            ],
-        ],
-        'timePeriodRepository' => [[
-            'expected' => [[$request->checkTimePeriodId, true], [$request->notificationTimePeriodId, true]],
-        ]],
-        'imageRepository' => [[
-            'arguments' => $request->iconId,
-            'expected' => true,
-        ]],
     ]);
 
-    $this->user
+    $this->validation
         ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(true);
-
-    $this->readHostTemplateRepository
-        ->expects($this->once())
-        ->method('findAllExistingIds')
-        ->with($request->hostTemplateIds)
-        ->willReturn([$request->hostTemplateIds[0]]);
+        ->method('assertIsValidHostTemplates')
+        ->willThrowException(
+            ServiceTemplateException::idsDoNotExist(
+                'host_templates',
+                [$request->hostTemplateIds[1]]
+            )
+        );
 
     ($this->addUseCase)($request, $this->useCasePresenter);
     expect($this->useCasePresenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
         ->and($this->useCasePresenter->response->getMessage())
         ->toBe(
-            ServiceTemplateException::idsDoesNotExist(
+            ServiceTemplateException::idsDoNotExist(
                 'host_templates',
                 [$request->hostTemplateIds[1]]
             )->getMessage()
@@ -635,61 +509,120 @@ it('should present a ConflictResponse when the service category IDs are not vali
                 'arguments' => $request->name,
                 'expected' => false,
             ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->serviceTemplateParentId,
-                'expected' => true,
-            ],
         ],
-        'serviceSeverityRepository' => [[
-            'arguments' => $request->severityId,
-            'expected' => true,
-        ]],
-        'performanceGraphRepository' => [[
-            'arguments' => $request->graphTemplateId,
-            'expected' => true,
-        ]],
-        'commandRepository' => [
-            [
-                'method' => 'existsByIdAndCommandType',
-                'arguments' => $request->commandId,
-                'expected' => true,
-            ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->eventHandlerId,
-                'expected' => true,
-            ],
-        ],
-        'timePeriodRepository' => [[
-            'expected' => [[$request->checkTimePeriodId, true], [$request->notificationTimePeriodId, true]],
-        ]],
-        'imageRepository' => [[
-            'arguments' => $request->iconId,
-            'expected' => true,
-        ]],
     ]);
 
-    $this->user
-        ->expects($this->exactly(2))
-        ->method('isAdmin')
-        ->willReturn(true);
-
-    $this->readServiceCategoryRepository
-    ->expects($this->once())
-    ->method('findAllExistingIds')
-    ->with($request->serviceCategories)
-    ->willReturn([$request->serviceCategories[0]]);
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidServiceCategories')
+        ->willThrowException(
+            ServiceTemplateException::idsDoNotExist(
+                'service_categories',
+                [$request->serviceCategories[1]]
+            )
+        );
 
     ($this->addUseCase)($request, $this->useCasePresenter);
     expect($this->useCasePresenter->response)
         ->toBeInstanceOf(ConflictResponse::class)
         ->and($this->useCasePresenter->response->getMessage())
         ->toBe(
-            ServiceTemplateException::idsDoesNotExist(
+            ServiceTemplateException::idsDoNotExist(
                 'service_categories',
                 [$request->serviceCategories[1]]
             )->getMessage()
+        );
+});
+
+it('should present a ConflictResponse when the service group IDs are not valid', function () {
+    $request = new AddServiceTemplateRequest();
+    $request->name = 'fake_name';
+    $request->alias = 'fake_alias';
+    $request->severityId = 1;
+    $request->graphTemplateId = 1;
+    $request->serviceTemplateParentId = 1;
+    $request->commandId = 1;
+    $request->eventHandlerId = 12;
+    $request->checkTimePeriodId = 13;
+    $request->notificationTimePeriodId = 14;
+    $request->iconId = 15;
+    $request->hostTemplateIds = [4];
+    $request->serviceGroups = [2, 3];
+
+    Mock::setMock($this, [
+        'user' => [[
+            'expected' => [[Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true]],
+        ]],
+        'readServiceTemplateRepository' => [
+            [
+                'method' => 'existsByName',
+                'arguments' => $request->name,
+                'expected' => false,
+            ],
+        ],
+    ]);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidServiceGroups')
+        ->willThrowException(
+            ServiceTemplateException::idsDoNotExist(
+                'service_groups',
+                [$request->serviceGroups[1]]
+            )
+        );
+
+    ($this->addUseCase)($request, $this->useCasePresenter);
+    expect($this->useCasePresenter->response)
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->useCasePresenter->response->getMessage())
+        ->toBe(
+            ServiceTemplateException::idsDoNotExist(
+                'service_groups',
+                [$request->serviceGroups[1]]
+            )->getMessage()
+        );
+});
+
+it('should present a ConflictResponse when trying to set service group IDs without host template IDs', function () {
+    $request = new AddServiceTemplateRequest();
+    $request->name = 'fake_name';
+    $request->alias = 'fake_alias';
+    $request->severityId = 1;
+    $request->graphTemplateId = 1;
+    $request->serviceTemplateParentId = 1;
+    $request->commandId = 1;
+    $request->eventHandlerId = 12;
+    $request->checkTimePeriodId = 13;
+    $request->notificationTimePeriodId = 14;
+    $request->iconId = 15;
+    $request->hostTemplateIds = [];
+    $request->serviceGroups = [2, 3];
+
+    Mock::setMock($this, [
+        'user' => [[
+            'expected' => [[Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true]],
+        ]],
+        'readServiceTemplateRepository' => [
+            [
+                'method' => 'existsByName',
+                'arguments' => $request->name,
+                'expected' => false,
+            ],
+        ],
+    ]);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertIsValidServiceGroups')
+        ->willThrowException(ServiceTemplateException::invalidServiceGroupAssociation());
+
+    ($this->addUseCase)($request, $this->useCasePresenter);
+    expect($this->useCasePresenter->response)
+        ->toBeInstanceOf(ConflictResponse::class)
+        ->and($this->useCasePresenter->response->getMessage())
+        ->toBe(
+            ServiceTemplateException::invalidServiceGroupAssociation()->getMessage()
         );
 });
 
@@ -715,46 +648,15 @@ it('should present an InvalidArgumentResponse when data are not valid', function
                 'arguments' => $request->name,
                 'expected' => false,
             ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->serviceTemplateParentId,
-                'expected' => true,
-            ],
         ],
-        'serviceSeverityRepository' => [[
-            'arguments' => $request->severityId,
-            'expected' => true,
-        ]],
-        'performanceGraphRepository' => [[
-            'arguments' => $request->graphTemplateId,
-            'expected' => true,
-        ]],
-        'commandRepository' => [
-            [
-                'method' => 'existsByIdAndCommandType',
-                'arguments' => $request->commandId,
-                'expected' => true,
-            ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->eventHandlerId,
-                'expected' => true,
-            ],
-        ],
-        'timePeriodRepository' => [[
-            'expected' => [[$request->checkTimePeriodId, true], [$request->notificationTimePeriodId, true]],
-        ]],
-        'imageRepository' => [[
-            'arguments' => $request->iconId,
-            'expected' => true,
-        ]],
     ]);
 
     // An error will be raised because the alias is empty
     ($this->addUseCase)($request, $this->useCasePresenter);
     expect($this->useCasePresenter->response)
         ->toBeInstanceOf(InvalidArgumentResponse::class)
-        ->and($this->useCasePresenter->response->getMessage());
+        ->and($this->useCasePresenter->response->getMessage())
+        ->toBe(AssertionException::notEmptyString('NewServiceTemplate::alias')->getMessage());
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
@@ -777,7 +679,8 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     ($this->addUseCase)($request, $this->useCasePresenter);
     expect($this->useCasePresenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
-        ->and($this->useCasePresenter->response->getMessage());
+        ->and($this->useCasePresenter->response->getMessage())
+        ->toBe(ServiceTemplateException::errorWhileAdding(new \Exception())->getMessage());
 });
 
 it('should present an AddServiceTemplateResponse when everything has gone well', function (): void {
@@ -796,6 +699,9 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
         new MacroDto('MACROA', 'A', false, null),
         new MacroDto('MACROB', 'B', false, null),
     ];
+    $request->serviceGroups = [
+        new ServiceGroupDto(2, 1),
+    ];
     $newServiceTemplateId = 99;
     $serviceTemplateInheritances = [
         new ServiceTemplateInheritance(9, 99),
@@ -808,6 +714,14 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
 
     $macroB = new Macro($newServiceTemplateId, 'MACROB', 'B');
     $macroB->setDescription('');
+
+    $serviceGroup = new ServiceGroup(1, 'SG-name', 'SG-alias', null, '', true);
+    $serviceGroupRelation = new ServiceGroupRelation(
+        serviceGroupId: $serviceGroup->getId(),
+        serviceId: $newServiceTemplateId,
+        hostId: 2
+    );
+    $hostTemplateName = 'HostTemplateName';
 
     $this->serviceTemplateFound = new ServiceTemplate(
         id: $newServiceTemplateId,
@@ -864,11 +778,6 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
                 'expected' => false,
             ],
             [
-                'method' => 'exists',
-                'arguments' => $request->serviceTemplateParentId,
-                'expected' => true,
-            ],
-            [
                 'method' => 'findById',
                 'arguments' => $newServiceTemplateId,
                 'expected' => $this->serviceTemplateFound,
@@ -881,33 +790,6 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
         ],
         'writeServiceTemplateRepository' => [[
             'expected' => $newServiceTemplateId,
-        ]],
-        'serviceSeverityRepository' => [[
-            'arguments' => $request->severityId,
-            'expected' => true,
-        ]],
-        'performanceGraphRepository' => [[
-            'arguments' => $request->graphTemplateId,
-            'expected' => true,
-        ]],
-        'commandRepository' => [
-            [
-                'method' => 'existsByIdAndCommandType',
-                'arguments' => $request->commandId,
-                'expected' => true,
-            ],
-            [
-                'method' => 'exists',
-                'arguments' => $request->eventHandlerId,
-                'expected' => true,
-            ],
-        ],
-        'timePeriodRepository' => [[
-            'expected' => [[$request->checkTimePeriodId, true], [$request->notificationTimePeriodId, true]],
-        ]],
-        'imageRepository' => [[
-            'arguments' => $request->iconId,
-            'expected' => true,
         ]],
         'readServiceMacroRepository' => [[
             'method' => 'findByServiceIds',
@@ -925,7 +807,28 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
             'method' => 'add',
             'expected' => [[$macroA], [$macroB]],
         ]],
+        'writeServiceGroupRepository' => [[
+            'method' => 'link',
+            'expected' => [$serviceGroupRelation],
+        ]],
+        'readServiceGroupRepository' => [[
+            'method' => 'findByService',
+            'expected' => [
+                [$newServiceTemplateId, [['relation' => $serviceGroupRelation, 'serviceGroup' => $serviceGroup]]]
+            ],
+        ]],
+        'readHostTemplateRepository' => [[
+            'method' => 'findNamesByIds',
+            'expected' => [
+                [[$serviceGroupRelation->getHostId()], [$serviceGroupRelation->getHostId() => $hostTemplateName]],
+            ],
+        ]],
     ]);
+
+    $this->user
+        ->expects($this->exactly(2))
+        ->method('isAdmin')
+        ->willReturn(true);
 
     ($this->addUseCase)($request, $this->useCasePresenter);
     $dto = $this->useCasePresenter->response;
@@ -978,4 +881,13 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
             ->and($expectedMacro->isPassword)->toBe($request->macros[$index]->isPassword)
             ->and($expectedMacro->description)->toBe('');
     }
+    expect($dto->groups)->toBe(
+       [[
+        'serviceGroupId' => $request->serviceGroups[0]->serviceGroupId,
+        'serviceGroupName' => $serviceGroup->getName(),
+        'hostTemplateId' => $request->serviceGroups[0]->hostTemplateId,
+        'hostTemplateName' => $hostTemplateName,
+       ]]
+    );
+
 });

@@ -91,7 +91,7 @@ export interface GraphProps {
   axis?: Axis;
   displayAnchor?: DisplayAnchor;
   header?: GraphHeader;
-  height?: number;
+  height?: number | null;
   loading: boolean;
   timeShiftZones?: InteractedZone;
   tooltip?: Tooltip;

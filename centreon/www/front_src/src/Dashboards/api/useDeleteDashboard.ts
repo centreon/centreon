@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import {
   MutateOptions,
   UseMutationResult,
@@ -26,17 +24,13 @@ type UseDeleteDashboard<
 >;
 
 const useDeleteDashboard = (): UseDeleteDashboard => {
-  const [resourceId, setResourceId] = useState<
-    DeleteDashboardDto['id'] | undefined
-  >(undefined);
-
   const {
     mutateAsync,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mutate: omittedMutate,
     ...mutationData
   } = useMutationQuery<Dashboard>({
-    getEndpoint: () => getDashboardEndpoint(resourceId),
+    getEndpoint: ({ id }) => getDashboardEndpoint(id),
     method: Method.DELETE
   });
 
@@ -63,13 +57,14 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
 
     const { id } = variables;
 
-    setResourceId(id);
-
-    return mutateAsync(null, {
-      mutationKey: [resource.dashboards, 'delete', resourceId],
-      onSettled: onSettledWithInvalidateQueries,
-      ...restOptions
-    });
+    return mutateAsync(
+      { _meta: { id } },
+      {
+        mutationKey: [resource.dashboards, 'delete', id],
+        onSettled: onSettledWithInvalidateQueries,
+        ...restOptions
+      }
+    );
   };
 
   return {

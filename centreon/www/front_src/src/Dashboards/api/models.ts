@@ -82,7 +82,12 @@ export type DashboardPanel = NamedEntity & {
     y: number;
   };
   widgetSettings: {
-    [key: string]: unknown;
+    options: {
+      [key: string]: unknown;
+    };
+    data: {
+      [key: string]: unknown;
+    };
   };
   widgetType: string;
 };

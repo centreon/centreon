@@ -1,4 +1,7 @@
-import { AutoLinkPlugin } from '@lexical/react/LexicalAutoLinkPlugin';
+import {
+  AutoLinkPlugin,
+  LinkMatcher
+} from '@lexical/react/LexicalAutoLinkPlugin';
 
 interface LinkAttributes {
   rel?: null | string;
@@ -19,13 +22,15 @@ const URL_MATCHER =
 const EMAIL_MATCHER =
   /(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
 
-const MATCHERS = [
+const getMatchers = (openLinkInNewTab: boolean): Array<LinkMatcher> => [
   (text: string): LinkMatcherResult | null => {
     const match = URL_MATCHER.exec(text);
 
     return (
       match && {
-        attributes: { rel: 'noreferrer', target: '_blank' },
+        attributes: openLinkInNewTab
+          ? { rel: 'noreferrer', target: '_blank' }
+          : undefined,
         index: match.index,
         length: match[0].length,
         text: match[0],
@@ -47,8 +52,12 @@ const MATCHERS = [
   }
 ];
 
-const AutoCompleteLinkPlugin = (): JSX.Element => {
-  return <AutoLinkPlugin matchers={MATCHERS} />;
+const AutoCompleteLinkPlugin = ({
+  openLinkInNewTab
+}: {
+  openLinkInNewTab: boolean;
+}): JSX.Element => {
+  return <AutoLinkPlugin matchers={getMatchers(openLinkInNewTab)} />;
 };
 
 export default AutoCompleteLinkPlugin;

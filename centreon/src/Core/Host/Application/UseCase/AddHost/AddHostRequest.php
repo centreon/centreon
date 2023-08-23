@@ -111,6 +111,9 @@ final class AddHostRequest
     public array $categories = [];
 
     /** @var int[] */
+    public array $groups = [];
+
+    /** @var int[] */
     public array $templates = [];
 
     /** @var array<array{name:string,value:null|string,is_password:bool,description:null|string}> */

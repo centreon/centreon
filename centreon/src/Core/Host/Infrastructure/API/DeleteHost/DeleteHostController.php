@@ -28,7 +28,7 @@ use Core\Host\Application\UseCase\DeleteHost\DeleteHost;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Symfony\Component\HttpFoundation\Response;
 
-class DeleteHostController extends AbstractController
+final class DeleteHostController extends AbstractController
 {
     public function __invoke(
         DeleteHost $useCase,

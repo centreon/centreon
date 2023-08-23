@@ -17904,6 +17904,36 @@ msgstr "Erreur lors de la modification partielle d'une configuration de notifica
 msgid "Error while updating a notification configuration"
 msgstr "Erreur lors de la mise à jour de la configuration d'une notification"
 
+msgid "Select a widget type"
+msgstr "Sélectionner un type de widget"
+
+msgid "No widget found"
+msgstr "Aucun widget trouvé"
+
+msgid "Delete a widget"
+msgstr "Supprimer un widget"
+
+msgid "Do you want to delete this widget?"
+msgstr "Voulez-vous supprimer ce widget ?"
+
+msgid "Widget library"
+msgstr "Bibliothèque de widgets"
+
+msgid "Please choose a widget to activate the preview"
+msgstr "Sélectionnez un type de widget pour activer l'aperçu"
+
+msgid "Edit widget"
+msgstr "Éditer le widget"
+
+msgid "Delete widget"
+msgstr "Supprimer le widget"
+
+msgid "Widget properties"
+msgstr "Propriétés du widget"
+
+msgid "Common properties"
+msgstr "Propriétés communes"
+
 msgid "Error while adding a host"
 msgstr "Erreur lors de la création d'un hôte"
 
@@ -17927,3 +17957,150 @@ msgstr "Vous n'êtes pas autorisé à supprimer un service"
 
 msgid "Error while deleting the service"
 msgstr "Erreur lors de la suppression du service"
+
+msgid "You are not allowed to list notification resources"
+msgstr "Vous n'êtes pas autorisé à afficher les ressources des notifications"
+
+msgid "Error while listing notification resources"
+msgstr "Erreur lors de l'affichage des ressources des notifications"
+
+msgid "Notifications will only be sent during this time period"
+msgstr "Les notifications ne seront envoyées que pendant cette période"
+
+msgid "Search Business Views"
+msgstr "Rechercher des Vues Métier"
+
+msgid "Business Views events"
+msgstr "Événements des Vues Métier"
+
+msgid "Host template required in service group association is not linked to service template"
+msgstr "Le modèle d'hôte requis dans l'association du groupe de services n'est pas lié au modèle de service"
+
+msgid "No data found"
+msgstr "Aucune donnée trouvée"
+
+msgid "Metrics dataset selection"
+msgstr "Sélection du jeu de données de métriques"
+
+msgid "Resource type"
+msgstr "Type de ressource"
+
+msgid "Select a resource"
+msgstr "Sélectionner une ressource"
+
+msgid "Please select a resource"
+msgstr "Veuillez sélectionner une ressource"
+
+msgid "Service name"
+msgstr "Nom du service"
+
+msgid "Please select a metric"
+msgstr "Veuillez sélectionner une métrique"
+
+msgid "Missing property in the metric information: %s"
+msgstr "Propriété manquante dans les informations de la métrique : %s"
+
+msgid "Metrics not found"
+msgstr "Métriques non trouvées"
+
+msgid "An error occured while retrieving metrics data"
+msgstr "Une erreur est survenue lors de la récupération des données de métriques"
+
+msgid "Invalid metric format"
+msgstr "Format de métrique invalide"
+
+msgid "Refresh interval"
+msgstr "Intervalle de rafraîchissement"
+
+msgid "Dashboard global interval (by default)"
+msgstr "Intervalle global du tableau de bord (par défaut)"
+
+msgid "Custom refresh interval"
+msgstr "Intervalle de rafraîchissement personnalisé"
+
+msgid "second"
+msgstr "seconde"
+
+msgid "Manual refresh"
+msgstr "Rafraîchissement manuel"
+
+msgid "Interval"
+msgstr "Intervalle"
+
+msgid "Threshold"
+msgstr "Seuil"
+
+msgid "Show thresholds"
+msgstr "Afficher les seuils"
+
+msgid "Warning threshold"
+msgstr "Seuil d'alerte"
+
+msgid "Critical threshold"
+msgstr "Seuil critique"
+
+msgid "Custom"
+msgstr "Personnalisé"
+
+msgid "Thresholds are automatically hidden if you select 2 metric units"
+msgstr "Les seuils sont automatiquement masqués si vous sélectionnez 2 unités de métrique"
+
+msgid "Show description"
+msgstr "Afficher la description"
+
+msgid "Open links in new tab"
+msgstr "Ouvrir les liens dans un nouvel onglet"
+
+msgid "By turning off this option, all links included in the widget will be opened in the same tab."
+msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
+
+msgid "Dataset selection"
+msgstr "Sélection du jeu de données"
+
+msgid "You have too many metrics, please filter more resources to optimize platform performance"
+msgstr "Vous avez trop de métriques, veuillez filtrer plus de ressources pour optimiser les performances de la plateforme"
+
+msgid "You can select a maximum of two metric units"
+msgstr "Vous pouvez sélectionner un maximum de deux unités de métrique"
+
+msgid "Add resource"
+msgstr "Ajouter une ressource"
+
+msgid "Add metric"
+msgstr "Ajouter une métrique"
+
+msgid "available"
+msgstr "disponible"
+
+msgid "Your widget has been modified successfully!"
+msgstr "Votre widget a été modifié avec succès !"
+
+msgid "Your widget has been created successfully!"
+msgstr "Votre widget a été créé avec succès !"
+
+msgid "Value settings"
+msgstr "Paramètres de valeur"
+
+msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
+msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
+
+msgid "The {{module}} license will expire in {{expirationDate}} days"
+msgstr "La license {{module}} expirera dans {{expirationDate}} jours"
+
+msgid "You are not allowed to add a service"
+msgstr "Vous n'êtes pas autorisé à ajouter un service"
+
+msgid "Error while adding the service"
+msgstr "Erreur lors de l'ajout du service"
+
+msgid "Error while retrieving a service"
+msgstr "Erreur lors de la récupération d'un service"
+
+msgid "The check command cannot be null if the service template is null"
+msgstr "La commande de vérification ne peut être null si le modèle de service est null"
+
+msgid "'%s' does not exist with ID(s) '%s'"
+msgstr "'%s' n'existe pas avec le(s) ID(s) %s"
+
+msgid "'%s' service name already exists for host ID %d"
+msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"

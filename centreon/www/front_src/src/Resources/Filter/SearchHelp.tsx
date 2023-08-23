@@ -9,6 +9,7 @@ import { Link, Box, Typography } from '@mui/material';
 import { PersistentTooltip, getDocsURL } from '@centreon/ui';
 
 import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
+import { platformFeaturesAtom } from '../../Main/atoms/platformFeaturesAtom';
 import {
   labelFindExplanationsAndExamples,
   labelHere,
@@ -36,8 +37,9 @@ const SearchHelp = (): JSX.Element => {
 
   const [openTooltip, setOpenTooltip] = useState(false);
   const platform = useAtomValue(platformVersionsAtom);
+  const features = useAtomValue(platformFeaturesAtom);
   const docsURL = getDocsURL({
-    isCloudPlatform: platform?.isCloudPlatform || false,
+    isCloudPlatform: features?.isCloudPlatform || false,
     majorVersion: platform?.web.major || '',
     minorVersion: platform?.web.minor || ''
   });

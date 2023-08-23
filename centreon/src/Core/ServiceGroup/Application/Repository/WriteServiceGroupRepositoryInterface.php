@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\ServiceGroup\Application\Repository;
 
 use Core\ServiceGroup\Domain\Model\NewServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 
 interface WriteServiceGroupRepositoryInterface
 {
@@ -42,4 +43,13 @@ interface WriteServiceGroupRepositoryInterface
      * @return int
      */
     public function add(NewServiceGroup $newServiceGroup): int;
+
+    /**
+     * Link a service to a list of service groups.
+     *
+     * @param ServiceGroupRelation[] $serviceGroupRelations
+     *
+     * @throws \Throwable
+     */
+    public function link(array $serviceGroupRelations): void;
 }

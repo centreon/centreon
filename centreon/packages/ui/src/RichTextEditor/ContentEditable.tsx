@@ -48,6 +48,7 @@ const useStyles = makeStyles<StyleProps>()(
 
 interface Props {
   className?: string;
+  disabled: boolean;
   editable: boolean;
   editorState?: string;
   error?: string;
@@ -73,13 +74,13 @@ const ContentEditable = ({
   initialEditorState,
   error,
   onBlur,
-  className
+  className,
+  disabled
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ editable, error, minInputHeight });
   const { t } = useTranslation();
 
   const [editor] = useLexicalComposerContext();
-  const [isEditable, setEditable] = useState(false);
   const [isFocused, setFocused] = useState(false);
   const [root, setRoot] = useState('');
 
@@ -97,17 +98,11 @@ const ContentEditable = ({
   );
 
   useLayoutEffect(() => {
-    setEditable(editor.isEditable());
-
     if (editorState && !editable) {
       const newEditorState = editor.parseEditorState(editorState);
 
       editor.setEditorState(newEditorState);
     }
-
-    return editor.registerEditableListener((currentIsEditable) => {
-      setEditable(currentIsEditable);
-    });
   }, [editor, editorState]);
 
   useEffect(() => {
@@ -135,12 +130,24 @@ const ContentEditable = ({
     editor.setEditorState(newEditorState);
   }, [editorState]);
 
-  const isTextEmpty = isEmpty(root);
+  const isTextEmpty =
+    isEmpty(root) &&
+    !editor.getEditorState().toJSON().root.children?.[0]?.children?.length;
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>): void => {
     setFocused(false);
     onBlur?.(event);
   };
+
+  const isEditable = editor.isEditable();
+
+  useEffect(() => {
+    if (isNil(disabled)) {
+      return;
+    }
+
+    editor.setEditable(!disabled);
+  }, [disabled]);
 
   return (
     <div
@@ -159,7 +166,7 @@ const ContentEditable = ({
       <div
         aria-label={namespace}
         className={cx(
-          isTextEmpty && classes.emptyInput,
+          editable && isTextEmpty && classes.emptyInput,
           classes.input,
           inputClassname
         )}

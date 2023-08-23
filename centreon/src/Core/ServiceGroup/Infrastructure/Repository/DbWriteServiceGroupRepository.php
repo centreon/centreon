@@ -93,6 +93,60 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
     }
 
     /**
+     * @inheritDoc
+     */
+    public function link(array $serviceGroupRelations): void
+    {
+        if ($serviceGroupRelations === []) {
+            return;
+        }
+
+        $request = <<<'SQL'
+            INSERT INTO servicegroup_relation
+                (host_host_id, service_service_id, servicegroup_sg_id, hostgroup_hg_id)
+                VALUES (:host_id, :service_id, :servicegroup_id, :hostgroup_id)
+            SQL;
+
+        $alreadyInTransaction = $this->db->inTransaction();
+
+        try {
+            if (! $alreadyInTransaction) {
+                $this->db->beginTransaction();
+            }
+            $statement = $this->db->prepare($request);
+
+            $serviceId = null;
+            $serviceGroupId = null;
+            $hostId = null;
+            $hostGroupId = null;
+            $statement->bindParam(':service_id', $serviceId, \PDO::PARAM_INT);
+            $statement->bindParam(':servicegroup_id', $serviceGroupId, \PDO::PARAM_INT);
+            $statement->bindParam(':host_id', $hostId, \PDO::PARAM_INT);
+            $statement->bindParam(':hostgroup_id', $hostGroupId, \PDO::PARAM_INT);
+
+            foreach ($serviceGroupRelations as $serviceGroupRelation) {
+                $serviceId = $serviceGroupRelation->getServiceId();
+                $serviceGroupId = $serviceGroupRelation->getServiceGroupId();
+                $hostId = $serviceGroupRelation->getHostId();
+                $hostGroupId = $serviceGroupRelation->getHostGroupId();
+                $statement->execute();
+            }
+
+            if (! $alreadyInTransaction) {
+                $this->db->commit();
+            }
+        } catch (\Throwable $ex) {
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            if (! $alreadyInTransaction) {
+                $this->db->rollBack();
+            }
+
+            throw $ex;
+        }
+    }
+
+    /**
      * @param \PDOStatement $statement
      * @param ServiceGroup|NewServiceGroup $newServiceGroup
      */

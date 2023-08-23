@@ -28,6 +28,7 @@ import {
 
 interface FloatingLinkEditorPluginProps {
   editable: boolean;
+  openLinkInNewTab: boolean;
 }
 
 interface UseFloatingLinkEditorProps extends FloatingLinkEditorPluginProps {
@@ -36,6 +37,7 @@ interface UseFloatingLinkEditorProps extends FloatingLinkEditorPluginProps {
 
 interface FloatingLinkEditorProps {
   editor: LexicalEditor;
+  openLinkInNewTab: boolean;
 }
 
 interface TooltipPosition {
@@ -44,7 +46,8 @@ interface TooltipPosition {
 }
 
 const FloatingLinkEditor = ({
-  editor
+  editor,
+  openLinkInNewTab
 }: FloatingLinkEditorProps): JSX.Element | null => {
   const nativeSelection = window.getSelection();
   const rootElement = editor.getRootElement();
@@ -67,7 +70,7 @@ const FloatingLinkEditor = ({
 
         if (value !== '') {
           editor.dispatchCommand(TOGGLE_LINK_COMMAND, {
-            target: '_blank',
+            target: openLinkInNewTab ? '_blank' : undefined,
             url: value
           });
         }
@@ -106,7 +109,12 @@ const FloatingLinkEditor = ({
   const yOffset = tooltipPosition.y - rootElementY + 30;
 
   return (
-    <Popper open anchorEl={rootElement} placement="top-start">
+    <Popper
+      open
+      anchorEl={rootElement}
+      placement="top-start"
+      sx={{ zIndex: 'tooltip' }}
+    >
       <Paper
         sx={{
           transform: `translate3d(${xOffset}px, ${
@@ -139,7 +147,7 @@ const FloatingLinkEditor = ({
               aria-label={labelSavedLink}
               href={linkUrl}
               rel="noreferrer noopener"
-              target="_blank"
+              target={openLinkInNewTab ? '_blank' : undefined}
               variant="button"
             >
               {linkUrl}
@@ -161,7 +169,8 @@ const FloatingLinkEditor = ({
 
 const useFloatingTextFormatToolbar = ({
   editor,
-  editable
+  editable,
+  openLinkInNewTab
 }: UseFloatingLinkEditorProps): JSX.Element | null => {
   const [isText, setIsText] = useState(false);
   const isInsertingLink = useAtomValue(isInsertingLinkAtom);
@@ -236,15 +245,18 @@ const useFloatingTextFormatToolbar = ({
     return null;
   }
 
-  return <FloatingLinkEditor editor={editor} />;
+  return (
+    <FloatingLinkEditor editor={editor} openLinkInNewTab={openLinkInNewTab} />
+  );
 };
 
 const FloatingActionsToolbarPlugin = ({
-  editable
+  editable,
+  openLinkInNewTab
 }: FloatingLinkEditorPluginProps): JSX.Element | null => {
   const [editor] = useLexicalComposerContext();
 
-  return useFloatingTextFormatToolbar({ editable, editor });
+  return useFloatingTextFormatToolbar({ editable, editor, openLinkInNewTab });
 };
 
 export default FloatingActionsToolbarPlugin;

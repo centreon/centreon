@@ -2,12 +2,12 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
-  getUserContactId,
   initializeConfigACLAndGetLoginPage,
   millisecondsValueForSixMonth,
   millisecondsValueForFourHour,
   checkDefaultsValueForm
 } from '../common';
+import { getUserContactId } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer();

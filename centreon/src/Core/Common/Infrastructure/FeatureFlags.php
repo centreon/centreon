@@ -24,23 +24,20 @@ declare(strict_types=1);
 namespace Core\Common\Infrastructure;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Common\Application\FeatureFlagsInterface;
 use function is_int;
 use function is_string;
 
 /**
- * This class is a facade to the feature flag system which consists in a simple JSON file saved in this project.
- *
- * This feature flags system is static by purpose.
+ * {@see FeatureFlagsInterface}.
  *
  * Example of the file structure.
  * <pre>{
  *   "feature-1": 0,
  *   "feature-2": 3
  * }</pre>
- *
- * Each value is a flags bitmask depending on the current platform (On-Prem / Cloud).
  */
-final class FeatureFlags
+final class FeatureFlags implements FeatureFlagsInterface
 {
     use LoggerTrait;
     private const BIT_ON_PREM = 0b0001;
@@ -68,9 +65,7 @@ final class FeatureFlags
     }
 
     /**
-     * Simple public exposition of the internal flag.
-     *
-     * @return bool
+     * {@inheritDoc}
      */
     public function isCloudPlatform(): bool
     {
@@ -78,9 +73,7 @@ final class FeatureFlags
     }
 
     /**
-     * Return all configured flags with their value.
-     *
-     * @return array<string, bool>
+     * {@inheritDoc}
      */
     public function getAll(): array
     {

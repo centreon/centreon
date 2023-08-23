@@ -31,19 +31,21 @@ beforeEach(function (): void {
     $this->channel = NotificationChannel::Slack;
     $this->subject = 'some subject';
     $this->message = 'some message';
-
+    $this->formattedMessage = '<p>some message</p>';
 });
 
 it('should return properly set notification message instance', function (): void {
     $message = new NotificationMessage(
         $this->channel,
         $this->subject,
-        $this->message
+        $this->message,
+        $this->formattedMessage
     );
 
     expect($message->getChannel())->toBe(NotificationChannel::Slack)
         ->and($message->getSubject())->toBe($this->subject)
-        ->and($message->getMessage())->toBe($this->message);
+        ->and($message->getRawMessage())->toBe($this->message)
+        ->and($message->getFormattedMessage())->toBe($this->formattedMessage);
 });
 
 it('should trim the "subject" and "message" fields', function (): void {
@@ -51,10 +53,12 @@ it('should trim the "subject" and "message" fields', function (): void {
         $this->channel,
         $subjectWithSpaces = '  my-subject  ',
         $messageWithSpaces = '  my-message  ',
+        $formattedMessageWithSpaces = '  <p>my-message</p>  ',
     );
 
     expect($message->getSubject())->toBe(trim($subjectWithSpaces))
-        ->and($message->getMessage())->toBe(trim($messageWithSpaces));
+        ->and($message->getRawMessage())->toBe(trim($messageWithSpaces))
+        ->and($message->getFormattedMessage())->toBe(trim($formattedMessageWithSpaces));
 });
 
 it('should throw an exception when notification message subject is too long', function (): void {
@@ -86,5 +90,22 @@ it('should throw an exception when notification message content is too long', fu
         NotificationMessage::MAX_MESSAGE_LENGTH + 1,
         NotificationMessage::MAX_MESSAGE_LENGTH,
         'NotificationMessage::message'
+    )->getMessage()
+);
+
+it('should throw an exception when notification formatted message content is too long', function (): void {
+    new NotificationMessage(
+        $this->channel,
+        $this->subject,
+        $this->message,
+        str_repeat('a', NotificationMessage::MAX_MESSAGE_LENGTH + 1),
+    );
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::maxLength(
+        str_repeat('a', NotificationMessage::MAX_MESSAGE_LENGTH + 1),
+        NotificationMessage::MAX_MESSAGE_LENGTH + 1,
+        NotificationMessage::MAX_MESSAGE_LENGTH,
+        'NotificationMessage::formattedMessage'
     )->getMessage()
 );

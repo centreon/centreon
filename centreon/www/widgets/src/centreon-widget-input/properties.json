@@ -1,0 +1,18 @@
+{
+  "title": "Generic input (example)",
+  "description": "This is the description of the generic input widget",
+  "options": {
+    "text": {
+      "type": "textfield",
+      "defaultValue": "",
+      "label": "Generic text",
+      "required": true
+    },
+    "refreshInterval": {
+      "type": "refresh-interval",
+      "defaultValue": "default",
+      "label": "Interval"
+    }
+  },
+  "moduleName": "centreon-widget-input"
+}

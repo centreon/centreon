@@ -591,7 +591,7 @@ const retrievedUser = {
   alias: 'Admin',
   default_page: '/monitoring/resources',
   isExportButtonEnabled: true,
-  locale: 'fr_FR.UTF8',
+  locale: 'en_US.UTF8',
   name: 'Admin',
   timezone: 'Europe/Paris',
   use_deprecated_pages: false,
