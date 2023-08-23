@@ -84,7 +84,6 @@ class AddHostTemplateOnPremPresenter extends AbstractPresenter implements AddHos
                         'icon_id' => $response->iconId,
                         'icon_alternative' => $this->emptyStringAsNull($response->iconAlternative),
                         'comment' => $this->emptyStringAsNull($response->comment),
-                        'is_activated' => $response->isActivated,
                         'is_locked' => $response->isLocked,
                         'categories' => $response->categories,
                         'templates' => $response->templates,

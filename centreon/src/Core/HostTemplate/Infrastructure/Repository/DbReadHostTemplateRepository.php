@@ -94,7 +94,6 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     h.command_command_id2,
                     h.command_command_id_arg2,
                     h.host_comment,
-                    h.host_activate,
                     h.host_locked,
                     ehi.ehi_notes_url,
                     ehi.ehi_notes,
@@ -123,10 +122,8 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             'id' => 'h.host_id',
             'name' => 'h.host_name',
             'alias' => 'h.host_alias',
-            'is_activated' => 'h.host_register',
             'is_locked' => 'h.host_locked',
         ]);
-        $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
         $sqlTranslator->addNormalizer('is_locked', new BoolToEnumNormalizer());
         $sqlTranslator->translateForConcatenator($concatenator);
 
@@ -173,7 +170,6 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
              *     command_command_id2: int|null,
              *     command_command_id_arg2: string|null,
              *     host_comment: string|null,
-             *     host_activate: string|null,
              *     host_locked: int|null,
              *     ehi_notes_url: string|null,
              *     ehi_notes: string|null,
@@ -230,7 +226,6 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     h.command_command_id2,
                     h.command_command_id_arg2,
                     h.host_comment,
-                    h.host_activate,
                     h.host_locked,
                     ehi.ehi_notes_url,
                     ehi.ehi_notes,
@@ -293,7 +288,6 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
          *     command_command_id2: int|null,
          *     command_command_id_arg2: string|null,
          *     host_comment: string|null,
-         *     host_activate: string|null,
          *     host_locked: int|null,
          *     ehi_notes_url: string|null,
          *     ehi_notes: string|null,
@@ -528,7 +522,6 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
      *     command_command_id2: int|null,
      *     command_command_id_arg2: string|null,
      *     host_comment: string|null,
-     *     host_activate: string|null,
      *     host_locked: int|null,
      *     ehi_notes_url: string|null,
      *     ehi_notes: string|null,
@@ -611,7 +604,6 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             $result['ehi_icon_image'],
             (string) $result['ehi_icon_image_alt'],
             (string) $result['host_comment'],
-            (bool) $result['host_activate'],
             (bool) $result['host_locked']
         );
     }

@@ -87,7 +87,6 @@ final class AddHostTemplateFactory
         $dto->iconId = $hostTemplate->getIconId();
         $dto->iconAlternative = $hostTemplate->getIconAlternative();
         $dto->comment = $hostTemplate->getComment();
-        $dto->isActivated = $hostTemplate->isActivated();
         $dto->isLocked = $hostTemplate->isLocked();
 
         $dto->categories = array_map(
