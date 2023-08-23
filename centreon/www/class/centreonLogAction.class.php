@@ -95,6 +95,7 @@ class CentreonLogAction
         if (($auditLog) && ($auditLog['audit_log_option'] == '1')) {
             $str_query = "INSERT INTO `log_action`
                 (action_log_date, object_type, object_id, object_name, action_type, log_contact_id)
+<<<<<<< HEAD
                 VALUES ('" . time() . "', :object_type, :object_id, :object_name, :action_type, :user_id)";
             $statement1 = $pearDBO->prepare($str_query);
             $statement1->bindParam(':object_type', $object_type);
@@ -102,6 +103,15 @@ class CentreonLogAction
             $statement1->bindParam(':object_name', $object_name);
             $statement1->bindParam(':action_type', $action_type);
             $statement1->bindParam(':user_id', $this->logUser->user_id);
+=======
+                VALUES ('" . time() . "', ':object_type', ':object_id', 'object_name', 'action_type', ':user_id')";
+            $statement1 = $pearDBO->prepare($str_query);
+            $statement1->bindParam('object_type', $object_type);
+            $statement1->bindParam('object_id', $object_id);
+            $statement1->bindParam('object_name', $object_name);
+            $statement1->bindParam('action_type', $action_type);
+            $statement1->bindParam('user_id', $this->logUser->user_id);
+>>>>>>> 6dad509c38649b3156aef7c3dfd7c7c2326fcb04
             $statement1->execute();
 
 
@@ -139,7 +149,7 @@ class CentreonLogAction
      * returns the list of actions ("create","delete","change","massive change", "enable", "disable")
      */
 
-    public function listAction($id, $object_type)
+    public function listAction($id, $object_type): array
     {
         global $pearDBO;
         $list_actions = array();
@@ -151,8 +161,13 @@ class CentreonLogAction
                 WHERE object_id =':id'
                 AND object_type = ':object_type' ORDER BY action_log_date DESC"
         );
+<<<<<<< HEAD
         $statement->bindParam(':id', $id);
         $statement->bindParam(':object_type', $object_type);
+=======
+        $statement->bindParam('id', $id);
+        $statement->bindParam('object_type', $object_type);
+>>>>>>> 6dad509c38649b3156aef7c3dfd7c7c2326fcb04
         while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
             $list_actions[$i]["action_log_id"] = $data["action_log_id"];
             $list_actions[$i]["action_log_date"] = date("Y/m/d H:i", $data["action_log_date"]);
@@ -175,7 +190,7 @@ class CentreonLogAction
     /*
      *  returns list of host for this service
      */
-    public function getHostId($service_id)
+    public function getHostId($service_id): array|int
     {
         global $pearDBO;
 
@@ -190,7 +205,11 @@ class CentreonLogAction
                     ORDER BY action_log_date DESC 
                     LIMIT 1";
         $statement = $pearDBO->prepare($query);
+<<<<<<< HEAD
         $statement->bindParam(':service_id', $service_id);
+=======
+        $statement->bindParam('service_id', $service_id);
+>>>>>>> 6dad509c38649b3156aef7c3dfd7c7c2326fcb04
         $statement->execute();
         $info = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($info['field_value']) && $info['field_value'] != '') {
@@ -208,7 +227,11 @@ class CentreonLogAction
                     ORDER BY action_log_date DESC 
                     LIMIT 1";
         $statement = $pearDBO->prepare($query);
+<<<<<<< HEAD
         $statement->bindParam(':service_id', $service_id);
+=======
+        $statement->bindParam('service_id', $service_id);
+>>>>>>> 6dad509c38649b3156aef7c3dfd7c7c2326fcb04
         $statement->execute();
         $info = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($info['field_value']) && $info['field_value'] != '') {
