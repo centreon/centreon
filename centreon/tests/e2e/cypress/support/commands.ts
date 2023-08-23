@@ -112,10 +112,13 @@ Cypress.Commands.add('logout', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
-  return cy.request({
-    method: 'GET',
-    url: '/centreon/authentication/logout'
-  });
+  return cy
+    .request({
+      method: 'GET',
+      url: '/centreon/authentication/logout'
+    })
+    .visit('/')
+    .getByLabel({ label: 'Alias', tag: 'input' });
 });
 
 Cypress.Commands.add('removeACL', (): Cypress.Chainable => {

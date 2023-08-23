@@ -465,28 +465,12 @@ Then(
 );
 
 When('the user opens a chart from Monitoring>Performances>Graphs', () => {
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
-
-  cy.waitUntil(
-    () => {
-      return cy
-        .refreshListing()
-        .then(() => cy.contains('Ping'))
-        .parent()
-        .parent()
-        .find('.MuiChip-label')
-        .eq(0)
-        .then((val) => {
-          return val[0].textContent === 'OK';
-        });
-    },
+  checkServicesAreMonitored([
     {
-      timeout: 30000
+      name: 'Ping',
+      status: 'ok'
     }
-  );
+  ]);
 
   cy.navigateTo({
     page: 'Graphs',

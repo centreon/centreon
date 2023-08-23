@@ -408,6 +408,14 @@ interface ShareDashboardToUserProps {
   userName: string;
 }
 
+interface ListingRequestResult {
+  body: {
+    result: Array<{
+      id: number;
+    }>;
+  };
+}
+
 Cypress.Commands.add(
   'shareDashboardToUser',
   ({ dashboardName, userName, role }: ShareDashboardToUserProps): void => {
@@ -421,19 +429,24 @@ Cypress.Commands.add(
         url: `/centreon/api/latest/configuration/dashboards?search={"name":"${dashboardName}"}`
       })
     ])
-      .then(([retrievedUser, retrievedDashboard]) => {
-        const userId = retrievedUser.body.result[0].id;
-        const dashboardId = retrievedDashboard.body.result[0].id;
+      .then(
+        ([retrievedUser, retrievedDashboard]: [
+          ListingRequestResult,
+          ListingRequestResult
+        ]) => {
+          const userId = retrievedUser.body.result[0].id;
+          const dashboardId = retrievedDashboard.body.result[0].id;
 
-        cy.request({
-          body: {
-            id: userId,
-            role: `${role}`
-          },
-          method: 'POST',
-          url: `/centreon/api/latest/configuration/dashboards/${dashboardId}/access_rights/contacts`
-        });
-      })
+          cy.request({
+            body: {
+              id: userId,
+              role: `${role}`
+            },
+            method: 'POST',
+            url: `/centreon/api/latest/configuration/dashboards/${dashboardId}/access_rights/contacts`
+          });
+        }
+      )
       .catch((error) => console.log(error));
   }
 );
