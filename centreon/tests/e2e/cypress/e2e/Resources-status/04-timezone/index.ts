@@ -373,29 +373,25 @@ Then(
 );
 
 When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
-  cy.navigateTo({
-    page: 'Downtimes',
-    rootItemNumber: 1,
-    subMenu: 'Downtimes'
-  }).wait('@getTimeZone');
-
-  cy.getIframeBody().contains('Add a downtime').click();
-
-  cy.wait('@getTimeZone');
-
-  cy.get('iframe#main-content')
-    .its('0.contentDocument.body')
-    .find('tr#host_input .select2-container')
-    .should('be.visible');
-
   // wait js is loaded because downtime start time is dynamically updated according to user timezone
   cy.waitUntil(
     () => {
+      cy.navigateTo({
+        page: 'Downtimes',
+        rootItemNumber: 1,
+        subMenu: 'Downtimes'
+      }).wait('@getTimeZone');
+
+      cy.getIframeBody().contains('Add a downtime').click();
+
+      cy.wait('@getTimeZone');
+
       return cy
         .getTimeFromHeader()
         .then((headerTime) => {
           return cy
-            .getIframeBody()
+            .get('iframe#main-content')
+            .its('0.contentDocument.body')
             .find('input[name="start_time"]')
             .invoke('val')
             .then((text) => {
@@ -411,6 +407,11 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
     },
     { customMessage: 'Downtime start time is not equal to header time' }
   );
+
+  cy.get('iframe#main-content')
+    .its('0.contentDocument.body')
+    .find('tr#host_input .select2-container')
+    .should('be.visible');
 
   cy.get('iframe#main-content')
     .its('0.contentDocument.body')
