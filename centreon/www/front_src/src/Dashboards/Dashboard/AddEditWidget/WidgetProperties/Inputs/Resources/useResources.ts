@@ -1,7 +1,18 @@
-import { ChangeEvent, useMemo } from 'react';
+import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { T, always, cond, equals, isEmpty } from 'ramda';
+import {
+  T,
+  always,
+  cond,
+  equals,
+  flatten,
+  gt,
+  isEmpty,
+  pipe,
+  pluck
+} from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
 
@@ -18,9 +29,11 @@ import {
   labelService
 } from '../../../../translatedLabels';
 import { baseEndpoint } from '../../../../../../api/endpoint';
+import { singleMetricSectionAtom } from '../../../atoms';
 import { getDataProperty } from '../utils';
 
 interface UseResourcesState {
+  addButtonHidden?: boolean;
   addResource: () => void;
   changeResourceType: (
     index: number
@@ -30,6 +43,7 @@ interface UseResourcesState {
   ) => (_, resources: Array<SelectEntry>) => void;
   deleteResource: (index: number) => () => void;
   error: string | null;
+  getOptionDisabled: (option) => boolean | undefined;
   getResourceResourceBaseEndpoint: (
     resourceType: string
   ) => (parameters) => string;
@@ -78,6 +92,8 @@ const resourceQueryParameters = [
 const useResources = (propertyName: string): UseResourcesState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
+
+  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
 
   const value = useMemo<Array<WidgetDataResource> | undefined>(
     () => getDataProperty({ obj: values, propertyName }),
@@ -143,12 +159,41 @@ const useResources = (propertyName: string): UseResourcesState => {
       [T, always('name')]
     ])(resourceType);
 
+  const getOptionDisabled = (option): boolean | undefined => {
+    const resources = pipe(
+      pluck('resources'),
+      flatten,
+      pluck('name')
+    )(value || []);
+
+    return (
+      singleMetricSection &&
+      gt(resources.length, 0) &&
+      !resources.includes(option.name)
+    );
+  };
+
+  useEffect(() => {
+    if (!singleMetricSection) {
+      return;
+    }
+
+    setFieldValue(`data.${propertyName}`, [
+      {
+        resourceType: '',
+        resources: []
+      }
+    ]);
+  }, [singleMetricSection]);
+
   return {
+    addButtonHidden: singleMetricSection,
     addResource,
     changeResourceType,
     changeResources,
     deleteResource,
     error: errorToDisplay,
+    getOptionDisabled,
     getResourceResourceBaseEndpoint,
     getSearchField,
     resourceTypeOptions,

@@ -15,6 +15,7 @@ import {
   pluck,
   uniq
 } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import {
   ListingModel,
@@ -34,9 +35,11 @@ import {
 import { metricsEndpoint } from '../../../api/endpoints';
 import { serviceMetricsDecoder } from '../../../api/decoders';
 import { labelPleaseSelectAMetric } from '../../../../translatedLabels';
+import { singleMetricSectionAtom } from '../../../atoms';
 import { getDataProperty } from '../utils';
 
 interface UseMetricsState {
+  addButtonHidden?: boolean;
   addMetric: () => void;
   changeMetric: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
   changeService: (index) => (e: ChangeEvent<HTMLInputElement>) => void;
@@ -64,6 +67,8 @@ const resourceTypeQueryParameter = {
 const useMetrics = (propertyName: string): UseMetricsState => {
   const { values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
+
+  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
 
   const resources = (values.data?.resources || []) as Array<WidgetDataResource>;
 
@@ -162,6 +167,20 @@ const useMetrics = (propertyName: string): UseMetricsState => {
   };
 
   const getMetricOptionDisabled = (metricOption): boolean => {
+    if (singleMetricSection) {
+      const metrics = pipe(
+        pluck('metrics'),
+        flatten,
+        pluck('name')
+      )(value || []);
+
+      return (
+        singleMetricSection &&
+        gt(metrics.length, 0) &&
+        !metrics.includes(metricOption.name)
+      );
+    }
+
     if (!hasReachedTheLimitOfUnits) {
       return false;
     }
@@ -188,7 +207,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     };
 
   useEffect(() => {
-    if (isNil(servicesMetrics)) {
+    if (isNil(servicesMetrics) || singleMetricSection) {
       return;
     }
 
@@ -212,7 +231,21 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     );
   }, useDeepCompare([servicesMetrics, resources]));
 
+  useEffect(() => {
+    if (hasNoResources() || !singleMetricSection) {
+      return;
+    }
+
+    setFieldValue(`data.${propertyName}`, [
+      {
+        id: '',
+        metrics: []
+      }
+    ]);
+  }, [hasNoResources()]);
+
   return {
+    addButtonHidden: singleMetricSection,
     addMetric,
     changeMetric,
     changeService,

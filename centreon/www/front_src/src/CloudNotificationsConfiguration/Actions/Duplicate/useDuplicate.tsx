@@ -11,7 +11,7 @@ import {
   labelFailedToDuplicateNotification,
   labelNotificationDuplicated
 } from '../../translatedLabels';
-import { NotificationType } from '../../EditPanel/models';
+import { NotificationType } from '../../Panel/models';
 
 interface UseDeleteState {
   closeDialog: () => void;
