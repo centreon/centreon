@@ -193,7 +193,7 @@ final class FindNotification
                 'channel' => $message->getChannel()->value,
                 'subject' => $message->getSubject(),
                 'message' => $message->getRawMessage(),
-                'formatted_message' => $message->getFormattedMessage()
+                'formatted_message' => $message->getFormattedMessage(),
             ],
             $notificationMessages
         );
