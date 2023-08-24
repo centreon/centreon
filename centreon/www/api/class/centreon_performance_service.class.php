@@ -292,7 +292,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
 
         /* Then, get virtual services for modules if not in anomaly detection context */
         $allVirtualServiceIds = [];
-        if (! isset($this->arguments['e']) || (isset($this->arguments['e']) && $this->arguments['e'] !== 'anomaly')) {
+        if (($this->arguments['e'] ?? null) !== 'anomaly') {
             $allVirtualServiceIds = CentreonHook::execute('Service', 'getVirtualServiceIds');
         }
         foreach ($allVirtualServiceIds as $moduleVirtualServiceIds) {
