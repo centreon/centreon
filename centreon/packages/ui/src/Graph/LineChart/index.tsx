@@ -25,6 +25,7 @@ dayjs.extend(timezonePlugin);
 interface Props extends Partial<LineChartProps> {
   curve?: CurveType;
   data?: LineChartData;
+  disabledThresholds?: boolean;
   end: string;
   legend: LegendModel;
   loading: boolean;
@@ -56,7 +57,8 @@ const WrapperLineChart = ({
   marginBottom = 0,
   thresholds,
   thresholdUnit,
-  thresholdLabels
+  thresholdLabels,
+  disabledThresholds
 }: Props): JSX.Element | null => {
   const { adjustedData } = useLineChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
@@ -89,6 +91,7 @@ const WrapperLineChart = ({
               annotationEvent={annotationEvent}
               axis={axis}
               curve={curve}
+              disabledThresholds={disabledThresholds}
               displayAnchor={displayAnchor}
               graphData={adjustedData}
               graphInterval={{ end, start }}

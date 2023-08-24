@@ -1,15 +1,24 @@
-import { flatten, isEmpty, join, pipe, pluck } from 'ramda';
+import { equals, flatten, has, isEmpty, join, pipe, pluck } from 'ramda';
 import dayjs from 'dayjs';
 
 import { LineChartData, useFetchQuery } from '../..';
 
 import { ServiceMetric } from './models';
 
+interface CustomTimePeriod {
+  end: string;
+  start: string;
+}
+
 interface UseMetricsQueryProps {
   baseEndpoint: string;
   metrics: Array<ServiceMetric>;
   refreshInterval?: number | false;
-  timePeriod?: number;
+  timePeriod?: {
+    end?: string | null;
+    start?: string | null;
+    timePeriodType: number;
+  };
 }
 
 interface UseMetricsQueryState {
@@ -29,6 +38,15 @@ const getStartEndFromTimePeriod = (
   };
 };
 
+const isCustomTimePeriod = (
+  timePeriod:
+    | number
+    | {
+        end?: string | null;
+        start?: string | null;
+      }
+): boolean => has('end', timePeriod) && has('start', timePeriod);
+
 interface PerformanceGraphData extends Omit<LineChartData, 'global'> {
   base: number;
 }
@@ -36,7 +54,9 @@ interface PerformanceGraphData extends Omit<LineChartData, 'global'> {
 const useGraphQuery = ({
   metrics,
   baseEndpoint,
-  timePeriod = 1,
+  timePeriod = {
+    timePeriodType: 1
+  },
   refreshInterval = false
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const metricIds = pipe(
@@ -46,13 +66,28 @@ const useGraphQuery = ({
     join(',')
   )(metrics);
 
+  const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
+    ? {
+        end: timePeriod.end,
+        start: timePeriod.start
+      }
+    : timePeriod?.timePeriodType;
+
   const {
     data: graphData,
     isFetching,
     isLoading
   } = useFetchQuery<PerformanceGraphData>({
     getEndpoint: () => {
-      const { end, start } = getStartEndFromTimePeriod(timePeriod);
+      if (isCustomTimePeriod(timePeriodToUse)) {
+        return `${baseEndpoint}?metricIds=[${metricIds}]&start=${
+          (timePeriodToUse as CustomTimePeriod).start
+        }&end=${(timePeriodToUse as CustomTimePeriod).end}`;
+      }
+
+      const { end, start } = getStartEndFromTimePeriod(
+        timePeriodToUse as number
+      );
 
       return `${baseEndpoint}?metricIds=[${metricIds}]&start=${start}&end=${end}`;
     },
@@ -75,7 +110,9 @@ const useGraphQuery = ({
       }
     : undefined;
 
-  const { end, start } = getStartEndFromTimePeriod(timePeriod);
+  const { end, start } = isCustomTimePeriod(timePeriodToUse)
+    ? (timePeriodToUse as CustomTimePeriod)
+    : getStartEndFromTimePeriod(timePeriodToUse as number);
 
   return {
     end,

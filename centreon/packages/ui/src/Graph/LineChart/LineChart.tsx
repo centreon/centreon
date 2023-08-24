@@ -35,6 +35,7 @@ import Thresholds from './BasicComponents/Thresholds';
 
 interface Props extends LineChartProps {
   curve: CurveType;
+  disabledThresholds?: boolean;
   graphData: Data;
   graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
@@ -71,7 +72,8 @@ const LineChart = ({
   marginBottom,
   thresholds,
   thresholdUnit,
-  thresholdLabels
+  thresholdLabels,
+  disabledThresholds
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
@@ -127,7 +129,7 @@ const LineChart = ({
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
         thresholdUnit,
-        thresholds: thresholds || [],
+        thresholds: (!disabledThresholds && thresholds) || [],
         valueGraphHeight: graphHeight - 35
       }),
     [displayedLines, timeSeries, graphHeight]
@@ -139,7 +141,7 @@ const LineChart = ({
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
         thresholdUnit,
-        thresholds: thresholds || [],
+        thresholds: (!disabledThresholds && thresholds) || [],
         valueGraphHeight: graphHeight - 35
       }),
     [timeSeries, displayedLines, graphHeight]
@@ -234,17 +236,19 @@ const LineChart = ({
                 zoomData={{ ...zoomPreview }}
               />
 
-              <Thresholds
-                displayedLines={displayedLines}
-                hideTooltip={hideThresholdTooltip}
-                leftScale={leftScale}
-                rightScale={rightScale}
-                showTooltip={showThresholdTooltip}
-                thresholdLabels={thresholdLabels}
-                thresholdUnit={thresholdUnit}
-                thresholds={thresholds}
-                width={graphWidth}
-              />
+              {!disabledThresholds && (
+                <Thresholds
+                  displayedLines={displayedLines}
+                  hideTooltip={hideThresholdTooltip}
+                  leftScale={leftScale}
+                  rightScale={rightScale}
+                  showTooltip={showThresholdTooltip}
+                  thresholdLabels={thresholdLabels}
+                  thresholdUnit={thresholdUnit}
+                  thresholds={thresholds}
+                  width={graphWidth}
+                />
+              )}
             </Group.Group>
           </svg>
           {displayTooltip && (

@@ -1,6 +1,8 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
+import { equals } from 'ramda';
+import dayjs from 'dayjs';
 
 import { SelectEntry } from '@centreon/ui';
 
@@ -11,12 +13,13 @@ import {
   labelLast30Days,
   labelLast3Months,
   labelLast6Months,
-  labelLastHour
+  labelLastHour,
+  labelCustomize
 } from '../../../../translatedLabels';
 import { Widget } from '../../../models';
 import { getProperty } from '../utils';
 
-const options: Array<SelectEntry> = [
+export const options: Array<SelectEntry> = [
   {
     id: 1,
     name: labelLastHour
@@ -44,6 +47,10 @@ const options: Array<SelectEntry> = [
   {
     id: 12 * 30 * 24,
     name: labelLast12Months
+  },
+  {
+    id: -1,
+    name: labelCustomize
   }
 ];
 
@@ -54,6 +61,8 @@ interface TimePeriod {
 }
 
 interface UseTimePeriodState {
+  changeCustomDate: (property: string) => (newDate) => void;
+  isCustomizeTimePeriod: boolean;
   options: Array<SelectEntry>;
   setTimePeriod: (e: ChangeEvent<HTMLInputElement>) => void;
   value: TimePeriod;
@@ -68,8 +77,28 @@ const useTimePeriod = (propertyName: string): UseTimePeriodState => {
   ) as TimePeriod;
 
   const setTimePeriod = (e: ChangeEvent<HTMLInputElement>): void => {
+    const newType = Number(e.target.value);
+
+    if (equals(newType, -1)) {
+      setFieldValue(`options.${propertyName}`, {
+        end: dayjs(),
+        start: dayjs().subtract(1, 'hour'),
+        timePeriodType: newType
+      });
+
+      return;
+    }
+
     setFieldValue(`options.${propertyName}`, {
-      timePeriodType: Number(e.target.value)
+      ...value,
+      timePeriodType: newType
+    });
+  };
+
+  const changeCustomDate = (property: string) => (newDate) => {
+    setFieldValue(`options.${propertyName}`, {
+      ...value,
+      [property]: newDate
     });
   };
 
@@ -79,11 +108,16 @@ const useTimePeriod = (propertyName: string): UseTimePeriodState => {
     }
 
     setFieldValue(`options.${propertyName}`, {
+      ...value,
       timePeriodType: options[0].id as number
     });
   }, []);
 
+  const isCustomizeTimePeriod = equals(value.timePeriodType, -1);
+
   return {
+    changeCustomDate,
+    isCustomizeTimePeriod,
     options,
     setTimePeriod,
     value

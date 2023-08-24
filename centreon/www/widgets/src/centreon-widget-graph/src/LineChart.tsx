@@ -36,7 +36,7 @@ const WidgetLineChart = ({
       baseEndpoint: graphEndpoint,
       metrics: panelData.metrics,
       refreshInterval: refreshIntervalToUse,
-      timePeriod: panelOptions.timeperiod?.timePeriodType
+      timePeriod: panelOptions.timeperiod
     });
 
   const { thresholdLabels, thresholdValues } = useThresholds({
@@ -56,6 +56,7 @@ const WidgetLineChart = ({
   return (
     <LineChart
       data={graphData}
+      disabledThresholds={!panelOptions.threshold?.enabled}
       end={end}
       height={null}
       legend={{ display: true }}

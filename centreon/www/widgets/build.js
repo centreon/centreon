@@ -1,12 +1,15 @@
 const { exec } = require('child_process');
 const { readdirSync } = require('fs');
+const { replace } = require('ramda');
 
 const getWidgets = () => {
+  const widgets = process.argv[3]?.split(',') || [];
+
   return readdirSync('./src', { withFileTypes: true })
     .filter((value) => value.isDirectory())
     .map(({ name }) => name)
-    .filter(
-      (name) => name !== 'node_modules' && name === 'centreon-widget-graph'
+    .filter((name) =>
+      name !== 'node_modules' && widgets.length > 0 ? widgets.includes(replace('centreon-widget-', '', name)) : true
     );
 };
 
