@@ -72,12 +72,12 @@ const useForm = (): UseFormState => {
       ? labelSuccessfulNotificationAdded
       : labelSuccessfulEditNotification;
 
-    const valuesX = {
+    const adaptedValue = adaptNotification({
       ...values,
       messages: { ...values.messages, formattedMessage: htmlEmailyBody }
-    };
+    });
 
-    return mutateAsync(adaptNotification(valuesX))
+    return mutateAsync(adaptedValue)
       .then((response) => {
         const { isError } = response as ResponseError;
         if (isError) {
