@@ -1,9 +1,8 @@
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Typography } from '@mui/material';
-
-import { labelMetricsDatasetSelection } from '../../translatedLabels';
+import { labelDatasetSelection } from '../../translatedLabels';
+import Title from '../../../components/Title';
 
 import { useWidgetInputs } from './useWidgetInputs';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
@@ -19,9 +18,7 @@ const WidgetData = (): JSX.Element => {
 
   return (
     <div>
-      {isWidgetSelected && (
-        <Typography variant="h6">{t(labelMetricsDatasetSelection)}</Typography>
-      )}
+      {isWidgetSelected && <Title>{t(labelDatasetSelection)}</Title>}
       <div className={classes.widgetDataContent}>
         {(widgetData || []).map(({ Component, key, props }) => (
           <div className={classes.widgetDataItem} key={key}>

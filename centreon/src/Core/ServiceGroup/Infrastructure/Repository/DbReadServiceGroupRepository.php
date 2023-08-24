@@ -382,7 +382,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         $concatenator
             ->defineSelect(
                 <<<'SQL'
-                    SELECT sg_id
+                    SELECT sg.sg_id
                     SQL
             )
             ->appendWhere(

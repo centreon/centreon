@@ -135,6 +135,10 @@ const ContentEditable = ({
   const isEditable = editor.isEditable();
 
   useEffect(() => {
+    if (isNil(disabled)) {
+      return;
+    }
+
     editor.setEditable(!disabled);
   }, [disabled]);
 

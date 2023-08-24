@@ -472,6 +472,8 @@ paths:
     $ref: "v23.10/Configuration/ServiceTemplate/PartialUpdateAndDeleteServiceTemplate.yaml"
   /configuration/services/{service_id}:
     $ref: "v23.10/Configuration/Service/DeleteService.yaml"
+  /configuration/services:
+    $ref: "v23.10/Configuration/Service/AddService.yaml"
   /monitoring/services/categories:
     get:
       tags:
