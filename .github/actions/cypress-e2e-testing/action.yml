@@ -56,7 +56,7 @@ runs:
         command: cd ${{ inputs.module }}/tests/e2e && pnpm cypress install --force
 
     - name: Cypress end-to-end testing
-      uses: cypress-io/github-action@v5
+      uses: cypress-io/github-action@v6
       env:
         CYPRESS_VERIFY_TIMEOUT: "60000"
         CYPRESS_WEB_IMAGE_OS: ${{ inputs.web_image_os }}
