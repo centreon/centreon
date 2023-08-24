@@ -1,5 +1,4 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
-import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
@@ -12,11 +11,11 @@ import dashboardCGMember4 from '../../../fixtures/users/user-dashboard-cg-member
 
 before(() => {
   cy.startWebContainer();
-  cy.execInContainer({
+  /* cy.execInContainer({
     command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
-  cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json');
+  cy.executeCommandsViaClapi('resources/clapi/config-ACL/dashboard-share.json'); */
 });
 
 beforeEach(() => {
@@ -47,11 +46,11 @@ beforeEach(() => {
 });
 
 after(() => {
-  cy.stopWebContainer();
+  // cy.stopWebContainer();
 });
 
 afterEach(() => {
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
@@ -64,7 +63,7 @@ Given('a non-admin user who is in a list of shared dashboards', () => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 When('the user selects the share option on a dashboard', () => {
@@ -103,7 +102,7 @@ Given('a non-admin user who has update rights on a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 When('the editor user sets another user as a viewer on the dashboard', () => {
@@ -134,7 +133,6 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
 
   cy.get('[data-state="added"]').should('exist');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-  cy.reload();
 });
 
 Then(
@@ -162,7 +160,7 @@ When('the viewer user logs in on the platform', () => {
     jsonName: dashboardViewerUser.login,
     loginViaApi: false
   });
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 Then(
@@ -189,14 +187,7 @@ When('the viewer user clicks on the dashboard', () => {
 Then(
   "the viewer user can visualize the dashboard's layout but cannot share it or update its properties",
   () => {
-    cy.location('pathname')
-      .should('include', '/dashboards/')
-      .invoke('split', '/')
-      .should('not.be.empty')
-      .then(last)
-      .then(Number)
-      .should('not.be', 'dashboards')
-      .should('be.a', 'number');
+    cy.url().should('match', /\/dashboards\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -211,7 +202,7 @@ Given(
       loginViaApi: false
     });
 
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
   }
 );
 
@@ -244,7 +235,6 @@ When(
       .should('contain', `${dashboardCreatorUser.login}`);
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload();
   }
 );
 
@@ -271,7 +261,7 @@ When('the second editor user logs in on the platform', () => {
     loginViaApi: false
   });
 
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 Then(
@@ -298,14 +288,7 @@ When('the second editor user clicks on the dashboard', () => {
 Then(
   "the second editor can visualize the dashboard's layout and can share it or update its properties",
   () => {
-    cy.location('pathname')
-      .should('include', '/dashboards/')
-      .invoke('split', '/')
-      .should('not.be.empty')
-      .then(last)
-      .then(Number)
-      .should('not.be', 'dashboards')
-      .should('be.a', 'number');
+    cy.url().should('match', /\/dashboards\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -318,7 +301,7 @@ Given('a non-admin editor user with creator rights on a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 When(
@@ -350,8 +333,6 @@ When(
       .should('contain', 'dashboard-contact-group-viewer');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-
-    cy.reload();
   }
 );
 
@@ -378,7 +359,7 @@ Then(
       jsonName: dashboardCGMember1.login,
       loginViaApi: false
     });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -391,14 +372,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.location('pathname')
-      .should('include', '/dashboards/')
-      .invoke('split', '/')
-      .should('not.be.empty')
-      .then(last)
-      .then(Number)
-      .should('not.be', 'dashboards')
-      .should('be.a', 'number');
+    cy.url().should('match', /\/dashboards\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -409,7 +383,7 @@ Then(
       jsonName: dashboardCGMember2.login,
       loginViaApi: false
     });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -422,14 +396,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.location('pathname')
-      .should('include', '/dashboards/')
-      .invoke('split', '/')
-      .should('not.be.empty')
-      .then(last)
-      .then(Number)
-      .should('not.be', 'dashboards')
-      .should('be.a', 'number');
+    cy.url().should('match', /\/dashboards\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -442,7 +409,7 @@ Given('a non-admin editor user who has creator rights on a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+  cy.visit('/centreon/home/dashboards');
 });
 
 When(
@@ -474,8 +441,6 @@ When(
       .should('contain', 'dashboard-contact-group-creator');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-
-    cy.reload();
   }
 );
 
@@ -502,7 +467,7 @@ Then(
       jsonName: dashboardCGMember3.login,
       loginViaApi: false
     });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -515,14 +480,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.location('pathname')
-      .should('include', '/dashboards/')
-      .invoke('split', '/')
-      .should('not.be.empty')
-      .then(last)
-      .then(Number)
-      .should('not.be', 'dashboards')
-      .should('be.a', 'number');
+    cy.url().should('match', /\/dashboards\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -533,7 +491,7 @@ Then(
       jsonName: dashboardCGMember4.login,
       loginViaApi: false
     });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -546,14 +504,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.location('pathname')
-      .should('include', '/dashboards/')
-      .invoke('split', '/')
-      .should('not.be.empty')
-      .then(last)
-      .then(Number)
-      .should('not.be', 'dashboards')
-      .should('be.a', 'number');
+    cy.url().should('match', /\/dashboards\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -568,7 +519,7 @@ Given(
       loginViaApi: false
     });
 
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -595,8 +546,6 @@ Given(
       .should('contain', 'dashboard-contact-group-creator');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-
-    cy.reload();
   }
 );
 
@@ -636,7 +585,7 @@ Then(
       jsonName: dashboardCGMember3.login,
       loginViaApi: false
     });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -649,14 +598,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.location('pathname')
-      .should('include', '/dashboards/')
-      .invoke('split', '/')
-      .should('not.be.empty')
-      .then(last)
-      .then(Number)
-      .should('not.be', 'dashboards')
-      .should('be.a', 'number');
+    cy.url().should('match', /\/dashboards\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
@@ -673,7 +615,7 @@ Then(
       jsonName: dashboardCGMember4.login,
       loginViaApi: false
     });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -686,14 +628,7 @@ Then(
     })
       .contains(dashboards.fromDashboardCreatorUser.name)
       .click();
-    cy.location('pathname')
-      .should('include', '/dashboards/')
-      .invoke('split', '/')
-      .should('not.be.empty')
-      .then(last)
-      .then(Number)
-      .should('not.be', 'dashboards')
-      .should('be.a', 'number');
+    cy.url().should('match', /\/dashboards\/\d+$/);
 
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
@@ -707,7 +642,7 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: false
     });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -726,13 +661,12 @@ When('the admin user appoints one of the users as an editor', () => {
   cy.get('[role="listbox"]').contains('editor').click();
   cy.getByTestId({ testId: 'add' }).click();
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-  cy.reload();
 });
 
 Then(
   'the newly appointed editor user can appoint another user as an editor',
   () => {
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.logout();
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
@@ -740,7 +674,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.visit(`${Cypress.config().baseUrl}/centreon/home/dashboards`);
+    cy.visit('/centreon/home/dashboards');
     cy.getByLabel({
       label: 'view',
       tag: 'button'
@@ -756,7 +690,6 @@ Then(
     cy.getByTestId({ testId: 'add' }).click();
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload();
 
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]')
@@ -782,7 +715,6 @@ Then(
     cy.getByTestId({ testId: 'add' }).click();
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload();
 
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]')
