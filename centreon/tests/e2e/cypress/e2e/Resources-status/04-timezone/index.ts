@@ -406,36 +406,29 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
     .eq(0)
     .click();
 
-  cy.waitUntil(() => {
-    return cy.getTimeFromHeader().then((headerTime) => {
-      cy.getIframeBody()
-        .find('input[name="start_time"]')
-        .invoke('val')
-        .then((text) => {
-          return (
-            calculateMinuteInterval(
-              convert12hFormatToDate(String(text)),
-              convert12hFormatToDate(headerTime)
-            ) >= 2
-          );
-        });
-    });
-  });
-
-  cy.getTimeFromHeader().then((headerTime) => {
-    cy.getIframeBody()
-      .find('input[name="start_time"]')
-      .invoke('val')
-      .then((text) => {
-        expect(text).to.match(/\d+:\d+/);
-        expect(
-          calculateMinuteInterval(
-            convert12hFormatToDate(String(text)),
-            convert12hFormatToDate(headerTime)
-          )
-        ).to.be.lte(2);
-      });
-  });
+  // wait js is loaded because downtime start time is dynamically updated according to user timezone
+  cy.waitUntil(
+    () => {
+      return cy
+        .getTimeFromHeader()
+        .then((headerTime) => {
+          return cy
+            .getIframeBody()
+            .find('input[name="start_time"]')
+            .invoke('val')
+            .then((text) => {
+              return cy.wrap(
+                calculateMinuteInterval(
+                  convert12hFormatToDate(String(text)),
+                  convert12hFormatToDate(headerTime)
+                )
+              );
+            });
+        })
+        .then((interval) => interval <= 2);
+    },
+    { customMessage: 'Downtime start time is not equal to header time' }
+  );
 
   cy.getIframeBody()
     .find('input[name="submitA"]')
