@@ -380,8 +380,6 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
 
       cy.wait('@getTimeZone');
 
-      cy.wait('@getTimeZone');
-
       return cy
         .getTimeFromHeader()
         .then((headerTime) => {
