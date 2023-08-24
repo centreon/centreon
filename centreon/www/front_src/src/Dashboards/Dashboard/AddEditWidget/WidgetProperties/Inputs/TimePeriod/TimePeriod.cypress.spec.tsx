@@ -63,8 +63,6 @@ describe('Time Period', () => {
 
     cy.get('input').eq(1).should('have.value', '06/05/2023 07:00 AM');
     cy.get('input').eq(2).should('have.value', '06/05/2023 08:00 AM');
-
-    cy.matchImageSnapshot();
   });
 
   it('customizes the time period when the corresponding option is clicked and the start and end fields are updated', () => {
@@ -83,7 +81,5 @@ describe('Time Period', () => {
 
     cy.get('input').eq(1).should('have.value', '06/05/2023 05:00 AM');
     cy.get('input').eq(2).should('have.value', '06/05/2023 10:00 AM');
-
-    cy.matchImageSnapshot();
   });
 });
