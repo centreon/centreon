@@ -10,7 +10,6 @@ get:
     * id
     * name
     * alias
-    * is_activated
     * is_locked
   parameters:
     - $ref: '../../Common/QueryParameter/Limit.yaml'
