@@ -67,8 +67,12 @@ const useValidationSchema = (): {
   const schema = Yup.object({
     data: Yup.object(widgetDataValidationSchema),
     options: Yup.object({
-      description: Yup.string().nullable(),
-      name: Yup.string().required(requiredText),
+      description: Yup.object().shape({
+        content: Yup.string().nullable(),
+        enabled: Yup.boolean().required(requiredText)
+      }),
+      name: Yup.string().nullable(),
+      openLinksInNewTab: Yup.boolean().required(requiredText),
       ...widgetOptionsValidationSchema
     })
   });

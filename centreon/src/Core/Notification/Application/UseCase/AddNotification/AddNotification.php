@@ -225,7 +225,8 @@ final class AddNotification
             static fn(NotificationMessage $message): array => [
                 'channel' => $message->getChannel()->value,
                 'subject' => $message->getSubject(),
-                'message' => $message->getMessage(),
+                'message' => $message->getRawMessage(),
+                'formatted_message' => $message->getFormattedMessage(),
             ],
             $messages
         );

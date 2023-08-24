@@ -11,7 +11,8 @@ import { getProperty } from './utils';
 
 const WidgetRichTextEditor = ({
   propertyName,
-  label
+  label,
+  disabledCondition
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
 
@@ -28,18 +29,25 @@ const WidgetRichTextEditor = ({
     [getProperty({ obj: errors, propertyName })]
   );
 
+  const openLinksInNewTab = useMemo<boolean | undefined>(
+    () => getProperty({ obj: values, propertyName: 'openLinksInNewTab' }),
+    [getProperty({ obj: values, propertyName: 'openLinksInNewTab' })]
+  );
+
   const change = (newEditiorState: unknown): void => {
-    setFieldTouched(`options.${propertyName}`, true);
+    setFieldTouched(`options.${propertyName}`, true, false);
     setFieldValue(`options.${propertyName}`, JSON.stringify(newEditiorState));
   };
 
   return (
     <RichTextEditor
       editable
+      disabled={disabledCondition?.(values)}
       editorState={value || undefined}
       error={error}
       getEditorState={change}
       initialEditorState={value || undefined}
+      openLinkInNewTab={openLinksInNewTab}
       placeholder={t(label) as string}
     />
   );

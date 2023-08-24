@@ -5,10 +5,10 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
     display: 'grid',
     gap: theme.spacing(2),
     gridTemplateAreas: `
-      "preview widgetProperties"
-      "widgetData widgetProperties"
+      "widgetProperties preview"
+      "widgetProperties widgetData"
     `,
-    gridTemplateColumns: '2.3fr 1fr',
+    gridTemplateColumns: '1fr 2fr',
     gridTemplateRows: 'minmax(300px, auto) auto'
   },
   preview: {
@@ -16,6 +16,10 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
     display: 'flex',
     gridArea: 'preview',
     justifyContent: 'center'
+  },
+  widgetAvatar: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white
   },
   widgetData: {
     gridArea: 'widgetData'
@@ -29,9 +33,6 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
   widgetPropertiesContent: {
     backgroundColor: theme.palette.background.default,
     borderRadius: theme.shape.borderRadius,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(2),
     height: '100%',
     padding: theme.spacing(1)
   }

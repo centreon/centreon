@@ -1,16 +1,23 @@
 import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Divider, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import { CollapsibleItem, Tooltip } from '@centreon/ui/components';
 
 import {
-  labelCommonProperties,
   labelDescription,
+  labelShowDescription,
   labelName,
-  labelWidgetProperties
+  labelOpenLinksInNewTab,
+  labelOpenLinksInNewTabTooltip,
+  labelWidgetProperties,
+  labelValueSettings
 } from '../../translatedLabels';
+import { Widget } from '../models';
 
-import { WidgetTextField } from './Inputs';
+import { WidgetRichTextEditor, WidgetSwitch, WidgetTextField } from './Inputs';
 import { useWidgetInputs } from './useWidgetInputs';
 
 const WidgetProperties = (): JSX.Element => {
@@ -24,27 +31,56 @@ const WidgetProperties = (): JSX.Element => {
   return (
     <>
       {isWidgetSelected && (
-        <>
-          <Typography variant="h6">{t(labelWidgetProperties)}</Typography>
-          <WidgetTextField required label={labelName} propertyName="name" />
-          <WidgetTextField
-            label={labelDescription}
-            propertyName="description"
-            text={{ multiline: true }}
-          />
-          {hasProperties && (
-            <>
-              <Divider variant="middle" />
+        <CollapsibleItem defaultExpanded title={t(labelWidgetProperties)}>
+          <>
+            <WidgetTextField label={labelName} propertyName="name" />
+            <Box
+              sx={{
+                alignItems: 'center',
+                display: 'flex',
+                justifyContent: 'space-between'
+              }}
+            >
               <Typography>
-                <strong>{t(labelCommonProperties)}</strong>
+                <strong>{t(labelDescription)}</strong>
               </Typography>
-            </>
-          )}
-        </>
+              <WidgetSwitch
+                label={labelShowDescription}
+                propertyName="description.enabled"
+              />
+            </Box>
+            <WidgetRichTextEditor
+              disabledCondition={(values: Widget) =>
+                !values.options.description?.enabled
+              }
+              label={labelDescription}
+              propertyName="description.content"
+            />
+            <WidgetSwitch
+              endAdornment={
+                <Tooltip
+                  followCursor={false}
+                  label={t(labelOpenLinksInNewTabTooltip)}
+                  position="top"
+                >
+                  <InfoOutlinedIcon color="primary" fontSize="small" />
+                </Tooltip>
+              }
+              label={labelOpenLinksInNewTab}
+              propertyName="openLinksInNewTab"
+            />
+          </>
+        </CollapsibleItem>
       )}
-      {(widgetProperties || []).map(({ Component, key, props }) => (
-        <Component key={key} {...props} />
-      ))}
+      {isWidgetSelected && hasProperties && (
+        <CollapsibleItem defaultExpanded title={t(labelValueSettings)}>
+          <>
+            {(widgetProperties || []).map(({ Component, key, props }) => (
+              <Component key={key} {...props} />
+            ))}
+          </>
+        </CollapsibleItem>
+      )}
     </>
   );
 };

@@ -2,7 +2,7 @@ import { ChangeEvent, useState } from 'react';
 
 import { equals, filter, find, isNil, map, propEq } from 'ramda';
 import { useFormikContext } from 'formik';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { SelectEntry } from '@centreon/ui';
 
@@ -15,6 +15,7 @@ import {
   federatedWidgetsAtom,
   federatedWidgetsPropertiesAtom
 } from '../../../../federatedModules/atoms';
+import { singleMetricSectionAtom } from '../atoms';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -31,6 +32,7 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
+  const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
 
   const { setValues, values } = useFormikContext<Widget>();
 
@@ -57,7 +59,13 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
         data: null,
         id: null,
         moduleName: null,
-        options: {},
+        options: {
+          description: {
+            content: null,
+            enabled: true
+          },
+          openLinksInNewTab: true
+        },
         panelConfiguration: null
       });
 
@@ -90,14 +98,20 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
       {}
     );
 
+    setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
+
     setValues((currentValues) => ({
       data,
       id: selectedWidget.moduleName,
       moduleName: selectedWidget.moduleName,
       options: {
         ...options,
-        description: currentValues.options.description,
-        name: currentValues.options.name
+        description: currentValues.options.description || {
+          content: null,
+          enabled: true
+        },
+        name: currentValues.options.name,
+        openLinksInNewTab: currentValues.options.openLinksInNewTab || true
       },
       panelConfiguration: selectedWidget.federatedComponentsConfiguration
     }));

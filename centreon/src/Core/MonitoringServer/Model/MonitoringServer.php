@@ -26,4 +26,14 @@ namespace Core\MonitoringServer\Model;
 class MonitoringServer
 {
     public const ILLEGAL_CHARACTERS = '~!$%^&*"|\'<>?,()=';
+
+    public function __construct(
+        private int $id,
+    ){
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
 }

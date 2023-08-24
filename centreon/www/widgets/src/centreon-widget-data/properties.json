@@ -1,7 +1,19 @@
 {
   "title": "Generic data (example)",
   "description": "This is the description of the data widget",
-  "options": {},
+  "options": {
+    "threshold": {
+      "type": "threshold",
+      "defaultValue": {
+        "enabled": true,
+        "customCritical": null,
+        "criticalType": "default",
+        "customWarning": null,
+        "warningType": "default"
+      },
+      "label": "threshold"
+    }
+  },
   "data": {
     "resources": {
       "type": "resources",
