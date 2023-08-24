@@ -31,6 +31,14 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/dashboards'
   }).as('createDashboard');
+  cy.intercept({
+    method: 'POST',
+    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+  }).as('addContactToDashboardShareList');
+  cy.intercept({
+    method: 'POST',
+    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contactgroups`
+  }).as('addContactGroupToDashboardShareList');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: true
@@ -133,6 +141,7 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
 
   cy.get('[data-state="added"]').should('exist');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.wait('@addContactToDashboardShareList');
 });
 
 Then(
@@ -235,6 +244,7 @@ When(
       .should('contain', `${dashboardCreatorUser.login}`);
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.wait('@addContactToDashboardShareList');
   }
 );
 
@@ -333,6 +343,7 @@ When(
       .should('contain', 'dashboard-contact-group-viewer');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.wait('@addContactGroupToDashboardShareList');
   }
 );
 
@@ -441,6 +452,7 @@ When(
       .should('contain', 'dashboard-contact-group-creator');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.wait('@addContactGroupToDashboardShareList');
   }
 );
 
@@ -546,6 +558,7 @@ Given(
       .should('contain', 'dashboard-contact-group-creator');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.wait('@addContactGroupToDashboardShareList');
   }
 );
 
@@ -572,6 +585,7 @@ When(
       .should('contain', `${dashboardCGMember3.login}`);
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.wait('@addContactToDashboardShareList');
   }
 );
 
@@ -661,6 +675,7 @@ When('the admin user appoints one of the users as an editor', () => {
   cy.get('[role="listbox"]').contains('editor').click();
   cy.getByTestId({ testId: 'add' }).click();
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.wait('@addContactToDashboardShareList');
 });
 
 Then(
@@ -690,6 +705,7 @@ Then(
     cy.getByTestId({ testId: 'add' }).click();
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.wait('@addContactToDashboardShareList');
 
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
@@ -715,6 +731,7 @@ Then(
     cy.getByTestId({ testId: 'add' }).click();
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.wait('@addContactToDashboardShareList');
 
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
