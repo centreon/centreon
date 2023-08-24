@@ -376,13 +376,9 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
   // wait js is loaded because downtime start time is dynamically updated according to user timezone
   cy.waitUntil(
     () => {
-      cy.navigateTo({
-        page: 'Downtimes',
-        rootItemNumber: 1,
-        subMenu: 'Downtimes'
-      }).wait('@getTimeZone');
+      cy.visit('/centreon/main.php?p=21001&o=a'); // add downtime page
 
-      cy.getIframeBody().contains('Add a downtime').click();
+      cy.wait('@getTimeZone');
 
       cy.wait('@getTimeZone');
 
