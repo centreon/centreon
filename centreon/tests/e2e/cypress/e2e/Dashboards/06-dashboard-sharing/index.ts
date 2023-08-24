@@ -444,6 +444,7 @@ When(
       .should('contain', 'dashboard-contact-group-creator');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload();
   }
 );
 
@@ -549,6 +550,7 @@ Given(
       .should('contain', 'dashboard-contact-group-creator');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload();
   }
 );
 
@@ -575,6 +577,7 @@ When(
       .should('contain', `${dashboardCGMember3.login}`);
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload();
   }
 );
 
@@ -664,6 +667,7 @@ When('the admin user appoints one of the users as an editor', () => {
   cy.get('[role="listbox"]').contains('editor').click();
   cy.getByTestId({ testId: 'add' }).click();
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.reload();
 });
 
 Then(
@@ -693,6 +697,7 @@ Then(
     cy.getByTestId({ testId: 'add' }).click();
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload();
 
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]')
@@ -718,6 +723,7 @@ Then(
     cy.getByTestId({ testId: 'add' }).click();
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload();
 
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]')
