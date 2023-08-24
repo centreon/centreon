@@ -119,6 +119,6 @@ export interface YScales {
 export interface TimeValueProps {
   marginLeft?: number;
   timeSeries: Array<TimeValue>;
-  x: number;
+  x?: number;
   xScale: ScaleLinear<number, number>;
 }

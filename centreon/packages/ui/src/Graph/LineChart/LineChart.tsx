@@ -291,6 +291,7 @@ const LineChart = ({
             renderExtraComponent={legend?.renderExtraComponent}
             setLinesGraph={setLinesGraph}
             timeSeries={timeSeries}
+            xScale={xScale}
           />
         </div>
       )}

@@ -506,7 +506,10 @@ const getTimeValue = ({
   xScale,
   timeSeries,
   marginLeft = margin.left
-}: TimeValueProps): TimeValue => {
+}: TimeValueProps): TimeValue | null => {
+  if (isNil(x)) {
+    return null;
+  }
   const date = xScale.invert(x - marginLeft);
   const index = bisectDate(getDates(timeSeries), date);
 
