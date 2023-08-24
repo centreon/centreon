@@ -290,8 +290,11 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         }
         $virtualServicesCondition .= ') ';
 
-        /* Then, get virtual services for modules */
-        $allVirtualServiceIds = CentreonHook::execute('Service', 'getVirtualServiceIds');
+        /* Then, get virtual services for modules if not in anomaly detection context */
+        $allVirtualServiceIds = [];
+        if (($this->arguments['e'] ?? null) !== 'anomaly') {
+            $allVirtualServiceIds = CentreonHook::execute('Service', 'getVirtualServiceIds');
+        }
         foreach ($allVirtualServiceIds as $moduleVirtualServiceIds) {
             foreach ($moduleVirtualServiceIds as $hostname => $virtualServiceIds) {
                 if (count($virtualServiceIds)) {
