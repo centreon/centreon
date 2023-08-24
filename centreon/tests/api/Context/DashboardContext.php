@@ -30,32 +30,32 @@ class DashboardContext extends FeatureFlagContext
     /**
      * Wait to get metrics from metrics data endpoint
      *
-     * @param int $count expected count of results
+     * @param int $count expected count of metrics
      * @param string $url the listing endpoint
      * @param int $tries Count of tries
-     * @return int the count of results
+     * @return int the count of metrics
      *
      * @Given /^I wait to get (\d+) metrics? from ['"](\S+)['"](?: \(tries: (\d+)\))?$/
      */
-    public function iWaitToGetSomeResultsFrom(int $count, string $url, int $tries = 15): int
+    public function iWaitToGetSomeMetricsFrom(int $count, string $url, int $tries = 15): int
     {
-        $resultCount = 0;
+        $metricsCount = 0;
 
         $url = $this->replaceCustomVariables($url);
 
         $this->spin(
-            function() use ($count, $url, &$resultCount) {
+            function() use ($count, $url, &$metricsCount) {
                 $response = $this->iSendARequestTo('GET', $url);
                 $response = json_decode($response->getBody()->__toString(), true);
-                $resultCount = count($response["metrics"]);
+                $metricsCount = count($response["metrics"]);
                 $this->theJsonNodeShouldHaveAtLeastElements('metrics', $count);
 
                 return true;
             },
-            'the count of result(s) is : ' . $resultCount,
+            'the count of result(s) is : ' . $metricsCount,
             $tries
         );
 
-        return $resultCount;
+        return $metricsCount;
     }
 }
