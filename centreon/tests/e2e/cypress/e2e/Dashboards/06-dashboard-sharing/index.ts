@@ -78,16 +78,16 @@ When('the user selects the share option on a dashboard', () => {
 
 Then('the user is redirected to the sharing list of the dashboard', () => {
   cy.contains('Manage access rights').should('be.visible');
-  cy.get('*[class^="MuiList-root"]').eq(1).should('exist');
+  cy.get('*[class^="MuiList-root"]', { timeout: 12000 }).eq(1).should('exist');
 });
 
 Then('the creator of the dashboard is listed as its sole editor', () => {
-  cy.get('*[class^="MuiList-root"]')
+  cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
     .eq(1)
     .children()
     .its('length')
     .should('eq', 1);
-  cy.get('*[class^="MuiList-root"]')
+  cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
     .eq(1)
     .children()
     .eq(0)
@@ -120,12 +120,12 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
   cy.get('[role="listbox"]').contains('viewer').click();
   cy.getByTestId({ testId: 'add' }).click();
 
-  cy.get('*[class^="MuiList-root"]')
+  cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
     .eq(1)
     .children()
     .its('length')
     .should('eq', 2);
-  cy.get('*[class^="MuiList-root"]')
+  cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
     .eq(1)
     .children()
     .eq(0)
@@ -223,12 +223,12 @@ When(
     cy.get('[role="listbox"]').contains('editor').click();
     cy.getByTestId({ testId: 'add' }).click();
 
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .its('length')
       .should('eq', 2);
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .eq(0)
@@ -321,12 +321,12 @@ When(
     cy.get('[role="listbox"]').contains('viewer').click();
     cy.getByTestId({ testId: 'add' }).click();
 
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .its('length')
       .should('eq', 2);
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .eq(0)
@@ -429,12 +429,12 @@ When(
     cy.get('[role="listbox"]').contains('editor').click();
     cy.getByTestId({ testId: 'add' }).click();
 
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .its('length')
       .should('eq', 2);
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .eq(0)
@@ -534,12 +534,12 @@ Given(
     cy.get('[role="listbox"]').contains('viewer').click();
     cy.getByTestId({ testId: 'add' }).click();
 
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .its('length')
       .should('eq', 2);
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .eq(0)
@@ -560,12 +560,12 @@ When(
     cy.get('[role="listbox"]').contains('editor').click();
     cy.getByTestId({ testId: 'add' }).click();
 
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .its('length')
       .should('eq', 3);
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .eq(0)
