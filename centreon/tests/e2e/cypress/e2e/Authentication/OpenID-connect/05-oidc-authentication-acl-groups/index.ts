@@ -106,6 +106,8 @@ When(
 
     cy.getByLabel({ label: 'save button', tag: 'button' }).click();
     cy.wait('@updateOIDCProvider').its('response.statusCode').should('eq', 204);
+
+    cy.logout();
   }
 );
 
@@ -118,6 +120,8 @@ Then(
 
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication');
       cy.url().should('include', '/monitoring/resources');
+
+      cy.wait('@getTimeZone');
 
       cy.logout();
       cy.getByLabel({ label: 'Alias', tag: 'input' }).should('be.visible');
