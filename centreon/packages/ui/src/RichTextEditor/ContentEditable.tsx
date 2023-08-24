@@ -4,7 +4,6 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { makeStyles } from 'tss-react/mui';
 import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { $generateHtmlFromNodes } from '@lexical/html';
 
 import { Typography } from '@mui/material';
 
@@ -84,12 +83,6 @@ const ContentEditable = ({
   const [isFocused, setFocused] = useState(false);
   const [root, setRoot] = useState('');
 
-  if (editor) {
-    editor.update(() => {
-      const htmlString = $generateHtmlFromNodes(editor, null);
-      console.log('htmlString : ', htmlString);
-    });
-  }
   const ref = useCallback(
     (rootElement: null | HTMLElement) => {
       editor.setRootElement(rootElement);

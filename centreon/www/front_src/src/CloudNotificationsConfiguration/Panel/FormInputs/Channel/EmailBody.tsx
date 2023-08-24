@@ -1,20 +1,29 @@
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { path } from 'ramda';
+import { $generateHtmlFromNodes } from '@lexical/html';
+import { useSetAtom } from 'jotai';
 
 import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 
 import { labelTypeYourTextHere } from '../../../translatedLabels';
 import { useStyles } from '../Inputs.styles';
+import { htmlEmailyBodyAtom } from '../../atom';
 
 const EmailBody = (): JSX.Element => {
   const { classes } = useStyles({});
-
   const { t } = useTranslation();
+
+  const setHtmlEmailyBody = useSetAtom(htmlEmailyBodyAtom);
+
   const { setFieldValue, values, initialValues, errors, touched, handleBlur } =
     useFormikContext<FormikValues>();
 
-  const getEditorState = (state: unknown): void => {
+  const getEditorState = (state: unknown, editor): void => {
+    editor.update(() => {
+      const htmlString = $generateHtmlFromNodes(editor, null);
+      setHtmlEmailyBody(htmlString);
+    });
     setFieldValue('messages.message', JSON.stringify(state));
   };
 

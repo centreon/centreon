@@ -7,7 +7,7 @@ import { HeadingNode } from '@lexical/rich-text';
 import { ListItemNode, ListNode } from '@lexical/list';
 import anylogger from 'anylogger';
 import { makeStyles } from 'tss-react/mui';
-import { EditorState } from 'lexical';
+import { EditorState, LexicalEditor } from 'lexical';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { equals } from 'ramda';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
@@ -27,7 +27,7 @@ export interface RichTextEditorProps {
   editable: boolean;
   editorState?: string;
   error?: string;
-  getEditorState?: (editorState: EditorState) => void;
+  getEditorState?: (editorState: EditorState, editor: LexicalEditor) => void;
   initialEditorState?: string;
   inputClassname?: string;
   minInputHeight?: number;
