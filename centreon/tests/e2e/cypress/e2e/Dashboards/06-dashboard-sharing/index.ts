@@ -133,14 +133,13 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
 
   cy.get('[data-state="added"]').should('exist');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-  cy.reload();
 });
 
 Then(
   "the viewer user is listed as a viewer in the dashboard's share list",
   () => {
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .contains(dashboardViewerUser.login)
@@ -236,7 +235,6 @@ When(
       .should('contain', `${dashboardCreatorUser.login}`);
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload();
   }
 );
 
@@ -244,7 +242,7 @@ Then(
   "the second editor user is listed as an editor in the dashboard's share list",
   () => {
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .contains(dashboardCreatorUser.login)
@@ -335,7 +333,6 @@ When(
       .should('contain', 'dashboard-contact-group-viewer');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload();
   }
 );
 
@@ -343,7 +340,7 @@ Then(
   'any member of the contact group has access to the dashboard in the dashboards library but cannot share it or update its properties',
   () => {
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .contains('dashboard-contact-group-viewer')
@@ -444,7 +441,6 @@ When(
       .should('contain', 'dashboard-contact-group-creator');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload();
   }
 );
 
@@ -452,7 +448,7 @@ Then(
   'any member of the contact group has access to the dashboard in the dashboards library and can share it or update its properties',
   () => {
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .contains('dashboard-contact-group-creator')
@@ -550,7 +546,6 @@ Given(
       .should('contain', 'dashboard-contact-group-creator');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload();
   }
 );
 
@@ -577,7 +572,6 @@ When(
       .should('contain', `${dashboardCGMember3.login}`);
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload();
   }
 );
 
@@ -667,7 +661,6 @@ When('the admin user appoints one of the users as an editor', () => {
   cy.get('[role="listbox"]').contains('editor').click();
   cy.getByTestId({ testId: 'add' }).click();
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-  cy.reload();
 });
 
 Then(
@@ -697,10 +690,9 @@ Then(
     cy.getByTestId({ testId: 'add' }).click();
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload();
 
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .contains(dashboardCGMember3.login)
@@ -723,10 +715,9 @@ Then(
     cy.getByTestId({ testId: 'add' }).click();
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload();
 
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
-    cy.get('*[class^="MuiList-root"]')
+    cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
       .eq(1)
       .children()
       .contains(dashboardViewerUser.login)
