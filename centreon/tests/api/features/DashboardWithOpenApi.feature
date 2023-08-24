@@ -1765,6 +1765,7 @@ Feature:
     }
     """
 
+    And I wait to get 3 metrics from '/api/latest/monitoring/dashboard/metrics/performances/data?metricIds=[1,2,3]&start=2023-09-08T04:40:16.344Z&end=2023-09-08T08:40:16.344Z'
     When I send a GET request to '/api/latest/monitoring/dashboard/metrics/performances/data?metricIds=[1,2,3]&start=2023-09-08T04:40:16.344Z&end=2023-09-08T08:40:16.344Z'
     Then the response code should be "200"
     And the JSON nodes should be equal to:

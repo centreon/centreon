@@ -223,13 +223,7 @@ const checkIfNotificationsAreNotBeingSent = (): void => {
 };
 
 const typeToSearchInput = (searchText: string): void => {
-  cy.get(searchInput).as('searchInput');
-
-  cy.get('@searchInput').clear();
-
-  cy.get('@searchInput').type(searchText);
-
-  cy.get('@searchInput').type('{esc}{enter}');
+  cy.get(searchInput).type(`{selectall}{backspace}${searchText}{esc}{enter}`);
 };
 
 const actionBackgroundColors = {

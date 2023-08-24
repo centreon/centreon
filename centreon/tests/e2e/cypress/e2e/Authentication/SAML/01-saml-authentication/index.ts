@@ -119,9 +119,8 @@ Then(
 
     cy.session(username, () => {
       cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
-      cy.loginKeycloack(username)
-        .url()
-        .should('include', '/monitoring/resources');
+      cy.loginKeycloack(username);
+      cy.url().should('include', '/monitoring/resources');
     });
   }
 );

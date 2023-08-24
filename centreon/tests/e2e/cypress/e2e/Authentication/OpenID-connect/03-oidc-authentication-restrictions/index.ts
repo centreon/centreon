@@ -42,8 +42,9 @@ Given('an administrator is logged on the platform', () => {
       rootItemNumber: 4
     })
     .get('div[role="tablist"] button:nth-child(2)')
-    .click()
-    .wait('@getOIDCProvider');
+    .click();
+
+  cy.wait('@getOIDCProvider');
 });
 
 When(
@@ -61,15 +62,13 @@ When(
     cy.getByLabel({ label: 'Authentication conditions' }).click({
       force: true
     });
-    cy.getByLabel({ label: 'Blacklist client addresses' })
-      .clear()
-      .type('127.0.0.1{enter}');
+    cy.getByLabel({ label: 'Blacklist client addresses' }).type(
+      '{selectall}{backspace}127.0.0.1{enter}'
+    );
     cy.getByLabel({
       label: 'Conditions attribute path',
       tag: 'input'
-    })
-      .clear()
-      .type('preferred_username');
+    }).type('{selectall}{backspace}preferred_username');
     cy.getByLabel({
       label: 'Enable conditions on identity provider',
       tag: 'input'
@@ -83,14 +82,9 @@ When(
     cy.getByLabel({
       label: 'Condition value',
       tag: 'input'
-    })
-      .clear()
-      .type('oidc');
-    cy.getByLabel({ label: 'save button', tag: 'button' })
-      .click()
-      .wait('@updateOIDCProvider')
-      .its('response.statusCode')
-      .should('eq', 204);
+    }).type('{selectall}{backspace}oidc');
+    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+    cy.wait('@updateOIDCProvider').its('response.statusCode').should('eq', 204);
   }
 );
 
@@ -99,10 +93,9 @@ Then(
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
       cy.visit('/');
-      cy.get('a').click();
-      cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
-        .url()
-        .should('include', '/monitoring/resources');
+      cy.contains('Login with openid').should('be.visible').click();
+      cy.loginKeycloack('user-non-admin-for-OIDC-authentication');
+      cy.url().should('include', '/monitoring/resources');
     });
   }
 );

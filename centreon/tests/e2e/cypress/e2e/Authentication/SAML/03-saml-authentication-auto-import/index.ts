@@ -64,8 +64,7 @@ When('the administrator activates the auto-import option for SAML', () => {
     label: 'Contact template',
     tag: 'input'
   })
-    .clear()
-    .type('contact_template')
+    .type('{selectall}{backspace}contact_template')
     .wait('@getListContactTemplates')
     .get('div[role="presentation"] ul li')
     .eq(-1)
@@ -79,16 +78,12 @@ When('the administrator activates the auto-import option for SAML', () => {
   cy.getByLabel({
     label: 'Email attribute',
     tag: 'input'
-  })
-    .clear()
-    .type('email');
+  }).type('{selectall}{backspace}email');
 
   cy.getByLabel({
     label: 'Full name attribute',
     tag: 'input'
-  })
-    .clear()
-    .type('given_name');
+  }).type('{selectall}{backspace}given_name');
 
   cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
@@ -104,11 +99,10 @@ Then(
 
     cy.session(username, () => {
       cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
-      cy.loginKeycloack(username)
-        .url()
-        .should('include', '/monitoring/resources')
-        .logout();
+      cy.loginKeycloack(username);
+      cy.url().should('include', '/monitoring/resources');
 
+      cy.logout();
       cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
     });
 

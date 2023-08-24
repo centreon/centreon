@@ -388,24 +388,6 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
     .find('tr#host_input .select2-container')
     .should('be.visible');
 
-  cy.get('iframe#main-content')
-    .its('0.contentDocument.body')
-    .find('label[for="service"]')
-    .click();
-
-  cy.getIframeBody()
-    .find('tr#service_input .select2-container')
-    .should('be.visible')
-    .click();
-
-  cy.wait('@getServices');
-
-  cy.getIframeBody()
-    .find('ul[id="select2-service_id-results"] li')
-    .contains(serviceInDtName)
-    .eq(0)
-    .click();
-
   // wait js is loaded because downtime start time is dynamically updated according to user timezone
   cy.waitUntil(
     () => {
@@ -429,6 +411,24 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
     },
     { customMessage: 'Downtime start time is not equal to header time' }
   );
+
+  cy.get('iframe#main-content')
+    .its('0.contentDocument.body')
+    .find('label[for="service"]')
+    .click();
+
+  cy.getIframeBody()
+    .find('tr#service_input .select2-container')
+    .should('be.visible')
+    .click();
+
+  cy.wait('@getServices');
+
+  cy.getIframeBody()
+    .find('ul[id="select2-service_id-results"] li')
+    .contains(serviceInDtName)
+    .eq(0)
+    .click();
 
   cy.getIframeBody()
     .find('input[name="submitA"]')

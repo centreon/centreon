@@ -65,7 +65,7 @@ Cypress.Commands.add(
   (jsonName: string): Cypress.Chainable => {
     cy.fixture(`users/${jsonName}.json`).then((credential) => {
       cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
-      cy.get('#password').type(`{selectall}{backspace}${credential.password} `);
+      cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
     });
 
     return cy.get('#kc-login').click();

@@ -23,7 +23,7 @@ default:
         - "%paths.base%/features/DashboardWithOpenApi.feature"
         - "%paths.base%/features/DashboardWithoutOpenApi.feature"
       contexts:
-        - Centreon\Test\Api\Context\FeatureFlagContext
+        - Centreon\Test\Api\Context\DashboardContext
     host_category:
       paths: [ "%paths.base%/features/HostCategory.feature" ]
       contexts:
@@ -68,12 +68,6 @@ default:
       paths: [ "%paths.base%/features/UserFilter.feature" ]
       contexts:
         - Centreon\Test\Api\Context\UserFilterContext
-    users_configuration:
-      paths:
-        - "%paths.base%/features/ConfigurationUsersWithOpenApi.feature"
-        - "%paths.base%/features/ConfigurationUsersWithoutOpenApi.feature"
-      contexts:
-        - Centreon\Test\Api\Context\FeatureFlagContext
     check:
       paths: [ "%paths.base%/features/Check.feature" ]
       contexts:
