@@ -406,12 +406,28 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
     .eq(0)
     .click();
 
+  cy.waitUntil(() => {
+    return cy.getTimeFromHeader().then((headerTime) => {
+      cy.getIframeBody()
+        .find('input[name="start_time"]')
+        .invoke('val')
+        .then((text) => {
+          return (
+            calculateMinuteInterval(
+              convert12hFormatToDate(String(text)),
+              convert12hFormatToDate(headerTime)
+            ) >= 2
+          );
+        });
+    });
+  });
+
   cy.getTimeFromHeader().then((headerTime) => {
     cy.getIframeBody()
       .find('input[name="start_time"]')
       .invoke('val')
       .then((text) => {
-        expect(text).to.match(/\d+\d+/);
+        expect(text).to.match(/\d+:\d+/);
         expect(
           calculateMinuteInterval(
             convert12hFormatToDate(String(text)),

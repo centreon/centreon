@@ -165,9 +165,11 @@ Given('a saved custom filter', () => {
 
   cy.reload().wait('@getFilters');
 
-  cy.get(stateFilterContainer).should('be.visible').click();
+  cy.contains('Unhandled alerts').should('be.visible');
 
-  cy.contains('OK services').should('exist');
+  cy.get(stateFilterContainer).click();
+
+  cy.contains('OK services');
 });
 
 When('I select the custom filter', () => {
