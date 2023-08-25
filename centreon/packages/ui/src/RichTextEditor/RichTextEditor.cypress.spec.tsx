@@ -190,7 +190,7 @@ describe('Rich Text Editor', () => {
       cy.get('[data-testid="RichTextEditor"]').should(
         'have.attr',
         'contenteditable',
-        'true'
+        'false'
       );
       cy.findByLabelText('Undo').should('not.exist');
       cy.findByLabelText('Redo').should('not.exist');
