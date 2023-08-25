@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
@@ -77,24 +76,23 @@ When(
       tag: 'input'
     })
       .clear()
-      .type('groups');
+      .type('{selectAll}{backspace}groups');
 
     cy.getByLabel({
       label: 'Group value',
       tag: 'input'
     })
       .clear()
-      .type('/Supervisors');
+      .type('{selectAll}{backspace}/Supervisors');
 
     cy.getByLabel({
       label: 'Contact group',
       tag: 'input'
-    })
-      .click({ force: true })
-      .wait('@getListContactsGroups')
-      .get('div[role="presentation"] ul li')
-      .eq(1)
-      .click();
+    }).click({ force: true });
+
+    cy.wait('@getListContactsGroups');
+
+    cy.get('div[role="presentation"] ul li').eq(1).click();
 
     cy.getByLabel({
       label: 'Contact group',
