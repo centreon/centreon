@@ -37,8 +37,7 @@ import {
   hostGroupsResponse,
   serviceGroupsResponse,
   contactGroupsResponse,
-  platformVersions,
-  defaultEmailBody
+  platformVersions
 } from './testUtils';
 
 const store = createStore();
