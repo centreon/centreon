@@ -17961,6 +17961,15 @@ msgstr "Vous n'êtes pas autorisé à afficher les ressources des notifications"
 msgid "Error while listing notification resources"
 msgstr "Erreur lors de l'affichage des ressources des notifications"
 
+msgid "Notifications will only be sent during this time period"
+msgstr "Les notifications ne seront envoyées que pendant cette période"
+
+msgid "Search Business Views"
+msgstr "Rechercher des Vues Métier"
+
+msgid "Business Views events"
+msgstr "Événements des Vues Métier"
+
 msgid "Host template required in service group association is not linked to service template"
 msgstr "Le modèle d'hôte requis dans l'association du groupe de services n'est pas lié au modèle de service"
 
@@ -18001,7 +18010,7 @@ msgid "Refresh interval"
 msgstr "Intervalle de rafraîchissement"
 
 msgid "Dashboard global interval (by default)"
-msgstr "Intervalle global du tableau de bord (par défaut)"  
+msgstr "Intervalle global du tableau de bord (par défaut)"
 
 msgid "Custom refresh interval"
 msgstr "Intervalle de rafraîchissement personnalisé"
@@ -18107,3 +18116,21 @@ msgstr "Fin"
 
 msgid "Value customized"
 msgstr "Valeur personnalisée"
+
+msgid "You are not allowed to add a service"
+msgstr "Vous n'êtes pas autorisé à ajouter un service"
+
+msgid "Error while adding the service"
+msgstr "Erreur lors de l'ajout du service"
+
+msgid "Error while retrieving a service"
+msgstr "Erreur lors de la récupération d'un service"
+
+msgid "The check command cannot be null if the service template is null"
+msgstr "La commande de vérification ne peut être null si le modèle de service est null"
+
+msgid "'%s' does not exist with ID(s) '%s'"
+msgstr "'%s' n'existe pas avec le(s) ID(s) %s"
+
+msgid "'%s' service name already exists for host ID %d"
+msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"

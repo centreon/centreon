@@ -80,7 +80,8 @@ class DbReadServiceMacroRepository extends AbstractRepositoryRDB implements Read
         $statement->execute();
 
         $macros = [];
-        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
+        $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        foreach ($results as $result) {
             /** @var _Macro $result */
             $macros[] = $this->createMacro($result);
         }

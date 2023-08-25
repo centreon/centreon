@@ -1,5 +1,5 @@
 export enum ResourcesTypeEnum {
-  BA = 'ba',
+  BV = 'businessview',
   HG = 'hostgroup',
   SG = 'servicegroup'
 }
