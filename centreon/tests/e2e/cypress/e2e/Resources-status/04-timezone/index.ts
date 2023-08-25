@@ -380,6 +380,11 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
 
       cy.wait('@getTimeZone');
 
+      cy.get('iframe#main-content')
+        .its('0.contentDocument.body')
+        .find('tr#host_input .select2-container')
+        .should('be.visible');
+
       return cy
         .getTimeFromHeader()
         .then((headerTime) => {
@@ -399,13 +404,11 @@ When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
         })
         .then((interval) => interval <= 2);
     },
-    { customMessage: 'Downtime start time is not equal to header time' }
+    {
+      errorMsg: 'Downtime start time is not equal to header time',
+      timeout: 30000
+    }
   );
-
-  cy.get('iframe#main-content')
-    .its('0.contentDocument.body')
-    .find('tr#host_input .select2-container')
-    .should('be.visible');
 
   cy.get('iframe#main-content')
     .its('0.contentDocument.body')
@@ -458,17 +461,14 @@ Then(
       }
     );
 
-    cy.getIframeBody()
-      .find('.ListTable tr:not(.ListHeader) td')
-      .eq(3)
+    cy.get('iframe#main-content')
+      .its('0.contentDocument.body')
+      .find('.ListTable td.isTimestamp')
+      .contains(/\d+:\d+/)
       .then(($el) => {
+        const downtimeStartTime = $el.text().trim();
+
         cy.getTimeFromHeader().then((localTime: string) => {
-          const downtimeStartTime = $el[0].textContent;
-
-          if (downtimeStartTime === null) {
-            throw new Error('Cannot get downtime start time');
-          }
-
           cy.log(`Downtime start time : ${downtimeStartTime}`);
 
           expect(
