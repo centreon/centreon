@@ -345,6 +345,7 @@ When(
       .should('contain', 'dashboard-contact-group-viewer');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactGroupToDashboardShareList');
   }
 );
@@ -454,6 +455,7 @@ When(
       .should('contain', 'dashboard-contact-group-creator');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactGroupToDashboardShareList');
   }
 );
@@ -560,6 +562,7 @@ Given(
       .should('contain', 'dashboard-contact-group-creator');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactGroupToDashboardShareList');
   }
 );
@@ -587,6 +590,7 @@ When(
       .should('contain', `${dashboardCGMember3.login}`);
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactToDashboardShareList');
   }
 );
@@ -677,6 +681,7 @@ When('the admin user appoints one of the users as an editor', () => {
   cy.get('[role="listbox"]').contains('editor').click();
   cy.getByTestId({ testId: 'add' }).click();
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.reload(); // TODO: Find a way to remove reloads
   cy.wait('@addContactToDashboardShareList');
 });
 
@@ -707,6 +712,7 @@ Then(
     cy.getByTestId({ testId: 'add' }).click();
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactToDashboardShareList');
 
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
@@ -733,6 +739,7 @@ Then(
     cy.getByTestId({ testId: 'add' }).click();
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactToDashboardShareList');
 
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
