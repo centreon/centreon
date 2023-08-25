@@ -6,7 +6,8 @@ import { Paper } from '@mui/material';
 
 import { Modal } from '@centreon/ui/components';
 
-import { labelSelectAWidgetType } from '../translatedLabels';
+import { labelAddWidget, labelEditWidget } from '../translatedLabels';
+import Title from '../../components/Title';
 
 import useWidgetForm from './useWidgetModal';
 import { useAddWidgetStyles } from './addWidget.styles';
@@ -19,52 +20,79 @@ import {
 } from './WidgetProperties';
 import Actions from './Actions';
 import useValidationSchema from './useValidationSchema';
+import UnsavedChanges from './UnsavedChanges';
 
-const AddWidgetModal = (): JSX.Element => {
+const AddWidgetModal = (): JSX.Element | null => {
   const { t } = useTranslation();
 
   const { schema } = useValidationSchema();
 
   const { classes } = useAddWidgetStyles();
 
-  const { widgetFormInitialData, closeModal, addWidget, editWidget } =
-    useWidgetForm();
+  const {
+    widgetFormInitialData,
+    setAskingBeforeCloseModal,
+    addWidget,
+    editWidget,
+    askBeforeCloseModal,
+    askingBeforeCloseModal,
+    discardChanges
+  } = useWidgetForm();
 
   const isAddingWidget = isNil(widgetFormInitialData?.id);
 
+  if (!widgetFormInitialData) {
+    return null;
+  }
+
   return (
-    <Modal
-      open={Boolean(widgetFormInitialData)}
-      size="xlarge"
-      onClose={closeModal}
+    <Formik<Widget>
+      validateOnBlur
+      validateOnChange
+      initialValues={widgetFormInitialData as Widget}
+      validationSchema={schema}
+      onSubmit={isAddingWidget ? addWidget : editWidget}
     >
-      <Modal.Header>{t(labelSelectAWidgetType)}</Modal.Header>
-      <Formik<Widget>
-        validateOnBlur
-        validateOnChange
-        initialValues={widgetFormInitialData as Widget}
-        validationSchema={schema}
-        onSubmit={isAddingWidget ? addWidget : editWidget}
-      >
-        <>
-          <Modal.Body>
-            <div className={classes.container}>
-              <Paper className={classes.preview}>
-                <Preview />
-              </Paper>
-              <div className={classes.widgetProperties}>
-                <WidgetSelection />
-                <div className={classes.widgetPropertiesContent}>
-                  <WidgetProperties />
+      {({ dirty }) => (
+        <Modal
+          open
+          fullscreenMargins={{
+            left: 48,
+            top: 90
+          }}
+          size="fullscreen"
+          onClose={() => askBeforeCloseModal(dirty)}
+        >
+          <Modal.Header>
+            <Title>
+              {t(isAddingWidget ? labelAddWidget : labelEditWidget)}
+            </Title>
+          </Modal.Header>
+          <>
+            <Modal.Body>
+              <div className={classes.container}>
+                <Paper className={classes.preview}>
+                  <Preview />
+                </Paper>
+                <div className={classes.widgetProperties}>
+                  <WidgetSelection />
+                  <div className={classes.widgetPropertiesContent}>
+                    <WidgetProperties />
+                  </div>
                 </div>
+                <WidgetData />
               </div>
-              <WidgetData />
-            </div>
-          </Modal.Body>
-          <Actions closeModal={closeModal} isAddingWidget={isAddingWidget} />
-        </>
-      </Formik>
-    </Modal>
+            </Modal.Body>
+            <Actions closeModal={askBeforeCloseModal} />
+            <UnsavedChanges
+              closeDialog={() => setAskingBeforeCloseModal(false)}
+              discard={discardChanges}
+              opened={askingBeforeCloseModal}
+            />
+          </>
+        </Modal>
+      )}
+    </Formik>
   );
 };
 

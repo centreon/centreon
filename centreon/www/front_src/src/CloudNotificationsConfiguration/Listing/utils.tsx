@@ -13,9 +13,9 @@ interface FormatChannelProps {
 }
 
 const formatSingleResource = cond([
-  [equals(ResourcesTypeEnum.SG), always('SG')],
   [equals(ResourcesTypeEnum.HG), always('HG')],
-  [equals(ResourcesTypeEnum.BA), always('BA')],
+  [equals(ResourcesTypeEnum.SG), always('SG')],
+  [equals(ResourcesTypeEnum.BV), always('BV')],
   [T, always('N/A')]
 ]);
 

@@ -36,8 +36,9 @@ const Panel = ({ id }: Props): JSX.Element => {
       <RichTextEditor
         editable={false}
         editorState={
-          (panelOptionsAndData.options as { genericText: string | undefined })
-            ?.genericText
+          panelOptionsAndData.options?.description?.enabled
+            ? panelOptionsAndData.options?.description?.content
+            : undefined
         }
       />
     ) : (

@@ -1,18 +1,19 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
 
-import { Avatar, Divider, FormHelperText, Typography } from '@mui/material';
+import { Divider, FormHelperText, Typography } from '@mui/material';
 
-import { ItemComposition } from '@centreon/ui/components';
+import { Avatar, ItemComposition } from '@centreon/ui/components';
 import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
 
 import {
-  labelAdd,
+  labelAddResource,
   labelDelete,
   labelResourceType,
   labelResources,
   labelSelectAResource
 } from '../../../../translatedLabels';
+import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 
 import useResources from './useResources';
@@ -23,6 +24,7 @@ interface Props {
 
 const Resources = ({ propertyName }: Props): JSX.Element => {
   const { classes } = useResourceStyles();
+  const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
   const {
@@ -34,20 +36,29 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     changeResources,
     getResourceResourceBaseEndpoint,
     getSearchField,
-    error
+    error,
+    addButtonHidden,
+    getOptionDisabled
   } = useResources(propertyName);
 
   return (
     <div className={classes.resourcesContainer}>
       <div className={classes.resourcesHeader}>
-        <Avatar className={classes.resourcesHeaderAvatar}>1</Avatar>
+        <Avatar compact className={avatarClasses.widgetAvatar}>
+          2
+        </Avatar>
         <Typography>{t(labelResources)}</Typography>
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
-      <ItemComposition labelAdd={t(labelAdd)} onAddItem={addResource}>
+      <ItemComposition
+        addButtonHidden={addButtonHidden}
+        labelAdd={t(labelAddResource)}
+        onAddItem={addResource}
+      >
         {value.map((resource, index) => (
           <ItemComposition.Item
             className={classes.resourceCompositionItem}
+            deleteButtonHidden={addButtonHidden}
             key={`${index}`}
             labelDelete={t(labelDelete)}
             onDeleteItem={deleteResource(index)}
@@ -67,6 +78,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               getEndpoint={getResourceResourceBaseEndpoint(
                 resource.resourceType
               )}
+              getOptionDisabled={getOptionDisabled}
               label={t(labelSelectAResource)}
               limitTags={2}
               queryKey={`${resource.resourceType}-${index}`}

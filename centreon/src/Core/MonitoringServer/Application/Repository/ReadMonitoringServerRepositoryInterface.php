@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\MonitoringServer\Application\Repository;
 
+use Core\MonitoringServer\Model\MonitoringServer;
+
 interface ReadMonitoringServerRepositoryInterface {
     /**
      * Determine if a monitoring server exists by its ID.
@@ -34,4 +36,15 @@ interface ReadMonitoringServerRepositoryInterface {
      * @return bool
      */
     public function exists(int $monitoringServerId): bool;
+
+    /**
+     * Get a monitoring server by its associated host ID.
+     *
+     * @param int $hostId
+     *
+     * @throws \Throwable
+     *
+     * @return MonitoringServer|null
+     */
+    public function findByHost(int $hostId): ?MonitoringServer;
 }

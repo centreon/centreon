@@ -47,7 +47,7 @@ const useStyles = makeStyles<StyleProps>()(
 
 interface Props {
   className?: string;
-  disabled: boolean;
+  disabled?: boolean;
   editable: boolean;
   editorState?: string;
   error?: string;
@@ -60,6 +60,9 @@ interface Props {
   placeholder: string;
   resetEditorToInitialStateCondition?: () => boolean;
 }
+
+const defaultState =
+  '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
 
 const ContentEditable = ({
   minInputHeight,
@@ -91,8 +94,10 @@ const ContentEditable = ({
   );
 
   useLayoutEffect(() => {
-    if (editorState && !editable) {
-      const newEditorState = editor.parseEditorState(editorState);
+    if (!editable) {
+      const newEditorState = editor.parseEditorState(
+        editorState || defaultState
+      );
 
       editor.setEditorState(newEditorState);
     }
@@ -135,6 +140,10 @@ const ContentEditable = ({
   const isEditable = editor.isEditable();
 
   useEffect(() => {
+    if (isNil(disabled)) {
+      return;
+    }
+
     editor.setEditable(!disabled);
   }, [disabled]);
 
