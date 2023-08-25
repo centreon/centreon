@@ -24,7 +24,8 @@ import {
   Panel,
   Dashboard,
   PanelConfiguration,
-  QuitWithoutSavedDashboard
+  QuitWithoutSavedDashboard,
+  WidgetOptions
 } from './models';
 
 export const refreshIntervalAtom = atom(30);
@@ -188,7 +189,7 @@ export const removePanelDerivedAtom = atom(
 export const getPanelOptionsAndDataDerivedAtom = atom((get) => {
   const dashboard = get(dashboardAtom);
 
-  return (id: string): { data?: object; options?: object } => {
+  return (id: string): { data?: object; options?: WidgetOptions } => {
     const panel = getPanel({
       id,
       layout: dashboard.layout

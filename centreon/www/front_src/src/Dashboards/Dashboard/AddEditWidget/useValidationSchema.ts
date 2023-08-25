@@ -65,7 +65,7 @@ const useValidationSchema = (): {
   const requiredText = t(labelRequired) as string;
 
   const schema = Yup.object({
-    data: Yup.object(widgetDataValidationSchema),
+    data: Yup.object(widgetDataValidationSchema).nullable(),
     options: Yup.object({
       description: Yup.object().shape({
         content: Yup.string().nullable(),
