@@ -2,13 +2,13 @@ import { ReactNode } from 'react';
 
 import { SelectEntry } from '@centreon/ui';
 
-import { PanelConfiguration } from '../models';
+import { PanelConfiguration, WidgetOptions } from '../models';
 
 export interface Widget {
   data: object | null;
   id: string | null;
   moduleName: string | null;
-  options: object;
+  options: WidgetOptions;
   panelConfiguration: PanelConfiguration | null;
 }
 
