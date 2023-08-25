@@ -141,8 +141,8 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
 
   cy.get('[data-state="added"]').should('exist');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-  cy.reload(); // TODO: Find a way to remove reloads
   cy.wait('@addContactToDashboardShareList');
+  cy.reload(); // TODO: Find a way to remove reloads
 });
 
 Then(
@@ -245,8 +245,8 @@ When(
       .should('contain', `${dashboardCreatorUser.login}`);
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactToDashboardShareList');
+    cy.reload(); // TODO: Find a way to remove reloads
   }
 );
 
@@ -345,8 +345,8 @@ When(
       .should('contain', 'dashboard-contact-group-viewer');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactGroupToDashboardShareList');
+    cy.reload(); // TODO: Find a way to remove reloads
   }
 );
 
@@ -455,8 +455,8 @@ When(
       .should('contain', 'dashboard-contact-group-creator');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactGroupToDashboardShareList');
+    cy.reload(); // TODO: Find a way to remove reloads
   }
 );
 
@@ -562,8 +562,8 @@ Given(
       .should('contain', 'dashboard-contact-group-creator');
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactGroupToDashboardShareList');
+    cy.reload(); // TODO: Find a way to remove reloads
   }
 );
 
@@ -590,8 +590,8 @@ When(
       .should('contain', `${dashboardCGMember3.login}`);
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactToDashboardShareList');
+    cy.reload(); // TODO: Find a way to remove reloads
   }
 );
 
@@ -681,8 +681,8 @@ When('the admin user appoints one of the users as an editor', () => {
   cy.get('[role="listbox"]').contains('editor').click();
   cy.getByTestId({ testId: 'add' }).click();
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-  cy.reload(); // TODO: Find a way to remove reloads
   cy.wait('@addContactToDashboardShareList');
+  cy.reload(); // TODO: Find a way to remove reloads
 });
 
 Then(
@@ -712,8 +712,8 @@ Then(
     cy.getByTestId({ testId: 'add' }).click();
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactToDashboardShareList');
+    cy.reload(); // TODO: Find a way to remove reloads
 
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
@@ -739,8 +739,8 @@ Then(
     cy.getByTestId({ testId: 'add' }).click();
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
-    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactToDashboardShareList');
+    cy.reload(); // TODO: Find a way to remove reloads
 
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.get('*[class^="MuiList-root"]', { timeout: 12000 })
