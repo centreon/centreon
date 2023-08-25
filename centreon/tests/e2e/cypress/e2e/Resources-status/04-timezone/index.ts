@@ -77,6 +77,11 @@ beforeEach(() => {
   }).as('getTimeZone');
 
   cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/users/current/parameters'
+  }).as('getUserParameters');
+
+  cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/monitoring/resources/acknowledge'
   }).as('postAcknowledgments');
@@ -197,22 +202,21 @@ When('the user saves the form', () => {
 
 Then('timezone information are updated on the banner', () => {
   cy.reload()
-    .wait('@getTimeZone')
-    .then(() => {
-      cy.getTimeFromHeader().then((localTime: string) => {
-        const timeofTZ = new Date().toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          timeZone: chosenTZ
-        });
-
-        expect(
-          calculateMinuteInterval(
-            convert12hFormatToDate(localTime),
-            convert12hFormatToDate(timeofTZ)
-          )
-        ).to.be.lte(2);
+    .wait(['@getTimeZone', '@getUserParameters'])
+    .getTimeFromHeader()
+    .then((localTime: string) => {
+      const timeofTZ = new Date().toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZone: chosenTZ
       });
+
+      expect(
+        calculateMinuteInterval(
+          convert12hFormatToDate(localTime),
+          convert12hFormatToDate(timeofTZ)
+        )
+      ).to.be.lte(2);
     });
 });
 
@@ -373,12 +377,11 @@ Then(
 );
 
 When('the user creates a downtime on a resource in Monitoring>Downtime', () => {
-  // wait js is loaded because downtime start time is dynamically updated according to user timezone
   cy.waitUntil(
     () => {
       cy.visit('/centreon/main.php?p=21001&o=a'); // add downtime page
 
-      cy.wait('@getTimeZone');
+      cy.wait(['@getTimeZone', '@getUserParameters']);
 
       cy.get('iframe#main-content')
         .its('0.contentDocument.body')
@@ -444,7 +447,7 @@ Then(
   () => {
     cy.waitUntil(
       () => {
-        cy.reload().wait('@getTimeZone');
+        cy.reload().wait(['@getTimeZone', '@getUserParameters']);
 
         return cy
           .get('iframe#main-content')
