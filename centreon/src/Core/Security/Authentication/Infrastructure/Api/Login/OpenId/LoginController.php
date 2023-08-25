@@ -84,10 +84,21 @@ class LoginController extends AbstractController
                  */
                 $response = $presenter->getPresentedData();
 
+                if ($response->redirectIsReact()) {
+                    return View::createRedirect(
+                        $this->getBaseUrl() . $response->getRedirectUri(),
+                        Response::HTTP_FOUND,
+                        [ 'Set-Cookie' => 'PHPSESSID=' . $session->getId() ]
+                    );
+                }
+
                 return View::createRedirect(
-                    $this->getBaseUrl() . $response->getRedirectUri(),
+                    $this->getBaseUrl() . '/login',
                     Response::HTTP_FOUND,
-                    ['Set-Cookie' => 'PHPSESSID=' . $session->getId()]
+                    [
+                        'Set-Cookie' => 'PHPSESSID=' . $session->getId(),
+                        'Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri(),
+                    ]
                 );
         }
     }

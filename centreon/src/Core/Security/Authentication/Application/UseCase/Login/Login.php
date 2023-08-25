@@ -119,8 +119,9 @@ final class Login
                 }
             }
 
+            $redirectionInfo = $this->getRedirectionUri($user, $loginRequest->refererQueryParameters);
             $presenter->present(
-                new LoginResponse($this->getRedirectionUri($user, $loginRequest->refererQueryParameters))
+                new LoginResponse($redirectionInfo['redirect_uri'], $redirectionInfo['is_react'])
             );
         } catch (PasswordExpiredException $e) {
             $response = new PasswordExpiredResponse($e->getMessage());
@@ -133,7 +134,7 @@ final class Login
         } catch (AuthenticationException $e) {
             $this->error('An error occurred during authentication', ['trace' => (string) $e]);
             $presenter->setResponseStatus(new UnauthorizedResponse($e->getMessage()));
-            
+
             return;
         } catch (AclConditionsException $e) {
             $this->error('An error occured while matching your ACL conditions', ['trace' => (string) $e]);
@@ -204,20 +205,20 @@ final class Login
      * @param ContactInterface $authenticatedUser
      * @param string|null $refererQueryParameters
      *
-     * @return string
+     * @return array<string,bool|string>
      */
-    private function getRedirectionUri(ContactInterface $authenticatedUser, ?string $refererQueryParameters): string
+    private function getRedirectionUri(ContactInterface $authenticatedUser, ?string $refererQueryParameters): array
     {
-        $redirectionUri = $this->defaultRedirectUri;
+        $redirectionInfo = $this->defaultRedirectUri;
 
         $refererRedirectionPage = $this->getRedirectionPageFromRefererQueryParameters($refererQueryParameters);
         if ($refererRedirectionPage !== null) {
-            $redirectionUri = $this->buildDefaultRedirectionUri($refererRedirectionPage);
+            $redirectionInfo = $this->buildDefaultRedirectionUri($refererRedirectionPage);
         } elseif ($authenticatedUser->getDefaultPage()?->getUrl() !== null) {
-            $redirectionUri = $this->buildDefaultRedirectionUri($authenticatedUser->getDefaultPage());
+            $redirectionInfo = $this->buildDefaultRedirectionUri($authenticatedUser->getDefaultPage());
         }
 
-        return $redirectionUri;
+        return $redirectionInfo;
     }
 
     /**
@@ -225,19 +226,24 @@ final class Login
      *
      * @param Page $defaultPage
      *
-     * @return string
+     * @return array<string,bool|string>
      */
-    private function buildDefaultRedirectionUri(Page $defaultPage): string
+    private function buildDefaultRedirectionUri(Page $defaultPage): array
     {
+        $redirectionInfo = [
+            'is_react' => $defaultPage->isReact(),
+        ];
         if ($defaultPage->isReact() === true) {
-            return $defaultPage->getUrl();
-        }
-        $redirectUri = '/main.php?p=' . $defaultPage->getPageNumber();
-        if ($defaultPage->getUrlOptions() !== null) {
-            $redirectUri .= $defaultPage->getUrlOptions();
+            $redirectionInfo['redirect_uri'] = $defaultPage->getUrl();
+        } else {
+            $redirectUri = '/main.php?p=' . $defaultPage->getPageNumber();
+            if ($defaultPage->getUrlOptions() !== null) {
+                $redirectUri .= $defaultPage->getUrlOptions();
+            }
+            $redirectionInfo['redirect_uri'] = $redirectUri;
         }
 
-        return $redirectUri;
+        return $redirectionInfo;
     }
 
     /**

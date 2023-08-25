@@ -23,21 +23,22 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Api\Login\SAML;
 
-use Centreon\Application\Controller\AbstractController;
-use Core\Application\Common\UseCase\ErrorAuthenticationConditionsResponse;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\UnauthorizedResponse;
-use Core\Infrastructure\Common\Api\HttpUrlTrait;
-use Core\Security\Authentication\Application\UseCase\Login\ErrorAclConditionsResponse;
-use Core\Security\Authentication\Application\UseCase\Login\Login;
-use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
-use Core\Security\Authentication\Application\UseCase\Login\LoginResponse;
-use Core\Security\Authentication\Application\UseCase\Login\PasswordExpiredResponse;
-use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Core\Infrastructure\Common\Api\HttpUrlTrait;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Centreon\Application\Controller\AbstractController;
+use Core\Application\Common\UseCase\UnauthorizedResponse;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Core\Security\Authentication\Application\UseCase\Login\Login;
+use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
+use Core\Security\Authentication\Application\UseCase\Login\LoginResponse;
+use Core\Application\Common\UseCase\ErrorAuthenticationConditionsResponse;
+use Core\Security\Authentication\Domain\Exception\AuthenticationException;
+use Core\Security\Authentication\Application\UseCase\Login\PasswordExpiredResponse;
+use Core\Security\Authentication\Application\UseCase\Login\ErrorAclConditionsResponse;
 
 class CallbackController extends AbstractController
 {
@@ -82,10 +83,21 @@ class CallbackController extends AbstractController
                  */
                 $response = $presenter->getPresentedData();
 
+                if ($response->redirectIsReact()) {
+                    return View::createRedirect(
+                        $this->getBaseUrl() . $response->getRedirectUri(),
+                        Response::HTTP_FOUND,
+                        [ 'Set-Cookie' => 'PHPSESSID=' . $session->getId() ]
+                    );
+                }
+
                 return View::createRedirect(
-                    $this->getBaseUrl() . $response->getRedirectUri(),
+                    $this->getBaseUrl() . '/login',
                     Response::HTTP_FOUND,
-                    ['Set-Cookie' => 'PHPSESSID=' . $session->getId()]
+                    [
+                        'Set-Cookie' => 'PHPSESSID=' . $session->getId(),
+                        'Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri(),
+                    ]
                 );
         }
     }
