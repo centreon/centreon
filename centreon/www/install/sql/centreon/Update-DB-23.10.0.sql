@@ -137,3 +137,7 @@ CREATE TABLE IF NOT EXISTS `notification_sg_relation` (
     FOREIGN KEY (`sg_id`)
     REFERENCES `servicegroup` (`sg_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO centreon.widget_models (title,version,description,url,directory,author) VALUES ('centreon-widget-generictext','23.10.0','','http://centreon.com','centreon-widget-generictext','Centreon');
+INSERT INTO centreon.widget_models (title,version,description,url,directory,author) VALUES ('centreon-widget-graph','23.10.0','','http://centreon.com','centreon-widget-graph','Centreon');
+INSERT INTO centreon.widget_models (title,version,description,url,directory,author) VALUES ('centreon-widget-singlemetric','23.10.0','','http://centreon.com','centreon-widget-singlemetric','Centreon');
