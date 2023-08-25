@@ -35,8 +35,8 @@ use Core\Security\Authentication\Application\UseCase\Login\{
 };
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use FOS\RestBundle\View\View;
-use Symfony\Component\HttpFoundation\{Request, Response};
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\{Request, Response};
 
 class CallbackController extends AbstractController
 {
