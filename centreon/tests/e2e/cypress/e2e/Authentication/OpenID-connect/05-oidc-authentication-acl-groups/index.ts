@@ -25,6 +25,10 @@ beforeEach(() => {
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
+    url: '/centreon/api/latest/configuration/users/current/parameters'
+  }).as('getUserParameters');
+  cy.intercept({
+    method: 'GET',
     url: '/centreon/api/latest/administration/authentication/providers/openid'
   }).as('getOIDCProvider');
   cy.intercept({
@@ -119,9 +123,8 @@ Then(
       cy.contains('Login with openid').should('be.visible').click();
 
       cy.loginKeycloack('user-non-admin-for-OIDC-authentication');
+      cy.wait('@getUserParameters');
       cy.url().should('include', '/monitoring/resources');
-
-      cy.wait('@getTimeZone');
 
       cy.logout();
       cy.getByLabel({ label: 'Alias', tag: 'input' }).should('be.visible');

@@ -1,6 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { searchInput, stateFilterContainer, setUserFilter } from '../common';
+import { searchInput, setUserFilter } from '../common';
 import { checkServicesAreMonitored } from '../../../commons';
 
 const serviceOk = 'service_test_ok';
@@ -24,12 +24,18 @@ beforeEach(() => {
     url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
   }).as('getFilters');
 
+  cy.intercept('/centreon/api/latest/monitoring/resources*').as(
+    'monitoringEndpoint'
+  );
+
   cy.startWebContainer();
 
   cy.loginByTypeOfUser({
     jsonName: 'admin',
     loginViaApi: true
   }).wait('@getFilters');
+
+  cy.disableListingAutoRefresh();
 
   cy.addHost({
     activeCheckEnabled: false,
@@ -154,16 +160,14 @@ Then(
 );
 
 Given('a saved custom filter', () => {
-  cy.loginByTypeOfUser({
-    jsonName: 'admin',
-    loginViaApi: true
-  });
-
   cy.fixture('resources/filters.json').then((filters) =>
     setUserFilter(filters)
   );
 
-  cy.reload().wait('@getFilters');
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
 
   cy.contains('Unhandled alerts').should('be.visible').click();
 

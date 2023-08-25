@@ -20,6 +20,10 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
+    url: '/centreon/api/latest/configuration/users/current/parameters'
+  }).as('getUserParameters');
+  cy.intercept({
+    method: 'GET',
     url: '/centreon/api/latest/administration/authentication/providers/openid'
   }).as('getOIDCProvider');
   cy.intercept({
@@ -97,7 +101,7 @@ Then(
         .and('include.text', 'Invalid username or password.');
 
       cy.loginKeycloack(username);
-
+      cy.wait('@getUserParameters');
       cy.url().should('include', '/monitoring/resources');
     });
   }
