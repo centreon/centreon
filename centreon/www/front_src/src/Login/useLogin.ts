@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from 'react';
 
 import { useCookies } from 'react-cookie';
-
 import { useNavigate } from 'react-router-dom';
 import { FormikHelpers, FormikValues } from 'formik';
 import { useAtom, useSetAtom, useAtomValue } from 'jotai';
@@ -92,13 +91,7 @@ const useLogin = (): UseLoginState => {
   const { t, i18n } = useTranslation();
   const { sendLogin } = usePostLogin();
 
-  const [cookies, setCookie] = useCookies(['REDIRECT_URI']);
-  console.log(cookies);
-  useEffect(() => {
-    if (path(['REDIRECT_URI'], cookies)) {
-      navigate(cookies.REDIRECT_URI)
-    }
-  }, [cookies]);
+  const [cookies] = useCookies(['REDIRECT_URI']);
 
   const { data: providers } = useFetchQuery<Array<ProviderConfiguration>>({
     decoder: providersConfigurationDecoder,
@@ -227,6 +220,12 @@ const useLogin = (): UseLoginState => {
           loginPageCustomisationData?.textPosition ||
           defaultLoginPageCustomisation.textPosition
       };
+
+  useEffect(() => {
+    if (path(['REDIRECT_URI'], cookies)) {
+      navigate(cookies.REDIRECT_URI);
+    }
+  }, [cookies]);
 
   useEffect(() => {
     if (isEmpty(forcedProviders)) {
