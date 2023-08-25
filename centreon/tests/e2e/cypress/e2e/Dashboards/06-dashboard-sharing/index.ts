@@ -141,6 +141,7 @@ When('the editor user sets another user as a viewer on the dashboard', () => {
 
   cy.get('[data-state="added"]').should('exist');
   cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.reload(); // TODO: Find a way to remove reloads
   cy.wait('@addContactToDashboardShareList');
 });
 
@@ -244,6 +245,7 @@ When(
       .should('contain', `${dashboardCreatorUser.login}`);
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.reload(); // TODO: Find a way to remove reloads
     cy.wait('@addContactToDashboardShareList');
   }
 );
