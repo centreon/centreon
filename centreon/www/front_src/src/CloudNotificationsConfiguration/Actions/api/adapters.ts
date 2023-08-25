@@ -1,6 +1,6 @@
 import { map, pipe, prop } from 'ramda';
 
-import { ResourceType } from '../../EditPanel/models';
+import { ResourceType } from '../../Panel/models';
 
 export const adaptNotification = ({
   isActivated,
