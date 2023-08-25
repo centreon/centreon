@@ -4,7 +4,7 @@ import React from 'react';
 import { mount } from 'cypress/react18';
 import { equals, isNil } from 'ramda';
 
-import { Box } from '@mui/material';
+import { Box, CssBaseline } from '@mui/material';
 
 import { ThemeProvider } from '@centreon/ui';
 
@@ -36,10 +36,9 @@ Cypress.Commands.add('mount', ({ Component, options = {} }) => {
       >
         {Component}
       </Box>
+      <CssBaseline />
     </ThemeProvider>
   );
-
-  document.getElementsByTagName('body')[0].setAttribute('style', 'margin:0px');
 
   return mount(wrapped, options);
 });

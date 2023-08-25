@@ -123,8 +123,6 @@ describe('SAMLConfiguration', () => {
     cy.findByLabelText(labelSAMLOnly).should('not.be.checked');
     cy.findByLabelText(labelMixed).should('be.checked');
 
-    cy.scrollTo(0, 0);
-
     cy.matchImageSnapshot('displays the SAML configuration form - Activation');
 
     cy.contains(labelIdentityProvider).click();
