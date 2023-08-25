@@ -82,7 +82,8 @@ class FindPerformanceMetricsDataPresenter extends AbstractPresenter implements F
                 'min' => $realTimeDataInformation->getMinimumValueLimit(),
                 'max' => $realTimeDataInformation->getMaximumValueLimit(),
                 'ds_data' => [
-                    'ds_color_line' => $dataSource->getLineColor(),                ],
+                    'ds_color_line' => $dataSource->getLineColor(),
+                ],
                 'legend' => $generalInformation->getLegend(),
                 'stack' => (int) $generalInformation->isStacked(),
                 'warn' => $thresholdInformation->getWarningThreshold(),
