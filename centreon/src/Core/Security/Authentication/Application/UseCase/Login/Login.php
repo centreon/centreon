@@ -209,13 +209,14 @@ final class Login
      */
     private function getRedirectionUri(ContactInterface $authenticatedUser, ?string $refererQueryParameters): array
     {
-        $redirectionInfo = $this->defaultRedirectUri;
-
         $refererRedirectionPage = $this->getRedirectionPageFromRefererQueryParameters($refererQueryParameters);
         if ($refererRedirectionPage !== null) {
             $redirectionInfo = $this->buildDefaultRedirectionUri($refererRedirectionPage);
         } elseif ($authenticatedUser->getDefaultPage()?->getUrl() !== null) {
             $redirectionInfo = $this->buildDefaultRedirectionUri($authenticatedUser->getDefaultPage());
+        } else {
+            $redirectionInfo['redirect_uri'] = $this->defaultRedirectUri;
+            $redirectionInfo['is_react'] = (null === $refererRedirectionPage) ? false : true;
         }
 
         return $redirectionInfo;
