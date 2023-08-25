@@ -13,10 +13,18 @@ export interface PanelConfiguration {
 
 export type Layout = Array<ReactGridLayout.Layout>;
 
+export type WidgetOptions = Record<string, unknown> & {
+  description?: {
+    content?: string;
+    enabled?: boolean;
+  };
+  name?: string;
+};
+
 export interface Panel extends ReactGridLayout.Layout {
   data?: object;
   name: string;
-  options?: object;
+  options?: WidgetOptions;
   panelConfiguration: PanelConfiguration;
 }
 

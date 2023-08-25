@@ -32,7 +32,11 @@ const Preview = (): JSX.Element | null => {
       {isGenericText(values.panelConfiguration?.path) ? (
         <RichTextEditor
           editable={false}
-          editorState={values.options?.genericText}
+          editorState={
+            values.options?.description?.enabled
+              ? values.options?.description?.content
+              : undefined
+          }
         />
       ) : (
         <FederatedComponent

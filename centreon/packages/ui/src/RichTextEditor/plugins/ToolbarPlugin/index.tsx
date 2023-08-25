@@ -8,7 +8,7 @@ import MacrosButton from './MacrosButton';
 import BlockButtons from './BlockButtons';
 
 interface Props {
-  disabled: boolean;
+  disabled?: boolean;
   displayMacrosButton?: boolean;
   editable: boolean;
 }
