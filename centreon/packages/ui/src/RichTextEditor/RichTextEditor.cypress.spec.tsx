@@ -200,6 +200,33 @@ describe('Rich Text Editor', () => {
     });
   });
 
+  describe('Rich Text Editor is disabled', () => {
+    beforeEach(() => {
+      cy.mount({
+        Component: (
+          <RichTextEditor
+            disabled
+            editable
+            initialEditorState={mockInititalStateToEditor}
+          />
+        )
+      });
+    });
+
+    it('displays editor when editable props is false and an initialState exist', () => {
+      cy.get('[data-testid="RichTextEditor"]')
+        .invoke('attr', 'contenteditable')
+        .should('eq', 'true');
+      cy.findByLabelText('Undo').should('be.disabled');
+      cy.findByLabelText('Redo').should('be.disabled');
+      cy.findByLabelText('bold').should('be.disabled');
+      cy.findByLabelText('italic').should('be.disabled');
+      cy.findByLabelText('underline').should('be.disabled');
+      cy.findByLabelText('strikethrough').should('be.disabled');
+      cy.findByLabelText('link').should('be.disabled');
+    });
+  });
+
   describe('Custom style editable rich text editor ', () => {
     beforeEach(() => {
       cy.mount({
@@ -308,33 +335,6 @@ describe('Rich Text Editor', () => {
         cy.findByText(blockType).click();
 
         cy.get('[data-testid="RichTextEditor"]').find(tag).should('be.visible');
-      });
-    });
-
-    describe('Rich Text Editor is disabled', () => {
-      beforeEach(() => {
-        cy.mount({
-          Component: (
-            <RichTextEditor
-              disabled
-              editable
-              initialEditorState={mockInititalStateToEditor}
-            />
-          )
-        });
-      });
-
-      it('displays editor when editable props is false and an initialState exist', () => {
-        cy.get('[data-testid="RichTextEditor"]')
-          .invoke('attr', 'contenteditable')
-          .should('eq', 'false');
-        cy.findByLabelText('Undo').should('be.disabled');
-        cy.findByLabelText('Redo').should('be.disabled');
-        cy.findByLabelText('bold').should('be.disabled');
-        cy.findByLabelText('italic').should('be.disabled');
-        cy.findByLabelText('underline').should('be.disabled');
-        cy.findByLabelText('strikethrough').should('be.disabled');
-        cy.findByLabelText('link').should('be.disabled');
       });
     });
   });
