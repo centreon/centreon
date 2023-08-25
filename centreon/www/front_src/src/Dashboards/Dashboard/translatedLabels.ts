@@ -83,5 +83,6 @@ export const labelLast12Months = 'Last 12 months';
 export const labelTimePeriod = 'Time period';
 export const labelCustomize = 'Customize';
 export const labelTo = 'to';
+export const labelFrom = 'From';
 export const labelStart = 'Start';
 export const labelEnd = 'End';

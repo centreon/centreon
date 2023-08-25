@@ -13,6 +13,7 @@ import { userAtom } from '@centreon/ui-context';
 
 import {
   labelEnd,
+  labelFrom,
   labelStart,
   labelTimePeriod,
   labelTo
@@ -54,6 +55,7 @@ const TimePeriod = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
             adapterLocale={locale.substring(0, 2)}
             dateAdapter={Adapter}
           >
+            {t(labelFrom)}
             <DesktopDateTimePicker
               label=""
               maxDate={dayjs(value.end).tz(timezone)}
