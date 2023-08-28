@@ -95,7 +95,7 @@ class CallbackController extends AbstractController
                     [
                         'Set-Cookie' => 'PHPSESSID=' . $session->getId(),
                         'Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri()
-                            . ';Expires=' . \time() + 10,
+                            . ';Max-Age=10',
                     ]
                 );
         }
