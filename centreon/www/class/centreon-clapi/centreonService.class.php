@@ -1266,7 +1266,8 @@ class CentreonService extends CentreonObject
                     null,
                     array(
                         "host_name" => $args[0],
-                        "service_description" => $args[1]
+                        "service_description" => $args[1],
+                        'host_register' => '1',
                     ),
                     "AND"
                 );
@@ -1308,6 +1309,11 @@ class CentreonService extends CentreonObject
                         }
                         if ($matches[2] == "contact") {
                             $tab = $obj->getIdByParameter("contact_alias", array($rel));
+                        } elseif($matches[2] == "host") {
+                            $tab = [];
+                            if (($hostId = $this->getHostIdByName($rel)) !== null) {
+                                $tab[] = $hostId;
+                            }
                         } else {
                             $tab = $obj->getIdByParameter($obj->getUniqueLabelField(), array($rel));
                         }
@@ -1880,5 +1886,29 @@ class CentreonService extends CentreonObject
                 return $macroB;
             }
         }
+    }
+
+    /**
+     * @param string $hostName
+     *
+     * @return int|null
+     */
+    private function getHostIdByName(string $hostName): ?int
+    {
+        if ($hostName === '') {
+            return null;
+        }
+        $statement = $this->db->prepare(<<<'SQL'
+            SELECT host_id FROM host
+            WHERE host_name = :host_name
+                AND host_register = '1'
+            SQL
+        );
+        $statement->bindValue(':host_name', $hostName);
+        $statement->execute();
+        if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            return (int) $result['host_id'];
+        }
+        return null;
     }
 }
