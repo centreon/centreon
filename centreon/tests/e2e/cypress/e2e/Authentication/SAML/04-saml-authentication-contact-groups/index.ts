@@ -25,10 +25,6 @@ beforeEach(() => {
     url: '/centreon/api/latest/administration/authentication/providers/saml'
   }).as('getSAMLProvider');
   cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/authentication/providers/configurations'
-  }).as('getCentreonAuthConfigs');
-  cy.intercept({
     method: 'PUT',
     url: '/centreon/api/latest/administration/authentication/providers/saml'
   }).as('updateSAMLProvider');
@@ -74,16 +70,12 @@ When(
     cy.getByLabel({
       label: 'Groups attribute path',
       tag: 'input'
-    })
-      .clear()
-      .type('{selectAll}{backspace}groups');
+    }).type('{selectAll}{backspace}groups');
 
     cy.getByLabel({
       label: 'Group value',
       tag: 'input'
-    })
-      .clear()
-      .type('{selectAll}{backspace}/Supervisors');
+    }).type('{selectAll}{backspace}/Supervisors');
 
     cy.getByLabel({
       label: 'Contact group',
