@@ -149,7 +149,7 @@ class CentreonLogAction
                 AND object_type = :object_type ORDER BY action_log_date DESC"
         );
         $statement->bindParam(':id', $id, PDO::PARAM_INT);
-        $statement->bindParam(':object_type', $object_type, PDO::PARAM_INT);
+        $statement->bindParam(':object_type', $object_type);
         $statement->execute();
         while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
             $list_actions[$i]["action_log_id"] = $data["action_log_id"];
@@ -188,7 +188,7 @@ class CentreonLogAction
                     ORDER BY action_log_date DESC 
                     LIMIT 1";
         $statement = $pearDBO->prepare($query);
-        $statement->bindParam(':service_id', $service_id);
+        $statement->bindParam(':service_id', $service_id, PDO::PARAM_INT);
         $statement->execute();
         $info = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($info['field_value']) && $info['field_value'] != '') {
@@ -281,11 +281,11 @@ class CentreonLogAction
 
         $statement1 = $pearDBO->prepare("
             SELECT action_log_id, action_log_date, action_type FROM log_action
-            WHERE object_id = :id
+            WHERE object_id = :object_id
             AND object_type = :object_type ORDER BY action_log_date ASC
         ");
-        $statement1->bindParam(':id', $id, PDO::PARAM_INT);
-        $statement1->bindParam(':object_type', $objectType, PDO::PARAM_INT);
+        $statement1->bindParam(':object_id', $id, PDO::PARAM_INT);
+        $statement1->bindParam(':object_type', $objectType);
         $statement1->execute();
         while ($row = $statement1->fetch(PDO::FETCH_ASSOC)) {
             $DBRESULT2 = $pearDBO->prepare(
