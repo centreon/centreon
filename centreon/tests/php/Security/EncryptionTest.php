@@ -21,7 +21,6 @@
 
 namespace Tests\Security;
 
-use PHPUnit\Framework\Error\Warning;
 use PHPUnit\Framework\TestCase;
 use Security\Encryption;
 
@@ -79,7 +78,7 @@ class EncryptionTest extends TestCase
             ->setSecondKey($this->secondKey);
 
         // The data to be encrypted is not important
-        $encrypedMessage = $encryption->crypt($this->falseKey);
+        $encryption->crypt($this->falseKey);
     }
 
     public function testExceptionOnSecondKeyWhileEncryption(): void
@@ -90,7 +89,7 @@ class EncryptionTest extends TestCase
             ->setFirstKey($this->secondKey);
 
         // The data to be encrypted is not important
-        $encrypedMessage = $encryption->crypt($this->falseKey);
+        $encryption->crypt($this->falseKey);
     }
 
     public function testWarningOnBadHashAlgorihtmWhileEncryption(): void
@@ -127,7 +126,7 @@ class EncryptionTest extends TestCase
             ->setSecondKey($this->firstKey);
 
         // The data to be decrypted is not important
-        $decryptedMessage = $encryption->decrypt($this->falseKey);
+        $encryption->decrypt($this->falseKey);
     }
 
     public function testExceptionOnSecondKeyWhileDecryption(): void
@@ -138,7 +137,7 @@ class EncryptionTest extends TestCase
             ->setFirstKey($this->firstKey);
 
         // The data to be decrypted is not important
-        $decryptedMessage = $encryption->decrypt($this->falseKey);
+        $encryption->decrypt($this->falseKey);
     }
 
     public function testWarningOnBadHashAlgorihtmWhileDecryption(): void

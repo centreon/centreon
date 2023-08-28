@@ -23,7 +23,7 @@ default:
         - "%paths.base%/features/DashboardWithOpenApi.feature"
         - "%paths.base%/features/DashboardWithoutOpenApi.feature"
       contexts:
-        - Centreon\Test\Api\Context\FeatureFlagContext
+        - Centreon\Test\Api\Context\DashboardContext
     host_category:
       paths: [ "%paths.base%/features/HostCategory.feature" ]
       contexts:
