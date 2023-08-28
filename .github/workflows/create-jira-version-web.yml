@@ -10,6 +10,7 @@ on:
       - develop
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
+      - "centreon/.github/create-jira-version-web.yml"
       - "centreon/**"
       - "!centreon/packages/**"
   workflow_dispatch:
