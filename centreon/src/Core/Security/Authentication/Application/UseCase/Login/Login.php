@@ -216,7 +216,7 @@ final class Login
             $redirectionInfo = $this->buildDefaultRedirectionUri($authenticatedUser->getDefaultPage());
         } else {
             $redirectionInfo['redirect_uri'] = $this->defaultRedirectUri;
-            $redirectionInfo['is_react'] = false;
+            $redirectionInfo['is_react'] = true;
         }
 
         return $redirectionInfo;
