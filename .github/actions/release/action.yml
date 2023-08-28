@@ -61,10 +61,19 @@ runs:
         #  --header 'Content-Type: application/json' \
         #  --data ''$VERSION_DATA''
 
-        curl -v --request GET \
+        # Get old jira version
+        OLD_JIRA_VERSION=$(curl -v --request GET \
           --url "https://centreon.atlassian.net/rest/api/3/version/$RELEASE_ID" \
           --header 'Authorization: Basic ${{ inputs.jira_token }}' \
           --header 'Accept: application/json' \
-          --header 'Content-Type: application/json'
+          --header 'Content-Type: application/json' \
+          | jq -r .name)
+
+        # Compare with old git version from tag
+        if [ "OLD_JIRA_VERSION" == "OLDV"]; then
+          echo "Version JIRA and GIT do match"
+        else
+          echo "Version JIRA and GIT do not match"
+        done
 
       shell: bash
