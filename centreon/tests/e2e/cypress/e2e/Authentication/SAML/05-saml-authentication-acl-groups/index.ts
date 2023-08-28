@@ -1,4 +1,3 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
@@ -9,10 +8,8 @@ import {
 import { getAccessGroupId } from '../../../../commons';
 
 before(() => {
-  cy.startWebContainer({
-    version: 'develop'
-  })
-    // .startOpenIdProviderContainer()
+  cy.startWebContainer()
+    .startOpenIdProviderContainer()
     .then(() => {
       initializeSAMLUser();
     });
@@ -77,25 +74,21 @@ When(
     cy.getByLabel({
       label: 'Roles attribute path',
       tag: 'input'
-    })
-      .clear()
-      .type('{selectAll}{backspace}Role');
+    }).type('{selectAll}{backspace}Role');
 
     cy.getByLabel({
       label: 'Role value',
       tag: 'input'
-    })
-      .clear()
-      .type('{selectAll}{backspace}centreon-editor');
+    }).type('{selectAll}{backspace}centreon-editor');
 
     cy.getByLabel({
       label: 'ACL access group',
       tag: 'input'
-    })
-      .click({ force: true })
-      .wait('@getListAccesGroup')
-      .get('div[role="presentation"] ul li')
-      .click();
+    }).click({ force: true });
+
+    cy.wait('@getListAccesGroup');
+
+    cy.get('div[role="presentation"] ul li').click();
 
     cy.getByLabel({
       label: 'ACL access group',
