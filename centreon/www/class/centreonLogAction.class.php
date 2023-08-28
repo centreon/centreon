@@ -65,7 +65,7 @@ class CentreonLogAction
      *  Inserts configuration into DB
      */
 
-    public function insertFieldsNameValue($logId, $fields): void
+    public function insertFieldsNameValue($logId, $fields)
     {
         global $pearDBO;
 
@@ -83,7 +83,7 @@ class CentreonLogAction
      *  Inserts logs : add, delete or modification of an object
      */
 
-    public function insertLog($object_type, $object_id, $object_name, $action_type, $fields = null): void
+    public function insertLog($object_type, $object_id, $object_name, $action_type, $fields = null)
     {
         global $pearDBO;
 
@@ -116,7 +116,7 @@ class CentreonLogAction
      * returns the contact name
      */
 
-    public function getContactname($id): mixed
+    public function getContactname($id)
     {
         global $pearDB;
 
@@ -137,7 +137,7 @@ class CentreonLogAction
      * returns the list of actions ("create","delete","change","massive change", "enable", "disable")
      */
 
-    public function listAction($id, $object_type): array
+    public function listAction($id, $object_type)
     {
         global $pearDBO;
         $list_actions = array();
@@ -174,7 +174,7 @@ class CentreonLogAction
     /*
      *  returns list of host for this service
      */
-    public function getHostId($service_id): array|int
+    public function getHostId($service_id)
     {
         global $pearDBO;
 
@@ -216,7 +216,7 @@ class CentreonLogAction
         return -1;
     }
 
-    public function getHostName($host_id): mixed
+    public function getHostName($host_id)
     {
         global $pearDB, $pearDBO;
 
@@ -244,7 +244,7 @@ class CentreonLogAction
         return $info['name'] ?? -1;
     }
 
-    public function getHostGroupName($hg_id): mixed
+    public function getHostGroupName($hg_id)
     {
         global $pearDB, $pearDBO;
 
@@ -271,7 +271,7 @@ class CentreonLogAction
     /*
      *  returns list of modifications
      */
-    public function listModification(int $id, string $objectType): array
+    public function listModification(int $id, string $objectType)
     {
         global $pearDBO;
         $list_modifications = [];
@@ -377,7 +377,7 @@ class CentreonLogAction
     /*
      *  Display clear action labels
      */
-    public function replaceActiontype($action): mixed
+    public function replaceActiontype($action)
     {
         $actionList = array();
         $actionList["d"] = "Delete";
@@ -398,7 +398,7 @@ class CentreonLogAction
     /*
      *  list object types
      */
-    public function listObjecttype(): array
+    public function listObjecttype()
     {
         $object_type_tab = array();
 
@@ -432,7 +432,7 @@ class CentreonLogAction
         return $object_type_tab;
     }
 
-    public static function prepareChanges($ret): array
+    public static function prepareChanges($ret)
     {
         global $pearDB;
 
