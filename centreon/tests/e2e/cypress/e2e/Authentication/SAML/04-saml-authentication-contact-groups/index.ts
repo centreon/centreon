@@ -39,7 +39,7 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/configuration/contacts/groups?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
-  }).as('getListContactsGroups');
+  }).as('getListContactGroups');
 });
 
 Given('an administrator is logged on the platform', () => {
@@ -82,7 +82,7 @@ When(
       tag: 'input'
     }).click({ force: true });
 
-    cy.wait('@getListContactsGroups');
+    cy.wait('@getListContactGroups');
 
     cy.get('div[role="presentation"] ul li').eq(1).click();
 
