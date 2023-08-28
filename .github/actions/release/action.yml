@@ -70,7 +70,7 @@ runs:
           | jq -r .name)
 
         # Compare with old git version from tag
-        if [ "OLD_JIRA_VERSION" == "OLDV"]; then
+        if [ "OLD_JIRA_VERSION" == "OLDV" ]; then
           echo "Version JIRA and GIT do match"
         else
           echo "Version JIRA and GIT do not match"
