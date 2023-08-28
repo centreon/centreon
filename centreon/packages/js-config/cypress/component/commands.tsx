@@ -127,9 +127,9 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('makeSnapshot', () => {
+Cypress.Commands.add('makeSnapshot', (title?: string) => {
   cy.viewport(500, 500);
-  cy.matchImageSnapshot();
+  cy.matchImageSnapshot(title);
 });
 
 declare global {
@@ -139,7 +139,7 @@ declare global {
         props: InterceptAPIRequestProps<T>
       ) => Cypress.Chainable;
       interceptRequest: (method, path, mock, alias) => Cypress.Chainable;
-      makeSnapshot: () => void;
+      makeSnapshot: (title?: string) => void;
       mount: ({ Component, options }: MountProps) => Cypress.Chainable;
       moveSortableElement: ({ ariaLabel, direction }) => void;
       moveSortableElementUsingAriaLabel: ({ ariaLabel, direction }) => void;

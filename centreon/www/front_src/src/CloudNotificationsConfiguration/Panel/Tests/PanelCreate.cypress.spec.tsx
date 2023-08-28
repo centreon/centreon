@@ -240,8 +240,6 @@ describe('Create Panel', () => {
     cy.findByTestId('EmailBody').contains('State: {{STATE}}');
     cy.findByTestId('EmailBody').contains('Date/Time: {{SHORTDATETIME}}');
     cy.findByTestId('EmailBody').contains('Additional Info: {{OUTPUT}}');
-
-    cy.makeSnapshot();
   });
 });
 
