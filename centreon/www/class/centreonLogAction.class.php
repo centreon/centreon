@@ -72,8 +72,8 @@ class CentreonLogAction
         $statement = $pearDBO->prepare("INSERT INTO `log_action_modification` (field_name, field_value, action_log_id)
                                             VALUES (:field_key, :field_value, :logId) ");
         foreach ($fields as $field_key => $field_value) {
-            $statement->bindParam(':field_key', $field_key);
-            $statement->bindParam(':field_value', $field_value);
+            $statement->bindParam(':field_key', $field_key, PDO::PARAM_STR);
+            $statement->bindParam(':field_value', $field_value, PDO::PARAM_STR);
             $statement->bindParam(':logId', $logId, PDO::PARAM_INT);
             $statement->execute();
         }
