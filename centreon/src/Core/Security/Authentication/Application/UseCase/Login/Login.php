@@ -121,7 +121,7 @@ final class Login
 
             $redirectionInfo = $this->getRedirectionUri($user, $loginRequest->refererQueryParameters);
             $presenter->present(
-                new LoginResponse($redirectionInfo['redirect_uri'], $redirectionInfo['is_react'])
+                new LoginResponse((string) $redirectionInfo['redirect_uri'], (bool) $redirectionInfo['is_react'])
             );
         } catch (PasswordExpiredException $e) {
             $response = new PasswordExpiredResponse($e->getMessage());
@@ -216,7 +216,7 @@ final class Login
             $redirectionInfo = $this->buildDefaultRedirectionUri($authenticatedUser->getDefaultPage());
         } else {
             $redirectionInfo['redirect_uri'] = $this->defaultRedirectUri;
-            $redirectionInfo['is_react'] = (null === $refererRedirectionPage) ? false : true;
+            $redirectionInfo['is_react'] = false;
         }
 
         return $redirectionInfo;
