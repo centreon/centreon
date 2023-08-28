@@ -74,6 +74,6 @@ runs:
           echo "Version JIRA and GIT do match"
         else
           echo "Version JIRA and GIT do not match"
-        done
+        fi
 
       shell: bash
