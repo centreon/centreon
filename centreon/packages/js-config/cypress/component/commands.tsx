@@ -129,7 +129,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('makeSnapshot', () => {
   cy.viewport(500, 500);
-  cy.makeSnapshot();
+  cy.matchImageSnapshot();
 });
 
 declare global {
