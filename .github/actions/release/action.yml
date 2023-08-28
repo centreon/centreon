@@ -22,10 +22,12 @@ runs:
         echo "Major version: $MAJOR_VERSION"
         HOTFIX=$(echo $GITHUB_REF_NAME | grep -oP '(hotfix|)')
         echo "Hotfix: $HOTFIX"
-        RELEASE_ID=$(git log -1 --pretty=%B | grep -oP '(#[0-9]{4,}#)' | grep -oP '([0-9]+)')
+        #RELEASE_ID=$(git log -1 --pretty=%B | grep -oP '(#[0-9]{4,}#)' | grep -oP '([0-9]+)')
+        RELEASE_ID=19331
         echo "Release Id: $RELEASE_ID"
 
-        OLDV=$(git tag --sort=-v:refname --list "centreon-${{ inputs.module_name }}-$MAJOR_VERSION.*" | head -n 1)
+        #OLDV=$(git tag --sort=-v:refname --list "centreon-${{ inputs.module_name }}-$MAJOR_VERSION.*" | head -n 1)
+        OLDV=centreon-web-22.04.15
         echo "Old version: $OLDV"
 
         git config --global user.email "release@centreon.com"
