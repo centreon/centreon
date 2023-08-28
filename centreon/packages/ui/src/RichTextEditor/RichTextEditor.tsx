@@ -63,6 +63,36 @@ const useStyles = makeStyles<{ toolbarPositions: 'start' | 'end' }>()(
       paddingLeft: theme.spacing(1.5),
       paddingTop: theme.spacing(0.5)
     },
+    h1: {
+      fontSize: theme.typography.h1.fontSize,
+      fontWeight: theme.typography.h1.fontWeight,
+      lineHeight: theme.typography.h1.lineHeight
+    },
+    h2: {
+      fontSize: theme.typography.h2.fontSize,
+      fontWeight: theme.typography.h2.fontWeight,
+      lineHeight: theme.typography.h2.lineHeight
+    },
+    h3: {
+      fontSize: theme.typography.h3.fontSize,
+      fontWeight: theme.typography.h3.fontWeight,
+      lineHeight: theme.typography.h3.lineHeight
+    },
+    h4: {
+      fontSize: theme.typography.h4.fontSize,
+      fontWeight: theme.typography.h4.fontWeight,
+      lineHeight: theme.typography.h4.lineHeight
+    },
+    h5: {
+      fontSize: theme.typography.h5.fontSize,
+      fontWeight: theme.typography.h5.fontWeight,
+      lineHeight: theme.typography.h5.lineHeight
+    },
+    h6: {
+      fontSize: theme.typography.h6.fontSize,
+      fontWeight: theme.typography.h6.fontWeight,
+      lineHeight: theme.typography.h6.lineHeight
+    },
     italic: {
       fontStyle: 'italic'
     },
@@ -101,7 +131,7 @@ const RichTextEditor = ({
   onBlur,
   contentClassName,
   displayMacrosButton = false,
-  disabled = false,
+  disabled,
   openLinkInNewTab = true
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
@@ -117,6 +147,14 @@ const RichTextEditor = ({
     nodes: [AutoLinkNode, LinkNode, HeadingNode, ListNode, ListItemNode],
     onError,
     theme: {
+      heading: {
+        h1: classes.h1,
+        h2: classes.h2,
+        h3: classes.h3,
+        h4: classes.h4,
+        h5: classes.h5,
+        h6: classes.h6
+      },
       link: classes.link,
       text: {
         bold: classes.bold,

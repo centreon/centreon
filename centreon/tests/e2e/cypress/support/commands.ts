@@ -23,6 +23,10 @@ Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
 });
 
+Cypress.Commands.add('disableListingAutoRefresh', (): Cypress.Chainable => {
+  return cy.getByTestId({ testId: 'Disable autorefresh' }).click();
+});
+
 Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   return cy.executeActionViaClapi({
     bodyContent: {
@@ -60,10 +64,8 @@ Cypress.Commands.add(
   'loginKeycloack',
   (jsonName: string): Cypress.Chainable => {
     cy.fixture(`users/${jsonName}.json`).then((credential) => {
-      cy.get('#username').clear();
-      cy.get('#username').type(credential.login);
-      cy.get('#password').clear();
-      cy.get('#password').type(credential.password);
+      cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
+      cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
     });
 
     return cy.get('#kc-login').click();
@@ -102,9 +104,21 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('logout', (): Cypress.Chainable => {
-  cy.getByLabel({ label: 'Profile' }).click();
+  cy.getByLabel({ label: 'Profile' }).should('exist').click();
 
-  return cy.contains(/^Logout$/).click();
+  cy.contains(/^Logout$/).click();
+
+  return cy.get('header div[data-cy="clock"]').should('not.exist');
+});
+
+Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
+  return cy
+    .request({
+      method: 'GET',
+      url: '/centreon/authentication/logout'
+    })
+    .visit('/')
+    .getByLabel({ label: 'Alias', tag: 'input' });
 });
 
 Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
@@ -189,6 +203,7 @@ interface requestOnDatabaseProps {
 declare global {
   namespace Cypress {
     interface Chainable {
+      disableListingAutoRefresh: () => Cypress.Chainable;
       executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
       getByTestId: ({ tag, testId }: GetByTestIdProps) => Cypress.Chainable;

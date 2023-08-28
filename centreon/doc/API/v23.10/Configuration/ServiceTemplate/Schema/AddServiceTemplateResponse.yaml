@@ -254,10 +254,6 @@ allOf:
         description: "Severity ID."
         minimum: 1
         nullable: true
-      is_activated:
-        type: boolean
-        description: "Indicates whether the service template is activated or not"
-        example: true
       host_templates:
         type: array
         description: "IDs of host templates linked to this service template."

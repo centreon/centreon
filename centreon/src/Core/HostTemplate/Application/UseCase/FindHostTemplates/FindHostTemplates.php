@@ -124,7 +124,6 @@ final class FindHostTemplates
                 'iconId' => $hostTemplate->getIconId(),
                 'iconAlternative' => $hostTemplate->getIconAlternative(),
                 'comment' => $hostTemplate->getComment(),
-                'isActivated' => $hostTemplate->isActivated(),
                 'isLocked' => $hostTemplate->isLocked(),
             ];
         }

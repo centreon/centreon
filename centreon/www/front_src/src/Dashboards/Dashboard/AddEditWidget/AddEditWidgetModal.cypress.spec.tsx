@@ -281,11 +281,11 @@ describe('AddEditWidgetModal', () => {
       cy.findByLabelText(labelWidgetLibrary).click();
       cy.contains(/^Generic text$/).click();
 
-      cy.findAllByLabelText('RichTextEditor').eq(2).type('Hello ');
-      cy.findAllByLabelText('bold').eq(1).click();
-      cy.findAllByLabelText('RichTextEditor').eq(2).type('World');
-      cy.findAllByLabelText('bold').eq(1).click();
-      cy.findAllByLabelText('RichTextEditor').eq(2).type(`
+      cy.findAllByLabelText('RichTextEditor').eq(1).type('Hello ');
+      cy.findByLabelText('bold').click();
+      cy.findAllByLabelText('RichTextEditor').eq(1).type('World');
+      cy.findByLabelText('bold').click();
+      cy.findAllByLabelText('RichTextEditor').eq(1).type(`
       
       
       Hello!
@@ -296,6 +296,38 @@ describe('AddEditWidgetModal', () => {
       cy.findAllByLabelText('RichTextEditor')
         .eq(0)
         .contains('https://centreon.com');
+
+      cy.matchImageSnapshot();
+    });
+
+    it('does not display the content of the generic text widget in the preview the show description switch is off', () => {
+      cy.findByLabelText(labelWidgetLibrary).click();
+      cy.contains(/^Generic text$/).click();
+
+      cy.findAllByLabelText('RichTextEditor').eq(1).type('Hello ');
+      cy.findByLabelText('bold').click();
+      cy.findAllByLabelText('RichTextEditor').eq(1).type('World');
+      cy.findByLabelText('bold').click();
+      cy.findAllByLabelText('RichTextEditor').eq(1).type(`
+      
+      
+      Hello!
+      https://centreon.com`);
+
+      cy.findByLabelText(labelShowDescription).click();
+
+      cy.findAllByLabelText('RichTextEditor')
+        .eq(0)
+        .contains('Hello World')
+        .should('not.exist');
+      cy.findAllByLabelText('RichTextEditor')
+        .eq(0)
+        .contains('Hello!')
+        .should('not.exist');
+      cy.findAllByLabelText('RichTextEditor')
+        .eq(0)
+        .contains('https://centreon.com')
+        .should('not.exist');
 
       cy.matchImageSnapshot();
     });

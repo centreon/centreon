@@ -109,7 +109,7 @@ When(
       .get('div[role="tablist"] button')
       .eq(0)
       .contains('Password security policy');
-    cy.get('#Minimumpasswordlength').clear().type('12');
+    cy.get('#Minimumpasswordlength').type('{selectall}{backspace}12');
     cy.get('#Passwordmustcontainlowercase').should(
       'have.class',
       'MuiButton-containedPrimary'
@@ -142,16 +142,16 @@ Then(
       .isInProfileMenu('Edit profile')
       .should('be.visible');
 
-    cy.visit('/centreon/main.php?p=50104&o=c')
-      .wait('@getTimeZone')
-      .getIframeBody()
+    cy.visit('/centreon/main.php?p=50104&o=c').wait('@getTimeZone');
+
+    cy.getIframeBody()
       .find('form')
       .within(() => {
         cy.get('#passwd1').should('be.visible').type('azerty');
         cy.get('#passwd2').should('be.visible').type('azerty');
-      })
-      .find('#validForm input[name="submitC"]')
-      .click();
+      });
+
+    cy.getIframeBody().find('#validForm input[name="submitC"]').click();
 
     cy.wait('@getTimeZone')
       .getIframeBody()
@@ -191,7 +191,8 @@ When(
     cy.get('#PasswordexpiresafterpasswordExpirationexpirationDelayMonth')
       .parent()
       .click();
-    cy.get('ul li[data-value="2"]').click().get('#Save').click({ force: true });
+    cy.get('ul li[data-value="2"]').click();
+    cy.get('#Save').click({ force: true });
 
     cy.get('@user1Id').then((idUser) => {
       cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
@@ -250,7 +251,8 @@ When(
     cy.get('#MinimumtimebetweenpasswordchangesdelayBeforeNewPasswordHour')
       .parent()
       .click();
-    cy.get('ul li[data-value="2"]').click().get('#Save').click({ force: true });
+    cy.get('ul li[data-value="2"]').click();
+    cy.get('#Save').click({ force: true });
 
     cy.get('@user1Id').then((idUser) => {
       cy.get('@user1CreationPasswordDate').then((userPasswordCreationDate) => {
@@ -275,16 +277,14 @@ Then('user can not change password unless the minimum time has passed', () => {
     .isInProfileMenu('Edit profile')
     .should('be.visible');
 
-  cy.visit('/centreon/main.php?p=50104&o=c')
-    .wait('@getTimeZone')
-    .getIframeBody()
+  cy.visit('/centreon/main.php?p=50104&o=c').wait('@getTimeZone');
+  cy.getIframeBody()
     .find('form')
     .within(() => {
       cy.get('#passwd1').should('be.visible').type('@zerty!976=Centreon');
       cy.get('#passwd2').should('be.visible').type('@zerty!976=Centreon');
-    })
-    .find('#validForm input[name="submitC"]')
-    .click();
+    });
+  cy.getIframeBody().find('#validForm input[name="submitC"]').click();
 
   cy.wait('@getTimeZone')
     .getIframeBody()
@@ -292,16 +292,14 @@ Then('user can not change password unless the minimum time has passed', () => {
     .find('#validForm input[name="change"]')
     .should('be.visible');
 
-  cy.visit('/centreon/main.php?p=50104&o=c')
-    .wait('@getTimeZone')
-    .getIframeBody()
+  cy.visit('/centreon/main.php?p=50104&o=c').wait('@getTimeZone');
+  cy.getIframeBody()
     .find('#Form')
     .within(() => {
       cy.get('#passwd1').should('be.visible').type('@zerty!976=Centreon');
       cy.get('#passwd2').should('be.visible').type('@zerty!976=Centreon');
-    })
-    .find('#validForm input[name="submitC"]')
-    .click();
+    });
+  cy.getIframeBody().find('#validForm input[name="submitC"]').click();
 
   cy.wait('@getTimeZone')
     .getIframeBody()
@@ -325,16 +323,14 @@ Then('user can not change password unless the minimum time has passed', () => {
 });
 
 Then('user can not reuse the last passwords more than 3 times', () => {
-  cy.visit('/centreon/main.php?p=50104&o=c')
-    .wait('@getTimeZone')
-    .getIframeBody()
+  cy.visit('/centreon/main.php?p=50104&o=c').wait('@getTimeZone');
+  cy.getIframeBody()
     .find('#Form')
     .within(() => {
       cy.get('#passwd1').should('be.visible').type('@zerty!976=Centreon');
       cy.get('#passwd2').should('be.visible').type('@zerty!976=Centreon');
-    })
-    .find('#validForm input[name="submitC"]')
-    .click();
+    });
+  cy.getIframeBody().find('#validForm input[name="submitC"]').click();
 
   cy.wait('@getTimeZone')
     .getIframeBody()
@@ -377,15 +373,13 @@ When(
       .eq(0)
       .contains('Password security policy');
 
-    cy.get('div[name="excludedUsers"]')
-      .click()
-      .wait('@getListContact')
-      .get('div[role="presentation"] ul li')
+    cy.get('div[name="excludedUsers"]').click();
+    cy.wait('@getListContact');
+    cy.get('div[role="presentation"] ul li')
       .eq(-1)
       .find('input[type="checkbox"]')
-      .check()
-      .get('#Save')
-      .click({ force: true });
+      .check();
+    cy.get('#Save').click({ force: true });
 
     cy.get('@user2Id').then((idUser) => {
       cy.get('@user2CreationPasswordDate').then((userPasswordCreationDate) => {
@@ -458,11 +452,10 @@ When(
       .eq(0)
       .contains('Password security policy');
 
-    cy.get('#Numberofattemptsbeforeuserisblocked')
-      .clear()
-      .type('2')
-      .get('#Save')
-      .click({ force: true });
+    cy.get('#Numberofattemptsbeforeuserisblocked').type(
+      '{selectall}{backspace}2'
+    );
+    cy.get('#Save').click({ force: true });
 
     cy.logout();
 

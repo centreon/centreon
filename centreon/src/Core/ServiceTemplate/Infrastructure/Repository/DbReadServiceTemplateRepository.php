@@ -49,7 +49,6 @@ use Utility\SqlConcatenator;
  *     command_command_id_arg: string|null,
  *     command_command_id_arg2: string|null,
  *     service_acknowledgement_timeout: int|null,
- *     service_activate: string,
  *     service_active_checks_enabled: string,
  *     service_event_handler_enabled: string,
  *     service_flap_detection_enabled: string,
@@ -115,7 +114,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        service.timeperiod_tp_id,
                        service.timeperiod_tp_id2,
                        service_acknowledgement_timeout,
-                       service_activate,
                        service_active_checks_enabled,
                        service_event_handler_enabled,
                        service_flap_detection_enabled,
@@ -187,10 +185,8 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             'id' => 'service_id',
             'name' => 'service_description',
             'alias' => 'service_alias',
-            'is_activated' => 'service_activate',
             'is_locked' => 'service_locked',
         ]);
-        $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
         $sqlTranslator->addNormalizer('is_locked', new BoolToEnumNormalizer());
 
         $serviceTemplates = [];
@@ -205,7 +201,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        service.timeperiod_tp_id,
                        service.timeperiod_tp_id2,
                        service_acknowledgement_timeout,
-                       service_activate,
                        service_active_checks_enabled,
                        service_event_handler_enabled,
                        service_flap_detection_enabled,
@@ -387,7 +382,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             $hostTemplateIds,
             $data['contact_additive_inheritance'] === 1,
             $data['cg_additive_inheritance'] === 1,
-            $data['service_activate'] === '1',
             $data['service_locked'] === 1,
             $this->createYesNoDefault($data['service_active_checks_enabled']),
             $this->createYesNoDefault($data['service_passive_checks_enabled']),

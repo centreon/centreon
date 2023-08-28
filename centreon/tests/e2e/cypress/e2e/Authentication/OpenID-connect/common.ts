@@ -29,27 +29,34 @@ const removeContact = (): Cypress.Chainable => {
 };
 
 const configureOpenIDConnect = (): Cypress.Chainable => {
-  cy.getByLabel({ label: 'Base URL', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.baseUrl, { force: true });
-  cy.getByLabel({ label: 'Authorization endpoint', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.authEndpoint, { force: true });
-  cy.getByLabel({ label: 'Token endpoint', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.tokenEndpoint, { force: true });
-  cy.getByLabel({ label: 'Client ID', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.clientID, { force: true });
-  cy.getByLabel({ label: 'Client secret', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.clientSecret, { force: true });
-  cy.getByLabel({ label: 'Login attribute path', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.loginAttrPath, { force: true });
-  cy.getByLabel({ label: 'Introspection token endpoint', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.introspectionTokenEndpoint, { force: true });
+  cy.getByLabel({ label: 'Base URL', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.baseUrl}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Authorization endpoint', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.authEndpoint}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Token endpoint', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.tokenEndpoint}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Client ID', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.clientID}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Client secret', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.clientSecret}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Login attribute path', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.loginAttrPath}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Introspection token endpoint', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.introspectionTokenEndpoint}`,
+    { force: true }
+  );
   cy.getByLabel({
     label: 'Use basic authentication for token endpoint authentication',
     tag: 'input'

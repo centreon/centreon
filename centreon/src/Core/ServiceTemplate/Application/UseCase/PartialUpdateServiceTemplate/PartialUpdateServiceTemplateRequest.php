@@ -43,8 +43,6 @@ final class PartialUpdateServiceTemplateRequest
 
     public bool|NoValue $isContactGroupAdditiveInheritance;
 
-    public bool|NoValue $isActivated;
-
     public int|NoValue $activeChecksEnabled;
 
     public int|NoValue $passiveCheckEnabled;
@@ -114,6 +112,9 @@ final class PartialUpdateServiceTemplateRequest
     /** @var MacroDto[]|NoValue */
     public array|NoValue $macros;
 
+    /** @var ServiceGroupDto[] */
+    public array|NoValue $serviceGroups;
+
     public function __construct(public int $id)
     {
         $this->name = new NoValue();
@@ -123,7 +124,6 @@ final class PartialUpdateServiceTemplateRequest
         $this->notificationTypes = new NoValue();
         $this->isContactAdditiveInheritance = new NoValue();
         $this->isContactGroupAdditiveInheritance = new NoValue();
-        $this->isActivated = new NoValue();
         $this->activeChecksEnabled = new NoValue();
         $this->passiveCheckEnabled = new NoValue();
         $this->volatility = new NoValue();
@@ -157,5 +157,6 @@ final class PartialUpdateServiceTemplateRequest
         $this->hostTemplates = new NoValue();
         $this->serviceCategories = new NoValue();
         $this->macros = new NoValue();
+        $this->serviceGroups = new NoValue();
     }
 }

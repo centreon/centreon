@@ -72,7 +72,6 @@ class HostTemplate extends NewHostTemplate
      * @param null|int $iconId
      * @param string $iconAlternative
      * @param string $comment
-     * @param bool $isActivated
      * @param bool $isLocked
      *
      * @throws AssertionFailedException
@@ -116,7 +115,6 @@ class HostTemplate extends NewHostTemplate
         ?int $iconId = null,
         string $iconAlternative = '',
         string $comment = '',
-        bool $isActivated = true,
         bool $isLocked = false
     ) {
         $this->shortName = (new \ReflectionClass($this))->getShortName();
@@ -161,7 +159,6 @@ class HostTemplate extends NewHostTemplate
             $iconId,
             $iconAlternative,
             $comment,
-            $isActivated,
             $isLocked
         );
     }
@@ -513,10 +510,5 @@ class HostTemplate extends NewHostTemplate
     public function setAddInheritedContact(bool $addInheritedContact): void
     {
         $this->addInheritedContact = $addInheritedContact;
-    }
-
-    public function setIsActivated(bool $isActivated): void
-    {
-        $this->isActivated = $isActivated;
     }
 }

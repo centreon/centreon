@@ -590,6 +590,21 @@ class CentreonServiceTemplate extends CentreonObject
     }
 
     /**
+     * Extract macro name
+     *
+     * @param string $macroName
+     * @return string
+     */
+    protected function extractMacroName($macroName)
+    {
+        $strippedMacro = $macroName;
+        if (preg_match('/\$_SERVICE([a-zA-Z0-9_-]+)\$/', $strippedMacro, $matches)) {
+            $strippedMacro = $matches[1];
+        }
+        return $strippedMacro;
+    }
+
+    /**
      * Strip macro
      *
      * @param string $macroName
@@ -597,10 +612,7 @@ class CentreonServiceTemplate extends CentreonObject
      */
     protected function stripMacro($macroName)
     {
-        $strippedMacro = $macroName;
-        if (preg_match('/\$_SERVICE([a-zA-Z0-9_-]+)\$/', $strippedMacro, $matches)) {
-            $strippedMacro = $matches[1];
-        }
+        $strippedMacro = $this->extractMacroName($macroName);
         return strtolower($strippedMacro);
     }
 
@@ -653,7 +665,7 @@ class CentreonServiceTemplate extends CentreonObject
         echo "macro name;macro value;description;is_password\n";
         foreach ($macroList as $macro) {
             $password = !empty($macro['is_password']) ? (int)$macro['is_password'] : 0;
-            echo $macro['svc_macro_name'] . $this->delim
+            echo $this->extractMacroName($macro['svc_macro_name']) . $this->delim
             . $macro['svc_macro_value'] . $this->delim
             . $macro['description'] . $this->delim
             . $password . "\n";
