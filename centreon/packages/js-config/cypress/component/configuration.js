@@ -24,6 +24,16 @@ module.exports = ({
       excludeSpecPattern,
       setupNodeEvents: (on, config) => {
         addMatchImageSnapshotPlugin(on, config);
+
+        on('before:browser:launch', (browser, launchOptions) => {
+          if (browser.name === 'chrome') {
+            launchOptions.args.push('--disable-dev-shm-usage');
+            launchOptions.args.push('--window-size=1280,720');
+            launchOptions.args.push('--force-device-scale-factor=1');
+          }
+
+          return launchOptions;
+        });
       },
       specPattern,
       supportFile: `${mainCypressFolder}/support/component.tsx`
@@ -41,8 +51,6 @@ module.exports = ({
       reportFilename: '[name]-report.json'
     },
     video: true,
-    videosFolder: `${mainCypressFolder}/results/videos`,
-    viewportHeight: 720,
-    viewportWidth: 1280
+    videosFolder: `${mainCypressFolder}/results/videos`
   });
 };

@@ -210,7 +210,7 @@ describe('SaveMenu', () => {
       'aria-disabled'
     );
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('sends an updateFilter request when the "Save" command is clicked', () => {
@@ -241,7 +241,7 @@ describe('SaveMenu', () => {
     cy.waitForRequest('@putFilterRequest');
     cy.waitForRequest('@getResourceRequest');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('sends a createFilter request when the "Save as new" command is clicked', () => {
@@ -269,6 +269,6 @@ describe('SaveMenu', () => {
     cy.waitForRequest('@postFilterRequest');
     cy.waitForRequest('@getResourceRequest');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

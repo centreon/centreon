@@ -109,7 +109,7 @@ describe('Multi connected autocomplete', () => {
       cy.contains(optionOne).should('be.visible');
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays all options on the list when the user searches for and selects an option', () => {
@@ -156,6 +156,6 @@ describe('Multi connected autocomplete', () => {
       });
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

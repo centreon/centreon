@@ -37,14 +37,14 @@ describe('Refresh interval', () => {
     cy.findAllByTestId(labelInterval).eq(1).should('be.disabled');
     cy.findByTestId('manual').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('enables the Interval field when the Custom radio button is selected', () => {
     cy.findByTestId('custom').click();
     cy.findAllByTestId(labelInterval).eq(1).should('be.enabled');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('changes the "second" label to "seconds" when the value is greater than 1', () => {
@@ -53,7 +53,7 @@ describe('Refresh interval', () => {
     cy.findAllByText('second').should('not.exist');
     cy.findAllByText('seconds').should('exist');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('changes the "seconds" label to "second" when the value is 1', () => {
@@ -62,6 +62,6 @@ describe('Refresh interval', () => {
     cy.findAllByText('second').should('exist');
     cy.findAllByText('seconds').should('not.exist');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

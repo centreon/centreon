@@ -172,7 +172,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText(labelExit).should('be.visible');
         cy.findByLabelText(labelSave).should('be.visible');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('enables the add button when a widget is selected and the properties are filled', () => {
@@ -188,7 +188,7 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelSave).should('be.enabled');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('keeps the name when a widget is selected, properties are filled and the widget type is changed', () => {
@@ -208,7 +208,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText(labelName).should('have.value', widgetName);
         cy.findByLabelText(labelSave).should('be.enabled');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('disables the description field when the display description checkbox is not checked', () => {
@@ -259,7 +259,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText('RichTextEditor').contains('Description');
         cy.findByLabelText(labelSave).should('be.disabled');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('changes the widget type when another widget is selected', () => {
@@ -273,7 +273,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText(labelName).should('have.value', widgetName);
         cy.findByLabelText(labelSave).should('be.enabled');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
     });
 
@@ -297,7 +297,7 @@ describe('AddEditWidgetModal', () => {
         .eq(0)
         .contains('https://centreon.com');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('does not display the content of the generic text widget in the preview the show description switch is off', () => {
@@ -329,7 +329,7 @@ describe('AddEditWidgetModal', () => {
         .contains('https://centreon.com')
         .should('not.exist');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 
@@ -405,7 +405,7 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelSave).should('be.enabled');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('disables the Add button when metrics are removed from the dataset selection', () => {
@@ -439,7 +439,7 @@ describe('AddEditWidgetModal', () => {
 
         cy.findByLabelText(labelSave).should('be.disabled');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('stores the data when a resource is selected, a metric is selected and the Add button is clicked', () => {
@@ -509,7 +509,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByTestId(labelMetrics).click();
         cy.contains('pl (%)').click();
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
     });
   });

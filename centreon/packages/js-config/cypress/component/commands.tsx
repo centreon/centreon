@@ -127,6 +127,11 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('makeSnapshot', () => {
+  cy.viewport(500, 500);
+  cy.makeSnapshot();
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -134,6 +139,7 @@ declare global {
         props: InterceptAPIRequestProps<T>
       ) => Cypress.Chainable;
       interceptRequest: (method, path, mock, alias) => Cypress.Chainable;
+      makeSnapshot: () => void;
       mount: ({ Component, options }: MountProps) => Cypress.Chainable;
       moveSortableElement: ({ ariaLabel, direction }) => void;
       moveSortableElementUsingAriaLabel: ({ ariaLabel, direction }) => void;

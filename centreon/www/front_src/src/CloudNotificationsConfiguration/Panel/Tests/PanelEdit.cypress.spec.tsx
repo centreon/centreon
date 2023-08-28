@@ -125,7 +125,7 @@ describe('Edit Panel', () => {
     cy.findByLabelText(labelActiveOrInactive).should('be.visible');
     cy.findByLabelText(labelClosePanel).should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('confirms that the notification name is properly rendered with the edited value and supports the capability for users to modify the name by interacting with the Edit icon', () => {
@@ -144,7 +144,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('ensures that the form handles an empty name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
@@ -160,7 +160,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('ensures that the form handles an existing name field correctly by showing an error message and disabling the Save button as a validation measure', () => {
@@ -176,7 +176,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('confirms that the "Expand/Collapse" button triggers the desired expansion or collapse of the panel, providing users with the ability to control its visibility and size', () => {
@@ -201,7 +201,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it("ensures that the Save button's initial state is set to disabled", () => {
@@ -211,7 +211,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('confirms that the Save button responds to field changes correctly, becoming enabled when a modification occurs and the form is error-free', () => {
@@ -223,7 +223,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays host group resources and events with the edited notification values', () => {
@@ -244,7 +244,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('ensures that the "Include Services" field presents the value of the edited notification', () => {
@@ -264,7 +264,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('confirms that the "Include Services" checkbox controls the enabling and checking of all host group services checkboxes', () => {
@@ -281,7 +281,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('ensures that when the "Host Groups" field is empty, all event checkboxes are unchecked and the "Include Services" field is not visible.', () => {
@@ -309,7 +309,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays service groups and events fields with the edited notification values', () => {
@@ -330,7 +330,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('ensures that when the Service Groups field is empty, all associated events are disabled and unchecked', () => {
@@ -349,7 +349,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('validates that when both resource fields are empty, the user interface responds by displaying an error message and disabling the Save button', () => {
@@ -364,7 +364,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the Contacts field with edited notification contacts', () => {
@@ -380,7 +380,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the Contact Groups field with edited notification contact groups', () => {
@@ -396,7 +396,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('validates that when the Contacts and Contact Groups fields are both empty, the user interface responds by displaying an error message and disabling the Save button', () => {
@@ -415,7 +415,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('ensures that the time period checkbox is checked and disabled, indicating its pre-selected status', () => {
@@ -429,7 +429,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('confirms that the three icons for notification channels are appropriately presented, with the email icon initially selected and the other icons disabled', () => {
@@ -451,7 +451,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('confirms that the Subject field is properly rendered with the edited notification subject', () => {
@@ -461,7 +461,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('validates that when the Subject field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
@@ -475,7 +475,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('confirms that the Message field is properly rendered with the edited notification message', () => {
@@ -486,7 +486,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('validates that when the Message field is empty, the user interface responds by displaying an error message and disabling the Save button', () => {
@@ -500,7 +500,7 @@ describe('Edit Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -519,7 +519,7 @@ describe('Edit Panel : Confirm Dialog', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('confirms that the Confirm button triggers the sending of a PUT request', () => {
@@ -538,7 +538,7 @@ describe('Edit Panel : Confirm Dialog', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -557,7 +557,7 @@ describe('Edit Panel: Delete button', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
   it('displays a success message after successful deletion', () => {
     cy.waitForRequest('@getNotificationRequest');
@@ -572,7 +572,7 @@ describe('Edit Panel: Delete button', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
   it('displays an error message upon failed deletion', () => {
     cy.interceptAPIRequest({
@@ -596,7 +596,7 @@ describe('Edit Panel: Delete button', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -614,7 +614,7 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays confirmation dialog with new notification name field on Duplicate button click', () => {
@@ -631,7 +631,7 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('validates that name field is not empty and not already taken', () => {
@@ -651,7 +651,7 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('disables the Confirm button if the name is empty or already exists', () => {
@@ -668,7 +668,7 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays a success message upon successful duplication', () => {
@@ -685,7 +685,7 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays an error message upon failed duplication request', () => {
@@ -714,7 +714,7 @@ describe('Edit Panel: Duplicate button', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -741,7 +741,7 @@ describe('Edit Panel: Business Views', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
   it('ensures that when the BA field is empty, all associated events are disabled and unchecked', () => {
     cy.waitForRequest('@getNotificationRequest');
@@ -759,7 +759,7 @@ describe('Edit Panel: Business Views', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
   it('validates that when all resource fields are empty, the user interface responds by displaying an error message and disabling the Save button', () => {
     cy.waitForRequest('@getNotificationRequest');
@@ -773,6 +773,6 @@ describe('Edit Panel: Business Views', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

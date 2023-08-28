@@ -132,6 +132,6 @@ describe('License', () => {
 
     cy.findByText(labelLicenseWarning('centreon-autodiscovery-server', 10));
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
