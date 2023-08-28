@@ -30,7 +30,7 @@ class ServiceGroupRelation
 {
     /**
      * @param int $serviceGroupId
-     * @param int $serviceId
+     * @param int $serviceId (service ID or service template ID)
      * @param null|int $hostId
      * @param null|int $hostGroupId
      *

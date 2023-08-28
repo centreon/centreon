@@ -141,7 +141,7 @@ declare global {
       interceptRequest: (method, path, mock, alias) => Cypress.Chainable;
       makeSnapshot: (title?: string) => void;
       mount: ({ Component, options }: MountProps) => Cypress.Chainable;
-      moveSortableElement: ({ ariaLabel, direction }) => void;
+      moveSortableElement: ({ element, direction }) => void;
       moveSortableElementUsingAriaLabel: ({ ariaLabel, direction }) => void;
       waitForRequest: (alias) => Cypress.Chainable;
     }

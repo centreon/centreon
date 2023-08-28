@@ -83,7 +83,6 @@ final class NewHostTemplateFactory
             $dto->iconId,
             $dto->iconAlternative,
             $dto->comment,
-            $dto->isActivated,
         );
     }
 }

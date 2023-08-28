@@ -63,7 +63,6 @@ class NewServiceTemplateFactory
             ($inheritanceMode === 1) ? $request->isContactGroupAdditiveInheritance : false
         );
 
-        $serviceTemplate->setActivated($request->isActivated);
         $serviceTemplate->setLocked(false);
         $serviceTemplate->setActiveChecks(YesNoDefaultConverter::fromInt($request->activeChecks));
         $serviceTemplate->setPassiveCheck(YesNoDefaultConverter::fromInt($request->passiveCheck));

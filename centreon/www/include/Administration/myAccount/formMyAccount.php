@@ -169,7 +169,9 @@ $form->addElement(
     "data-testid" => _("Generate")]
 );
 $form->addElement('select', 'contact_lang', _("Language"), $langs);
-$form->addElement('checkbox', 'show_deprecated_pages', _("Use deprecated pages"), null, $attrsText);
+if (!isCloudPlatform()) {
+    $form->addElement('checkbox', 'show_deprecated_pages', _("Use deprecated pages"), null, $attrsText);
+}
 
 
 /* ------------------------ Topoogy ---------------------------- */

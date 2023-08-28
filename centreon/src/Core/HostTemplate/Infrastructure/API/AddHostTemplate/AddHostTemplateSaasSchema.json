@@ -68,12 +68,6 @@
                 "string"
             ]
         },
-        "is_activated": {
-            "type": [
-                "null",
-                "boolean"
-            ]
-        },
         "categories": {
             "type": "array",
             "items": {
