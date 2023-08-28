@@ -62,7 +62,7 @@ runs:
         #  --data ''$VERSION_DATA''
 
         curl -v --request GET \
-          --url 'https://centreon.atlassian.net/rest/api/3/project/MON/version/$RELEASE_ID' \
+          --url "https://centreon.atlassian.net/rest/api/3/project/MON/version/$RELEASE_ID" \
           --header 'Authorization: Basic ${{ inputs.jira_token }}' \
           --header 'Accept: application/json' \
           --header 'Content-Type: application/json'
