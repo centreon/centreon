@@ -222,9 +222,10 @@ const useLogin = (): UseLoginState => {
       };
 
   useEffect(() => {
-    if (path(['REDIRECT_URI'], cookies)) {
-      navigate(cookies.REDIRECT_URI);
+    if (!prop('REDIRECT_URI', cookies)) {
+      return;
     }
+    navigate(cookies.REDIRECT_URI);
   }, [cookies]);
 
   useEffect(() => {
