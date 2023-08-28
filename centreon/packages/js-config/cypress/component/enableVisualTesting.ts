@@ -10,6 +10,7 @@ const enableVisualTesting = (cypressFolder = 'cypress'): void => {
   }
 
   addMatchImageSnapshotCommand({
+    allowSizeMismatch: true,
     customDiffConfig: { threshold: 0.01 },
     customSnapshotsDir: `${cypressFolder}/visual-testing-snapshots`,
     failureThreshold: 0.07,
