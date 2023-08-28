@@ -62,7 +62,7 @@ runs:
         #  --data ''$VERSION_DATA''
 
         # Get old jira version
-        OLD_JIRA_VERSION=$(curl -v --request GET \
+        OLD_JIRA_VERSION=$(curl --request GET \
           --url "https://centreon.atlassian.net/rest/api/3/version/$RELEASE_ID" \
           --header 'Authorization: Basic ${{ inputs.jira_token }}' \
           --header 'Accept: application/json' \
