@@ -97,7 +97,8 @@ class LoginController extends AbstractController
                     Response::HTTP_FOUND,
                     [
                         'Set-Cookie' => 'PHPSESSID=' . $session->getId(),
-                        'Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri(),
+                        'Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri()
+                            . ';Expires=' . \time() + 10,
                     ]
                 );
         }
