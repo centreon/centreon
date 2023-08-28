@@ -95,6 +95,38 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @inheritDoc
      */
+    public function deleteRelations(int ...$serviceGroupIds) : void
+    {
+        if ($serviceGroupIds === []) {
+            return;
+        }
+        $serviceGroupIds = array_unique($serviceGroupIds);
+        $fields = '';
+        foreach (array_keys($serviceGroupIds) as $index) {
+            $fields .= ($fields === '' ? '' : ', ') . ':id_' . $index;
+        }
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(<<<SQL
+                DELETE rel FROM `:db`.`servicegroup_relation` rel
+                INNER JOIN `:db`.service srv
+                    ON srv.service_id = rel.service_service_id
+                WHERE rel.servicegroup_sg_id IN ({$fields})
+                    AND srv.service_register = '0'
+                    AND rel.hostgroup_hg_id IS NULL
+                SQL
+            )
+        );
+        foreach ($serviceGroupIds as $index => $id) {
+            $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function link(array $serviceGroupRelations): void
     {
         if ($serviceGroupRelations === []) {
@@ -102,7 +134,7 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
         }
 
         $request = <<<'SQL'
-            INSERT INTO servicegroup_relation
+            INSERT INTO `:db`.servicegroup_relation
                 (host_host_id, service_service_id, servicegroup_sg_id, hostgroup_hg_id)
                 VALUES (:host_id, :service_id, :servicegroup_id, :hostgroup_id)
             SQL;
@@ -113,7 +145,7 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
             if (! $alreadyInTransaction) {
                 $this->db->beginTransaction();
             }
-            $statement = $this->db->prepare($request);
+            $statement = $this->db->prepare($this->translateDbName($request));
 
             $serviceId = null;
             $serviceGroupId = null;

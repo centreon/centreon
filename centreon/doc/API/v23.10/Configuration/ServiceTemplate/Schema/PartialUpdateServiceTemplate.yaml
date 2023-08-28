@@ -262,3 +262,19 @@ properties:
       If multiple macros are defined with the same name, only the last one will be saved.
     items:
       $ref: 'macro.yaml'
+  service_groups:
+    type: array
+    descriptions: "Service group / host template associations to be linked to this service template."
+    items:
+      type: object
+      properties:
+        service_group_id:
+          type: integer
+          description: "Service group ID"
+          example: 1
+        host_template_id:
+          type: integer
+          description: |
+            Host template ID to be paired with the service template for the service group / template association.
+            The host template ID must be defined in the host_templates list.
+          example: 2
