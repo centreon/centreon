@@ -362,10 +362,6 @@ final class PartialUpdateHostTemplate
             $hostTemplate->setComment($request->comment);
         }
 
-        if (! $request->isActivated instanceOf NoValue) {
-            $hostTemplate->setIsActivated($request->isActivated);
-        }
-
         $this->writeHostTemplateRepository->update($hostTemplate);
     }
 

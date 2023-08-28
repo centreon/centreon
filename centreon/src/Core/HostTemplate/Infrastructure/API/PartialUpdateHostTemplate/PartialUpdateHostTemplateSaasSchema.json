@@ -107,12 +107,6 @@
                 "null",
                 "string"
             ]
-        },
-        "is_activated": {
-            "type": [
-                "null",
-                "boolean"
-            ]
         }
     }
 }

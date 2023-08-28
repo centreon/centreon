@@ -232,9 +232,6 @@
                 "integer"
             ]
         },
-        "is_activated": {
-            "type": "boolean"
-        },
         "host_templates": {
             "type": "array",
             "items": {

@@ -91,7 +91,6 @@ class FindHostTemplatesOnPremPresenter extends AbstractPresenter implements Find
                     'icon_id' => $hostTemplate['iconId'],
                     'icon_alternative' => $this->emptyStringAsNull($hostTemplate['iconAlternative']),
                     'comment' => $this->emptyStringAsNull($hostTemplate['comment']),
-                    'is_activated' => $hostTemplate['isActivated'],
                     'is_locked' => $hostTemplate['isLocked'],
                 ];
             }

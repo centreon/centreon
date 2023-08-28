@@ -43,8 +43,6 @@ final class PartialUpdateServiceTemplateRequest
 
     public bool|NoValue $isContactGroupAdditiveInheritance;
 
-    public bool|NoValue $isActivated;
-
     public int|NoValue $activeChecksEnabled;
 
     public int|NoValue $passiveCheckEnabled;
@@ -126,7 +124,6 @@ final class PartialUpdateServiceTemplateRequest
         $this->notificationTypes = new NoValue();
         $this->isContactAdditiveInheritance = new NoValue();
         $this->isContactGroupAdditiveInheritance = new NoValue();
-        $this->isActivated = new NoValue();
         $this->activeChecksEnabled = new NoValue();
         $this->passiveCheckEnabled = new NoValue();
         $this->volatility = new NoValue();

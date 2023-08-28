@@ -141,7 +141,6 @@ beforeEach(function () {
     $this->request->iconId = 1;
     $this->request->iconAlternative = 'iconAlternative-value';
     $this->request->comment = 'comment-value edit';
-    $this->request->isActivated = false;
 
     $this->editedHostTemplate = new HostTemplate(
         id: $this->hostTemplateId,
@@ -182,7 +181,6 @@ beforeEach(function () {
         iconId: $this->request->iconId,
         iconAlternative: $this->request->iconAlternative,
         comment: $this->request->comment,
-        isActivated: $this->request->isActivated,
         isLocked: false,
     );
 

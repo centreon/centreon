@@ -70,8 +70,6 @@ final class AddServiceTemplateResponse
 
     public string|null $iconAlternativeText = null;
 
-    public bool $isActivated = false;
-
     public bool $isLocked = false;
 
     public YesNoDefault $activeChecks = YesNoDefault::Default;
