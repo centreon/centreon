@@ -32,14 +32,14 @@ runs:
         if [ -z "$OLDV" ]; then
           echo "No existing version, starting at $MAJOR_VERSION.0"
           NEW_VERSION="$MAJOR_VERSION.0"
-          git tag -a "centreon-${{ inputs.module_name }}-$NEW_VERSION" -m "version $NEW_VERSION"
-          git push --follow-tags
+          #git tag -a "centreon-${{ inputs.module_name }}-$NEW_VERSION" -m "version $NEW_VERSION"
+          #git push --follow-tags
         else
           OLD_MINOR_VERSION=$(echo $OLDV | grep -oP '([0-9]+$)')
           NEW_MINOR_VERSION=$(echo $((OLD_MINOR_VERSION + 1)))
           NEW_VERSION=$MAJOR_VERSION.$NEW_MINOR_VERSION
-          git tag -a "centreon-${{ inputs.module_name }}-$NEW_VERSION" -m "version $NEW_VERSION"
-          git push --follow-tags
+          #git tag -a "centreon-${{ inputs.module_name }}-$NEW_VERSION" -m "version $NEW_VERSION"
+          #git push --follow-tags
         fi
 
         if [ "$HOTFIX" == "hotfix" ]; then
@@ -50,11 +50,16 @@ runs:
 
         VERSION_DATA="{\"archived\":false,\"releaseDate\":\"$(date +%Y-%m-%d)\",\"name\":\"centreon-${{ inputs.module_name }}-$NEW_VERSION\",\"description\":\"$TYPE:$RELEASE_ID\",\"projectId\":${{ inputs.jira_project_id }},\"released\":false}"
 
-        curl --fail --request POST \
-          --url 'https://centreon.atlassian.net/rest/api/3/version' \
-          --header 'Authorization: Basic ${{ inputs.jira_token }}' \
-          --header 'Accept: application/json' \
-          --header 'Content-Type: application/json' \
-          --data ''$VERSION_DATA''
+        #curl --fail --request POST \
+        #  --url 'https://centreon.atlassian.net/rest/api/3/version' \
+        #  --header 'Authorization: Basic ${{ inputs.jira_token }}' \
+        #  --header 'Accept: application/json' \
+        #  --header 'Content-Type: application/json' \
+        #  --data ''$VERSION_DATA''
+
+        curl -v --request GET \
+          --url 'https://centreon.atlassian.net/rest/api/3/project/MON/version' \
+          --user 'tuntoja@centreon.com:<api_token>' \
+          --header 'Accept: application/json'
 
       shell: bash
