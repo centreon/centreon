@@ -8,6 +8,7 @@ on:
     branches:
       - master
       - develop
+      - MON-21232-add-a-check-to-make-sure-jira-previous-version-and-tag-previous-version-are-the-exact-same-before-creating-jira-version-and-tagging
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - "centreon/.github/create-jira-version-web.yml"
