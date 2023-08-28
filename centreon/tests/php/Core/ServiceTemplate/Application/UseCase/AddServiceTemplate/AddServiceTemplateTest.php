@@ -97,7 +97,7 @@ it('should present a ForbiddenResponse when the user has insufficient rights', f
         ->toBe(ServiceTemplateException::addNotAllowed()->getMessage());
 });
 
-it('should present an ErrorResponse when the user name already exists', function (): void {
+it('should present an ErrorResponse when the service template name already exists', function (): void {
     $name = 'fake_name';
 
     Mock::setMock($this, [
@@ -659,29 +659,29 @@ it('should present an InvalidArgumentResponse when data are not valid', function
         ->toBe(AssertionException::notEmptyString('NewServiceTemplate::alias')->getMessage());
 });
 
-// it('should present an ErrorResponse when an exception is thrown', function (): void {
-//     $request = createAddServiceTemplateRequest();
+it('should present an ErrorResponse when an exception is thrown', function (): void {
+    $request = createAddServiceTemplateRequest();
 
-//     $this->user
-//         ->expects($this->once())
-//         ->method('hasTopologyRole')
-//         ->willReturnMap(
-//             [
-//                 [Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true],
-//             ]
-//         );
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturnMap(
+            [
+                [Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true],
+            ]
+        );
 
-//     $this->writeServiceTemplateRepository
-//         ->expects($this->once())
-//         ->method('add')
-//         ->willThrowException(new \Exception());
+    $this->writeServiceTemplateRepository
+        ->expects($this->once())
+        ->method('add')
+        ->willThrowException(new \Exception());
 
-//     ($this->addUseCase)($request, $this->useCasePresenter);
-//     expect($this->useCasePresenter->response)
-//         ->toBeInstanceOf(ErrorResponse::class)
-//         ->and($this->useCasePresenter->response->getMessage())
-//         ->toBe(ServiceTemplateException::errorWhileAdding(new \Exception())->getMessage());
-// });
+    ($this->addUseCase)($request, $this->useCasePresenter);
+    expect($this->useCasePresenter->response)
+        ->toBeInstanceOf(ErrorResponse::class)
+        ->and($this->useCasePresenter->response->getMessage())
+        ->toBe(ServiceTemplateException::errorWhileAdding(new \Exception())->getMessage());
+});
 
 it('should present an AddServiceTemplateResponse when everything has gone well', function (): void {
     $request = new AddServiceTemplateRequest();
@@ -733,7 +733,6 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
         hostTemplateIds: [2, 3],
         contactAdditiveInheritance: true,
         contactGroupAdditiveInheritance: true,
-        isActivated: true,
         isLocked: true,
         activeChecks: YesNoDefault::Yes,
         passiveCheck: YesNoDefault::No,
@@ -872,7 +871,6 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
     expect($dto->iconId)->toBe($this->serviceTemplateFound->getIconId());
     expect($dto->iconAlternativeText)->toBe($this->serviceTemplateFound->getIconAlternativeText());
     expect($dto->severityId)->toBe($this->serviceTemplateFound->getSeverityId());
-    expect($dto->isActivated)->toBe($this->serviceTemplateFound->isActivated());
     expect($dto->isLocked)->toBe($this->serviceTemplateFound->isLocked());
     expect($dto->hostTemplateIds)->toBe($this->serviceTemplateFound->getHostTemplateIds());
     foreach ($dto->macros as $index => $expectedMacro) {

@@ -117,8 +117,7 @@ final class PartialUpdateHostTemplateController extends AbstractController
          *      action_url?: null|string,
          *      icon_id?: null|int,
          *      icon_alternative?: null|string,
-         *      comment?: string,
-         *      is_activated?: bool
+         *      comment?: string
          * } $data
          */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateHostTemplateOnPremSchema.json');
@@ -248,9 +247,6 @@ final class PartialUpdateHostTemplateController extends AbstractController
         if (\array_key_exists('comment', $data)) {
             $dto->comment = $data['comment'] ?? '';
         }
-        if (\array_key_exists('is_activated', $data)) {
-            $dto->isActivated = $data['is_activated'];
-        }
 
         return $dto;
     }
@@ -278,8 +274,7 @@ final class PartialUpdateHostTemplateController extends AbstractController
          *      check_timeperiod_id?: null|int,
          *      note_url?: null|string,
          *      note?: null|string,
-         *      action_url?: null|string,
-         *      is_activated?: bool,
+         *      action_url?: null|string
          * } $data
          */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateHostTemplateSaasSchema.json');
@@ -324,9 +319,6 @@ final class PartialUpdateHostTemplateController extends AbstractController
         }
         if (\array_key_exists('action_url', $data)) {
             $dto->actionUrl = $data['action_url'] ?? '';
-        }
-        if (\array_key_exists('is_activated', $data)) {
-            $dto->isActivated = $data['is_activated'];
         }
 
         return $dto;

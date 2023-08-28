@@ -280,6 +280,3 @@ properties:
     type: string
     nullable: true
     description: "Host template comments"
-  is_activated:
-    type: boolean
-    description: "Indicates whether the host template is activated or not"

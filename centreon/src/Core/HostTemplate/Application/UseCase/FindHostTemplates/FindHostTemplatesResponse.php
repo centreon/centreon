@@ -65,7 +65,6 @@ final class FindHostTemplatesResponse
      *          iconId: int|null,
      *          iconAlternative: string,
      *          comment: string,
-     *          isActivated: bool,
      *          isLocked: bool
      *     }
      * >

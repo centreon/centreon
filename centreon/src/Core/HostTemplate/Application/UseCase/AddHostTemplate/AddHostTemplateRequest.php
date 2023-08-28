@@ -101,8 +101,6 @@ final class AddHostTemplateRequest
 
     public string $comment = '';
 
-    public bool $isActivated = true;
-
     /** @var int[] */
     public array $categories = [];
 
