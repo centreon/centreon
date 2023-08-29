@@ -35,6 +35,7 @@ const getStatusNumberFromString = (status: string): number => {
   const statuses = {
     critical: '2',
     down: '1',
+    ok: '0',
     unknown: '3',
     unreachable: '2',
     up: '0',
@@ -106,6 +107,8 @@ const checkHostsAreMonitored = (hosts: Array<MonitoredHost>): void => {
 };
 
 interface MonitoredService {
+  acknowledged?: boolean | null;
+  inDowntime?: boolean | null;
   name: string;
   output?: string;
   status?: string;
@@ -117,17 +120,33 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
   let query =
     'SELECT COUNT(s.service_id) from services as s WHERE s.enabled=1 AND (';
   const conditions: Array<string> = [];
-  services.forEach(({ name, output = '', status = '' }) => {
-    let condition = `(s.description = '${name}'`;
-    if (output !== '') {
-      condition += ` AND s.output LIKE '%${output}%'`;
+  services.forEach(
+    ({
+      acknowledged = null,
+      name,
+      output = '',
+      status = '',
+      inDowntime = null
+    }) => {
+      let condition = `(s.description = '${name}'`;
+      if (output !== '') {
+        condition += ` AND s.output LIKE '%${output}%'`;
+      }
+      if (status !== '') {
+        condition += ` AND s.state = ${getStatusNumberFromString(status)}`;
+      }
+      if (acknowledged !== null) {
+        condition += ` AND s.acknowledged = ${acknowledged === true ? 1 : 0}`;
+      }
+      if (inDowntime !== null) {
+        condition += ` AND s.scheduled_downtime_depth = ${
+          inDowntime === true ? 1 : 0
+        }`;
+      }
+      condition += ')';
+      conditions.push(condition);
     }
-    if (status !== '') {
-      condition += ` AND s.state = ${getStatusNumberFromString(status)}`;
-    }
-    condition += ')';
-    conditions.push(condition);
-  });
+  );
   query += conditions.join(' OR ');
   query += ')';
   cy.log(query);

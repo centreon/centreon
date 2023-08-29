@@ -1,48 +1,139 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  insertResourceFixtures,
-  searchInput,
-  stateFilterContainer,
-  setUserFilter
-} from '../common';
-import { loginAsAdminViaApiV2 } from '../../../commons';
+import { searchInput, setUserFilter } from '../common';
+import { checkServicesAreMonitored } from '../../../commons';
 
-before(() => {
-  cy.startWebContainer();
-
-  insertResourceFixtures()
-    .then(loginAsAdminViaApiV2)
-    .then(() =>
-      cy
-        .fixture('resources/filters.json')
-        .then((filters) => setUserFilter(filters))
-    );
-});
+const serviceOk = 'service_test_ok';
+const serviceInDtName = 'service_downtime_1';
+const secondServiceInDtName = 'service_downtime_2';
+const serviceInAcknowledgementName = 'service_ack_1';
 
 beforeEach(() => {
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/authentication/providers/configurations/local'
   }).as('postLocalAuthentication');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
   }).as('getFilters');
+
+  cy.intercept('/centreon/api/latest/monitoring/resources*').as(
+    'monitoringEndpoint'
+  );
+
+  cy.startWebContainer();
+
+  cy.loginByTypeOfUser({
+    jsonName: 'admin',
+    loginViaApi: true
+  }).wait('@getFilters');
+
+  cy.disableListingAutoRefresh();
+
+  cy.addHost({
+    activeCheckEnabled: false,
+    checkCommand: 'check_centreon_cpu',
+    name: 'host1',
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: 'host1',
+      maxCheckAttempts: 1,
+      name: serviceInDtName,
+      template: 'SNMP-DISK-/'
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: 'host1',
+      maxCheckAttempts: 1,
+      name: secondServiceInDtName,
+      template: 'Ping-LAN'
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: 'host1',
+      maxCheckAttempts: 1,
+      name: serviceInAcknowledgementName,
+      template: 'SNMP-DISK-/'
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: 'host1',
+      maxCheckAttempts: 1,
+      name: serviceOk,
+      template: 'Ping-LAN'
+    })
+    .applyPollerConfiguration();
+
+  checkServicesAreMonitored([
+    {
+      name: serviceOk
+    }
+  ]);
+
+  cy.submitResults([
+    {
+      host: 'host1',
+      output: 'submit_status_2',
+      service: serviceInDtName,
+      status: 'critical'
+    },
+    {
+      host: 'host1',
+      output: 'submit_status_2',
+      service: secondServiceInDtName,
+      status: 'critical'
+    },
+    {
+      host: 'host1',
+      output: 'submit_status_2',
+      service: serviceInAcknowledgementName,
+      status: 'critical'
+    },
+    {
+      host: 'host1',
+      output: 'submit_status_0',
+      service: serviceOk,
+      status: 'ok'
+    }
+  ]);
+
+  checkServicesAreMonitored([
+    {
+      name: serviceInDtName,
+      status: 'critical'
+    },
+    {
+      name: secondServiceInDtName,
+      status: 'critical'
+    },
+    {
+      name: serviceInAcknowledgementName,
+      status: 'critical'
+    },
+    {
+      name: serviceOk,
+      status: 'ok'
+    }
+  ]);
 });
 
 Then('the unhandled problems filter is selected', (): void => {
-  cy.visit('/');
+  cy.visit('/').wait('@getFilters');
   cy.contains('Unhandled alerts');
 });
 
 Then('only non-ok resources are displayed', () => {
-  cy.contains('service_test_ack');
-  cy.contains('service_test_ok').should('not.exist');
+  cy.contains(serviceInAcknowledgementName);
+  cy.contains(serviceOk).should('not.exist');
   cy.contains('Critical');
   cy.get('header').parent().children().eq(1).contains('Ok').should('not.exist');
   cy.get('header').parent().children().eq(1).contains('Up').should('not.exist');
@@ -53,30 +144,34 @@ When('I put in some criterias', () => {
     jsonName: 'admin',
     loginViaApi: true
   });
-  const searchValue = `type:service s.description:(ok|dt)$`;
 
-  cy.get(searchInput).clear().type(searchValue).type('{enter}');
+  const searchValue = `type:service s.description:(ok|downtime_1)$`;
+
+  cy.get(searchInput).type(`{selectall}{backspace}${searchValue}{enter}`);
 });
 
 Then(
   'only the Resources matching the selected criterias are displayed in the result',
   () => {
     cy.contains('1-2 of 2');
-    cy.contains('service_test_dt');
-    cy.contains('service_test_ok');
+    cy.contains(serviceInDtName);
+    cy.contains(serviceOk);
   }
 );
 
 Given('a saved custom filter', () => {
-  cy.loginByTypeOfUser({
-    jsonName: 'admin'
-  }).wait('@postLocalAuthentication');
+  cy.fixture('resources/filters.json').then((filters) =>
+    setUserFilter(filters)
+  );
 
-  cy.wait('@getFilters');
+  cy.visit('centreon/monitoring/resources').wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
 
-  cy.get(stateFilterContainer).click();
+  cy.contains('Unhandled alerts').should('be.visible').click();
 
-  cy.contains('OK services').should('exist');
+  cy.contains('OK services');
 });
 
 When('I select the custom filter', () => {
@@ -87,10 +182,10 @@ Then(
   'only Resources matching the selected filter are displayed in the result',
   () => {
     cy.contains('1-1 of 1');
-    cy.contains('service_test_ok');
+    cy.contains(serviceOk);
   }
 );
 
-after(() => {
+afterEach(() => {
   cy.stopWebContainer();
 });

@@ -634,7 +634,7 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
         );
         $statement->bindValue(
             ':isActivated',
-            (new BoolToEnumNormalizer())->normalize($hostTemplate->isActivated()),
+            (new BoolToEnumNormalizer())->normalize(true),
             \PDO::PARAM_STR
         );
         $statement->bindValue(

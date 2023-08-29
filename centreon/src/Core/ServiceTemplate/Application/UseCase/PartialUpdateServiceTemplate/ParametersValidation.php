@@ -32,6 +32,7 @@ use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
+use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
@@ -52,6 +53,7 @@ class ParametersValidation
         private readonly ReadViewImgRepositoryInterface $imageRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
+        private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
     ) {
     }
 
@@ -246,6 +248,60 @@ class ParametersValidation
 
         if ([] !== ($idsNotFound = array_diff($serviceCategoriesIds, $serviceCategoriesIdsFound))) {
             throw ServiceTemplateException::idsDoNotExist('service_categories', $idsNotFound);
+        }
+    }
+
+    /**
+     * @param ServiceGroupDto[] $serviceGroupDtos
+     * @param int $serviceTemplateId,
+     * @param ContactInterface $contact
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws ServiceTemplateException
+     * @throws \Throwable
+     */
+    public function assertServiceGroups(
+        array $serviceGroupDtos,
+        int $serviceTemplateId,
+        ContactInterface $contact,
+        array $accessGroups
+    ): void
+    {
+        if (empty($serviceGroupDtos)) {
+            return;
+        }
+
+        $serviceGroupIds = array_map(
+            fn (ServiceGroupDto $serviceGroup) => $serviceGroup->serviceGroupId,
+            $serviceGroupDtos
+        );
+
+        $serviceGroupIds = array_unique($serviceGroupIds);
+
+        if ($contact->isAdmin()) {
+            $serviceGroupIdsFound = $this->readServiceGroupRepository->exist($serviceGroupIds);
+        } else {
+            $serviceGroupIdsFound = $this->readServiceGroupRepository->existByAccessGroups(
+                $serviceGroupIds,
+                $accessGroups
+            );
+        }
+
+        if ([] !== ($idsNotFound = array_diff($serviceGroupIds, $serviceGroupIdsFound))) {
+            throw ServiceTemplateException::idsDoNotExist('service_groups', $idsNotFound);
+        }
+
+        $hostTemplateIdsFromServiceGroupRelations = array_map(
+            fn (ServiceGroupDto $serviceGroup) => $serviceGroup->hostTemplateId,
+            $serviceGroupDtos
+        );
+
+        $serviceTemplate = $this->readServiceTemplateRepository->findById($serviceTemplateId);
+        if ($serviceTemplate !== null) {
+            $idsNotFound = array_diff($hostTemplateIdsFromServiceGroupRelations, $serviceTemplate->getHostTemplateIds());
+            if ($idsNotFound !== []) {
+                throw ServiceTemplateException::invalidServiceGroupAssociation();
+            }
         }
     }
 }

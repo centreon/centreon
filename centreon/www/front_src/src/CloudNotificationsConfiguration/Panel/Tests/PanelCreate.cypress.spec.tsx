@@ -30,6 +30,7 @@ import {
   usersEndpoint
 } from '../api/endpoints';
 import Form from '..';
+import { defaultEmailSubject } from '../utils';
 
 import {
   usersResponse,
@@ -215,6 +216,30 @@ describe('Create Panel', () => {
 
     cy.findByText(labelYourFormHasUnsavedChanges);
     cy.findByText(labelDoYouWantToQuitWithoutSaving);
+
+    cy.matchImageSnapshot();
+  });
+
+  it('displays the Email Subject field with the default initial value', () => {
+    cy.get('#panel-content').scrollTo('bottom');
+
+    cy.findByLabelText(labelSubject).should('have.value', defaultEmailSubject);
+
+    cy.matchImageSnapshot();
+  });
+
+  it('displays the Email Body field with the default initial value', () => {
+    cy.get('#panel-content').scrollTo('bottom');
+
+    cy.findByTestId('EmailBody').contains('Centreon notification');
+    cy.findByTestId('EmailBody').contains(
+      'Notification Type: {{NOTIFICATIONTYPE}}'
+    );
+    cy.findByTestId('EmailBody').contains('Resource: {{NAME}}');
+    cy.findByTestId('EmailBody').contains('ID: {{ID}}');
+    cy.findByTestId('EmailBody').contains('State: {{STATE}}');
+    cy.findByTestId('EmailBody').contains('Date/Time: {{SHORTDATETIME}}');
+    cy.findByTestId('EmailBody').contains('Additional Info: {{OUTPUT}}');
 
     cy.matchImageSnapshot();
   });

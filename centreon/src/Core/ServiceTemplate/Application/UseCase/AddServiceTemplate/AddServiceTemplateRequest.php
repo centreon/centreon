@@ -50,8 +50,6 @@ final class AddServiceTemplateRequest
 
     public bool $isContactGroupAdditiveInheritance = false;
 
-    public bool $isActivated = false;
-
     public int $activeChecks = 0;
 
     public int $passiveCheck = 0;

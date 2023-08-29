@@ -26,6 +26,7 @@ namespace Core\ServiceTemplate\Infrastructure\Repository;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
@@ -148,7 +149,8 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
         );
         $statement->bindValue(
             ':is_activated',
-            $newServiceTemplate->isActivated()
+            (new BoolToEnumNormalizer())->normalize(true),
+            \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':is_locked',
@@ -455,7 +457,8 @@ class DbWriteServiceTemplateRepository extends AbstractRepositoryRDB implements 
         );
         $statement->bindValue(
             ':is_activated',
-            $serviceTemplate->isActivated()
+            (new BoolToEnumNormalizer())->normalize(true),
+            \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':is_locked',

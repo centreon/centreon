@@ -61,7 +61,6 @@ beforeEach(closure: function (): void {
         true,
         true,
         true,
-        true,
         YesNoDefault::Yes,
         YesNoDefault::No,
         YesNoDefault::Default,
@@ -135,7 +134,6 @@ beforeEach(closure: function (): void {
     $this->serviceTemplateDto->iconId = $this->serviceTemplateFound->getIconId();
     $this->serviceTemplateDto->iconAlternativeText = $this->serviceTemplateFound->getIconAlternativeText();
     $this->serviceTemplateDto->severityId = $this->serviceTemplateFound->getSeverityId();
-    $this->serviceTemplateDto->isActivated = $this->serviceTemplateFound->isActivated();
     $this->serviceTemplateDto->isLocked = $this->serviceTemplateFound->isLocked();
     $this->serviceTemplateDto->hostTemplateIds = $this->serviceTemplateFound->getHostTemplateIds();
 });
@@ -279,7 +277,6 @@ it('should present a FindHostTemplatesResponse when user has read or write right
     expect($dto->iconId)->toBe($this->serviceTemplateFound->getIconId());
     expect($dto->iconAlternativeText)->toBe($this->serviceTemplateFound->getIconAlternativeText());
     expect($dto->severityId)->toBe($this->serviceTemplateFound->getSeverityId());
-    expect($dto->isActivated)->toBe($this->serviceTemplateFound->isActivated());
     expect($dto->isLocked)->toBe($this->serviceTemplateFound->isLocked());
     expect($dto->hostTemplateIds)->toBe($this->serviceTemplateFound->getHostTemplateIds());
 });

@@ -82,7 +82,6 @@ class AddServiceTemplateOnPremPresenter extends AbstractPresenter implements Add
                         'icon_alternative' => $response->iconAlternativeText,
                         'severity_id' => $response->severityId,
                         'host_templates' => $response->hostTemplateIds,
-                        'is_activated' => $response->isActivated,
                         'is_locked' => $response->isLocked,
                         'macros' => array_map(fn(MacroDto $macro): array => [
                             'name' => $macro->name,

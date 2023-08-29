@@ -1,0 +1,8 @@
+in: query
+name: end
+required: true
+description: "End date of metrics (default date is current date)"
+schema:
+  type: string
+  format: date-time
+  example: "2020-02-19T00:00:00"

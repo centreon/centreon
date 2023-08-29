@@ -103,8 +103,6 @@ final class AddHostTemplateResponse
 
     public string $comment = '';
 
-    public bool $isActivated = true;
-
     public bool $isLocked = false;
 
     /** @var array<array{id:int,name:string}> */
