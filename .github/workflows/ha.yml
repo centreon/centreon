@@ -21,8 +21,6 @@ on:
       - "centreon-ha/**"
       - "!centreon-ha/.veracode"
       - "!centreon-ha/.veracode-exclusions"
-    tags:
-      - centreon-ha-*
 
 env:
   module: ha
