@@ -1466,6 +1466,22 @@ function getListTemplates($pearDB, $svcId, $alreadyProcessed = array())
     }
 }
 
+/**
+ * Indicates whether the platform is Cloud-based or not.
+ *
+ * @return bool
+ */
+function isCloudPlatform(): bool
+{
+    static $isCloudPlatform;
+    if (isset($isCloudPlatform)) {
+        return $isCloudPlatform;
+    }
+    $service = App\Kernel::createForWeb()->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
+
+    return $isCloudPlatform = ($service instanceof Core\Common\Infrastructure\FeatureFlags ? $service->isCloudPlatform() : false);
+}
+
 if (!function_exists("array_column")) {
     function array_column($array, $column_name)
     {
