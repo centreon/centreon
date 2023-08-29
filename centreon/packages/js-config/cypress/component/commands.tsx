@@ -128,7 +128,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('makeSnapshot', (title?: string) => {
-  cy.viewport(1280, 600);
+  cy.viewport(1280, 590);
   cy.matchImageSnapshot(title);
 });
 
