@@ -23,8 +23,6 @@ on:
       - "!centreon/packages/**"
       - "!centreon/.veracode"
       - "!centreon/.veracode-exclusions"
-    tags:
-      - centreon-*
 
 env:
   base_directory: centreon
