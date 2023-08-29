@@ -51,6 +51,12 @@ const getYupValidatorType = ({
       always(Yup.string())
     ],
     [
+      equals<FederatedWidgetOptionType>(
+        FederatedWidgetOptionType.singleMetricGraphType
+      ),
+      always(Yup.string())
+    ],
+    [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.resources),
       always(
         Yup.array()
@@ -73,7 +79,8 @@ const getYupValidatorType = ({
             Yup.object()
               .shape({
                 id: Yup.number().required(t(labelRequired) as string),
-                metrics: Yup.array().of(metricSchema).min(1)
+                metrics: Yup.array().of(metricSchema).min(1),
+                name: Yup.string().required(t(labelRequired) as string)
               })
               .optional()
           )
