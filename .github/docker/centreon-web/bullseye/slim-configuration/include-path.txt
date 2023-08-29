@@ -35,3 +35,4 @@
 /var/lib/mysql/centreon_storage
 /usr/lib/nagios/plugins
 /usr/lib/centreon/plugins
+/usr/share/perl
