@@ -13,7 +13,7 @@ on the market; it is absolutely free and Open Source.
 
 <h2> Getting Started </h2>
 
-*Centreon software* can be set up
+*Centreon software* can be set up 
 
 * Using the [**sources**](https://docs.centreon.com/current/en/installation/installation-of-a-central-server/using-sources.html)
 * Using the [**packages**](https://docs.centreon.com/current/en/installation/installation-of-a-central-server/using-packages.html)
