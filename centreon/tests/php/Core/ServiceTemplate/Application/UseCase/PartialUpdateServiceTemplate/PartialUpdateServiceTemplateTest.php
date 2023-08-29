@@ -25,6 +25,7 @@ namespace Tests\Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTem
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Option\OptionService;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -82,6 +83,7 @@ beforeEach(closure: function (): void {
     $this->performanceGraphRepository = $this->createMock(ReadPerformanceGraphRepositoryInterface::class);
     $this->imageRepository = $this->createMock(ReadViewImgRepositoryInterface::class);
     $this->writeServiceGroupRepository = $this->createMock(WriteServiceGroupRepositoryInterface::class);
+    $this->optionService = $this->createMock(OptionService::class);
 
     $this->parametersValidation = $this->createMock(ParametersValidation::class);
 
@@ -104,7 +106,8 @@ beforeEach(closure: function (): void {
         $this->writeServiceGroupRepository,
         $this->parametersValidation,
         $this->contact,
-        $this->dataStorageEngine
+        $this->dataStorageEngine,
+        $this->optionService
     );
 });
 
@@ -517,8 +520,8 @@ it('should present a NoContentResponse when everything has gone well for an admi
                 $serviceTemplate->getNotificationTypes()
             )
         )->toBe(NotificationTypeConverter::toBits($notificationTypes))
-        ->and($serviceTemplate->isContactAdditiveInheritance())->toBe($request->isContactAdditiveInheritance)
-        ->and($serviceTemplate->isContactGroupAdditiveInheritance())->toBe($request->isContactGroupAdditiveInheritance)
+        ->and($serviceTemplate->isContactAdditiveInheritance())->toBe(false)
+        ->and($serviceTemplate->isContactGroupAdditiveInheritance())->toBe(false)
         ->and($serviceTemplate->getActiveChecks())->toBe(
             \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->activeChecksEnabled)
         )->and($serviceTemplate->getPassiveCheck())->toBe(

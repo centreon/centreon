@@ -207,8 +207,8 @@ final class AddService
     private function createNewService(AddServiceRequest $request): NewService
     {
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
-        $inheritanceMode = isset($inheritanceMode['inheritance_mode'])
-            ? $inheritanceMode['inheritance_mode']->getValue()
+        $inheritanceMode = isset($inheritanceMode[0])
+            ? $inheritanceMode[0]->getValue()
             : 0;
 
         return NewServiceFactory::create((int) $inheritanceMode, $request, $this->isCloudPlatform);
