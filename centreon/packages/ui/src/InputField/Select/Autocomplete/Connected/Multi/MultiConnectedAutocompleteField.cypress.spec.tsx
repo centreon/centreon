@@ -73,15 +73,13 @@ describe('Multi connected autocomplete', () => {
       });
     });
 
-    cy.matchImageSnapshot(
-      'displays the list when the user clicks on the input'
-    );
+    cy.makeSnapshot('displays the list when the user clicks on the input');
 
     cy.get('@input').click();
 
     cy.get('@listOptions').should('not.exist');
 
-    cy.matchImageSnapshot('hides the list when the user clicks on the input');
+    cy.makeSnapshot('hides the list when the user clicks on the input');
   });
 
   it('displays exactly one option on the list when the user types that option', () => {

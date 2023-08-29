@@ -57,7 +57,7 @@ modes.forEach((mode) => {
         cy.wrap($li).get('svg').should('be.visible');
       });
 
-      cy.matchImageSnapshot().then(() => {
+      cy.makeSnapshot().then(() => {
         cy.findByLabelText(labelMiniCentreonLogo).click();
       });
     });

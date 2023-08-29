@@ -532,7 +532,7 @@ describe('column sorting', () => {
 
       cy.contains('notification1').should('be.visible');
 
-      cy.matchImageSnapshot(
+      cy.makeSnapshot(
         `column sorting --  executes a listing request when the ${label} column is clicked`
       );
     });

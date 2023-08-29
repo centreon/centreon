@@ -123,7 +123,7 @@ describe('SAMLConfiguration', () => {
     cy.findByLabelText(labelSAMLOnly).should('not.be.checked');
     cy.findByLabelText(labelMixed).should('be.checked');
 
-    cy.matchImageSnapshot('displays the SAML configuration form - Activation');
+    cy.makeSnapshot('displays the SAML configuration form - Activation');
 
     cy.contains(labelIdentityProvider).click();
 
@@ -154,9 +154,7 @@ describe('SAMLConfiguration', () => {
 
     cy.wait(500).scrollTo(0, 300);
 
-    cy.matchImageSnapshot(
-      'displays the SAML configuration form - Identity provider'
-    );
+    cy.makeSnapshot('displays the SAML configuration form - Identity provider');
 
     cy.contains(labelAuthenticationConditions).click();
 
@@ -179,7 +177,7 @@ describe('SAMLConfiguration', () => {
 
     cy.wait(500).scrollTo(0, 800);
 
-    cy.matchImageSnapshot(
+    cy.makeSnapshot(
       'displays the SAML configuration form - Authentication conditions'
     );
 
@@ -201,9 +199,7 @@ describe('SAMLConfiguration', () => {
 
     cy.wait(500).scrollTo(0, 1200);
 
-    cy.matchImageSnapshot(
-      'displays the SAML configuration form - Auto import users'
-    );
+    cy.makeSnapshot('displays the SAML configuration form - Auto import users');
 
     cy.contains(labelRolesMapping).click();
 
@@ -234,9 +230,7 @@ describe('SAMLConfiguration', () => {
 
     cy.wait(500).scrollTo('bottom');
 
-    cy.matchImageSnapshot(
-      'displays the SAML configuration form - Roles mapping'
-    );
+    cy.makeSnapshot('displays the SAML configuration form - Roles mapping');
 
     cy.contains(labelGroupsMapping).click();
 
@@ -267,9 +261,7 @@ describe('SAMLConfiguration', () => {
 
     cy.wait(500).scrollTo('bottom');
 
-    cy.matchImageSnapshot(
-      'displays the SAML configuration form - Groups mapping'
-    );
+    cy.makeSnapshot('displays the SAML configuration form - Groups mapping');
   });
 
   it('disables auto import fields when auto import is disabled', () => {
