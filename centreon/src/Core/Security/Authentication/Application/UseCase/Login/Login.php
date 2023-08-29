@@ -119,7 +119,7 @@ final class Login
                 }
             }
 
-            $redirectionInfo = $this->getRedirectionUri($user, $loginRequest->refererQueryParameters);
+            $redirectionInfo = $this->getRedirectionInfo($user, $loginRequest->refererQueryParameters);
             $presenter->present(
                 new LoginResponse((string) $redirectionInfo['redirect_uri'], (bool) $redirectionInfo['is_react'])
             );
