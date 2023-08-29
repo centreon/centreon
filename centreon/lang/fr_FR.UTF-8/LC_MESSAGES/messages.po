@@ -18084,6 +18084,12 @@ msgstr "Paramètres de valeur"
 msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
 msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
 
+msgid "Graph type"
+msgstr "Type de graphique"
+
+msgid "Value defined by metric"
+msgstr "Valeur définie par la métrique"
+
 msgid "The {{module}} license will expire in {{expirationDate}} days"
 msgstr "La license {{module}} expirera dans {{expirationDate}} jours"
 

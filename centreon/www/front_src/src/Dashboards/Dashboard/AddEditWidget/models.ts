@@ -23,6 +23,7 @@ export interface WidgetPropertyProps {
   text?: {
     multiline?: boolean;
     size?: string;
+    step?: string;
     type?: string;
   };
 }
