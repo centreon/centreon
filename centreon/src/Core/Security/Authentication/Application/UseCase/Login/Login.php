@@ -207,7 +207,7 @@ final class Login
      *
      * @return array<string,bool|string>
      */
-    private function getRedirectionUri(ContactInterface $authenticatedUser, ?string $refererQueryParameters): array
+    private function getRedirectionInfo(ContactInterface $authenticatedUser, ?string $refererQueryParameters): array
     {
         $refererRedirectionPage = $this->getRedirectionPageFromRefererQueryParameters($refererQueryParameters);
         if ($refererRedirectionPage !== null) {
