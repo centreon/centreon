@@ -2,7 +2,7 @@
   "compilerOptions": {
     "moduleResolution": "nodenext",
     "downlevelIteration": true,
-    "module": "esnext",
+    "module": "nodenext",
     "target": "es2018",
     "jsx": "react-jsx",
     "strict": true,
