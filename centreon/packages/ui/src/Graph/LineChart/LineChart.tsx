@@ -5,14 +5,7 @@ import { isNil } from 'ramda';
 
 import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
 
-import {
-  getLeftScale,
-  getRightScale,
-  getXScale,
-  getLeftScale,
-  getRightScale,
-  getXScale
-} from '../common/timeSeries';
+import { getLeftScale, getRightScale, getXScale } from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
 
 import Axes from './BasicComponents/Axes';
