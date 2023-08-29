@@ -165,7 +165,6 @@ Feature:
         "icon_id": 1,
         "icon_alternative": "icon_alternative",
         "severity_id": null,
-        "is_activated": true,
         "macros": [
             {
                 "name": "MACROB",
@@ -247,7 +246,6 @@ Feature:
             3,
             11
         ],
-        "is_activated": true,
         "is_locked": false,
         "macros": [
             {
@@ -342,7 +340,6 @@ Feature:
                     3,
                     11
                 ],
-                "is_activated": true,
                 "is_locked": false
             }
         ],
@@ -400,7 +397,6 @@ Feature:
         "icon_id": null,
         "icon_alternative": "new icon_alternative",
         "severity_id": 5,
-        "is_activated": true,
         "macros": [
             {
                 "name": "MACROB",
@@ -476,7 +472,6 @@ Feature:
                     2,
                     3
                 ],
-                "is_activated": true,
                 "is_locked": false
             }
         ],

@@ -159,13 +159,12 @@ Then(
 Then("the admin user is allowed to update the dashboard's properties", () => {
   cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-  cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-    `${dashboards.fromAdminUser.name}-edited`
+    `{selectall}{backspace}${dashboards.fromAdminUser.name}-edited`
   );
-  cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
+
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-    `${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
+    `{selectall}{backspace}${dashboards.fromAdminUser.description}, edited by ${adminUser.login}`
   );
 
   cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
@@ -349,13 +348,12 @@ Then(
   () => {
     cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-    cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      `${dashboards.fromDashboardAdministratorUser.name}-edited`
+      `{selectall}{backspace}${dashboards.fromDashboardAdministratorUser.name}-edited`
     );
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
+
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      `${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
+      `{selectall}{backspace}${dashboards.fromDashboardAdministratorUser.description}, edited by ${dashboardAdministratorUser.login}`
     );
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');
@@ -546,13 +544,12 @@ Then(
   () => {
     cy.getByLabel({ label: 'edit', tag: 'button' }).click();
 
-    cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      `${dashboards.fromDashboardCreatorUser.name}-edited`
+      `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.name}-edited`
     );
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
+
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      `${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
+      `{selectall}{backspace}${dashboards.fromDashboardCreatorUser.description}, edited by ${dashboardCreatorUser.login}`
     );
 
     cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.enabled');

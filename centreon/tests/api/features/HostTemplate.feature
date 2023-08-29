@@ -59,7 +59,6 @@ Feature:
           "icon_id": null,
           "icon_alternative": null,
           "comment": null,
-          "is_activated": true,
           "is_locked": false
         }
       ],
@@ -148,7 +147,6 @@ Feature:
         "icon_id": 1,
         "icon_alternative": "iconAlternative-value",
         "comment": "comment-value",
-        "is_activated": false,
         "categories": [2],
         "templates": [],
         "macros": [
@@ -209,7 +207,6 @@ Feature:
         "icon_id": 1,
         "icon_alternative": "iconAlternative-value",
         "comment": "comment-value",
-        "is_activated": false,
         "is_locked": false,
         "categories": [
           {
@@ -301,7 +298,6 @@ Feature:
         "icon_id": 1,
         "icon_alternative": "iconAlternative-value",
         "comment": "comment-value",
-        "is_activated": false,
         "categories": [2],
         "templates": []
       }
@@ -349,7 +345,6 @@ Feature:
         "icon_id": 1,
         "icon_alternative": "iconAlternative-value",
         "comment": "comment-value",
-        "is_activated": false,
         "categories": [],
         "templates": [999]
       }
@@ -403,7 +398,6 @@ Feature:
         "icon_id": 1,
         "icon_alternative": "iconAlternative-value",
         "comment": "comment-value",
-        "is_activated": false,
         "categories": [2],
         "templates": [15],
         "macros": [
@@ -464,7 +458,6 @@ Feature:
         "icon_id": 1,
         "icon_alternative": "iconAlternative-value",
         "comment": "comment-value",
-        "is_activated": false,
         "is_locked": false,
         "categories": [
           {
@@ -696,8 +689,7 @@ Feature:
         "action_url": "actionUrl-value",
         "icon_id": 1,
         "icon_alternative": "iconAlternative-value",
-        "comment": "comment-value",
-        "is_activated": false
+        "comment": "comment-value"
       }
     """
     Then the response code should be "204"

@@ -581,7 +581,8 @@ Feature:
             {
                 "channel": "Slack",
                 "subject": "Hello world !",
-                "message": "just a small message"
+                "message": "just a small message",
+                "formatted_message": "a formatted message"
             }
         ],
         "users": [
@@ -712,7 +713,8 @@ Feature:
             {
                 "channel": "Slack",
                 "subject": "Hello world !",
-                "message": "just a small message"
+                "message": "just a small message",
+                "formatted_message": "a formatted message"
             }
         ],
         "users": [
@@ -916,7 +918,8 @@ Feature:
               {
                   "channel": "Slack",
                   "subject": "Hello world !",
-                  "message": "just a small message"
+                  "message": "just a small message",
+                  "formatted_message": "a formatted message"
               }
           ],
           "users": [
@@ -1074,7 +1077,8 @@ Feature:
               {
                   "channel": "Slack",
                   "subject": "Hello world !",
-                  "message": "just a small message"
+                  "message": "just a small message",
+                  "formatted_message": "a formatted message"
               }
           ],
           "users": [

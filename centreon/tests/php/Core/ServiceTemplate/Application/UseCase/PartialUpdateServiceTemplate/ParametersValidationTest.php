@@ -29,10 +29,13 @@ use Core\Command\Domain\Model\CommandType;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
+use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\ParametersValidation;
+use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\ServiceGroupDto;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
@@ -45,6 +48,7 @@ beforeEach(closure: function (): void {
     $this->imageRepository = $this->createMock(ReadViewImgRepositoryInterface::class);
     $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
     $this->readServiceCategoryRepository = $this->createMock(ReadServiceCategoryRepositoryInterface::class);
+    $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class);
     $this->contact = $this->createMock(ContactInterface::class);
 
     $this->parametersValidation = new ParametersValidation(
@@ -56,6 +60,7 @@ beforeEach(closure: function (): void {
         $this->imageRepository,
         $this->readHostTemplateRepository,
         $this->readServiceCategoryRepository,
+        $this->readServiceGroupRepository
     );
 });
 
@@ -212,4 +217,107 @@ void {
 })->throws(
     ServiceTemplateException::class,
     ServiceTemplateException::idsDoNotExist('service_categories', [1])->getMessage()
+);
+
+it('should raise an exception when the service groups IDs do not exist, as an administrator', function (): void {
+    $serviceTemplateId = 1;
+    $serviceGroupDtos = [
+        new ServiceGroupDto(1, 1),
+        new ServiceGroupDto(2, 2),
+        new ServiceGroupDto(3, 3),
+    ];
+
+    $this->contact
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->readServiceGroupRepository
+        ->expects($this->once())
+        ->method('exist')
+        ->with([1, 2, 3])
+        ->willReturn([2]);
+
+    $this->parametersValidation->assertServiceGroups(
+        $serviceGroupDtos,
+        $serviceTemplateId,
+        $this->contact,
+        []
+    );
+})->throws(
+    ServiceTemplateException::class,
+    ServiceTemplateException::idsDoNotExist('service_groups', [1, 3])->getMessage()
+);
+
+it('should raise an exception when the service groups IDs do not exist, as a non-administrator', function (): void {
+    $serviceTemplateId = 1;
+    $serviceGroupDtos = [
+        new ServiceGroupDto(1, 1),
+        new ServiceGroupDto(2, 2),
+        new ServiceGroupDto(3, 3),
+    ];
+
+    $this->contact
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
+    $this->readServiceGroupRepository
+        ->expects($this->once())
+        ->method('existByAccessGroups')
+        ->willReturn([2]);
+
+    $this->parametersValidation->assertServiceGroups(
+        $serviceGroupDtos,
+        $serviceTemplateId,
+        $this->contact,
+        []
+    );
+})->throws(
+    ServiceTemplateException::class,
+    ServiceTemplateException::idsDoNotExist('service_groups', [1, 3])->getMessage()
+);
+
+it(
+    'should raise an exception when the host template IDs are not linked to service template, as a non-administrator',
+    function (): void
+    {
+        $serviceTemplateId = 1;
+        $serviceGroupDtos = [
+            new ServiceGroupDto(4, 1),
+            new ServiceGroupDto(5, 1),
+            new ServiceGroupDto(6, 1),
+        ];
+        $serviceTemplate = $this->createMock(ServiceTemplate::class);
+        $serviceTemplate
+            ->expects($this->once())
+            ->method('getHostTemplateIds')
+            ->willReturn([4, 5]);
+
+        $this->contact
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(false);
+
+        $this->readServiceGroupRepository
+            ->expects($this->once())
+            ->method('existByAccessGroups')
+            ->willReturn([1]);
+
+        $this->readServiceTemplateRepository
+            ->expects($this->once())
+            ->method('findById')
+            ->with($serviceTemplateId)
+            ->willReturn($serviceTemplate);
+
+        $this->parametersValidation->assertServiceGroups(
+            $serviceGroupDtos,
+            $serviceTemplateId,
+            $this->contact,
+            []
+        );
+    }
+)->throws(
+    ServiceTemplateException::class,
+    ServiceTemplateException::invalidServiceGroupAssociation()->getMessage()
 );

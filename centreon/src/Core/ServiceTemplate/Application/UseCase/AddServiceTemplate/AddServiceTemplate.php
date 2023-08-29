@@ -312,7 +312,6 @@ final class AddServiceTemplate
         $response->notificationTypes = $serviceTemplate->getNotificationTypes();
         $response->isContactAdditiveInheritance = $serviceTemplate->isContactAdditiveInheritance();
         $response->isContactGroupAdditiveInheritance = $serviceTemplate->isContactGroupAdditiveInheritance();
-        $response->isActivated = $serviceTemplate->isActivated();
         $response->isLocked = $serviceTemplate->isLocked();
         $response->activeChecks = $serviceTemplate->getActiveChecks();
         $response->passiveCheck = $serviceTemplate->getPassiveCheck();

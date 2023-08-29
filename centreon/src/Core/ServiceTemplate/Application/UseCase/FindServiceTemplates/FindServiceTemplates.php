@@ -109,7 +109,6 @@ final class FindServiceTemplates
             $dto->highFlapThreshold = $serviceTemplate->getHighFlapThreshold();
             $dto->iconId = $serviceTemplate->getIconId();
             $dto->iconAlternativeText = $serviceTemplate->getIconAlternativeText();
-            $dto->isActivated = $serviceTemplate->isActivated();
             $dto->isLocked = $serviceTemplate->isLocked();
             $dto->activeChecks = $serviceTemplate->getActiveChecks();
             $dto->eventHandlerEnabled = $serviceTemplate->getEventHandlerEnabled();

@@ -91,7 +91,6 @@ beforeEach(function (): void {
         1,
         'iconAlternative-value',
         'comment-value',
-        false,
         true,
     );
     $this->testedHostTemplateArray = [
@@ -133,7 +132,6 @@ beforeEach(function (): void {
         'iconId' => 1,
         'iconAlternative' => 'iconAlternative-value',
         'comment' => 'comment-value',
-        'isActivated' => false,
         'isLocked' => true,
     ];
 });

@@ -61,8 +61,6 @@ class NewServiceTemplate
 
     private bool $isContactGroupAdditiveInheritance = false;
 
-    private bool $isActivated = true;
-
     private bool $isLocked = false;
 
     private YesNoDefault $activeChecks = YesNoDefault::Default;
@@ -287,22 +285,6 @@ class NewServiceTemplate
     public function isContactGroupAdditiveInheritance(): bool
     {
         return $this->isContactGroupAdditiveInheritance;
-    }
-
-    /**
-     * @param bool $isActivated
-     */
-    public function setActivated(bool $isActivated): void
-    {
-        $this->isActivated = $isActivated;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isActivated(): bool
-    {
-        return $this->isActivated;
     }
 
     /**
