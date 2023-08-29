@@ -24,6 +24,7 @@
 *.php                   @centreon/centreon-php
 
 **/www/front_src/   @centreon/centreon-frontend
+**/www/widgets/     @centreon/centreon-frontend
 package.json        @centreon/centreon-frontend
 package-lock.json   @centreon/centreon-frontend
 webpack*            @centreon/centreon-frontend
