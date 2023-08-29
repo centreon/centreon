@@ -5,6 +5,7 @@ import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 import {
   getPanelConfigurationsDerivedAtom,
   getPanelOptionsAndDataDerivedAtom,
+  refreshIntervalAtom,
   setPanelOptionsAndDataDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
@@ -21,6 +22,7 @@ const Panel = ({ id }: Props): JSX.Element => {
   const getPanelConfigurations = useAtomValue(
     getPanelConfigurationsDerivedAtom
   );
+  const refreshInterval = useAtomValue(refreshIntervalAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
 
   const panelOptionsAndData = getPanelOptionsAndData(id);
@@ -44,6 +46,7 @@ const Panel = ({ id }: Props): JSX.Element => {
     ) : (
       <FederatedComponent
         isFederatedWidget
+        globalRefreshInterval={refreshInterval}
         id={id}
         panelData={panelOptionsAndData?.data}
         panelOptions={panelOptionsAndData?.options}

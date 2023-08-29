@@ -1,0 +1,163 @@
+import { useMemo, useRef } from 'react';
+
+import { Group, Tooltip } from '@visx/visx';
+import { scaleLinear } from '@visx/scale';
+import { head } from 'ramda';
+import { Bar } from '@visx/shape';
+import { useSpring, animated } from '@react-spring/web';
+
+import { alpha, Box, Fade, useTheme } from '@mui/material';
+
+import {
+  formatMetricValue,
+  getMetricWithLatestData
+} from '../common/timeSeries';
+import { Metric } from '../common/timeSeries/models';
+import { getColorFromDataAndTresholds } from '../common/utils';
+import { margins } from '../common/margins';
+
+import { SingleBarProps } from './models';
+import Thresholds, { barHeight, groupMargin, margin } from './Thresholds';
+
+interface Props extends SingleBarProps {
+  height: number;
+  width: number;
+}
+
+const baseStyles = {
+  ...Tooltip.defaultStyles,
+  textAlign: 'center'
+};
+
+const ResponsiveSingleBar = ({
+  data,
+  thresholdTooltipLabels,
+  thresholds,
+  width,
+  height,
+  disabledThresholds
+}: Props): JSX.Element => {
+  const theme = useTheme();
+
+  const metric = getMetricWithLatestData(data) as Metric;
+  const latestMetricData = head(metric.data) as number;
+  const adaptedMaxValue = Math.max(
+    metric.maximum_value || 0,
+    Math.max(...thresholds) * 1.1,
+    head(metric.data) as number
+  );
+
+  const innerHeight = height;
+  const centerY = innerHeight / 4;
+
+  const {
+    showTooltip,
+    hideTooltip,
+    tooltipOpen,
+    tooltipLeft,
+    tooltipTop,
+    tooltipData
+  } = Tooltip.useTooltip();
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
+  const barColor = useMemo(
+    () =>
+      getColorFromDataAndTresholds({
+        data: latestMetricData,
+        theme,
+        thresholds
+      }),
+    [latestMetricData, thresholds, theme]
+  );
+
+  const text = (
+    <text
+      dominantBaseline="middle"
+      style={{ fill: barColor, ...theme.typography.h3 }}
+      textAnchor="middle"
+      x="50%"
+      y={25}
+    >
+      {formatMetricValue({
+        base: 1000,
+        unit: metric.unit,
+        value: metric.data[0]
+      })}{' '}
+      {metric.unit}
+    </text>
+  );
+
+  const xScale = useMemo(
+    () =>
+      scaleLinear<number>({
+        domain: [0, adaptedMaxValue],
+        range: [0, width]
+      }),
+    [width, adaptedMaxValue]
+  );
+
+  const metricBarWidth = useMemo(
+    () => xScale(latestMetricData),
+    [xScale, latestMetricData]
+  );
+  const maxBarWidth = useMemo(
+    () => xScale(adaptedMaxValue),
+    [xScale, adaptedMaxValue]
+  );
+
+  const springStyle = useSpring({ width: metricBarWidth });
+
+  return (
+    <Box sx={{ position: 'relative' }}>
+      <svg height={height} ref={svgRef} width={width}>
+        <Group.Group top={centerY - margins.bottom}>
+          {text}
+          <animated.rect
+            data-testid={`${latestMetricData}-bar-${barColor}`}
+            fill={barColor}
+            height={barHeight}
+            rx={4}
+            style={springStyle}
+            x={0}
+            y={groupMargin + margin}
+          />
+          <Bar
+            fill="transparent"
+            height={barHeight}
+            rx={4}
+            ry={4}
+            stroke={alpha(theme.palette.text.primary, 0.3)}
+            width={maxBarWidth}
+            x={0}
+            y={groupMargin + margin}
+          />
+          {!disabledThresholds && (
+            <Thresholds
+              hideTooltip={hideTooltip}
+              showTooltip={showTooltip}
+              thresholdTooltipLabels={thresholdTooltipLabels}
+              thresholds={thresholds}
+              xScale={xScale}
+            />
+          )}
+        </Group.Group>
+      </svg>
+      <Fade in={tooltipOpen}>
+        <Tooltip.Tooltip
+          left={tooltipLeft}
+          style={{
+            ...baseStyles,
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+            transform: 'translate(-50%, -20px)'
+          }}
+          top={tooltipTop}
+        >
+          {tooltipData}
+        </Tooltip.Tooltip>
+      </Fade>
+    </Box>
+  );
+};
+
+export default ResponsiveSingleBar;

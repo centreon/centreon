@@ -2,6 +2,7 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useCollapsibleItemStyles = makeStyles()((theme) => ({
   accordion: {
+    backgroundColor: 'transparent',
     border: 'none',
     borderBottom: `1px solid ${theme.palette.divider}`
   },
