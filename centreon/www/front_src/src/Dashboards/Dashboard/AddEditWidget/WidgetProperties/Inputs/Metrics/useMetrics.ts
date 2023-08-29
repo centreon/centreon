@@ -4,6 +4,7 @@ import { useFormikContext } from 'formik';
 import {
   all,
   equals,
+  find,
   flatten,
   gt,
   includes,
@@ -195,7 +196,12 @@ const useMetrics = (propertyName: string): UseMetricsState => {
   const changeService =
     (index) =>
     (e: ChangeEvent<HTMLInputElement>): void => {
+      const serviceName = find(
+        (service) => equals(service.id, e.target.value),
+        serviceOptions
+      )?.name;
       setFieldValue(`data.${propertyName}.${index}.id`, e.target.value);
+      setFieldValue(`data.${propertyName}.${index}.name`, serviceName);
       setFieldValue(`data.${propertyName}.${index}.metrics`, []);
     };
 

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import { Graph, useGraphQuery } from '@centreon/ui';
+import { LineChart, useGraphQuery } from '@centreon/ui';
 
 import { Data } from './models';
 import { labelNoDataFound } from './translatedLabels';
@@ -14,7 +14,7 @@ interface Props {
   panelData: Data;
 }
 
-const LineChart = ({ panelData }: Props): JSX.Element => {
+const WidgetLineChart = ({ panelData }: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { t } = useTranslation();
   const { graphData, start, end, isGraphLoading, isMetricIdsEmpty } =
@@ -32,7 +32,7 @@ const LineChart = ({ panelData }: Props): JSX.Element => {
   }
 
   return (
-    <Graph
+    <LineChart
       data={graphData}
       end={end}
       height={null}
@@ -49,4 +49,4 @@ const LineChart = ({ panelData }: Props): JSX.Element => {
   );
 };
 
-export default LineChart;
+export default WidgetLineChart;

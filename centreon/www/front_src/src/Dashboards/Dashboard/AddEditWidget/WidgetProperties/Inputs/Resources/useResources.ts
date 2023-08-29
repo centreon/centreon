@@ -174,7 +174,7 @@ const useResources = (propertyName: string): UseResourcesState => {
   };
 
   useEffect(() => {
-    if (!singleMetricSection) {
+    if (!singleMetricSection || !isEmpty(value)) {
       return;
     }
 
