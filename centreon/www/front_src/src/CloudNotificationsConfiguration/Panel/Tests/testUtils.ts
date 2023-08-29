@@ -18,10 +18,10 @@ const getNotificationResponse = ({
   messages: [
     {
       channel: 'Email',
+      formatted_message: '',
       message:
         '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Bonjour","type":"text","version":1},{"type":"linebreak","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":"J\'espére que vous allez bien  ","type":"text","version":1},{"type":"linebreak","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":"veuillez trouver ci-joint mes réponses à la fiche de candidature","type":"text","version":1},{"type":"linebreak","version":1},{"type":"linebreak","version":1},{"detail":0,"format":0,"mode":"normal","style":"","text":"Cordialement","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
-      subject: 'Notification',
-      formattedMessage : ""
+      subject: 'Notification'
     }
   ],
   name: 'Notifications 1',
