@@ -63,28 +63,6 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
     }
 
     /**
-     * Get target id from source id
-     *
-     * @param int $sourceKey
-     * @param int $targetKey
-     * @param array $sourceId
-     * @return array
-     */
-    public function getTargetIdFromSourceId($sourceKey, $targetKey, $sourceId)
-    {
-        if (!is_array($sourceId)) {
-            $sourceId = array($sourceId);
-        }
-        $sql = "SELECT $targetKey FROM $this->relationTable WHERE $sourceKey = ? ";
-        $result = $this->getResult($sql, $sourceId);
-        $tab = array();
-        foreach ($result as $rez) {
-            $tab[] = $rez[$targetKey];
-        }
-        return $tab;
-    }
-
-    /**
      * Get Merged Parameters from seperate tables
      *
      * @param array $firstTableParams
@@ -143,8 +121,8 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      * Delete host template / host relation
      * Order has importance
      *
-     * @param int $fkey
-     * @param int $skey
+     * @param ?int $fkey
+     * @param ?int $skey
      * @return void
      */
     public function delete($fkey, $skey = null)

@@ -6,8 +6,15 @@ if [ "$1" = "configure" ] ; then
 
     chown -R centreon:centreon \
       /usr/share/centreon \
-      /var/log/centreon \
       /var/lib/centreon
+
+    # update rights only on directory to let rights on files created by www-data
+    chown centreon:centreon /var/log/centreon
+
+    # fix rights issue on previous updates
+    if [ -f "/var/log/centreon/rrdtool.log" ]; then
+      chown www-data:www-data /var/log/centreon/rrdtool.log
+    fi
 
     if [ -d "/var/log/centreon/symfony" ]; then
       chown -R www-data:www-data /var/log/centreon/symfony
@@ -47,8 +54,9 @@ if [ "$1" = "configure" ] ; then
     /usr/share/centreon/cron/dashboardBuilder \
     /usr/share/centreon/cron/eventReportBuilder \
     /usr/share/centreon/vendor/enshrined/svg-sanitize/src/svg-scanner.php \
-    /usr/share/centreon/www/install/tools/migration/logsMigration.pl
-
+    /usr/share/centreon/www/install/tools/migration/logsMigration.pl \
+    /usr/share/centreon/bin/centreon-sanitize-images.php \
+    /usr/share/centreon/bin/centreon-remove-duplicate-host-service-relations.php
 
   if [ -f "/usr/bin/pear" ]; then
     /usr/bin/pear channel-update pear.php.net
