@@ -37,6 +37,7 @@ export interface RichTextEditorProps {
   placeholder?: string;
   resetEditorToInitialStateCondition?: () => boolean;
   toolbarPositions?: 'start' | 'end';
+  initialize?: (editor) => void;
 }
 
 const log = anylogger('Rich text editor');
@@ -132,7 +133,8 @@ const RichTextEditor = ({
   contentClassName,
   displayMacrosButton = false,
   disabled,
-  openLinkInNewTab = true
+  openLinkInNewTab = true,
+  initialize
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -181,6 +183,7 @@ const RichTextEditor = ({
             ErrorBoundary={LexicalErrorBoundary}
             contentEditable={
               <ContentEditable
+                initialize  = {initialize}
                 className={contentClassName || ''}
                 disabled={disabled}
                 editable={editable}

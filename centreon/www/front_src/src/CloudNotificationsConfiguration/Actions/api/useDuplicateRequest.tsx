@@ -68,7 +68,10 @@ const useDuplicateRequest = ({
     const payload = panelPayload
       ? adaptFormFields({
           ...panelPayload,
-          messages: { ...values.messages, formattedMessage: htmlEmailyBody },
+          messages: {
+            ...panelPayload.messages,
+            formattedMessage: htmlEmailyBody
+          },
           name: values?.name
         })
       : adaptNotification({

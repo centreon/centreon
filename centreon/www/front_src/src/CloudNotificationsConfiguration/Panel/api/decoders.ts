@@ -57,10 +57,14 @@ const user = JsonDecoder.object<UserType>(
 const message = JsonDecoder.object<MessageType>(
   {
     channel: JsonDecoder.enumeration(ChannelsEnum, 'Channel'),
+    formattedMessage: JsonDecoder.string,
     message: JsonDecoder.string,
     subject: JsonDecoder.string
   },
-  'Message'
+  'Message',
+  {
+    formattedMessage: 'formatted_message'
+  }
 );
 
 export const notificationdecoder = JsonDecoder.object<NotificationType>(

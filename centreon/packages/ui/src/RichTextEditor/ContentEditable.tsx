@@ -46,6 +46,7 @@ const useStyles = makeStyles<StyleProps>()(
 );
 
 interface Props {
+  initialize?: (editor) => void;
   className?: string;
   disabled?: boolean;
   editable: boolean;
@@ -77,7 +78,8 @@ const ContentEditable = ({
   error,
   onBlur,
   className,
-  disabled
+  disabled,
+  initialize
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ editable, error, minInputHeight });
   const { t } = useTranslation();
@@ -146,6 +148,14 @@ const ContentEditable = ({
 
     editor.setEditable(!disabled);
   }, [disabled]);
+
+  useEffect(() => {
+    if (isNil(initialize)) {
+      return;
+    }
+
+    initialize(editor);
+  }, []);
 
   return (
     <div

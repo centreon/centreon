@@ -27,6 +27,13 @@ const EmailBody = (): JSX.Element => {
     setFieldValue('messages.message', JSON.stringify(state));
   };
 
+  const initialize = (editor): void => {
+    editor.update(() => {
+      const htmlString = $generateHtmlFromNodes(editor, null);
+      setHtmlEmailyBody(htmlString);
+    });
+  }
+
   const value = path(['messages', 'message'], values);
 
   const error = path(['messages', 'message'], touched)
@@ -48,6 +55,7 @@ const EmailBody = (): JSX.Element => {
         placeholder={t(labelTypeYourTextHere) as string}
         toolbarPositions="end"
         onBlur={handleBlur('messages.message')}
+        initialize = {initialize}
       />
     ),
     memoProps: [value, error]
