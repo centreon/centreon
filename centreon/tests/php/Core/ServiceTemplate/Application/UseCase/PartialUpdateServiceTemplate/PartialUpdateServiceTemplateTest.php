@@ -46,6 +46,7 @@ use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryIn
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
+use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
@@ -54,6 +55,7 @@ use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\MacroD
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\ParametersValidation;
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\PartialUpdateServiceTemplate;
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\PartialUpdateServiceTemplateRequest;
+use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\ServiceGroupDto;
 use Core\ServiceTemplate\Domain\Model\NotificationType;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
@@ -79,6 +81,7 @@ beforeEach(closure: function (): void {
     $this->serviceSeverityRepository = $this->createMock(ReadServiceSeverityRepositoryInterface::class);
     $this->performanceGraphRepository = $this->createMock(ReadPerformanceGraphRepositoryInterface::class);
     $this->imageRepository = $this->createMock(ReadViewImgRepositoryInterface::class);
+    $this->writeServiceGroupRepository = $this->createMock(WriteServiceGroupRepositoryInterface::class);
 
     $this->parametersValidation = $this->createMock(ParametersValidation::class);
 
@@ -98,6 +101,7 @@ beforeEach(closure: function (): void {
         $this->readServiceMacroRepository,
         $this->writeServiceMacroRepository,
         $this->readCommandMacroRepository,
+        $this->writeServiceGroupRepository,
         $this->parametersValidation,
         $this->contact,
         $this->dataStorageEngine
@@ -262,6 +266,38 @@ it('should present a ErrorResponse when an error occurs during host templates li
         ->toBe(ServiceTemplateException::errorWhileUpdating()->getMessage());
 });
 
+it('should present a ErrorResponse when an error occurs during service groups link', function (): void {
+    $request = new PartialUpdateServiceTemplateRequest(1);
+    $request->serviceGroups = [new ServiceGroupDto(1, 2)];
+
+    $this->contact
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturnMap(
+            [
+                [Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true],
+            ]
+        );
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->with($request->id)
+        ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
+
+    $this->writeServiceGroupRepository
+        ->expects($this->once())
+        ->method('deleteRelations')
+        ->willThrowException(new Exception());
+
+    ($this->useCase)($request, $this->presenter);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ErrorResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(ServiceTemplateException::errorWhileUpdating()->getMessage());
+});
+
 it('should present a NoContentResponse when everything has gone well for an admin user', function (): void {
     $request = new PartialUpdateServiceTemplateRequest(20);
     $request->name = 'fake_name2';
@@ -272,7 +308,6 @@ it('should present a NoContentResponse when everything has gone well for an admi
     $request->notificationTypes = NotificationTypeConverter::toBits($notificationTypes);
     $request->isContactAdditiveInheritance = true;
     $request->isContactGroupAdditiveInheritance = true;
-    $request->isActivated = false;
     $request->activeChecksEnabled = YesNoDefaultConverter::toInt(YesNoDefault::No);
     $request->passiveCheckEnabled = YesNoDefaultConverter::toInt(YesNoDefault::Yes);
     $request->volatility = YesNoDefaultConverter::toInt(YesNoDefault::No);
@@ -484,7 +519,6 @@ it('should present a NoContentResponse when everything has gone well for an admi
         )->toBe(NotificationTypeConverter::toBits($notificationTypes))
         ->and($serviceTemplate->isContactAdditiveInheritance())->toBe($request->isContactAdditiveInheritance)
         ->and($serviceTemplate->isContactGroupAdditiveInheritance())->toBe($request->isContactGroupAdditiveInheritance)
-        ->and($serviceTemplate->isActivated())->toBe($request->isActivated)
         ->and($serviceTemplate->getActiveChecks())->toBe(
             \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->activeChecksEnabled)
         )->and($serviceTemplate->getPassiveCheck())->toBe(

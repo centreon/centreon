@@ -168,26 +168,26 @@ EOF`,
 
   // Step 5
   cy.get('th.step-wrapper span').contains(5);
-  cy.get('input[name="admin_password"]').clear();
-  cy.get('input[name="admin_password"]').type('Centreon!2021');
-  cy.get('input[name="confirm_password"]').clear();
-  cy.get('input[name="confirm_password"]').type('Centreon!2021');
-  cy.get('input[name="firstname"]').clear();
-  cy.get('input[name="firstname"]').type('centreon');
-  cy.get('input[name="lastname"]').clear();
-  cy.get('input[name="lastname"]').type('centreon');
-  cy.get('input[name="email"]').clear();
-  cy.get('input[name="email"]').type('centreon@localhost');
+  cy.get('input[name="admin_password"]').type(
+    '{selectall}{backspace}Centreon!2021'
+  );
+  cy.get('input[name="confirm_password"]').type(
+    '{selectall}{backspace}Centreon!2021'
+  );
+  cy.get('input[name="firstname"]').type('{selectall}{backspace}centreon');
+  cy.get('input[name="lastname"]').type('{selectall}{backspace}centreon');
+  cy.get('input[name="email"]').type(
+    '{selectall}{backspace}centreon@localhost'
+  );
   cy.wait('@nextStep').get('#next').click();
 
   // Step 6
   cy.get('th.step-wrapper span').contains(6);
-  cy.get('input[name="root_password"]').clear();
-  cy.get('input[name="root_password"]').type('centreon');
-  cy.get('input[name="db_password"]').clear();
-  cy.get('input[name="db_password"]').type('centreon');
-  cy.get('input[name="db_password_confirm"]').clear();
-  cy.get('input[name="db_password_confirm"]').type('centreon');
+  cy.get('input[name="root_password"]').type('{selectall}{backspace}centreon');
+  cy.get('input[name="db_password"]').type('{selectall}{backspace}centreon');
+  cy.get('input[name="db_password_confirm"]').type(
+    '{selectall}{backspace}centreon'
+  );
   cy.wait('@nextStep').get('#next').click();
 
   // Step 7

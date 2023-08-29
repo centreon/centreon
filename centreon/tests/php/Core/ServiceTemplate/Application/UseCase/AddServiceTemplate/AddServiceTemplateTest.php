@@ -733,7 +733,6 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
         hostTemplateIds: [2, 3],
         contactAdditiveInheritance: true,
         contactGroupAdditiveInheritance: true,
-        isActivated: true,
         isLocked: true,
         activeChecks: YesNoDefault::Yes,
         passiveCheck: YesNoDefault::No,
@@ -872,7 +871,6 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
     expect($dto->iconId)->toBe($this->serviceTemplateFound->getIconId());
     expect($dto->iconAlternativeText)->toBe($this->serviceTemplateFound->getIconAlternativeText());
     expect($dto->severityId)->toBe($this->serviceTemplateFound->getSeverityId());
-    expect($dto->isActivated)->toBe($this->serviceTemplateFound->isActivated());
     expect($dto->isLocked)->toBe($this->serviceTemplateFound->isLocked());
     expect($dto->hostTemplateIds)->toBe($this->serviceTemplateFound->getHostTemplateIds());
     foreach ($dto->macros as $index => $expectedMacro) {

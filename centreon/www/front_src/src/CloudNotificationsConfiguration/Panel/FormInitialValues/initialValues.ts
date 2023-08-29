@@ -7,7 +7,12 @@ import {
 } from '../../translatedLabels';
 import { SlackIcon, EmailIcon, SmsIcon } from '../FormInputs/Channel/Icons';
 import { NotificationType } from '../models';
-import { emptyEmail, formatMessages, formatResource } from '../utils';
+import {
+  defaultEmailBody,
+  defaultEmailSubject,
+  formatMessages,
+  formatResource
+} from '../utils';
 
 interface FormatBV {
   isBamModuleInstalled: boolean;
@@ -54,7 +59,7 @@ export const getInitialValues = ({
       checked: false,
       label: ChannelsEnum.Slack
     },
-    message: emptyEmail,
+    message: defaultEmailBody,
     subject: ''
   },
   sms: {
@@ -63,7 +68,7 @@ export const getInitialValues = ({
       checked: false,
       label: ChannelsEnum.Sms
     },
-    message: emptyEmail,
+    message: defaultEmailBody,
     subject: ''
   },
   timeperiod: {
@@ -111,8 +116,8 @@ export const getEmptyInitialValues = ({
   isActivated: true,
   messages: {
     channel: { Icon: EmailIcon, checked: true, label: ChannelsEnum.Email },
-    message: emptyEmail,
-    subject: ''
+    message: defaultEmailBody,
+    subject: defaultEmailSubject
   },
   name: '',
   serviceGroups: {
@@ -126,7 +131,7 @@ export const getEmptyInitialValues = ({
       checked: false,
       label: ChannelsEnum.Slack
     },
-    message: emptyEmail,
+    message: defaultEmailBody,
     subject: ''
   },
   sms: {
@@ -135,7 +140,7 @@ export const getEmptyInitialValues = ({
       checked: false,
       label: ChannelsEnum.Sms
     },
-    message: emptyEmail,
+    message: defaultEmailBody,
     subject: ''
   },
   timeperiod: { checked: true, label: t(labelTimePeriod24h7days) },

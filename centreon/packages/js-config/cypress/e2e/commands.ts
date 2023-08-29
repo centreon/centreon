@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import './commands/configuration';
+import './commands/monitoring';
 
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
@@ -109,7 +110,7 @@ Cypress.Commands.add(
       source,
       destination
     }: CopyFromContainerProps,
-    options
+    options?: Partial<Cypress.ExecOptions>
   ) => {
     return cy.exec(`docker cp ${name}:${source} "${destination}"`, options);
   }
@@ -129,7 +130,7 @@ Cypress.Commands.add(
       source,
       destination
     }: CopyToContainerProps,
-    options
+    options?: Partial<Cypress.ExecOptions>
   ) => {
     return cy.exec(`docker cp ${source} ${name}:${destination}`, options);
   }
@@ -159,12 +160,15 @@ Cypress.Commands.add(
         .visit(`${Cypress.config().baseUrl}`)
         .wait('@getNavigationList');
     }
+
     cy.visit(`${Cypress.config().baseUrl}`)
       .fixture(`users/${jsonName}.json`)
       .then((credential) => {
-        cy.getByLabel({ label: 'Alias', tag: 'input' }).type(credential.login);
+        cy.getByLabel({ label: 'Alias', tag: 'input' }).type(
+          `{selectAll}{backspace}${credential.login}`
+        );
         cy.getByLabel({ label: 'Password', tag: 'input' }).type(
-          credential.password
+          `{selectAll}{backspace}${credential.password}`
         );
       })
       .getByLabel({ label: 'Connect', tag: 'button' })
@@ -407,6 +411,14 @@ interface ShareDashboardToUserProps {
   userName: string;
 }
 
+interface ListingRequestResult {
+  body: {
+    result: Array<{
+      id: number;
+    }>;
+  };
+}
+
 Cypress.Commands.add(
   'shareDashboardToUser',
   ({ dashboardName, userName, role }: ShareDashboardToUserProps): void => {
@@ -419,8 +431,11 @@ Cypress.Commands.add(
         method: 'GET',
         url: `/centreon/api/latest/configuration/dashboards?search={"name":"${dashboardName}"}`
       })
-    ])
-      .then(([retrievedUser, retrievedDashboard]) => {
+    ]).then(
+      ([retrievedUser, retrievedDashboard]: [
+        ListingRequestResult,
+        ListingRequestResult
+      ]) => {
         const userId = retrievedUser.body.result[0].id;
         const dashboardId = retrievedDashboard.body.result[0].id;
 
@@ -432,30 +447,39 @@ Cypress.Commands.add(
           method: 'POST',
           url: `/centreon/api/latest/configuration/dashboards/${dashboardId}/access_rights/contacts`
         });
-      })
-      .catch((error) => console.log(error));
+      }
+    );
   }
 );
 
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
-  return cy.waitUntil(() => {
-    return cy.get('header div[data-cy="clock"]').then(($time) => {
+  return cy
+    .get('header div[data-cy="clock"]', { timeout: 10000 })
+    .should('be.visible')
+    .then(($time) => {
       const headerTime = $time.children()[1].textContent;
       if (headerTime?.match(/\d+:\d+/)) {
-        return headerTime;
+        cy.log(`header time is : ${headerTime}`);
+
+        return cy.wrap(headerTime);
       }
 
-      return false;
+      throw new Error(`header time is not displayed`);
     });
-  });
 });
 
 declare global {
   namespace Cypress {
     interface Chainable {
       clickSubRootMenuItem: (page: string) => Cypress.Chainable;
-      copyFromContainer: (props: CopyFromContainerProps) => Cypress.Chainable;
-      copyToContainer: (props: CopyToContainerProps) => Cypress.Chainable;
+      copyFromContainer: (
+        props: CopyFromContainerProps,
+        options?: Partial<Cypress.ExecOptions>
+      ) => Cypress.Chainable;
+      copyToContainer: (
+        props: CopyToContainerProps,
+        options?: Partial<Cypress.ExecOptions>
+      ) => Cypress.Chainable;
       execInContainer: ({
         command,
         name

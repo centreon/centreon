@@ -1567,6 +1567,22 @@ function get_enabled_feature_flags(): array
 }
 
 /**
+ * Indicates whether the platform is Cloud-based or not.
+ *
+ * @return bool
+ */
+function isCloudPlatform(): bool
+{
+    static $isCloudPlatform;
+    if (isset($isCloudPlatform)) {
+        return $isCloudPlatform;
+    }
+    $service = App\Kernel::createForWeb()->getContainer()->get(Core\Common\Infrastructure\FeatureFlags::class);
+
+    return $isCloudPlatform = ($service instanceof Core\Common\Infrastructure\FeatureFlags ? $service->isCloudPlatform() : false);
+}
+
+/**
  * We consider an empty feature **in the legacy code** as enabled.
  * We tolerate this nonsense for the legacy : KISS.
  */

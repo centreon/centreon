@@ -22,9 +22,7 @@ export default ({
   dockerName,
   env
 }: ConfigurationOptions): Cypress.ConfigOptions => {
-  const resultsFolder = `${cypressFolder || 'cypress'}/results${
-    isDevelopment ? '/dev' : ''
-  }`;
+  const resultsFolder = `${cypressFolder || 'cypress'}/results`;
 
   const webImageVersion = execSync('git rev-parse --abbrev-ref HEAD')
     .toString('utf8')
@@ -58,6 +56,7 @@ export default ({
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: true,
+    videoCompression: isDevelopment ? 0 : 16,
     videosFolder: `${resultsFolder}/videos`
   });
 };

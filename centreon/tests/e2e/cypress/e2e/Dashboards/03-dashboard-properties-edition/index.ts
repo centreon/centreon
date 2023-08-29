@@ -79,11 +79,11 @@ Then(
 When(
   'the user fills in the name and description fields with new compliant values',
   () => {
-    cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
-    cy.getByLabel({ label: 'Name', tag: 'input' }).type('dashboard-edited');
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
+    cy.getByLabel({ label: 'Name', tag: 'input' }).type(
+      '{selectall}{backspace}dashboard-edited'
+    );
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      'dashboard-edited'
+      '{selectall}{backspace}dashboard-edited'
     );
   }
 );
@@ -118,13 +118,11 @@ Given(
       .parent()
       .find('button[aria-label="edit"]')
       .click();
-    cy.getByLabel({ label: 'Name', tag: 'input' }).clear();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-      'dashboard-cancel-update-changes'
+      '{selectall}{backspace}dashboard-cancel-update-changes'
     );
-    cy.getByLabel({ label: 'Description', tag: 'textarea' }).clear();
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
-      'dashboard-cancel-update-changes'
+      '{selectall}{backspace}dashboard-cancel-update-changes'
     );
   }
 );

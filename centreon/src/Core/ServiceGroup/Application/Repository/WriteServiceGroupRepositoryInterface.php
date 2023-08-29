@@ -52,4 +52,11 @@ interface WriteServiceGroupRepositoryInterface
      * @throws \Throwable
      */
     public function link(array $serviceGroupRelations): void;
+
+    /**
+     * Delete all relations for given IDs.
+     *
+     * @param int ...$serviceGroupIds
+     */
+    public function deleteRelations(int ...$serviceGroupIds): void;
 }

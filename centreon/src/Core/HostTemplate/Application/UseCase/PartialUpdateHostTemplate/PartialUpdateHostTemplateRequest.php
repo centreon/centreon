@@ -68,7 +68,6 @@ final class PartialUpdateHostTemplateRequest
      * @param NoValue|null|int $iconId
      * @param NoValue|string $iconAlternative
      * @param NoValue|string $comment
-     * @param NoValue|bool $isActivated
      */
     public function __construct(
         public NoValue|array $macros = new NoValue(),
@@ -111,7 +110,6 @@ final class PartialUpdateHostTemplateRequest
         public NoValue|null|int $iconId = new NoValue(),
         public NoValue|string $iconAlternative = new NoValue(),
         public NoValue|string $comment = new NoValue(),
-        public NoValue|bool $isActivated = new NoValue(),
     ) {
     }
 }

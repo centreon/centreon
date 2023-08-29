@@ -4,7 +4,6 @@ import {
   getStatusNumberFromString,
   checkThatConfigurationIsExported,
   checkServicesAreMonitored,
-  loginAsAdminViaApiV2,
   submitResultsViaClapi,
   versionApi,
   insertFixture,
@@ -88,37 +87,6 @@ const initializeAckRessources = (): Cypress.Chainable => {
   ];
 
   return cy.wrap(Promise.all(files.map(insertFixture)));
-};
-
-const insertResourceFixtures = (): Cypress.Chainable => {
-  const dateBeforeLogin = new Date();
-
-  return updateFixturesResult().then((submitResults) => {
-    loginAsAdminViaApiV2()
-      .then(initializeResourceData)
-      .then(applyConfigurationViaClapi)
-      .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
-      .then(() =>
-        checkServicesAreMonitored([{ name: serviceInAcknowledgementName }])
-      )
-      .then(() => submitResultsViaClapi(submitResults))
-      .then(() =>
-        checkServicesAreMonitored([
-          { name: serviceInAcknowledgementName, output: 'submit_status' }
-        ])
-      );
-  });
-};
-
-const insertDtResources = (): Cypress.Chainable => {
-  const dateBeforeLogin = new Date();
-
-  return cy
-    .setUserTokenApiV1()
-    .then(initializeResourceData)
-    .then(applyConfigurationViaClapi)
-    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
-    .then(() => checkServicesAreMonitored([{ name: serviceInDtName }]));
 };
 
 const insertAckResourceFixtures = (): Cypress.Chainable => {
@@ -209,7 +177,7 @@ const checkIfUserNotificationsAreEnabled = (): void => {
         return null;
       }
 
-      throw new Error(`User notifications are not enabled.`);
+      throw new Error(`User notifications are disabled.`);
     }
   );
 };
@@ -255,13 +223,7 @@ const checkIfNotificationsAreNotBeingSent = (): void => {
 };
 
 const typeToSearchInput = (searchText: string): void => {
-  cy.get(searchInput).as('searchInput');
-
-  cy.get('@searchInput').clear();
-
-  cy.get('@searchInput').type(searchText);
-
-  cy.get('@searchInput').type('{esc}{enter}');
+  cy.get(searchInput).type(`{selectall}{backspace}${searchText}{esc}{enter}`);
 };
 
 const actionBackgroundColors = {
@@ -288,7 +250,6 @@ export {
   hostChildInAcknowledgementName,
   serviceInDtName,
   secondServiceInDtName,
-  insertResourceFixtures,
   setUserFilter,
   deleteUserFilter,
   tearDownResource,
@@ -299,6 +260,5 @@ export {
   clearCentengineLogs,
   tearDownAckResource,
   typeToSearchInput,
-  initializeResourceData,
-  insertDtResources
+  initializeResourceData
 };

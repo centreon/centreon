@@ -118,7 +118,6 @@ final class AddHostTemplateController extends AbstractController
              *     icon_id?: null|int,
              *     icon_alternative?: string,
              *     comment?: string,
-             *     is_activated?: bool,
              *     categories?: int[],
              *     templates?: int[],
              *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>
@@ -164,7 +163,6 @@ final class AddHostTemplateController extends AbstractController
             $dto->iconId = $data['icon_id'] ?? null;
             $dto->iconAlternative = $data['icon_alternative'] ?? '';
             $dto->comment = $data['comment'] ?? '';
-            $dto->isActivated = $data['is_activated'] ?? true;
             $dto->categories = $data['categories'] ?? [];
             $dto->templates = $data['templates'] ?? [];
             $dto->macros = $data['macros'] ?? [];
@@ -207,7 +205,6 @@ final class AddHostTemplateController extends AbstractController
              *     note_url?: string,
              *     note?: string,
              *     action_url?: string,
-             *     is_activated?: bool,
              *     categories?: int[],
              *     templates?: int[],
              *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>
@@ -226,7 +223,6 @@ final class AddHostTemplateController extends AbstractController
             $dto->noteUrl = $data['note_url'] ?? '';
             $dto->note = $data['note'] ?? '';
             $dto->actionUrl = $data['action_url'] ?? '';
-            $dto->isActivated = $data['is_activated'] ?? true;
             $dto->categories = $data['categories'] ?? [];
             $dto->templates = $data['templates'] ?? [];
             $dto->macros = $data['macros'] ?? [];
