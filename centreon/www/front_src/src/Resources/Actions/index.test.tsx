@@ -67,11 +67,7 @@ import {
   labelWarning
 } from '../translatedLabels';
 
-import {
-  acknowledgeEndpoint,
-  checkEndpoint,
-  downtimeEndpoint
-} from './api/endpoint';
+import { acknowledgeEndpoint, checkEndpoint } from './api/endpoint';
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
 import { submitStatusEndpoint } from './Resource/SubmitStatus/api';
 
