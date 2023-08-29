@@ -23,12 +23,10 @@ declare(strict_types=1);
 namespace Tests\Core\Security\Authentication\Application\UseCase\LoginSession;
 
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use PHPUnit\Framework\TestCase;
 use Centreon\Domain\Menu\Model\Page;
 use Symfony\Component\HttpFoundation\Request;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Core\Application\Common\UseCase\PresenterInterface;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
 use Core\Application\Common\UseCase\UnauthorizedResponse;
