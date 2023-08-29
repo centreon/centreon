@@ -32,7 +32,7 @@ const EmailBody = (): JSX.Element => {
       const htmlString = $generateHtmlFromNodes(editor, null);
       setHtmlEmailyBody(htmlString);
     });
-  }
+  };
 
   const value = path(['messages', 'message'], values);
 
@@ -50,12 +50,12 @@ const EmailBody = (): JSX.Element => {
         error={(error as string) || undefined}
         getEditorState={getEditorState}
         initialEditorState={initialValues?.messages.message}
+        initialize={initialize}
         minInputHeight={120}
         namespace="EmailBody"
         placeholder={t(labelTypeYourTextHere) as string}
         toolbarPositions="end"
         onBlur={handleBlur('messages.message')}
-        initialize = {initialize}
       />
     ),
     memoProps: [value, error]

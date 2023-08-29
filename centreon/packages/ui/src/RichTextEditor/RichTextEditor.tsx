@@ -29,6 +29,7 @@ export interface RichTextEditorProps {
   error?: string;
   getEditorState?: (editorState: EditorState, editor: LexicalEditor) => void;
   initialEditorState?: string;
+  initialize?: (editor) => void;
   inputClassname?: string;
   minInputHeight?: number;
   namespace?: string;
@@ -37,7 +38,6 @@ export interface RichTextEditorProps {
   placeholder?: string;
   resetEditorToInitialStateCondition?: () => boolean;
   toolbarPositions?: 'start' | 'end';
-  initialize?: (editor) => void;
 }
 
 const log = anylogger('Rich text editor');
@@ -183,7 +183,6 @@ const RichTextEditor = ({
             ErrorBoundary={LexicalErrorBoundary}
             contentEditable={
               <ContentEditable
-                initialize  = {initialize}
                 className={contentClassName || ''}
                 disabled={disabled}
                 editable={editable}
@@ -191,6 +190,7 @@ const RichTextEditor = ({
                 error={error}
                 hasInitialTextContent={hasInitialTextContent}
                 initialEditorState={initialEditorState}
+                initialize={initialize}
                 inputClassname={inputClassname}
                 minInputHeight={minInputHeight}
                 namespace={namespace}

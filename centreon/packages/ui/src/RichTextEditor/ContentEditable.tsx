@@ -46,7 +46,6 @@ const useStyles = makeStyles<StyleProps>()(
 );
 
 interface Props {
-  initialize?: (editor) => void;
   className?: string;
   disabled?: boolean;
   editable: boolean;
@@ -54,6 +53,7 @@ interface Props {
   error?: string;
   hasInitialTextContent?: boolean;
   initialEditorState?: string;
+  initialize?: (editor) => void;
   inputClassname?: string;
   minInputHeight: number;
   namespace: string;
