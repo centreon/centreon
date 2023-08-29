@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "moduleResolution": "nodenext",
+    "moduleResolution": "NodeNext",
     "downlevelIteration": true,
-    "module": "esnext",
+    "module": "ESNext",
     "target": "es2018",
     "jsx": "react-jsx",
     "strict": true,
