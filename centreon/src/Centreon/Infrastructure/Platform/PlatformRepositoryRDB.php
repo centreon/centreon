@@ -72,10 +72,18 @@ class PlatformRepositoryRDB extends AbstractRepositoryDRB implements PlatformRep
     public function getWidgetsVersion(): array
     {
         $versions = [];
-        $request = $this->translateDbName('SELECT `title`, `version` FROM `:db`.widget_models');
-        if (($statement = $this->db->query($request)) !== false) {
+
+        $widget_models_request = $this->translateDbName('SELECT `title`, `version` FROM `:db`.widget_models');
+        if (($statement = $this->db->query($widget_models_request)) !== false) {
             while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
                 $versions[(string) $result['title']] = (string) $result['version'];
+            }
+        }
+
+        $dashboard_widgets_request = $this->translateDbName('SELECT `name`, `version` FROM `:db`.dashboard_widgets');
+        if (($statement = $this->db->query($dashboard_widgets_request)) !== false) {
+            while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                $versions[(string) $result['name']] = (string) $result['version'];
             }
         }
         return $versions;
