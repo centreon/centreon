@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "moduleResolution": "NodeNext",
     "downlevelIteration": true,
     "module": "ESNext",
     "target": "es2018",
