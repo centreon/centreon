@@ -1,0 +1,24 @@
+#!/bin/sh
+
+if [ "$1" = "configure" ] ; then
+
+  if [ ! "$(getent passwd centreon-gorgone)" ]; then
+    adduser --system --group --home /var/lib/centreon-gorgone --no-create-home centreon-gorgone
+  fi
+
+  if [ "$(getent passwd centreon)" ]; then
+    usermod centreon -a -G centreon-gorgone
+    usermod centreon-gorgone -a -G centreon
+  fi
+
+  if [ "$(getent passwd centreon-engine)" ]; then
+    usermod centreon-engine -a -G centreon-gorgone
+    usermod centreon-gorgone -a -G centreon-engine
+  fi
+
+  if [ "$(getent passwd centreon-broker)" ]; then
+    usermod centreon-broker -a -G centreon-gorgone
+    usermod centreon-gorgone -a -G centreon-broker
+  fi
+
+fi
