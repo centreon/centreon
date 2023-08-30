@@ -132,7 +132,13 @@ jobs:
             fi
           done
 
-      - uses: geekyeggo/delete-artifact@v2
+  clean-pipeline-scan:
+    needs: [pipeline-scan]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clean artifacts
+        uses: geekyeggo/delete-artifact@v2
         with:
           name: "Veracode Pipeline-Scan Results"
 
@@ -140,7 +146,7 @@ jobs:
     needs: [build]
     name: Run a sandbox scan
     # only stable and unstable maintenances branches will produce a report
-    if: needs.build.outputs.development_stage != 'Development'
+    #if: needs.build.outputs.development_stage != 'Development'
     runs-on: ubuntu-latest
 
     steps:
