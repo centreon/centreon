@@ -132,6 +132,10 @@ jobs:
             fi
           done
 
+      - uses: geekyeggo/delete-artifact@v2
+        with:
+          name: "Veracode Pipeline-Scan Results"
+
   clean-pipeline-scan:
     needs: [pipeline-scan]
     runs-on: ubuntu-latest
