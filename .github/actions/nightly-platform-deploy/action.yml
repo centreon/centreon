@@ -47,7 +47,7 @@ runs:
     - name: Deploy a COD platform with nightly build artifacts
       run: |
           set -x
-          echo "[INFO]: Deploying nightly COD instance with latest ${inputs.centreon_branch} state."
+          echo "[INFO]: Deploying nightly COD instance with latest ${{ inputs.centreon_branch }} state."
           curl --fail -v -X POST \
           -H "Authorization: Bearer ${{inputs.cod_service_token}}" \
           -H "Accept: application/vnd.github.v3+json" \
