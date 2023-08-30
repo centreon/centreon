@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,44 +18,39 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Application\Controller;
 
-use DateTime;
-use JsonSchema\Validator;
-use FOS\RestBundle\View\View;
 use Centreon\Domain\Check\Check;
-use Centreon\Domain\Contact\Contact;
-use JsonSchema\Constraints\Constraint;
-use JMS\Serializer\SerializerInterface;
-use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Check\CheckException;
-use JMS\Serializer\DeserializationContext;
-use Centreon\Domain\Entity\EntityValidator;
-use Symfony\Component\HttpFoundation\Request;
-use Centreon\Application\Request\CheckRequest;
-use Symfony\Component\HttpFoundation\Response;
-use Centreon\Domain\Exception\EntityNotFoundException;
-use JMS\Serializer\Exception\ValidationFailedException;
 use Centreon\Domain\Check\Interfaces\CheckServiceInterface;
+use Centreon\Domain\Contact\Contact;
+use Centreon\Domain\Entity\EntityValidator;
+use Centreon\Domain\Exception\EntityNotFoundException;
+use Centreon\Domain\Monitoring\Resource as ResourceEntity;
+use FOS\RestBundle\View\View;
+use JMS\Serializer\DeserializationContext;
+use JMS\Serializer\Exception\ValidationFailedException;
+use JMS\Serializer\SerializerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Used to manage all requests to schedule checks on hosts and services
- *
- * @package Centreon\Application\Controller
+ * Used to manage all requests to schedule checks on hosts and services.
  */
 class CheckController extends AbstractController
 {
     // Groups for serialization
+    public const CHECK_RESOURCES_PAYLOAD_VALIDATION_FILE
+        = __DIR__ . '/../../../../config/json_validator/latest/Centreon/Check/AddChecks.json';
     public const SERIALIZER_GROUPS_HOST = ['check_host'];
     public const SERIALIZER_GROUPS_SERVICE = ['check_service'];
     public const SERIALIZER_GROUPS_HOST_ADD = ['check_host', 'check_host_add'];
 
-    /**
-     * @var CheckServiceInterface
-     */
-    private $checkService;
+    /** @var CheckServiceInterface */
+    private CheckServiceInterface $checkService;
 
     /**
      * CheckController constructor.
@@ -73,8 +68,10 @@ class CheckController extends AbstractController
      * @param Request $request
      * @param EntityValidator $entityValidator
      * @param SerializerInterface $serializer
-     * @return View
+     *
      * @throws \Exception
+     *
+     * @return View
      */
     public function checkHosts(
         Request $request,
@@ -87,7 +84,7 @@ class CheckController extends AbstractController
          * @var Contact $contact
          */
         $contact = $this->getUser();
-        if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_HOST_CHECK)) {
+        if (! $contact->isAdmin() && ! $contact->hasRole(Contact::ROLE_HOST_CHECK)) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 
@@ -130,41 +127,15 @@ class CheckController extends AbstractController
     }
 
     /**
-     * Check if the resource can be checked by the current user
-     *
-     * @param Contact $contact
-     * @param ResourceEntity $resource
-     * @return bool
-     */
-    private function hasCheckRightsForResource(Contact $contact, ResourceEntity $resource): bool
-    {
-        if ($contact->isAdmin()) {
-            return true;
-        }
-
-        $hasRights = false;
-
-        switch ($resource->getType()) {
-            case ResourceEntity::TYPE_HOST:
-                $hasRights = $contact->hasRole(Contact::ROLE_HOST_CHECK);
-                break;
-            case ResourceEntity::TYPE_SERVICE:
-            case ResourceEntity::TYPE_META:
-                $hasRights = $contact->hasRole(Contact::ROLE_SERVICE_CHECK);
-                break;
-        }
-
-        return $hasRights;
-    }
-
-    /**
      * Entry point to check multiple services.
      *
      * @param Request $request
      * @param EntityValidator $entityValidator
      * @param SerializerInterface $serializer
-     * @return View
+     *
      * @throws \Exception
+     *
+     * @return View
      */
     public function checkServices(
         Request $request,
@@ -177,7 +148,7 @@ class CheckController extends AbstractController
          * @var Contact $contact
          */
         $contact = $this->getUser();
-        if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_SERVICE_CHECK)) {
+        if (! $contact->isAdmin() && ! $contact->hasRole(Contact::ROLE_SERVICE_CHECK)) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 
@@ -226,8 +197,10 @@ class CheckController extends AbstractController
      * @param EntityValidator $entityValidator
      * @param SerializerInterface $serializer
      * @param int $hostId
-     * @return View
+     *
      * @throws \Exception
+     *
+     * @return View
      */
     public function checkHost(
         Request $request,
@@ -241,7 +214,7 @@ class CheckController extends AbstractController
          * @var Contact $contact
          */
         $contact = $this->getUser();
-        if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_HOST_CHECK)) {
+        if (! $contact->isAdmin() && ! $contact->hasRole(Contact::ROLE_HOST_CHECK)) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 
@@ -285,8 +258,10 @@ class CheckController extends AbstractController
      * @param SerializerInterface $serializer
      * @param int $hostId
      * @param int $serviceId
-     * @return View
+     *
      * @throws \Exception
+     *
+     * @return View
      */
     public function checkService(
         Request $request,
@@ -303,7 +278,7 @@ class CheckController extends AbstractController
         $contact = $this->getUser();
         if (
             ! $contact->isAdmin()
-            && !$contact->hasRole(Contact::ROLE_SERVICE_CHECK)
+            && ! $contact->hasRole(Contact::ROLE_SERVICE_CHECK)
         ) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
@@ -348,8 +323,10 @@ class CheckController extends AbstractController
      * @param EntityValidator $entityValidator
      * @param SerializerInterface $serializer
      * @param int $metaId
-     * @return View
+     *
      * @throws \Exception
+     *
+     * @return View
      */
     public function checkMetaService(
         Request $request,
@@ -363,7 +340,7 @@ class CheckController extends AbstractController
          * @var Contact $contact
          */
         $contact = $this->getUser();
-        if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_SERVICE_CHECK)) {
+        if (! $contact->isAdmin() && ! $contact->hasRole(Contact::ROLE_SERVICE_CHECK)) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 
@@ -404,14 +381,14 @@ class CheckController extends AbstractController
      *
      * @param Request $request
      * @param SerializerInterface $serializer
-     * @return View
+     *
      * @throws \Exception
      * @throws CheckException
+     *
+     * @return View
      */
-    public function checkResources(
-        Request $request,
-        SerializerInterface $serializer
-    ): View {
+    public function checkResources(Request $request): View
+    {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
         /**
@@ -419,50 +396,17 @@ class CheckController extends AbstractController
          */
         $user = $this->getUser();
 
-        $checks = json_decode((string) $request->getContent(), true);
-        if (!is_array($checks)) {
-            throw new \InvalidArgumentException(_('Error when decoding sent data'));
-        }
+        $payload = $this->validateAndRetrieveDataSent($request, self::CHECK_RESOURCES_PAYLOAD_VALIDATION_FILE);
+        $check = $this->createCheckFromPayload($payload);
 
-        /*
-         * Validate the content of the POST request against the JSON schema validator
-         */
-        $validator = new Validator();
-        $content = json_decode((string) $request->getContent());
-        $file = 'file://' . $this->getParameter('centreon_path') .
-            'config/json_validator/latest/Centreon/Check/AddChecks.json';
-        $validator->validate(
-            $content,
-            (object) ['$ref' => $file],
-            Constraint::CHECK_MODE_VALIDATE_SCHEMA
-        );
-
-        if (!$validator->isValid()) {
-            $message = '';
-            foreach ($validator->getErrors() as $error) {
-                $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
-            }
-            throw new CheckException($message);
-        }
-
-        /**
-         * @var CheckRequest $checkRequest
-         */
-        $checkRequest = $serializer->deserialize(
-            (string) $request->getContent(),
-            CheckRequest::class,
-            'json'
-        );
-
-        $checkRequest->getCheck()->setCheckTime(new DateTime());
-
-        foreach ($checkRequest->getResources() as $resource) {
+        foreach ($payload['resources'] as $resourcePayload) {
+            $resource = $this->createResourceFromPayload($resourcePayload);
             // start check process
             try {
                 if ($this->hasCheckRightsForResource($user, $resource)) {
                     $this->checkService
                         ->filterByContact($user)
-                        ->checkResource($checkRequest->getCheck(), $resource);
+                        ->checkResource($check, $resource);
                 }
             } catch (EntityNotFoundException $e) {
                 continue;
@@ -470,5 +414,75 @@ class CheckController extends AbstractController
         }
 
         return $this->view();
+    }
+
+    /**
+     * Check if the resource can be checked by the current user.
+     *
+     * @param Contact $contact
+     * @param ResourceEntity $resource
+     *
+     * @return bool
+     */
+    private function hasCheckRightsForResource(Contact $contact, ResourceEntity $resource): bool
+    {
+        if ($contact->isAdmin()) {
+            return true;
+        }
+
+        $hasRights = false;
+
+        switch ($resource->getType()) {
+            case ResourceEntity::TYPE_HOST:
+                $hasRights = $contact->hasRole(Contact::ROLE_HOST_CHECK);
+                break;
+            case ResourceEntity::TYPE_SERVICE:
+            case ResourceEntity::TYPE_META:
+                $hasRights = $contact->hasRole(Contact::ROLE_SERVICE_CHECK);
+                break;
+        }
+
+        return $hasRights;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return Check
+     */
+    private function createCheckFromPayload(array $payload): Check
+    {
+        $check = new Check();
+        if (isset($payload['check']['is_forced'])) {
+            $check->setForced($payload['check']['is_forced']);
+        }
+
+        $check->setCheckTime(new \DateTime());
+
+        return $check;
+    }
+
+    /**
+     * Creates a ResourceEntity with payload sent.
+     *
+     * @param array<string, mixed> $payload
+     *
+     * @return ResourceEntity
+     */
+    private function createResourceFromPayload(array $payload): ResourceEntity
+    {
+        $resource = (new ResourceEntity())
+            ->setType($payload['type'])
+            ->setId($payload['id']);
+
+        if ($payload['parent'] !== null) {
+            $resource->setParent(
+                (new ResourceEntity())
+                    ->setId($payload['parent']['id'])
+                    ->setType(ResourceEntity::TYPE_HOST)
+            );
+        }
+
+        return $resource;
     }
 }

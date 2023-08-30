@@ -2,33 +2,14 @@
 
 if [ "$1" = "configure" ] ; then
 
-  if [ ! "$(getent passwd centreon-gorgone)" ]; then
-    adduser --system --group --home /var/lib/centreon-gorgone --no-create-home centreon-gorgone
-  fi
-
-  if [ "$(getent passwd centreon)" ]; then
-    usermod -a -G centreon-gorgone centreon
-    usermod -a -G centreon centreon-gorgone
-  fi
-
-  if [ "$(getent passwd centreon-engine)" ]; then
-    usermod -a -G centreon-gorgone centreon-engine
-  fi
-
-  if [ "$(getent passwd centreon-broker)" ]; then
-    usermod -a -G centreon-gorgone centreon-broker
-  fi
-
-  chown -vR centreon-gorgone:centreon-gorgone \
+  chown -R centreon-gorgone:centreon-gorgone \
     /etc/centreon-gorgone \
     /var/cache/centreon-gorgone \
-    /var/cache/centreon-gorgone/autodiscovery \
     /var/lib/centreon-gorgone \
     /var/log/centreon-gorgone
-  chmod -vR g+w \
+  chmod -R g+w \
     /etc/centreon-gorgone \
     /var/cache/centreon-gorgone \
-    /var/cache/centreon-gorgone/autodiscovery \
     /var/lib/centreon-gorgone \
     /var/log/centreon-gorgone
 
@@ -50,12 +31,8 @@ if [ "$1" = "configure" ] ; then
     /usr/bin/chmod 600 /var/lib/centreon-gorgone/.ssh/id_rsa
   fi
 
-  # rename files to priority
-  mv /etc/centreon-gorgone/config.d/centreon.yaml /etc/centreon-gorgone/config.d/30-centreon.yaml
-  mv /etc/centreon-gorgone/config.d/centreon-api.yaml /etc/centreon-gorgone/config.d/31-centreon-api.yaml
-  mv /etc/centreon-gorgone/config.d/centreon-audit.yaml /etc/centreon-gorgone/config.d/50-centreon-audit.yaml
-
-  systemctl preset gorgoned.service || : >/dev/null 2>&1 || :
+  systemctl daemon-reload ||:
+  systemctl unmask gorgoned.service ||:
+  systemctl preset gorgoned.service ||:
 
 fi
-exit 0

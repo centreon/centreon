@@ -247,21 +247,21 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
             ':noteUrl',
             $host->getNoteUrl() === ''
                 ? null
-                : $this->legacyHtmlEncode($host->getNoteUrl()),
+                : $host->getNoteUrl(),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':note',
             $host->getNote() === ''
                 ? null
-                : $this->legacyHtmlEncode($host->getNote()),
+                : $host->getNote(),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':actionUrl',
             $host->getActionUrl() === ''
                 ? null
-                : $this->legacyHtmlEncode($host->getActionUrl()),
+                : $host->getActionUrl(),
             \PDO::PARAM_STR
         );
         $statement->bindValue(':iconId', $host->getIconId(), \PDO::PARAM_INT);
@@ -269,7 +269,7 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
             ':iconAlternative',
             $host->getIconAlternative() === ''
                 ? null
-                : $this->legacyHtmlEncode($host->getIconAlternative()),
+                : $host->getIconAlternative(),
             \PDO::PARAM_STR
         );
 
@@ -344,7 +344,7 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
     {
         $statement->bindValue(
             ':name',
-            $this->legacyHtmlEncode($host->getName()),
+            $host->getName(),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -354,7 +354,7 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
         );
         $statement->bindValue(
             ':alias',
-            $this->legacyHtmlEncode($host->getAlias()),
+            $host->getAlias(),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -366,7 +366,7 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
             ':snmpCommunity',
             $host->getSnmpCommunity() === ''
                 ? null
-                : $this->legacyHtmlEncode($host->getSnmpCommunity()),
+                : $host->getSnmpCommunity(),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -378,7 +378,7 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
             ':comment',
             $host->getComment() === ''
                 ? null
-                : $this->legacyHtmlEncode($host->getComment()),
+                : $host->getComment(),
             \PDO::PARAM_STR
         );
         $checkCommandArguments = null;
@@ -387,7 +387,6 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
                 '!',
                 str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $host->getCheckCommandArgs())
             );
-            $checkCommandArguments = $this->legacyHtmlEncode($checkCommandArguments);
         }
         $statement->bindValue(
             ':checkCommandArgs',
@@ -400,7 +399,6 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteHostRe
                 '!',
                 str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $host->getEventHandlerCommandArgs())
             );
-            $eventHandlerCommandArguments = $this->legacyHtmlEncode($eventHandlerCommandArguments);
         }
         $statement->bindValue(
             ':notificationOptions',

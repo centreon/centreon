@@ -27,9 +27,6 @@ use Core\Domain\RealTime\Model\ResourceTypes\HostResourceType;
 
 class HostACLProvider implements ResourceACLProviderInterface
 {
-    /**
-     * @inheritDoc
-     */
     public function buildACLSubRequest(array $accessGroupIds): string
     {
         $requestPattern = 'EXISTS (
