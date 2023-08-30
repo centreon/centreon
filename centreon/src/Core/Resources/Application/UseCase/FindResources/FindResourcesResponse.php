@@ -21,24 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Infrastructure\Repository\ResourceACLProviders;
+namespace Core\Resources\Application\UseCase\FindResources;
 
-use Core\Domain\RealTime\Model\ResourceTypes\ServiceResourceType;
+use Core\Resources\Application\UseCase\FindResources\Response\ResourceResponseDto;
 
-class ServiceACLProvider implements ResourceACLProviderInterface
+final class FindResourcesResponse
 {
-    public function buildACLSubRequest(array $accessGroupIds): string
-    {
-        $requestPattern = 'EXISTS (
-            SELECT 1
-            FROM `:dbstg`.centreon_acl acl
-            WHERE
-                resources.type = %d
-                AND resources.parent_id = acl.host_id
-                AND resources.id = acl.service_id
-                AND acl.group_id IN (%s)
-        )';
-
-        return sprintf($requestPattern, ServiceResourceType::TYPE_ID, implode(', ', $accessGroupIds));
+    /**
+     * @param ResourceResponseDto[] $resources
+     */
+    public function __construct(
+        public array $resources = [],
+    ) {
     }
 }
+
