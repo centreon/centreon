@@ -105,7 +105,7 @@ describe('Listing', () => {
       });
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('collapses the row when the corresponding icon si clicked', () => {
@@ -115,6 +115,6 @@ describe('Listing', () => {
 
     cy.contains('Sub item 100').should('not.exist');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
