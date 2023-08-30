@@ -127,7 +127,7 @@ describe('Graph Widget', () => {
     initializeComponent({ data: emptyServiceMetrics });
     cy.contains(labelNoDataFound).should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the line chart when the widget has metrics', () => {
@@ -163,7 +163,7 @@ describe('Graph Widget', () => {
     cy.findByTestId('threshold-55.201388888888886').should('not.exist');
     cy.findByTestId('threshold-0').should('not.exist');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the line chart with customized warning threshold', () => {

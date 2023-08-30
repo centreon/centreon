@@ -114,7 +114,7 @@ describe('Dashboards', () => {
         .findByLabelText('delete')
         .should('not.exist');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the dashboard actions on the corresponding dashboard when the user has viewer roles', () => {
@@ -135,7 +135,7 @@ describe('Dashboards', () => {
         });
       });
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the dashboards actions on all dashboards when the user has administrator global roles', () => {
@@ -158,7 +158,7 @@ describe('Dashboards', () => {
         .findByLabelText('delete')
         .should('exist');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 });
