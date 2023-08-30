@@ -19,8 +19,8 @@ import { notificationEndpoint } from '../../Panel/api/endpoints';
 import { NotificationType } from '../../Panel/models';
 import { htmlEmailBodyAtom } from '../../Panel/atom';
 
-import { addNotificationEndpoint } from './endpoints';
 import { adaptNotification } from './adapters';
+import { addNotificationEndpoint } from './endpoints';
 
 interface useDuplicateRequestState {
   submit: (
