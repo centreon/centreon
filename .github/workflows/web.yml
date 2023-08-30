@@ -717,6 +717,14 @@ jobs:
 
   deploy-platform-nightly:
     needs: [get-version]
+    #needs:
+    #  [
+    #    get-version,
+    #    api-integration-test,
+    #    e2e-test,
+    #    performances-test,
+    #    legacy-e2e-test,
+    #  ]
     # if: ${{ github.event_name }} == '0 3 * * *'
     runs-on: [common]
     steps:
@@ -736,5 +744,5 @@ jobs:
           centreon_branch: develop
           configured_resources: false
           install_business_modules: false
-          instance_password: Centreon!2021
+          instance_password: ${{ secrets.COD_NIGHTLY_INSTANCE_ADMIN_PWD }}
           cod_service_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
