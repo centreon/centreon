@@ -21,24 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Core\Resources\Infrastructure\Repository\ResourceACLProviders;
+namespace Core\Resources\Application\Exception;
 
-use Core\Domain\RealTime\Model\ResourceTypes\ServiceResourceType;
-
-class ServiceACLProvider implements ResourceACLProviderInterface
+class ResourceException extends \Exception
 {
-    public function buildACLSubRequest(array $accessGroupIds): string
+    /**
+     * @return self
+     */
+    public static function errorWhileSearching(): self
     {
-        $requestPattern = 'EXISTS (
-            SELECT 1
-            FROM `:dbstg`.centreon_acl acl
-            WHERE
-                resources.type = %d
-                AND resources.parent_id = acl.host_id
-                AND resources.id = acl.service_id
-                AND acl.group_id IN (%s)
-        )';
-
-        return sprintf($requestPattern, ServiceResourceType::TYPE_ID, implode(', ', $accessGroupIds));
+        return new self(_('Error while searching for resources'));
     }
 }
