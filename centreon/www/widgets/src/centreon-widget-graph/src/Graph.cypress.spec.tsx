@@ -154,7 +154,7 @@ describe('Graph Widget', () => {
     cy.findByTestId('threshold-0-tooltip').trigger('mouseover');
     cy.contains('Critical threshold: 90 %. Value defined by metric cpu');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the line chart without thresholds when thresholds are disabled', () => {
@@ -177,7 +177,7 @@ describe('Graph Widget', () => {
     );
     cy.contains('Warning threshold: 20 %. Value customized');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the line chart with customized critical threshold', () => {
@@ -189,7 +189,7 @@ describe('Graph Widget', () => {
     cy.findByTestId('threshold-124.203125-tooltip').trigger('mouseover');
     cy.contains('Critical threshold: 20 %. Value customized');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the line chart with a custom time period', () => {
