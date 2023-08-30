@@ -57,7 +57,7 @@ modes.forEach((mode) => {
         cy.wrap($li).get('svg').should('be.visible');
       });
 
-      cy.matchImageSnapshot().then(() => {
+      cy.makeSnapshot().then(() => {
         cy.findByLabelText(labelMiniCentreonLogo).click();
       });
     });
@@ -76,21 +76,21 @@ modes.forEach((mode) => {
         }
       });
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it(`displays the direct child items and highlights the item when hovered in ${mode} theme`, () => {
       cy.get('li').eq(2).trigger('mouseover');
       cy.get('[data-cy=collapse]').should('be.visible');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it(`highlights the menu item when double clicked in ${mode} theme`, () => {
       cy.get('li').eq(0).as('element').trigger('mouseover');
       cy.get('@element').trigger('dblclick');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it(`highlights the parent item when the item is clicked in ${mode} theme`, () => {
@@ -116,7 +116,7 @@ modes.forEach((mode) => {
         .trigger('mouseover')
         .trigger('click');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 });

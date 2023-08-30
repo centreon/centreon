@@ -58,7 +58,7 @@ describe('Searchbar help tooltip', () => {
 
     cy.findByText(labelHere).should('have.attr', 'href', docsURL);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays a tooltip containing a cloud documentation link upon clicking the help icon in a cloud environment', () => {
@@ -74,6 +74,6 @@ describe('Searchbar help tooltip', () => {
 
     cy.findByText(labelHere).should('have.attr', 'href', cloudDocsURL);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

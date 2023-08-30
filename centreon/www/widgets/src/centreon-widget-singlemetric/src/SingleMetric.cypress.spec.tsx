@@ -124,7 +124,7 @@ describe('Single metric Widget', () => {
     });
     cy.contains(labelNoDataFound).should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   describe('Text', () => {
@@ -148,7 +148,7 @@ describe('Single metric Widget', () => {
         'rgb(255, 74, 74)'
       );
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the metric value as success when thresholds are disabled', () => {
@@ -163,7 +163,7 @@ describe('Single metric Widget', () => {
       cy.contains('Warning: 70 %').should('not.exist');
       cy.contains('Critical: 90 %').should('not.exist');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the metric value as warning when the warning threshold is customized', () => {
@@ -176,7 +176,7 @@ describe('Single metric Widget', () => {
 
       cy.contains('34 %').should('have.css', 'color', 'rgb(253, 155, 39)');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the metric value as critical when the critical threshold is customized', () => {
@@ -189,7 +189,7 @@ describe('Single metric Widget', () => {
 
       cy.contains('34 %').should('have.css', 'color', 'rgb(255, 74, 74)');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 
@@ -215,7 +215,7 @@ describe('Single metric Widget', () => {
         'Critical threshold: 90 %. Value defined by metric Ping_1'
       ).should('be.visible');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the metric value as success when thresholds are disabled', () => {
@@ -232,7 +232,7 @@ describe('Single metric Widget', () => {
       cy.findByTestId('warning-line').should('not.exist');
       cy.findByTestId('critical-line').should('not.exist');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the metric value as warning when the warning threshold is customized', () => {
@@ -246,7 +246,7 @@ describe('Single metric Widget', () => {
       cy.contains('34 %').should('have.css', 'fill', 'rgb(253, 155, 39)');
       cy.findByTestId('34-bar-#FD9B27').should('be.visible');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the metric value as critical when the critical threshold is customized', () => {
@@ -260,7 +260,7 @@ describe('Single metric Widget', () => {
       cy.contains('34 %').should('have.css', 'fill', 'rgb(255, 74, 74)');
       cy.findByTestId('34-bar-#FF4A4A').should('be.visible');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 
@@ -287,7 +287,7 @@ describe('Single metric Widget', () => {
         'Critical threshold: 90 %. Value defined by metric Ping_1'
       ).should('be.visible');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the metric value as success when thresholds are disabled', () => {
@@ -308,7 +308,7 @@ describe('Single metric Widget', () => {
         '#88B922'
       );
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the metric value as warning when the warning threshold is customized', () => {
@@ -322,7 +322,7 @@ describe('Single metric Widget', () => {
       cy.contains('34 %').should('have.css', 'fill', 'rgb(253, 155, 39)');
       cy.findByTestId('34-arc').should('have.attr', 'fill', '#FD9B27');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
 
     it('displays the metric value as critical when the critical threshold is customized', () => {
@@ -336,7 +336,7 @@ describe('Single metric Widget', () => {
       cy.contains('34 %').should('have.css', 'fill', 'rgb(255, 74, 74)');
       cy.findByTestId('34-arc').should('have.attr', 'fill', '#FF4A4A');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 });

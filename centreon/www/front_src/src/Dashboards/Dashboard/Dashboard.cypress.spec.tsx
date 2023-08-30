@@ -304,7 +304,7 @@ describe('Dashboard', () => {
       cy.contains(labelAddWidget).should('not.exist');
       cy.contains('Text for the new widget').should('be.visible');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 
@@ -340,7 +340,7 @@ describe('Dashboard', () => {
           assert.equal(dashboard.layout[1].name, 'centreon-widget-input');
         });
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 
@@ -360,7 +360,7 @@ describe('Dashboard', () => {
 
       cy.contains(labelAddAWidget).should('be.visible');
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 });
