@@ -671,7 +671,7 @@ class AcknowledgementController extends AbstractController
 
         $this->acknowledgementService->filterByContact($contact);
 
-        $disacknowledgement = $this->createAcknowledgementFromPayload($payload); 
+        $disacknowledgement = $this->createDisacknowledgementFromPayload($payload); 
 
         foreach ($payload['resources'] as $resourcePayload) {
             $resource = $this->createResourceFromPayload($resourcePayload);
@@ -804,6 +804,21 @@ class AcknowledgementController extends AbstractController
         }
 
         return $acknowledgement;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return Acknowledgement
+     */ 
+    private function createDisacknowledgementFromPayload(array $payload): Acknowledgement
+    {
+        $disacknowledgement = new Acknowledgement();
+        if (isset($payload['disacknowledgement']['with_services'])) {
+            $disacknowledgement->setWithServices($payload['disacknowledgement']['with_services']);
+        }
+
+        return $disacknowledgement;
     }
 
     /**
