@@ -1,0 +1,8 @@
+Centreon\Application\Request\CheckRequest:
+    properties:
+        resources:
+            type: array<Centreon\Domain\Monitoring\Resource>
+            groups:
+                - 'add_checks'
+        check:
+            type: Centreon\Domain\Check\Check
