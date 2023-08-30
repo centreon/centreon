@@ -46,22 +46,22 @@ runs:
   steps:
     - name: Deploy a COD platform with nightly build artifacts
       run: |
-          # set -x
-          #echo "[INFO]: Deploying nightly COD instance with latest ${inputs.centreon_branch} state."
-          #curl --fail -v -X POST \
-          #-H "Authorization: Bearer ${{inputs.cod_service_token}}" \
-          #-H "Accept: application/vnd.github.v3+json" \
-          #https://api.github.com/repos/centreon/centreon-on-demand/actions/workflows/deploy.yml/dispatches \
-          #-d '{"ref": "main", "inputs":{"bu":"${{ inputs.bu }}", "disk_size":"${{ inputs.disk_size }}", "poller_number":"${{ inputs.poller_number }}", "central_instance":"${{ inputs.central_instance }}", "poller_instance":"${{ inputs.poller_instance }}", "system_name":"${{ inputs.system_name }}", "centreon_branch":"${{ inputs.centreon_branch }}", "configured_resources":"${{ inputs.configured_resources }}", "install_business_modules":"${{ inputs.install_business_modules }}", "instance_password":"${{ inputs.instance_password }}" }}'
+          set -x
+          echo "[INFO]: Deploying nightly COD instance with latest ${inputs.centreon_branch} state."
+          curl --fail -v -X POST \
+          -H "Authorization: Bearer ${{inputs.cod_service_token}}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/centreon/centreon-on-demand/actions/workflows/deploy.yml/dispatches \
+          -d '{"ref": "main", "inputs":{"bu":"${{ inputs.bu }}", "disk_size":"${{ inputs.disk_size }}", "poller_number":"${{ inputs.poller_number }}", "central_instance":"${{ inputs.central_instance }}", "poller_instance":"${{ inputs.poller_instance }}", "system_name":"${{ inputs.system_name }}", "centreon_branch":"${{ inputs.centreon_branch }}", "configured_resources":"${{ inputs.configured_resources }}", "install_business_modules":"${{ inputs.install_business_modules }}", "instance_password":"${{ inputs.instance_password }}" }}'
       shell: bash
 
     - name: Destroy a COD platform with nightly build artifacts
       run: |
-          set -x
-          echo "[INFO]: Destroying previous nightly COD instance."
-          curl --fail -v -X POST \
-          -H "Authorization: Bearer ${{inputs.cod_service_token}}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/centreon/centreon-on-demand/actions/workflows/destroy.yml/dispatches \
-          -d '{"ref": "main", "inputs":{"confirm":"true"} }'
+          # set -x
+          # echo "[INFO]: Destroying previous nightly COD instance."
+          # curl --fail -v -X POST \
+          # -H "Authorization: Bearer ${{inputs.cod_service_token}}" \
+          # -H "Accept: application/vnd.github.v3+json" \
+          # https://api.github.com/repos/centreon/centreon-on-demand/actions/workflows/destroy.yml/dispatches \
+          # -d '{"ref": "main", "inputs":{"confirm":"true"} }'
       shell: bash
