@@ -17,7 +17,7 @@ import {
 } from '../../Panel/api';
 import { notificationEndpoint } from '../../Panel/api/endpoints';
 import { NotificationType } from '../../Panel/models';
-import { htmlEmailyBodyAtom } from '../../Panel/atom';
+import { htmlEmailBodyAtom } from '../../Panel/atom';
 
 import { addNotificationEndpoint } from './endpoints';
 import { adaptNotification } from './adapters';
@@ -46,7 +46,7 @@ const useDuplicateRequest = ({
   const queryClient = useQueryClient();
   const { showSuccessMessage } = useSnackbar();
 
-  const htmlEmailyBody = useAtomValue(htmlEmailyBodyAtom);
+  const htmlEmailBody = useAtomValue(htmlEmailBodyAtom);
 
   const { data } = useFetchQuery({
     decoder: notificationdecoder,
@@ -70,7 +70,7 @@ const useDuplicateRequest = ({
           ...panelPayload,
           messages: {
             ...panelPayload.messages,
-            formattedMessage: htmlEmailyBody
+            formattedMessage: htmlEmailBody
           },
           name: values?.name
         })

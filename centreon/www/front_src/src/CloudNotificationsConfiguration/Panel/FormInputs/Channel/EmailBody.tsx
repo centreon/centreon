@@ -8,13 +8,13 @@ import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 
 import { labelTypeYourTextHere } from '../../../translatedLabels';
 import { useStyles } from '../Inputs.styles';
-import { htmlEmailyBodyAtom } from '../../atom';
+import { htmlEmailBodyAtom } from '../../atom';
 
 const EmailBody = (): JSX.Element => {
   const { classes } = useStyles({});
   const { t } = useTranslation();
 
-  const setHtmlEmailyBody = useSetAtom(htmlEmailyBodyAtom);
+  const sethtmlEmailBody = useSetAtom(htmlEmailBodyAtom);
 
   const { setFieldValue, values, initialValues, errors, touched, handleBlur } =
     useFormikContext<FormikValues>();
@@ -22,7 +22,7 @@ const EmailBody = (): JSX.Element => {
   const getEditorState = (state: unknown, editor): void => {
     editor.update(() => {
       const htmlString = $generateHtmlFromNodes(editor, null);
-      setHtmlEmailyBody(htmlString);
+      sethtmlEmailBody(htmlString);
     });
     setFieldValue('messages.message', JSON.stringify(state));
   };
@@ -30,7 +30,7 @@ const EmailBody = (): JSX.Element => {
   const initialize = (editor): void => {
     editor.update(() => {
       const htmlString = $generateHtmlFromNodes(editor, null);
-      setHtmlEmailyBody(htmlString);
+      sethtmlEmailBody(htmlString);
     });
   };
 

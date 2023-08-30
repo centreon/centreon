@@ -150,11 +150,7 @@ const ContentEditable = ({
   }, [disabled]);
 
   useEffect(() => {
-    if (isNil(initialize)) {
-      return;
-    }
-
-    initialize(editor);
+    initialize?.(editor);
   }, []);
 
   return (
