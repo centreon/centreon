@@ -69,7 +69,10 @@ const useMain = (): void => {
     }).then((retrievedPlatformInstallationStatus) => {
       setPlatformInstallationStatus(retrievedPlatformInstallationStatus);
 
-      if (!retrievedPlatformInstallationStatus?.isInstalled) {
+      if (
+        !retrievedPlatformInstallationStatus?.isInstalled ||
+        retrievedPlatformInstallationStatus.hasUpgradeAvailable
+      ) {
         setAreUserParametersLoaded(false);
 
         return;
