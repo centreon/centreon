@@ -15,10 +15,12 @@ import { userAtom } from '@centreon/ui-context';
 
 import { userEndpoint } from '../../App/endpoint';
 import Actions from '../Actions';
+import VisualizationActions from '../Actions/Visualization';
 import {
   resourcesToAcknowledgeAtom,
   resourcesToSetDowntimeAtom,
-  selectedResourcesAtom
+  selectedResourcesAtom,
+  selectedVisualizationAtom
 } from '../Actions/actionsAtoms';
 import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
 import { adjustCheckedResources } from '../Actions/Resource/Check/helpers';
@@ -215,6 +217,10 @@ const ResourceListing = (): JSX.Element => {
     });
   };
 
+  const selectedVisualization = useAtomValue(selectedVisualizationAtom);
+
+  console.log('selectedVisualization : ', selectedVisualization);
+
   return (
     <Listing
       checkable
@@ -261,6 +267,7 @@ const ResourceListing = (): JSX.Element => {
         onClick: changeViewModeTableResources,
         title: user_interface_density
       }}
+      visualizationActions={<VisualizationActions />}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}
