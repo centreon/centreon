@@ -21,8 +21,6 @@ on:
       - "centreon/**"
       - "!centreon/packages/**"
       - "!centreon-web/.veracode-exclusions"
-    tags:
-      - centreon-*
 
 env:
   base_directory: centreon
