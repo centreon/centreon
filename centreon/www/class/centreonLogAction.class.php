@@ -71,17 +71,21 @@ class CentreonLogAction
 
         $query = "INSERT INTO `log_action_modification` (field_name, field_value, action_log_id) VALUES ";
         $values = [];
+        $index = 0;
         foreach ($fields as $field_key => $field_value) {
-            $values[] = "(:field_key, :field_value, :logId)";
+            $values[] = "(:field_key_" . $index . ", :field_value_" . $index . ", :logId)";
+            $index++;
         }
         $query .= implode(", ", $values);
         $statement = $pearDBO->prepare($query);
+        $index = 0;
         foreach ($fields as $field_key => $field_value) {
             $key = CentreonDB::escape($field_key);
             $value = CentreonDB::escape($field_value);
-            $statement->bindValue(':field_key', $key);
-            $statement->bindValue(':field_value', $value);
+            $statement->bindValue(':field_key_' . $index, $key);
+            $statement->bindValue(':field_value_' . $index, $value);
             $statement->bindValue(':logId', $logId, PDO::PARAM_INT);
+            $index++;
         }
         $statement->execute();
     }
