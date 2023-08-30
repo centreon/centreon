@@ -141,7 +141,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clean artifacts
+      - name: Clean artifact
         uses: geekyeggo/delete-artifact@v2
         with:
           name: "Veracode Pipeline-Scan Results"
