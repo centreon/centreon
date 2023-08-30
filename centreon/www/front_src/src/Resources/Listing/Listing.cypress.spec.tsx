@@ -197,7 +197,7 @@ describe('Resource Listing', () => {
       cy.contains(information as string).should('exist');
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the listing in compact mode', () => {
@@ -206,7 +206,7 @@ describe('Resource Listing', () => {
 
     cy.contains('E0').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the listing in extended mode', () => {
@@ -216,7 +216,7 @@ describe('Resource Listing', () => {
 
     cy.contains('E0').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays a highlighted row when a resource is in a critical state', () => {
@@ -226,7 +226,7 @@ describe('Resource Listing', () => {
 
     cy.contains('E0').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('reoders columns when a drag handle is focused and an arrow is pressed', () => {
@@ -238,7 +238,7 @@ describe('Resource Listing', () => {
       direction: 'right'
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -312,7 +312,7 @@ describe('column sorting', () => {
 
       cy.waitForRequest(`@dataToListingTableAsc${label}`);
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 });
@@ -375,7 +375,7 @@ describe('Listing request', () => {
       });
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('executes a listing request with a limit param when the rows per page value is changed', () => {
@@ -388,7 +388,7 @@ describe('Listing request', () => {
       expect(Ramda.includes('&limit=30', request.url.search)).to.be.true;
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -461,7 +461,7 @@ describe('Display additional columns', () => {
     cy.findByText('02/28/2020 9:18 AM').should('be.visible');
     cy.findByText('Set by admin').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays acknowledgement details when an acknowledged state chip is hovered', () => {
@@ -496,7 +496,7 @@ describe('Display additional columns', () => {
     cy.findByText('No').should('be.visible');
     cy.findByText('Set by admin').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   const columnIds = Ramda.map(Ramda.prop('id'), columns);
@@ -536,7 +536,7 @@ describe('Display additional columns', () => {
         cy.findByText(columnDisplayLabel).should('be.visible');
       }
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 });

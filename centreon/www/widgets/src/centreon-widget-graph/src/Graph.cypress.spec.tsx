@@ -72,7 +72,7 @@ describe('Graph Widget', () => {
     initializeComponent(emptyServiceMetrics);
     cy.contains(labelNoDataFound).should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the line chart when the widget has metrics', () => {
@@ -85,6 +85,6 @@ describe('Graph Widget', () => {
     cy.contains('cpu (%)').should('be.visible');
     cy.contains('cpu AVG (%)').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
