@@ -27,6 +27,7 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Option\OptionService;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -81,6 +82,7 @@ final class PartialUpdateServiceTemplate
         private readonly ParametersValidation $validation,
         private readonly ContactInterface $user,
         private readonly DataStorageEngineInterface $storageEngine,
+        private readonly OptionService $optionService,
     ) {
     }
 
@@ -380,6 +382,11 @@ final class PartialUpdateServiceTemplate
         ServiceTemplate $serviceTemplate,
         PartialUpdateServiceTemplateRequest $request
     ): void {
+        $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
+        $inheritanceMode = isset($inheritanceMode[0])
+            ? $inheritanceMode[0]->getValue()
+            : 0;
+
         if (! $request->name instanceof NoValue) {
             $this->validation->assertIsValidName($serviceTemplate->getName(), $request->name);
             $serviceTemplate->setName($request->name);
@@ -405,11 +412,11 @@ final class PartialUpdateServiceTemplate
         }
 
         if (! $request->isContactAdditiveInheritance instanceof NoValue) {
-            $serviceTemplate->setContactAdditiveInheritance($request->isContactAdditiveInheritance);
+            $serviceTemplate->setContactAdditiveInheritance(($inheritanceMode === 1) ? $request->isContactAdditiveInheritance : false);
         }
 
         if (! $request->isContactGroupAdditiveInheritance instanceof NoValue) {
-            $serviceTemplate->setContactGroupAdditiveInheritance($request->isContactGroupAdditiveInheritance);
+            $serviceTemplate->setContactGroupAdditiveInheritance(($inheritanceMode === 1) ? $request->isContactGroupAdditiveInheritance : false);
         }
 
         if (! $request->activeChecksEnabled instanceof NoValue) {
