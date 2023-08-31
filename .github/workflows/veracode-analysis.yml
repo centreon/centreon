@@ -151,7 +151,6 @@ jobs:
             [[ -n $3 ]] && FILENAME="$3/$CURRENT_NAME" || FILENAME="$CURRENT_NAME"
             [[ -n $4 ]] && NEW_NAME=$4 || NEW_NAME=$CURRENT_NAME
 
-
             echo "[DEBUG] FILENAME = $FILENAME"
             echo "[DEBUG] NEW_NAME = $NEW_NAME"
             echo "[INFO] target location"
@@ -160,30 +159,14 @@ jobs:
             pwd
 
             if [[ -s "$FILENAME" ]]; then
-              echo "-s i sOK"
-            fi
-
-            if [[ -e "$FILENAME" ]]; then
-              echo "-e i sOK"
-            fi
-
-            if [[ -w "$FILENAME" ]]; then
-              echo "-w i sOK"
-            fi
-
-            if [[ -r "$FILENAME" ]]; then
-              echo "-r i sOK"
-            fi
-
-            if [[ -s "$FILENAME" ]]; then
               FILE_SIZE=$( ls -AgG --time-style=long-iso "$FILENAME" | cut -d ' ' -f3 )
               echo "[INFO] FILE_SIZE = $FILE_SIZE"
               CREATION_DATE=$( ls -AgG --time-style=long-iso "$FILENAME" | cut -d ' ' -f4 )
               echo "[INFO] CREATION_DATE = $CREATION_DATE"
               CREATION_TIME=$( ls -AgG --time-style=long-iso "$FILENAME" | cut -d ' ' -f5 | tr ':' 'h' )
               echo "[INFO] CREATION_TIME = $CREATION_TIME"
-              echo "test s3 results = $BACKUP_LOCATION/$TARGET_BRANCH_$CREATION_DATE_$CREATION_TIME_size$FILE_SIZE_$NEW_NAME"
-              #aws s3 cp "./results.json" "$BACKUP_LOCATION/$TARGET_BRANCH_$CREATION_DATE_$CREATION_TIME_size$FILE_SIZE_$NEW_NAME"
+              echo "test s3 results = $BACKUP_LOCATION/$TARGET_BRANCH.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
+              #aws s3 cp "./results.json" "$BACKUP_LOCATION/$TARGET_BRANCH.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
             else
               echo "[WARN] - no $CURRENT_NAME found for FILENAME"
             fi
@@ -206,8 +189,6 @@ jobs:
 
           # saving filtered results
           backup_baseline "filtered_results.json"*
-
-          exit 1
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
