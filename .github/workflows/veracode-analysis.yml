@@ -125,39 +125,39 @@ jobs:
         if: success() || failure()
         run: |
 
-          echo "[INFO] tmp"
+          echo "[INFO] downloaded baseline details in tmp"
           ls -la /tmp
+
           echo "[INFO] current location"
           pwd
-          echo "[INFO] current location"
+          echo "[INFO] current location details on analysis results"
           ls -la
 
 
           function backup_baseline(){
             if [[ -z $1 ]]; then
               echo "[ERROR] Missing mandatory parameters to backup baseline file"
-              break
+              exit 0
             fi
-
-
-            echo "[INFO] tmp"
-            ls -la /tmp
-            echo "[INFO] current location"
-            pwd
-
-
-            echo "[DEBUG] inside function"
             CURRENT_NAME=$1
             echo "[DEBUG] CURRENT_NAME = $CURRENT_NAME"
-            [[ -n $2 ]] && FILENAME="$2/$CURRENT_NAME" || FILENAME="$CURRENT_NAME"
-            [[ -n $3 ]] && NEW_NAME=$3 || NEW_NAME=$CURRENT_NAME
+
+            # specific case for downloaded baseline file
+            if [[ -n $2 && "$2" == "downloaded" && ( -z $3 || -z $4 ) ]]; then
+              echo "[ERROR] Missing downloaded baseline mandatory parameters to continue"
+              exit 0
+            fi
+            [[ -n $2 ]] && TARGET_BRANCH=$BASE_BRANCH || TARGET_BRANCH=$CURRENT_BRANCH
+            [[ -n $3 ]] && FILENAME="$3/$CURRENT_NAME" || FILENAME="$CURRENT_NAME"
+            [[ -n $4 ]] && NEW_NAME=$4 || NEW_NAME=$CURRENT_NAME
+
 
             echo "[DEBUG] FILENAME = $FILENAME"
             echo "[DEBUG] NEW_NAME = $NEW_NAME"
-
-
             echo "[INFO] target location"
             ls -la "$FILENAME"
+            echo "[INFO] current location"
+            pwd
 
             if [[ -s "$FILENAME" ]]; then
               echo "-s i sOK"
@@ -182,8 +182,8 @@ jobs:
               echo "[INFO] CREATION_DATE = $CREATION_DATE"
               CREATION_TIME=$( ls -AgG --time-style=long-iso "$FILENAME" | cut -d ' ' -f5 | tr ':' 'h' )
               echo "[INFO] CREATION_TIME = $CREATION_TIME"
-              echo "test s3 results = $BACKUP_LOCATION/$CURRENT_BRANCH-$CREATION_DATE-$CREATION_TIME-size$FILE_SIZE-$NEW_NAME"
-              #aws s3 cp "./results.json" "$BACKUP_LOCATION/$CURRENT_BRANCH-$CREATION_DATE-$CREATION_TIME-size$FILE_SIZE-$NEW_NAME"
+              echo "test s3 results = $BACKUP_LOCATION/$TARGET_BRANCH_$CREATION_DATE_$CREATION_TIME_size$FILE_SIZE_$NEW_NAME"
+              #aws s3 cp "./results.json" "$BACKUP_LOCATION/$TARGET_BRANCH_$CREATION_DATE_$CREATION_TIME_size$FILE_SIZE_$NEW_NAME"
             else
               echo "[WARN] - no $CURRENT_NAME found for FILENAME"
             fi
@@ -191,21 +191,23 @@ jobs:
 
           CURRENT_DATE=$( date +"%Y-%m-%d" )
           echo "[INFO] CURRENT_DATE = $CURRENT_DATE"
-          CURRENT_BRANCH=$( echo "${{ github.ref_name }}" | tr '/' '-' )
+          CURRENT_BRANCH="PR-"$( echo "${{ github.ref_name }}" | cut -d '/' -f1 )
           echo "[INFO] CURRENT_BRANCH = $CURRENT_BRANCH"
-          TARGET_BRANCH=${{ github.base_ref || github.ref_name }}
-          echo "[INFO] TARGET_BRANCH = $TARGET_BRANCH"
-          BACKUP_LOCATION="s3://centreon-veracode-reports/${{ inputs.module_name }}/debug/$TARGET_BRANCH/$CURRENT_BRANCH"
+          BASE_BRANCH=${{ github.base_ref || github.ref_name }}
+          echo "[INFO] BASE_BRANCH = $BASE_BRANCH"
+          BACKUP_LOCATION="s3://centreon-veracode-reports/${{ inputs.module_name }}/debug"
           echo "[INFO] BACKUP_LOCATION = $BACKUP_LOCATION"
 
           # renaming baseline file if found
-          backup_baseline "results.json" "/tmp" "baseline.json"
+          backup_baseline "results.json" "downloaded" "/tmp" "baseline.json"
 
           # saving results
           backup_baseline "results.json"
 
           # saving filtered results
-          backup_baseline "filtered-results.json"
+          backup_baseline "filtered_results.json"*
+
+          exit 1
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
@@ -217,6 +219,12 @@ jobs:
           aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
           aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
 
+  Clean-artifact:
+    needs: [pipeline-scan]
+    name: Clean artifact
+    runs-on: ubuntu-latest
+
+    steps:
       - uses: geekyeggo/delete-artifact@v2
         with:
           name: "Veracode Pipeline-Scan Results"
