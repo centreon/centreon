@@ -7748,6 +7748,7 @@ components:
           example: "1h 45m"
         information:
           type: string
+          nullable: true
           description: "Output of the resource"
           example: "OK - Ping is ok"
         active_checks:
