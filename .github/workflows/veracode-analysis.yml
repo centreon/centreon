@@ -124,12 +124,30 @@ jobs:
         # debug step used to investigate support case
         if: success() || failure()
         run: |
+
+          echo "[INFO] tmp"
+          ls -la /tmp
+          echo "[INFO] current location"
+          pwd
+          echo "[INFO] current location"
+          ls -la
+
+
           function backup_baseline(){
             if [[ -z $1 || -z $2 ]]; then
               echo "[ERROR] Missing mandatory parameters to backup baseline file"
               break
             fi
 
+
+            echo "[INFO] tmp"
+            ls -la /tmp
+            echo "[INFO] current location"
+            pwd
+            echo "[INFO] current location"
+            ls -la
+
+            echo "[DEBUG] inside function"
             FOLDER=$1
             echo "[DEBUG] FOLDER = $FOLDER"
             CURRENT_NAME=$2
