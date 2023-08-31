@@ -47,6 +47,8 @@ runs:
     - name: Destroy a COD platform with nightly build artifacts
       run: |
           set -x
+
+          # Destroy the previous existing instance everytime
           DESTROY_STATUS=$(echo "[INFO]: Destroying previous nightly COD instance."
           curl --fail \
           -s \
@@ -58,12 +60,14 @@ runs:
           -d '{"ref": "main", "inputs":{"confirm":"true"} }' \
           -w %http_code)
 
-          echo ::set-output name=DESTROY_STATUS::$DESTROY_STATUS
+          echo "DESTROY_STATUS=$DESTROY_STATUS"
       shell: bash
 
     - name: Deploy a COD platform with nightly build artifacts
       run: |
           set -x
+
+          # Deply a new fresh instance if destroy suceeded
           echo "[DEBUG]: steps.outputs.DESTROY_STATUS"
           #echo "[INFO]: Deploying nightly COD instance with latest ${{ inputs.centreon_branch }} state."
           #curl --fail -v -X POST \
