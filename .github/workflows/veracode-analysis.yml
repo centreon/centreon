@@ -162,7 +162,6 @@ jobs:
           createprofile: true
           createsandbox: true
           sandboxname: "${{ github.ref_name }}"
-          criticality: "Low"
           scantimeout: 120
           includenewmodules: true
           scanallnonfataltoplevelmodules: true
