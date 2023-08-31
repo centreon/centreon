@@ -136,12 +136,12 @@ jobs:
           ls -la ${{inputs.module_name}}
           echo "[INFO] find"
           REPLY=$( find /runner/_work/_actions/veracode/Veracode-pipeline-scan-action  -name "*results.json" )
-          for "PATHB" in ${REPLY[@]}; do
+          for PATHB in ${REPLY[@]}; do
             echo "[DEBUG] - PATHB = $PATHB"
             ls -la "$PATHB"
           done
 
-          echo "[DEBUG] - PATHC = $PATHC"
+          echo "[DEBUG] - PATHC = /tmp"
           ls -la /tmp
 
           #mkdir /tmp/results
