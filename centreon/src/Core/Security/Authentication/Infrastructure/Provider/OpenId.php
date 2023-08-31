@@ -30,7 +30,6 @@ use Exception;
 use Throwable;
 use Pimple\Container;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Entity\ContactGroup;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
@@ -295,10 +294,18 @@ class OpenId implements ProviderAuthenticationInterface
     }
 
     /**
-     * @return ContactGroup[]
+     * @inheritDoc
      */
     public function getUserContactGroups(): array
     {
         return $this->provider->getUserContactGroups();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAclConditionsMatches(): array
+    {
+        return $this->provider->getAclConditionsMatches();
     }
 }

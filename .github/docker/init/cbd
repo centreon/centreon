@@ -1,39 +1,19 @@
 #!/bin/sh
 
-pidfile='/var/run/cbwd.pid'
-
 service_start() {
-    echo "cbddevscript: starting cbwd"
-    if [ \! -f "$pidfile" ] ; then
-	pid=`su - centreon-broker -s /bin/bash -c "/usr/sbin/cbwd /etc/centreon-broker/watchdog.json > /dev/null 2>&1 & echo \\$!"`
-	echo "$pid" > "$pidfile"
-	echo "cbddevscript: cbwd started"
-    else
-	echo "cbddevscript: cbwd is already started"
-    fi
+    systemctl start cbd
 }
 
 service_stop() {
-    if [ -f "$pidfile" ] ; then
-        echo "cbddevscript: stopping cbwd"
-        kill -TERM `cat "$pidfile"`
-        while ps -p `cat "$pidfile"` > /dev/null; do sleep 1; done
-        rm -f "$pidfile"
-        echo "cbddevscript: cbwd stopped"
-    else
-	    echo "cbddevscript: cbwd is already stopped"
-    fi
+    systemctl stop cbd
 }
 
 service_restart() {
-    service_stop
-    service_start
+    systemctl restart cbd
 }
 
 service_reload() {
-    echo "cbddevscript: reloading cbwd"
-    kill -HUP `cat "$pidfile"`
-    echo "cbddevscript: cbwd reloaded"
+    systemctl reload cbd
 }
 
 case "$1" in
