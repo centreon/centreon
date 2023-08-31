@@ -126,7 +126,7 @@ jobs:
         run: |
 
           echo "find files"
-          find / -name "results.json -o -name "filtered-results.json" 2>/dev/null
+          find / -name "results.json" -o -name "filtered-results.json" 2>/dev/null
 
           echo "tmp ?"
           ls -la /tmp
