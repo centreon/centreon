@@ -1,17 +1,19 @@
 import { PieArcDatum, ProvidedProps } from '@visx/shape/lib/shapes/Pie';
-import { useTransition, interpolate, animated } from '@react-spring/web';
-import { equals } from 'ramda';
+import { useTransition, to, animated } from '@react-spring/web';
+import { equals, includes, pluck } from 'ramda';
+
+import { Typography } from '@mui/material';
 
 import { Metric } from '../common/timeSeries/models';
 
-import { ThresholdType } from './models';
+import { Thresholds } from './models';
 
 type AnimatedStyles = { endAngle: number; opacity: number; startAngle: number };
 
-const fromLeaveTransition = (): AnimatedStyles => ({
-  endAngle: 0,
+const fromLeaveTransition = ({ endAngle }): AnimatedStyles => ({
+  endAngle,
   opacity: 0,
-  startAngle: 0
+  startAngle: -(Math.PI / 2)
 });
 const enterUpdateTransition = <T,>({
   startAngle,
@@ -30,7 +32,7 @@ type AnimatedPieProps<Datum> = ProvidedProps<Datum> & {
   hideTooltip?: () => void;
   metric?: Metric;
   showTooltip?: (args) => void;
-  thresholdTooltipLabels?: Array<string>;
+  thresholds: Thresholds;
 };
 
 const AnimatedPie = <Datum,>({
@@ -41,7 +43,7 @@ const AnimatedPie = <Datum,>({
   getColor,
   showTooltip,
   hideTooltip,
-  thresholdTooltipLabels = []
+  thresholds
 }: AnimatedPieProps<Datum>): JSX.Element => {
   const transitions = useTransition<PieArcDatum<Datum>, AnimatedStyles>(arcs, {
     enter: enterUpdateTransition,
@@ -54,26 +56,36 @@ const AnimatedPie = <Datum,>({
   return transitions((props, arc, { key }) => (
     <g key={key}>
       <animated.path
-        d={interpolate(
-          [props.startAngle, props.endAngle],
-          (startAngle, endAngle) =>
-            path({
-              ...arc,
-              endAngle,
-              startAngle
-            })
+        d={to([props.startAngle, props.endAngle], (startAngle, endAngle) =>
+          path({
+            ...arc,
+            endAngle,
+            startAngle
+          })
         )}
         data-testid={`${arc.data?.value || arc.data}-arc`}
+        display={
+          includes('transparent', arc.data.name || '') ? 'none' : 'inline'
+        }
         fill={getColor(arc)}
         onMouseEnter={(event) => {
-          const thresholdType = arc.data.name;
+          const thresholdType = arc.data.name as string;
 
-          if (equals(thresholdType, ThresholdType.Success)) {
+          if (equals(thresholdType, 'success')) {
             return;
           }
 
           showTooltip?.({
-            tooltipData: thresholdTooltipLabels[thresholdType],
+            tooltipData: (
+              <div>
+                {pluck(
+                  'label',
+                  thresholds[thresholdType as 'warning' | 'critical']
+                ).map((label) => (
+                  <Typography key={label}>{label}</Typography>
+                ))}
+              </div>
+            ),
             tooltipLeft: event.clientX,
             tooltipTop: event.clientY
           });

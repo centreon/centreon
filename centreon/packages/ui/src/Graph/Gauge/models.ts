@@ -1,15 +1,25 @@
 import { Metric } from '../common/timeSeries/models';
 
+export interface Thresholds {
+  critical: Array<{
+    label: string;
+    value: number;
+  }>;
+  enabled: boolean;
+  warning: Array<{
+    label: string;
+    value: number;
+  }>;
+}
+
 export interface GaugeProps {
   adaptedMaxValue: number;
-  disabledThresholds?: boolean;
   height: number;
   hideTooltip: () => void;
   metric: Metric;
   radius: number;
   showTooltip: (args) => void;
-  thresholdTooltipLabels: Array<string>;
-  thresholds: Array<number>;
+  thresholds: Thresholds;
   width: number;
 }
 
