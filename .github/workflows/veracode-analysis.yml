@@ -135,7 +135,12 @@ jobs:
           echo "[INFO] current location"
           ls -la ${{inputs.module_name}}
           echo "[INFO] find"
-          REPLY=$( find /runner/_work/_actions/veracode/Veracode-pipeline-scan-action -name "results.json" )
+          REPLY=$( find /runner/_work/_actions/veracode/Veracode-pipeline-scan-action  -name "results.json" )
+          for PATH in ${REPLY[@]}; do
+            echo "[DEBUG] - PATH = $PATH"
+            ls -la $PATH
+          done
+          REPLY=$( find /tmp  -name "results.json" )
           for PATH in ${REPLY[@]}; do
             echo "[DEBUG] - PATH = $PATH"
             ls -la $PATH
