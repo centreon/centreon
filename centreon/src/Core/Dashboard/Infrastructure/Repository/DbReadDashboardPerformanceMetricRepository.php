@@ -278,6 +278,16 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         ];
     }
 
+    /**
+     * build the sub request for service filter.
+     *
+     * @param string $metricName
+     *
+     * @return array{
+     *  request: string,
+     *  bindValues: array<mixed>
+     * }
+     */
     private function buildSubRequestForMetricNameFilter(string $metricName): array
     {
         $bindMetricName = [':metric_name' => [$metricName => \PDO::PARAM_STR]];

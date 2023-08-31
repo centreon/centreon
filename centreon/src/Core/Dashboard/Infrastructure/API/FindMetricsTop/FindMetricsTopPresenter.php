@@ -39,6 +39,9 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
         parent::__construct($presenterFormatter);
     }
 
+    /**
+     * @param FindMetricsTopResponse|ResponseStatusInterface $response
+     */
     public function presentResponse(FindMetricsTopResponse|ResponseStatusInterface $response): void
     {
         if ($response instanceof ResponseStatusInterface) {
@@ -55,12 +58,6 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
                 ]
             );
         }
-    }
-
-    private function formatSorting(): string
-    {
-        $sort = $this->requestParameters->getSort();
-        return $sort[0] === 'ASC' ? 'top' : 'bottom';
     }
 
     /**
