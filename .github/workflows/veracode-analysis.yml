@@ -131,7 +131,7 @@ jobs:
           echo "[INFO] current location"
           pwd
           echo "[INFO] current location"
-          ls -la
+          ls -laR /runner/_work/_actions/veracode/Veracode-pipeline-scan-action | grep "results.json"
           echo "[INFO] find"
           sudo find / -name "*results.json"
 
@@ -189,16 +189,11 @@ jobs:
         # only baseline files not generated from a development branch are saved
         if: success() && needs.build.outputs.development_stage != 'Development'
         run: |
-          BRANCHES=(develop master dev-${{ inputs.major_version }}.x ${{ inputs.major_version }}.x)
-          for BRANCH in "${BRANCHES[@]}"; do
-            if [[ "${{ github.ref_name }}" == "$BRANCH" ]]; then
-              mv *results.json /tmp
-              ls -la /tmp
-              BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
-              aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
-              aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
-            fi
-          done
+          mv *results.json /tmp
+          ls -la /tmp
+          BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
+          aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
+          aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
 
       - uses: geekyeggo/delete-artifact@v2
         with:
