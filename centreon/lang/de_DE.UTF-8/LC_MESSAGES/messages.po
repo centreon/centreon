@@ -15921,3 +15921,15 @@ msgstr ""
 
 #  msgid "'%s' service name already exists for host ID %d"
 #  msgstr ""
+
+#  msgid "Display View :"
+#  msgstr ""
+
+#  msgid "View all resources"
+#  msgstr ""
+
+#  msgid "View by Host"
+#  msgstr ""
+
+#  msgid "View by Service"
+#  msgstr ""
