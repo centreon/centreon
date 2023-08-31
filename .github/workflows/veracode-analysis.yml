@@ -105,6 +105,7 @@ jobs:
           java-version: 8
 
       - name: Pipeline scan
+        if: failure()
         uses: veracode/Veracode-pipeline-scan-action@v1.0.8
         continue-on-error: ${{ vars.VERACODE_CONTINUE_ON_ERROR == 'true' }}
         with:
@@ -132,14 +133,19 @@ jobs:
           ls -la /tmp
 
 
+
           function backup_baseline(){
-            if [[ -z $1 || -z $2 ]]; then
+            FOLDER=$1
+            echo "[DEBUG] FOLDER = $FOLDER"
+            CURRENT_NAME=$2
+            echo "[DEBUG] CURRENT_NAME = $CURRENT_NAME"
+
+            if [[ -z $FOLDER || -z $CURRENT_NAME ]]; then
               echo "[ERROR] - Missing mandatory parameters to backup baseline file"
               exit 1
             fi
 
-            FOLDER=$1
-            CURRENT_NAME=$2
+
             [[ -n $3 ]] && NEW_NAME=$3 || NEW_NAME=$CURRENT_NAME
 
             FILENAME="$FOLDER/$CURRENT_NAME"
