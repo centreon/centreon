@@ -247,31 +247,71 @@ class CentreonHostCategory extends CentreonSeverityAbstract
      */
     public function export($filterName = null)
     {
-        if (!parent::export($filterName)) {
-            return false;
+        if (! parent::export($filterName)) {
+            return;
         }
 
-        $relobj = new \Centreon_Object_Relation_Host_Category_Host($this->dependencyInjector);
-        $hcFieldName = $this->object->getUniqueLabelField();
-        $filters = array();
-        if (!is_null($filterName)) {
-            $filters[$hcFieldName] = $filterName;
+        $hostCategories = $this->findHostCategories();
+        foreach ($hostCategories as $category) {
+            if ($category['host_name'] !== null) {
+                printf(
+                    "%s%saddmember%s%s%s%s\n",
+                    $this->action,
+                    $this->delim,
+                    $this->delim,
+                    $category['name'],
+                    $this->delim,
+                    $category['host_name']
+                );
+            }
+
+            if ($category['level'] !== null) {
+                printf(
+                    "%s%ssetseverity%s%s%s%s%s%s\n",
+                    $this->action,
+                    $this->delim,
+                    $this->delim,
+                    $category['name'],
+                    $this->delim,
+                    $category['level'],
+                    $this->delim,
+                    $category['img_path'],
+                );
+            }
         }
-        $elements = $relobj->getMergedParameters(
-            array($hcFieldName),
-            array("host_name"),
-            -1,
-            0,
-            $hcFieldName . ', host_name',
-            'ASC',
-            $filters,
-            'AND'
+    }
+
+    /**
+     * @return array<array{name: string, host_name: string, level: int|null, img_path: string|null}>
+     */
+    private function findHostCategories(): array
+    {
+        $statement = $this->db->query(<<<'SQL'
+            SELECT hc.hc_name, hc.level, host.host_name,
+                   CONCAT(dir.dir_name, '/' ,img.img_path) AS img_path
+            FROM hostcategories hc
+            LEFT JOIN hostcategories_relation rel
+                ON rel.hostcategories_hc_id = hc.hc_id
+            LEFT JOIN host
+                ON host.host_id = rel.host_host_id
+            LEFT JOIN view_img_dir_relation rel2
+                ON rel2.img_img_id = hc.icon_id
+            LEFT JOIN view_img img
+                ON img.img_id = rel2.img_img_id
+            LEFT JOIN view_img_dir dir
+                ON dir.dir_id = rel2.dir_dir_parent_id
+            ORDER BY hc.hc_name
+            SQL
         );
-        foreach ($elements as $element) {
-            echo $this->action . $this->delim
-                . "addmember" . $this->delim
-                . $element[$this->object->getUniqueLabelField()] . $this->delim
-                . $element['host_name'] . "\n";
+        $hostCategories = [];
+        while (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            $hostCategories[] = [
+                'name' => $result['hc_name'],
+                'host_name' => $result['host_name'],
+                'level' => $result['level'],
+                'img_path' => $result['img_path'],
+            ];
         }
+        return $hostCategories;
     }
 }
