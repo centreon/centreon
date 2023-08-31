@@ -177,7 +177,7 @@ jobs:
           echo "[DEBUG] CURRENT_PR = $CURRENT_PR"
           BASE_BRANCH=${{ github.base_ref || github.ref_name }}
           echo "[DEBUG] BASE_BRANCH = $BASE_BRANCH"
-          BACKUP_LOCATION="s3://centreon-veracode-reports/${{ inputs.module_name }}/debug"
+          BACKUP_LOCATION="s3://centreon-veracode-reports/${{ inputs.module_name }}/debug/$CURRENT_DATE-$CURRENT_PR"
           echo "[DEBUG] BACKUP_LOCATION = $BACKUP_LOCATION"
 
           # renaming baseline file if found
