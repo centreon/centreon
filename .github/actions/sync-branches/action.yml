@@ -14,9 +14,5 @@ runs:
     - name: Rebase branches
       id: rebase
       run: |
-        git config --global user.email "release@centreon.com"
-        git config --global user.name "Centreon"
-        git checkout ${{ inputs.dest_branch }}
-        git merge --strategy-option=theirs ${{ inputs.src_branch }}
-        git push origin ${{ inputs.dest_branch }}
+        echo "[DEBUG] - This action is disabled for safety reasons and has to be performed manually."
       shell: bash
