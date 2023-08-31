@@ -53,6 +53,7 @@ interface Props {
   error?: string;
   hasInitialTextContent?: boolean;
   initialEditorState?: string;
+  initialize?: (editor) => void;
   inputClassname?: string;
   minInputHeight: number;
   namespace: string;
@@ -77,7 +78,8 @@ const ContentEditable = ({
   error,
   onBlur,
   className,
-  disabled
+  disabled,
+  initialize
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ editable, error, minInputHeight });
   const { t } = useTranslation();
@@ -146,6 +148,10 @@ const ContentEditable = ({
 
     editor.setEditable(!disabled);
   }, [disabled]);
+
+  useEffect(() => {
+    initialize?.(editor);
+  }, []);
 
   return (
     <div
