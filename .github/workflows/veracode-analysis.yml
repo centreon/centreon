@@ -124,43 +124,16 @@ jobs:
         # debug step used to investigate support case
         if: success() || failure()
         run: |
-
-          echo "[INFO] tmp"
-          ls -la /tmp
-          echo "[INFO] current location"
-          pwd
-          echo "[INFO] current location"
-          ls -la
-          echo "[INFO] current location"
-          ls -la ${{inputs.module_name}}
-          echo "[INFO] find"
-          REPLY=$( find /runner/_work/_actions/veracode/Veracode-pipeline-scan-action  -name "*results.json" )
-          for PATHB in ${REPLY[@]}; do
-            echo "[DEBUG] - PATHB = $PATHB"
-            ls -la "$PATHB"
-          done
-
-          echo "[DEBUG] - PATHC = /tmp"
-          ls -la /tmp
-
-          echo "[DEBUG] - find all"
-          sudo find / -name "*results.json"
-
-          #mkdir /tmp/results
-          #cp *results.json /tmp/results
-
           function backup_baseline(){
-            FOLDER=$1
-            echo "[DEBUG] FOLDER = $FOLDER"
-            CURRENT_NAME=$2
-            echo "[DEBUG] CURRENT_NAME = $CURRENT_NAME"
-
-            if [[ -z $FOLDER || -z $CURRENT_NAME ]]; then
+            if [[ -z $1 || -z $2 ]]; then
               echo "[ERROR] Missing mandatory parameters to backup baseline file"
               break
             fi
 
-
+            FOLDER=$1
+            echo "[DEBUG] FOLDER = $FOLDER"
+            CURRENT_NAME=$2
+            echo "[DEBUG] CURRENT_NAME = $CURRENT_NAME"
             [[ -n $3 ]] && NEW_NAME=$3 || NEW_NAME=$CURRENT_NAME
 
             FILENAME="$FOLDER/$CURRENT_NAME"
@@ -174,7 +147,7 @@ jobs:
               echo "test s3 results = $BACKUP_LOCATION/$CURRENT_BRANCH-$RESULTS_CREATION_DATE-$RESULTS_CREATION_TIME-size$RESULTS_SIZE-$NEW_NAME"
               #aws s3 cp "./results.json" "$BACKUP_LOCATION/$CURRENT_BRANCH-$FRESULTS_CREATION_DATE-$FRESULTS_CREATION_TIME-size$FRESULTS_SIZE-$FILENAME"
             else
-              echo "[WARN] - no $FILENAME found"
+              echo "[WARN] - no $CURRENT_NAME found in $FOLDER"
             fi
           }
 
