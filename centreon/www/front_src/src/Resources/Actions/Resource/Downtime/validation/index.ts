@@ -34,13 +34,10 @@ const getValidationSchema = (t: (string) => string): unknown => {
 
         return dateSchema
           .min(
-            dayjs(startTime).add(dayjs.duration({ minutes: 1 })),
+            dayjs(startTime).add(1, 'minute'),
             t(labelEndDateGreaterThanStartDate)
           )
-          .max(
-            dayjs(startTime).add(dayjs.duration({ years: 1 })),
-            t(labelMaxDuration1Year)
-          );
+          .max(dayjs(startTime).add(1, 'year'), t(labelMaxDuration1Year));
       }
     ),
     fixed: Yup.boolean(),

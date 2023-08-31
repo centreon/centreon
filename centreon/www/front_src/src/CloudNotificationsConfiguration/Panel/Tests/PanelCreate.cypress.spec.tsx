@@ -120,7 +120,7 @@ describe('Create Panel', () => {
 
     cy.get('#panel-content').scrollTo('top');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('confirms that the Save button is correctly activated when all required fields are filled, and the form is error-free, allowing the user to save the form data', () => {
@@ -146,7 +146,7 @@ describe('Create Panel', () => {
 
     cy.findByLabelText(labelSave).should('not.be.disabled');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('confirms that the Save button triggers the display of a confirmation dialog, providing the user with an additional confirmation step before proceeding with the action', () => {
@@ -173,7 +173,7 @@ describe('Create Panel', () => {
     cy.findByText(labelDoYouWantToConfirmAction);
     cy.findByText(labelConfirmAddNotification);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('tests that the form is sent when the confirm button is clicked', () => {
@@ -202,7 +202,7 @@ describe('Create Panel', () => {
     cy.waitForRequest('@addNotificationRequest');
     cy.findByText(labelSuccessfulNotificationAdded).should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('confirms that the Close button triggers the display of a confirmation dialog if the user has made some changes to the form', () => {
@@ -217,7 +217,7 @@ describe('Create Panel', () => {
     cy.findByText(labelYourFormHasUnsavedChanges);
     cy.findByText(labelDoYouWantToQuitWithoutSaving);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the Email Subject field with the default initial value', () => {
@@ -225,7 +225,7 @@ describe('Create Panel', () => {
 
     cy.findByLabelText(labelSubject).should('have.value', defaultEmailSubject);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the Email Body field with the default initial value', () => {
@@ -240,8 +240,6 @@ describe('Create Panel', () => {
     cy.findByTestId('EmailBody').contains('State: {{STATE}}');
     cy.findByTestId('EmailBody').contains('Date/Time: {{SHORTDATETIME}}');
     cy.findByTestId('EmailBody').contains('Additional Info: {{OUTPUT}}');
-
-    cy.matchImageSnapshot();
   });
 });
 
@@ -254,6 +252,6 @@ describe('Create Panel: Business Views', () => {
   it('dispalys the businessViews field when the BAM module is installed', () => {
     cy.findByTestId(labelSearchBusinessViews).should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

@@ -4,9 +4,6 @@ jms_serializer:
             centreon:
                 namespace_prefix: "Centreon\\Domain"
                 path: '%kernel.project_dir%/config/packages/serializer/Centreon'
-            application:
-                namespace_prefix: "Centreon\\Application"
-                path: '%kernel.project_dir%/config/packages/serializer/Application'
             infrastructure:
                 namespace_prefix: "Centreon\\Infrastructure"
                 path: '%kernel.project_dir%/config/packages/serializer/Infrastructure'

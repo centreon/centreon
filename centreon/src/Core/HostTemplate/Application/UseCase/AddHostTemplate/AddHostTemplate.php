@@ -149,8 +149,8 @@ final class AddHostTemplate
         $this->validation->assertIsValidIcon($request->iconId);
 
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
-        $inheritanceMode = isset($inheritanceMode['inheritance_mode'])
-            ? (int) $inheritanceMode['inheritance_mode']->getValue()
+        $inheritanceMode = isset($inheritanceMode[0])
+            ? (int) ($inheritanceMode[0])->getValue()
             : 0;
 
         $newHostTemplate = NewHostTemplateFactory::create($request, $inheritanceMode);
