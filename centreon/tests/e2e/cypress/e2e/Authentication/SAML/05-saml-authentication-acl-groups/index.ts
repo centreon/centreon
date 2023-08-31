@@ -43,7 +43,7 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/configuration/access-groups?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
-  }).as('getListAccesGroup');
+  }).as('getListAccessGroup');
 });
 
 Given('an administrator is logged on the platform', () => {
@@ -86,7 +86,7 @@ When(
       tag: 'input'
     }).click({ force: true });
 
-    cy.wait('@getListAccesGroup');
+    cy.wait('@getListAccessGroup');
 
     cy.get('div[role="presentation"] ul li').click();
 
