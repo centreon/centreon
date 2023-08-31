@@ -144,8 +144,7 @@ jobs:
             ls -la /tmp
             echo "[INFO] current location"
             pwd
-            echo "[INFO] current location"
-            ls -la
+
 
             echo "[DEBUG] inside function"
             CURRENT_NAME=$1
@@ -155,6 +154,10 @@ jobs:
 
             echo "[DEBUG] FILENAME = $FILENAME"
             echo "[DEBUG] NEW_NAME = $NEW_NAME"
+
+
+            echo "[INFO] target location"
+            ls -la "$FILENAME"
 
             if [[ -s "$FILENAME" ]]; then
               echo "-s i sOK"
