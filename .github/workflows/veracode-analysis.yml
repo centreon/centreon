@@ -222,6 +222,7 @@ jobs:
   Clean-artifact:
     needs: [pipeline-scan]
     name: Clean artifact
+    if: success() || failure()
     runs-on: ubuntu-latest
 
     steps:
