@@ -576,7 +576,7 @@ class CentreonService extends CentreonObject
         $exportedFields = [];
         $resultString = "";
         foreach ($listParam as $paramSearch) {
-            if (!$paramString) {
+            if (! isset($paramString)) {
                 $paramString = $paramSearch;
             } else {
                 $paramString = $paramString . $this->delim . $paramSearch;
@@ -644,27 +644,29 @@ class CentreonService extends CentreonObject
                     $ret = $ret[$field];
                 }
 
-                switch ($paramSearch) {
-                    case "check_command":
-                    case "event_handler":
-                        $commandObject = new CentreonCommand($this->dependencyInjector);
-                        $field = $commandObject->object->getUniqueLabelField();
-                        $ret = $commandObject->object->getParameters($ret, $field);
-                        $ret = $ret[$field];
-                        break;
-                    case "check_period":
-                    case "notification_period":
-                        $tpObj = new CentreonTimePeriod($this->dependencyInjector);
-                        $field = $tpObj->object->getUniqueLabelField();
-                        $ret = $tpObj->object->getParameters($ret, $field);
-                        $ret = $ret[$field];
-                        break;
-                    case "template":
-                        $tplObj = new CentreonServiceTemplate($this->dependencyInjector);
-                        $field = $tplObj->object->getUniqueLabelField();
-                        $ret = $tplObj->object->getParameters($ret, $field);
-                        $ret = $ret[$field];
-                        break;
+                if ($ret !== null) {
+                    switch ($paramSearch) {
+                        case "check_command":
+                        case "event_handler":
+                            $commandObject = new CentreonCommand($this->dependencyInjector);
+                            $field = $commandObject->object->getUniqueLabelField();
+                            $ret = $commandObject->object->getParameters($ret, $field);
+                            $ret = $ret[$field];
+                            break;
+                        case "check_period":
+                        case "notification_period":
+                            $tpObj = new CentreonTimePeriod($this->dependencyInjector);
+                            $field = $tpObj->object->getUniqueLabelField();
+                            $ret = $tpObj->object->getParameters($ret, $field);
+                            $ret = $ret[$field];
+                            break;
+                        case "template":
+                            $tplObj = new CentreonServiceTemplate($this->dependencyInjector);
+                            $field = $tplObj->object->getUniqueLabelField();
+                            $ret = $tplObj->object->getParameters($ret, $field);
+                            $ret = $ret[$field];
+                            break;
+                    }
                 }
                 if (!isset($exportedFields[$paramSearch])) {
                     $resultString .= $ret . $this->delim;
