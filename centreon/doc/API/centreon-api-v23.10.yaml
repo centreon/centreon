@@ -1693,6 +1693,124 @@ paths:
                     $ref: '#/components/schemas/Meta'
   /monitoring/dashboard/metrics/performances/data:
     $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsPerformancesData.yaml'
+  /monitoring/dashboard/metrics/top:
+    get:
+      tags:
+      - dashboard
+      summary: "List the Top/Bottom resources for given metric"
+      description: "List the Top/Bottom resources for given metric"
+      parameters:
+        - in: query
+          name: metricName
+          required: true
+          description: "Name of the metric"
+          schema:
+            type: string
+            format: date-time
+            example: "rta"
+        - in: query
+          name: hostGroupIds
+          description: "Ids of host groups"
+          schema:
+            type: string
+            pattern: '^\[\d+(,\d+)*\]$'
+            description: should be in form [<id1>,<id2>,<id3>]
+        - in: query
+          name: hostCategoryIds
+          description: "Ids of host categories"
+          schema:
+            type: string
+            pattern: '^\[\d+(,\d+)*\]$'
+            description: should be in form [<id1>,<id2>,<id3>]
+        - in: query
+          name: serviceName
+          description: "Name of the services"
+          schema:
+            type: string
+            pattern: '^\[\w+(,\w+)*\]$'
+            description: should be in form [<service1>,<service2>,<service3>]
+        - in: query
+          name: limit
+          required: true
+          description: "Name of the metric"
+          schema:
+            type: number
+            example: 10
+        - in: query
+          name: sort
+          required: true
+          description: "Name of the metric"
+          schema:
+            type: string
+            enum: [top,bottom]
+            example: "top"
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: "Metric name"
+                    example: "rta"
+                  unit:
+                    type: string
+                    description: "Metric unit"
+                    example: "%"
+                  sort:
+                    type: string
+                    enum: [top,bottom]
+                    description: "Top or Bottom sorting"
+                    example: "top"
+                  limit:
+                    type: number
+                    description: "Maximum number of resource"
+                  resources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                          description: "ID of the service"
+                          example: 1
+                        name:
+                          type: string
+                          description: concatenation of host name and service name
+                          example: Printers_Ping
+                        current_value:
+                          type: number
+                          description: "Current value of the metrics, use to sort the resources"
+                          example: 1.30
+                        warning_threshold:
+                          type: number
+                          description: configured warning threshold
+                          example: 100
+                          nullable: true
+                        critical_threshold:
+                          type: number
+                          description: configured critical threshold
+                          example: 300
+                          nullable: true
+                        max:
+                          type: number
+                          description: max value of the metric
+                          example: 100,
+                          nullable: true
+                        min:
+                          type: number
+                          description: min value of the metric
+                          example: 0,
+                          nullable: true
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /configuration/access-groups:
     get:
       tags:

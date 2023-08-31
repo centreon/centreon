@@ -26,6 +26,7 @@ namespace Core\Dashboard\Infrastructure\Repository;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface as RepositoryInterface;
 use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
@@ -37,9 +38,12 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     /**
      * @param DatabaseConnection $db
      */
-    public function __construct(DatabaseConnection $db)
-    {
+    public function __construct(
+        DatabaseConnection $db,
+        private readonly SqlRequestParametersTranslator $sqlRequestTranslator
+    ) {
         $this->db = $db;
+        $this->sqlRequestTranslator->setConcordanceArray(['current_value' => 'm.current_value']);
     }
 
     /**
@@ -50,7 +54,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $request
         = <<<'SQL'
                 SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id
+                m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, m.current_value, m.warn_low, m.crit_low, m.min,
+                m.max, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id
                 FROM `:dbstg`.`metrics` AS m
                 INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
                 INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
@@ -73,11 +78,12 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             if (! empty($subRequestsInformation['host'])) {
                 $request .= $subRequestsInformation['host']['request'];
             }
+            if (! empty($subRequestsInformation['metric'])) {
+                $request .= $subRequestsInformation['metric']['request'];
+            }
 
-        $request
-            .= <<<'SQL'
-                    LIMIT 0, 100
-                SQL;
+        $request .= $this->sqlRequestTranslator->translateSortParameterToSql();
+        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
 
         $statement = $this->db->prepare($this->translateDbName($request));
         $boundValues = [];
@@ -119,7 +125,12 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                     $record['metric_name'],
                     $record['unit_name'],
                     $record['warn'],
-                    $record['crit']
+                    $record['crit'],
+                    $record['warn_low'],
+                    $record['crit_low'],
+                    $record['current_value'],
+                    $record['min'],
+                    $record['max']
                 );
             }
             foreach ($metricsInformation as $information) {
@@ -221,7 +232,12 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                     $record['metric_name'],
                     $record['unit_name'],
                     $record['warn'],
-                    $record['crit']
+                    $record['crit'],
+                    $record['warn_low'],
+                    $record['crit_low'],
+                    $record['current_value'],
+                    $record['min'],
+                    $record['max']
                 );
             }
             foreach ($metricsInformation as $information) {
@@ -260,7 +276,19 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 SQL,
             'bindValues' => $bindServiceNames,
         ];
-}
+    }
+
+    private function buildSubRequestForMetricNameFilter(string $metricName): array
+    {
+        $bindMetricName = [':metric_name' => [$metricName => \PDO::PARAM_STR]];
+
+        return [
+            'request' => <<<SQL
+                    AND m.metric_name = :metric_name
+                SQL,
+            'bindValues' => $bindMetricName
+        ];
+    }
 
     /**
      * build the sub request for host filter.
@@ -308,12 +336,12 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         return [
             'request' => <<<SQL
                     SELECT resources.resource_id
-                    FROM `centreon_storage`.`resources` resources
-                    LEFT JOIN `centreon_storage`.`resources` parent_resource
+                    FROM `:dbstg`.`resources` resources
+                    LEFT JOIN `:dbstg`.`resources` parent_resource
                         ON parent_resource.id = resources.parent_id
-                    LEFT JOIN `centreon_storage`.resources_tags AS rtags
+                    LEFT JOIN `:dbstg`.resources_tags AS rtags
                     ON rtags.resource_id = parent_resource.resource_id
-                    INNER JOIN `centreon_storage`.tags
+                    INNER JOIN `:dbstg`.tags
                         ON tags.tag_id = rtags.tag_id
                     WHERE tags.id IN ({$boundTokens})
                     AND tags.type = 1
@@ -343,12 +371,12 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         return [
             'request' => <<<SQL
                     SELECT resources.resource_id
-                    FROM `centreon_storage`.`resources` resources
-                    LEFT JOIN `centreon_storage`.`resources` parent_resource
+                    FROM `:dbstg`.`resources` resources
+                    LEFT JOIN `:dbstg`.`resources` parent_resource
                         ON parent_resource.id = resources.parent_id
-                    LEFT JOIN `centreon_storage`.resources_tags AS rtags
+                    LEFT JOIN `:dbstg`.resources_tags AS rtags
                     ON rtags.resource_id = parent_resource.resource_id
-                    INNER JOIN `centreon_storage`.tags
+                    INNER JOIN `:dbstg`.tags
                         ON tags.tag_id = rtags.tag_id
                     WHERE tags.id IN ({$boundTokens})
                     AND tags.type = 3
@@ -378,8 +406,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         return [
             'request' => <<<SQL
                     SELECT rtags.resource_id
-                    FROM `centreon_storage`.resources_tags AS rtags
-                    INNER JOIN `centreon_storage`.tags
+                    FROM `:dbstg`.resources_tags AS rtags
+                    INNER JOIN `:dbstg`.tags
                         ON tags.tag_id = rtags.tag_id
                     WHERE tags.id IN ({$boundTokens})
                     AND tags.type = 0
@@ -409,8 +437,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         return [
             'request' => <<<SQL
                     SELECT rtags.resource_id
-                    FROM `centreon_storage`.resources_tags AS rtags
-                    INNER JOIN `centreon_storage`.tags
+                    FROM `:dbstg`.resources_tags AS rtags
+                    INNER JOIN `:dbstg`.tags
                         ON tags.tag_id = rtags.tag_id
                     WHERE tags.id IN ({$boundTokens})
                     AND tags.type = 2
@@ -439,6 +467,14 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $searchParameters = $search['$and'];
         $subRequestsInformation = [];
         foreach ($searchParameters as $searchParameter) {
+            if (
+                array_key_exists('metric.name', $searchParameter)
+                && array_key_exists('$in', $searchParameter['metric.name'])
+            ) {
+                $subRequestsInformation['metric'] = $this->buildSubRequestForMetricNameFilter(
+                    $searchParameter['metric.name']['$in']
+                );
+            }
             if (
                 array_key_exists('service.name', $searchParameter)
                 && array_key_exists('$in', $searchParameter['service.name'])
@@ -510,7 +546,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $subRequestForTags = array_reduce(array_keys($subRequestInformation), function ($acc, $item) use (
             $subRequestInformation
         ) {
-            if ($item !== 'host' && $item !== 'service') {
+            if ($item !== 'host' && $item !== 'service' && $item !== 'metric') {
                 $acc[] = $subRequestInformation[$item];
             }
 
