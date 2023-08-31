@@ -112,6 +112,7 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
                     'serviceId' => $resource->serviceId,
                     'hostId' => $resource->hostId,
                     'hasGraphData' => $resource->hasGraphData,
+                    'internalId' => $resource->internalId,
                 ];
 
                 $endpoints = $this->hypermediaCreator->createEndpoints($parameters);
