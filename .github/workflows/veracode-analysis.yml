@@ -165,8 +165,7 @@ jobs:
               echo "[INFO] CREATION_DATE = $CREATION_DATE"
               CREATION_TIME=$( ls -AgG --time-style=long-iso "$FILENAME" | cut -d ' ' -f5 | tr ':' 'h' )
               echo "[INFO] CREATION_TIME = $CREATION_TIME"
-              #echo "test s3 results = $BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
-              aws s3 cp "./results.json" "$BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
+              aws s3 cp "$FILENAME" "$BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
             else
               echo "[WARN] - no $CURRENT_NAME found for FILENAME"
             fi
