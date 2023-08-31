@@ -33,7 +33,6 @@ use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\Response\MetricInformationDto;
 use Core\Dashboard\Domain\Model\DashboardRights;
-use Core\Dashboard\Domain\Model\Metric\PerformanceMetric;
 use Core\Dashboard\Domain\Model\Metric\ResourceMetric;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -101,6 +100,7 @@ final class FindMetricsTop
      * Create FindMetricsTopResponse DTO.
      *
      * @param ResourceMetric[] $resourceMetrics
+     *
      * @return FindMetricsTopResponse
      */
     private function createResponse(array $resourceMetrics): FindMetricsTopResponse

@@ -31,8 +31,6 @@ class FindMetricsTopResponse
 
     public string $metricUnit;
 
-    /**
-     * @var MetricInformationDto[]
-     */
+    /** @var MetricInformationDto[] */
     public array $resourceMetrics;
 }

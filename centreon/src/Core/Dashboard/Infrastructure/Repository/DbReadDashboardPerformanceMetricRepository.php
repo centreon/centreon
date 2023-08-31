@@ -37,6 +37,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
 
     /**
      * @param DatabaseConnection $db
+     * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
     public function __construct(
         DatabaseConnection $db,

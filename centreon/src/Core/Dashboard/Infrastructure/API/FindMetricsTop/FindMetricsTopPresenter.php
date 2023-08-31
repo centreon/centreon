@@ -62,7 +62,8 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
 
     /**
      * @param ResourceMetric[] $resourceMetrics
-     * @return array
+     *
+     * @return array<array<string,int|string|float|null>>
      */
     private static function formatResource(array $resourceMetrics): array {
         return array_map(function (MetricInformationDto $metricInformation) {
