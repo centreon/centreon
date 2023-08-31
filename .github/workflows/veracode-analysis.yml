@@ -131,12 +131,14 @@ jobs:
           echo "[INFO] current location"
           pwd
           echo "[INFO] current location"
-          ls -laR /runner/_work/_actions/veracode/Veracode-pipeline-scan-action | grep "results.json"
+          ls -la
+          echo "[INFO] current location"
+          ls -la centreon
           echo "[INFO] find"
-          sudo find / -name "*results.json"
+          find /runner/_work/_actions/veracode/Veracode-pipeline-scan-action -name "results.json"
 
-          mkdir /tmp/results
-          cp *results.json /tmp/results
+          #mkdir /tmp/results
+          #cp *results.json /tmp/results
 
           function backup_baseline(){
             FOLDER=$1
