@@ -735,7 +735,7 @@ function play_update_api () {
 	rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
 
 	#
-	# Call update API
+	# Call Centreon Web update API
 	#
 	curl "${central_ip}/centreon/api/latest/platform/updates"  \
 	--silent \
@@ -761,12 +761,138 @@ function play_update_api () {
 	if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
 		error_and_exit "Error during update (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
 	else
-		log "INFO" "Update complete"
-		log "DEBUG" "(errorLevel $errorLevel, http response code $httpResponse, message: $message)"
+		log "INFO" "Centreon Web update completed"
 	fi
 
 	# Clean files
 	rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
+
+	#
+	# Log in to Centreon APIv1 to get token
+	#
+    curl "${central_ip}/centreon/api/index.php?action=authenticate"  \
+    --silent \
+    --insecure \
+    --request POST \
+    --data 'username=admin&password=CentreonPendo!2023' \
+    --output ${api_output} \
+    --write-out %{http_code} \
+    > ${api_return_code} 2> ${api_error_message}
+
+
+    # Analyse result
+    errorLevel=$?
+    httpResponse=$(cat ${api_return_code})
+    message=$(cat ${api_output})
+    if [ -f ${api_output} ];then
+        jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
+        hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+    else
+        hasErrors=0
+    fi
+
+    if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+        echo "API connection error (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
+        exit 1
+    else
+        tokenv1=$(echo ${message} | cut -f2 -d":" | sed -e "s/\"//g" -e "s/}//" -e 's|\\||g')
+        if [ -z "${tokenv1}" ]; then
+            echo "Unable to extract token from message: $message"
+            exit 1
+        fi
+    fi
+
+    #
+    # Get list of installed extensions
+    #
+    curl "${central_ip}/centreon/api/index.php?object=centreon_module&action=list"  \
+    --silent \
+    --insecure \
+    --request GET \
+    --header "centreon-auth-token: ${tokenv1}" \
+    --output ${api_output} \
+    --write-out %{http_code} \
+    > ${api_return_code} 2> ${api_error_message}
+
+    # Analyse result
+    errorLevel=$?
+    httpResponse=$(cat ${api_return_code})
+    message=$(cat ${api_output})
+    if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+        echo "Error during update (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
+        exit 1
+    else
+	    #
+        # Get list of modules and update them if needed
+		#
+        modules=$(echo ${message} | jq '.result.module.entities[] | "\(.id)|\(.version.current)|\(.version.available)"')
+        for module in ${modules}
+        do
+            clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< ${module})
+            IFS="|" read -a module_information <<< ${clear_line}
+            if [ "${module_information[1]}" != "${module_information[2]}" ]; then
+                curl "${central_ip}/centreon/api/index.php?object=centreon_module&action=update&id=${module_information[0]}&type=module" \
+                --silent \
+                --insecure \
+                --request POST \
+                --header "centreon-auth-token: ${tokenv1}" \
+                --output ${api_output} \
+                --write-out %{http_code} \
+                > ${api_return_code} 2> ${api_error_message}
+
+                # Analyse result
+                errorLevel=$?
+                httpResponse=$(cat ${api_return_code})
+                sub_message=$(cat ${api_output})
+                if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+                    echo "Error during update of ${module_information[0]} module (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
+                    exit 1
+                else
+                    status=$(echo ${sub_message} | jq '.status')
+                    status_message=$(echo ${sub_message} | jq '.result.message')
+                    if [ "${status}" = "false" ]; then
+                        echo "Error during update of ${module_information[0]} module: ${status_message}"
+                    fi
+                fi
+            fi
+        done
+
+		#
+        # Get list of widgets and update them if needed
+		#
+        widgets=$(echo ${message} | jq '.result.widget.entities[] | "\(.id)|\(.version.current)|\(.version.available)"')
+        for widget in ${widgets}
+        do
+            clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< ${widget})
+            IFS="|" read -a widget_information <<< ${clear_line}
+            if [ "${widget_information[1]}" != "${widget_information[2]}" ]; then
+                curl "${central_ip}/centreon/api/index.php?object=centreon_module&action=update&id=${widget_information[0]}&type=widget" \
+                --silent \
+                --insecure \
+                --request POST \
+                --header "centreon-auth-token: ${tokenv1}" \
+                --output ${api_output} \
+                --write-out %{http_code} \
+                > ${api_return_code} 2> ${api_error_message}
+
+                # Analyse result
+                errorLevel=$?
+                httpResponse=$(cat ${api_return_code})
+                sub_message=$(cat ${api_output})
+                if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+                    echo "Error during update of ${widget_information[0]} widget (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
+                    exit 1
+                else
+                    status=$(echo ${sub_message} | jq '.status')
+                    status_message=$(echo ${sub_message} | jq '.result.message')
+                    if [ "${status}" = "false" ]; then
+                        echo "Error during update of ${widget_information[0]} widget: ${status_message}"
+                    fi
+                fi
+            fi
+        done
+    fi
+
 }
 #========= end of function play_update_api()
 
