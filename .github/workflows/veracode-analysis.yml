@@ -126,12 +126,16 @@ jobs:
         if: success() || failure()
         run: |
 
-          echo "find files"
-          find / -name "results.json" -o -name "filtered-results.json" 2>/dev/null
+          echo "[INFO] find files"
+          find /tmp -name "results.json" 2>/dev/null
+          find ./ -name "results.json" 2>/dev/null
+          find ./ -name "filtered-results.json" 2>/dev/null
 
-          echo "tmp ?"
+          echo "[INFO] tmp"
           ls -la /tmp
 
+          echo "[INFO] location"
+          pwd
 
 
           function backup_baseline(){
@@ -141,7 +145,7 @@ jobs:
             echo "[DEBUG] CURRENT_NAME = $CURRENT_NAME"
 
             if [[ -z $FOLDER || -z $CURRENT_NAME ]]; then
-              echo "[ERROR] - Missing mandatory parameters to backup baseline file"
+              echo "[ERROR] Missing mandatory parameters to backup baseline file"
               exit 1
             fi
 
