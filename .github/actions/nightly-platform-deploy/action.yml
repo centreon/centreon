@@ -47,17 +47,24 @@ runs:
     - name: Destroy a COD platform with nightly build artifacts
       run: |
           set -x
-          echo "[INFO]: Destroying previous nightly COD instance."
-          curl --fail -v -X POST \
+          DESTROY_STATUS=$(echo "[INFO]: Destroying previous nightly COD instance."
+          curl --fail \
+          -s \
+          -o /dev/null \
+          -X POST \
           -H "Authorization: Bearer ${{inputs.cod_service_token}}" \
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/centreon/centreon-on-demand/actions/workflows/destroy.yml/dispatches \
-          -d '{"ref": "main", "inputs":{"confirm":"true"} }'
+          -d '{"ref": "main", "inputs":{"confirm":"true"} }' \
+          -w %http_code)
+
+          echo ::set-output name=DESTROY_STATUS::$DESTROY_STATUS
       shell: bash
 
     - name: Deploy a COD platform with nightly build artifacts
       run: |
-          #set -x
+          set -x
+          echo "[DEBUG]: steps.outputs.DESTROY_STATUS"
           #echo "[INFO]: Deploying nightly COD instance with latest ${{ inputs.centreon_branch }} state."
           #curl --fail -v -X POST \
           #-H "Authorization: Bearer ${{inputs.cod_service_token}}" \
