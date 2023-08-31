@@ -79,19 +79,21 @@ jobs:
           aws s3 ls "$BUCKET/${{ github.base_ref || github.ref_name }}/results.json" || RESULT=$( echo $? )
           if [[ $RESULT -eq 0 ]]; then
             aws s3 cp "$BUCKET/${{ github.base_ref || github.ref_name }}/results.json" "/tmp/results.json"
+            echo "[INFO] - Found ${{ github.base_ref || github.ref_name }} Baseline file"
             echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
             echo "create_baseline_from=standard" >> $GITHUB_ENV
           else
             RESULT=0
-            echo "[DEBUG] - Baseline file not found for branch ${{ github.base_ref || github.ref_name }}"
-            echo "[DEBUG] - Using develop's Baseline file"
+            echo "[WARN] - Baseline file not found for branch ${{ github.base_ref || github.ref_name }}"
+            echo "[INFO] - Trying with default (develop's) Baseline file"
             aws s3 ls "$BUCKET/develop/results.json" || RESULT=$( echo $? )
             if [[ $RESULT -eq 0 ]]; then
+              echo "[INFO] - Found default Baseline file"
               aws s3 cp "$BUCKET/develop/results.json" "/tmp/results.json"
               echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
               echo "create_baseline_from=standard" >> $GITHUB_ENV
             else
-              echo "[DEBUG] - develop's baseline file not found in the bucket"
+              echo "[ERROR] - Default baseline file not found in the bucket"
               echo "baseline_file=" >> $GITHUB_ENV
               echo "create_baseline_from=" >> $GITHUB_ENV
             fi
@@ -117,6 +119,61 @@ jobs:
           development_stage: '${{ needs.build.outputs.development_stage }}'
           summary_display: '${{ needs.build.outputs.display_summary }}'
           issue_details: '${{ needs.build.outputs.display_summary }}'
+
+      - name: Backup analysis reports
+        # debug step used to investigate support case
+        if: success() || failure()
+        run: |
+
+          echo "find files"
+          find / -name "results.json -o -name "filtered-results.json" 2>/dev/null
+
+          echo "tmp ?"
+          ls -la /tmp
+
+
+          function backup_baseline(){
+            if [[ -z $1 || -z $2 ]]; then
+              echo "[ERROR] - Missing mandatory parameters to backup baseline file"
+              exit 1
+            fi
+
+            FOLDER=$1
+            CURRENT_NAME=$2
+            [[ -n $3 ]] && NEW_NAME=$3 || NEW_NAME=$CURRENT_NAME
+
+            FILENAME="$FOLDER/$CURRENT_NAME"
+            if [[ -s "$FILENAME" ]]; then
+              RESULTS_SIZE=$( ls -AgG --time-style=long-iso "$FILENAME" | cut -d ' ' -f3 )
+              echo "[INFO] RESULTS_SIZE = $RESULTS_SIZE"
+              RESULTS_CREATION_DATE=$( ls -AgG --time-style=long-iso "$FILENAME" | cut -d ' ' -f4 )
+              echo "[INFO] RESULTS_CREATION_DATE = $RESULTS_CREATION_DATE"
+              RESULTS_CREATION_TIME=$( ls -AgG --time-style=long-iso "$FILENAME" | cut -d ' ' -f5 | tr ':' 'h' )
+              echo "[INFO] RESULTS_CREATION_TIME = $RESULTS_CREATION_TIME"
+              echo "test s3 results = $BACKUP_LOCATION/$CURRENT_BRANCH-$RESULTS_CREATION_DATE-$RESULTS_CREATION_TIME-size$RESULTS_SIZE-$NEW_NAME"
+              #aws s3 cp "./results.json" "$BACKUP_LOCATION/$CURRENT_BRANCH-$FRESULTS_CREATION_DATE-$FRESULTS_CREATION_TIME-size$FRESULTS_SIZE-$FILENAME"
+            else
+              echo "[WARN] - no $FILENAME found"
+            fi
+          }
+
+          CURRENT_DATE=$( date +"%Y-%m-%d" )
+          echo "[INFO] CURRENT_DATE = $CURRENT_DATE"
+          CURRENT_BRANCH=$( echo "${{ github.ref_name }}" | tr '/' '-' )
+          echo "[INFO] CURRENT_BRANCH = $CURRENT_BRANCH"
+          TARGET_BRANCH=${{ github.base_ref || github.ref_name }}
+          echo "[INFO] TARGET_BRANCH = $TARGET_BRANCH"
+          BACKUP_LOCATION="s3://centreon-veracode-reports/${{ inputs.module_name }}/debug/$TARGET_BRANCH/$CURRENT_BRANCH"
+          echo "[INFO] BACKUP_LOCATION = $BACKUP_LOCATION"
+
+          # renaming baseline file if found
+          backup_baseline "tmp" "results.json" "baseline.json"
+
+          # saving results
+          backup_baseline "." "results.json"
+
+          # saving filtered results
+          backup_baseline "." "filtered-results.json"
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
