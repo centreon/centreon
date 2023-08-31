@@ -128,12 +128,15 @@ jobs:
 
           echo "[INFO] tmp"
           ls -la /tmp
-
           echo "[INFO] current location"
           pwd
-
           echo "[INFO] current location"
           ls -la
+          echo "[INFO] find"
+          sudo find / -name "*results.json"
+
+          mkdir /tmp/results
+          cp *results.json /tmp/results
 
           function backup_baseline(){
             FOLDER=$1
@@ -190,6 +193,7 @@ jobs:
           for BRANCH in "${BRANCHES[@]}"; do
             if [[ "${{ github.ref_name }}" == "$BRANCH" ]]; then
               mv *results.json /tmp
+              ls -la /tmp
               BUCKET="s3://centreon-veracode-reports/${{ inputs.module_name }}/${{ github.base_ref || github.ref_name }}"
               aws s3 cp "/tmp/filtered_results.json" "$BUCKET/filtered_results.json"
               aws s3 cp "/tmp/results.json" "$BUCKET/results.json"
