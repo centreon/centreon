@@ -127,9 +127,9 @@ jobs:
         run: |
 
           echo "[INFO] find files"
-          find /tmp -name "results.json" 2>/dev/null
-          find ./ -name "results.json" 2>/dev/null
-          find ./ -name "filtered-results.json" 2>/dev/null
+          find /tmp -name "results.json"
+          find ./ -name "results.json"
+          find ./ -name "filtered-results.json"
 
           echo "[INFO] tmp"
           ls -la /tmp
