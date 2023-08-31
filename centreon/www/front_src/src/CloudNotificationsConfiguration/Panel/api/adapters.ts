@@ -35,7 +35,7 @@ export const adaptNotification = ({
   messages: [
     {
       channel: messages.channel?.label,
-      formatted_message: '',
+      formatted_message: messages.formattedMessage,
       message: messages.message,
       subject: messages.subject
     }

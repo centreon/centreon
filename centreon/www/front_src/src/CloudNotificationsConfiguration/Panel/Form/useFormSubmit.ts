@@ -21,7 +21,11 @@ import {
 import { isPanelOpenAtom } from '../../atom';
 import { adaptNotification } from '../api';
 import { PanelMode } from '../models';
-import { editedNotificationIdAtom, panelModeAtom } from '../atom';
+import {
+  editedNotificationIdAtom,
+  htmlEmailBodyAtom,
+  panelModeAtom
+} from '../atom';
 import { notificationEndpoint } from '../api/endpoints';
 
 interface UseFormState {
@@ -48,6 +52,7 @@ const useForm = (): UseFormState => {
 
   const panelMode = useAtomValue(panelModeAtom);
   const editedNotificationId = useAtomValue(editedNotificationIdAtom);
+  const htmlEmailBody = useAtomValue(htmlEmailBodyAtom);
   const setPanelOpen = useSetAtom(isPanelOpenAtom);
 
   const labelConfirm = equals(panelMode, PanelMode.Create)
@@ -67,7 +72,12 @@ const useForm = (): UseFormState => {
       ? labelSuccessfulNotificationAdded
       : labelSuccessfulEditNotification;
 
-    return mutateAsync(adaptNotification(values))
+    const payload = adaptNotification({
+      ...values,
+      messages: { ...values.messages, formattedMessage: htmlEmailBody }
+    });
+
+    return mutateAsync(payload)
       .then((response) => {
         const { isError } = response as ResponseError;
         if (isError) {

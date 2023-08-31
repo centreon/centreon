@@ -7,7 +7,7 @@ import { HeadingNode } from '@lexical/rich-text';
 import { ListItemNode, ListNode } from '@lexical/list';
 import anylogger from 'anylogger';
 import { makeStyles } from 'tss-react/mui';
-import { EditorState } from 'lexical';
+import { EditorState, LexicalEditor } from 'lexical';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { equals } from 'ramda';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
@@ -27,8 +27,9 @@ export interface RichTextEditorProps {
   editable: boolean;
   editorState?: string;
   error?: string;
-  getEditorState?: (editorState: EditorState) => void;
+  getEditorState?: (editorState: EditorState, editor: LexicalEditor) => void;
   initialEditorState?: string;
+  initialize?: (editor) => void;
   inputClassname?: string;
   minInputHeight?: number;
   namespace?: string;
@@ -132,7 +133,8 @@ const RichTextEditor = ({
   contentClassName,
   displayMacrosButton = false,
   disabled,
-  openLinkInNewTab = true
+  openLinkInNewTab = true,
+  initialize
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -188,6 +190,7 @@ const RichTextEditor = ({
                 error={error}
                 hasInitialTextContent={hasInitialTextContent}
                 initialEditorState={initialEditorState}
+                initialize={initialize}
                 inputClassname={inputClassname}
                 minInputHeight={minInputHeight}
                 namespace={namespace}
