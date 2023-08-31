@@ -128,6 +128,7 @@ export interface Props<TRow> {
   totalRows?: number;
   viewMode?: ListingVariant;
   viewerModeConfiguration?: ViewerModeConfiguration;
+  visualizationActions?: JSX.Element;
   widthToMoveTablePagination?: number;
 }
 
@@ -139,6 +140,7 @@ export const performanceRowsLimit = 60;
 
 const Listing = <TRow extends { id: RowId }>({
   limit = 10,
+  visualizationActions,
   columns,
   columnConfiguration = defaultColumnConfiguration,
   customPaginationClassName,
@@ -506,6 +508,7 @@ const Listing = <TRow extends { id: RowId }>({
             totalRows={totalRows}
             viewMode={viewMode}
             viewerModeConfiguration={viewerModeConfiguration}
+            visualizationActions={visualizationActions}
             widthToMoveTablePagination={widthToMoveTablePagination}
             onLimitChange={changeLimit}
             onPaginate={onPaginate}

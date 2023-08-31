@@ -15,6 +15,7 @@ import { userAtom } from '@centreon/ui-context';
 
 import { userEndpoint } from '../../App/endpoint';
 import Actions from '../Actions';
+import VisualizationActions from '../Actions/Visualization';
 import {
   resourcesToAcknowledgeAtom,
   resourcesToSetDowntimeAtom,
@@ -261,6 +262,7 @@ const ResourceListing = (): JSX.Element => {
         onClick: changeViewModeTableResources,
         title: user_interface_density
       }}
+      visualizationActions={<VisualizationActions />}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}
       onPaginate={changePage}
