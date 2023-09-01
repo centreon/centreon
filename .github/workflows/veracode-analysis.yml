@@ -153,6 +153,8 @@ jobs:
 
             stat $FILENAME
             stat -c '%s %w' "$FILENAME"
+            echo ""
+            stat -c '%s %y' "$FILENAME"
 
             if [[ -s "$FILENAME" ]]; then
               FILE_SIZE=$( stat -c '%s %w' "$FILENAME" | cut -d ' ' -f1 )
