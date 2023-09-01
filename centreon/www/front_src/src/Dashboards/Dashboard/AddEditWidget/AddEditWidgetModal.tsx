@@ -71,16 +71,20 @@ const AddWidgetModal = (): JSX.Element | null => {
           <>
             <Modal.Body>
               <div className={classes.container}>
-                <Paper className={classes.preview}>
-                  <Preview />
-                </Paper>
                 <div className={classes.widgetProperties}>
                   <WidgetSelection />
                   <div className={classes.widgetPropertiesContent}>
                     <WidgetProperties />
                   </div>
                 </div>
-                <WidgetData />
+                <div>
+                  <div className={classes.previewAndDataset}>
+                    <Paper className={classes.preview}>
+                      <Preview />
+                    </Paper>
+                    <WidgetData />
+                  </div>
+                </div>
               </div>
             </Modal.Body>
             <Actions closeModal={askBeforeCloseModal} />
