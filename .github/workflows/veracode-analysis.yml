@@ -126,20 +126,19 @@ jobs:
         run: |
           echo "[DEBUG] downloaded baseline details in /tmp"
           ls -la /tmp
-
           echo "[DEBUG] current location"
           pwd
-          echo "[DEBUG] current location details on analysis results"
+          echo "[DEBUG] current location details of analysis results"
           ls -la
 
 
           function backup_baseline(){
+            echo ""; echo "[DEBUG] Begin function"
             if [[ -z $1 ]]; then
               echo "[ERROR] Missing mandatory parameters to backup baseline file"
               exit 0
             fi
             CURRENT_NAME=$1
-            echo "[INFO] inside function"
             echo "[INFO] CURRENT_NAME = $CURRENT_NAME"
 
             # specific case for downloaded baseline file
@@ -150,25 +149,21 @@ jobs:
             [[ -n $2 ]] && TARGET=$BASE_BRANCH || TARGET=$CURRENT_PR
             [[ -n $3 ]] && FILENAME="$3/$CURRENT_NAME" || FILENAME="$CURRENT_NAME"
             [[ -n $4 ]] && NEW_NAME=$4 || NEW_NAME=$CURRENT_NAME
-
             echo "[INFO] FILENAME = $FILENAME"
             echo "[INFO] NEW_NAME = $NEW_NAME"
-            echo "[DEBUG] target details"
-            ls -la "$FILENAME"
-            echo "[DEBUG] current location"
-            pwd
 
             if [[ -s "$FILENAME" ]]; then
-              FILE_SIZE=$( ls -AgG --time-style=long-iso "$FILENAME" | cut -d ' ' -f3 )
+              FILE_SIZE=$( stat -c '%s %w' "$FILENAME" | cut -d ' ' -f1 )
               echo "[INFO] FILE_SIZE = $FILE_SIZE"
-              CREATION_DATE=$( ls -AgG --time-style=long-iso "$FILENAME" | cut -d ' ' -f4 )
+              CREATION_DATE=$( stat -c '%s %w' "$FILENAME" | cut -d ' ' -f2 )
               echo "[INFO] CREATION_DATE = $CREATION_DATE"
-              CREATION_TIME=$( ls -AgG --time-style=long-iso "$FILENAME" | cut -d ' ' -f5 | tr ':' 'h' )
+              CREATION_TIME=$( stat -c '%s %w' "$FILENAME" | cut -d ' ' -f3 | cut -d ':' -f1-2 | tr ':' 'h' )
               echo "[INFO] CREATION_TIME = $CREATION_TIME"
               aws s3 cp "$FILENAME" "$BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
             else
               echo "[WARN] - no $CURRENT_NAME found for FILENAME"
             fi
+          echo "[DEBUG] End function"; echo ""
           }
 
           CURRENT_DATE=$( date +"%Y-%m-%d" )
