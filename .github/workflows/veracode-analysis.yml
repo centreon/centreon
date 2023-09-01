@@ -157,7 +157,7 @@ jobs:
               echo "[INFO] CREATION_DATE = $CREATION_DATE"
               CREATION_TIME=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f3 | cut -d ':' -f1-2 | tr ':' 'h' )
               echo "[INFO] CREATION_TIME = $CREATION_TIME"
-              cp "$FILENAME" "/tmp/backup/$NEW_NAME.$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE"
+              cp "$FILENAME" "/tmp/backup/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
             else
               echo "[WARN] - no $CURRENT_NAME found for FILENAME. Skipping it"
             fi
@@ -178,10 +178,10 @@ jobs:
           echo "[DEBUG] ZIPNAME = $ZIPNAME"
           ls -la /tmp/backup
 
-          zip "$ZIPNAME" /tmp/backup/*
+          cd /tmp/backup && zip "$ZIPNAME" *
           ls -la /tmp/backup
           echo "test s3 = $BACKUP_LOCATION/$ZIPNAME"
-          aws s3 cp "$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
+          aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
