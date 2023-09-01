@@ -173,10 +173,12 @@ jobs:
           backup_baseline "results.json" "downloaded"
           backup_baseline "results.json"
           backup_baseline "filtered_results.json"
-          ZIPNAME="$CURRENT_PR-$CURRENT_DATE-${{github.run_id}}.zip"
+          ZIPNAME="$CURRENT_PR.$CURRENT_DATE.${{github.run_id}}.zip"
 
           echo "[DEBUG] ZIPNAME = $ZIPNAME"
-          zip $ZIPNAME /tmp/backup/*.json
+          ls -la /tmp/backup
+
+          zip "$ZIPNAME" /tmp/backup/*
           ls -la /tmp/backup
           echo "test s3 = $BACKUP_LOCATION/$ZIPNAME"
           aws s3 cp "$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
