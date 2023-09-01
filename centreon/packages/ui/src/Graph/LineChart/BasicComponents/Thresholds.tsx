@@ -1,9 +1,10 @@
-import { always, cond, equals, isNil } from 'ramda';
-
-import { Theme, useTheme } from '@mui/material';
+import { equals, isNil } from 'ramda';
 
 import { getUnits, getYScale } from '../../common/timeSeries';
 import { Line } from '../../common/timeSeries/models';
+import { Thresholds } from '../../common/models';
+
+import { ThresholdLine } from './ThresholdLine';
 
 interface Props {
   displayedLines: Array<Line>;
@@ -11,23 +12,10 @@ interface Props {
   leftScale: (value: number) => number;
   rightScale: (value: number) => number;
   showTooltip: (props) => void;
-  thresholdLabels?: Array<string>;
   thresholdUnit?: string;
-  thresholds?: Array<number>;
+  thresholds: Thresholds;
   width: number;
 }
-
-interface GetColorProps {
-  index: number;
-  theme: Theme;
-}
-
-const getColor = ({ index, theme }: GetColorProps): string => {
-  return cond([
-    [equals(0), always(theme.palette.warning.main)],
-    [equals(1), always(theme.palette.error.main)]
-  ])(index);
-};
 
 const Thresholds = ({
   thresholds,
@@ -37,15 +25,8 @@ const Thresholds = ({
   displayedLines,
   thresholdUnit,
   showTooltip,
-  hideTooltip,
-  thresholdLabels
-}: Props): JSX.Element | null => {
-  const theme = useTheme();
-
-  if (!thresholds) {
-    return null;
-  }
-
+  hideTooltip
+}: Props): JSX.Element => {
   const [firstUnit, secondUnit, thirdUnit] = getUnits(
     displayedLines as Array<Line>
   );
@@ -63,55 +44,32 @@ const Thresholds = ({
         unit: firstUnit
       });
 
-  const thresholdScaledValues = thresholds
-    .sort()
-    .map((threshold) => yScale(threshold));
-
   return (
     <>
-      {thresholdScaledValues.map((threshold, index) => {
-        return (
-          <line
-            data-testid={`threshold-${threshold}`}
-            key={`threshold-${thresholdLabels?.[index]}-${threshold}`}
-            stroke={getColor({
-              index,
-              theme
-            })}
-            strokeDasharray="5,5"
-            strokeWidth={2}
-            x1={0}
-            x2={width}
-            y1={threshold}
-            y2={threshold}
-          />
-        );
-      })}
-      {thresholdScaledValues.map((threshold, index) => {
-        return (
-          <line
-            data-testid={`threshold-${threshold}-tooltip`}
-            key={`threshold-${thresholdLabels?.[index]}-${threshold}-tooltip`}
-            stroke="transparent"
-            strokeWidth={4}
-            x1={0}
-            x2={width}
-            y1={threshold}
-            y2={threshold}
-            onMouseEnter={(): void => {
-              if (!thresholdLabels?.[index]) {
-                return;
-              }
-              showTooltip({
-                tooltipData: thresholdLabels?.[index],
-                tooltipLeft: 0,
-                tooltipTop: threshold
-              });
-            }}
-            onMouseLeave={hideTooltip}
-          />
-        );
-      })}
+      {thresholds.warning.map(({ value, label }) => (
+        <ThresholdLine
+          hideTooltip={hideTooltip}
+          key={`warning-${value}`}
+          label={label}
+          showTooltip={showTooltip}
+          thresholdType="warning"
+          value={value}
+          width={width}
+          yScale={yScale}
+        />
+      ))}
+      {thresholds.critical.map(({ value, label }) => (
+        <ThresholdLine
+          hideTooltip={hideTooltip}
+          key={`critical-${value}`}
+          label={label}
+          showTooltip={showTooltip}
+          thresholdType="critical"
+          value={value}
+          width={width}
+          yScale={yScale}
+        />
+      ))}
     </>
   );
 };
