@@ -131,15 +131,13 @@ jobs:
           echo "[DEBUG] current location details of analysis results"
           ls -la
 
-
           function backup_baseline(){
-            echo ""; echo "[DEBUG] Begin function"
+            echo ""
             if [[ -z $1 ]]; then
               echo "[ERROR] Missing mandatory parameters to backup baseline file"
               exit 0
             fi
             CURRENT_NAME=$1
-            echo "[INFO] CURRENT_NAME = $CURRENT_NAME"
 
             # specific case for downloaded baseline file
             if [[ -n $2 && "$2" == "downloaded" && ( -z $3 || -z $4 ) ]]; then
@@ -149,9 +147,9 @@ jobs:
             [[ -n $2 ]] && TARGET=$BASE_BRANCH || TARGET=$CURRENT_PR
             [[ -n $3 ]] && FILENAME="$3/$CURRENT_NAME" || FILENAME="$CURRENT_NAME"
             [[ -n $4 ]] && NEW_NAME=$4 || NEW_NAME=$CURRENT_NAME
-            echo "[INFO] FILENAME = $FILENAME"
-            echo "[INFO] NEW_NAME = $NEW_NAME"
 
+            echo "[DEBUG] FILENAME = $FILENAME"
+            echo "[INFO] NEW_NAME = $NEW_NAME"
             if [[ -s "$FILENAME" ]]; then
               FILE_SIZE=$( stat -c '%s %w' "$FILENAME" | cut -d ' ' -f1 )
               echo "[INFO] FILE_SIZE = $FILE_SIZE"
@@ -163,7 +161,6 @@ jobs:
             else
               echo "[WARN] - no $CURRENT_NAME found for FILENAME"
             fi
-          echo "[DEBUG] End function"; echo ""
           }
 
           CURRENT_DATE=$( date +"%Y-%m-%d" )
