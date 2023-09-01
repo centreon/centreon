@@ -122,7 +122,7 @@ jobs:
 
       - name: Backup analysis reports
         # debug step used to investigate support case
-        if: success() || failure()
+        if: ${{ vars.VERACODE_BACKUP_DEBUG == 'true' }} && ( success() || failure() )
         run: |
           echo "[DEBUG] downloaded baseline details in /tmp"
           ls -la /tmp
@@ -148,15 +148,10 @@ jobs:
             [[ -n $2 ]] && NEW_NAME="baseline.json" || NEW_NAME=$CURRENT_NAME
 
             echo "[DEBUG] FILENAME = $FILENAME"
-            echo "[INFO] NEW_NAME = $NEW_NAME"
-
             if [[ -s "$FILENAME" ]]; then
               FILE_SIZE=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f1 )
-              echo "[INFO] FILE_SIZE = $FILE_SIZE"
               CREATION_DATE=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f2 )
-              echo "[INFO] CREATION_DATE = $CREATION_DATE"
               CREATION_TIME=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f3 | cut -d ':' -f1-2 | tr ':' 'h' )
-              echo "[INFO] CREATION_TIME = $CREATION_TIME"
               cp "$FILENAME" "/tmp/backup/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
             else
               echo "[WARN] - no $CURRENT_NAME found for FILENAME. Skipping it"
@@ -173,14 +168,9 @@ jobs:
           backup_baseline "results.json" "downloaded"
           backup_baseline "results.json"
           backup_baseline "filtered_results.json"
+
           ZIPNAME="$CURRENT_PR.$CURRENT_DATE.${{github.run_id}}.zip"
-
-          echo "[DEBUG] ZIPNAME = $ZIPNAME"
-          ls -la /tmp/backup
-
           cd /tmp/backup && zip "$ZIPNAME" *
-          ls -la /tmp/backup
-          echo "test s3 = $BACKUP_LOCATION/$ZIPNAME"
           aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
 
       - name: Save baseline files
