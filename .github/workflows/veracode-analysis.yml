@@ -79,19 +79,21 @@ jobs:
           aws s3 ls "$BUCKET/${{ github.base_ref || github.ref_name }}/results.json" || RESULT=$( echo $? )
           if [[ $RESULT -eq 0 ]]; then
             aws s3 cp "$BUCKET/${{ github.base_ref || github.ref_name }}/results.json" "/tmp/results.json"
+            echo "[INFO] - Found ${{ github.base_ref || github.ref_name }} Baseline file"
             echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
             echo "create_baseline_from=standard" >> $GITHUB_ENV
           else
             RESULT=0
-            echo "[DEBUG] - Baseline file not found for branch ${{ github.base_ref || github.ref_name }}"
-            echo "[DEBUG] - Using develop's Baseline file"
+            echo "[WARN] - Baseline file not found for branch ${{ github.base_ref || github.ref_name }}"
+            echo "[INFO] - Trying with default (develop's) Baseline file"
             aws s3 ls "$BUCKET/develop/results.json" || RESULT=$( echo $? )
             if [[ $RESULT -eq 0 ]]; then
+              echo "[INFO] - Found default Baseline file"
               aws s3 cp "$BUCKET/develop/results.json" "/tmp/results.json"
               echo "baseline_file=/tmp/results.json" >> $GITHUB_ENV
               echo "create_baseline_from=standard" >> $GITHUB_ENV
             else
-              echo "[DEBUG] - develop's baseline file not found in the bucket"
+              echo "[ERROR] - Default baseline file not found in the bucket"
               echo "baseline_file=" >> $GITHUB_ENV
               echo "create_baseline_from=" >> $GITHUB_ENV
             fi
@@ -118,6 +120,59 @@ jobs:
           summary_display: '${{ needs.build.outputs.display_summary }}'
           issue_details: '${{ needs.build.outputs.display_summary }}'
 
+      - name: Backup analysis reports
+        # debug step used to investigate support case
+        if: ${{ vars.VERACODE_BACKUP_DEBUG == 'true' }} && ( success() || failure() )
+        run: |
+          echo "[DEBUG] downloaded baseline details in /tmp"
+          ls -la /tmp
+          echo "[DEBUG] current location details of analysis results"
+          pwd
+          ls -la
+
+          function backup_baseline(){
+            echo "" # adding a blank line
+            if [[ -z $1 ]]; then
+              echo "[ERROR] Missing mandatory parameters to backup baseline file"
+              exit 0
+            fi
+            CURRENT_NAME=$1
+
+            # specific case for downloaded baseline file
+            if [[ -n $2 && "$2" != "downloaded" ]]; then
+              echo "[ERROR] Missing downloaded baseline mandatory parameter to continue"
+              exit 0
+            fi
+            [[ -n $2 ]] && TARGET=$BASE_BRANCH || TARGET=$CURRENT_PR
+            [[ -n $2 ]] && FILENAME="/tmp/$CURRENT_NAME" || FILENAME="$CURRENT_NAME"
+            [[ -n $2 ]] && NEW_NAME="baseline.json" || NEW_NAME=$CURRENT_NAME
+
+            echo "[DEBUG] FILENAME = $FILENAME"
+            if [[ -s "$FILENAME" ]]; then
+              FILE_SIZE=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f1 )
+              CREATION_DATE=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f2 )
+              CREATION_TIME=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f3 | cut -d ':' -f1-2 | tr ':' 'h' )
+              cp "$FILENAME" "/tmp/backup/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
+            else
+              echo "[WARN] - no $CURRENT_NAME found for FILENAME. Skipping it"
+            fi
+          }
+
+          CURRENT_DATE=$( date +"%Y-%m-%d" )
+          CURRENT_PR="PR-"$( echo "${{ github.ref_name }}" | cut -d '/' -f1 )
+          BASE_BRANCH=${{ github.base_ref || github.ref_name }}
+          BACKUP_LOCATION="s3://centreon-veracode-reports/${{ inputs.module_name }}/debug/$CURRENT_PR"
+
+          # saving all reports
+          mkdir /tmp/backup
+          backup_baseline "results.json" "downloaded"
+          backup_baseline "results.json"
+          backup_baseline "filtered_results.json"
+
+          ZIPNAME="$CURRENT_PR.$CURRENT_DATE.${{github.run_id}}.zip"
+          cd /tmp/backup && zip "$ZIPNAME" *
+          aws s3 cp "/tmp/backup/$ZIPNAME" "$BACKUP_LOCATION/$ZIPNAME"
+
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
         if: success() && needs.build.outputs.development_stage != 'Development'
@@ -132,6 +187,13 @@ jobs:
             fi
           done
 
+  clean-artifact:
+    needs: [pipeline-scan]
+    name: Clean artifact
+    if: success() || failure()
+    runs-on: ubuntu-latest
+
+    steps:
       - uses: geekyeggo/delete-artifact@v2
         with:
           name: "Veracode Pipeline-Scan Results"
