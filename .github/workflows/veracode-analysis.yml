@@ -157,7 +157,8 @@ jobs:
               echo "[INFO] CREATION_DATE = $CREATION_DATE"
               CREATION_TIME=$( stat -c '%s %w' "$FILENAME" | cut -d ' ' -f3 | cut -d ':' -f1-2 | tr ':' 'h' )
               echo "[INFO] CREATION_TIME = $CREATION_TIME"
-              aws s3 cp "$FILENAME" "$BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
+              #aws s3 cp "$FILENAME" "$BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
+              echo "[DEBUG] - $BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
             else
               echo "[WARN] - no $CURRENT_NAME found for FILENAME"
             fi
