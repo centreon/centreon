@@ -1,8 +1,9 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
-  configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage
+  configureSAML,
+  initializeSAMLUser,
+  navigateToSAMLConfigPage
 } from '../common';
 import { getUserContactId } from '../../../../commons';
 
@@ -10,7 +11,7 @@ before(() => {
   cy.startWebContainer()
     .startOpenIdProviderContainer()
     .then(() => {
-      initializeOIDCUserAndGetLoginPage();
+      initializeSAMLUser();
     });
 });
 
@@ -21,111 +22,95 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
-  }).as('getTimeZone');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/administration/authentication/providers/openid'
-  }).as('getOIDCProvider');
+    url: '/centreon/api/latest/administration/authentication/providers/saml'
+  }).as('getSAMLProvider');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/administration/authentication/providers/openid'
-  }).as('updateOIDCProvider');
+    url: '/centreon/api/latest/administration/authentication/providers/saml'
+  }).as('updateSAMLProvider');
   cy.intercept({
     method: 'POST',
     url: '/centreon/api/latest/authentication/providers/configurations/local'
   }).as('postLocalAuthentification');
   cy.intercept({
     method: 'GET',
+    url: '/centreon/include/common/userTimezone.php'
+  }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
     url: '/centreon/api/latest/configuration/contacts/groups?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
-  }).as('getListContactsGroups');
+  }).as('getListContactGroups');
 });
 
-Given('an administrator is logged in the platform', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin' })
-    .wait('@postLocalAuthentification')
-    .its('response.statusCode')
-    .should('eq', 200)
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
-    .get('div[role="tablist"] button:nth-child(2)')
-    .click();
-
-  cy.wait('@getOIDCProvider');
+Given('an administrator is logged on the platform', () => {
+  cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
 When(
   'the administrator sets valid settings in the Groups mapping and saves',
   () => {
+    navigateToSAMLConfigPage();
+
     cy.getByLabel({
-      label: 'Enable OpenID Connect authentication',
+      label: 'Enable SAMLv2 authentication',
       tag: 'input'
-    }).check({ force: true });
-    cy.getByLabel({ label: 'Identity provider' })
-      .eq(0)
-      .contains('Identity provider')
-      .click({ force: true });
-    configureOpenIDConnect();
-    cy.getByLabel({ label: 'Groups mapping' })
-      .eq(0)
-      .contains('Groups mapping')
-      .click({ force: true });
+    }).check();
+
+    configureSAML();
+
+    cy.getByLabel({ label: 'Groups mapping' }).click();
+
     cy.getByLabel({
       label: 'Enable automatic management',
       tag: 'input'
     })
       .eq(1)
       .check();
+
     cy.getByLabel({
       label: 'Groups attribute path',
       tag: 'input'
-    }).type('{selectall}{backspace}groups');
-    cy.getByLabel({
-      label: 'Introspection endpoint',
-      tag: 'input'
-    })
-      .eq(2)
-      .should('be.checked')
-      .and('have.value', 'introspection_endpoint');
+    }).type('{selectAll}{backspace}groups');
+
     cy.getByLabel({
       label: 'Group value',
       tag: 'input'
-    }).type('{selectall}{backspace}/Supervisors');
+    }).type('{selectAll}{backspace}/Supervisors');
+
     cy.getByLabel({
       label: 'Contact group',
       tag: 'input'
     }).click({ force: true });
 
-    cy.wait('@getListContactsGroups')
-      .get('div[role="presentation"] ul li')
-      .eq(1)
-      .click();
+    cy.wait('@getListContactGroups');
+
+    cy.get('div[role="presentation"] ul li').eq(1).click();
 
     cy.getByLabel({
       label: 'Contact group',
       tag: 'input'
     }).should('have.value', 'Supervisors');
+
     cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
-    cy.wait('@updateOIDCProvider').its('response.statusCode').should('eq', 204);
+    cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
 
     cy.logout();
   }
 );
 
 Then(
-  'the users from the 3rd party authentication service are affected to contact groups',
+  'the users from the 3rd party authentication service are attached to contact groups for each condition validated',
   () => {
-    cy.session('AUTH_SESSION_ID_LEGACY', () => {
-      cy.visit('/');
-      cy.contains('Login with openid').should('be.visible').click();
+    const username = 'user-non-admin-for-SAML-authentication';
 
-      cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
-      cy.url().should('include', '/monitoring/resources');
+    cy.session(username, () => {
+      cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
+      cy.loginKeycloak(username)
+        .url()
+        .should('include', '/monitoring/resources')
+        .logout();
 
-      cy.logout();
       cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
     });
 
@@ -133,7 +118,7 @@ Then(
       .wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
-    getUserContactId('oidc').then((contactId) => {
+    getUserContactId('saml').then((contactId) => {
       cy.visit(`/centreon/main.php?p=60301&o=c&contact_id=${contactId}`)
         .wait('@getTimeZone')
         .getIframeBody()

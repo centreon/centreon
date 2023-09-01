@@ -90,13 +90,13 @@ Then(
     cy.session(`wrong_${username}`, () => {
       cy.visit('/');
 
-      cy.loginKeycloack('admin');
+      cy.loginKeycloak('admin');
 
       cy.get('#input-error')
         .should('be.visible')
         .and('include.text', 'Invalid username or password.');
 
-      cy.loginKeycloack(username);
+      cy.loginKeycloak(username);
       cy.url().should('include', '/monitoring/resources');
     });
   }
