@@ -151,17 +151,12 @@ jobs:
             echo "[DEBUG] FILENAME = $FILENAME"
             echo "[INFO] NEW_NAME = $NEW_NAME"
 
-            stat $FILENAME
-            stat -c '%s %w' "$FILENAME"
-            echo ""
-            stat -c '%s %y' "$FILENAME"
-
             if [[ -s "$FILENAME" ]]; then
-              FILE_SIZE=$( stat -c '%s %w' "$FILENAME" | cut -d ' ' -f1 )
+              FILE_SIZE=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f1 )
               echo "[INFO] FILE_SIZE = $FILE_SIZE"
-              CREATION_DATE=$( stat -c '%s %w' "$FILENAME" | cut -d ' ' -f2 )
+              CREATION_DATE=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f2 )
               echo "[INFO] CREATION_DATE = $CREATION_DATE"
-              CREATION_TIME=$( stat -c '%s %w' "$FILENAME" | cut -d ' ' -f3 | cut -d ':' -f1-2 | tr ':' 'h' )
+              CREATION_TIME=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f3 | cut -d ':' -f1-2 | tr ':' 'h' )
               echo "[INFO] CREATION_TIME = $CREATION_TIME"
               #aws s3 cp "$FILENAME" "$BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
               echo "[DEBUG] - $BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
