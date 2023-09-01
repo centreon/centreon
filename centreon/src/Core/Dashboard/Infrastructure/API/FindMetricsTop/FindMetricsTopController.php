@@ -25,16 +25,31 @@ namespace Core\Dashboard\Infrastructure\API\FindMetricsTop;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTop;
+use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTopRequest;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 final class FindMetricsTopController extends AbstractController
 {
-    public function __invoke(FindMetricsTop $useCase, FindMetricsTopPresenter $presenter): Response
+    private const METRIC_NAME_PARAMETER = 'metric_name';
+
+    public function __invoke(FindMetricsTop $useCase, FindMetricsTopPresenter $presenter, Request $request): Response
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
-        $useCase($presenter);
+        $useCase($presenter, $this->createRequest($request));
 
         return $presenter->show();
+    }
+
+    private function createRequest(Request $request): FindMetricsTopRequest
+    {
+        $metricName = $request->query->get(self::METRIC_NAME_PARAMETER)
+            ?? throw new \InvalidArgumentException("missing mandatory parameter 'metric_name'");
+        $findMetricsTopRequest = new FindMetricsTopRequest();
+
+        $findMetricsTopRequest->metricName = $metricName;
+
+        return $findMetricsTopRequest;
     }
 }

@@ -59,7 +59,7 @@ final class FindMetricsTop
     /**
      * @param FindMetricsTopPresenterInterface $presenter
      */
-    public function __invoke(FindMetricsTopPresenterInterface $presenter): void
+    public function __invoke(FindMetricsTopPresenterInterface $presenter, FindMetricsTopRequest $request): void
     {
         try {
             if (! $this->rights->canAccess()) {
@@ -70,21 +70,28 @@ final class FindMetricsTop
                 return;
             }
             if ($this->user->isAdmin()) {
-                $this->info('find metrics for admin user');
+                $this->info('find top/bottom metrics for admin user');
 
-                $resourceMetrics = $this->dashboardMetricRepository->findByRequestParameters($this->requestParameters);
+                $resourceMetrics = $this->dashboardMetricRepository->findByRequestParametersAndMetricName(
+                    $this->requestParameters,
+                    $request->metricName
+                );
             } else {
-                $this->info('find metrics for non-admin user');
+                $this->info('find top/bottom metrics for non-admin user');
 
                 $accessGroups = $this->accessGroupRepository->findByContact($this->user);
-                $resourceMetrics = $this->dashboardMetricRepository->FindByRequestParametersAndAccessGroups(
-                    $this->requestParameters,
-                    $accessGroups
-                );
+                $resourceMetrics = $this->dashboardMetricRepository
+                    ->findByRequestParametersAndAccessGroupsAndMetricName(
+                        $this->requestParameters,
+                        $accessGroups,
+                        $request->metricName
+                    );
             }
 
             if ([] === $resourceMetrics) {
                 $presenter->presentResponse(new NotFoundResponse('metrics'));
+
+                return;
             }
 
             $presenter->presentResponse($this->createResponse($resourceMetrics));
@@ -123,7 +130,6 @@ final class FindMetricsTop
 
             return $metricInformation;
         }, $resourceMetrics);
-
 
         return $response;
     }

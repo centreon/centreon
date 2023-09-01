@@ -38,10 +38,17 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     /**
      * @param DatabaseConnection $db
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
+     * @param array<
+     *  string, array{
+     *    request: string,
+     *    bindValues: array<mixed>
+     *  }
+     * > $subRequestsInformation
      */
     public function __construct(
         DatabaseConnection $db,
-        private readonly SqlRequestParametersTranslator $sqlRequestTranslator
+        private readonly SqlRequestParametersTranslator $sqlRequestTranslator,
+        private array $subRequestsInformation = []
     ) {
         $this->db = $db;
         $this->sqlRequestTranslator->setConcordanceArray(['current_value' => 'm.current_value']);
@@ -52,98 +59,11 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): array
     {
-        $request
-        = <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, m.current_value, m.warn_low, m.crit_low, m.min,
-                m.max, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id
-                FROM `:dbstg`.`metrics` AS m
-                INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
-                INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
-            SQL;
-
-        $search = $requestParameters->getSearch();
-        $subRequestsInformation = [];
-        if (! empty($search) && array_key_exists('$and', $search)) {
-            $subRequestsInformation = $this->getSubRequestsInformation($search);
-            $request .= $this->buildSubRequestForTags($subRequestsInformation);
-        }
-
-        $request .= <<<'SQL'
-                WHERE r.enabled = 1
-            SQL;
-
-            if (! empty($subRequestsInformation['service'])) {
-                $request .= $subRequestsInformation['service']['request'];
-            }
-            if (! empty($subRequestsInformation['host'])) {
-                $request .= $subRequestsInformation['host']['request'];
-            }
-            if (! empty($subRequestsInformation['metric'])) {
-                $request .= $subRequestsInformation['metric']['request'];
-            }
-
-        $request .= $this->sqlRequestTranslator->translateSortParameterToSql();
-        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
-
+        $request = $this->buildQuery($requestParameters);
         $statement = $this->db->prepare($this->translateDbName($request));
-        $boundValues = [];
-        if (! empty($subRequestsInformation)) {
-            foreach ($subRequestsInformation as $subRequestInformation) {
-                $boundValues[] = $subRequestInformation['bindValues'];
-            }
-            $boundValues = array_merge(...$boundValues);
-        }
-        foreach ($boundValues as $bindToken => $bindValueInformation){
-            foreach ($bindValueInformation as $bindValue => $paramType) {
-                $statement->bindValue($bindToken, $bindValue, $paramType);
-            }
-        }
-        $statement->execute();
+        $statement = $this->executeQuery($statement);
 
-        $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
-
-        $resourceMetrics = [];
-        if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
-            $requestParameters->setTotal((int) $total);
-            if ($total > self::MAXIMUM_METRICS_COUNT) {
-                return $resourceMetrics;
-            }
-        }
-
-        if (($records = $statement->fetchAll(\PDO::FETCH_ASSOC)) !== false) {
-            $metricsInformation = [];
-            foreach ($records as $record) {
-                if (! array_key_exists($record['service_id'], $metricsInformation)) {
-                    $metricsInformation[$record['service_id']] = [
-                        'service_id' => $record['service_id'],
-                        'resource_name' => $record['resource_name'],
-                        'metrics' => [],
-                    ];
-                }
-                $metricsInformation[$record['service_id']]['metrics'][] = new PerformanceMetric(
-                    $record['metric_id'],
-                    $record['metric_name'],
-                    $record['unit_name'],
-                    $record['warn'],
-                    $record['crit'],
-                    $record['warn_low'],
-                    $record['crit_low'],
-                    $record['current_value'],
-                    $record['min'],
-                    $record['max']
-                );
-            }
-            foreach ($metricsInformation as $information) {
-                $resourceMetrics[] = new ResourceMetric(
-                    $information['service_id'],
-                    $information['resource_name'],
-                    $information['metrics']
-                );
-            }
-        }
-
-        return $resourceMetrics;
+        return $this->buildResourceMetrics($requestParameters, $statement);
     }
 
     /**
@@ -153,104 +73,38 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         RequestParametersInterface $requestParameters,
         array $accessGroups
     ): array {
-        $request
-        = <<<'SQL'
-                SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id
-                FROM `:dbstg`.`metrics` AS m
-                INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
-                INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
-            SQL;
-
-        $accessGroupIds = array_map(
-            fn ($accessGroup) => $accessGroup->getId(),
-            $accessGroups
-        );
-
-        $request .= ' INNER JOIN `:dbstg`.`centreon_acl` acl
-            ON acl.service_id = r.id
-            AND r.type = 0
-            AND acl.group_id IN (' . implode(',', $accessGroupIds) . ') ';
-
-        $search = $requestParameters->getSearch();
-        $subRequestsInformation = [];
-        if (! empty($search) && array_key_exists('$and', $search)) {
-            $subRequestsInformation = $this->getSubRequestsInformation($search);
-            $request .= $this->buildSubRequestForTags($subRequestsInformation);
-        }
-
-        $request .= <<<'SQL'
-                WHERE r.enabled = 1
-            SQL;
-
-        if (! empty($subRequestsInformation)) {
-            $request .= $subRequestsInformation['service']['request'] ?? '';
-            $request .= $subRequestsInformation['host']['request'] ?? '';
-        }
-
-        $request
-            .= <<<'SQL'
-                    LIMIT 0, 100
-                SQL;
-
+        $request = $this->buildQuery($requestParameters, $accessGroups);
         $statement = $this->db->prepare($this->translateDbName($request));
-        $boundValues = [];
-        if (! empty($subRequestsInformation)) {
-            foreach ($subRequestsInformation as $subRequestInformation) {
-                $boundValues[] = $subRequestInformation['bindValues'];
-            }
-            $boundValues = array_merge(...$boundValues);
-        }
-        foreach ($boundValues as $bindToken => $bindValueInformation){
-            foreach ($bindValueInformation as $bindValue => $paramType) {
-                $statement->bindValue($bindToken, $bindValue, $paramType);
-            }
-        }
-        $statement->execute();
+        $statement = $this->executeQuery($statement);
 
-        $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
+        return $this->buildResourceMetrics($requestParameters, $statement);
+    }
 
-        $resourceMetrics = [];
-        if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
-            $requestParameters->setTotal((int) $total);
-            if ($total > self::MAXIMUM_METRICS_COUNT) {
-                return $resourceMetrics;
-            }
-        }
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParametersAndMetricName(RequestParametersInterface $requestParameters, string $metricName): array
+    {
+        $request = $this->buildQuery($requestParameters, [], true);
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement = $this->executeQuery($statement, $metricName);
 
-        if (($records = $statement->fetchAll(\PDO::FETCH_ASSOC)) !== false) {
-            $metricsInformation = [];
-            foreach ($records as $record) {
-                if (! array_key_exists($record['service_id'], $metricsInformation)) {
-                    $metricsInformation[$record['service_id']] = [
-                        'service_id' => $record['service_id'],
-                        'resource_name' => $record['resource_name'],
-                        'metrics' => [],
-                    ];
-                }
-                $metricsInformation[$record['service_id']]['metrics'][] = new PerformanceMetric(
-                    $record['metric_id'],
-                    $record['metric_name'],
-                    $record['unit_name'],
-                    $record['warn'],
-                    $record['crit'],
-                    $record['warn_low'],
-                    $record['crit_low'],
-                    $record['current_value'],
-                    $record['min'],
-                    $record['max']
-                );
-            }
-            foreach ($metricsInformation as $information) {
-                $resourceMetrics[] = new ResourceMetric(
-                    $information['service_id'],
-                    $information['resource_name'],
-                    $information['metrics']
-                );
-            }
-        }
+        return $this->buildResourceMetrics($requestParameters, $statement);
+    }
 
-        return $resourceMetrics;
+    /**
+     * @inheritDoc
+     */
+    public function FindByRequestParametersAndAccessGroupsAndMetricName(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups,
+        string $metricName
+    ): array {
+        $request = $this->buildQuery($requestParameters, $accessGroups, true);
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement = $this->executeQuery($statement, $metricName);
+
+        return $this->buildResourceMetrics($requestParameters, $statement);
     }
 
     /**
@@ -279,27 +133,6 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         ];
     }
 
-    /**
-     * build the sub request for service filter.
-     *
-     * @param string $metricName
-     *
-     * @return array{
-     *  request: string,
-     *  bindValues: array<mixed>
-     * }
-     */
-    private function buildSubRequestForMetricNameFilter(string $metricName): array
-    {
-        $bindMetricName = [':metric_name' => [$metricName => \PDO::PARAM_STR]];
-
-        return [
-            'request' => <<<SQL
-                    AND m.metric_name = :metric_name
-                SQL,
-            'bindValues' => $bindMetricName
-        ];
-    }
 
     /**
      * build the sub request for host filter.
@@ -479,14 +312,6 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         $subRequestsInformation = [];
         foreach ($searchParameters as $searchParameter) {
             if (
-                array_key_exists('metric.name', $searchParameter)
-                && array_key_exists('$in', $searchParameter['metric.name'])
-            ) {
-                $subRequestsInformation['metric'] = $this->buildSubRequestForMetricNameFilter(
-                    $searchParameter['metric.name']['$in']
-                );
-            }
-            if (
                 array_key_exists('service.name', $searchParameter)
                 && array_key_exists('$in', $searchParameter['service.name'])
             ) {
@@ -572,5 +397,131 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }
 
         return $request;
+    }
+
+    private function buildQuery(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups = [],
+        $hasMetricName = false): string
+    {
+        $request
+        = <<<'SQL'
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                m.metric_id, m.metric_name, m.unit_name, m.warn, m.crit, m.current_value, m.warn_low, m.crit_low, m.min,
+                m.max, CONCAT(r.parent_name, '_', r.name) AS resource_name, r.id as service_id
+                FROM `:dbstg`.`metrics` AS m
+                INNER JOIN `:dbstg`.`index_data` AS id ON id.id = m.index_id
+                INNER JOIN `:dbstg`.`resources` AS r ON r.id = id.service_id
+            SQL;
+
+        $accessGroupIds = array_map(
+            fn ($accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if ([] !== $accessGroups) {
+            $request .= ' INNER JOIN `:dbstg`.`centreon_acl` acl
+                ON acl.service_id = r.id
+                AND r.type = 0
+                AND acl.group_id IN (' . implode(',', $accessGroupIds) . ') ';
+        }
+
+        $search = $requestParameters->getSearch();
+        if (! empty($search) && array_key_exists('$and', $search)) {
+            $this->subRequestsInformation = $this->getSubRequestsInformation($search);
+            $request .= $this->buildSubRequestForTags($this->subRequestsInformation);
+        }
+
+        $request .= <<<'SQL'
+                WHERE r.enabled = 1
+            SQL;
+
+        if (! empty($this->subRequestsInformation)) {
+            $request .= $this->subRequestsInformation['service']['request'] ?? '';
+            $request .= $this->subRequestsInformation['host']['request'] ?? '';
+        }
+
+        if ($hasMetricName) {
+            $request .= <<<'SQL'
+                AND m.metric_name = :metricName
+            SQL;
+        }
+
+        $request .= $this->sqlRequestTranslator->translateSortParameterToSql();
+        $request .= $this->sqlRequestTranslator->translatePaginationToSql();
+
+        return $request;
+    }
+
+    private function executeQuery(\PDOStatement $statement, string $metricName = ''): \PDOStatement
+    {
+        $boundValues = [];
+        if (! empty($metricName)) {
+            $boundValues[] = [
+                ':metricName' => [$metricName => \PDO::PARAM_STR]
+            ];
+        }
+        if (! empty($this->subRequestsInformation)) {
+            foreach ($this->subRequestsInformation as $subRequestInformation) {
+                $boundValues[] = $subRequestInformation['bindValues'];
+            }
+            $boundValues = array_merge(...$boundValues);
+        }
+        foreach ($boundValues as $bindToken => $bindValueInformation){
+            foreach ($bindValueInformation as $bindValue => $paramType) {
+                $statement->bindValue($bindToken, $bindValue, $paramType);
+            }
+        }
+        $statement->execute();
+
+        return $statement;
+    }
+
+    private function buildResourceMetrics(
+        RequestParametersInterface $requestParameters,
+        \PDOStatement $statement
+    ): array {
+        $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
+        $resourceMetrics = [];
+        if ($foundRecords !== false && ($total = $foundRecords->fetchColumn()) !== false) {
+            $requestParameters->setTotal((int) $total);
+            if ($total > self::MAXIMUM_METRICS_COUNT) {
+                return $resourceMetrics;
+            }
+        }
+
+        if (($records = $statement->fetchAll(\PDO::FETCH_ASSOC)) !== false) {
+            $metricsInformation = [];
+            foreach ($records as $record) {
+                if (! array_key_exists($record['service_id'], $metricsInformation)) {
+                    $metricsInformation[$record['service_id']] = [
+                        'service_id' => $record['service_id'],
+                        'resource_name' => $record['resource_name'],
+                        'metrics' => [],
+                    ];
+                }
+                $metricsInformation[$record['service_id']]['metrics'][] = new PerformanceMetric(
+                    $record['metric_id'],
+                    $record['metric_name'],
+                    $record['unit_name'],
+                    $record['warn'],
+                    $record['crit'],
+                    $record['warn_low'],
+                    $record['crit_low'],
+                    $record['current_value'],
+                    $record['min'],
+                    $record['max']
+                );
+            }
+            foreach ($metricsInformation as $information) {
+                $resourceMetrics[] = new ResourceMetric(
+                    $information['service_id'],
+                    $information['resource_name'],
+                    $information['metrics']
+                );
+            }
+        }
+
+        return $resourceMetrics;
     }
 }
