@@ -34,6 +34,8 @@ interface ReadDashboardPerformanceMetricRepositoryInterface
      *
      * @param RequestParametersInterface $requestParameters
      *
+     * @throws \Throwable
+     *
      * @return ResourceMetric[]
      */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): array;
@@ -44,14 +46,19 @@ interface ReadDashboardPerformanceMetricRepositoryInterface
      * @param RequestParametersInterface $requestParameters
      * @param AccessGroup[] $accessGroups
      *
+     * @throws \Throwable
+     *
      * @return ResourceMetric[]
      */
     public function FindByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): array;
 
-        /**
+    /**
      * Get metrics filtered by request parameters.
      *
      * @param RequestParametersInterface $requestParameters
+     * @param string $metricName
+     *
+     * @throws \Throwable
      *
      * @return ResourceMetric[]
      */
@@ -62,6 +69,9 @@ interface ReadDashboardPerformanceMetricRepositoryInterface
      *
      * @param RequestParametersInterface $requestParameters
      * @param AccessGroup[] $accessGroups
+     * @param string $metricName
+     *
+     * @throws \Throwable
      *
      * @return ResourceMetric[]
      */

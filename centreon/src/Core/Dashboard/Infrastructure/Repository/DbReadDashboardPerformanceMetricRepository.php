@@ -403,7 +403,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      *
      * @param RequestParametersInterface $requestParameters
      * @param array $accessGroups
-     * @param boolean $hasMetricName
+     * @param bool $hasMetricName
      * 
      * @return string
      */
@@ -467,9 +467,9 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      * @param \PDOStatement $statement
      * @param string $metricName
      *
-     * @return \PDOStatement
-     *
      * @throws \Throwable
+     *
+     * @return \PDOStatement
      */
     private function executeQuery(\PDOStatement $statement, string $metricName = ''): \PDOStatement
     {
