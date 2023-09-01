@@ -58,6 +58,7 @@ final class FindMetricsTop
 
     /**
      * @param FindMetricsTopPresenterInterface $presenter
+     * @param FindMetricsTopRequest $request
      */
     public function __invoke(FindMetricsTopPresenterInterface $presenter, FindMetricsTopRequest $request): void
     {

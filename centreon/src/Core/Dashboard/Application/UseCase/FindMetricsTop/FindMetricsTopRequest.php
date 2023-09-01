@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindMetricsTop;
 
-use Core\Dashboard\Application\UseCase\FindMetricsTop\Response\MetricInformationDto;
-
 class FindMetricsTopRequest
 {
     public string $metricName;

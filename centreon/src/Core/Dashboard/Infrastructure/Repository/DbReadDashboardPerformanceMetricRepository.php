@@ -133,7 +133,6 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         ];
     }
 
-
     /**
      * build the sub request for host filter.
      *
@@ -399,6 +398,15 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         return $request;
     }
 
+    /**
+     * Build the SQL Query.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param array $accessGroups
+     * @param boolean $hasMetricName
+     * 
+     * @return string
+     */
     private function buildQuery(
         RequestParametersInterface $requestParameters,
         array $accessGroups = [],
@@ -443,8 +451,8 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
 
         if ($hasMetricName) {
             $request .= <<<'SQL'
-                AND m.metric_name = :metricName
-            SQL;
+                    AND m.metric_name = :metricName
+                SQL;
         }
 
         $request .= $this->sqlRequestTranslator->translateSortParameterToSql();
@@ -453,12 +461,22 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         return $request;
     }
 
+    /**
+     * Execute the SQL Query.
+     *
+     * @param \PDOStatement $statement
+     * @param string $metricName
+     *
+     * @return \PDOStatement
+     *
+     * @throws \Throwable
+     */
     private function executeQuery(\PDOStatement $statement, string $metricName = ''): \PDOStatement
     {
         $boundValues = [];
         if (! empty($metricName)) {
             $boundValues[] = [
-                ':metricName' => [$metricName => \PDO::PARAM_STR]
+                ':metricName' => [$metricName => \PDO::PARAM_STR],
             ];
         }
         if (! empty($this->subRequestsInformation)) {
@@ -477,6 +495,14 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         return $statement;
     }
 
+    /**
+     * Create the ResourceMetrics from result of query.
+     *
+     * @param RequestParametersInterface $requestParameters
+     * @param \PDOStatement $statement
+     *
+     * @return ResourceMetrics[]
+     */
     private function buildResourceMetrics(
         RequestParametersInterface $requestParameters,
         \PDOStatement $statement
