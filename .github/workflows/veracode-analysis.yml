@@ -132,7 +132,7 @@ jobs:
           ls -la
 
           function backup_baseline(){
-            echo ""
+            echo "" # adding a blank line
             if [[ -z $1 ]]; then
               echo "[ERROR] Missing mandatory parameters to backup baseline file"
               exit 0
@@ -158,8 +158,7 @@ jobs:
               echo "[INFO] CREATION_DATE = $CREATION_DATE"
               CREATION_TIME=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f3 | cut -d ':' -f1-2 | tr ':' 'h' )
               echo "[INFO] CREATION_TIME = $CREATION_TIME"
-              #aws s3 cp "$FILENAME" "$BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
-              echo "[DEBUG] - $BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
+              aws s3 cp "$FILENAME" "$BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
             else
               echo "[WARN] - no $CURRENT_NAME found for FILENAME"
             fi
