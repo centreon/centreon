@@ -28,6 +28,7 @@ use Centreon\Domain\RequestParameters\RequestParameters;
  */
 interface RequestParametersInterface
 {
+    public function getSearchAsString(): string;
     /**
      * Add an extra parameter.
      *
@@ -135,6 +136,8 @@ interface RequestParametersInterface
      * @return array ['sort_by' => ..., 'limit' => ..., 'total' => ..., ...]
      */
     public function toArray(): array;
+
+    public function unsetSearch();
 
     /**
      * Remove a search parameter.

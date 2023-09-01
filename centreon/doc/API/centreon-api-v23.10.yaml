@@ -1646,6 +1646,8 @@ paths:
     $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsPerformancesData.yaml'
   /monitoring/dashboard/metrics/top:
     $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsTop.yaml'
+  /monitoring/resources/hosts:
+    $ref: './v23.10/Realtime/Resources/FindResourcesByParent.yaml'
   /configuration/access-groups:
     get:
       tags:
@@ -4867,7 +4869,7 @@ components:
       required: false
       description: "Sort the resulted data by its properties"
       schema:
-        type: object
+        type: string
         example: '{"host.name":"ASC"}'
     MetricStartDate:
       in: path

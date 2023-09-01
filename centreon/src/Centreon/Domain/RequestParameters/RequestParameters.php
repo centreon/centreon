@@ -316,6 +316,11 @@ class RequestParameters implements RequestParametersInterface
         return $this->search;
     }
 
+    public function getSearchAsString(): string
+    {
+        return (string) json_encode($this->search);
+    }
+
     /**
      * @inheritDoc
      */
@@ -379,5 +384,10 @@ class RequestParameters implements RequestParametersInterface
     public function setTotal(int $total): void
     {
         $this->total = $total;
+    }
+
+    public function unsetSearch()
+    {
+        $this->search = [];
     }
 }
