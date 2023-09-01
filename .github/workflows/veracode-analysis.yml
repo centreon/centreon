@@ -158,7 +158,7 @@ jobs:
               echo "[INFO] CREATION_DATE = $CREATION_DATE"
               CREATION_TIME=$( stat -c '%s %y' "$FILENAME" | cut -d ' ' -f3 | cut -d ':' -f1-2 | tr ':' 'h' )
               echo "[INFO] CREATION_TIME = $CREATION_TIME"
-              aws s3 cp "$FILENAME" "$BACKUP_LOCATION/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
+              cp "$FILENAME" "/tmp/backup/$TARGET.$CREATION_DATE.$CREATION_TIME.size$FILE_SIZE.$NEW_NAME"
             else
               echo "[WARN] - no $CURRENT_NAME found for FILENAME. Skipping it"
             fi
@@ -170,8 +170,9 @@ jobs:
           echo "[DEBUG] CURRENT_PR = $CURRENT_PR"
           BASE_BRANCH=${{ github.base_ref || github.ref_name }}
           echo "[DEBUG] BASE_BRANCH = $BASE_BRANCH"
-          BACKUP_LOCATION="s3://centreon-veracode-reports/${{ inputs.module_name }}/debug/$CURRENT_DATE-$CURRENT_PR"
+          BACKUP_LOCATION="s3://centreon-veracode-reports/${{ inputs.module_name }}/debug/$CURRENT_PR"
           echo "[DEBUG] BACKUP_LOCATION = $BACKUP_LOCATION"
+          mkdir /tmp/backup
 
           # renaming baseline file if found
           backup_baseline "results.json" "downloaded"
@@ -180,7 +181,14 @@ jobs:
           backup_baseline "results.json"
 
           # saving filtered results
-          backup_baseline "filtered_results.json"*
+          backup_baseline "filtered_results.json"
+
+          ZIPNAME="$CURRENT_PR-CURRENT_DATE-${{github.run_id}}.zip"
+          echo "[DEBUG] ZIPNAME = $ZIPNAME"
+          zip $ZIPNAME /tmp/backup/*.json
+          ls -la /tmp/backup
+          echo "test s3 = $BACKUP_LOCATION/$ZIPNAME"
+          #aws s3 cp "$FILENAME" "$BACKUP_LOCATION/$ZIPNAME"
 
       - name: Save baseline files
         # only baseline files not generated from a development branch are saved
