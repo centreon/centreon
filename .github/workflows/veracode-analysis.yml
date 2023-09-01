@@ -140,13 +140,13 @@ jobs:
             CURRENT_NAME=$1
 
             # specific case for downloaded baseline file
-            if [[ -n $2 && "$2" == "downloaded" && ( -z $3 || -z $4 ) ]]; then
-              echo "[ERROR] Missing downloaded baseline mandatory parameters to continue"
+            if [[ -n $2 && "$2" != "downloaded" ]]; then
+              echo "[ERROR] Missing downloaded baseline mandatory parameter to continue"
               exit 0
             fi
             [[ -n $2 ]] && TARGET=$BASE_BRANCH || TARGET=$CURRENT_PR
-            [[ -n $3 ]] && FILENAME="$3/$CURRENT_NAME" || FILENAME="$CURRENT_NAME"
-            [[ -n $4 ]] && NEW_NAME=$4 || NEW_NAME=$CURRENT_NAME
+            [[ -n $2 ]] && FILENAME="/tmp/$CURRENT_NAME" || FILENAME="$CURRENT_NAME"
+            [[ -n $2 ]] && NEW_NAME="baseline.json" || NEW_NAME=$CURRENT_NAME
 
             echo "[DEBUG] FILENAME = $FILENAME"
             echo "[INFO] NEW_NAME = $NEW_NAME"
@@ -174,7 +174,7 @@ jobs:
           echo "[DEBUG] BACKUP_LOCATION = $BACKUP_LOCATION"
 
           # renaming baseline file if found
-          backup_baseline "results.json" "downloaded" "/tmp" "baseline.json"
+          backup_baseline "results.json" "downloaded"
 
           # saving results
           backup_baseline "results.json"
