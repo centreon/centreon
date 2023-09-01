@@ -150,6 +150,10 @@ jobs:
 
             echo "[DEBUG] FILENAME = $FILENAME"
             echo "[INFO] NEW_NAME = $NEW_NAME"
+
+            stat $FILENAME
+            stat -c '%s %w' "$FILENAME"
+
             if [[ -s "$FILENAME" ]]; then
               FILE_SIZE=$( stat -c '%s %w' "$FILENAME" | cut -d ' ' -f1 )
               echo "[INFO] FILE_SIZE = $FILE_SIZE"
