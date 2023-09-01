@@ -187,7 +187,7 @@ jobs:
             fi
           done
 
-  Clean-artifact:
+  clean-artifact:
     needs: [pipeline-scan]
     name: Clean artifact
     if: success() || failure()
