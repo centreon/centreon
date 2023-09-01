@@ -5,8 +5,7 @@ import { equals, includes, pluck } from 'ramda';
 import { Typography } from '@mui/material';
 
 import { Metric } from '../common/timeSeries/models';
-
-import { Thresholds } from './models';
+import { Thresholds } from '../common/models';
 
 type AnimatedStyles = { endAngle: number; opacity: number; startAngle: number };
 

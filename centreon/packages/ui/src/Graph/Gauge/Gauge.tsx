@@ -1,11 +1,10 @@
 import { Responsive } from '@visx/visx';
 
-import { LineChartData } from '../common/models';
+import { LineChartData, Thresholds } from '../common/models';
 import { getMetricWithLatestData } from '../common/timeSeries';
 import { Metric } from '../common/timeSeries/models';
 
 import ResponsiveGauge from './ResponsiveGauge';
-import { Thresholds } from './models';
 
 interface Props {
   data?: LineChartData;
