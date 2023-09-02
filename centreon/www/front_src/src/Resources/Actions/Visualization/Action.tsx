@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
-import { equals } from 'ramda';
 
 import { Image, IconButton } from '@centreon/ui';
 
-import { selectedVisualizationAtom } from '../actionsAtoms';
 import { Visualization } from '../../models';
+
+import useIconPath from './useIconPath';
+import useVisualization from './useVisualization';
 
 interface Props {
   IconOnActive: string;
@@ -22,24 +22,17 @@ const Action = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
-  const [visualization, setVisualization] = useAtom(selectedVisualizationAtom);
-
-  const onClick = (): void => {
-    setVisualization(type);
-  };
+  const imagePath = useIconPath({ IconOnActive, IconOnInactive, type });
+  const { selectVisualization } = useVisualization({ type });
 
   return (
     <IconButton
       ariaLabel={t(title)}
-      //   className="className"
       data-testid={title}
       title={t(title)}
-      onClick={onClick}
+      onClick={selectVisualization}
     >
-      <Image
-        alt={title}
-        imagePath={equals(visualization, type) ? IconOnActive : IconOnInactive}
-      />
+      <Image alt={title} imagePath={imagePath} />
     </IconButton>
   );
 };
