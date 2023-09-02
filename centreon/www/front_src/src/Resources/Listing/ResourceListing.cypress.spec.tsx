@@ -11,11 +11,14 @@ import { Method, TestQueryProvider } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
-import { Resource, ResourceType } from '../models';
+import { Resource, ResourceType, Visualization } from '../models';
 import { labelInDowntime, labelAcknowledged } from '../translatedLabels';
 import { getListingEndpoint, defaultSecondSortCriteria } from '../testUtils';
 import useDetails from '../Details/useDetails';
-import { resourcesToAcknowledgeAtom } from '../Actions/actionsAtoms';
+import {
+  resourcesToAcknowledgeAtom,
+  selectedVisualizationAtom
+} from '../Actions/actionsAtoms';
 import useFilter from '../Filter/useFilter';
 
 import { useColumns, defaultSelectedColumnIds } from './columns';
@@ -117,6 +120,8 @@ const ListingTest = (): JSX.Element => {
 };
 
 const store = createStore();
+
+store.set(selectedVisualizationAtom, Visualization.All);
 
 const ListingTestWithJotai = (): JSX.Element => (
   <Provider store={store}>
