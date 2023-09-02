@@ -19,7 +19,8 @@ import VisualizationActions from '../Actions/Visualization';
 import {
   resourcesToAcknowledgeAtom,
   resourcesToSetDowntimeAtom,
-  selectedResourcesAtom
+  selectedResourcesAtom,
+  selectedVisualizationAtom
 } from '../Actions/actionsAtoms';
 import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
 import { adjustCheckedResources } from '../Actions/Resource/Check/helpers';
@@ -43,7 +44,7 @@ import {
   labelForcedCheckCommandSent
 } from '../translatedLabels';
 
-import { defaultSelectedColumnIds, useColumns } from './columns';
+import { defaultSelectedColumnIds, getColumns } from './columns';
 import {
   enabledAutorefreshAtom,
   limitAtom,
@@ -84,6 +85,7 @@ const ResourceListing = (): JSX.Element => {
   const search = useAtomValue(searchAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const forcedCheckInlineEndpoint = useAtomValue(forcedCheckInlineEndpointAtom);
+  const visualization = useAtomValue(selectedVisualizationAtom);
   const setOpenDetailsTabId = useSetAtom(openDetailsTabIdAtom);
   const setLimit = useSetAtom(limitAtom);
   const setResourcesToAcknowledge = useSetAtom(resourcesToAcknowledgeAtom);
@@ -154,7 +156,7 @@ const ResourceListing = (): JSX.Element => {
     });
   };
 
-  const columns = useColumns({
+  const columns = getColumns({
     actions: {
       onAcknowledge: (resource): void => {
         setResourcesToAcknowledge([resource]);
@@ -171,7 +173,8 @@ const ResourceListing = (): JSX.Element => {
         setResourcesToSetDowntime([resource]);
       }
     },
-    t
+    t,
+    visualization
   });
 
   const loading = sending;

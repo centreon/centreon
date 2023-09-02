@@ -21,10 +21,17 @@ import {
 } from '../Actions/actionsAtoms';
 import useFilter from '../Filter/useFilter';
 
-import { useColumns, defaultSelectedColumnIds } from './columns';
+import { getColumns, defaultSelectedColumnIds } from './columns';
 import useLoadDetails from './useLoadResources/useLoadDetails';
 
 import Listing from '.';
+
+const columns = getColumns({
+  actions: {
+    resourcesToAcknowledgeAtom
+  },
+  t: Ramda.identity
+}) as Array<Column>;
 
 const fillEntities = ({
   entityCount = 31,
@@ -102,16 +109,8 @@ const retrievedListingWithCriticalResources = {
   },
   result: entitiesWithCriticalResources
 };
-let columns;
 
 const ListingTest = (): JSX.Element => {
-  columns = useColumns({
-    actions: {
-      resourcesToAcknowledgeAtom
-    },
-    t: Ramda.identity
-  }) as Array<Column>;
-
   useLoadDetails();
   useFilter();
   useDetails();

@@ -73,6 +73,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
 export interface ColumnProps {
   actions;
   t: (value: string) => string;
+  visualization?: Visualization;
 }
 
 export const defaultSelectedColumnIds = [
@@ -86,9 +87,11 @@ export const defaultSelectedColumnIds = [
   'tries'
 ];
 
-export const useColumns = ({ actions, t }: ColumnProps): Array<Column> => {
-  const visualization = useAtomValue(selectedVisualizationAtom);
-
+export const getColumns = ({
+  actions,
+  visualization = Visualization.All,
+  t
+}: ColumnProps): Array<Column> => {
   const columns = [
     {
       Component: StatusColumn({ actions, t }),
