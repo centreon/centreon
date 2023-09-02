@@ -99,8 +99,16 @@ const retrievedListingWithCriticalResources = {
   },
   result: entitiesWithCriticalResources
 };
+let columns;
 
 const ListingTest = (): JSX.Element => {
+  columns = useColumns({
+    actions: {
+      resourcesToAcknowledgeAtom
+    },
+    t: Ramda.identity
+  }) as Array<Column>;
+
   useLoadDetails();
   useFilter();
   useDetails();
@@ -132,15 +140,7 @@ const configureUserAtomViewMode = (
   userData.result.current.user_interface_density = viewMode;
 };
 
-let columns;
 before(() => {
-  columns = useColumns({
-    actions: {
-      resourcesToAcknowledgeAtom
-    },
-    t: Ramda.identity
-  }) as Array<Column>;
-
   configureUserAtomViewMode();
 });
 
