@@ -43,7 +43,7 @@ import {
   labelForcedCheckCommandSent
 } from '../translatedLabels';
 
-import { defaultSelectedColumnIds, getColumns } from './columns';
+import { defaultSelectedColumnIds, useColumns } from './columns';
 import {
   enabledAutorefreshAtom,
   limitAtom,
@@ -154,7 +154,7 @@ const ResourceListing = (): JSX.Element => {
     });
   };
 
-  const columns = getColumns({
+  const columns = useColumns({
     actions: {
       onAcknowledge: (resource): void => {
         setResourcesToAcknowledge([resource]);
@@ -243,7 +243,8 @@ const ResourceListing = (): JSX.Element => {
         sending,
         enabledAutoRefresh,
         selectedResourceDetails,
-        themeMode
+        themeMode,
+        columns
       ]}
       moveTablePagination={isPanelOpen}
       predefinedRowsSelection={predefinedRowsSelection}
