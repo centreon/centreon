@@ -5,7 +5,7 @@ import * as React from 'react';
 import * as Ramda from 'ramda';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { renderHook } from '@testing-library/react-hooks/dom';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, Provider, createStore } from 'jotai';
 
 import { Method, TestQueryProvider } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
@@ -18,17 +18,10 @@ import useDetails from '../Details/useDetails';
 import { resourcesToAcknowledgeAtom } from '../Actions/actionsAtoms';
 import useFilter from '../Filter/useFilter';
 
-import { getColumns, defaultSelectedColumnIds } from './columns';
+import { useColumns, defaultSelectedColumnIds } from './columns';
 import useLoadDetails from './useLoadResources/useLoadDetails';
 
 import Listing from '.';
-
-const columns = getColumns({
-  actions: {
-    resourcesToAcknowledgeAtom
-  },
-  t: Ramda.identity
-}) as Array<Column>;
 
 const fillEntities = ({
   entityCount = 31,
@@ -115,10 +108,14 @@ const ListingTest = (): JSX.Element => {
   return <Listing />;
 };
 
+const store = createStore();
+
 const ListingTestWithJotai = (): JSX.Element => (
-  <TestQueryProvider>
-    <ListingTest />
-  </TestQueryProvider>
+  <Provider store={store}>
+    <TestQueryProvider>
+      <ListingTest />
+    </TestQueryProvider>
+  </Provider>
 );
 const fakeData = {
   meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 0 },
@@ -135,7 +132,15 @@ const configureUserAtomViewMode = (
   userData.result.current.user_interface_density = viewMode;
 };
 
+let columns;
 before(() => {
+  columns = useColumns({
+    actions: {
+      resourcesToAcknowledgeAtom
+    },
+    t: Ramda.identity
+  }) as Array<Column>;
+
   configureUserAtomViewMode();
 });
 
