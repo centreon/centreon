@@ -1,6 +1,5 @@
 import { pipe, split, head, propOr, T, equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-import { useAtomValue } from 'jotai';
 
 import { ColumnType } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
@@ -28,7 +27,6 @@ import {
   labelHost
 } from '../../translatedLabels';
 import truncate from '../../truncate';
-import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
 import { Visualization } from '../../models';
 
 import StateColumn from './State';
