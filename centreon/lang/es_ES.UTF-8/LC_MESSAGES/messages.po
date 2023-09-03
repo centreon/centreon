@@ -16256,14 +16256,14 @@ msgstr ""
 #  msgid "'%s' service name already exists for host ID %d"
 #  msgstr ""
 
-#  msgid "Display View :"
+#  msgid "Display view:"
 #  msgstr ""
 
 #  msgid "View all resources"
 #  msgstr ""
 
-#  msgid "View by Host"
+#  msgid "View by host"
 #  msgstr ""
 
-#  msgid "View by Service"
+#  msgid "View by service"
 #  msgstr ""

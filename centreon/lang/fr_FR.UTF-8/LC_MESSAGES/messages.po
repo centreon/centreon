@@ -18111,14 +18111,14 @@ msgstr "'%s' n'existe pas avec le(s) ID(s) %s"
 msgid "'%s' service name already exists for host ID %d"
 msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
 
-msgid "Display View :"
-msgstr ""
+msgid "Display view:"
+msgstr "Afficher la vue:"
 
 msgid "View all resources"
 msgstr "Afficher toutes les ressources"
 
-msgid "View by Host"
-msgstr "Afficher par Hôte"
+msgid "View by host"
+msgstr "Afficher par hôte"
 
-msgid "View by Service"
-msgstr "Afficher par Service"
+msgid "View by service"
+msgstr "Afficher par service"
