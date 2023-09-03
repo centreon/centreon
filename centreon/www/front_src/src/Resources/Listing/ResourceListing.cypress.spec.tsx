@@ -25,7 +25,6 @@ import {
   selectedVisualizationAtom
 } from '../Actions/actionsAtoms';
 import useFilter from '../Filter/useFilter';
-import { searchAtom } from '../Filter/filterAtoms';
 
 import { getColumns, defaultSelectedColumnIds } from './columns';
 import useLoadDetails from './useLoadResources/useLoadDetails';
