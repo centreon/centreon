@@ -12,7 +12,12 @@ import type { Column } from '@centreon/ui';
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import { Resource, ResourceType, Visualization } from '../models';
-import { labelInDowntime, labelAcknowledged } from '../translatedLabels';
+import {
+  labelInDowntime,
+  labelAcknowledged,
+  labelViewByService,
+  labelAll
+} from '../translatedLabels';
 import { getListingEndpoint, defaultSecondSortCriteria } from '../testUtils';
 import useDetails from '../Details/useDetails';
 import {
@@ -20,6 +25,7 @@ import {
   selectedVisualizationAtom
 } from '../Actions/actionsAtoms';
 import useFilter from '../Filter/useFilter';
+import { searchAtom } from '../Filter/filterAtoms';
 
 import { getColumns, defaultSelectedColumnIds } from './columns';
 import useLoadDetails from './useLoadResources/useLoadDetails';
@@ -133,6 +139,10 @@ const fakeData = {
   meta: { limit: 10, page: 1, search: {}, sort_by: {}, total: 0 },
   result: []
 };
+
+const columnToSort = columns
+  .filter(({ sortable }) => sortable !== false)
+  .filter(({ id }) => Ramda.includes(id, defaultSelectedColumnIds));
 
 const configureUserAtomViewMode = (
   viewMode: ListingVariant = ListingVariant.compact
@@ -252,10 +262,6 @@ describe('Resource Listing', () => {
 });
 
 describe('column sorting', () => {
-  const columnToSort = columns
-    .filter(({ sortable }) => sortable !== false)
-    .filter(({ id }) => Ramda.includes(id, defaultSelectedColumnIds));
-
   beforeEach(() => {
     columnToSort.forEach(({ id, label, sortField }) => {
       const sortBy = (sortField || id) as string;
@@ -547,5 +553,117 @@ describe('Display additional columns', () => {
 
       cy.makeSnapshot();
     });
+  });
+});
+
+describe('Resource Listing : Visualization by Service', () => {
+  beforeEach(() => {
+    store.set(selectedVisualizationAtom, Visualization.All);
+    interceptRequestsAndMountBeforeEach();
+  });
+
+  it('sends a request with types "service,metaservice"', () => {
+    cy.findByLabelText(labelViewByService).click();
+
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+      expect(JSON.parse(request?.url?.searchParams.get('types'))).to.deep.equal(
+        ['service', 'metaservice']
+      );
+    });
+
+    cy.makeSnapshot();
+  });
+  it('sorts columnns by worst status and duration', () => {
+    cy.findByLabelText(labelViewByService).click();
+
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+      expect(
+        JSON.parse(request?.url?.searchParams.get('sort_by'))
+      ).to.deep.equal({
+        last_status_change: 'desc',
+        status_severity_code: 'desc'
+      });
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('disbales sorting buttons in the table header', () => {
+    cy.findByLabelText(labelViewByService).click();
+
+    cy.waitForRequest('@dataToListingTable');
+
+    columns.forEach(({ label }) => {
+      cy.findByLabelText(`Column ${label}`).should('not.exist');
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('updates column names', () => {
+    cy.findByLabelText(labelViewByService).click();
+
+    cy.waitForRequest('@dataToListingTable');
+
+    cy.findByText('Resource').should('not.exist');
+    cy.findByText('Parent').should('not.exist');
+    cy.findByText('Service').should('be.visible');
+    cy.findByText('Host').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Resource Listing : Visualization by all resources', () => {
+  beforeEach(() => {
+    store.set(selectedVisualizationAtom, Visualization.SERVICE);
+    interceptRequestsAndMountBeforeEach();
+  });
+  it('sends a request to get all resources', () => {
+    cy.findByLabelText(labelAll).click();
+
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+      expect(request?.url?.searchParams.has('types')).to.be.false;
+    });
+
+    cy.makeSnapshot();
+  });
+  it('sorts columnns by newest duration', () => {
+    cy.findByLabelText(labelAll).click();
+
+    cy.waitForRequest('@dataToListingTable').then(({ request }) => {
+      expect(
+        JSON.parse(request?.url?.searchParams.get('sort_by'))
+      ).to.deep.equal({
+        last_status_change: 'desc'
+      });
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('sets the column names to the default ones', () => {
+    cy.findByLabelText(labelAll).click();
+
+    cy.waitForRequest('@dataToListingTable');
+
+    cy.findByText('Resource').should('be.visible');
+    cy.findByText('Parent').should('be.visible');
+    cy.findByText('Service').should('not.exist');
+    cy.findByText('Host').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('enables sorting buttons in the table header', () => {
+    cy.findByLabelText(labelAll).click();
+
+    cy.waitForRequest('@dataToListingTable');
+
+    columnToSort.forEach(({ label }) => {
+      cy.findByLabelText(`Column ${label}`).should('exist');
+    });
+
+    cy.makeSnapshot();
   });
 });
