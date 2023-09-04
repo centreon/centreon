@@ -25,6 +25,7 @@ EOF
 # The Keycloak server is configured to listen on port 8080
 EXPOSE 8080
 
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
 CMD ["start-dev"]
 #ENTRYPOINT ["/bin/sh", "-c"]
 #CMD ["sleep 99999"]
