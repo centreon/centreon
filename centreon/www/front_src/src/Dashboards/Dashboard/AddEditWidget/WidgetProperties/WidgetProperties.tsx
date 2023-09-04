@@ -32,43 +32,47 @@ const WidgetProperties = (): JSX.Element => {
     <>
       {isWidgetSelected && (
         <CollapsibleItem defaultExpanded title={t(labelWidgetProperties)}>
-          <>
+          <div>
             <WidgetTextField label={labelTitle} propertyName="name" />
-            <Subtitle>{t(labelDescription)}</Subtitle>
-            <WidgetSwitch
-              label={labelShowDescription}
-              propertyName="description.enabled"
-            />
-            <WidgetRichTextEditor
-              disabledCondition={(values: Widget) =>
-                !values.options.description?.enabled
-              }
-              label={labelDescription}
-              propertyName="description.content"
-            />
-            <WidgetSwitch
-              endAdornment={
-                <Tooltip
-                  followCursor={false}
-                  label={t(labelOpenLinksInNewTabTooltip)}
-                  position="right"
-                >
-                  <InfoOutlinedIcon color="primary" fontSize="small" />
-                </Tooltip>
-              }
-              label={labelOpenLinksInNewTab}
-              propertyName="openLinksInNewTab"
-            />
-          </>
+            <div>
+              <Subtitle>{t(labelDescription)}</Subtitle>
+              <WidgetSwitch
+                label={labelShowDescription}
+                propertyName="description.enabled"
+              />
+              <WidgetRichTextEditor
+                disabledCondition={(values: Widget) =>
+                  !values.options.description?.enabled
+                }
+                label={labelDescription}
+                propertyName="description.content"
+              />
+              <WidgetSwitch
+                endAdornment={
+                  <Tooltip
+                    followCursor={false}
+                    label={t(labelOpenLinksInNewTabTooltip)}
+                    position="right"
+                  >
+                    <InfoOutlinedIcon color="primary" fontSize="small" />
+                  </Tooltip>
+                }
+                label={labelOpenLinksInNewTab}
+                propertyName="openLinksInNewTab"
+              />
+            </div>
+          </div>
         </CollapsibleItem>
       )}
       {isWidgetSelected && hasProperties && (
         <CollapsibleItem defaultExpanded title={t(labelValueSettings)}>
-          <>
+          <div>
             {(widgetProperties || []).map(({ Component, key, props }) => (
-              <Component key={key} {...props} />
+              <div key={key}>
+                <Component {...props} />
+              </div>
             ))}
-          </>
+          </div>
         </CollapsibleItem>
       )}
     </>
