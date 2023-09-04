@@ -22,4 +22,5 @@ EOF
 EXPOSE 8080
 
 #CMD ["start-dev", "--optimized"]
-ENTRYPOINT ["sleep", "99999"]
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["sleep", "99999"]
