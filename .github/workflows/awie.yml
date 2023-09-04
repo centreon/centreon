@@ -166,3 +166,53 @@ jobs:
           major_version: ${{ needs.get-version.outputs.major_version }}
           minor_version: ${{ needs.get-version.outputs.minor_version }}
           stability: ${{ needs.get-version.outputs.stability }}
+
+  check-stable-packages-availability:
+    needs: [get-version]
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        image: [almalinux:8, almalinux:9, debian:bullseye]
+    container:
+      image: ${{ matrix.image }}
+
+    steps:
+      - name: check packages for ${{ matrix.image }}
+        run: |
+          set -x
+          # Set version
+          VERSION=${{ needs.get-version.outputs.major_version }}
+          # Set repo based on distrib
+          case ${{ matrix.image }} in
+            almalinux:8)
+              dnf install -y epel-release
+              dnf install -y dnf-plugins-core
+              dnf config-manager --set-enabled powertools
+              dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el8/centreon-${VERSION}.repo
+              dnf config-manager --set-enabled 'centreon-${VERSION}-testing*'
+              dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
+              dnf module reset -y php
+              dnf module install -y php:remi-8.1
+              curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
+                | bash -s -- --os-type=rhel --skip-check-installed --os-version=8 --mariadb-server-version="mariadb-10.5"
+              dnf install -y mariadb-server mariadb
+
+              dnf install centreon-${{ env.module }}
+            ;;
+            almalinux:9)
+              dnf install -y dnf-plugins-core
+              dnf install -y epel-release
+              dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+              dnf config-manager --set-enabled 'crb'
+              dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el9/centreon-${VERSION}.repo
+              dnf config-manager --set-enabled 'centreon-${VERISON}-testing*'
+              dnf module reset -y php
+              dnf module install -y php:8.1
+              curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup \
+                | sudo bash -s -- --os-type=rhel --os-version=9 --mariadb-server-version="mariadb-10.5"
+              dnf install -y mariadb-server mariadb
+
+              dnf install centreon-${{ env.module }}
+
+            debian:bullseye)
+        shell: bash
