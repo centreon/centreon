@@ -5,7 +5,7 @@ import { Box, ListItemText } from '@mui/material';
 
 import { SingleAutocompleteField } from '@centreon/ui';
 
-import { labelWidgetLibrary } from '../../translatedLabels';
+import { labelWidgetType } from '../../translatedLabels';
 import { useAddWidgetStyles } from '../addWidget.styles';
 
 import useWidgetSelection from './useWidgetSelection';
@@ -42,7 +42,7 @@ const WidgetSelection = (): JSX.Element => {
       </Avatar>
       <SingleAutocompleteField
         className={classes.selectField}
-        label={t(labelWidgetLibrary)}
+        label={t(labelWidgetType)}
         options={options}
         renderOption={renderOption}
         value={selectedWidget || null}

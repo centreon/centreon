@@ -22,7 +22,7 @@ import {
   labelDelete,
   labelShowDescription,
   labelMetrics,
-  labelName,
+  labelTitle,
   labelOpenLinksInNewTab,
   labelPleaseChooseAWidgetToActivatePreview,
   labelPleaseSelectAResource,
@@ -31,7 +31,7 @@ import {
   labelSelectAWidgetType,
   labelServiceName,
   labelYouCanSelectUpToTwoMetricUnits,
-  labelWidgetLibrary,
+  labelWidgetType,
   labelExit,
   labelEditWidget,
   labelAddResource,
@@ -168,7 +168,7 @@ describe('AddEditWidgetModal', () => {
         cy.contains(labelPleaseChooseAWidgetToActivatePreview).should(
           'be.visible'
         );
-        cy.findByLabelText(labelWidgetLibrary).should('be.visible');
+        cy.findByLabelText(labelWidgetType).should('be.visible');
         cy.findByLabelText(labelExit).should('be.visible');
         cy.findByLabelText(labelSave).should('be.visible');
 
@@ -176,12 +176,12 @@ describe('AddEditWidgetModal', () => {
       });
 
       it('enables the add button when a widget is selected and the properties are filled', () => {
-        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic input (example)').click();
 
         cy.findByLabelText(labelSave).should('be.disabled');
 
-        cy.findByLabelText(labelName).type('Generic input');
+        cy.findByLabelText(labelTitle).type('Generic input');
         cy.findByLabelText('Generic text').type('Text');
         cy.findByLabelText(labelShowDescription).should('be.checked');
         cy.findByLabelText(labelOpenLinksInNewTab).should('be.checked');
@@ -194,25 +194,25 @@ describe('AddEditWidgetModal', () => {
       it('keeps the name when a widget is selected, properties are filled and the widget type is changed', () => {
         const widgetName = 'Widget name';
 
-        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic input (example)').click();
 
-        cy.findByLabelText(labelName).type(widgetName);
+        cy.findByLabelText(labelTitle).type(widgetName);
         cy.findByLabelText('Generic text').type('Text');
 
         cy.findByLabelText(labelSave).should('be.enabled');
 
-        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic text (example)').click();
 
-        cy.findByLabelText(labelName).should('have.value', widgetName);
+        cy.findByLabelText(labelTitle).should('have.value', widgetName);
         cy.findByLabelText(labelSave).should('be.enabled');
 
         cy.makeSnapshot();
       });
 
       it('disables the description field when the display description checkbox is not checked', () => {
-        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic input (example)').click();
 
         cy.findByLabelText('RichTextEditor').should(
@@ -251,11 +251,11 @@ describe('AddEditWidgetModal', () => {
       it('displays the modal with pre-filled values', () => {
         cy.contains(labelEditWidget).should('be.visible');
 
-        cy.findByLabelText(labelWidgetLibrary).should(
+        cy.findByLabelText(labelWidgetType).should(
           'have.value',
           'Generic text (example)'
         );
-        cy.findByLabelText(labelName).should('have.value', 'Widget name');
+        cy.findByLabelText(labelTitle).should('have.value', 'Widget name');
         cy.findByLabelText('RichTextEditor').contains('Description');
         cy.findByLabelText(labelSave).should('be.disabled');
 
@@ -264,13 +264,13 @@ describe('AddEditWidgetModal', () => {
 
       it('changes the widget type when another widget is selected', () => {
         const widgetName = 'Edited widget name';
-        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic input (example)').click();
 
-        cy.findByLabelText(labelName).clear().type(widgetName);
+        cy.findByLabelText(labelTitle).clear().type(widgetName);
         cy.findByLabelText('Generic text').type('Text');
 
-        cy.findByLabelText(labelName).should('have.value', widgetName);
+        cy.findByLabelText(labelTitle).should('have.value', widgetName);
         cy.findByLabelText(labelSave).should('be.enabled');
 
         cy.makeSnapshot();
@@ -278,7 +278,7 @@ describe('AddEditWidgetModal', () => {
     });
 
     it('displays the preview of the generic text widget when the generic text widget type is selected', () => {
-      cy.findByLabelText(labelWidgetLibrary).click();
+      cy.findByLabelText(labelWidgetType).click();
       cy.contains(/^Generic text$/).click();
 
       cy.findAllByLabelText('RichTextEditor').eq(1).type('Hello ');
@@ -301,7 +301,7 @@ describe('AddEditWidgetModal', () => {
     });
 
     it('does not display the content of the generic text widget in the preview the show description switch is off', () => {
-      cy.findByLabelText(labelWidgetLibrary).click();
+      cy.findByLabelText(labelWidgetType).click();
       cy.contains(/^Generic text$/).click();
 
       cy.findAllByLabelText('RichTextEditor').eq(1).type('Hello ');
@@ -372,10 +372,10 @@ describe('AddEditWidgetModal', () => {
       });
 
       it('selects metrics when resources are selected', () => {
-        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic data (example)').click();
 
-        cy.findByLabelText(labelName).type('Generic data');
+        cy.findByLabelText(labelTitle).type('Generic data');
 
         cy.findByLabelText(labelSave).should('be.disabled');
 
@@ -409,10 +409,10 @@ describe('AddEditWidgetModal', () => {
       });
 
       it('disables the Add button when metrics are removed from the dataset selection', () => {
-        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic data (example)').click();
 
-        cy.findByLabelText(labelName).type('Generic data');
+        cy.findByLabelText(labelTitle).type('Generic data');
 
         cy.findByLabelText(labelAddResource).click();
 
@@ -443,10 +443,10 @@ describe('AddEditWidgetModal', () => {
       });
 
       it('stores the data when a resource is selected, a metric is selected and the Add button is clicked', () => {
-        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic data (example)').click();
 
-        cy.findByLabelText(labelName).type('Generic data');
+        cy.findByLabelText(labelTitle).type('Generic data');
 
         cy.findByLabelText(labelAddResource).click();
 
@@ -493,7 +493,7 @@ describe('AddEditWidgetModal', () => {
       });
 
       it('selects one metric when the widget allows only one metric', () => {
-        cy.findByLabelText(labelWidgetLibrary).click();
+        cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic data for single metric (example)').click();
 
         cy.findByTestId(labelResourceType).parent().children().eq(0).click();

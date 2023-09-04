@@ -44,7 +44,7 @@ import {
   labelMoreActions,
   labelName,
   labelSave,
-  labelWidgetLibrary
+  labelWidgetType
 } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 import { Dashboard } from './Dashboard';
@@ -293,7 +293,7 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelEditDashboard).click();
       cy.findByLabelText(labelAddAWidget).click();
 
-      cy.findByLabelText(labelWidgetLibrary).click();
+      cy.findByLabelText(labelWidgetType).click();
       cy.contains('Generic input (example)').click();
 
       cy.findByLabelText(labelName).type('Generic input');
@@ -317,7 +317,7 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelEditWidget).click();
 
-      cy.findByLabelText(labelWidgetLibrary).click();
+      cy.findByLabelText(labelWidgetType).click();
       cy.contains('Generic input (example)').click();
 
       cy.findByLabelText(labelName).type('Generic input');

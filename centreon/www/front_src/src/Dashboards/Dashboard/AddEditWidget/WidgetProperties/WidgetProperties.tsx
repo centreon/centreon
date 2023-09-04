@@ -9,11 +9,11 @@ import { CollapsibleItem, Tooltip } from '@centreon/ui/components';
 import {
   labelDescription,
   labelShowDescription,
-  labelName,
   labelOpenLinksInNewTab,
   labelOpenLinksInNewTabTooltip,
   labelWidgetProperties,
-  labelValueSettings
+  labelValueSettings,
+  labelTitle
 } from '../../translatedLabels';
 import { Widget } from '../models';
 
@@ -33,7 +33,7 @@ const WidgetProperties = (): JSX.Element => {
       {isWidgetSelected && (
         <CollapsibleItem defaultExpanded title={t(labelWidgetProperties)}>
           <>
-            <WidgetTextField label={labelName} propertyName="name" />
+            <WidgetTextField label={labelTitle} propertyName="name" />
             <Box
               sx={{
                 alignItems: 'center',

@@ -17,11 +17,11 @@ export const labelNoWidgetFound = 'No widget found';
 export const labelDeleteAWidget = 'Delete a widget';
 export const labelDoYouWantToDeleteThisWidget =
   'Do you want to delete this widget?';
-export const labelWidgetLibrary = 'Widget library';
+export const labelWidgetType = 'Widget type';
 export const labelPleaseChooseAWidgetToActivatePreview =
   'Select a widget type to activate the preview';
 export const labelDeleteWidget = 'Delete widget';
-export const labelName = 'Name';
+export const labelTitle = 'Title';
 export const labelDescription = 'Description';
 export const labelWidgetProperties = 'Widget properties';
 export const labelCommonProperties = 'Common properties';

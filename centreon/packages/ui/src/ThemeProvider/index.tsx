@@ -189,7 +189,10 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     },
     MuiInputBase: {
       styleOverrides: {
-        root: ({ ownerState }) => getInputBaseInputStyle(ownerState)
+        root: ({ ownerState, theme }) => ({
+          ...getInputBaseInputStyle(ownerState),
+          backgroundColor: theme.palette.background.paper
+        })
       }
     },
     MuiList: {
