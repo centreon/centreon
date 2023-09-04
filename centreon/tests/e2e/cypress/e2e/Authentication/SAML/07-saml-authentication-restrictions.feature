@@ -6,4 +6,4 @@ Feature: SAML authentication
 Scenario: Authorize access to Centreon application 
     Given an administrator is logged on the platform
     When the administrator sets valid settings in the authentication conditions and saves
-    Then the users can access to Centreon UI only if all conditions matche
+    Then the users can access to Centreon UI only if all conditions are met

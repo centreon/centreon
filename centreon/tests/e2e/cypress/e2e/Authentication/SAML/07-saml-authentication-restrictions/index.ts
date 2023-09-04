@@ -85,7 +85,7 @@ When(
 );
 
 Then(
-  'the users can access to Centreon UI only if all conditions matche',
+  'the users can access to Centreon UI only if all conditions are met',
   () => {
     const username = 'user-non-admin-for-SAML-authentication';
 
