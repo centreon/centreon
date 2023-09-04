@@ -12,8 +12,8 @@ ENV KC_FEATURES=token-exchange
 
 RUN bash -e <<EOF
 
-/opt/keycloak/bin/kc.sh build --health-enabled=true --features=token-exchange --metrics-enabled=true
 /opt/keycloak/bin/kc.sh import --file /realms/openid-config.json
+/opt/keycloak/bin/kc.sh build --health-enabled=true --features=token-exchange --metrics-enabled=true
 
 EOF
 
