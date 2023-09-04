@@ -257,9 +257,17 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       }
     );
 
-    console.log(newServiceMetrics);
-
-    setFieldValue(`data.${propertyName}`, newServiceMetrics);
+    setFieldValue(
+      `data.${propertyName}`,
+      isEmpty(newServiceMetrics)
+        ? [
+            {
+              id: '',
+              metrics: []
+            }
+          ]
+        : newServiceMetrics
+    );
   }, useDeepCompare([servicesMetrics, resources]));
 
   useEffect(() => {
