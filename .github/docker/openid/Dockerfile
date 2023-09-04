@@ -1,9 +1,7 @@
 #FROM quay.io/keycloak/keycloak:17.0.0
-FROM quay.io/keycloak/keycloak:22.0.1
+FROM quay.io/keycloak/keycloak:22.0.1 as builder
 
 COPY .github/docker/openid/configs/openidrealm.json /realms/openid-config.json
-#COPY .github/docker/openid/configs/keycloakdb.mv.db /opt/keycloak/data/h2/keycloakdb.mv.db
-#COPY .github/docker/openid/configs/keycloakdb.trace.db /opt/keycloak/data/h2/keycloakdb.trace.db
 
 # change these values to point to a running postgres instance
 ENV KEYCLOAK_ADMIN=admin
@@ -16,9 +14,13 @@ ENV KC_FEATURES=token-exchange
 RUN bash -e <<EOF
 
 /opt/keycloak/bin/kc.sh import --file /realms/openid-config.json
-/opt/keycloak/bin/kc.sh build
+/opt/keycloak/bin/kc.sh build --features-disabled="jdbc-mariadb,jdbc-mssql,jdbc-mysql,jdbc-oracle,jdbc-postgresql"
 
 EOF
+
+FROM quay.io/keycloak/keycloak:22.0.1
+
+COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
 # The Keycloak server is configured to listen on port 8080
 EXPOSE 8080
