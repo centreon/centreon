@@ -56,7 +56,7 @@ describe('Time Period', () => {
     });
   });
 
-  it.skip('sets the starts and end fields when the customize option is clicked', () => {
+  it.skip('sets the start and end fields when the customize option is clicked', () => {
     cy.findByTestId(labelTimePeriod).parent().eq(0).click();
 
     cy.contains(labelCustomize).click();

@@ -18088,7 +18088,7 @@ msgid "Value defined by metric"
 msgstr "Valeur définie par la métrique"
 
 msgid "The {{module}} license will expire in {{expirationDate}} days"
-msgstr "La license {{module}} expirera dans {{expirationDate}} jours"
+msgstr "La licence {{module}} expirera dans {{expirationDate}} jours"
 
 msgid "Last hour"
 msgstr "La dernière heure"
