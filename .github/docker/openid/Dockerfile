@@ -26,6 +26,6 @@ EOF
 EXPOSE 8080
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
-CMD ["start-dev"]
+CMD ["start", "--optimized"]
 #ENTRYPOINT ["/bin/sh", "-c"]
 #CMD ["sleep 99999"]
