@@ -1,5 +1,4 @@
 FROM quay.io/keycloak/keycloak:22.0.1
-#FROM quay.io/keycloak/keycloak:22.0.1 as builder
 
 COPY .github/docker/openid/configs/openidrealm.json /realms/openid-config.json
 
@@ -18,14 +17,8 @@ RUN bash -e <<EOF
 
 EOF
 
-#FROM quay.io/keycloak/keycloak:22.0.1 as openid_standard
-
-#COPY --from=builder /opt/keycloak/ /opt/keycloak/
-
 # The Keycloak server is configured to listen on port 8080
 EXPOSE 8080
 
-#ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
-#CMD ["start", "--optimized", "–-hostname-strict=false"]
-ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["sleep 99999"]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+CMD ["start", "–-hostname-strict=false", "--optimized"]
