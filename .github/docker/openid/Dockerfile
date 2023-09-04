@@ -23,4 +23,4 @@ EXPOSE 8080
 
 #CMD ["start-dev", "--optimized"]
 ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["sleep", "99999"]
+CMD ["sleep 99999"]
