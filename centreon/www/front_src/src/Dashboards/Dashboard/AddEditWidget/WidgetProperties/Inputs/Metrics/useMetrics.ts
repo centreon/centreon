@@ -245,11 +245,13 @@ const useMetrics = (propertyName: string): UseMetricsState => {
             );
 
             return {
-              criticalThreshold: newMetric?.criticalThreshold || null,
+              criticalHighThreshold: newMetric?.criticalHighThreshold || null,
+              criticalLowThreshold: newMetric?.criticalLowThreshold || null,
               id: metric.id,
               name: metric.name,
               unit: metric.unit,
-              warningThreshold: newMetric?.warningThreshold || null
+              warningHighThreshold: newMetric?.warningHighThreshold || null,
+              warningLowThreshold: newMetric?.warningLowThreshold || null
             };
           }),
           name: service.name
