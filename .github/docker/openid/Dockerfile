@@ -21,4 +21,4 @@ EOF
 EXPOSE 8080
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start"]
-#CMD ["start", "--hostname-strict=false", "--http-enabled=true" "--optimized"]
+CMD ["--hostname-strict=false", "--http-enabled=true" "--optimized"]
