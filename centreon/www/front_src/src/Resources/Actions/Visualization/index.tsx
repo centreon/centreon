@@ -50,7 +50,7 @@ const actions = [
     type: Visualization.SERVICE
   }
 ];
-const View = (): JSX.Element => {
+const VisualizationActions = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -72,4 +72,4 @@ const View = (): JSX.Element => {
   );
 };
 
-export default View;
+export default VisualizationActions;
