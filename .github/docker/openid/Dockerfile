@@ -22,4 +22,4 @@ EOF
 EXPOSE 8080
 
 #CMD ["start-dev", "--optimized"]
-CMD ["sleep", "99999"]
+ENTRYPOINT ["sleep", "99999"]
