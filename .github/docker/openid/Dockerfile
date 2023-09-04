@@ -12,14 +12,14 @@ ENV KC_FEATURES=token-exchange
 
 RUN bash -e <<EOF
 
+/opt/keycloak/bin/kc.sh build
 /opt/keycloak/bin/kc.sh import --file /realms/openid-config.json
-/opt/keycloak/bin/kc.sh build --health-enabled=true --features=token-exchange --metrics-enabled=true
 
 EOF
 
 # The Keycloak server is configured to listen on port 8080
 EXPOSE 8080
 
-ENTRYPOINT ["/bin/sh", "-c"]
-#ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
-#CMD ["start", "--hostname-strict=false", "--http-enabled=true" "--optimized"]
+#ENTRYPOINT ["/bin/sh", "-c"]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+CMD ["start", "--hostname-strict=false", "--http-enabled=true" "--optimized"]
