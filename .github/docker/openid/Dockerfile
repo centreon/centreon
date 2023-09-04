@@ -8,7 +8,6 @@ ENV KEYCLOAK_ADMIN_PASSWORD=Centreon!2021
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
 ENV KC_FEATURES=token-exchange
-#ENV KC_HOSTNAME=172.17.0.3:8080
 
 RUN bash -e <<EOF
 
@@ -21,4 +20,5 @@ EOF
 EXPOSE 8080
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+
 CMD ["start", "--hostname-strict=false", "--http-enabled=true", "--optimized"]
