@@ -1487,12 +1487,3 @@ VALUES (1, 4);
 
 INSERT INTO provider_configuration (`type`, `name`, `custom_configuration`, `is_active`, `is_forced`)
 VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate":"","user_id_attribute":"","logout_from":false,"logout_from_url":null,"auto_import":false,"contact_template_id":null,"email_bind_attribute":null,"fullname_bind_attribute":null,"authentication_conditions":{"is_enabled":false,"attribute_path":"","authorized_values":[]},"roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":""},"groups_mapping":{"is_enabled":false,"attribute_path":""}}', 0, 0);
-
-INSERT INTO dashboard_widgets (`name`, `version`)
-VALUES ('centreon-widget-generictext', '23.10.0');
-
-INSERT INTO dashboard_widgets (`name`, `version`)
-VALUES ('centreon-widget-singlemetric', '23.10.0');
-
-INSERT INTO dashboard_widgets (`name`, `version`)
-VALUES ('centreon-widget-graph', '23.10.0');
