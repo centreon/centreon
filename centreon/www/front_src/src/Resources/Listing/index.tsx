@@ -232,6 +232,7 @@ const ResourceListing = (): JSX.Element => {
       getId={getId}
       headerMemoProps={[search]}
       limit={listing?.meta.limit}
+      listingVariant={user_interface_density}
       loading={loading}
       memoProps={[
         listing,
@@ -256,7 +257,6 @@ const ResourceListing = (): JSX.Element => {
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total}
-      viewMode={user_interface_density}
       viewerModeConfiguration={{
         disabled: isPending,
         onClick: changeViewModeTableResources,

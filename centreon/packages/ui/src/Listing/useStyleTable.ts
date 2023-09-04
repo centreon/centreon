@@ -14,7 +14,7 @@ import { tableStyleAtom, tableStyleDerivedAtom } from './tableAtoms';
 interface TableStyle {
   checkable?: boolean;
   currentVisibleColumns?: Array<Column>;
-  viewMode?: ListingVariant;
+  listingVariant?: ListingVariant;
 }
 
 interface TableStyleState {
@@ -27,23 +27,23 @@ const isCompactMode = equals<ListingVariant | undefined>(
 );
 
 interface GetTextStyleProps {
+  listingVariant?: ListingVariant;
   theme: Theme;
-  viewMode?: ListingVariant;
 }
 
 export const getTextStyleByViewMode = ({
-  viewMode,
+  listingVariant,
   theme
 }: GetTextStyleProps): CSSObject =>
   pick(
     ['color', 'fontSize', 'lineHeight'],
-    theme.typography[isCompactMode(viewMode) ? 'body2' : 'body1']
+    theme.typography[isCompactMode(listingVariant) ? 'body2' : 'body1']
   );
 
 const useStyleTable = ({
   checkable,
   currentVisibleColumns,
-  viewMode
+  listingVariant
 }: TableStyle): TableStyleState => {
   const dataStyle = useAtomValue(tableStyleAtom);
 
@@ -69,10 +69,10 @@ const useStyleTable = ({
   };
 
   useEffect(() => {
-    if (viewMode) {
-      updateStyleTable({ viewMode });
+    if (listingVariant) {
+      updateStyleTable({ listingVariant });
     }
-  }, [viewMode]);
+  }, [listingVariant]);
 
   return {
     dataStyle,

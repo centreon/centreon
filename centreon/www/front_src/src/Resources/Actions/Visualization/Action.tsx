@@ -31,7 +31,6 @@ const Action = ({
   return (
     <IconButton
       ariaLabel={t(title)}
-      //   className="className"
       data-testid={title}
       title={t(title)}
       onClick={onClick}
