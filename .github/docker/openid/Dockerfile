@@ -22,4 +22,4 @@ EOF
 EXPOSE 8080
 
 #CMD ["start-dev", "--optimized"]
-CMD
+CMD ["sleep", "99999"]
