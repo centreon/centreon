@@ -16,11 +16,13 @@ const selectedMetrics: Array<ServiceMetric> = [
     id: 1,
     metrics: [
       {
-        criticalThreshold: 100,
+        criticalHighThreshold: 100,
+        criticalLowThreshold: 50,
         id: 1,
         name: 'rta',
         unit: 'ms',
-        warningThreshold: 35
+        warningHighThreshold: 35,
+        warningLowThreshold: 10
       }
     ],
     name: 'Server_Ping'
@@ -29,18 +31,22 @@ const selectedMetrics: Array<ServiceMetric> = [
     id: 2,
     metrics: [
       {
-        criticalThreshold: 100,
+        criticalHighThreshold: 100,
+        criticalLowThreshold: null,
         id: 2,
         name: 'idle',
         unit: '%',
-        warningThreshold: 60
+        warningHighThreshold: 60,
+        warningLowThreshold: null
       },
       {
-        criticalThreshold: 90,
+        criticalHighThreshold: 90,
+        criticalLowThreshold: null,
         id: 3,
         name: 'user',
         unit: '%',
-        warningThreshold: 80
+        warningHighThreshold: 80,
+        warningLowThreshold: null
       }
     ],
     name: 'Server_Cpu'
@@ -97,8 +103,8 @@ describe('Threshold', () => {
   it('displays the first metrics threshold values as default when some Resource metrics are passed', () => {
     initializeComponent({ metrics: selectedMetrics });
 
-    cy.contains('Default (100)').should('be.visible');
-    cy.contains('Default (35)').should('be.visible');
+    cy.contains('Default (50 - 100)').should('be.visible');
+    cy.contains('Default (10 - 35)').should('be.visible');
 
     cy.makeSnapshot();
   });
