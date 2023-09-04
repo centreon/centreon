@@ -18112,7 +18112,7 @@ msgid "'%s' service name already exists for host ID %d"
 msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
 
 msgid "Display view:"
-msgstr "Afficher la vue:"
+msgstr "Afficher la vue :"
 
 msgid "View all resources"
 msgstr "Afficher toutes les ressources"
