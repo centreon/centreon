@@ -7,7 +7,7 @@ import {
 } from '../common';
 
 before(() => {
-  cy.startWebContainer()
+  cy.startWebContainer({version: 'develop'})
     .startOpenIdProviderContainer()
     .then(() => {
       initializeSAMLUser();
@@ -71,12 +71,12 @@ When(
     cy.getByLabel({
       label: 'Conditions attribute path',
       tag: 'input'
-    }).type('{selectall}{backspace}preferred_username');
+    }).type('{selectall}{backspace}email');
 
     cy.getByLabel({
       label: 'Condition value',
       tag: 'input'
-    }).type('{selectall}{backspace}saml');
+    }).type('{selectall}{backspace}saml@localhost');
 
     cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
