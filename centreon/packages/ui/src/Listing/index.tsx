@@ -113,6 +113,7 @@ export interface Props<TRow> {
   onSelectRows?: (rows: Array<TRow>) => void;
   onSort?: (sortParams: { sortField: string; sortOrder: SortOrder }) => void;
   paginated?: boolean;
+  predefinedRowsSelection?: Array<PredefinedRowSelection>;
   rowColorConditions?: Array<RowColorCondition>;
   rows?: Array<TRow>;
   selectedRows?: Array<TRow>;
@@ -126,7 +127,6 @@ export interface Props<TRow> {
     rowProperty: string;
   };
   totalRows?: number;
-  predefinedRowsSelection?: Array<PredefinedRowSelection>;
   viewerModeConfiguration?: ViewerModeConfiguration;
   visualizationActions?: JSX.Element;
   widthToMoveTablePagination?: number;
