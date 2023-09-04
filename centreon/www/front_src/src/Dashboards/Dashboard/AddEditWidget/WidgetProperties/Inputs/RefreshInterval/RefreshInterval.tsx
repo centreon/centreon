@@ -1,15 +1,10 @@
 import { useTranslation } from 'react-i18next';
 
-import {
-  Box,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Typography
-} from '@mui/material';
+import { Box, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 
 import { labelRefreshInterval } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
+import Subtitle from '../../../../components/Subtitle';
 
 import useRefreshInterval from './useRefreshInterval';
 
@@ -24,9 +19,7 @@ const RefreshInterval = ({
 
   return (
     <Box>
-      <Typography>
-        <strong>{t(labelRefreshInterval)}</strong>
-      </Typography>
+      <Subtitle>{t(labelRefreshInterval)}</Subtitle>
       <RadioGroup
         aria-labelledby="demo-controlled-radio-buttons-group"
         name="controlled-radio-buttons-group"

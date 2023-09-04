@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 
-import { Typography } from '@mui/material';
 import TitleIcon from '@mui/icons-material/Title';
 import SpeedIcon from '@mui/icons-material/Speed';
 import BarChartIcon from '@mui/icons-material/BarChart';
 
 import { labelGraphType } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
+import Subtitle from '../../../../components/Subtitle';
 
 import useSingleMetricGraphType from './useSingleMetricGraphType';
 import OptionCard from './OptionCard';
@@ -41,9 +41,7 @@ const SingleMetricGraphType = (props: WidgetPropertyProps): JSX.Element => {
 
   return (
     <div>
-      <Typography>
-        <strong>{t(labelGraphType)}</strong>
-      </Typography>
+      <Subtitle>{t(labelGraphType)}</Subtitle>
       <div className={classes.graphTypeContainer}>
         {options.map(({ type, icon }) => (
           <OptionCard

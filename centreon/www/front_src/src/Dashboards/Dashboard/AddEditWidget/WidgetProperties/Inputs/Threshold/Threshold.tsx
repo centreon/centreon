@@ -19,6 +19,7 @@ import {
 } from '../../../../translatedLabels';
 import { WidgetSwitch } from '..';
 import { useThresholdStyles } from '../Inputs.styles';
+import Subtitle from '../../../../components/Subtitle';
 
 import useThreshold from './useThreshold';
 
@@ -32,9 +33,7 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   return (
     <Box>
-      <Typography>
-        <strong>{t(labelThreshold)}</strong>
-      </Typography>
+      <Subtitle>{t(labelThreshold)}</Subtitle>
       <WidgetSwitch
         endAdornment={
           <Tooltip

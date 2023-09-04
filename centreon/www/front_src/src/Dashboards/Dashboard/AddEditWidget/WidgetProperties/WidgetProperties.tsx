@@ -1,7 +1,6 @@
 import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Typography } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { CollapsibleItem, Tooltip } from '@centreon/ui/components';
@@ -16,6 +15,7 @@ import {
   labelTitle
 } from '../../translatedLabels';
 import { Widget } from '../models';
+import Subtitle from '../../components/Subtitle';
 
 import { WidgetRichTextEditor, WidgetSwitch, WidgetTextField } from './Inputs';
 import { useWidgetInputs } from './useWidgetInputs';
@@ -34,9 +34,7 @@ const WidgetProperties = (): JSX.Element => {
         <CollapsibleItem defaultExpanded title={t(labelWidgetProperties)}>
           <>
             <WidgetTextField label={labelTitle} propertyName="name" />
-            <Typography>
-              <strong>{t(labelDescription)}</strong>
-            </Typography>
+            <Subtitle>{t(labelDescription)}</Subtitle>
             <WidgetSwitch
               label={labelShowDescription}
               propertyName="description.enabled"
