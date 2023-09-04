@@ -18,7 +18,7 @@ RUN bash -e <<EOF
 
 EOF
 
-FROM quay.io/keycloak/keycloak:22.0.1
+FROM quay.io/keycloak/keycloak:22.0.1 as openid_standard
 
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
