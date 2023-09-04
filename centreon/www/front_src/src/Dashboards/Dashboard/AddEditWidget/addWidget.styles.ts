@@ -16,6 +16,10 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white
   },
+  widgetDataset: {
+    height: '20vh',
+    overflow: 'auto'
+  },
   widgetProperties: {
     display: 'flex',
     flexDirection: 'column',
@@ -25,11 +29,7 @@ export const useAddWidgetStyles = makeStyles()((theme) => ({
     backgroundColor: theme.palette.background.default,
     borderRadius: theme.shape.borderRadius,
     height: '66vh',
-    padding: theme.spacing(1),
-    overflow: 'auto'
-  },
-  widgetDataset: {
-    height: '20vh',
-    overflow: 'auto'
+    overflow: 'auto',
+    padding: theme.spacing(1)
   }
 }));

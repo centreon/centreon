@@ -34,8 +34,7 @@ import {
   labelWidgetLibrary,
   labelExit,
   labelEditWidget,
-  labelAddResource,
-  labelAddMetric
+  labelAddResource
 } from '../translatedLabels';
 import { dashboardAtom } from '../atoms';
 

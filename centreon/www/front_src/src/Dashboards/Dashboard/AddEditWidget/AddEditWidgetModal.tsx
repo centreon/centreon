@@ -78,12 +78,12 @@ const AddWidgetModal = (): JSX.Element | null => {
                   </div>
                 </div>
                 <div>
-                    <Paper className={classes.preview}>
-                      <Preview />
-                    </Paper>
-                    <div className={classes.widgetDataset}>
+                  <Paper className={classes.preview}>
+                    <Preview />
+                  </Paper>
+                  <div className={classes.widgetDataset}>
                     <WidgetData />
-                    </div>
+                  </div>
                 </div>
               </div>
             </Modal.Body>
