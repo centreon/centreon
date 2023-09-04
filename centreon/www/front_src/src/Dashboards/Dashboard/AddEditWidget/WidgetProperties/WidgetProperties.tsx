@@ -1,7 +1,7 @@
 import { isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Box, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { CollapsibleItem, Tooltip } from '@centreon/ui/components';
@@ -34,21 +34,13 @@ const WidgetProperties = (): JSX.Element => {
         <CollapsibleItem defaultExpanded title={t(labelWidgetProperties)}>
           <>
             <WidgetTextField label={labelTitle} propertyName="name" />
-            <Box
-              sx={{
-                alignItems: 'center',
-                display: 'flex',
-                justifyContent: 'space-between'
-              }}
-            >
-              <Typography>
-                <strong>{t(labelDescription)}</strong>
-              </Typography>
-              <WidgetSwitch
-                label={labelShowDescription}
-                propertyName="description.enabled"
-              />
-            </Box>
+            <Typography>
+              <strong>{t(labelDescription)}</strong>
+            </Typography>
+            <WidgetSwitch
+              label={labelShowDescription}
+              propertyName="description.enabled"
+            />
             <WidgetRichTextEditor
               disabledCondition={(values: Widget) =>
                 !values.options.description?.enabled
@@ -61,7 +53,7 @@ const WidgetProperties = (): JSX.Element => {
                 <Tooltip
                   followCursor={false}
                   label={t(labelOpenLinksInNewTabTooltip)}
-                  position="top"
+                  position="right"
                 >
                   <InfoOutlinedIcon color="primary" fontSize="small" />
                 </Tooltip>

@@ -40,7 +40,7 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           <Tooltip
             followCursor={false}
             label={t(labelThresholdsAreAutomaticallyHidden)}
-            position="top"
+            position="right"
           >
             <InfoOutlinedIcon color="primary" />
           </Tooltip>

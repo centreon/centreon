@@ -5,7 +5,7 @@ export const useSwitchStyles = makeStyles()((theme) => ({
     '& .MuiSwitch-thumb': {
       backgroundColor: theme.palette.background.paper
     },
-    '& [data-checked="true"] + .MuiSwitch-track': {
+    '& [data-checked="true"]+.MuiSwitch-track': {
       backgroundColor: theme.palette.success.main,
       opacity: 1
     }
