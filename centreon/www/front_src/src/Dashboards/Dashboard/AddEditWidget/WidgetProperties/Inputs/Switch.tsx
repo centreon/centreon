@@ -3,7 +3,9 @@ import { ChangeEvent, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFormikContext } from 'formik';
 
-import { Box, FormControlLabel, Switch, Typography } from '@mui/material';
+import { Box, FormControlLabel, Typography } from '@mui/material';
+
+import { Switch } from '@centreon/ui/components';
 
 import { Widget, WidgetPropertyProps } from '../../models';
 
