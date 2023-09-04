@@ -14,7 +14,7 @@ import {
 
 import { Theme } from '@mui/material';
 
-import { Thresholds } from '../Gauge/models';
+import { Thresholds } from './models';
 
 interface GetColorFromDataAndThresholdsProps {
   data: number;
