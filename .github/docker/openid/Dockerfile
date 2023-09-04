@@ -1,4 +1,5 @@
-FROM quay.io/keycloak/keycloak:22.0.1
+FROM quay.io/keycloak/keycloak:17.0.0
+#FROM quay.io/keycloak/keycloak:22.0.1
 
 COPY .github/docker/openid/configs/openidrealm.json /realms/openid-config.json
 
@@ -8,7 +9,7 @@ ENV KEYCLOAK_ADMIN_PASSWORD=Centreon!2021
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
 ENV KC_FEATURES=token-exchange
-ENV KC_HOSTNAME=172.17.0.3:8080
+#ENV KC_HOSTNAME=172.17.0.3:8080
 
 RUN bash -e <<EOF
 
@@ -20,4 +21,5 @@ EOF
 # The Keycloak server is configured to listen on port 8080
 EXPOSE 8080
 
-CMD ["start-dev", "--optimized"]
+#CMD ["start-dev", "--optimized"]
+CMD
