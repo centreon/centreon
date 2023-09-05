@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import {
   LineChartData,
-  formatMetricValue,
+  formatMetricValueWithUnit,
   getMetricWithLatestData
 } from '@centreon/ui';
 
@@ -52,11 +52,11 @@ const useThresholds = ({
 
   const metric = data ? getMetricWithLatestData(data) : null;
 
-  const formattedWarning = formatMetricValue({
+  const formattedWarning = formatMetricValueWithUnit({
     unit: metric?.unit || '',
     value: warning
   });
-  const formattedCritical = formatMetricValue({
+  const formattedCritical = formatMetricValueWithUnit({
     unit: metric?.unit || '',
     value: critical
   });
@@ -64,19 +64,19 @@ const useThresholds = ({
   const thresholdValues = [warning, critical];
   const thresholdLabels = [
     isDefaultWarning
-      ? `${t(labelWarningThreshold)}: ${formattedWarning} ${metric?.unit}. ${t(
+      ? `${t(labelWarningThreshold)}: ${formattedWarning}. ${t(
           labelValueDefinedByMetric
         )} ${metricName}`
-      : `${t(labelWarningThreshold)}: ${formattedWarning} ${metric?.unit}. ${t(
+      : `${t(labelWarningThreshold)}: ${formattedWarning}. ${t(
           labelValueCustomized
         )}`,
     isDefaultCritical
-      ? `${t(labelCriticalThreshold)}: ${formattedCritical} ${
-          metric?.unit
-        }. ${t(labelValueDefinedByMetric)} ${metricName}`
-      : `${t(labelCriticalThreshold)}: ${formattedCritical} ${
-          metric?.unit
-        }. ${t(labelValueCustomized)}`
+      ? `${t(labelCriticalThreshold)}: ${formattedCritical}. ${t(
+          labelValueDefinedByMetric
+        )} ${metricName}`
+      : `${t(labelCriticalThreshold)}: ${formattedCritical}. ${t(
+          labelValueCustomized
+        )}`
   ];
 
   return {

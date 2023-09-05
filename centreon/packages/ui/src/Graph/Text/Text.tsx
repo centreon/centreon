@@ -4,7 +4,7 @@ import { Typography, useTheme } from '@mui/material';
 
 import { LineChartData } from '../common/models';
 import {
-  formatMetricValue,
+  formatMetricValueWithUnit,
   getMetricWithLatestData
 } from '../common/timeSeries';
 import { getColorFromDataAndTresholds } from '../common/utils';
@@ -47,31 +47,28 @@ export const Text = ({
   return (
     <div className={classes.graphText}>
       <Typography sx={{ color }} variant="h3">
-        {formatMetricValue({
+        {formatMetricValueWithUnit({
           unit: metricUnit,
           value: metricValue
-        })}{' '}
-        {metricUnit}
+        })}
       </Typography>
       {!disabledThresholds && (
         <div className={classes.thresholds}>
           <Typography sx={{ color: 'warning.main' }} variant="h5">
             {labels.warning}
             {': '}
-            {formatMetricValue({
+            {formatMetricValueWithUnit({
               unit: metricUnit,
               value: thresholds[0]
-            })}{' '}
-            {metricUnit}
+            })}
           </Typography>
           <Typography sx={{ color: 'error.main' }} variant="h5">
             {labels.critical}
             {': '}
-            {formatMetricValue({
+            {formatMetricValueWithUnit({
               unit: metricUnit,
               value: thresholds[1]
-            })}{' '}
-            {metricUnit}
+            })}
           </Typography>
         </div>
       )}

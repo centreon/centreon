@@ -9,7 +9,7 @@ import { useSpring, animated } from '@react-spring/web';
 import { alpha, Box, Fade, useTheme } from '@mui/material';
 
 import {
-  formatMetricValue,
+  formatMetricValueWithUnit,
   getMetricWithLatestData
 } from '../common/timeSeries';
 import { Metric } from '../common/timeSeries/models';
@@ -78,12 +78,11 @@ const ResponsiveSingleBar = ({
       x="50%"
       y={25}
     >
-      {formatMetricValue({
+      {formatMetricValueWithUnit({
         base: 1000,
         unit: metric.unit,
         value: metric.data[0]
-      })}{' '}
-      {metric.unit}
+      })}
     </text>
   );
 

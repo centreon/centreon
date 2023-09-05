@@ -413,7 +413,7 @@ const getRightScale = ({
   return getScale({ graphValues, height: valueGraphHeight, stackedValues });
 };
 
-const formatTime = (value) => {
+const formatTime = (value: number): string => {
   if (value < 1000) {
     return `${numeral(value).format('0.[00]a')} ms`;
   }
@@ -423,16 +423,26 @@ const formatTime = (value) => {
   return `${t} seconds`;
 };
 
-numeral.register('format', 'milliseconds', {
-  format: (value) => {
-    return formatTime(value);
-  },
-  regexps: {
-    format: /(ms)/,
-    unformat: /(ms)/
-  },
-  unformat: () => ''
-});
+const registerMsUnitToNumeral = (): null => {
+  try {
+    numeral.register('format', 'milliseconds', {
+      format: (value) => {
+        return formatTime(value);
+      },
+      regexps: {
+        format: /(ms)/,
+        unformat: /(ms)/
+      },
+      unformat: () => ''
+    });
+
+    return null;
+  } catch (_) {
+    return null;
+  }
+};
+
+registerMsUnitToNumeral();
 
 const formatMetricValue = ({
   value,

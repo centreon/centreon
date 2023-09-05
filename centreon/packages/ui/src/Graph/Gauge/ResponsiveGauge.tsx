@@ -7,7 +7,7 @@ import { Tooltip } from '@visx/visx';
 import { Box, Fade, useTheme } from '@mui/material';
 
 import { Metric } from '../common/timeSeries/models';
-import { formatMetricValue } from '../common/timeSeries';
+import { formatMetricValueWithUnit } from '../common/timeSeries';
 import { getColorFromDataAndTresholds } from '../common/utils';
 import { margins } from '../common/margins';
 
@@ -106,12 +106,11 @@ const ResponsiveGauge = ({
           x="50%"
           y={isSmallHeight ? 140 : 100 + Math.min(width, height) / 3}
         >
-          {formatMetricValue({
+          {formatMetricValueWithUnit({
             base: 1000,
             unit: metric.unit,
             value: metric.data[0]
-          })}{' '}
-          {metric.unit}
+          })}
         </text>
       </svg>
       <Fade in={tooltipOpen && !disabledThresholds}>
