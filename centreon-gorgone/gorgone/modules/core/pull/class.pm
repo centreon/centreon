@@ -31,6 +31,7 @@ use gorgone::class::clientzmq;
 use ZMQ::LibZMQ4;
 use ZMQ::Constants qw(:all);
 use JSON::XS;
+use EV;
 
 my %handlers = (TERM => {}, HUP => {});
 my ($connector);
@@ -90,7 +91,6 @@ sub exit_process {
     );
     $self->{client}->close();
 
-    zmq_close($self->{internal_socket});
     exit(0);
 }
 
@@ -127,6 +127,18 @@ sub transmit_back {
             return '[SETLOGS] [' . $1 . '] [] ' . $2;
         }
         return undef;
+    } elsif ($options{message} =~ /^\[BCASTCOREKEY\]\s+\[.*?\]\s+\[.*?\]\s+(.*)/m) {
+        my $data;
+        eval {
+            $data = JSON::XS->new->decode($1);
+        };
+        if ($@) {
+            $connector->{logger}->writeLogDebug("[pull] cannot decode BCASTCOREKEY: $@");
+            return undef;
+        }
+
+        $connector->action_bcastcorekey(data => $data);
+        return undef;
     } elsif ($options{message} =~ /^\[(PONG|SYNCLOGS)\]/) {
         return $options{message};
     }
@@ -142,18 +154,31 @@ sub read_message_client {
     }
 
     $connector->{logger}->writeLogDebug("[pull] read message from external: $options{data}");
-    $connector->send_internal_action(message => $options{data});
+    $connector->send_internal_action({ message => $options{data} });
 }
 
 sub event {
-    while (1) {
-        my $message = transmit_back(message => $connector->read_message());
-        last if (!defined($message));
+    my ($self, %options) = @_;
+
+    while ($self->{internal_socket}->has_pollin()) {
+        my ($message) = $self->read_message();
+        $message = transmit_back(message => $message);
+        next if (!defined($message));
 
         # Only send back SETLOGS and PONG
-        $connector->{logger}->writeLogDebug("[pull] read message from internal: $message");
-        $connector->{client}->send_message(message => $message);
+        $self->{logger}->writeLogDebug("[pull] read message from internal: $message");
+        $self->{client}->send_message(message => $message);
     }
+}
+
+sub periodic_exec {
+    my ($self, %options) = @_;
+
+    if ($self->{stop} == 1) {
+        $self->exit_process();
+    }
+
+    $self->ping();
 }
 
 sub run {
@@ -161,19 +186,22 @@ sub run {
 
     # Connect internal
     $self->{internal_socket} = gorgone::standard::library::connect_com(
+        context => $self->{zmq_context},
         zmq_type => 'ZMQ_DEALER',
         name => 'gorgone-pull',
         logger => $self->{logger},
         type => $self->get_core_config(name => 'internal_com_type'),
         path => $self->get_core_config(name => 'internal_com_path')
     );
-    $self->send_internal_action(
+    $self->send_internal_action({
         action => 'PULLREADY',
         data => {}
-    );
+    });
 
     $self->{client} = gorgone::class::clientzmq->new(
-        identity => 'gorgone-' . $self->get_core_config(name => 'id'), 
+        context => $self->{zmq_context},
+        core_loop => $self->{loop},
+        identity => 'gorgone-' . $self->get_core_config(name => 'id'),
         cipher => $self->{config}->{cipher}, 
         vector => $self->{config}->{vector},
         client_pubkey => 
@@ -197,23 +225,11 @@ sub run {
         json_encode => 1
     );
 
-    $self->{poll} = [
-        {
-            socket  => $self->{internal_socket},
-            events  => ZMQ_POLLIN,
-            callback => \&event
-        },
-        $self->{client}->get_poll()
-    ];
+    $self->periodic_exec();
 
-    while (1) {
-        my $rv = scalar(zmq_poll($self->{poll}, 5000));
-        if ($rv == 0 && $self->{stop} == 1) {
-            $self->exit_process();
-        }
-
-        $self->ping();
-    }
+    my $watcher_timer = $self->{loop}->timer(5, 5, sub { $connector->periodic_exec() });
+    my $watcher_io = $self->{loop}->io($self->{internal_socket}->get_fd(), EV::READ, sub { $connector->event() } );
+    $self->{loop}->run();
 }
 
 1;
