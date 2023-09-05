@@ -1779,6 +1779,23 @@ Feature:
     And the JSON node "metrics[2].data" should have at least 48 elements
     And the JSON node "times" should have at least 48 elements
 
+    When I send a GET request to '/api/latest/monitoring/dashboard/metrics/top?metric_name=rta&search={"$and":[{"hostgroup.id":{"$in":[53]}},{"host.id":{"$in":[14]}},{"service.name":{"$in":["Ping"]}}]}&sort_by={"current_value":"ASC"}&limit=10'
+    Then the response code should be "200"
+    And the JSON nodes should be equal to:
+      | result.name                          | "rta"                    |
+      | result.unit                          | "ms"                     |
+      | result.resources[0].id                      | 26                       |
+      | result.resources[0].name                    | "Centreon-Server_Ping"   |
+      | result.resources[0].warning_threshold       | 200                      |
+      | result.resources[0].critical_threshold      | 400                      |
+      | result.resources[0].warning_low_threshold   | 0                        |
+      | result.resources[0].critical_low_threshold  | 0                        |
+      | result.resources[0].min                     | 0                        |
+      | result.resources[0].max                     | null                     |
+
+    When I send a GET request to '/api/latest/monitoring/dashboard/metrics/top?metric_name=unexistingmetric&search={"$and":[{"hostgroup.id":{"$in":[53]}},{"host.id":{"$in":[14]}},{"service.name":{"$in":["Ping"]}}]}&sort_by={"current_value":"ASC"}&limit=10'
+    Then the response code should be "404"
+
     Given I am logged in with "test-user"/"Centreon@2022"
     When I send a GET request to '/api/latest/monitoring/dashboard/metrics/performances?search={"$and":[{"host.id":{"$in":[14]}}]}'
     Then the response code should be "200"

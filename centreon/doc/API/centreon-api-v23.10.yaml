@@ -1693,6 +1693,8 @@ paths:
                     $ref: '#/components/schemas/Meta'
   /monitoring/dashboard/metrics/performances/data:
     $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsPerformancesData.yaml'
+  /monitoring/dashboard/metrics/top:
+    $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsTop.yaml'
   /configuration/access-groups:
     get:
       tags:

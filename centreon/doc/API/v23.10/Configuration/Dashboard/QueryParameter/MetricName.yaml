@@ -1,0 +1,7 @@
+in: query
+name: metric_name
+required: true
+description: "Name of the metric"
+schema:
+  type: string
+  example: "rta"
