@@ -90,14 +90,6 @@ const useFetchQuery = <T extends object>({
     }
   };
 
-  useEffect(() => {
-    return (): void => {
-      queryClient.cancelQueries(getQueryKey());
-    };
-  }, []);
-
-  manageError();
-
   const prefetchQuery = ({ endpointParams, queryKey }): void => {
     queryClient.prefetchQuery(
       queryKey,
@@ -161,6 +153,16 @@ const useFetchQuery = <T extends object>({
   );
 
   const errorData = queryData.data as ResponseError | undefined;
+
+  useEffect(() => {
+    return (): void => {
+      queryClient.cancelQueries(getQueryKey());
+    };
+  }, []);
+
+  useEffect(() => {
+    manageError();
+  }, [queryData.data]);
 
   return {
     ...omit(['data'], queryData),

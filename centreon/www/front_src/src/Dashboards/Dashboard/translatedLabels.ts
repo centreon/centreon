@@ -48,7 +48,7 @@ export const labelYouCanSelectUpToTwoMetricUnits =
 export const labelShowDescription = 'Show description';
 export const labelOpenLinksInNewTab = 'Open links in new tab';
 export const labelOpenLinksInNewTabTooltip =
-  'By turning off this option, all links included in the widget will be opened in the same tab.';
+  'By turning off this option, all links included in the widget will be opened in the same tab';
 export const labelAddResource = 'Add resource';
 export const labelAddMetric = 'Add metric';
 export const labelAvailable = 'available';

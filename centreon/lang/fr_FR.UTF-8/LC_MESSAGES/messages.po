@@ -18081,8 +18081,8 @@ msgstr "Votre widget a été créé avec succès !"
 msgid "Value settings"
 msgstr "Paramètres de valeur"
 
-msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
-msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
+msgid "By turning off this option, all the links included in the widget will be opened in the same tab"
+msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet"
 
 msgid "Graph type"
 msgstr "Type de graphique"
