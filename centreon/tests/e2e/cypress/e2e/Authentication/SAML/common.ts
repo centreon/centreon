@@ -3,7 +3,7 @@ const keycloakURL = `${Cypress.env('OPENID_IMAGE_URL')}/realms/Centreon_SSO`;
 
 const SAMLConfigValues = {
   entityID: keycloakURL,
-  loginAttribute: 'email',
+  loginAttribute: 'urn:oid:1.2.840.113549.1.9.1', // email
   logoutURL: `${keycloakURL}/protocol/saml`,
   remoteLoginURL: `${keycloakURL}/protocol/saml/clients/centreon`,
   x509Certificate:
