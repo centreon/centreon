@@ -21,6 +21,7 @@ export interface WidgetPropertyProps {
   propertyName: string;
   required?: boolean;
   text?: {
+    autoSize?: boolean;
     multiline?: boolean;
     size?: string;
     step?: string;

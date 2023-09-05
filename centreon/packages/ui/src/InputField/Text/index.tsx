@@ -1,6 +1,6 @@
 import { forwardRef, useCallback } from 'react';
 
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import {
@@ -18,6 +18,10 @@ import useAutoSize from './useAutoSize';
 
 const useStyles = makeStyles<{ displayAsBlock: boolean }>()(
   (theme: Theme, { displayAsBlock }) => ({
+    autoSizeCompact: {
+      paddingRight: theme.spacing(1),
+      paddingTop: theme.spacing(0.6)
+    },
     hiddenText: {
       display: 'table',
       lineHeight: 0,
@@ -137,7 +141,7 @@ const TextField = forwardRef(
     }, [innerValue, debounced, defaultValue]);
 
     return (
-      <>
+      <div>
         <Tooltip placement="top" title={tooltipTitle}>
           <MuiTextField
             data-testid={dataTestId}
@@ -159,7 +163,8 @@ const TextField = forwardRef(
               className: cx(
                 classes.inputBase,
                 {
-                  [classes.transparent]: transparent
+                  [classes.transparent]: transparent,
+                  [classes.autoSizeCompact]: autoSize && equals(size, 'compact')
                 },
                 className
               ),
@@ -192,7 +197,7 @@ const TextField = forwardRef(
             {rest.value || externalValueForAutoSize || innerValue}
           </Typography>
         )}
-      </>
+      </div>
     );
   }
 );

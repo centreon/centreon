@@ -435,15 +435,27 @@ const formatMetricValue = ({
 
   const formatSuffix = base1024 ? ' ib' : 'a';
 
-  const formattedMetricValue = numeral(Math.abs(value))
-    .format(`0.[00]${formatSuffix}`)
-    .replace(/\s|i|B/g, '');
+  const suffix = equals(unit, '%') ? `${formatSuffix}` : ` ${formatSuffix}`;
+
+  const formattedMetricValue = numeral(Math.abs(value)).format(
+    `0.[00]${suffix}`
+  );
 
   if (lt(value, 0)) {
     return `-${formattedMetricValue}`;
   }
 
   return formattedMetricValue;
+};
+
+const formatMetricValueWithUnit = ({
+  value,
+  unit,
+  base = 1000
+}: FormatMetricValueProps): string | null => {
+  const formattedMetricValue = formatMetricValue({ base, unit, value });
+
+  return isNil(formattedMetricValue) ? null : `${formattedMetricValue}${unit}`;
 };
 
 const getStackedYScale = ({
@@ -524,5 +536,6 @@ export {
   getStackedYScale,
   getTimeValue,
   bisectDate,
-  getMetricWithLatestData
+  getMetricWithLatestData,
+  formatMetricValueWithUnit
 };

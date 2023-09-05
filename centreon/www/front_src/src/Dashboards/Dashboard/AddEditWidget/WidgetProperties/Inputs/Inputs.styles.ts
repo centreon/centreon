@@ -51,6 +51,9 @@ export const useRefreshIntervalStyles = makeStyles()((theme) => ({
 }));
 
 export const useThresholdStyles = makeStyles()((theme) => ({
+  customField: {
+    width: theme.spacing(20)
+  },
   customThreshold: {
     alignItems: 'center',
     display: 'flex',

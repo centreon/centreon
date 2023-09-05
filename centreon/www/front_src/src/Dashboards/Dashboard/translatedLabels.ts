@@ -73,3 +73,6 @@ export const labelCustom = 'Custom';
 export const labelThresholdsAreAutomaticallyHidden =
   'Thresholds are automatically hidden if you select 2 metric units';
 export const labelGraphType = 'Graph type';
+export const labelDefaultValueIsDefinedByFirstMetricUsed =
+  'The default value is the value defined for the first metric used';
+export const labelNone = 'None';

@@ -56,6 +56,7 @@ const WidgetTextField = ({
   return (
     <TextField
       fullWidth
+      autoSize={text?.autoSize}
       className={className}
       dataTestId={label}
       disabled={disabled}

@@ -1,26 +1,22 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import {
-  equals,
-  filter,
-  flatten,
-  head,
-  length,
-  pipe,
-  pluck,
-  uniq
-} from 'ramda';
+import { equals, flatten, head, length, lt, pipe, pluck, uniq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
 
+import { formatMetricValueWithUnit } from '@centreon/ui';
+import { Tooltip } from '@centreon/ui/components';
+
 import { getDataProperty, getProperty } from '../utils';
-import { RadioOptions, ServiceMetric } from '../../../models';
+import { Metric, RadioOptions, ServiceMetric } from '../../../models';
 import {
   labelCriticalThreshold,
   labelCustom,
   labelDefault,
+  labelDefaultValueIsDefinedByFirstMetricUsed,
+  labelNone,
   labelThreshold,
   labelWarningThreshold
 } from '../../../../translatedLabels';
@@ -81,6 +77,13 @@ const useThreshold = ({
     [getProperty({ obj: values, propertyName: enabledProp })]
   );
 
+  const hasMetricSelected = pipe(
+    pluck('metrics'),
+    flatten,
+    length,
+    lt(0)
+  )(values.data.metrics || []);
+
   const warningType = getThresholdType('warning');
   const customWarning = getThresholdCustom('Warning');
   const criticalType = getThresholdType('critical');
@@ -100,21 +103,30 @@ const useThreshold = ({
     equals(2)
   )(metrics || []);
 
-  const firstWarningThreshold = pipe(
-    pluck('metrics'),
-    flatten,
-    pluck('warningThreshold'),
-    filter((threshold) => !!threshold),
-    head
-  )(metrics || []);
+  const metric = pipe(pluck('metrics'), flatten, head)(metrics || []) as
+    | Metric
+    | undefined;
 
-  const firstCriticalThreshold = pipe(
-    pluck('metrics'),
-    flatten,
-    pluck('criticalThreshold'),
-    filter((threshold) => !!threshold),
-    head
-  )(metrics || []);
+  const formatThreshold = (threshold: number | null): string => {
+    if (!threshold) {
+      return t(labelNone);
+    }
+
+    return (
+      formatMetricValueWithUnit({
+        unit: metric?.unit || '',
+        value: threshold || null
+      }) || ''
+    );
+  };
+
+  const firstWarningThresholdText = hasMetricSelected
+    ? `(${formatThreshold(metric?.warningThreshold || null)})`
+    : '';
+
+  const firstCriticalThresholdText = hasMetricSelected
+    ? `(${formatThreshold(metric?.criticalThreshold || null)})`
+    : '';
 
   const isDefault = equals<RadioOptions | undefined>(RadioOptions.default);
 
@@ -123,19 +135,45 @@ const useThreshold = ({
       label: labelWarningThreshold,
       radioButtons: [
         {
-          content: `${t(labelDefault)} (${firstWarningThreshold || ''})`,
+          content: (
+            <Tooltip
+              followCursor={false}
+              label={t(labelDefaultValueIsDefinedByFirstMetricUsed)}
+              position="bottom"
+            >
+              <Typography>
+                {`${t(labelDefault)} ${firstWarningThresholdText}`}
+              </Typography>
+            </Tooltip>
+          ),
           value: RadioOptions.default
         },
         {
           content: (
             <Box className={classes.customThreshold}>
               <Typography>{t(labelCustom)}</Typography>
-              <WidgetTextField
-                disabled={isDefault(warningType)}
-                label={t(labelThreshold)}
-                propertyName={`${propertyName}.customWarning`}
-                text={{ size: 'compact', step: '0.01', type: 'number' }}
-              />
+              {!isDefault(warningType) && (
+                <>
+                  <WidgetTextField
+                    label={t(labelThreshold)}
+                    propertyName={`${propertyName}.customWarning`}
+                    text={{
+                      autoSize: true,
+                      size: 'compact',
+                      step: '0.01',
+                      type: 'number'
+                    }}
+                  />
+                  <Typography>
+                    (
+                    {formatMetricValueWithUnit({
+                      unit: metric?.unit || '',
+                      value: customWarning || 0
+                    })}
+                    )
+                  </Typography>
+                </>
+              )}
             </Box>
           ),
           value: RadioOptions.custom
@@ -148,19 +186,45 @@ const useThreshold = ({
       label: labelCriticalThreshold,
       radioButtons: [
         {
-          content: `${t(labelDefault)} (${firstCriticalThreshold || ''})`,
+          content: (
+            <Tooltip
+              followCursor={false}
+              label={t(labelDefaultValueIsDefinedByFirstMetricUsed)}
+              position="bottom"
+            >
+              <Typography>
+                {`${t(labelDefault)} ${firstCriticalThresholdText}`}
+              </Typography>
+            </Tooltip>
+          ),
           value: RadioOptions.default
         },
         {
           content: (
             <Box className={classes.customThreshold}>
               <Typography>{t(labelCustom)}</Typography>
-              <WidgetTextField
-                disabled={isDefault(criticalType)}
-                label={t(labelThreshold)}
-                propertyName={`${propertyName}.customCritical`}
-                text={{ size: 'compact', step: '0.01', type: 'number' }}
-              />
+              {!isDefault(criticalType) && (
+                <>
+                  <WidgetTextField
+                    label={t(labelThreshold)}
+                    propertyName={`${propertyName}.customCritical`}
+                    text={{
+                      autoSize: true,
+                      size: 'compact',
+                      step: '0.01',
+                      type: 'number'
+                    }}
+                  />
+                  <Typography>
+                    (
+                    {formatMetricValueWithUnit({
+                      unit: metric?.unit || '',
+                      value: criticalCustom || 0
+                    })}
+                    )
+                  </Typography>
+                </>
+              )}
             </Box>
           ),
           value: RadioOptions.custom
