@@ -685,6 +685,46 @@ function play_install_wizard() {
 }
 #========= end of function play_install_wizard()
 
+#========= begin of function test_api_connection()
+function test_api_connection () {
+	log "INFO" "Test admin password to access Centreon's API"
+
+	# Define temporary files
+	api_output="/tmp/unattended.sh_api_output"
+	api_return_code="/tmp/unattended.sh_api_return_code"
+	api_error_message="/tmp/unattended.sh_api_error_message"
+	api_error_keys="/tmp/unattended.sh_api_error_keys"
+
+	#
+	# Log in to Centreon API to get token
+	#
+	curl "${central_ip}/centreon/api/latest/login" \
+	--silent \
+	--insecure \
+	--request POST \
+	--header 'Content-Type: application/json' \
+	--data "{\"security\": {\"credentials\": {\"login\": \"admin\",\"password\": \"${centreon_admin_password}\"}}}" \
+	--output ${api_output} \
+	--write-out %{http_code} \
+	> ${api_return_code} 2> ${api_error_message}
+
+	# Analyse result
+	errorLevel=$?
+	httpResponse=$(cat ${api_return_code})
+	message=$(cat ${api_output})
+
+	if [[ $errorLevel -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+		error_and_exit "API connection error (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
+	else
+		token=$(echo $message | sed 's/.*{"token":"\(.*\)"}}/\1/g')
+		if [ -z "${token}" ]; then
+			error_and_exit "Unable to extract token from message: $message"
+		fi
+		log "DEBUG" "APIv2 token: ${token}"
+	fi
+}
+#========= end of function test_api_connection()
+
 #========= begin of function play_update_api()
 function play_update_api () {
 	log "INFO" "Install jq binary"
@@ -729,6 +769,7 @@ function play_update_api () {
 		if [ -z "${token}" ]; then
 			error_and_exit "Unable to extract token from message: $message"
 		fi
+		log "DEBUG" "APIv2 token: ${token}"
 	fi
 
 	# Clean files
@@ -792,14 +833,13 @@ function play_update_api () {
     fi
 
     if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
-        echo "API connection error (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
-        exit 1
+        error_and_exit "API connection error (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
     else
         tokenv1=$(echo ${message} | cut -f2 -d":" | sed -e "s/\"//g" -e "s/}//" -e 's|\\||g')
         if [ -z "${tokenv1}" ]; then
-            echo "Unable to extract token from message: $message"
-            exit 1
+            error_and_exit "Unable to extract token from message: $message"
         fi
+		log "DEBUG" "APIv1 token: ${token}"
     fi
 
     #
@@ -819,8 +859,7 @@ function play_update_api () {
     httpResponse=$(cat ${api_return_code})
     message=$(cat ${api_output})
     if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
-        echo "Error during update (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
-        exit 1
+        error_and_exit "Error during update (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
     else
 	    #
         # Get list of modules and update them if needed
@@ -845,13 +884,12 @@ function play_update_api () {
                 httpResponse=$(cat ${api_return_code})
                 sub_message=$(cat ${api_output})
                 if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
-                    echo "Error during update of ${module_information[0]} module (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
-                    exit 1
+                    error_and_exit "Error during update of ${module_information[0]} module (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
                 else
                     status=$(echo ${sub_message} | jq '.status')
                     status_message=$(echo ${sub_message} | jq '.result.message')
                     if [ "${status}" = "false" ]; then
-                        echo "Error during update of ${module_information[0]} module: ${status_message}"
+                        log "WARN" "Error during update of ${module_information[0]} module: ${status_message}"
                     fi
                 fi
             fi
@@ -880,13 +918,12 @@ function play_update_api () {
                 httpResponse=$(cat ${api_return_code})
                 sub_message=$(cat ${api_output})
                 if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
-                    echo "Error during update of ${widget_information[0]} widget (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
-                    exit 1
+                    error_and_exit "Error during update of ${widget_information[0]} widget (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
                 else
                     status=$(echo ${sub_message} | jq '.status')
                     status_message=$(echo ${sub_message} | jq '.result.message')
                     if [ "${status}" = "false" ]; then
-                        echo "Error during update of ${widget_information[0]} widget: ${status_message}"
+                        log "WARN" "Error during update of ${widget_information[0]} widget: ${status_message}"
                     fi
                 fi
             fi
@@ -1070,6 +1107,14 @@ if [ "$operation" == "install" ]; then
 		centreon_admin_lastname=${ENV_CENTREON_ADMIN_LASTNAME:-"Doe"}
 		# Set from ENV or Administrator e-mail
 		centreon_admin_email=${ENV_CENTREON_ADMIN_EMAIL:-"admin@admin.tld"}
+	fi
+else
+	if [ "$wizard_autoplay" == "true" ]; then
+		if [ -z "${centreon_admin_password}" ]; then
+			error_and_exit "Centreon admin password is not defined, use '-p <centreon admin password>' option"
+		else
+			test_api_connection
+		fi
 	fi
 fi
 
