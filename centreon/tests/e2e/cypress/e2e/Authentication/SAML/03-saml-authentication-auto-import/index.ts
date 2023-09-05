@@ -123,7 +123,7 @@ Then(
           );
           cy.getByTestId({ tag: 'input', testId: 'contact_name' }).should(
             'have.value',
-            'SAML SAML'
+            'SAML'
           );
           cy.getByTestId({ tag: 'input', testId: 'contact_email' }).should(
             'have.value',

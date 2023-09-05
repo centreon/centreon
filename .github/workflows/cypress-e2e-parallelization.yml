@@ -49,7 +49,7 @@ jobs:
         id: list-features
         run: |
           cd ${{ inputs.module_name }}
-          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | grep -i 'saml\|openid' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
     needs: [cypress-e2e-test-list]
@@ -113,7 +113,7 @@ jobs:
         with:
           name: ${{ inputs.name }}
           web_image_os: ${{ inputs.os }}
-          web_image_version: develop
+          web_image_version: ${{ github.head_ref || github.ref_name }}
           openid_image_version: ${{ inputs.major_version }}
           module: centreon
           feature_file_path: ${{ matrix.feature }}
