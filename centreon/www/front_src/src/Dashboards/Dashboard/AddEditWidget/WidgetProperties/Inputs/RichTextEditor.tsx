@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
+import { equals } from 'ramda';
 
 import { RichTextEditor } from '@centreon/ui';
 
@@ -18,6 +19,11 @@ const WidgetRichTextEditor = ({
 
   const { errors, values, setFieldValue, setFieldTouched } =
     useFormikContext<Widget>();
+
+  const isGenericTextWidget = equals(
+    values.moduleName,
+    'centreon-widget-graph'
+  );
 
   const value = useMemo<string | undefined>(
     () => getProperty({ obj: values, propertyName }),
@@ -43,6 +49,7 @@ const WidgetRichTextEditor = ({
     <RichTextEditor
       editable
       disabled={disabledCondition?.(values)}
+      displayBlockButtons={!isGenericTextWidget}
       editorState={value || undefined}
       error={error}
       getEditorState={change}

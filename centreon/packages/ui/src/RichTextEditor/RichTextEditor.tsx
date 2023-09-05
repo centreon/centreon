@@ -23,6 +23,7 @@ import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 export interface RichTextEditorProps {
   contentClassName?: string;
   disabled?: boolean;
+  displayBlockButtons?: boolean;
   displayMacrosButton?: boolean;
   editable: boolean;
   editorState?: string;
@@ -132,9 +133,10 @@ const RichTextEditor = ({
   onBlur,
   contentClassName,
   displayMacrosButton = false,
-  disabled,
+  disabled = false,
   openLinkInNewTab = true,
-  initialize
+  initialize,
+  displayBlockButtons = true
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -174,6 +176,7 @@ const RichTextEditor = ({
         <div className={classes.toolbar}>
           <ToolbarPlugin
             disabled={disabled}
+            displayBlockButtons={displayBlockButtons}
             displayMacrosButton={displayMacrosButton}
             editable={editable}
           />
