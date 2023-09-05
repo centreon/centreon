@@ -1,6 +1,6 @@
 FROM quay.io/keycloak/keycloak:22.0.1
 
-COPY .github/docker/openid/configs/openidrealm.json /realms/openid-config.json
+COPY .github/docker/keycloak/configs/openidrealm.json /realms/openid-config.json
 
 # change these values to point to a running postgres instance
 ENV KEYCLOAK_ADMIN=admin
