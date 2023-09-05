@@ -1,7 +1,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 const keycloakURL = `${Cypress.env('OPENID_IMAGE_URL')}/realms/Centreon_SSO`;
 
-const SAMLConfigVales = {
+const SAMLConfigValues = {
   entityID: keycloakURL,
   loginAttribute: 'email',
   logoutURL: `${keycloakURL}/protocol/saml`,
@@ -12,24 +12,24 @@ const SAMLConfigVales = {
 
 const configureSAML = (): Cypress.Chainable => {
   cy.getByLabel({ label: 'Remote login URL', tag: 'input' }).type(
-    SAMLConfigVales.remoteLoginURL,
+    SAMLConfigValues.remoteLoginURL,
     { force: true }
   );
 
   cy.getByLabel({ label: 'Issuer (Entity ID) URL', tag: 'input' }).type(
-    SAMLConfigVales.entityID,
+    SAMLConfigValues.entityID,
     { force: true }
   );
 
   cy.getByLabel({
     label: 'Copy/paste x.509 certificate',
     tag: 'textarea'
-  }).type(SAMLConfigVales.x509Certificate, { force: true });
+  }).type(SAMLConfigValues.x509Certificate, { force: true });
 
   cy.getByLabel({
     label: 'User ID (login) attribute for Centreon user',
     tag: 'input'
-  }).type(SAMLConfigVales.loginAttribute, { force: true });
+  }).type(SAMLConfigValues.loginAttribute, { force: true });
 
   cy.getByLabel({
     label: 'Both identity provider and Centreon UI',
@@ -38,7 +38,7 @@ const configureSAML = (): Cypress.Chainable => {
 
   return cy
     .getByLabel({ label: 'Logout URL', tag: 'input' })
-    .type(SAMLConfigVales.logoutURL, { force: true });
+    .type(SAMLConfigValues.logoutURL, { force: true });
 };
 
 const navigateToSAMLConfigPage = (): Cypress.Chainable => {

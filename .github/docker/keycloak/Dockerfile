@@ -7,7 +7,7 @@ ENV KEYCLOAK_ADMIN=admin
 ENV KEYCLOAK_ADMIN_PASSWORD=Centreon!2021
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
-ENV KC_FEATURES=token-exchange
+ENV KC_FEATURES=token-exchange,scripts
 
 RUN bash -e <<EOF
 
