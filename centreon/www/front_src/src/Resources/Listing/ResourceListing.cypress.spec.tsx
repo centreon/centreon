@@ -615,7 +615,7 @@ describe('Resource Listing : Visualization by Service', () => {
 
 describe('Resource Listing : Visualization by all resources', () => {
   beforeEach(() => {
-    store.set(selectedVisualizationAtom, Visualization.SERVICE);
+    store.set(selectedVisualizationAtom, Visualization.Service);
     interceptRequestsAndMountBeforeEach();
   });
   it('sends a request to get all resources', () => {

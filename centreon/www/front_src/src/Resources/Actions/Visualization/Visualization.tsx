@@ -36,11 +36,11 @@ const actions = [
     IconOnActive: viewByServiceActive,
     IconOnInactive: viewByServiceInactive,
     title: labelViewByService,
-    type: Visualization.SERVICE
+    type: Visualization.Service
   }
 ];
 
-const View = (): JSX.Element => {
+const VisualizationActions = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
@@ -62,4 +62,4 @@ const View = (): JSX.Element => {
   );
 };
 
-export default View;
+export default VisualizationActions;

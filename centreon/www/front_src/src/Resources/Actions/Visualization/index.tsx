@@ -1,3 +1,3 @@
-import Visualization from './Visualization';
+import VisualizationActions from './Visualization';
 
-export default Visualization;
+export default VisualizationActions;

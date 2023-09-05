@@ -26,7 +26,7 @@ const useVisualization = ({ type }: Props): State => {
   const selectVisualization = (): void => {
     setVisualization(type);
 
-    if (equals(type, Visualization.SERVICE)) {
+    if (equals(type, Visualization.Service)) {
       setSearch('type:service,metaservice');
       setCriteriaAndNewFilter({
         apply: true,
