@@ -27,10 +27,10 @@ interface Props {
   isRowSelected: boolean;
   labelCollapse?: string;
   labelExpand?: string;
+  listingVariant?: ListingVariant;
   row?;
   rowColorConditions?: Array<RowColorCondition>;
   subItemsRowProperty?: string;
-  viewMode?: ListingVariant;
 }
 
 const DataCell = ({
@@ -40,14 +40,14 @@ const DataCell = ({
   isRowHovered,
   rowColorConditions,
   disableRowCondition,
-  viewMode,
+  listingVariant,
   getHighlightRowCondition,
   subItemsRowProperty,
   labelCollapse,
   labelExpand
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
-  const { dataStyle } = useStyleTable({ viewMode });
+  const { dataStyle } = useStyleTable({ listingVariant });
 
   const commonCellProps = {
     disableRowCondition,
@@ -85,10 +85,10 @@ const DataCell = ({
         <Cell
           className={classes.cell}
           isRowHighlighted={isRowHighlighted}
+          listingVariant={listingVariant}
           style={{
             gridColumn
           }}
-          viewMode={viewMode}
           {...commonCellProps}
         >
           {isTruncated && (
@@ -114,7 +114,7 @@ const DataCell = ({
         <Cell
           className={classes.cell}
           isRowHighlighted={isRowHighlighted}
-          viewMode={viewMode}
+          listingVariant={listingVariant}
           onClick={(e): void => {
             if (!clickable && !column.displaySubItemsCaret) {
               return;
@@ -222,7 +222,7 @@ const MemoizedDataCell = memo<Props>(
 
     // Explicitely prevent the component from rendering.
     if (nextRenderComponentCondition === false) {
-      return equals(prevProps.viewMode, nextProps.viewMode);
+      return equals(prevProps.listingVariant, nextProps.listingVariant);
     }
 
     const previousRowProps = previousRowMemoProps
@@ -255,7 +255,7 @@ const MemoizedDataCell = memo<Props>(
         nextProps.disableRowCondition(nextProps.row)
       ) &&
       equals(previousIsRowHighlighted, nextIsRowHighlighted) &&
-      equals(prevProps.viewMode, nextProps.viewMode) &&
+      equals(prevProps.listingVariant, nextProps.listingVariant) &&
       equals(prevProps.subItemsRowProperty, nextProps.subItemsRowProperty)
     );
   }

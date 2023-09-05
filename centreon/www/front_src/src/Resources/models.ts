@@ -126,5 +126,5 @@ export enum SortOrder {
 export enum Visualization {
   All = 'All',
   Host = 'By host',
-  SERVICE = 'By service'
+  Service = 'By service'
 }

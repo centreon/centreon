@@ -144,13 +144,13 @@ const columnToSort = columns
   .filter(({ id }) => Ramda.includes(id, defaultSelectedColumnIds));
 
 const configureUserAtomViewMode = (
-  viewMode: ListingVariant = ListingVariant.compact
+  listingVariant: ListingVariant = ListingVariant.compact
 ): void => {
   const userData = renderHook(() => useAtomValue(userAtom));
 
   userData.result.current.timezone = 'Europe/Paris';
   userData.result.current.locale = 'en_US';
-  userData.result.current.user_interface_density = viewMode;
+  userData.result.current.user_interface_density = listingVariant;
 };
 
 before(() => {

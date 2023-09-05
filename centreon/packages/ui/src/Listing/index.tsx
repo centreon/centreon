@@ -102,6 +102,7 @@ export interface Props<TRow> {
   headerMemoProps?: Array<unknown>;
   innerScrollDisabled?: boolean;
   limit?: number;
+  listingVariant?: ListingVariant;
   loading?: boolean;
   moveTablePagination?: boolean;
   onLimitChange?: (limit) => void;
@@ -126,7 +127,6 @@ export interface Props<TRow> {
     rowProperty: string;
   };
   totalRows?: number;
-  viewMode?: ListingVariant;
   viewerModeConfiguration?: ViewerModeConfiguration;
   visualizationActions?: JSX.Element;
   widthToMoveTablePagination?: number;
@@ -170,7 +170,7 @@ const Listing = <TRow extends { id: RowId }>({
   predefinedRowsSelection = [],
   actionsBarMemoProps = [],
   moveTablePagination,
-  viewMode = ListingVariant.compact,
+  listingVariant = ListingVariant.compact,
   widthToMoveTablePagination,
   getHighlightRowCondition,
   viewerModeConfiguration,
@@ -189,7 +189,7 @@ const Listing = <TRow extends { id: RowId }>({
   const { dataStyle, getGridTemplateColumn } = useStyleTable({
     checkable,
     currentVisibleColumns,
-    viewMode
+    listingVariant
   });
 
   const { t } = useTranslation();
@@ -232,8 +232,8 @@ const Listing = <TRow extends { id: RowId }>({
     dataStyle,
     getGridTemplateColumn,
     limit,
-    rows: rowsToDisplay,
-    viewMode
+    listingVariant,
+    rows: rowsToDisplay
   });
 
   useResizeObserver({
@@ -503,10 +503,10 @@ const Listing = <TRow extends { id: RowId }>({
             currentPage={currentPage}
             customPaginationClassName={customPaginationClassName}
             limit={limit}
+            listingVariant={listingVariant}
             moveTablePagination={moveTablePagination}
             paginated={paginated}
             totalRows={totalRows}
-            viewMode={viewMode}
             viewerModeConfiguration={viewerModeConfiguration}
             visualizationActions={visualizationActions}
             widthToMoveTablePagination={widthToMoveTablePagination}
@@ -535,13 +535,13 @@ const Listing = <TRow extends { id: RowId }>({
               checkable={checkable}
               columnConfiguration={columnConfiguration}
               columns={columns}
+              listingVariant={listingVariant}
               memoProps={headerMemoProps}
               predefinedRowsSelection={predefinedRowsSelection}
               rowCount={limit - emptyRows}
               selectedRowCount={selectedRows.length}
               sortField={sortField}
               sortOrder={sortOrder}
-              viewMode={viewMode}
               onSelectAllClick={selectAllRows}
               onSelectColumns={onSelectColumns}
               onSelectRowsWithCondition={onSelectRowsWithCondition}
@@ -576,12 +576,12 @@ const Listing = <TRow extends { id: RowId }>({
                     }
                     lastSelectionIndex={lastSelectionIndex}
                     limit={limit}
+                    listingVariant={listingVariant}
                     row={row}
                     rowColorConditions={rowColorConditions}
                     shiftKeyDownRowPivot={shiftKeyDownRowPivot}
                     subItemsPivots={subItemsPivots}
                     tabIndex={-1}
-                    viewMode={viewMode}
                     visibleColumns={visibleColumns}
                     onClick={(): void => {
                       onRowClick(row);
@@ -631,10 +631,10 @@ const Listing = <TRow extends { id: RowId }>({
                         key={`${getId(row)}-${column.id}`}
                         labelCollapse={subItems.labelCollapse}
                         labelExpand={subItems.labelExpand}
+                        listingVariant={listingVariant}
                         row={row}
                         rowColorConditions={rowColorConditions}
                         subItemsRowProperty={subItems?.rowProperty}
-                        viewMode={viewMode}
                       />
                     ))}
                   </ListingRow>
@@ -677,7 +677,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   columnConfiguration,
   moveTablePagination,
   widthToMoveTablePagination,
-  viewMode,
+  listingVariant,
   ...props
 }: MemoizedListingProps<TRow>): JSX.Element =>
   useMemoComponent({
@@ -689,6 +689,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         currentPage={currentPage}
         innerScrollDisabled={innerScrollDisabled}
         limit={limit}
+        listingVariant={listingVariant}
         loading={loading}
         moveTablePagination={moveTablePagination}
         paginated={paginated}
@@ -698,7 +699,6 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         sortField={sortField}
         sortOrder={sortOrder}
         totalRows={totalRows}
-        viewMode={viewMode}
         widthToMoveTablePagination={widthToMoveTablePagination}
         {...props}
       />
@@ -722,7 +722,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       sortOrder,
       sortField,
       innerScrollDisabled,
-      viewMode
+      listingVariant
     ]
   });
 

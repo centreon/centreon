@@ -86,7 +86,7 @@ type Props = Pick<
   | 'moveTablePagination'
   | 'widthToMoveTablePagination'
   | 'customPaginationClassName'
-  | 'viewMode'
+  | 'listingVariant'
   | 'viewerModeConfiguration'
 >;
 
@@ -107,7 +107,7 @@ const MemoListingActionBar = ({
   widthToMoveTablePagination = 550,
   actionsBarMemoProps = [],
   viewerModeConfiguration,
-  viewMode,
+  listingVariant,
   visualizationActions
 }: Props): JSX.Element => {
   const marginWidthTableListing = 30;
@@ -161,7 +161,10 @@ const MemoListingActionBar = ({
                     viewerModeConfiguration?.customStyle
                       ?.customStyleViewerModeIcon,
                     {
-                      [classes.mode]: equals(viewMode, ListingVariant.extended)
+                      [classes.mode]: equals(
+                        listingVariant,
+                        ListingVariant.extended
+                      )
                     }
                   )}
                 >
@@ -212,7 +215,7 @@ const MemoListingActionBar = ({
       currentPage,
       moveTablePagination,
       widthToMoveTablePagination,
-      viewMode,
+      listingVariant,
       themeMode,
       limit,
       pick(
@@ -242,7 +245,7 @@ const ListingActionBar = ({
   moveTablePagination,
   widthToMoveTablePagination,
   customPaginationClassName,
-  viewMode,
+  listingVariant,
   viewerModeConfiguration,
   visualizationActions
 }: Props): JSX.Element | null => {
@@ -263,10 +266,10 @@ const ListingActionBar = ({
       currentPage={currentPage}
       customPaginationClassName={customPaginationClassName}
       limit={limit}
+      listingVariant={listingVariant}
       moveTablePagination={moveTablePagination}
       paginated={paginated}
       totalRows={totalRows}
-      viewMode={viewMode}
       viewerModeConfiguration={viewerModeConfiguration}
       visualizationActions={visualizationActions}
       widthToMoveTablePagination={widthToMoveTablePagination}
