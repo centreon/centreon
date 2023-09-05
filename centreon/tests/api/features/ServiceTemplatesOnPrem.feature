@@ -14,6 +14,10 @@ Feature:
     CONTACT;ADD;test;test;test@localhost.com;Centreon@2022;0;1;en_US;local
     CONTACT;setparam;test;reach_api;1
     CMD;ADD;cmd_test;check;$USER1$/echo $SERVICETOTO$
+    SC;ADD;severity1;service-severity-alias
+    SC;setparam;severity1;sc_activate;1
+    SC;setseverity;severity1;42;logos/logo-centreon-colors.png
+    SG;ADD;ServiceGroupA;ServiceGroupA
     """
 
     When I send a POST request to '/api/latest/configuration/services/templates' with body:
@@ -161,7 +165,6 @@ Feature:
         "icon_id": 1,
         "icon_alternative": "icon_alternative",
         "severity_id": null,
-        "is_activated": true,
         "macros": [
             {
                 "name": "MACROB",
@@ -182,7 +185,13 @@ Feature:
                 "description": null
             }
         ],
-        "service_categories": [1, 2]
+        "service_categories": [1, 2],
+        "service_groups": [
+            {
+                "service_group_id": 1,
+                "host_template_id": 3
+            }
+        ]
     }
     """
     Then the response code should be 201
@@ -237,7 +246,6 @@ Feature:
             3,
             11
         ],
-        "is_activated": true,
         "is_locked": false,
         "macros": [
             {
@@ -261,6 +269,14 @@ Feature:
             {
                 "id": 2,
                 "name": "Traffic"
+            }
+        ],
+        "groups": [
+            {
+                "id": 1,
+                "name": "ServiceGroupA",
+                "host_template_id": 3,
+                "host_template_name": "Servers-Linux"
             }
         ]
     }
@@ -324,7 +340,6 @@ Feature:
                     3,
                     11
                 ],
-                "is_activated": true,
                 "is_locked": false
             }
         ],
@@ -345,13 +360,70 @@ Feature:
     When I send a PATCH request to '/api/latest/configuration/services/templates/<newServiceTemplateId>' with body:
     """
     {
+        "name": "new service template name",
+        "alias": "new service template alias",
+        "comment": "new comment",
+        "service_template_id": <templateB>,
+        "check_command_id": null,
+        "check_command_args": [],
+        "check_timeperiod_id": 2,
+        "max_check_attempts": 6,
+        "normal_check_interval": 5,
+        "retry_check_interval": 1,
+        "active_check_enabled": 0,
+        "passive_check_enabled": 1,
+        "volatility_enabled": 0,
+        "notification_enabled": 1,
+        "is_contact_additive_inheritance": true,
+        "is_contact_group_additive_inheritance": true,
+        "notification_interval": 5,
+        "notification_timeperiod_id": 1,
+        "notification_type": 0,
+        "first_notification_delay": 11,
+        "recovery_notification_delay": 12,
+        "acknowledgement_timeout": 13,
+        "freshness_checked": 1,
+        "freshness_threshold": 14,
+        "flap_detection_enabled": 1,
+        "low_flap_threshold": 48,
+        "high_flap_threshold": 52,
+        "event_handler_enabled": 1,
+        "event_handler_command_id": null,
+        "event_handler_command_args": [],
+        "graph_template_id": null,
+        "note": "new note",
+        "note_url": "new note_url",
+        "action_url": "new action url",
+        "icon_id": null,
+        "icon_alternative": "new icon_alternative",
+        "severity_id": 5,
+        "macros": [
+            {
+                "name": "MACROB",
+                "value": "B3",
+                "is_password": false,
+                "description": null
+            },
+            {
+                "name": "MACROE",
+                "value": "E1",
+                "is_password": false,
+                "description": null
+            },
+            {
+                "name": "TOTO",
+                "value": "T1",
+                "is_password": false,
+                "description": null
+            }
+        ],
         "host_templates": [2, 3],
         "service_categories": [1, 4]
     }
     """
     Then the response code should be "204"
 
-    When I send a GET request to '/api/latest/configuration/services/templates?search={"name": "service template test"}'
+    When I send a GET request to '/api/latest/configuration/services/templates?search={"id": <newServiceTemplateId>}'
     Then the response code should be "200"
     And the JSON should be equal to:
     """
@@ -359,54 +431,47 @@ Feature:
         "result": [
             {
                 "id": <newServiceTemplateId>,
-                "name": "service template test",
-                "alias": "service template alias",
-                "comment": "comment",
-                "service_template_id": <templateC>,
-                "check_command_id": 1,
-                "check_command_args": [
-                    "arg1",
-                    "arg2"
-                ],
-                "check_timeperiod_id": 1,
-                "max_check_attempts": 5,
-                "normal_check_interval": 3,
-                "retry_check_interval": 2,
-                "active_check_enabled": 2,
-                "passive_check_enabled": 2,
-                "volatility_enabled": 2,
-                "notification_enabled": 2,
+                "name": "new service template name",
+                "alias": "new service template alias",
+                "comment": "new comment",
+                "service_template_id": <templateB>,
+                "check_command_id": null,
+                "check_command_args": [],
+                "check_timeperiod_id": 2,
+                "max_check_attempts": 6,
+                "normal_check_interval": 5,
+                "retry_check_interval": 1,
+                "active_check_enabled": 0,
+                "passive_check_enabled": 1,
+                "volatility_enabled": 0,
+                "notification_enabled": 1,
                 "is_contact_additive_inheritance": false,
                 "is_contact_group_additive_inheritance": false,
-                "notification_interval": 6,
-                "notification_timeperiod_id": 2,
-                "notification_type": 36,
-                "first_notification_delay": 19,
-                "recovery_notification_delay": 9,
-                "acknowledgement_timeout": 8,
-                "freshness_checked": 2,
-                "freshness_threshold": 11,
-                "flap_detection_enabled": 2,
-                "low_flap_threshold": 49,
-                "high_flap_threshold": 51,
-                "event_handler_enabled": 2,
-                "event_handler_command_id": 2,
-                "event_handler_command_args": [
-                    "earg1",
-                    "earg2"
-                ],
-                "graph_template_id": 1,
-                "note": "note",
-                "note_url": "note_url",
-                "action_url": "action url",
-                "icon_id": 1,
-                "icon_alternative": "icon_alternative",
-                "severity_id": null,
+                "notification_interval": 5,
+                "notification_timeperiod_id": 1,
+                "notification_type": 0,
+                "first_notification_delay": 11,
+                "recovery_notification_delay": 12,
+                "acknowledgement_timeout": 13,
+                "freshness_checked": 1,
+                "freshness_threshold": 14,
+                "flap_detection_enabled": 1,
+                "low_flap_threshold": 48,
+                "high_flap_threshold": 52,
+                "event_handler_enabled": 1,
+                "event_handler_command_id": null,
+                "event_handler_command_args": [],
+                "graph_template_id": null,
+                "note": "new note",
+                "note_url": "new note_url",
+                "action_url": "new action url",
+                "icon_id": null,
+                "icon_alternative": "new icon_alternative",
+                "severity_id": 5,
                 "host_templates": [
                     2,
                     3
                 ],
-                "is_activated": true,
                 "is_locked": false
             }
         ],
@@ -415,7 +480,7 @@ Feature:
             "limit": 10,
             "search": {
                 "$and": {
-                    "name": "service template test"
+                    "id": <newServiceTemplateId>
                 }
             },
             "sort_by": {},

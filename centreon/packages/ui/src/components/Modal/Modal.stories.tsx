@@ -10,7 +10,7 @@ const meta: Meta<typeof Modal> = {
       control: {
         type: 'select'
       },
-      options: ['small', 'medium', 'large']
+      options: ['small', 'medium', 'large', 'xlarge', 'fullscreen']
     }
   },
   component: Modal
@@ -106,6 +106,37 @@ export const AsPassive: Story = {
           irure mollit ex aute excepteur eu id cillum.
         </p>
       </Modal.Body>
+    </Modal>
+  )
+};
+
+export const fullscreenWithCustomMargins: Story = {
+  args: {
+    fullscreenMargins: {
+      bottom: 20,
+      left: 40,
+      right: 10,
+      top: 90
+    },
+    hasCloseButton: true,
+    open: true,
+    size: 'fullscreen'
+  },
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Header>Modal title</Modal.Header>
+      <Modal.Body>
+        <p>
+          Occaecat consectetur amet officia magna. Eu sunt aute duis duis cillum
+          irure mollit ex aute excepteur eu id cillum.
+        </p>
+      </Modal.Body>
+      <Modal.Actions
+        labels={{
+          cancel: 'Cancel',
+          confirm: 'Confirm'
+        }}
+      />
     </Modal>
   )
 };

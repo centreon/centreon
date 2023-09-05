@@ -387,6 +387,33 @@ class Assertion
     }
 
     /**
+     * Validate that the values of array are correct type
+     *
+     * @param 'string'|'float'|'int' $type
+     * @param array<mixed> $values
+     *
+     * @throws AssertionException
+     */
+    public static function arrayOfTypeOrNull(string $type, array $values, string $propertyPath): void
+    {
+        try {
+            switch ($type) {
+                case 'string':
+                    (fn (?string ...$items): array => $items)(...$values);
+                    break;
+                case 'float':
+                    (fn (?float ...$items): array => $items)(...$values);
+                    break;
+                case 'int':
+                    (fn (?int ...$items): array => $items)(...$values);
+                    break;
+            }
+        } catch(\TypeError) {
+            throw AssertionException::invalidTypeInArray($type, $propertyPath);
+        }
+    }
+
+    /**
      * Make a string version of a value.
      *
      * Copied from {@see \Assert\Assertion::stringify()}.

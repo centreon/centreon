@@ -37,6 +37,7 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   getRequestHeaders?: HeadersInit;
   initialPage: number;
   labelKey?: string;
+  queryKey?: string;
   searchConditions?: Array<ConditionsSearchParameter>;
 }
 
@@ -55,6 +56,7 @@ const ConnectedAutocompleteField = (
     getRenderedOptionText = (option): string => option.name?.toString(),
     getRequestHeaders,
     displayOptionThumbnail,
+    queryKey,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -89,10 +91,16 @@ const ConnectedAutocompleteField = (
           search: searchParameter
         });
       },
-      getQueryKey: () => [`autocomplete-${props.label}`, page, searchParameter],
+      getQueryKey: () => [
+        `autocomplete-${queryKey || props.label}`,
+        page,
+        searchParameter
+      ],
       isPaginated: true,
       queryOptions: {
+        cacheTime: 0,
         enabled: false,
+        staleTime: 0,
         suspense: false
       }
     });

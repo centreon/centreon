@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,18 +30,18 @@ interface ReadVaultRepositoryInterface
     /**
      * @param int $id
      *
-     * @return bool
-     *
      * @throws \Throwable
+     *
+     * @return bool
      */
     public function exists(int $id): bool;
 
     /**
      * @param int $id
      *
-     * @return Vault|null
-     *
      * @throws \Throwable
+     *
+     * @return Vault|null
      */
     public function findById(int $id): ?Vault;
 }

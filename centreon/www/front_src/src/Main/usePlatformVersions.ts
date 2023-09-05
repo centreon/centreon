@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { useAtom } from 'jotai';
-import { isNil, keys } from 'ramda';
+import { includes, isNil, keys } from 'ramda';
 
 import { getData, useRequest } from '@centreon/ui';
 
@@ -44,7 +44,9 @@ const usePlatformVersions = (): UsePlatformVersionsState => {
       return null;
     }
 
-    return keys(platformVersions?.widgets) as Array<string>;
+    return (keys(platformVersions?.widgets) as Array<string>).filter((widget) =>
+      includes('centreon-widget', widget)
+    );
   }, [platformVersions]);
 
   return {

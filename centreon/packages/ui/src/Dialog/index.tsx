@@ -12,6 +12,8 @@ import {
   CircularProgress
 } from '@mui/material';
 
+import { DataTestAttributes } from '../@types/data-attributes';
+
 interface StylesProps {
   contentWidth?: number;
 }
@@ -47,7 +49,8 @@ export type Props = {
   onConfirm: (event, value?) => void;
   open: boolean;
   submitting?: boolean;
-} & DialogProps;
+} & DialogProps &
+  DataTestAttributes;
 
 const Dialog = ({
   open,
@@ -95,7 +98,7 @@ const Dialog = ({
         {onCancel && (
           <Button
             color="primary"
-            data-testid="cancel"
+            data-testid="Cancel"
             disabled={cancelDisabled}
             onClick={onCancel}
           >
@@ -106,7 +109,7 @@ const Dialog = ({
           aria-label={labelConfirm || ''}
           className={dialogConfirmButtonClassName}
           color="primary"
-          data-testid="confirm"
+          data-testid="Confirm"
           disabled={confirmDisabled}
           endIcon={submitting && <CircularProgress size={15} />}
           onClick={onConfirm}

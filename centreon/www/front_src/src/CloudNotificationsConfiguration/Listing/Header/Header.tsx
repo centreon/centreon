@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Box } from '@mui/material';
 
 import { selectedRowsAtom } from '../../atom';
-import { DeleteButton, useDelete } from '../../Actions';
+import { DeleteButton, useDelete } from '../../Actions/Delete';
 import { DeleteType } from '../../models';
 import { labelDeleteMultipleNotifications } from '../../translatedLabels';
 

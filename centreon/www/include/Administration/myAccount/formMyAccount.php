@@ -115,7 +115,7 @@ if ($cct["contact_auth_type"] != 'ldap') {
 $form->addElement('text', 'contact_email', _("Email"), $attrsText);
 $form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
 
-if ($cct["contact_auth_type"] != 'ldap') {
+if ($cct["contact_auth_type"] === 'local') {
     $form->addFormRule('validatePasswordModification');
     $statement = $pearDB->prepare(
         "SELECT creation_date FROM contact_password WHERE contact_id = :contactId ORDER BY creation_date DESC LIMIT 1"
@@ -169,7 +169,9 @@ $form->addElement(
     "data-testid" => _("Generate")]
 );
 $form->addElement('select', 'contact_lang', _("Language"), $langs);
-$form->addElement('checkbox', 'show_deprecated_pages', _("Use deprecated pages"), null, $attrsText);
+if (!isCloudPlatform()) {
+    $form->addElement('checkbox', 'show_deprecated_pages', _("Use deprecated pages"), null, $attrsText);
+}
 
 
 /* ------------------------ Topoogy ---------------------------- */

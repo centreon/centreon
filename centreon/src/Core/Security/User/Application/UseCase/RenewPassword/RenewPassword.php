@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,17 +26,17 @@ namespace Core\Security\User\Application\UseCase\RenewPassword;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\UnauthorizedResponse;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Infrastructure\Local\Api\Exception\ConfigurationException;
-use Core\Security\User\Domain\Exception\UserPasswordException;
-use Core\Security\User\Domain\Model\UserPasswordFactory;
-use Core\Application\Common\UseCase\UnauthorizedResponse;
 use Core\Security\User\Application\Repository\ReadUserRepositoryInterface;
 use Core\Security\User\Application\Repository\WriteUserRepositoryInterface;
+use Core\Security\User\Domain\Exception\UserPasswordException;
+use Core\Security\User\Domain\Model\UserPasswordFactory;
 
 class RenewPassword
 {
@@ -63,20 +63,22 @@ class RenewPassword
         RenewPasswordRequest $renewPasswordRequest
     ): void {
         $this->info('Processing password renewal...');
-        //Get User informations
+        // Get User informations
         $user = $this->readRepository->findUserByAlias($renewPasswordRequest->userAlias);
         if ($user === null) {
             $this->error('No user could be found', [
-                'user_alias' => $renewPasswordRequest->userAlias
+                'user_alias' => $renewPasswordRequest->userAlias,
             ]);
             $presenter->setResponseStatus(new NotFoundResponse('User'));
+
             return;
         }
 
-        //Validate that old password matches the current user password
+        // Validate that old password matches the current user password
         if (password_verify($renewPasswordRequest->oldPassword, $user->getPassword()->getPasswordValue()) === false) {
             $this->notice('Credentials are invalid');
             $presenter->setResponseStatus(new UnauthorizedResponse('Invalid credentials'));
+
             return;
         }
 
@@ -89,12 +91,12 @@ class RenewPassword
                 $user,
                 $providerConfiguration->getCustomConfiguration()->getSecurityPolicy()
             );
-        } catch(UserPasswordException | ConfigurationException $ex) {
+        } catch (UserPasswordException|ConfigurationException $ex) {
             $this->error('Unable to update password', ['trace' => (string) $ex]);
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex->getMessage()));
 
             return;
-        }  catch(\Throwable $ex) {
+        }  catch (\Throwable $ex) {
             $this->error('An error occured while updating password', ['trace' => (string) $ex]);
             $presenter->setResponseStatus(new ErrorResponse('An error occured while updating password'));
 
@@ -103,7 +105,7 @@ class RenewPassword
         $user->setPassword($newPassword);
 
         $this->info('Updating user password', [
-            'user_alias' => $user->getAlias()
+            'user_alias' => $user->getAlias(),
         ]);
         $this->writeRepository->renewPassword($user);
         $presenter->setResponseStatus(new NoContentResponse());

@@ -51,22 +51,25 @@ When(
         label: 'Enable OpenID Connect authentication',
         tag: 'input'
       })
-      .check()
-      .getByLabel({
-        label: 'OpenID Connect only',
-        tag: 'input'
-      })
-      .check()
-      .getByLabel({ label: 'Identity provider' })
+      .check();
+
+    cy.getByLabel({
+      label: 'OpenID Connect only',
+      tag: 'input'
+    }).check();
+
+    cy.getByLabel({ label: 'Identity provider' })
       .eq(0)
       .contains('Identity provider')
       .click({ force: true });
 
     configureOpenIDConnect();
 
-    cy.getByLabel({ label: 'save button', tag: 'button' })
-      .click({ force: true })
-      .wait('@updateOIDCProvider')
+    cy.getByLabel({ label: 'save button', tag: 'button' }).click({
+      force: true
+    });
+
+    cy.wait('@updateOIDCProvider')
       .its('response.statusCode')
       .should('eq', 204)
       .getByLabel({
@@ -87,12 +90,13 @@ Then(
     cy.session(`wrong_${username}`, () => {
       cy.visit('/');
 
-      cy.loginKeycloack('admin')
-        .get('#input-error')
-        .should('be.visible')
-        .and('include.text', 'Invalid username or password.')
-        .loginKeycloack(username);
+      cy.loginKeycloak('admin');
 
+      cy.get('#input-error')
+        .should('be.visible')
+        .and('include.text', 'Invalid username or password.');
+
+      cy.loginKeycloak(username);
       cy.url().should('include', '/monitoring/resources');
     });
   }

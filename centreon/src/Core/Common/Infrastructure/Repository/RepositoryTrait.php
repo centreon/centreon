@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
-use Core\Common\Domain\YesNoDefault;
-
 /**
  * This trait is here only to expose utility methods **only** to avoid duplicate code.
  * The methods SHOULD be "Pure" functions.
@@ -58,20 +56,5 @@ trait RepositoryTrait
     {
         return \DateTimeImmutable::createFromFormat('U', (string) $timestamp)
             ?: throw new \ValueError('Unable to create a DateTimeImmutable from an integer.');
-    }
-
-    /**
-     * from legacy behaviour:
-     * remove html tags and encode simple and double quotes.
-     *
-     * (@see \HtmlAnalyzer::sanitizeAndRemoveTags)
-     *
-     * @param string $string
-     *
-     * @return string
-     */
-    public function legacyHtmlEncode(string $string): string
-    {
-        return \HtmlAnalyzer::sanitizeAndRemoveTags($string);
     }
 }

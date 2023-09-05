@@ -8,11 +8,11 @@ import {
   labelHere
 } from '../translatedLabels';
 import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
+import { platformFeaturesAtom } from '../../Main/atoms/platformFeaturesAtom';
 
 import SearchHelp from './SearchHelp';
 
 const platformVersions = {
-  isCloudPlatform: false,
   modules: {},
   web: {
     fix: '0',
@@ -22,9 +22,13 @@ const platformVersions = {
   },
   widgets: {}
 };
+const platformFeatures = {
+  isCloudPlatform: false
+};
 
 const store = createStore();
 store.set(platformVersionsAtom, platformVersions);
+store.set(platformFeaturesAtom, platformFeatures);
 
 const SearchHelpWithProvider = (): JSX.Element => (
   <Provider store={store}>
@@ -54,12 +58,12 @@ describe('Searchbar help tooltip', () => {
 
     cy.findByText(labelHere).should('have.attr', 'href', docsURL);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays a tooltip containing a cloud documentation link upon clicking the help icon in a cloud environment', () => {
-    store.set(platformVersionsAtom, {
-      ...platformVersions,
+    store.set(platformFeaturesAtom, {
+      ...platformFeaturesAtom,
       isCloudPlatform: true
     });
 
@@ -70,6 +74,6 @@ describe('Searchbar help tooltip', () => {
 
     cy.findByText(labelHere).should('have.attr', 'href', cloudDocsURL);
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,14 +28,9 @@ use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Infrastructure\Provider\ProviderAuthenticationFactory;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use OneLogin\Saml2\Auth;
-use OneLogin\Saml2\AuthnRequest;
 use OneLogin\Saml2\Error;
-use OneLogin\Saml2\Settings;
-use OneLogin\Saml2\Utils;
 use Security\Domain\Authentication\Exceptions\ProviderException;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends AbstractController
 {
@@ -50,7 +45,7 @@ class LoginController extends AbstractController
 
     /**
      * @param Request $request
-     * @return void
+     *
      * @throws Error
      * @throws ProviderException
      */

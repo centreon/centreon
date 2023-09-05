@@ -9,6 +9,16 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN <<EOF
 
 ######################################
+# additional configuration for apt   #
+######################################
+
+echo '
+Acquire::Retries "10";
+Acquire::https::Timeout "300";
+Acquire::http::Timeout "300";
+' > /etc/apt/apt.conf.d/99custom
+
+######################################
 # install and configure repositories #
 ######################################
 
@@ -42,6 +52,7 @@ apt-get install -y \
   apt-transport-https \
   ca-certificates \
   curl \
+  jq \
   python3 \
   software-properties-common \
   sudo

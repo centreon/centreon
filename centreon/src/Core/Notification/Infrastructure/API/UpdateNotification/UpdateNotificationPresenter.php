@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Notification\Infrastructure\API\UpdateNotification;
 
-use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotificationPresenterInterface;

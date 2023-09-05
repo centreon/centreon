@@ -30,6 +30,7 @@ use Core\Common\Domain\YesNoDefault;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplate;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplateRequest;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\MacroDto;
+use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\ServiceGroupDto;
 use Core\ServiceTemplate\Infrastructure\Model\YesNoDefaultConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -75,13 +76,13 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  *     icon_id: int|null,
  *     icon_alternative: string|null,
  *     severity_id: int|null,
- *     is_activated: boolean|null,
  *     is_locked: boolean|null,
- *     macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>
- *     service_categories: list<int>|null
+ *     macros: array<array{name: string, value: string|null, is_password: bool, description: string|null}>,
+ *     service_categories: list<int>|null,
+ *     service_groups: array<array{host_template_id: int, service_group_id: int}>
  * }
  */
-class AddServiceTemplateController extends AbstractController
+final class AddServiceTemplateController extends AbstractController
 {
     use LoggerTrait;
 
@@ -172,8 +173,14 @@ class AddServiceTemplateController extends AbstractController
         $dto->iconId = $request['icon_id'] ?? null;
         $dto->iconAlternativeText = $request['icon_alternative'] ?? null;
         $dto->severityId = $request['severity_id'];
-        $dto->isActivated = $request['is_activated'] ?? true;
         $dto->serviceCategories = $request['service_categories'] ?? [];
+
+        foreach ($request['service_groups'] as $macro) {
+            $dto->serviceGroups[] = new ServiceGroupDto(
+                $macro['host_template_id'],
+                $macro['service_group_id']
+            );
+        }
 
         foreach ($request['macros'] as $macro) {
             $dto->macros[] = new MacroDto(

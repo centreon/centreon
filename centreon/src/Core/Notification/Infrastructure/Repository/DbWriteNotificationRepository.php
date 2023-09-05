@@ -76,15 +76,17 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
         $queryBinding = [];
         $bindedValues = [];
         foreach ($messages as $key => $message) {
-            $queryBinding[] = "(:notificationId, :channel_{$key}, :subject_{$key}, :message_{$key})";
+            $queryBinding[] = "(:notificationId, :channel_{$key}, :subject_{$key}, :message_{$key},"
+                . " :formatted_message_{$key})";
             $bindedValues[":channel_{$key}"] = $message->getChannel()->value;
             $bindedValues[":subject_{$key}"] = $message->getSubject();
-            $bindedValues[":message_{$key}"] = $message->getMessage();
+            $bindedValues[":message_{$key}"] = $message->getRawMessage();
+            $bindedValues[":formatted_message_{$key}"] = $message->getFormattedMessage();
         }
 
         $request = $this->translateDbName(
             'INSERT INTO `:db`.notification_message
-            (notification_id, channel, subject, message) VALUES '
+            (notification_id, channel, subject, message, formatted_message) VALUES '
             . implode(', ', $queryBinding)
         );
         $statement = $this->db->prepare($request);
@@ -224,9 +226,9 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
-                DELETE FROM `:db`.notification_contactgroup_relation
-                WHERE notification_id = :notificationId
-            SQL
+                    DELETE FROM `:db`.notification_contactgroup_relation
+                    WHERE notification_id = :notificationId
+                SQL
         ));
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $statement->execute();
@@ -247,17 +249,17 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
             $bindValues[':contactgroup_' . $contactGroupId] = $contactGroupId;
         }
 
-        $bindToken = implode(", ", array_keys($bindValues));
+        $bindToken = implode(', ', array_keys($bindValues));
 
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
                     DELETE FROM `:db`.notification_contactgroup_relation
                     WHERE notification_id = :notificationId
-                    AND contactgroup_id IN ($bindToken)
+                    AND contactgroup_id IN ({$bindToken})
                 SQL
         ));
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
-        foreach($bindValues as $token => $value) {
+        foreach ($bindValues as $token => $value) {
             $statement->bindValue($token, $value, \PDO::PARAM_INT);
         }
         $statement->execute();

@@ -1,10 +1,36 @@
 import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles<{
+  bottom?: number;
+  left?: number;
+  right?: number;
+  top?: number;
+}>()((theme, props) => ({
   modal: {
     '& .MuiDialog-paper': {
       gap: theme.spacing(2),
       padding: theme.spacing(2)
+    },
+    '&[data-size="fullscreen"]': {
+      zIndex: 0
+    },
+    '&[data-size="fullscreen"] .MuiBackdrop-root': {
+      display: 'none'
+    },
+    '&[data-size="fullscreen"] .MuiDialog-container': {
+      alignItems: 'flex-end',
+      height: '100vh',
+      justifyContent: 'flex-end'
+    },
+    '&[data-size="fullscreen"] .MuiDialog-paper': {
+      bottom: props?.bottom ?? 0,
+      left: props?.left ?? 0,
+      margin: 0,
+      maxHeight: 'unset',
+      maxWidth: 'unset',
+      position: 'absolute',
+      right: props?.right ?? 0,
+      top: props?.top ?? 0
     },
     '&[data-size="large"] .MuiDialog-paper': {
       maxWidth: '640px',
@@ -15,6 +41,10 @@ const useStyles = makeStyles()((theme) => ({
     },
     '&[data-size="small"] .MuiDialog-paper': {
       width: '400px'
+    },
+    '&[data-size="xlarge"] .MuiDialog-paper': {
+      maxWidth: '1400px',
+      width: 'calc(100% - 64px)'
     }
   },
   modalActions: {
@@ -31,7 +61,8 @@ const useStyles = makeStyles()((theme) => ({
       color: theme.palette.text.secondary,
       margin: theme.spacing(1, 0, 1, 0),
       width: '90%'
-    }
+    },
+    height: '100%'
   },
   modalCloseButton: {
     position: 'absolute',

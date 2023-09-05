@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 
@@ -63,9 +64,9 @@ Then(
 
     cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
 
-    cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.disabled');
+    cy.getByTestId({ testId: 'submit' }).should('be.disabled');
 
-    cy.getByLabel({ label: 'cancel', tag: 'button' }).should('be.enabled');
+    cy.getByTestId({ testId: 'cancel' }).should('be.enabled');
   }
 );
 
@@ -83,12 +84,13 @@ Then(
       dashboards.requiredOnly.name
     );
 
-    cy.getByLabel({ label: 'submit', tag: 'button' }).should('be.enabled');
+    cy.getByTestId({ testId: 'submit' }).should('be.enabled');
   }
 );
 
 When('the user saves the dashboard', () => {
-  cy.getByLabel({ label: 'submit', tag: 'button' }).click();
+  cy.getByTestId({ testId: 'submit' }).click();
+
   cy.wait('@createDashboard');
 });
 
@@ -97,7 +99,7 @@ Then('the user is redirected to the newly created dashboard', () => {
     .should('include', '/dashboards/')
     .invoke('split', '/')
     .should('not.be.empty')
-    .then(Cypress._.last)
+    .then(last)
     .then(Number)
     .should('not.be', 'dashboards')
     .should('be.a', 'number'); // dashboard id
@@ -166,7 +168,7 @@ Given(
 );
 
 When('the user leaves the creation form without saving the dashboard', () => {
-  cy.getByLabel({ label: 'cancel', tag: 'button' }).click();
+  cy.getByTestId({ testId: 'cancel' }).click();
 });
 
 Then('the dashboard has not been created', () => {
@@ -178,7 +180,7 @@ Then('the user is on the dashboards overview page', () => {
     .should('include', '/dashboards')
     .invoke('split', '/')
     .should('not.be.empty')
-    .then(Cypress._.last)
+    .then(last)
     .should('eq', 'dashboards'); // dashboards overview
 });
 

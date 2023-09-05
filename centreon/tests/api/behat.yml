@@ -14,12 +14,16 @@ default:
       paths: [ "%paths.base%/features/RealTimeCategory.feature" ]
       contexts:
         - Centreon\Test\Api\Context\RealTimeCategoryContext
+    clapi:
+      paths: [ "%paths.base%/features/Clapi.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\ClapiContext
     dashboard:
       paths:
         - "%paths.base%/features/DashboardWithOpenApi.feature"
         - "%paths.base%/features/DashboardWithoutOpenApi.feature"
       contexts:
-        - Centreon\Test\Api\Context\FeatureFlagContext
+        - Centreon\Test\Api\Context\DashboardContext
     host_category:
       paths: [ "%paths.base%/features/HostCategory.feature" ]
       contexts:
@@ -110,6 +114,10 @@ default:
       paths: [ "%paths.base%/features/PlatformVersions.feature" ]
       contexts:
         - Centreon\Test\Api\Context\CloudPlatformContext
+    platform_features:
+      paths: [ "%paths.base%/features/PlatformFeatures.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\CloudPlatformContext
     host_groups:
       paths: [ "%paths.base%/features/HostGroup.feature" ]
       contexts:
@@ -178,3 +186,19 @@ default:
       paths: [ "%paths.base%/features/Command.feature" ]
       contexts:
       - Centreon\Test\Behat\Api\Context\ApiContext
+    hosts:
+      paths: [ "%paths.base%/features/Host.feature" ]
+      contexts:
+        - Centreon\Test\Behat\Api\Context\ApiContext
+    cloud_hosts:
+      paths: [ "%paths.base%/features/CloudHost.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\CloudPlatformContext
+    services:
+      paths: [ "%paths.base%/features/ServiceOnPrem.feature" ]
+      contexts:
+      - Centreon\Test\Behat\Api\Context\ApiContext
+    cloud_services:
+      paths: [ "%paths.base%/features/ServiceCloud.feature" ]
+      contexts:
+      - Centreon\Test\Api\Context\CloudPlatformContext

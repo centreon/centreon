@@ -292,26 +292,30 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
             ':noteUrl',
             $hostTemplate->getNoteUrl() === ''
                 ? null
-                : $this->legacyHtmlEncode($hostTemplate->getNoteUrl()), \PDO::PARAM_STR
+                : $hostTemplate->getNoteUrl(),
+            \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':note',
             $hostTemplate->getNote() === ''
                 ? null
-                : $this->legacyHtmlEncode($hostTemplate->getNote()), \PDO::PARAM_STR
+                : $hostTemplate->getNote(),
+            \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':actionUrl',
             $hostTemplate->getActionUrl() === ''
                 ? null
-                : $this->legacyHtmlEncode($hostTemplate->getActionUrl()), \PDO::PARAM_STR
+                : $hostTemplate->getActionUrl(),
+            \PDO::PARAM_STR
         );
         $statement->bindValue(':iconId', $hostTemplate->getIconId(), \PDO::PARAM_INT);
         $statement->bindValue(
             ':iconAlternative',
             $hostTemplate->getIconAlternative() === ''
                 ? null
-                : $this->legacyHtmlEncode($hostTemplate->getIconAlternative()), \PDO::PARAM_STR
+                : $hostTemplate->getIconAlternative(),
+            \PDO::PARAM_STR
         );
 
         $statement->execute();
@@ -428,26 +432,30 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
             ':noteUrl',
             $hostTemplate->getNoteUrl() === ''
                 ? null
-                : $this->legacyHtmlEncode($hostTemplate->getNoteUrl()), \PDO::PARAM_STR
+                : $hostTemplate->getNoteUrl(),
+            \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':note',
             $hostTemplate->getNote() === ''
                 ? null
-                : $this->legacyHtmlEncode($hostTemplate->getNote()), \PDO::PARAM_STR
+                : $hostTemplate->getNote(),
+            \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':actionUrl',
             $hostTemplate->getActionUrl() === ''
                 ? null
-                : $this->legacyHtmlEncode($hostTemplate->getActionUrl()), \PDO::PARAM_STR
+                : $hostTemplate->getActionUrl(),
+            \PDO::PARAM_STR
         );
         $statement->bindValue(':iconId', $hostTemplate->getIconId(), \PDO::PARAM_INT);
         $statement->bindValue(
             ':iconAlternative',
             $hostTemplate->getIconAlternative() === ''
                 ? null
-                : $this->legacyHtmlEncode($hostTemplate->getIconAlternative()), \PDO::PARAM_STR
+                : $hostTemplate->getIconAlternative(),
+            \PDO::PARAM_STR
         );
 
         $statement->execute();
@@ -457,12 +465,12 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
     {
         $statement->bindValue(
             ':name',
-            $this->legacyHtmlEncode($hostTemplate->getName()),
+            $hostTemplate->getName(),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':alias',
-            $this->legacyHtmlEncode($hostTemplate->getAlias()),
+            $hostTemplate->getAlias(),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -474,7 +482,7 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
             ':snmpCommunity',
             $hostTemplate->getSnmpCommunity() === ''
                 ? null
-                : $this->legacyHtmlEncode($hostTemplate->getSnmpCommunity()),
+                : $hostTemplate->getSnmpCommunity(),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
@@ -493,7 +501,6 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
                 '!',
                 str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $hostTemplate->getCheckCommandArgs())
             );
-            $checkCommandArguments = $this->legacyHtmlEncode($checkCommandArguments);
         }
         $statement->bindValue(
             ':checkCommandArgs',
@@ -618,7 +625,6 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
                 '!',
                 str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $hostTemplate->getEventHandlerCommandArgs())
             );
-            $eventHandlerCommandArguments = $this->legacyHtmlEncode($eventHandlerCommandArguments);
         }
         $statement->bindValue(
             ':eventHandlerCommandArgs',
@@ -629,12 +635,12 @@ class DbWriteHostTemplateRepository extends AbstractRepositoryRDB implements Wri
             ':comment',
             $hostTemplate->getComment() === ''
                 ? null
-                : $this->legacyHtmlEncode($hostTemplate->getComment()),
+                : $hostTemplate->getComment(),
             \PDO::PARAM_STR
         );
         $statement->bindValue(
             ':isActivated',
-            (new BoolToEnumNormalizer())->normalize($hostTemplate->isActivated()),
+            (new BoolToEnumNormalizer())->normalize(true),
             \PDO::PARAM_STR
         );
         $statement->bindValue(

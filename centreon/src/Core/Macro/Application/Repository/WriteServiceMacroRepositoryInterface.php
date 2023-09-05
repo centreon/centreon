@@ -35,4 +35,22 @@ interface WriteServiceMacroRepositoryInterface
      * @throws \Throwable
      */
     public function add(Macro $macro): void;
+
+    /**
+     * Delete a service's macros.
+     *
+     * @param Macro $macro
+     *
+     * @throws \Throwable
+     */
+    public function delete(Macro $macro): void;
+
+    /**
+     * Update a service's macros.
+     *
+     * @param Macro $macro
+     *
+     * @throws \Throwable
+     */
+    public function update(Macro $macro): void;
 }

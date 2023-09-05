@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplatePresenterInterface;
 use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\AddServiceTemplateResponse;
+use Core\ServiceTemplate\Application\UseCase\AddServiceTemplate\MacroDto;
 
 class AddServiceTemplateSaasPresenter extends AbstractPresenter implements AddServiceTemplatePresenterInterface
 {
@@ -61,6 +62,18 @@ class AddServiceTemplateSaasPresenter extends AbstractPresenter implements AddSe
                             'id' => $category['id'],
                             'name' => $category['name'],
                         ], $response->categories),
+                        'macros' => array_map(fn(MacroDto $macro): array => [
+                            'name' => $macro->name,
+                            'value' => $macro->value,
+                            'is_password' => $macro->isPassword,
+                            'description' => $macro->description,
+                        ], $response->macros),
+                        'groups' => array_map(fn($group): array => [
+                            'id' => $group['serviceGroupId'],
+                            'name' => $group['serviceGroupName'],
+                            'host_template_id' => $group['hostTemplateId'],
+                            'host_template_name' => $group['hostTemplateName'],
+                        ], $response->groups),
                     ]
                 )
             );

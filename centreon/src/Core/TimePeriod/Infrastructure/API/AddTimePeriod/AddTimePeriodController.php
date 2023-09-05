@@ -25,7 +25,6 @@ namespace Core\TimePeriod\Infrastructure\API\AddTimePeriod;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Infrastructure\Common\Api\Router;
 use Core\TimePeriod\Application\UseCase\AddTimePeriod\{

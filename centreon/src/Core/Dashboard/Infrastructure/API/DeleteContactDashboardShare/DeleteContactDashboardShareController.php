@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Dashboard\Infrastructure\API\DeleteContactDashboardShare;
 
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Dashboard\Application\UseCase\DeleteContactDashboardShare\DeleteContactDashboardShare;
 use Core\Dashboard\Application\UseCase\DeleteContactDashboardShare\DeleteContactDashboardSharePresenterInterface;
 use Symfony\Component\HttpFoundation\Request;

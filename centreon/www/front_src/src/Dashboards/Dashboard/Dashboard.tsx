@@ -1,20 +1,13 @@
 import { ReactElement, useMemo } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
 
 import {
   Settings as SettingsIcon,
   Share as ShareIcon
 } from '@mui/icons-material';
-import AddIcon from '@mui/icons-material/Add';
 
-import {
-  Button,
-  IconButton,
-  PageHeader,
-  PageLayout
-} from '@centreon/ui/components';
+import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
 
 import { DashboardsQuickAccessMenu } from '../components/DashboardsQuickAccess/DashboardsQuickAccessMenu';
 import { DashboardConfigModal } from '../components/DashboardConfig/DashboardConfigModal';
@@ -26,13 +19,11 @@ import { useDashboardUserPermissions } from '../components/DashboardUserPermissi
 
 import Layout from './Layout';
 import useDashboardDetails, { routerParams } from './useDashboardDetails';
-import HeaderActions from './HeaderActions';
 import { isEditingAtom } from './atoms';
-import { labelAddAWidget } from './translatedLabels';
+import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
+import { AddWidgetButton } from './AddEditWidget';
 
 const Dashboard = (): ReactElement => {
-  const { t } = useTranslation();
-
   const { dashboardId } = routerParams.useParams();
   const { dashboard, panels } = useDashboardDetails({
     dashboardId: dashboardId as string
@@ -63,20 +54,14 @@ const Dashboard = (): ReactElement => {
             />
           </PageHeader.Main>
           <PageHeader.Actions>
-            {canEdit && (
-              <HeaderActions
-                id={dashboard?.id}
-                name={dashboard?.name}
-                panels={panels}
-              />
-            )}
+            {canEdit && <DashboardEditActions panels={panels} />}
           </PageHeader.Actions>
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
         <PageLayout.Actions>
           <span>
-            {!isEditing && (
+            {!isEditing && hasEditPermission(dashboard as DashboardType) && (
               <>
                 <IconButton
                   aria-label="edit"
@@ -98,17 +83,7 @@ const Dashboard = (): ReactElement => {
             )}
           </span>
           <span>
-            {isEditing && (
-              <Button
-                aria-label="add widget"
-                data-testid="add-widget"
-                icon={<AddIcon />}
-                iconVariant="start"
-                size="small"
-              >
-                {t(labelAddAWidget)}
-              </Button>
-            )}
+            <AddWidgetButton />
           </span>
         </PageLayout.Actions>
 

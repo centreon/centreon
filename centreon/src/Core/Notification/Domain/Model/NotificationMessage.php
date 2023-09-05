@@ -31,22 +31,30 @@ class NotificationMessage
                  MAX_MESSAGE_LENGTH = 65535;
 
     /**
+     * @param NotificationChannel $channel
+     * @param string $subject
+     * @param string $message
+     * @param string $formattedMessage
+     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(
         protected NotificationChannel $channel,
         protected string $subject = '',
-        protected string $message = ''
+        protected string $message = '',
+        protected string $formattedMessage = ''
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 
         $this->subject = trim($subject);
         $this->message = trim($message);
+        $this->formattedMessage = trim($formattedMessage);
 
         Assertion::notEmptyString($this->subject, "{$shortName}::subject");
         Assertion::notEmptyString($this->message, "{$shortName}::message");
         Assertion::maxLength($this->subject, self::MAX_SUBJECT_LENGTH, "{$shortName}::subject");
         Assertion::maxLength($this->message, self::MAX_MESSAGE_LENGTH, "{$shortName}::message");
+        Assertion::maxLength($this->formattedMessage, self::MAX_MESSAGE_LENGTH, "{$shortName}::formattedMessage");
     }
 
     public function getChannel(): NotificationChannel
@@ -59,8 +67,13 @@ class NotificationMessage
         return $this->subject;
     }
 
-    public function getMessage(): string
+    public function getRawMessage(): string
     {
         return $this->message;
+    }
+
+    public function getFormattedMessage(): string
+    {
+        return $this->formattedMessage;
     }
 }

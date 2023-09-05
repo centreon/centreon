@@ -1,7 +1,6 @@
 import { Fragment, useMemo } from 'react';
 
 import * as R from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 import { FormikValues, useFormikContext } from 'formik';
 
@@ -35,7 +34,6 @@ export const getInput = R.cond<
     R.equals(InputType.Radio) as (b: InputType) => boolean,
     R.always(RadioInput)
   ],
-  [R.equals(InputType.Text) as (b: InputType) => boolean, R.always(TextInput)],
   [
     R.equals(InputType.SingleAutocomplete) as (b: InputType) => boolean,
     R.always(Autocomplete)
@@ -43,10 +41,6 @@ export const getInput = R.cond<
   [
     R.equals(InputType.MultiAutocomplete) as (b: InputType) => boolean,
     R.always(Autocomplete)
-  ],
-  [
-    R.equals(InputType.Password) as (b: InputType) => boolean,
-    R.always(TextInput)
   ],
   [
     R.equals(InputType.MultiConnectedAutocomplete) as (b: InputType) => boolean,
@@ -71,7 +65,8 @@ export const getInput = R.cond<
   [
     R.equals(InputType.CheckboxGroup) as (b: InputType) => boolean,
     R.always(CheckboxGroup)
-  ]
+  ],
+  [R.T, R.always(TextInput)]
 ]);
 
 interface StylesProps {
@@ -130,7 +125,6 @@ const Inputs = ({
   areGroupsOpen
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ groupDirection });
-  const { t } = useTranslation();
   const formikContext = useFormikContext<FormikValues>();
 
   const groupsName = R.pluck('name', groups);
@@ -232,7 +226,7 @@ const Inputs = ({
                             )}
                             variant="body1"
                           >
-                            {t(inputProps.additionalLabel)}
+                            {inputProps.additionalLabel}
                           </Typography>
                         )}
                         <div className={inputProps?.inputClassName || ''}>

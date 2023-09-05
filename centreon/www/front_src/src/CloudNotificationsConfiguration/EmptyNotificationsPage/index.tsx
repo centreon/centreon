@@ -1,19 +1,19 @@
-import { makeStyles } from 'tss-react/mui';
-import { useTranslation } from 'react-i18next';
-import { equals } from 'ramda';
 import { useSetAtom } from 'jotai';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import AddIcon from '@mui/icons-material/Add';
-import { Theme, Typography, Box, Button } from '@mui/material';
+import { Box, Button, Theme, Typography } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
 
-import {
-  labelWelcomeToTheNotifications,
-  labelCreateNotification
-} from '../translatedLabels';
 import Title from '../Title';
 import { isPanelOpenAtom } from '../atom';
+import {
+  labelCreateNotification,
+  labelWelcomeToTheNotifications
+} from '../translatedLabels';
 
 import EmptyNotificationsIcon from './EmptyNotificationsIcon';
 
@@ -49,6 +49,7 @@ const EmptyNotificationsPage = (): JSX.Element => {
   const { classes } = useStyle();
   const { t } = useTranslation();
   const setIsOpen = useSetAtom(isPanelOpenAtom);
+  const dataTestId = 'createNotificationForTheFirstTime';
 
   return (
     <Box className={classes.container}>
@@ -66,6 +67,7 @@ const EmptyNotificationsPage = (): JSX.Element => {
         <Button
           className={classes.btn}
           color="primary"
+          data-testid={dataTestId}
           startIcon={<AddIcon />}
           variant="contained"
           onClick={(): void => setIsOpen(true)}

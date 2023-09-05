@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,13 +24,12 @@ declare(strict_types=1);
 namespace Core\Platform\Infrastructure\Validator\RequirementValidators;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Platform\Application\Validator\RequirementValidatorInterface;
 use Centreon\Domain\VersionHelper;
+use Core\Platform\Application\Validator\RequirementValidatorInterface;
 
 class PhpRequirementValidator implements RequirementValidatorInterface
 {
     use LoggerTrait;
-
     public const EXTENSION_REQUIREMENTS = [
         'pdo_mysql',
         'gd',
@@ -60,7 +59,7 @@ class PhpRequirementValidator implements RequirementValidatorInterface
     }
 
     /**
-     * Check installed php version
+     * Check installed php version.
      *
      * @throws PhpRequirementException
      */
@@ -78,7 +77,7 @@ class PhpRequirementValidator implements RequirementValidatorInterface
     }
 
     /**
-     * Check if required php extensions are loaded
+     * Check if required php extensions are loaded.
      *
      * @throws PhpRequirementException
      */
@@ -91,7 +90,7 @@ class PhpRequirementValidator implements RequirementValidatorInterface
     }
 
     /**
-     * check if given php extension is loaded
+     * check if given php extension is loaded.
      *
      * @param string $extensionName
      *
@@ -102,6 +101,7 @@ class PhpRequirementValidator implements RequirementValidatorInterface
         $this->info('Checking PHP extension ' . $extensionName);
         if (! extension_loaded($extensionName)) {
             $this->error('PHP extension ' . $extensionName . ' is not loaded');
+
             throw PhpRequirementException::phpExtensionNotLoaded($extensionName);
         }
     }

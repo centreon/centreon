@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : user@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -36,7 +36,8 @@ class NotificationMessageFactory
      * @param array{
      *  channel:string,
      *  subject:string,
-     *  message:string
+     *  message:string,
+     *  formatted_message:string
      * } $message
      *
      * @throws \Assert\AssertionFailedException
@@ -48,7 +49,8 @@ class NotificationMessageFactory
         return new NotificationMessage(
             $messageType,
             $message['subject'],
-            $message['message']
+            $message['message'],
+            $message['formatted_message']
         );
     }
 

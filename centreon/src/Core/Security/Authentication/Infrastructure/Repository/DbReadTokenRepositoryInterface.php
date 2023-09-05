@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Repository;
@@ -45,11 +46,12 @@ class DbReadTokenRepositoryInterface extends AbstractRepositoryDRB implements Re
      * {@inheritDoc}
      *
      * @param string $token
+     *
      * @return AuthenticationTokens|null
      */
     public function findAuthenticationTokensByToken(string $token): ?AuthenticationTokens
     {
-        $statement = $this->db->prepare($this->translateDbName("
+        $statement = $this->db->prepare($this->translateDbName('
             SELECT sat.user_id, sat.provider_configuration_id,
               provider_token.id as pt_id,
               provider_token.token AS provider_token,
@@ -63,7 +65,7 @@ class DbReadTokenRepositoryInterface extends AbstractRepositoryDRB implements Re
             INNER JOIN `:db`.security_token provider_token ON provider_token.id = sat.provider_token_id
             LEFT JOIN `:db`.security_token refresh_token ON refresh_token.id = sat.provider_token_refresh_id
             WHERE sat.token = :token
-        "));
+        '));
         $statement->bindValue(':token', $token);
         $statement->execute();
 
@@ -105,6 +107,7 @@ class DbReadTokenRepositoryInterface extends AbstractRepositoryDRB implements Re
 
     /**
      * @param string $token
+     *
      * @return bool
      */
     public function hasAuthenticationTokensByToken(string $token): bool

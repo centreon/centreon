@@ -1,13 +1,13 @@
 <?php
 
 /*
-* Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* https://www.apache.org/licenses/LICENSE-2.0
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,9 +25,8 @@ namespace Core\Common\Application\Converter;
 
 use Core\Common\Domain\YesNoDefault;
 
-
 /**
- * This class purpose is to allow convertion from the legacy host event enum to a string
+ * This class purpose is to allow convertion from the legacy host event enum to a string.
  */
 class YesNoDefaultConverter
 {
@@ -39,7 +38,7 @@ class YesNoDefaultConverter
      * @param null|bool|int|string $value
      *
      * @return YesNoDefault
-    */
+     */
     public static function fromScalar(null|bool|int|string $value): YesNoDefault
     {
         return match ($value) {
@@ -52,7 +51,7 @@ class YesNoDefaultConverter
 
     /**
      * Convert a YesNoDefault into its corresponding integer
-     * ex: YesNoDefault::Default => 2
+     * ex: YesNoDefault::Default => 2.
      *
      * @param YesNoDefault $enum
      *
@@ -69,7 +68,7 @@ class YesNoDefaultConverter
 
     /**
      * Convert a YesNoDefault into its corresponding string
-     * ex: YesNoDefault::Default => '2'
+     * ex: YesNoDefault::Default => '2'.
      *
      * @param YesNoDefault $enum
      *

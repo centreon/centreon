@@ -28,6 +28,9 @@ use Centreon\Domain\Common\Assertion\Assertion;
 class ConfigurationResource
 {
     /**
+     * @param int $id
+     * @param string $name
+     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(

@@ -1,5 +1,5 @@
 export enum ResourcesTypeEnum {
-  BA = 'ba',
+  BV = 'businessview',
   HG = 'hostgroup',
   SG = 'servicegroup'
 }
@@ -51,4 +51,9 @@ export interface DeleteNotificationType {
   id: number | Array<number> | null;
   name?: string;
   type: DeleteType;
+}
+
+export interface DuplicateNotificationType {
+  id: number | null;
+  notification?: NotificationsType;
 }

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- *  For more information : contact@centreon.com
+ * For more information : contact@centreon.com
+ *
  */
 
 declare(strict_types=1);
@@ -32,7 +33,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SecurityAccess\AttributePath\AttributePathFetcher;
 
 /**
- * Configured conditions must be satisfied to be authorized and map IDP's groups and Centreon's groups
+ * Configured conditions must be satisfied to be authorized and map IDP's groups and Centreon's groups.
  *
  * @see GroupsMapping::validate()
  */
@@ -40,14 +41,10 @@ class GroupsMapping implements SecurityAccessInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private string $scope = 'undefined';
 
-    /**
-     * @var ContactGroup[]
-     */
+    /** @var ContactGroup[] */
     private array $userContactGroups = [];
 
     /**
@@ -63,7 +60,7 @@ class GroupsMapping implements SecurityAccessInterface
     /**
      * @param Configuration $configuration
      * @param array<string,mixed> $identityProviderData
-     * @return void
+     *
      * @throws AuthenticationConditionsException
      */
     public function validate(Configuration $configuration, array $identityProviderData): void
@@ -72,35 +69,36 @@ class GroupsMapping implements SecurityAccessInterface
         $customConfiguration = $configuration->getCustomConfiguration();
         $groupsMapping = $customConfiguration->getGroupsMapping();
 
-        if (!$groupsMapping->isEnabled()) {
-            $this->loginLogger->info($this->scope, "Groups Mapping disabled");
-            $this->info("Groups Mapping disabled");
+        if (! $groupsMapping->isEnabled()) {
+            $this->loginLogger->info($this->scope, 'Groups Mapping disabled');
+            $this->info('Groups Mapping disabled');
+
             return;
         }
 
-        $this->loginLogger->info($this->scope, "Groups Mapping Enabled");
-        $this->info("Groups Mapping Enabled");
+        $this->loginLogger->info($this->scope, 'Groups Mapping Enabled');
+        $this->info('Groups Mapping Enabled');
 
         $groupsAttributePath[] = $groupsMapping->getAttributePath();
         if ($configuration->getType() === Provider::OPENID) {
-            $groupsAttributePath = explode(".", $groupsMapping->getAttributePath());
+            $groupsAttributePath = explode('.', $groupsMapping->getAttributePath());
         }
 
-        $this->loginLogger->info($this->scope, "Configured groups mapping attribute path found", $groupsAttributePath);
-        $this->info("Configured groups mapping attribute path found", $groupsAttributePath);
+        $this->loginLogger->info($this->scope, 'Configured groups mapping attribute path found', $groupsAttributePath);
+        $this->info('Configured groups mapping attribute path found', $groupsAttributePath);
 
         $groupRelationContextDebug = array_map(
             function (ContactGroupRelation $contactGroupRelation) {
                 return [
-                    "group claim" => $contactGroupRelation->getClaimValue(),
-                    "contact group" => $contactGroupRelation->getContactGroup()->getName()
+                    'group claim' => $contactGroupRelation->getClaimValue(),
+                    'contact group' => $contactGroupRelation->getContactGroup()->getName(),
                 ];
             },
             $groupsMapping->getContactGroupRelations()
         );
 
-        $this->loginLogger->info($this->scope, "Groups relations", $groupRelationContextDebug);
-        $this->info("Groups relations", $groupRelationContextDebug);
+        $this->loginLogger->info($this->scope, 'Groups relations', $groupRelationContextDebug);
+        $this->info('Groups relations', $groupRelationContextDebug);
 
         foreach ($groupsAttributePath as $attribute) {
             $providerGroups = [];
@@ -112,16 +110,32 @@ class GroupsMapping implements SecurityAccessInterface
             }
         }
         if (is_string($providerGroups)) {
-            $providerGroups = explode(",", $providerGroups);
+            $providerGroups = explode(',', $providerGroups);
         }
 
         $this->validateGroupsMappingAttributeOrFail($providerGroups, $groupsMapping->getContactGroupRelations());
     }
 
     /**
+     * @return ContactGroup[]
+     */
+    public function getUserContactGroups(): array
+    {
+        return $this->userContactGroups;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getConditionMatches(): array
+    {
+        return [];
+    }
+
+    /**
      * @param array $providerGroupsMapping
      * @param array $contactGroupRelations
-     * @return void
+     *
      * @throws AuthenticationConditionsException
      */
     private function validateGroupsMappingAttributeOrFail(
@@ -129,11 +143,11 @@ class GroupsMapping implements SecurityAccessInterface
         array $contactGroupRelations
     ): void {
         if (array_is_list($providerGroupsMapping) === false) {
-            $errorMessage = "Invalid authentication conditions format, array of strings expected";
+            $errorMessage = 'Invalid authentication conditions format, array of strings expected';
             $this->error(
                 $errorMessage,
                 [
-                    "authentication_condition_from_provider" => $providerGroupsMapping
+                    'authentication_condition_from_provider' => $providerGroupsMapping,
                 ]
             );
             $this->loginLogger->exception(
@@ -159,36 +173,20 @@ class GroupsMapping implements SecurityAccessInterface
         }
         if (empty($groupsMatches)) {
             $this->error(
-                "Configured attribute value not found in groups mapping endpoint",
+                'Configured attribute value not found in groups mapping endpoint',
                 [
-                    "provider_groups_mapping" => $providerGroupsMapping,
-                    "configured_groups_mapping" => $claimsFromProvider
+                    'provider_groups_mapping' => $providerGroupsMapping,
+                    'configured_groups_mapping' => $claimsFromProvider,
                 ]
             );
 
             $this->loginLogger->exception(
                 $this->scope,
-                "Configured attribute value not found in groups mapping endpoint: %s, message: %s",
+                'Configured attribute value not found in groups mapping endpoint: %s, message: %s',
                 AuthenticationConditionsException::conditionsNotFound()
             );
         }
-        $this->info("Groups found", ["group" => $groupsMatches]);
-        $this->loginLogger->info($this->scope, "Groups found", $groupsMatches);
-    }
-
-    /**
-     * @return ContactGroup[]
-     */
-    public function getUserContactGroups(): array
-    {
-        return $this->userContactGroups;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getConditionMatches(): array
-    {
-        return [];
+        $this->info('Groups found', ['group' => $groupsMatches]);
+        $this->loginLogger->info($this->scope, 'Groups found', $groupsMatches);
     }
 }

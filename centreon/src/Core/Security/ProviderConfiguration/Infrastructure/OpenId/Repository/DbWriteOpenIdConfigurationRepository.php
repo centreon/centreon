@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,12 +28,12 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface
     as WriteRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 
 class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB implements WriteRepositoryInterface
 {
@@ -88,9 +88,62 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
     }
 
     /**
+     * @inheritDoc
+     */
+    public function deleteAuthorizationRules(): void
+    {
+        $statement = $this->db->query("SELECT id FROM provider_configuration WHERE name='openid'");
+        if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            $providerConfigurationId = (int) $result['id'];
+            $deleteStatement = $this->db->prepare(
+                'DELETE FROM security_provider_access_group_relation
+                    WHERE provider_configuration_id = :providerConfigurationId'
+            );
+            $deleteStatement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);
+            $deleteStatement->execute();
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function insertAuthorizationRules(array $authorizationRules): void
+    {
+        $statement = $this->db->query("SELECT id FROM provider_configuration WHERE name='openid'");
+        if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            $providerConfigurationId = (int) $result['id'];
+            $insertStatement = $this->db->prepare(
+                'INSERT INTO security_provider_access_group_relation
+                    (claim_value, access_group_id, provider_configuration_id, priority)
+                    VALUES (:claimValue, :accessGroupId, :providerConfigurationId, :priority)'
+            );
+            foreach ($authorizationRules as $authorizationRule) {
+                $insertStatement->bindValue(':claimValue', $authorizationRule->getClaimValue());
+                $insertStatement->bindValue(
+                    ':accessGroupId',
+                    $authorizationRule->getAccessGroup()->getId(),
+                    \PDO::PARAM_INT
+                );
+                $insertStatement->bindValue(
+                    ':providerConfigurationId',
+                    $providerConfigurationId,
+                    \PDO::PARAM_INT
+                );
+                $insertStatement->bindValue(
+                    ':priority',
+                    $authorizationRule->getPriority(),
+                    \PDO::PARAM_INT
+                );
+                $insertStatement->execute();
+            }
+        }
+    }
+
+    /**
      * Format OpenIdConfiguration for custom_configuration.
      *
      * @param Configuration $configuration
+     *
      * @return array<string, mixed>
      */
     private function buildCustomConfigurationFromOpenIdConfiguration(Configuration $configuration): array
@@ -118,70 +171,18 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
             'email_bind_attribute' => $customConfiguration->getEmailBindAttribute(),
             'fullname_bind_attribute' => $customConfiguration->getUserNameBindAttribute(),
             'roles_mapping' => $this->aclConditionsToArray($customConfiguration->getACLConditions()),
-            "authentication_conditions" => $this->authenticationConditionsToArray(
+            'authentication_conditions' => $this->authenticationConditionsToArray(
                 $customConfiguration->getAuthenticationConditions()
             ),
-            "groups_mapping" => $this->groupsMappingToArray(
+            'groups_mapping' => $this->groupsMappingToArray(
                 $customConfiguration->getGroupsMapping()
             ),
-            'redirect_url' => $customConfiguration->getRedirectUrl()
+            'redirect_url' => $customConfiguration->getRedirectUrl(),
         ];
     }
 
     /**
-     * @inheritDoc
-     */
-    public function deleteAuthorizationRules(): void
-    {
-        $statement = $this->db->query("SELECT id FROM provider_configuration WHERE name='openid'");
-        if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $providerConfigurationId = (int)$result['id'];
-            $deleteStatement = $this->db->prepare(
-                "DELETE FROM security_provider_access_group_relation
-                    WHERE provider_configuration_id = :providerConfigurationId"
-            );
-            $deleteStatement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);
-            $deleteStatement->execute();
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function insertAuthorizationRules(array $authorizationRules): void
-    {
-        $statement = $this->db->query("SELECT id FROM provider_configuration WHERE name='openid'");
-        if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $providerConfigurationId = (int)$result['id'];
-            $insertStatement = $this->db->prepare(
-                "INSERT INTO security_provider_access_group_relation
-                    (claim_value, access_group_id, provider_configuration_id, priority)
-                    VALUES (:claimValue, :accessGroupId, :providerConfigurationId, :priority)"
-            );
-            foreach ($authorizationRules as $authorizationRule) {
-                $insertStatement->bindValue(':claimValue', $authorizationRule->getClaimValue());
-                $insertStatement->bindValue(
-                    ':accessGroupId',
-                    $authorizationRule->getAccessGroup()->getId(),
-                    \PDO::PARAM_INT
-                );
-                $insertStatement->bindValue(
-                    ':providerConfigurationId',
-                    $providerConfigurationId,
-                    \PDO::PARAM_INT
-                );
-                $insertStatement->bindValue(
-                    ':priority',
-                    $authorizationRule->getPriority(),
-                    \PDO::PARAM_INT
-                );
-                $insertStatement->execute();
-            }
-        }
-    }
-
-    /**
-     * Delete Contact Group relations
+     * Delete Contact Group relations.
      */
     private function deleteContactGroupRelations(): void
     {
@@ -189,8 +190,8 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
         if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             $providerConfigurationId = (int) $result['id'];
             $deleteStatement = $this->db->prepare(
-                "DELETE FROM security_provider_contact_group_relation
-                    WHERE provider_configuration_id = :providerConfigurationId"
+                'DELETE FROM security_provider_contact_group_relation
+                    WHERE provider_configuration_id = :providerConfigurationId'
             );
             $deleteStatement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);
             $deleteStatement->execute();
@@ -198,7 +199,7 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
     }
 
     /**
-     * Insert Contact Group Relations
+     * Insert Contact Group Relations.
      *
      * @param ContactGroupRelation[] $contactGroupRelations
      */
@@ -206,11 +207,11 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
     {
         $statement = $this->db->query("SELECT id FROM provider_configuration WHERE name='openid'");
         if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $providerConfigurationId = (int)$result['id'];
+            $providerConfigurationId = (int) $result['id'];
             $insertStatement = $this->db->prepare(
-                "INSERT INTO security_provider_contact_group_relation
+                'INSERT INTO security_provider_contact_group_relation
                     (claim_value, contact_group_id, provider_configuration_id)
-                        VALUES (:claimValue, :contactGroupId, :providerConfigurationId)"
+                        VALUES (:claimValue, :contactGroupId, :providerConfigurationId)'
             );
             foreach ($contactGroupRelations as $contactGroupRelation) {
                 $insertStatement->bindValue(':claimValue', $contactGroupRelation->getClaimValue());
@@ -231,35 +232,38 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
 
     /**
      * @param AuthenticationConditions $authenticationConditions
+     *
      * @return array<string,array<string|null>|bool|string>
      */
     private function authenticationConditionsToArray(AuthenticationConditions $authenticationConditions): array
     {
         return [
-            "is_enabled" => $authenticationConditions->isEnabled(),
-            "attribute_path" => $authenticationConditions->getAttributePath(),
-            "endpoint" => $authenticationConditions->getEndpoint()->toArray(),
-            "authorized_values" => $authenticationConditions->getAuthorizedValues(),
-            "trusted_client_addresses" => $authenticationConditions->getTrustedClientAddresses(),
-            "blacklist_client_addresses" => $authenticationConditions->getBlacklistClientAddresses(),
+            'is_enabled' => $authenticationConditions->isEnabled(),
+            'attribute_path' => $authenticationConditions->getAttributePath(),
+            'endpoint' => $authenticationConditions->getEndpoint()->toArray(),
+            'authorized_values' => $authenticationConditions->getAuthorizedValues(),
+            'trusted_client_addresses' => $authenticationConditions->getTrustedClientAddresses(),
+            'blacklist_client_addresses' => $authenticationConditions->getBlacklistClientAddresses(),
         ];
     }
 
     /**
      * @param GroupsMapping $groupsMapping
+     *
      * @return array<string,bool|string|array<string,string|null>>
      */
     private function groupsMappingToArray(GroupsMapping $groupsMapping): array
     {
         return [
-            "is_enabled" => $groupsMapping->isEnabled(),
-            "attribute_path" => $groupsMapping->getAttributePath(),
-            "endpoint" => $groupsMapping->getEndpoint()->toArray(),
+            'is_enabled' => $groupsMapping->isEnabled(),
+            'attribute_path' => $groupsMapping->getAttributePath(),
+            'endpoint' => $groupsMapping->getEndpoint()->toArray(),
         ];
     }
 
     /**
      * @param ACLConditions $aclConditions
+     *
      * @return array<string,bool|string|array<string,string|null>>
      */
     private function aclConditionsToArray(ACLConditions $aclConditions): array
@@ -268,7 +272,7 @@ class DbWriteOpenIdConfigurationRepository extends AbstractRepositoryDRB impleme
             'is_enabled' => $aclConditions->isEnabled(),
             'apply_only_first_role' => $aclConditions->onlyFirstRoleIsApplied(),
             'attribute_path' => $aclConditions->getAttributePath(),
-            'endpoint' => $aclConditions->getEndpoint()->toArray()
+            'endpoint' => $aclConditions->getEndpoint()->toArray(),
         ];
     }
 }

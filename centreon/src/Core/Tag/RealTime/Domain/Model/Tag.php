@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Tag\RealTime\Domain\Model;
@@ -37,6 +38,7 @@ class Tag
      * @param int $id
      * @param string $name
      * @param int $type
+     *
      * @throws \Assert\AssertionFailedException
      */
     public function __construct(private int $id, private string $name, int $type)
@@ -63,15 +65,17 @@ class Tag
     }
 
     /**
-     * Setter for $type property
+     * Setter for $type property.
      *
      * @param int $type
-     * @return Tag
+     *
      * @throws \InvalidArgumentException
+     *
+     * @return Tag
      */
-    public function setType(int $type): Tag
+    public function setType(int $type): self
     {
-        if (! in_array($type, self::getAvailableTypeIds())) {
+        if (! in_array($type, self::getAvailableTypeIds(), true)) {
             throw new \InvalidArgumentException('Type Id is not valid');
         }
 
@@ -89,7 +93,7 @@ class Tag
     }
 
     /**
-     * Retrieves the list of available type ids
+     * Retrieves the list of available type ids.
      *
      * @return int[]
      */

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,13 +28,13 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Core\Security\ProviderConfiguration\Application\SAML\Repository\WriteSAMLConfigurationRepositoryInterface
     as WriteRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
-use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
-use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 
 class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implements WriteRepositoryInterface
 {
@@ -56,9 +56,9 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
         $this->info('Updating SAML Provider in DBMS');
         $statement = $this->db->prepare(
             $this->translateDbName(
-                "UPDATE `:db`.`provider_configuration` SET
+                'UPDATE `:db`.`provider_configuration` SET
                 `custom_configuration` = :customConfiguration, `is_active` = :isActive, `is_forced` = :isForced
-                WHERE `name`= :name"
+                WHERE `name`= :name'
             )
         );
 
@@ -89,38 +89,6 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
     }
 
     /**
-     * Format SAMLConfiguration for custom_configuration.
-     *
-     * @param Configuration $configuration
-     * @return array<string, mixed>
-     */
-    private function buildCustomConfigurationFromSAMLConfiguration(Configuration $configuration): array
-    {
-        /** @var CustomConfiguration $customConfiguration */
-        $customConfiguration = $configuration->getCustomConfiguration();
-
-        return [
-            'remote_login_url' => $customConfiguration->getRemoteLoginUrl(),
-            'entity_id_url' => $customConfiguration->getEntityIDUrl(),
-            'certificate' => $customConfiguration->getPublicCertificate(),
-            'user_id_attribute' => $customConfiguration->getUserIdAttribute(),
-            'logout_from' => $customConfiguration->getLogoutFrom(),
-            'logout_from_url' => $customConfiguration->getLogoutFromUrl(),
-            'auto_import' => $customConfiguration->isAutoImportEnabled(),
-            'contact_template_id' => $customConfiguration->getContactTemplate()?->getId(),
-            'email_bind_attribute' => $customConfiguration->getEmailBindAttribute(),
-            'fullname_bind_attribute' => $customConfiguration->getUserNameBindAttribute(),
-            'roles_mapping' => $this->aclConditionsToArray($customConfiguration->getACLConditions()),
-            "authentication_conditions" => $this->authenticationConditionsToArray(
-                $customConfiguration->getAuthenticationConditions()
-            ),
-            "groups_mapping" => $this->groupsMappingToArray(
-                $customConfiguration->getGroupsMapping()
-            )
-        ];
-    }
-
-    /**
      * @inheritDoc
      */
     public function deleteAuthorizationRules(): void
@@ -128,10 +96,10 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
         $query = sprintf("SELECT id FROM provider_configuration WHERE name='%s'", Provider::SAML);
         $statement = $this->db->query($query);
         if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $providerConfigurationId = (int)$result['id'];
+            $providerConfigurationId = (int) $result['id'];
             $deleteStatement = $this->db->prepare(
-                "DELETE FROM security_provider_access_group_relation
-                    WHERE provider_configuration_id = :providerConfigurationId"
+                'DELETE FROM security_provider_access_group_relation
+                    WHERE provider_configuration_id = :providerConfigurationId'
             );
             $deleteStatement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);
             $deleteStatement->execute();
@@ -146,11 +114,11 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
         $query = sprintf("SELECT id FROM provider_configuration WHERE name='%s'", Provider::SAML);
         $statement = $this->db->query($query);
         if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $providerConfigurationId = (int)$result['id'];
+            $providerConfigurationId = (int) $result['id'];
             $insertStatement = $this->db->prepare(
-                "INSERT INTO security_provider_access_group_relation
+                'INSERT INTO security_provider_access_group_relation
                     (claim_value, access_group_id, provider_configuration_id, priority)
-                    VALUES (:claimValue, :accessGroupId, :providerConfigurationId, :priority)"
+                    VALUES (:claimValue, :accessGroupId, :providerConfigurationId, :priority)'
             );
 
             foreach ($authorizationRules as $authorizationRule) {
@@ -176,7 +144,40 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
     }
 
     /**
-     * Delete Contact Group relations
+     * Format SAMLConfiguration for custom_configuration.
+     *
+     * @param Configuration $configuration
+     *
+     * @return array<string, mixed>
+     */
+    private function buildCustomConfigurationFromSAMLConfiguration(Configuration $configuration): array
+    {
+        /** @var CustomConfiguration $customConfiguration */
+        $customConfiguration = $configuration->getCustomConfiguration();
+
+        return [
+            'remote_login_url' => $customConfiguration->getRemoteLoginUrl(),
+            'entity_id_url' => $customConfiguration->getEntityIDUrl(),
+            'certificate' => $customConfiguration->getPublicCertificate(),
+            'user_id_attribute' => $customConfiguration->getUserIdAttribute(),
+            'logout_from' => $customConfiguration->getLogoutFrom(),
+            'logout_from_url' => $customConfiguration->getLogoutFromUrl(),
+            'auto_import' => $customConfiguration->isAutoImportEnabled(),
+            'contact_template_id' => $customConfiguration->getContactTemplate()?->getId(),
+            'email_bind_attribute' => $customConfiguration->getEmailBindAttribute(),
+            'fullname_bind_attribute' => $customConfiguration->getUserNameBindAttribute(),
+            'roles_mapping' => $this->aclConditionsToArray($customConfiguration->getACLConditions()),
+            'authentication_conditions' => $this->authenticationConditionsToArray(
+                $customConfiguration->getAuthenticationConditions()
+            ),
+            'groups_mapping' => $this->groupsMappingToArray(
+                $customConfiguration->getGroupsMapping()
+            ),
+        ];
+    }
+
+    /**
+     * Delete Contact Group relations.
      */
     private function deleteContactGroupRelations(): void
     {
@@ -185,8 +186,8 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
         if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             $providerConfigurationId = (int) $result['id'];
             $deleteStatement = $this->db->prepare(
-                "DELETE FROM security_provider_contact_group_relation
-                    WHERE provider_configuration_id = :providerConfigurationId"
+                'DELETE FROM security_provider_contact_group_relation
+                    WHERE provider_configuration_id = :providerConfigurationId'
             );
             $deleteStatement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);
             $deleteStatement->execute();
@@ -194,7 +195,7 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
     }
 
     /**
-     * Insert Contact Group Relations
+     * Insert Contact Group Relations.
      *
      * @param ContactGroupRelation[] $contactGroupRelations
      */
@@ -203,11 +204,11 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
         $query = sprintf("SELECT id FROM provider_configuration WHERE name='%s'", Provider::SAML);
         $statement = $this->db->query($query);
         if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $providerConfigurationId = (int)$result['id'];
+            $providerConfigurationId = (int) $result['id'];
             $insertStatement = $this->db->prepare(
-                "INSERT INTO security_provider_contact_group_relation
+                'INSERT INTO security_provider_contact_group_relation
                     (claim_value, contact_group_id, provider_configuration_id)
-                        VALUES (:claimValue, :contactGroupId, :providerConfigurationId)"
+                        VALUES (:claimValue, :contactGroupId, :providerConfigurationId)'
             );
             foreach ($contactGroupRelations as $contactGroupRelation) {
                 $insertStatement->bindValue(':claimValue', $contactGroupRelation->getClaimValue());
@@ -228,16 +229,17 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
 
     /**
      * @param AuthenticationConditions $authenticationConditions
+     *
      * @return array<string,array<string|null>|bool|string>
      */
     private function authenticationConditionsToArray(AuthenticationConditions $authenticationConditions): array
     {
         $conditionsSettings = [
-            "is_enabled" => $authenticationConditions->isEnabled(),
-            "attribute_path" => $authenticationConditions->getAttributePath(),
-            "authorized_values" => $authenticationConditions->getAuthorizedValues(),
-            "trusted_client_addresses" => $authenticationConditions->getTrustedClientAddresses(),
-            "blacklist_client_addresses" => $authenticationConditions->getBlacklistClientAddresses(),
+            'is_enabled' => $authenticationConditions->isEnabled(),
+            'attribute_path' => $authenticationConditions->getAttributePath(),
+            'authorized_values' => $authenticationConditions->getAuthorizedValues(),
+            'trusted_client_addresses' => $authenticationConditions->getTrustedClientAddresses(),
+            'blacklist_client_addresses' => $authenticationConditions->getBlacklistClientAddresses(),
         ];
 
         $endpoint = $authenticationConditions->getEndpoint();
@@ -250,13 +252,14 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
 
     /**
      * @param GroupsMapping $groupsMapping
+     *
      * @return array<string,bool|string|array<string,string|null>>
      */
     private function groupsMappingToArray(GroupsMapping $groupsMapping): array
     {
         $groupsSettings = [
-            "is_enabled" => $groupsMapping->isEnabled(),
-            "attribute_path" => $groupsMapping->getAttributePath(),
+            'is_enabled' => $groupsMapping->isEnabled(),
+            'attribute_path' => $groupsMapping->getAttributePath(),
         ];
 
         $endpoint = $groupsMapping->getEndpoint();
@@ -269,6 +272,7 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
 
     /**
      * @param ACLConditions $aclConditions
+     *
      * @return array<string,bool|string|array<string,string|null>>
      */
     private function aclConditionsToArray(ACLConditions $aclConditions): array
@@ -276,7 +280,7 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
         $rolesSettings = [
             'is_enabled' => $aclConditions->isEnabled(),
             'apply_only_first_role' => $aclConditions->onlyFirstRoleIsApplied(),
-            'attribute_path' => $aclConditions->getAttributePath()
+            'attribute_path' => $aclConditions->getAttributePath(),
         ];
 
         $endpoint = $aclConditions->getEndpoint();

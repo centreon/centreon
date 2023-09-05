@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,30 +28,33 @@ use Core\Domain\RealTime\Model\Service;
 interface ReadServiceRepositoryInterface
 {
     /**
-     * Find Service without ACL
+     * Find Service without ACL.
      *
      * @param int $hostId
      * @param int $serviceId
+     *
      * @return Service|null
      */
     public function findServiceById(int $hostId, int $serviceId): ?Service;
 
     /**
-     * Find Service with ACL
+     * Find Service with ACL.
      *
      * @param int $hostId
      * @param int $serviceId
      * @param int[] $accessGroupIds
+     *
      * @return Service|null
      */
     public function findServiceByIdAndAccessGroupIds(int $hostId, int $serviceId, array $accessGroupIds): ?Service;
 
     /**
-     * Check if user is allowed to get service information
+     * Check if user is allowed to get service information.
      *
      * @param int $hostId
      * @param int $serviceId
      * @param int[] $accessGroupIds
+     *
      * @return bool
      */
     public function isAllowedToFindServiceByAccessGroupIds(int $hostId, int $serviceId, array $accessGroupIds): bool;

@@ -5,6 +5,7 @@ import ReactGridLayout from 'react-grid-layout';
 import { NamedEntity } from '../api/models';
 
 export interface PanelConfiguration {
+  isAddWidgetPanel?: boolean;
   panelMinHeight?: number;
   panelMinWidth?: number;
   path: string;
@@ -12,34 +13,24 @@ export interface PanelConfiguration {
 
 export type Layout = Array<ReactGridLayout.Layout>;
 
+export type WidgetOptions = Record<string, unknown> & {
+  description?: {
+    content?: string;
+    enabled?: boolean;
+  };
+  name?: string;
+};
+
 export interface Panel extends ReactGridLayout.Layout {
+  data?: object;
   name: string;
-  options?: object;
+  options?: WidgetOptions;
   panelConfiguration: PanelConfiguration;
 }
 
 export interface Dashboard {
   layout: Array<Panel>;
 }
-//
-// export interface PanelDetails extends NamedEntity {
-//   layout: {
-//     height: number;
-//     minHeight: number;
-//     minWidth: number;
-//     width: number;
-//     x: number;
-//     y: number;
-//   };
-//   widgetSettings: {
-//     [key: string]: unknown;
-//   };
-//   widgetType: string;
-// }
-
-// export type DashboardDetails = CentreonDashboard & {
-//   panels?: Array<PanelDetails>;
-// };
 
 export interface PanelDetailsToAPI extends NamedEntity {
   layout: {

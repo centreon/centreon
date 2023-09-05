@@ -1,28 +1,31 @@
-import { FC } from 'react';
-
 import { useAtomValue, useSetAtom } from 'jotai';
 
-import { useMemoComponent } from '@centreon/ui';
+import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 
 import {
   getPanelConfigurationsDerivedAtom,
-  getPanelOptionsDerivedAtom,
-  setPanelOptionsDerivedAtom
+  getPanelOptionsAndDataDerivedAtom,
+  refreshIntervalAtom,
+  setPanelOptionsAndDataDerivedAtom
 } from '../../atoms';
 import FederatedComponent from '../../../../components/FederatedComponents';
+import { isGenericText } from '../../utils';
 
 interface Props {
   id: string;
 }
 
-const Panel: FC<Props> = ({ id }) => {
-  const getPanelOptions = useAtomValue(getPanelOptionsDerivedAtom);
+const Panel = ({ id }: Props): JSX.Element => {
+  const getPanelOptionsAndData = useAtomValue(
+    getPanelOptionsAndDataDerivedAtom
+  );
   const getPanelConfigurations = useAtomValue(
     getPanelConfigurationsDerivedAtom
   );
-  const setPanelOptions = useSetAtom(setPanelOptionsDerivedAtom);
+  const refreshInterval = useAtomValue(refreshIntervalAtom);
+  const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
 
-  const panelOptions = getPanelOptions(id);
+  const panelOptionsAndData = getPanelOptionsAndData(id);
 
   const panelConfigurations = getPanelConfigurations(id);
 
@@ -31,16 +34,27 @@ const Panel: FC<Props> = ({ id }) => {
   };
 
   return useMemoComponent({
-    Component: (
+    Component: isGenericText(panelConfigurations.path) ? (
+      <RichTextEditor
+        editable={false}
+        editorState={
+          panelOptionsAndData.options?.description?.enabled
+            ? panelOptionsAndData.options?.description?.content
+            : undefined
+        }
+      />
+    ) : (
       <FederatedComponent
         isFederatedWidget
+        globalRefreshInterval={refreshInterval}
         id={id}
-        panelOptions={panelOptions}
+        panelData={panelOptionsAndData?.data}
+        panelOptions={panelOptionsAndData?.options}
         path={panelConfigurations.path}
         setPanelOptions={changePanelOptions}
       />
     ),
-    memoProps: [id, panelOptions]
+    memoProps: [id, panelOptionsAndData]
   });
 };
 

@@ -41,13 +41,14 @@ final class AddServiceTemplateRequest
     /** @var list<int> */
     public array $serviceCategories = [];
 
+    /** @var ServiceGroupDto[] */
+    public array $serviceGroups = [];
+
     public int|null $notificationTypes = null;
 
     public bool $isContactAdditiveInheritance = false;
 
     public bool $isContactGroupAdditiveInheritance = false;
-
-    public bool $isActivated = false;
 
     public int $activeChecks = 0;
 

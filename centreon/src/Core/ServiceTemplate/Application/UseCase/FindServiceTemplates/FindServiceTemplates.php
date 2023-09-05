@@ -104,11 +104,11 @@ final class FindServiceTemplates
             $dto->firstNotificationDelay = $serviceTemplate->getFirstNotificationDelay();
             $dto->freshnessThreshold = $serviceTemplate->getFreshnessThreshold();
             $dto->graphTemplateId = $serviceTemplate->getGraphTemplateId();
+            $dto->flapDetectionEnabled = $serviceTemplate->getFlapDetectionEnabled();
             $dto->lowFlapThreshold = $serviceTemplate->getLowFlapThreshold();
             $dto->highFlapThreshold = $serviceTemplate->getHighFlapThreshold();
             $dto->iconId = $serviceTemplate->getIconId();
             $dto->iconAlternativeText = $serviceTemplate->getIconAlternativeText();
-            $dto->isActivated = $serviceTemplate->isActivated();
             $dto->isLocked = $serviceTemplate->isLocked();
             $dto->activeChecks = $serviceTemplate->getActiveChecks();
             $dto->eventHandlerEnabled = $serviceTemplate->getEventHandlerEnabled();

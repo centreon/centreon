@@ -1,0 +1,3 @@
+description: |
+  Indicates that the response has not been modified and the client can continue to use the same cached version 
+  of the response

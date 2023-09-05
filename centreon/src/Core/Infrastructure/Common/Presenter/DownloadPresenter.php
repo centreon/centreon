@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,7 +37,19 @@ class DownloadPresenter implements PresenterFormatterInterface
     }
 
     /**
-     * Generates download file extension depending on presenter
+     * @inheritDoc
+     */
+    public function format(mixed $data, array $headers): Response
+    {
+        $filename = $this->generateDownloadFileName($data->filename ?? 'export');
+        $headers['Content-Type'] = 'application/force-download';
+        $headers['Content-Disposition'] = 'attachment; filename="' . $filename . '"';
+
+        return $this->formatter->format($data->performanceMetrics, $headers);
+    }
+
+    /**
+     * Generates download file extension depending on presenter.
      *
      * @return string
      */
@@ -51,7 +63,7 @@ class DownloadPresenter implements PresenterFormatterInterface
     }
 
     /**
-     * Generates download file name (name + extension depending on used presenter)
+     * Generates download file name (name + extension depending on used presenter).
      *
      * @param string $filename
      *
@@ -60,17 +72,7 @@ class DownloadPresenter implements PresenterFormatterInterface
     private function generateDownloadFileName(string $filename): string
     {
         $fileExtension = $this->generateDownloadFileExtension();
-        return $fileExtension === '' ? $filename : $filename . '.' . $fileExtension;
-    }
 
-    /**
-     * @inheritDoc
-     */
-    public function format(mixed $data, array $headers): Response
-    {
-        $filename = $this->generateDownloadFileName($data->filename ?? 'export');
-        $headers['Content-Type'] = 'application/force-download';
-        $headers['Content-Disposition'] = 'attachment; filename="' . $filename . '"';
-        return $this->formatter->format($data->performanceMetrics, $headers);
+        return $fileExtension === '' ? $filename : $filename . '.' . $fileExtension;
     }
 }

@@ -38,11 +38,11 @@ use Symfony\Component\HttpFoundation\Response;
 final class DeleteNotificationsPresenter extends AbstractPresenter implements DeleteNotificationsPresenterInterface
 {
     use LoggerTrait;
-
     private const ROUTE_NAME = 'DeleteNotification';
 
     /**
      * @param PresenterFormatterInterface $presenterFormatter
+     * @param Router $router
      */
     public function __construct(
         protected PresenterFormatterInterface $presenterFormatter,
@@ -95,7 +95,7 @@ final class DeleteNotificationsPresenter extends AbstractPresenter implements De
     private function getDeletedNotificationHref(int $id): ?string
     {
         try {
-            return  $this->router->generate(self::ROUTE_NAME, ['notificationId' => $id]);
+            return $this->router->generate(self::ROUTE_NAME, ['notificationId' => $id]);
         } catch (\Throwable $ex) {
             $this->error('Impossible to generate the deleted entity route', [
                 'message' => $ex->getMessage(),

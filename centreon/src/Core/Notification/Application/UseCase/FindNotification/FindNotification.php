@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * For more information : user@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
@@ -192,7 +192,8 @@ final class FindNotification
             static fn(NotificationMessage $message): array => [
                 'channel' => $message->getChannel()->value,
                 'subject' => $message->getSubject(),
-                'message' => $message->getMessage(),
+                'message' => $message->getRawMessage(),
+                'formatted_message' => $message->getFormattedMessage(),
             ],
             $notificationMessages
         );

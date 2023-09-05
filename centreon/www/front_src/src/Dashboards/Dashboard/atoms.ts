@@ -4,6 +4,7 @@ import {
   equals,
   find,
   findIndex,
+  inc,
   length,
   lensIndex,
   lensProp,
@@ -23,8 +24,11 @@ import {
   Panel,
   Dashboard,
   PanelConfiguration,
-  QuitWithoutSavedDashboard
+  QuitWithoutSavedDashboard,
+  WidgetOptions
 } from './models';
+
+export const refreshIntervalAtom = atom(30);
 
 export const dashboardAtom = atom<Dashboard>({
   layout: []
@@ -51,7 +55,10 @@ export const setLayoutModeDerivedAtom = atom(
 );
 
 interface AddPanelDerivedAtom {
+  data?: object;
+  fixedId?: string;
   height?: number;
+  moduleName: string;
   options?: object;
   panelConfiguration: PanelConfiguration;
   width?: number;
@@ -67,16 +74,33 @@ const getPanel = ({ id, layout }: GetPanelProps): Panel =>
 const getPanelIndex = ({ id, layout }: GetPanelProps): number =>
   findIndex(propEq('i', id), layout) as number;
 
+export const panelsLengthAtom = atom(0);
+
 export const addPanelDerivedAtom = atom(
   null,
   (
     get,
     setAtom,
-    { panelConfiguration, options, width, height }: AddPanelDerivedAtom
+    {
+      panelConfiguration,
+      options,
+      width,
+      height,
+      moduleName,
+      fixedId,
+      data
+    }: AddPanelDerivedAtom
   ) => {
     const dashboard = get(dashboardAtom);
+    const panelsLength = get(panelsLengthAtom);
 
-    const id = `panel_${panelConfiguration.path}_${length(dashboard.layout)}`;
+    const increasedPanelsLength = inc(panelsLength);
+
+    const id =
+      fixedId ||
+      `panel_${panelConfiguration.path}_${length(
+        dashboard.layout
+      )}_${increasedPanelsLength}`;
 
     const columnsFromScreenSize = getColumnsFromScreenSize();
     const maxColumns = equals(columnsFromScreenSize, 1)
@@ -86,10 +110,12 @@ export const addPanelDerivedAtom = atom(
     const panelWidth = width || panelConfiguration?.panelMinWidth || maxColumns;
 
     const basePanelLayout = {
+      data,
       h: height || panelConfiguration?.panelMinHeight || 3,
       i: id,
       minH: panelConfiguration?.panelMinHeight || 3,
       minW: panelConfiguration?.panelMinWidth || 3,
+      name: moduleName,
       options,
       panelConfiguration,
       static: false
@@ -143,8 +169,11 @@ export const addPanelDerivedAtom = atom(
     setAtom(dashboardAtom, {
       layout: newLayout
     });
+    setAtom(panelsLengthAtom, increasedPanelsLength);
   }
 );
+
+export const askDeletePanelAtom = atom<string | null>(null);
 
 export const removePanelDerivedAtom = atom(
   null,
@@ -157,16 +186,19 @@ export const removePanelDerivedAtom = atom(
   }
 );
 
-export const getPanelOptionsDerivedAtom = atom((get) => {
+export const getPanelOptionsAndDataDerivedAtom = atom((get) => {
   const dashboard = get(dashboardAtom);
 
-  return (id: string): object | undefined => {
-    const panelOptions = getPanel({
+  return (id: string): { data?: object; options?: WidgetOptions } => {
+    const panel = getPanel({
       id,
       layout: dashboard.layout
-    })?.options;
+    });
 
-    return panelOptions;
+    return {
+      data: panel?.data,
+      options: panel?.options
+    };
   };
 });
 
@@ -180,13 +212,14 @@ export const getPanelConfigurationsDerivedAtom = atom((get) => {
 });
 
 interface SetPanelOptionsProps {
+  data?: object;
   id: string;
   options: object;
 }
 
-export const setPanelOptionsDerivedAtom = atom(
+export const setPanelOptionsAndDataDerivedAtom = atom(
   null,
-  (_, setAtom, { id, options }: SetPanelOptionsProps) => {
+  (_, setAtom, { id, options, data }: SetPanelOptionsProps) => {
     setAtom(dashboardAtom, (currentDashboard): Dashboard => {
       const panelIndex = getPanelIndex({
         id,
@@ -199,6 +232,7 @@ export const setPanelOptionsDerivedAtom = atom(
         lensIndex(panelIndex),
         {
           ...panel,
+          data,
           options
         },
         currentDashboard.layout
@@ -218,7 +252,9 @@ export const duplicatePanelDerivedAtom = atom(
     const panel = find(propEq('i', title), dashboard.layout);
 
     setAtom(addPanelDerivedAtom, {
+      data: panel?.data,
       height: panel?.h,
+      moduleName: panel?.name as string,
       options: panel?.options,
       panelConfiguration: panel?.panelConfiguration as PanelConfiguration,
       width: panel?.w

@@ -86,7 +86,7 @@ export interface Tab {
 
 export interface Props {
   className?: string;
-  header: React.ReactElement;
+  header?: React.ReactElement;
   headerBackgroundColor?: string;
   labelClose?: string;
   minWidth?: number;
@@ -226,7 +226,9 @@ const Panel = React.forwardRef(
               className={classes.contentContainer}
               ref={ref as React.RefObject<HTMLDivElement>}
             >
-              <div className={classes.content}>{selectedTab}</div>
+              <div className={classes.content} id="panel-content">
+                {selectedTab}
+              </div>
             </div>
           </div>
         </Paper>

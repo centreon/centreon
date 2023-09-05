@@ -2491,6 +2491,7 @@ CREATE TABLE IF NOT EXISTS `notification_message` (
   `channel` enum('Email','Slack','Sms') DEFAULT 'Email',
   `subject` VARCHAR(255) NOT NULL,
   `message` TEXT NOT NULL,
+  `formatted_message` TEXT NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `notification_message_notification_id`
     FOREIGN KEY (`notification_id`)
@@ -2612,6 +2613,13 @@ CREATE TABLE IF NOT EXISTS `dashboard_contactgroup_relation` (
   CONSTRAINT `dashboard_contactgroup_relation_contactgroup_id`
     FOREIGN KEY (`contactgroup_id`)
     REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `version` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

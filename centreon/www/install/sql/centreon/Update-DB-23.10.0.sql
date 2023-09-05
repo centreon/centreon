@@ -75,6 +75,24 @@ CREATE TABLE IF NOT EXISTS `dashboard_contactgroup_relation` (
     REFERENCES `contactgroup` (`cg_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `version` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- POPULATE DASHBOARD TABLES --
+
+INSERT INTO dashboard_widgets (`name`, `version`)
+VALUES ('centreon-widget-generictext', '23.10.0');
+
+INSERT INTO dashboard_widgets (`name`, `version`)
+VALUES ('centreon-widget-singlemetric', '23.10.0');
+
+INSERT INTO dashboard_widgets (`name`, `version`)
+VALUES ('centreon-widget-graph', '23.10.0');
+
 -- CREATE TABLES FOR NOTIFICATIONS CONFIGURATION --
 
 CREATE TABLE IF NOT EXISTS `notification` (
@@ -95,6 +113,7 @@ CREATE TABLE IF NOT EXISTS `notification_message` (
   `channel` enum('Email','Slack','Sms') DEFAULT 'Email',
   `subject` VARCHAR(255) NOT NULL,
   `message` TEXT NOT NULL,
+  `formatted_message` TEXT NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `notification_message_notification_id`
     FOREIGN KEY (`notification_id`)

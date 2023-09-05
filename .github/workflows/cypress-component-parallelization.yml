@@ -10,6 +10,10 @@ on:
       specs_path:
         required: true
         type: string
+      dependencies_lock_file:
+        required: true
+        type: string
+        description: "The frontend dependencies lock file path"
 
 jobs:
   cypress-component-test-list:
@@ -19,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: List of specs
         id: list-specs
@@ -31,19 +35,20 @@ jobs:
     needs: [cypress-component-test-list]
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         spec: ${{ fromJson(needs.cypress-component-test-list.outputs.specs) }}
     name: ${{ matrix.spec }}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Cypress component testing
         uses: ./.github/actions/web-frontend-component-test
         with:
           module: ${{ inputs.module_name }}
           spec_file_path: ${{ inputs.specs_path }}/${{ matrix.spec }}
+          dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
 
       - name: Upload components tests Results
         if: failure()
@@ -59,7 +64,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v2
         with:
