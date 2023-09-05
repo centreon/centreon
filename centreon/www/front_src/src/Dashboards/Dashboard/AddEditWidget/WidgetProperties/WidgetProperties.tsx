@@ -18,9 +18,12 @@ import Subtitle from '../../components/Subtitle';
 
 import { WidgetRichTextEditor, WidgetSwitch, WidgetTextField } from './Inputs';
 import { useWidgetInputs } from './useWidgetInputs';
+import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
 const WidgetProperties = (): JSX.Element => {
   const { t } = useTranslation();
+  const { classes } = useWidgetPropertiesStyles();
+
   const widgetProperties = useWidgetInputs('options');
 
   const isWidgetSelected = !isNil(widgetProperties);
@@ -31,7 +34,7 @@ const WidgetProperties = (): JSX.Element => {
     <>
       {isWidgetSelected && (
         <CollapsibleItem defaultExpanded title={t(labelWidgetProperties)}>
-          <div>
+          <div className={classes.widgetProperties}>
             <WidgetTextField label={labelTitle} propertyName="name" />
             <div>
               <Subtitle>{t(labelDescription)}</Subtitle>
@@ -39,10 +42,12 @@ const WidgetProperties = (): JSX.Element => {
                 label={labelShowDescription}
                 propertyName="description.enabled"
               />
-              <WidgetRichTextEditor
-                label={labelDescription}
-                propertyName="description.content"
-              />
+              <div className={classes.widgetDescription}>
+                <WidgetRichTextEditor
+                  label={labelDescription}
+                  propertyName="description.content"
+                />
+              </div>
               <WidgetSwitch
                 endAdornment={
                   <Tooltip
@@ -62,7 +67,7 @@ const WidgetProperties = (): JSX.Element => {
       )}
       {isWidgetSelected && hasProperties && (
         <CollapsibleItem defaultExpanded title={t(labelValueSettings)}>
-          <div>
+          <div className={classes.widgetProperties}>
             {(widgetProperties || []).map(({ Component, key, props }) => (
               <div key={key}>
                 <Component {...props} />

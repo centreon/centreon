@@ -4,9 +4,7 @@ export const useGraphTypeStyles = makeStyles()((theme) => ({
   graphTypeContainer: {
     display: 'flex',
     flexDirection: 'row',
-    gap: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(1)
+    gap: theme.spacing(2)
   },
   graphTypeIcon: {
     alignItems: 'center',

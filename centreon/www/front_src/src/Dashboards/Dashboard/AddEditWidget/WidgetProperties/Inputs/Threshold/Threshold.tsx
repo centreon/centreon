@@ -34,34 +34,38 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   return (
     <Box>
       <Subtitle>{t(labelThreshold)}</Subtitle>
-      <WidgetSwitch
-        endAdornment={
-          <Tooltip
-            followCursor={false}
-            label={t(labelThresholdsAreAutomaticallyHidden)}
-            position="right"
-          >
-            <InfoOutlinedIcon color="primary" />
-          </Tooltip>
-        }
-        label={t(labelShowThresholds)}
-        propertyName={`${propertyName}.enabled`}
-      />
-      {options.map(({ label, radioButtons, type, value }) => (
-        <Box className={classes.threshold} key={label}>
-          <Typography>{label}</Typography>
-          <RadioGroup row value={value} onChange={changeType(type)}>
-            {radioButtons.map(({ content, value: radioValue }) => (
-              <FormControlLabel
-                control={<Radio data-testid={radioValue} />}
-                key={radioValue}
-                label={content}
-                value={radioValue}
-              />
-            ))}
-          </RadioGroup>
-        </Box>
-      ))}
+      <div className={classes.showThreshold}>
+        <WidgetSwitch
+          endAdornment={
+            <Tooltip
+              followCursor={false}
+              label={t(labelThresholdsAreAutomaticallyHidden)}
+              position="right"
+            >
+              <InfoOutlinedIcon color="primary" />
+            </Tooltip>
+          }
+          label={t(labelShowThresholds)}
+          propertyName={`${propertyName}.enabled`}
+        />
+      </div>
+      <Box className={classes.thresholds}>
+        {options.map(({ label, radioButtons, type, value }) => (
+          <div key={label}>
+            <Typography>{label}</Typography>
+            <RadioGroup row value={value} onChange={changeType(type)}>
+              {radioButtons.map(({ content, value: radioValue }) => (
+                <FormControlLabel
+                  control={<Radio data-testid={radioValue} />}
+                  key={radioValue}
+                  label={content}
+                  value={radioValue}
+                />
+              ))}
+            </RadioGroup>
+          </div>
+        ))}
+      </Box>
     </Box>
   );
 };

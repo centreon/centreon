@@ -13,6 +13,14 @@ export const useWidgetPropertiesStyles = makeStyles()((theme) => ({
   },
   widgetDataItem: {
     width: '100%'
+  },
+  widgetDescription: {
+    marginBottom: theme.spacing(1)
+  },
+  widgetProperties: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2)
   }
 }));
 
