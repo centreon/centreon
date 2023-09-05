@@ -48,8 +48,7 @@ const getInputBaseRootStyle = ({
 
   if (equals(size, 'compact')) {
     return {
-      padding: '8px 8px',
-      paddingRight: '0px'
+      padding: '0px 0px 0px 8px'
     };
   }
   if (equals(size, 'small')) {
@@ -75,7 +74,6 @@ const getInputBaseRootStyle = ({
 const getInputBaseInputStyle = ({ size }: InputBaseProps): CSSInterpolation => {
   if (equals(size, 'compact')) {
     return {
-      fontSize: 'x-small',
       minHeight: '32px'
     };
   }

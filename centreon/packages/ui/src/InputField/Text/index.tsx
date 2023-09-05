@@ -18,9 +18,6 @@ import useAutoSize from './useAutoSize';
 
 const useStyles = makeStyles<{ displayAsBlock: boolean }>()(
   (theme: Theme, { displayAsBlock }) => ({
-    compact: {
-      fontSize: 'x-small'
-    },
     hiddenText: {
       display: 'table',
       lineHeight: 0,
