@@ -140,7 +140,7 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
 Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
   return cy
     .startContainer({
-      image: `docker.centreon.com/centreon/openid:${Cypress.env(
+      image: `docker.centreon.com/centreon/keycloak:${Cypress.env(
         'OPENID_IMAGE_VERSION'
       )}`,
       name: 'e2e-tests-openid-centreon',

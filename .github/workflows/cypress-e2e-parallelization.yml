@@ -114,7 +114,7 @@ jobs:
           name: ${{ inputs.name }}
           web_image_os: ${{ inputs.os }}
           web_image_version: develop
-          openid_image_version: 22.0.1
+          openid_image_version: ${{ inputs.major_version }}
           module: centreon
           feature_file_path: ${{ matrix.feature }}
           dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
