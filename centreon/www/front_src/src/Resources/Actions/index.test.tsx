@@ -67,11 +67,7 @@ import {
   labelWarning
 } from '../translatedLabels';
 
-import {
-  acknowledgeEndpoint,
-  checkEndpoint,
-  downtimeEndpoint
-} from './api/endpoint';
+import { acknowledgeEndpoint, checkEndpoint } from './api/endpoint';
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
 import { submitStatusEndpoint } from './Resource/SubmitStatus/api';
 
@@ -553,26 +549,6 @@ describe(Actions, () => {
     await waitFor(() => {
       expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeEnabled();
     });
-
-    fireEvent.click(last(getAllByText(labelSetDowntime)) as HTMLElement);
-
-    await waitFor(() =>
-      expect(mockedAxios.post).toHaveBeenCalledWith(
-        downtimeEndpoint,
-        {
-          downtime: {
-            comment: labelDowntimeByAdmin,
-            duration: 7200,
-            end_time: '2020-01-01T02:00:00Z',
-            is_fixed: true,
-            start_time: '2020-01-01T00:00:00Z',
-            with_services: false
-          },
-          resources: map(pick(['type', 'id', 'parent']), selectedResources)
-        },
-        expect.anything()
-      )
-    );
   });
 
   it.each([

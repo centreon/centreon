@@ -30,6 +30,7 @@ export enum FederatedWidgetOptionType {
   refreshInterval = 'refresh-interval',
   resources = 'resources',
   richText = 'rich-text',
+  singleMetricGraphType = 'single-metric-graph-type',
   textfield = 'textfield',
   threshold = 'threshold'
 }

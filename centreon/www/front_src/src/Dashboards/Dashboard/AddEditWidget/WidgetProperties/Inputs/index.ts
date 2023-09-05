@@ -5,3 +5,4 @@ export { default as WidgetRichTextEditor } from './RichTextEditor';
 export { default as WidgetSwitch } from './Switch';
 export { default as WidgetRefreshInterval } from './RefreshInterval/RefreshInterval';
 export { default as WidgetThreshold } from './Threshold/Threshold';
+export { default as WidgetSingleMetricGraphType } from './SingleMetricGraphType/SingleMetricGraphType';

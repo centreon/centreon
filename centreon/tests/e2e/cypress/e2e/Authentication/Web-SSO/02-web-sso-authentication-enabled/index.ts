@@ -69,7 +69,7 @@ Then(
     //   const { origin, pathname } = new URL(url);
     //   cy.origin(origin, () => {
     //     cy.visit(pathname);
-    //     cy.loginKeycloack('user-for-web-sso-authentication')
+    //     cy.loginKeycloak('user-for-web-sso-authentication')
     //       .wait('@getNavigationList')
     //       .url()
     //       .should('include', '/monitoring/resources');

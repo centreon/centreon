@@ -2,17 +2,18 @@ import { useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
 import { propEq, find } from 'ramda';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { Widget, WidgetPropertyProps } from '../models';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
-import { widgetPropertiesAtom } from '../atoms';
+import { singleMetricSectionAtom, widgetPropertiesAtom } from '../atoms';
 
 import {
   WidgetMetrics,
   WidgetRefreshInterval,
   WidgetResources,
   WidgetRichTextEditor,
+  WidgetSingleMetricGraphType,
   WidgetTextField,
   WidgetThreshold
 } from './Inputs';
@@ -38,7 +39,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.metrics]: WidgetMetrics,
   [FederatedWidgetOptionType.richText]: WidgetRichTextEditor,
   [FederatedWidgetOptionType.refreshInterval]: WidgetRefreshInterval,
-  [FederatedWidgetOptionType.threshold]: WidgetThreshold
+  [FederatedWidgetOptionType.threshold]: WidgetThreshold,
+  [FederatedWidgetOptionType.singleMetricGraphType]: WidgetSingleMetricGraphType
 };
 
 const DefaultComponent = (): JSX.Element => <div />;
@@ -52,12 +54,14 @@ export const useWidgetInputs = (
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
+  const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
 
-  const selectedWidgetProperties =
-    find(
-      propEq('moduleName', values.moduleName),
-      federatedWidgetsProperties || []
-    )?.[widgetKey] || null;
+  const selectedWidget = find(
+    propEq('moduleName', values.moduleName),
+    federatedWidgetsProperties || []
+  );
+
+  const selectedWidgetProperties = selectedWidget?.[widgetKey] || null;
 
   const inputs = useMemo(
     () =>
@@ -89,6 +93,14 @@ export const useWidgetInputs = (
   useEffect(() => {
     validateForm();
   }, useDeepCompare([widgetProperties]));
+
+  useEffect(() => {
+    if (!selectedWidget) {
+      return;
+    }
+
+    setSingleMetricSection(selectedWidget.singleMetricSelection);
+  }, useDeepCompare([selectedWidget]));
 
   return inputs;
 };

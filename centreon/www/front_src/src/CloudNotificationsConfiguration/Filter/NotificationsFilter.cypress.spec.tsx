@@ -80,6 +80,6 @@ describe('Filter', () => {
       requestAlias: 'requestWithSearchQuery'
     });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });

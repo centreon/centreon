@@ -40,9 +40,14 @@ const WidgetTextField = ({
 
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldTouched(`options.${propertyName}`, true);
-    const newText = equals(text?.type, 'number')
-      ? parseInt(event.target.value || '0', 10)
-      : event.target.value;
+
+    if (equals(text?.type, 'number')) {
+      setFieldValue(
+        `options.${propertyName}`,
+        equals(event.target.value, '') ? '' : Number(event.target.value)
+      );
+    }
+    const newText = event.target.value;
     setFieldValue(`options.${propertyName}`, newText);
   };
 
@@ -51,12 +56,15 @@ const WidgetTextField = ({
   return (
     <TextField
       fullWidth
-      ariaLabel={t(label) as string}
       className={className}
       dataTestId={label}
       disabled={disabled}
       error={isTouched && error}
       helperText={isTouched && error}
+      inputProps={{
+        'aria-label': t(label) as string,
+        step: text?.step || '1'
+      }}
       label={isCompact ? null : t(label) || ''}
       multiline={text?.multiline || false}
       required={required}

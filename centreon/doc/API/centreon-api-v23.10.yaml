@@ -4940,10 +4940,9 @@ components:
       required: false
       description: "Filter the resources by type"
       schema:
-        type: array
-        items:
-          type: string
-          enum: [service, host, metaservice]
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"] where strings can be one of "service", "host", "metaservice"
         example: '["host"]'
     ResourceFilterState:
       in: query
@@ -4951,10 +4950,9 @@ components:
       required: false
       description: "Filter the resources by state"
       schema:
-        type: array
-        items:
-          type: string
-          enum: [unhandled_problems, resources_problems, in_downtime, acknowledged, all]
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"] where strings can be one of "unhandled_problems", "resources_problems", "in_downtime", "acknowledged", "all"
         example: '["in_downtime", "acknowledged"]'
     ResourceFilterStatus:
       in: query
@@ -4962,10 +4960,9 @@ components:
       required: false
       description: "Filter the resources by status"
       schema:
-        type: array
-        items:
-          type: string
-          enum: [OK, UP, WARNING, DOWN, CRITICAL, UNREACHABLE, UNKNOWN, PENDING]
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"] where strings can be one of "OK", "UP", "WARNING", "DOWN", "CRITICAL", "UNREACHABLE", "UNKNOWN", "PENDING"
         example: '["OK", "UP", "PENDING"]'
     ResourceFilterHostgroupName:
       in: query
@@ -4973,9 +4970,9 @@ components:
       required: false
       description: "Filter the resources by host group names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["ESX-Paris", "ESX-London"]'
     ResourceFilterServicegroupName:
       in: query
@@ -4983,9 +4980,9 @@ components:
       required: false
       description: "Filter the resources by service group names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["Memory-Services", "Ping-Services"]'
     ResourceFilterServiceCategoryName:
       in: query
@@ -4993,9 +4990,9 @@ components:
       required: false
       description: "Filter the resources by service category names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["Ping", "CPUs"]'
     ResourceFilterHostCategoryName:
       in: query
@@ -5003,9 +5000,9 @@ components:
       required: false
       description: "Filter the resources by host category names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["Linux", "Windows"]'
     ResourceFilterServiceSeverityName:
       in: query
@@ -5013,9 +5010,9 @@ components:
       required: false
       description: "Filter the resources by service severity names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["Ping", "CPUs"]'
     ResourceFilterHostSeverityName:
       in: query
@@ -5023,9 +5020,9 @@ components:
       required: false
       description: "Filter the resources by host severity names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["Linux", "Windows"]'
     ResourceFilterHostSeverityLevel:
       in: query
@@ -5033,9 +5030,9 @@ components:
       required: false
       description: "Filter the resources by host severity levels"
       schema:
-        type: array
-        items:
-          type: integer
+        type: string
+        pattern: '^\[\d+(,\d+)*\]$'
+        description: should be in form [<int1>,<int2>,<int3>]
         example: '[50, 75]'
     ResourceFilterServiceSeverityLevel:
       in: query
@@ -5043,9 +5040,9 @@ components:
       required: false
       description: "Filter the resources by service severity levels"
       schema:
-        type: array
-        items:
-          type: integer
+        type: string
+        pattern: '^\[\d+(,\d+)*\]$'
+        description: should be in form [<int1>,<int2>,<int3>]
         example: '[50, 75]'
     ResourceFilterMonitoringServerName:
       in: query
@@ -5053,9 +5050,9 @@ components:
       required: false
       description: "Filter the resources by monitoring server names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["Central", "Remote-Server-Paris", "Poller-Lyon"]'
     ResourceFilterStatusTypes:
       in: query
@@ -5063,10 +5060,9 @@ components:
       required: false
       description: "Filter the resources by status types"
       schema:
-        type: array
-        items:
-          type: string
-          enum: ["soft", "hard"]
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"] where strings can be one of "soft", "hard"
         example: '["soft"]'
     ShowHost:
       in: query
@@ -7754,6 +7750,7 @@ components:
           example: "1h 45m"
         information:
           type: string
+          nullable: true
           description: "Output of the resource"
           example: "OK - Ping is ok"
         active_checks:

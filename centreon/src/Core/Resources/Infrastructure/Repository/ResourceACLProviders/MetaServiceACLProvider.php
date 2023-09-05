@@ -27,9 +27,6 @@ use Core\Domain\RealTime\Model\ResourceTypes\MetaServiceResourceType;
 
 class MetaServiceACLProvider implements ResourceACLProviderInterface
 {
-    /**
-     * @inheritDoc
-     */
     public function buildACLSubRequest(array $accessGroupIds): string
     {
         $requestPattern = 'EXISTS (

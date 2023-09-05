@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Core\Resources\Infrastructure\Repository\DbReadResourceRepository\FindResources;
+namespace Tests\Core\Resources\Infrastructure\Repository;
 
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
@@ -68,7 +68,7 @@ function getSubQueryByACLProvider(ResourceACLProviderInterface $provider, array 
 
 /**
  * @param \Traversable<ResourceACLProviderInterface> $providers
- * @param int[]                                      $accessGroupIds
+ * @param int[] $accessGroupIds
  */
 function generateAccessGroupSubQuery(\Traversable $providers, array $accessGroupIds): string
 {
@@ -77,12 +77,12 @@ function generateAccessGroupSubQuery(\Traversable $providers, array $accessGroup
         iterator_to_array($providers)
     );
 
-    return sprintf(' AND (%s)', implode(" OR ", $orConditions));
+    return sprintf(' AND (%s)', implode(' OR ', $orConditions));
 }
 
 function generateExpectedSQLQuery(string $accessGroupRequest): string
 {
-    $request = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
+    return 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
             resources.resource_id,
             resources.name,
             resources.alias,
@@ -126,25 +126,23 @@ function generateExpectedSQLQuery(string $accessGroupRequest): string
         FROM `centreon-monitoring`.`resources`
         LEFT JOIN `centreon-monitoring`.`resources` parent_resource
             ON parent_resource.id = resources.parent_id
-            AND parent_resource.type = 1' .
-        ' LEFT JOIN `centreon-monitoring`.`severities`
+            AND parent_resource.type = 1'
+        . ' LEFT JOIN `centreon-monitoring`.`severities`
             ON `severities`.severity_id = `resources`.severity_id
         LEFT JOIN `centreon-monitoring`.`resources_tags` AS rtags
             ON `rtags`.resource_id = `resources`.resource_id
         INNER JOIN `centreon-monitoring`.`instances`
-            ON `instances`.instance_id = `resources`.poller_id WHERE ' .
-        " resources.name NOT LIKE '\_Module\_%'
+            ON `instances`.instance_id = `resources`.poller_id WHERE '
+        . " resources.name NOT LIKE '\_Module\_%'
             AND resources.parent_name NOT LIKE '\_Module\_BAM%'
-            AND resources.enabled = 1 AND resources.type != 3" .
-        $accessGroupRequest .
-        ' ORDER BY resources.status_ordered DESC, resources.name ASC';
-
-    return $request;
+            AND resources.enabled = 1 AND resources.type != 3"
+        . $accessGroupRequest
+        . ' ORDER BY resources.status_ordered DESC, resources.name ASC';
 }
 
 it(
     'findResources method should fetch resources',
-    function () {
+    function (): void {
         $statement = $this->createMock(\PDOStatement::class);
         $statement->method('fetchColumn')->willReturn(10);
 
@@ -184,7 +182,7 @@ it(
 
 it(
     'findResourcesByAccessGroupIds method should fetch resources',
-    function (\Traversable $resourceACLProviders, array $accessGroupIDs) {
+    function (\Traversable $resourceACLProviders, array $accessGroupIDs): void {
         $statement = $this->createMock(\PDOStatement::class);
         $statement->method('fetchColumn')->willReturn(10);
 
@@ -227,7 +225,9 @@ it(
 )->with(
     function () {
         yield [new \ArrayIterator([new ServiceACLProvider()]), [1, 4]];
+
         yield [new \ArrayIterator([new HostACLProvider()]), [1, 4]];
+
         yield [new \ArrayIterator([new MetaServiceACLProvider(), new HostACLProvider()]), [1]];
     }
 );

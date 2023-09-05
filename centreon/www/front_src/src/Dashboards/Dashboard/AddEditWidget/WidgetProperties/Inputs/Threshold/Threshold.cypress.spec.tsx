@@ -91,7 +91,7 @@ describe('Threshold', () => {
         cy.wrap(element).should('be.disabled');
       });
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays the first metrics threshold values as default when some Resource metrics are passed', () => {
@@ -100,7 +100,7 @@ describe('Threshold', () => {
     cy.contains('Default (100)').should('be.visible');
     cy.contains('Default (35)').should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('enables the threshold fields when the Show Thresholds checkbox is checked and the Custom option is selected', () => {
@@ -116,7 +116,7 @@ describe('Threshold', () => {
       .eq(1)
       .should('be.disabled');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('does not reset the threshold value when the Show Thresholds checkbox is unchecked', () => {
@@ -132,7 +132,7 @@ describe('Threshold', () => {
       .eq(0)
       .should('have.value', '50');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('unchecks the Show thresholds switch when different units are selected', () => {
@@ -140,6 +140,6 @@ describe('Threshold', () => {
 
     cy.findByLabelText(labelShowThresholds).should('not.be.checked');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
