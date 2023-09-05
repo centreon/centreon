@@ -555,7 +555,7 @@ describe('Display additional columns', () => {
   });
 });
 
-describe('Resource Listing : Visualization by Service', () => {
+describe('Resource Listing: Visualization by Service', () => {
   beforeEach(() => {
     store.set(selectedVisualizationAtom, Visualization.All);
     interceptRequestsAndMountBeforeEach();
@@ -587,7 +587,7 @@ describe('Resource Listing : Visualization by Service', () => {
     cy.makeSnapshot();
   });
 
-  it('disbales sorting buttons in the table header', () => {
+  it('disables sorting buttons in the table header', () => {
     cy.findByLabelText(labelViewByService).click();
 
     cy.waitForRequest('@dataToListingTable');
@@ -613,7 +613,7 @@ describe('Resource Listing : Visualization by Service', () => {
   });
 });
 
-describe('Resource Listing : Visualization by all resources', () => {
+describe('Resource Listing: Visualization by all resources', () => {
   beforeEach(() => {
     store.set(selectedVisualizationAtom, Visualization.Service);
     interceptRequestsAndMountBeforeEach();
