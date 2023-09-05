@@ -292,3 +292,8 @@ export const labelNeedHelpWithSearchBarUsage =
 export const labelFindExplanationsAndExamples =
   'Find explanations and examples';
 export const labelHere = 'here';
+
+export const labelDisplayView = 'Display view:';
+export const labelViewAllResources = 'View all resources';
+export const labelViewByHost = 'View by host';
+export const labelViewByService = 'View by service';

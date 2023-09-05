@@ -177,17 +177,17 @@ const StoryTemplate = ({
 export const normal = (): JSX.Element => <StoryTemplate />;
 
 export const WithSpecifiedViewMode = (): JSX.Element => {
-  const [viewMode, setViewMode] = useState(ListingVariant.extended);
-  const newViewMode = equals(viewMode, ListingVariant.compact)
+  const [listingVariant, setListingVariant] = useState(ListingVariant.extended);
+  const newListingVariant = equals(listingVariant, ListingVariant.compact)
     ? ListingVariant.extended
     : ListingVariant.compact;
 
   return (
     <StoryTemplate
-      viewMode={viewMode}
+      listingVariant={listingVariant}
       viewerModeConfiguration={{
-        onClick: () => setViewMode(newViewMode),
-        title: viewMode
+        onClick: () => setListingVariant(newListingVariant),
+        title: listingVariant
       }}
     />
   );
