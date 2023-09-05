@@ -46,10 +46,10 @@ const SearchHelp = (): JSX.Element => {
 
   return (
     <PersistentTooltip
-      closeTooltip={() => setOpenTooltip(false)}
+      closeTooltip={(): void => setOpenTooltip(false)}
       labelSearchHelp={t(labelSearchHelp)}
       openTooltip={openTooltip}
-      toggleTooltip={() => setOpenTooltip((prevState) => !prevState)}
+      toggleTooltip={(): void => setOpenTooltip((prevState) => !prevState)}
     >
       <Box className={classes.container}>
         <Typography className={classes.title} variant="body2">
@@ -62,7 +62,7 @@ const SearchHelp = (): JSX.Element => {
             href={docsURL}
             rel="noreferrer"
             target="_blank"
-            onClick={() => setOpenTooltip(false)}
+            onClick={(): void => setOpenTooltip(false)}
           >
             {t(labelHere)}
           </Link>
