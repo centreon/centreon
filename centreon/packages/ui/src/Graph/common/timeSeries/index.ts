@@ -28,7 +28,10 @@ import {
   lt,
   identity,
   head,
-  last
+  last,
+  cond,
+  always,
+  T
 } from 'ramda';
 
 import { margin } from '../../LineChart/common';
@@ -410,6 +413,27 @@ const getRightScale = ({
   return getScale({ graphValues, height: valueGraphHeight, stackedValues });
 };
 
+const formatTime = (value) => {
+  if (value < 1000) {
+    return `${numeral(value).format('0.[00]a')} ms`;
+  }
+
+  const t = numeral(value / 1000).format('0.[00]a');
+
+  return `${t} seconds`;
+};
+
+numeral.register('format', 'milliseconds', {
+  format: (value) => {
+    return formatTime(value);
+  },
+  regexps: {
+    format: /(ms)/,
+    unformat: /(ms)/
+  },
+  unformat: () => ''
+});
+
 const formatMetricValue = ({
   value,
   unit,
@@ -433,9 +457,15 @@ const formatMetricValue = ({
 
   const base1024 = base2Units.includes(unit) || Number(base) === 1024;
 
-  const formatSuffix = base1024 ? ' ib' : 'a';
+  const formatSuffix = cond([
+    [equals('%'), always('%')],
+    [equals('ms'), always(' ms')],
+    [T, always(base1024 ? ' ib' : ' a')]
+  ])(unit);
 
-  const suffix = equals(unit, '%') ? `${formatSuffix}` : ` ${formatSuffix}`;
+  const isPercentage = equals(unit, '%');
+
+  const suffix = isPercentage ? '%' : formatSuffix;
 
   const formattedMetricValue = numeral(Math.abs(value)).format(
     `0.[00]${suffix}`
@@ -455,7 +485,15 @@ const formatMetricValueWithUnit = ({
 }: FormatMetricValueProps): string | null => {
   const formattedMetricValue = formatMetricValue({ base, unit, value });
 
-  return isNil(formattedMetricValue) ? null : `${formattedMetricValue}${unit}`;
+  if (isNil(formattedMetricValue)) {
+    return null;
+  }
+
+  if (['ms', '%'].includes(unit)) {
+    return formattedMetricValue;
+  }
+
+  return `${formattedMetricValue}${unit}`;
 };
 
 const getStackedYScale = ({
