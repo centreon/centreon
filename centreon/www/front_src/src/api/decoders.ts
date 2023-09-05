@@ -3,7 +3,12 @@ import { JsonDecoder } from 'ts.data.json';
 import { ThemeMode, ListingVariant } from '@centreon/ui-context';
 import type { User } from '@centreon/ui-context';
 
-import { PlatformInstallationStatus } from './models';
+import {
+  PlatformFeatures,
+  PlatformInstallationStatus,
+  PlatformVersions,
+  Version
+} from './models';
 
 export const userDecoder = JsonDecoder.object<User>(
   {
@@ -68,7 +73,7 @@ export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
   }
 );
 
-export const platformFeaturesDecoder = JsonDecoder.object<PlatformVersions>(
+export const platformFeaturesDecoder = JsonDecoder.object<PlatformFeatures>(
   {
     isCloudPlatform: JsonDecoder.boolean
   },

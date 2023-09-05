@@ -194,12 +194,6 @@ class NavigationList implements JsonSerializable
                 $levelOne = $matches[1];
                 $levelTwo = $matches[1] . $matches[2];
 
-                // level 3 items can be grouped for better display
-                // make sure we skip groups (we extracted them above)
-                if ($entity->getIsReact()) {
-                    continue;
-                }
-
                 // generate the array for the item
                 $levelThree = [
                     'page' => $topologyPage,

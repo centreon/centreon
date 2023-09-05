@@ -4241,7 +4241,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /platform/features:
-    $ref: './v23.10/Platform/Features.yaml'
+    $ref: './v23.04/Platform/Features.yaml'
   /platform/versions:
     get:
       tags:
