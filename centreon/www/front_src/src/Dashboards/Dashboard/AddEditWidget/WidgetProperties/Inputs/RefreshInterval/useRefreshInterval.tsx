@@ -76,7 +76,9 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
 
   const options = [
     {
-      label: t(labelDashboardGlobalInterval),
+      label: `${t(
+        labelDashboardGlobalInterval
+      )} (${defaultInterval} ${pluralize(t(labelSecond), defaultInterval)})`,
       value: RadioOptions.default
     },
     {
@@ -87,7 +89,9 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
             className={classes.customIntervalField}
             dataTestId={labelInterval}
             disabled={!equals(RadioOptions.custom, value)}
-            label={t(labelInterval)}
+            inputProps={{
+              min: 0
+            }}
             size="compact"
             type="number"
             value={`${customInterval}`}

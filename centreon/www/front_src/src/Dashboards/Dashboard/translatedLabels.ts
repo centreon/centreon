@@ -58,8 +58,7 @@ export const labelYourWidgetHasBeenCreated =
   'Your widget has been created successfully!';
 export const labelValueSettings = 'Value settings';
 export const labelRefreshInterval = 'Refresh interval';
-export const labelDashboardGlobalInterval =
-  'Dashboard global interval (by default)';
+export const labelDashboardGlobalInterval = 'Dashboard global interval';
 export const labelCustomRefreshInterval = 'Custom refresh interval';
 export const labelSecond = 'second';
 export const labelManualRefresh = 'Manual refresh';
