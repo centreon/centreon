@@ -27,5 +27,8 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 
 interface FindMetricsTopPresenterInterface
 {
+    /**
+     * @param FindMetricsTopResponse|ResponseStatusInterface $response
+     */
     public function presentResponse(FindMetricsTopResponse|ResponseStatusInterface $response): void;
 }

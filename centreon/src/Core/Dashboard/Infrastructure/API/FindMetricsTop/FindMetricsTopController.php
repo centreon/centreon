@@ -33,6 +33,12 @@ final class FindMetricsTopController extends AbstractController
 {
     private const METRIC_NAME_PARAMETER = 'metric_name';
 
+    /**
+     * @param FindMetricsTop $useCase
+     * @param FindMetricsTopPresenter $presenter
+     * @param Request $request
+     * @return Response
+     */
     public function __invoke(FindMetricsTop $useCase, FindMetricsTopPresenter $presenter, Request $request): Response
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
@@ -42,6 +48,10 @@ final class FindMetricsTopController extends AbstractController
         return $presenter->show();
     }
 
+    /**
+     * @param Request $request
+     * @return FindMetricsTopRequest
+     */
     private function createRequest(Request $request): FindMetricsTopRequest
     {
         $metricName = $request->query->get(self::METRIC_NAME_PARAMETER)
