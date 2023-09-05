@@ -25,5 +25,5 @@ namespace Core\Dashboard\Application\UseCase\FindMetricsTop;
 
 class FindMetricsTopRequest
 {
-    public string $metricName;
+    public string $metricName = '';
 }

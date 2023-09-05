@@ -21,25 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Dashboard\Application\UseCase\FindMetricsTop\Response;
+namespace Tests\Core\Dashboard\Application\UseCase\FindMetricsTop;
 
-class MetricInformationDto
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTopPresenterInterface;
+use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTopResponse;
+
+class FindMetricsTopPresenterStub implements FindMetricsTopPresenterInterface
 {
-    public int $serviceId = 0;
+    public ResponseStatusInterface|FindMetricsTopResponse $data;
 
-    public string $resourceName = '';
-
-    public ?float $currentValue = null;
-
-    public ?float $warningHighThreshold = null;
-
-    public ?float $criticalHighThreshold = null;
-
-    public ?float $warningLowThreshold = null;
-
-    public ?float $criticalLowThreshold = null;
-
-    public ?float $minimumValue = null;
-
-    public ?float $maximumValue = null;
+    public function presentResponse(FindMetricsTopResponse|ResponseStatusInterface $data): void
+    {
+        $this->data = $data;
+    }
 }

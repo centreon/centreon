@@ -88,7 +88,6 @@ final class FindMetricsTop
                         $request->metricName
                     );
             }
-
             if ([] === $resourceMetrics) {
                 $presenter->presentResponse(new NotFoundResponse('metrics'));
 
