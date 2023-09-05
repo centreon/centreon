@@ -49,8 +49,8 @@ Feature:
     Then the response code should be "200"
     And the response should be formatted like JSON format "standard/listing.json"
     And the json node "result" should have 2 elements
-    And the JSON node "result[0].name" should be equal to the string "service_ping"
-    And the JSON node "result[1].name" should be equal to the string "Ping"
+    And the JSON node "result[0].name" should be equal to the string "Ping"
+    And the JSON node "result[1].name" should be equal to the string "service_ping"
 
     When I send a GET request to '/api/latest/monitoring/resources?status_types=["soft"]'
     Then the response code should be "200"
