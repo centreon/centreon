@@ -14,7 +14,6 @@ import {
   labelValueSettings,
   labelTitle
 } from '../../translatedLabels';
-import { Widget } from '../models';
 import Subtitle from '../../components/Subtitle';
 
 import { WidgetRichTextEditor, WidgetSwitch, WidgetTextField } from './Inputs';
@@ -41,9 +40,6 @@ const WidgetProperties = (): JSX.Element => {
                 propertyName="description.enabled"
               />
               <WidgetRichTextEditor
-                disabledCondition={(values: Widget) =>
-                  !values.options.description?.enabled
-                }
                 label={labelDescription}
                 propertyName="description.content"
               />
