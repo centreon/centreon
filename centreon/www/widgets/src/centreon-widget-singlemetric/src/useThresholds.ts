@@ -43,6 +43,13 @@ const useThresholds = ({
     ? data?.metrics[0].crit || 0
     : thresholds.customCritical;
 
+  if (!warning && !critical) {
+    return {
+      thresholdLabels: [],
+      thresholdValues: []
+    };
+  }
+
   const metric = data ? getMetricWithLatestData(data) : null;
 
   const formattedWarning = formatMetricValue({

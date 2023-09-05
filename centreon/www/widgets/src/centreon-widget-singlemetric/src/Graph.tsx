@@ -1,4 +1,4 @@
-import { T, always, cond, equals, isNil } from 'ramda';
+import { T, always, cond, equals, isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
@@ -65,6 +65,8 @@ const Graph = ({
     );
   }
 
+  const disabledThresholds = !threshold.enabled || isEmpty(thresholdValues);
+
   return (
     <Box className={graphClasses.graphContainer}>
       <Typography className={graphClasses.title} variant="h6">
@@ -77,7 +79,7 @@ const Graph = ({
             always(
               <Gauge
                 data={graphData}
-                disabledThresholds={!threshold.enabled}
+                disabledThresholds={disabledThresholds}
                 thresholdTooltipLabels={thresholdLabels}
                 thresholds={thresholdValues}
               />
@@ -88,7 +90,7 @@ const Graph = ({
             always(
               <SingleBar
                 data={graphData}
-                disabledThresholds={!threshold.enabled}
+                disabledThresholds={disabledThresholds}
                 thresholdTooltipLabels={thresholdLabels}
                 thresholds={thresholdValues}
               />
@@ -99,7 +101,7 @@ const Graph = ({
             always(
               <GraphText
                 data={graphData}
-                disabledThresholds={!threshold.enabled}
+                disabledThresholds={disabledThresholds}
                 labels={{
                   critical: t(labelCritical),
                   warning: t(labelWarning)

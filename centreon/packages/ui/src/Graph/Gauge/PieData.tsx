@@ -1,31 +1,16 @@
 import { scaleOrdinal } from '@visx/scale';
 import { Pie } from '@visx/shape';
-import { T, always, cond, gt, head, identity } from 'ramda';
+import { identity } from 'ramda';
 
-import { Theme, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
+
+import { getColorFromDataAndTresholds } from '../common/utils';
 
 import { thresholdThickness } from './Thresholds';
 import AnimatedPie from './AnimatedPie';
 import { GaugeProps } from './models';
 
 const dataThickness = 45;
-
-interface GetColorFromDataProps {
-  data: number;
-  theme: Theme;
-  thresholds: Array<number>;
-}
-
-const getColorFromData = ({
-  data,
-  thresholds,
-  theme
-}: GetColorFromDataProps): string =>
-  cond([
-    [gt(head(thresholds) as number), always(theme.palette.success.main)],
-    [gt(thresholds[1]), always(theme.palette.warning.main)],
-    [T, always(theme.palette.error.main)]
-  ])(data);
 
 const PieData = ({
   metric,
@@ -42,7 +27,7 @@ const PieData = ({
   const pieData = [metric.data[0], adaptedMaxValue - metric.data[0]];
   const pieColor = disabledThresholds
     ? theme.palette.success.main
-    : getColorFromData({
+    : getColorFromDataAndTresholds({
         data: metric.data[0],
         theme,
         thresholds
