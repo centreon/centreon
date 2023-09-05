@@ -37,6 +37,7 @@ final class FindMetricsTopController extends AbstractController
      * @param FindMetricsTop $useCase
      * @param FindMetricsTopPresenter $presenter
      * @param Request $request
+     *
      * @return Response
      */
     public function __invoke(FindMetricsTop $useCase, FindMetricsTopPresenter $presenter, Request $request): Response
@@ -50,6 +51,7 @@ final class FindMetricsTopController extends AbstractController
 
     /**
      * @param Request $request
+     *
      * @return FindMetricsTopRequest
      */
     private function createRequest(Request $request): FindMetricsTopRequest
