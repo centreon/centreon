@@ -62,6 +62,8 @@ import {
   labelClearFilter,
   labelSearchBar
 } from '../translatedLabels';
+import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
+import { Visualization } from '../models';
 
 import FilterLoadingSkeleton from './FilterLoadingSkeleton';
 import {
@@ -168,6 +170,7 @@ const Filter = (): JSX.Element => {
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
   const setNewFilter = useSetAtom(setNewFilterDerivedAtom);
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
+  const setVisualization = useSetAtom(selectedVisualizationAtom);
 
   const open = Boolean(autocompleteAnchor);
 
@@ -526,6 +529,12 @@ const Filter = (): JSX.Element => {
   });
 
   const isDynamicCriteria = isDefined(dynamicCriteriaParameters);
+
+  useEffect(() => {
+    if (!search.includes('type')) {
+      setVisualization(Visualization.All);
+    }
+  }, [search]);
 
   const memoProps = [
     customFilters,
