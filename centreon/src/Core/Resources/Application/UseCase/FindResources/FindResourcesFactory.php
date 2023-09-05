@@ -54,6 +54,7 @@ final class FindResourcesFactory
             $resourceDto = new ResourceResponseDto();
             $resourceDto->uuid = $resource->getUuid();
             $resourceDto->id = $resource->getId();
+            $resourceDto->internalId = $resource->getInternalId();
             $resourceDto->name = $resource->getName();
             $resourceDto->type = $resource->getType();
             $resourceDto->fqdn = $resource->getFqdn();

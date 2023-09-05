@@ -2,9 +2,9 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   configureOpenIDConnect,
-  getAccessGroupId,
   initializeOIDCUserAndGetLoginPage
 } from '../common';
+import { getAccessGroupId } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer()
@@ -120,7 +120,7 @@ Then(
       cy.visit('/');
       cy.contains('Login with openid').should('be.visible').click();
 
-      cy.loginKeycloack('user-non-admin-for-OIDC-authentication');
+      cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
       cy.url().should('include', '/monitoring/resources');
 
       cy.logout();

@@ -31,6 +31,7 @@ final class ResourceResponseDto
         public ?string $type = null,
         public ?int $serviceId = null,
         public ?int $hostId = null,
+        public ?int $internalId = null,
         public ?string $alias = null,
         public ?string $fqdn = null,
         public ?IconResponseDto $icon = null,
