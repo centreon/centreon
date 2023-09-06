@@ -25,6 +25,7 @@ import { getDataProperty } from '../utils';
 interface UseResourcesState {
   addButtonHidden?: boolean;
   addResource: () => void;
+  changeResource: (index: number) => (_, resources: SelectEntry) => void;
   changeResourceType: (
     index: number
   ) => (e: ChangeEvent<HTMLInputElement>) => void;
@@ -113,6 +114,11 @@ const useResources = (propertyName: string): UseResourcesState => {
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
+  const changeResource = (index: number) => (_, resource: SelectEntry) => {
+    setFieldValue(`data.${propertyName}.${index}.resources`, [resource]);
+    setFieldTouched(`data.${propertyName}`, true, false);
+  };
+
   const addResource = (): void => {
     setFieldValue(`data.${propertyName}`, [
       ...(value || []),
@@ -179,6 +185,7 @@ const useResources = (propertyName: string): UseResourcesState => {
 
   return {
     addResource,
+    changeResource,
     changeResourceType,
     changeResources,
     deleteResource,

@@ -1,11 +1,16 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
-import { isEmpty, isNil } from 'ramda';
+import { equals, head, isEmpty, isNil } from 'ramda';
+import { useAtomValue } from 'jotai';
 
 import { CircularProgress, FormHelperText, Typography } from '@mui/material';
 
 import { Avatar, ItemComposition } from '@centreon/ui/components';
-import { MultiAutocompleteField, SelectField } from '@centreon/ui';
+import {
+  MultiAutocompleteField,
+  SelectField,
+  SingleAutocompleteField
+} from '@centreon/ui';
 
 import {
   labelAddMetric,
@@ -20,6 +25,7 @@ import {
 import { WidgetPropertyProps } from '../../../models';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
+import { singleMetricSectionAtom } from '../../../atoms';
 
 import useMetrics from './useMetrics';
 
@@ -27,6 +33,8 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
+
+  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
 
   const {
     hasNoResources,
@@ -37,6 +45,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     serviceOptions,
     changeService,
     getMetricsFromService,
+    changeMetrics,
     changeMetric,
     metricCount,
     isLoadingMetrics,
@@ -107,23 +116,41 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
                 selectedOptionId={service.id}
                 onChange={changeService(index)}
               />
-              <MultiAutocompleteField
-                chipProps={{
-                  color: 'primary'
-                }}
-                className={classes.resources}
-                disabled={
-                  isNil(service.id) || isEmpty(service.id) || isLoadingMetrics
-                }
-                getOptionDisabled={getMetricOptionDisabled}
-                getOptionLabel={getOptionLabel}
-                getTagLabel={getOptionLabel}
-                label={t(labelMetrics)}
-                limitTags={1}
-                options={getMetricsFromService(service.id)}
-                value={service.metrics || []}
-                onChange={changeMetric(index)}
-              />
+              {singleMetricSection ? (
+                <SingleAutocompleteField
+                  className={classes.resources}
+                  disabled={
+                    isNil(service.id) || isEmpty(service.id) || isLoadingMetrics
+                  }
+                  getOptionItemLabel={getOptionLabel}
+                  getOptionLabel={getOptionLabel}
+                  isOptionEqualToValue={(option, selectedValue) =>
+                    equals(option?.id, selectedValue?.id)
+                  }
+                  label={t(labelMetrics)}
+                  options={getMetricsFromService(service.id)}
+                  value={head(service.metrics) || undefined}
+                  onChange={changeMetric(index)}
+                />
+              ) : (
+                <MultiAutocompleteField
+                  chipProps={{
+                    color: 'primary'
+                  }}
+                  className={classes.resources}
+                  disabled={
+                    isNil(service.id) || isEmpty(service.id) || isLoadingMetrics
+                  }
+                  getOptionDisabled={getMetricOptionDisabled}
+                  getOptionLabel={getOptionLabel}
+                  getTagLabel={getOptionLabel}
+                  label={t(labelMetrics)}
+                  limitTags={1}
+                  options={getMetricsFromService(service.id)}
+                  value={service.metrics || []}
+                  onChange={changeMetrics(index)}
+                />
+              )}
             </ItemComposition.Item>
           ))}
         </ItemComposition>

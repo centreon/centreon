@@ -42,7 +42,8 @@ import { getDataProperty } from '../utils';
 interface UseMetricsState {
   addButtonHidden?: boolean;
   addMetric: () => void;
-  changeMetric: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
+  changeMetric: (index) => (_, newMetrics: SelectEntry | null) => void;
+  changeMetrics: (index) => (_, newMetrics: Array<SelectEntry> | null) => void;
   changeService: (index) => (e: ChangeEvent<HTMLInputElement>) => void;
   deleteMetric: (index: number | string) => () => void;
   error: string | null;
@@ -149,7 +150,8 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       ...(value || []),
       {
         id: '',
-        metrics: []
+        metrics: [],
+        name: ''
       }
     ]);
   };
@@ -205,15 +207,25 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       setFieldValue(`data.${propertyName}.${index}.metrics`, []);
     };
 
-  const changeMetric =
+  const changeMetrics =
     (index) =>
     (_, newMetrics: Array<SelectEntry> | null): void => {
       setFieldValue(`data.${propertyName}.${index}.metrics`, newMetrics || []);
       setFieldTouched(`data.${propertyName}`, true, false);
     };
 
+  const changeMetric =
+    (index) =>
+    (_, newMetrics: SelectEntry | null): void => {
+      setFieldValue(
+        `data.${propertyName}.${index}.metrics`,
+        newMetrics ? [newMetrics] : []
+      );
+      setFieldTouched(`data.${propertyName}`, true, false);
+    };
+
   useEffect(() => {
-    if (isNil(servicesMetrics) || singleMetricSection) {
+    if (isNil(servicesMetrics)) {
       return;
     }
 
@@ -231,10 +243,17 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       baseServiceIds
     );
 
-    setFieldValue(
-      `data.${propertyName}`,
-      intersectionBetweenServicesIdsAndValues
-    );
+    const newServiceMetric = isEmpty(intersectionBetweenServicesIdsAndValues)
+      ? [
+          {
+            id: '',
+            metrics: [],
+            name: ''
+          }
+        ]
+      : intersectionBetweenServicesIdsAndValues;
+
+    setFieldValue(`data.${propertyName}`, newServiceMetric);
   }, useDeepCompare([servicesMetrics, resources]));
 
   useEffect(() => {
@@ -254,6 +273,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     addButtonHidden: singleMetricSection,
     addMetric,
     changeMetric,
+    changeMetrics,
     changeService,
     deleteMetric,
     error: errorToDisplay,

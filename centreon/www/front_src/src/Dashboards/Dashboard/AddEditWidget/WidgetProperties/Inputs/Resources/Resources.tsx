@@ -1,11 +1,17 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
+import { head } from 'ramda';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
 
 import { Avatar, ItemComposition } from '@centreon/ui/components';
-import { MultiConnectedAutocompleteField, SelectField } from '@centreon/ui';
+import {
+  MultiConnectedAutocompleteField,
+  SelectEntry,
+  SelectField,
+  SingleConnectedAutocompleteField
+} from '@centreon/ui';
 
 import {
   labelAddResource,
@@ -42,7 +48,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     getResourceResourceBaseEndpoint,
     getSearchField,
     error,
-    getOptionDisabled
+    changeResource
   } = useResources(propertyName);
 
   return (
@@ -70,23 +76,37 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               selectedOptionId={resource.resourceType}
               onChange={changeResourceType(index)}
             />
-            <MultiConnectedAutocompleteField
-              chipProps={{
-                color: 'primary'
-              }}
-              className={classes.resources}
-              disabled={!resource.resourceType}
-              field={getSearchField(resource.resourceType)}
-              getEndpoint={getResourceResourceBaseEndpoint(
-                resource.resourceType
-              )}
-              getOptionDisabled={getOptionDisabled(index)}
-              label={t(labelSelectAResource)}
-              limitTags={2}
-              queryKey={`${resource.resourceType}-${index}`}
-              value={resource.resources || []}
-              onChange={changeResources(index)}
-            />
+            {singleMetricSection ? (
+              <SingleConnectedAutocompleteField
+                className={classes.resources}
+                disabled={!resource.resourceType}
+                field={getSearchField(resource.resourceType)}
+                getEndpoint={getResourceResourceBaseEndpoint(
+                  resource.resourceType
+                )}
+                label={t(labelSelectAResource)}
+                queryKey={`${resource.resourceType}-${index}`}
+                value={head(resource.resources) as SelectEntry}
+                onChange={changeResource(index)}
+              />
+            ) : (
+              <MultiConnectedAutocompleteField
+                chipProps={{
+                  color: 'primary'
+                }}
+                className={classes.resources}
+                disabled={!resource.resourceType}
+                field={getSearchField(resource.resourceType)}
+                getEndpoint={getResourceResourceBaseEndpoint(
+                  resource.resourceType
+                )}
+                label={t(labelSelectAResource)}
+                limitTags={2}
+                queryKey={`${resource.resourceType}-${index}`}
+                value={resource.resources || []}
+                onChange={changeResources(index)}
+              />
+            )}
           </ItemComposition.Item>
         ))}
       </ItemComposition>
