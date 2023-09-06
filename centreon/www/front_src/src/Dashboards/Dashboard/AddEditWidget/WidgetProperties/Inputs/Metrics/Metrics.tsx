@@ -17,7 +17,6 @@ import {
   labelAvailable,
   labelDelete,
   labelMetrics,
-  labelPleaseSelectAResource,
   labelServiceName,
   labelYouCanSelectUpToTwoMetricUnits,
   labelYouHaveTooManyMetrics
@@ -59,7 +58,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const addButtonDisabled =
     hasNoResources() || hasTooManyMetrics || !metricCount;
 
-  const canDisplayMetricsSelection = !hasNoResources() && !hasTooManyMetrics;
+  const canDisplayMetricsSelection = !hasTooManyMetrics;
 
   const title = metricCount
     ? `${t(labelMetrics)} (${metricCount} ${labelAvailable})`
@@ -88,9 +87,6 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   return (
     <div className={classes.resourcesContainer}>
       {header}
-      {hasNoResources() && (
-        <Typography>{t(labelPleaseSelectAResource)}</Typography>
-      )}
       {canDisplayMetricsSelection && (
         <ItemComposition
           addButtonHidden={addButtonHidden}
