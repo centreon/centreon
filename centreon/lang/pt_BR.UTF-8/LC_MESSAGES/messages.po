@@ -16685,7 +16685,7 @@ msgstr ""
 # msgid "Graph type"
 # msgstr ""
 
-# msgid "Value defined by metric"
+# msgid "Value defined by the {{metric}} metric"
 # msgstr ""
 
 # msgid "Last hour"
@@ -16715,7 +16715,7 @@ msgstr ""
 # msgid "End"
 # msgstr ""
 
-# msgid "Value customized"
+# msgid "Custom value"
 # msgstr ""
 
 # msgid "Notifications will only be sent during this time period"

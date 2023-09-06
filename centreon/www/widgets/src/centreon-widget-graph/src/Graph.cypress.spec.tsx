@@ -149,10 +149,10 @@ describe('Graph Widget', () => {
     cy.findByTestId('threshold-55.201388888888886-tooltip').trigger(
       'mouseover'
     );
-    cy.contains('Warning threshold: 70 %. Value defined by metric cpu');
+    cy.contains('Warning threshold: 70 %. Value defined by the cpu metric');
 
     cy.findByTestId('threshold-0-tooltip').trigger('mouseover');
-    cy.contains('Critical threshold: 90 %. Value defined by metric cpu');
+    cy.contains('Critical threshold: 90 %. Value defined by the cpu metric');
 
     cy.makeSnapshot();
   });
@@ -175,7 +175,7 @@ describe('Graph Widget', () => {
     cy.findByTestId('threshold-193.20486111111111-tooltip').trigger(
       'mouseover'
     );
-    cy.contains('Warning threshold: 20 %. Value customized');
+    cy.contains('Warning threshold: 20 %. Custom value');
 
     cy.makeSnapshot();
   });
@@ -187,7 +187,7 @@ describe('Graph Widget', () => {
     cy.findByTestId('threshold-124.203125').should('be.visible');
 
     cy.findByTestId('threshold-124.203125-tooltip').trigger('mouseover');
-    cy.contains('Critical threshold: 20 %. Value customized');
+    cy.contains('Critical threshold: 20 %. Custom value');
 
     cy.makeSnapshot();
   });
