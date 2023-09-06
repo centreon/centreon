@@ -178,7 +178,7 @@ describe('Graph Widget', () => {
     cy.findByTestId('warning-line-20').should('be.visible');
 
     cy.findByTestId('warning-line-20-tooltip').trigger('mouseover');
-    cy.contains('Warning threshold: 20 %. Value customized');
+    cy.contains('Warning threshold: 20 %. Custom value');
 
     cy.makeSnapshot();
   });
@@ -190,7 +190,7 @@ describe('Graph Widget', () => {
     cy.findByTestId('critical-line-20').should('be.visible');
 
     cy.findByTestId('critical-line-20-tooltip').trigger('mouseover');
-    cy.contains('Critical threshold: 20 %. Value customized');
+    cy.contains('Critical threshold: 20 %. Custom value');
 
     cy.makeSnapshot();
   });
