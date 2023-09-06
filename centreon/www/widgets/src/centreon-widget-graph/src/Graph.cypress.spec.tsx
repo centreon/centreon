@@ -149,10 +149,14 @@ describe('Graph Widget', () => {
     cy.findByTestId('threshold-55.201388888888886-tooltip').trigger(
       'mouseover'
     );
-    cy.contains('Warning threshold: 70 %. Value defined by the cpu metric');
+    cy.contains(
+      'Warning threshold: 70 %. Value defined by the {{metric}} metric'
+    );
 
     cy.findByTestId('threshold-0-tooltip').trigger('mouseover');
-    cy.contains('Critical threshold: 90 %. Value defined by the cpu metric');
+    cy.contains(
+      'Critical threshold: 90 %. Value defined by the {{metric}} metric'
+    );
 
     cy.makeSnapshot();
   });

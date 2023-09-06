@@ -207,12 +207,12 @@ describe('Single metric Widget', () => {
 
       cy.findByTestId('warning-line-tooltip').trigger('mouseover');
       cy.contains(
-        'Warning threshold: 70 %. Value defined by the Ping_1 metric'
+        'Warning threshold: 70 %. Value defined by the {{metric}} metric'
       ).should('be.visible');
 
       cy.findByTestId('critical-line-tooltip').trigger('mouseover');
       cy.contains(
-        'Critical threshold: 90 %. Value defined by the Ping_1 metric'
+        'Critical threshold: 90 %. Value defined by the {{metric}} metric'
       ).should('be.visible');
 
       cy.makeSnapshot();
@@ -279,12 +279,12 @@ describe('Single metric Widget', () => {
 
       cy.findByTestId('20-arc').trigger('mouseover');
       cy.contains(
-        'Warning threshold: 70 %. Value defined by the Ping_1 metric'
+        'Warning threshold: 70 %. Value defined by the {{metric}} metric'
       ).should('be.visible');
 
       cy.findByTestId('9.000000000000014-arc').trigger('mouseover');
       cy.contains(
-        'Critical threshold: 90 %. Value defined by the Ping_1 metric'
+        'Critical threshold: 90 %. Value defined by the {{metric}} metric'
       ).should('be.visible');
 
       cy.makeSnapshot();
