@@ -273,7 +273,6 @@ export const getColumns = ({
 
   if (equals(visualization, Visualization.Service)) {
     const columnsForVisualizationByService = columns
-      .map((column) => ({ ...column, sortable: false }))
       .map((column) =>
         equals(column.label, t(labelResource))
           ? { ...column, label: t(labelService) }

@@ -1,12 +1,10 @@
 import { useSetAtom, useAtomValue } from 'jotai';
-import { equals, has } from 'ramda';
+import { cond, equals, has } from 'ramda';
 
 import { selectedVisualizationAtom } from '../actionsAtoms';
 import { Visualization } from '../../models';
-import {
-  searchAtom,
-  setCriteriaAndNewFilterDerivedAtom
-} from '../../Filter/filterAtoms';
+import { setCriteriaAndNewFilterDerivedAtom } from '../../Filter/filterAtoms';
+import { CriteriaNames } from '../../Filter/Criterias/models';
 
 import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
@@ -21,39 +19,58 @@ interface State {
 const useVisualization = ({ type }: Props): State => {
   const platform = useAtomValue(platformVersionsAtom);
   const setVisualization = useSetAtom(selectedVisualizationAtom);
-  const setSearch = useSetAtom(searchAtom);
   const setCriteriaAndNewFilter = useSetAtom(
     setCriteriaAndNewFilterDerivedAtom
   );
 
-  const isAnomalyDetectionmModuleInstalled = has(
+  const isAnomalyDetectionModuleInstalled = has(
     'centreon-anomaly-detection',
     platform?.modules
   );
 
-  const search = isAnomalyDetectionmModuleInstalled
-    ? 'type:service,metaservice,anomaly-detection'
-    : 'type:service,metaservice';
+  const searchValueForVisualizationByService = [
+    { id: 'service', name: 'service' },
+    { id: 'metaservice', name: 'metaservice' },
+    ...(isAnomalyDetectionModuleInstalled
+      ? [{ id: 'anomaly-detection', name: 'anomaly-detection' }]
+      : [])
+  ];
+
+  const searchValue = cond([
+    [
+      equals(Visualization.Service),
+      (): unknown => searchValueForVisualizationByService
+    ],
+    [equals(Visualization.Host), (): unknown => [{ id: 'host', name: 'host' }]],
+    [equals(Visualization.All), () => []]
+  ])(type);
+
+  const nonAllSortValues = [
+    'status_severity_code',
+    'desc',
+    'last_status_change',
+    'desc'
+  ];
+
+  const sortValues = cond([
+    [equals(Visualization.Service), () => nonAllSortValues],
+    [equals(Visualization.Host), () => nonAllSortValues],
+    [equals(Visualization.All), () => ['last_status_change', 'desc']]
+  ])(type);
 
   const selectVisualization = (): void => {
     setVisualization(type);
 
-    if (equals(type, Visualization.Service)) {
-      setSearch(search);
-      setCriteriaAndNewFilter({
-        apply: true,
-        name: 'sort',
-        value: ['status_severity_code', 'desc', 'last_status_change', 'desc']
-      });
-    }
-    if (equals(type, Visualization.All)) {
-      setSearch('');
-      setCriteriaAndNewFilter({
-        apply: true,
-        name: 'sort',
-        value: ['last_status_change', 'desc']
-      });
-    }
+    setCriteriaAndNewFilter({
+      apply: true,
+      name: CriteriaNames.resourceTypes,
+      value: searchValue
+    });
+    setCriteriaAndNewFilter({
+      apply: true,
+      name: 'sort',
+      value: sortValues
+    });
   };
 
   return { selectVisualization };

@@ -89,6 +89,7 @@ import {
 } from './filterAtoms';
 import useFilterByModule from './useFilterByModule';
 import SearchHelp from './SearchHelp';
+import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 
 const renderClearFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
@@ -530,11 +531,7 @@ const Filter = (): JSX.Element => {
 
   const isDynamicCriteria = isDefined(dynamicCriteriaParameters);
 
-  useEffect(() => {
-    if (!search.includes('type')) {
-      setVisualization(Visualization.All);
-    }
-  }, [search]);
+  useBackToVisualizationByAll();
 
   const memoProps = [
     customFilters,

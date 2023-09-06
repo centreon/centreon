@@ -1,13 +1,10 @@
 import { useEffect } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { equals } from 'ramda';
 
 import { SelectEntry, useDeepCompare } from '@centreon/ui';
 
 import { platformVersionsAtom } from '../../Main/atoms/platformVersionsAtom';
-import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import { Visualization } from '../models';
 
 import {
   authorizedFilterByModules,
@@ -26,7 +23,6 @@ interface FilterByModule {
 
 const useFilterByModule = (): FilterByModule => {
   const platformVersions = useAtomValue(platformVersionsAtom);
-  const visualizationAtom = useAtomValue(selectedVisualizationAtom);
   const setCriteriaValueNameById = useSetAtom(criteriaValueNameByIdAtom);
 
   const installedModules = platformVersions?.modules
@@ -61,12 +57,6 @@ const useFilterByModule = (): FilterByModule => {
     },
     { ...criteriaValueNameById }
   );
-  const selectableResourceTypesByVisualization = equals(
-    visualizationAtom,
-    Visualization.Service
-  )
-    ? selectableResourceTypes.filter((resource) => !equals(resource.id, 'host'))
-    : selectableResourceTypes;
 
   const newSelectableResourceTypes = filtersToAdd.reduce(
     (prev, item) => {
@@ -83,12 +73,12 @@ const useFilterByModule = (): FilterByModule => {
 
           return [...previousValue, serviceType];
         },
-        [...selectableResourceTypesByVisualization]
+        [...selectableResourceTypes]
       );
 
       return [...prev, ...selectableTypes];
     },
-    [...selectableResourceTypesByVisualization]
+    [...selectableResourceTypes]
   );
 
   const newSelectableCriterias = {

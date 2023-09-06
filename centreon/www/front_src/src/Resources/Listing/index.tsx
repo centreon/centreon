@@ -37,7 +37,7 @@ import {
   searchAtom,
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
-import { Resource, SortOrder } from '../models';
+import { Resource, SortOrder, Visualization } from '../models';
 import {
   labelSelectAtLeastOneColumn,
   labelStatus,
@@ -219,13 +219,15 @@ const ResourceListing = (): JSX.Element => {
     });
   };
 
+  const areColumnsSortable = equals(visualization, Visualization.All);
+
   return (
     <Listing
       checkable
       actions={<Actions onRefresh={initAutorefreshAndLoad} />}
       columnConfiguration={{
         selectedColumnIds,
-        sortable: true
+        sortable: areColumnsSortable
       }}
       columns={columns}
       currentPage={(page || 1) - 1}
