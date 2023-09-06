@@ -59,7 +59,9 @@ const useThresholds = ({
     isDefaultWarning
       ? `${t(labelWarningThreshold)}: ${formattedWarning} ${metric?.unit}. ${t(
           labelValueDefinedByMetric,
-          { metric: metricName }
+          {
+            metric: metricName
+          }
         )}`
       : `${t(labelWarningThreshold)}: ${formattedWarning} ${metric?.unit}. ${t(
           labelCustomValue

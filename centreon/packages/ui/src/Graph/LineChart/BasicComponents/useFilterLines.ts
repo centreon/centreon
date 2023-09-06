@@ -1,9 +1,7 @@
-import { useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 
-import { useAtom } from 'jotai';
 import { compose, equals, prop, propEq, reject, sortBy, toLower } from 'ramda';
 
-import { linesGraphAtom } from '../graphAtoms';
 import { Line } from '../../common/timeSeries/models';
 
 import {
@@ -15,6 +13,8 @@ import {
 interface UseFilterLines {
   displayThreshold?: boolean;
   lines: Array<Line>;
+  linesGraph: Array<Line> | null;
+  setLinesGraph: Dispatch<SetStateAction<Array<Line> | null>>;
 }
 
 interface Result {
@@ -24,10 +24,10 @@ interface Result {
 
 const useFilterLines = ({
   displayThreshold = false,
-  lines
+  lines,
+  linesGraph,
+  setLinesGraph
 }: UseFilterLines): Result => {
-  const [linesGraph, setLinesGraph] = useAtom(linesGraphAtom);
-
   const displayedLines = reject(propEq('display', false), linesGraph ?? lines);
   const filterLines = (): Array<Line> => {
     const lineOriginMetric = findLineOfOriginMetricThreshold(lines);
@@ -45,7 +45,9 @@ const useFilterLines = ({
 
   useEffect(() => {
     const filteredLines = filterLines();
-    if (!lines || !displayThreshold || filteredLines.length <= 0) {
+    if (!lines || !displayThreshold) {
+      setLinesGraph(lines);
+
       return;
     }
 
