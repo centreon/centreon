@@ -1,0 +1,49 @@
+type: object
+properties:
+  notification_id:
+    type: integer
+    example: 2
+  channels:
+    type: object
+    properties:
+      email:
+        type: object
+        nullable: true
+        properties:
+          contacts:
+            type: array
+            items:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                  example: "John Doe"
+                email_address:
+                  type: string
+                  example: "john.doe@localhost"
+          subject:
+            type: string
+            example: "Email subject"
+          formatted_message:
+            type: string
+            example: "This is a formatted message"
+      slack:
+        type: object
+        nullable: true
+        properties:
+          slack_channel:
+            type: string
+            example: "supervisors"
+          message:
+            type: string
+            example: "This is a Slack message"
+      sms:
+        type: object
+        nullable: true
+        properties:
+          phone_number:
+            type: string
+            example: "+33123456789"
+          message:
+            type: string
+            example: "This is an SMS message"

@@ -10,15 +10,7 @@ get:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              uid:
-                type: string
-                example: "547a4e6270e51d63b23b982097aa8386"
-              result:
-                type: array
-                items:
-                  $ref: "Schema/NotifiableRules.Listing.yaml"
+            $ref: "Schema/NotifiableRule.yaml"
     '304':
       $ref: "../../Common/Response/NotModified.yaml"
     '400':
