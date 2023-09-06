@@ -23,7 +23,7 @@ const namedEntitySchema = Yup.object().shape({
 const metricSchema = Yup.object().shape({
   id: Yup.number().required(),
   name: Yup.string().required(),
-  unit: Yup.string().required()
+  unit: Yup.string()
 });
 
 interface GetYupValidatorTypeProps {
