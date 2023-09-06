@@ -3,6 +3,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-param-reassign */
 
+import { execSync } from 'child_process';
+
 import Docker from 'dockerode';
 import { addCucumberPreprocessorPlugin } from '@badeball/cypress-cucumber-preprocessor';
 import webpackPreprocessor from '@cypress/webpack-preprocessor';
@@ -91,6 +93,21 @@ export default async (on, config): Promise<void> => {
       name,
       portBindings = []
     }: StartContainerProps) => {
+      const imageList = execSync(
+        'docker image list --format "{{.Repository}}:{{.Tag}}"'
+      ).toString('utf8');
+
+      if (
+        !imageList.match(
+          new RegExp(
+            `^${image.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}`,
+            'm'
+          )
+        )
+      ) {
+        execSync(`docker pull ${image}`);
+      }
+
       const webContainers = await docker.listContainers({
         all: true,
         filters: { name: [name] }
