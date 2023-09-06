@@ -41,10 +41,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 class PlatformController extends AbstractController
 {
-    public function __construct(
-        private readonly PlatformServiceInterface $informationService,
-    ) {
-        $this->informationService = $informationService;
+    /**
+     * @param PlatformServiceInterface $informationService
+     */
+    public function __construct(private PlatformServiceInterface $informationService)
+    {
     }
 
     /**
@@ -61,9 +62,19 @@ class PlatformController extends AbstractController
 
         return $this->view(
             [
-                'web' => (object) $this->extractVersion($webVersion),
-                'modules' => (object) array_map($this->extractVersion(...), $modulesVersion),
-                'widgets' => (object) array_map($this->extractVersion(...), $widgetsVersion),
+                'web' => $this->extractVersion($webVersion),
+                'modules' => array_map(
+                    function ($version) {
+                        return $this->extractVersion($version);
+                    },
+                    $modulesVersion
+                ),
+                'widgets' => array_map(
+                    function ($version) {
+                        return $this->extractVersion($version);
+                    },
+                    $widgetsVersion
+                )
             ]
         );
     }
