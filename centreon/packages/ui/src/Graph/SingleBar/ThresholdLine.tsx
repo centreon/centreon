@@ -31,7 +31,7 @@ export const ThresholdLine = ({
 }: Props): JSX.Element => {
   const theme = useTheme();
 
-  const scaledValue = xScale(value);
+  const scaledValue = xScale(value) || 0;
 
   const bottom = barHeight + margin * 2;
 

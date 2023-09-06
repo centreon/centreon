@@ -64,11 +64,11 @@ const AnimatedPie = <Datum,>({
         )}
         data-testid={`${arc.data?.value || arc.data}-arc`}
         display={
-          includes('transparent', arc.data.name || '') ? 'none' : 'inline'
+          includes('transparent', arc.data?.name || '') ? 'none' : 'inline'
         }
         fill={getColor(arc)}
         onMouseEnter={(event) => {
-          const thresholdType = arc.data.name as string;
+          const thresholdType = arc.data?.name as string;
 
           if (equals(thresholdType, 'success')) {
             return;

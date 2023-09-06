@@ -10,7 +10,7 @@ import {
 import { FormThreshold } from './models';
 import {
   labelCriticalThreshold,
-  labelValueCustomized,
+  labelCustomValue,
   labelValueDefinedByMetric,
   labelWarningThreshold
 } from './translatedLabels';
@@ -69,10 +69,10 @@ const useThresholds = ({
       label: isDefaultWarning
         ? `${t(labelWarningThreshold)}: ${formattedThreshold} ${
             metric?.unit
-          }. ${t(labelValueDefinedByMetric)} ${metricName}`
+          }. ${t(labelValueDefinedByMetric, { metric: metricName })}`
         : `${t(labelWarningThreshold)}: ${formattedThreshold} ${
             metric?.unit
-          }. ${t(labelValueCustomized)}`,
+          }. ${t(labelCustomValue)}`,
       value: threshold
     };
   });
@@ -87,10 +87,10 @@ const useThresholds = ({
       label: isDefaultCritical
         ? `${t(labelCriticalThreshold)}: ${formattedThreshold} ${
             metric?.unit
-          }. ${t(labelValueDefinedByMetric)} ${metricName}`
+          }. ${t(labelValueDefinedByMetric, { metric: metricName })}`
         : `${t(labelCriticalThreshold)}: ${formattedThreshold} ${
             metric?.unit
-          }. ${t(labelValueCustomized)}`,
+          }. ${t(labelCustomValue)}`,
       value: threshold
     };
   });
