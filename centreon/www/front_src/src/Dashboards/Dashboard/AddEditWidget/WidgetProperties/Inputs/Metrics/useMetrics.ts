@@ -55,6 +55,7 @@ interface UseMetricsState {
   hasTooManyMetrics: boolean;
   isLoadingMetrics: boolean;
   metricCount: number | undefined;
+  resources: Array<WidgetDataResource>;
   serviceOptions: Array<SelectEntry>;
   value: Array<WidgetDataMetric>;
 }
@@ -280,6 +281,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     getMetricOptionDisabled,
     getMetricsFromService,
     getOptionLabel,
+    resources,
     hasNoResources,
     hasReachedTheLimitOfUnits,
     hasTooManyMetrics,

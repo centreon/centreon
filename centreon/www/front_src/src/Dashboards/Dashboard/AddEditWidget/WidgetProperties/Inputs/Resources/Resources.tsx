@@ -24,6 +24,7 @@ import {
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { singleMetricSectionAtom } from '../../../atoms';
+import { areResourcesFullfilled } from '../utils';
 
 import useResources from './useResources';
 
@@ -60,7 +61,11 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         <Typography>{t(labelResources)}</Typography>
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
-      <ItemComposition labelAdd={t(labelAddResource)} onAddItem={addResource}>
+      <ItemComposition
+        addbuttonDisabled={!areResourcesFullfilled(value)}
+        labelAdd={t(labelAddResource)}
+        onAddItem={addResource}
+      >
         {value.map((resource, index) => (
           <ItemComposition.Item
             className={classes.resourceCompositionItem}

@@ -25,6 +25,7 @@ import { WidgetPropertyProps } from '../../../models';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { singleMetricSectionAtom } from '../../../atoms';
+import { isAtLeastOneResourceFullfilled } from '../utils';
 
 import useMetrics from './useMetrics';
 
@@ -52,13 +53,15 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     getMetricOptionDisabled,
     getOptionLabel,
     hasReachedTheLimitOfUnits,
-    addButtonHidden
+    addButtonHidden,
+    resources
   } = useMetrics(propertyName);
 
   const addButtonDisabled =
     hasNoResources() || hasTooManyMetrics || !metricCount;
 
-  const canDisplayMetricsSelection = !hasTooManyMetrics;
+  const canDisplayMetricsSelection =
+    isAtLeastOneResourceFullfilled(resources) && !hasTooManyMetrics;
 
   const title = metricCount
     ? `${t(labelMetrics)} (${metricCount} ${labelAvailable})`
