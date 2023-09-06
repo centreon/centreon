@@ -4,12 +4,6 @@ INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`,
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Creator', '/home/dashboards', '1', '0', 104, 10402, '0', 'dashboard');
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Administrator', '/home/dashboards', '1', '0', 104, 10403, '0', 'dashboard');
 
--- INSERT WIDGETS FOR DASHBOARD --
-
-INSERT INTO widget_models (title,version,description,url,directory,author) VALUES ('centreon-widget-generictext','23.10.0','','http://centreon.com','centreon-widget-generictext','Centreon');
-INSERT INTO widget_models (title,version,description,url,directory,author) VALUES ('centreon-widget-graph','23.10.0','','http://centreon.com','centreon-widget-graph','Centreon');
-INSERT INTO widget_models (title,version,description,url,directory,author) VALUES ('centreon-widget-singlemetric','23.10.0','','http://centreon.com','centreon-widget-singlemetric','Centreon');
-
 -- CREATE TABLES FOR DASHBOARD CONFIGURATION --
 
 CREATE TABLE IF NOT EXISTS `dashboard` (
