@@ -18097,21 +18097,6 @@ msgstr "Fin"
 msgid "Custom value"
 msgstr "Valeur personnalisée"
 
-msgid "Last hour"
-msgstr "La dernière heure"
-
-msgid "Last 24 hours"
-msgstr "Les dernières 24 heures"
-
-msgid "Last 7 days"
-msgstr "Les 7 derniers jours"
-
-msgid "Last 30 days"
-msgstr "Les 30 derniers jours"
-
-msgid "Value customized"
-msgstr "Valeur personnalisée"
-
 msgid "You are not allowed to add a service"
 msgstr "Vous n'êtes pas autorisé à ajouter un service"
 
