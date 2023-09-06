@@ -1,0 +1,38 @@
+type: object
+properties:
+  notification_id:
+    type: integer
+    example: 2
+  channel:
+    type: string
+    enum:
+      - 'Slack'
+      - 'Email'
+      - 'Sms'
+    example: "Slack"
+  contacts:
+    type: array
+    items:
+      type: object
+      properties:
+        full_name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          example: "john.doe@localhost"
+          nullable: true
+        slack:
+          type: string
+          example: "slack id"
+          nullable: true
+        phone:
+          type: string
+          example: "+33123456789"
+          nullable: true
+  subject:
+    type: string
+    example: "Notification subject"
+  message:
+    type: string
+    example: "Notification message"
