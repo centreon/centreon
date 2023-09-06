@@ -49,11 +49,9 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
         } else {
             $this->present(
                 [
-                    'result' => [
-                        'name' => $response->metricName,
-                        'unit' => $response->metricUnit,
-                        'resources' => self::formatResource($response->resourceMetrics),
-                    ],
+                    'name' => $response->metricName,
+                    'unit' => $response->metricUnit,
+                    'resources' => self::formatResource($response->resourceMetrics),
                     'meta' => $this->requestParameters->toArray(),
                 ]
             );

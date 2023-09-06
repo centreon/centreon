@@ -11,10 +11,8 @@ get:
       content:
         application/json:
           schema:
-            result:
-                type: array
-                items: { $ref: 'Schema/Dashboard.MetricsTop.yaml' }
-            meta:
+            - $ref: 'Schema/Dashboard.MetricsTop.yaml'
+            - meta:
               $ref: '../../Common/Schema/Meta.yaml'
     '403': { $ref: '../../Common/Response/Forbidden.yaml' }
     '404': { $ref: '../../Common/Response/NotFound.yaml' }
