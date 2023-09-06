@@ -78,3 +78,5 @@ export const labelNone = 'None';
 export const labelValueFormat = 'Value format';
 export const labelRawValue = 'Raw value';
 export const labelHumanReadable = 'Human readable';
+export const labelYouCanChooseOnResourcePerResourceType =
+  'You can choose only one resource for each resource type';

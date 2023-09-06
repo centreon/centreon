@@ -9,7 +9,8 @@ import {
   TextFieldProps,
   Theme,
   Tooltip,
-  Typography
+  Typography,
+  Box
 } from '@mui/material';
 
 import { getNormalizedId } from '../../utils';
@@ -141,7 +142,7 @@ const TextField = forwardRef(
     }, [innerValue, debounced, defaultValue]);
 
     return (
-      <div>
+      <Box sx={{ width: autoSize ? 'auto' : '100%' }}>
         <Tooltip placement="top" title={tooltipTitle}>
           <MuiTextField
             data-testid={dataTestId}
@@ -197,7 +198,7 @@ const TextField = forwardRef(
             {rest.value || externalValueForAutoSize || innerValue}
           </Typography>
         )}
-      </div>
+      </Box>
     );
   }
 );

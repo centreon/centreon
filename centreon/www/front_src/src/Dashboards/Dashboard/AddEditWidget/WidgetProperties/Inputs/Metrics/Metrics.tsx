@@ -108,6 +108,9 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
                 onChange={changeService(index)}
               />
               <MultiAutocompleteField
+                chipProps={{
+                  color: 'primary'
+                }}
                 className={classes.resources}
                 disabled={
                   isNil(service.id) || isEmpty(service.id) || isLoadingMetrics

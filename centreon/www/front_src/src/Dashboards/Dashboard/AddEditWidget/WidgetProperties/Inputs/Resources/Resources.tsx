@@ -1,5 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import { Divider, FormHelperText, Typography } from '@mui/material';
 
@@ -11,10 +12,12 @@ import {
   labelDelete,
   labelResourceType,
   labelResources,
-  labelSelectAResource
+  labelSelectAResource,
+  labelYouCanChooseOnResourcePerResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
+import { singleMetricSectionAtom } from '../../../atoms';
 
 import useResources from './useResources';
 
@@ -27,6 +30,8 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
 
+  const singleMetricSection = useAtomValue(singleMetricSectionAtom);
+
   const {
     value,
     resourceTypeOptions,
@@ -37,7 +42,6 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     getResourceResourceBaseEndpoint,
     getSearchField,
     error,
-    addButtonHidden,
     getOptionDisabled
   } = useResources(propertyName);
 
@@ -50,15 +54,10 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         <Typography>{t(labelResources)}</Typography>
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
-      <ItemComposition
-        addButtonHidden={addButtonHidden}
-        labelAdd={t(labelAddResource)}
-        onAddItem={addResource}
-      >
+      <ItemComposition labelAdd={t(labelAddResource)} onAddItem={addResource}>
         {value.map((resource, index) => (
           <ItemComposition.Item
             className={classes.resourceCompositionItem}
-            deleteButtonHidden={addButtonHidden}
             key={`${index}`}
             labelDelete={t(labelDelete)}
             onDeleteItem={deleteResource(index)}
@@ -72,13 +71,16 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
               onChange={changeResourceType(index)}
             />
             <MultiConnectedAutocompleteField
+              chipProps={{
+                color: 'primary'
+              }}
               className={classes.resources}
               disabled={!resource.resourceType}
               field={getSearchField(resource.resourceType)}
               getEndpoint={getResourceResourceBaseEndpoint(
                 resource.resourceType
               )}
-              getOptionDisabled={getOptionDisabled}
+              getOptionDisabled={getOptionDisabled(index)}
               label={t(labelSelectAResource)}
               limitTags={2}
               queryKey={`${resource.resourceType}-${index}`}
@@ -88,6 +90,11 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
           </ItemComposition.Item>
         ))}
       </ItemComposition>
+      {singleMetricSection && (
+        <Typography sx={{ color: 'action.disabled' }}>
+          {t(labelYouCanChooseOnResourcePerResourceType)}
+        </Typography>
+      )}
       {error && <FormHelperText error>{t(error)}</FormHelperText>}
     </div>
   );

@@ -121,6 +121,7 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     MuiChip: {
       styleOverrides: {
         root: ({ ownerState, theme }) => ({
+          backgroundColor: !ownerState.color && theme.palette.divider,
           ...(equals(ownerState.size, 'medium') && {
             borderRadius: theme.spacing(1.25),
             fontSize: theme.typography.body2.fontSize,

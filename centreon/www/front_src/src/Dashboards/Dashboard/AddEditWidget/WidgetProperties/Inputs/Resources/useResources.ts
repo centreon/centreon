@@ -1,17 +1,7 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import {
-  T,
-  always,
-  cond,
-  equals,
-  flatten,
-  gt,
-  isEmpty,
-  pipe,
-  pluck
-} from 'ramda';
+import { T, always, cond, equals, isEmpty, pluck } from 'ramda';
 import { useAtomValue } from 'jotai';
 
 import { SelectEntry, buildListingEndpoint } from '@centreon/ui';
@@ -43,7 +33,7 @@ interface UseResourcesState {
   ) => (_, resources: Array<SelectEntry>) => void;
   deleteResource: (index: number) => () => void;
   error: string | null;
-  getOptionDisabled: (option) => boolean | undefined;
+  getOptionDisabled: (index: number) => (option) => boolean | undefined;
   getResourceResourceBaseEndpoint: (
     resourceType: string
   ) => (parameters) => string;
@@ -159,19 +149,20 @@ const useResources = (propertyName: string): UseResourcesState => {
       [T, always('name')]
     ])(resourceType);
 
-  const getOptionDisabled = (option): boolean | undefined => {
-    const resources = pipe(
-      pluck('resources'),
-      flatten,
-      pluck('name')
-    )(value || []);
+  const getOptionDisabled =
+    (index: number) =>
+    (option): boolean | undefined => {
+      const resources = value?.[index].resources;
 
-    return (
-      singleMetricSection &&
-      gt(resources.length, 0) &&
-      !resources.includes(option.name)
-    );
-  };
+      if (singleMetricSection && isEmpty(resources)) {
+        return false;
+      }
+
+      return (
+        singleMetricSection &&
+        !pluck('name', resources || []).includes(option.name)
+      );
+    };
 
   useEffect(() => {
     if (!singleMetricSection || !isEmpty(value)) {
@@ -187,7 +178,6 @@ const useResources = (propertyName: string): UseResourcesState => {
   }, [singleMetricSection]);
 
   return {
-    addButtonHidden: singleMetricSection,
     addResource,
     changeResourceType,
     changeResources,
