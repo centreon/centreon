@@ -7158,7 +7158,7 @@ msgstr "Les 14 précédents jours"
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:110
 #: centreon-web/www/include/eventLogs/viewLog.php:176
 msgid "Last 28 Days"
-msgstr "Les 28 précédents jours"
+msgstr "Les 28 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:185
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:112

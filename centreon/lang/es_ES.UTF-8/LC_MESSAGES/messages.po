@@ -16280,7 +16280,7 @@ msgstr ""
 # msgid "End"
 # msgstr ""
 
-# msgid "Value customized"
+# msgid "Custom value"
 # msgstr ""
 
 # msgid "Notifications will only be sent during this time period"
