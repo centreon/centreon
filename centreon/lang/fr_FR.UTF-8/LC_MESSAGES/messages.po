@@ -7128,12 +7128,6 @@ msgstr "Les 6 dernières heures"
 msgid "Last 12 Hours"
 msgstr "Les 12 dernières heures"
 
-#: centreon-web/www/include/views/graphs/graphs.php:176
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:105
-#: centreon-web/www/include/eventLogs/viewLog.php:171
-msgid "Last 24 Hours"
-msgstr "Les 24 dernières heures"
-
 #: centreon-web/www/include/views/graphs/graphs.php:177
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:106
 #: centreon-web/www/include/eventLogs/viewLog.php:172
@@ -7154,13 +7148,6 @@ msgstr "Les 4 précédents jours"
 msgid "Last 5 Days"
 msgstr "Les 5 derniers jours"
 
-#: centreon-web/www/include/views/graphs/graphs.php:181
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:108
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:255
-#: centreon-web/www/include/eventLogs/viewLog.php:174
-msgid "Last 7 Days"
-msgstr "Les 7 précédents jours"
-
 #: centreon-web/www/include/views/graphs/graphs.php:182
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:109
 #: centreon-web/www/include/eventLogs/viewLog.php:175
@@ -7172,13 +7159,6 @@ msgstr "Les 14 précédents jours"
 #: centreon-web/www/include/eventLogs/viewLog.php:176
 msgid "Last 28 Days"
 msgstr "Les 28 précédents jours"
-
-#: centreon-web/www/include/views/graphs/graphs.php:184
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:111
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:257
-#: centreon-web/www/include/eventLogs/viewLog.php:177
-msgid "Last 30 Days"
-msgstr "Les 30 précédents jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:185
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:112
@@ -18128,18 +18108,6 @@ msgstr "Les 7 derniers jours"
 
 msgid "Last 30 days"
 msgstr "Les 30 derniers jours"
-
-msgid "Last 3 months"
-msgstr "Les 3 derniers mois"
-
-msgid "Last 12 months"
-msgstr "Les 12 derniers mois"
-
-msgid "Start"
-msgstr "Début"
-
-msgid "End"
-msgstr "Fin"
 
 msgid "Value customized"
 msgstr "Valeur personnalisée"
