@@ -271,7 +271,9 @@ Cypress.Commands.add(
         source: '/var/log/centreon-engine'
       })
       .execInContainer({
-        command: 'chmod 777 /var/log/centreon/centreon-web.log',
+        command: `bash -e <<EOF
+        chmod 777 /var/log/centreon/centreon-web.log > /dev/null 2>&1 || :
+EOF`,
         name
       })
       .copyFromContainer({
