@@ -79,9 +79,9 @@ final class FindResourcesController extends AbstractController
             ->setServiceCategoryNames($filter[RequestValidator::PARAM_SERVICE_CATEGORY_NAMES])
             ->setServiceSeverityNames($filter[RequestValidator::PARAM_SERVICE_SEVERITY_NAMES])
             ->setServiceSeverityLevels($filter[RequestValidator::PARAM_SERVICE_SEVERITY_LEVELS])
-            ->setHostgroupNames($filter[RequestValidator::PARAM_HOST_CATEGORY_NAMES])
+            ->setHostgroupNames($filter[RequestValidator::PARAM_HOSTGROUP_NAMES])
             ->setHostCategoryNames($filter[RequestValidator::PARAM_HOST_CATEGORY_NAMES])
-            ->setHostSeverityNames($filter[RequestValidator::PARAM_HOST_CATEGORY_NAMES])
+            ->setHostSeverityNames($filter[RequestValidator::PARAM_HOST_SEVERITY_NAMES])
             ->setMonitoringServerNames($filter[RequestValidator::PARAM_MONITORING_SERVER_NAMES])
             ->setHostSeverityLevels($filter[RequestValidator::PARAM_HOST_SEVERITY_LEVELS])
             ->setOnlyWithPerformanceData($filter[RequestValidator::PARAM_RESOURCES_ON_PERFORMANCE_DATA_AVAILABILITY]);

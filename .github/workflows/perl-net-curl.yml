@@ -66,7 +66,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install locally Net::Curl
         run: |
@@ -140,7 +140,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -170,7 +170,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -200,7 +200,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Promote ${{ matrix.distrib }} ${{ matrix.arch }} to stable
         uses: ./.github/actions/promote-to-stable

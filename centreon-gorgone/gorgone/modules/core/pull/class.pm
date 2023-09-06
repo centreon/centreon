@@ -125,6 +125,18 @@ sub transmit_back {
             return '[SETLOGS] [' . $1 . '] [] ' . $2;
         }
         return undef;
+    } elsif ($options{message} =~ /^\[BCASTCOREKEY\]\s+\[.*?\]\s+\[.*?\]\s+(.*)/m) {
+        my $data;
+        eval {
+            $data = JSON::XS->new->decode($1);
+        };
+        if ($@) {
+            $connector->{logger}->writeLogDebug("[pull] cannot decode BCASTCOREKEY: $@");
+            return undef;
+        }
+
+        $connector->action_bcastcorekey(data => $data);
+        return undef;
     } elsif ($options{message} =~ /^\[(PONG|SYNCLOGS)\]/) {
         return $options{message};
     }
@@ -149,7 +161,7 @@ sub event {
     while ($self->{internal_socket}->has_pollin()) {
         my ($message) = $self->read_message();
         $message = transmit_back(message => $message);
-        last if (!defined($message));
+        next if (!defined($message));
 
         # Only send back SETLOGS and PONG
         $self->{logger}->writeLogDebug("[pull] read message from internal: $message");

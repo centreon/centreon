@@ -27,6 +27,7 @@ export enum EventsType {
 
 export interface MessageType {
   channel: ChannelsEnum;
+  formattedMessage: string;
   message: string;
   subject: string;
 }

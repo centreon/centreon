@@ -18084,11 +18084,38 @@ msgstr "En désactivant cette option, tous les liens inclus dans le widget seron
 msgid "Graph type"
 msgstr "Type de graphique"
 
-msgid "Value defined by metric"
-msgstr "Valeur définie par la métrique"
+msgid "Value defined by the {{metric}} metric"
+msgstr "Valeur définie par la métrique {{metric}}"
 
 msgid "The {{module}} license will expire in {{expirationDate}} days"
-msgstr "La license {{module}} expirera dans {{expirationDate}} jours"
+msgstr "La licence {{module}} expirera dans {{expirationDate}} jours"
+
+msgid "Last hour"
+msgstr "La dernière heure"
+
+msgid "Last 24 hours"
+msgstr "Les dernières 24 heures"
+
+msgid "Last 7 days"
+msgstr "Les 7 derniers jours"
+
+msgid "Last 30 days"
+msgstr "Les 30 derniers jours"
+
+msgid "Last 3 months"
+msgstr "Les 3 derniers mois"
+
+msgid "Last 12 months"
+msgstr "Les 12 derniers mois"
+
+msgid "Start"
+msgstr "Début"
+
+msgid "End"
+msgstr "Fin"
+
+msgid "Custom value"
+msgstr "Valeur personnalisée"
 
 msgid "Last hour"
 msgstr "La dernière heure"

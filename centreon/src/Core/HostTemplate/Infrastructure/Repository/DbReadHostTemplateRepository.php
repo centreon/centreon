@@ -100,7 +100,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     ehi.ehi_action_url,
                     ehi.ehi_icon_image,
                     ehi.ehi_icon_image_alt,
-                    hcr.hostcategories_hc_id as severity_id
+                    hc.hc_id as severity_id
                 FROM `:db`.host h
                 LEFT JOIN `:db`.extended_host_information ehi
                     ON h.host_id = ehi.host_host_id
@@ -111,6 +111,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                     AND hc.level IS NOT NULL
                 SQL
         );
+        $concatenator->appendGroupBy('GROUP BY h.host_id');
 
         // Filter on host templates
         $concatenator->appendWhere('h.host_register = :hostTemplateType');

@@ -7,6 +7,7 @@ const oidcConfigValues = {
   clientSecret: 'IKbUBottl5eoyhf0I5Io2nuDsTA85D50',
   introspectionTokenEndpoint: '/token/introspect',
   loginAttrPath: 'preferred_username',
+  scopes: 'openid',
   tokenEndpoint: '/token'
 };
 
@@ -49,6 +50,10 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
     `{selectall}{backspace}${oidcConfigValues.clientSecret}`,
     { force: true }
   );
+  cy.getByLabel({ label: 'Scopes', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.scopes}`,
+    { force: true }
+  );
   cy.getByLabel({ label: 'Login attribute path', tag: 'input' }).type(
     `{selectall}{backspace}${oidcConfigValues.loginAttrPath}`,
     { force: true }
@@ -67,28 +72,8 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
   });
 };
 
-const getAccessGroupId = (accessGroupName: string): Cypress.Chainable => {
-  const query = `SELECT acl_group_id FROM acl_groups WHERE acl_group_name = '${accessGroupName}';`;
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon <<< "${query}"`;
-
-  return cy
-    .exec(command, { failOnNonZeroExit: true, log: true })
-    .then(({ code, stdout, stderr }) => {
-      if (!stderr && code === 0) {
-        const accessGroupid = parseInt(stdout.split('\n')[1], 10);
-
-        return cy.wrap(accessGroupid || '0');
-      }
-
-      return cy.log(`Can't execute command on database.`);
-    });
-};
-
 export {
   removeContact,
   initializeOIDCUserAndGetLoginPage,
-  configureOpenIDConnect,
-  getAccessGroupId
+  configureOpenIDConnect
 };
