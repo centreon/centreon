@@ -587,13 +587,13 @@ describe('Resource Listing: Visualization by Service', () => {
     cy.makeSnapshot();
   });
 
-  it('disables sorting buttons in the table header', () => {
+  it('disables columns drag and drop feature', () => {
     cy.findByLabelText(labelViewByService).click();
 
     cy.waitForRequest('@dataToListingTable');
 
     columns.forEach(({ label }) => {
-      cy.findByLabelText(`Column ${label}`).should('not.exist');
+      cy.findByLabelText(`${label} Drag handle`).should('not.exist');
     });
 
     cy.makeSnapshot();
@@ -654,13 +654,13 @@ describe('Resource Listing: Visualization by all resources', () => {
     cy.makeSnapshot();
   });
 
-  it('enables sorting buttons in the table header', () => {
+  it('enables columns drag and drop feature', () => {
     cy.findByLabelText(labelAll).click();
 
     cy.waitForRequest('@dataToListingTable');
 
     columnToSort.forEach(({ label }) => {
-      cy.findByLabelText(`Column ${label}`).should('exist');
+      cy.findByLabelText(`${label} Drag handle`).should('exist');
     });
 
     cy.makeSnapshot();
