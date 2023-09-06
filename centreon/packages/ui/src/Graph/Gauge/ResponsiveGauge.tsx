@@ -16,6 +16,7 @@ import PieData from './PieData';
 
 interface Props {
   disabledThresholds?: boolean;
+  displayAsRaw?: boolean;
   height: number;
   metric: Metric;
   thresholdTooltipLabels: Array<string>;
@@ -34,7 +35,8 @@ const ResponsiveGauge = ({
   thresholds,
   metric,
   thresholdTooltipLabels,
-  disabledThresholds
+  disabledThresholds,
+  displayAsRaw
 }: Props): JSX.Element => {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -73,6 +75,13 @@ const ResponsiveGauge = ({
 
   const isSmallHeight = height < 250;
 
+  const gaugeValue = formatMetricValueWithUnit({
+    base: 1000,
+    isRaw: displayAsRaw,
+    unit: metric.unit,
+    value: metric.data[0]
+  });
+
   return (
     <Box sx={{ position: 'relative' }}>
       <svg height={height} ref={svgRef} width={width}>
@@ -100,17 +109,14 @@ const ResponsiveGauge = ({
           style={{
             fill: pieColor,
             ...theme.typography.h3,
-            fontSize: Math.min(width, height) / 7
+            fontSize:
+              Math.min(width, height) / 7 - (gaugeValue?.length || 0) * 2
           }}
           textAnchor="middle"
           x="50%"
           y={isSmallHeight ? 140 : 100 + Math.min(width, height) / 3}
         >
-          {formatMetricValueWithUnit({
-            base: 1000,
-            unit: metric.unit,
-            value: metric.data[0]
-          })}
+          {gaugeValue}
         </text>
       </svg>
       <Fade in={tooltipOpen && !disabledThresholds}>

@@ -22,3 +22,5 @@ export interface FormThreshold {
   enabled: boolean;
   warningType: 'default' | 'custom';
 }
+
+export type ValueFormat = 'human' | 'raw';

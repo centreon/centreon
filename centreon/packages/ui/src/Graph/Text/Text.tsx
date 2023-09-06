@@ -14,6 +14,7 @@ import { useTextStyles } from './Text.styles';
 interface Props {
   data?: LineChartData;
   disabledThresholds?: boolean;
+  displayAsRaw?: boolean;
   labels: {
     critical: string;
     warning: string;
@@ -25,7 +26,8 @@ export const Text = ({
   thresholds,
   data,
   labels,
-  disabledThresholds
+  disabledThresholds,
+  displayAsRaw
 }: Props): JSX.Element | null => {
   const theme = useTheme();
   const { classes } = useTextStyles();
@@ -48,6 +50,7 @@ export const Text = ({
     <div className={classes.graphText}>
       <Typography sx={{ color }} variant="h3">
         {formatMetricValueWithUnit({
+          isRaw: displayAsRaw,
           unit: metricUnit,
           value: metricValue
         })}
@@ -58,6 +61,7 @@ export const Text = ({
             {labels.warning}
             {': '}
             {formatMetricValueWithUnit({
+              isRaw: displayAsRaw,
               unit: metricUnit,
               value: thresholds[0]
             })}
@@ -66,6 +70,7 @@ export const Text = ({
             {labels.critical}
             {': '}
             {formatMetricValueWithUnit({
+              isRaw: displayAsRaw,
               unit: metricUnit,
               value: thresholds[1]
             })}

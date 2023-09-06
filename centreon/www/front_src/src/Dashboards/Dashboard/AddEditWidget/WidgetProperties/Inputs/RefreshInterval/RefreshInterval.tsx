@@ -20,12 +20,7 @@ const RefreshInterval = ({
   return (
     <Box>
       <Subtitle>{t(labelRefreshInterval)}</Subtitle>
-      <RadioGroup
-        aria-labelledby="demo-controlled-radio-buttons-group"
-        name="controlled-radio-buttons-group"
-        value={value}
-        onChange={changeRefreshIntervalOption}
-      >
+      <RadioGroup value={value} onChange={changeRefreshIntervalOption}>
         {options.map(({ value: optionValue, label }) => (
           <FormControlLabel
             control={<Radio data-testid={optionValue} />}

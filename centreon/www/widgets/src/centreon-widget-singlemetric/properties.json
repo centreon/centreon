@@ -21,6 +21,11 @@
       "type": "refresh-interval",
       "defaultValue": "default",
       "label": "Interval"
+    },
+    "valueFormat": {
+      "type": "value-format",
+      "defaultValue": "human",
+      "label": "Value format"
     }
   },
   "data": {

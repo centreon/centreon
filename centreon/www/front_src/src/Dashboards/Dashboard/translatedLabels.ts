@@ -75,3 +75,6 @@ export const labelGraphType = 'Graph type';
 export const labelDefaultValueIsDefinedByFirstMetricUsed =
   'The default value is the value defined for the first metric used';
 export const labelNone = 'None';
+export const labelValueFormat = 'Value format';
+export const labelRawValue = 'Raw value';
+export const labelHumanReadable = 'Human readable';

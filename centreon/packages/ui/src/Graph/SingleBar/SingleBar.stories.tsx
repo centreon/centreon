@@ -43,3 +43,13 @@ export const critical: Story = {
   },
   render: Template
 };
+
+export const RawValue: Story = {
+  args: {
+    data: dataLastWeek,
+    displayAsRaw: true,
+    thresholdTooltipLabels: ['Warning', 'Critical'],
+    thresholds: [0.5, 1.5]
+  },
+  render: Template
+};

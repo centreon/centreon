@@ -17,6 +17,7 @@ import {
 
 interface Props {
   data?: LineChartData;
+  displayAsRaw: boolean;
   metricName?: string;
   thresholds: FormThreshold;
 }
@@ -29,7 +30,8 @@ interface UseThresholdsState {
 const useThresholds = ({
   thresholds,
   data,
-  metricName = ''
+  metricName = '',
+  displayAsRaw
 }: Props): UseThresholdsState => {
   const { t } = useTranslation();
 
@@ -53,10 +55,12 @@ const useThresholds = ({
   const metric = data ? getMetricWithLatestData(data) : null;
 
   const formattedWarning = formatMetricValueWithUnit({
+    isRaw: displayAsRaw,
     unit: metric?.unit || '',
     value: warning
   });
   const formattedCritical = formatMetricValueWithUnit({
+    isRaw: displayAsRaw,
     unit: metric?.unit || '',
     value: critical
   });

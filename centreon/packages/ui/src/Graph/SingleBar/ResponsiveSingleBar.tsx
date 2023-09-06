@@ -35,7 +35,8 @@ const ResponsiveSingleBar = ({
   thresholds,
   width,
   height,
-  disabledThresholds
+  disabledThresholds,
+  displayAsRaw
 }: Props): JSX.Element => {
   const theme = useTheme();
 
@@ -80,6 +81,7 @@ const ResponsiveSingleBar = ({
     >
       {formatMetricValueWithUnit({
         base: 1000,
+        isRaw: displayAsRaw,
         unit: metric.unit,
         value: metric.data[0]
       })}

@@ -473,12 +473,8 @@ const formatMetricValue = ({
     [T, always(base1024 ? ' ib' : ' a')]
   ])(unit);
 
-  const isPercentage = equals(unit, '%');
-
-  const suffix = isPercentage ? '%' : formatSuffix;
-
   const formattedMetricValue = numeral(Math.abs(value)).format(
-    `0.[00]${suffix}`
+    `0.[00]${formatSuffix}`
   );
 
   if (lt(value, 0)) {
@@ -491,8 +487,15 @@ const formatMetricValue = ({
 const formatMetricValueWithUnit = ({
   value,
   unit,
-  base = 1000
-}: FormatMetricValueProps): string | null => {
+  base = 1000,
+  isRaw = false
+}: FormatMetricValueProps & { isRaw?: boolean }): string | null => {
+  if (isRaw) {
+    const unitText = equals('%', unit) ? unit : ` ${unit}`;
+
+    return `${value}${unitText}`;
+  }
+
   const formattedMetricValue = formatMetricValue({ base, unit, value });
 
   if (isNil(formattedMetricValue)) {

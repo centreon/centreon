@@ -5,7 +5,7 @@ import { Box, Typography } from '@mui/material';
 
 import { Gauge, GraphText, SingleBar, useGraphQuery } from '@centreon/ui';
 
-import { FormThreshold, ServiceMetric } from './models';
+import { FormThreshold, ServiceMetric, ValueFormat } from './models';
 import {
   labelCritical,
   labelNoDataFound,
@@ -23,6 +23,7 @@ interface Props {
   refreshIntervalCustom?: number;
   singleMetricGraphType: 'text' | 'gauge' | 'bar';
   threshold: FormThreshold;
+  valueFormat: ValueFormat;
 }
 
 const Graph = ({
@@ -31,7 +32,8 @@ const Graph = ({
   threshold,
   refreshInterval,
   refreshIntervalCustom,
-  globalRefreshInterval
+  globalRefreshInterval,
+  valueFormat
 }: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { classes: graphClasses } = useGraphStyles();
@@ -51,8 +53,11 @@ const Graph = ({
     refreshInterval: refreshIntervalToUse ? refreshIntervalToUse * 1000 : false
   });
 
+  const displayAsRaw = equals('raw')(valueFormat);
+
   const { thresholdLabels, thresholdValues } = useThresholds({
     data: graphData,
+    displayAsRaw,
     metricName: metrics[0]?.metrics[0]?.name,
     thresholds: threshold
   });
@@ -80,6 +85,7 @@ const Graph = ({
               <Gauge
                 data={graphData}
                 disabledThresholds={disabledThresholds}
+                displayAsRaw={displayAsRaw}
                 thresholdTooltipLabels={thresholdLabels}
                 thresholds={thresholdValues}
               />
@@ -91,6 +97,7 @@ const Graph = ({
               <SingleBar
                 data={graphData}
                 disabledThresholds={disabledThresholds}
+                displayAsRaw={displayAsRaw}
                 thresholdTooltipLabels={thresholdLabels}
                 thresholds={thresholdValues}
               />
@@ -102,6 +109,7 @@ const Graph = ({
               <GraphText
                 data={graphData}
                 disabledThresholds={disabledThresholds}
+                displayAsRaw={displayAsRaw}
                 labels={{
                   critical: t(labelCritical),
                   warning: t(labelWarning)
