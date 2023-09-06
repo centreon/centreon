@@ -170,6 +170,8 @@ const Filter = (): JSX.Element => {
   const setNewFilter = useSetAtom(setNewFilterDerivedAtom);
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
 
+  useBackToVisualizationByAll();
+
   const open = Boolean(autocompleteAnchor);
 
   const clearDebounceDynamicSuggestions = (): void => {
@@ -527,8 +529,6 @@ const Filter = (): JSX.Element => {
   });
 
   const isDynamicCriteria = isDefined(dynamicCriteriaParameters);
-
-  useBackToVisualizationByAll();
 
   const memoProps = [
     customFilters,
