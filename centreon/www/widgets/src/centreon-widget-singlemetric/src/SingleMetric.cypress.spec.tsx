@@ -273,9 +273,7 @@ describe('Single metric Widget', () => {
       cy.findByTestId('34-bar-#FF4A4A').should('be.visible');
 
       cy.findByTestId('warning-line-10-tooltip').trigger('mouseover');
-      cy.contains('Warning threshold: 10 %. Custom value').should(
-        'be.visible'
-      );
+      cy.contains('Warning threshold: 10 %. Custom value').should('be.visible');
 
       cy.findByTestId('critical-line-20-tooltip').trigger('mouseover');
       cy.contains('Critical threshold: 20 %. Custom value').should(
