@@ -23,7 +23,6 @@
 
 namespace Core\Dashboard\Infrastructure\API\FindMetricsTop;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTopPresenterInterface;
