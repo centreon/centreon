@@ -34,7 +34,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 
 class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTopPresenterInterface
 {
-    public function __construct(private RequestParametersInterface $requestParameters, protected PresenterFormatterInterface $presenterFormatter)
+    public function __construct(protected PresenterFormatterInterface $presenterFormatter)
     {
         parent::__construct($presenterFormatter);
     }
@@ -52,7 +52,6 @@ class FindMetricsTopPresenter extends AbstractPresenter implements FindMetricsTo
                     'name' => $response->metricName,
                     'unit' => $response->metricUnit,
                     'resources' => self::formatResource($response->resourceMetrics),
-                    'meta' => $this->requestParameters->toArray(),
                 ]
             );
         }
