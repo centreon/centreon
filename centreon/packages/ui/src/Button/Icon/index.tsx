@@ -11,6 +11,9 @@ import { getNormalizedId } from '../../utils';
 const useStyles = makeStyles()((theme) => ({
   button: {
     padding: theme.spacing(0.25)
+  },
+  tooltip: {
+    background: theme.palette.background.tooltip
   }
 }));
 
@@ -44,7 +47,11 @@ const IconButton = ({
   const { classes, cx } = useStyles();
 
   return (
-    <Tooltip placement={tooltipPlacement} title={title}>
+    <Tooltip
+      classes={{ tooltip: classes.tooltip }}
+      placement={tooltipPlacement}
+      title={title}
+    >
       <span aria-label={undefined}>
         <MuiIconButton
           aria-label={ariaLabel}
