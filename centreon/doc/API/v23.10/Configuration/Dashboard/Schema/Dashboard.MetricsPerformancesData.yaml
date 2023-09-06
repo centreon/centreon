@@ -51,15 +51,25 @@ properties:
           type: number
           description: if the metric is stacked with other metrics
           example: 0
-        warn:
+        warning_high_threshold:
           type: number
           nullable: true
-          description: warning threshold
+          description: warning high threshold
           example: null
-        crit:
+        critical_high_threshold:
           type: number
           nullable: true
-          description: critical threshold
+          description: critical high threshold
+          example: null
+        warning_low_threshold:
+          type: number
+          nullable: true
+          description: warning low threshold
+          example: null
+        critical_low_threshold:
+          type: number
+          nullable: true
+          description: critical low threshold
           example: null
         ds_order:
           type: integer

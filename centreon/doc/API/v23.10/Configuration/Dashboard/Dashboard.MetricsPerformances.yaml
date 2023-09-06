@@ -1,10 +1,18 @@
 get:
   tags:
-    - dashboard
-  summary: "List the Top/Bottom resources for given metric"
-  description: "List the Top/Bottom resources for given metric"
-  parameters:
-    - $ref: 'QueryParameter/MetricName.yaml'
+    - Metrics
+  summary: "List metrics"
+  description: |
+    Get list of all metrics
+
+    The available parameters to **search** / **sort_by** are:
+    AND
+    * hostgroup.id
+    * hostcategory.id
+    * host.id
+    * servicegroup.id
+    * servicecategory.id
+    * service.name
   responses:
     "200":
       description: "OK"
@@ -13,9 +21,10 @@ get:
           schema:
             result:
                 type: array
-                items: { $ref: 'Schema/Dashboard.MetricsTop.yaml' }
+                items: { $ref: 'Schema/Dashboard.MetricsPerformances.yaml' }
             meta:
               $ref: '../../Common/Schema/Meta.yaml'
     '403': { $ref: '../../Common/Response/Forbidden.yaml' }
     '404': { $ref: '../../Common/Response/NotFound.yaml' }
     '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
+            
