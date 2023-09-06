@@ -270,6 +270,10 @@ Cypress.Commands.add(
         destination: `${logDirectory}/engine`,
         source: '/var/log/centreon-engine'
       })
+      .execInContainer({
+        command: 'chmod 777 /var/log/centreon/centreon-web.log',
+        name
+      })
       .copyFromContainer({
         destination: `${logDirectory}/centreon`,
         source: '/var/log/centreon'
