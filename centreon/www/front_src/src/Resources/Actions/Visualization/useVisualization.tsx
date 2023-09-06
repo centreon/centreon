@@ -5,6 +5,8 @@ import { selectedVisualizationAtom } from '../actionsAtoms';
 import { Visualization } from '../../models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../Filter/filterAtoms';
 import { CriteriaNames } from '../../Filter/Criterias/models';
+import { selectedColumnIdsAtom } from '../../Listing/listingAtoms';
+import { defaultSelectedColumnIds } from '../../Listing/columns/index';
 
 import { platformVersionsAtom } from 'www/front_src/src/Main/atoms/platformVersionsAtom';
 
@@ -22,6 +24,7 @@ const useVisualization = ({ type }: Props): State => {
   const setCriteriaAndNewFilter = useSetAtom(
     setCriteriaAndNewFilterDerivedAtom
   );
+  const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
   const isAnomalyDetectionModuleInstalled = has(
     'centreon-anomaly-detection',
@@ -58,9 +61,11 @@ const useVisualization = ({ type }: Props): State => {
     [equals(Visualization.All), () => ['last_status_change', 'desc']]
   ])(type);
 
-  const selectVisualization = (): void => {
-    setVisualization(type);
+  const resetColumnsConfiguration = (): void => {
+    setSelectedColumnIds(defaultSelectedColumnIds);
+  };
 
+  const updateSearchAndSortValues = (): void => {
     setCriteriaAndNewFilter({
       apply: true,
       name: CriteriaNames.resourceTypes,
@@ -71,6 +76,12 @@ const useVisualization = ({ type }: Props): State => {
       name: 'sort',
       value: sortValues
     });
+  };
+
+  const selectVisualization = (): void => {
+    setVisualization(type);
+    resetColumnsConfiguration();
+    updateSearchAndSortValues();
   };
 
   return { selectVisualization };
