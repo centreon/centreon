@@ -1,7 +1,16 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { equals, flatten, head, length, pipe, pluck, uniq } from 'ramda';
+import {
+  equals,
+  filter,
+  flatten,
+  head,
+  length,
+  pipe,
+  pluck,
+  uniq
+} from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
@@ -124,26 +133,32 @@ const useThreshold = ({
     );
   };
 
-  const firstWarningHighThreshold = formatThreshold(
-    getMetricThreshold('warningHighThreshold')(metrics || [])
-  );
-  const firstWarningLowThreshold = formatThreshold(
-    getMetricThreshold('warningLowThreshold')(metrics || [])
+  const firstWarningHighThreshold = getMetricThreshold('warningHighThreshold')(
+    metrics || []
   );
 
-  const firstCriticalHighThreshold = formatThreshold(
-    getMetricThreshold('criticalHighThreshold')(metrics || [])
+  const firstWarningLowThreshold = getMetricThreshold('warningLowThreshold')(
+    metrics || []
   );
-  const firstCriticalLowThreshold = formatThreshold(
-    getMetricThreshold('criticalLowThreshold')(metrics || [])
+
+  const firstCriticalHighThreshold = getMetricThreshold(
+    'criticalHighThreshold'
+  )(metrics || []);
+
+  const firstCriticalLowThreshold = getMetricThreshold('criticalLowThreshold')(
+    metrics || []
   );
 
   const warningDefaultThresholdLabel = firstWarningLowThreshold
-    ? `(${firstWarningLowThreshold} - ${firstWarningHighThreshold})`
-    : `(${firstWarningHighThreshold || ''})`;
+    ? `(${formatThreshold(firstWarningLowThreshold)} - ${formatThreshold(
+        firstWarningHighThreshold
+      )})`
+    : `(${formatThreshold(firstWarningHighThreshold)})`;
   const criticalDefaultThresholdLabel = firstCriticalLowThreshold
-    ? `(${firstCriticalLowThreshold} - ${firstCriticalHighThreshold})`
-    : `(${firstCriticalHighThreshold || ''})`;
+    ? `(${formatThreshold(firstCriticalLowThreshold)} - ${formatThreshold(
+        firstCriticalHighThreshold
+      )})`
+    : `(${formatThreshold(firstCriticalHighThreshold)})`;
 
   const isDefault = equals<RadioOptions | undefined>(RadioOptions.default);
 
