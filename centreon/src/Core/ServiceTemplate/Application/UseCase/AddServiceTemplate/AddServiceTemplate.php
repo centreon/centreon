@@ -218,7 +218,7 @@ final class AddServiceTemplate
     {
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
         $inheritanceMode = isset($inheritanceMode[0])
-            ? $inheritanceMode[0]->getValue()
+            ? (int) $inheritanceMode[0]->getValue()
             : 0;
 
         return NewServiceTemplateFactory::create((int) $inheritanceMode, $request);
