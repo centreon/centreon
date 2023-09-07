@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "downlevelIteration": true,
-    "module": "Node",
+    "module": "ESNext",
+    "moduleResolution": "node",
     "target": "es2018",
     "jsx": "react-jsx",
     "strict": true,
