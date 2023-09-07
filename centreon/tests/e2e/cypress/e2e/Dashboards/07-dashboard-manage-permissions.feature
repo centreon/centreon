@@ -13,6 +13,11 @@ Scenario: Demote an editor user to a viewer on a dashboard
   Then the now-viewer user cannot perform update operations on the dashboard anymore
 
 Scenario: Remove read permissions on a dashboard to a user
-  Given a dashboard featuring a user with update rights and a user with viewing rights in its share list
-  When the admin user removes the dashboard editor user from the share list
+  Given a dashboard featuring a dashboard administrator and a viewer in its share list
+  When the dashboard administrator user removes the dashboard editor user from the share list
   Then the dashboard is not visible anymore in the non-admin user's dashboards library
+
+Scenario: Revert a user removal in the share list of a dashboard
+  Given a dashboard featuring a dashboard administrator and a user who has just been removed from the share list
+  When the dashboard administrator user restores the deleted user to the share list and saves
+  Then the restored user retains the same rights on the dashboard

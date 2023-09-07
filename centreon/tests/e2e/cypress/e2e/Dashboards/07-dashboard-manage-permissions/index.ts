@@ -133,6 +133,7 @@ Then(
       tag: 'button'
     })
       .contains(dashboards.fromDashboardAdministratorUser.name)
+      .should('exist')
       .click();
     cy.url().should('match', /\/dashboards\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
@@ -141,7 +142,7 @@ Then(
 );
 
 Given(
-  'a dashboard featuring a user with update rights and a user with viewing rights in its share list',
+  'a dashboard featuring a dashboard administrator and a viewer in its share list',
   () => {
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
     cy.getByTestId({ testId: 'role-input' })
@@ -154,7 +155,7 @@ Given(
 );
 
 When(
-  'the admin user removes the dashboard editor user from the share list',
+  'the dashboard administrator user removes the dashboard editor user from the share list',
   () => {
     cy.getByTestId({ testId: 'remove_user' }).eq(1).click();
     cy.get('[data-state="removed"]').should('exist');
@@ -177,3 +178,60 @@ Then(
     }).should('not.exist');
   }
 );
+
+Given(
+  'a dashboard featuring a dashboard administrator and a user who has just been removed from the share list',
+  () => {
+    cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
+    cy.getByTestId({ testId: 'role-input' })
+      .eq(1)
+      .should('contain.text', 'editor');
+
+    cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+    cy.contains(dashboardCreatorUser.login).click();
+    cy.getByTestId({ testId: 'role-input' }).eq(0).click();
+    cy.get('[role="listbox"]').contains('viewer').click();
+    cy.getByTestId({ testId: 'add' }).click();
+    cy.getByTestId({ testId: 'role-input' })
+      .eq(1)
+      .should('contain.text', 'viewer');
+    cy.getByTestId({ testId: 'role-input' })
+      .eq(2)
+      .should('contain.text', 'editor');
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+    cy.wait('@addContactToDashboardShareList');
+    cy.reload(); // TODO: Find a way to remove reloads
+
+    cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
+    cy.getByTestId({ testId: 'remove_user' }).eq(1).click();
+    cy.get('[data-state="removed"]').should('exist');
+  }
+);
+
+When(
+  'the dashboard administrator user restores the deleted user to the share list and saves',
+  () => {
+    cy.getByTestId({ testId: 'restore_user' }).click();
+    cy.getByLabel({ label: 'Update', tag: 'button' }).should('be.disabled');
+    cy.getByLabel({ label: 'close', tag: 'button' }).click();
+  }
+);
+
+Then('the restored user retains the same rights on the dashboard', () => {
+  cy.logout();
+  cy.loginByTypeOfUser({
+    jsonName: dashboardCreatorUser.login,
+    loginViaApi: false
+  });
+  cy.visit('/centreon/home/dashboards');
+  cy.getByLabel({
+    label: 'view',
+    tag: 'button'
+  })
+    .contains(dashboards.fromDashboardAdministratorUser.name)
+    .should('exist')
+    .click();
+  cy.url().should('match', /\/dashboards\/\d+$/);
+  cy.getByTestId({ testId: 'edit' }).should('not.exist');
+  cy.getByTestId({ testId: 'share' }).should('not.exist');
+});
