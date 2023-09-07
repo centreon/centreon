@@ -49,8 +49,8 @@ runs:
           set -x
 
           # Destroy the previous existing instance everytime
-          DESTROY_STATUS=$(echo "[INFO]: Destroying previous nightly COD instance."
-          curl --fail \
+          echo "[INFO]: Destroying previous nightly COD instance."
+          DESTROY_STATUS=$(curl --fail \
           -s \
           -o /dev/null \
           -X POST \
@@ -60,6 +60,7 @@ runs:
           -d '{"ref": "main", "inputs":{"confirm":"true"} }' \
           -w %http_code)
 
+          echo "[DEBUG]: $DESTROY_STATUS"
           echo "DESTROY_STATUS=$DESTROY_STATUS" >> "$GITHUB_OUTPUT"
       shell: bash
 
