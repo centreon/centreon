@@ -21,8 +21,6 @@ on:
       - "centreon-dsm/**"
       - "!centreon-dsm/.veracode"
       - "!centreon-dsm/.veracode-exclusions"
-    tags:
-      - centreon-dsm-*
 
 env:
   module: dsm
