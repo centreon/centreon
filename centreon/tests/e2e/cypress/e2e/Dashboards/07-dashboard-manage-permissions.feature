@@ -1,6 +1,7 @@
-Feature: As a Centreon User with dashboard administration rights,
-  I need to list all dashboards and user/user group rights to each, and update access rights if needed
-  so that I can provision accesses or re-direct ownership if a user is not supposed to use Centreon anymore
+Feature: Managing dashboard permissions
+  As a Centreon User with dashboard administration rights,
+  I need to be able to manage the permissions any current user of a dashboard's sharelist has
+  So that these users may get promoted or demoted on the rights they have on the dashboard
 
 Scenario: Promote a viewer user to an editor on a dashboard
   Given a dashboard featuring a dashboard administrator and a dashboard viewer in its share list
