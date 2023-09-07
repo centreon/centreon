@@ -135,7 +135,7 @@ allow sshd_net_t kernel_t:process sigchld;
 allow postfix_master_t postfix_pickup_t:process { noatsecure rlimitinh siginh };
 
 #============= domain ================
-allow domain pidfile:sock_file { write getattr append open };
+#allow domain pidfile:sock_file { write getattr append open };
 
 #============= audisp_t ==============
 allow audisp_t unlabeled_t:file { getattr open read };
