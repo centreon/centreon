@@ -7,7 +7,7 @@ export const useStyles = makeStyles()((theme) => ({
     gap: theme.spacing(0.5)
   },
   iconButton: {
-    padding: 0
+    padding: theme.spacing(0, 0.25)
   },
   text: {
     marginRight: theme.spacing(1.5)
