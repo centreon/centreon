@@ -244,17 +244,46 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       baseServiceIds
     );
 
-    const newServiceMetric = isEmpty(intersectionBetweenServicesIdsAndValues)
-      ? [
-          {
-            id: '',
-            metrics: [],
-            name: ''
-          }
-        ]
-      : intersectionBetweenServicesIdsAndValues;
+    const newServiceMetrics = intersectionBetweenServicesIdsAndValues.map(
+      (service) => {
+        const newService = servicesMetrics.result.find(
+          (serviceMetric) => serviceMetric.id === service.id
+        );
 
-    setFieldValue(`data.${propertyName}`, newServiceMetric);
+        return {
+          id: service.id,
+          metrics: service.metrics.map((metric) => {
+            const newMetric = newService?.metrics.find(
+              (metricFromService) => metricFromService.id === metric.id
+            );
+
+            return {
+              criticalHighThreshold: newMetric?.criticalHighThreshold || null,
+              criticalLowThreshold: newMetric?.criticalLowThreshold || null,
+              id: metric.id,
+              name: metric.name,
+              unit: metric.unit,
+              warningHighThreshold: newMetric?.warningHighThreshold || null,
+              warningLowThreshold: newMetric?.warningLowThreshold || null
+            };
+          }),
+          name: service.name
+        };
+      }
+    );
+
+    setFieldValue(
+      `data.${propertyName}`,
+      isEmpty(newServiceMetrics)
+        ? [
+            {
+              id: '',
+              metrics: [],
+              name: ''
+            }
+          ]
+        : newServiceMetrics
+    );
   }, useDeepCompare([servicesMetrics, resources]));
 
   useEffect(() => {
@@ -281,12 +310,12 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     getMetricOptionDisabled,
     getMetricsFromService,
     getOptionLabel,
-    resources,
     hasNoResources,
     hasReachedTheLimitOfUnits,
     hasTooManyMetrics,
     isLoadingMetrics,
     metricCount,
+    resources,
     serviceOptions,
     value: value || []
   };

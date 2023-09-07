@@ -1,9 +1,7 @@
-import { LineChartData } from '../common/models';
+import { LineChartData, Thresholds } from '../common/models';
 
 export interface SingleBarProps {
   data?: LineChartData;
-  disabledThresholds?: boolean;
   displayAsRaw?: boolean;
-  thresholdTooltipLabels: Array<string>;
-  thresholds: Array<number>;
+  thresholds: Thresholds;
 }

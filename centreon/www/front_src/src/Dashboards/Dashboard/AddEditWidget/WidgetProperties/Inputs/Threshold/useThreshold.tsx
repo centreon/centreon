@@ -1,7 +1,7 @@
 import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import { useFormikContext } from 'formik';
-import { equals, flatten, head, length, lt, pipe, pluck, uniq } from 'ramda';
+import { equals, flatten, head, length, pipe, pluck, uniq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
@@ -50,6 +50,17 @@ interface UseThresholdState {
   warningType: string | undefined;
 }
 
+const getMetricThreshold = (
+  thresholdType: string
+): ((metrics: Array<ServiceMetric>) => number | null) =>
+  pipe(
+    pluck('metrics'),
+    flatten,
+    pluck(thresholdType),
+    filter((threshold) => !!threshold),
+    head
+  );
+
 const useThreshold = ({
   propertyName
 }: UseThresholdProps): UseThresholdState => {
@@ -76,13 +87,6 @@ const useThreshold = ({
     () => getProperty({ obj: values, propertyName: enabledProp }),
     [getProperty({ obj: values, propertyName: enabledProp })]
   );
-
-  const hasMetricSelected = pipe(
-    pluck('metrics'),
-    flatten,
-    length,
-    lt(0)
-  )(values.data.metrics || []);
 
   const warningType = getThresholdType('warning');
   const customWarning = getThresholdCustom('Warning');
@@ -120,13 +124,26 @@ const useThreshold = ({
     );
   };
 
-  const firstWarningThresholdText = hasMetricSelected
-    ? `(${formatThreshold(metric?.warningThreshold || null)})`
-    : '';
+  const firstWarningHighThreshold = formatThreshold(
+    getMetricThreshold('warningHighThreshold')(metrics || [])
+  );
+  const firstWarningLowThreshold = formatThreshold(
+    getMetricThreshold('warningLowThreshold')(metrics || [])
+  );
 
-  const firstCriticalThresholdText = hasMetricSelected
-    ? `(${formatThreshold(metric?.criticalThreshold || null)})`
-    : '';
+  const firstCriticalHighThreshold = formatThreshold(
+    getMetricThreshold('criticalHighThreshold')(metrics || [])
+  );
+  const firstCriticalLowThreshold = formatThreshold(
+    getMetricThreshold('criticalLowThreshold')(metrics || [])
+  );
+
+  const warningDefaultThresholdLabel = firstWarningLowThreshold
+    ? `(${firstWarningLowThreshold} - ${firstWarningHighThreshold})`
+    : `(${firstWarningHighThreshold || ''})`;
+  const criticalDefaultThresholdLabel = firstCriticalLowThreshold
+    ? `(${firstCriticalLowThreshold} - ${firstCriticalHighThreshold})`
+    : `(${firstCriticalHighThreshold || ''})`;
 
   const isDefault = equals<RadioOptions | undefined>(RadioOptions.default);
 
@@ -142,7 +159,7 @@ const useThreshold = ({
               position="bottom"
             >
               <Typography>
-                {`${t(labelDefault)} ${firstWarningThresholdText}`}
+                {`${t(labelDefault)} ${warningDefaultThresholdLabel}`}
               </Typography>
             </Tooltip>
           ),
@@ -193,7 +210,7 @@ const useThreshold = ({
               position="bottom"
             >
               <Typography>
-                {`${t(labelDefault)} ${firstCriticalThresholdText}`}
+                {`${t(labelDefault)} ${criticalDefaultThresholdLabel}`}
               </Typography>
             </Tooltip>
           ),

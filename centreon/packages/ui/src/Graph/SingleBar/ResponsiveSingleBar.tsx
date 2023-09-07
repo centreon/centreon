@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 
 import { Group, Tooltip } from '@visx/visx';
 import { scaleLinear } from '@visx/scale';
-import { head } from 'ramda';
+import { flatten, head, pluck } from 'ramda';
 import { Bar } from '@visx/shape';
 import { useSpring, animated } from '@react-spring/web';
 
@@ -17,7 +17,8 @@ import { getColorFromDataAndTresholds } from '../common/utils';
 import { margins } from '../common/margins';
 
 import { SingleBarProps } from './models';
-import Thresholds, { barHeight, groupMargin, margin } from './Thresholds';
+import Thresholds, { groupMargin } from './Thresholds';
+import { barHeight, margin } from './ThresholdLine';
 
 interface Props extends SingleBarProps {
   height: number;
@@ -31,20 +32,22 @@ const baseStyles = {
 
 const ResponsiveSingleBar = ({
   data,
-  thresholdTooltipLabels,
   thresholds,
   width,
   height,
-  disabledThresholds,
   displayAsRaw
 }: Props): JSX.Element => {
   const theme = useTheme();
 
   const metric = getMetricWithLatestData(data) as Metric;
   const latestMetricData = head(metric.data) as number;
+  const thresholdValues = flatten([
+    pluck('value', thresholds.warning),
+    pluck('value', thresholds.critical)
+  ]);
   const adaptedMaxValue = Math.max(
     metric.maximum_value || 0,
-    Math.max(...thresholds) * 1.1,
+    Math.max(...thresholdValues) * 1.1,
     head(metric.data) as number
   );
 
@@ -132,11 +135,10 @@ const ResponsiveSingleBar = ({
             x={0}
             y={groupMargin + margin}
           />
-          {!disabledThresholds && (
+          {thresholds.enabled && (
             <Thresholds
               hideTooltip={hideTooltip}
               showTooltip={showTooltip}
-              thresholdTooltipLabels={thresholdTooltipLabels}
               thresholds={thresholds}
               xScale={xScale}
             />

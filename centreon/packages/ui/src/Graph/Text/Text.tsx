@@ -2,7 +2,7 @@ import { isNil } from 'ramda';
 
 import { Typography, useTheme } from '@mui/material';
 
-import { LineChartData } from '../common/models';
+import { LineChartData, Thresholds } from '../common/models';
 import {
   formatMetricValueWithUnit,
   getMetricWithLatestData
@@ -13,21 +13,19 @@ import { useTextStyles } from './Text.styles';
 
 interface Props {
   data?: LineChartData;
-  disabledThresholds?: boolean;
   displayAsRaw?: boolean;
   labels: {
     critical: string;
     warning: string;
   };
-  thresholds: Array<number>;
+  thresholds: Thresholds;
 }
 
 export const Text = ({
   thresholds,
   data,
-  labels,
-  disabledThresholds,
-  displayAsRaw
+  displayAsRaw,
+  labels
 }: Props): JSX.Element | null => {
   const theme = useTheme();
   const { classes } = useTextStyles();
@@ -46,6 +44,20 @@ export const Text = ({
     thresholds
   });
 
+  const warningThresholdLabels = thresholds.warning.map(({ value }) =>
+    formatMetricValueWithUnit({
+      unit: metricUnit,
+      value
+    })
+  );
+
+  const criticalThresholdLabels = thresholds.critical.map(({ value }) =>
+    formatMetricValueWithUnit({
+      unit: metricUnit,
+      value
+    })
+  );
+
   return (
     <div className={classes.graphText}>
       <Typography sx={{ color }} variant="h3">
@@ -55,25 +67,17 @@ export const Text = ({
           value: metricValue
         })}
       </Typography>
-      {!disabledThresholds && (
+      {thresholds.enabled && (
         <div className={classes.thresholds}>
           <Typography sx={{ color: 'warning.main' }} variant="h5">
             {labels.warning}
             {': '}
-            {formatMetricValueWithUnit({
-              isRaw: displayAsRaw,
-              unit: metricUnit,
-              value: thresholds[0]
-            })}
+            {warningThresholdLabels.join(' - ')}
           </Typography>
           <Typography sx={{ color: 'error.main' }} variant="h5">
             {labels.critical}
             {': '}
-            {formatMetricValueWithUnit({
-              isRaw: displayAsRaw,
-              unit: metricUnit,
-              value: thresholds[1]
-            })}
+            {criticalThresholdLabels.join(' - ')}
           </Typography>
         </div>
       )}

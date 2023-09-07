@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
 import { Group } from '@visx/group';
-import { head } from 'ramda';
+import { flatten, head, pluck } from 'ramda';
 import { Tooltip } from '@visx/visx';
 
 import { Box, Fade, useTheme } from '@mui/material';
@@ -13,14 +13,12 @@ import { margins } from '../common/margins';
 
 import Thresholds from './Thresholds';
 import PieData from './PieData';
+import { GaugeProps } from './models';
 
-interface Props {
-  disabledThresholds?: boolean;
+interface Props extends Pick<GaugeProps, 'thresholds'> {
   displayAsRaw?: boolean;
   height: number;
   metric: Metric;
-  thresholdTooltipLabels: Array<string>;
-  thresholds: Array<number>;
   width: number;
 }
 
@@ -34,8 +32,6 @@ const ResponsiveGauge = ({
   height,
   thresholds,
   metric,
-  thresholdTooltipLabels,
-  disabledThresholds,
   displayAsRaw
 }: Props): JSX.Element => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -56,13 +52,17 @@ const ResponsiveGauge = ({
   const centerY = innerHeight / 2;
   const centerX = innerWidth / 2;
   const radius = Math.min(innerWidth, innerHeight) / 2;
+  const thresholdValues = flatten([
+    pluck('value', thresholds.warning),
+    pluck('value', thresholds.critical)
+  ]);
   const adaptedMaxValue = Math.max(
     metric.maximum_value || 0,
-    Math.max(...thresholds) * 1.1,
+    Math.max(...thresholdValues) * 1.1,
     head(metric.data) as number
   );
 
-  const pieColor = disabledThresholds
+  const pieColor = !thresholds.enabled
     ? theme.palette.success.main
     : getColorFromDataAndTresholds({
         data: metric.data[0],
@@ -88,17 +88,14 @@ const ResponsiveGauge = ({
         <Group left={centerX + margins.left} top={centerY + height / 6}>
           <Thresholds
             adaptedMaxValue={adaptedMaxValue}
-            disabledThresholds={disabledThresholds}
             hideTooltip={hideTooltip}
             metric={metric}
             radius={radius}
             showTooltip={showTooltip}
-            thresholdTooltipLabels={thresholdTooltipLabels}
             thresholds={thresholds}
           />
           <PieData
             adaptedMaxValue={adaptedMaxValue}
-            disabledThresholds={disabledThresholds}
             metric={metric}
             radius={radius}
             thresholds={thresholds}
@@ -119,7 +116,7 @@ const ResponsiveGauge = ({
           {gaugeValue}
         </text>
       </svg>
-      <Fade in={tooltipOpen && !disabledThresholds}>
+      <Fade in={tooltipOpen && thresholds.enabled}>
         <Tooltip.Tooltip
           left={(tooltipLeft || 0) - svgLeft}
           style={{
