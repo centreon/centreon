@@ -154,6 +154,11 @@ export default async (on, config): Promise<void> => {
       await container.remove();
 
       return null;
+    },
+    waitOn: async (url: string) => {
+      execSync(`npx wait-on ${url}`);
+
+      return null;
     }
   });
 

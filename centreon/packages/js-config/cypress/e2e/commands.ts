@@ -143,7 +143,7 @@ interface LoginByTypeOfUserProps {
 
 Cypress.Commands.add(
   'loginByTypeOfUser',
-  ({ jsonName, loginViaApi }): Cypress.Chainable => {
+  ({ jsonName = 'admin', loginViaApi = false }): Cypress.Chainable => {
     if (loginViaApi) {
       return cy
         .fixture(`users/${jsonName}.json`)
@@ -248,6 +248,8 @@ Cypress.Commands.add(
 
     const image = `docker.centreon.com/centreon/centreon-web${slimSuffix}-${os}:${version}`;
 
+    cy.setUserTokenApiV1();
+
     return cy
       .startContainer({
         image,
@@ -259,8 +261,9 @@ Cypress.Commands.add(
 
         Cypress.config('baseUrl', baseUrl);
 
-        return cy.exec(
-          `npx wait-on ${baseUrl}/centreon/api/latest/platform/installation/status`
+        return cy.task(
+          'waitOn',
+          `${baseUrl}/centreon/api/latest/platform/installation/status`
         );
       })
       .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
@@ -469,8 +472,8 @@ declare global {
       insertDashboard: (dashboard: Dashboard) => Cypress.Chainable;
       insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
       loginByTypeOfUser: ({
-        jsonName = 'admin',
-        loginViaApi = false
+        jsonName,
+        loginViaApi
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
       moveSortableElement: (direction: string) => Cypress.Chainable;
       navigateTo: ({
