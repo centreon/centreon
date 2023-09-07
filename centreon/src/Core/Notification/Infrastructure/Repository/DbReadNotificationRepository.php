@@ -300,7 +300,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $sqlTranslator?->bindSearchValues($statement);
         $statement->execute();
 
-        //Pagination
+        // Pagination
         $resultCount = $this->db->query('SELECT FOUND_ROWS()');
         if ($resultCount !== false && ($total = $resultCount->fetchColumn()) !== false) {
             $sqlTranslator->getRequestParameters()->setTotal((int) $total);
