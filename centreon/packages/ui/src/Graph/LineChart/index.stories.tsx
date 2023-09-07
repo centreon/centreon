@@ -29,10 +29,11 @@ import exclusionPeriodFirstPeriod from './mockedData/exclusionPeriodFirstPeriod.
 import exclusionPeriodSecondPeriod from './mockedData/exclusionPeriodSecondPeriod.json';
 import exclusionPeriodThirdPeriod from './mockedData/exclusionPeriodThirdPeriod.json';
 import dataLastDayForword from './mockedData/lastDayForward.json';
-import dataLastDay from './mockedData/lastDayThreshold.json';
+import dataLastDayThreshold from './mockedData/lastDayThreshold.json';
 import dataLastMonth from './mockedData/lastMonth.json';
 import dataLastWeek from './mockedData/lastWeek.json';
 import dataZoomPreview from './mockedData/zoomPreview.json';
+import dataLastDay from './mockedData/lastDay.json';
 import { Interval, ThresholdType, TooltipData } from './models';
 
 import WrapperLineChart from './index';
@@ -75,7 +76,7 @@ const Threshold = (args): JSX.Element => {
 
       <WrapperLineChart
         {...args}
-        data={dataLastDay}
+        data={dataLastDayThreshold}
         shapeLines={{
           areaThresholdLines: [
             { type: ThresholdType.basic },
@@ -123,7 +124,7 @@ const LineChartAndCLS = (args): JSX.Element => {
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-      setData(dataLastDay as unknown as LineChartData);
+      setData(dataLastDayThreshold as unknown as LineChartData);
     }, 100000);
   }, []);
 
@@ -187,7 +188,7 @@ const LineChartAndTimePeriod = (args): JSX.Element => {
     }
 
     if (start.includes(`${defaultStart.split('T')[0]}`)) {
-      setCurrentData(dataLastDay as unknown as LineChartData);
+      setCurrentData(dataLastDayThreshold as unknown as LineChartData);
 
       return;
     }
@@ -281,7 +282,7 @@ const LineChartAndExclusionPeriod = (args): JSX.Element => {
       </ButtonGroup>
       <WrapperLineChart
         {...args}
-        data={dataLastDay as unknown as LineChartData}
+        data={dataLastDayThreshold as unknown as LineChartData}
         shapeLines={{
           areaThresholdLines: [
             {
@@ -303,7 +304,7 @@ const Template: Story = {
   render: (args) => (
     <WrapperLineChart
       {...args}
-      data={dataLastDay as unknown as LineChartData}
+      data={dataLastDayThreshold as unknown as LineChartData}
       shapeLines={{
         areaThresholdLines: [
           {
@@ -380,4 +381,34 @@ export const withCLS: Story = {
     height: 500,
     start: defaultStart
   }
+};
+
+export const withThresholds: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    thresholdLabels: ['threshold 1', 'threshold 2'],
+    thresholds: [300, 350]
+  },
+  render: (args) => (
+    <WrapperLineChart
+      {...args}
+      data={dataLastDay as unknown as LineChartData}
+    />
+  )
+};
+
+export const withThresholdsAndUnit: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    thresholdUnit: '%',
+    thresholds: [65, 79]
+  },
+  render: (args) => (
+    <WrapperLineChart
+      {...args}
+      data={dataLastDay as unknown as LineChartData}
+    />
+  )
 };

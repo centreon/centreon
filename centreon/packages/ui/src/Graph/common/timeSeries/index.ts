@@ -326,10 +326,19 @@ const getYScale = ({
 const getScale = ({
   graphValues,
   height,
-  stackedValues
+  stackedValues,
+  thresholds
 }): ScaleLinear<number, number> => {
-  const minValue = min(getMin(graphValues), getMin(stackedValues));
-  const maxValue = max(getMax(graphValues), getMax(stackedValues));
+  const minValue = Math.min(
+    getMin(graphValues),
+    getMin(stackedValues),
+    Math.min(...thresholds)
+  );
+  const maxValue = Math.max(
+    getMax(graphValues),
+    getMax(stackedValues),
+    Math.max(...thresholds)
+  );
 
   const upperRangeValue = minValue === maxValue && maxValue === 0 ? height : 0;
 
@@ -343,9 +352,16 @@ const getScale = ({
 const getLeftScale = ({
   dataLines,
   dataTimeSeries,
-  valueGraphHeight
+  valueGraphHeight,
+  thresholds,
+  thresholdUnit
 }: AxeScale): ScaleLinear<number, number> => {
   const [firstUnit, , thirdUnit] = getUnits(dataLines);
+
+  const shouldApplyThresholds =
+    equals(thresholdUnit, firstUnit) ||
+    equals(thresholdUnit, thirdUnit) ||
+    !thresholdUnit;
 
   const graphValues = isNil(thirdUnit)
     ? getMetricValuesForUnit({
@@ -370,7 +386,12 @@ const getLeftScale = ({
       })
     : [0];
 
-  return getScale({ graphValues, height: valueGraphHeight, stackedValues });
+  return getScale({
+    graphValues,
+    height: valueGraphHeight,
+    stackedValues,
+    thresholds: shouldApplyThresholds ? thresholds : []
+  });
 };
 
 const getXScale = ({
@@ -386,7 +407,9 @@ const getXScale = ({
 const getRightScale = ({
   dataLines,
   dataTimeSeries,
-  valueGraphHeight
+  valueGraphHeight,
+  thresholds,
+  thresholdUnit
 }: AxeScale): ScaleLinear<number, number> => {
   const [, secondUnit] = getUnits(dataLines);
 
@@ -395,6 +418,8 @@ const getRightScale = ({
     timeSeries: dataTimeSeries,
     unit: secondUnit
   });
+
+  const shouldApplyThresholds = equals(thresholdUnit, secondUnit);
 
   const secondUnitHasStackedLines = isNil(secondUnit)
     ? false
@@ -407,7 +432,12 @@ const getRightScale = ({
       })
     : [0];
 
-  return getScale({ graphValues, height: valueGraphHeight, stackedValues });
+  return getScale({
+    graphValues,
+    height: valueGraphHeight,
+    stackedValues,
+    thresholds: shouldApplyThresholds ? thresholds : []
+  });
 };
 
 const formatMetricValue = ({
@@ -476,7 +506,10 @@ const getTimeValue = ({
   xScale,
   timeSeries,
   marginLeft = margin.left
-}: TimeValueProps): TimeValue => {
+}: TimeValueProps): TimeValue | null => {
+  if (isNil(x)) {
+    return null;
+  }
   const date = xScale.invert(x - marginLeft);
   const index = bisectDate(getDates(timeSeries), date);
 

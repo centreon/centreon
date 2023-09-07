@@ -32,7 +32,8 @@ export enum FederatedWidgetOptionType {
   richText = 'rich-text',
   singleMetricGraphType = 'single-metric-graph-type',
   textfield = 'textfield',
-  threshold = 'threshold'
+  threshold = 'threshold',
+  timePeriod = 'time-period'
 }
 
 export interface FederatedWidgetOption {

@@ -28,7 +28,7 @@ jobs:
         distrib: [alma8, alma9, bullseye]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Login to registry
         uses: docker/login-action@v2

@@ -78,12 +78,12 @@ When('the administrator activates the auto-import option for SAML', () => {
   cy.getByLabel({
     label: 'Email attribute',
     tag: 'input'
-  }).type('{selectall}{backspace}email');
+  }).type('{selectall}{backspace}urn:oid:1.2.840.113549.1.9.1');
 
   cy.getByLabel({
     label: 'Full name attribute',
     tag: 'input'
-  }).type('{selectall}{backspace}given_name');
+  }).type('{selectall}{backspace}urn:oid:2.5.4.42');
 
   cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 
@@ -99,7 +99,7 @@ Then(
 
     cy.session(username, () => {
       cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
-      cy.loginKeycloack(username);
+      cy.loginKeycloak(username);
       cy.url().should('include', '/monitoring/resources');
 
       cy.logout();
@@ -123,7 +123,7 @@ Then(
           );
           cy.getByTestId({ tag: 'input', testId: 'contact_name' }).should(
             'have.value',
-            'SAML SAML'
+            'SAML'
           );
           cy.getByTestId({ tag: 'input', testId: 'contact_email' }).should(
             'have.value',

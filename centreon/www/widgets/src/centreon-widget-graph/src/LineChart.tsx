@@ -3,25 +3,47 @@ import { useTranslation } from 'react-i18next';
 
 import { Typography } from '@mui/material';
 
-import { LineChart, useGraphQuery } from '@centreon/ui';
+import { LineChart, useGraphQuery, useRefreshInterval } from '@centreon/ui';
 
-import { Data } from './models';
+import { Data, PanelOptions } from './models';
 import { labelNoDataFound } from './translatedLabels';
 import { useNoDataFoundStyles } from './NoDataFound.styles';
 import { graphEndpoint } from './api/endpoints';
+import useThresholds from './useThresholds';
 
 interface Props {
+  globalRefreshInterval?: number;
   panelData: Data;
+  panelOptions: PanelOptions;
 }
 
-const WidgetLineChart = ({ panelData }: Props): JSX.Element => {
+const WidgetLineChart = ({
+  panelData,
+  panelOptions,
+  globalRefreshInterval
+}: Props): JSX.Element => {
   const { classes } = useNoDataFoundStyles();
   const { t } = useTranslation();
+
+  const refreshIntervalToUse = useRefreshInterval({
+    globalRefreshInterval,
+    refreshInterval: panelOptions.refreshInterval,
+    refreshIntervalCustom: panelOptions.refreshIntervalCustom
+  });
+
   const { graphData, start, end, isGraphLoading, isMetricIdsEmpty } =
     useGraphQuery({
       baseEndpoint: graphEndpoint,
-      metrics: panelData.metrics
+      metrics: panelData.metrics,
+      refreshInterval: refreshIntervalToUse,
+      timePeriod: panelOptions.timeperiod
     });
+
+  const { thresholdLabels, thresholdValues } = useThresholds({
+    data: graphData,
+    metricName: panelData.metrics[0]?.metrics[0]?.name,
+    thresholds: panelOptions.threshold
+  });
 
   if (isNil(graphData) && (!isGraphLoading || isMetricIdsEmpty)) {
     return (
@@ -34,11 +56,15 @@ const WidgetLineChart = ({ panelData }: Props): JSX.Element => {
   return (
     <LineChart
       data={graphData}
+      disabledThresholds={!panelOptions.threshold?.enabled}
       end={end}
       height={null}
       legend={{ display: true }}
       loading={isGraphLoading}
       start={start}
+      thresholdLabels={thresholdLabels}
+      thresholdUnit={panelData.metrics[0]?.metrics[0]?.unit}
+      thresholds={thresholdValues}
       timeShiftZones={{
         enable: false
       }}

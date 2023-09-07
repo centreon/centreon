@@ -65,6 +65,8 @@ export interface Xscale {
 export interface AxeScale {
   dataLines: Array<Line>;
   dataTimeSeries: Array<TimeValue>;
+  thresholdUnit?: string;
+  thresholds: Array<number>;
   valueGraphHeight: number;
 }
 
@@ -117,6 +119,6 @@ export interface YScales {
 export interface TimeValueProps {
   marginLeft?: number;
   timeSeries: Array<TimeValue>;
-  x: number;
+  x?: number;
   xScale: ScaleLinear<number, number>;
 }

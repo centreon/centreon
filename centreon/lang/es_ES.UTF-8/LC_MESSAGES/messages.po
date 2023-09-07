@@ -16220,7 +16220,37 @@ msgstr ""
 # msgid "Graph type"
 # msgstr ""
 
-# msgid "Value defined by metric"
+# msgid "Value defined by the {{metric}} metric"
+# msgstr ""
+
+# msgid "Last hour"
+# msgstr ""
+
+# msgid "Last 24 hours"
+# msgstr ""
+
+# msgid "Last 7 days"
+# msgstr ""
+
+# msgid "Last 30 days"
+# msgstr ""
+
+# msgid "Last 3 months"
+# msgstr ""
+
+# msgid "Last 6 months"
+# msgstr ""
+
+# msgid "Last 12 months"
+# msgstr ""
+
+# msgid "Start"
+# msgstr ""
+
+# msgid "End"
+# msgstr ""
+
+# msgid "Custom value"
 # msgstr ""
 
 # msgid "Notifications will only be sent during this time period"

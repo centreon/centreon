@@ -15,7 +15,8 @@ import {
   WidgetRichTextEditor,
   WidgetSingleMetricGraphType,
   WidgetTextField,
-  WidgetThreshold
+  WidgetThreshold,
+  WidgetTimePeriod
 } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
@@ -40,7 +41,9 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.richText]: WidgetRichTextEditor,
   [FederatedWidgetOptionType.refreshInterval]: WidgetRefreshInterval,
   [FederatedWidgetOptionType.threshold]: WidgetThreshold,
-  [FederatedWidgetOptionType.singleMetricGraphType]: WidgetSingleMetricGraphType
+  [FederatedWidgetOptionType.singleMetricGraphType]:
+    WidgetSingleMetricGraphType,
+  [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod
 };
 
 const DefaultComponent = (): JSX.Element => <div />;

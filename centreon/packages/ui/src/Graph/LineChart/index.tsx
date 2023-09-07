@@ -25,12 +25,16 @@ dayjs.extend(timezonePlugin);
 interface Props extends Partial<LineChartProps> {
   curve?: CurveType;
   data?: LineChartData;
+  disabledThresholds?: boolean;
   end: string;
   legend: LegendModel;
   loading: boolean;
   marginBottom?: number;
   shapeLines?: GlobalAreaLines;
   start: string;
+  thresholdLabels?: Array<string>;
+  thresholdUnit?: string;
+  thresholds?: Array<number>;
 }
 
 const WrapperLineChart = ({
@@ -50,18 +54,26 @@ const WrapperLineChart = ({
   legend,
   header,
   curve = Curve.curveLinear,
-  marginBottom = 0
+  marginBottom = 0,
+  thresholds,
+  thresholdUnit,
+  thresholdLabels,
+  disabledThresholds
 }: Props): JSX.Element | null => {
   const { adjustedData } = useLineChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
 
-  if (loading || !adjustedData) {
+  if (loading && !adjustedData) {
     return (
       <LoadingSkeleton
         displayTitleSkeleton={header?.displayTitle ?? true}
         graphHeight={height || 200}
       />
     );
+  }
+
+  if (!adjustedData) {
+    return null;
   }
 
   return (
@@ -79,6 +91,7 @@ const WrapperLineChart = ({
               annotationEvent={annotationEvent}
               axis={axis}
               curve={curve}
+              disabledThresholds={disabledThresholds}
               displayAnchor={displayAnchor}
               graphData={adjustedData}
               graphInterval={{ end, start }}
@@ -89,6 +102,9 @@ const WrapperLineChart = ({
               loading={loading}
               marginBottom={marginBottom}
               shapeLines={shapeLines}
+              thresholdLabels={thresholdLabels}
+              thresholdUnit={thresholdUnit}
+              thresholds={thresholds}
               timeShiftZones={timeShiftZones}
               tooltip={tooltip}
               width={width ?? responsiveWidth}

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { Dispatch, ReactNode, SetStateAction } from 'react';
 
 import { slice } from 'ramda';
 import { useAtomValue } from 'jotai';
@@ -28,8 +28,10 @@ interface Props {
   limitLegendRows?: boolean;
   lines: Array<Line>;
   renderExtraComponent?: ReactNode;
+  setLinesGraph: Dispatch<SetStateAction<Array<Line> | null>>;
   timeSeries: Array<TimeValue>;
   toggable?: boolean;
+  xScale;
 }
 
 const MainLegend = ({
@@ -39,18 +41,21 @@ const MainLegend = ({
   toggable = true,
   limitLegendRows = true,
   renderExtraComponent,
-  displayAnchor = true
+  displayAnchor = true,
+  setLinesGraph,
+  xScale
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ limitLegendRows });
   const theme = useTheme();
 
   const { selectMetricLine, clearHighlight, highlightLine, toggleMetricLine } =
-    useLegend({ lines });
+    useLegend({ lines, setLinesGraph });
 
   const { getFormattedValue } = useInteractiveValues({
     base,
     lines,
-    timeSeries
+    timeSeries,
+    xScale
   });
 
   const displayedLines = limitLegendRows

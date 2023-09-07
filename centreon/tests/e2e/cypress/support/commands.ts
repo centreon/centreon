@@ -60,17 +60,14 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add(
-  'loginKeycloack',
-  (jsonName: string): Cypress.Chainable => {
-    cy.fixture(`users/${jsonName}.json`).then((credential) => {
-      cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
-      cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
-    });
+Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
+  cy.fixture(`users/${jsonName}.json`).then((credential) => {
+    cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
+    cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
+  });
 
-    return cy.get('#kc-login').click();
-  }
-);
+  return cy.get('#kc-login').click();
+});
 
 Cypress.Commands.add(
   'requestOnDatabase',
@@ -143,7 +140,7 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
 Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
   return cy
     .startContainer({
-      image: `docker.centreon.com/centreon/openid:${Cypress.env(
+      image: `docker.centreon.com/centreon/keycloak:${Cypress.env(
         'OPENID_IMAGE_VERSION'
       )}`,
       name: 'e2e-tests-openid-centreon',
@@ -201,7 +198,7 @@ declare global {
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
       getByTestId: ({ tag, testId }: GetByTestIdProps) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
-      loginKeycloack: (jsonName: string) => Cypress.Chainable;
+      loginKeycloak: (jsonName: string) => Cypress.Chainable;
       logout: () => Cypress.Chainable;
       logoutViaAPI: () => Cypress.Chainable;
       refreshListing: () => Cypress.Chainable;
