@@ -6,6 +6,7 @@ import { Visualization } from '../../models';
 
 import useIconPath from './useIconPath';
 import useVisualization from './useVisualization';
+import { useStyles } from './Visualization.styles';
 
 interface Props {
   IconOnActive: string;
@@ -20,6 +21,7 @@ const Action = ({
   title,
   type
 }: Props): JSX.Element => {
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const imagePath = useIconPath({ IconOnActive, IconOnInactive, type });
@@ -28,8 +30,10 @@ const Action = ({
   return (
     <IconButton
       ariaLabel={t(title)}
+      className={classes.iconButton}
       data-testid={title}
       title={t(title)}
+      tooltipClassName={classes.tooltipClassName}
       onClick={selectVisualization}
     >
       <Image alt={title} imagePath={imagePath} />

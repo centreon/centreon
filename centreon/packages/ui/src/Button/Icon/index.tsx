@@ -22,6 +22,7 @@ type Props = {
   className?: string;
   onClick: (event) => void;
   title?: string;
+  tooltipClassName?: string;
   tooltipPlacement?:
     | 'bottom'
     | 'left'
@@ -42,13 +43,14 @@ const IconButton = ({
   ariaLabel,
   className,
   tooltipPlacement,
+  tooltipClassName,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
   return (
     <Tooltip
-      classes={{ tooltip: classes.tooltip }}
+      classes={{ tooltip: cx(classes.tooltip, tooltipClassName) }}
       placement={tooltipPlacement}
       title={title}
     >
