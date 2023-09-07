@@ -16,7 +16,8 @@ import {
   WidgetSingleMetricGraphType,
   WidgetTextField,
   WidgetThreshold,
-  WidgetValueFormat
+  WidgetValueFormat,
+  WidgetTimePeriod
 } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
@@ -43,7 +44,8 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.threshold]: WidgetThreshold,
   [FederatedWidgetOptionType.singleMetricGraphType]:
     WidgetSingleMetricGraphType,
-  [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat
+  [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
+  [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod
 };
 
 const DefaultComponent = (): JSX.Element => <div />;

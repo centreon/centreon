@@ -1636,63 +1636,11 @@ paths:
   /configuration/dashboards/contactgroups:
     $ref: './v23.10/Configuration/Dashboard/ContactGroups.yaml'
   /monitoring/dashboard/metrics/performances:
-    get:
-      tags:
-       - Metrics
-      summary: "List metrics"
-      description: |
-        Get list of all metrics
-
-        The available parameters to **search** / **sort_by** are:
-        AND
-        * hostgroup.id
-        * hostcategory.id
-        * host.id
-        * servicegroup.id
-        * servicecategory.id
-        * service.name
-      responses:
-       '200':
-        description: "OK"
-        content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: number
-                          description: service id
-                          example: 26
-                        name:
-                          type: string
-                          description: concatenation of host name and service name
-                          example: Printers_Ping
-                        metrics:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: number
-                                description: id of the metric
-                                example: 1
-                              name:
-                                type: string
-                                description: name of the metric
-                                example: rta
-                              unit:
-                                type: string
-                                description: unit of the metric
-                                example: '%'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
+    $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsPerformances.yaml'
   /monitoring/dashboard/metrics/performances/data:
     $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsPerformancesData.yaml'
+  /monitoring/dashboard/metrics/top:
+    $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsTop.yaml'
   /configuration/access-groups:
     get:
       tags:

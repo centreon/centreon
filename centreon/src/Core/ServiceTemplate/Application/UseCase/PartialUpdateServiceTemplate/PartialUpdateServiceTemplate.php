@@ -384,7 +384,7 @@ final class PartialUpdateServiceTemplate
     ): void {
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
         $inheritanceMode = isset($inheritanceMode[0])
-            ? $inheritanceMode[0]->getValue()
+            ? (int) $inheritanceMode[0]->getValue()
             : 0;
 
         if (! $request->name instanceof NoValue) {

@@ -33,6 +33,7 @@ export enum FederatedWidgetOptionType {
   singleMetricGraphType = 'single-metric-graph-type',
   textfield = 'textfield',
   threshold = 'threshold',
+  timePeriod = 'time-period',
   valueFormat = 'value-format'
 }
 

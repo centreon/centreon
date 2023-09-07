@@ -27,7 +27,8 @@ const useStyles = makeStyles()((theme) => ({
       : theme.palette.primary.dark,
     display: 'flex',
     height: theme.spacing(headerHeight),
-    padding: `${theme.spacing(1)} ${theme.spacing(3)}`
+    padding: `${theme.spacing(1)} ${theme.spacing(3)}`,
+    zIndex: theme.zIndex.drawer
   },
   item: {
     '&:empty, &:last-of-type': {

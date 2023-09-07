@@ -10,7 +10,7 @@ import {
 import { FormThreshold } from './models';
 import {
   labelCriticalThreshold,
-  labelValueCustomized,
+  labelCustomValue,
   labelValueDefinedByMetric,
   labelWarningThreshold
 } from './translatedLabels';
@@ -69,17 +69,19 @@ const useThresholds = ({
   const thresholdLabels = [
     isDefaultWarning
       ? `${t(labelWarningThreshold)}: ${formattedWarning}. ${t(
-          labelValueDefinedByMetric
-        )} ${metricName}`
+          labelValueDefinedByMetric,
+          { metric: metricName }
+        )}`
       : `${t(labelWarningThreshold)}: ${formattedWarning}. ${t(
-          labelValueCustomized
+          labelCustomValue
         )}`,
     isDefaultCritical
       ? `${t(labelCriticalThreshold)}: ${formattedCritical}. ${t(
-          labelValueDefinedByMetric
-        )} ${metricName}`
+          labelValueDefinedByMetric,
+          { metric: metricName }
+        )}`
       : `${t(labelCriticalThreshold)}: ${formattedCritical}. ${t(
-          labelValueCustomized
+          labelCustomValue
         )}`
   ];
 
