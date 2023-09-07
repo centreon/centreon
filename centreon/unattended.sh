@@ -755,7 +755,7 @@ function play_update_api () {
 	errorLevel=$?
 	httpResponse=$(cat ${api_return_code})
 	message=$(cat ${api_output})
-	if [ -f ${api_output} ];then
+	if [[ -f ${api_output} && -s "${api_output}" ]];then
 		jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
 		hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
 	else
@@ -792,14 +792,14 @@ function play_update_api () {
 	errorLevel=$?
 	httpResponse=$(cat ${api_return_code})
 	message=$(cat ${api_output})
-	if [ -f ${api_output} ];then
+	if [[ -f ${api_output} && -s "${api_output}" ]];then
 		jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
 		hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
 	else
 		hasErrors=0
 	fi
 
-	if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
+	if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "204" && "$httpResponse" != "404" ]]; then
 		error_and_exit "Error during update (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
 	else
 		log "INFO" "Centreon Web update completed"
@@ -815,7 +815,7 @@ function play_update_api () {
     --silent \
     --insecure \
     --request POST \
-    --data 'username=admin&password=CentreonPendo!2023' \
+    --data "username=admin&password=${centreon_admin_password}" \
     --output ${api_output} \
     --write-out %{http_code} \
     > ${api_return_code} 2> ${api_error_message}
@@ -825,7 +825,7 @@ function play_update_api () {
     errorLevel=$?
     httpResponse=$(cat ${api_return_code})
     message=$(cat ${api_output})
-    if [ -f ${api_output} ];then
+    if [[ -f ${api_output} && -s "${api_output}" ]];then
         jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
         hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
     else
@@ -841,6 +841,8 @@ function play_update_api () {
         fi
 		log "DEBUG" "APIv1 token: ${token}"
     fi
+
+	rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
 
     #
     # Get list of installed extensions
@@ -858,6 +860,13 @@ function play_update_api () {
     errorLevel=$?
     httpResponse=$(cat ${api_return_code})
     message=$(cat ${api_output})
+	if [[ -f ${api_output} && -s "${api_output}" ]];then
+        jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
+        hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+    else
+        hasErrors=0
+    fi
+
     if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
         error_and_exit "Error during update (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
     else
@@ -867,6 +876,7 @@ function play_update_api () {
         modules=$(echo ${message} | jq '.result.module.entities[] | "\(.id)|\(.version.current)|\(.version.available)"')
         for module in ${modules}
         do
+			rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
             clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< ${module})
             IFS="|" read -a module_information <<< ${clear_line}
             if [ "${module_information[1]}" != "${module_information[2]}" ]; then
@@ -883,6 +893,14 @@ function play_update_api () {
                 errorLevel=$?
                 httpResponse=$(cat ${api_return_code})
                 sub_message=$(cat ${api_output})
+
+				if [[ -f ${api_output} && -s "${api_output}" ]];then
+					jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
+					hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+				else
+					hasErrors=0
+				fi
+
                 if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
                     error_and_exit "Error during update of ${module_information[0]} module (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
                 else
@@ -901,6 +919,7 @@ function play_update_api () {
         widgets=$(echo ${message} | jq '.result.widget.entities[] | "\(.id)|\(.version.current)|\(.version.available)"')
         for widget in ${widgets}
         do
+			rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
             clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< ${widget})
             IFS="|" read -a widget_information <<< ${clear_line}
             if [ "${widget_information[1]}" != "${widget_information[2]}" ]; then
@@ -917,6 +936,14 @@ function play_update_api () {
                 errorLevel=$?
                 httpResponse=$(cat ${api_return_code})
                 sub_message=$(cat ${api_output})
+
+				if [[ -f ${api_output} && -s "${api_output}" ]];then
+					jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
+					hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+				else
+					hasErrors=0
+				fi
+
                 if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
                     error_and_exit "Error during update of ${widget_information[0]} widget (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
                 else
