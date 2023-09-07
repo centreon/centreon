@@ -4,7 +4,7 @@
 %define thismajor 23.10.0
 %define nextmajor 23.11.0
 
-#%define selinuxdevel %{_datadir}/selinux/devel
+%define selinuxdevel %{_datadir}/selinux/devel
 
 Summary:    Centreon, Network & System Monitoring
 Name:       %{name}
@@ -73,6 +73,16 @@ Requires:       centreon-engine-daemon >= %{thismajor}, centreon-engine-daemon <
 %{COMMIT_HASH}
 Add user and group for Centreon and this suite.
 
+%package common-selinux
+Summary:    SELinux context for Centreon
+Group:      Networking/Other
+License:    Apache-2.0
+Requires:   policycoreutils
+
+%description common-selinux
+%{COMMIT_HASH}
+SElinux context for centreon-common.
+
 %package web
 Summary:    Centreon WebUI
 Group:      Networking/Other
@@ -138,6 +148,17 @@ Conflicts:  centreon-pp-manager < %{thismajor}
 %description web
 %{COMMIT_HASH}
 This package contains WebUI files.
+
+%package web-selinux
+Summary:    SELinux context for Centreon Web
+Group:      Networking/Other
+License:    Apache-2.0
+Requires:   policycoreutils
+Requires:   centreon-common-selinux = %{version}-%{release}
+
+%description web-selinux
+%{COMMIT_HASH}
+SElinux context for centreon-web.
 
 %package database
 Summary:    Centreon Databases
@@ -286,15 +307,16 @@ echo "s:@LIB_ARCH@:%{_lib}:g" >> additional/centreon-macroreplacement.txt
 find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplacement.txt | xargs --delimiter='\n' sed -i -f additional/centreon-macroreplacement.txt
 
 # Build selinux configurations
-#(cd selinux && %{__make} -f %{selinuxdevel}/Makefile)
+sed -i 's#@VERSION@#%{version}#' centreon/selinux/*
+(cd centreon/selinux && %{__make} -f %{selinuxdevel}/Makefile)
 
 %install
 %__rm -rf ${RPM_BUILD_ROOT}/
 
 # Install selinux configuration files
-#%{__mkdir} -p %buildroot%{_datadir}/selinux/packages/centreon
-#%{__install} -m 655 selinux/centreon_web.pp %buildroot%{_datadir}/selinux/packages/centreon/centreon_web.pp
-#%{__install} -m 655 selinux/centreon_common.pp %buildroot%{_datadir}/selinux/packages/centreon/centreon_common.pp
+%{__mkdir} -p %buildroot%{_datadir}/selinux/packages/centreon
+%{__install} -m 655 centreon/selinux/centreon-web.pp %buildroot%{_datadir}/selinux/packages/centreon/centreon-web.pp
+%{__install} -m 655 centreon/selinux/centreon-common.pp %buildroot%{_datadir}/selinux/packages/centreon/centreon-common.pp
 
 # Install configuration files
 %{__install} -d -m 0775 %buildroot%{_sysconfdir}/centreon
@@ -482,10 +504,6 @@ touch %buildroot%{_sysconfdir}/centreon/centreon.conf.php
 %{_sysconfdir}/centreon/config.yaml
 %{_localstatedir}/cache/centreon
 
-# selinux
-#%defattr(-, root, root, -)
-#%{_datadir}/selinux/packages/centreon/centreon_common.pp
-
 # Directory for files generation
 %defattr(-, centreon, centreon, 2775)
 %{_localstatedir}/cache/centreon/config
@@ -508,15 +526,12 @@ if [ "$(getent passwd centreon-engine)" ]; then
 fi
 
 %post common
-#%selinux_modules_install %{_datadir}/selinux/packages/centreon/centreon_common.pp 2>/dev/null || :
 %systemd_post centreon.service || :
 
 %preun common
-#%selinux_modules_uninstall centreon_common 2>/dev/null || :
 %systemd_preun centreon.service || :
 
 %postun common
-#%selinux_modules_install %{_datadir}/selinux/packages/centreon/centreon_common.pp 2>/dev/null || :
 
 %systemd_postun_with_restart centreon.service || :
 if [ "$1" = 0 ]; then
@@ -526,6 +541,38 @@ if [ "$1" = 0 ]; then
     %{_bindir}/gpasswd --delete centreon-broker centreon > /dev/null 2>&1 || :
     %{_bindir}/gpasswd --delete centreon centreon-engine > /dev/null 2>&1 || :
     %{_bindir}/gpasswd --delete centreon-engine centreon > /dev/null 2>&1 || :
+fi
+
+######################################################
+# Package centreon-common-selinux
+######################################################
+
+%files common-selinux
+
+%defattr(-, root, root, -)
+%{_datadir}/selinux/packages/centreon/centreon-common.pp
+
+%post common-selinux
+if [ "$1" -le "1" ]; then # First install
+    semodule -i %{_datadir}/selinux/packages/centreon/centreon-common.pp > /dev/null 2>&1 || :
+    restorecon -R -v /run/dbus/system_bus_socket > /dev/null 2>&1 || :
+    setsebool -P daemons_enable_cluster_mode on > /dev/null 2>&1 || :
+    setsebool -P cluster_can_network_connect on > /dev/null 2>&1 || :
+    setsebool -P cluster_manage_all_files on > /dev/null 2>&1 || :
+fi
+
+%preun common-selinux
+if [ "$1" -lt "1" ]; then # Final removal
+    setsebool -P daemons_enable_cluster_mode off > /dev/null 2>&1 || :
+    setsebool -P cluster_can_network_connect off > /dev/null 2>&1 || :
+    setsebool -P cluster_manage_all_files off > /dev/null 2>&1 || :
+    semodule -r centreon-common > /dev/null 2>&1 || :
+fi
+
+%postun common-selinux
+if [ "$1" -ge "1" ]; then # Upgrade
+    # Replaces the module if it is already loaded
+    semodule -i %{_datadir}/selinux/packages/centreon/centreon-common.pp > /dev/null 2>&1 || :
 fi
 
 ######################################################
@@ -544,10 +591,6 @@ fi
 
 %defattr(0775, centreon, centreon)
 %{_datadir}/centreon/www/install/install.conf.php
-
-#selinux
-#%defattr(-, root, root, -)
-#%{_datadir}/selinux/packages/centreon/centreon_web.pp
 
 # Cron
 %defattr(-, root, root, -)
@@ -661,11 +704,6 @@ REPLY=($(dd if=/dev/urandom bs=32 count=1 status=none | /usr/bin/php -r "echo bi
 sed -i -e "s/\$instance_mode = \"poller\";/\$instance_mode = \"central\";/g" /etc/centreon/conf.pm
 sed -i -e 's/mode => 1/mode => 0/g' /etc/centreon/centreontrapd.pm
 
-#%selinux_modules_install %{_datadir}/selinux/packages/centreon/centreon_web.pp 2>/dev/null || :
-#setsebool -P httpd_unified on 2>/dev/null || :
-#setsebool -P httpd_can_network_connect on 2>/dev/null || :
-#setsebool -P httpd_can_network_relay on 2>/dev/null || :
-
 %if 0%{?el7}
 systemctl try-restart httpd24-httpd || :
 %else
@@ -686,15 +724,6 @@ if [[ ! "$(sed '5,5!d' /etc/centreon-gorgone/config.d/40-gorgoned.yaml)" =~ ^.*i
     sed -i "5s/.*/    id: 1/" /etc/centreon-gorgone/config.d/40-gorgoned.yaml
 fi
 
-#%preun web
-#setsebool -P httpd_unified off 2>/dev/null || :
-#setsebool -P httpd_can_network_connect off 2>/dev/null || :
-#setsebool -P httpd_can_network_relay off 2>/dev/null || :
-#%selinux_modules_uninstall centreon_web 2>/dev/null || :
-
-#%postun web
-#%selinux_modules_install %{_datadir}/selinux/packages/centreon/centreon_web.pp 2>/dev/null || :
-
 #
 # centreon-perl-libs files
 #
@@ -702,6 +731,41 @@ fi
 
 %defattr(-, root, root, -)
 %{perl_vendorlib}/centreon
+
+######################################################
+# Package centreon-web-selinux
+######################################################
+
+%files web-selinux
+
+%defattr(-, root, root, -)
+%{_datadir}/selinux/packages/centreon/centreon-web.pp
+
+%post web-selinux
+
+if [ "$1" -le "1" ]; then # First install
+    semodule -i %{_datadir}/selinux/packages/centreon/centreon-web.pp > /dev/null 2>&1 || :
+    setsebool -P httpd_unified on > /dev/null 2>&1 || :
+    setsebool -P httpd_can_network_connect on > /dev/null 2>&1 || :
+    setsebool -P httpd_can_network_relay on > /dev/null 2>&1 || :
+    setsebool -P httpd_mod_auth_pam on > /dev/null 2>&1 || :
+    restorecon -R -v /var/log/centreon/login.log > /dev/null 2>&1 || :
+    restorecon -R -v /var/cache/centreon/symfony/App_KernelProdContainer.php > /dev/null 2>&1 || :
+fi
+
+%preun web-selinux
+if [ "$1" -lt "1" ]; then # Final removal
+    setsebool -P httpd_unified off > /dev/null 2>&1 || :
+    setsebool -P httpd_can_network_connect off > /dev/null 2>&1 || :
+    setsebool -P httpd_can_network_relay off > /dev/null 2>&1 || :
+    setsebool -P httpd_mod_auth_pam off > /dev/null 2>&1 || :
+    semodule -r centreon-web > /dev/null 2>&1 || :
+fi
+
+%postun web-selinux
+if [ "$1" -ge "1" ]; then # Upgrade
+    semodule -i %{_datadir}/selinux/packages/centreon/centreon-web.pp > /dev/null 2>&1 || :
+fi
 
 ######################################################
 # Package centreon-database
