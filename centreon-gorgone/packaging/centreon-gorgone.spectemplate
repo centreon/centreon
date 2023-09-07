@@ -181,7 +181,7 @@ fi
 
 %files -n centreon-gorgoned-selinux
 %defattr(-, root, root, -)
-%{_datadir}/selinux/packages/centreon/centreon-common.pp
+%{_datadir}/selinux/packages/centreon/centreon-gorgoned.pp
 
 %post -n centreon-gorgoned-selinux
 if [ "$1" -le "1" ]; then # First install
