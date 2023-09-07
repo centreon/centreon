@@ -84,7 +84,7 @@ beforeEach(() => {
         ]
       })
       .then(() => {
-        Cypress.config('baseUrl', 'http://0.0.0.0:4000');
+        Cypress.config('baseUrl', 'http://127.0.0.1:4000');
 
         return cy
           .intercept('/waiting-page', {

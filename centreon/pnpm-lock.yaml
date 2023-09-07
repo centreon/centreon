@@ -301,10 +301,13 @@ importers:
     specifiers:
       '@badeball/cypress-cucumber-preprocessor': ^18.0.5
       '@bahmutov/cypress-esbuild-preprocessor': ^2.2.0
+      '@esbuild-plugins/node-globals-polyfill': ^0.2.3
+      '@esbuild-plugins/node-modules-polyfill': ^0.2.2
       '@tsconfig/node16': ^1.0.4
       '@types/cypress-cucumber-preprocessor': ^4.0.2
       '@types/dockerode': ^3.3.19
       dockerode: ^3.3.5
+      esbuild: ^0.19.2
       eslint: ^8.17.0
       eslint-config-airbnb: 19.0.4
       eslint-config-prettier: ^8.5.0
@@ -324,11 +327,14 @@ importers:
       eslint-plugin-typescript-sort-keys: ^2.1.0
     devDependencies:
       '@badeball/cypress-cucumber-preprocessor': 18.0.5
-      '@bahmutov/cypress-esbuild-preprocessor': 2.2.0
+      '@bahmutov/cypress-esbuild-preprocessor': 2.2.0_esbuild@0.19.2
+      '@esbuild-plugins/node-globals-polyfill': 0.2.3_esbuild@0.19.2
+      '@esbuild-plugins/node-modules-polyfill': 0.2.2_esbuild@0.19.2
       '@tsconfig/node16': 1.0.4
       '@types/cypress-cucumber-preprocessor': 4.0.2
       '@types/dockerode': 3.3.19
       dockerode: 3.3.5
+      esbuild: 0.19.2
       eslint: 8.40.0
       eslint-config-airbnb: 19.0.4_bpcxrudljlqusjwrxiqvxpun2y
       eslint-config-prettier: 8.8.0_eslint@8.40.0
@@ -2021,12 +2027,13 @@ packages:
       - typescript
     dev: true
 
-  /@bahmutov/cypress-esbuild-preprocessor/2.2.0:
+  /@bahmutov/cypress-esbuild-preprocessor/2.2.0_esbuild@0.19.2:
     resolution: {integrity: sha512-pTvxRi6+OFsXy6uCn/HlO5zi0fUZWbiCtTiLTDf/+kgEfZ/Y8WIxZ2pjuir9MEM8prQenBw60TLcM0wcazh7+Q==}
     peerDependencies:
       esbuild: '>=0.17.0'
     dependencies:
       debug: 4.3.4
+      esbuild: 0.19.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -2551,6 +2558,24 @@ packages:
   /@emotion/weak-memoize/0.3.1:
     resolution: {integrity: sha512-EsBwpc7hBUJWAsNPBmJy4hxWx12v6bshQsldrVmjxJoc3isbxhOrF2IcCpaXxfvq03NwkI7sbsOLXbYuqF/8Ww==}
     dev: false
+
+  /@esbuild-plugins/node-globals-polyfill/0.2.3_esbuild@0.19.2:
+    resolution: {integrity: sha512-r3MIryXDeXDOZh7ih1l/yE9ZLORCd5e8vWg02azWRGj5SPTuoh69A2AIyn0Z31V/kHBfZ4HgWJ+OK3GTTwLmnw==}
+    peerDependencies:
+      esbuild: '*'
+    dependencies:
+      esbuild: 0.19.2
+    dev: true
+
+  /@esbuild-plugins/node-modules-polyfill/0.2.2_esbuild@0.19.2:
+    resolution: {integrity: sha512-LXV7QsWJxRuMYvKbiznh+U1ilIop3g2TeKRzUxOG5X3YITc8JyyTa90BmLwqqv0YnX4v32CSlG+vsziZp9dMvA==}
+    peerDependencies:
+      esbuild: '*'
+    dependencies:
+      esbuild: 0.19.2
+      escape-string-regexp: 4.0.0
+      rollup-plugin-node-polyfills: 0.2.1
+    dev: true
 
   /@esbuild/android-arm/0.17.19:
     resolution: {integrity: sha512-rIKddzqhmav7MSmoFCmDIb6e2W57geRsM94gV2l38fzhXMwq7hZoClug9USI2pFRGL06f4IOPHHpFNOkWieR8A==}
@@ -11402,7 +11427,7 @@ packages:
     dependencies:
       confusing-browser-globals: 1.0.11
       eslint: 8.40.0
-      eslint-plugin-import: 2.27.5_y6na5yzocvsvyzyspqtlmdb3ey
+      eslint-plugin-import: 2.27.5_ssl2j5f235wgkzbqzn5lpj2mey
       object.assign: 4.1.4
       object.entries: 1.1.6
       semver: 6.3.1
@@ -11420,7 +11445,7 @@ packages:
     dependencies:
       eslint: 8.40.0
       eslint-config-airbnb-base: 15.0.0_e43qr7ng6kygh3xxr4conxr2wi
-      eslint-plugin-import: 2.27.5_y6na5yzocvsvyzyspqtlmdb3ey
+      eslint-plugin-import: 2.27.5_ssl2j5f235wgkzbqzn5lpj2mey
       eslint-plugin-jsx-a11y: 6.7.1_eslint@8.40.0
       eslint-plugin-react: 7.31.10_eslint@8.40.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.40.0
@@ -11443,7 +11468,7 @@ packages:
     peerDependencies:
       eslint-plugin-import: '>=1.4.0'
     dependencies:
-      eslint-plugin-import: 2.27.5_y6na5yzocvsvyzyspqtlmdb3ey
+      eslint-plugin-import: 2.27.5_ssl2j5f235wgkzbqzn5lpj2mey
     dev: true
 
   /eslint-import-resolver-node/0.3.7:
@@ -12006,6 +12031,10 @@ packages:
       c8: 7.13.0
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /estree-walker/0.6.1:
+    resolution: {integrity: sha512-SqmZANLWS0mnatqbSfRP5g8OXZC12Fgg1IwNtLsyHDzJizORW4khDfjPqJZsemPWBB2uqykUah5YpQ6epsqC/w==}
     dev: true
 
   /estree-walker/2.0.2:
@@ -15666,6 +15695,12 @@ packages:
     hasBin: true
     dev: true
 
+  /magic-string/0.25.9:
+    resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}
+    dependencies:
+      sourcemap-codec: 1.4.8
+    dev: true
+
   /magic-string/0.27.0:
     resolution: {integrity: sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==}
     engines: {node: '>=12'}
@@ -18453,6 +18488,27 @@ packages:
     engines: {node: '>=10.0.0'}
     dev: true
 
+  /rollup-plugin-inject/3.0.2:
+    resolution: {integrity: sha512-ptg9PQwzs3orn4jkgXJ74bfs5vYz1NCZlSQMBUA0wKcGp5i5pA1AO3fOUEte8enhGUC+iapTCzEWw2jEFFUO/w==}
+    deprecated: This package has been deprecated and is no longer maintained. Please use @rollup/plugin-inject.
+    dependencies:
+      estree-walker: 0.6.1
+      magic-string: 0.25.9
+      rollup-pluginutils: 2.8.2
+    dev: true
+
+  /rollup-plugin-node-polyfills/0.2.1:
+    resolution: {integrity: sha512-4kCrKPTJ6sK4/gLL/U5QzVT8cxJcofO0OU74tnB19F40cmuAKSzH5/siithxlofFEjwvw1YAhPmbvGNA6jEroA==}
+    dependencies:
+      rollup-plugin-inject: 3.0.2
+    dev: true
+
+  /rollup-pluginutils/2.8.2:
+    resolution: {integrity: sha512-EEp9NhnUkwY8aif6bxgovPHMoMoNr2FulJziTndpt5H9RdwC47GSGuII9XxpSdzVGM0GWrNPHV6ie1LTNJPaLQ==}
+    dependencies:
+      estree-walker: 0.6.1
+    dev: true
+
   /rollup/3.22.0:
     resolution: {integrity: sha512-imsigcWor5Y/dC0rz2q0bBt9PabcL3TORry2hAa6O6BuMvY71bqHyfReAz5qyAqiQATD1m70qdntqBfBQjVWpQ==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
@@ -18971,6 +19027,11 @@ packages:
   /source-map/0.7.4:
     resolution: {integrity: sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==}
     engines: {node: '>= 8'}
+    dev: true
+
+  /sourcemap-codec/1.4.8:
+    resolution: {integrity: sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==}
+    deprecated: Please use @jridgewell/sourcemap-codec instead
     dev: true
 
   /space-separated-tokens/1.1.5:
