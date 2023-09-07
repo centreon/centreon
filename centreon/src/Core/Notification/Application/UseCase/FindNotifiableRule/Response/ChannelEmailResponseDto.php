@@ -21,25 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Infrastructure\API\FindNotification;
+namespace Core\Notification\Application\UseCase\FindNotifiableRule\Response;
 
-use Centreon\Application\Controller\AbstractController;
-use Core\Notification\Application\UseCase\FindNotification\FindNotification;
-use Symfony\Component\HttpFoundation\Response;
-
-final class FindNotificationController extends AbstractController
+final class ChannelEmailResponseDto
 {
     /**
-     * @param int $notificationId
-     * @param FindNotification $useCase
-     * @param FindNotificationPresenter $presenter
+     * @param list<ChannelEmailContactResponseDto> $contacts
+     * @param string $subject
+     * @param string $formattedMessage
      */
-    public function __invoke(int $notificationId, FindNotification $useCase, FindNotificationPresenter $presenter): Response
-    {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-
-        $useCase($notificationId, $presenter);
-
-        return $presenter->show();
+    public function __construct(
+        public array $contacts = [],
+        public string $subject = '',
+        public string $formattedMessage = '',
+    ) {
     }
 }
