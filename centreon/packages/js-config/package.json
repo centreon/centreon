@@ -16,9 +16,11 @@
     "url": "https://github.com/centreon/centreon-frontend/issues"
   },
   "devDependencies": {
-    "@badeball/cypress-cucumber-preprocessor": "^14.0.0",
+    "@badeball/cypress-cucumber-preprocessor": "^18.0.5",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
     "@tsconfig/node16": "^1.0.4",
-    "@types/dockerode": "^3.3.16",
+    "@types/cypress-cucumber-preprocessor": "^4.0.2",
+    "@types/dockerode": "^3.3.19",
     "dockerode": "^3.3.5",
     "eslint": "^8.17.0",
     "eslint-config-airbnb": "19.0.4",

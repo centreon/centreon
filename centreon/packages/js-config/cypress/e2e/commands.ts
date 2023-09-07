@@ -248,8 +248,6 @@ Cypress.Commands.add(
 
     const image = `docker.centreon.com/centreon/centreon-web${slimSuffix}-${os}:${version}`;
 
-    cy.setUserTokenApiV1();
-
     return cy
       .startContainer({
         image,
