@@ -9,6 +9,7 @@ import {
   labelValueFormat
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
+import { useCanEditProperties } from '../../../../useCanEditDashboard';
 
 import useValueFormat from './useValueFormat';
 
@@ -18,6 +19,8 @@ const WidgetValueFormat = ({
   const { t } = useTranslation();
 
   const { value, changeType } = useValueFormat(propertyName);
+
+  const { canEditField } = useCanEditProperties();
 
   const options = [
     {
@@ -37,6 +40,7 @@ const WidgetValueFormat = ({
         {options.map(({ optionValue, label }) => (
           <FormControlLabel
             control={<Radio data-testid={value} />}
+            disabled={!canEditField}
             key={optionValue}
             label={label}
             value={optionValue}

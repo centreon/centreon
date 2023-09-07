@@ -20,6 +20,7 @@ import {
 import { WidgetSwitch } from '..';
 import { useThresholdStyles } from '../Inputs.styles';
 import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../useCanEditDashboard';
 
 import useThreshold from './useThreshold';
 
@@ -30,6 +31,8 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { changeType, options } = useThreshold({
     propertyName
   });
+
+  const { canEditField } = useCanEditProperties();
 
   return (
     <Box>
@@ -57,6 +60,7 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
               {radioButtons.map(({ content, value: radioValue }) => (
                 <FormControlLabel
                   control={<Radio data-testid={radioValue} />}
+                  disabled={!canEditField}
                   key={radioValue}
                   label={content}
                   value={radioValue}

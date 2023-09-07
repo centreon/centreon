@@ -32,7 +32,7 @@ export type Props = {
   displayPopupIcon?: boolean;
   endAdornment?: React.ReactElement;
   error?: string;
-  getOptionItemLabel: (option) => string;
+  getOptionItemLabel?: (option) => string;
   hideInput?: boolean;
   label: string;
   loading?: boolean;

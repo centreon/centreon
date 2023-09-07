@@ -32,7 +32,7 @@ import {
   labelServiceName,
   labelYouCanSelectUpToTwoMetricUnits,
   labelWidgetType,
-  labelExit,
+  labelCancel,
   labelEditWidget,
   labelAddResource,
   labelAddMetric
@@ -169,7 +169,7 @@ describe('AddEditWidgetModal', () => {
           'be.visible'
         );
         cy.findByLabelText(labelWidgetType).should('be.visible');
-        cy.findByLabelText(labelExit).should('be.visible');
+        cy.findByLabelText(labelCancel).should('be.visible');
         cy.findByLabelText(labelSave).should('be.visible');
 
         cy.makeSnapshot();

@@ -3,7 +3,7 @@ export const labelEditDashboard = 'Edit dashboard';
 export const labelAddWidget = 'Add widget';
 export const labelEditWidget = 'Edit widget';
 export const labelAddAWidget = 'Add a widget';
-export const labelExit = 'Exit';
+export const labelCancel = 'Cancel';
 export const labelExitDashboard = 'Exit {{dashboardName}}';
 export const labelExitEditionMode = 'Exit edition mode';
 export const labelLeaveEditionModeChangesNotSaved =
@@ -80,3 +80,8 @@ export const labelRawValue = 'Raw value';
 export const labelHumanReadable = 'Human readable';
 export const labelYouCanChooseOnResourcePerResourceType =
   'You can choose only one resource for each resource type';
+export const labelViewProperties = 'View properties';
+export const labelYourRightsOnlyAllowToView =
+  'Your rights only allow you to view the properties of a widget.';
+export const labelPleaseContactYourAdministrator =
+  'Please contact your administrator for more information.';

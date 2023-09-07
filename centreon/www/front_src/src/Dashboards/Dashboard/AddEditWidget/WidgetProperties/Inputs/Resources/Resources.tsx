@@ -25,6 +25,7 @@ import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { singleMetricSectionAtom } from '../../../atoms';
 import { areResourcesFullfilled } from '../utils';
+import { useCanEditProperties } from '../../../../useCanEditDashboard';
 
 import useResources from './useResources';
 
@@ -52,6 +53,8 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     changeResource
   } = useResources(propertyName);
 
+  const { canEditField } = useCanEditProperties();
+
   return (
     <div className={classes.resourcesContainer}>
       <div className={classes.resourcesHeader}>
@@ -62,6 +65,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         <Divider className={classes.resourcesHeaderDivider} />
       </div>
       <ItemComposition
+        addButtonHidden={!canEditField}
         addbuttonDisabled={!areResourcesFullfilled(value)}
         labelAdd={t(labelAddResource)}
         onAddItem={addResource}
@@ -69,6 +73,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
         {value.map((resource, index) => (
           <ItemComposition.Item
             className={classes.resourceCompositionItem}
+            deleteButtonHidden={!canEditField}
             key={`${index}`}
             labelDelete={t(labelDelete)}
             onDeleteItem={deleteResource(index)}
@@ -76,6 +81,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
             <SelectField
               className={classes.resourceType}
               dataTestId={labelResourceType}
+              disabled={!canEditField}
               label={t(labelResourceType) as string}
               options={resourceTypeOptions}
               selectedOptionId={resource.resourceType}
@@ -84,7 +90,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
             {singleMetricSection ? (
               <SingleConnectedAutocompleteField
                 className={classes.resources}
-                disabled={!resource.resourceType}
+                disabled={!canEditField || !resource.resourceType}
                 field={getSearchField(resource.resourceType)}
                 getEndpoint={getResourceResourceBaseEndpoint(
                   resource.resourceType
@@ -100,7 +106,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
                   color: 'primary'
                 }}
                 className={classes.resources}
-                disabled={!resource.resourceType}
+                disabled={!canEditField || !resource.resourceType}
                 field={getSearchField(resource.resourceType)}
                 getEndpoint={getResourceResourceBaseEndpoint(
                   resource.resourceType

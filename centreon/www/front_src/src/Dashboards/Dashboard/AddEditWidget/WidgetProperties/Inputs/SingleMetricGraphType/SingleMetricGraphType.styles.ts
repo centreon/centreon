@@ -13,6 +13,9 @@ export const useGraphTypeStyles = makeStyles()((theme) => ({
     justifyContent: 'center'
   },
   graphTypeOption: {
+    '&[data-disabled="true"]': {
+      backgroundColor: theme.palette.action.disabledBackground
+    },
     backgroundColor: 'transparent',
     height: theme.spacing(10),
     width: theme.spacing(10)

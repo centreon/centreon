@@ -5,6 +5,7 @@ import { Box, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { labelRefreshInterval } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
 import Subtitle from '../../../../components/Subtitle';
+import { useCanEditProperties } from '../../../../useCanEditDashboard';
 
 import useRefreshInterval from './useRefreshInterval';
 
@@ -17,6 +18,8 @@ const RefreshInterval = ({
     propertyName
   });
 
+  const { canEditField } = useCanEditProperties();
+
   return (
     <Box>
       <Subtitle>{t(labelRefreshInterval)}</Subtitle>
@@ -24,6 +27,7 @@ const RefreshInterval = ({
         {options.map(({ value: optionValue, label }) => (
           <FormControlLabel
             control={<Radio data-testid={optionValue} />}
+            disabled={!canEditField}
             key={optionValue}
             label={label}
             value={optionValue}

@@ -7,6 +7,7 @@ import { equals } from 'ramda';
 import { RichTextEditor } from '@centreon/ui';
 
 import { Widget, WidgetPropertyProps } from '../../models';
+import { useCanEditProperties } from '../../../useCanEditDashboard';
 
 import { getProperty } from './utils';
 
@@ -19,6 +20,8 @@ const WidgetRichTextEditor = ({
 
   const { errors, values, setFieldValue, setFieldTouched } =
     useFormikContext<Widget>();
+
+  const { canEditField } = useCanEditProperties();
 
   const isGenericTextWidget = equals(
     values.moduleName,
@@ -48,7 +51,7 @@ const WidgetRichTextEditor = ({
   return (
     <RichTextEditor
       editable
-      disabled={disabledCondition?.(values)}
+      disabled={!canEditField || disabledCondition?.(values)}
       displayBlockButtons={!isGenericTextWidget}
       editorState={value || undefined}
       error={error}

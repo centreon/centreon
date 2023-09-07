@@ -26,6 +26,7 @@ import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { singleMetricSectionAtom } from '../../../atoms';
 import { isAtLeastOneResourceFullfilled } from '../utils';
+import { useCanEditProperties } from '../../../../useCanEditDashboard';
 
 import useMetrics from './useMetrics';
 
@@ -56,6 +57,8 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     addButtonHidden,
     resources
   } = useMetrics(propertyName);
+
+  const { canEditField } = useCanEditProperties();
 
   const addButtonDisabled =
     hasNoResources() || hasTooManyMetrics || !metricCount;
@@ -92,7 +95,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
       {header}
       {canDisplayMetricsSelection && (
         <ItemComposition
-          addButtonHidden={addButtonHidden}
+          addButtonHidden={!canEditField || addButtonHidden}
           addbuttonDisabled={addButtonDisabled}
           labelAdd={t(labelAddMetric)}
           onAddItem={addMetric}
@@ -100,7 +103,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           {value.map((service, index) => (
             <ItemComposition.Item
               className={classes.resourceCompositionItem}
-              deleteButtonHidden={addButtonHidden}
+              deleteButtonHidden={!canEditField || addButtonHidden}
               key={`${index}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteMetric(index)}
@@ -109,7 +112,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
                 ariaLabel={t(labelServiceName) as string}
                 className={classes.resourceType}
                 dataTestId={labelServiceName}
-                disabled={isLoadingMetrics}
+                disabled={!canEditField || isLoadingMetrics}
                 label={t(labelServiceName) as string}
                 options={serviceOptions}
                 selectedOptionId={service.id}
@@ -119,7 +122,10 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
                 <SingleAutocompleteField
                   className={classes.resources}
                   disabled={
-                    isNil(service.id) || isEmpty(service.id) || isLoadingMetrics
+                    !canEditField ||
+                    isNil(service.id) ||
+                    isEmpty(service.id) ||
+                    isLoadingMetrics
                   }
                   getOptionItemLabel={getOptionLabel}
                   getOptionLabel={getOptionLabel}
@@ -138,7 +144,10 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
                   }}
                   className={classes.resources}
                   disabled={
-                    isNil(service.id) || isEmpty(service.id) || isLoadingMetrics
+                    !canEditField ||
+                    isNil(service.id) ||
+                    isEmpty(service.id) ||
+                    isLoadingMetrics
                   }
                   getOptionDisabled={getMetricOptionDisabled}
                   getOptionLabel={getOptionLabel}

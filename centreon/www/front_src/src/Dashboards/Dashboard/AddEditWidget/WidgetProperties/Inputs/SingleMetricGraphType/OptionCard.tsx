@@ -5,6 +5,8 @@ import { equals } from 'ramda';
 import { Card, CardActionArea } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
+import { useCanEditProperties } from '../../../../useCanEditDashboard';
+
 import { useGraphTypeStyles } from './SingleMetricGraphType.styles';
 
 interface Props {
@@ -19,15 +21,19 @@ const OptionCard = ({ changeType, type, icon, value }: Props): JSX.Element => {
 
   const isSelected = equals(value, type);
 
+  const { canEditField } = useCanEditProperties();
+
   return (
     <Card
       className={classes.graphTypeOption}
+      data-disabled={!canEditField}
       data-selected={isSelected}
       data-type={type}
       key={type}
     >
       <CardActionArea
         className={classes.graphTypeOption}
+        disabled={!canEditField}
         onClick={changeType(type)}
       >
         <div className={classes.graphTypeIcon}>{icon}</div>
