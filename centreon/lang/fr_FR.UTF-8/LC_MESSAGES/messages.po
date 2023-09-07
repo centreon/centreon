@@ -7125,7 +7125,7 @@ msgstr "Les 6 dernières heures"
 #: centreon-web/www/include/views/graphs/graphs.php:175
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:104
 #: centreon-web/www/include/eventLogs/viewLog.php:170
-msgid "Last 12 Hours"
+msgid "Last 12 hours"
 msgstr "Les 12 dernières heures"
 
 #: centreon-web/www/include/views/graphs/graphs.php:177
@@ -7145,7 +7145,7 @@ msgid "Last 4 Days"
 msgstr "Les 4 précédents jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:180
-msgid "Last 5 Days"
+msgid "Last 5 days"
 msgstr "Les 5 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:182
@@ -7157,7 +7157,7 @@ msgstr "Les 14 précédents jours"
 #: centreon-web/www/include/views/graphs/graphs.php:183
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:110
 #: centreon-web/www/include/eventLogs/viewLog.php:176
-msgid "Last 28 Days"
+msgid "Last 28 days"
 msgstr "Les 28 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:185
