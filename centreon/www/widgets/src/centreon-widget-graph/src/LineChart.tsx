@@ -5,11 +5,12 @@ import { Typography } from '@mui/material';
 
 import { LineChart, useGraphQuery, useRefreshInterval } from '@centreon/ui';
 
+import useThresholds from '../../useThresholds';
+
 import { Data, PanelOptions } from './models';
 import { labelNoDataFound } from './translatedLabels';
 import { useNoDataFoundStyles } from './NoDataFound.styles';
 import { graphEndpoint } from './api/endpoints';
-import useThresholds from './useThresholds';
 
 interface Props {
   globalRefreshInterval?: number;
@@ -39,7 +40,7 @@ const WidgetLineChart = ({
       timePeriod: panelOptions.timeperiod
     });
 
-  const { thresholdLabels, thresholdValues } = useThresholds({
+  const formattedThresholds = useThresholds({
     data: graphData,
     metricName: panelData.metrics[0]?.metrics[0]?.name,
     thresholds: panelOptions.threshold
@@ -56,15 +57,13 @@ const WidgetLineChart = ({
   return (
     <LineChart
       data={graphData}
-      disabledThresholds={!panelOptions.threshold?.enabled}
       end={end}
       height={null}
       legend={{ display: true }}
       loading={isGraphLoading}
       start={start}
-      thresholdLabels={thresholdLabels}
       thresholdUnit={panelData.metrics[0]?.metrics[0]?.unit}
-      thresholds={thresholdValues}
+      thresholds={formattedThresholds}
       timeShiftZones={{
         enable: false
       }}
