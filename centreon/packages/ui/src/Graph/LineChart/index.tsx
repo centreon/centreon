@@ -10,7 +10,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 
-import { LineChartData } from '../common/models';
+import { LineChartData, Thresholds } from '../common/models';
 
 import LineChart from './LineChart';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -25,16 +25,14 @@ dayjs.extend(timezonePlugin);
 interface Props extends Partial<LineChartProps> {
   curve?: CurveType;
   data?: LineChartData;
-  disabledThresholds?: boolean;
   end: string;
   legend: LegendModel;
   loading: boolean;
   marginBottom?: number;
   shapeLines?: GlobalAreaLines;
   start: string;
-  thresholdLabels?: Array<string>;
   thresholdUnit?: string;
-  thresholds?: Array<number>;
+  thresholds?: Thresholds;
 }
 
 const WrapperLineChart = ({
@@ -56,9 +54,7 @@ const WrapperLineChart = ({
   curve = Curve.curveLinear,
   marginBottom = 0,
   thresholds,
-  thresholdUnit,
-  thresholdLabels,
-  disabledThresholds
+  thresholdUnit
 }: Props): JSX.Element | null => {
   const { adjustedData } = useLineChartData({ data, end, start });
   const lineChartRef = useRef<HTMLDivElement | null>(null);
@@ -91,7 +87,6 @@ const WrapperLineChart = ({
               annotationEvent={annotationEvent}
               axis={axis}
               curve={curve}
-              disabledThresholds={disabledThresholds}
               displayAnchor={displayAnchor}
               graphData={adjustedData}
               graphInterval={{ end, start }}
@@ -102,7 +97,6 @@ const WrapperLineChart = ({
               loading={loading}
               marginBottom={marginBottom}
               shapeLines={shapeLines}
-              thresholdLabels={thresholdLabels}
               thresholdUnit={thresholdUnit}
               thresholds={thresholds}
               timeShiftZones={timeShiftZones}
