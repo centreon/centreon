@@ -34,6 +34,7 @@ beforeEach(() => {
 });
 
 after(() => {
+  cy.visit('/centreon/home/dashboards');
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
@@ -69,6 +70,7 @@ When(
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
     cy.getByTestId({ testId: 'role-input' }).eq(2).contains('viewer').click();
     cy.get('[role="listbox"]').contains('editor').click();
+    cy.get('[data-state="updated"]').should('exist');
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
   }
 );
@@ -112,6 +114,7 @@ When(
   () => {
     cy.getByTestId({ testId: 'role-input' }).eq(2).click();
     cy.get('[role="listbox"]').contains('viewer').click();
+    cy.get('[data-state="updated"]').should('exist');
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
   }
 );
@@ -134,5 +137,43 @@ Then(
     cy.url().should('match', /\/dashboards\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('not.exist');
     cy.getByTestId({ testId: 'share' }).should('not.exist');
+  }
+);
+
+Given(
+  'a dashboard featuring a user with update rights and a user with viewing rights in its share list',
+  () => {
+    cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
+    cy.getByTestId({ testId: 'role-input' })
+      .eq(1)
+      .should('contain.text', 'editor');
+    cy.getByTestId({ testId: 'role-input' })
+      .eq(2)
+      .should('contain.text', 'viewer');
+  }
+);
+
+When(
+  'the admin user removes the dashboard editor user from the share list',
+  () => {
+    cy.getByTestId({ testId: 'remove_user' }).eq(1).click();
+    cy.get('[data-state="removed"]').should('exist');
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  }
+);
+
+Then(
+  "the dashboard is not visible anymore in the non-admin user's dashboards library",
+  () => {
+    cy.logout();
+    cy.loginByTypeOfUser({
+      jsonName: dashboardCreatorUser.login,
+      loginViaApi: false
+    });
+    cy.visit('/centreon/home/dashboards');
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    }).should('not.exist');
   }
 );

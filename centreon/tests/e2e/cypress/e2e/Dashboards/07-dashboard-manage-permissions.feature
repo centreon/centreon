@@ -12,7 +12,7 @@ Scenario: Demote an editor user to a viewer on a dashboard
   When the dashboard administrator user demotes the editor user to a viewer
   Then the now-viewer user cannot perform update operations on the dashboard anymore
 
-# Scenario: Remove read permissions on a dashboard to a user
-# Given a dashboard featuring a user with update rights and a user with viewing rights in its share list
-# When the admin user removes the non-admin user from the share list
-# Then the dashboard is not visible anymore in the non-admin user's dashboards library
+Scenario: Remove read permissions on a dashboard to a user
+  Given a dashboard featuring a user with update rights and a user with viewing rights in its share list
+  When the admin user removes the dashboard editor user from the share list
+  Then the dashboard is not visible anymore in the non-admin user's dashboards library
