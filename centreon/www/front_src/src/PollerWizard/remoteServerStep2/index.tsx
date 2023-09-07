@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { isEmpty, pick } from 'ramda';
 import { useSetAtom, useAtomValue } from 'jotai';
 
@@ -74,8 +73,6 @@ const RemoteServerWizardStepTwo = ({
     });
   };
 
-  const navigate = useNavigate();
-
   const changeValue = (_, Pollers): void => {
     setLinkedPollers(Pollers);
   };
@@ -101,7 +98,7 @@ const RemoteServerWizardStepTwo = ({
 
           goToNextStep();
         } else {
-          navigate(routeMap.pollerList);
+          window.location.href = `/centreon${routeMap.pollerList}`;
         }
       })
       .catch(() => undefined);
