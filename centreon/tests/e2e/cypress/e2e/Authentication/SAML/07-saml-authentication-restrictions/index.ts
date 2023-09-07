@@ -71,7 +71,7 @@ When(
     cy.getByLabel({
       label: 'Conditions attribute path',
       tag: 'input'
-    }).type('{selectall}{backspace}email');
+    }).type('{selectall}{backspace}urn:oid:1.2.840.113549.1.9.1');
 
     cy.getByLabel({
       label: 'Condition value',
