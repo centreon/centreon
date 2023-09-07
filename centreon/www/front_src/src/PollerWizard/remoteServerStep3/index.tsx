@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 import { equals, not } from 'ramda';
 
 import { postData, useRequest } from '@centreon/ui';
@@ -29,8 +28,6 @@ const RemoteServerWizardStepThree = (): JSX.Element => {
     request: postData
   });
 
-  const navigate = useNavigate();
-
   const generationTimeoutRef = useRef<NodeJS.Timeout>();
 
   const remainingGenerationTimeoutRef = useRef<number>(30);
@@ -55,7 +52,7 @@ const RemoteServerWizardStepThree = (): JSX.Element => {
         if (equals(data.status, 'completed')) {
           setGenerateStatus(true);
           setTimeout(() => {
-            navigate(routeMap.pollerList);
+            window.location.href = `/centreon${routeMap.pollerList}`;
           }, 2000);
 
           return;
