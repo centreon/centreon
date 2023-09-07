@@ -7,10 +7,10 @@ Scenario: Promote a viewer user to an editor on a dashboard
   When the dashboard administrator user promotes the viewer user to an editor
   Then the now-editor user can now perform update operations on the dashboard
 
-# Scenario: Demote an editor user to a viewer on a dashboard
-# Given a dashboard featuring a dashboard administrator and a dashboard editor in its share list
-# When the dashboard administrator user demotes the editor user to a viewer
-# Then the now-viewer user cannot perform update operations on the dashboard anymore
+Scenario: Demote an editor user to a viewer on a dashboard
+  Given a dashboard featuring a dashboard administrator and a dashboard editor in its share list
+  When the dashboard administrator user demotes the editor user to a viewer
+  Then the now-viewer user cannot perform update operations on the dashboard anymore
 
 # Scenario: Remove read permissions on a dashboard to a user
 # Given a dashboard featuring a user with update rights and a user with viewing rights in its share list

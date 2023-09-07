@@ -26,6 +26,11 @@ beforeEach(() => {
     method: 'POST',
     url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
+  cy.loginByTypeOfUser({
+    jsonName: dashboardAdministratorUser.login,
+    loginViaApi: false
+  });
+  cy.visit('/centreon/home/dashboards');
 });
 
 after(() => {
@@ -39,11 +44,6 @@ after(() => {
 Given(
   'a dashboard featuring a dashboard administrator and a dashboard viewer in its share list',
   () => {
-    cy.loginByTypeOfUser({
-      jsonName: dashboardAdministratorUser.login,
-      loginViaApi: false
-    });
-    cy.visit('/centreon/home/dashboards');
     cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
     cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
@@ -51,6 +51,12 @@ Given(
     cy.getByTestId({ testId: 'role-input' }).eq(0).click();
     cy.get('[role="listbox"]').contains('viewer').click();
     cy.getByTestId({ testId: 'add' }).click();
+    cy.getByTestId({ testId: 'role-input' })
+      .eq(1)
+      .should('contain.text', 'viewer');
+    cy.getByTestId({ testId: 'role-input' })
+      .eq(2)
+      .should('contain.text', 'editor');
     cy.getByLabel({ label: 'Update', tag: 'button' }).click();
     cy.wait('@addContactToDashboardShareList');
     cy.reload(); // TODO: Find a way to remove reloads
@@ -85,5 +91,48 @@ Then(
     cy.url().should('match', /\/dashboards\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
     cy.getByTestId({ testId: 'share' }).should('be.enabled');
+  }
+);
+
+Given(
+  'a dashboard featuring a dashboard administrator and a dashboard editor in its share list',
+  () => {
+    cy.getByLabel({ label: 'edit access rights', tag: 'button' }).click();
+    cy.getByTestId({ testId: 'role-input' })
+      .eq(1)
+      .should('contain.text', 'editor');
+    cy.getByTestId({ testId: 'role-input' })
+      .eq(2)
+      .should('contain.text', 'editor');
+  }
+);
+
+When(
+  'the dashboard administrator user demotes the editor user to a viewer',
+  () => {
+    cy.getByTestId({ testId: 'role-input' }).eq(2).click();
+    cy.get('[role="listbox"]').contains('viewer').click();
+    cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  }
+);
+
+Then(
+  'the now-viewer user cannot perform update operations on the dashboard anymore',
+  () => {
+    cy.logout();
+    cy.loginByTypeOfUser({
+      jsonName: dashboardCreatorUser.login,
+      loginViaApi: false
+    });
+    cy.visit('/centreon/home/dashboards');
+    cy.getByLabel({
+      label: 'view',
+      tag: 'button'
+    })
+      .contains(dashboards.fromDashboardAdministratorUser.name)
+      .click();
+    cy.url().should('match', /\/dashboards\/\d+$/);
+    cy.getByTestId({ testId: 'edit' }).should('not.exist');
+    cy.getByTestId({ testId: 'share' }).should('not.exist');
   }
 );
