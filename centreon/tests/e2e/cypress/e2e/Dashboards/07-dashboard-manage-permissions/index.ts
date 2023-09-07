@@ -18,4 +18,35 @@ before(() => {
   });
   cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
   cy.logoutViaAPI();
+  cy.getByLabel({ label: 'share', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Open', tag: 'button' }).click();
+  cy.contains(dashboardCreatorUser.login).click();
+  cy.getByTestId({ testId: 'role-input' }).eq(0).click();
+  cy.get('[role="listbox"]').contains('viewer').click();
+  cy.getByTestId({ testId: 'add' }).click();
+  cy.getByLabel({ label: 'Update', tag: 'button' }).click();
+  cy.logoutViaAPI();
+});
+
+beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+  }).as('getNavigationList');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/dashboards?'
+  }).as('listAllDashboards');
+  cy.intercept({
+    method: 'POST',
+    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+  }).as('addContactToDashboardShareList');
+  cy.loginByTypeOfUser({
+    jsonName: dashboardAdministratorUser.login,
+    loginViaApi: false
+  });
+});
+
+after(() => {
+  cy.stopWebContainer();
 });
