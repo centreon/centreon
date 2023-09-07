@@ -18134,3 +18134,6 @@ msgstr "'%s' n'existe pas avec le(s) ID(s) %s"
 
 msgid "'%s' service name already exists for host ID %d"
 msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
+
+msgid "Manage the organization's authentication tokens"
+msgstr "Gérer les jetons d'authentification de l'organisation"

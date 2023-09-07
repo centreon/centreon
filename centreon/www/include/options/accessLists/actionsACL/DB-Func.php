@@ -539,6 +539,7 @@ function listActions()
     $actions[] = "delete_poller_cfg";
     $actions[] = "generate_cfg";
     $actions[] = "generate_trap";
+    $actions[] = 'manage_tokens';
 
     return $actions;
 }

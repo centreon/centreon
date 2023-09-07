@@ -3,6 +3,7 @@ INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`,
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Viewer', '/home/dashboards', '1', '0', 104, 10401, '0', 'dashboard');
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Creator', '/home/dashboards', '1', '0', 104, 10402, '0', 'dashboard');
 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`, `topology_feature_flag`) VALUES ('Administrator', '/home/dashboards', '1', '0', 104, 10403, '0', 'dashboard');
+INSERT INTO `topology` (`topology_name`, `topology_order`, `topology_group`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_show`) VALUES ('API Tokens', 16, 1, null, '1', '0', 5, 515, '0');
 
 -- INSERT WIDGETS FOR DASHBOARD --
 
