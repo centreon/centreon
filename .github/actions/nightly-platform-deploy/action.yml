@@ -44,7 +44,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Destroy a COD platform with nightly build artifacts
+    - name: Destroy any previous nightly COD platform
       run: |
           set -x
 
@@ -60,14 +60,14 @@ runs:
           -d '{"ref": "main", "inputs":{"confirm":"true"} }' \
           -w %http_code)
 
-          echo "DESTROY_STATUS=$DESTROY_STATUS"
+          echo "DESTROY_STATUS=$DESTROY_STATUS" >> "$GITHUB_OUTPUT"
       shell: bash
 
     - name: Deploy a COD platform with nightly build artifacts
       run: |
           set -x
 
-          # Deply a new fresh instance if destroy suceeded
+          # Deploy a new fresh instance if destroy suceeded
           echo "[DEBUG]: steps.outputs.DESTROY_STATUS"
           #echo "[INFO]: Deploying nightly COD instance with latest ${{ inputs.centreon_branch }} state."
           #curl --fail -v -X POST \
