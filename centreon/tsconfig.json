@@ -5,8 +5,7 @@
     "typeRoots": [
       "./types",
       "./node_modules/@types"
-    ],
-    "moduleResolution": "NodeNext",
+    ]
   },
   "include": [
     "./www/front_src/src",
