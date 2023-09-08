@@ -19,7 +19,8 @@ import VisualizationActions from '../Actions/Visualization';
 import {
   resourcesToAcknowledgeAtom,
   resourcesToSetDowntimeAtom,
-  selectedResourcesAtom
+  selectedResourcesAtom,
+  selectedVisualizationAtom
 } from '../Actions/actionsAtoms';
 import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
 import { adjustCheckedResources } from '../Actions/Resource/Check/helpers';
@@ -36,7 +37,7 @@ import {
   searchAtom,
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
-import { Resource, SortOrder } from '../models';
+import { Resource, SortOrder, Visualization } from '../models';
 import {
   labelSelectAtLeastOneColumn,
   labelStatus,
@@ -84,6 +85,7 @@ const ResourceListing = (): JSX.Element => {
   const search = useAtomValue(searchAtom);
   const panelWidth = useAtomValue(panelWidthStorageAtom);
   const forcedCheckInlineEndpoint = useAtomValue(forcedCheckInlineEndpointAtom);
+  const visualization = useAtomValue(selectedVisualizationAtom);
   const setOpenDetailsTabId = useSetAtom(openDetailsTabIdAtom);
   const setLimit = useSetAtom(limitAtom);
   const setResourcesToAcknowledge = useSetAtom(resourcesToAcknowledgeAtom);
@@ -171,7 +173,8 @@ const ResourceListing = (): JSX.Element => {
         setResourcesToSetDowntime([resource]);
       }
     },
-    t
+    t,
+    visualization
   });
 
   const loading = sending;
@@ -216,13 +219,15 @@ const ResourceListing = (): JSX.Element => {
     });
   };
 
+  const areColumnsSortable = equals(visualization, Visualization.All);
+
   return (
     <Listing
       checkable
       actions={<Actions onRefresh={initAutorefreshAndLoad} />}
       columnConfiguration={{
         selectedColumnIds,
-        sortable: true
+        sortable: areColumnsSortable
       }}
       columns={columns}
       currentPage={(page || 1) - 1}
@@ -244,7 +249,8 @@ const ResourceListing = (): JSX.Element => {
         sending,
         enabledAutoRefresh,
         selectedResourceDetails,
-        themeMode
+        themeMode,
+        columns
       ]}
       moveTablePagination={isPanelOpen}
       predefinedRowsSelection={predefinedRowsSelection}
