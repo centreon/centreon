@@ -1,7 +1,7 @@
 name: Postman Tests
 
 on:
-  # push:
+  push:
   #   paths:
   #     - 'centreon/tests/rest_api/refactored_api_test_collection/**'
 
