@@ -184,18 +184,11 @@ fi
 %{_datadir}/selinux/packages/centreon/centreon-gorgoned.pp
 
 %post -n centreon-gorgoned-selinux
-if [ "$1" -le "1" ]; then # First install
-  semodule -i %{_datadir}/selinux/packages/centreon/centreon-gorgoned.pp > /dev/null 2>&1 || :
-fi
+semodule -i %{_datadir}/selinux/packages/centreon/centreon-gorgoned.pp > /dev/null 2>&1 || :
 
 %preun -n centreon-gorgoned-selinux
 if [ "$1" -lt "1" ]; then # Final removal
   semodule -r centreon-gorgoned > /dev/null 2>&1 || :
-fi
-
-%postun -n centreon-gorgoned-selinux
-if [ "$1" -ge "1" ]; then # Upgrade
-  semodule -i %{_datadir}/selinux/packages/centreon/centreon-gorgoned.pp > /dev/null 2>&1 || :
 fi
 
 %changelog
