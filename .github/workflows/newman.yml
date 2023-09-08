@@ -35,7 +35,7 @@ jobs:
       # Ajoutez une nouvelle étape pour exécuter votre script Newman
       - name: Run Newman Tests
         run: |
-          node centreon\tests\rest_api\refactored_api_test_collection\newmanCollectionRun.js
+          node centreon/tests/rest_api/refactored_api_test_collection/newmanCollectionRun.js
 
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
