@@ -21,7 +21,17 @@ jobs:
       - name: Install Newman and Reporter
         run: | 
           npm install -g newman newman-reporter-htmlextra newman-reporter-text
+      
+      - name: Login to registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
 
+      - name : start centreon web container
+        run: docker run -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
+      
       - name: Run Postman Tests and Generate HTML Report
         run: |
           environment_path="centreon/tests/rest_api/rest_api.postman_environment.json"
