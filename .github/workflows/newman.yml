@@ -26,8 +26,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.registry_username }}
-          password: ${{ secrets.registry_password }}
+          username: ${{ secrets.DOCKER_REGISTRY_ID }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name : start centreon web container
         run: docker run -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
