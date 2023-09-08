@@ -1,4 +1,3 @@
-import { makeStyles } from 'tss-react/mui';
 import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
@@ -18,17 +17,7 @@ import {
 import { Visualization } from '../../models';
 
 import Action from './Action';
-
-const useStyles = makeStyles()((theme) => ({
-  container: {
-    alignItems: 'center',
-    display: 'flex',
-    gap: theme.spacing(0.5)
-  },
-  text: {
-    marginRight: theme.spacing(1.5)
-  }
-}));
+import { useStyles } from './Visualization.styles';
 
 const actions = [
   {
@@ -47,9 +36,10 @@ const actions = [
     IconOnActive: viewByServiceActive,
     IconOnInactive: viewByServiceInactive,
     title: labelViewByService,
-    type: Visualization.SERVICE
+    type: Visualization.Service
   }
 ];
+
 const VisualizationActions = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
