@@ -6,9 +6,7 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 before(() => {
   cy.startWebContainer();
   cy.execInContainer({
-    command: `bash -e <<EOF
-      sed -i 's@\"dashboard\": 0@\"dashboard\": 3@' /usr/share/centreon/config/features.json
-EOF`,
+    command: `sed -i 's@"dashboard": 0@"dashboard": 3@' /usr/share/centreon/config/features.json`,
     name: Cypress.env('dockerName')
   });
   cy.executeCommandsViaClapi(
