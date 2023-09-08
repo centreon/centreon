@@ -5,7 +5,9 @@ import { execSync } from 'child_process';
 
 import { defineConfig } from 'cypress';
 
-import setupNodeEvents from './plugins';
+import esbuildPreprocessor from './esbuild-preprocessor';
+import plugins from './plugins';
+import tasks from './tasks';
 
 interface ConfigurationOptions {
   cypressFolder?: string;
@@ -33,7 +35,12 @@ export default ({
     defaultCommandTimeout: 6000,
     e2e: {
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
-      setupNodeEvents,
+      setupNodeEvents: async (on, config) => {
+        await esbuildPreprocessor(on, config);
+        tasks(on);
+
+        return plugins(on, config);
+      },
       specPattern
     },
     env: {

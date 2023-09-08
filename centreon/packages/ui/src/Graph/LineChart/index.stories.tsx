@@ -387,8 +387,21 @@ export const withThresholds: Story = {
   argTypes,
   args: {
     ...argumentsData,
-    thresholdLabels: ['threshold 1', 'threshold 2'],
-    thresholds: [300, 350]
+    thresholds: {
+      critical: [
+        {
+          label: 'critical',
+          value: 350
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'warning',
+          value: 300
+        }
+      ]
+    }
   },
   render: (args) => (
     <WrapperLineChart
@@ -403,7 +416,58 @@ export const withThresholdsAndUnit: Story = {
   args: {
     ...argumentsData,
     thresholdUnit: '%',
-    thresholds: [65, 79]
+    thresholds: {
+      critical: [
+        {
+          label: 'critical',
+          value: 79
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'warning',
+          value: 65
+        }
+      ]
+    }
+  },
+  render: (args) => (
+    <WrapperLineChart
+      {...args}
+      data={dataLastDay as unknown as LineChartData}
+    />
+  )
+};
+
+export const thresholdsRange: Story = {
+  argTypes,
+  args: {
+    ...argumentsData,
+    thresholdUnit: '%',
+    thresholds: {
+      critical: [
+        {
+          label: 'critical 1',
+          value: 60
+        },
+        {
+          label: 'critical 2',
+          value: 79
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'warning 1',
+          value: 20
+        },
+        {
+          label: 'warning 2',
+          value: 30
+        }
+      ]
+    }
   },
   render: (args) => (
     <WrapperLineChart
