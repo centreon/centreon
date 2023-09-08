@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 
-import { useSetAtom } from 'jotai';
 import {
   equals,
   find,
@@ -17,7 +16,6 @@ import {
   toLower
 } from 'ramda';
 
-import { linesGraphAtom } from '../graphAtoms';
 import { Line } from '../../common/timeSeries/models';
 
 interface LegendActions {
@@ -29,11 +27,10 @@ interface LegendActions {
 
 interface Props {
   lines: Array<Line>;
+  setLinesGraph: Dispatch<SetStateAction<Array<Line> | null>>;
 }
 
-const useLegend = ({ lines }: Props): LegendActions => {
-  const setLines = useSetAtom(linesGraphAtom);
-
+const useLegend = ({ lines, setLinesGraph }: Props): LegendActions => {
   const displayedLines = reject(propEq('display', false), lines);
   const getLineByMetric = (metric: string): Line =>
     find(propEq('metric', metric), lines) as Line;
@@ -41,7 +38,7 @@ const useLegend = ({ lines }: Props): LegendActions => {
   const toggleMetricLine = (metric): void => {
     const line = getLineByMetric(metric);
 
-    setLines([
+    setLinesGraph([
       ...reject(propEq('metric', metric), lines),
       { ...line, display: !line.display }
     ]);
@@ -56,11 +53,11 @@ const useLegend = ({ lines }: Props): LegendActions => {
 
     const sortedData = sortBy(compose(toLower, prop('name')), data);
 
-    setLines(sortedData);
+    setLinesGraph(sortedData);
   };
 
   const clearHighlight = (): void => {
-    setLines(map((line) => ({ ...line, highlight: undefined }), lines));
+    setLinesGraph(map((line) => ({ ...line, highlight: undefined }), lines));
   };
 
   const selectMetricLine = (metric: string): void => {
@@ -71,7 +68,7 @@ const useLegend = ({ lines }: Props): LegendActions => {
       equals(displayedLines.length, 1) && isLineDisplayed;
 
     if (isOnlyLineDisplayed || isEmpty(displayedLines)) {
-      setLines(
+      setLinesGraph(
         map(
           (line) => ({
             ...line,
@@ -84,7 +81,7 @@ const useLegend = ({ lines }: Props): LegendActions => {
       return;
     }
 
-    setLines(
+    setLinesGraph(
       map(
         (line) => ({
           ...line,
@@ -105,8 +102,8 @@ const useLegend = ({ lines }: Props): LegendActions => {
       display: find(propEq('name', line.name), lines)?.display ?? true
     }));
 
-    setLines(newLines);
-  }, []);
+    setLinesGraph(newLines);
+  }, [lines]);
 
   return { clearHighlight, highlightLine, selectMetricLine, toggleMetricLine };
 };

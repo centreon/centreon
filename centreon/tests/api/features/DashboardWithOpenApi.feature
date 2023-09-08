@@ -1718,29 +1718,37 @@ Feature:
               "id": 1,
               "name": "rta",
               "unit": "ms",
-              "warning_threshold": 200,
-              "critical_threshold": 400
+              "warning_high_threshold": 200,
+              "critical_high_threshold": 400,
+              "warning_low_threshold": 0,
+              "critical_low_threshold": 0
             },
             {
               "id": 2,
               "name": "pl",
               "unit": "%",
-              "warning_threshold": 20,
-              "critical_threshold": 50
+              "warning_high_threshold": 20,
+              "critical_high_threshold": 50,
+              "warning_low_threshold": 0,
+              "critical_low_threshold": 0
             },
             {
               "id": 3,
               "name": "rtmax",
               "unit": "ms",
-              "warning_threshold": null,
-              "critical_threshold": null
+              "warning_high_threshold": null,
+              "critical_high_threshold": null,
+              "warning_low_threshold": null,
+              "critical_low_threshold": null
             },
             {
               "id": 4,
               "name": "rtmin",
               "unit": "ms",
-              "warning_threshold": null,
-              "critical_threshold": null
+              "warning_high_threshold": null,
+              "critical_high_threshold": null,
+              "warning_low_threshold": null,
+              "critical_low_threshold": null
             }
           ]
         }
@@ -1779,6 +1787,23 @@ Feature:
     And the JSON node "metrics[2].data" should have at least 48 elements
     And the JSON node "times" should have at least 48 elements
 
+    When I send a GET request to '/api/latest/monitoring/dashboard/metrics/top?metric_name=rta&search={"$and":[{"hostgroup.id":{"$in":[53]}},{"host.id":{"$in":[14]}},{"service.name":{"$in":["Ping"]}}]}&sort_by={"current_value":"ASC"}&limit=10'
+    Then the response code should be "200"
+    And the JSON nodes should be equal to:
+      | name                          | "rta"                    |
+      | unit                          | "ms"                     |
+      | resources[0].id                      | 26                       |
+      | resources[0].name                    | "Centreon-Server_Ping"   |
+      | resources[0].warning_high_threshold       | 200                      |
+      | resources[0].critical_high_threshold      | 400                      |
+      | resources[0].warning_low_threshold   | 0                        |
+      | resources[0].critical_low_threshold  | 0                        |
+      | resources[0].min                     | 0                        |
+      | resources[0].max                     | null                     |
+
+    When I send a GET request to '/api/latest/monitoring/dashboard/metrics/top?metric_name=unexistingmetric&search={"$and":[{"hostgroup.id":{"$in":[53]}},{"host.id":{"$in":[14]}},{"service.name":{"$in":["Ping"]}}]}&sort_by={"current_value":"ASC"}&limit=10'
+    Then the response code should be "404"
+
     Given I am logged in with "test-user"/"Centreon@2022"
     When I send a GET request to '/api/latest/monitoring/dashboard/metrics/performances?search={"$and":[{"host.id":{"$in":[14]}}]}'
     Then the response code should be "200"
@@ -1794,29 +1819,37 @@ Feature:
               "id": 1,
               "name": "rta",
               "unit": "ms",
-              "warning_threshold": 200,
-              "critical_threshold": 400
+              "warning_high_threshold": 200,
+              "critical_high_threshold": 400,
+              "warning_low_threshold": 0,
+              "critical_low_threshold": 0
             },
             {
               "id": 2,
               "name": "pl",
               "unit": "%",
-              "warning_threshold": 20,
-              "critical_threshold": 50
+              "warning_high_threshold": 20,
+              "critical_high_threshold": 50,
+              "warning_low_threshold": 0,
+              "critical_low_threshold": 0
             },
             {
               "id": 3,
               "name": "rtmax",
               "unit": "ms",
-              "warning_threshold": null,
-              "critical_threshold": null
+              "warning_high_threshold": null,
+              "critical_high_threshold": null,
+              "warning_low_threshold": null,
+              "critical_low_threshold": null
             },
             {
               "id": 4,
               "name": "rtmin",
               "unit": "ms",
-              "warning_threshold": null,
-              "critical_threshold": null
+              "warning_high_threshold": null,
+              "critical_high_threshold": null,
+              "warning_low_threshold": null,
+              "critical_low_threshold": null
             }
           ]
         }

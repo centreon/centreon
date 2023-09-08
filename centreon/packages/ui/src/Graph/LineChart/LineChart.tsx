@@ -1,11 +1,13 @@
-import { MutableRefObject, useMemo, useRef } from 'react';
+import { MutableRefObject, useMemo, useRef, useState } from 'react';
 
-import { Group } from '@visx/visx';
-import { isNil } from 'ramda';
+import { Group, Tooltip } from '@visx/visx';
+import { flatten, isNil, pluck } from 'ramda';
 
-import { ClickAwayListener, Skeleton } from '@mui/material';
+import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
 
 import { getLeftScale, getRightScale, getXScale } from '../common/timeSeries';
+import { Line } from '../common/timeSeries/models';
+import { Thresholds as ThresholdsModel } from '../common/models';
 
 import Axes from './BasicComponents/Axes';
 import Grids from './BasicComponents/Grids';
@@ -30,6 +32,7 @@ import {
 } from './models';
 import { useIntersection } from './useLineChartIntersection';
 import { CurveType } from './BasicComponents/Lines/models';
+import Thresholds from './BasicComponents/Thresholds';
 
 interface Props extends LineChartProps {
   curve: CurveType;
@@ -39,7 +42,14 @@ interface Props extends LineChartProps {
   legend?: LegendModel;
   marginBottom: number;
   shapeLines?: GlobalAreaLines;
+  thresholdUnit?: string;
+  thresholds?: ThresholdsModel;
 }
+
+const baseStyles = {
+  ...Tooltip.defaultStyles,
+  textAlign: 'center'
+};
 
 const LineChart = ({
   graphData,
@@ -58,14 +68,29 @@ const LineChart = ({
   graphRef,
   header,
   curve,
-  marginBottom
+  marginBottom,
+  thresholds,
+  thresholdUnit
 }: Props): JSX.Element => {
+  const { classes } = useStyles();
+
+  const theme = useTheme();
+
+  const [linesGraph, setLinesGraph] = useState<Array<Line> | null>(null);
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
-  const { classes } = useStyles();
   const { isInViewport } = useIntersection({ element: graphRef?.current });
 
   const legendRef = useRef<HTMLDivElement | null>(null);
+
+  const {
+    tooltipOpen: thresholdTooltipOpen,
+    tooltipLeft: thresholdTooltipLeft,
+    tooltipTop: thresholdTooltipTop,
+    tooltipData: thresholdTooltipData,
+    hideTooltip: hideThresholdTooltip,
+    showTooltip: showThresholdTooltip
+  } = Tooltip.useTooltip();
 
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
   const graphHeight =
@@ -79,9 +104,16 @@ const LineChart = ({
 
   const { title, timeSeries, baseAxis, lines } = graphData;
 
+  const thresholdValues = flatten([
+    pluck('value', thresholds?.warning || []),
+    pluck('value', thresholds?.critical || [])
+  ]);
+
   const { displayedLines, newLines } = useFilterLines({
     displayThreshold: canDisplayThreshold(shapeLines?.areaThresholdLines),
-    lines
+    lines,
+    linesGraph,
+    setLinesGraph
   });
 
   const xScale = useMemo(
@@ -98,9 +130,11 @@ const LineChart = ({
       getLeftScale({
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
+        thresholdUnit,
+        thresholds: (thresholds?.enabled && thresholdValues) || [],
         valueGraphHeight: graphHeight - 35
       }),
-    [displayedLines, timeSeries, graphHeight]
+    [displayedLines, timeSeries, graphHeight, thresholdValues]
   );
 
   const rightScale = useMemo(
@@ -108,6 +142,8 @@ const LineChart = ({
       getRightScale({
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
+        thresholdUnit,
+        thresholds: (thresholds?.enabled && thresholdValues) || [],
         valueGraphHeight: graphHeight - 35
       }),
     [timeSeries, displayedLines, graphHeight]
@@ -201,6 +237,19 @@ const LineChart = ({
                 }}
                 zoomData={{ ...zoomPreview }}
               />
+
+              {thresholds?.enabled && (
+                <Thresholds
+                  displayedLines={displayedLines}
+                  hideTooltip={hideThresholdTooltip}
+                  leftScale={leftScale}
+                  rightScale={rightScale}
+                  showTooltip={showThresholdTooltip}
+                  thresholdUnit={thresholdUnit}
+                  thresholds={thresholds as ThresholdsModel}
+                  width={graphWidth}
+                />
+              )}
             </Group.Group>
           </svg>
           {displayTooltip && (
@@ -218,6 +267,20 @@ const LineChart = ({
               xScale={xScale}
             />
           )}
+          <Fade in={thresholdTooltipOpen}>
+            <Tooltip.Tooltip
+              left={thresholdTooltipLeft}
+              style={{
+                ...baseStyles,
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                transform: `translate(${graphWidth / 2}px, -10px)`
+              }}
+              top={thresholdTooltipTop}
+            >
+              {thresholdTooltipData}
+            </Tooltip.Tooltip>
+          </Fade>
         </div>
       </ClickAwayListener>
       {displayLegend && (
@@ -227,7 +290,9 @@ const LineChart = ({
             displayAnchor={displayAnchor?.displayGuidingLines ?? true}
             lines={newLines}
             renderExtraComponent={legend?.renderExtraComponent}
+            setLinesGraph={setLinesGraph}
             timeSeries={timeSeries}
+            xScale={xScale}
           />
         </div>
       )}

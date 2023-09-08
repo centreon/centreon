@@ -3,7 +3,15 @@ import { useTranslation } from 'react-i18next';
 
 import { Box, Typography } from '@mui/material';
 
-import { Gauge, GraphText, SingleBar, useGraphQuery } from '@centreon/ui';
+import {
+  Gauge,
+  GraphText,
+  SingleBar,
+  useGraphQuery,
+  useRefreshInterval
+} from '@centreon/ui';
+
+import useThresholds from '../../useThresholds';
 
 import { FormThreshold, ServiceMetric } from './models';
 import {
@@ -13,7 +21,6 @@ import {
 } from './translatedLabels';
 import { useNoDataFoundStyles } from './NoDataFound.styles';
 import { graphEndpoint } from './api/endpoints';
-import useThresholds from './useThresholds';
 import { useGraphStyles } from './Graph.styles';
 
 interface Props {
@@ -38,20 +45,19 @@ const Graph = ({
 
   const { t } = useTranslation();
 
-  const refreshIntervalToUse =
-    cond([
-      [equals('default'), always(globalRefreshInterval)],
-      [equals('custom'), always(refreshIntervalCustom)],
-      [equals('manual'), always(0)]
-    ])(refreshInterval) || false;
+  const refreshIntervalToUse = useRefreshInterval({
+    globalRefreshInterval,
+    refreshInterval,
+    refreshIntervalCustom
+  });
 
   const { graphData, isGraphLoading, isMetricIdsEmpty } = useGraphQuery({
     baseEndpoint: graphEndpoint,
     metrics,
-    refreshInterval: refreshIntervalToUse ? refreshIntervalToUse * 1000 : false
+    refreshInterval: refreshIntervalToUse
   });
 
-  const { thresholdLabels, thresholdValues } = useThresholds({
+  const formattedThresholds = useThresholds({
     data: graphData,
     metricName: metrics[0]?.metrics[0]?.name,
     thresholds: threshold
@@ -74,14 +80,7 @@ const Graph = ({
         {cond([
           [
             equals('gauge'),
-            always(
-              <Gauge
-                data={graphData}
-                disabledThresholds={!threshold.enabled}
-                thresholdTooltipLabels={thresholdLabels}
-                thresholds={thresholdValues}
-              />
-            )
+            always(<Gauge data={graphData} thresholds={formattedThresholds} />)
           ],
           [
             equals('bar'),
@@ -89,8 +88,7 @@ const Graph = ({
               <SingleBar
                 data={graphData}
                 disabledThresholds={!threshold.enabled}
-                thresholdTooltipLabels={thresholdLabels}
-                thresholds={thresholdValues}
+                thresholds={formattedThresholds}
               />
             )
           ],
@@ -99,12 +97,11 @@ const Graph = ({
             always(
               <GraphText
                 data={graphData}
-                disabledThresholds={!threshold.enabled}
                 labels={{
                   critical: t(labelCritical),
                   warning: t(labelWarning)
                 }}
-                thresholds={thresholdValues}
+                thresholds={formattedThresholds}
               />
             )
           ]

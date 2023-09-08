@@ -7,6 +7,7 @@ const oidcConfigValues = {
   clientSecret: 'IKbUBottl5eoyhf0I5Io2nuDsTA85D50',
   introspectionTokenEndpoint: '/token/introspect',
   loginAttrPath: 'preferred_username',
+  scopes: 'openid',
   tokenEndpoint: '/token'
 };
 
@@ -47,6 +48,10 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
   );
   cy.getByLabel({ label: 'Client secret', tag: 'input' }).type(
     `{selectall}{backspace}${oidcConfigValues.clientSecret}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Scopes', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.scopes}`,
     { force: true }
   );
   cy.getByLabel({ label: 'Login attribute path', tag: 'input' }).type(
