@@ -34,13 +34,13 @@
 		},
 		{
 			"key": "api_login",
-			"value": "",
-			"type": "default",
+			"value": "admin",
+			"type": "default", 
 			"enabled": true
 		},
 		{
 			"key": "api_password",
-			"value": "",
+			"value": "Centreon!2021",
 			"type": "secret",
 			"enabled": true
 		},
