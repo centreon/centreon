@@ -37,18 +37,14 @@ jobs:
           environment_path="centreon/tests/rest_api/refactored_api_test_collection/Environment-for-Refactored-API-Test-Collection.json"
           collection_path="centreon/tests/rest_api/refactored_api_test_collection"
 
+          # Nom de la collection à exécuter
+          collection_name="10-Authentication-on-an-admin-account-Centreon-Web-Refactored-API-Test-Collection.postman_collection"
+
           # Create a directory to store HTML reports
           mkdir -p newman
 
-          # Iterate over each Postman collection file in the specified directory
-          for collection_file in "$collection_path"/*.postman_collection.json; do
-            # Extract the collection name from the file name
-            collection_name=$(basename "$collection_file" .postman_collection.json)
-
-            # Run Newman with the current collection file and generate an HTML report
-            newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"
-          done
-
+          # Run Newman with the specified collection file and generate an HTML report
+          newman run "$collection_path/$collection_name.postman_collection.json" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
         with:
