@@ -29,10 +29,11 @@ class NotificationResource
     public const SERVICEGROUP_RESOURCE_TYPE = 'servicegroup';
 
     /**
+     * @template T of NotificationHostEvent|NotificationServiceEvent
      * @param string $type
-     * @param class-string<NotificationHostEvent|NotificationServiceEvent> $eventEnum
+     * @param class-string<T> $eventEnum
      * @param ConfigurationResource[] $resources
-     * @param array<NotificationHostEvent|NotificationServiceEvent> $events
+     * @param array<T> $events
      * @param NotificationServiceEvent[] $serviceEvents
      *
      * @throws \ValueError
@@ -70,7 +71,7 @@ class NotificationResource
     }
 
     /**
-     * @return array<NotificationHostEvent|NotificationServiceEvent>
+     * @return array<NotificationHostEvent>|array<NotificationServiceEvent>
      */
     public function getEvents(): array
     {
@@ -78,7 +79,7 @@ class NotificationResource
     }
 
     /**
-     * @param array<NotificationHostEvent|NotificationServiceEvent> $events
+     * @param array<NotificationHostEvent>|array<NotificationServiceEvent> $events
      *
      * @throws \ValueError
      */

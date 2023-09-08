@@ -31,6 +31,27 @@ use Core\Notification\Application\UseCase\UpdateNotification\UpdateNotificationR
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+* @phpstan-type _RequestArray array{
+ *     name: string,
+ *     timeperiod: int,
+ *     users: int[],
+ *     contactgroups: int[],
+ *     resources: array<array{
+ *         type: string,
+ *         ids: int[],
+ *         events: int,
+ *         extra?: array{event_services?: int}
+ *     }>,
+ *     messages: array<array{
+ *         channel: string,
+ *         subject: string,
+ *         message: string,
+ *         formatted_message: string,
+ *     }>,
+ *     is_activated?: bool,
+ * }
+ */
 final class UpdateNotificationController extends AbstractController
 {
     use LoggerTrait;
@@ -44,25 +65,7 @@ final class UpdateNotificationController extends AbstractController
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         try {
-            /** @var array{
-             *     name: string,
-             *     timeperiod: int,
-             *     users: int[],
-             *     contactgroups: int[],
-             *     resources: array<array{
-             *         type:string,
-             *         ids:int[],
-             *         events:int,
-             *         extra?:array{event_services?: int}
-             *     }>,
-             *     messages: array<array{
-             *         channel:string,
-             *         subject:string,
-             *         message:string
-             *     }>,
-             *     is_activated?: bool,
-             * } $dataSent
-             */
+            /** @var _RequestArray $dataSent */
             $dataSent = $this->validateAndRetrieveDataSent($request, __DIR__ . '/UpdateNotificationSchema.json');
 
             $updateNotificationRequest = $this->createUpdateNotificationRequest($notificationId, $dataSent);
@@ -79,25 +82,7 @@ final class UpdateNotificationController extends AbstractController
      * Create DTO.
      *
      * @param int $notificationId
-     * @param array{
-     *     name: string,
-     *     timeperiod: int,
-     *     users: int[],
-     *     contactgroups: int[]
-     *     resources: array<array{
-     *         type:string,
-     *         ids:int[],
-     *         events:int,
-     *         extra?:array{event_services?: int}
-     *     }>,
-     *     messages: array<array{
-     *         channel:string,
-     *         subject:string,
-     *         message:string,
-     *         formatted_message:string
-     *     }>,
-     *     is_activated?: bool,
-     * } $dataSent
+     * @param _RequestArray $dataSent
      */
     public function createUpdateNotificationRequest(int $notificationId, array $dataSent): UpdateNotificationRequest
     {

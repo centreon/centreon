@@ -13,3 +13,9 @@ parameters:
         -
             message: '#^Call to an undefined method Pest#'
             path: tests/php/Core
+
+        - # [CENTREON-RULE] Our try catch block logging rule cannot handle nested try catch.
+            message: '#Exception thrown in UseCase should be in a try catch block, and must be caught.#'
+            paths:
+                - src/Core/Notification/Application/UseCase/AddNotification/AddNotification.php
+                - src/Core/Notification/Application/UseCase/UpdateNotification/UpdateNotification.php

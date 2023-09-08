@@ -309,11 +309,9 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findAll(?RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
-        if ($sqlTranslator !== null) {
-            $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
-                RequestParameters::CONCORDANCE_MODE_STRICT
-            );
-        }
+        $sqlTranslator?->getRequestParameters()->setConcordanceStrictMode(
+            RequestParameters::CONCORDANCE_MODE_STRICT
+        );
         $query = $this->buildFindAllQuery($sqlTranslator);
 
         $statement = $this->db->prepare($query);
@@ -323,7 +321,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         // Pagination
         $resultCount = $this->db->query('SELECT FOUND_ROWS()');
         if ($resultCount !== false && ($total = $resultCount->fetchColumn()) !== false) {
-            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+            $sqlTranslator?->getRequestParameters()->setTotal((int) $total);
         }
 
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
