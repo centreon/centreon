@@ -6,6 +6,7 @@
     "target": "es2018",
     "jsx": "react-jsx",
     "strict": true,
+    "moduleResolution": "node",
     "noImplicitAny": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
