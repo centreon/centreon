@@ -1,12 +1,13 @@
 import { MutableRefObject, useMemo, useRef, useState } from 'react';
 
 import { Group, Tooltip } from '@visx/visx';
-import { isNil } from 'ramda';
+import { flatten, isNil, pluck } from 'ramda';
 
 import { ClickAwayListener, Fade, Skeleton, useTheme } from '@mui/material';
 
 import { getLeftScale, getRightScale, getXScale } from '../common/timeSeries';
 import { Line } from '../common/timeSeries/models';
+import { Thresholds as ThresholdsModel } from '../common/models';
 
 import Axes from './BasicComponents/Axes';
 import Grids from './BasicComponents/Grids';
@@ -35,16 +36,14 @@ import Thresholds from './BasicComponents/Thresholds';
 
 interface Props extends LineChartProps {
   curve: CurveType;
-  disabledThresholds?: boolean;
   graphData: Data;
   graphInterval: GraphInterval;
   graphRef: MutableRefObject<HTMLDivElement | null>;
   legend?: LegendModel;
   marginBottom: number;
   shapeLines?: GlobalAreaLines;
-  thresholdLabels?: Array<string>;
   thresholdUnit?: string;
-  thresholds?: Array<number>;
+  thresholds?: ThresholdsModel;
 }
 
 const baseStyles = {
@@ -71,9 +70,7 @@ const LineChart = ({
   curve,
   marginBottom,
   thresholds,
-  thresholdUnit,
-  thresholdLabels,
-  disabledThresholds
+  thresholdUnit
 }: Props): JSX.Element => {
   const { classes } = useStyles();
 
@@ -107,6 +104,11 @@ const LineChart = ({
 
   const { title, timeSeries, baseAxis, lines } = graphData;
 
+  const thresholdValues = flatten([
+    pluck('value', thresholds?.warning || []),
+    pluck('value', thresholds?.critical || [])
+  ]);
+
   const { displayedLines, newLines } = useFilterLines({
     displayThreshold: canDisplayThreshold(shapeLines?.areaThresholdLines),
     lines,
@@ -129,10 +131,10 @@ const LineChart = ({
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
         thresholdUnit,
-        thresholds: (!disabledThresholds && thresholds) || [],
+        thresholds: (thresholds?.enabled && thresholdValues) || [],
         valueGraphHeight: graphHeight - 35
       }),
-    [displayedLines, timeSeries, graphHeight]
+    [displayedLines, timeSeries, graphHeight, thresholdValues]
   );
 
   const rightScale = useMemo(
@@ -141,7 +143,7 @@ const LineChart = ({
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
         thresholdUnit,
-        thresholds: (!disabledThresholds && thresholds) || [],
+        thresholds: (thresholds?.enabled && thresholdValues) || [],
         valueGraphHeight: graphHeight - 35
       }),
     [timeSeries, displayedLines, graphHeight]
@@ -236,16 +238,15 @@ const LineChart = ({
                 zoomData={{ ...zoomPreview }}
               />
 
-              {!disabledThresholds && (
+              {thresholds?.enabled && (
                 <Thresholds
                   displayedLines={displayedLines}
                   hideTooltip={hideThresholdTooltip}
                   leftScale={leftScale}
                   rightScale={rightScale}
                   showTooltip={showThresholdTooltip}
-                  thresholdLabels={thresholdLabels}
                   thresholdUnit={thresholdUnit}
-                  thresholds={thresholds}
+                  thresholds={thresholds as ThresholdsModel}
                   width={graphWidth}
                 />
               )}

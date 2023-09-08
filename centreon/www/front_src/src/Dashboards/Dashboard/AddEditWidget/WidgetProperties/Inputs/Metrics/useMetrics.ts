@@ -213,7 +213,7 @@ const useMetrics = (propertyName: string): UseMetricsState => {
     };
 
   useEffect(() => {
-    if (isNil(servicesMetrics) || singleMetricSection) {
+    if (isNil(servicesMetrics)) {
       return;
     }
 
@@ -231,9 +231,44 @@ const useMetrics = (propertyName: string): UseMetricsState => {
       baseServiceIds
     );
 
+    const newServiceMetrics = intersectionBetweenServicesIdsAndValues.map(
+      (service) => {
+        const newService = servicesMetrics.result.find(
+          (serviceMetric) => serviceMetric.id === service.id
+        );
+
+        return {
+          id: service.id,
+          metrics: service.metrics.map((metric) => {
+            const newMetric = newService.metrics.find(
+              (metricFromService) => metricFromService.id === metric.id
+            );
+
+            return {
+              criticalHighThreshold: newMetric?.criticalHighThreshold || null,
+              criticalLowThreshold: newMetric?.criticalLowThreshold || null,
+              id: metric.id,
+              name: metric.name,
+              unit: metric.unit,
+              warningHighThreshold: newMetric?.warningHighThreshold || null,
+              warningLowThreshold: newMetric?.warningLowThreshold || null
+            };
+          }),
+          name: service.name
+        };
+      }
+    );
+
     setFieldValue(
       `data.${propertyName}`,
-      intersectionBetweenServicesIdsAndValues
+      isEmpty(newServiceMetrics)
+        ? [
+            {
+              id: '',
+              metrics: []
+            }
+          ]
+        : newServiceMetrics
     );
   }, useDeepCompare([servicesMetrics, resources]));
 
