@@ -4,13 +4,12 @@ get:
   summary: "Find all service template"
   description: |
     Return all service template configurations.
-    
+
     The available parameters to **search** / **sort_by** are:
-    
+
     * id
     * name
     * alias
-    * is_activated
     * is_locked
   parameters:
     - $ref: '../../Common/QueryParameter/Limit.yaml'
@@ -55,7 +54,7 @@ post:
         - content:
             application/json:
               schema:
-                $ref: 'Schema/ServiceTemplate.yaml'
+                $ref: 'Schema/AddServiceTemplateResponse.yaml'
     '400':
       $ref: '../../Common/Response/BadRequest.yaml'
     '403':

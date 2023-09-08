@@ -32,7 +32,6 @@ Feature:
           "note_url": null,
           "note": null,
           "action_url": null,
-          "is_activated": true,
           "is_locked": false
         }
       ],

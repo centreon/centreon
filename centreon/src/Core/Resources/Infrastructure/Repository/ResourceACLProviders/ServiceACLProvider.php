@@ -27,9 +27,6 @@ use Core\Domain\RealTime\Model\ResourceTypes\ServiceResourceType;
 
 class ServiceACLProvider implements ResourceACLProviderInterface
 {
-    /**
-     * @inheritDoc
-     */
     public function buildACLSubRequest(array $accessGroupIds): string
     {
         $requestPattern = 'EXISTS (

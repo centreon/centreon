@@ -119,7 +119,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $this->info('Get all notification messages for notification with ID #' . $notificationId);
 
         $request = $this->translateDbName(
-            'SELECT id, channel, subject, message
+            'SELECT id, channel, subject, message, formatted_message
             FROM `:db`.notification_message
             WHERE notification_id = :notificationId'
         );
@@ -133,7 +133,8 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
             $messages[] = new NotificationMessage(
                 NotificationChannel::from($result['channel']),
                 $result['subject'],
-                $result['message']
+                $result['message'],
+                $result['formatted_message']
             );
         }
 
@@ -298,6 +299,13 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $statement = $this->db->prepare($query);
         $sqlTranslator?->bindSearchValues($statement);
         $statement->execute();
+
+        // Pagination
+        $resultCount = $this->db->query('SELECT FOUND_ROWS()');
+        if ($resultCount !== false && ($total = $resultCount->fetchColumn()) !== false) {
+            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        }
+
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
         $notifications = [];
@@ -361,7 +369,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
 
         $query = $this->translateDbName(
             <<<'SQL'
-                    SELECT id, name, timeperiod_id, tp_name, is_activated
+                    SELECT SQL_CALC_FOUND_ROWS id, name, timeperiod_id, tp_name, is_activated
                     FROM `:db`.notification
                     INNER JOIN timeperiod ON timeperiod_id = tp_id
                 SQL

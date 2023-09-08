@@ -58,9 +58,9 @@ When(
 );
 
 Then('the configuration is saved and secrets are not visible', () => {
-  cy.getByLabel({ label: 'save button', tag: 'button' })
-    .click()
-    .wait('@updateOIDCProvider')
+  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+
+  cy.wait('@updateOIDCProvider')
     .its('response.statusCode')
     .should('eq', 204)
     .getByLabel({ label: 'Client secret', tag: 'input' })
@@ -109,8 +109,9 @@ Given('an administrator is relogged on the platform', () => {
       rootItemNumber: 4
     })
     .get('div[role="tablist"] button:nth-child(2)')
-    .click()
-    .wait('@getOIDCProvider');
+    .click();
+
+  cy.wait('@getOIDCProvider');
 });
 
 When(
@@ -153,10 +154,10 @@ Then(
     const username = 'user-non-admin-for-OIDC-authentication';
 
     cy.session(username, () => {
-      cy.visit('/').get('a').click();
-      cy.loginKeycloack(username)
-        .url()
-        .should('include', '/monitoring/resources');
+      cy.visit('/');
+      cy.contains('Login with openid').should('be.visible').click();
+      cy.loginKeycloak(username);
+      cy.url().should('include', '/monitoring/resources');
     });
   }
 );

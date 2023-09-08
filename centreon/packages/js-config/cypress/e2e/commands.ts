@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import './commands/configuration';
+import './commands/monitoring';
 
 const apiLoginV2 = '/centreon/authentication/providers/configurations/local';
 
@@ -103,12 +104,15 @@ interface CopyFromContainerProps {
 
 Cypress.Commands.add(
   'copyFromContainer',
-  ({
-    name = Cypress.env('dockerName'),
-    source,
-    destination
-  }: CopyFromContainerProps) => {
-    return cy.exec(`docker cp ${name}:${source} "${destination}"`);
+  (
+    {
+      name = Cypress.env('dockerName'),
+      source,
+      destination
+    }: CopyFromContainerProps,
+    options?: Partial<Cypress.ExecOptions>
+  ) => {
+    return cy.exec(`docker cp ${name}:${source} "${destination}"`, options);
   }
 );
 
@@ -120,12 +124,15 @@ interface CopyToContainerProps {
 
 Cypress.Commands.add(
   'copyToContainer',
-  ({
-    name = Cypress.env('dockerName'),
-    source,
-    destination
-  }: CopyToContainerProps) => {
-    return cy.exec(`docker cp ${source} ${name}:${destination}`);
+  (
+    {
+      name = Cypress.env('dockerName'),
+      source,
+      destination
+    }: CopyToContainerProps,
+    options?: Partial<Cypress.ExecOptions>
+  ) => {
+    return cy.exec(`docker cp ${source} ${name}:${destination}`, options);
   }
 );
 
@@ -136,7 +143,7 @@ interface LoginByTypeOfUserProps {
 
 Cypress.Commands.add(
   'loginByTypeOfUser',
-  ({ jsonName, loginViaApi }): Cypress.Chainable => {
+  ({ jsonName = 'admin', loginViaApi = false }): Cypress.Chainable => {
     if (loginViaApi) {
       return cy
         .fixture(`users/${jsonName}.json`)
@@ -153,12 +160,15 @@ Cypress.Commands.add(
         .visit(`${Cypress.config().baseUrl}`)
         .wait('@getNavigationList');
     }
+
     cy.visit(`${Cypress.config().baseUrl}`)
       .fixture(`users/${jsonName}.json`)
       .then((credential) => {
-        cy.getByLabel({ label: 'Alias', tag: 'input' }).type(credential.login);
+        cy.getByLabel({ label: 'Alias', tag: 'input' }).type(
+          `{selectAll}{backspace}${credential.login}`
+        );
         cy.getByLabel({ label: 'Password', tag: 'input' }).type(
-          credential.password
+          `{selectAll}{backspace}${credential.password}`
         );
       })
       .getByLabel({ label: 'Connect', tag: 'button' })
@@ -215,29 +225,7 @@ interface StartContainerProps {
 Cypress.Commands.add(
   'startContainer',
   ({ name, image, portBindings }: StartContainerProps): Cypress.Chainable => {
-    return cy
-      .exec('docker image list --format "{{.Repository}}:{{.Tag}}"')
-      .then(({ stdout }) => {
-        if (
-          stdout.match(
-            new RegExp(
-              `^${image.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}`,
-              'm'
-            )
-          )
-        ) {
-          cy.log(`Local docker image found : ${image}`);
-
-          return cy.wrap(image);
-        }
-
-        cy.log(`Pulling remote docker image : ${image}`);
-
-        return cy.exec(`docker pull ${image}`).then(() => cy.wrap(image));
-      })
-      .then((imageName) =>
-        cy.task('startContainer', { image: imageName, name, portBindings })
-      );
+    return cy.task('startContainer', { image, name, portBindings });
   }
 );
 
@@ -267,12 +255,13 @@ Cypress.Commands.add(
         portBindings: [{ destination: 4000, source: 80 }]
       })
       .then(() => {
-        const baseUrl = 'http://0.0.0.0:4000';
+        const baseUrl = 'http://127.0.0.1:4000';
 
         Cypress.config('baseUrl', baseUrl);
 
-        return cy.exec(
-          `npx wait-on ${baseUrl}/centreon/api/latest/platform/installation/status`
+        return cy.task(
+          'waitOn',
+          `${baseUrl}/centreon/api/latest/platform/installation/status`
         );
       })
       .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
@@ -324,12 +313,16 @@ Cypress.Commands.add(
           });
         }
 
-        return cy.copyFromContainer({
-          destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
-          name,
-          source: '/var/log/php8.1-fpm-centreon-error.log'
-        });
+        return cy.copyFromContainer(
+          {
+            destination: `${logDirectory}/php8.1-fpm-centreon-error.log`,
+            name,
+            source: '/var/log/php8.1-fpm-centreon-error.log'
+          },
+          { failOnNonZeroExit: false }
+        );
       })
+      .exec(`chmod -R 755 "${logDirectory}"`)
       .stopContainer({ name });
   }
 );
@@ -391,25 +384,81 @@ Cypress.Commands.add(
   }
 );
 
+interface ShareDashboardToUserProps {
+  dashboardName: string;
+  role: string;
+  userName: string;
+}
+
+interface ListingRequestResult {
+  body: {
+    result: Array<{
+      id: number;
+    }>;
+  };
+}
+
+Cypress.Commands.add(
+  'shareDashboardToUser',
+  ({ dashboardName, userName, role }: ShareDashboardToUserProps): void => {
+    Promise.all([
+      cy.request({
+        method: 'GET',
+        url: `/centreon/api/latest/configuration/users?search={"name":"${userName}"}`
+      }),
+      cy.request({
+        method: 'GET',
+        url: `/centreon/api/latest/configuration/dashboards?search={"name":"${dashboardName}"}`
+      })
+    ]).then(
+      ([retrievedUser, retrievedDashboard]: [
+        ListingRequestResult,
+        ListingRequestResult
+      ]) => {
+        const userId = retrievedUser.body.result[0].id;
+        const dashboardId = retrievedDashboard.body.result[0].id;
+
+        cy.request({
+          body: {
+            id: userId,
+            role: `${role}`
+          },
+          method: 'POST',
+          url: `/centreon/api/latest/configuration/dashboards/${dashboardId}/access_rights/contacts`
+        });
+      }
+    );
+  }
+);
+
 Cypress.Commands.add('getTimeFromHeader', (): Cypress.Chainable => {
-  return cy.waitUntil(() => {
-    return cy.get('header div[data-cy="clock"]').then(($time) => {
+  return cy
+    .get('header div[data-cy="clock"]', { timeout: 10000 })
+    .should('be.visible')
+    .then(($time) => {
       const headerTime = $time.children()[1].textContent;
       if (headerTime?.match(/\d+:\d+/)) {
-        return headerTime;
+        cy.log(`header time is : ${headerTime}`);
+
+        return cy.wrap(headerTime);
       }
 
-      return false;
+      throw new Error(`header time is not displayed`);
     });
-  });
 });
 
 declare global {
   namespace Cypress {
     interface Chainable {
       clickSubRootMenuItem: (page: string) => Cypress.Chainable;
-      copyFromContainer: (props: CopyFromContainerProps) => Cypress.Chainable;
-      copyToContainer: (props: CopyToContainerProps) => Cypress.Chainable;
+      copyFromContainer: (
+        props: CopyFromContainerProps,
+        options?: Partial<Cypress.ExecOptions>
+      ) => Cypress.Chainable;
+      copyToContainer: (
+        props: CopyToContainerProps,
+        options?: Partial<Cypress.ExecOptions>
+      ) => Cypress.Chainable;
       execInContainer: ({
         command,
         name
@@ -421,8 +470,8 @@ declare global {
       insertDashboard: (dashboard: Dashboard) => Cypress.Chainable;
       insertDashboardList: (fixtureFile: string) => Cypress.Chainable;
       loginByTypeOfUser: ({
-        jsonName = 'admin',
-        loginViaApi = false
+        jsonName,
+        loginViaApi
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
       moveSortableElement: (direction: string) => Cypress.Chainable;
       navigateTo: ({
@@ -430,6 +479,11 @@ declare global {
         rootItemNumber,
         subMenu
       }: NavigateToProps) => Cypress.Chainable;
+      shareDashboardToUser: ({
+        dashboardName,
+        userName,
+        role
+      }: ShareDashboardToUserProps) => Cypress.Chainable;
       startContainer: ({
         name,
         image

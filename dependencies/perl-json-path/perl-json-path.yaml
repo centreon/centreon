@@ -43,6 +43,8 @@ overrides:
       - perl(Readonly)
       - perl(Tie::IxHash)
       - perl(Try::Tiny)
+    provides:
+      - perl(JSON::Path)
   deb:
     depends:
       - libcarp-assert-perl

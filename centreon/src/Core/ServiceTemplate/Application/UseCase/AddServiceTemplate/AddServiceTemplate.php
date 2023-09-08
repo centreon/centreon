@@ -33,8 +33,6 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
-use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -45,21 +43,21 @@ use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\Macro\Domain\Model\MacroDifference;
 use Core\Macro\Domain\Model\MacroManager;
-use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
-use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
+use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
+use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
+use Core\ServiceGroup\Domain\Model\ServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\NewServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
-use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
-use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
 final class AddServiceTemplate
 {
@@ -69,21 +67,19 @@ final class AddServiceTemplate
     private array $accessGroups;
 
     public function __construct(
+        private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
         private readonly WriteServiceTemplateRepositoryInterface $writeServiceTemplateRepository,
-        private readonly ReadServiceSeverityRepositoryInterface $serviceSeverityRepository,
-        private readonly ReadPerformanceGraphRepositoryInterface $performanceGraphRepository,
-        private readonly ReadCommandRepositoryInterface $commandRepository,
-        private readonly ReadTimePeriodRepositoryInterface $timePeriodRepository,
-        private readonly ReadViewImgRepositoryInterface $imageRepository,
-        private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
         private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
         private readonly DataStorageEngineInterface $storageEngine,
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly WriteServiceCategoryRepositoryInterface $writeServiceCategoryRepository,
+        private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
+        private readonly WriteServiceGroupRepositoryInterface $writeServiceGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
+        private readonly AddServiceTemplateValidation $validation,
         private readonly OptionService $optionService,
         private readonly ContactInterface $user
     ) {
@@ -110,6 +106,7 @@ final class AddServiceTemplate
 
             if (! $this->user->isAdmin()) {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $this->validation->accessGroups = $this->accessGroups;
             }
 
             $formattedName = ServiceTemplate::formatName($request->name);
@@ -138,14 +135,19 @@ final class AddServiceTemplate
             }
             if ($this->user->isAdmin()) {
                 $serviceCategories = $this->readServiceCategoryRepository->findByService($newServiceTemplateId);
+                $serviceGroups = $this->readServiceGroupRepository->findByService($newServiceTemplateId);
             } else {
                 $serviceCategories = $this->readServiceCategoryRepository->findByServiceAndAccessGroups(
                     $newServiceTemplateId,
                     $this->accessGroups
                 );
+                $serviceGroups = $this->readServiceGroupRepository->findByServiceAndAccessGroups(
+                    $newServiceTemplateId,
+                    $this->accessGroups
+                );
             }
 
-            $presenter->presentResponse($this->createResponse($serviceTemplate, $serviceCategories));
+            $presenter->presentResponse($this->createResponse($serviceTemplate, $serviceCategories, $serviceGroups));
         } catch (AssertionFailedException $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -160,100 +162,6 @@ final class AddServiceTemplate
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(ServiceTemplateException::errorWhileAdding($ex)));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-        }
-    }
-
-    /**
-     * @param int|null $serviceTemplateId
-     *
-     * @throws ServiceTemplateException
-     * @throws \Throwable
-     */
-    public function assertIsValidServiceTemplate(?int $serviceTemplateId): void
-    {
-        if ($serviceTemplateId !== null && ! $this->readServiceTemplateRepository->exists($serviceTemplateId)) {
-            $this->error('Service template does not exist', ['service_template_id' => $serviceTemplateId]);
-
-            throw ServiceTemplateException::idDoesNotExist('service_template_id', $serviceTemplateId);
-        }
-    }
-
-    /**
-     * @param int|null $commandId
-     *
-     * @throws ServiceTemplateException
-     */
-    public function assertIsValidCommand(?int $commandId): void
-    {
-        if (
-            $commandId !== null
-            && ! $this->commandRepository->existsByIdAndCommandType($commandId, CommandType::Check)
-        ) {
-            $this->error('Check command does not exist', ['check_command_id' => $commandId]);
-
-            throw ServiceTemplateException::idDoesNotExist('check_command_id', $commandId);
-        }
-    }
-
-    /**
-     * @param int|null $eventHandlerId
-     *
-     * @throws ServiceTemplateException
-     */
-    public function assertIsValidEventHandler(?int $eventHandlerId): void
-    {
-        if ($eventHandlerId !== null && ! $this->commandRepository->exists($eventHandlerId)) {
-            $this->error('Event handler command does not exist', ['event_handler_command_id' => $eventHandlerId]);
-
-            throw ServiceTemplateException::idDoesNotExist('event_handler_command_id', $eventHandlerId);
-        }
-    }
-
-    /**
-     * @param int|null $timePeriodId
-     *
-     * @throws ServiceTemplateException
-     * @throws \Throwable
-     */
-    public function assertIsValidTimePeriod(?int $timePeriodId): void
-    {
-        if ($timePeriodId !== null && ! $this->timePeriodRepository->exists($timePeriodId)) {
-            $this->error('Time period does not exist', ['check_timeperiod_id' => $timePeriodId]);
-
-            throw ServiceTemplateException::idDoesNotExist('check_timeperiod_id', $timePeriodId);
-        }
-    }
-
-    /**
-     * @param int|null $iconId
-     *
-     * @throws ServiceTemplateException
-     * @throws \Throwable
-     */
-    public function assertIsValidIcon(?int $iconId): void
-    {
-        if ($iconId !== null && ! $this->imageRepository->existsOne($iconId)) {
-            $this->error('Icon does not exist', ['icon_id' => $iconId]);
-
-            throw ServiceTemplateException::idDoesNotExist('icon_id', $iconId);
-        }
-    }
-
-    /**
-     * @param int|null $notificationTimePeriodId
-     *
-     * @throws ServiceTemplateException
-     * @throws \Throwable
-     */
-    public function assertIsValidNotificationTimePeriod(?int $notificationTimePeriodId): void
-    {
-        if ($notificationTimePeriodId !== null && ! $this->timePeriodRepository->exists($notificationTimePeriodId)) {
-            $this->error(
-                'Notification time period does not exist',
-                ['notification_timeperiod_id' => $notificationTimePeriodId]
-            );
-
-            throw ServiceTemplateException::idDoesNotExist('notification_timeperiod_id', $notificationTimePeriodId);
         }
     }
 
@@ -309,85 +217,11 @@ final class AddServiceTemplate
     private function createNewServiceTemplate(AddServiceTemplateRequest $request): NewServiceTemplate
     {
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
-        $inheritanceMode = isset($inheritanceMode['inheritance_mode'])
-            ? $inheritanceMode['inheritance_mode']->getValue()
+        $inheritanceMode = isset($inheritanceMode[0])
+            ? (int) $inheritanceMode[0]->getValue()
             : 0;
 
         return NewServiceTemplateFactory::create((int) $inheritanceMode, $request);
-    }
-
-    /**
-     * @param int|null $severityId
-     *
-     * @throws ServiceTemplateException
-     * @throws \Throwable
-     */
-    private function assertIsValidSeverity(?int $severityId): void
-    {
-        if ($severityId !== null && ! $this->serviceSeverityRepository->exists($severityId)) {
-            $this->error('Service severity does not exist', ['severity_id' => $severityId]);
-
-            throw ServiceTemplateException::idDoesNotExist('severity_id', $severityId);
-        }
-    }
-
-    /**
-     * @param int|null $graphTemplateId
-     *
-     * @throws ServiceTemplateException
-     * @throws \Throwable
-     */
-    private function assertIsValidPerformanceGraph(?int $graphTemplateId): void
-    {
-        if ($graphTemplateId !== null && ! $this->performanceGraphRepository->exists($graphTemplateId)) {
-            $this->error('Performance graph does not exist', ['graph_template_id' => $graphTemplateId]);
-
-            throw ServiceTemplateException::idDoesNotExist('graph_template_id', $graphTemplateId);
-        }
-    }
-
-    /**
-     * @param list<int> $hostTemplateIds
-     *
-     * @throws ServiceTemplateException
-     */
-    private function assertIsValidHostTemplates(array $hostTemplateIds): void
-    {
-        if (! empty($hostTemplateIds)) {
-            $hostTemplateIds = array_unique($hostTemplateIds);
-            $hostTemplateIdsFound = $this->readHostTemplateRepository->findAllExistingIds($hostTemplateIds);
-            if ([] !== ($diff = array_diff($hostTemplateIds, $hostTemplateIdsFound))) {
-                throw ServiceTemplateException::idsDoesNotExist('host_templates', $diff);
-            }
-        }
-    }
-
-    /**
-     * @param list<int> $serviceCategoriesIds
-     *
-     * @throws ServiceTemplateException
-     * @throws \Throwable
-     */
-    private function assertIsValidServiceCategories(array $serviceCategoriesIds): void
-    {
-        if (empty($serviceCategoriesIds)) {
-            return;
-        }
-
-        if ($this->user->isAdmin()) {
-            $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
-                $serviceCategoriesIds
-            );
-        } else {
-            $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIdsByAccessGroups(
-                $serviceCategoriesIds,
-                $this->accessGroups
-            );
-        }
-
-        if ([] !== ($idsNotFound = array_diff($serviceCategoriesIds, $serviceCategoriesIdsFound))) {
-            throw ServiceTemplateException::idsDoesNotExist('service_categories', $idsNotFound);
-        }
     }
 
     /**
@@ -399,6 +233,7 @@ final class AddServiceTemplate
     private function linkServiceTemplateToServiceCategories(int $serviceTemplateId, AddServiceTemplateRequest $request): void
     {
         if (empty($request->serviceCategories)) {
+
             return;
         }
 
@@ -410,14 +245,61 @@ final class AddServiceTemplate
     }
 
     /**
+     * @param int $serviceTemplateId
+     * @param AddServiceTemplateRequest $request
+     *
+     * @throws \Throwable
+     */
+    private function linkServiceTemplateToServiceGroups(int $serviceTemplateId, AddServiceTemplateRequest $request): void
+    {
+        if (empty($request->serviceGroups)) {
+
+            return;
+        }
+
+        $this->info(
+            'Link existing service groups to service',
+            ['service_groups' => $request->serviceGroups]
+        );
+
+        $serviceGroupRelations = [];
+        $serviceGroupDtos = $this->removeDuplicates($request->serviceGroups);
+        foreach ($serviceGroupDtos as $serviceGroup) {
+            $serviceGroupRelations[] = new ServiceGroupRelation(
+                serviceGroupId: $serviceGroup->serviceGroupId,
+                serviceId: $serviceTemplateId,
+                hostId: $serviceGroup->hostTemplateId
+            );
+        }
+
+        $this->writeServiceGroupRepository->link($serviceGroupRelations);
+    }
+
+    /**
+     * @param ServiceGroupDto[] $serviceGroupList
+     *
+     * @return ServiceGroupDto[]
+     */
+    private function removeDuplicates(array $serviceGroupList): array
+    {
+        $uniqueList = [];
+        foreach ($serviceGroupList as $item) {
+            $uniqueList[$item->serviceGroupId . '_' . $item->hostTemplateId] = $item;
+        }
+
+        return array_values($uniqueList);
+    }
+
+    /**
      * @param ServiceTemplate $serviceTemplate
      * @param ServiceCategory[] $serviceCategories
+     * @param array<array{relation:ServiceGroupRelation,serviceGroup:ServiceGroup}> $serviceGroups
      *
      * @throws \Throwable
      *
      * @return AddServiceTemplateResponse
      */
-    private function createResponse(ServiceTemplate $serviceTemplate, array $serviceCategories): AddServiceTemplateResponse
+    private function createResponse(ServiceTemplate $serviceTemplate, array $serviceCategories, array $serviceGroups): AddServiceTemplateResponse
     {
         $macros = $this->readServiceMacroRepository->findByServiceIds($serviceTemplate->getId());
 
@@ -430,7 +312,6 @@ final class AddServiceTemplate
         $response->notificationTypes = $serviceTemplate->getNotificationTypes();
         $response->isContactAdditiveInheritance = $serviceTemplate->isContactAdditiveInheritance();
         $response->isContactGroupAdditiveInheritance = $serviceTemplate->isContactGroupAdditiveInheritance();
-        $response->isActivated = $serviceTemplate->isActivated();
         $response->isLocked = $serviceTemplate->isLocked();
         $response->activeChecks = $serviceTemplate->getActiveChecks();
         $response->passiveCheck = $serviceTemplate->getPassiveCheck();
@@ -478,6 +359,20 @@ final class AddServiceTemplate
             $serviceCategories
         );
 
+        $hostTemplateNames = $this->readHostTemplateRepository->findNamesByIds(array_map(
+            fn(array $group): int => (int) $group['relation']->getHostId(),
+            $serviceGroups
+        ));
+        $response->groups = array_map(
+            fn(array $group) => [
+                'serviceGroupId' => $group['serviceGroup']->getId(),
+                'serviceGroupName' => $group['serviceGroup']->getName(),
+                'hostTemplateId' => (int) $group['relation']->getHostId(),
+                'hostTemplateName' => $hostTemplateNames[(int) $group['relation']->getHostId()],
+            ],
+            $serviceGroups,
+        );
+
         return $response;
     }
 
@@ -489,16 +384,17 @@ final class AddServiceTemplate
      */
     private function assertParameters(AddServiceTemplateRequest $request): void
     {
-        $this->assertIsValidSeverity($request->severityId);
-        $this->assertIsValidPerformanceGraph($request->graphTemplateId);
-        $this->assertIsValidServiceTemplate($request->serviceTemplateParentId);
-        $this->assertIsValidCommand($request->commandId);
-        $this->assertIsValidEventHandler($request->eventHandlerId);
-        $this->assertIsValidTimePeriod($request->checkTimePeriodId);
-        $this->assertIsValidNotificationTimePeriod($request->notificationTimePeriodId);
-        $this->assertIsValidIcon($request->iconId);
-        $this->assertIsValidHostTemplates($request->hostTemplateIds);
-        $this->assertIsValidServiceCategories($request->serviceCategories);
+        $this->validation->assertIsValidSeverity($request->severityId);
+        $this->validation->assertIsValidPerformanceGraph($request->graphTemplateId);
+        $this->validation->assertIsValidServiceTemplate($request->serviceTemplateParentId);
+        $this->validation->assertIsValidCommand($request->commandId);
+        $this->validation->assertIsValidEventHandler($request->eventHandlerId);
+        $this->validation->assertIsValidTimePeriod($request->checkTimePeriodId);
+        $this->validation->assertIsValidNotificationTimePeriod($request->notificationTimePeriodId);
+        $this->validation->assertIsValidIcon($request->iconId);
+        $this->validation->assertIsValidHostTemplates($request->hostTemplateIds);
+        $this->validation->assertIsValidServiceCategories($request->serviceCategories);
+        $this->validation->assertIsValidServiceGroups($request->serviceGroups, $request->hostTemplateIds);
     }
 
     /**
@@ -518,10 +414,13 @@ final class AddServiceTemplate
             $newServiceTemplateId = $this->writeServiceTemplateRepository->add($newServiceTemplate);
             $this->addMacros($newServiceTemplateId, $request);
             $this->linkServiceTemplateToServiceCategories($newServiceTemplateId, $request);
+            $this->linkServiceTemplateToServiceGroups($newServiceTemplateId, $request);
             $this->storageEngine->commitTransaction();
 
             return $newServiceTemplateId;
         } catch (\Throwable $ex) {
+            $this->error("Rollback of 'Add Service Template' transaction.");
+
             $this->storageEngine->rollbackTransaction();
 
             throw $ex;

@@ -4,9 +4,6 @@ jms_serializer:
             centreon:
                 namespace_prefix: "Centreon\\Domain"
                 path: '%kernel.project_dir%/config/packages/serializer/Centreon'
-            application:
-                namespace_prefix: "Centreon\\Application"
-                path: '%kernel.project_dir%/config/packages/serializer/Application'
             infrastructure:
                 namespace_prefix: "Centreon\\Infrastructure"
                 path: '%kernel.project_dir%/config/packages/serializer/Infrastructure'
@@ -305,6 +302,8 @@ services:
             tags: ['platform.requirement.database.validators']
         Core\Notification\Application\Repository\NotificationResourceRepositoryInterface:
             tags: ['configuration.notification.resource.repositories']
+        Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface:
+            tags: ['configuration.notification.notifiable.resource.request.provider']
 
     Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\FindProviderConfigurations:
         arguments:
@@ -496,3 +495,7 @@ services:
     Core\Notification\Infrastructure\Repository\NotificationResourceRepositoryProvider:
         arguments:
             $repositories: !tagged_iterator 'configuration.notification.resource.repositories'
+
+    Core\Notification\Infrastructure\Repository\DbReadNotifiableResourceRepository:
+        arguments:
+            $notifiableResourceRequestProviders: !tagged_iterator 'configuration.notification.notifiable.resource.request.provider'

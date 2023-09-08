@@ -136,7 +136,7 @@ class ServiceTemplateException extends \Exception
      *
      * @return self
      */
-    public static function idsDoesNotExist(string $propertyName, array $propertyValue): self
+    public static function idsDoNotExist(string $propertyName, array $propertyValue): self
     {
         return new self(
             sprintf(
@@ -169,5 +169,16 @@ class ServiceTemplateException extends \Exception
     public static function updateNotAllowed(): self
     {
         return new self(_('You are not allowed to update a service template'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function invalidServiceGroupAssociation(): self
+    {
+        return new self(
+            _('Host template required in service group association is not linked to service template'),
+            self::CODE_CONFLICT
+        );
     }
 }

@@ -3,11 +3,15 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
+import { HeadingNode } from '@lexical/rich-text';
+import { ListItemNode, ListNode } from '@lexical/list';
 import anylogger from 'anylogger';
 import { makeStyles } from 'tss-react/mui';
-import { EditorState } from 'lexical';
+import { EditorState, LexicalEditor } from 'lexical';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { equals } from 'ramda';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 
 import { Typography } from '@mui/material';
 
@@ -18,15 +22,19 @@ import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 
 export interface RichTextEditorProps {
   contentClassName?: string;
+  disabled?: boolean;
+  displayMacrosButton?: boolean;
   editable: boolean;
   editorState?: string;
   error?: string;
-  getEditorState?: (editorState: EditorState) => void;
+  getEditorState?: (editorState: EditorState, editor: LexicalEditor) => void;
   initialEditorState?: string;
+  initialize?: (editor) => void;
   inputClassname?: string;
   minInputHeight?: number;
   namespace?: string;
   onBlur?: (e: string) => void;
+  openLinkInNewTab?: boolean;
   placeholder?: string;
   resetEditorToInitialStateCondition?: () => boolean;
   toolbarPositions?: 'start' | 'end';
@@ -55,6 +63,36 @@ const useStyles = makeStyles<{ toolbarPositions: 'start' | 'end' }>()(
       fontWeight: '200',
       paddingLeft: theme.spacing(1.5),
       paddingTop: theme.spacing(0.5)
+    },
+    h1: {
+      fontSize: theme.typography.h1.fontSize,
+      fontWeight: theme.typography.h1.fontWeight,
+      lineHeight: theme.typography.h1.lineHeight
+    },
+    h2: {
+      fontSize: theme.typography.h2.fontSize,
+      fontWeight: theme.typography.h2.fontWeight,
+      lineHeight: theme.typography.h2.lineHeight
+    },
+    h3: {
+      fontSize: theme.typography.h3.fontSize,
+      fontWeight: theme.typography.h3.fontWeight,
+      lineHeight: theme.typography.h3.lineHeight
+    },
+    h4: {
+      fontSize: theme.typography.h4.fontSize,
+      fontWeight: theme.typography.h4.fontWeight,
+      lineHeight: theme.typography.h4.lineHeight
+    },
+    h5: {
+      fontSize: theme.typography.h5.fontSize,
+      fontWeight: theme.typography.h5.fontWeight,
+      lineHeight: theme.typography.h5.lineHeight
+    },
+    h6: {
+      fontSize: theme.typography.h6.fontSize,
+      fontWeight: theme.typography.h6.fontWeight,
+      lineHeight: theme.typography.h6.lineHeight
     },
     italic: {
       fontStyle: 'italic'
@@ -92,7 +130,11 @@ const RichTextEditor = ({
   toolbarPositions = 'start',
   error,
   onBlur,
-  contentClassName
+  contentClassName,
+  displayMacrosButton = false,
+  disabled,
+  openLinkInNewTab = true,
+  initialize
 }: RichTextEditorProps): JSX.Element => {
   const { classes } = useStyles({ toolbarPositions });
 
@@ -104,9 +146,17 @@ const RichTextEditor = ({
     editable,
     editorState: initialEditorState,
     namespace,
-    nodes: [AutoLinkNode, LinkNode],
+    nodes: [AutoLinkNode, LinkNode, HeadingNode, ListNode, ListItemNode],
     onError,
     theme: {
+      heading: {
+        h1: classes.h1,
+        h2: classes.h2,
+        h3: classes.h3,
+        h4: classes.h4,
+        h5: classes.h5,
+        h6: classes.h6
+      },
       link: classes.link,
       text: {
         bold: classes.bold,
@@ -122,7 +172,11 @@ const RichTextEditor = ({
     <LexicalComposer initialConfig={initialConfig}>
       <div className={classes.container}>
         <div className={classes.toolbar}>
-          <ToolbarPlugin editable={editable} getEditorState={getEditorState} />
+          <ToolbarPlugin
+            disabled={disabled}
+            displayMacrosButton={displayMacrosButton}
+            editable={editable}
+          />
         </div>
         <div>
           <RichTextPlugin
@@ -130,11 +184,13 @@ const RichTextEditor = ({
             contentEditable={
               <ContentEditable
                 className={contentClassName || ''}
+                disabled={disabled}
                 editable={editable}
                 editorState={editorState}
                 error={error}
                 hasInitialTextContent={hasInitialTextContent}
                 initialEditorState={initialEditorState}
+                initialize={initialize}
                 inputClassname={inputClassname}
                 minInputHeight={minInputHeight}
                 namespace={namespace}
@@ -149,8 +205,13 @@ const RichTextEditor = ({
           />
           <HistoryPlugin />
           <LinkPlugin />
-          <AutoCompleteLinkPlugin />
-          <FloatingLinkEditorPlugin editable={editable} />
+          <ListPlugin />
+          <OnChangePlugin onChange={getEditorState} />
+          <AutoCompleteLinkPlugin openLinkInNewTab={openLinkInNewTab} />
+          <FloatingLinkEditorPlugin
+            editable={editable}
+            openLinkInNewTab={openLinkInNewTab}
+          />
           {error && <Typography className={classes.error}>{error}</Typography>}
         </div>
       </div>

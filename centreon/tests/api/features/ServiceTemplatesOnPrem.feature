@@ -17,6 +17,7 @@ Feature:
     SC;ADD;severity1;service-severity-alias
     SC;setparam;severity1;sc_activate;1
     SC;setseverity;severity1;42;logos/logo-centreon-colors.png
+    SG;ADD;ServiceGroupA;ServiceGroupA
     """
 
     When I send a POST request to '/api/latest/configuration/services/templates' with body:
@@ -164,7 +165,6 @@ Feature:
         "icon_id": 1,
         "icon_alternative": "icon_alternative",
         "severity_id": null,
-        "is_activated": true,
         "macros": [
             {
                 "name": "MACROB",
@@ -185,7 +185,13 @@ Feature:
                 "description": null
             }
         ],
-        "service_categories": [1, 2]
+        "service_categories": [1, 2],
+        "service_groups": [
+            {
+                "service_group_id": 1,
+                "host_template_id": 3
+            }
+        ]
     }
     """
     Then the response code should be 201
@@ -240,7 +246,6 @@ Feature:
             3,
             11
         ],
-        "is_activated": true,
         "is_locked": false,
         "macros": [
             {
@@ -264,6 +269,14 @@ Feature:
             {
                 "id": 2,
                 "name": "Traffic"
+            }
+        ],
+        "groups": [
+            {
+                "id": 1,
+                "name": "ServiceGroupA",
+                "host_template_id": 3,
+                "host_template_name": "Servers-Linux"
             }
         ]
     }
@@ -327,7 +340,6 @@ Feature:
                     3,
                     11
                 ],
-                "is_activated": true,
                 "is_locked": false
             }
         ],
@@ -385,7 +397,6 @@ Feature:
         "icon_id": null,
         "icon_alternative": "new icon_alternative",
         "severity_id": 5,
-        "is_activated": true,
         "macros": [
             {
                 "name": "MACROB",
@@ -434,8 +445,8 @@ Feature:
                 "passive_check_enabled": 1,
                 "volatility_enabled": 0,
                 "notification_enabled": 1,
-                "is_contact_additive_inheritance": true,
-                "is_contact_group_additive_inheritance": true,
+                "is_contact_additive_inheritance": false,
+                "is_contact_group_additive_inheritance": false,
                 "notification_interval": 5,
                 "notification_timeperiod_id": 1,
                 "notification_type": 0,
@@ -461,7 +472,6 @@ Feature:
                     2,
                     3
                 ],
-                "is_activated": true,
                 "is_locked": false
             }
         ],

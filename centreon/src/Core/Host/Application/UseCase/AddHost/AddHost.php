@@ -43,6 +43,8 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
+use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
+use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
@@ -62,7 +64,9 @@ final class AddHost
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
+        private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
+        private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
         private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
@@ -98,6 +102,7 @@ final class AddHost
 
                 $hostId = $this->createHost($request);
                 $this->linkHostCategories($request, $hostId);
+                $this->linkHostGroups($request, $hostId);
                 $this->linkParentTemplates($request, $hostId);
                 $this->addMacros($request, $hostId);
                 // Note: host is not linked to any ACLsResource
@@ -155,8 +160,8 @@ final class AddHost
         $this->validation->assertIsValidIcon($request->iconId);
 
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
-        $inheritanceMode = isset($inheritanceMode['inheritance_mode'])
-            ? (int) $inheritanceMode['inheritance_mode']->getValue()
+        $inheritanceMode = isset($inheritanceMode[0])
+            ? (int) $inheritanceMode[0]->getValue()
             : 0;
 
         $newHost = NewHostFactory::create($request, $inheritanceMode);
@@ -190,6 +195,31 @@ final class AddHost
         );
 
         $this->writeHostCategoryRepository->linkToHost($hostId, $categoryIds);
+    }
+
+    /**
+     * @param AddHostRequest $dto
+     * @param int $hostId
+     *
+     * @throws HostException
+     * @throws \Throwable
+     */
+    private function linkHostGroups(AddHostRequest $dto, int $hostId): void
+    {
+        $groupIds = array_unique($dto->groups);
+        if ($groupIds === []) {
+
+            return;
+        }
+
+        $this->validation->assertAreValidGroups($groupIds);
+
+        $this->info(
+            'AddHost: Linking host groups',
+            ['host_id' => $hostId, 'group_ids' => $groupIds]
+        );
+
+        $this->writeHostGroupRepository->linkToHost($hostId, $groupIds);
     }
 
     /**
@@ -344,16 +374,18 @@ final class AddHost
         }
         if ($this->user->isAdmin()) {
             $hostCategories = $this->readHostCategoryRepository->findByHost($hostId);
+            $hostGroups = $this->readHostGroupRepository->findByHost($hostId);
         } else {
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             $hostCategories = $this->readHostCategoryRepository->findByHostAndAccessGroups(
                 $hostId,
                 $accessGroups
             );
+            $hostGroups = $this->readHostGroupRepository->findByHostAndAccessGroups($hostId, $accessGroups);
         }
         $parentTemplates = $this->findParentTemplates($parentTemplateIds);
         $macros = $this->readHostMacroRepository->findByHostId($hostId);
 
-        return AddHostFactory::createResponse($host, $hostCategories, $parentTemplates, $macros);
+        return AddHostFactory::createResponse($host, $hostCategories, $parentTemplates, $macros, $hostGroups);
     }
 }

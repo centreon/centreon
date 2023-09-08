@@ -72,7 +72,6 @@ beforeEach(function (): void {
                 'iconId' => 1,
                 'iconAlternative' => 'iconAlternative-value',
                 'comment' => 'comment-value',
-                'isActivated' => false,
                 'isLocked' => true,
                 ...$fields,
             ]
@@ -123,7 +122,6 @@ it('should return properly set host template instance (all properties)', functio
         ->and($hostTemplate->getIconId())->toBe(1)
         ->and($hostTemplate->getIconAlternative())->toBe('iconAlternative-value')
         ->and($hostTemplate->getComment())->toBe('comment-value')
-        ->and($hostTemplate->isActivated())->toBe(false)
         ->and($hostTemplate->isLocked())->toBe(true);
 });
 
@@ -168,7 +166,6 @@ it('should return properly set host template instance (mandatory properties only
         ->and($hostTemplate->getIconId())->toBe(null)
         ->and($hostTemplate->getIconAlternative())->toBe('')
         ->and($hostTemplate->getComment())->toBe('')
-        ->and($hostTemplate->isActivated())->toBe(true)
         ->and($hostTemplate->isLocked())->toBe(false);
 });
 

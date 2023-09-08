@@ -1,6 +1,7 @@
 import { and } from 'ramda';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import {
   Method,
@@ -10,13 +11,16 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
-import { notificationdecoder } from '../../EditPanel/api/decoders';
-import { notificationEndpoint } from '../../EditPanel/api/endpoints';
-import { NotificationType } from '../../EditPanel/models';
-import { adaptNotification as adaptFormFields } from '../../EditPanel/api/adapters';
+import {
+  notificationdecoder,
+  adaptNotification as adaptFormFields
+} from '../../Panel/api';
+import { notificationEndpoint } from '../../Panel/api/endpoints';
+import { NotificationType } from '../../Panel/models';
+import { htmlEmailBodyAtom } from '../../Panel/atom';
 
-import { addNotificationEndpoint } from './endpoints';
 import { adaptNotification } from './adapters';
+import { addNotificationEndpoint } from './endpoints';
 
 interface useDuplicateRequestState {
   submit: (
@@ -42,6 +46,8 @@ const useDuplicateRequest = ({
   const queryClient = useQueryClient();
   const { showSuccessMessage } = useSnackbar();
 
+  const htmlEmailBody = useAtomValue(htmlEmailBodyAtom);
+
   const { data } = useFetchQuery({
     decoder: notificationdecoder,
     getEndpoint: () => notificationEndpoint({ id: notificationId }),
@@ -60,14 +66,18 @@ const useDuplicateRequest = ({
 
   const submit = (values, { setSubmitting, resetForm }): Promise<void> => {
     const payload = panelPayload
-      ? {
-          ...adaptFormFields(panelPayload),
+      ? adaptFormFields({
+          ...panelPayload,
+          messages: {
+            ...panelPayload.messages,
+            formattedMessage: htmlEmailBody
+          },
           name: values?.name
-        }
-      : {
-          ...adaptNotification(data as NotificationType),
+        })
+      : adaptNotification({
+          ...data,
           name: values?.name
-        };
+        } as NotificationType);
 
     return mutateAsync(payload)
       .then((response) => {

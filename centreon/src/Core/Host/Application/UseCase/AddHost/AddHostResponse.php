@@ -109,6 +109,9 @@ final class AddHostResponse
     public array $categories = [];
 
     /** @var array<array{id:int,name:string}> */
+    public array $groups = [];
+
+    /** @var array<array{id:int,name:string}> */
     public array $templates = [];
 
     /** @var array<array{name:string,value:null|string,isPassword:bool,description:string}> */

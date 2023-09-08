@@ -24,6 +24,9 @@ declare(strict_types=1);
 namespace Core\Service\Application\Repository;
 
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\Service\Domain\Model\Service;
+use Core\Service\Domain\Model\ServiceInheritance;
+use Core\Service\Domain\Model\ServiceNamesByHost;
 
 interface ReadServiceRepositoryInterface
 {
@@ -60,4 +63,46 @@ interface ReadServiceRepositoryInterface
      * @return int
      */
     public function findMonitoringServerId(int $serviceId): int;
+
+    /**
+     * Find all service IDs link to the host.
+     *
+     * @param int $hostId Host ID for which the services are linked
+     *
+     * @return list<int>
+     */
+    public function findServiceIdsLinkedToHostId(int $hostId): array;
+
+    /**
+     * Indicates whether the service name already exists.
+     *
+     * @param int $hostId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceNamesByHost|null
+     */
+    public function findServiceNamesByHost(int $hostId): ?ServiceNamesByHost;
+
+    /**
+     * Find one service.
+     *
+     * @param int $serviceId
+     *
+     * @throws \Throwable
+     *
+     * @return Service|null
+     */
+    public function findById(int $serviceId): ?Service;
+
+    /**
+     * Retrieves all service inheritances from a service.
+     *
+     * @param int $serviceId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceInheritance[]
+     */
+    public function findParents(int $serviceId): array;
 }

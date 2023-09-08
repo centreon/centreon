@@ -282,6 +282,12 @@
                 "type": "integer"
             }
         },
+        "groups": {
+            "type": "array",
+            "items": {
+                "type": "integer"
+            }
+        },
         "templates": {
             "type": "array",
             "items": {

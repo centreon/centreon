@@ -4,18 +4,15 @@ import { checkServicesAreMonitored } from '../../../commons';
 import {
   actionBackgroundColors,
   checkIfUserNotificationsAreEnabled,
-  insertDtResources,
-  searchInput,
-  secondServiceInDtName,
-  serviceInDtName,
-  tearDownResource
+  searchInput
 } from '../common';
 
-before(() => {
-  cy.startWebContainer();
-});
+const serviceInDtName = 'service1';
+const secondServiceInDtName = 'service2';
 
 beforeEach(() => {
+  cy.startWebContainer();
+
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -43,6 +40,8 @@ Given('the user have the necessary rights to page Resource Status', () => {
     loginViaApi: true
   }).wait('@getLastestUserFilters');
 
+  cy.disableListingAutoRefresh();
+
   cy.get(searchInput).should('exist');
 });
 
@@ -50,8 +49,28 @@ Given('the user have the necessary rights to set downtime', () => {
   cy.getByTestId({ testId: 'Multiple Set Downtime' }).should('be.visible');
 });
 
-Given('minimally one resource with and notifications enabled on user', () => {
-  insertDtResources();
+Given('minimally one resource with notifications enabled on user', () => {
+  cy.addHost({
+    activeCheckEnabled: false,
+    checkCommand: 'check_centreon_cpu',
+    name: 'host1',
+    template: 'generic-host'
+  })
+    .addService({
+      activeCheckEnabled: false,
+      host: 'host1',
+      maxCheckAttempts: 1,
+      name: serviceInDtName,
+      template: 'SNMP-DISK-/'
+    })
+    .addService({
+      activeCheckEnabled: false,
+      host: 'host1',
+      maxCheckAttempts: 1,
+      name: secondServiceInDtName,
+      template: 'Ping-LAN'
+    })
+    .applyPollerConfiguration();
 
   checkServicesAreMonitored([
     {
@@ -97,24 +116,19 @@ Then('the user must be notified of the sending of the order', () => {
 });
 
 Then('I see the resource as downtime in the listing', () => {
-  cy.waitUntil(
-    () => {
-      return cy
-        .refreshListing()
-        .then(() => cy.contains(serviceInDtName))
-        .parent()
-        .then((val) => {
-          return (
-            val.css('background-color') === actionBackgroundColors.inDowntime
-          );
-        });
-    },
+  checkServicesAreMonitored([
     {
-      timeout: 15000
+      inDowntime: true,
+      name: serviceInDtName
     }
-  );
+  ]);
 
-  tearDownResource();
+  cy.refreshListing()
+    .then(() => cy.contains(serviceInDtName))
+    .parent()
+    .then((val) => {
+      return val.css('background-color') === actionBackgroundColors.inDowntime;
+    });
 });
 
 Given('multiple resources are selected', () => {
@@ -134,33 +148,32 @@ Given('multiple resources are selected', () => {
 Then(
   'the user should see the downtime resources appear in the listing after a refresh',
   () => {
-    cy.waitUntil(
-      () => {
-        cy.refreshListing()
-          .then(() => cy.contains(serviceInDtName))
-          .parent()
-          .then((val) => {
-            return (
-              val.css('background-color') === actionBackgroundColors.inDowntime
-            );
-          });
-
-        return cy
-          .refreshListing()
-          .then(() => cy.contains(secondServiceInDtName))
-          .parent()
-          .then((val) => {
-            return (
-              val.css('background-color') === actionBackgroundColors.inDowntime
-            );
-          });
+    checkServicesAreMonitored([
+      {
+        inDowntime: true,
+        name: serviceInDtName
       },
       {
-        timeout: 15000
+        inDowntime: true,
+        name: secondServiceInDtName
       }
-    );
+    ]);
 
-    tearDownResource();
+    cy.refreshListing()
+      .then(() => cy.contains(serviceInDtName))
+      .parent()
+      .then((val) => {
+        return (
+          val.css('background-color') === actionBackgroundColors.inDowntime
+        );
+      })
+      .then(() => cy.contains(secondServiceInDtName))
+      .parent()
+      .then((val) => {
+        return (
+          val.css('background-color') === actionBackgroundColors.inDowntime
+        );
+      });
   }
 );
 
@@ -179,22 +192,19 @@ Given('a resource is in downtime', () => {
     cy.contains('Downtime command sent').should('have.length', 1);
   });
 
-  cy.waitUntil(
-    () => {
-      return cy
-        .refreshListing()
-        .then(() => cy.contains(serviceInDtName))
-        .parent()
-        .then((val) => {
-          return (
-            val.css('background-color') === actionBackgroundColors.inDowntime
-          );
-        });
-    },
+  checkServicesAreMonitored([
     {
-      timeout: 15000
+      inDowntime: true,
+      name: serviceInDtName
     }
-  );
+  ]);
+
+  cy.refreshListing()
+    .then(() => cy.contains(serviceInDtName))
+    .parent()
+    .then((val) => {
+      return val.css('background-color') === actionBackgroundColors.inDowntime;
+    });
 });
 
 Given('that you have to go to the downtime page', () => {
@@ -260,25 +270,22 @@ Then('the user goes to the Resource Status page', () => {
 });
 
 Then('the resource should not be in Downtime anymore', () => {
-  cy.waitUntil(
-    () => {
-      return cy
-        .refreshListing()
-        .then(() => cy.contains(serviceInDtName))
-        .parent()
-        .then((val) => {
-          return val.css('background-color') === actionBackgroundColors.normal;
-        });
-    },
+  checkServicesAreMonitored([
     {
-      timeout: 15000
+      inDowntime: false,
+      name: serviceInDtName
     }
-  );
+  ]);
 
-  tearDownResource();
+  cy.refreshListing()
+    .then(() => cy.contains(serviceInDtName))
+    .parent()
+    .then((val) => {
+      return val.css('background-color') === actionBackgroundColors.normal;
+    });
 });
 
-Given('multiple resources are on downtime', () => {
+Given('multiple resources are in downtime', () => {
   cy.contains(serviceInDtName)
     .parent()
     .parent()
@@ -299,22 +306,28 @@ Given('multiple resources are on downtime', () => {
     cy.contains('Downtime command sent').should('have.length', 1);
   });
 
-  cy.waitUntil(
-    () => {
-      return cy
-        .refreshListing()
-        .then(() => cy.contains(serviceInDtName))
-        .parent()
-        .then((val) => {
-          return (
-            val.css('background-color') === actionBackgroundColors.inDowntime
-          );
-        });
+  checkServicesAreMonitored([
+    {
+      inDowntime: true,
+      name: serviceInDtName
     },
     {
-      timeout: 15000
+      inDowntime: true,
+      name: secondServiceInDtName
     }
-  );
+  ]);
+
+  cy.refreshListing()
+    .then(() => cy.contains(serviceInDtName))
+    .parent()
+    .then((val) => {
+      return val.css('background-color') === actionBackgroundColors.inDowntime;
+    })
+    .then(() => cy.contains(secondServiceInDtName))
+    .parent()
+    .then((val) => {
+      return val.css('background-color') === actionBackgroundColors.inDowntime;
+    });
 });
 
 When('I search for the resources currently "In Downtime" in the list', () => {
@@ -372,29 +385,30 @@ Then('the lines disappears from the listing', () => {
 });
 
 Then('the resources should not be in Downtime anymore', () => {
-  cy.waitUntil(
-    () => {
-      cy.refreshListing()
-        .then(() => cy.contains(serviceInDtName))
-        .parent()
-        .then((val) => {
-          return val.css('background-color') === actionBackgroundColors.normal;
-        });
-
-      return cy
-        .refreshListing()
-        .then(() => cy.contains(secondServiceInDtName))
-        .parent()
-        .then((val) => {
-          return val.css('background-color') === actionBackgroundColors.normal;
-        });
+  checkServicesAreMonitored([
+    {
+      inDowntime: false,
+      name: serviceInDtName
     },
     {
-      timeout: 15000
+      inDowntime: false,
+      name: secondServiceInDtName
     }
-  );
+  ]);
+
+  cy.refreshListing()
+    .then(() => cy.contains(serviceInDtName))
+    .parent()
+    .then((val) => {
+      return val.css('background-color') === actionBackgroundColors.normal;
+    })
+    .then(() => cy.contains(secondServiceInDtName))
+    .parent()
+    .then((val) => {
+      return val.css('background-color') === actionBackgroundColors.normal;
+    });
 });
 
-after(() => {
+afterEach(() => {
   cy.stopWebContainer();
 });

@@ -26,6 +26,7 @@ namespace Core\ServiceGroup\Application\Repository;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 
 interface ReadServiceGroupRepositoryInterface
 {
@@ -109,4 +110,50 @@ interface ReadServiceGroupRepositoryInterface
      * @return bool
      */
     public function nameAlreadyExists(string $serviceGroupName): bool;
+
+    /**
+     * Find all existing service groups ids.
+     *
+     * @param list<int> $serviceGroupIds
+     *
+     * @throws \Throwable
+     *
+     * @return list<int>
+     */
+    public function exist(array $serviceGroupIds): array;
+
+    /**
+     * Find all existing service groups ids and according to access groups.
+     *
+     * @param list<int> $serviceGroupIds
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return list<int>
+     */
+    public function existByAccessGroups(array $serviceGroupIds, array $accessGroups): array;
+
+    /**
+     * Find all service groups linked to a service.
+     *
+     * @param int $serviceId
+     *
+     * @throws \Throwable
+     *
+     * @return array<array{relation:ServiceGroupRelation,serviceGroup:ServiceGroup}>
+     */
+    public function findByService(int $serviceId): array;
+
+    /**
+     * Find all service groups linked to a service and according to access groups.
+     *
+     * @param int $serviceId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return array<array{relation:ServiceGroupRelation,serviceGroup:ServiceGroup}>
+     */
+    public function findByServiceAndAccessGroups(int $serviceId, array $accessGroups): array;
 }

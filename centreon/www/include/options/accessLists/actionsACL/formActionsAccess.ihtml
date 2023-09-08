@@ -765,7 +765,16 @@
 				</td>
 				<td class="FormRowValue"><p class="oreonbutton">{$form.host_submit_result.html}</p></td>
 			</tr>
-
+			<tr class="list_lvl_1">
+				<td class="ListColLvl1_name" colspan="2">
+					<h4>{$form.header.administration}</h4>
+				</td>
+			</tr>
+			<tr class="list_one">
+				<td class="FormRowField"><img class="helpTooltip" name="tip_manage_tokens">{$form.manage_tokens.label}
+				</td>
+				<td class="FormRowValue">{$form.manage_tokens.html}</td>
+			</tr>
 			<tr class="list_lvl_1">
 				<td class="ListColLvl1_name" colspan="2">
 					<h4>{$form.header.furtherInfos}</h4>

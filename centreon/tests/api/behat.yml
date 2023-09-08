@@ -23,7 +23,7 @@ default:
         - "%paths.base%/features/DashboardWithOpenApi.feature"
         - "%paths.base%/features/DashboardWithoutOpenApi.feature"
       contexts:
-        - Centreon\Test\Api\Context\FeatureFlagContext
+        - Centreon\Test\Api\Context\DashboardContext
     host_category:
       paths: [ "%paths.base%/features/HostCategory.feature" ]
       contexts:
@@ -112,6 +112,10 @@ default:
         - Centreon\Test\Api\Context\PlatformUpdateContext
     platform_versions:
       paths: [ "%paths.base%/features/PlatformVersions.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\CloudPlatformContext
+    platform_features:
+      paths: [ "%paths.base%/features/PlatformFeatures.feature" ]
       contexts:
         - Centreon\Test\Api\Context\CloudPlatformContext
     host_groups:

@@ -4,7 +4,7 @@ import React from 'react';
 import { mount } from 'cypress/react18';
 import { equals, isNil } from 'ramda';
 
-import { Box } from '@mui/material';
+import { Box, CssBaseline } from '@mui/material';
 
 import { ThemeProvider } from '@centreon/ui';
 
@@ -24,7 +24,7 @@ export enum Method {
   PUT = 'PUT'
 }
 
-Cypress.Commands.add('mount', ({ Component, options }) => {
+Cypress.Commands.add('mount', ({ Component, options = {} }) => {
   const wrapped = (
     <ThemeProvider>
       <Box
@@ -36,10 +36,9 @@ Cypress.Commands.add('mount', ({ Component, options }) => {
       >
         {Component}
       </Box>
+      <CssBaseline />
     </ThemeProvider>
   );
-
-  document.getElementsByTagName('body')[0].setAttribute('style', 'margin:0px');
 
   return mount(wrapped, options);
 });
@@ -128,6 +127,11 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('makeSnapshot', (title?: string) => {
+  cy.viewport(1280, 590);
+  cy.matchImageSnapshot(title);
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -135,8 +139,9 @@ declare global {
         props: InterceptAPIRequestProps<T>
       ) => Cypress.Chainable;
       interceptRequest: (method, path, mock, alias) => Cypress.Chainable;
-      mount: ({ Component, options = {} }: MountProps) => Cypress.Chainable;
-      moveSortableElement: ({ ariaLabel, direction }) => void;
+      makeSnapshot: (title?: string) => void;
+      mount: ({ Component, options }: MountProps) => Cypress.Chainable;
+      moveSortableElement: ({ element, direction }) => void;
       moveSortableElementUsingAriaLabel: ({ ariaLabel, direction }) => void;
       waitForRequest: (alias) => Cypress.Chainable;
     }

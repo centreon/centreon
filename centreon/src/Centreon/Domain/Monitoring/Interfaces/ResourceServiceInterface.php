@@ -28,31 +28,6 @@ use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 interface ResourceServiceInterface
 {
     /**
-     * Find all resources.
-     *
-     * @param ResourceFilter $filter
-     * @return ResourceEntity[]
-     * @throws \Exception
-     */
-    public function findResources(ResourceFilter $filter): array;
-
-    /**
-     * Get list of resources with graph data.
-     *
-     * @param ResourceEntity[] $resources
-     * @return ResourceEntity[]
-     */
-    public function extractResourcesWithGraphData(array $resources): array;
-
-    /**
-     * Replace macros set in the external links by their actual values
-     *
-     * @param ResourceEntity $resource
-     * @return void
-     */
-    public function replaceMacrosInExternalLinks(ResourceEntity $resource): void;
-
-    /**
      * Used to filter requests according to a contact.
      * If the filter is defined, all requests will use the ACL of the contact
      * to fetch data.

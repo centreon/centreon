@@ -119,7 +119,6 @@ beforeEach(function (): void {
     $this->request->iconId = 1;
     $this->request->iconAlternative = 'iconAlternative-value';
     $this->request->comment = 'comment-value';
-    $this->request->isActivated = false;
 
     $this->hostTemplate = new HostTemplate(
         id: 1,
@@ -160,7 +159,6 @@ beforeEach(function (): void {
         iconId: $this->request->iconId,
         iconAlternative: $this->request->iconAlternative,
         comment: $this->request->comment,
-        isActivated: $this->request->isActivated,
         isLocked: false,
     );
 
@@ -665,8 +663,6 @@ it('should return created object on success (with admin user)', function (): voi
         ->toBe($this->hostTemplate->getIconAlternative())
         ->and($response->comment)
         ->toBe($this->hostTemplate->getComment())
-        ->and($response->isActivated)
-        ->toBe($this->hostTemplate->isActivated())
         ->and($response->categories)
         ->toBe(array_map(
             (fn($category) => ['id' => $category->getId(), 'name' => $category->getName()]),
@@ -848,8 +844,6 @@ it('should return created object on success (with non-admin user)', function ():
         ->toBe($this->hostTemplate->getIconAlternative())
         ->and($response->comment)
         ->toBe($this->hostTemplate->getComment())
-        ->and($response->isActivated)
-        ->toBe($this->hostTemplate->isActivated())
         ->and($response->categories)
         ->toBe(array_map(
             (fn($category) => ['id' => $category->getId(), 'name' => $category->getName()]),

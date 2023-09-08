@@ -100,7 +100,7 @@ describe('Reset Password', () => {
     cy.findByLabelText(labelNewPasswordConfirmation).should('be.visible');
     cy.findByAltText(labelCentreonLogo).should('be.visible');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('displays errors when the form is not correctly filled', () => {
@@ -124,7 +124,7 @@ describe('Reset Password', () => {
 
     cy.findByLabelText(labelResetPassword).should('be.disabled');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('redirects the user back to the login page when the page does not have the required information', () => {

@@ -7331,3 +7331,6 @@ msgstr "Hôtes faisant partie de ce groupe"
 
 msgid "Geographic coordinates to allow Centreon MAP to plot the host group on a geographic view. Format: Latitude,Longitude. For example, Paris' coordinates are 48.51,2.20"
 msgstr "Coordonnées géographiques permettant à Centreon MAP de positionner le groupe d’hôtes sur une vue géographique. Format : Latitude,Longitude. Par exemple pour Paris, saisir : 48.51,2.20"
+
+msgid "Provided that the user can access the API Tokens menu, this action will allow them to not only list, create and delete tokens for themselves, but also manage tokens for other users."
+msgstr "Si l'utilisateur peut accéder au menu des jetons API, cette action lui permettra non seulement de répertorier, de créer et de supprimer des jetons pour lui-même, mais aussi de gérer les jetons d'autres utilisateurs."

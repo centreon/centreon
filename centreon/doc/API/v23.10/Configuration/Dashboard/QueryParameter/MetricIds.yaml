@@ -1,0 +1,8 @@
+in: query
+name: metricIds
+required: true
+description: "Ids of the metric"
+schema:
+  type: string
+  pattern: '^\[\d+(,\d+)*\]$'
+  description: should be in form [<id1>,<id2>,<id3>]

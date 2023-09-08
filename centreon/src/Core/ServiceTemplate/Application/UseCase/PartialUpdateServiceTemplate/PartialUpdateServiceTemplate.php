@@ -27,6 +27,7 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Option\OptionService;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
@@ -49,6 +50,8 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
+use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Model\NotificationTypeConverter;
 use Core\ServiceTemplate\Application\Model\YesNoDefaultConverter;
@@ -75,9 +78,11 @@ final class PartialUpdateServiceTemplate
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
         private readonly WriteServiceMacroRepositoryInterface $writeServiceMacroRepository,
         private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
+        private readonly WriteServiceGroupRepositoryInterface $writeServiceGroupRepository,
         private readonly ParametersValidation $validation,
         private readonly ContactInterface $user,
         private readonly DataStorageEngineInterface $storageEngine,
+        private readonly OptionService $optionService,
     ) {
     }
 
@@ -204,6 +209,41 @@ final class PartialUpdateServiceTemplate
 
     /**
      * @param PartialUpdateServiceTemplateRequest $request
+     *
+     * @throws \Throwable
+     */
+    private function linkServiceTemplateToServiceGroups(PartialUpdateServiceTemplateRequest $request): void
+    {
+        if (! is_array($request->serviceGroups)) {
+            return;
+        }
+
+        $this->info(
+            'Link existing service groups to service template',
+            ['service_template_id' => $request->id, 'service_groups' => $request->serviceGroups]
+        );
+
+        $this->validation->assertServiceGroups($request->serviceGroups, $request->id, $this->user, $this->accessGroups);
+
+        $serviceGroupRelations = [];
+        $serviceGroupDtos = $this->removeDuplicatesServiceGroups($request->serviceGroups);
+        foreach ($serviceGroupDtos as $serviceGroup) {
+            $serviceGroupRelations[] = new ServiceGroupRelation(
+                serviceGroupId: $serviceGroup->serviceGroupId,
+                serviceId: $request->id,
+                hostId: $serviceGroup->hostTemplateId
+            );
+        }
+        $this->info('Delete existing service groups relations');
+        $this->writeServiceGroupRepository->deleteRelations(
+            ...array_map(fn (ServiceGroupRelation $rel) => $rel->getServiceGroupId(), $serviceGroupRelations)
+        );
+        $this->info('Create new service groups relations');
+        $this->writeServiceGroupRepository->link($serviceGroupRelations);
+    }
+
+    /**
+     * @param PartialUpdateServiceTemplateRequest $request
      * @param ServiceTemplate $serviceTemplate
      *
      * @throws ServiceTemplateException
@@ -219,6 +259,7 @@ final class PartialUpdateServiceTemplate
             $this->updateServiceTemplate($serviceTemplate, $request);
             $this->linkServiceTemplateToHostTemplates($request);
             $this->linkServiceTemplateToServiceCategories($request);
+            $this->linkServiceTemplateToServiceGroups($request);
             $this->updateMacros($request, $serviceTemplate);
 
             $this->debug('Commit transaction');
@@ -341,6 +382,11 @@ final class PartialUpdateServiceTemplate
         ServiceTemplate $serviceTemplate,
         PartialUpdateServiceTemplateRequest $request
     ): void {
+        $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
+        $inheritanceMode = isset($inheritanceMode[0])
+            ? (int) $inheritanceMode[0]->getValue()
+            : 0;
+
         if (! $request->name instanceof NoValue) {
             $this->validation->assertIsValidName($serviceTemplate->getName(), $request->name);
             $serviceTemplate->setName($request->name);
@@ -366,15 +412,11 @@ final class PartialUpdateServiceTemplate
         }
 
         if (! $request->isContactAdditiveInheritance instanceof NoValue) {
-            $serviceTemplate->setContactAdditiveInheritance($request->isContactAdditiveInheritance);
+            $serviceTemplate->setContactAdditiveInheritance(($inheritanceMode === 1) ? $request->isContactAdditiveInheritance : false);
         }
 
         if (! $request->isContactGroupAdditiveInheritance instanceof NoValue) {
-            $serviceTemplate->setContactGroupAdditiveInheritance($request->isContactGroupAdditiveInheritance);
-        }
-
-        if (! $request->isActivated instanceof NoValue) {
-            $serviceTemplate->setActivated($request->isActivated);
+            $serviceTemplate->setContactGroupAdditiveInheritance(($inheritanceMode === 1) ? $request->isContactGroupAdditiveInheritance : false);
         }
 
         if (! $request->activeChecksEnabled instanceof NoValue) {
@@ -506,5 +548,20 @@ final class PartialUpdateServiceTemplate
         }
 
         $this->writeRepository->update($serviceTemplate);
+    }
+
+    /**
+     * @param ServiceGroupDto[] $serviceGroupDtos
+     *
+     * @return ServiceGroupDto[]
+     */
+    private function removeDuplicatesServiceGroups(array $serviceGroupDtos): array
+    {
+        $uniqueList = [];
+        foreach ($serviceGroupDtos as $item) {
+            $uniqueList[$item->serviceGroupId . '_' . $item->hostTemplateId] = $item;
+        }
+
+        return array_values($uniqueList);
     }
 }

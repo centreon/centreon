@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { configureOpenIDConnect, getUserContactId } from '../common';
+import { configureOpenIDConnect } from '../common';
+import { getUserContactId } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer().startOpenIdProviderContainer();
@@ -43,8 +44,9 @@ Given('an administrator is logged in the platform', () => {
       rootItemNumber: 4
     })
     .get('div[role="tablist"] button:nth-child(2)')
-    .click()
-    .wait('@getOIDCProvider');
+    .click();
+
+  cy.wait('@getOIDCProvider');
 });
 
 When(
@@ -67,35 +69,28 @@ When(
     cy.getByLabel({
       label: 'Contact template',
       tag: 'input'
-    })
-      .clear()
-      .type('contact_template')
-      .wait('@getListContactTemplates')
+    }).type('{selectall}{backspace}contact_template');
+
+    cy.wait('@getListContactTemplates')
       .get('div[role="presentation"] ul li')
       .eq(-1)
-      .click()
-      .getByLabel({
-        label: 'Contact template',
-        tag: 'input'
-      })
-      .should('have.value', 'contact_template');
+      .click();
+
+    cy.getByLabel({
+      label: 'Contact template',
+      tag: 'input'
+    }).should('have.value', 'contact_template');
     cy.getByLabel({
       label: 'Email attribute path',
       tag: 'input'
-    })
-      .clear()
-      .type('email');
+    }).type('{selectall}{backspace}email');
     cy.getByLabel({
       label: 'Fullname attribute path',
       tag: 'input'
-    })
-      .clear()
-      .type('name');
-    cy.getByLabel({ label: 'save button', tag: 'button' })
-      .click()
-      .wait('@updateOIDCProvider')
-      .its('response.statusCode')
-      .should('eq', 204);
+    }).type('{selectall}{backspace}name');
+    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+
+    cy.wait('@updateOIDCProvider').its('response.statusCode').should('eq', 204);
   }
 );
 
@@ -104,12 +99,12 @@ Then(
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
       cy.visit('/');
-      cy.get('a').click();
-      cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
-        .url()
-        .should('include', '/monitoring/resources')
-        .logout();
+      cy.contains('Login with openid').should('be.visible').click();
 
+      cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
+      cy.url().should('include', '/monitoring/resources');
+
+      cy.logout();
       cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
     });
     cy.loginByTypeOfUser({ jsonName: 'admin' })

@@ -499,7 +499,7 @@ testData.forEach((item) =>
           getNextMonth({ currentMonth, labelButton: item.button });
         }
 
-        cy.matchImageSnapshot(
+        cy.makeSnapshot(
           `calendar-${item.timezone}-${
             Object.keys(element)[0]
           }-when-clicking-on-${item.button}`

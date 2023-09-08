@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\{BodyResponseInterface,
     MultiStatusResponse,
     NoContentResponse,
     NotFoundResponse,
+    NotModifiedResponse,
     PaymentRequiredResponse,
     ResponseStatusInterface,
     UnauthorizedResponse
@@ -42,6 +43,8 @@ use Symfony\Component\HttpFoundation\{JsonResponse, Response};
 class JsonFormatter implements PresenterFormatterInterface
 {
     use LoggerTrait;
+
+    protected ?int $encodingOptions = null;
 
     /**
      * {@inheritDoc}
@@ -87,12 +90,19 @@ class JsonFormatter implements PresenterFormatterInterface
                     return $this->generateJsonResponse(null, Response::HTTP_NO_CONTENT, $headers);
                 case $data instanceof MultiStatusResponse:
                     return $this->generateJsonResponse($data, Response::HTTP_MULTI_STATUS, $headers);
+                case $data instanceof NotModifiedResponse:
+                    return $this->generateJsonResponse($data, Response::HTTP_NOT_MODIFIED, $headers);
                 default:
                     return $this->generateJsonResponse($data, Response::HTTP_OK, $headers);
             }
         }
 
         return $this->generateJsonResponse($data, Response::HTTP_OK, $headers);
+    }
+
+    public function setEncodingOptions(?int $encodingOptions): void
+    {
+        $this->encodingOptions = $encodingOptions;
     }
 
     /**
@@ -160,6 +170,12 @@ class JsonFormatter implements PresenterFormatterInterface
             }
         }
 
-        return new JsonResponse($data, $code, $headers);
+        $response = new JsonResponse(null, $code, $headers);
+        if ($this->encodingOptions !== null) {
+            $response->setEncodingOptions($this->encodingOptions);
+        }
+        $response->setData($data);
+
+        return $response;
     }
 }

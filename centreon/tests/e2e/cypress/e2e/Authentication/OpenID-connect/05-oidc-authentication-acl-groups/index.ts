@@ -2,9 +2,9 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   configureOpenIDConnect,
-  getAccessGroupId,
   initializeOIDCUserAndGetLoginPage
 } from '../common';
+import { getAccessGroupId } from '../../../../commons';
 
 before(() => {
   cy.startWebContainer()
@@ -38,7 +38,7 @@ beforeEach(() => {
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/latest/configuration/access-groups?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
-  }).as('getListAccesGroup');
+  }).as('getListAccessGroup');
 });
 
 Given('an administrator is logged in the platform', () => {
@@ -51,8 +51,9 @@ Given('an administrator is logged in the platform', () => {
       rootItemNumber: 4
     })
     .get('div[role="tablist"] button:nth-child(2)')
-    .click()
-    .wait('@getOIDCProvider');
+    .click();
+
+  cy.wait('@getOIDCProvider');
 });
 
 When(
@@ -80,9 +81,7 @@ When(
     cy.getByLabel({
       label: 'Roles attribute path',
       tag: 'input'
-    })
-      .clear()
-      .type('realm_access.roles');
+    }).type('{selectall}{backspace}realm_access.roles');
     cy.getByLabel({
       label: 'Introspection endpoint',
       tag: 'input'
@@ -92,27 +91,25 @@ When(
     cy.getByLabel({
       label: 'Role value',
       tag: 'input'
-    })
-      .clear()
-      .type('centreon-editor');
+    }).type('{selectall}{backspace}centreon-editor');
     cy.getByLabel({
       label: 'ACL access group',
       tag: 'input'
-    })
-      .click({ force: true })
-      .wait('@getListAccesGroup')
+    }).click({ force: true });
+
+    cy.wait('@getListAccessGroup')
       .get('div[role="presentation"] ul li')
-      .click()
-      .getByLabel({
-        label: 'ACL access group',
-        tag: 'input'
-      })
-      .should('have.value', 'ALL');
-    cy.getByLabel({ label: 'save button', tag: 'button' })
-      .click()
-      .wait('@updateOIDCProvider')
-      .its('response.statusCode')
-      .should('eq', 204);
+      .click();
+
+    cy.getByLabel({
+      label: 'ACL access group',
+      tag: 'input'
+    }).should('have.value', 'ALL');
+
+    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
+    cy.wait('@updateOIDCProvider').its('response.statusCode').should('eq', 204);
+
+    cy.logout();
   }
 );
 
@@ -121,18 +118,20 @@ Then(
   () => {
     cy.session('AUTH_SESSION_ID_LEGACY', () => {
       cy.visit('/');
-      cy.get('a').click();
-      cy.loginKeycloack('user-non-admin-for-OIDC-authentication')
-        .url()
-        .should('include', '/monitoring/resources')
-        .logout();
+      cy.contains('Login with openid').should('be.visible').click();
 
-      cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
+      cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
+      cy.url().should('include', '/monitoring/resources');
+
+      cy.logout();
+      cy.getByLabel({ label: 'Alias', tag: 'input' }).should('be.visible');
     });
+
     cy.loginByTypeOfUser({ jsonName: 'admin' })
       .wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
+
     getAccessGroupId('ALL').then((groupId) => {
       cy.visit(`/centreon/main.php?p=50203&o=c&acl_group_id=${groupId}`)
         .wait('@getTimeZone')
