@@ -79,6 +79,24 @@ $addTopologyFeatureFlag = function(CentreonDB $pearDB) {
     }
 };
 
+$updateSecurityTokenTable = function(CentreonDB $pearDB) {
+    if (! $pearDB->isColumnExist('security_authentication_tokens', 'token_name')) {
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `security_authentication_tokens`
+                ADD COLUMN `token_name` varchar(255) DEFAULT NULL,
+                ADD COLUMN `token_type` enum('auto', 'manual') NOT NULL DEFAULT 'auto',
+                ADD COLUMN `creator_id` int(11) DEFAULT NULL,
+                ADD COLUMN `creator_name` varchar(255) DEFAULT NULL,
+                ADD COLUMN `is_revoked` BOOLEAN NOT NULL DEFAULT 0,
+                ADD KEY `security_authentication_tokens_creator_id_fk` (`creator_id`),
+                ADD CONSTRAINT `security_authentication_tokens_creator_id_fk` FOREIGN KEY (`creator_id`)
+                    REFERENCES `contact` (`contact_id`) ON DELETE SET NULL
+                SQL
+        );
+    }
+}
+
 try {
     $pearDBO->query($alterResourceTableStmnt);
 
@@ -87,6 +105,9 @@ try {
 
     $errorMessage = 'Impossible to add column topology_feature_flag to topology table';
     $addTopologyFeatureFlag($pearDB);
+
+    $errorMessage = 'Unable to alter security_authentication_tokens table';
+    $updateSecurityTokenTable($pearDB);
 
     $errorMessage = '';
     // Transactional queries

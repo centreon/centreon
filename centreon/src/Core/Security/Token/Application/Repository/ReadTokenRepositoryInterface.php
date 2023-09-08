@@ -21,29 +21,31 @@
 
 declare(strict_types=1);
 
-namespace Core\Contact\Application\Repository;
+namespace Core\Security\Token\Application\Repository;
 
-interface ReadContactRepositoryInterface
+use Core\Security\Token\Domain\Model\Token;
+
+interface ReadTokenRepositoryInterface
 {
     /**
-     * Find contact names by IDs.
+     * Find one token.
      *
-     * @param int ...$ids
+     * @param string $tokenString
      *
      * @throws \Throwable
      *
-     * @return array<int, array{id: int, name: string}>
+     * @return Token|null
      */
-    public function findNamesByIds(int ...$ids): array;
+    public function find(string $tokenString): ?Token;
 
     /**
-     * Check user existence by its id.
+     * Determine if a token exists by its name.
      *
-     * @param int $userId
+     * @param string $tokenName
      *
      * @throws \Throwable
      *
      * @return bool
      */
-    public function exists(int $userId): bool;
+    public function existsByName(string $tokenName): bool;
 }

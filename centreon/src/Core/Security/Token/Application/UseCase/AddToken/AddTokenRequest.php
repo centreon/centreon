@@ -21,29 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Contact\Application\Repository;
+namespace Core\Security\Token\Application\UseCase\AddToken;
 
-interface ReadContactRepositoryInterface
+final class AddTokenRequest
 {
-    /**
-     * Find contact names by IDs.
-     *
-     * @param int ...$ids
-     *
-     * @throws \Throwable
-     *
-     * @return array<int, array{id: int, name: string}>
-     */
-    public function findNamesByIds(int ...$ids): array;
+    public string $name = '';
 
-    /**
-     * Check user existence by its id.
-     *
-     * @param int $userId
-     *
-     * @throws \Throwable
-     *
-     * @return bool
-     */
-    public function exists(int $userId): bool;
+    public int $userId = 0;
+
+    public function __construct(
+        public \DateTimeInterface $expirationDate = new \DateTimeImmutable(),
+    )
+    {}
 }
