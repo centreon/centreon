@@ -2,8 +2,8 @@ name: Postman Tests
 
 on:
   push:
-    paths:
-      - 'centreon/tests/rest_api/refactored_api_test_collection/**'
+    # paths:
+    #   - 'centreon/tests/rest_api/refactored_api_test_collection/**'
 
 jobs:
   postman_tests:
