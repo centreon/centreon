@@ -1,5 +1,25 @@
-includes:
-    - vendor/centreon/centreon-test-lib/src/PHPStan/phpstan.neon
+rules:
+    - Centreon\PHPStan\CustomRules\MiscRules\VariableLengthCustomRule
+    - Centreon\PHPStan\CustomRules\MiscRules\StringBackquotesCustomRule
+    - Centreon\PHPStan\CustomRules\LoggerRules\LogMethodInCatchCustomRule
+    - Centreon\PHPStan\CustomRules\LoggerRules\LoggerUseCaseCustomRule
+    - Centreon\PHPStan\CustomRules\RepositoryRules\RepositoryImplementsInterfaceCustomRule
+    - Centreon\PHPStan\CustomRules\ArchitectureRules\DomainCallNamespacesCustomRule
+    - Centreon\PHPStan\CustomRules\ArchitectureRules\FinalClassCustomRule
+    - Centreon\PHPStan\CustomRules\ArchitectureRules\ExceptionInUseCaseCustomRule
+# The following rules are not mandatory for high quality code and they are too widely not respected.
+#    - Centreon\PHPStan\CustomRules\RepositoryRules\RepositoryNameCustomRule
+#    - Centreon\PHPStan\CustomRules\RepositoryRules\RepositoryInterfaceNameCustomRule
+#    - Centreon\PHPStan\CustomRules\RepositoryRules\RepositoryNameValidationByInterfaceCustomRule
+services:
+    -
+        class: Centreon\PHPStan\CustomRules\Collectors\MethodCallCollector
+        tags:
+            - phpstan.collector
+    -
+        class: Centreon\PHPStan\CustomRules\Collectors\UseUseCollector
+        tags:
+            - phpstan.collector
 
 parameters:
     level: max

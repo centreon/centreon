@@ -6879,12 +6879,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "14ec7f153892b2c9b8be6dc14f0096fb0cd8353f"
+                "reference": "c2ab055c3d0abd81dc1a27b469708bc83c2ede13"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/14ec7f153892b2c9b8be6dc14f0096fb0cd8353f",
-                "reference": "14ec7f153892b2c9b8be6dc14f0096fb0cd8353f",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/c2ab055c3d0abd81dc1a27b469708bc83c2ede13",
+                "reference": "c2ab055c3d0abd81dc1a27b469708bc83c2ede13",
                 "shasum": ""
             },
             "require": {
@@ -6894,7 +6894,7 @@
                 "justinrainbow/json-schema": "^5.2",
                 "league/openapi-psr7-validator": "^0.17",
                 "nyholm/psr7": "^1.3",
-                "phpstan/phpstan": "^1.0",
+                "phpstan/phpstan": "~1.10.0",
                 "psr/http-client": "^1.0",
                 "symfony/console": "^5.4",
                 "symfony/http-client": "^5.4.0",
@@ -6936,7 +6936,7 @@
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2023-08-21T09:36:10+00:00"
+            "time": "2023-09-01T08:51:08+00:00"
         },
         {
             "name": "composer/pcre",
