@@ -231,7 +231,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                                 ON parent_resource.id = resources.parent_id
                             LEFT JOIN `:dbstg`.resources_tags AS rtags
                               ON rtags.resource_id = resources.resource_id
-                              OR rtags.resource_id = parent_resource.resource_id
+                              OR rtags.resource_id = parent_resource.resource_id 
                             INNER JOIN `:dbstg`.tags
                                 ON tags.tag_id = rtags.tag_id
                             WHERE tags.name IN ({$literalTagKeys})
