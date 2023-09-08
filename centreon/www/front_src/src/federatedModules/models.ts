@@ -45,6 +45,7 @@ export interface FederatedWidgetOption {
 }
 
 export interface FederatedWidgetProperties {
+  customBaseColor?: boolean;
   data: {
     [key: string]: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
   };

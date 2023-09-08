@@ -18,6 +18,7 @@ import {
 } from '../translatedLabels';
 
 import {
+  customBaseColorAtom,
   singleMetricSectionAtom,
   widgetFormInitialDataAtom,
   widgetPropertiesAtom
@@ -50,6 +51,7 @@ const useWidgetModal = (): useWidgetModalState => {
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
   const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
+  const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const { showSuccessMessage } = useSnackbar();
 
@@ -70,6 +72,7 @@ const useWidgetModal = (): useWidgetModalState => {
       setWidgetProperties(null);
       setAskingBeforeCloseModal(false);
       setSingleMetricSection(undefined);
+      setCustomBaseColor(undefined);
     });
 
   const addWidget = (values: Widget): void => {

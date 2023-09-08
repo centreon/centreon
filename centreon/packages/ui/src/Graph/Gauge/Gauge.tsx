@@ -7,6 +7,7 @@ import { Metric } from '../common/timeSeries/models';
 import ResponsiveGauge from './ResponsiveGauge';
 
 interface Props {
+  baseColor?: string;
   data?: LineChartData;
   displayAsRaw?: boolean;
   thresholds: Thresholds;
@@ -15,7 +16,8 @@ interface Props {
 export const Gauge = ({
   thresholds,
   data,
-  displayAsRaw
+  displayAsRaw,
+  baseColor
 }: Props): JSX.Element | null => {
   if (!data) {
     return null;
@@ -27,6 +29,7 @@ export const Gauge = ({
     <Responsive.ParentSize>
       {({ width, height }) => (
         <ResponsiveGauge
+          baseColor={baseColor}
           displayAsRaw={displayAsRaw}
           height={height}
           metric={metric}

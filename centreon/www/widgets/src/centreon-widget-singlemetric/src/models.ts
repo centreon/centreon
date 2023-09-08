@@ -16,6 +16,7 @@ export interface Data {
 }
 
 export interface FormThreshold {
+  baseColor?: string;
   criticalType: 'default' | 'custom';
   customCritical: number;
   customWarning: number;

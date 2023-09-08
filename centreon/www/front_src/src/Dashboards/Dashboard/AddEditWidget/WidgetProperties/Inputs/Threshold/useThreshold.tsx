@@ -37,6 +37,7 @@ interface UseThresholdProps {
 }
 
 interface UseThresholdState {
+  changeBaseColor: (color: string) => () => void;
   changeCustom: (
     threshold: string
   ) => (event: ChangeEvent<HTMLInputElement>) => void;
@@ -45,8 +46,9 @@ interface UseThresholdState {
   ) => (event: ChangeEvent<HTMLInputElement>) => void;
   criticalCustom: number | undefined;
   criticalType: string | undefined;
+  customBaseColor?: string;
   customWarning: number | undefined;
-  enabled: string | undefined;
+  enabled: boolean | undefined;
   options: Array<{
     label: string;
     radioButtons: Array<{
@@ -79,6 +81,7 @@ const useThreshold = ({
   const { values, setFieldValue } = useFormikContext();
 
   const enabledProp = `${propertyName}.enabled`;
+  const customBaseColorProp = `${propertyName}.baseColor`;
 
   const getThresholdType = (threshold: string): RadioOptions | undefined =>
     getProperty({
@@ -92,9 +95,14 @@ const useThreshold = ({
       propertyName: `${propertyName}.custom${threshold}`
     });
 
-  const enabled = useMemo<string | undefined>(
+  const enabled = useMemo<boolean | undefined>(
     () => getProperty({ obj: values, propertyName: enabledProp }),
     [getProperty({ obj: values, propertyName: enabledProp })]
+  );
+
+  const customBaseColor = useMemo<string | undefined>(
+    () => getProperty({ obj: values, propertyName: customBaseColorProp }),
+    [getProperty({ obj: values, propertyName: customBaseColorProp })]
   );
 
   const warningType = getThresholdType('warning');
@@ -285,6 +293,10 @@ const useThreshold = ({
       );
     };
 
+  const changeBaseColor = (color: string) => (): void => {
+    setFieldValue(`options.${customBaseColorProp}`, color);
+  };
+
   useEffect(() => {
     if (!isMaxSelectedUnitReached) {
       return;
@@ -294,10 +306,12 @@ const useThreshold = ({
   }, [isMaxSelectedUnitReached]);
 
   return {
+    changeBaseColor,
     changeCustom,
     changeType,
     criticalCustom,
     criticalType,
+    customBaseColor,
     customWarning,
     enabled,
     options,

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import {
   Box,
@@ -21,16 +22,21 @@ import { WidgetSwitch } from '..';
 import { useThresholdStyles } from '../Inputs.styles';
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../useCanEditDashboard';
+import { customBaseColorAtom } from '../../../atoms';
 
 import useThreshold from './useThreshold';
+import BaseColor from './BaseColor';
 
 const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useThresholdStyles();
 
-  const { changeType, options } = useThreshold({
-    propertyName
-  });
+  const customBaseColorActivated = useAtomValue(customBaseColorAtom);
+
+  const { changeType, options, enabled, customBaseColor, changeBaseColor } =
+    useThreshold({
+      propertyName
+    });
 
   const { canEditField } = useCanEditProperties();
 
@@ -52,24 +58,26 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
           propertyName={`${propertyName}.enabled`}
         />
       </div>
-      <Box className={classes.thresholds}>
-        {options.map(({ label, radioButtons, type, value }) => (
-          <div key={label}>
-            <Typography>{label}</Typography>
-            <RadioGroup row value={value} onChange={changeType(type)}>
-              {radioButtons.map(({ content, value: radioValue }) => (
-                <FormControlLabel
-                  control={<Radio data-testid={radioValue} />}
-                  disabled={!canEditField}
-                  key={radioValue}
-                  label={content}
-                  value={radioValue}
-                />
-              ))}
-            </RadioGroup>
-          </div>
-        ))}
-      </Box>
+      {(!customBaseColorActivated || enabled) && (
+        <Box className={classes.thresholds}>
+          {options.map(({ label, radioButtons, type, value }) => (
+            <div key={label}>
+              <Typography>{label}</Typography>
+              <RadioGroup row value={value} onChange={changeType(type)}>
+                {radioButtons.map(({ content, value: radioValue }) => (
+                  <FormControlLabel
+                    control={<Radio data-testid={radioValue} />}
+                    disabled={!canEditField}
+                    key={radioValue}
+                    label={content}
+                    value={radioValue}
+                  />
+                ))}
+              </RadioGroup>
+            </div>
+          ))}
+        </Box>
+      )}
     </Box>
   );
 };

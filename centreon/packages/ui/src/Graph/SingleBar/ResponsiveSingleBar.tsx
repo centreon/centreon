@@ -35,16 +35,20 @@ const ResponsiveSingleBar = ({
   thresholds,
   width,
   height,
-  displayAsRaw
+  displayAsRaw,
+  baseColor
 }: Props): JSX.Element => {
   const theme = useTheme();
 
   const metric = getMetricWithLatestData(data) as Metric;
   const latestMetricData = head(metric.data) as number;
-  const thresholdValues = flatten([
-    pluck('value', thresholds.warning),
-    pluck('value', thresholds.critical)
-  ]);
+  const thresholdValues = thresholds.enabled
+    ? flatten([
+        pluck('value', thresholds.warning),
+        pluck('value', thresholds.critical)
+      ])
+    : [0];
+
   const adaptedMaxValue = Math.max(
     metric.maximum_value || 0,
     Math.max(...thresholdValues) * 1.1,
@@ -67,6 +71,7 @@ const ResponsiveSingleBar = ({
   const barColor = useMemo(
     () =>
       getColorFromDataAndTresholds({
+        baseColor,
         data: latestMetricData,
         theme,
         thresholds

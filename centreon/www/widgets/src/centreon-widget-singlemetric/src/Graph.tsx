@@ -87,6 +87,7 @@ const Graph = ({
             equals('gauge'),
             always(
               <Gauge
+                baseColor={threshold.baseColor}
                 data={graphData}
                 displayAsRaw={displayAsRaw}
                 thresholds={formattedThresholds}
@@ -97,6 +98,7 @@ const Graph = ({
             equals('bar'),
             always(
               <SingleBar
+                baseColor={threshold.baseColor}
                 data={graphData}
                 displayAsRaw={displayAsRaw}
                 thresholds={formattedThresholds}
@@ -107,6 +109,7 @@ const Graph = ({
             T,
             always(
               <GraphText
+                baseColor={threshold.baseColor}
                 data={graphData}
                 displayAsRaw={displayAsRaw}
                 labels={{

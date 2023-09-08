@@ -71,7 +71,10 @@ export const labelDefault = 'Default';
 export const labelCustom = 'Custom';
 export const labelThresholdsAreAutomaticallyHidden =
   'Thresholds are automatically hidden if you select 2 metric units';
-export const labelGraphType = 'Graph type';
+export const labelDisplayType = 'Display type';
+export const labelText = 'Text';
+export const labelGauge = 'Gauge';
+export const labelBar = 'Bar';
 export const labelDefaultValueIsDefinedByFirstMetricUsed =
   'The default value is the value defined for the first metric used';
 export const labelNone = 'None';
@@ -98,3 +101,4 @@ export const labelTo = 'to';
 export const labelFrom = 'From';
 export const labelStart = 'Start';
 export const labelEnd = 'End';
+export const labelBaseColor = 'Base color';

@@ -70,12 +70,13 @@ const useThresholds = ({
 
     return {
       label: isDefaultWarning
-        ? `${t(labelWarningThreshold)}: ${formattedThreshold} ${
-            metric?.unit
-          }. ${t(labelValueDefinedByMetric, { metric: metricName })}`
-        : `${t(labelWarningThreshold)}: ${formattedThreshold} ${
-            metric?.unit
-          }. ${t(labelCustomValue)}`,
+        ? `${t(labelWarningThreshold)}: ${formattedThreshold}. ${t(
+            labelValueDefinedByMetric,
+            { metric: metricName }
+          )}`
+        : `${t(labelWarningThreshold)}: ${formattedThreshold}. ${t(
+            labelCustomValue
+          )}`,
       value: threshold || null
     };
   });
@@ -89,12 +90,13 @@ const useThresholds = ({
 
     return {
       label: isDefaultCritical
-        ? `${t(labelCriticalThreshold)}: ${formattedThreshold} ${
-            metric?.unit
-          }. ${t(labelValueDefinedByMetric, { metric: metricName })}`
-        : `${t(labelCriticalThreshold)}: ${formattedThreshold} ${
-            metric?.unit
-          }. ${t(labelCustomValue)}`,
+        ? `${t(labelCriticalThreshold)}: ${formattedThreshold}. ${t(
+            labelValueDefinedByMetric,
+            { metric: metricName }
+          )}`
+        : `${t(labelCriticalThreshold)}: ${formattedThreshold}. ${t(
+            labelCustomValue
+          )}`,
       value: threshold || null
     };
   });

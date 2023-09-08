@@ -6,7 +6,11 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { Widget, WidgetPropertyProps } from '../models';
 import { FederatedWidgetOptionType } from '../../../../federatedModules/models';
-import { singleMetricSectionAtom, widgetPropertiesAtom } from '../atoms';
+import {
+  customBaseColorAtom,
+  singleMetricSectionAtom,
+  widgetPropertiesAtom
+} from '../atoms';
 
 import {
   WidgetMetrics,
@@ -60,6 +64,7 @@ export const useWidgetInputs = (
     federatedWidgetsPropertiesAtom
   );
   const setSingleMetricSection = useSetAtom(singleMetricSectionAtom);
+  const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
   const selectedWidget = find(
     propEq('moduleName', values.moduleName),
@@ -105,6 +110,7 @@ export const useWidgetInputs = (
     }
 
     setSingleMetricSection(selectedWidget.singleMetricSelection);
+    setCustomBaseColor(selectedWidget.customBaseColor);
   }, useDeepCompare([selectedWidget]));
 
   return inputs;

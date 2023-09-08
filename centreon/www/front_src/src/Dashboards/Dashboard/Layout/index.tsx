@@ -83,7 +83,7 @@ const Layout = (): JSX.Element => {
         {panels.map(({ i, panelConfiguration }) => {
           return (
             <DashboardLayout.Item
-              canMove={canEdit}
+              canMove={canEdit && isEditing}
               disablePadding={panelConfiguration?.isAddWidgetPanel}
               header={
                 !panelConfiguration?.isAddWidgetPanel ? (

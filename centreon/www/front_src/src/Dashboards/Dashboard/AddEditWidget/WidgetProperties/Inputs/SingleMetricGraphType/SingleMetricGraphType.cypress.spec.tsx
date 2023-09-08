@@ -1,6 +1,6 @@
 import { Formik } from 'formik';
 
-import { labelGraphType } from '../../../../translatedLabels';
+import { labelDisplayType } from '../../../../translatedLabels';
 
 import SingleMetricGraphType from './SingleMetricGraphType';
 
@@ -28,7 +28,7 @@ describe('Single metric graph type', () => {
   });
 
   it('displays the text option as pre-selected', () => {
-    cy.contains(labelGraphType).should('be.visible');
+    cy.contains(labelDisplayType).should('be.visible');
 
     cy.get('[data-type="text"]').should('have.attr', 'data-selected', 'true');
     cy.get('[data-type="gauge"]').should('have.attr', 'data-selected', 'false');

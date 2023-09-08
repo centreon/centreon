@@ -12,6 +12,7 @@ import { getColorFromDataAndTresholds } from '../common/utils';
 import { useTextStyles } from './Text.styles';
 
 interface Props {
+  baseColor?: string;
   data?: LineChartData;
   displayAsRaw?: boolean;
   labels: {
@@ -25,7 +26,8 @@ export const Text = ({
   thresholds,
   data,
   displayAsRaw,
-  labels
+  labels,
+  baseColor
 }: Props): JSX.Element | null => {
   const theme = useTheme();
   const { classes } = useTextStyles();
@@ -39,6 +41,7 @@ export const Text = ({
   const metricUnit = metric?.unit ?? '';
 
   const color = getColorFromDataAndTresholds({
+    baseColor,
     data: metricValue,
     theme,
     thresholds
@@ -60,12 +63,14 @@ export const Text = ({
 
   return (
     <div className={classes.graphText}>
-      <Typography sx={{ color }} variant="h3">
-        {formatMetricValueWithUnit({
-          isRaw: displayAsRaw,
-          unit: metricUnit,
-          value: metricValue
-        })}
+      <Typography sx={{ color }} variant="h2">
+        <strong>
+          {formatMetricValueWithUnit({
+            isRaw: displayAsRaw,
+            unit: metricUnit,
+            value: metricValue
+          })}
+        </strong>
       </Typography>
       {thresholds.enabled && (
         <div className={classes.thresholds}>

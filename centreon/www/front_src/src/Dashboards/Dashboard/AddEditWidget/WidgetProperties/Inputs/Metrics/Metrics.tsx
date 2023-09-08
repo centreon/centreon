@@ -66,9 +66,10 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const canDisplayMetricsSelection =
     isAtLeastOneResourceFullfilled(resources) && !hasTooManyMetrics;
 
-  const title = metricCount
-    ? `${t(labelMetrics)} (${metricCount} ${labelAvailable})`
-    : t(labelMetrics);
+  const title =
+    metricCount && isAtLeastOneResourceFullfilled(resources)
+      ? `${t(labelMetrics)} (${metricCount} ${labelAvailable})`
+      : t(labelMetrics);
 
   const header = (
     <div className={classes.resourcesHeader}>

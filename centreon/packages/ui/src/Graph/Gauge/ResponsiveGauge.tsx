@@ -15,7 +15,7 @@ import Thresholds from './Thresholds';
 import PieData from './PieData';
 import { GaugeProps } from './models';
 
-interface Props extends Pick<GaugeProps, 'thresholds'> {
+interface Props extends Pick<GaugeProps, 'thresholds' | 'baseColor'> {
   displayAsRaw?: boolean;
   height: number;
   metric: Metric;
@@ -32,7 +32,8 @@ const ResponsiveGauge = ({
   height,
   thresholds,
   metric,
-  displayAsRaw
+  displayAsRaw,
+  baseColor
 }: Props): JSX.Element => {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -52,28 +53,29 @@ const ResponsiveGauge = ({
   const centerY = innerHeight / 2;
   const centerX = innerWidth / 2;
   const radius = Math.min(innerWidth, innerHeight) / 2;
-  const thresholdValues = flatten([
-    pluck('value', thresholds.warning),
-    pluck('value', thresholds.critical)
-  ]);
+  const thresholdValues = thresholds.enabled
+    ? flatten([
+        pluck('value', thresholds.warning),
+        pluck('value', thresholds.critical)
+      ])
+    : [0];
   const adaptedMaxValue = Math.max(
     metric.maximum_value || 0,
     Math.max(...thresholdValues) * 1.1,
     head(metric.data) as number
   );
 
-  const pieColor = !thresholds.enabled
-    ? theme.palette.success.main
-    : getColorFromDataAndTresholds({
-        data: metric.data[0],
-        theme,
-        thresholds
-      });
+  const pieColor = getColorFromDataAndTresholds({
+    baseColor,
+    data: metric.data[0],
+    theme,
+    thresholds
+  });
 
   const svgTop = svgRef.current?.getBoundingClientRect().top || 0;
   const svgLeft = svgRef.current?.getBoundingClientRect().left || 0;
 
-  const isSmallHeight = height < 250;
+  const isSmallWidget = height < 240;
 
   const gaugeValue = formatMetricValueWithUnit({
     base: 1000,
@@ -96,6 +98,7 @@ const ResponsiveGauge = ({
           />
           <PieData
             adaptedMaxValue={adaptedMaxValue}
+            baseColor={baseColor}
             metric={metric}
             radius={radius}
             thresholds={thresholds}
@@ -107,11 +110,12 @@ const ResponsiveGauge = ({
             fill: pieColor,
             ...theme.typography.h3,
             fontSize:
-              Math.min(width, height) / 7 - (gaugeValue?.length || 0) * 2
+              Math.min(width, height) / 7 -
+              (isSmallWidget ? 0 : (gaugeValue?.length || 0) * 2)
           }}
           textAnchor="middle"
           x="50%"
-          y={isSmallHeight ? 140 : 100 + Math.min(width, height) / 3}
+          y={isSmallWidget ? 130 : height - height / 2.3}
         >
           {gaugeValue}
         </text>
