@@ -4,25 +4,25 @@
 	"values": [
 		{
 			"key": "protocol",
-			"value": "",
+			"value": "http",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "server",
-			"value": "",
+			"value": "localhost",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "port",
-			"value": "",
+			"value": "4000",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "version",
-			"value": "",
+			"value": "latest",
 			"type": "default",
 			"enabled": true
 		},
