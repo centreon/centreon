@@ -20,8 +20,21 @@ const Template = (props): JSX.Element => (
 export const success: Story = {
   args: {
     data: dataLastWeek,
-    thresholdTooltipLabels: ['Warning', 'Critical'],
-    thresholds: [0.5, 0.6]
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 0.6
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
   },
   render: Template
 };
@@ -29,8 +42,21 @@ export const success: Story = {
 export const warning: Story = {
   args: {
     data: dataLastWeek,
-    thresholdTooltipLabels: ['Warning', 'Critical'],
-    thresholds: [0.2, 0.5]
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 0.6
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.2
+        }
+      ]
+    }
   },
   render: Template
 };
@@ -38,8 +64,73 @@ export const warning: Story = {
 export const critical: Story = {
   args: {
     data: dataLastWeek,
-    thresholdTooltipLabels: ['Warning', 'Critical'],
-    thresholds: [0.13, 0.35]
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 0.35
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.13
+        }
+      ]
+    }
+  },
+  render: Template
+};
+
+export const withCriticalLowerThanWarning: Story = {
+  args: {
+    data: dataLastWeek,
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 0.13
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
+  },
+  render: Template
+};
+
+export const withRangeThresholds: Story = {
+  args: {
+    data: dataLastWeek,
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 0.55
+        },
+        {
+          label: 'Critical',
+          value: 0.65
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.13
+        },
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
   },
   render: Template
 };

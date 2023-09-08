@@ -143,17 +143,25 @@ describe('Graph Widget', () => {
 
     cy.contains('cpu (%)').should('be.visible');
     cy.contains('cpu AVG (%)').should('be.visible');
-    cy.findByTestId('threshold-55.201388888888886').should('be.visible');
-    cy.findByTestId('threshold-0').should('be.visible');
+    cy.findByTestId('warning-line-65').should('be.visible');
+    cy.findByTestId('warning-line-70').should('be.visible');
+    cy.findByTestId('critical-line-85').should('be.visible');
+    cy.findByTestId('critical-line-90').should('be.visible');
 
-    cy.findByTestId('threshold-55.201388888888886-tooltip').trigger(
-      'mouseover'
+    cy.findByTestId('warning-line-65-tooltip').trigger('mouseover');
+    cy.contains(
+      'Warning threshold: 65 %. Value defined by the {{metric}} metric'
     );
+    cy.findByTestId('warning-line-70-tooltip').trigger('mouseover');
     cy.contains(
       'Warning threshold: 70 %. Value defined by the {{metric}} metric'
     );
 
-    cy.findByTestId('threshold-0-tooltip').trigger('mouseover');
+    cy.findByTestId('critical-line-85-tooltip').trigger('mouseover');
+    cy.contains(
+      'Critical threshold: 85 %. Value defined by the {{metric}} metric'
+    );
+    cy.findByTestId('critical-line-90-tooltip').trigger('mouseover');
     cy.contains(
       'Critical threshold: 90 %. Value defined by the {{metric}} metric'
     );
@@ -164,8 +172,10 @@ describe('Graph Widget', () => {
   it('displays the line chart without thresholds when thresholds are disabled', () => {
     initializeComponent({ threshold: disabledThreshold });
 
-    cy.findByTestId('threshold-55.201388888888886').should('not.exist');
-    cy.findByTestId('threshold-0').should('not.exist');
+    cy.findByTestId('warning-line-65').should('not.exist');
+    cy.findByTestId('warning-line-70').should('not.exist');
+    cy.findByTestId('critical-line-85').should('not.exist');
+    cy.findByTestId('critical-line-90').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -173,12 +183,9 @@ describe('Graph Widget', () => {
   it('displays the line chart with customized warning threshold', () => {
     initializeComponent({ threshold: warningThreshold });
 
-    cy.findByTestId('threshold-193.20486111111111').should('be.visible');
-    cy.findByTestId('threshold-0').should('be.visible');
+    cy.findByTestId('warning-line-20').should('be.visible');
 
-    cy.findByTestId('threshold-193.20486111111111-tooltip').trigger(
-      'mouseover'
-    );
+    cy.findByTestId('warning-line-20-tooltip').trigger('mouseover');
     cy.contains('Warning threshold: 20 %. Custom value');
 
     cy.makeSnapshot();
@@ -187,10 +194,10 @@ describe('Graph Widget', () => {
   it('displays the line chart with customized critical threshold', () => {
     initializeComponent({ threshold: criticalThreshold });
 
-    cy.findByTestId('threshold-186.3046875').should('be.visible');
-    cy.findByTestId('threshold-124.203125').should('be.visible');
+    cy.findByTestId('warning-line-10').should('be.visible');
+    cy.findByTestId('critical-line-20').should('be.visible');
 
-    cy.findByTestId('threshold-124.203125-tooltip').trigger('mouseover');
+    cy.findByTestId('critical-line-20-tooltip').trigger('mouseover');
     cy.contains('Critical threshold: 20 %. Custom value');
 
     cy.makeSnapshot();

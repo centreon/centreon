@@ -7125,14 +7125,8 @@ msgstr "Les 6 dernières heures"
 #: centreon-web/www/include/views/graphs/graphs.php:175
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:104
 #: centreon-web/www/include/eventLogs/viewLog.php:170
-msgid "Last 12 Hours"
+msgid "Last 12 hours"
 msgstr "Les 12 dernières heures"
-
-#: centreon-web/www/include/views/graphs/graphs.php:176
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:105
-#: centreon-web/www/include/eventLogs/viewLog.php:171
-msgid "Last 24 Hours"
-msgstr "Les 24 dernières heures"
 
 #: centreon-web/www/include/views/graphs/graphs.php:177
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:106
@@ -7151,15 +7145,8 @@ msgid "Last 4 Days"
 msgstr "Les 4 précédents jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:180
-msgid "Last 5 Days"
+msgid "Last 5 days"
 msgstr "Les 5 derniers jours"
-
-#: centreon-web/www/include/views/graphs/graphs.php:181
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:108
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:255
-#: centreon-web/www/include/eventLogs/viewLog.php:174
-msgid "Last 7 Days"
-msgstr "Les 7 précédents jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:182
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:109
@@ -7170,15 +7157,8 @@ msgstr "Les 14 précédents jours"
 #: centreon-web/www/include/views/graphs/graphs.php:183
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:110
 #: centreon-web/www/include/eventLogs/viewLog.php:176
-msgid "Last 28 Days"
-msgstr "Les 28 précédents jours"
-
-#: centreon-web/www/include/views/graphs/graphs.php:184
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:111
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:257
-#: centreon-web/www/include/eventLogs/viewLog.php:177
-msgid "Last 30 Days"
-msgstr "Les 30 précédents jours"
+msgid "Last 28 days"
+msgstr "Les 28 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:185
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:112
@@ -18134,3 +18114,6 @@ msgstr "'%s' n'existe pas avec le(s) ID(s) %s"
 
 msgid "'%s' service name already exists for host ID %d"
 msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
+
+msgid "Manage the organization's authentication tokens"
+msgstr "Gérer les jetons d'authentification de l'organisation"

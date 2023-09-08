@@ -43,9 +43,11 @@ export interface NamedEntity {
 }
 
 export interface Metric extends NamedEntity {
-  criticalThreshold: number | null;
+  criticalHighThreshold: number | null;
+  criticalLowThreshold: number | null;
   unit: string;
-  warningThreshold: number | null;
+  warningHighThreshold: number | null;
+  warningLowThreshold: number | null;
 }
 
 export interface ServiceMetric extends NamedEntity {
