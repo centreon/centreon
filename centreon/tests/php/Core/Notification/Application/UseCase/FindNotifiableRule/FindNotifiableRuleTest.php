@@ -210,9 +210,6 @@ it(
 
         ($this->useCase)(1, $this->presenter);
 
-//        print_r($this->presenter->data);
-//
-//        exit;
         expect($this->presenter->data)->toBeInstanceOf(FindNotifiableRuleResponse::class)
             ->and($this->presenter->data->notificationId)->toBe(1)
             ->and($this->presenter->data->channels->slack)->toBe(null)

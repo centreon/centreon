@@ -32,7 +32,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
-* @phpstan-type _RequestArray array{
+ * @phpstan-type _RequestArray array{
  *     name: string,
  *     timeperiod: int,
  *     users: int[],

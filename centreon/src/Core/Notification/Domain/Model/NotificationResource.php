@@ -30,6 +30,7 @@ class NotificationResource
 
     /**
      * @template T of NotificationHostEvent|NotificationServiceEvent
+     *
      * @param string $type
      * @param class-string<T> $eventEnum
      * @param ConfigurationResource[] $resources
