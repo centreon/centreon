@@ -10,7 +10,7 @@
 		},
 		{
 			"key": "server",
-			"value": "0.0.0.0",
+			"value": "localhost",
 			"type": "default",
 			"enabled": true
 		},
