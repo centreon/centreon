@@ -42,9 +42,13 @@ import {
   labelEditDashboard,
   labelEditWidget,
   labelMoreActions,
-  labelName,
+  labelTitle,
   labelSave,
-  labelWidgetType
+  labelWidgetType,
+  labelCancel,
+  labelViewProperties,
+  labelYourRightsOnlyAllowToView,
+  labelPleaseContactYourAdministrator
 } from './translatedLabels';
 import { routerParams } from './useDashboardDetails';
 import { Dashboard } from './Dashboard';
@@ -257,6 +261,9 @@ describe('Dashboard', () => {
       cy.waitForRequest('@getContactGroups');
 
       cy.contains(labelEditDashboard).should('be.visible');
+
+      cy.contains('Widget text').should('be.visible');
+      cy.contains('Generic text').should('be.visible');
     });
 
     it('does not have access to the dashboard edition features when the user has the viewer role and the global viewer role', () => {
@@ -296,7 +303,7 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelWidgetType).click();
       cy.contains('Generic input (example)').click();
 
-      cy.findByLabelText(labelName).type('Generic input');
+      cy.findByLabelText(labelTitle).type('Generic input');
       cy.findByLabelText('Generic text').type('Text for the new widget');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
@@ -317,10 +324,10 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelEditWidget).click();
 
-      cy.findByLabelText(labelWidgetType).click();
-      cy.contains('Generic input (example)').click();
+      cy.findByLabelText(labelWidgetType).click({ force: true });
+      cy.contains('Generic input (example)').click({ force: true });
 
-      cy.findByLabelText(labelName).type('Generic input');
+      cy.findByLabelText(labelTitle).type('Generic input', { force: true });
       cy.findByLabelText('Generic text').type('Text for the new widget');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
@@ -359,6 +366,40 @@ describe('Dashboard', () => {
       cy.findByLabelText(labelDelete).click();
 
       cy.contains(labelAddAWidget).should('be.visible');
+
+      cy.makeSnapshot();
+    });
+  });
+
+  describe('View mode', () => {
+    it('displays the widget form in view mode when the user has editor role and the user is not editing the dashboard', () => {
+      initializeAndMount(editorRoles);
+
+      cy.contains(labelCancel).click();
+
+      cy.findAllByLabelText(labelViewProperties).eq(0).click();
+
+      cy.findByLabelText(labelWidgetType).should('be.disabled');
+      cy.findByLabelText(labelCancel).should('not.exist');
+      cy.findByLabelText(labelSave).should('not.exist');
+
+      cy.findByLabelText('close').click();
+
+      cy.findByLabelText(labelWidgetType).should('not.exist');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the widget form in view mode when the user has viewer role', () => {
+      initializeAndMount(viewerRoles);
+
+      cy.findAllByLabelText(labelViewProperties).eq(0).click();
+
+      cy.findByLabelText(labelWidgetType).should('be.disabled');
+      cy.findByLabelText(labelCancel).should('not.exist');
+      cy.findByLabelText(labelSave).should('not.exist');
+      cy.contains(labelYourRightsOnlyAllowToView).should('be.visible');
+      cy.contains(labelPleaseContactYourAdministrator).should('be.visible');
 
       cy.makeSnapshot();
     });

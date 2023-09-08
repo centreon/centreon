@@ -25,7 +25,6 @@ import {
   labelTitle,
   labelOpenLinksInNewTab,
   labelPleaseChooseAWidgetToActivatePreview,
-  labelPleaseSelectAResource,
   labelResourceType,
   labelSelectAResource,
   labelSelectAWidgetType,
@@ -34,9 +33,11 @@ import {
   labelWidgetType,
   labelCancel,
   labelEditWidget,
-  labelAddResource
+  labelAddResource,
+  labelAddMetric
 } from '../translatedLabels';
 import { dashboardAtom } from '../atoms';
+import { editProperties } from '../useCanEditDashboard';
 
 import { widgetFormInitialDataAtom } from './atoms';
 import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';
@@ -109,6 +110,54 @@ const initialFormDataEdit = {
   }
 };
 
+const initialFormData = {
+  data: {
+    metrics: [
+      {
+        criticalHighThreshold: null,
+        criticalLowThreshold: null,
+        id: 0,
+        metrics: [
+          {
+            id: 0,
+            name: 'ping'
+          }
+        ],
+        name: 'Service 1',
+        unit: '%',
+        warningHighThreshold: null,
+        warningLowThreshold: null
+      }
+    ],
+    resources: [
+      {
+        resourceType: 'host',
+        resources: [
+          {
+            id: 0,
+            name: 'Host 0'
+          }
+        ]
+      }
+    ]
+  },
+  id: `centreon-widget-data_1`,
+  moduleName: widgetDataConfiguration.moduleName,
+  options: {
+    description: {
+      content:
+        '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Description","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
+      enabled: true
+    },
+    name: 'Widget name',
+    openLinksInNewTab: false
+  },
+  panelConfiguration: {
+    federatedComponents: ['./data'],
+    path: '/widgets/data'
+  }
+};
+
 const generateResources = (resourceLabel: string): object => ({
   meta: {
     limit: 10,
@@ -126,6 +175,10 @@ const store = createStore();
 describe('AddEditWidgetModal', () => {
   describe('Properties', () => {
     beforeEach(() => {
+      cy.stub(editProperties, 'useCanEditProperties').returns({
+        canEdit: true,
+        canEditField: true
+      });
       const jotaiStore = initializeWidgets();
 
       jotaiStore.set(widgetFormInitialDataAtom, initialFormDataAdd);
@@ -210,7 +263,7 @@ describe('AddEditWidgetModal', () => {
         cy.makeSnapshot();
       });
 
-      it('disables the description field when the display description checkbox is not checked', () => {
+      it('does not disabled the description field when the display description checkbox is not checked', () => {
         cy.findByLabelText(labelWidgetType).click();
         cy.contains('Generic input (example)').click();
 
@@ -225,7 +278,7 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText('RichTextEditor').should(
           'have.attr',
           'contenteditable',
-          'false'
+          'true'
         );
       });
     });
@@ -332,9 +385,68 @@ describe('AddEditWidgetModal', () => {
     });
   });
 
+  describe('Disabled properties', () => {
+    beforeEach(() => {
+      cy.stub(editProperties, 'useCanEditProperties').returns({
+        canEdit: true,
+        canEditField: false
+      });
+
+      const jotaiStore = initializeWidgets();
+
+      jotaiStore.set(widgetFormInitialDataAtom, initialFormDataEdit);
+
+      cy.viewport('macbook-13');
+
+      cy.interceptAPIRequest({
+        alias: 'getHosts',
+        method: Method.GET,
+        path: `**${resourceTypeBaseEndpoints[WidgetResourceType.host]}**`,
+        response: generateResources('Host')
+      });
+
+      cy.fixture('Dashboards/Dashboard/serviceMetrics.json').then(
+        (serviceMetrics) => {
+          cy.interceptAPIRequest({
+            alias: 'getServiceMetrics',
+            method: Method.GET,
+            path: `${metricsEndpoint}**`,
+            response: serviceMetrics
+          });
+        }
+      );
+
+      cy.mount({
+        Component: (
+          <TestQueryProvider>
+            <Provider store={jotaiStore}>
+              <AddEditWidgetModal />
+            </Provider>
+          </TestQueryProvider>
+        )
+      });
+    });
+
+    it('displays generic properties fields as disabled', () => {
+      cy.findByLabelText(labelWidgetType).should('be.disabled');
+      cy.findByLabelText(labelTitle).should('be.disabled');
+      cy.findByLabelText('RichTextEditor').should(
+        'have.attr',
+        'contenteditable',
+        'true'
+      );
+      cy.findByLabelText(labelShowDescription).should('be.disabled');
+      cy.findByLabelText(labelOpenLinksInNewTab).should('be.disabled');
+    });
+  });
+
   describe('Data', () => {
     describe('Resources and metrics', () => {
       beforeEach(() => {
+        cy.stub(editProperties, 'useCanEditProperties').returns({
+          canEdit: true,
+          canEditField: true
+        });
         initializeWidgets(store);
 
         store.set(widgetFormInitialDataAtom, initialFormDataAdd);
@@ -383,12 +495,14 @@ describe('AddEditWidgetModal', () => {
         cy.findByTestId(labelResourceType).parent().children().eq(0).click();
         cy.contains(/^Host$/).click();
 
-        cy.contains(labelPleaseSelectAResource).should('be.visible');
-
         cy.findByTestId(labelSelectAResource).click();
         cy.waitForRequest('@getHosts');
 
+        cy.findByLabelText(labelAddResource).should('be.disabled');
+
         cy.contains(/^Host 0$/).click();
+        cy.findByLabelText(labelAddResource).should('not.be.disabled');
+        cy.findByLabelText(labelAddMetric).should('be.disabled');
         cy.waitForRequest('@getServiceMetrics');
 
         cy.findByTestId(labelServiceName).parent().children().eq(0).click();
@@ -397,6 +511,8 @@ describe('AddEditWidgetModal', () => {
         cy.findByTestId(labelMetrics).click();
         cy.contains('pl (%)').click();
         cy.contains('rtmax (ms)').click();
+
+        cy.findByLabelText(labelAddMetric).should('not.be.disabled');
 
         cy.contains('Metrics (1 available)').should('be.visible');
         cy.contains(labelYouCanSelectUpToTwoMetricUnits).should('be.visible');
@@ -495,12 +611,12 @@ describe('AddEditWidgetModal', () => {
         cy.findByTestId(labelResourceType).parent().children().eq(0).click();
         cy.contains(/^Host$/).click();
 
-        cy.contains(labelPleaseSelectAResource).should('be.visible');
-
         cy.findByTestId(labelSelectAResource).click();
         cy.waitForRequest('@getHosts');
+        cy.findByLabelText(labelAddResource).should('be.disabled');
 
         cy.contains(/^Host 0$/).click();
+        cy.findByLabelText(labelAddResource).should('be.enabled');
         cy.waitForRequest('@getServiceMetrics');
 
         cy.findByTestId(labelServiceName).parent().children().eq(0).click();
@@ -511,6 +627,58 @@ describe('AddEditWidgetModal', () => {
 
         cy.makeSnapshot();
       });
+    });
+  });
+
+  describe('Disabled data', () => {
+    beforeEach(() => {
+      cy.stub(editProperties, 'useCanEditProperties').returns({
+        canEdit: true,
+        canEditField: false
+      });
+
+      const jotaiStore = initializeWidgets();
+
+      jotaiStore.set(widgetFormInitialDataAtom, initialFormData);
+
+      cy.viewport('macbook-13');
+
+      cy.interceptAPIRequest({
+        alias: 'getHosts',
+        method: Method.GET,
+        path: `**${resourceTypeBaseEndpoints[WidgetResourceType.host]}**`,
+        response: generateResources('Host')
+      });
+
+      cy.fixture('Dashboards/Dashboard/serviceMetrics.json').then(
+        (serviceMetrics) => {
+          cy.interceptAPIRequest({
+            alias: 'getServiceMetrics',
+            method: Method.GET,
+            path: `${metricsEndpoint}**`,
+            response: serviceMetrics
+          });
+        }
+      );
+
+      cy.mount({
+        Component: (
+          <TestQueryProvider>
+            <Provider store={jotaiStore}>
+              <AddEditWidgetModal />
+            </Provider>
+          </TestQueryProvider>
+        )
+      });
+    });
+
+    it('displays generic properties fields as disabled', () => {
+      cy.findByTestId(labelResourceType).should('be.disabled');
+      cy.findByLabelText(labelSelectAResource).should('be.disabled');
+      cy.findByTestId(labelServiceName).should('be.disabled');
+      cy.findByLabelText(labelMetrics).should('be.disabled');
+      cy.contains(labelAddResource).should('not.exist');
+      cy.contains(labelAddMetric).should('not.exist');
     });
   });
 });

@@ -1,6 +1,7 @@
 import { Formik } from 'formik';
 
 import { labelDisplayType } from '../../../../translatedLabels';
+import { editProperties } from '../../../../useCanEditDashboard';
 
 import SingleMetricGraphType from './SingleMetricGraphType';
 
@@ -24,6 +25,10 @@ const initializeComponent = (): void => {
 
 describe('Single metric graph type', () => {
   beforeEach(() => {
+    cy.stub(editProperties, 'useCanEditProperties').returns({
+      canEdit: true,
+      canEditField: true
+    });
     initializeComponent();
   });
 
@@ -43,6 +48,26 @@ describe('Single metric graph type', () => {
     cy.get('[data-type="text"]').should('have.attr', 'data-selected', 'false');
     cy.get('[data-type="gauge"]').should('have.attr', 'data-selected', 'true');
     cy.get('[data-type="bar"]').should('have.attr', 'data-selected', 'false');
+
+    cy.matchImageSnapshot();
+  });
+});
+
+describe('Disabled Graph type', () => {
+  beforeEach(() => {
+    cy.stub(editProperties, 'useCanEditProperties').returns({
+      canEdit: true,
+      canEditField: false
+    });
+    initializeComponent();
+  });
+
+  it('displays the graph types as disabled', () => {
+    cy.contains(labelDisplayType).should('be.visible');
+
+    cy.get('[data-type="text"]').should('have.attr', 'data-disabled', 'true');
+    cy.get('[data-type="gauge"]').should('have.attr', 'data-disabled', 'true');
+    cy.get('[data-type="bar"]').should('have.attr', 'data-disabled', 'true');
 
     cy.matchImageSnapshot();
   });

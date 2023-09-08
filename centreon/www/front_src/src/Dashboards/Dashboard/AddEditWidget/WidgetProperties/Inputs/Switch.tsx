@@ -8,7 +8,7 @@ import { Box, FormControlLabel, Typography } from '@mui/material';
 import { Switch } from '@centreon/ui/components';
 
 import { Widget, WidgetPropertyProps } from '../../models';
-import { useCanEditProperties } from '../../../useCanEditDashboard';
+import { editProperties } from '../../../useCanEditDashboard';
 
 import { getProperty } from './utils';
 import { useSwitchStyles } from './Inputs.styles';
@@ -23,7 +23,7 @@ const WidgetSwitch = ({
 
   const { values, setFieldValue } = useFormikContext<Widget>();
 
-  const { canEditField } = useCanEditProperties();
+  const { canEditField } = editProperties.useCanEditProperties();
 
   const value = useMemo<boolean | undefined>(
     () => getProperty({ obj: values, propertyName }),

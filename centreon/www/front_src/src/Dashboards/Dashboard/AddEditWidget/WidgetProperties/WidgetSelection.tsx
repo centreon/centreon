@@ -7,7 +7,7 @@ import { SingleAutocompleteField } from '@centreon/ui';
 
 import { labelWidgetType } from '../../translatedLabels';
 import { useAddWidgetStyles } from '../addWidget.styles';
-import { useCanEditProperties } from '../../useCanEditDashboard';
+import { editProperties } from '../../useCanEditDashboard';
 
 import useWidgetSelection from './useWidgetSelection';
 import { useWidgetSelectionStyles } from './widgetProperties.styles';
@@ -23,7 +23,7 @@ const WidgetSelection = (): JSX.Element => {
   const { options, widgets, searchWidgets, selectWidget, selectedWidget } =
     useWidgetSelection();
 
-  const { canEditField } = useCanEditProperties();
+  const { canEditField } = editProperties.useCanEditProperties();
 
   const renderOption = (renderProps, option): JSX.Element => {
     const widget = find(

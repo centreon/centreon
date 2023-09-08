@@ -26,7 +26,7 @@ import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { singleMetricSectionAtom } from '../../../atoms';
 import { isAtLeastOneResourceFullfilled } from '../utils';
-import { useCanEditProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../useCanEditDashboard';
 
 import useMetrics from './useMetrics';
 
@@ -58,7 +58,7 @@ const Metrics = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     resources
   } = useMetrics(propertyName);
 
-  const { canEditField } = useCanEditProperties();
+  const { canEditField } = editProperties.useCanEditProperties();
 
   const addButtonDisabled =
     hasNoResources() || hasTooManyMetrics || !metricCount;

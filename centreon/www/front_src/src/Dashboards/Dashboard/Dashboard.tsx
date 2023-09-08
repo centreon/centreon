@@ -21,7 +21,7 @@ import useDashboardDetails, { routerParams } from './useDashboardDetails';
 import { isEditingAtom } from './atoms';
 import { DashboardEditActions } from './components/DashboardEdit/DashboardEditActions';
 import { AddWidgetButton } from './AddEditWidget';
-import { useCanEditProperties } from './useCanEditDashboard';
+import { editProperties } from './useCanEditDashboard';
 
 const Dashboard = (): ReactElement => {
   const { dashboardId } = routerParams.useParams();
@@ -33,7 +33,7 @@ const Dashboard = (): ReactElement => {
 
   const isEditing = useAtomValue(isEditingAtom);
 
-  const { canEdit } = useCanEditProperties();
+  const { canEdit } = editProperties.useCanEditProperties();
 
   return (
     <PageLayout>

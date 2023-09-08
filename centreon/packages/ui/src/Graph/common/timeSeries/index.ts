@@ -498,7 +498,6 @@ const formatMetricValue = ({
   const base1024 = base2Units.includes(unit) || Number(base) === 1024;
 
   const formatSuffix = cond([
-    [equals('%'), always('%')],
     [equals('ms'), always(' ms')],
     [T, always(base1024 ? ' ib' : ' a')]
   ])(unit);
@@ -506,6 +505,8 @@ const formatMetricValue = ({
   const formattedMetricValue = numeral(Math.abs(value)).format(
     `0.[00]${formatSuffix}`
   );
+
+  console.log(formattedMetricValue);
 
   if (lt(value, 0)) {
     return `-${formattedMetricValue}`;
@@ -520,23 +521,23 @@ const formatMetricValueWithUnit = ({
   base = 1000,
   isRaw = false
 }: FormatMetricValueProps & { isRaw?: boolean }): string | null => {
+  if (isNil(value)) {
+    return null;
+  }
+
   if (isRaw) {
     const unitText = equals('%', unit) ? unit : ` ${unit}`;
 
     return `${value}${unitText}`;
   }
 
+  if (equals('%', unit)) {
+    return `${value}%`;
+  }
+
   const formattedMetricValue = formatMetricValue({ base, unit, value });
 
-  if (isNil(formattedMetricValue)) {
-    return null;
-  }
-
-  if (['ms', '%'].includes(unit)) {
-    return formattedMetricValue;
-  }
-
-  return `${formattedMetricValue}${unit}`;
+  return formattedMetricValue;
 };
 
 const getStackedYScale = ({

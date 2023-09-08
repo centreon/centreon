@@ -4,7 +4,7 @@ import { useFormikContext } from 'formik';
 import { Modal } from '@centreon/ui/components';
 
 import { labelCancel, labelSave } from '../translatedLabels';
-import { useCanEditProperties } from '../useCanEditDashboard';
+import { editProperties } from '../useCanEditDashboard';
 
 interface Props {
   closeModal: (shouldAskForClosingConfirmation: boolean) => void;
@@ -15,9 +15,9 @@ const Actions = ({ closeModal }: Props): JSX.Element | null => {
 
   const { handleSubmit, isValid, dirty } = useFormikContext();
 
-  const { canEdit } = useCanEditProperties();
+  const { canEdit, canEditField } = editProperties.useCanEditProperties();
 
-  if (!canEdit) {
+  if (!canEdit || !canEditField) {
     return null;
   }
 

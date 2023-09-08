@@ -17,7 +17,7 @@ import {
   labelYourRightsOnlyAllowToView
 } from '../../translatedLabels';
 import { isGenericText } from '../../utils';
-import { useCanEditProperties } from '../../useCanEditDashboard';
+import { editProperties } from '../../useCanEditDashboard';
 
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
@@ -25,7 +25,7 @@ const Preview = (): JSX.Element | null => {
   const { t } = useTranslation();
   const { classes } = useWidgetPropertiesStyles();
 
-  const { canEdit } = useCanEditProperties();
+  const { canEdit } = editProperties.useCanEditProperties();
 
   const previewRef = useRef<HTMLDivElement | null>(null);
 

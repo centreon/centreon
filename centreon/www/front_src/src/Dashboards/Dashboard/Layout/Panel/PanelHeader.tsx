@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 
-import { IconButton } from '@centreon/ui';
+import { IconButton, useDeepCompare } from '@centreon/ui';
 
 import {
   dashboardAtom,
@@ -17,7 +17,7 @@ import {
   isEditingAtom
 } from '../../atoms';
 import { labelMoreActions, labelViewProperties } from '../../translatedLabels';
-import { useCanEditProperties } from '../../useCanEditDashboard';
+import { editProperties } from '../../useCanEditDashboard';
 import useWidgetForm from '../../AddEditWidget/useWidgetModal';
 
 import { usePanelHeaderStyles } from './usePanelStyles';
@@ -38,7 +38,7 @@ const PanelHeader = ({ id }: PanelHeaderProps): JSX.Element => {
   const isEditing = useAtomValue(isEditingAtom);
   const duplicatePanel = useSetAtom(duplicatePanelDerivedAtom);
 
-  const { canEdit } = useCanEditProperties();
+  const { canEdit } = editProperties.useCanEditProperties();
 
   const { openModal } = useWidgetForm();
 
@@ -55,6 +55,11 @@ const PanelHeader = ({ id }: PanelHeaderProps): JSX.Element => {
     openModal(dashboard.layout.find((panel) => equals(panel.i, id)) || null);
     closeMoreActions();
   };
+
+  const panel = useMemo(
+    () => dashboard.layout.find((panel) => equals(panel.i, id)),
+    useDeepCompare([dashboard.layout])
+  );
 
   const displayEditButtons = canEdit && isEditing;
 
@@ -80,13 +85,18 @@ const PanelHeader = ({ id }: PanelHeaderProps): JSX.Element => {
           </div>
         ) : (
           <div className={classes.panelActionsIcons}>
-            <IconButton title={t(labelViewProperties) as string} onClick={edit}>
+            <IconButton
+              ariaLabel={t(labelViewProperties) as string}
+              title={t(labelViewProperties) as string}
+              onClick={edit}
+            >
               <VisibilityOutlinedIcon fontSize="small" />
             </IconButton>
           </div>
         )
       }
       className={classes.panelHeader}
+      title={panel?.options?.name || ''}
     />
   );
 };

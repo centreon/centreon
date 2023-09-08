@@ -21,11 +21,10 @@ import {
 import { WidgetSwitch } from '..';
 import { useThresholdStyles } from '../Inputs.styles';
 import Subtitle from '../../../../components/Subtitle';
-import { useCanEditProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../useCanEditDashboard';
 import { customBaseColorAtom } from '../../../atoms';
 
 import useThreshold from './useThreshold';
-import BaseColor from './BaseColor';
 
 const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
@@ -33,12 +32,11 @@ const Threshold = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
 
   const customBaseColorActivated = useAtomValue(customBaseColorAtom);
 
-  const { changeType, options, enabled, customBaseColor, changeBaseColor } =
-    useThreshold({
-      propertyName
-    });
+  const { changeType, options, enabled } = useThreshold({
+    propertyName
+  });
 
-  const { canEditField } = useCanEditProperties();
+  const { canEditField } = editProperties.useCanEditProperties();
 
   return (
     <Box>

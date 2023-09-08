@@ -7,7 +7,7 @@ import { equals } from 'ramda';
 import { TextField } from '@centreon/ui';
 
 import { Widget, WidgetPropertyProps } from '../../models';
-import { useCanEditProperties } from '../../../useCanEditDashboard';
+import { editProperties } from '../../../useCanEditDashboard';
 
 import { getProperty } from './utils';
 
@@ -24,7 +24,7 @@ const WidgetTextField = ({
   const { errors, values, setFieldValue, setFieldTouched, touched } =
     useFormikContext<Widget>();
 
-  const { canEditField } = useCanEditProperties();
+  const { canEditField } = editProperties.useCanEditProperties();
 
   const value = useMemo<string | undefined>(
     () => getProperty({ obj: values, propertyName }),

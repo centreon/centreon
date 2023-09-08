@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai';
 
 import { hasEditPermissionAtom, isEditingAtom } from './atoms';
 
-export const useCanEditProperties = (): {
+const useCanEditProperties = (): {
   canEdit?: boolean;
   canEditField?: boolean;
 } => {
@@ -18,3 +18,5 @@ export const useCanEditProperties = (): {
     canEditField: canEdit && isEditing
   };
 };
+
+export const editProperties = { useCanEditProperties };

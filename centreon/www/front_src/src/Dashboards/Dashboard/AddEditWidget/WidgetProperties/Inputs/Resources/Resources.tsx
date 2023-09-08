@@ -25,7 +25,7 @@ import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { useResourceStyles } from '../Inputs.styles';
 import { singleMetricSectionAtom } from '../../../atoms';
 import { areResourcesFullfilled } from '../utils';
-import { useCanEditProperties } from '../../../../useCanEditDashboard';
+import { editProperties } from '../../../../useCanEditDashboard';
 
 import useResources from './useResources';
 
@@ -53,7 +53,7 @@ const Resources = ({ propertyName }: Props): JSX.Element => {
     changeResource
   } = useResources(propertyName);
 
-  const { canEditField } = useCanEditProperties();
+  const { canEditField } = editProperties.useCanEditProperties();
 
   return (
     <div className={classes.resourcesContainer}>
