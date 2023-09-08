@@ -1,4 +1,4 @@
-Feature: Create a new dashboard
+Feature: Creating a new dashboard
   As a Centreon User with dashboard edition rights,
   I need to start creating a dashboard starting from an empty page on which I will place widgets
   So these dashboards can be consulted by myself and other users
