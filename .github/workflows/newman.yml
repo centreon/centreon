@@ -31,23 +31,11 @@ jobs:
 
       - name : start centreon web container
         run: docker run -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
-      
-      - name: Run Postman Tests and Generate HTML Report
+
+      # Ajoutez une nouvelle étape pour exécuter votre script Newman
+      - name: Run Newman Tests
         run: |
-          environment_path="centreon/tests/rest_api/refactored_api_test_collection/Environment-for-Refactored-API-Test-Collection.json"
-          collection_path="centreon/tests/rest_api/refactored_api_test_collection"
-
-          # Create a directory to store HTML reports
-          mkdir -p newman
-
-          # Iterate over each Postman collection file in the specified directory
-          for collection_file in "$collection_path"/*.postman_collection.json; do
-            # Extract the collection name from the file name
-            collection_name=$(basename "$collection_file" .postman_collection.json)
-
-            # Run Newman with the current collection file and generate an HTML report
-            newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"
-          done
+          node centreon\tests\rest_api\refactored_api_test_collection\newmanCollectionRun.js
 
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
