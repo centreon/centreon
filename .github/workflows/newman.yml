@@ -42,7 +42,17 @@ jobs:
           container_id=$(docker ps --filter "ancestor=docker.centreon.com/centreon/centreon-web-alma9:develop" --format "{{.ID}}")
           echo "CONTAINER_ID=$container_id" >> $GITHUB_ENV
         shell: bash
-         
+      
+      - name: Install Node.js and npm Inside Container
+        run: |
+          # Install Newman inside the container using npm
+          docker exec $CONTAINER_ID npm install -g newman
+        shell: bash
+  
+      - name: Install Newman Inside Container
+        run: |
+          docker exec $container_id npm install -g newman
+    
       - name: Run Postman Tests and Generate HTML Report Inside Container
         run: |
           environment_path="centreon/tests/rest_api/refactored_api_test_collection/Environment-for-Refactored-API-Test-Collection.json"
