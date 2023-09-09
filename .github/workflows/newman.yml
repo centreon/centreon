@@ -29,9 +29,17 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name : start centreon web container
+      - name: Start centreon web container
         run: docker run -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
-      
+
+      - name: Wait for Docker Container
+        run: |
+          until docker ps | grep -q "docker.centreon.com/centreon/centreon-web-alma9:develop"; do
+            echo "Waiting for the Docker container to start..."
+            sleep 10
+          done
+        timeout-minutes: 5
+
       - name: Run Postman Tests and Generate HTML Report
         run: |
           environment_path="centreon/tests/rest_api/refactored_api_test_collection/Environment-for-Refactored-API-Test-Collection.json"
