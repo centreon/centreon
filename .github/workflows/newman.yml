@@ -30,16 +30,21 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
 
       - name: Start Centreon Web Container
+        id: start_container
         run: |
-          container_id=$(docker run -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop)
+          docker run -d -p 4000:80 --name centreon_container docker.centreon.com/centreon/centreon-web-alma9:develop
           # Attendre que le conteneur Centreon Web soit prêt
-          until docker ps | grep -q "$container_id"; do
+          until docker ps --filter "name=centreon_container" --format "{{.Names}}" | grep -q "centreon_container"; do
             echo "Waiting for the Docker container to start..."
             sleep 10
           done
+        shell: bash
 
-      - name: Store Container ID
-        run: echo "CONTAINER_ID=$container_id" >> $GITHUB_ENV
+      - name: Get Container ID
+        run: |
+          container_id=$(docker ps --filter "name=centreon_container" --format "{{.ID}}")
+          echo "CONTAINER_ID=$container_id" >> $GITHUB_ENV
+        shell: bash
 
       - name: Run Postman Tests and Generate HTML Report
         run: |
