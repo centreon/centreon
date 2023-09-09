@@ -41,9 +41,9 @@ jobs:
         run: |
           container_id=$(docker ps --filter "ancestor=docker.centreon.com/centreon/centreon-web-alma9:develop" --format "{{.ID}}")
           echo "CONTAINER_ID=$container_id" >> $GITHUB_ENV
-        shell: bash
+        shell: bashd
       
-    - name: Install Node.js and npm Inside Container
+      - name: Install Node.js and npm Inside Container
         run: |
           docker exec $container_id apt-get update
           docker exec $container_id apt-get install -y nodejs npm
