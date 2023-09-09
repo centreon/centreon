@@ -45,9 +45,10 @@ jobs:
       
       - name: Install Node.js and npm Inside Container
         run: |
-          docker exec $container_id ash -c "apk update && apk add nodejs npm"
+          docker exec $container_id apt-get update
+          docker exec $container_id apt-get install -y nodejs npm
         shell: bash
-
+  
       - name: Install Newman Inside Container
         run: |
           docker exec $container_id npm install -g newman
