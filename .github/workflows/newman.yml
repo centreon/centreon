@@ -2,8 +2,8 @@ name: Postman Tests
 
 on:
   push:
-  #   paths:
-  #     - 'centreon/tests/rest_api/refactored_api_test_collection/**'
+    # paths:
+    #   - 'centreon/tests/rest_api/refactored_api_test_collection/**'
 
 jobs:
   postman_tests:
@@ -25,18 +25,21 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.DOCKER_REGISTRY_ID }}
-          password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
+          registry: ${{ secrets.DOCKER_REGISTRY_URL }}
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
 
       - name: Start Centreon Web Container
         run: |
-          docker run -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
+          container_id=$(docker run -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop)
           # Attendre que le conteneur Centreon Web soit prêt
-          until docker ps | grep -q "docker.centreon.com/centreon/centreon-web-alma9:develop"; do
+          until docker ps | grep -q "$container_id"; do
             echo "Waiting for the Docker container to start..."
             sleep 10
           done
+
+      - name: Store Container ID
+        run: echo "CONTAINER_ID=$container_id" >> $GITHUB_ENV
 
       - name: Run Postman Tests and Generate HTML Report
         run: |
@@ -51,8 +54,8 @@ jobs:
             # Extract the collection name from the file name
             collection_name=$(basename "$collection_file" .postman_collection.json)
 
-            # Run Newman with the current collection file and generate an HTML report
-            newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"
+            # Run Newman with the current collection file and generate an HTML report inside the existing Docker container
+            docker exec $CONTAINER_ID newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"
           done
 
       - name: Upload HTML Reports
