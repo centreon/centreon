@@ -30,8 +30,13 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name : start centreon web container
-        run: docker run -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop centreon
-        
+        run: docker run --name centreon -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
+
+      - name: Wait for Centreon Web Container to Start
+        run: |
+            sleep 10  # Adjust the sleep time as needed
+        timeout-minutes: 5  
+
       - name: Get container ip 
         run:  docker inspect --format '{{ .NetworkSettings.IPAddress }}' centreon
 
