@@ -45,8 +45,7 @@ jobs:
       
       - name: Install Node.js and npm Inside Container
         run: |
-          docker exec $container_id apk update # Utilisez 'apk' pour Alpine Linux
-          docker exec $container_id apk add nodejs npm
+           docker exec $container_id sh -c "apk update && apk add nodejs npm"
         shell: bash
 
       - name: Install Newman Inside Container
