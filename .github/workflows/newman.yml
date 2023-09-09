@@ -46,7 +46,6 @@ jobs:
       - name: Install Newman Inside Container
         run: |
           docker exec $container_id npm install -g newman
-        shell: bash
     
       - name: Run Postman Tests and Generate HTML Report Inside Container
         run: |
