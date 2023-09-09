@@ -34,7 +34,7 @@ jobs:
 
       - name: Wait for Centreon Web Container to Start
         run: |
-            sleep 10  # Adjust the sleep time as needed
+            sleep 60  # Adjust the sleep time as needed
         timeout-minutes: 5  
 
       - name: Get container ip 
