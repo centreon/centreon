@@ -2,8 +2,8 @@ name: Postman Tests
 
 on:
   push:
-  #   paths:
-  #     - 'centreon/tests/rest_api/refactored_api_test_collection/**'
+    # paths:
+    #   - 'centreon/tests/rest_api/refactored_api_test_collection/**'
 
 jobs:
   postman_tests:
@@ -29,28 +29,36 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name : start centreon web container
-        run: docker run -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
-      
-      - name: Run Postman Tests and Generate HTML Report
+      - name: Start Centreon Web Container
+        id: start_container
+        run: |
+          docker run -d -p 4000:80 --name centreon_container docker.centreon.com/centreon/centreon-web-alma9:develop
+          # Attendre que le conteneur Centreon Web soit prêt
+          until docker ps --filter "name=centreon_container" --format "{{.Names}}" | grep -q "centreon_container"; do
+            echo "Waiting for the Docker container to start..."
+            sleep 10
+          done
+        shell: bash
+
+      - name: Get Container ID
+        run: |
+          container_id=$(docker ps --filter "ancestor=docker.centreon.com/centreon/centreon-web-alma9:develop" --format "{{.ID}}")
+          echo "CONTAINER_ID=$container_id" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Run Postman Tests and Generate HTML Report Inside Container
         run: |
           environment_path="centreon/tests/rest_api/refactored_api_test_collection/Environment-for-Refactored-API-Test-Collection.json"
           collection_path="centreon/tests/rest_api/refactored_api_test_collection"
 
-          # Create a directory to store HTML reports
-          mkdir -p newman
+          # Create a directory to store HTML reports inside the container
+          docker exec $CONTAINER_ID mkdir -p newman
 
           # Iterate over each Postman collection file in the specified directory
           for collection_file in "$collection_path"/*.postman_collection.json; do
             # Extract the collection name from the file name
             collection_name=$(basename "$collection_file" .postman_collection.json)
 
-            # Run Newman with the current collection file and generate an HTML report
-            newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"
+            # Run Newman with the current collection file inside the existing Docker container and generate an HTML report
+            docker exec $CONTAINER_ID newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"
           done
-
-      - name: Upload HTML Reports
-        uses: actions/upload-artifact@v2
-        with:
-          name: postman-html-reports
-          path: ./newman/
