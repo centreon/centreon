@@ -79,8 +79,8 @@ $addTopologyFeatureFlag = function(CentreonDB $pearDB) {
     }
 };
 
-$updateSecurityTokenTable = function(CentreonDB $pearDB) {
-    if (! $pearDB->isColumnExist('security_authentication_tokens', 'token_name')) {
+$updateSecurityTokenTable = function (CentreonDB $pearDB) {
+    if (!$pearDB->isColumnExist('security_authentication_tokens', 'token_name')) {
         $pearDB->query(
             <<<'SQL'
                 ALTER TABLE `security_authentication_tokens`
@@ -95,7 +95,7 @@ $updateSecurityTokenTable = function(CentreonDB $pearDB) {
                 SQL
         );
     }
-}
+};
 
 try {
     $pearDBO->query($alterResourceTableStmnt);
