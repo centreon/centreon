@@ -85,12 +85,11 @@ class FindNotificationPresenter extends AbstractPresenter implements FindNotific
         foreach ($resources as $index => $resource) {
             $formatted[$index] = [
                 'type' => $resource['type'],
+                'events' => $resource['type'] === NotificationResource::HOSTGROUP_RESOURCE_TYPE
+                    ? NotificationHostEventConverter::toBitFlags($resource['events'])
+                    : NotificationServiceEventConverter::toBitFlags($resource['events']),
                 'ids' => $resource['ids'],
             ];
-
-            $formatted[$index]['events'] = $resource['type'] === NotificationResource::HOSTGROUP_RESOURCE_TYPE
-                ? NotificationHostEventConverter::toBitFlags($resource['events'])
-                : NotificationServiceEventConverter::toBitFlags($resource['events']);
 
             if (array_key_exists('extra', $resource)) {
                 $formatted[$index]['extra']['event_services'] = NotificationServiceEventConverter::toBitFlags(

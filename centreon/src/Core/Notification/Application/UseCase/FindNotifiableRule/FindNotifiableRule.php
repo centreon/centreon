@@ -142,7 +142,7 @@ final class FindNotifiableRule
                 $contactGroups
             )
         );
-        $allContacts = array_merge($contacts, $contactsFromContactGroups);
+        $allContacts = array_values(array_merge($contacts, $contactsFromContactGroups));
 
         foreach ($messages as $message) {
             switch ($message->getChannel()) {
