@@ -37,9 +37,6 @@ jobs:
             sleep 60  # Adjust the sleep time as needed
         timeout-minutes: 5  
 
-      - name: Get container ip 
-        run:  docker inspect --format '{{ .NetworkSettings.IPAddress }}' centreon
-
       - name: Run Postman Tests and Generate HTML Report
         run: |
           environment_path="centreon/tests/rest_api/refactored_api_test_collection/Environment-for-Refactored-API-Test-Collection.json"
@@ -62,3 +59,7 @@ jobs:
         with:
           name: postman-html-reports
           path: ./newman/
+
+      - name: Continue to Next Collection
+        if: ${{ always() }}
+        run: echo "Continuing to the next collection..."
