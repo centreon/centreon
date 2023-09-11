@@ -32,14 +32,13 @@ jobs:
 
       - name: Wait for Centreon Web Container to Start
         run: |
-          url=http://localhost:4000/centreon/login
+          url=http://127.0.0.1:4000/centreon/login
           max_retries=30
 
           for ((i=1; i<=$max_retries; i++)); do
             if docker ps --filter "name=centreon" --format "{{.Status}}" | grep -q "healthy"; then
               echo "Centreon web application is running and healthy!"
               
-              # Affichez les journaux du conteneur Centreon pour le débogage
               docker logs centreon
               
               http_status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
