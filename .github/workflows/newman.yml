@@ -2,6 +2,7 @@ name: Postman Tests
 
 on:
   push:
+    
 jobs:
   postman_tests:
     runs-on: ubuntu-latest
@@ -18,7 +19,7 @@ jobs:
       - name: Install Newman and Reporter
         run: | 
           npm install -g newman newman-reporter-htmlextra newman-reporter-text
-      
+
       - name: Login to registry
         uses: docker/login-action@v2
         with:
@@ -26,7 +27,7 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name : start centreon web container
+      - name: Start Centreon Web Container
         run: docker run --name centreon -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
 
       - name: Wait for Centreon Web Container to Start
@@ -35,24 +36,24 @@ jobs:
           RETRY_INTERVAL: 10
           CHECK_URL: http://localhost:4000/centreon/login
         run: |
-            for ((i=1; i<=$MAX_RETRIES; i++)); do
-              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$CHECK_URL")
-              if [ $HTTP_STATUS -eq 200 ]; then
-                echo "Centreon web application is ready!"
-                break
-              elif [ $HTTP_STATUS -eq 404 ]; then
-                echo "Centreon web application is not found (404)."
-                exit 1
-              else
-                echo "Retrying in $RETRY_INTERVAL seconds..."
-                sleep $RETRY_INTERVAL
-              fi
-           done
+          for ((i=1; i<=$MAX_RETRIES; i++)); do
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$CHECK_URL")
+            if [ $HTTP_STATUS -eq 200 ]; then
+              echo "Centreon web application is ready!"
+              break
+            elif [ $HTTP_STATUS -eq 404 ]; then
+              echo "Centreon web application is not found (404)."
+              exit 1
+            else
+              echo "Retrying in $RETRY_INTERVAL seconds..."
+              sleep $RETRY_INTERVAL
+            fi
+          done
 
-           if [ $HTTP_STATUS -ne 200 ]; then
-             echo "Centreon web application did not start successfully."
-             exit 1
-           fi
+          if [ $HTTP_STATUS -ne 200 ]; then
+            echo "Centreon web application did not start successfully."
+            exit 1
+          fi
 
       - name: Run Postman Tests and Generate HTML Report
         run: |
