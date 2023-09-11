@@ -1,3 +1,11 @@
+# ABU 2023-09-11
+# Import of test-lib file instead of including it.
+# The purpose is to temporary disable rules which are not mandatory from a php point of view.
+# This will allow us to put phpstan faster in the CI, to increase quality of code.
+# When phpstan will be propagated to a sufficient number of namespaces, we will (if always a thing)
+# restore the less important rules commented below.
+#includes:
+#    - vendor/centreon/centreon-test-lib/src/PHPStan/phpstan.neon
 rules:
     - Centreon\PHPStan\CustomRules\MiscRules\VariableLengthCustomRule
     - Centreon\PHPStan\CustomRules\MiscRules\StringBackquotesCustomRule
