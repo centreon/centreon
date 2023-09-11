@@ -107,8 +107,8 @@ final class AddToken
      */
     private function createToken(AddTokenRequest $request): string
     {
-        $this->validation->assertIsValidName($request->name);
         $this->validation->assertIsValidUser($request->userId);
+        $this->validation->assertIsValidName($request->name, $request->userId);
 
         $expirationDate = new \DateTimeImmutable($request->expirationDate->format('Y-m-d'));
 

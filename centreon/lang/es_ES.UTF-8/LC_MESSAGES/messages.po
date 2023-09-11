@@ -16340,9 +16340,6 @@ msgstr ""
 #  msgid "The token name '%s' already exists"
 #  msgstr ""
 
-#  msgid "The expiration date must be greater than the creation date"
-#  msgstr ""
-
 #  msgid "The user with ID %d' doesn't exist"
 #  msgstr ""
 

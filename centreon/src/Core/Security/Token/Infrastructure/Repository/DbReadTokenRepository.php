@@ -102,17 +102,19 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
     /**
      * @inheritDoc
      */
-    public function existsByName(string $tokenName): bool
+    public function existsByNameAndUserId(string $tokenName, int $userId): bool
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 SELECT 1
                 FROM `:db`.security_authentication_tokens sat
                 WHERE sat.token_name = :tokenName
+                    AND sat.user_id = :userId
                     AND sat.token_type = 'manual'
                 SQL
         ));
         $statement->bindValue(':tokenName', $tokenName, \PDO::PARAM_STR);
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
         $statement->execute();
 
         return (bool) $statement->fetchColumn();

@@ -42,10 +42,11 @@ interface ReadTokenRepositoryInterface
      * Determine if a token exists by its name.
      *
      * @param string $tokenName
+     * @param int $userId
      *
      * @throws \Throwable
      *
      * @return bool
      */
-    public function existsByName(string $tokenName): bool;
+    public function existsByNameANdUserId(string $tokenName, int $userId): bool;
 }

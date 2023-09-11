@@ -18142,9 +18142,6 @@ msgstr "Erreur lors de la récupération du token"
 msgid "The token name '%s' already exists"
 msgstr "Le nom de token '%s' exist déjà"
 
-msgid "The expiration date must be greater than the creation date"
-msgstr "La date d'expiration doit être plus grande que la date de création"
-
 msgid "The user with ID %d doesn't exist"
 msgstr "L'utilisateur avec l'ID %d n'existe pas"
 

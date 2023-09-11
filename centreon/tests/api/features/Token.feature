@@ -105,3 +105,23 @@ Feature:
       | name         | "my token C" |
       | creator.name | "ala"        |
       | user.name    | "User"       |
+
+    When I send a POST request to '/api/latest/administration/tokens' with body:
+      """
+      {
+        "name": "  my token C  ",
+        "user_id": 18,
+        "expiration_date": "2123-08-31T15:46:00+02:00"
+      }
+      """
+    Then the response code should be "409"
+
+    When I send a POST request to '/api/latest/administration/tokens' with body:
+      """
+      {
+        "name": "  my token C  ",
+        "user_id": 20,
+        "expiration_date": "2123-08-31T15:46:00+02:00"
+      }
+      """
+    Then the response code should be "201"

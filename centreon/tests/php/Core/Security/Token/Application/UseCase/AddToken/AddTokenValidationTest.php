@@ -41,10 +41,10 @@ beforeEach(function (): void {
 it('throws an exception when name is already used', function (): void {
     $this->readTokenRepository
         ->expects($this->once())
-        ->method('existsByName')
+        ->method('existsByNameAndUserId')
         ->willReturn(true);
 
-    $this->validation->assertIsValidName('  name test ');
+    $this->validation->assertIsValidName('  name test ', 1);
 })->throws(
     TokenException::class,
     TokenException::nameAlreadyExists(trim('name test'))->getMessage()
