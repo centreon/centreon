@@ -28,25 +28,10 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Start Centreon Web Container
-        run: docker run --name centreon -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
-
-      - name: Install wait-for-it
         run: |
-          wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh -O wait-for-it.sh
-          chmod +x wait-for-it.sh
-        timeout-minutes: 5
-
-      - name: Get Container ID
-        id: get_container_id
-        run: |
-          CONTAINER_ID=$(docker ps -aqf "name=centreon")
-          echo "::set-output name=container_id::$CONTAINER_ID"
-
-      - name: Wait for Centreon Web to be ready
-        run: |
-          CONTAINER_ID="${{ steps.get_container_id.outputs.container_id }}"
-          ./wait-for-it.sh -t 300 -h "$CONTAINER_ID" -p 80
-        timeout-minutes: 10
+          docker run --name centreon -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
+          # Add HEALTHCHECK instruction to the running container
+          docker exec centreon bash -c "echo 'HEALTHCHECK --interval=5s --timeout=3s CMD curl -f http://localhost/' >> /etc/docker-healthcheck && chmod +x /etc/docker-healthcheck"
 
       - name: Run Postman Tests and Generate HTML Report
         run: |
