@@ -36,9 +36,16 @@ jobs:
           chmod +x wait-for-it.sh
         timeout-minutes: 5
 
+      - name: Get Container ID
+        id: get_container_id
+        run: |
+          CONTAINER_ID=$(docker ps -aqf "name=centreon")
+          echo "::set-output name=container_id::$CONTAINER_ID"
+
       - name: Wait for Centreon Web to be ready
         run: |
-          ./wait-for-it.sh -t 300 -h centreon -p 80
+          CONTAINER_ID="${{ steps.get_container_id.outputs.container_id }}"
+          ./wait-for-it.sh -t 300 -h "$CONTAINER_ID" -p 80
         timeout-minutes: 10
 
       - name: Run Postman Tests and Generate HTML Report
