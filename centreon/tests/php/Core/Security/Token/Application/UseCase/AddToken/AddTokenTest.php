@@ -73,18 +73,11 @@ beforeEach(function (): void {
     $this->request->userId = $this->linkedUser['id'];
     $this->request->expirationDate = $this->expirationDate;
 
-    // $this->newProviderToken = new NewProviderToken(
-    //     token: 'xxxxx',
-    //     creationDate: $this->creationDate,
-    //     expirationDate: $this->expirationDate
-    // );
     $this->token = new Token(
         tokenId: 34,
-        token: 'xxxxx',
         creationDate: $this->creationDate,
         expirationDate: $this->expirationDate,
         userId: $this->linkedUser['id'],
-        configurationProviderId: 1,
         name: $this->request->name,
         creatorName: $this->creator['name'],
         creatorId: $this->creator['id'],
@@ -98,6 +91,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
     $this->providerFactory
         ->expects($this->once())
         ->method('create')
@@ -110,7 +104,6 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->expects($this->once())
         ->method('getId')
         ->willReturn(1);
-
     $this->user
         ->expects($this->once())
         ->method('getId')
@@ -209,44 +202,12 @@ it('should present a ConflictResponse when a creator can not manage user\'s toke
         ->toBe(TokenException::notAllowedToCreateTokenForUser($this->request->userId)->getMessage());
 });
 
-it('should present a ConflictResponse when expiration date is not valid', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
-        ->willReturn(true);
-    $this->providerFactory
-        ->expects($this->once())
-        ->method('create')
-        ->willReturn($this->localProvider);
-    $this->localProvider
-        ->expects($this->once())
-        ->method('getConfiguration')
-        ->willReturn($this->configurationProvider);
-    $this->configurationProvider
-        ->expects($this->once())
-        ->method('getId')
-        ->willReturn(1);
-
-    $this->validation
-        ->expects($this->once())
-        ->method('assertIsValidExpirationDate')
-        ->willThrowException(
-            TokenException::invalidExpirationDate()
-        );
-
-    ($this->useCase)($this->request, $this->presenter);
-
-    expect($this->presenter->response)
-        ->toBeInstanceOf(ConflictResponse::class)
-        ->and($this->presenter->response->getMessage())
-        ->toBe(TokenException::invalidExpirationDate()->getMessage());
-});
-
 it('should present an InvalidArgumentResponse when a field assert failed', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
     $this->providerFactory
         ->expects($this->once())
         ->method('create')
@@ -259,7 +220,6 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
         ->expects($this->once())
         ->method('getId')
         ->willReturn(1);
-
     $this->user
         ->expects($this->once())
         ->method('getId')
@@ -282,6 +242,7 @@ it('should present an ErrorResponse if the newly created token cannot be retriev
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
     $this->providerFactory
         ->expects($this->once())
         ->method('create')
@@ -294,7 +255,6 @@ it('should present an ErrorResponse if the newly created token cannot be retriev
         ->expects($this->once())
         ->method('getId')
         ->willReturn(1);
-
     $this->user
         ->expects($this->once())
         ->method('getId')
@@ -342,9 +302,6 @@ it('should return created object on success', function (): void {
         ->expects($this->once())
         ->method('getId')
         ->willReturn(1);
-
-    $this->validation->expects($this->once())->method('assertIsValidExpirationDate');
-
     $this->user
         ->expects($this->once())
         ->method('getId')
@@ -392,8 +349,6 @@ it('should return created object on success', function (): void {
         ->toBe($this->creationDate)
         ->and($response->expirationDate)
         ->toBe($this->expirationDate)
-        ->and($response->token)
-        ->toBe($this->token->getToken())
         ->and($response->isRevoked)
         ->toBe($this->token->isRevoked());
 });

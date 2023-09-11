@@ -32,11 +32,9 @@ beforeEach(function (): void {
         return new Token(
             ...[
                 'tokenId' => 1,
-                'token' => 'xxxx',
                 'creationDate' => new \DateTimeImmutable(),
                 'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
                 'userId' => 23,
-                'configurationProviderId' => 1,
                 'name' => 'token-name',
                 'creatorId' => 12,
                 'creatorName' => 'John Doe',
@@ -50,8 +48,7 @@ beforeEach(function (): void {
 it('should return properly set token instance', function (): void {
     $token = ($this->createToken)();
 
-    expect($token->getToken())->toBe('xxxx')
-        ->and($token->getName())->toBe('token-name')
+    expect($token->getName())->toBe('token-name')
         ->and($token->getUserId())->toBe(23)
         ->and($token->getCreatorId())->toBe(12)
         ->and($token->getCreatorName())->toBe('John Doe')
@@ -118,26 +115,11 @@ foreach (
     );
 }
 
-it( "should throw an exception when token {$field} is set too long", function(): void {
-        $tooLong = str_repeat('a', Token::MAX_TOKEN_NAME_LENGTH + 1);
-        $token = ($this->createToken)();
-        $token->setName($tooLong);
-})->throws(
-    InvalidArgumentException::class,
-    AssertionException::maxLength(
-        $tooLong,
-        Token::MAX_TOKEN_NAME_LENGTH + 1,
-        Token::MAX_TOKEN_NAME_LENGTH,
-        "Token::name"
-    )->getMessage()
-);
-
 // foreign keys fields
 foreach (
     [
         'creatorId',
         'userId',
-        'configurationProviderId',
     ] as $field
 ) {
     it(

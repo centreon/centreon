@@ -35,11 +35,9 @@ class Token
 
     /**
      * @param int $tokenId
-     * @param string $token
      * @param \DateTimeImmutable $creationDate
      * @param \DateTimeImmutable $expirationDate
      * @param int $userId
-     * @param int $configurationProviderId
      * @param string $name
      * @param int $creatorId
      * @param string $creatorName
@@ -49,12 +47,9 @@ class Token
      */
     public function __construct(
         private readonly int $tokenId,
-        #[\SensitiveParameter]
-        private readonly string $token,
         private readonly \DateTimeImmutable $creationDate,
         private readonly \DateTimeImmutable $expirationDate,
         private readonly int $userId,
-        private readonly int $configurationProviderId,
         private string $name,
         private string $creatorName,
         private readonly ?int $creatorId = null,
@@ -67,10 +62,8 @@ class Token
         $this->creatorName = trim($creatorName);
 
         Assertion::positiveInt($this->tokenId, "{$this->shortName}::tokenId");
-        Assertion::notEmptyString($this->token, "{$this->shortName}::token");
-        Assertion::maxDate($this->creationDate, $this->expirationDate, "{$this->shortName}::creationDate");
+        Assertion::minDate($this->expirationDate, $this->creationDate, "{$this->shortName}::expirationDate");
         Assertion::positiveInt($this->userId, "{$this->shortName}::userId");
-        Assertion::positiveInt($this->configurationProviderId, "{$this->shortName}::configurationProviderId");
         Assertion::notEmptyString($this->name, "{$this->shortName}::name");
         Assertion::maxLength($this->name, self::MAX_TOKEN_NAME_LENGTH, "{$this->shortName}::name");
         if ($this->creatorId !== null) {
@@ -78,11 +71,6 @@ class Token
         }
         Assertion::notEmptyString($this->creatorName, "{$this->shortName}::creatorName");
         Assertion::maxLength($this->creatorName, self::MAX_CREATOR_NAME_LENGTH, "{$this->shortName}::creatorName");
-    }
-
-    public function getToken(): string
-    {
-        return $this->token;
     }
 
     public function getCreationDate(): \DateTimeImmutable
@@ -98,11 +86,6 @@ class Token
     public function getUserId(): int
     {
         return $this->userId;
-    }
-
-    public function getConfigurationProviderId(): int
-    {
-        return $this->configurationProviderId;
     }
 
     public function getName(): string

@@ -33,8 +33,6 @@ beforeEach(function (): void {
     $this->createToken = static function (array $fields = []): NewToken {
         return new NewToken(
             ...[
-                'token' => 'xxxx',
-                'creationDate' => new \DateTimeImmutable(),
                 'expirationDate' => (new \DateTimeImmutable())->add(new \DateInterval('P1Y')),
                 'userId' => 23,
                 'configurationProviderId' => 1,
@@ -52,8 +50,7 @@ beforeEach(function (): void {
 it('should return properly set token instance', function (): void {
     $token = ($this->createToken)();
 
-    expect($token->getToken())->toBe('xxxx')
-        ->and($token->getName())->toBe('token-name')
+    expect($token->getName())->toBe('token-name')
         ->and($token->getUserId())->toBe(23)
         ->and($token->getCreatorId())->toBe(12)
         ->and($token->getCreatorName())->toBe('John Doe');
@@ -124,14 +121,3 @@ foreach (
         AssertionException::positiveInt(0, "NewToken::{$field}")->getMessage()
     );
 }
-
-// it("should throw an exception when expiration date < creation date", function(): void {
-
-//     $creationDate = new \DateTimeImmutable();
-//     $invalidExpirationDate = $creationDate->sub(new \DateInterval('P1Y'));
-
-//     ($this->createToken)(['creationDate' => $creationDate, 'expirationDate' => $invalidExpirationDate]);
-// })->throws(
-//     InvalidArgumentException::class,
-//     AssertionException::maxDate($creationDate, $invalidExpirationDate, "NewToken::creationDate")->getMessage()
-// );

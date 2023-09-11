@@ -38,7 +38,6 @@ use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Token\Domain\Model\NewToken;
-use Security\Encryption;
 
 final class AddToken
 {
@@ -111,19 +110,12 @@ final class AddToken
         $this->validation->assertIsValidName($request->name);
         $this->validation->assertIsValidUser($request->userId);
 
-        $localProviderId = $this->providerFactory->create(Provider::LOCAL)->getConfiguration()->getId();
-        $tokenString = Encryption::generateRandomString();
-        $creationDate = new \DateTimeImmutable();
         $expirationDate = new \DateTimeImmutable($request->expirationDate->format('Y-m-d'));
 
-        $this->validation->assertIsValidExpirationDate($expirationDate, $creationDate);
-
         $newToken = new NewToken(
-            token: $tokenString,
-            creationDate: $creationDate,
             expirationDate: $expirationDate,
             userId: $request->userId,
-            configurationProviderId: $localProviderId,
+            configurationProviderId: $this->providerFactory->create(Provider::LOCAL)->getConfiguration()->getId(),
             name: $request->name,
             creatorId: $this->user->getId(),
             creatorName: $this->user->getName(),
@@ -131,7 +123,7 @@ final class AddToken
 
         $this->writeTokenRepository->add($newToken);
 
-        return $tokenString;
+        return $newToken->getToken();
     }
 
     /**
@@ -158,7 +150,7 @@ final class AddToken
         $responseDto->creatorName = $apiToken->getCreatorName();
         $responseDto->creationDate = $apiToken->getCreationDate();
         $responseDto->expirationDate = $apiToken->getExpirationDate();
-        $responseDto->token = $apiToken->getToken();
+        $responseDto->token = $tokenString;
         $responseDto->isRevoked = $apiToken->isRevoked();
 
         return $responseDto;

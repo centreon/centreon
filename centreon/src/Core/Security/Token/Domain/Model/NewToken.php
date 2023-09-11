@@ -25,12 +25,15 @@ namespace Core\Security\Token\Domain\Model;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Security\Encryption;
 
 class NewToken
 {
+    private readonly string $token;
+
+    private readonly \DateTimeImmutable $creationDate;
+
     /**
-     * @param string $token
-     * @param \DateTimeImmutable $creationDate
      * @param \DateTimeImmutable $expirationDate
      * @param int $userId
      * @param int $configurationProviderId
@@ -41,13 +44,11 @@ class NewToken
      * @throws AssertionFailedException
      */
     public function __construct(
-        private string $token,
-        private \DateTimeImmutable $creationDate,
-        private \DateTimeImmutable $expirationDate,
-        private int $userId,
-        private int $configurationProviderId,
+        private readonly \DateTimeImmutable $expirationDate,
+        private readonly int $userId,
+        private readonly int $configurationProviderId,
         private string $name,
-        private int $creatorId,
+        private readonly int $creatorId,
         private string $creatorName
     )
     {
@@ -56,8 +57,10 @@ class NewToken
         $this->name = trim($name);
         $this->creatorName = trim($creatorName);
 
-        Assertion::notEmptyString($this->token, "{$shortName}::token");
-        Assertion::maxDate($this->creationDate, $this->expirationDate, "{$shortName}::creationDate");
+        $this->token = Encryption::generateRandomString();
+        $this->creationDate = new \DateTimeImmutable();
+
+        Assertion::minDate($this->expirationDate, $this->creationDate, "{$shortName}::expirationDate");
         Assertion::positiveInt($this->userId, "{$shortName}::userId");
         Assertion::positiveInt($this->configurationProviderId, "{$shortName}::configurationProviderId");
         Assertion::notEmptyString($this->name, "{$shortName}::name");

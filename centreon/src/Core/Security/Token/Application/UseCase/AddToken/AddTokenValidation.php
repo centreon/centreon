@@ -75,19 +75,4 @@ class AddTokenValidation
             throw TokenException::invalidUserId($userId);
         }
     }
-
-    /**
-     * Assert expiration date is valid.
-     *
-     * @param \DateTimeImmutable $expirationDate
-     * @param \DateTimeImmutable $creationDate
-     *
-     * @throws TokenException|\Throwable
-     */
-    public function assertIsValidExpirationDate(\DateTimeImmutable $expirationDate, \DateTimeImmutable $creationDate): void
-    {
-        if ($creationDate >= $expirationDate) {
-            throw TokenException::invalidExpirationDate();
-        }
-    }
 }

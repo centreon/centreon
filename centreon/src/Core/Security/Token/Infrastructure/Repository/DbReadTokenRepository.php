@@ -50,14 +50,13 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
             <<<'SQL'
                 SELECT
                     sat.user_id,
-                    sat.provider_configuration_id,
                     sat.creator_id,
                     sat.creator_name,
+                    sat.token,
                     sat.token_name,
                     sat.token_type,
                     sat.is_revoked,
                     provider_token.id AS pt_id,
-                    provider_token.token AS provider_token,
                     provider_token.creation_date AS provider_token_creation_date,
                     provider_token.expiration_date AS provider_token_expiration_date
                 FROM `:db`.security_authentication_tokens sat
@@ -71,7 +70,6 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
         $statement->execute();
         /** @var false|array{
          *      user_id: int,
-         *      provider_configuration_id: int,
          *      creator_id: null|int,
          *      creator_name: string,
          *      token_name: string,
@@ -91,11 +89,9 @@ class DbReadTokenRepository extends AbstractRepositoryRDB implements ReadTokenRe
 
         return new Token(
             tokenId: $result['pt_id'],
-            token: $result['provider_token'],
             creationDate: (new \DateTimeImmutable())->setTimestamp((int) $result['provider_token_creation_date']),
             expirationDate: (new \DateTimeImmutable())->setTimestamp((int) $result['provider_token_expiration_date']),
             userId: $result['user_id'],
-            configurationProviderId: $result['provider_configuration_id'],
             name: $result['token_name'],
             creatorId: $result['creator_id'] !== null ? (int) $result['creator_id'] : null,
             creatorName: $result['creator_name'],
