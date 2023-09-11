@@ -18117,3 +18117,15 @@ msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
 
 msgid "Manage the organization's authentication tokens"
 msgstr "Gérer les jetons d'authentification de l'organisation"
+
+msgid "Display view:"
+msgstr "Afficher la vue :"
+
+msgid "View all resources"
+msgstr "Afficher toutes les ressources"
+
+msgid "View by host"
+msgstr "Afficher par hôte"
+
+msgid "View by service"
+msgstr "Afficher par service"

@@ -31,9 +31,9 @@ type Props = Pick<
   | 'totalRows'
 > & {
   areColumnsEditable: boolean;
+  listingVariant?: ListingVariant;
   memoProps: Array<unknown>;
   rowCount: number;
-  viewMode?: ListingVariant;
 } & SelectActionListingHeaderCellProps;
 
 interface ContentProps extends Pick<Props, 'sortField' | 'sortOrder'> {
@@ -57,7 +57,7 @@ const ListingHeader = ({
   checkable,
   memoProps,
   areColumnsEditable,
-  viewMode,
+  listingVariant,
   onSelectAllClick,
   selectedRowCount,
   predefinedRowsSelection,
@@ -92,10 +92,10 @@ const ListingHeader = ({
           isDragging={isDragging}
           isInDragOverlay={isInDragOverlay}
           itemRef={itemRef}
+          listingVariant={listingVariant}
           sortField={sortField}
           sortOrder={sortOrder}
           style={style}
-          viewMode={viewMode}
           onSort={onSort}
           {...listeners}
           {...attributes}
@@ -160,7 +160,7 @@ const MemoizedListingHeader = React.memo<Props>(
     equals(prevProps.columnConfiguration, nextProps.columnConfiguration) &&
     equals(prevProps.memoProps, nextProps.memoProps) &&
     equals(prevProps.areColumnsEditable, nextProps.areColumnsEditable) &&
-    equals(prevProps.viewMode, nextProps.viewMode)
+    equals(prevProps.listingVariant, nextProps.listingVariant)
 );
 
 export { MemoizedListingHeader as ListingHeader };

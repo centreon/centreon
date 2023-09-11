@@ -38,13 +38,13 @@ const ListingHeaderCell = ({
   style,
   isInDragOverlay,
   areColumnsEditable,
-  viewMode,
+  listingVariant,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({
     isDragging,
     isInDragOverlay,
-    viewMode
+    listingVariant
   });
   const columnLabel = column.shortLabel || column.label;
 

@@ -54,7 +54,7 @@ const getBackgroundColor = ({
 
 interface StylesProps extends Props {
   isRowHighlighted?: boolean;
-  viewMode?: ListingVariant;
+  listingVariant?: ListingVariant;
 }
 
 interface GetRowHighlightStyleProps {
@@ -81,7 +81,7 @@ const useStyles = makeStyles<StylesProps>()(
       rowColorConditions,
       disableRowCondition,
       isRowHighlighted,
-      viewMode
+      listingVariant
     }
   ) => ({
     caret: {
@@ -115,7 +115,7 @@ const useStyles = makeStyles<StylesProps>()(
       },
       height: '100%',
       overflow: 'hidden',
-      ...getTextStyleByViewMode({ theme, viewMode }),
+      ...getTextStyleByViewMode({ listingVariant, theme }),
       p: getRowHighlightStyle({ isRowHighlighted, theme }),
       padding: theme.spacing(0, 1),
       whiteSpace: 'nowrap'
@@ -133,8 +133,8 @@ interface Props
   isRowHighlighted?: boolean;
   labelCollapse?: string;
   labelExpand?: string;
+  listingVariant?: ListingVariant;
   subItemsRowProperty?: string;
-  viewMode?: ListingVariant;
 }
 
 const isPivotExistInTheList = (
@@ -193,7 +193,7 @@ const Cell = ({
           'rowColorConditions',
           'disableRowCondition',
           'isRowHighlighted',
-          'viewMode'
+          'listingVariant'
         ],
         props
       )}
