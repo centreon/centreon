@@ -2,7 +2,6 @@ name: Postman Tests
 
 on:
   push:
-
 jobs:
   postman_tests:
     runs-on: ubuntu-latest
@@ -19,7 +18,7 @@ jobs:
       - name: Install Newman and Reporter
         run: | 
           npm install -g newman newman-reporter-htmlextra newman-reporter-text
-
+      
       - name: Login to registry
         uses: docker/login-action@v2
         with:
@@ -27,40 +26,19 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name: Start Centreon Web Container
+      - name : start centreon web container
         run: docker run --name centreon -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
 
-      - name: Wait for Centreon Web Container to Start
+      - name: Install dockerize
         run: |
-          url=http://0.0.0.0:4000/centreon/login
-          max_retries=30
+          wget https://github.com/jwilder/dockerize/releases/latest/download/dockerize-linux-amd64 -O /usr/local/bin/dockerize
+          chmod +x /usr/local/bin/dockerize
+        timeout-minutes: 1
 
-          for ((i=1; i<=$max_retries; i++)); do
-            if docker ps --filter "name=centreon" --format "{{.Status}}" | grep -q "healthy"; then
-              echo "Centreon web application is running and healthy!"
-              
-              docker logs centreon
-              
-              http_status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
-              if [ $http_status -eq 200 ]; then
-                echo "Centreon web application is ready!"
-                break
-              fi
-            fi
-
-            echo "Waiting for the Centreon web application to become healthy..."
-            sleep 10  # Attendre 10 secondes entre les tentatives
-          done
-
-          if ! docker ps --filter "name=centreon" --format "{{.Status}}" | grep -q "healthy"; then
-            echo "Centreon web application did not start successfully or is not healthy."
-            exit 1
-          fi
-
-          if [ $http_status -ne 200 ]; then
-            echo "Centreon login page is not accessible."
-            exit 1
-          fi
+      - name: Wait for Centreon Web to be ready
+        run: |
+          dockerize -wait tcp://centreon-web:80 -timeout 300s
+        timeout-minutes: 5
 
       - name: Run Postman Tests and Generate HTML Report
         run: |
