@@ -89,26 +89,39 @@ import useFilterByModule from './useFilterByModule';
 import SearchHelp from './SearchHelp';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 
-const renderClearFilter = (onClear) => (): JSX.Element => {
+const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
   const { t } = useTranslation();
+  const { classes } = useStyles();
 
   return (
-    <IconButton
-      ariaLabel={t(labelClearFilter)}
-      data-testid={labelClearFilter}
-      size="small"
-      title={t(labelClearFilter)}
-      onClick={onClear}
-    >
-      <CloseIcon color="action" fontSize="small" />
-    </IconButton>
+    <div className={classes.End}>
+      <IconButton
+        ariaLabel={t(labelClearFilter) as string}
+        data-testid={labelClearFilter}
+        size="small"
+        title={t(labelClearFilter) as string}
+        onClick={onClear}
+      >
+        <CloseIcon color="action" fontSize="small" />
+      </IconButton>
+      <Suspense
+        fallback={<LoadingSkeleton height={24} variant="circular" width={24} />}
+      >
+        <Criterias />
+      </Suspense>
+    </div>
   );
 };
+
 interface DynamicCriteriaResult {
   result: Array<{ level: string; name: string }>;
 }
 
 const useStyles = makeStyles()((theme) => ({
+  End: {
+    display: 'flex',
+    flexDirection: 'row'
+  },
   autocompletePopper: {
     zIndex: theme.zIndex.tooltip
   },
@@ -117,7 +130,7 @@ const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     gridAutoFlow: 'column',
     gridGap: theme.spacing(1),
-    gridTemplateColumns: 'auto 175px auto 1fr',
+    gridTemplateColumns: '1fr auto 175px',
     width: '100%'
   },
   loader: { display: 'flex', justifyContent: 'center' },
@@ -548,42 +561,14 @@ const Filter = (): JSX.Element => {
     <MemoizedFilter
       content={
         <div className={classes.container}>
-          <Suspense
-            fallback={
-              <LoadingSkeleton height={24} variant="circular" width={24} />
-            }
-          >
-            <SaveFilter />
-          </Suspense>
-          {sendingFilter ? (
-            <FilterLoadingSkeleton />
-          ) : (
-            <Suspense fallback={<FilterLoadingSkeleton />}>
-              <SelectFilter
-                ariaLabel={t(labelStateFilter)}
-                options={options.map(pick(['id', 'name', 'type', 'testId']))}
-                selectedOptionId={
-                  canDisplaySelectedFilter ? currentFilter.id : ''
-                }
-                onChange={changeFilter}
-              />
-            </Suspense>
-          )}
-          <Suspense
-            fallback={
-              <LoadingSkeleton height={24} variant="circular" width={24} />
-            }
-          >
-            <Criterias />
-          </Suspense>
           <ClickAwayListener onClickAway={closeSuggestionPopover}>
             <div data-testid={labelSearchBar}>
               <Box className={classes.searchbarContainer}>
                 <SearchField
                   fullWidth
-                  EndAdornment={renderClearFilter(clearFilter)}
+                  EndAdornment={renderEndAdornmentFilter(clearFilter)}
                   inputRef={searchRef as RefObject<HTMLInputElement>}
-                  placeholder={t(labelSearch)}
+                  placeholder={t(labelSearch) as string}
                   value={search}
                   onBlur={blurInput}
                   onChange={prepareSearch}
@@ -627,6 +612,27 @@ const Filter = (): JSX.Element => {
               </Popper>
             </div>
           </ClickAwayListener>
+          <Suspense
+            fallback={
+              <LoadingSkeleton height={24} variant="circular" width={24} />
+            }
+          >
+            <SaveFilter />
+          </Suspense>
+          {sendingFilter ? (
+            <FilterLoadingSkeleton />
+          ) : (
+            <Suspense fallback={<FilterLoadingSkeleton />}>
+              <SelectFilter
+                ariaLabel={t(labelStateFilter)}
+                options={options.map(pick(['id', 'name', 'type', 'testId']))}
+                selectedOptionId={
+                  canDisplaySelectedFilter ? currentFilter.id : ''
+                }
+                onChange={changeFilter}
+              />
+            </Suspense>
+          )}
         </div>
       }
       memoProps={memoProps}
