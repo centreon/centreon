@@ -31,7 +31,7 @@ jobs:
 
       - name: Install dockerize
         run: |
-          wget https://github.com/jwilder/dockerize/releases/latest/download/dockerize-linux-amd64 -O /usr/local/bin/dockerize
+          wget https://github.com/jwilder/dockerize/releases/download/v0.7.2/dockerize-linux-amd64 -O /usr/local/bin/dockerize
           chmod +x /usr/local/bin/dockerize
         timeout-minutes: 1
 
