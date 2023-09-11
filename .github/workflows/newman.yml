@@ -38,7 +38,7 @@ jobs:
 
       - name: Wait for Centreon Web to be ready
         run: |
-          ./wait-for-it.sh -t 300 -h centreon-web -p 80
+          ./wait-for-it.sh -t 300 -h centreon -p 80
         timeout-minutes: 10
 
       - name: Run Postman Tests and Generate HTML Report
