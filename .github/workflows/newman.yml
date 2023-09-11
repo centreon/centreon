@@ -2,9 +2,6 @@ name: Postman Tests
 
 on:
   push:
-  #   paths:
-  #     - 'centreon/tests/rest_api/refactored_api_test_collection/**'
-
 jobs:
   postman_tests:
     runs-on: ubuntu-latest
@@ -34,7 +31,7 @@ jobs:
 
       - name: Wait for Centreon Web Container to Start
         run: |
-            sleep 60  # Adjust the sleep time as needed
+            sleep 10  # Adjust the sleep time as needed
         timeout-minutes: 5  
 
       - name: Run Postman Tests and Generate HTML Report
@@ -59,6 +56,8 @@ jobs:
         with:
           name: postman-html-reports
           path: ./newman/
+        env:
+          NODE_VERSION: 16
 
       - name: Continue to Next Collection
         if: ${{ always() }}
