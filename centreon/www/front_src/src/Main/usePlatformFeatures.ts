@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useEffect } from 'react';
 
 import { useSetAtom } from 'jotai';
 
@@ -10,11 +10,7 @@ import { platformFeaturesDecoder } from '../api/decoders';
 
 import { platformFeaturesAtom } from './atoms/platformFeaturesAtom';
 
-interface UsePlatformFeaturesState {
-  getPlatformFeatures: () => void;
-}
-
-const usePlatformFeatures = (): UsePlatformFeaturesState => {
+const usePlatformFeatures = (): void => {
   const { sendRequest: sendPlatformFeatures } = useRequest<PlatformFeatures>({
     decoder: platformFeaturesDecoder,
     request: getData
@@ -22,15 +18,11 @@ const usePlatformFeatures = (): UsePlatformFeaturesState => {
 
   const setPlatformFeatures = useSetAtom(platformFeaturesAtom);
 
-  const getPlatformFeatures = useCallback((): void => {
+  useEffect(() => {
     sendPlatformFeatures({ endpoint: platformFeaturesEndpoint }).then(
       setPlatformFeatures
     );
   }, []);
-
-  return {
-    getPlatformFeatures
-  };
 };
 
 export default usePlatformFeatures;

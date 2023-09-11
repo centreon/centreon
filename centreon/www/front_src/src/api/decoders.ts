@@ -9,6 +9,7 @@ import {
 } from '@centreon/ui-context';
 
 import {
+  PlatformFeatures,
   PlatformInstallationStatus,
   PlatformVersions,
   Version
@@ -103,12 +104,14 @@ export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
   }
 );
 
-export const platformFeaturesDecoder = JsonDecoder.object<PlatformVersions>(
+export const platformFeaturesDecoder = JsonDecoder.object<PlatformFeatures>(
   {
+    featureFlags: JsonDecoder.dictionary(JsonDecoder.boolean, 'FeatureFlags'),
     isCloudPlatform: JsonDecoder.boolean
   },
   'Platform features',
   {
+    featureFlags: 'feature_flags',
     isCloudPlatform: 'is_cloud_platform'
   }
 );

@@ -75,6 +75,7 @@ const ResourceListing = (): JSX.Element => {
   const [selectedResourceDetails, setSelectedResourceDetails] = useAtom(
     selectedResourcesDetailsAtom
   );
+
   const { user_interface_density, themeMode } = useAtomValue(userAtom);
   const listing = useAtomValue(listingAtom);
   const sending = useAtomValue(sendingAtom);

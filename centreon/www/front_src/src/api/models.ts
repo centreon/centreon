@@ -17,5 +17,6 @@ export interface PlatformVersions {
 }
 
 export interface PlatformFeatures {
+  featureFlags: Record<string, boolean>;
   isCloudPlatform: boolean;
 }
