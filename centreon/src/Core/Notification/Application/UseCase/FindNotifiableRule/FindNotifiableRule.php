@@ -122,7 +122,7 @@ final class FindNotifiableRule
     /**
      * @param Notification $notification
      * @param NotificationMessage[] $messages
-     * @param ConfigurationUser[] $contacts
+     * @param array<int, ConfigurationUser> $contacts
      * @param ContactGroup[] $contactGroups
      *
      * @return FindNotifiableRuleResponse
@@ -136,6 +136,14 @@ final class FindNotifiableRule
         $response = new FindNotifiableRuleResponse();
         $response->notificationId = $notification->getId();
 
+        $contactsFromContactGroups = $this->notificationRepository->findUsersByContactGroupIds(
+            ...array_map(
+                static fn(ContactGroup $contactGroup): int => $contactGroup->getId(),
+                $contactGroups
+            )
+        );
+        $allContacts = array_merge($contacts, $contactsFromContactGroups);
+
         foreach ($messages as $message) {
             switch ($message->getChannel()) {
                 case NotificationChannel::Email:
@@ -145,7 +153,7 @@ final class FindNotifiableRule
                                 fullName: $user->getName(),
                                 emailAddress: $user->getEmail(),
                             ),
-                            $contacts
+                            $allContacts
                         ),
                         subject: $message->getSubject(),
                         formattedMessage: $message->getFormattedMessage(),

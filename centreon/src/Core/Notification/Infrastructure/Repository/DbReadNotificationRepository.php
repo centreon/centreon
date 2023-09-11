@@ -152,8 +152,10 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
-    public function findUsersByNotificationId(int $notificationId): array
-    {
+    public function findUsersByNotificationId(
+        int $notificationId,
+        bool $retrieveAlsoAllUsersOfContactGroups = false
+    ): array {
         $this->info('Get all notification users for notification with ID #' . $notificationId);
 
         $request = $this->translateDbName(
@@ -166,13 +168,63 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
         $users = [];
 
-        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
-            $users[] = new ConfigurationUser(
+        foreach ($statement as $result) {
+            /**
+             * @var array{
+             *     user_id: int,
+             *     contact_name: string,
+             *     contact_email: string
+             * } $result
+             */
+            $users[$result['user_id']] = new ConfigurationUser(
                 $result['user_id'],
+                $result['contact_name'],
+                $result['contact_email'],
+            );
+        }
+
+        return $users;
+    }
+
+    public function findUsersByContactGroupIds(int ...$contactGroupIds): array
+    {
+        if ([] === $contactGroupIds) {
+            return [];
+        }
+
+        $select = <<<'SQL'
+            SELECT DISTINCT c.contact_id, c.contact_name, c.contact_email
+            FROM `:db`.contactgroup_contact_relation cgcr
+            INNER JOIN `:db`.contactgroup cg ON cg.cg_id=cgcr.contactgroup_cg_id
+            INNER JOIN `:db`.contact c ON c.contact_id=cgcr.contact_contact_id
+            WHERE cg.cg_id IN (:contact_group_ids)
+            SQL;
+
+        $concatenator = (new SqlConcatenator())
+            ->defineSelect($select)
+            ->storeBindValueMultiple(':contact_group_ids', array_values($contactGroupIds), \PDO::PARAM_INT);
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $users = [];
+
+        foreach ($statement as $result) {
+            /**
+             * @var array{
+             *     contact_id: int,
+             *     contact_name: string,
+             *     contact_email: string
+             * } $result
+             */
+            $users[$result['contact_id']] = new ConfigurationUser(
+                $result['contact_id'],
                 $result['contact_name'],
                 $result['contact_email'],
             );
