@@ -32,23 +32,28 @@ jobs:
           # Démarrer le conteneur en arrière-plan
           docker run --name centreon -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
 
-          # Attendre que le conteneur soit prêt
-          max_retries=30
-          retry_interval=10
+          url=http://localhost:4000/centreon/login
 
-          for ((i=1; i<=$max_retries; i++)); do
-            # Vérifiez si le conteneur est en cours d'exécution
+          # Attendez que le conteneur soit prêt
+          for ((i=1; i<=30; i++)); do
             if docker ps | grep -q "centreon"; then
-              echo "Centreon web application is ready!"
-              break
+              echo "Centreon web application is running!"
+              
+              http_status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+              if [ $http_status -eq 200 ]; then
+                echo "Centreon web application is ready!"
+                break
+              fi
             fi
-
-            echo "Retrying in $retry_interval seconds..."
-            sleep $retry_interval
           done
 
           if ! docker ps | grep -q "centreon"; then
             echo "Centreon web application did not start successfully."
+            exit 1
+          fi
+
+          if [ $http_status -ne 200 ]; then
+            echo "Centreon login page is not accessible."
             exit 1
           fi
 
