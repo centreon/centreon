@@ -10,7 +10,6 @@ jobs:
     env:
       CONTAINER_NAME: my_centreon_container
       CENTREON_URL: http://localhost  
-      CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop  
 
     steps:
       - name: Checkout Repository
@@ -33,7 +32,7 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Start Centreon Web Container
-        run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE 
+        run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s docker.centreon.com/centreon/centreon-web-alma9:develop
 
       - name: Wait for Centreon Web Container to Start
         run: |
