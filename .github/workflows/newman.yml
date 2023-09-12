@@ -38,7 +38,7 @@ jobs:
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
 
       - name: Install wait-on
-        run: pnpm install --global wait-on --prefix centreon/tests/rest_api
+        run: pnpm install wait-on --prefix centreon/tests/rest_api
 
       - name: Wait for Centreon Web Container to Start
         run: |
