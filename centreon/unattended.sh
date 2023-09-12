@@ -476,7 +476,8 @@ function set_required_prerequisite() {
 		case "$detected_os_version" in
 		11)
 			log "INFO" "Setting specific part for Debian"
-			apt update && apt install lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2
+			PKG_MGR="apt -qq"
+			${PKG_MGR} update && ${PKG_MGR} install lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2
 
 			# Add Centreon repositories
 			set_centreon_repos
@@ -491,10 +492,9 @@ function set_required_prerequisite() {
 				echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
 				wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 				set_mariadb_repos
+			else
+				${PKG_MGR} update
 			fi
-
-			apt update
-			PKG_MGR="apt"
 			;;
 		*)
 			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
