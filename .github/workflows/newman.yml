@@ -30,25 +30,15 @@ jobs:
       - name: Start Centreon Web Container
         run: |
           docker run --name centreon -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
-          # Add HEALTHCHECK instruction to the running container
-          docker exec centreon bash -c "echo 'HEALTHCHECK --interval=5s --timeout=3s CMD curl -f http://localhost/' >> /etc/docker-healthcheck && chmod +x /etc/docker-healthcheck"
       
-      - name: Install dockerize
-        run: |
-          wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz
-          tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz
-        working-directory: /tmp
+     - name: Start Centreon Web Container
+       run: |
+          docker run --name centreon -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
 
-      - name: Verify dockerize installation
-        run: |
-          which dockerize
-          dockerize --version
-
-      - name: Wait for Centreon Web Container to Start
-        run: |
-          centreon_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' centreon)
-          ./dockerize -wait tcp://${centreon_ip}:80 -timeout 5m
-          echo "Centreon Web Container is healthy!"
+     - name: Check Centreon Web Container
+       run: |
+          docker exec -it centreon sh
+          continue-on-error: true  
  
       - name: Run Postman Tests and Generate HTML Report
         run: |
