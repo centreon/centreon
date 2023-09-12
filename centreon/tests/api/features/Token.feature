@@ -25,6 +25,17 @@ Feature:
       | creator.name | "admin admin"    |
       | user.name    | "User"           |
 
+    When I send a GET request to '/api/latest/administration/tokens'
+    Then the response code should be "200"
+    And the JSON node "result" should have "1" element
+    And the JSON nodes should be equal to:
+      | result[0].name         | "my token A"     |
+      | result[0].user.id      | 18               |
+      | result[0].user.name    | "User"           |
+      | result[0].creator.id   | 1                |
+      | result[0].creator.name | "admin admin"    |
+      | result[0].is_revoked   | false            |
+
     When I send a POST request to '/api/latest/administration/tokens' with body:
       """
       {
@@ -103,6 +114,17 @@ Feature:
       | name         | "my token B"  |
       | creator.name | "ala"         |
       | user.name    | "ala"         |
+
+    When I send a GET request to '/api/latest/administration/tokens'
+    Then the response code should be "200"
+    And the JSON node "result" should have "1" element
+    And the JSON nodes should be equal to:
+      | result[0].name         | "my token B"  |
+      | result[0].user.id      | 20            |
+      | result[0].user.name    | "ala"         |
+      | result[0].creator.id   | 20            |
+      | result[0].creator.name | "ala"         |
+      | result[0].is_revoked   | false         |
 
     When I send a POST request to '/api/latest/administration/tokens' with body:
       """
@@ -192,6 +214,58 @@ Feature:
       """
     Then the response code should be "201"
 
+    When I am logged in with "admin"/"Centreon!2021"
+    And I send a GET request to '/api/latest/administration/tokens?sort_by={"creation_date":"ASC"}'
+    Then the response code should be "200"
+    And the JSON node "result" should have "4" elements
+    And the JSON nodes should be equal to:
+      | result[0].name         | "my token A"  |
+      | result[0].user.id      | 18            |
+      | result[0].user.name    | "User"        |
+      | result[0].creator.id   | 1             |
+      | result[0].creator.name | "admin admin" |
+      | result[0].is_revoked   | false         |
+      | result[1].name         | "my token B"  |
+      | result[1].user.id      | 20            |
+      | result[1].user.name    | "ala"         |
+      | result[1].creator.id   | 20            |
+      | result[1].creator.name | "ala"         |
+      | result[1].is_revoked   | false         |
+      | result[2].name         | "my token C"  |
+      | result[2].user.id      | 18            |
+      | result[2].user.name    | "User"        |
+      | result[2].creator.id   | 20            |
+      | result[2].creator.name | "ala"         |
+      | result[2].is_revoked   | false         |
+      | result[3].name         | "my token C"  |
+      | result[3].user.id      | 20            |
+      | result[3].user.name    | "ala"         |
+      | result[3].creator.id   | 20            |
+      | result[3].creator.name | "ala"         |
+      | result[3].is_revoked   | false         |
+
+    Given the following CLAPI import data:
+      """
+      ACLGROUP;delaction;ACL Group test;ACL Action test
+      """
+    And I am logged in with "ala"/"Centreon@2022"
+    When I send a GET request to '/api/latest/administration/tokens?sort_by={"creation_date":"ASC"}'
+    Then the response code should be "200"
+    And the JSON node "result" should have "2" elements
+    And the JSON nodes should be equal to:
+      | result[0].name         | "my token B"  |
+      | result[0].user.id      | 20            |
+      | result[0].user.name    | "ala"         |
+      | result[0].creator.id   | 20            |
+      | result[0].creator.name | "ala"         |
+      | result[0].is_revoked   | false         |
+      | result[1].name         | "my token C"  |
+      | result[1].user.id      | 20            |
+      | result[1].user.name    | "ala"         |
+      | result[1].creator.id   | 20            |
+      | result[1].creator.name | "ala"         |
+      | result[1].is_revoked   | false         |
+
     # deletor not admin, with management tokens rights
     When I send a POST request to '/api/latest/administration/tokens' with body:
       """
@@ -213,3 +287,4 @@ Feature:
     Then the response code should be "404"
     When I send a DELETE request to '/api/latest/administration/tokens/unknown-token/users/18'
     Then the response code should be "404"
+

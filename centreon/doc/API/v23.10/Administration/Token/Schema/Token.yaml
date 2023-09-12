@@ -29,19 +29,15 @@ properties:
         example: "Jane Doe"
   creation_date:
     type: string
-    description: "Creation date of the token (date format should be in ISO 8601)"
+    description: "Creation date of the Api authentication token"
     format: date-time
     example: '2023-08-31T15:46:00+02:00'
   expiration_date:
     type: string
-    description: "Expiration date of the token (date format should be in ISO 8601)"
+    description: "Expiration date of the Api authentication token"
     format: date-time
     example: '2024-08-31T00:00:00+00:00'
   is_revoked:
     type: boolean
     description: "Indicate if the token has been revoked"
     example: false
-  token:
-    type: string
-    description: "Token string"
-    example: "xxxxxxx"

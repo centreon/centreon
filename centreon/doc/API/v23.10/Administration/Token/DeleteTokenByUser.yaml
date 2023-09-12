@@ -1,9 +1,9 @@
 delete:
   tags:
-    - Api Tokens
-  summary: "Delete an api token"
+    - Authentication token
+  summary: "Delete an API token"
   description: |
-    Delete an api token
+    Delete an API token
   parameters:
     - $ref: 'QueryParameter/TokenName.yaml'
     - $ref: 'QueryParameter/UserId.yaml'
