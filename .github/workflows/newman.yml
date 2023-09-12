@@ -39,9 +39,14 @@ jobs:
           tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz
         working-directory: /tmp
 
+      - name: Verify dockerize installation
+        run: |
+          which dockerize
+          dockerize --version
+
       - name: Wait for Centreon Web Container to Start
         run: |
-          ./dockerize -wait tcp://centreon:80 -timeout 5m
+          dockerize -wait tcp://centreon:80 -timeout 5m
           echo "Centreon Web Container is healthy!"
  
       - name: Run Postman Tests and Generate HTML Report
