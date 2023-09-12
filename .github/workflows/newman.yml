@@ -35,17 +35,13 @@ jobs:
       - name: Start Centreon Web Container
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
 
+      - name: Install wait-on
+        run: npm install -g wait-on
+
       - name: Wait for Centreon Web Container to Start
         run: |
-          for _ in {1..30}; do
-            if docker inspect --format '{{.State.Health.Status}}' $CONTAINER_NAME | grep -q 'healthy'; then
-              echo 'Centreon Web Container is healthy!'
-              break
-            else
-              echo 'Centreon Web Container is not healthy yet. Waiting...'
-              sleep 5
-            fi
-          done
+          # Wait for the Centreon Web container to be healthy
+          wait-on --health http-get://localhost:4000/ --timeout 300000
         timeout-minutes: 5
 
       - name: Run Postman Tests and Generate HTML Report
