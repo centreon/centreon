@@ -2,6 +2,7 @@ name: Postman Tests
 
 on:
   push:
+
 jobs:
   postman_tests:
     runs-on: ubuntu-latest
@@ -18,7 +19,7 @@ jobs:
       - name: Install Newman and Reporter
         run: | 
           npm install -g newman newman-reporter-htmlextra newman-reporter-text
-      
+
       - name: Login to registry
         uses: docker/login-action@v2
         with:
@@ -26,13 +27,21 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name : start centreon web container
-        run: docker run --name centreon -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
+      - name: Start Centreon Web Container
+        run: docker run --name centreon -d -p 4000:80 --health-cmd="curl -f http://localhost/ || exit 1" --health-interval=5s docker.centreon.com/centreon/centreon-web-alma9:develop
 
-      - name: Check Centreon Web Container
+      - name: Wait for Centreon Web Container to Start
         run: |
-          docker exec centreon sh
-        continue-on-error: true
+          for _ in {1..30}; do
+            if docker inspect --format '{{.State.Health.Status}}' centreon | grep -q 'healthy'; then
+              echo 'Centreon Web Container is healthy!'
+              break
+            else
+              echo 'Centreon Web Container is not healthy yet. Waiting...'
+              sleep 5
+            fi
+          done
+        timeout-minutes: 5
 
       - name: Run Postman Tests and Generate HTML Report
         run: |
