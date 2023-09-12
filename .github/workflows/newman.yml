@@ -35,9 +35,16 @@ jobs:
 
       - name: Wait for Centreon Web Container to Start
         run: |
-            docker wait centreon
-            sleep 10  # Adjust the sleep time as needed
-        timeout-minutes: 5  
+          for _ in {1..30}; do
+            if docker inspect --format "{{.State.Health.Status}}" centreon | grep -q "healthy"; then
+              echo "Centreon Web Container is healthy!"
+              break
+            else
+              echo "Centreon Web Container is not healthy yet. Waiting..."
+              sleep 5
+            fi
+          done
+        timeout-minutes: 5
 
       - name: Run Postman Tests and Generate HTML Report
         run: |
