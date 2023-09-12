@@ -2,7 +2,7 @@ name: Postman Tests
 
 on:
   push:
-  
+
 jobs:
   postman_tests:
     runs-on: ubuntu-latest
@@ -39,10 +39,10 @@ jobs:
           tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz
         working-directory: /tmp
 
-       - name: Wait for Centreon Web Container to Start
-       run: |
-        ./dockerize -wait tcp://centreon:80 -timeout 5m
-         echo "Centreon Web Container is healthy!"
+      - name: Wait for Centreon Web Container to Start
+        run: |
+          ./dockerize -wait tcp://centreon:80 -timeout 5m
+          echo "Centreon Web Container is healthy!"
  
       - name: Run Postman Tests and Generate HTML Report
         run: |
