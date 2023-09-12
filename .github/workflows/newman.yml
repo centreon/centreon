@@ -38,7 +38,7 @@ jobs:
      - name: Check Centreon Web Container
        run: |
           docker exec -it centreon sh
-       continue-on-error: true  
+        continue-on-error: true  
  
       - name: Run Postman Tests and Generate HTML Report
         run: |
