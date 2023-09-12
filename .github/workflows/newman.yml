@@ -7,10 +7,6 @@ jobs:
   postman_tests:
     runs-on: ubuntu-latest
 
-    env:
-      CONTAINER_NAME: my_centreon_container
-      CENTREON_URL: http://localhost  
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -27,17 +23,17 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ secrets.DOCKER_REGISTRY_URL }}
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Start Centreon Web Container
-        run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s docker.centreon.com/centreon/centreon-web-alma9:develop
+        run: docker run --name centreon -d -p 4000:80 --health-cmd="curl -f http://localhost/ || exit 1" --health-interval=5s docker.centreon.com/centreon/centreon-web-alma9:develop
 
       - name: Wait for Centreon Web Container to Start
         run: |
           for _ in {1..30}; do
-            if docker inspect --format '{{.State.Health.Status}}' $CONTAINER_NAME | grep -q 'healthy'; then
+            if docker inspect --format '{{.State.Health.Status}}' centreon | grep -q 'healthy'; then
               echo 'Centreon Web Container is healthy!'
               break
             else
