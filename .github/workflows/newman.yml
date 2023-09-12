@@ -46,7 +46,8 @@ jobs:
 
       - name: Wait for Centreon Web Container to Start
         run: |
-          dockerize -wait tcp://centreon:80 -timeout 5m
+          centreon_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' centreon)
+          ./dockerize -wait tcp://${centreon_ip}:80 -timeout 5m
           echo "Centreon Web Container is healthy!"
  
       - name: Run Postman Tests and Generate HTML Report
