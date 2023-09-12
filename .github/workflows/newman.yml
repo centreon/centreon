@@ -31,12 +31,8 @@ jobs:
         run: |
           docker run --name centreon -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
       
-     - name: Start Centreon Web Container
-       run: |
-          docker run --name centreon -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
-
-     - name: Check Centreon Web Container
-       run: |
+      - name: Check Centreon Web Container
+        run: |
           docker exec -it centreon sh
         continue-on-error: true  
  
