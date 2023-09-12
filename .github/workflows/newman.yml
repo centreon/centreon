@@ -20,6 +20,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          
+      - name: Install pnpm
+        run: npm install -g pnpm
 
       - name: Install Newman and Reporter
         run: pnpm install --prefix centreon/tests/rest_api
