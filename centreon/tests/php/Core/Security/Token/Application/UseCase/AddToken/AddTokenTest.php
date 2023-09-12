@@ -182,7 +182,7 @@ it('should present a ConflictResponse when user ID is not valid', function (): v
         ->toBe(TokenException::invalidUserId($this->request->userId)->getMessage());
 });
 
-it('should present a ConflictResponse when a creator can not manage user\'s tokens', function (): void {
+it('should present a ConflictResponse when a creator cannot manage user\'s tokens', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')

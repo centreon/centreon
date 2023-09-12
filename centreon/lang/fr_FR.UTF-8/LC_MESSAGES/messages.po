@@ -18140,7 +18140,7 @@ msgid "Error while retrieving a token"
 msgstr "Erreur lors de la récupération du token"
 
 msgid "The token name '%s' already exists"
-msgstr "Le nom de token '%s' exist déjà"
+msgstr "Le nom de token '%s' existe déjà"
 
 msgid "The user with ID %d doesn't exist"
 msgstr "L'utilisateur avec l'ID %d n'existe pas"
