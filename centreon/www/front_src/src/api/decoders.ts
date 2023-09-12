@@ -3,7 +3,12 @@ import { JsonDecoder } from 'ts.data.json';
 import { ThemeMode, ListingVariant } from '@centreon/ui-context';
 import type { User } from '@centreon/ui-context';
 
-import { PlatformInstallationStatus } from './models';
+import {
+  PlatformFeatures,
+  PlatformInstallationStatus,
+  PlatformVersions,
+  Version
+} from './models';
 
 export const userDecoder = JsonDecoder.object<User>(
   {
@@ -43,3 +48,37 @@ export const platformInstallationStatusDecoder =
       isInstalled: 'is_installed'
     }
   );
+
+const versionDecoder = JsonDecoder.object<Version>(
+  {
+    fix: JsonDecoder.string,
+    major: JsonDecoder.string,
+    minor: JsonDecoder.string,
+    version: JsonDecoder.string
+  },
+  'Version'
+);
+
+export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
+  {
+    modules: JsonDecoder.dictionary(versionDecoder, 'Modules'),
+    web: versionDecoder,
+    widgets: JsonDecoder.dictionary(versionDecoder, 'Widgets')
+  },
+  'Platform versions',
+  {
+    modules: 'modules',
+    web: 'web',
+    widgets: 'widgets'
+  }
+);
+
+export const platformFeaturesDecoder = JsonDecoder.object<PlatformFeatures>(
+  {
+    isCloudPlatform: JsonDecoder.boolean
+  },
+  'Platform features',
+  {
+    isCloudPlatform: 'is_cloud_platform'
+  }
+);

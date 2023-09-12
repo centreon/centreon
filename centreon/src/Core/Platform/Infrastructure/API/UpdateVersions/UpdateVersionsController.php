@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Core\Platform\Infrastructure\Api\UpdateVersions;
+namespace Core\Platform\Infrastructure\API\UpdateVersions;
 
 use Symfony\Component\HttpFoundation\Request;
 use Centreon\Application\Controller\AbstractController;
@@ -33,7 +33,7 @@ use Core\Platform\Application\UseCase\UpdateVersions\{
 };
 use Core\Application\Common\UseCase\UnauthorizedResponse;
 
-class UpdateVersionsController extends AbstractController
+final class UpdateVersionsController extends AbstractController
 {
     use LoggerTrait;
 

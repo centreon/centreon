@@ -36,12 +36,14 @@
 
 namespace Centreon\Application\Webservice;
 
+use App\Kernel;
 use Centreon\Infrastructure\Webservice;
 use Centreon\Application\DataRepresenter\Response;
 use Centreon\Application\DataRepresenter\Topology\NavigationList;
 use Centreon\Domain\Repository\TopologyRepository;
 use Centreon\Domain\Entity\Topology;
 use Centreon\ServiceProvider;
+use Core\Common\Infrastructure\FeatureFlags;
 
 /**
  * @OA\Tag(name="centreon_topology", description="Web Service for Topology")
@@ -51,6 +53,20 @@ class TopologyWebservice extends Webservice\WebServiceAbstract implements
 {
     /** @var int */
     private const POLLER_PAGE = 60901;
+
+    private ?FeatureFlags $featureFlags = null;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $featureFlags = Kernel::createForWeb()->getContainer()->get(FeatureFlags::class);
+        if (! ($featureFlags instanceof FeatureFlags)) {
+            throw new \Exception('Unable to retrieve the FeatureFlags service');
+        }
+
+        $this->featureFlags = $featureFlags;
+    }
 
     /**
      * List of required services
@@ -188,19 +204,22 @@ class TopologyWebservice extends Webservice\WebServiceAbstract implements
             throw new \RestBadRequestException('User not found in session. Please relog.');
         }
 
-        $dbResult = $this->getDi()[ServiceProvider::CENTREON_DB_MANAGER]
-            ->getRepository(TopologyRepository::class)
-            ->getTopologyList($user);
+        /** @var TopologyRepository $repoTopology */
+        $repoTopology = $this->getDi()[ServiceProvider::CENTREON_DB_MANAGER]
+            ->getRepository(TopologyRepository::class);
+
+        $dbResult = $repoTopology->getTopologyList($user);
 
         if ($this->isPollerWizardAccessible($user)) {
             $dbResult[] = $this->createPollerWizardTopology();
         }
 
-        $status = true;
+        /** @var array<array{name: string, color: string, icon: string}> $navConfig */
         $navConfig = $this->getDi()[ServiceProvider::YML_CONFIG]['navigation'];
-        $result = new NavigationList($dbResult, $navConfig);
+        $enabledFeatureFlags = $this->featureFlags?->getEnabled() ?? [];
+        $result = new NavigationList($dbResult, $navConfig, $enabledFeatureFlags);
 
-        return new Response($result, $status);
+        return new Response($result, true);
     }
 
     /**

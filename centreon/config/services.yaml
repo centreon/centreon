@@ -26,6 +26,7 @@ parameters:
     required_php_version: "%env(_CENTREON_PHP_VERSION_)%"
     required_mariadb_min_version: "%env(_CENTREON_MARIA_DB_MIN_VERSION_)%"
     env(IS_CLOUD_PLATFORM): false
+    env(FILE_FEATURE_FLAGS): "%centreon_path%/config/features.json"
 
 services:
     # Default configuration for services in *this* file
