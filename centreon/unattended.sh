@@ -255,17 +255,41 @@ function pause() {
 #
 function get_os_information() {
 
-	# Unattended install script only support Red Hat or compatible.
-	if ! detected_os_release=$(rpm -q --whatprovides /etc/redhat-release); then
-		log "ERROR" "Unsupported distribution $detected_os_release detected"
-		error_and_exit "This '$script_short_name' script only supports Red Hat compatible distributions. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+	# Get OS name
+	NAME=$(grep "^NAME=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
+	# Get OS version
+	VERSIONID=$(grep "^VERSION_ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
+
+	if [[ "$(echo "${NAME}" | wc -l)" -ne 1 || "$(echo "${VERSIONID}" | wc -l)" -ne 1 ]]; then
+		error_and_exit "Unable to determine your running OS or version."
 	fi
 
-	if [ "$(echo "${detected_os_release}" | wc -l)" -ne 1 ]; then
-		error_and_exit "Unable to determine your running OS as there are multiple packages providing redhat-release: $detected_os_release"
-	fi
+	case "${NAME}" in
+		AlmaLinux*)
+			detected_os_release="almalinux-release-${VERSIONID}"
+			;;
+		CentOS*)
+			detected_os_release="centos-release-${VERSIONID}"
+			;;
+		Debian*)
+			detected_os_release="debian-release-${VERSIONID}"
+			;;
+		Oracle*)
+			detected_os_release="oraclelinux-release-${VERSIONID}"
+			;;
+		"Red Hat"*)
+			detected_os_release="redhat-release-${VERSIONID}"
+			;;
+		Rocky*)
+			detected_os_release="rocky-release-${VERSIONID}"
+			;;
+		*)
+			log "ERROR" "Unsupported distribution ${NAME} detected"
+			error_and_exit "This '$script_short_name' script only supports Red Hat compatible distributions. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			;;
+	esac
 
-	detected_os_version=$(rpm -q "${detected_os_release}" --qf "%{version}")
+	detected_os_version=${VERSIONID}
 
 	log "INFO" "Your running OS is $detected_os_release (version: ${detected_os_version})"
 
