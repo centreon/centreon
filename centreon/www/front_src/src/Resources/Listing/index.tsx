@@ -262,6 +262,13 @@ const ResourceListing = (): JSX.Element => {
       selectedRows={selectedResources}
       sortField={sortField}
       sortOrder={sortOrder}
+      subItems={{
+        canCheckSubItems: false,
+        enable: true,
+        labelCollapse: 'Collapse',
+        labelExpand: 'Expand',
+        rowProperty: 'children'
+      }}
       totalRows={listing?.meta.total}
       viewerModeConfiguration={{
         disabled: isPending,

@@ -3,7 +3,10 @@ import type { ListingParameters } from '@centreon/ui';
 
 import { resourcesEndpoint } from '../../api/endpoint';
 
+// const resourcesEndpoint = 'http://localhost:3000/api/latest/resources/hosts';
+
 export type ListResourcesProps = {
+  endpoint?: string;
   hostCategories: Array<string>;
   hostGroups: Array<string>;
   hostSeverities: Array<string>;
@@ -22,7 +25,7 @@ export type ListResourcesProps = {
 
 const buildResourcesEndpoint = (parameters: ListResourcesProps): string => {
   return buildListingEndpoint({
-    baseEndpoint: resourcesEndpoint,
+    baseEndpoint: parameters?.endpoint || resourcesEndpoint,
     customQueryParameters: [
       { name: 'states', value: parameters.states },
       {

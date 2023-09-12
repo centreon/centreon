@@ -24,7 +24,8 @@ import {
   labelSeverity,
   labelParentAlias,
   labelService,
-  labelHost
+  labelHost,
+  labelServices
 } from '../../translatedLabels';
 import truncate from '../../truncate';
 import { Visualization } from '../../models';
@@ -40,6 +41,7 @@ import ParentResourceColumn from './Parent';
 import NotificationColumn from './Notification';
 import ChecksColumn from './Checks';
 import ParentAliasColumn from './ParentAlias';
+import SubItem from './SubItem';
 
 interface StyleProps {
   isHovered: boolean;
@@ -85,6 +87,17 @@ export const defaultSelectedColumnIds = [
   'tries'
 ];
 
+export const defaultSelectedColumnIdsforViewByHost = [
+  'resource',
+  'children',
+  'state',
+  'graph',
+  'duration',
+  'last_check',
+  'information',
+  'tries'
+];
+
 export const getColumns = ({
   actions,
   visualization = Visualization.All,
@@ -123,6 +136,20 @@ export const getColumns = ({
       rowMemoProps: ['parent'],
       sortField: 'parent_name',
       sortable: true,
+      type: ColumnType.component,
+      width: 'max-content'
+    },
+    {
+      Component: SubItem,
+      // rowMemoProps: ['parent'],
+      displaySubItemsCaret: true,
+
+      getRenderComponentOnRowUpdateCondition: T,
+
+      id: 'children',
+
+      label: t(labelServices),
+      sortable: false,
       type: ColumnType.component,
       width: 'max-content'
     },
@@ -285,6 +312,21 @@ export const getColumns = ({
       );
 
     return columnsForVisualizationByService;
+  }
+
+  if (equals(visualization, Visualization.Host)) {
+    const columnsForVisualizationByHost = columns.map((column) =>
+      equals(column.label, t(labelResource))
+        ? { ...column, label: t(labelHost) }
+        : column
+    );
+    // .map((column) =>
+    //   equals(column.label, t(labelParent))
+    //     ? { ...column, id: '', label: t(labelService) }
+    //     : column
+    // );
+
+    return columnsForVisualizationByHost;
   }
 
   return columns;
