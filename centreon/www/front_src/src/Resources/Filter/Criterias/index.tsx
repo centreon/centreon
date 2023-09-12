@@ -64,11 +64,18 @@ const CriteriasContent = (): JSX.Element => {
   const getSelectableCriteriaByName = (name: string): CriteriaDisplayProps =>
     newSelectableCriterias[name];
 
+  console.log({
+    newCriteriaValueName,
+    newSelectableCriterias
+  });
+
   const isNonSelectableCriteria = (criteria: CriteriaModel): boolean =>
     pipe(({ name }) => name, getSelectableCriteriaByName, isNil)(criteria);
 
   const applyCurrentFilter = useSetAtom(applyCurrentFilterDerivedAtom);
   const clearFilter = useSetAtom(clearFilterDerivedAtom);
+
+  console.log({ getSelectableCriterias: getSelectableCriterias?.() });
 
   return (
     <PopoverMenu
