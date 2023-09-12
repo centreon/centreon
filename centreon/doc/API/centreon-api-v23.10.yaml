@@ -8387,6 +8387,10 @@ components:
               type: boolean
               description: "Is the host flapping or not"
               example: false
+            notify:
+              type: boolean
+              description: "Indicates whether notifications of the service are enabled"
+              example: true
     Monitoring.ServiceWithHost:
       type: object
       properties:
