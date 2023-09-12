@@ -21,29 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Contact\Application\Repository;
+namespace Tests\Core\Security\Token\Infrastructure\API\AddToken;
 
-interface ReadContactRepositoryInterface
+use Core\Application\Common\UseCase\AbstractPresenter;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Security\Token\Application\UseCase\AddToken\AddTokenResponse;
+use Core\Security\Token\Application\UseCase\AddToken\AddTokenPresenterInterface;
+
+class AddTokenPresenterStub extends AbstractPresenter implements AddTokenPresenterInterface
 {
-    /**
-     * Find contact names by IDs.
-     *
-     * @param int ...$ids
-     *
-     * @throws \Throwable
-     *
-     * @return array<int, array{id: int, name: string}>
-     */
-    public function findNamesByIds(int ...$ids): array;
-
-    /**
-     * Check user existence by its id.
-     *
-     * @param int $userId
-     *
-     * @throws \Throwable
-     *
-     * @return bool
-     */
-    public function exists(int $userId): bool;
+    public ResponseStatusInterface|AddTokenResponse $response;
+    public function presentResponse(ResponseStatusInterface|AddTokenResponse $response): void
+    {
+        $this->response = $response;
+    }
 }

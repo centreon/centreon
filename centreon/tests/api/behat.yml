@@ -202,3 +202,7 @@ default:
       paths: [ "%paths.base%/features/ServiceCloud.feature" ]
       contexts:
       - Centreon\Test\Api\Context\CloudPlatformContext
+    token:
+      paths: [ "%paths.base%/features/Token.feature" ]
+      contexts:
+      - Centreon\Test\Behat\Api\Context\ApiContext

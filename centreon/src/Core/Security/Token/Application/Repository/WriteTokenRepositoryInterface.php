@@ -21,29 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Core\Contact\Application\Repository;
+namespace Core\Security\Token\Application\Repository;
 
-interface ReadContactRepositoryInterface
+use Core\Security\Token\Domain\Model\NewToken;
+
+interface WriteTokenRepositoryInterface
 {
     /**
-     * Find contact names by IDs.
-     *
-     * @param int ...$ids
+     * @param NewToken $newToken
      *
      * @throws \Throwable
-     *
-     * @return array<int, array{id: int, name: string}>
      */
-    public function findNamesByIds(int ...$ids): array;
-
-    /**
-     * Check user existence by its id.
-     *
-     * @param int $userId
-     *
-     * @throws \Throwable
-     *
-     * @return bool
-     */
-    public function exists(int $userId): bool;
+    public function add(NewToken $newToken): void;
 }

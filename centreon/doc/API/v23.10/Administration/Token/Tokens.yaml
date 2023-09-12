@@ -1,0 +1,29 @@
+post:
+  tags:
+    - Api Tokens
+  summary: "Add an api token"
+  description: "Add an api token"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          allOf:
+            - required: ["name", "user_id", "expiration_date"]
+            - $ref: 'Schema/NewToken.yaml'
+  responses:
+    '201':
+      allOf:
+        - $ref: '../../Common/Response/Created.yaml'
+        - content:
+            application/json:
+              schema:
+                $ref: 'Schema/Token.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '409':
+      $ref: '../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

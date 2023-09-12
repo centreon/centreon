@@ -9,6 +9,9 @@ info:
     + Added notification endpoints (POST, PATCH)
     + Added service templates endpoints (GET, POST, DELETE, PATCH)
     + Added host template endpoints (POST, DELETE, PATCH)
+    + Added service endpoints (POST, DELETE)
+    + Added host endpoints (POST, DELETE)
+    + Added token endpoints (POST)
     +
     # Updated features
     + Updated host template endpoint (GET)
@@ -4579,6 +4582,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /administration/tokens:
+    $ref: "./v23.10/Administration/Token/Tokens.yaml"
   /administration/parameters:
     post:
       tags:
