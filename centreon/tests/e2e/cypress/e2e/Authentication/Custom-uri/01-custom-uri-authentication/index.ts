@@ -10,12 +10,16 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: '/monitor/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: '/monitor/include/common/userTimezone.php'
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: '/monitor/api/latest/monitoring/resources/hosts/*/services/*'
+  }).as('getResourceDetails');
 });
 
 When(
@@ -23,26 +27,32 @@ When(
   () => {
     cy.execInContainer({
       command:
-        'sed -i \'s/"/centreon"/"/monitor"/\' /etc/httpd/conf.d/10-centreon.conf',
-      name: 'centreon-dev'
+        'bash -c "sed -i \'0,/centreon/s//monitor/\' /etc/httpd/conf.d/10-centreon.conf"',
+      name: Cypress.env('dockerName')
     });
   }
 );
 
 When('I reload the web server', () => {
   cy.execInContainer({
-    command: 'pkill httpd && sh /usr/share/centreon/container.d/60-apache.sh',
-    name: 'centreon-dev'
+    command: 'systemctl restart httpd',
+    name: Cypress.env('dockerName')
   });
 });
 
 Then('I can authenticate to the centreon platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
+
+  cy.url().should('contain', '/monitor');
 });
 
 Then(
   'the resource icons are displayed in configuration and monitoring pages',
   () => {
+    cy.getByLabel({ label: 'State filter' }).click();
+
+    cy.get('[data-value="all"]').click();
+
     cy.contains(service).should('exist');
 
     cy.contains(host).should('exist');
@@ -77,11 +87,20 @@ Then(
       rootItemNumber: 1
     });
 
-    cy.get('header').parent().children().eq(1).contains('Ok').should('exist');
+    cy.get('header').parent().children().eq(1).contains('OK').should('exist');
+
     cy.get('header').parent().children().eq(1).contains('Up').should('exist');
+
+    cy.contains(host).click();
+
+    cy.wait('@getResourceDetails');
+
+    cy.get('#panel-content').should('be.visible');
+
+    cy.get('#panel-content').contains('OK - 127.0.0.1');
   }
 );
 
 after(() => {
-  cy.stopWebContainer().stopOpenIdProviderContainer();
+  cy.stopWebContainer();
 });
