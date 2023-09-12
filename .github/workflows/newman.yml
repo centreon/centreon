@@ -6,11 +6,11 @@ on:
 jobs:
   postman_tests:
     runs-on: ubuntu-latest
-
+    
     env:
       CONTAINER_NAME: my_centreon_container
       CENTREON_URL: http://localhost  
-      CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop  # Définir l'image Centreon globalement
+      CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop 
 
     steps:
       - name: Checkout Repository
@@ -28,12 +28,12 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ vars.secrets.DOCKER_REGISTRY_URL }}
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
       - name: Start Centreon Web Container
-        run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE  # Utiliser la variable globale
+        run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
 
       - name: Wait for Centreon Web Container to Start
         run: |
@@ -66,7 +66,7 @@ jobs:
           done
 
       - name: Upload HTML Reports
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.4.0
         with:
           name: postman-html-reports
           path: ./newman/
