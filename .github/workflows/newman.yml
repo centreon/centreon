@@ -29,14 +29,9 @@ jobs:
       - name : start centreon web container
         run: docker run --name centreon -d -p 4000:80 docker.centreon.com/centreon/centreon-web-alma9:develop
 
-      - name: Wait for Centreon Web Container to Start
-        run: |
-            sleep 10  # Adjust the sleep time as needed
-        timeout-minutes: 5  
-
       - name: Check Centreon Web Container
         run: |
-          docker exec -it centreon sh
+          docker exec centreon sh
         continue-on-error: true
 
       - name: Run Postman Tests and Generate HTML Report
