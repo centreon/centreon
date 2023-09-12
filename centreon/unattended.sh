@@ -166,7 +166,7 @@ function parse_subcommand_options() {
 		r)
 			requested_repo=$OPTARG
 			log "INFO" "Requested repository: '$requested_repo'"
-
+			get_os_information
 			set_centreon_repos $requested_repo
 			;;
 
@@ -314,7 +314,12 @@ function set_centreon_repos() {
 			log "ERROR" "Unsupported repository: $_repo" &&
 			usage
 
-		CENTREON_REPO+="centreon-$version-$_repo*"
+		if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+			CENTREON_REPO+="$version-$_repo"
+		else
+			CENTREON_REPO+="centreon-$version-$_repo*"
+		fi
+
 		if ! [ "$_repo" == "${array_repos[@]:(-1)}" ]; then
 			CENTREON_REPO+=","
 		fi
@@ -330,13 +335,26 @@ function set_centreon_repos() {
 function set_mariadb_repos() {
 	log "INFO" "Install MariaDB repository"
 
-	curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version="mariadb-10.5"
-	if [ $? -ne 0 ]; then
-		error_and_exit "Could not install the repository"
-	else
-		log "INFO" "Successfully installed MariaDB repository"
-	fi
-	rm -f /etc/yum.repos.d/mariadb.repo.old_* > /dev/null 2>&1
+	case "$detected_os_release" in
+	debian-release*)
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not install the repository"
+		else
+			log "INFO" "Successfully installed MariaDB repository"
+		fi
+		rm -f /etc/apt/sources.list.d/mariadb.list.old_*  > /dev/null 2>&1
+		;;
+	*)
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version="mariadb-10.5"
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not install the repository"
+		else
+			log "INFO" "Successfully installed MariaDB repository"
+		fi
+		rm -f /etc/yum.repos.d/mariadb.repo.old_* > /dev/null 2>&1
+		;;
+	esac
 }
 #========= end of function set_mariadb_repos()
 
@@ -349,108 +367,140 @@ function set_required_prerequisite() {
 
 	get_os_information
 
-    case "$detected_os_version" in
-    8*)
-        log "INFO" "Setting specific part for v8 ($detected_os_version)"
+    case "$detected_os_release" in
+	redhat-release* | centos-release-* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+		case "$detected_os_version" in
+		8*)
+			log "INFO" "Setting specific part for v8 ($detected_os_version)"
 
-        RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
-        REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
-        OS_SPEC_SERVICES="php-fpm httpd"
-        PKG_MGR="dnf"
+			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el8/centreon-$version.repo"
+			REMI_RELEASE_RPM_URL="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
+			OS_SPEC_SERVICES="php-fpm httpd"
+			PKG_MGR="dnf"
 
-        case "$detected_os_release" in
-        redhat-release*)
-            BASE_PACKAGES=(dnf-plugins-core epel-release)
-            subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
-            $PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-8-rhui-rpms
-            ;;
+			case "$detected_os_release" in
+			redhat-release*)
+				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
+				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-8-rhui-rpms
+				;;
 
-        centos-release-8.[3-9]* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
-            BASE_PACKAGES=(dnf-plugins-core epel-release)
-            $PKG_MGR config-manager --set-enabled powertools
-            ;;
+			centos-release-8.[3-9]* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				$PKG_MGR config-manager --set-enabled powertools
+				;;
 
-        centos-release-8.[1-2]*)
-            BASE_PACKAGES=(dnf-plugins-core epel-release)
-            $PKG_MGR config-manager --set-enabled PowerTools
-            ;;
+			centos-release-8.[1-2]*)
+				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				$PKG_MGR config-manager --set-enabled PowerTools
+				;;
 
-        oraclelinux-release* | enterprise-release*)
-            BASE_PACKAGES=(dnf-plugins-core)
-            $PKG_MGR config-manager --set-enabled ol8_codeready_builder
-            dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-	    ;;
-        esac
+			oraclelinux-release* | enterprise-release*)
+				BASE_PACKAGES=(dnf-plugins-core)
+				$PKG_MGR config-manager --set-enabled ol8_codeready_builder
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+			;;
+			esac
 
-		if [ "$topology" == "central" ]; then
-			install_remi_repo
+			if [ "$topology" == "central" ]; then
+				install_remi_repo
 
-			if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
-				log "INFO" "Installing PHP 8.0 and enable it"
-				$PKG_MGR module reset php -y -q
-				$PKG_MGR module install php:remi-8.0 -y -q
-			else
-				log "INFO" "Installing PHP 8.1 and enable it"
-				$PKG_MGR module install php:remi-8.1 -y -q
-				$PKG_MGR module enable php:remi-8.1 -y -q
+				if [[ "$version" == "21.10" || "$version" == "22.04" ]]; then
+					log "INFO" "Installing PHP 8.0 and enable it"
+					$PKG_MGR module reset php -y -q
+					$PKG_MGR module install php:remi-8.0 -y -q
+				else
+					log "INFO" "Installing PHP 8.1 and enable it"
+					$PKG_MGR module install php:remi-8.1 -y -q
+					$PKG_MGR module enable php:remi-8.1 -y -q
+				fi
 			fi
-		fi
-        ;;
+			;;
 
-    9*)
-		if [ "$version" != "23.04" ]; then
-			error_and_exit "Only Centreon 23.04 is compatible with EL9, you chose $version"
-		fi
+		9*)
+			if [ "$version" != "23.04" ]; then
+				error_and_exit "Only Centreon 23.04 is compatible with EL9, you chose $version"
+			fi
 
-        log "INFO" "Setting specific part for v9 ($detected_os_version)"
+			log "INFO" "Setting specific part for v9 ($detected_os_version)"
 
-        RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el9/centreon-$version.repo"
-        OS_SPEC_SERVICES="php-fpm httpd"
-        PKG_MGR="dnf"
+			RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el9/centreon-$version.repo"
+			OS_SPEC_SERVICES="php-fpm httpd"
+			PKG_MGR="dnf"
 
-        case "$detected_os_release" in
-        redhat-release*)
-            BASE_PACKAGES=(dnf-plugins-core epel-release)
-            subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms
-            $PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-9-rhui-rpms
-            ;;
+			case "$detected_os_release" in
+			redhat-release*)
+				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms
+				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-9-rhui-rpms
+				;;
 
-        centos-release* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
-            BASE_PACKAGES=(dnf-plugins-core epel-release)
-            $PKG_MGR config-manager --set-enabled crb
-            ;;
+			centos-release* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+				BASE_PACKAGES=(dnf-plugins-core epel-release)
+				$PKG_MGR config-manager --set-enabled crb
+				;;
 
-        oraclelinux-release* | enterprise-release*)
-            BASE_PACKAGES=(dnf-plugins-core)
-            $PKG_MGR config-manager --set-enabled ol9_codeready_builder
-            dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-	    ;;
-        esac
+			oraclelinux-release* | enterprise-release*)
+				BASE_PACKAGES=(dnf-plugins-core)
+				$PKG_MGR config-manager --set-enabled ol9_codeready_builder
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+			;;
+			esac
 
+			if [ "$topology" == "central" ]; then
+				log "INFO" "Installing PHP 8.1 and enable it"
+				$PKG_MGR module install php:8.1 -y -q
+				$PKG_MGR module enable php:8.1 -y -q
+			fi
+			;;
+
+		*)
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			;;
+		esac
+
+		log "INFO" "Installing packages ${BASE_PACKAGES[@]}"
+		$PKG_MGR -q install -y ${BASE_PACKAGES[@]}
+
+		log "INFO" "Updating package gnutls"
+		$PKG_MGR -q update -y gnutls
+
+		set_centreon_repos
 		if [ "$topology" == "central" ]; then
-			log "INFO" "Installing PHP 8.1 and enable it"
-			$PKG_MGR module install php:8.1 -y -q
-			$PKG_MGR module enable php:8.1 -y -q
+			set_mariadb_repos
+			log "INFO" "Installing glibc langpack for Centreon UI translation"
+			$PKG_MGR-q install -y glibc-langpack-fr glibc-langpack-es glibc-langpack-pt glibc-langpack-de > /dev/null 2>&1
 		fi
-        ;;
+		;;
+	debian-release*)
+		case "$detected_os_version" in
+		11)
+			log "INFO" "Setting specific part for Debian"
+			apt update && apt install lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2
 
-    *)
-        error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9). Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
-        ;;
-    esac
+			# Add Centreon repositories
+			set_centreon_repos
+			IFS=', ' read -r -a array_apt <<<"$CENTREON_REPO"
+			for _repo in "${array_apt[@]}"; do
+				echo "deb https://packages.centreon.com/apt-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
+			done
+			echo "deb https://packages.centreon.com/apt-plugins-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins.list
+			wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 
-	log "INFO" "Installing packages ${BASE_PACKAGES[@]}"
-	$PKG_MGR -q install -y ${BASE_PACKAGES[@]}
+			if [ "$topology" == "central" ]; then
+				echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
+				wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
+				set_mariadb_repos
+			fi
 
-	log "INFO" "Updating package gnutls"
-	$PKG_MGR -q update -y gnutls
-
-	set_centreon_repos
-	if [ "$topology" == "central" ]; then
-		set_mariadb_repos
-		log "INFO" "Installing glibc langpack for Centreon UI translation"
-		$PKG_MGR-q install -y glibc-langpack-fr glibc-langpack-es glibc-langpack-pt glibc-langpack-de > /dev/null 2>&1
-	fi
+			apt update
+			PKG_MGR="apt"
+			;;
+		*)
+			error_and_exit "This '$script_short_name' script only supports Red-Hat compatible distribution (v8 and v9) and Debian 11. Please check https://docs.centreon.com/docs/installation/introduction for alternative installation methods."
+			;;
+		esac
+	esac
 }
 #========= end of function set_required_prerequisite()
 
