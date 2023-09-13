@@ -46,6 +46,9 @@ jobs:
           npx wait-on http://localhost:4000/ --timeout 100000
         timeout-minutes: 5
 
+      - name: List Files in Collection Directory
+        run: |
+          ls -la centreon/tests/rest_api/collections
       - name: Run Postman Tests and Generate HTML Report
         run: |
           environment_path="/collections/Environment-for-Refactored-API-Test-Collection.json"
