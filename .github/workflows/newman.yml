@@ -26,7 +26,7 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install --no-frozen-lockfile
-        working-directory: centreon/tests/rest_api
+        working-directory: centreon/centreon/tests/rest_api
 
       - name: Login to registry
         uses: docker/login-action@v2
