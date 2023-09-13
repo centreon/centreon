@@ -134,7 +134,9 @@ jobs:
         password: ${{ secrets.registry_password }}
 
     steps:
-      - run: apt-get install -y zstd
+      - run: |
+          apt update -y
+          apt-get install -y zstd
         shell: bash
 
       - uses: actions/checkout@v4
