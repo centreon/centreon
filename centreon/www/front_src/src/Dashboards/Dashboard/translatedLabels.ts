@@ -102,3 +102,7 @@ export const labelFrom = 'From';
 export const labelStart = 'Start';
 export const labelEnd = 'End';
 export const labelBaseColor = 'Base color';
+export const labelShowValueLabels = 'Show value labels';
+export const labelNumberOfValues = 'Number of values';
+export const labelTop = 'Top';
+export const labelBottom = 'Bottom';

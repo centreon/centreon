@@ -4,16 +4,19 @@ import { useTheme } from '@mui/material';
 
 import { groupMargin } from './Thresholds';
 
-export const barHeight = 72;
+export const barHeights = {
+  medium: 72,
+  small: 22
+};
 export const margin = 40;
 
 const lineMargin = 10;
-const thresholdLineHeight = barHeight + 2 * lineMargin;
 
 interface Props {
   hideTooltip: () => void;
   label: string;
   showTooltip: (args) => void;
+  size: 'small' | 'medium';
   thresholdType: string;
   value: number;
   xScale: (value: number) => number;
@@ -25,13 +28,16 @@ export const ThresholdLine = ({
   xScale,
   thresholdType,
   showTooltip,
-  hideTooltip
+  hideTooltip,
+  size
 }: Props): JSX.Element => {
   const theme = useTheme();
 
   const scaledValue = xScale(value) || 0;
 
-  const bottom = barHeight + margin * 2;
+  const thresholdLineHeight = barHeights[size] + 2 * lineMargin;
+
+  const bottom = barHeights[size] + margin * 2;
 
   const onMouseEnter = (left) => (): void =>
     showTooltip({

@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 
 import { Group, Tooltip } from '@visx/visx';
 import { scaleLinear } from '@visx/scale';
-import { flatten, head, pluck } from 'ramda';
+import { equals, flatten, head, pluck } from 'ramda';
 import { Bar } from '@visx/shape';
 import { useSpring, animated } from '@react-spring/web';
 
@@ -18,7 +18,7 @@ import { margins } from '../common/margins';
 
 import { SingleBarProps } from './models';
 import Thresholds, { groupMargin } from './Thresholds';
-import { barHeight, margin } from './ThresholdLine';
+import { barHeights, margin } from './ThresholdLine';
 
 interface Props extends SingleBarProps {
   height: number;
@@ -36,7 +36,8 @@ const ResponsiveSingleBar = ({
   width,
   height,
   displayAsRaw,
-  baseColor
+  baseColor,
+  size = 'medium'
 }: Props): JSX.Element => {
   const theme = useTheme();
 
@@ -79,13 +80,25 @@ const ResponsiveSingleBar = ({
     [latestMetricData, thresholds, theme]
   );
 
+  const isSmall = equals(size, 'small');
+
+  const textStyle = isSmall
+    ? {
+        ...theme.typography.body1,
+        fontWeight: theme.typography.fontWeightBold
+      }
+    : theme.typography.h3;
+
   const text = (
     <text
       dominantBaseline="middle"
-      style={{ fill: barColor, ...theme.typography.h3 }}
+      style={{
+        fill: barColor,
+        ...textStyle
+      }}
       textAnchor="middle"
       x="50%"
-      y={25}
+      y={isSmall ? 47 : 25}
     >
       {formatMetricValueWithUnit({
         base: 1000,
@@ -124,7 +137,7 @@ const ResponsiveSingleBar = ({
           <animated.rect
             data-testid={`${latestMetricData}-bar-${barColor}`}
             fill={barColor}
-            height={barHeight}
+            height={barHeights[size]}
             rx={4}
             style={springStyle}
             x={0}
@@ -132,7 +145,7 @@ const ResponsiveSingleBar = ({
           />
           <Bar
             fill="transparent"
-            height={barHeight}
+            height={barHeights[size]}
             rx={4}
             ry={4}
             stroke={alpha(theme.palette.text.primary, 0.3)}
@@ -144,6 +157,7 @@ const ResponsiveSingleBar = ({
             <Thresholds
               hideTooltip={hideTooltip}
               showTooltip={showTooltip}
+              size={size}
               thresholds={thresholds}
               xScale={xScale}
             />

@@ -21,7 +21,9 @@ import {
   WidgetTextField,
   WidgetThreshold,
   WidgetValueFormat,
-  WidgetTimePeriod
+  WidgetTimePeriod,
+  WidgetTopBottomSettings,
+  WidgetMetric
 } from './Inputs';
 
 import { useDeepCompare } from 'packages/ui/src';
@@ -49,7 +51,9 @@ export const propertiesInputType = {
   [FederatedWidgetOptionType.singleMetricGraphType]:
     WidgetSingleMetricGraphType,
   [FederatedWidgetOptionType.valueFormat]: WidgetValueFormat,
-  [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod
+  [FederatedWidgetOptionType.timePeriod]: WidgetTimePeriod,
+  [FederatedWidgetOptionType.topBottomSettings]: WidgetTopBottomSettings,
+  [FederatedWidgetOptionType.metricsOnly]: WidgetMetric
 };
 
 const DefaultComponent = (): JSX.Element => <div />;

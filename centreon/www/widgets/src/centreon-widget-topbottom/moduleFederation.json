@@ -1,0 +1,10 @@
+{
+  "federatedComponentsConfiguration": {
+    "path": "/widgets/topbottom",
+    "federatedComponents": [
+      "./topbottom"
+    ]
+  },
+  "moduleFederationName": "widgettopbottom",
+  "moduleName": "centreon-widget-topbottom"
+}
