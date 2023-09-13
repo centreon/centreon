@@ -51,7 +51,7 @@ jobs:
           ls -lR node_modules
           
       - name: Install newman-reporter-htmlextra globally
-        run: npm install -g newman-reporter-htmlextra
+        run: pnpm install newman-reporter-htmlextra -D -f ./centreon/tests/rest_api/package.json
 
       - name: Run Postman Tests and Generate HTML Report
         run: |
