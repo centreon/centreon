@@ -81,17 +81,6 @@ class TokenException extends \Exception
     }
 
     /**
-     * @return self
-     */
-    public static function invalidExpirationDate(): self
-    {
-        return new self(
-            _('The expiration date must be greater than the creation date'),
-            self::CODE_CONFLICT
-        );
-    }
-
-    /**
      * @param int $userId
      *
      * @return self
