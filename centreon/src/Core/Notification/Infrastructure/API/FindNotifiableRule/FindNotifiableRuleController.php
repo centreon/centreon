@@ -21,21 +21,36 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Infrastructure\API\FindNotification;
+namespace Core\Notification\Infrastructure\API\FindNotifiableRule;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Notification\Application\UseCase\FindNotification\FindNotification;
+use Centreon\Domain\Log\LoggerTrait;
+use Core\Notification\Application\UseCase\FindNotifiableRule\FindNotifiableRule;
+use Core\Notification\Application\UseCase\FindNotifiableRule\FindNotifiableRulePresenterInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-final class FindNotificationController extends AbstractController
+final class FindNotifiableRuleController extends AbstractController
 {
+    use LoggerTrait;
+
     /**
      * @param int $notificationId
-     * @param FindNotification $useCase
-     * @param FindNotificationPresenter $presenter
+     * @param Request $request
+     * @param FindNotifiableRule $useCase
+     * @param FindNotifiableRulePresenter $presenter
+     *
+     * @throws AccessDeniedException
+     *
+     * @return Response
      */
-    public function __invoke(int $notificationId, FindNotification $useCase, FindNotificationPresenter $presenter): Response
-    {
+    public function __invoke(
+        int $notificationId,
+        Request $request,
+        FindNotifiableRule $useCase,
+        FindNotifiableRulePresenterInterface $presenter
+    ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         $useCase($notificationId, $presenter);

@@ -21,30 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\FindNotifications;
+namespace Core\Notification\Application\UseCase\FindNotifiableRule\Response;
 
-class NotificationCounts
+final class ChannelsResponseDto
 {
-    /**
-     * @param array<int,int> $notificationsUsersCount
-     * @param array<string, array<int,int>> $resourcesCount
-     */
     public function __construct(
-        private readonly array $notificationsUsersCount,
-        private readonly array $resourcesCount,
+        public null|ChannelEmailResponseDto $email = null,
+        public null|ChannelSlackResponseDto $slack = null,
+        public null|ChannelSmsResponseDto $sms = null,
     ) {
-    }
-
-    public function getUsersCountByNotificationId(int $notificationId): int
-    {
-        return $this->notificationsUsersCount[$notificationId] ?? 0;
-    }
-
-    /**
-     * @return array<string, array<int,int>>
-     */
-    public function getResourcesCount(): array
-    {
-        return $this->resourcesCount;
     }
 }
