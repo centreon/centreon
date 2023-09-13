@@ -33,10 +33,10 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       
       - name: Install pnpm
-        run: npm install -g pnpm
+        run: npm install pnpm
 
       - name: Install Dependencies
-        run: pnpm install  -f centreon/tests/rest_api/package.json
+        run: pnpm install  --prefix centreon/tests/rest_api/package.json
       
       - name: Start Centreon Web Container
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
@@ -45,9 +45,6 @@ jobs:
         run: |
           npx wait-on http://localhost:4000/ --timeout 100000
         timeout-minutes: 5
-
-      - name: Install Newman HTML Extra Reporter
-        run: pnpm install -g newman-reporter-htmlextra
 
       - name: Run Postman Tests and Generate HTML Report
         run: |
