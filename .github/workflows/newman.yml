@@ -27,7 +27,7 @@ jobs:
       - name: Install Dependencies
         working-directory: centreon/tests/rest_api
         run: |
-          pnpm ci
+          pnpm install --frozen-lockfile          
           git add pnpm-lock.yaml
           git commit -m "Update pnpm lockfile"
      
