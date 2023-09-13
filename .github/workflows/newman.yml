@@ -35,7 +35,8 @@ jobs:
         run: npm install pnpm -g
 
       - name: Install Dependencies
-        run: pnpm install  -f ./centreon/tests/rest_api/package.json
+        run: pnpm install ./centreon/tests/rest_api/package.json
+        
 
       - name: Start Centreon Web Container
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
