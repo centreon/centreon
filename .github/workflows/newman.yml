@@ -36,7 +36,7 @@ jobs:
         run: npm install pnpm -g
 
       - name: Install Dependencies
-        run: pnpm install  -f centreon/tests/rest_api/package.json
+        run: pnpm install  -f ./centreon/tests/rest_api/package.json
 
       - name: Start Centreon Web Container
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
@@ -49,7 +49,10 @@ jobs:
       - name: List contents of node_modules
         run: |
           ls -lR node_modules
-       
+          
+      - name: Install newman-reporter-htmlextra globally
+        run: npm install -g newman-reporter-htmlextra@1.22.11
+
       - name: Run Postman Tests and Generate HTML Report
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
@@ -64,7 +67,7 @@ jobs:
             collection_name=$(basename "$collection_file" .postman_collection.json)
 
             # Run Newman with the current collection file and generate an HTML report
-            newman run "$collection_file" -e "$environment_path" --reporters cli,"./node_modules/newman-reporter-htmlextra" --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" || true
+            newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html" || true
           done
   
       - name: Upload HTML Reports
