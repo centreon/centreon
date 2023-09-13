@@ -48,8 +48,8 @@ jobs:
 
       - name: Run Postman Tests and Generate HTML Report
         run: |
-          environment_path="centreon/tests/rest_api/collections/Environment-for-Refactored-API-Test-Collection.json"
-          collection_path="centreon/tests/rest_api/collections"
+          environment_path="/collections/Environment-for-Refactored-API-Test-Collection.json"
+          collection_path="/collections"
 
           # Create a directory to store HTML reports
           mkdir -p newman
