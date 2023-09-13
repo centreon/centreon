@@ -33,7 +33,7 @@ jobs:
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
       
       - name: Install pnpm
-        run: npm install pnpm
+        run: npm install pnpm -g
 
       - name: Install Dependencies
         run: pnpm install  -f centreon/tests/rest_api/package.json
