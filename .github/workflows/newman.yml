@@ -26,8 +26,11 @@ jobs:
 
       - name: Install Dependencies
         working-directory: centreon/tests/rest_api
-        run:  pnpm install --no-frozen-lockfile
-
+        run: |
+          pnpm ci
+          git add pnpm-lock.yaml
+          git commit -m "Update pnpm lockfile"
+     
       - name: Login to registry
         uses: docker/login-action@v2
         with:
