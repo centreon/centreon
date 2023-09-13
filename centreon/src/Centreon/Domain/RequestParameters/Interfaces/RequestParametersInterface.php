@@ -28,6 +28,11 @@ use Centreon\Domain\RequestParameters\RequestParameters;
  */
 interface RequestParametersInterface
 {
+    /**
+     * Converts search array to string
+     *
+     * @return string
+     */
     public function getSearchAsString(): string;
     /**
      * Add an extra parameter.
@@ -137,7 +142,12 @@ interface RequestParametersInterface
      */
     public function toArray(): array;
 
-    public function unsetSearch();
+    /**
+     * Re-initialize the search set previously
+     *
+     * @return void
+     */
+    public function unsetSearch(): void;
 
     /**
      * Remove a search parameter.

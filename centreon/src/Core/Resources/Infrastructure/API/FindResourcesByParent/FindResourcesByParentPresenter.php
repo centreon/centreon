@@ -238,6 +238,11 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
         return $resource;
     }
 
+    /**
+     * @param string $url
+     * @param ResourceResponseDto $resource
+     * @return string
+     */
     private function generateUrlWithMacrosResolved(string $url, ResourceResponseDto $resource): string
     {
         $isServiceTypedResource = $resource->type === self::SERVICE_RESOURCE_TYPE;
