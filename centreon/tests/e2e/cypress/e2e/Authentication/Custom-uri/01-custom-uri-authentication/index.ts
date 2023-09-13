@@ -35,7 +35,7 @@ When(
 
 When('I reload the web server', () => {
   cy.execInContainer({
-    command: 'systemctl restart httpd',
+    command: 'systemctl reload httpd',
     name: Cypress.env('dockerName')
   });
 });
@@ -53,9 +53,9 @@ Then(
 
     cy.get('[data-value="all"]').click();
 
-    cy.contains(service).should('exist');
+    cy.contains(service).parent().get('.MuiChip-root').should('contain', 's');
 
-    cy.contains(host).should('exist');
+    cy.contains(host).parent().get('.MuiChip-root').should('contain', 'h');
 
     cy.navigateTo({
       page: 'Hosts',
@@ -64,7 +64,7 @@ Then(
     });
 
     cy.wait('@getTimeZone').then(() => {
-      cy.getIframeBody().contains(host).should('exist');
+      cy.getIframeBody().contains(host).find('.ico-18').should('be.visible');
     });
 
     cy.navigateTo({
@@ -74,7 +74,11 @@ Then(
     });
 
     cy.wait('@getTimeZone').then(() => {
-      cy.getIframeBody().contains(service).should('exist');
+      cy.getIframeBody()
+        .contains(service)
+        .parent()
+        .find('.ico-14')
+        .should('be.visible');
     });
   }
 );
