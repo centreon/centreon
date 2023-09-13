@@ -663,6 +663,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
     /**
      * @param ResourceFilter $filter
      * @param StatementCollector $collector
+     *
      * @return string
      */
     private function addResourceParentIdSubRequest(ResourceFilter $filter, StatementCollector $collector): string

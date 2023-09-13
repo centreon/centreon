@@ -241,6 +241,7 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
     /**
      * @param string $url
      * @param ResourceResponseDto $resource
+     *
      * @return string
      */
     private function generateUrlWithMacrosResolved(string $url, ResourceResponseDto $resource): string
