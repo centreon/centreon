@@ -6,7 +6,7 @@ on:
 jobs:
   postman_tests:
     runs-on: ubuntu-latest
-   defaults:
+    defaults:
       run:
         shell: bash
         working-directory: centreon/tests/rest_api
