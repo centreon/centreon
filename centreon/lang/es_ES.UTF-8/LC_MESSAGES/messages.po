@@ -16360,3 +16360,33 @@ msgstr ""
 
 # msgid "Base color"
 # msgstr ""
+
+#  msgid "Display view:"
+#  msgstr ""
+
+#  msgid "View all resources"
+#  msgstr ""
+
+#  msgid "View by host"
+#  msgstr ""
+
+#  msgid "View by service"
+#  msgstr ""
+
+#  msgid "Error while adding a token"
+#  msgstr ""
+
+#  msgid "You are not allowed to add tokens"
+#  msgstr ""
+
+#  msgid "Error while retrieving a token"
+#  msgstr ""
+
+#  msgid "The token name '%s' already exists"
+#  msgstr ""
+
+#  msgid "The user with ID %d' doesn't exist"
+#  msgstr ""
+
+#  msgid "You are not allowed to add tokens linked to user ID %d"
+#  msgstr ""

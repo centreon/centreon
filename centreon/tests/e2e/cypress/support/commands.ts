@@ -152,7 +152,7 @@ Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
       ]
     })
     .then(() => {
-      return cy.exec('npx wait-on http://0.0.0.0:8080/health/ready');
+      return cy.task('waitOn', 'http://127.0.0.1:8080/health/ready');
     })
     .then(() => {
       cy.exec(

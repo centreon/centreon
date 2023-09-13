@@ -10,8 +10,8 @@ interface StylesProps {
   dataStyle: TableStyle;
   getGridTemplateColumn: string;
   limit: number;
+  listingVariant: ListingVariant;
   rows: Array<unknown>;
-  viewMode: ListingVariant;
 }
 
 const useListingStyles = makeStyles<StylesProps>()(
