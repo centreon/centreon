@@ -25,7 +25,7 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install Dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install 
         working-directory: centreon/tests/rest_api
 
       - name: Login to registry
