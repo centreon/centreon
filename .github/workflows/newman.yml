@@ -35,7 +35,7 @@ jobs:
         run: npm install pnpm -g
 
       - name: Install Dependencies
-        run: pnpm install ./centreon/tests/rest_api/package.json
+        run: pnpm install --prefix ./centreon/tests/rest_api/package.json
         
 
       - name: Start Centreon Web Container
