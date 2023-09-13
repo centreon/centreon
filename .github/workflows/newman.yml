@@ -34,8 +34,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pnpm install --no-frozen-lockfile          
-          pnpm install @pnpm/lockfile-file --save-dev
+          pnpm install --no-frozen-lockfile -C centreon/tests/rest_api
+          pnpm install @pnpm/lockfile-file --save-dev -C centreon/tests/rest_api
           git add pnpm-lock.yaml
           git commit -m "Update pnpm lockfile"
      
