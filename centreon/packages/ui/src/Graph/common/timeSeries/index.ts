@@ -499,14 +499,18 @@ const formatMetricValue = ({
 
   const formatSuffix = cond([
     [equals('ms'), always(' ms')],
-    [T, always(base1024 ? ' ib' : ' a')]
+    [T, always(base1024 ? ' ib' : 'a')]
   ])(unit);
 
-  const formattedMetricValue = numeral(Math.abs(value)).format(
-    `0.[00]${formatSuffix}`
+  console.log(
+    formatSuffix,
+    unit,
+    numeral(Math.abs(value)).format(`0.[00]${formatSuffix}`)
   );
 
-  console.log(formattedMetricValue);
+  const formattedMetricValue = numeral(Math.abs(value))
+    .format(`0.[00]${formatSuffix}`)
+    .replace(/iB/g, unit);
 
   if (lt(value, 0)) {
     return `-${formattedMetricValue}`;
@@ -532,7 +536,7 @@ const formatMetricValueWithUnit = ({
   }
 
   if (equals('%', unit)) {
-    return `${value}%`;
+    return `${value.toFixed(2)}%`;
   }
 
   const formattedMetricValue = formatMetricValue({ base, unit, value });
