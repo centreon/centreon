@@ -113,7 +113,7 @@ jobs:
               ENV="development"
               ;;
           esac
-          echo "stability=$STABILITY" >> $GITHUB_OUTPUT
+          echo "stability=unstable" >> $GITHUB_OUTPUT
           echo "env=$MAJOR-$ENV" >> $GITHUB_OUTPUT
 
           DOCKERIZE_MATRIX='["alma9"]'
