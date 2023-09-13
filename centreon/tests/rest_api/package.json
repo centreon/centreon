@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "newman": "^5.3.2",
-    "newman-reporter-htmlextra": "./newman-reporter-htmlextra",
+    "newman-reporter-htmlextra": "^1.22.11",
     "newman-reporter-text": "^0.0.31",
     "wait-on": "^7.0.1"
   }
