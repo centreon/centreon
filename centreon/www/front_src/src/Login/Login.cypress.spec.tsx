@@ -461,7 +461,9 @@ describe('Custom login page with data', () => {
     cy.get('#loginHeader').children().should('have.length', 2);
     cy.findByText('Gendarmerie de la Haute-Garonne').should('be.visible');
     cy.get('#Previewtop').should('not.exist');
-    cy.get('#Previewbottom').should('be.visible').contains('centreon');
+    cy.findByLabelText('Previewbottom')
+      .should('be.visible')
+      .contains('centreon');
 
     cy.makeSnapshot();
   });
