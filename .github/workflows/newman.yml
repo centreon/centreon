@@ -46,13 +46,14 @@ jobs:
           npx wait-on http://localhost:4000/ --timeout 100000
         timeout-minutes: 5
 
-      - name: List Files in Collection Directory
+      - name: Show Current Working Directory
         run: |
-          ls -la centreon/tests/rest_api/collections
+          pwd
+          
       - name: Run Postman Tests and Generate HTML Report
         run: |
-          environment_path="/collections/Environment-for-Refactored-API-Test-Collection.json"
-          collection_path="/collections"
+          environment_path="centreon/tests/rest_api/collections/Environment-for-Refactored-API-Test-Collection.json"
+          collection_path="centreon/tests/rest_api/collections"
 
           # Create a directory to store HTML reports
           mkdir -p newman
