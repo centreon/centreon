@@ -24,8 +24,9 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
-      - name: Install Newman and Reporter
-        run: pnpm install --no-frozen-lockfile --prefix centreon/tests/rest_api
+     - name: Install Dependencies
+       run: pnpm install --no-frozen-lockfile
+       working-directory: centreon/tests/rest_api
       
       - name: Login to registry
         uses: docker/login-action@v2
@@ -36,9 +37,6 @@ jobs:
 
       - name: Start Centreon Web Container
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
-
-      - name: Install wait-on
-        run: pnpm install wait-on --prefix centreon/tests/rest_api
 
       - name: Wait for Centreon Web Container to Start
         run: |
