@@ -147,7 +147,7 @@ describe('Single metric Widget', () => {
     cy.makeSnapshot();
   });
 
-  describe.only('Text', () => {
+  describe('Text', () => {
     it('displays the metric value as success and thresholds when thresholds are enabled', () => {
       initializeComponent({
         options: {
@@ -298,7 +298,7 @@ describe('Single metric Widget', () => {
       cy.makeSnapshot();
     });
 
-    it('displays the metric value as success when thresholds are disabled', () => {
+    it('displays the metric value with the default color when thresholds are disabled', () => {
       initializeComponent({
         options: {
           singleMetricGraphType: 'bar',
@@ -348,6 +348,34 @@ describe('Single metric Widget', () => {
 
       cy.makeSnapshot();
     });
+
+    it('display the metric value as human readable', () => {
+      initializeComponent({
+        data: diskUsedMetric,
+        fixture: 'Widgets/Graph/chartWithBytes.json',
+        options: {
+          singleMetricGraphType: 'bar',
+          threshold: defaultThreshold,
+          valueFormat: 'human'
+        }
+      });
+
+      cy.contains('332.06 KiB').should('be.visible');
+    });
+
+    it('display the metric value as raw', () => {
+      initializeComponent({
+        data: diskUsedMetric,
+        fixture: 'Widgets/Graph/chartWithBytes.json',
+        options: {
+          singleMetricGraphType: 'bar',
+          threshold: defaultThreshold,
+          valueFormat: 'raw'
+        }
+      });
+
+      cy.contains('340032.4232 B').should('be.visible');
+    });
   });
 
   describe('Gauge', () => {
@@ -359,32 +387,32 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('34 %').should('have.css', 'fill', 'rgb(136, 185, 34)');
+      cy.contains('34%').should('have.css', 'fill', 'rgb(136, 185, 34)');
       cy.findByTestId('34-arc').should('have.attr', 'fill', '#88B922');
 
       cy.findAllByTestId('5-arc').should('have.length', 2);
 
       cy.findAllByTestId('5-arc').eq(0).trigger('mouseover');
       cy.contains(
-        'Warning threshold: 65 %. Value defined by the {{metric}} metric'
+        'Warning threshold: 65%. Value defined by the {{metric}} metric'
       ).should('be.visible');
       cy.contains(
-        'Warning threshold: 70 %. Value defined by the {{metric}} metric'
+        'Warning threshold: 70%. Value defined by the {{metric}} metric'
       ).should('be.visible');
       cy.findAllByTestId('5-arc').eq(0).trigger('mouseleave');
 
       cy.findAllByTestId('5-arc').eq(1).trigger('mouseover');
       cy.contains(
-        'Critical threshold: 85 %. Value defined by the {{metric}} metric'
+        'Critical threshold: 85%. Value defined by the {{metric}} metric'
       ).should('be.visible');
       cy.contains(
-        'Critical threshold: 90 %. Value defined by the {{metric}} metric'
+        'Critical threshold: 90%. Value defined by the {{metric}} metric'
       ).should('be.visible');
 
       cy.makeSnapshot();
     });
 
-    it('displays the metric value as success when thresholds are disabled', () => {
+    it('displays the metric value with the default color when thresholds are disabled', () => {
       initializeComponent({
         options: {
           singleMetricGraphType: 'gauge',
@@ -392,8 +420,8 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('34 %').should('have.css', 'fill', 'rgb(136, 185, 34)');
-      cy.findByTestId('34-arc').should('have.attr', 'fill', '#88B922');
+      cy.contains('34%').should('have.css', 'fill', 'rgb(46, 104, 170)');
+      cy.findByTestId('34-arc').should('have.attr', 'fill', '#2E68AA');
 
       cy.findAllByTestId('5-arc').should('not.exist');
 
@@ -408,7 +436,7 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('34 %').should('have.css', 'fill', 'rgb(253, 155, 39)');
+      cy.contains('34%').should('have.css', 'fill', 'rgb(253, 155, 39)');
       cy.findByTestId('34-arc').should('have.attr', 'fill', '#FD9B27');
 
       cy.makeSnapshot();
@@ -422,13 +450,41 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('34 %').should('have.css', 'fill', 'rgb(255, 74, 74)');
+      cy.contains('34%').should('have.css', 'fill', 'rgb(255, 74, 74)');
       cy.findAllByTestId('34-arc').eq(1).should('have.attr', 'fill', '#FF4A4A');
 
       cy.findByTestId('24-arc').should('have.attr', 'fill', '#FD9B27');
       cy.findByTestId('14-arc').should('have.attr', 'fill', '#FF4A4A');
 
       cy.makeSnapshot();
+    });
+
+    it('display the metric value as human readable', () => {
+      initializeComponent({
+        data: diskUsedMetric,
+        fixture: 'Widgets/Graph/chartWithBytes.json',
+        options: {
+          singleMetricGraphType: 'gauge',
+          threshold: defaultThreshold,
+          valueFormat: 'human'
+        }
+      });
+
+      cy.contains('332.06 KiB').should('be.visible');
+    });
+
+    it('display the metric value as raw', () => {
+      initializeComponent({
+        data: diskUsedMetric,
+        fixture: 'Widgets/Graph/chartWithBytes.json',
+        options: {
+          singleMetricGraphType: 'gauge',
+          threshold: defaultThreshold,
+          valueFormat: 'raw'
+        }
+      });
+
+      cy.contains('340032.4232 B').should('be.visible');
     });
   });
 });
