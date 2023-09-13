@@ -1,0 +1,8 @@
+{
+    "devDependencies": {
+        "newman": "^5.0.0",
+        "newman-reporter-htmlextra": "^1.0.0",
+        "newman-reporter-text": "^1.0.0",
+        "wait-on": "^4.0.3"
+    }
+}
