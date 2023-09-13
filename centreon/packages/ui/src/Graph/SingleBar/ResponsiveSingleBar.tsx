@@ -84,8 +84,7 @@ const ResponsiveSingleBar = ({
 
   const textStyle = isSmall
     ? {
-        ...theme.typography.body1,
-        fontWeight: theme.typography.fontWeightBold
+        ...theme.typography.h6
       }
     : theme.typography.h3;
 
@@ -98,7 +97,7 @@ const ResponsiveSingleBar = ({
       }}
       textAnchor="middle"
       x="50%"
-      y={isSmall ? 47 : 25}
+      y={isSmall ? 51 : 25}
     >
       {formatMetricValueWithUnit({
         base: 1000,

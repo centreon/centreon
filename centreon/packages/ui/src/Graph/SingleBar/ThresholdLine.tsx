@@ -10,7 +10,10 @@ export const barHeights = {
 };
 export const margin = 40;
 
-const lineMargin = 10;
+const lineMargins = {
+  medium: 10,
+  small: 5
+};
 
 interface Props {
   hideTooltip: () => void;
@@ -35,7 +38,13 @@ export const ThresholdLine = ({
 
   const scaledValue = xScale(value) || 0;
 
+  const lineMargin = lineMargins[size];
+
   const thresholdLineHeight = barHeights[size] + 2 * lineMargin;
+
+  const isSmall = equals(size, 'small');
+
+  const lineMarginFromSize = isSmall ? 20 : 0;
 
   const bottom = barHeights[size] + margin * 2;
 
@@ -55,12 +64,17 @@ export const ThresholdLine = ({
       <line
         data-testid={`${thresholdType}-line-${value}`}
         stroke={lineColor}
-        strokeDasharray={4}
+        strokeDasharray="11, 4"
         strokeWidth={2}
         x1={scaledValue}
         x2={scaledValue}
-        y1={groupMargin + 3 * lineMargin}
-        y2={thresholdLineHeight + groupMargin + 3 * lineMargin}
+        y1={groupMargin + 3 * lineMargin + lineMarginFromSize}
+        y2={
+          thresholdLineHeight +
+          groupMargin +
+          3 * lineMargin +
+          lineMarginFromSize
+        }
       />
       <line
         data-testid={`${thresholdType}-line-${value}-tooltip`}
@@ -68,8 +82,13 @@ export const ThresholdLine = ({
         strokeWidth={5}
         x1={scaledValue}
         x2={scaledValue}
-        y1={groupMargin + 3 * lineMargin}
-        y2={thresholdLineHeight + groupMargin + 3 * lineMargin}
+        y1={groupMargin + 3 * lineMargin + lineMarginFromSize}
+        y2={
+          thresholdLineHeight +
+          groupMargin +
+          3 * lineMargin +
+          lineMarginFromSize
+        }
         onMouseEnter={onMouseEnter(scaledValue)}
         onMouseLeave={hideTooltip}
       />

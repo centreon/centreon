@@ -183,7 +183,6 @@ export const RawValue: Story = {
 export const Small: Story = {
   args: {
     data: dataLastWeek,
-    displayAsRaw: true,
     size: 'small',
     thresholds: {
       critical: [
