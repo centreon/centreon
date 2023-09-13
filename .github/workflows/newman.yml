@@ -9,6 +9,7 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: centreon/tests/rest_api
 
     env:
       CONTAINER_NAME: my_centreon_container
@@ -35,8 +36,7 @@ jobs:
         run: npm install pnpm -g
 
       - name: Install Dependencies
-        run: pnpm install --no-frozen-lockfile --prefix ./centreon/tests/rest_api/package.json
-        
+        run: pnpm install  -f ./centreon/tests/rest_api/package.json
 
       - name: Start Centreon Web Container
         run: docker run --name $CONTAINER_NAME -d -p 4000:80 --health-cmd="curl -f $CENTREON_URL/ || exit 1" --health-interval=5s $CENTREON_IMAGE
@@ -45,11 +45,18 @@ jobs:
         run: |
           npx wait-on http://localhost:4000/ --timeout 100000
         timeout-minutes: 5
-  
+      
+      - name: List contents of node_modules
+        run: |
+          ls -lR node_modules
+          
+      - name: Install newman-reporter-htmlextra globally
+        run: npm install -g newman-reporter-htmlextra
+
       - name: Run Postman Tests and Generate HTML Report
-        run: |  
-          environment_path="centreon/tests/rest_api/collections/Environment-for-Refactored-API-Test-Collection.json"
-          collection_path="centreon/tests/rest_api/collections"
+        run: |
+          environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
+          collection_path="collections"
 
           # Create a directory to store HTML reports
           mkdir -p newman
