@@ -43,7 +43,7 @@ jobs:
 
       - name: Wait for Centreon Web Container to Start
         run: |
-            ./centreon/tests/rest_api/node_modules/.bin/wait-on http://localhost:4000/ --timeout 100000
+          npx wait-on http://localhost:4000/ --timeout 100000
         timeout-minutes: 5
 
       - name: Run Postman Tests and Generate HTML Report
