@@ -38,9 +38,25 @@ class TokenException extends \Exception
     /**
      * @return self
      */
+    public static function deleteToken(): self
+    {
+        return new self(_('Error while deleting a token'));
+    }
+
+    /**
+     * @return self
+     */
     public static function addNotAllowed(): self
     {
         return new self(_('You are not allowed to add tokens'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete tokens'));
     }
 
     /**
@@ -97,6 +113,19 @@ class TokenException extends \Exception
     {
         return new self(
             sprintf(_('You are not allowed to add tokens linked to user ID %d'), $userId),
+            self::CODE_CONFLICT
+        );
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @return self
+     */
+    public static function notAllowedToDeleteTokenForUser(int $userId): self
+    {
+        return new self(
+            sprintf(_('You are not allowed to delete tokens linked to user ID %d'), $userId),
             self::CODE_CONFLICT
         );
     }
