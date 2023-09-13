@@ -9,8 +9,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: centreon/tests/rest_api
-        
+                
     env:
       CONTAINER_NAME: my_centreon_container
       CENTREON_URL: http://localhost
@@ -66,7 +65,6 @@ jobs:
             # Run Newman with the current collection file and generate an HTML report
             pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"  || true
           done
-        working-directory: centreon/tests/rest_api  
 
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
