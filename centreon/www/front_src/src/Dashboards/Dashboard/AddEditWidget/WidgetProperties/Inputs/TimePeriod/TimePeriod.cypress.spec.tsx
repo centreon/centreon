@@ -41,7 +41,7 @@ describe('Time Period', () => {
     cy.contains(labelTimePeriod).should('be.visible');
     cy.findByTestId(labelTimePeriod).should('have.value', '1');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   options.slice(1).forEach(({ id, name }) => {
@@ -52,7 +52,7 @@ describe('Time Period', () => {
 
       cy.findByTestId(labelTimePeriod).should('have.value', `${id}`);
 
-      cy.matchImageSnapshot();
+      cy.makeSnapshot();
     });
   });
 

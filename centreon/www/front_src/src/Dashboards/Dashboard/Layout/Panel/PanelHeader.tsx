@@ -57,7 +57,7 @@ const PanelHeader = ({ id }: PanelHeaderProps): JSX.Element => {
   };
 
   const panel = useMemo(
-    () => dashboard.layout.find((panel) => equals(panel.i, id)),
+    () => dashboard.layout.find((dashbordPanel) => equals(dashbordPanel.i, id)),
     useDeepCompare([dashboard.layout])
   );
 

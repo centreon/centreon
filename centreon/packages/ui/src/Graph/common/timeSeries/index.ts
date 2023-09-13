@@ -502,12 +502,6 @@ const formatMetricValue = ({
     [T, always(base1024 ? ' ib' : 'a')]
   ])(unit);
 
-  console.log(
-    formatSuffix,
-    unit,
-    numeral(Math.abs(value)).format(`0.[00]${formatSuffix}`)
-  );
-
   const formattedMetricValue = numeral(Math.abs(value))
     .format(`0.[00]${formatSuffix}`)
     .replace(/iB/g, unit);
@@ -536,7 +530,7 @@ const formatMetricValueWithUnit = ({
   }
 
   if (equals('%', unit)) {
-    return `${value.toFixed(2)}%`;
+    return `${numeral(Math.abs(value)).format('0.[00]')}%`;
   }
 
   const formattedMetricValue = formatMetricValue({ base, unit, value });

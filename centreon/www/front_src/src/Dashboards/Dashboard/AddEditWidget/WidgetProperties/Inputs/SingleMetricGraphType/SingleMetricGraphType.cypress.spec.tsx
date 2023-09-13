@@ -39,7 +39,7 @@ describe('Single metric graph type', () => {
     cy.get('[data-type="gauge"]').should('have.attr', 'data-selected', 'false');
     cy.get('[data-type="bar"]').should('have.attr', 'data-selected', 'false');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 
   it('marks the gauge option as selected when clicked', () => {
@@ -49,7 +49,7 @@ describe('Single metric graph type', () => {
     cy.get('[data-type="gauge"]').should('have.attr', 'data-selected', 'true');
     cy.get('[data-type="bar"]').should('have.attr', 'data-selected', 'false');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
 
@@ -69,6 +69,6 @@ describe('Disabled Graph type', () => {
     cy.get('[data-type="gauge"]').should('have.attr', 'data-disabled', 'true');
     cy.get('[data-type="bar"]').should('have.attr', 'data-disabled', 'true');
 
-    cy.matchImageSnapshot();
+    cy.makeSnapshot();
   });
 });
