@@ -337,7 +337,7 @@ function set_mariadb_repos() {
 
 	case "$detected_os_release" in
 	debian-release*)
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=debian --os-version=11 --mariadb-server-version="mariadb-10.5"
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not install the repository"
 		else
@@ -346,7 +346,7 @@ function set_mariadb_repos() {
 		rm -f /etc/apt/sources.list.d/mariadb.list.old_*  > /dev/null 2>&1
 		;;
 	*)
-		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version="mariadb-10.5"
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="mariadb-10.5"
 		if [ $? -ne 0 ]; then
 			error_and_exit "Could not install the repository"
 		else
@@ -475,9 +475,14 @@ function set_required_prerequisite() {
 	debian-release*)
 		case "$detected_os_version" in
 		11)
+			if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.40" ]]; then
+				error_and_exit "For Debian, only Centreon versions >= 22.04 are compatible. You chose $version"
+			fi
+
 			log "INFO" "Setting specific part for Debian"
 			PKG_MGR="apt -qq"
-			${PKG_MGR} update && ${PKG_MGR} install lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2
+			OS_SPEC_SERVICES="php8.1-fpm apache2"
+			${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
 
 			# Add Centreon repositories
 			set_centreon_repos
@@ -1055,17 +1060,24 @@ function install_central() {
 
 	log "INFO" "Centreon [$topology] installation from [${CENTREON_REPO}]"
 
-	# install core Centreon packages from enabled repo
-	$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y centreon --enablerepo="$CENTREON_REPO"
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		$PKG_MGR install -y --no-install-recommends centreon
 
-	if [ $? -ne 0 ]; then
-		error_and_exit "Could not install Centreon (package centreon)"
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not install Centreon (package centreon)"
+		fi
+	else
+		# install core Centreon packages from enabled repo
+		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y centreon --enablerepo="$CENTREON_REPO"
+
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not install Centreon (package centreon)"
+		fi
 	fi
 
 	#
 	# PHP
 	#
-
 	log "INFO" "PHP configuration"
 	timezone=$($PHP_BIN -r '
 		$timezoneName = timezone_name_from_abbr(trim(shell_exec("date \"+%Z\"")));
@@ -1077,7 +1089,11 @@ function install_central() {
 		}
 		echo $timezoneName;
 	' 2>/dev/null)
-	echo "date.timezone = $timezone" >> $PHP_ETC/50-centreon.ini
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		echo "date.timezone = $timezone" >> /etc/php/8.1/mods-available/centreon.ini
+	else
+		echo "date.timezone = $timezone" >> $PHP_ETC/50-centreon.ini
+	fi
 
 	log "INFO" "PHP date.timezone set to [$timezone]"
 
@@ -1090,9 +1106,18 @@ function install_central() {
 #
 function install_poller() {
 	log "INFO" "Poller installation from ${CENTREON_REPO}"
-	$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y centreon-poller-centreon-engine --enablerepo=$CENTREON_REPO
-	if [ $? -ne 0 ]; then
-		error_and_exit "Could not install Centreon (package centreon)"
+
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		$PKG_MGR install -y --no-install-recommends centreon-poller
+
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not install Centreon (package centreon)"
+		fi
+	else
+		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y centreon-poller-centreon-engine --enablerepo=$CENTREON_REPO
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not install Centreon (package centreon)"
+		fi
 	fi
 }
 #========= end of function install_poller()
@@ -1130,18 +1155,20 @@ function update_after_installation() {
 
 	enable_new_services
 
-	# install Centreon SELinux packages first (as getenforce is still at 0)
-	$PKG_MGR -q install -y ${CENTREON_SELINUX_PACKAGES[@]} --enablerepo="$CENTREON_REPO"
-	if [ $? -ne 0 ]; then
-		log "ERROR" "Could not install Centreon SELinux packages"
-	else
-		log "INFO" "Centreon SELinux rules are installed. Please consult the documentation https://docs.centreon.com/docs/administration/secure-platform for more details."
+	if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		# install Centreon SELinux packages first (as getenforce is still at 0)
+		$PKG_MGR -q install -y ${CENTREON_SELINUX_PACKAGES[@]} --enablerepo="$CENTREON_REPO"
+		if [ $? -ne 0 ]; then
+			log "ERROR" "Could not install Centreon SELinux packages"
+		else
+			log "INFO" "Centreon SELinux rules are installed. Please consult the documentation https://docs.centreon.com/docs/administration/secure-platform for more details."
+		fi
+
+		#then change the SELinux mode
+		set_runtime_selinux_mode $selinux_mode
+
+		set_selinux_config $selinux_mode
 	fi
-
-	#then change the SELinux mode
-	set_runtime_selinux_mode $selinux_mode
-
-	set_selinux_config $selinux_mode
 }
 #========= end of function update_after_installation()
 
@@ -1241,9 +1268,11 @@ is_systemd_present
 case $operation in
 
 install)
-	setup_before_installation
-	case $topology in
+	if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		setup_before_installation
+	fi
 
+	case $topology in
 	central)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux centreon-gorgoned-selinux centreon-plugins-selinux)
 		install_central
