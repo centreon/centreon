@@ -28,6 +28,7 @@ jobs:
         working-directory: centreon/tests/rest_api
         run: |
           pnpm install --no-frozen-lockfile          
+          pnpm install @pnpm/lockfile-file --save-dev
           git add pnpm-lock.yaml
           git commit -m "Update pnpm lockfile"
      
