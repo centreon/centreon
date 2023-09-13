@@ -9,9 +9,9 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: centreon/tests/rest_api
-
+        
     env:
+      working-directory: centreon/tests/rest_api
       CONTAINER_NAME: my_centreon_container
       CENTREON_URL: http://localhost
       CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
@@ -34,6 +34,8 @@ jobs:
       
       - name: Install pnpm
         run: npm install pnpm -g
+      - name: Install newman-reporter-htmlextra locally
+        run: npm install -g newman-reporter-htmlextra 
 
       - name: Install Dependencies
         run: pnpm install -f ./centreon/tests/rest_api/package.json
@@ -50,9 +52,6 @@ jobs:
         run: |
           ls -lR node_modules
           
-      - name: Install newman-reporter-htmlextra locally
-        run: pnpm install newman-reporter-htmlextra -D -f ./centreon/tests/rest_api/package.json
-
       - name: Run Postman Tests and Generate HTML Report
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
