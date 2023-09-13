@@ -21,30 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Notification\Application\UseCase\FindNotifications;
+namespace Tests\Core\Notification\Application\UseCase\FindNotifiableRule;
 
-class NotificationCounts
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Notification\Application\UseCase\FindNotifiableRule\FindNotifiableRulePresenterInterface;
+use Core\Notification\Application\UseCase\FindNotifiableRule\FindNotifiableRuleResponse;
+
+class FindNotifiableRulePresenterStub implements FindNotifiableRulePresenterInterface
 {
-    /**
-     * @param array<int,int> $notificationsUsersCount
-     * @param array<string, array<int,int>> $resourcesCount
-     */
-    public function __construct(
-        private readonly array $notificationsUsersCount,
-        private readonly array $resourcesCount,
-    ) {
-    }
+    public FindNotifiableRuleResponse|ResponseStatusInterface $data;
 
-    public function getUsersCountByNotificationId(int $notificationId): int
+    public function presentResponse(FindNotifiableRuleResponse|ResponseStatusInterface $data): void
     {
-        return $this->notificationsUsersCount[$notificationId] ?? 0;
-    }
-
-    /**
-     * @return array<string, array<int,int>>
-     */
-    public function getResourcesCount(): array
-    {
-        return $this->resourcesCount;
+        $this->data = $data;
     }
 }
