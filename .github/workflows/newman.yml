@@ -36,9 +36,17 @@ jobs:
         run: |
           pnpm install --no-frozen-lockfile -C centreon/tests/rest_api
           pnpm install @pnpm/lockfile-file --save-dev -C centreon/tests/rest_api
-          git add pnpm-lock.yaml
-          git commit -m "Update pnpm lockfile"
      
+      - name: Set Git Identity
+        run: |
+         git config --global user.email "wchaabane@centreon.com"
+         git config --global user.name "MedWassCh"
+
+      - name: Commit Changes
+       run: |
+         git add pnpm-lock.yaml
+         git commit -m "Update pnpm lockfile"
+
       - name: Login to registry
         uses: docker/login-action@v2
         with:
