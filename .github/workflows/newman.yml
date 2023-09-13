@@ -9,9 +9,9 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: centreon/tests/rest_api
         
     env:
-      working-directory: centreon/tests/rest_api
       CONTAINER_NAME: my_centreon_container
       CENTREON_URL: http://localhost
       CENTREON_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:develop
@@ -51,7 +51,7 @@ jobs:
       - name: List contents of node_modules
         run: |
           ls -lR node_modules
-          
+
       - name: Run Postman Tests and Generate HTML Report
         run: |
           environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
