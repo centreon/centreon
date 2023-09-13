@@ -43,7 +43,7 @@ jobs:
          git config --global user.name "MedWassCh"
 
       - name: Commit Changes
-       run: |
+        run: |
          git add pnpm-lock.yaml
          git commit -m "Update pnpm lockfile"
 
