@@ -6,6 +6,10 @@ on:
 jobs:
   postman_tests:
     runs-on: ubuntu-latest
+   defaults:
+      run:
+        shell: bash
+        working-directory: centreon/tests/rest_api
 
     env:
       CONTAINER_NAME: my_centreon_container
@@ -25,7 +29,6 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install Dependencies
-        working-directory: centreon/tests/rest_api
         run: |
           pnpm install --no-frozen-lockfile          
           pnpm install @pnpm/lockfile-file --save-dev
