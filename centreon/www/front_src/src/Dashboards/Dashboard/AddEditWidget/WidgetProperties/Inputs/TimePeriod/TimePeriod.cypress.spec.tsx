@@ -6,11 +6,16 @@ import {
   labelStart,
   labelTimePeriod
 } from '../../../../translatedLabels';
+import { editProperties } from '../../../../useCanEditDashboard';
 
 import TimePeriod from './TimePeriod';
 import { options } from './useTimePeriod';
 
 const initializeComponent = (): void => {
+  cy.stub(editProperties, 'useCanEditProperties').returns({
+    canEdit: true,
+    canEditField: true
+  });
   cy.clock(new Date(2023, 5, 5, 8, 0, 0).getTime());
   cy.mount({
     Component: (
