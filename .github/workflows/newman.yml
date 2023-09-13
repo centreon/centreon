@@ -42,7 +42,7 @@ jobs:
 
       - name: Wait for Centreon Web Container to Start
         run: |
-          ./centreon/tests/rest_api/node_modules/.bin/wait-on http://localhost:4000/ --timeout 100000
+            ./centreon/tests/rest_api/node_modules/.bin/wait-on http://localhost:4000/ --timeout 100000
 
         timeout-minutes: 5
 
@@ -54,16 +54,13 @@ jobs:
           # Create a directory to store HTML reports
           mkdir -p newman
 
-          # Specify the path to the locally installed Newman binary
-          newman_path="./centreon/tests/rest_api/node_modules/.bin/newman"
-
           # Iterate over each Postman collection file in the specified directory
           for collection_file in "$collection_path"/*.postman_collection.json; do
             # Extract the collection name from the file name
             collection_name=$(basename "$collection_file" .postman_collection.json)
 
             # Run Newman with the current collection file and generate an HTML report
-            "$newman_path" run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"  || true
+            newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"  || true
           done
 
       - name: Upload HTML Reports
