@@ -56,10 +56,12 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $this->info('Get a notification configuration with ID #' . $notificationId);
 
         $request = $this->translateDbName(
-            'SELECT id, name, timeperiod_id, tp_name, is_activated
-            FROM `:db`.notification
-            INNER JOIN timeperiod ON timeperiod_id = tp_id
-            WHERE id = :notificationId'
+            <<<'SQL'
+                SELECT id, name, timeperiod_id, tp_name, is_activated
+                FROM `:db`.notification
+                INNER JOIN timeperiod ON timeperiod_id = tp_id
+                WHERE id = :notificationId
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
@@ -86,12 +88,16 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
      */
     public function findByName(TrimmedString $notificationName): ?Notification
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            'SELECT id, name, timeperiod_id, tp_name, is_activated
-            FROM `:db`.notification
-            INNER JOIN timeperiod ON timeperiod_id = tp_id
-            WHERE name = :notificationName'
-        ));
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT id, name, timeperiod_id, tp_name, is_activated
+                    FROM `:db`.notification
+                    INNER JOIN timeperiod ON timeperiod_id = tp_id
+                    WHERE name = :notificationName
+                    SQL
+            )
+        );
         $statement->bindValue(':notificationName', $notificationName, \PDO::PARAM_STR);
         $statement->execute();
 
@@ -119,9 +125,11 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $this->info('Get all notification messages for notification with ID #' . $notificationId);
 
         $request = $this->translateDbName(
-            'SELECT id, channel, subject, message, formatted_message
-            FROM `:db`.notification_message
-            WHERE notification_id = :notificationId'
+            <<<'SQL'
+                SELECT id, channel, subject, message, formatted_message
+                FROM `:db`.notification_message
+                WHERE notification_id = :notificationId
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
@@ -144,24 +152,82 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
-    public function findUsersByNotificationId(int $notificationId): array
-    {
+    public function findUsersByNotificationId(
+        int $notificationId,
+        bool $retrieveAlsoAllUsersOfContactGroups = false
+    ): array {
         $this->info('Get all notification users for notification with ID #' . $notificationId);
 
         $request = $this->translateDbName(
-            'SELECT notification_id, user_id, contact.contact_name
-            FROM `:db`.notification_user_relation
-            JOIN contact ON user_id = contact_id
-            WHERE notification_id = :notificationId'
+            <<<'SQL'
+                SELECT notification_id, user_id, contact.contact_name, contact.contact_email
+                FROM `:db`.notification_user_relation
+                JOIN contact ON user_id = contact_id
+                WHERE notification_id = :notificationId
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
         $users = [];
 
-        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
-            $users[] = new ConfigurationUser($result['user_id'], $result['contact_name']);
+        foreach ($statement as $result) {
+            /**
+             * @var array{
+             *     user_id: int,
+             *     contact_name: string,
+             *     contact_email: string
+             * } $result
+             */
+            $users[$result['user_id']] = new ConfigurationUser(
+                $result['user_id'],
+                $result['contact_name'],
+                $result['contact_email'],
+            );
+        }
+
+        return $users;
+    }
+
+    public function findUsersByContactGroupIds(int ...$contactGroupIds): array
+    {
+        if ([] === $contactGroupIds) {
+            return [];
+        }
+
+        $select = <<<'SQL'
+            SELECT DISTINCT c.contact_id, c.contact_name, c.contact_email
+            FROM `:db`.contactgroup_contact_relation cgcr
+            INNER JOIN `:db`.contactgroup cg ON cg.cg_id=cgcr.contactgroup_cg_id
+            INNER JOIN `:db`.contact c ON c.contact_id=cgcr.contact_contact_id
+            WHERE cg.cg_id IN (:contact_group_ids)
+            SQL;
+
+        $concatenator = (new SqlConcatenator())
+            ->defineSelect($select)
+            ->storeBindValueMultiple(':contact_group_ids', array_values($contactGroupIds), \PDO::PARAM_INT);
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        $users = [];
+
+        foreach ($statement as $result) {
+            /**
+             * @var array{
+             *     contact_id: int,
+             *     contact_name: string,
+             *     contact_email: string
+             * } $result
+             */
+            $users[$result['contact_id']] = new ConfigurationUser(
+                $result['contact_id'],
+                $result['contact_name'],
+                $result['contact_email'],
+            );
         }
 
         return $users;
@@ -173,10 +239,12 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findContactGroupsByNotificationId(int $notificationId): array
     {
         $request = $this->translateDbName(
-            'SELECT notification_id, contactgroup_id, contactgroup.cg_name
-            FROM `:db`.notification_contactgroup_relation
-            JOIN `:db`.contactgroup ON cg_id = contactgroup_id
-            WHERE notification_id = :notificationId'
+            <<<'SQL'
+                SELECT notification_id, contactgroup_id, contactgroup.cg_name
+                FROM `:db`.notification_contactgroup_relation
+                JOIN `:db`.contactgroup ON cg_id = contactgroup_id
+                WHERE notification_id = :notificationId
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
@@ -201,8 +269,9 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
             $bindValues[':notification_' . $notificationId] = $notificationId;
         }
         $bindToken = implode(', ', array_keys($bindValues));
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<SQL
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<SQL
                     SELECT notification_id, count(user) FROM (
                         SELECT rel.notification_id, user_id as user
                         FROM notification_user_relation rel
@@ -212,8 +281,9 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                         FROM notification_contactgroup_relation cg_rel
                         WHERE cg_rel.notification_id IN ({$bindToken})
                     ) as subquery GROUP BY notification_id;
-                SQL
-        ));
+                    SQL
+            )
+        );
         foreach ($bindValues as $token => $notificationId) {
             $statement->bindValue($token, $notificationId, \PDO::PARAM_INT);
         }
@@ -229,8 +299,9 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
      */
     public function findContactGroupsByNotificationIdAndUserId(int $notificationId, int $userId): array
     {
-        $statement = $this->db->prepare($this->translateDbName(
-            <<<'SQL'
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
                     SELECT cg_id,cg_name FROM contactgroup cg
                     INNER JOIN contactgroup_contact_relation ccr
                         ON ccr.contactgroup_cg_id = cg.cg_id
@@ -239,8 +310,9 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
                     WHERE ccr.contact_contact_id = :userId
                     AND ncr.notification_id = :notificationId
                     AND cg_activate = '1';
-                SQL
-        ));
+                    SQL
+            )
+        );
         $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
         $statement->bindValue(':notificationId', $notificationId, \PDO::PARAM_INT);
         $statement->execute();
@@ -289,11 +361,9 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findAll(?RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
-        if ($sqlTranslator !== null) {
-            $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
-                RequestParameters::CONCORDANCE_MODE_STRICT
-            );
-        }
+        $sqlTranslator?->getRequestParameters()->setConcordanceStrictMode(
+            RequestParameters::CONCORDANCE_MODE_STRICT
+        );
         $query = $this->buildFindAllQuery($sqlTranslator);
 
         $statement = $this->db->prepare($query);
@@ -303,7 +373,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         // Pagination
         $resultCount = $this->db->query('SELECT FOUND_ROWS()');
         if ($resultCount !== false && ($total = $resultCount->fetchColumn()) !== false) {
-            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+            $sqlTranslator?->getRequestParameters()->setTotal((int) $total);
         }
 
         $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
@@ -329,17 +399,17 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
                 <<<'SQL'
-                        SELECT notification_id, channel
+                    SELECT notification_id, channel
                     SQL
             )->defineFrom(
                 <<<'SQL'
-                        FROM `:db`.notification_message
+                    FROM `:db`.notification_message
                     SQL
             )
             ->storeBindValueMultiple(':notification_ids', $notificationIds, \PDO::PARAM_INT)
             ->defineWhere(
                 <<<'SQL'
-                        WHERE notification_id IN (:notification_ids)
+                    WHERE notification_id IN (:notification_ids)
                     SQL
             );
 
@@ -369,9 +439,9 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
 
         $query = $this->translateDbName(
             <<<'SQL'
-                    SELECT SQL_CALC_FOUND_ROWS id, name, timeperiod_id, tp_name, is_activated
-                    FROM `:db`.notification
-                    INNER JOIN timeperiod ON timeperiod_id = tp_id
+                SELECT SQL_CALC_FOUND_ROWS id, name, timeperiod_id, tp_name, is_activated
+                FROM `:db`.notification
+                INNER JOIN timeperiod ON timeperiod_id = tp_id
                 SQL
         );
 
