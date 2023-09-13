@@ -18136,9 +18136,6 @@ msgstr "Barre"
 msgid "The default value is the value defined for the first metric used"
 msgstr "La valeur par défaut est la valeur définie pour la première métrique utilisée"
 
-msgid "None"
-msgstr "Aucun"
-
 msgid "Value format"
 msgstr "Format de valeur"
 
