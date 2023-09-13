@@ -9,7 +9,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: centreon/tests/rest_api
 
     env:
       CONTAINER_NAME: my_centreon_container
@@ -49,14 +48,11 @@ jobs:
       - name: List contents of node_modules
         run: |
           ls -lR node_modules
-          
-      - name: Install newman-reporter-htmlextra globally
-        run: npm install -g newman-reporter-htmlextra@1.22.11
 
       - name: Run Postman Tests and Generate HTML Report
-        run: |
-          environment_path="collections/Environment-for-Refactored-API-Test-Collection.json"
-          collection_path="collections"
+        run: |  
+          environment_path="centreon/tests/rest_api/collections/Environment-for-Refactored-API-Test-Collection.json"
+          collection_path="centreon/tests/rest_api/collectionscollections"
 
           # Create a directory to store HTML reports
           mkdir -p newman
