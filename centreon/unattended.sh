@@ -475,7 +475,7 @@ function set_required_prerequisite() {
 	debian-release*)
 		case "$detected_os_version" in
 		11)
-			if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.40" ]]; then
+			if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" ]]; then
 				error_and_exit "For Debian, only Centreon versions >= 22.04 are compatible. You chose $version"
 			fi
 
@@ -484,16 +484,26 @@ function set_required_prerequisite() {
 			OS_SPEC_SERVICES="php8.1-fpm apache2"
 			${PKG_MGR} update && ${PKG_MGR} install -y lsb-release ca-certificates apt-transport-https software-properties-common wget gnupg2 curl
 
+			# Get CPU architecture type
+			VENDORID=$(lscpu | grep -e '^Vendor ID:' | cut -d ':' -f2 | tr -d '[:space:]')
+			ARCH=""
+			if [[ "$VENDORID" == "ARM" ]]; then
+				ARCH="[ arch=all,arm64 ]"
+			fi
+
 			# Add Centreon repositories
 			set_centreon_repos
 			IFS=', ' read -r -a array_apt <<<"$CENTREON_REPO"
 			for _repo in "${array_apt[@]}"; do
 				echo "deb https://packages.centreon.com/apt-standard-$_repo/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
+
+				SIMPLEREPO=$(echo $_repo | cut -d '-' -f2)
+				echo "deb $ARCH https://packages.centreon.com/apt-plugins-$SIMPLEREPO/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins-$SIMPLEREPO.list
 			done
-			echo "deb https://packages.centreon.com/apt-plugins-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins.list
 			wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
 
 			if [ "$topology" == "central" ]; then
+				# Add PHP repo
 				echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list
 				wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 				set_mariadb_repos
@@ -1127,9 +1137,13 @@ function install_poller() {
 #
 function update_centreon_packages() {
 	log "INFO" "Update Centreon packages using ${CENTREON_REPO}"
-	$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO
-	if [ $? -ne 0 ]; then
-		error_and_exit "Could not update Centreon"
+	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		$PKG_MGR upgrade centreon
+	else
+		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO
+		if [ $? -ne 0 ]; then
+			error_and_exit "Could not update Centreon"
+		fi
 	fi
 }
 #========= end of function update_centreon_packages()
