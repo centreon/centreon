@@ -12,7 +12,7 @@ const ParentResourceColumn = ({
 }: ComponentColumnProps): JSX.Element | null => {
   const { classes } = useColumnStyles({ isHovered });
 
-  const status = row?.parent.status.name;
+  const status = row?.parent?.status.name;
 
   if (!row.parent) {
     return null;
