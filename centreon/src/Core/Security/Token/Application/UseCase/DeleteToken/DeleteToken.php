@@ -67,9 +67,7 @@ final class DeleteToken
                 return;
             }
 
-            if ($userId === null) {
-                $userId = $this->user->getId();
-            }
+            $userId ??= $this->user->getId();
 
             if (! ($token = $this->readTokenRepository->findByNameAndUserId($tokenName, $userId))) {
                 $this->error(

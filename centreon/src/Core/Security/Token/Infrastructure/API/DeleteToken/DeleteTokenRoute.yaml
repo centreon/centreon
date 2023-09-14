@@ -2,15 +2,16 @@ DeleteTokenByUserId:
   methods: DELETE
   path: /administration/tokens/{tokenName}/users/{userId}
   requirements:
-    tokenName: '.*'
+    tokenName: '.+'
     userId: '\d+'
   controller: 'Core\Security\Token\Infrastructure\API\DeleteToken\DeleteTokenController'
   condition: "request.attributes.get('version') >= 23.10"
 
+# This is the same usecase as above but take the current user in place of {userId}
 DeleteToken:
   methods: DELETE
   path: /administration/tokens/{tokenName}
   requirements:
-    tokenName: '.*'
+    tokenName: '.+'
   controller: 'Core\Security\Token\Infrastructure\API\DeleteToken\DeleteTokenController'
   condition: "request.attributes.get('version') >= 23.10"
