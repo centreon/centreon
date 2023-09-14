@@ -69,7 +69,7 @@ jobs:
             pnpm newman run "$collection_file" -e "$environment_path" --reporters cli,htmlextra --reporter-htmlextra-title "$collection_name" --reporter-htmlextra-title "${collection_name// /_}" --reporter-htmlextra-export "newman/${collection_name}.html"  || true
           done
         working-directory: centreon/tests/rest_api  
-
+        
       - name: Upload HTML Reports
         uses: actions/upload-artifact@v2
         with:
