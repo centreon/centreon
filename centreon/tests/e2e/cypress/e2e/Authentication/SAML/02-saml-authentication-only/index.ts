@@ -21,6 +21,10 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
+    url: '/centreon/api/latest/configuration/users/current/parameters'
+  }).as('getUserParameters');
+  cy.intercept({
+    method: 'GET',
     url: '/centreon/api/latest/administration/authentication/providers/saml'
   }).as('getSAMLProvider');
   cy.intercept({
@@ -31,10 +35,6 @@ beforeEach(() => {
     method: 'PUT',
     url: '/centreon/api/latest/administration/authentication/providers/saml'
   }).as('updateSAMLProvider');
-  cy.intercept({
-    method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
-  }).as('postLocalAuthentification');
 });
 
 Given('an administrator is logged on the platform', () => {
@@ -78,6 +78,9 @@ Then(
 
       cy.loginKeycloak(username);
       cy.url().should('include', '/monitoring/resources');
+      cy.wait('@getUserParameters')
+        .its('response.statusCode')
+        .should('eq', 200);
     });
   }
 );

@@ -22,6 +22,10 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
+    url: '/centreon/api/latest/configuration/users/current/parameters'
+  }).as('getUserParameters');
+  cy.intercept({
+    method: 'GET',
     url: '/centreon/api/latest/administration/authentication/providers/saml'
   }).as('getSAMLProvider');
   cy.intercept({
@@ -85,6 +89,8 @@ Then(
       .wait('@postLocalAuthentification')
       .its('response.statusCode')
       .should('eq', 200);
+
+    cy.wait('@getUserParameters').its('response.statusCode').should('eq', 200);
 
     cy.logout();
   }

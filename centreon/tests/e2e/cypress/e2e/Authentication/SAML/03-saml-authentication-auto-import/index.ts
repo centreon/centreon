@@ -15,6 +15,10 @@ beforeEach(() => {
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
+    url: '/centreon/api/latest/configuration/users/current/parameters'
+  }).as('getUserParameters');
+  cy.intercept({
+    method: 'GET',
     url: '/centreon/api/latest/administration/authentication/providers/saml'
   }).as('getSAMLProvider');
   cy.intercept({
@@ -101,6 +105,9 @@ Then(
       cy.visit('/').getByLabel({ label: 'Login with SAML', tag: 'a' }).click();
       cy.loginKeycloak(username);
       cy.url().should('include', '/monitoring/resources');
+      cy.wait('@getUserParameters')
+        .its('response.statusCode')
+        .should('eq', 200);
 
       cy.logout();
       cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
