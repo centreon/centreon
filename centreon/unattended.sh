@@ -490,7 +490,7 @@ function set_required_prerequisite() {
 			if [[ "$VENDORID" == "ARM" ]]; then
 				ARCH="[ arch=all,arm64 ]"
 				if ! [[ "$version" == "23.10" || "$topology" == "poller" ]]; then
-					error_and_exit "For Debian on Raspberry, only Centreon (poller mode) 23.10 is compatible. You chose $version to install "$topology server"
+					error_and_exit "For Debian on Raspberry, only Centreon (poller mode) 23.10 is compatible. You chose $version to install $topology server"
 				fi
 			fi
 
