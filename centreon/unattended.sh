@@ -4,7 +4,7 @@
 OPTIONS="hst:v:r:l:p:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
-declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1)
+declare -A SUPPORTED_VERSION=([21.10]=1 [22.04]=1 [22.10]=1 [23.04]=1 [23.10]=1)
 declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
 default_timeout_in_sec=5
 script_short_name="$(basename $0)"
@@ -17,7 +17,7 @@ passwords_file=/etc/centreon/generated.tobesecured         #File where the gener
 tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as the /etc/centreon does not exist yet
 
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
-version=${ENV_CENTREON_VERSION:-"23.04"}        #Default version to be installed
+version=${ENV_CENTREON_VERSION:-"23.10"}        #Default version to be installed
 repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to used
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
 runtime_log_level=${ENV_LOG_LEVEL:-"INFO"}      #Default log level to be used
@@ -80,7 +80,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <23.04> (default: 23.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <23.10> (default: 23.10)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)]"
 	echo
 	echo Example:
 	echo
@@ -418,8 +418,8 @@ function set_required_prerequisite() {
 			;;
 
 		9*)
-			if [ "$version" != "23.04" ]; then
-				error_and_exit "Only Centreon 23.04 is compatible with EL9, you chose $version"
+			if ! [[ "$version" == "23.04" || "$version" == "23.10" ]]; then
+				error_and_exit "Only Centreon version >=23.04 is compatible with EL9, you chose $version"
 			fi
 
 			log "INFO" "Setting specific part for v9 ($detected_os_version)"
@@ -475,7 +475,7 @@ function set_required_prerequisite() {
 	debian-release*)
 		case "$detected_os_version" in
 		11)
-			if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" ]]; then
+			if ! [[ "$version" == "22.04" || "$version" == "22.10" || "$version" == "23.04" || "$version" == "23.10" ]]; then
 				error_and_exit "For Debian, only Centreon versions >= 22.04 are compatible. You chose $version"
 			fi
 
@@ -489,6 +489,9 @@ function set_required_prerequisite() {
 			ARCH=""
 			if [[ "$VENDORID" == "ARM" ]]; then
 				ARCH="[ arch=all,arm64 ]"
+				if ! [[ "$version" == "23.10" || "$topology" == "poller" ]]; then
+					error_and_exit "For Debian on Raspberry, only Centreon (poller mode) 23.10 is compatible. You chose $version to install "$topology server"
+				fi
 			fi
 
 			# Add Centreon repositories
