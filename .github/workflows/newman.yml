@@ -68,13 +68,12 @@ jobs:
           done
         working-directory: centreon/tests/rest_api  
 
-      - name: Upload HTML Reports
-        uses: actions/upload-artifact@v2
+      - name: Deploy HTML Reports
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: postman-html-reports
-          path: centreon/tests/rest_api/newman/
-        env:
-          NODE_VERSION: 16
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: centreon/tests/rest_api/newman/
+          keep_files: true
 
       - name: Continue to Next Collection
         if: ${{ always() }}
