@@ -71,7 +71,7 @@ jobs:
       - name: Consolidate HTML Reports
         run: |
           # Create an HTML summary template
-          cat << EOF > summary_template.html
+          cat <<EOF > summary_template.html
           <!DOCTYPE html>
           <html>
           <head>
