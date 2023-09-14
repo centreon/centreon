@@ -68,12 +68,36 @@ jobs:
           done
         working-directory: centreon/tests/rest_api  
 
-      - name: Deploy HTML Reports
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Consolidate HTML Reports
+        run: |
+          # Create an HTML summary template
+          cat << EOF > summary_template.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <!-- Your common CSS, styles, and headers -->
+          </head>
+          <body>
+              <h1>Postman Test Summary</h1>
+              <!-- Report placeholders will be inserted here -->
+          </body>
+          </html>
+          EOF
+
+          # Insert individual reports into the summary template
+          for report_file in newman/*.html; do
+              collection_name=$(basename "$report_file" .html)
+              sed -i "/<!-- Report placeholders will be inserted here -->/r $report_file" summary_template.html
+          done
+        working-directory: centreon/tests/rest_api
+
+      - name: Publish HTML Summary Report
+        uses: actions/upload-artifact@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: centreon/tests/rest_api/newman/
-          keep_files: true
+          name: postman-html-summary
+          path: centreon/tests/rest_api/summary_template.html
+        env:
+          NODE_VERSION: 16
 
       - name: Continue to Next Collection
         if: ${{ always() }}
