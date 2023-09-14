@@ -1,6 +1,6 @@
 import { FormikValues } from 'formik';
 
-import { SvgIconProps } from '@mui/material';
+import { SvgIconProps, TypographyProps } from '@mui/material';
 
 import { SelectEntry } from '../../InputField/Select';
 import { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
@@ -16,7 +16,9 @@ export enum InputType {
   MultiConnectedAutocomplete,
   FieldsTable,
   Grid,
-  Custom
+  Custom,
+  Checkbox,
+  CheckboxGroup
 }
 
 interface FieldsTableGetRequiredProps {
@@ -24,14 +26,22 @@ interface FieldsTableGetRequiredProps {
   values: FormikValues;
 }
 
+export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
+
 export interface InputProps {
-  additionalLabel?: string;
+  additionalLabel?: string | JSX.Element;
+  additionalLabelClassName?: string;
   additionalMemoProps?: Array<unknown>;
   autocomplete?: {
     creatable?: boolean;
     options: Array<SelectEntry>;
   };
   change?: ({ setFieldValue, value }) => void;
+  checkbox?: {
+    direction?: 'horizontal' | 'vertical';
+    labelPlacement?: LabelPlacement;
+    options?: Array<string>;
+  };
   connectedAutocomplete?: {
     additionalConditionParameters: Array<ConditionsSearchParameter>;
     endpoint?: string;
@@ -57,11 +67,13 @@ export interface InputProps {
   getRequired?: (values: FormikValues) => boolean;
   grid?: {
     alignItems?: string;
+    className?: string;
     columns: Array<Omit<InputProps, 'group'>>;
     gridTemplateColumns?: string;
   };
   group: string;
   hideInput?: (values: FormikValues) => boolean;
+  inputClassName?: string;
   label: string;
   radio?: {
     options?: Array<{
@@ -75,7 +87,9 @@ export interface InputProps {
     getChecked?: (value) => boolean;
   };
   text?: {
+    endAdornment?: JSX.Element;
     multilineRows?: number;
+    placeholder?: string;
     type?: string;
   };
   type: InputType;
@@ -90,4 +104,5 @@ export interface Group {
   TooltipContent?: () => JSX.Element;
   name: string;
   order: number;
+  titleAttributes?: TypographyProps;
 }

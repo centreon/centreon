@@ -12,6 +12,7 @@ import { platformInstallationStatusEndpoint } from '../api/endpoint';
 import { PlatformInstallationStatus } from '../api/models';
 import reactRoutes from '../reactRoutes/routeMap';
 import useFederatedModules from '../federatedModules/useFederatedModules';
+import useFederatedWidgets from '../federatedModules/useFederatedWidgets';
 
 import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
 import useUser, { areUserParametersLoadedAtom } from './useUser';
@@ -48,6 +49,7 @@ const useMain = (): void => {
   const [searchParameter] = useSearchParams();
   const { getPlatformVersions } = usePlatformVersions();
   useFederatedModules();
+  useFederatedWidgets();
 
   const displayAuthenticationError = (): void => {
     const authenticationError = searchParameter.get('authenticationError');
@@ -67,7 +69,10 @@ const useMain = (): void => {
     }).then((retrievedPlatformInstallationStatus) => {
       setPlatformInstallationStatus(retrievedPlatformInstallationStatus);
 
-      if (!retrievedPlatformInstallationStatus?.isInstalled) {
+      if (
+        !retrievedPlatformInstallationStatus?.isInstalled ||
+        retrievedPlatformInstallationStatus.hasUpgradeAvailable
+      ) {
         setAreUserParametersLoaded(false);
 
         return;

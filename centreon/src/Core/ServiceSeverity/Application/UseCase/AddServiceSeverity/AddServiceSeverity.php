@@ -37,8 +37,8 @@ use Core\Common\Domain\TrimmedString;
 use Core\ServiceSeverity\Application\Exception\ServiceSeverityException;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceSeverity\Application\Repository\WriteServiceSeverityRepositoryInterface;
-use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
 use Core\ServiceSeverity\Domain\Model\NewServiceSeverity;
+use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
 use Core\ServiceSeverity\Infrastructure\API\AddServiceSeverity\AddServiceSeverityPresenter;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 

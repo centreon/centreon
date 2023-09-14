@@ -6,6 +6,8 @@ concurrency:
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'
   pull_request:
     paths:
       - "centreon/**"
@@ -24,6 +26,7 @@ on:
 
 env:
   base_directory: centreon
+  widgets_directory: centreon/www/widgets
 
 jobs:
   changes:
@@ -32,7 +35,7 @@ jobs:
       has_frontend_changes: ${{ steps.filter.outputs.has_frontend_changes }}
       has_backend_changes: ${{ steps.filter.outputs.has_backend_changes }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: dorny/paths-filter@v2
         id: filter
@@ -72,21 +75,51 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
 
-  frontend-build:
+  veracode-analysis:
+    needs: [get-version]
+    uses: ./.github/workflows/veracode-analysis.yml
+    with:
+      module_directory: centreon
+      module_name: centreon-web
+      major_version: ${{ needs.get-version.outputs.major_version }}
+      minor_version: ${{ needs.get-version.outputs.minor_version }}
+      stability: ${{ needs.get-version.outputs.stability }}
+    secrets:
+      veracode_api_id: ${{ secrets.VERACODE_API_ID_WEB }}
+      veracode_api_key: ${{ secrets.VERACODE_API_KEY_WEB_2 }}
+      veracode_srcclr_token: ${{ secrets.VERACODE_SRCCLR_TOKEN }}
+
+  frontend-web-build:
     needs: [get-version]
     runs-on: ubuntu-22.04
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/frontend-build
         with:
           base_directory: ${{ env.base_directory }}
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
           index_file: ${{ env.base_directory }}/www/index.html
           static_directory: ${{ env.base_directory }}/www/static
           index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+          build_command: pnpm centreon:build
+
+  frontend-widgets-build:
+    needs: [get-version]
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/frontend-build
+        with:
+          base_directory: ${{ env.widgets_directory }}
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+          static_directory: ${{ env.widgets_directory }}/src
+          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
 
   backend-dependencies:
     needs: [get-version]
@@ -94,7 +127,7 @@ jobs:
     if: ${{ needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/backend-dependencies
         with:
@@ -113,7 +146,7 @@ jobs:
         password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - run: |
           cd centreon
@@ -134,18 +167,33 @@ jobs:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
-  frontend-lint:
+  frontend-web-lint:
     runs-on: ubuntu-22.04
     needs: [changes]
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/frontend-lint
         with:
           frontend_directory: ${{ env.base_directory }}
           module_name: centreon
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+
+  frontend-widgets-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes]
+    if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/frontend-lint
+        with:
+          frontend_directory: ${{ env.widgets_directory }}
+          module_name: centreon-widgets
+          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
@@ -153,7 +201,7 @@ jobs:
     if: ${{ needs.changes.outputs.has_frontend_changes == 'true' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v2
         with:
@@ -162,13 +210,17 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 17
+          node-version: 18
           cache: pnpm
-          cache-dependency-path: centreon
+          cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         working-directory: centreon
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Unit test
         run: pnpm t --silent --reporter=jest-junit
@@ -186,7 +238,8 @@ jobs:
     with:
       name: component
       module_name: centreon
-      specs_path: www/front_src/src/**
+      specs_path: www/**
+      dependencies_lock_file: centreon/pnpm-lock.yaml
 
   backend-unit-test:
     runs-on: ubuntu-22.04
@@ -194,7 +247,7 @@ jobs:
     if: ${{ needs.changes.outputs.has_backend_changes == 'true' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -220,15 +273,43 @@ jobs:
           path: "centreon/build/phpunit.xml"
           format: "php-junit"
 
+  backend-lint:
+    runs-on: ubuntu-22.04
+    needs: [changes, get-version]
+    if: ${{ needs.changes.outputs.has_backend_changes == 'true' && needs.get-version.outputs.stability != 'stable' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          coverage: none
+        env:
+          runner: ubuntu-22.04
+
+      - name: Install Dependencies
+        run: composer install --optimize-autoloader
+        working-directory: centreon
+        shell: bash
+
+      - name: Run of php-cs-fixer
+        run: vendor/bin/php-cs-fixer fix --verbose --dry-run --diff
+        working-directory: centreon
+
   package:
     needs:
       [
         get-version,
         translation-build,
         backend-dependencies,
+        backend-lint,
         backend-unit-test,
-        frontend-build,
-        frontend-lint,
+        frontend-web-build,
+        frontend-web-lint,
+        frontend-widgets-build,
+        frontend-widgets-lint,
         frontend-unit-test,
         frontend-component-test,
       ]
@@ -236,7 +317,6 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye]
         include:
           - package_extension: rpm
             image: packaging-alma8
@@ -257,6 +337,9 @@ jobs:
       frontend_index_file: centreon/www/index.html
       frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
       frontend_static_directory: centreon/www/static
+      frontend_widgets_cache_key: ${{ github.sha }}-${{ github.run_id }}-widgets-static
+      frontend_widgets_directory: centreon/www/widgets/src
+      widgets_directory: centreon/www/widgets
       backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
       backend_vendor_directory: centreon/vendor
       translation_cache_key: ${{ github.sha }}-${{ github.run_id }}-translation
@@ -274,21 +357,40 @@ jobs:
 
   dockerize:
     runs-on: ubuntu-22.04
-    needs: [package, get-version]
+    needs: [get-version, package]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
+    env:
+      project: centreon-web
     strategy:
+      fail-fast: false
       matrix:
-        os: [alma9]
-        include:
-          - project: centreon-web
-          - os: alma9
-            distrib: el9
-            package_extension: rpm
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Generate information according to matrix os
+        id: matrix_include
+        run: |
+          if [ "${{ matrix.os }}" = "alma8" ]; then
+            DISTRIB=el8
+            PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.os }}" = "alma9" ]; then
+            DISTRIB=el9
+            PACKAGE_EXTENSION=rpm
+          elif [ "${{ matrix.os }}" = "bullseye" ]; then
+            DISTRIB=bullseye
+            PACKAGE_EXTENSION=deb
+          else
+            echo "::error::${{ matrix.os }} is not managed"
+            exit 1
+          fi
+
+          echo "distrib=$DISTRIB" >> $GITHUB_OUTPUT
+          echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Login to registry
         uses: docker/login-action@v2
@@ -297,42 +399,32 @@ jobs:
           username: ${{ secrets.DOCKER_REGISTRY_ID }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
-      - name: Restore ${{ matrix.package_extension }} files
-        uses: actions/cache@v3
+      - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
+        uses: actions/cache/restore@v3
         with:
-          path: ./*.${{ matrix.package_extension }}
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          path: ./*.${{ steps.matrix_include.outputs.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
           fail-on-cache-miss: true
 
       - uses: docker/setup-buildx-action@v2
 
-      - uses: docker/build-push-action@v3
+      - name: Build and push fresh image
+        uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_fresh
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
-          load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-
-      - uses: docker/build-push-action@v3
-        with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
-          target: web_fresh
-          context: .
-          build-args: |
-            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-version.outputs.major_version }}"
-          pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-fresh-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      - uses: docker/build-push-action@v3
+      - name: Build standard image
+        uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_standard
           context: .
           build-args: |
@@ -340,11 +432,12 @@ jobs:
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: true
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
-      - uses: docker/build-push-action@v3
+      - name: Push standard image
+        uses: docker/build-push-action@v3
         with:
-          file: .github/docker/Dockerfile.${{ matrix.project }}-${{ matrix.os }}
+          file: .github/docker/${{ env.project }}/${{ matrix.os }}/Dockerfile
           target: web_standard
           context: .
           build-args: |
@@ -352,42 +445,65 @@ jobs:
             "VERSION=${{ needs.get-version.outputs.major_version }}"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
 
       - name: Setup docker slim
-        run: |
-          wget -q https://downloads.dockerslim.com/releases/1.40.0/dist_linux.tar.gz
-          tar -xf dist_linux.tar.gz
-          mv dist_linux/docker-slim /usr/local/bin/
-          mv dist_linux/slim-sensor /usr/local/bin/
-          mv dist_linux/slim /usr/local/bin/
+        run: curl -sL https://raw.githubusercontent.com/slimtoolkit/slim/master/scripts/install-slim.sh | sudo -E bash -s -- 1.40.3
         shell: bash
 
-      - name: Build and push slim images
+      - name: Build standard slim image
         run: |
-          for IMAGE_SUFFIX in "" "-fresh"; do
-            slim build --show-clogs --show-blogs \
-              --include-shell \
-              --http-probe-off \
-              --exec-file .github/docker/slim-configuration/exec.txt \
-              --include-path-file .github/docker/slim-configuration/include-path.txt \
-              --include-bin-file .github/docker/slim-configuration/include-bin.txt \
-              --path-perms-file .github/docker/slim-configuration/path-perms.txt \
-              --tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} \
-              ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-            docker tag ${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-            docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.project }}$IMAGE_SUFFIX-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
-          done
+          slim build --show-clogs --show-blogs \
+            --include-shell \
+            --http-probe-off \
+            --exec-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/exec.txt \
+            --include-path-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-path.txt \
+            --include-bin-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/include-bin.txt \
+            --path-perms-file .github/docker/centreon-web/${{ matrix.os }}/slim-configuration/path-perms.txt \
+            --tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} \
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
         shell: bash
+
+      - name: Push standard slim image
+        run: docker push ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+        shell: bash
+
+      - name: Store standard slim image in local archive
+        run: |
+          mkdir -p /tmp/cache/docker-image
+          docker save --output /tmp/cache/docker-image/${{ env.project }}-slim-${{ matrix.os }}.tar ${{ env.project }}-slim-${{ matrix.os }}:${{ github.head_ref || github.ref_name }}
+        shell: bash
+
+      - name: Clear previous docker image from cache
+        run: |
+          curl \
+            -X DELETE \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
+        shell: bash
+
+      - name: Store standard slim image in cache
+        uses: actions/cache/save@v3
+        with:
+          path: /tmp/cache/docker-image
+          key: docker-image-${{ env.project }}-slim-${{ matrix.os }}-${{ github.head_ref || github.ref_name }}
 
   api-integration-test:
-    needs: [dockerize, changes]
+    needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
       module_name: centreon
       image_name: centreon-web
+      os: ${{ matrix.os }}
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
@@ -396,13 +512,19 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
-    needs: [dockerize, changes]
+    needs: [get-version, changes, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.changes.outputs.has_backend_changes == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+
     uses: ./.github/workflows/behat-test.yml
     with:
       name: legacy-e2e
       module_name: centreon
       image_name: centreon-web
+      os: ${{ matrix.os }}
       features_path: features
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
@@ -412,15 +534,22 @@ jobs:
   e2e-test:
     needs: [get-version, dockerize]
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.get-version.outputs.dockerize_matrix) }}
+
     uses: ./.github/workflows/cypress-e2e-parallelization.yml
     with:
       name: e2e
       module_name: centreon
       image_name: centreon-web
+      os: ${{ matrix.os }}
       features_path: tests/e2e/cypress/e2e
       major_version: ${{ needs.get-version.outputs.major_version }}
-      package_cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-el9
-      package_directory: centreon/tests/e2e/cypress/fixtures/rpms
+      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, matrix.os == 'alma8' && 'rpm-el8' || matrix.os == 'alma9' && 'rpm-el9' || 'deb-bullseye') }}
+      package_directory: centreon/tests/e2e/cypress/fixtures/packages
+      dependencies_lock_file: centreon/pnpm-lock.yaml
     secrets:
       registry_username: ${{ secrets.DOCKER_REGISTRY_ID }}
       registry_password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
@@ -431,7 +560,7 @@ jobs:
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && needs.get-version.outputs.stability != 'stable' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Login to registry
         uses: docker/login-action@v2
@@ -448,6 +577,7 @@ jobs:
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ needs.get-version.outputs.major_version }}
           module: centreon
+          dependencies_lock_file: centreon/pnpm-lock.yaml
 
       - name: Publish report to S3
         if: ${{ github.event_name == 'push' }}
@@ -479,7 +609,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -519,7 +649,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -551,7 +681,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -573,7 +703,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable

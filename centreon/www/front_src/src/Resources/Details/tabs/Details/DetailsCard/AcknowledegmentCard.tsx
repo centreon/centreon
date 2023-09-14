@@ -20,9 +20,12 @@ const AcknowledgementCard = ({ details }: Props): JSX.Element => {
       chip={<AcknowledgeChip />}
       commentLine={details.acknowledgement?.comment || ''}
       contentLines={[
-        `${details.acknowledgement?.author_name} ${t(labelAt)} ${toDateTime(
-          details.acknowledgement?.entry_time || ''
-        )}`
+        {
+          line: `${details.acknowledgement?.author_name} ${t(
+            labelAt
+          )} ${toDateTime(details.acknowledgement?.entry_time || '')}`,
+          testId: 'acknowledged_by_at'
+        }
       ]}
       title={t(labelAcknowledgedBy)}
     />

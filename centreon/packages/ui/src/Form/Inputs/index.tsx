@@ -1,7 +1,6 @@
 import { Fragment, useMemo } from 'react';
 
 import * as R from 'ramda';
-import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 import { FormikValues, useFormikContext } from 'formik';
 
@@ -18,6 +17,8 @@ import TextInput from './Text';
 import ConnectedAutocomplete from './ConnectedAutocomplete';
 import FieldsTable from './FieldsTable/FieldsTable';
 import Grid from './Grid';
+import CheckboxGroup from './CheckboxGroup';
+import Checkbox from './Checkbox';
 import Custom from './Custom';
 import LoadingSkeleton from './LoadingSkeleton';
 
@@ -33,7 +34,6 @@ export const getInput = R.cond<
     R.equals(InputType.Radio) as (b: InputType) => boolean,
     R.always(RadioInput)
   ],
-  [R.equals(InputType.Text) as (b: InputType) => boolean, R.always(TextInput)],
   [
     R.equals(InputType.SingleAutocomplete) as (b: InputType) => boolean,
     R.always(Autocomplete)
@@ -41,10 +41,6 @@ export const getInput = R.cond<
   [
     R.equals(InputType.MultiAutocomplete) as (b: InputType) => boolean,
     R.always(Autocomplete)
-  ],
-  [
-    R.equals(InputType.Password) as (b: InputType) => boolean,
-    R.always(TextInput)
   ],
   [
     R.equals(InputType.MultiConnectedAutocomplete) as (b: InputType) => boolean,
@@ -61,7 +57,16 @@ export const getInput = R.cond<
     R.always(FieldsTable)
   ],
   [R.equals(InputType.Grid) as (b: InputType) => boolean, R.always(Grid)],
-  [R.equals(InputType.Custom) as (b: InputType) => boolean, R.always(Custom)]
+  [R.equals(InputType.Custom) as (b: InputType) => boolean, R.always(Custom)],
+  [
+    R.equals(InputType.Checkbox) as (b: InputType) => boolean,
+    R.always(Checkbox)
+  ],
+  [
+    R.equals(InputType.CheckboxGroup) as (b: InputType) => boolean,
+    R.always(CheckboxGroup)
+  ],
+  [R.T, R.always(TextInput)]
 ]);
 
 interface StylesProps {
@@ -89,7 +94,9 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
       ? 'row'
       : 'column'
   },
-  inputWrapper: { width: '100%' },
+  inputWrapper: {
+    width: '100%'
+  },
   inputs: {
     display: 'flex',
     flexDirection: 'column',
@@ -99,8 +106,10 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
 }));
 
 interface Props {
+  areGroupsOpen?: boolean;
   groupDirection?: GroupDirection;
   groups?: Array<Group>;
+  groupsClassName?: string;
   inputs: Array<InputProps>;
   isCollapsible: boolean;
   isLoading?: boolean;
@@ -111,10 +120,11 @@ const Inputs = ({
   groups = [],
   isLoading = false,
   isCollapsible,
-  groupDirection
+  groupDirection,
+  groupsClassName,
+  areGroupsOpen
 }: Props): JSX.Element => {
-  const { classes } = useStyles({ groupDirection });
-  const { t } = useTranslation();
+  const { classes, cx } = useStyles({ groupDirection });
   const formikContext = useFormikContext<FormikValues>();
 
   const groupsName = R.pluck('name', groups);
@@ -178,12 +188,13 @@ const Inputs = ({
           ? R.find(R.propEq('name', groupName), groups)
           : ({} as Group);
 
-        const isFirstElement = R.equals(index, 0);
+        const isFirstElement = areGroupsOpen || R.equals(index, 0);
 
         return (
           <Fragment key={groupName}>
             <div>
               <CollapsibleGroup
+                className={groupsClassName}
                 defaultIsOpen={isFirstElement}
                 group={groupProps}
                 hasGroupTitle={hasGroupTitle}
@@ -209,13 +220,18 @@ const Inputs = ({
                       >
                         {inputProps.additionalLabel && (
                           <Typography
-                            className={classes.additionalLabel}
+                            className={cx(
+                              classes.additionalLabel,
+                              inputProps?.additionalLabelClassName
+                            )}
                             variant="body1"
                           >
-                            {t(inputProps.additionalLabel)}
+                            {inputProps.additionalLabel}
                           </Typography>
                         )}
-                        <Input {...inputProps} />
+                        <div className={inputProps?.inputClassName || ''}>
+                          <Input {...inputProps} />
+                        </div>
                       </div>
                     );
                   })}

@@ -32,8 +32,8 @@ When('the administrator first configures the authentication mode', () => {
     rootItemNumber: 4
   })
     .get('div[role="tablist"] button:nth-child(3)')
-    .click()
-    .wait('@getWebSSOProvider');
+    .click();
+  cy.wait('@getWebSSOProvider');
 });
 
 Then(

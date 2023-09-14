@@ -2,6 +2,8 @@ import type { Props as SingleAutocompleteFieldProps } from './InputField/Select/
 
 export { default as IconButton } from './Button/Icon';
 
+export { Checkbox, CheckboxGroup } from './Checkbox';
+
 export { default as SingleAutocompleteField } from './InputField/Select/Autocomplete';
 export type { SingleAutocompleteFieldProps };
 
@@ -111,7 +113,7 @@ export { default as Module } from './Module/index';
 export { default as LicensedModule } from './Module/LicensedModule';
 export { default as SnackbarProvider } from './Snackbar/SnackbarProvider';
 export { default as PersistentTooltip } from './InputField/Search/PersistentTooltip';
-export { default as Form, GroupDirection } from './Form';
+export * from './Form';
 export { InputType } from './Form/Inputs/models';
 export type {
   InputProps,
@@ -121,6 +123,7 @@ export type {
 export { default as Responsive } from './Responsive';
 export { default as useFetchQuery } from './api/useFetchQuery';
 export { default as useMutationQuery, Method } from './api/useMutationQuery';
+export { default as useGraphQuery } from './api/useGraphQuery';
 export { default as QueryProvider } from './api/QueryProvider';
 export {
   default as FileDropZone,
@@ -139,3 +142,8 @@ export { default as ActionsList } from './ActionsList';
 export type { ResponseError, CatchErrorProps } from './api/customFetch';
 
 export * from './utils';
+export { default as FluidTypography } from './Typography/FluidTypography';
+export * from './Dashboard';
+export * from './Graph';
+export type { LineChartData } from './Graph/common/models';
+export * from './Graph/common/timeSeries';

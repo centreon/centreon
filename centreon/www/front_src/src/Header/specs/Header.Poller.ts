@@ -242,7 +242,7 @@ export default (): void =>
         cy.get('@pollerButton').should('be.visible');
         cy.get('@pollerButton').click();
         submenuShouldBeOpened('Pollers');
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('closes the submenu by clicking outside, using esc key, or clicking again on the button', () => {
@@ -276,7 +276,7 @@ export default (): void =>
           .should('contain.text', labelAllPollers)
           .should('contain.text', '12');
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       it('hides the total number if there is not any issue', () => {
@@ -331,8 +331,7 @@ export default (): void =>
           }
         ];
 
-        cy.findByTestId('poller-menu')
-          .findAllByRole('listitem')
+        cy.get('[data-testid="pollerIssues"]')
           .as('items')
           .should('have.length', expectedItems.length);
 
@@ -342,7 +341,7 @@ export default (): void =>
             .should('contain.text', expectedItems[index].qty);
         });
 
-        cy.matchImageSnapshot();
+        cy.makeSnapshot();
       });
 
       describe('configuration', () => {
@@ -390,10 +389,7 @@ export default (): void =>
           });
           openSubMenu('Pollers');
 
-          cy.findByTestId('poller-menu')
-            .findAllByRole('listitem')
-            .last()
-            .findByRole('button', { name: labelConfigurePollers })
+          cy.get(`[data-testid="${labelConfigurePollers}"]`)
             .should('be.visible')
             .click();
 
@@ -401,7 +397,7 @@ export default (): void =>
             'include',
             `main.php?p=${pollerConfigurationPageNumber}`
           );
-          cy.matchImageSnapshot();
+          cy.makeSnapshot();
         });
 
         it('displays the export configuration button if user is allowed', () => {
@@ -409,13 +405,10 @@ export default (): void =>
           initialize();
           openSubMenu('Pollers');
 
-          cy.findByTestId('poller-menu')
-            .findAllByRole('listitem')
-            .last()
-            .findByRole('button', { name: labelExportConfiguration })
+          cy.get(`[data-testid="${labelExportConfiguration}"]`)
             .as('exportbutton')
             .should('be.visible');
-          cy.matchImageSnapshot();
+          cy.makeSnapshot();
         });
 
         it('opens the export configuration’s modal, and close it on clicking the cancel button', () => {
@@ -423,11 +416,9 @@ export default (): void =>
           initialize();
           openSubMenu('Pollers');
 
-          cy.findByTestId('poller-menu')
-            .findAllByRole('listitem')
-            .last()
-            .findByRole('button', { name: labelExportConfiguration })
-            .as('exportbutton');
+          cy.get(`[data-testid="${labelExportConfiguration}"]`).as(
+            'exportbutton'
+          );
 
           cy.get('@exportbutton').click();
 
@@ -444,7 +435,7 @@ export default (): void =>
             .as('cancelExport')
             .should('be.visible');
 
-          cy.matchImageSnapshot();
+          cy.makeSnapshot();
 
           cy.get('@cancelExport').click();
 
@@ -456,11 +447,9 @@ export default (): void =>
           initialize();
           openSubMenu('Pollers');
 
-          cy.findByTestId('poller-menu')
-            .findAllByRole('listitem')
-            .last()
-            .findByRole('button', { name: labelExportConfiguration })
-            .as('exportbutton');
+          cy.get(`[data-testid="${labelExportConfiguration}"]`).as(
+            'exportbutton'
+          );
 
           cy.get('@exportbutton').click();
 

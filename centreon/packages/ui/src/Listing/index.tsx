@@ -18,14 +18,17 @@ import {
   map,
   not,
   pick,
+  pluck,
   prop,
   propEq,
+  reduce,
   reject,
   slice,
   subtract,
   uniqBy
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
 
 import { Box, LinearProgress, Table, TableBody } from '@mui/material';
 
@@ -50,10 +53,11 @@ import ListingRow from './Row/Row';
 import { labelNoResultFound } from './translatedLabels';
 import useResizeObserver from './useResizeObserver';
 import useStyleTable from './useStyleTable';
-import { loadingIndicatorHeight, useStyles } from './Listing.styles';
+import { loadingIndicatorHeight, useListingStyles } from './Listing.styles';
 import { EmptyResult } from './EmptyResult/EmptyResult';
 import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import { ListingHeader } from './Header';
+import { subItemsPivotsAtom } from './tableAtoms';
 
 const getVisibleColumns = ({
   columnConfiguration,
@@ -98,6 +102,7 @@ export interface Props<TRow> {
   headerMemoProps?: Array<unknown>;
   innerScrollDisabled?: boolean;
   limit?: number;
+  listingVariant?: ListingVariant;
   loading?: boolean;
   moveTablePagination?: boolean;
   onLimitChange?: (limit) => void;
@@ -114,9 +119,16 @@ export interface Props<TRow> {
   selectedRows?: Array<TRow>;
   sortField?: string;
   sortOrder?: SortOrder;
+  subItems?: {
+    canCheckSubItems: boolean;
+    enable: boolean;
+    labelCollapse: string;
+    labelExpand: string;
+    rowProperty: string;
+  };
   totalRows?: number;
-  viewMode?: ListingVariant;
   viewerModeConfiguration?: ViewerModeConfiguration;
+  visualizationActions?: JSX.Element;
   widthToMoveTablePagination?: number;
 }
 
@@ -128,6 +140,7 @@ export const performanceRowsLimit = 60;
 
 const Listing = <TRow extends { id: RowId }>({
   limit = 10,
+  visualizationActions,
   columns,
   columnConfiguration = defaultColumnConfiguration,
   customPaginationClassName,
@@ -157,10 +170,17 @@ const Listing = <TRow extends { id: RowId }>({
   predefinedRowsSelection = [],
   actionsBarMemoProps = [],
   moveTablePagination,
-  viewMode = ListingVariant.compact,
+  listingVariant = ListingVariant.compact,
   widthToMoveTablePagination,
   getHighlightRowCondition,
-  viewerModeConfiguration
+  viewerModeConfiguration,
+  subItems = {
+    canCheckSubItems: false,
+    enable: false,
+    labelCollapse: 'Collapse',
+    labelExpand: 'Expand',
+    rowProperty: ''
+  }
 }: Props<TRow>): JSX.Element => {
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
@@ -169,16 +189,9 @@ const Listing = <TRow extends { id: RowId }>({
   const { dataStyle, getGridTemplateColumn } = useStyleTable({
     checkable,
     currentVisibleColumns,
-    viewMode
+    listingVariant
   });
 
-  const { classes, theme } = useStyles({
-    dataStyle,
-    getGridTemplateColumn,
-    limit,
-    rows,
-    viewMode
-  });
   const { t } = useTranslation();
 
   const [tableTopOffset, setTableTopOffset] = React.useState(0);
@@ -191,6 +204,37 @@ const Listing = <TRow extends { id: RowId }>({
   >(null);
   const containerRef = React.useRef<HTMLDivElement>();
   const actionBarRef = React.useRef<HTMLDivElement>();
+
+  const subItemsPivots = useAtomValue(subItemsPivotsAtom);
+
+  const rowsToDisplay = React.useMemo(
+    () =>
+      subItems?.enable
+        ? reduce<TRow, Array<TRow>>(
+            (acc, row): Array<TRow> => {
+              if (
+                row[subItems.rowProperty] &&
+                subItemsPivots.includes(row.id)
+              ) {
+                return [...acc, row, ...row[subItems.rowProperty]];
+              }
+
+              return [...acc, row];
+            },
+            [],
+            rows
+          )
+        : rows,
+    [rows, subItemsPivots, subItems]
+  );
+
+  const { classes, theme } = useListingStyles({
+    dataStyle,
+    getGridTemplateColumn,
+    limit,
+    listingVariant,
+    rows: rowsToDisplay
+  });
 
   useResizeObserver({
     onResize: () => {
@@ -422,6 +466,19 @@ const Listing = <TRow extends { id: RowId }>({
 
   const areColumnsEditable = not(isNil(onSelectColumns));
 
+  const allSubItemIds = React.useMemo(
+    () =>
+      reduce<TRow | number, Array<string | number>>(
+        (acc, row) => [
+          ...acc,
+          ...pluck('id', row[subItems?.rowProperty || ''] || [])
+        ],
+        [],
+        rows
+      ),
+    [rows, subItems]
+  );
+
   return (
     <>
       {loading && rows.length > 0 && (
@@ -446,11 +503,12 @@ const Listing = <TRow extends { id: RowId }>({
             currentPage={currentPage}
             customPaginationClassName={customPaginationClassName}
             limit={limit}
+            listingVariant={listingVariant}
             moveTablePagination={moveTablePagination}
             paginated={paginated}
             totalRows={totalRows}
-            viewMode={viewMode}
             viewerModeConfiguration={viewerModeConfiguration}
+            visualizationActions={visualizationActions}
             widthToMoveTablePagination={widthToMoveTablePagination}
             onLimitChange={changeLimit}
             onPaginate={onPaginate}
@@ -477,13 +535,13 @@ const Listing = <TRow extends { id: RowId }>({
               checkable={checkable}
               columnConfiguration={columnConfiguration}
               columns={columns}
+              listingVariant={listingVariant}
               memoProps={headerMemoProps}
               predefinedRowsSelection={predefinedRowsSelection}
               rowCount={limit - emptyRows}
               selectedRowCount={selectedRows.length}
               sortField={sortField}
               sortOrder={sortOrder}
-              viewMode={viewMode}
               onSelectAllClick={selectAllRows}
               onSelectColumns={onSelectColumns}
               onSelectRowsWithCondition={onSelectRowsWithCondition}
@@ -495,14 +553,16 @@ const Listing = <TRow extends { id: RowId }>({
               component="div"
               onMouseLeave={clearHoveredRow}
             >
-              {rows.map((row, index) => {
+              {rowsToDisplay.map((row, index) => {
                 const isRowSelected = isSelected(row);
-
                 const isRowHovered = equals(hoveredRowId, getId(row));
+                const isSubItem = allSubItemIds.includes(row.id);
 
                 return (
                   <ListingRow
-                    checkable={checkable}
+                    checkable={
+                      checkable && (!isSubItem || subItems.canCheckSubItems)
+                    }
                     columnConfiguration={columnConfiguration}
                     columnIds={columns.map(prop('id'))}
                     disableRowCondition={disableRowCondition}
@@ -516,11 +576,12 @@ const Listing = <TRow extends { id: RowId }>({
                     }
                     lastSelectionIndex={lastSelectionIndex}
                     limit={limit}
+                    listingVariant={listingVariant}
                     row={row}
                     rowColorConditions={rowColorConditions}
                     shiftKeyDownRowPivot={shiftKeyDownRowPivot}
+                    subItemsPivots={subItemsPivots}
                     tabIndex={-1}
-                    viewMode={viewMode}
                     visibleColumns={visibleColumns}
                     onClick={(): void => {
                       onRowClick(row);
@@ -528,28 +589,37 @@ const Listing = <TRow extends { id: RowId }>({
                     onFocus={(): void => hoverRow(row)}
                     onMouseOver={(): void => hoverRow(row)}
                   >
-                    {checkable && (
-                      <Cell
-                        align="left"
-                        className={classes.checkbox}
-                        disableRowCondition={disableRowCondition}
-                        isRowHovered={isRowHovered}
-                        row={row}
-                        rowColorConditions={rowColorConditions}
-                        onClick={(event): void => selectRow(event, row)}
-                      >
-                        <Checkbox
-                          checked={isRowSelected}
-                          disabled={
-                            disableRowCheckCondition(row) ||
-                            disableRowCondition(row)
-                          }
-                          inputProps={{
-                            'aria-label': `Select row ${getId(row)}`
-                          }}
+                    {checkable &&
+                      (!isSubItem || subItems.canCheckSubItems ? (
+                        <Cell
+                          align="left"
+                          className={classes.checkbox}
+                          disableRowCondition={disableRowCondition}
+                          isRowHovered={isRowHovered}
+                          row={row}
+                          rowColorConditions={rowColorConditions}
+                          onClick={(event): void => selectRow(event, row)}
+                        >
+                          <Checkbox
+                            checked={isRowSelected}
+                            disabled={
+                              disableRowCheckCondition(row) ||
+                              disableRowCondition(row)
+                            }
+                            inputProps={{
+                              'aria-label': `Select row ${getId(row)}`
+                            }}
+                          />
+                        </Cell>
+                      ) : (
+                        <Cell
+                          align="left"
+                          disableRowCondition={disableRowCondition}
+                          isRowHovered={isRowHovered}
+                          row={row}
+                          rowColorConditions={rowColorConditions}
                         />
-                      </Cell>
-                    )}
+                      ))}
 
                     {visibleColumns.map((column) => (
                       <DataCell
@@ -559,9 +629,12 @@ const Listing = <TRow extends { id: RowId }>({
                         isRowHovered={isRowHovered}
                         isRowSelected={isRowSelected}
                         key={`${getId(row)}-${column.id}`}
+                        labelCollapse={subItems.labelCollapse}
+                        labelExpand={subItems.labelExpand}
+                        listingVariant={listingVariant}
                         row={row}
                         rowColorConditions={rowColorConditions}
-                        viewMode={viewMode}
+                        subItemsRowProperty={subItems?.rowProperty}
                       />
                     ))}
                   </ListingRow>
@@ -604,7 +677,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
   columnConfiguration,
   moveTablePagination,
   widthToMoveTablePagination,
-  viewMode,
+  listingVariant,
   ...props
 }: MemoizedListingProps<TRow>): JSX.Element =>
   useMemoComponent({
@@ -616,6 +689,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         currentPage={currentPage}
         innerScrollDisabled={innerScrollDisabled}
         limit={limit}
+        listingVariant={listingVariant}
         loading={loading}
         moveTablePagination={moveTablePagination}
         paginated={paginated}
@@ -625,7 +699,6 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         sortField={sortField}
         sortOrder={sortOrder}
         totalRows={totalRows}
-        viewMode={viewMode}
         widthToMoveTablePagination={widthToMoveTablePagination}
         {...props}
       />
@@ -649,7 +722,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
       sortOrder,
       sortField,
       innerScrollDisabled,
-      viewMode
+      listingVariant
     ]
   });
 

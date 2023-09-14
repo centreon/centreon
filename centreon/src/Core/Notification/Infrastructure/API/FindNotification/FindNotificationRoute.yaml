@@ -1,0 +1,7 @@
+FindNotification:
+  methods: GET
+  path: /configuration/notifications/{notificationId}
+  controller: 'Core\Notification\Infrastructure\API\FindNotification\FindNotificationController'
+  condition: "request.attributes.get('version') >= 23.10 and request.attributes.get('feature.notification')"
+  requirements:
+        notificationId: '\d+'

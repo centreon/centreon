@@ -6,7 +6,12 @@ info:
     + Added host severities endpoints (GET, PUT)
     + Added host categories endpoint (GET, PUT)
     + Added host group endpoints (GET, PUT)
-    + Added service templates endpoints (GET)
+    + Added notification endpoints (POST, PATCH)
+    + Added service templates endpoints (GET, POST, DELETE, PATCH)
+    + Added host template endpoints (POST, DELETE, PATCH)
+    + Added service endpoints (POST, DELETE)
+    + Added host endpoints (POST, DELETE)
+    + Added token endpoints (POST)
     +
     # Updated features
     + Updated host template endpoint (GET)
@@ -52,6 +57,7 @@ tags:
   - name: Administration
   - name: Authentication
     description: "Login and logout endpoints to retrieve authentication token"
+  - name: Command
   - name: Downtime
   - name: Gorgone
   - name: Host
@@ -61,6 +67,7 @@ tags:
   - name: Host severity
   - name: Host template
   - name: Monitoring server
+  - name: Notification
   - name: Proxy
   - name: Service
   - name: Service group
@@ -244,49 +251,26 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/commands:
+    $ref: "./v23.10/Configuration/Command/FindCommands.yaml"
+  /configuration/notifications:
+    $ref: "./v23.10/Configuration/Notification/Notifications.yaml"
+  /configuration/notifications/_delete:
+    $ref: "./v23.10/Configuration/Notification/DeleteNotifications.yaml"
+  /configuration/notifications/{notification_id}:
+    $ref: "./v23.10/Configuration/Notification/Notification.yaml"
+  /configuration/notifications/resources:
+    $ref: "./v23.10/Configuration/Notification/FindNotifiableResources.yaml"
+  /configuration/notifications/{notification_id}/rules:
+    $ref: "./v23.10/Configuration/Notification/FindNotifiableRule.yaml"
+  /configuration/hosts/{host_id}:
+    $ref: './v23.10/Configuration/Host/DeleteHost.yaml'
   /configuration/hosts/templates:
-    get:
-      tags:
-        - Host template
-      summary: "List all host templates"
-      description: |
-        Return all host templates configurations.
-
-        The available parameters to **search** / **sort_by** are:
-
-        * id
-        * name
-        * alias
-        * is_activated
-        * is_locked
-
-        Changes in 23.10 :
-
-        * `check_interval` was renamed `normal_check_interval`
-        * `active_checks_status` was renamed `active_check_enabled`
-        * `passive_checks_status` was renamed `passive_check_enabled`
-        * `notifications_status` was renamed `notification_enabled`
-        * `url_notes` was renamed `note_url`
-        * `note` was renamed `note`
-        * `icon` was renamed `icon_id` and is no longer an object but the image ID
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Configuration.Host.Template'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './v23.10/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
+  /configuration/hosts/templates/{host_template_id}:
+    $ref: './v23.10/Configuration/HostTemplate/DeleteAndPartialUpdateHostTemplate.yaml'
+  /configuration/hosts:
+    $ref: './v23.10/Configuration/Host/AddHost.yaml'
   /configuration/hosts/categories:
     get:
       tags:
@@ -488,7 +472,13 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/services/templates:
-    $ref: "./v23.10/Configuration/ServiceTemplate/ServiceTemplates.yaml"
+    $ref: "v23.10/Configuration/ServiceTemplate/AddOneAndFindServiceTemplates.yaml"
+  /configuration/services/templates/{service_template_id}:
+    $ref: "v23.10/Configuration/ServiceTemplate/PartialUpdateAndDeleteServiceTemplate.yaml"
+  /configuration/services/{service_id}:
+    $ref: "v23.10/Configuration/Service/DeleteService.yaml"
+  /configuration/services:
+    $ref: "v23.10/Configuration/Service/AddService.yaml"
   /monitoring/services/categories:
     get:
       tags:
@@ -1579,135 +1569,9 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
   /configuration/users:
-    get:
-      tags:
-      - User
-      summary: Get configured users
-      description: |
-        Get list of configured users
-
-        The available parameters to **search** / **sort_by** are:
-
-        * id
-        * alias
-        * name
-        * email
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Configuration.User'
-                  meta:
-                    $ref: '#/components/schemas/Meta'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './v23.10/Configuration/Users/Users.yaml'
   /configuration/users/current/parameters:
-    get:
-      tags:
-      - User
-      summary: "List user parameters"
-      description: "List configured parameters for the current user"
-      responses:
-        '200':
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    description: Contact ID
-                    example: 1
-                  name:
-                    type: string
-                    description: Name of the current user
-                    example: Administrator
-                  alias:
-                    type: string
-                    description: Alias of the current user
-                    example: admin
-                  email:
-                    type: string
-                    description: Email of the current user
-                    example: admin@localhost
-                  timezone:
-                    type: string
-                    description: Timezone for the current user
-                    example: Europe/Paris
-                  locale:
-                    type: string
-                    nullable: true
-                    description: Locale of the current user
-                    example: en_US
-                  is_admin:
-                    type: boolean
-                    description: If the current user is an administrator
-                    example: true
-                  use_deprecated_pages:
-                    type: boolean
-                    description: Indicates if user wants to use deprecated monitoring pages
-                    example: false
-                  theme:
-                    type: string
-                    description: Selected theme of the current user
-                    example: light
-                  user_interface_density:
-                    type: string
-                    description: Selected user interface density for the current user
-                    example: extended
-                    default: compact
-                  default_page:
-                    type: string
-                    nullable: true
-                    description: Default page for the current user
-                    example: '/main.php?p=60901'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    patch:
-      tags:
-      - User
-      summary: Update a user
-      description: |
-        Update a user
-
-        The available parameters to be updated are :
-
-        * theme
-        * user_interface_density
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                theme:
-                  type: string
-                  description: Theme
-                  enum: [ light, dark ]
-                  example: light
-                user_interface_density:
-                  type: string
-                  description: User interface view mode
-                  enum: [ compact, extended ]
-                  example: extended
-      responses:
-        204:
-          description: "User updated"
-        403:
-          $ref: '#/components/responses/Forbidden'
-        500:
-          $ref: '#/components/responses/InternalServerError'
+    $ref: './v23.10/Configuration/Users/CurrentParameters.yaml'
   /configuration/contacts/templates:
     get:
       tags:
@@ -1760,6 +1624,28 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /configuration/dashboards:
+    $ref: './v23.10/Configuration/Dashboard/Dashboards.yaml'
+  /configuration/dashboards/{dashboard_id}:
+    $ref: './v23.10/Configuration/Dashboard/Dashboard.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contacts:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContacts.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContact.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contactgroups:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContactGroups.yaml'
+  /configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}:
+    $ref: './v23.10/Configuration/Dashboard/DashboardShareContactGroup.yaml'
+  /configuration/dashboards/contacts:
+    $ref: './v23.10/Configuration/Dashboard/Contacts.yaml'
+  /configuration/dashboards/contactgroups:
+    $ref: './v23.10/Configuration/Dashboard/ContactGroups.yaml'
+  /monitoring/dashboard/metrics/performances:
+    $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsPerformances.yaml'
+  /monitoring/dashboard/metrics/performances/data:
+    $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsPerformancesData.yaml'
+  /monitoring/dashboard/metrics/top:
+    $ref: './v23.10/Configuration/Dashboard/Dashboard.MetricsTop.yaml'
   /configuration/access-groups:
     get:
       tags:
@@ -3925,214 +3811,171 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  global:
-                    type: object
-                    properties:
-                      title:
-                        type: string
-                        description: title of the graph
-                        example: 'graph title'
-                      start:
-                        type: string
-                        format: date-time
-                        description: datetime of the start interval
-                        example: '2020-02-18T00:00:00'
-                      end:
-                        type: string
-                        format: date-time
-                        description: datetime of the end interval
-                        example: '2020-02-19T00:00:00'
-                      vertical-label:
-                        type: string
-                        description: vertical label (should not be used cause multiple y-axis possible)
-                        example: 'Value'
-                      base:
+                  type: object
+                  properties:
+                    base:
                         type: string
                         description: base scale
-                        example: '1024'
-                      width:
-                        type: string
-                        description: width of the graph (should not be used)
-                        example: '550'
-                      height:
-                        type: string
-                        description: height of the graph (should not be used)
-                        example: '140'
-                      lower-limit:
-                        type: string
-                        description: lower value of the graph
-                        example: '0'
-                      scaled:
-                        type: integer
-                        description: if the graph needs to be automatically scaled
-                        example: 1
-                      multiple_services:
-                        type: boolean
-                        description: if multiple services are selected (always false)
-                        example: false
-                  metrics:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        index_id:
-                          type: string
-                          description: index id in centreon_storage.index_data table
-                          example: '4'
-                        metric_id:
-                          type: string
-                          description: metric id in centreon_storage.metrics table
-                          example: '29'
-                        metric:
-                          type: string
-                          description: name of the metric
-                          example: 'cpu'
-                        metric_legend:
-                          type: string
-                          description: name of the metric in legend
-                          example: 'cpu'
-                        unit:
-                          type: string
-                          description: metric unit
-                          example: '%'
-                        hidden:
-                          type: integer
-                          description: if the metric is hidden
-                          example: 0
-                        min:
-                          type: string
-                          description: min value
-                          example: '0'
-                        max:
-                          type: string
-                          description: max value
-                          example: '100'
-                        virtual:
-                          type: integer
-                          description: if the metric is virtual
-                          example: 0
-                        ds_data:
-                          type: object
-                          description: metric line properties
-                          properties:
-                            ds_min:
-                              type: string
-                              description: minimum value
-                              example: '1'
-                            ds_max:
-                              type: string
-                              description: maximum value
-                              example: '1'
-                            ds_minmax_int:
-                              type: string
-                              nullable: true
-                              description: unknown
-                              example: null
-                            ds_last:
-                              type: string
-                              description: last value
-                              example: '1'
-                            ds_average:
-                              type: string
-                              description: average value
-                              example: '1'
-                            ds_total:
-                              type: string
-                              nullable: true
-                              description: unknown
-                              example: null
-                            ds_tickness:
-                              type: string
-                              description: unknown
-                              example: '1'
-                            ds_color_line_mode:
-                              type: string
-                              description: unknown
-                              example: '1'
-                            ds_color_line:
-                              type: string
-                              description: color of the line
-                              example: '#666600'
-                        legend:
-                          type: string
-                          description: metric name in legend
-                          example: 'cpu (%)'
-                        stack:
-                          type: integer
-                          description: if the metric is stacked with other metrics
-                          example: 0
-                        warn:
-                          type: string
-                          nullable: true
-                          description: warning threshold
-                          example: null
-                        warn_low:
-                          type: string
-                          nullable: true
-                          description: low warning threshold
-                          example: null
-                        crit:
-                          type: string
-                          nullable: true
-                          description: critical threshold
-                          example: null
-                        crit_low:
-                          type: string
-                          nullable: true
-                          description: low critical threshold
-                          example: null
-                        ds_color_area_warn:
-                          type: string
-                          description: color of the area under warning threshold
-                          example: '#ff9a13'
-                        ds_color_area_crit:
-                          type: string
-                          description: color of the area under critical threshold
-                          example: '#e00b3d'
-                        ds_order:
-                          type: integer
-                          description: order used for stacking
-                          example: 0
-                        data:
-                          type: array
-                          items:
-                            type: number
-                            format: float
-                            description: value of the metric
-                          example:
-                            - 1.0
-                            - null
-                            - 1.0
-                        prints:
-                          type: array
-                          items:
+                        example: 1024
+                    metrics:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          index_id:
+                            type: string
+                            description: index id in centreon_storage.index_data table
+                            example: '4'
+                          metric_id:
+                            type: string
+                            description: metric id in centreon_storage.metrics table
+                            example: '29'
+                          metric:
+                            type: string
+                            description: name of the metric
+                            example: 'cpu'
+                          metric_legend:
+                            type: string
+                            description: name of the metric in legend
+                            example: 'cpu'
+                          unit:
+                            type: string
+                            description: metric unit
+                            example: '%'
+                          hidden:
+                            type: integer
+                            description: if the metric is hidden
+                            example: 0
+                          min:
+                            type: string
+                            description: min value
+                            example: '0'
+                          max:
+                            type: string
+                            description: max value
+                            example: '100'
+                          virtual:
+                            type: integer
+                            description: if the metric is virtual
+                            example: 0
+                          ds_data:
+                            type: object
+                            description: metric line properties
+                            properties:
+                              ds_min:
+                                type: string
+                                description: minimum value
+                                example: '1'
+                              ds_max:
+                                type: string
+                                description: maximum value
+                                example: '1'
+                              ds_minmax_int:
+                                type: string
+                                nullable: true
+                                description: unknown
+                                example: null
+                              ds_last:
+                                type: string
+                                description: last value
+                                example: '1'
+                              ds_average:
+                                type: string
+                                description: average value
+                                example: '1'
+                              ds_total:
+                                type: string
+                                nullable: true
+                                description: unknown
+                                example: null
+                              ds_tickness:
+                                type: string
+                                description: unknown
+                                example: '1'
+                              ds_color_line_mode:
+                                type: string
+                                description: unknown
+                                example: '1'
+                              ds_color_line:
+                                type: string
+                                description: color of the line
+                                example: '#666600'
+                          legend:
+                            type: string
+                            description: metric name in legend
+                            example: 'cpu (%)'
+                          stack:
+                            type: integer
+                            description: if the metric is stacked with other metrics
+                            example: 0
+                          warn:
+                            type: string
+                            nullable: true
+                            description: warning threshold
+                            example: null
+                          warn_low:
+                            type: string
+                            nullable: true
+                            description: low warning threshold
+                            example: null
+                          crit:
+                            type: string
+                            nullable: true
+                            description: critical threshold
+                            example: null
+                          crit_low:
+                            type: string
+                            nullable: true
+                            description: low critical threshold
+                            example: null
+                          ds_color_area_warn:
+                            type: string
+                            description: color of the area under warning threshold
+                            example: '#ff9a13'
+                          ds_color_area_crit:
+                            type: string
+                            description: color of the area under critical threshold
+                            example: '#e00b3d'
+                          ds_order:
+                            type: integer
+                            description: order used for stacking
+                            example: 0
+                          data:
                             type: array
                             items:
-                              type: string
-                              description: label to display in legend
-                              example: 'Last:1.00'
-                        minimum_value:
-                          type: number
-                          format: float
-                          description: minimum value
-                          example: 1.0
-                        maximum_value:
-                          type: number
-                          format: float
-                          description: maximum value
-                          example: 1.0
-                  times:
-                    type: array
-                    items:
-                      type: string
-                      format: date-time
-                      description: datetime of the tick
-                    example:
-                      - '2020-02-19T00:00:00'
-                      - '2020-02-19T00:05:00'
-                      - '2020-02-19T00:10:00'
+                              type: number
+                              format: float
+                              description: value of the metric
+                            example:
+                              - 1.0
+                              - null
+                              - 1.0
+                          prints:
+                            type: array
+                            items:
+                              type: array
+                              items:
+                                type: string
+                                description: label to display in legend
+                                example: 'Last:1.00'
+                          minimum_value:
+                            type: number
+                            format: float
+                            description: minimum value
+                            example: 1.0
+                          maximum_value:
+                            type: number
+                            format: float
+                            description: maximum value
+                            example: 1.0
+                    times:
+                      type: array
+                      items:
+                        type: string
+                        format: timestamp
+                        description: datetime of the tick
+                      example:
+                        - "1690965300"
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
@@ -4403,34 +4246,10 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /platform/features:
+    $ref: './v23.10/Platform/Features.yaml'
   /platform/versions:
-    get:
-      tags:
-        - Platform
-      summary: "List versions of web, widgets and modules"
-      description: "List versions of web, widgets and modules"
-      responses:
-        '200':
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  web:
-                      $ref: '#/components/schemas/Platform.Versions'
-                  widgets:
-                    type: object
-                    properties:
-                      widgetName:
-                        type: object
-                        $ref: '#/components/schemas/Platform.Versions'
-                  modules:
-                    type: object
-                    properties:
-                      moduleName:
-                        type: object
-                        $ref: '#/components/schemas/Platform.Versions'
+    $ref: './v23.10/Platform/Versions.yaml'
   /platform/updates:
     $ref: "./v22.10/Administration/updates.yaml"
   /platform/installation/status:
@@ -4765,6 +4584,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /administration/tokens:
+    $ref: "./v23.10/Administration/Token/Tokens.yaml"
   /administration/parameters:
     post:
       tags:
@@ -5072,10 +4893,9 @@ components:
       required: false
       description: "Filter the resources by type"
       schema:
-        type: array
-        items:
-          type: string
-          enum: [service, host, metaservice]
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"] where strings can be one of "service", "host", "metaservice"
         example: '["host"]'
     ResourceFilterState:
       in: query
@@ -5083,10 +4903,9 @@ components:
       required: false
       description: "Filter the resources by state"
       schema:
-        type: array
-        items:
-          type: string
-          enum: [unhandled_problems, resources_problems, in_downtime, acknowledged, all]
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"] where strings can be one of "unhandled_problems", "resources_problems", "in_downtime", "acknowledged", "all"
         example: '["in_downtime", "acknowledged"]'
     ResourceFilterStatus:
       in: query
@@ -5094,10 +4913,9 @@ components:
       required: false
       description: "Filter the resources by status"
       schema:
-        type: array
-        items:
-          type: string
-          enum: [OK, UP, WARNING, DOWN, CRITICAL, UNREACHABLE, UNKNOWN, PENDING]
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"] where strings can be one of "OK", "UP", "WARNING", "DOWN", "CRITICAL", "UNREACHABLE", "UNKNOWN", "PENDING"
         example: '["OK", "UP", "PENDING"]'
     ResourceFilterHostgroupName:
       in: query
@@ -5105,9 +4923,9 @@ components:
       required: false
       description: "Filter the resources by host group names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["ESX-Paris", "ESX-London"]'
     ResourceFilterServicegroupName:
       in: query
@@ -5115,9 +4933,9 @@ components:
       required: false
       description: "Filter the resources by service group names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["Memory-Services", "Ping-Services"]'
     ResourceFilterServiceCategoryName:
       in: query
@@ -5125,9 +4943,9 @@ components:
       required: false
       description: "Filter the resources by service category names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["Ping", "CPUs"]'
     ResourceFilterHostCategoryName:
       in: query
@@ -5135,9 +4953,9 @@ components:
       required: false
       description: "Filter the resources by host category names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["Linux", "Windows"]'
     ResourceFilterServiceSeverityName:
       in: query
@@ -5145,9 +4963,9 @@ components:
       required: false
       description: "Filter the resources by service severity names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["Ping", "CPUs"]'
     ResourceFilterHostSeverityName:
       in: query
@@ -5155,9 +4973,9 @@ components:
       required: false
       description: "Filter the resources by host severity names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["Linux", "Windows"]'
     ResourceFilterHostSeverityLevel:
       in: query
@@ -5165,9 +4983,9 @@ components:
       required: false
       description: "Filter the resources by host severity levels"
       schema:
-        type: array
-        items:
-          type: integer
+        type: string
+        pattern: '^\[\d+(,\d+)*\]$'
+        description: should be in form [<int1>,<int2>,<int3>]
         example: '[50, 75]'
     ResourceFilterServiceSeverityLevel:
       in: query
@@ -5175,9 +4993,9 @@ components:
       required: false
       description: "Filter the resources by service severity levels"
       schema:
-        type: array
-        items:
-          type: integer
+        type: string
+        pattern: '^\[\d+(,\d+)*\]$'
+        description: should be in form [<int1>,<int2>,<int3>]
         example: '[50, 75]'
     ResourceFilterMonitoringServerName:
       in: query
@@ -5185,9 +5003,9 @@ components:
       required: false
       description: "Filter the resources by monitoring server names"
       schema:
-        type: array
-        items:
-          type: string
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"]
         example: '["Central", "Remote-Server-Paris", "Poller-Lyon"]'
     ResourceFilterStatusTypes:
       in: query
@@ -5195,10 +5013,9 @@ components:
       required: false
       description: "Filter the resources by status types"
       schema:
-        type: array
-        items:
-          type: string
-          enum: ["soft", "hard"]
+        type: string
+        pattern: '^\["[^"]+"(,"[^"]+")*\]$'
+        description: should be in form ["<str1>","<str2>"] where strings can be one of "soft", "hard"
         example: '["soft"]'
     ShowHost:
       in: query
@@ -5348,6 +5165,15 @@ components:
       in: path
       name: vault_configuration_id
       description: "ID of existing vault configuration"
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+    HostTemplateId:
+      in: path
+      name: host_template_id
+      description: "ID of existing host template configuration"
       required: true
       schema:
         type: integer
@@ -5981,7 +5807,6 @@ components:
                         type: integer
                         description: "Access group id"
                         example: 1
-
     AuthenticationSAMLProvider:
       type: object
       required:
@@ -6118,7 +5943,6 @@ components:
                     type: number
                     description: "priority of the role"
                     example: 1
-
     ReadAuthenticationSAMLProvider:
       allOf:
         -   $ref: '#/components/schemas/AuthenticationSAMLProvider'
@@ -6203,7 +6027,6 @@ components:
                           type: integer
                           description: "Access group id"
                           example: 1
-
     AuthenticationWebSSOProvider:
       type: object
       required:
@@ -6288,6 +6111,27 @@ components:
                 type: string
                 description: "Comment to add to the monitored resource"
                 example: "Resource is not-OK but it is expected"
+    Configuration.Notification.GenericObject:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Configuration.Notification.Message:
+      type: object
+      description: Type and content of the notification
+      properties:
+        channel:
+          type: string
+          enum:
+            - 'Slack'
+            - 'Email'
+            - 'Sms'
+        subject:
+          type: string
+        message:
+          type: string
     Configuration.NewTimePeriod:
       type: object
       properties:
@@ -6390,25 +6234,6 @@ components:
           type: string
           description: "Time range for the day"
           example: "00:00-06:00,07:00-08:00"
-    Configuration.User:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: User id
-          example: 1
-        alias:
-          type: string
-          description: User alias / login
-          example: admin
-        email:
-          type: string
-          description: email address
-          example: root@localhost
-        is_admin:
-          type: boolean
-          description: is admin or not
-          example: true
     Configuration.Host.Category:
       type: object
       properties:
@@ -6783,7 +6608,6 @@ components:
         is_activated:
           type: boolean
           description: "Indicates whether the host template is activated or not"
-
     Configuration.Host.Group:
       allOf:
         - $ref: '#/components/schemas/Configuration.Host.Group.Add'
@@ -7451,10 +7275,6 @@ components:
           type: integer
           description: "Downtime duration in seconds"
           example: 3600
-        author_id:
-          type: integer
-          description: "ID of the contact who requested the downtime"
-          example: 3
         comment:
           type: string
           description: "Comment of the downtime"
@@ -7883,6 +7703,7 @@ components:
           example: "1h 45m"
         information:
           type: string
+          nullable: true
           description: "Output of the resource"
           example: "OK - Ping is ok"
         active_checks:
@@ -8568,6 +8389,10 @@ components:
               type: boolean
               description: "Is the host flapping or not"
               example: false
+            notify:
+              type: boolean
+              description: "Indicates whether notifications of the service are enabled"
+              example: true
     Monitoring.ServiceWithHost:
       type: object
       properties:
@@ -8808,26 +8633,6 @@ components:
                 type: string
                 description: "Data on JSON Format"
                 example: "{\"action\":\"getthumbprint\",\"data\":{\"thumbprint\":\"xxxx_xxxxxxxxx\"},\"message\":\"ok\"}"
-    Platform.Versions:
-      type: object
-      description: "version"
-      properties:
-        version:
-          type: string
-          description: "Full Version"
-          example: 22.04.0
-        major:
-          type: string
-          description: "Major version"
-          example: "22"
-        minor:
-          type: string
-          description: "Minor version"
-          example: "04"
-        fix:
-          type: string
-          description: "Fix version"
-          example: "0"
     Administration.Vault.Configuration.Write:
       type: object
       required: [name, address, port, root_path, role_id, secret_id]

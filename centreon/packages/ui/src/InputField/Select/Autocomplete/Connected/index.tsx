@@ -37,6 +37,7 @@ export interface ConnectedAutoCompleteFieldProps<TData> {
   getRequestHeaders?: HeadersInit;
   initialPage: number;
   labelKey?: string;
+  queryKey?: string;
   searchConditions?: Array<ConditionsSearchParameter>;
 }
 
@@ -55,6 +56,7 @@ const ConnectedAutocompleteField = (
     getRenderedOptionText = (option): string => option.name?.toString(),
     getRequestHeaders,
     displayOptionThumbnail,
+    queryKey,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
     Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
@@ -65,6 +67,9 @@ const ConnectedAutocompleteField = (
     const [searchParameter, setSearchParameter] = useState<
       SearchParameter | undefined
     >(undefined);
+
+    const [autocompleteChangedValue, setAutocompleteChangedValue] =
+      useState<Array<SelectEntry>>();
     const debounce = useDebounce({
       functionToDebounce: (value): void => {
         setSearchParameter(getSearchParameter(value));
@@ -86,10 +91,16 @@ const ConnectedAutocompleteField = (
           search: searchParameter
         });
       },
-      getQueryKey: () => [`autocomplete-${props.label}`, page, searchParameter],
+      getQueryKey: () => [
+        `autocomplete-${queryKey || props.label}`,
+        page,
+        searchParameter
+      ],
       isPaginated: true,
       queryOptions: {
+        cacheTime: 0,
         enabled: false,
+        staleTime: 0,
         suspense: false
       }
     });
@@ -275,6 +286,13 @@ const ConnectedAutocompleteField = (
     }, useDeepCompare([searchConditions]));
 
     useEffect(() => {
+      if (!autocompleteChangedValue && !props?.value) {
+        return;
+      }
+      setSearchParameter(undefined);
+    }, [autocompleteChangedValue, props?.value]);
+
+    useEffect(() => {
       if (!optionsOpen) {
         return;
       }
@@ -286,9 +304,10 @@ const ConnectedAutocompleteField = (
       <AutocompleteField
         filterOptions={(opt): SelectEntry => opt}
         loading={isFetching}
-        open={open}
+        open={optionsOpen}
         options={options}
         renderOption={renderOptions}
+        onChange={(_, value) => setAutocompleteChangedValue(value)}
         onClose={(): void => setOptionsOpen(false)}
         onOpen={(): void => setOptionsOpen(true)}
         onTextChange={changeText}

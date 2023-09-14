@@ -48,7 +48,6 @@ jobs:
             "common::sense",
             "Convert::Binary::C",
             "Convert::EBCDIC",
-            "Crypt::Argon2",
             "Crypt::Blowfish_PP",
             "DateTime::Format::Duration::ISO8601",
             "DBD::Sybase",
@@ -69,13 +68,10 @@ jobs:
             "HTTP::ProxyPAC",
             "JMX::Jmx4Perl",
             "JSON::Parse",
-            "JSON::Path",
             "JSON::WebToken",
-            "Libssh::Session",
             "LV",
             "MIME::Types",
             "MongoDB",
-            "Net::Curl::Easy",
             "Net::DHCP",
             "Net::FTPSSL",
             "Net::HTTPTunnel",
@@ -101,12 +97,12 @@ jobs:
             "XML::Filter::BufferText",
             "XML::LibXML::Simple",
             "XML::SAX::Writer",
+            "ZMQ::Constants",
             "ZMQ::FFI",
             "ZMQ::LibZMQ4"
           ]
         include:
-          - build_rpm: "true"
-          - build_deb: "true"
+          - build_distribs: "el8,el9,bullseye"
           - rpm_dependencies: ""
           - deb_dependencies: ""
           - rpm_provides: ""
@@ -123,44 +119,43 @@ jobs:
             package_extension: deb
             image: packaging-bullseye
           - name: "BSON"
-            build_deb: "false"
+            build_distribs: "el8,el9"
             rpm_provides: "perl(BSON::Bytes) perl(BSON::Code) perl(BSON::DBRef) perl(BSON::OID) perl(BSON::Raw) perl(BSON::Regex) perl(BSON::Time) perl(BSON::Timestamp) perl(BSON::Types) perl(BSON)"
           - name: "BSON::XS"
-            build_deb: "false"
+            build_distribs: "el8,el9"
           - name: "Convert::Binary::C"
-            build_deb: "false"
+            build_distribs: "el8,el9"
           - name: "DateTime::Format::Duration::ISO8601"
             rpm_provides: "perl(DateTime-Format-Duration-ISO8601)"
           - name: "DBD::Sybase"
-            build_deb: "false"
+            build_distribs: "el8,el9"
           - name: "Device::Modbus::RTU::Client"
             version: "0.022"
           - name: "Device::Modbus::TCP::Client"
             version: "0.026"
           - name: "EV"
-            build_deb: "false"
+            build_distribs: "el8,el9"
           - name: "FFI::CheckLib"
-            build_deb: "false"
+            build_distribs: "el8,el9"
           - name: "FFI::Platypus"
-            build_deb: "false"
+            build_distribs: "el8,el9"
             rpm_provides: "perl(FFI::Platypus::Buffer) perl(FFI::Platypus::Memory)"
-          - name: "JSON::Path"
-            version: "1.0.3"
-          - name: "Libssh::Session"
-            rpm_dependencies: "libssh"
-            deb_dependencies: "libssh2-1"
           - name: "Net::DHCP"
             rpm_provides: "perl(Net::DHCP::Constants) perl(Net::DHCP::Packet)"
           - name: "Statistics::Regression"
             version: "0.53"
           - name: "UUID"
             use_dh_make_perl: "false"
+          - name: "ZMQ::Constants"
+            build_distribs: "el9,bullseye"
           - name: "ZMQ::FFI"
-            build_deb: "false"
+            build_distribs: "el8,el9"
             rpm_dependencies: "zeromq"
           - name: "ZMQ::LibZMQ4"
             use_dh_make_perl: "false"
             version: "0.01"
+            rpm_dependencies: "zeromq"
+            deb_dependencies: "libzmq5"
     name: package ${{ matrix.distrib }} ${{ matrix.name }}
     container:
       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-version.outputs.major_version }}
@@ -169,9 +164,9 @@ jobs:
         password: ${{ secrets.DOCKER_REGISTRY_PASSWD }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' }}
+      - if: ${{ contains(matrix.build_distribs, matrix.distrib) && matrix.package_extension == 'rpm' }}
         run: |
           yum install -y yum-utils epel-release git
           yum config-manager --set-enabled crb || true # alma 9
@@ -179,7 +174,7 @@ jobs:
           yum install -y cpanminus rpm-build libcurl-devel libssh-devel expat-devel gcc ruby libuuid-devel zeromq-devel libxml2-devel libffi-devel perl-DBI perl-Net-Pcap freetds freetds-devel
         shell: bash
 
-      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file == '' }}
+      - if: ${{ contains(matrix.build_distribs, matrix.distrib) && matrix.package_extension == 'rpm' && matrix.spec_file == '' }}
         run: |
           if [ -z "${{ matrix.version }}" ]; then
             PACKAGE_VERSION=""
@@ -212,7 +207,7 @@ jobs:
           fpm -s cpan -t ${{ matrix.package_extension }} --rpm-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test$PACKAGE_DEPENDENCIES$PACKAGE_PROVIDES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
-      - if: ${{ matrix.build_rpm == 'true' && matrix.package_extension == 'rpm' && matrix.spec_file != '' }}
+      - if: ${{ contains(matrix.build_distribs, matrix.distrib) && matrix.package_extension == 'rpm' && matrix.spec_file != '' }}
         run: |
           mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 
@@ -221,7 +216,7 @@ jobs:
           cp -r ~/rpmbuild/RPMS/noarch/*.rpm .
         shell: bash
 
-      - if: ${{ matrix.build_deb == 'true' && matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'false' }}
+      - if: ${{ contains(matrix.build_distribs, matrix.distrib) && matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'false' }}
         run: |
           apt update
           apt install -y cpanminus ruby libcurl4-openssl-dev libssh-dev uuid-dev libczmq-dev
@@ -248,7 +243,7 @@ jobs:
           fpm -s cpan -t ${{ matrix.package_extension }} --deb-dist ${{ matrix.distrib }} --verbose --cpan-verbose --no-cpan-test -n $PACKAGE_NAME$PACKAGE_DEPENDENCIES$PACKAGE_VERSION ${{ matrix.name }}
         shell: bash
 
-      - if: ${{ matrix.build_deb == 'true' && matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'true' }}
+      - if: ${{ contains(matrix.build_distribs, matrix.distrib) && matrix.package_extension == 'deb' && matrix.use_dh_make_perl == 'true' }}
         run: |
           apt update
           apt install -y cpanminus libcurl4-openssl-dev dh-make-perl libssh-dev uuid-dev libczmq-dev libmodule-install-perl
@@ -287,7 +282,7 @@ jobs:
       - run: apt-get install -y zstd
         shell: bash
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v3
         with:
@@ -331,7 +326,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -355,7 +350,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -377,7 +372,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable

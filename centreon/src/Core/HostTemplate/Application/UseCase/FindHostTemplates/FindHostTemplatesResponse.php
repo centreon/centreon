@@ -35,7 +35,7 @@ final class FindHostTemplatesResponse
      *          timezoneId: int|null,
      *          severityId: int|null,
      *          checkCommandId: int|null,
-     *          checkCommandArgs: string,
+     *          checkCommandArgs: string[],
      *          checkTimeperiodId: int|null,
      *          maxCheckAttempts: int|null,
      *          normalCheckInterval: int|null,
@@ -43,7 +43,7 @@ final class FindHostTemplatesResponse
      *          activeCheckEnabled: int,
      *          passiveCheckEnabled: int,
      *          notificationEnabled: int,
-     *          notificationOptions: int,
+     *          notificationOptions: ?int,
      *          notificationInterval: int|null,
      *          notificationTimeperiodId: int|null,
      *          addInheritedContactGroup: bool,
@@ -58,14 +58,13 @@ final class FindHostTemplatesResponse
      *          highFlapThreshold: int|null,
      *          eventHandlerEnabled: int,
      *          eventHandlerCommandId: int|null,
-     *          eventHandlerCommandArgs: string,
+     *          eventHandlerCommandArgs: string[],
      *          noteUrl: string,
      *          note: string,
      *          actionUrl: string,
      *          iconId: int|null,
      *          iconAlternative: string,
      *          comment: string,
-     *          isActivated: bool,
      *          isLocked: bool
      *     }
      * >

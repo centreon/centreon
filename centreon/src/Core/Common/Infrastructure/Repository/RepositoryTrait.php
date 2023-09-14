@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
-use Core\Common\Domain\YesNoDefault;
-
 /**
  * This trait is here only to expose utility methods **only** to avoid duplicate code.
  * The methods SHOULD be "Pure" functions.
@@ -43,5 +41,20 @@ trait RepositoryTrait
     public function emptyStringAsNull(string $string): ?string
     {
         return '' === $string ? null : $string;
+    }
+
+    /**
+     * Transform a timestamp integer into a valid \DateTimeImmutable.
+     *
+     * @param int $timestamp
+     *
+     * @throws \ValueError
+     *
+     * @return \DateTimeImmutable
+     */
+    public function timestampToDateTimeImmutable(int $timestamp): \DateTimeImmutable
+    {
+        return \DateTimeImmutable::createFromFormat('U', (string) $timestamp)
+            ?: throw new \ValueError('Unable to create a DateTimeImmutable from an integer.');
     }
 }

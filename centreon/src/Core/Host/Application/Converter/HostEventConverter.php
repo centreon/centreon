@@ -1,13 +1,13 @@
 <?php
 
 /*
-* Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* https://www.apache.org/licenses/LICENSE-2.0
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,17 +26,17 @@ namespace Core\Host\Application\Converter;
 use Core\Host\Domain\Model\HostEvent;
 
 /**
- * This class purpose is to allow convertion from the legacy host event enum to a string
+ * This class purpose is to allow convertion from the legacy host event enum to a string.
  */
 class HostEventConverter
 {
+    public const MAX_BITFLAG = 0b11111;
     private const CASE_NONE_AS_STR = 'n';
     private const CASE_DOWN_AS_STR = 'd';
     private const CASE_UNREACHABLE_AS_STR = 'u';
     private const CASE_RECOVERY_AS_STR = 'r';
     private const CASE_FLAPPING_AS_STR = 'f';
     private const CASE_DOWNTIME_SCHEDULED_AS_STR = 's';
-
     private const CASE_NONE_AS_BIT = 0b00000;
     private const CASE_DOWN_AS_BIT = 0b00001;
     private const CASE_UNREACHABLE_AS_BIT = 0b00010;
@@ -44,11 +44,9 @@ class HostEventConverter
     private const CASE_FLAPPING_AS_BIT = 0b01000;
     private const CASE_DOWNTIME_SCHEDULED_AS_BIT = 0b10000;
 
-    public const MAX_BITMASK = 0b11111;
-
     /**
      * Convert an array of HostEvent to a string.
-     * ex: [HostEvent::Down, HostEvent::Unreachable] => 'd,u'
+     * ex: [HostEvent::Down, HostEvent::Unreachable] => 'd,u'.
      *
      * @param HostEvent[] $events
      *
@@ -73,9 +71,9 @@ class HostEventConverter
 
     /**
      * Convert a string to an array of HostEvent.
-     * ex: 'd,u' => [HostEvent::Down, HostEvent::Unreachable]
+     * ex: 'd,u' => [HostEvent::Down, HostEvent::Unreachable].
      *
-     * @param string $events
+     * @param string $legacyStr
      *
      * @return HostEvent[]
      */
@@ -103,7 +101,7 @@ class HostEventConverter
     }
 
     /**
-     * Convert a HostEvent into bitmask.
+     * Convert a HostEvent into bitFlag.
      *
      * @param HostEvent $event
      *
@@ -122,23 +120,27 @@ class HostEventConverter
     }
 
     /**
-     * Convert a bitmask into an array of HostEvent.
+     * Convert a bitFlag into an array of HostEvent.
      *
-     * @param int $bitmask
+     * @param ?int $bitFlag
      *
      * @throws \Throwable
      *
      * @return HostEvent[]
      */
-    public static function fromBitmask(int $bitmask): array
+    public static function fromBitFlag(?int $bitFlag): array
     {
-        if ($bitmask > self::MAX_BITMASK || $bitmask < 0) {
-            throw new \ValueError("\"{$bitmask}\" is not a valid bitmask for enum HostEvent");
+        if ($bitFlag > self::MAX_BITFLAG || $bitFlag < 0) {
+            throw new \ValueError("\"{$bitFlag}\" is not a valid value for enum HostEvent");
+        }
+
+        if ($bitFlag === self::CASE_NONE_AS_BIT) {
+            return [HostEvent::None];
         }
 
         $enums = [];
         foreach (HostEvent::cases() as $enum) {
-            if ($bitmask & self::toBit($enum)) {
+            if ($bitFlag & self::toBit($enum)) {
                 $enums[] = $enum;
             }
         }
@@ -147,29 +149,29 @@ class HostEventConverter
     }
 
     /**
-     * Convert an array of HostEvent into a bitmask
-     * If the array contains HostEvent::None, an empty bitmask will be returned
-     * If the array is empty, a full bitmask will be returned.
+     * Convert an array of HostEvent into a bitFlag
+     * If the array contains HostEvent::None, an empty bitFlag will be returned
+     * If the array is empty, null is returned.
      *
      * @param HostEvent[] $enums
      *
-     * @return int
+     * @return ?int
      */
-    public static function toBitmask(array $enums): int
+    public static function toBitFlag(array $enums): ?int
     {
         if ($enums === []) {
-            return self::MAX_BITMASK;
+            return null;
         }
 
-        $bitmask = 0;
+        $bitFlag = 0;
         foreach ($enums as $event) {
-            // Value 0 is not a bit, we consider it resets the bitmask
+            // Value 0 is not a bit, we consider it resets the bitFlag
             if (self::toBit($event) === 0) {
                 return 0;
             }
-            $bitmask |= self::toBit($event);
+            $bitFlag |= self::toBit($event);
         }
 
-        return $bitmask;
+        return $bitFlag;
     }
 }

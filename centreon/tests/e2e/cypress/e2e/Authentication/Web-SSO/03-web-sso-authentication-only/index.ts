@@ -40,30 +40,28 @@ When('the administrator sets authentication mode to Web SSO only', () => {
     rootItemNumber: 4
   })
     .get('div[role="tablist"] button:nth-child(3)')
-    .click()
-    .wait('@getWebSSOProvider');
+    .click();
+  cy.wait('@getWebSSOProvider');
   cy.getByLabel({
     label: 'Enable Web SSO authentication',
     tag: 'input'
   }).check();
   cy.getByLabel({ label: 'Web SSO only', tag: 'input' }).check();
-  cy.getByLabel({ label: 'Login header attribute name', tag: 'input' })
-    .clear()
-    .type('REMOTE_USER');
-  cy.getByLabel({ label: 'save button', tag: 'button' })
-    .click({ force: true })
-    .wait('@updateWebSSOProvider')
+  cy.getByLabel({ label: 'Login header attribute name', tag: 'input' }).type(
+    '{selectall}{backspace}REMOTE_USER'
+  );
+  cy.getByLabel({ label: 'save button', tag: 'button' }).click({ force: true });
+  cy.wait('@updateWebSSOProvider')
     .its('response.statusCode')
     .should('eq', 204)
     .logout();
-  // injectingWebSSOScriptsIntoContainer();
 });
 
 Then('users and local admin user must not be able to authenticate', () => {
   // TODO: - Test the authentication via the provider. Check out this issue for more information: https://github.com/cypress-io/cypress/issues/17701
   // cy.session('AUTH_SESSION_ID_LEGACY', () => {
   //   cy.visit(`${Cypress.config().baseUrl}`);
-  //   cy.loginKeycloack('admin')
+  //   cy.loginKeycloak('admin')
   //     .get('#input-error')
   //     .should('be.visible')
   //     .and('include.text', 'Invalid username or password.');

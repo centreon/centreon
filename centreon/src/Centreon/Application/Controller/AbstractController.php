@@ -27,6 +27,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use JsonSchema\Constraints\Constraint;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Abstraction over the FOSRestController
@@ -42,6 +43,9 @@ abstract class AbstractController extends AbstractFOSRestController
     public const ROLE_API_CONFIGURATION = 'ROLE_API_CONFIGURATION';
     public const ROLE_API_CONFIGURATION_EXCEPTION_MESSAGE = 'You are not authorized to access this resource';
 
+    /**
+     * @throws AccessDeniedException
+     */
     public function denyAccessUnlessGrantedForApiConfiguration(): void
     {
         parent::denyAccessUnlessGranted(
@@ -51,6 +55,9 @@ abstract class AbstractController extends AbstractFOSRestController
         );
     }
 
+    /**
+     * @throws AccessDeniedException
+     */
     public function denyAccessUnlessGrantedForApiRealtime(): void
     {
         parent::denyAccessUnlessGranted(
@@ -92,11 +99,12 @@ abstract class AbstractController extends AbstractFOSRestController
      */
     protected function validateDataSent(Request $request, string $jsonValidationFile): void
     {
-        $receivedData = json_decode((string) $request->getContent(), true);
-        if (!is_array($receivedData)) {
+        // We want to enforce the decoding as possible objects.
+        $receivedData = json_decode((string) $request->getContent(), false);
+        if (!is_array($receivedData) && ! ($receivedData instanceof \stdClass)) {
             throw new \InvalidArgumentException('Error when decoding your sent data');
         }
-        $receivedData = Validator::arrayToObjectRecursive($receivedData);
+
         $validator = new Validator();
         $validator->validate(
             $receivedData,

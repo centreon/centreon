@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,8 +27,8 @@ use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\ProviderConfiguration\Domain\Exception\Http\InvalidContentException;
 use Core\Security\ProviderConfiguration\Domain\Exception\Http\InvalidResponseException;
 use Core\Security\ProviderConfiguration\Domain\Exception\Http\InvalidStatusCodeException;
-use Core\Security\ProviderConfiguration\Domain\LoginLoggerInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 use Core\Security\ProviderConfiguration\Domain\Repository\ReadAttributePathRepositoryInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,17 +52,20 @@ class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInte
      * @param string $url
      * @param string $token
      * @param Configuration $configuration
-     * @return array
+     * @param string $endpointType
+     *
      * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws SSOAuthenticationException
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
+     *
+     * @return array
      */
-    public function getData(string $url, string $token, Configuration $configuration): array
+    public function getData(string $url, string $token, Configuration $configuration, string $endpointType): array
     {
         try {
-            $response = $this->getResponseOrFail($url, $token, $configuration);
+            $response = $this->getResponseOrFail($url, $token, $configuration, $endpointType);
             $this->statusCodeIsValidOrFail($response);
 
             return $this->getContentOrFail($response);
@@ -75,24 +78,34 @@ class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInte
      * @param string $url
      * @param string $token
      * @param Configuration $configuration
-     * @return ResponseInterface
+     * @param string $endpointType
+     *
      * @throws SSOAuthenticationException
      * @throws TransportExceptionInterface
      * @throws Exception
+     *
+     * @return ResponseInterface
      */
-    private function getResponseOrFail(string $url, string $token, Configuration $configuration): ResponseInterface
-    {
+    private function getResponseOrFail(
+        string $url,
+        string $token,
+        Configuration $configuration,
+        string $endpointType
+    ): ResponseInterface {
         $customConfiguration = $configuration->getCustomConfiguration();
-        $headers = ["Authorization" => "Bearer " . trim($token)];
-        $body = [
-            "token" => $token,
-            "client_id" => $customConfiguration->getClientId(),
-            "client_secret" => $customConfiguration->getClientSecret()
-        ];
-        $options = ["headers" => $headers, "body" => $body, "verify_peer" => $customConfiguration->verifyPeer()];
+        $headers = ['Authorization' => 'Bearer ' . trim($token)];
+        $options = ['verify_peer' => $customConfiguration->verifyPeer(), 'headers' => $headers];
+        if ($endpointType !== Endpoint::CUSTOM) {
+            $body = [
+                'token' => $token,
+                'client_id' => $customConfiguration->getClientId(),
+                'client_secret' => $customConfiguration->getClientSecret(),
+            ];
+            $options['body'] = $body;
+        }
 
         try {
-            $response = $this->client->request("POST", $url, $options);
+            $response = $this->client->request($this->getHttpMethodFromEndpointType($endpointType), $url, $options);
         } catch (Exception) {
             throw new InvalidResponseException();
         }
@@ -102,7 +115,7 @@ class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInte
 
     /**
      * @param ResponseInterface $response
-     * @return void
+     *
      * @throws TransportExceptionInterface
      */
     private function statusCodeIsValidOrFail(ResponseInterface $response): void
@@ -115,20 +128,34 @@ class HttpReadAttributePathRepository implements ReadAttributePathRepositoryInte
 
     /**
      * @param ResponseInterface $response
-     * @return array
+     *
      * @throws TransportExceptionInterface
      * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
+     *
+     * @return array
      */
     private function getContentOrFail(ResponseInterface $response): array
     {
         $content = $response->getContent(false);
         $content = json_decode($content, true);
-        if (empty($content) || !is_array($content) || array_key_exists('error', $content)) {
+        if (empty($content) || ! is_array($content) || array_key_exists('error', $content)) {
             throw InvalidContentException::createWithContent($content);
         }
 
         return $content;
+    }
+
+    /**
+     * Get the HTTP Method from Endpoint Type.
+     *
+     * @param string $endpointType
+     *
+     * @return string
+     */
+    private function getHttpMethodFromEndpointType(string $endpointType): string
+    {
+        return $endpointType === Endpoint::INTROSPECTION ? 'POST' : 'GET';
     }
 }

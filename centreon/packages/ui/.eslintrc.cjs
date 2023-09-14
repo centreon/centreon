@@ -11,5 +11,14 @@ module.exports = {
         ]
       }
     }
-  }
+  },
+  overrides: [
+    {
+      // less strict for stories
+      "files": ["*.stories.tsx"],
+      "rules": {
+        "react/no-array-index-key": "warn",
+      }
+    }
+  ]
 };

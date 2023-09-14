@@ -10,11 +10,11 @@ interface StylesProps {
   dataStyle: TableStyle;
   getGridTemplateColumn: string;
   limit: number;
+  listingVariant: ListingVariant;
   rows: Array<unknown>;
-  viewMode: ListingVariant;
 }
 
-const useStyles = makeStyles<StylesProps>()(
+const useListingStyles = makeStyles<StylesProps>()(
   (theme, { dataStyle, getGridTemplateColumn, rows, limit }) => ({
     actionBar: {
       alignItems: 'center',
@@ -73,4 +73,4 @@ const useStyles = makeStyles<StylesProps>()(
   })
 );
 
-export { useStyles, loadingIndicatorHeight };
+export { useListingStyles, loadingIndicatorHeight };

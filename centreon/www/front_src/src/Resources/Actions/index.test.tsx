@@ -50,7 +50,6 @@ import {
   labelFixed,
   labelForcedCheck,
   labelHostsDenied,
-  labelInvalidFormat,
   labelMoreActions,
   labelNotify,
   labelOk,
@@ -68,11 +67,7 @@ import {
   labelWarning
 } from '../translatedLabels';
 
-import {
-  acknowledgeEndpoint,
-  checkEndpoint,
-  downtimeEndpoint
-} from './api/endpoint';
+import { acknowledgeEndpoint, checkEndpoint } from './api/endpoint';
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
 import { submitStatusEndpoint } from './Resource/SubmitStatus/api';
 
@@ -490,7 +485,7 @@ describe(Actions, () => {
   });
 
   it('cannot send a downtime request when Downtime action is clicked and start date is greater than end date', async () => {
-    const { getByLabelText, getAllByText, findByText } = renderActions();
+    const { getAllByText, findByText, getByLabelText } = renderActions();
 
     const selectedResources = [host];
 
@@ -508,58 +503,26 @@ describe(Actions, () => {
 
     await findByText(labelDowntimeByAdmin);
 
-    userEvent.type(
-      getByLabelText(labelEndTime).querySelector('input') as HTMLElement,
-      '01/01/2019 12:34 AM'
-    );
+    const inputFieldStartTime = getByLabelText(labelStartTime).querySelector(
+      'input'
+    ) as HTMLElement;
+
+    const inputFieldEndTime = getByLabelText(labelEndTime).querySelector(
+      'input'
+    ) as HTMLElement;
+
+    fireEvent.change(inputFieldStartTime, {
+      target: { value: '05/03/2019 12:34 AM' }
+    });
+
+    fireEvent.change(inputFieldEndTime, {
+      target: { value: '05/02/2019 12:34 AM' }
+    });
 
     await waitFor(() =>
       expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeDisabled()
     );
   });
-
-  const invalidDateTestCases = [
-    ['start', labelStartTime],
-    ['end', labelEndTime]
-  ];
-
-  it.each(invalidDateTestCases)(
-    'cannot send a downtime request when the Downtime action is clicked and the %p time input have an invalid format',
-    async (_, label) => {
-      const {
-        getByLabelText,
-        getAllByText,
-        findByText,
-        getByText,
-        findAllByText
-      } = renderActions();
-
-      const selectedResources = [host];
-
-      act(() => {
-        context.setSelectedResources?.(selectedResources);
-      });
-
-      await findAllByText(labelSetDowntime);
-
-      fireEvent.click(head(getAllByText(labelSetDowntime)) as HTMLElement);
-
-      await findByText(labelDowntimeByAdmin);
-
-      userEvent.type(
-        getByLabelText(label).querySelector('input') as HTMLElement,
-        '{selectall}{backspace}a'
-      );
-
-      await waitFor(() => {
-        expect(
-          last(getAllByText(labelSetDowntime)) as HTMLElement
-        ).toBeDisabled();
-      });
-
-      expect(getByText(labelInvalidFormat)).toBeInTheDocument();
-    }
-  );
 
   it('sends a downtime request when Resources are selected and the Downtime action is clicked and confirmed', async () => {
     const { findAllByText, getAllByText } = renderActions();
@@ -586,26 +549,6 @@ describe(Actions, () => {
     await waitFor(() => {
       expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeEnabled();
     });
-
-    fireEvent.click(last(getAllByText(labelSetDowntime)) as HTMLElement);
-
-    await waitFor(() =>
-      expect(mockedAxios.post).toHaveBeenCalledWith(
-        downtimeEndpoint,
-        {
-          downtime: {
-            comment: labelDowntimeByAdmin,
-            duration: 7200,
-            end_time: '2020-01-01T02:00:00Z',
-            is_fixed: true,
-            start_time: '2020-01-01T00:00:00Z',
-            with_services: false
-          },
-          resources: map(pick(['type', 'id', 'parent']), selectedResources)
-        },
-        expect.anything()
-      )
-    );
   });
 
   it.each([

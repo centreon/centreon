@@ -25,9 +25,12 @@ interface Props {
   getHighlightRowCondition?: (row) => boolean;
   isRowHovered: boolean;
   isRowSelected: boolean;
+  labelCollapse?: string;
+  labelExpand?: string;
+  listingVariant?: ListingVariant;
   row?;
   rowColorConditions?: Array<RowColorCondition>;
-  viewMode?: ListingVariant;
+  subItemsRowProperty?: string;
 }
 
 const DataCell = ({
@@ -37,17 +40,24 @@ const DataCell = ({
   isRowHovered,
   rowColorConditions,
   disableRowCondition,
-  viewMode,
-  getHighlightRowCondition
+  listingVariant,
+  getHighlightRowCondition,
+  subItemsRowProperty,
+  labelCollapse,
+  labelExpand
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
-  const { dataStyle } = useStyleTable({ viewMode });
+  const { dataStyle } = useStyleTable({ listingVariant });
 
   const commonCellProps = {
     disableRowCondition,
+    displaySubItemsCaret: column.displaySubItemsCaret,
     isRowHovered,
+    labelCollapse,
+    labelExpand,
     row,
-    rowColorConditions
+    rowColorConditions,
+    subItemsRowProperty
   };
 
   const isRowHighlighted = getHighlightRowCondition?.(row);
@@ -75,10 +85,10 @@ const DataCell = ({
         <Cell
           className={classes.cell}
           isRowHighlighted={isRowHighlighted}
+          listingVariant={listingVariant}
           style={{
             gridColumn
           }}
-          viewMode={viewMode}
           {...commonCellProps}
         >
           {isTruncated && (
@@ -104,9 +114,9 @@ const DataCell = ({
         <Cell
           className={classes.cell}
           isRowHighlighted={isRowHighlighted}
-          viewMode={viewMode}
+          listingVariant={listingVariant}
           onClick={(e): void => {
-            if (!clickable) {
+            if (!clickable && !column.displaySubItemsCaret) {
               return;
             }
             e.preventDefault();
@@ -212,7 +222,7 @@ const MemoizedDataCell = memo<Props>(
 
     // Explicitely prevent the component from rendering.
     if (nextRenderComponentCondition === false) {
-      return equals(prevProps.viewMode, nextProps.viewMode);
+      return equals(prevProps.listingVariant, nextProps.listingVariant);
     }
 
     const previousRowProps = previousRowMemoProps
@@ -223,6 +233,7 @@ const MemoizedDataCell = memo<Props>(
       : nextProps.row;
 
     return (
+      equals(prevProps.row, nextProps.row) &&
       equals(previousIsComponentHovered, nextIsComponentHovered) &&
       equals(prevProps.isRowHovered, nextProps.isRowHovered) &&
       equals(previousFormattedString, nextFormattedString) &&
@@ -244,7 +255,8 @@ const MemoizedDataCell = memo<Props>(
         nextProps.disableRowCondition(nextProps.row)
       ) &&
       equals(previousIsRowHighlighted, nextIsRowHighlighted) &&
-      equals(prevProps.viewMode, nextProps.viewMode) // &&
+      equals(prevProps.listingVariant, nextProps.listingVariant) &&
+      equals(prevProps.subItemsRowProperty, nextProps.subItemsRowProperty)
     );
   }
 );

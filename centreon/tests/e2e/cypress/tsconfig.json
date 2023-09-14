@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": "..",
     "esModuleInterop": true,
-    "types": ["cypress", "node"]
+    "target": "es2020",
+    "types": ["cypress", "cypress-wait-until", "node"]
   },
   "include": [
     "**/*.ts"

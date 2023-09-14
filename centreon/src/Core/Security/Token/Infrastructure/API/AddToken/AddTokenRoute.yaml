@@ -1,0 +1,5 @@
+AddToken:
+  methods: POST
+  path: /administration/tokens
+  controller: 'Core\Security\Token\Infrastructure\API\AddToken\AddTokenController'
+  condition: "request.attributes.get('version') >= 23.10"

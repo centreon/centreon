@@ -12,7 +12,8 @@
     "pretty": true,
     "emitDeclarationOnly": true,
     "types": [],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "moduleResolution": "NodeNext"
   },
   "include": [
     "./src"
@@ -22,5 +23,4 @@
     "./dist",
     "../../node_modules"
   ],
-
 }

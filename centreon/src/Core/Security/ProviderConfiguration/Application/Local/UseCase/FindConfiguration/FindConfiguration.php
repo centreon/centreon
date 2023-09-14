@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,6 +55,7 @@ class FindConfiguration
             $presenter->setResponseStatus(
                 new FindConfigurationErrorResponse($e->getMessage())
             );
+
             return;
         }
 
@@ -63,6 +64,7 @@ class FindConfiguration
 
     /**
      * @param Configuration $configuration
+     *
      * @return FindConfigurationResponse
      */
     public function createResponse(Configuration $configuration): FindConfigurationResponse
@@ -79,8 +81,8 @@ class FindConfiguration
         $response->attempts = $customConfiguration->getSecurityPolicy()->getAttempts();
         $response->blockingDuration = $customConfiguration->getSecurityPolicy()->getBlockingDuration();
         $response->passwordExpirationDelay = $customConfiguration->getSecurityPolicy()->getPasswordExpirationDelay();
-        $response->passwordExpirationExcludedUserAliases =
-            $customConfiguration
+        $response->passwordExpirationExcludedUserAliases
+            = $customConfiguration
                 ->getSecurityPolicy()
                 ->getPasswordExpirationExcludedUserAliases();
         $response->delayBeforeNewPassword = $customConfiguration->getSecurityPolicy()->getDelayBeforeNewPassword();

@@ -1,0 +1,41 @@
+{
+  "title": "Graph",
+  "description": "Widget graph description (TBD)",
+  "options": {
+    "timeperiod": {
+      "type": "time-period",
+      "defaultValue": {
+        "start": null,
+        "end": null,
+        "timePeriodType": 1
+      }
+    },
+    "threshold": {
+      "type": "threshold",
+      "defaultValue": {
+        "enabled": true,
+        "customCritical": null,
+        "criticalType": "default",
+        "customWarning": null,
+        "warningType": "default"
+      },
+      "label": "threshold"
+    },
+    "refreshInterval": {
+      "type": "refresh-interval",
+      "defaultValue": "default",
+      "label": "Interval"
+    }
+  },
+  "data": {
+    "resources": {
+      "type": "resources",
+      "defaultValue": []
+    },
+    "metrics": {
+      "type": "metrics",
+      "defaultValue": []
+    }
+  },
+  "moduleName": "centreon-widget-graph"
+}

@@ -66,7 +66,7 @@ fi
 
 # If mysql master != VIP holder
 if [[ "$VIP_OWNER" == "$MASTER_DB" ]] ; then
-    echo "The VIP address is already at the right place. Nothing to do."
+    echo "The VIP address is already in the right place. Nothing to do."
     exit 0
 fi
 

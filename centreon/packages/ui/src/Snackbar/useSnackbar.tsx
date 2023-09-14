@@ -2,6 +2,8 @@ import { useSnackbar as useNotistackSnackbar } from 'notistack';
 
 import { Typography } from '@mui/material';
 
+import { sanitizedHTML } from '../utils';
+
 import Severity from './Severity';
 
 import Snackbar from '.';
@@ -59,7 +61,9 @@ const useSnackbar = (): UseSnackbar => {
         <div>
           {formattedMessages.map((errorMessage, index) => (
             <Typography key={messageKeys[index]} variant="body2">
-              {errorMessage}
+              {sanitizedHTML({
+                initialContent: errorMessage
+              })}
             </Typography>
           ))}
         </div>

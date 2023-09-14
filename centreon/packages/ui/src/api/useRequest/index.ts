@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import 'ulog';
 import axios from 'axios';
-import { pathOr, defaultTo, path, includes } from 'ramda';
+import { pathOr, defaultTo, path, includes, or } from 'ramda';
 import anylogger from 'anylogger';
 import { JsonDecoder } from 'ts.data.json';
 
@@ -42,12 +42,15 @@ const useRequest = <TResult>({
 
   const showRequestErrorMessage = (error): void => {
     log.error(error);
-    const message = defaultTo(
-      pathOr(defaultFailureMessage, ['response', 'data', 'message']),
-      getErrorMessage
-    )(error);
 
-    showErrorMessage(message);
+    const message = or(
+      pathOr(undefined, ['response', 'data', 'message'], error),
+      pathOr(defaultFailureMessage, ['response', 'data'], error)
+    );
+
+    const errorMessage = defaultTo(message, getErrorMessage?.(error));
+
+    showErrorMessage(errorMessage as string);
   };
 
   const sendRequest = (params): Promise<TResult> => {

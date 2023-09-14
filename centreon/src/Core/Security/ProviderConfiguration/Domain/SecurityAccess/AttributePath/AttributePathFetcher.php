@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- *  For more information : contact@centreon.com
+ * For more information : contact@centreon.com
+ *
  */
 
 declare(strict_types=1);
@@ -28,9 +29,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
 
 class AttributePathFetcher
 {
-    /**
-     * @var AttributePathFetcherInterface[]
-     */
+    /** @var AttributePathFetcherInterface[] */
     private array $fetchers;
 
     /**
@@ -46,7 +45,7 @@ class AttributePathFetcher
         $this->fetchers = [
             $this->introspectionFetcher,
             $this->userInformationFetcher,
-            $this->httpUrlFetcher
+            $this->httpUrlFetcher,
         ];
     }
 
@@ -54,6 +53,7 @@ class AttributePathFetcher
      * @param string $accessToken
      * @param Configuration $configuration
      * @param Endpoint $endpoint
+     *
      * @return array
      */
     public function fetch(string $accessToken, Configuration $configuration, Endpoint $endpoint): array
@@ -63,6 +63,7 @@ class AttributePathFetcher
 
     /**
      * @param Endpoint $endpoint
+     *
      * @return AttributePathFetcherInterface
      */
     private function findFirstFetcher(Endpoint $endpoint): AttributePathFetcherInterface

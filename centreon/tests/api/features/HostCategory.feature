@@ -328,6 +328,8 @@ Feature:
     }
     """
     Then the response code should be "201"
+    And the header location should be equal to '/centreon/api/latest/configuration/hosts/categories/1'
+
     And the JSON should be equal to:
     """
     {

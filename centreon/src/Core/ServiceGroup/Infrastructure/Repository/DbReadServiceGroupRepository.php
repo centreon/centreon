@@ -35,6 +35,7 @@ use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Utility\SqlConcatenator;
 
 /**
@@ -74,6 +75,10 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        if ($this->hasAccessToAllServiceGroups($accessGroupIds)) {
+
+            return $this->findAll($requestParameters);
+        }
         $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
 
         return $this->retrieveServiceGroups($concatenator, $requestParameters);
@@ -99,6 +104,10 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        if ($this->hasAccessToAllServiceGroups($accessGroupIds)) {
+
+            return $this->findOne($serviceGroupId);
+        }
         $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
 
         return $this->retrieveServiceGroup($concatenator, $serviceGroupId);
@@ -124,6 +133,10 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         }
 
         $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        if ($this->hasAccessToAllServiceGroups($accessGroupIds)) {
+
+            return $this->existsOne($serviceGroupId);
+        }
         $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
 
         return $this->existsServiceGroup($concatenator, $serviceGroupId);
@@ -145,6 +158,64 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exist(array $serviceGroupIds): array
+    {
+        $concatenator = $this->getFindServiceGroupConcatenator();
+
+        return $this->existServiceGroup($concatenator, $serviceGroupIds);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existByAccessGroups(array $serviceGroupIds, array $accessGroups): array
+    {
+        if ([] === $accessGroups) {
+            return [];
+        }
+
+        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        if ($this->hasAccessToAllServiceGroups($accessGroupIds)) {
+
+            return $this->exist($serviceGroupIds);
+        }
+        $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
+
+        return $this->existServiceGroup($concatenator, $serviceGroupIds);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByService(int $serviceId): array
+    {
+        $concatenator = $this->getFindServiceGroupConcatenator();
+
+        return $this->retrieveServiceGroupsByService($concatenator, $serviceId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByServiceAndAccessGroups(int $serviceId, array $accessGroups): array
+    {
+        if ([] === $accessGroups) {
+            return [];
+        }
+
+        $accessGroupIds = $this->accessGroupsToIds($accessGroups);
+        if ($this->hasAccessToAllServiceGroups($accessGroupIds)) {
+
+            return $this->findByService($serviceId);
+        }
+        $concatenator = $this->getFindServiceGroupConcatenator($accessGroupIds);
+
+        return $this->retrieveServiceGroupsByService($concatenator, $serviceId);
     }
 
     /**
@@ -300,6 +371,36 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
 
     /**
      * @param SqlConcatenator $concatenator
+     * @param int[] $serviceGroupIds
+     *
+     * @throws \PDOException
+     *
+     * @return int[]
+     */
+    private function existServiceGroup(SqlConcatenator $concatenator, array $serviceGroupIds): array
+    {
+        $concatenator
+            ->defineSelect(
+                <<<'SQL'
+                    SELECT sg.sg_id
+                    SQL
+            )
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE sg.sg_id IN (:servicegroup_ids)
+                    SQL
+            )
+            ->storeBindValueMultiple(':servicegroup_ids', $serviceGroupIds, \PDO::PARAM_INT);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @param SqlConcatenator $concatenator
      * @param int $serviceGroupId
      *
      * @throws InvalidGeoCoordException
@@ -329,6 +430,108 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         $data = $statement->fetch(\PDO::FETCH_ASSOC);
 
         return $data ? $this->createServiceGroupFromArray($data) : null;
+    }
+
+    /**
+     * @param SqlConcatenator $concatenator
+     * @param int $serviceId
+     *
+     * @throws InvalidGeoCoordException
+     * @throws \PDOException
+     * @throws AssertionFailedException
+     *
+     * @return array<array{relation:ServiceGroupRelation,serviceGroup:ServiceGroup}>
+     */
+    private function retrieveServiceGroupsByService(SqlConcatenator $concatenator, int $serviceId): array
+    {
+        $concatenator
+            ->appendSelect(
+                <<<'SQL'
+                    sgr.host_host_id
+                    SQL
+            )
+            ->appendJoins(
+                <<<'SQL'
+                    INNER JOIN `:db`.servicegroup_relation sgr
+                        ON sgr.servicegroup_sg_id = sg.sg_id
+                    SQL
+            )
+            ->appendWhere(
+                <<<'SQL'
+                    WHERE sgr.service_service_id = :service_id
+                    SQL
+            )
+            ->storeBindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->concatAll()));
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+        $serviceGroups = [];
+
+        while (is_array($result = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /** @var array{
+             *  sg_id:int,
+             *  sg_name:string,
+             *  sg_alias:string,
+             *  geo_coords:string|null,
+             *  sg_comment:string|null,
+             *  sg_activate:'0'|'1',
+             *  host_host_id:int
+             * } $result */
+            $serviceGroups[] = [
+                'relation' => new ServiceGroupRelation(
+                    serviceGroupId: $result['sg_id'],
+                    serviceId: $serviceId,
+                    hostId: $result['host_host_id'],
+                ),
+                'serviceGroup' => $this->createServiceGroupFromArray($result),
+            ];
+        }
+
+        return $serviceGroups;
+    }
+
+    /**
+     * Determine if accessGroups give access to all serviceGroups
+     * true: all service groups are accessible
+     * false: all service groups are NOT accessible.
+     *
+     * @param int[] $accessGroupIds
+     *
+     * @phpstan-param non-empty-array<int> $accessGroupIds
+     *
+     * @return bool
+     */
+    private function hasAccessToAllServiceGroups(array $accessGroupIds): bool
+    {
+        $concatenator = new SqlConcatenator();
+
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT res.all_servicegroups
+                FROM `:db`.acl_resources res
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN `:db`.acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                SQL
+        );
+
+        $concatenator->storeBindValueMultiple(':access_group_ids', $accessGroupIds, \PDO::PARAM_INT)
+            ->appendWhere('ag.acl_group_id IN (:access_group_ids)');
+
+        $statement = $this->db->prepare($this->translateDbName($concatenator->__toString()));
+
+        $concatenator->bindValuesToStatement($statement);
+        $statement->execute();
+
+        while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
+            if (true === (bool) $hasAccessToAll) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

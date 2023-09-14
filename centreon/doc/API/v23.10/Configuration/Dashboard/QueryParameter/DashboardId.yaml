@@ -1,0 +1,8 @@
+in: path
+name: dashboard_id
+description: "ID of the dashboard"
+required: true
+schema:
+  type: integer
+  format: int64
+  example: 5

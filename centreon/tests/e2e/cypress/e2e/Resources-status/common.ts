@@ -1,9 +1,9 @@
 import {
   apiBase,
   applyConfigurationViaClapi,
+  getStatusNumberFromString,
   checkThatConfigurationIsExported,
-  checkThatFixtureServicesExistInDatabase,
-  loginAsAdminViaApiV2,
+  checkServicesAreMonitored,
   submitResultsViaClapi,
   versionApi,
   insertFixture,
@@ -24,6 +24,8 @@ interface Filter {
 }
 
 const serviceInAcknowledgementName = 'service_test_ack';
+const serviceInDtName = 'service_test_dt';
+const secondServiceInDtName = 'service_test_dt_2';
 const hostInAcknowledgementName = 'test_host';
 const hostChildInAcknowledgementName = 'test_host_ack';
 const stateFilterContainer = '[aria-label="State filter"]';
@@ -47,7 +49,11 @@ const initializeResourceData = (): Cypress.Chainable => {
     'resources/clapi/service3/01-add.json',
     'resources/clapi/service3/02-set-max-check.json',
     'resources/clapi/service3/03-disable-active-check.json',
-    'resources/clapi/service3/04-enable-passive-check.json'
+    'resources/clapi/service3/04-enable-passive-check.json',
+    'resources/clapi/service4/01-add.json',
+    'resources/clapi/service4/02-set-max-check.json',
+    'resources/clapi/service4/03-disable-active-check.json',
+    'resources/clapi/service4/04-enable-passive-check.json'
   ];
 
   return cy.wrap(Promise.all(files.map(insertFixture)));
@@ -83,25 +89,6 @@ const initializeAckRessources = (): Cypress.Chainable => {
   return cy.wrap(Promise.all(files.map(insertFixture)));
 };
 
-const insertResourceFixtures = (): Cypress.Chainable => {
-  const dateBeforeLogin = new Date();
-
-  return updateFixturesResult().then((submitResults) => {
-    loginAsAdminViaApiV2()
-      .then(initializeResourceData)
-      .then(applyConfigurationViaClapi)
-      .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
-      .then(() => submitResultsViaClapi(submitResults))
-      .then(() =>
-        checkThatFixtureServicesExistInDatabase({
-          outputText: 'submit_status_2',
-          serviceDesc: serviceInAcknowledgementName,
-          submitResults
-        })
-      );
-  });
-};
-
 const insertAckResourceFixtures = (): Cypress.Chainable => {
   const dateBeforeLogin = new Date();
   let results;
@@ -116,14 +103,13 @@ const insertAckResourceFixtures = (): Cypress.Chainable => {
     .then(initializeAckChildRessources)
     .then(applyConfigurationViaClapi)
     .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }))
-    .then(() => submitResultsViaClapi(results))
     .then(() =>
-      checkThatFixtureServicesExistInDatabase({
-        outputText: 'submit_status_2',
-        serviceDesc: serviceInAcknowledgementName,
-        submitResults: results
-      })
-    );
+      checkServicesAreMonitored([{ name: serviceInAcknowledgementName }])
+    )
+    .then(() => submitResultsViaClapi(results))
+    .refreshListing()
+    .then(() => cy.contains(serviceInAcknowledgementName, { timeout: 30000 }))
+    .then(() => cy.contains('submit_status_2', { timeout: 30000 }));
 };
 
 const setUserFilter = (body: Filter): Cypress.Chainable => {
@@ -156,10 +142,13 @@ const deleteUserFilter = (): Cypress.Chainable => {
 };
 
 const tearDownResource = (): Cypress.Chainable => {
+  const dateBeforeLogin = new Date();
+
   return cy
     .setUserTokenApiV1()
     .then(() => cy.removeResourceData())
-    .then(applyConfigurationViaClapi);
+    .then(applyConfigurationViaClapi)
+    .then(() => checkThatConfigurationIsExported({ dateBeforeLogin }));
 };
 
 const tearDownAckResource = (): Cypress.Chainable => {
@@ -188,7 +177,7 @@ const checkIfUserNotificationsAreEnabled = (): void => {
         return null;
       }
 
-      throw new Error(`User notifications are not enabled.`);
+      throw new Error(`User notifications are disabled.`);
     }
   );
 };
@@ -197,19 +186,11 @@ const submitCustomResultsViaClapi = (
   submitResults: SubmitResult
 ): Cypress.Chainable => {
   const timestampNow = Math.floor(Date.now() / 1000) - 15;
-  const statusIds = {
-    critical: '2',
-    down: '1',
-    unknown: '3',
-    unreachable: '2',
-    up: '0',
-    warning: '1'
-  };
 
   return submitResultsViaClapi([
     {
       ...submitResults,
-      status: statusIds[submitResults.status],
+      status: getStatusNumberFromString(submitResults.status).toString(),
       updatetime: timestampNow.toString()
     }
   ]);
@@ -242,13 +223,7 @@ const checkIfNotificationsAreNotBeingSent = (): void => {
 };
 
 const typeToSearchInput = (searchText: string): void => {
-  cy.get(searchInput).as('searchInput');
-
-  cy.get('@searchInput').clear();
-
-  cy.get('@searchInput').type(searchText);
-
-  cy.get('@searchInput').type('{esc}{enter}');
+  cy.get(searchInput).type(`{selectall}{backspace}${searchText}{esc}{enter}`);
 };
 
 const actionBackgroundColors = {
@@ -273,7 +248,8 @@ export {
   serviceInAcknowledgementName,
   hostInAcknowledgementName,
   hostChildInAcknowledgementName,
-  insertResourceFixtures,
+  serviceInDtName,
+  secondServiceInDtName,
   setUserFilter,
   deleteUserFilter,
   tearDownResource,
@@ -283,5 +259,6 @@ export {
   checkIfNotificationsAreNotBeingSent,
   clearCentengineLogs,
   tearDownAckResource,
-  typeToSearchInput
+  typeToSearchInput,
+  initializeResourceData
 };

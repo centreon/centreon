@@ -4,7 +4,10 @@ import { useAtomValue } from 'jotai';
 import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 import { isNil } from 'ramda';
 
-import { LocalizationProvider, DesktopDatePicker } from '@mui/x-date-pickers';
+import {
+  LocalizationProvider,
+  DesktopDateTimePicker
+} from '@mui/x-date-pickers';
 import {
   Checkbox,
   FormControlLabel,
@@ -120,7 +123,7 @@ const DialogDowntime = ({
             gap={1}
             gridTemplateColumns="1fr auto 1fr"
           >
-            <DesktopDatePicker<dayjs.Dayjs>
+            <DesktopDateTimePicker<dayjs.Dayjs>
               maxDate={dayjs(maxEndDate)}
               slotProps={{
                 textField: {
@@ -131,7 +134,7 @@ const DialogDowntime = ({
               onChange={changeTime('startTime')}
             />
             <FormHelperText>{t(labelTo)}</FormHelperText>
-            <DesktopDatePicker<dayjs.Dayjs>
+            <DesktopDateTimePicker<dayjs.Dayjs>
               slotProps={{
                 textField: {
                   'aria-label': t(labelEndTime) as string

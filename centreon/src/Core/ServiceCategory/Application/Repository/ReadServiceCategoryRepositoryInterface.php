@@ -31,6 +31,29 @@ use Core\ServiceCategory\Domain\Model\ServiceCategory;
 interface ReadServiceCategoryRepositoryInterface
 {
     /**
+     * Find all existing service categories ids.
+     *
+     * @param list<int> $serviceCategoriesIds
+     *
+     * @throws \Throwable
+     *
+     * @return list<int>
+     */
+    public function findAllExistingIds(array $serviceCategoriesIds): array;
+
+    /**
+     * Find all existing service categories ids and according to access groups.
+     *
+     * @param list<int> $serviceCategoriesIds
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return list<int>
+     */
+    public function findAllExistingIdsByAccessGroups(array $serviceCategoriesIds, array $accessGroups): array;
+
+    /**
      * Find all service categories.
      *
      * @param RequestParametersInterface $requestParameters
@@ -51,10 +74,32 @@ interface ReadServiceCategoryRepositoryInterface
      *
      * @return ServiceCategory[]
      */
-    public function findByRequestParameterAndAccessGroups(array $accessGroups, RequestParametersInterface $requestParameters): array;
+    public function findByRequestParameterAndAccessGroups(
+        array $accessGroups,
+        RequestParametersInterface $requestParameters
+    ): array;
 
     /**
-     * Check existance of a service category.
+     * Find all service categories linked to a service.
+     *
+     * @param int $serviceId
+     *
+     * @return ServiceCategory[]
+     */
+    public function findByService(int $serviceId): array;
+
+    /**
+     * Find all service categories linked to a service and according to access groups.
+     *
+     * @param int $serviceId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @return ServiceCategory[]
+     */
+    public function findByServiceAndAccessGroups(int $serviceId, array $accessGroups): array;
+
+    /**
+     * Check existence of a service category.
      *
      * @param int $serviceCategoryId
      *
@@ -65,7 +110,7 @@ interface ReadServiceCategoryRepositoryInterface
     public function exists(int $serviceCategoryId): bool;
 
     /**
-     * Check existance of a service category by access groups.
+     * Check existence of a service category by access groups.
      *
      * @param int $serviceCategoryId
      * @param AccessGroup[] $accessGroups

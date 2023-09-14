@@ -70,7 +70,7 @@ const DowntimeForm = ({
 
   const currentDate = new Date();
   const defaultEndDate = dayjs(currentDate)
-    .add(dayjs.duration({ seconds: downtime.duration }))
+    .add(downtime.duration, 'seconds')
     .toDate();
 
   const form = useFormik<DowntimeFormValues>({

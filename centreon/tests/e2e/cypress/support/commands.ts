@@ -23,6 +23,10 @@ Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
 });
 
+Cypress.Commands.add('disableListingAutoRefresh', (): Cypress.Chainable => {
+  return cy.getByTestId({ testId: 'Disable autorefresh' }).click();
+});
+
 Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   return cy.executeActionViaClapi({
     bodyContent: {
@@ -56,19 +60,14 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add(
-  'loginKeycloack',
-  (jsonName: string): Cypress.Chainable => {
-    cy.fixture(`users/${jsonName}.json`).then((credential) => {
-      cy.get('#username').clear();
-      cy.get('#username').type(credential.login);
-      cy.get('#password').clear();
-      cy.get('#password').type(credential.password);
-    });
+Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
+  cy.fixture(`users/${jsonName}.json`).then((credential) => {
+    cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
+    cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
+  });
 
-    return cy.get('#kc-login').click();
-  }
-);
+  return cy.get('#kc-login').click();
+});
 
 Cypress.Commands.add(
   'requestOnDatabase',
@@ -102,9 +101,21 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('logout', (): Cypress.Chainable => {
-  cy.getByLabel({ label: 'Profile' }).click();
+  cy.getByLabel({ label: 'Profile' }).should('exist').click();
 
-  return cy.contains('Logout').click();
+  cy.contains(/^Logout$/).click();
+
+  return cy.get('header div[data-cy="clock"]').should('not.exist');
+});
+
+Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
+  return cy
+    .request({
+      method: 'GET',
+      url: '/centreon/authentication/logout'
+    })
+    .visit('/')
+    .getByLabel({ label: 'Alias', tag: 'input' });
 });
 
 Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
@@ -129,7 +140,7 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
 Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
   return cy
     .startContainer({
-      image: `docker.centreon.com/centreon/openid:${Cypress.env(
+      image: `docker.centreon.com/centreon/keycloak:${Cypress.env(
         'OPENID_IMAGE_VERSION'
       )}`,
       name: 'e2e-tests-openid-centreon',
@@ -141,7 +152,14 @@ Cypress.Commands.add('startOpenIdProviderContainer', (): Cypress.Chainable => {
       ]
     })
     .then(() => {
-      return cy.exec('npx wait-on http://0.0.0.0:8080/health/ready');
+      return cy.task('waitOn', 'http://127.0.0.1:8080/health/ready');
+    })
+    .then(() => {
+      cy.exec(
+        'docker inspect -f "{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}" e2e-tests-openid-centreon'
+      ).then(({ stdout }) => {
+        cy.log(stdout);
+      });
     });
 });
 
@@ -175,12 +193,14 @@ interface requestOnDatabaseProps {
 declare global {
   namespace Cypress {
     interface Chainable {
+      disableListingAutoRefresh: () => Cypress.Chainable;
       executeSqlRequestInContainer: (request: string) => Cypress.Chainable;
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
       getByTestId: ({ tag, testId }: GetByTestIdProps) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
-      loginKeycloack: (jsonName: string) => Cypress.Chainable;
+      loginKeycloak: (jsonName: string) => Cypress.Chainable;
       logout: () => Cypress.Chainable;
+      logoutViaAPI: () => Cypress.Chainable;
       refreshListing: () => Cypress.Chainable;
       removeACL: () => Cypress.Chainable;
       removeResourceData: () => Cypress.Chainable;

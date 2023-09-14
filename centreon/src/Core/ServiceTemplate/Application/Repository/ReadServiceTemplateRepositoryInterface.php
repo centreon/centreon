@@ -24,10 +24,23 @@ declare(strict_types=1);
 namespace Core\ServiceTemplate\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\TrimmedString;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 
 interface ReadServiceTemplateRepositoryInterface
 {
+    /**
+     * Find one service template.
+     *
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceTemplate|null
+     */
+    public function findById(int $serviceTemplateId): ?ServiceTemplate;
+
     /**
      * Find all service templates.
      *
@@ -38,4 +51,37 @@ interface ReadServiceTemplateRepositoryInterface
      * @return ServiceTemplate[]
      */
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Indicates whether the service template already exists.
+     *
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function exists(int $serviceTemplateId): bool;
+
+    /**
+     * Indicates whether the service template name already exists.
+     *
+     * @param TrimmedString $serviceTemplateName
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function existsByName(TrimmedString $serviceTemplateName): bool;
+
+    /**
+     * Retrieves all service inheritances from a service template.
+     *
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceTemplateInheritance[]
+     */
+    public function findParents(int $serviceTemplateId): array;
 }

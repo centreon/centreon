@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,13 +24,12 @@ declare(strict_types=1);
 namespace Core\Security\ProviderConfiguration\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\Assertion;
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 
 /**
  * This class is designed to represent the Authentication Conditions to be able to connect with OpenID Provider
  * Conditions are gathered from the Response (attribute path) of an endpoint defined by the user.
- * e.g : "http://myprovider.com/my_authorizations" will return a response:
+ * e.g : "http://myprovider.com/my_authorizations" will return a response:.
  *
  * {
  *   "infos": {
@@ -46,21 +45,18 @@ use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
  */
 class AuthenticationConditions
 {
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private array $trustedClientAddresses = [];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private array $blacklistClientAddresses = [];
 
     /**
-     * @param boolean $isEnabled
+     * @param bool $isEnabled
      * @param string $attributePath
      * @param Endpoint|null $endpoint
      * @param string[] $authorizedValues
+     *
      * @throws ConfigurationException
      */
     public function __construct(
@@ -77,7 +73,7 @@ class AuthenticationConditions
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isEnabled(): bool
     {
@@ -126,8 +122,10 @@ class AuthenticationConditions
 
     /**
      * @param string[] $trustedClientAddresses
-     * @return self
+     *
      * @throws \Assert\AssertionFailedException
+     *
+     * @return self
      */
     public function setTrustedClientAddresses(array $trustedClientAddresses): self
     {
@@ -141,8 +139,10 @@ class AuthenticationConditions
 
     /**
      * @param string $trustedClientAddress
-     * @return self
+     *
      * @throws \Assert\AssertionFailedException
+     *
+     * @return self
      */
     public function addTrustedClientAddress(string $trustedClientAddress): self
     {
@@ -154,8 +154,10 @@ class AuthenticationConditions
 
     /**
      * @param string[] $blacklistClientAddresses
-     * @return self
+     *
      * @throws \Assert\AssertionFailedException
+     *
+     * @return self
      */
     public function setBlacklistClientAddresses(array $blacklistClientAddresses): self
     {
@@ -169,8 +171,10 @@ class AuthenticationConditions
 
     /**
      * @param string $blacklistClientAddress
-     * @return self
+     *
      * @throws \Assert\AssertionFailedException
+     *
+     * @return self
      */
     public function addBlacklistClientAddress(string $blacklistClientAddress): self
     {
@@ -183,6 +187,7 @@ class AuthenticationConditions
     /**
      * @param string $clientAddress
      * @param string $fieldName
+     *
      * @throws \Assert\AssertionFailedException
      */
     private function validateClientAddressOrFail(string $clientAddress, string $fieldName): void
@@ -191,11 +196,12 @@ class AuthenticationConditions
     }
 
     /**
-     * Validate that all mandatory parameters are correctly set when conditions are enabled
+     * Validate that all mandatory parameters are correctly set when conditions are enabled.
      *
-     * @param boolean $isEnabled
+     * @param bool $isEnabled
      * @param string $attributePath
      * @param string[] $authorizedValues
+     *
      * @throws ConfigurationException
      */
     private function validateMandatoryParametersForEnabledCondition(
@@ -206,10 +212,10 @@ class AuthenticationConditions
         if ($isEnabled) {
             $mandatoryParameters = [];
             if (empty($attributePath)) {
-                $mandatoryParameters[] = "attribute_path";
+                $mandatoryParameters[] = 'attribute_path';
             }
             if (empty($authorizedValues)) {
-                $mandatoryParameters[] = "authorized_values";
+                $mandatoryParameters[] = 'authorized_values';
             }
             if (! empty($mandatoryParameters)) {
                 throw ConfigurationException::missingMandatoryParameters($mandatoryParameters);

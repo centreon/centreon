@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
@@ -66,7 +67,11 @@ final class FindServiceTemplates
             }
 
             $serviceTemplates = $this->repository->findByRequestParameter($this->requestParameters);
+
             $presenter->presentResponse($this->createResponse($serviceTemplates));
+        } catch (RequestParametersTranslatorException $ex) {
+            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
+            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(ServiceTemplateException::errorWhileSearching($ex)));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -99,11 +104,11 @@ final class FindServiceTemplates
             $dto->firstNotificationDelay = $serviceTemplate->getFirstNotificationDelay();
             $dto->freshnessThreshold = $serviceTemplate->getFreshnessThreshold();
             $dto->graphTemplateId = $serviceTemplate->getGraphTemplateId();
+            $dto->flapDetectionEnabled = $serviceTemplate->getFlapDetectionEnabled();
             $dto->lowFlapThreshold = $serviceTemplate->getLowFlapThreshold();
             $dto->highFlapThreshold = $serviceTemplate->getHighFlapThreshold();
             $dto->iconId = $serviceTemplate->getIconId();
             $dto->iconAlternativeText = $serviceTemplate->getIconAlternativeText();
-            $dto->isActivated = $serviceTemplate->isActivated();
             $dto->isLocked = $serviceTemplate->isLocked();
             $dto->activeChecks = $serviceTemplate->getActiveChecks();
             $dto->eventHandlerEnabled = $serviceTemplate->getEventHandlerEnabled();
@@ -122,6 +127,8 @@ final class FindServiceTemplates
             $dto->retryCheckInterval = $serviceTemplate->getRetryCheckInterval();
             $dto->serviceTemplateId = $serviceTemplate->getServiceTemplateParentId();
             $dto->severityId = $serviceTemplate->getSeverityId();
+            $dto->hostTemplateIds = $serviceTemplate->getHostTemplateIds();
+
             $response->serviceTemplates[] = $dto;
         }
 

@@ -1,5 +1,11 @@
 import 'ulog';
-import { useMutation } from '@tanstack/react-query';
+import { useEffect } from 'react';
+
+import {
+  useMutation,
+  UseMutationOptions,
+  UseMutationResult
+} from '@tanstack/react-query';
 import { JsonDecoder } from 'ts.data.json';
 import anylogger from 'anylogger';
 import { includes } from 'ramda';
@@ -15,24 +21,22 @@ export enum Method {
   PUT = 'PUT'
 }
 
-export interface UseMutationQueryProps<T> {
+export type UseMutationQueryProps<T> = {
   catchError?: (props: CatchErrorProps) => void;
   decoder?: JsonDecoder.Decoder<T>;
   defaultFailureMessage?: string;
   fetchHeaders?: HeadersInit;
-  getEndpoint: () => string;
+  getEndpoint: (_meta?: Record<string, unknown> | unknown) => string;
   httpCodesBypassErrorSnackbar?: Array<number>;
   method: Method;
-}
+} & Omit<UseMutationOptions<T>, 'mutationFn'>;
 
 const log = anylogger('API Request');
 
-export interface UseMutationQueryState<T> {
+export type UseMutationQueryState<T> = {
   isError: boolean;
   isMutating: boolean;
-  mutate: (payload) => void;
-  mutateAsync: (payload) => Promise<T | ResponseError>;
-}
+} & UseMutationResult<T | ResponseError>;
 
 const useMutationQuery = <T extends object>({
   getEndpoint,
@@ -41,17 +45,22 @@ const useMutationQuery = <T extends object>({
   defaultFailureMessage,
   fetchHeaders,
   httpCodesBypassErrorSnackbar = [],
-  method
+  method,
+  onMutate,
+  onError
 }: UseMutationQueryProps<T>): UseMutationQueryState<T> => {
   const { showErrorMessage } = useSnackbar();
 
   const queryData = useMutation<T | ResponseError>(
-    (payload): Promise<T | ResponseError> =>
-      customFetch<T>({
+    // @ts-expect-error useMutation / useMutationQuery is not typed correctly
+    (_payload: Record<string, unknown> | null): Promise<T | ResponseError> => {
+      const { _meta, ...payload } = _payload || {};
+
+      return customFetch<T>({
         catchError,
         decoder,
         defaultFailureMessage,
-        endpoint: getEndpoint(),
+        endpoint: getEndpoint(_meta),
         headers: new Headers({
           'Content-Type': 'application/x-www-form-urlencoded',
           ...fetchHeaders
@@ -59,7 +68,12 @@ const useMutationQuery = <T extends object>({
         isMutation: true,
         method,
         payload
-      })
+      });
+    },
+    {
+      onError,
+      onMutate
+    }
   );
 
   const manageError = (): void => {
@@ -77,13 +91,14 @@ const useMutationQuery = <T extends object>({
     }
   };
 
-  manageError();
+  useEffect(() => {
+    manageError();
+  }, [queryData.data]);
 
   return {
+    ...queryData,
     isError: (queryData.data as ResponseError | undefined)?.isError || false,
-    isMutating: queryData.isLoading,
-    mutate: queryData.mutate,
-    mutateAsync: queryData.mutateAsync
+    isMutating: queryData.isLoading
   };
 };
 

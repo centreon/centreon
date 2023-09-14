@@ -41,7 +41,7 @@ beforeEach(function (): void {
                 'timezoneId' => 1,
                 'severityId' => 1,
                 'checkCommandId' => 1,
-                'checkCommandArgs' => 'checkCommandArgs-value',
+                'checkCommandArgs' => ['arg1', 'arg2'],
                 'checkTimeperiodId' => 1,
                 'maxCheckAttempts' => 5,
                 'normalCheckInterval' => 5,
@@ -64,14 +64,13 @@ beforeEach(function (): void {
                 'highFlapThreshold' => 5,
                 'eventHandlerEnabled' => YesNoDefault::Yes,
                 'eventHandlerCommandId' => 1,
-                'eventHandlerCommandArgs' => 'eventHandlerCommandArgs-value',
+                'eventHandlerCommandArgs' => ['arg3', 'arg4'],
                 'noteUrl' => 'noteUrl-value',
                 'note' => 'note-value',
                 'actionUrl' => 'actionUrl-value',
                 'iconId' => 1,
                 'iconAlternative' => 'iconAlternative-value',
                 'comment' => 'comment-value',
-                'isActivated' => false,
                 'isLocked' => true,
                 ...$fields,
             ]
@@ -91,7 +90,7 @@ it('should return properly set host template instance (all properties)', functio
         ->and($hostTemplate->getTimezoneId())->toBe(1)
         ->and($hostTemplate->getSeverityId())->toBe(1)
         ->and($hostTemplate->getCheckCommandId())->toBe(1)
-        ->and($hostTemplate->getCheckCommandArgs())->toBe('checkCommandArgs-value')
+        ->and($hostTemplate->getCheckCommandArgs())->toBe(['arg1', 'arg2'])
         ->and($hostTemplate->getCheckTimeperiodId())->toBe(1)
         ->and($hostTemplate->getMaxCheckAttempts())->toBe(5)
         ->and($hostTemplate->getNormalCheckInterval())->toBe(5)
@@ -114,14 +113,13 @@ it('should return properly set host template instance (all properties)', functio
         ->and($hostTemplate->getHighFlapThreshold())->toBe(5)
         ->and($hostTemplate->getEventHandlerEnabled())->toBe(YesNoDefault::Yes)
         ->and($hostTemplate->getEventHandlerCommandId())->toBe(1)
-        ->and($hostTemplate->getEventHandlerCommandArgs())->toBe('eventHandlerCommandArgs-value')
+        ->and($hostTemplate->getEventHandlerCommandArgs())->toBe(['arg3', 'arg4'])
         ->and($hostTemplate->getNoteUrl())->toBe('noteUrl-value')
         ->and($hostTemplate->getNote())->toBe('note-value')
         ->and($hostTemplate->getActionUrl())->toBe('actionUrl-value')
         ->and($hostTemplate->getIconId())->toBe(1)
         ->and($hostTemplate->getIconAlternative())->toBe('iconAlternative-value')
         ->and($hostTemplate->getComment())->toBe('comment-value')
-        ->and($hostTemplate->isActivated())->toBe(false)
         ->and($hostTemplate->isLocked())->toBe(true);
 });
 
@@ -135,7 +133,7 @@ it('should return properly set host template instance (mandatory properties only
         ->and($hostTemplate->getTimezoneId())->toBe(null)
         ->and($hostTemplate->getSeverityId())->toBe(null)
         ->and($hostTemplate->getCheckCommandId())->toBe(null)
-        ->and($hostTemplate->getCheckCommandArgs())->toBe('')
+        ->and($hostTemplate->getCheckCommandArgs())->toBe([])
         ->and($hostTemplate->getCheckTimeperiodId())->toBe(null)
         ->and($hostTemplate->getMaxCheckAttempts())->toBe(null)
         ->and($hostTemplate->getNormalCheckInterval())->toBe(null)
@@ -158,14 +156,13 @@ it('should return properly set host template instance (mandatory properties only
         ->and($hostTemplate->getHighFlapThreshold())->toBe(null)
         ->and($hostTemplate->getEventHandlerEnabled())->toBe(YesNoDefault::Default)
         ->and($hostTemplate->getEventHandlerCommandId())->toBe(null)
-        ->and($hostTemplate->getEventHandlerCommandArgs())->toBe('')
+        ->and($hostTemplate->getEventHandlerCommandArgs())->toBe([])
         ->and($hostTemplate->getNoteUrl())->toBe('')
         ->and($hostTemplate->getNote())->toBe('')
         ->and($hostTemplate->getActionUrl())->toBe('')
         ->and($hostTemplate->getIconId())->toBe(null)
         ->and($hostTemplate->getIconAlternative())->toBe('')
         ->and($hostTemplate->getComment())->toBe('')
-        ->and($hostTemplate->isActivated())->toBe(true)
         ->and($hostTemplate->isLocked())->toBe(false);
 });
 
@@ -185,14 +182,35 @@ foreach (
     );
 }
 
-// string field trimmed
+// name and conmmands args should be formated
+it("should return trimmed and formatted name field after construct", function (): void {
+    $hostTemplate = new NewHostTemplate('    host template name   ', 'alias');
+
+    expect($hostTemplate->getName())->toBe('host_template_name');
+});
+
+foreach (
+    [
+        'checkCommandArgs',
+        'eventHandlerCommandArgs',
+    ] as $field
+) {
+    it(
+        "should return a trimmed field {$field}",
+        function () use ($field): void {
+            $hostTemplate = ($this->createHostTemplate)([$field => ["  arg1  ", "  arg2  "]]);
+            $valueFromGetter = $hostTemplate->{'get' . $field}();
+
+            expect($valueFromGetter)->toBe(['arg1', 'arg2']);
+        }
+    );
+}
+
 foreach (
     [
         'name',
         'alias',
         'snmpCommunity',
-        'checkCommandArgs',
-        'eventHandlerCommandArgs',
         'noteUrl',
         'note',
         'actionUrl',
@@ -201,7 +219,7 @@ foreach (
     ] as $field
 ) {
     it(
-        "should return trim the field {$field} after construct",
+        "should return trimmed field {$field} after construct",
         function () use ($field): void {
             $hostTemplate = ($this->createHostTemplate)([$field => '  abcd ']);
             $valueFromGetter = $hostTemplate->{'get' . $field}();
@@ -217,8 +235,6 @@ foreach (
         'name' => NewHostTemplate::MAX_NAME_LENGTH,
         'alias' => NewHostTemplate::MAX_ALIAS_LENGTH,
         'snmpCommunity' => NewHostTemplate::MAX_SNMP_COMMUNITY_LENGTH,
-        'checkCommandArgs' => NewHostTemplate::MAX_CHECK_COMMAND_ARGS_LENGTH,
-        'eventHandlerCommandArgs' => NewHostTemplate::MAX_EVENT_HANDLER_COMMAND_ARGS_LENGTH,
         'noteUrl' => NewHostTemplate::MAX_NOTE_URL_LENGTH,
         'note' => NewHostTemplate::MAX_NOTE_LENGTH,
         'actionUrl' => NewHostTemplate::MAX_ACTION_URL_LENGTH,

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,22 +24,19 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Infrastructure\Api\Login\SAML;
 
 use Centreon\Application\Controller\AbstractController;
-use Core\Application\Common\UseCase\ErrorAuthenticationConditionsResponse;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\UnauthorizedResponse;
+use Core\Application\Common\UseCase\{ErrorAuthenticationConditionsResponse, ErrorResponse, UnauthorizedResponse};
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
-use Core\Security\Authentication\Application\UseCase\Login\ErrorAclConditionsResponse;
-use Core\Security\Authentication\Application\UseCase\Login\Login;
-use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
-use Core\Security\Authentication\Application\UseCase\Login\LoginResponse;
-use Core\Security\Authentication\Application\UseCase\Login\PasswordExpiredResponse;
+use Core\Security\Authentication\Application\UseCase\Login\{
+    ErrorAclConditionsResponse,
+    Login,
+    LoginRequest,
+    LoginResponse,
+    PasswordExpiredResponse
+};
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use FOS\RestBundle\View\View;
-use OneLogin\Saml2\Error;
-use OneLogin\Saml2\ValidationError;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\{Request, Response};
 
 class CallbackController extends AbstractController
 {
@@ -50,8 +47,10 @@ class CallbackController extends AbstractController
      * @param Login $useCase
      * @param CallbackPresenter $presenter
      * @param SessionInterface $session
-     * @return object
+     *
      * @throws AuthenticationException
+     *
+     * @return object
      */
     public function __invoke(
         Request $request,
@@ -81,10 +80,23 @@ class CallbackController extends AbstractController
                  * @var LoginResponse $response
                  */
                 $response = $presenter->getPresentedData();
+
+                if ($response->redirectIsReact()) {
+                    return View::createRedirect(
+                        $this->getBaseUrl() . $response->getRedirectUri(),
+                        Response::HTTP_FOUND,
+                        ['Set-Cookie' => 'PHPSESSID=' . $session->getId()]
+                    );
+                }
+
                 return View::createRedirect(
-                    $this->getBaseUrl() . $response->getRedirectUri(),
+                    $this->getBaseUrl() . '/login',
                     Response::HTTP_FOUND,
-                    ['Set-Cookie' => 'PHPSESSID=' . $session->getId()]
+                    [
+                        'Set-Cookie' => 'PHPSESSID=' . $session->getId(),
+                        'Set-Cookie' => 'REDIRECT_URI=' . $this->getBaseUrl() . $response->getRedirectUri()
+                            . ';Max-Age=10',
+                    ]
                 );
         }
     }

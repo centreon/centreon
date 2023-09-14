@@ -251,7 +251,6 @@ class DbReadServiceSeverityRepository extends AbstractRepositoryRDB implements R
         return $this->createServiceSeverityFromArray($result);
     }
 
-
     /**
      * @param SqlConcatenator $concatenator
      * @param RequestParametersInterface $requestParameters

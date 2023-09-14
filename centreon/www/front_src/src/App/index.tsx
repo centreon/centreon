@@ -34,7 +34,8 @@ const useStyles = makeStyles()({
     '& iframe': {
       display: 'block'
     },
-    flexGrow: 1
+    flexGrow: 1,
+    overflow: 'hidden'
   },
   wrapper: {
     display: 'flex',

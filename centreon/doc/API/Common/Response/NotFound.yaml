@@ -1,0 +1,14 @@
+description: |
+  Indicates that the server did not find the target resource.
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int64
+          example: 404
+        message:
+          type: string
+          example: "Service not found"

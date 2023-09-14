@@ -21,11 +21,15 @@ module.exports = {
           }
         ],
         '@typescript-eslint/camelcase': 'off',
-        '@typescript-eslint/consistent-type-definitions': [
+        '@typescript-eslint/consistent-type-definitions': ['off', 'interface'],
+        '@typescript-eslint/explicit-function-return-type': [
           'error',
-          'interface'
+          {
+            allowExpressions: true,
+            allowHigherOrderFunctions: true,
+            allowTypedFunctionExpressions: true
+          }
         ],
-        '@typescript-eslint/explicit-function-return-type': ['error'],
         '@typescript-eslint/explicit-member-accessibility': [
           'error',
           {
@@ -76,13 +80,21 @@ module.exports = {
           }
         ],
         camelcase: 'off',
+        'import/no-cycle': 'off',
+        'import/no-named-as-default': 'warn',
         'no-shadow': 'off',
         'no-unused-expressions': 'off'
       },
       settings: {
+        'import/parsers': {
+          '@typescript-eslint/parser': ['.ts', '.tsx']
+        },
         'import/resolver': {
           alias: {
             extensions: ['.ts', '.tsx', '.js', '.jsx']
+          },
+          typescript: {
+            alwaysTryTypes: true
           }
         }
       }

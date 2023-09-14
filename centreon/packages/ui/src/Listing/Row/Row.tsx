@@ -46,10 +46,11 @@ type Props = {
   isShiftKeyDown: boolean;
   lastSelectionIndex: number | null;
   limit: number;
+  listingVariant?: ListingVariant;
   row;
   rowColorConditions: Array<RowColorCondition>;
   shiftKeyDownRowPivot: number | null;
-  viewMode?: ListingVariant;
+  subItemsPivots: Array<number | string>;
   visibleColumns: Array<Column>;
 } & TableRowProps;
 
@@ -115,7 +116,7 @@ const Row = memo<RowProps>(
       isShiftKeyDown: prevIsShiftKeyDown,
       shiftKeyDownRowPivot: prevShiftKeyDownRowPivot,
       lastSelectionIndex: prevLastSelectionIndex,
-      viewMode: prevViewMode
+      listingVariant: prevViewMode
     } = prevProps;
     const {
       row: nextRow,
@@ -126,7 +127,7 @@ const Row = memo<RowProps>(
       shiftKeyDownRowPivot: nextShiftKeyDownRowPivot,
       lastSelectionIndex: nextLastSelectionIndex,
       limit: nextLimit,
-      viewMode: nextViewMode
+      listingVariant: nextViewMode
     } = nextProps;
 
     if (
@@ -174,7 +175,8 @@ const Row = memo<RowProps>(
         equals(prevProps.row, nextProps.row) &&
         equals(previousRowConditions, nextRowConditions) &&
         equals(previousRowColors, nextRowColors) &&
-        equals(prevProps.className, nextProps.className)
+        equals(prevProps.className, nextProps.className) &&
+        equals(prevProps.subItemsPivots, nextProps.subItemsPivots)
       );
     }
 
@@ -189,7 +191,8 @@ const Row = memo<RowProps>(
       equals(prevIsShiftKeyDown, nextIsShiftKeyDown) &&
       equals(prevShiftKeyDownRowPivot, nextShiftKeyDownRowPivot) &&
       equals(prevLastSelectionIndex, nextLastSelectionIndex) &&
-      equals(prevViewMode, nextViewMode)
+      equals(prevViewMode, nextViewMode) &&
+      equals(prevProps.subItemsPivots, nextProps.subItemsPivots)
     );
   }
 );

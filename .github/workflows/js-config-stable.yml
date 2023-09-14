@@ -1,4 +1,4 @@
-name: centreon-js-config-merge
+name: centreon-js-config-stable
 
 on:
   workflow_dispatch:
@@ -15,23 +15,12 @@ env:
   base_branch: develop
 
 jobs:
-  clean-up-npm-beta-tag:
-    runs-on: ubuntu-22.04
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: ./.github/actions/clean-up-npm-tag
-        with:
-          package: js-config
-          npm_token: ${{ secrets.NPM_TOKEN }}
-
   publish-new-npm-version:
     runs-on: ubuntu-22.04
     if: ${{ github.event.pull_request.merged == true }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/npm-publish-package-stable
         with:

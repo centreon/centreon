@@ -18,6 +18,7 @@ xunit-reports
 checkstyle.xml
 centreon/Crashpad
 centreon/**/.X*
+centreon/www/widgets/**/static
 centreon/.com.google.Chrome*
 **/build-storybook.log
 

@@ -70,8 +70,6 @@ final class ServiceTemplateDto
 
     public string|null $iconAlternativeText = null;
 
-    public bool $isActivated = false;
-
     public bool $isLocked = false;
 
     public YesNoDefault $activeChecks = YesNoDefault::Default;
@@ -102,6 +100,9 @@ final class ServiceTemplateDto
 
     /** @var NotificationType[] */
     public array $notificationTypes = [];
+
+    /** @var list<int> */
+    public array $hostTemplateIds = [];
 
     public int|null $recoveryNotificationDelay = null;
 

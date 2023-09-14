@@ -1,0 +1,8 @@
+in: path
+name: notification_id
+required: true
+description: "Notification ID"
+schema:
+  type: integer
+  minimum: 1
+  example: 1

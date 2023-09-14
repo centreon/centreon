@@ -26,14 +26,17 @@ namespace Core\ServiceTemplate\Infrastructure\Repository;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\NotificationType;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 use Utility\SqlConcatenator;
 
 /**
@@ -46,7 +49,6 @@ use Utility\SqlConcatenator;
  *     command_command_id_arg: string|null,
  *     command_command_id_arg2: string|null,
  *     service_acknowledgement_timeout: int|null,
- *     service_activate: string,
  *     service_active_checks_enabled: string,
  *     service_event_handler_enabled: string,
  *     service_flap_detection_enabled: string,
@@ -79,7 +81,9 @@ use Utility\SqlConcatenator;
  *     esi_notes: string|null,
  *     esi_notes_url: string|null,
  *     graph_id: int|null,
- *     severity_id: int|null
+ *     severity_id: int|null,
+ *     host_template_ids: string|null,
+ *     service_categories_ids: string|null
  * }
  */
 class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements ReadServiceTemplateRepositoryInterface
@@ -94,31 +98,22 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $this->db = $db;
     }
 
-    public function findByRequestParameter(RequestParametersInterface $requestParameters): array
+    /**
+     * @inheritDoc
+     */
+    public function findById(int $serviceTemplateId): ?ServiceTemplate
     {
-        $this->info('Searching for service templates');
-        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->setConcordanceArray([
-            'id' => 'service_id',
-            'name' => 'service_description',
-            'alias' => 'service_alias',
-            'is_activated' => 'service_activate',
-            'is_locked' => 'service_locked',
-        ]);
-        $sqlTranslator->addNormalizer('is_activated', new BoolToEnumNormalizer());
-        $sqlTranslator->addNormalizer('is_locked', new BoolToEnumNormalizer());
-
-        $serviceTemplates = [];
         $request = <<<'SQL'
                 SELECT service_id,
-                       cg_additive_inheritance,
-                       contact_additive_inheritance,
-                       command_command_id,
-                       command_command_id2,
-                       command_command_id_arg,
-                       command_command_id_arg2,
+                       service.cg_additive_inheritance,
+                       service.contact_additive_inheritance,
+                       service.command_command_id,
+                       service.command_command_id2,
+                       service.command_command_id_arg,
+                       service.command_command_id_arg2,
+                       service.timeperiod_tp_id,
+                       service.timeperiod_tp_id2,
                        service_acknowledgement_timeout,
-                       service_activate,
                        service_active_checks_enabled,
                        service_event_handler_enabled,
                        service_flap_detection_enabled,
@@ -137,33 +132,123 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                        service_normal_check_interval,
                        service_notification_interval,
                        service_notification_options,
-                       service_notifications_enabled,
-                       service_passive_checks_enabled,
                        service_recovery_notification_delay,
                        service_retry_check_interval,
                        service_template_model_stm_id,
                        service_first_notification_delay,
-                       timeperiod_tp_id,
-                       timeperiod_tp_id2,
                        esi.esi_action_url,
                        esi.esi_icon_image,
                        esi.esi_icon_image_alt,
                        esi.esi_notes,
                        esi.esi_notes_url,
                        esi.graph_id,
-                       scr.sc_id as severity_id
+                       GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                       GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
                 FROM `:db`.service
                 LEFT JOIN `:db`.extended_service_information esi
                     ON esi.service_service_id = service.service_id
                 LEFT JOIN `:db`.service_categories_relation scr
                     ON scr.service_service_id = service.service_id
-                LEFT JOIN `:db`.service_categories sc
-                    ON sc.sc_id = scr.sc_id
-                    AND sc.level IS NOT NULL
+                LEFT JOIN `:db`.service_categories severity
+                    ON severity.sc_id = scr.sc_id
+                    AND severity.level IS NOT NULL
+                LEFT JOIN `:db`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                LEFT JOIN `:db`.host
+                    ON host.host_id = hsr.host_host_id
+                    AND host.host_register = '0'
+                WHERE service.service_id = :id
+                    AND service.service_register = '0'
+                GROUP BY service.service_id
+            SQL;
+        $statement = $this->db->prepare($this->translateDbName($request));
+        $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _ServiceTemplate $result */
+            return $this->createServiceTemplate($result);
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParameter(RequestParametersInterface $requestParameters): array
+    {
+        $this->info('Searching for service templates');
+        $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
+        $sqlTranslator->setConcordanceArray([
+            'id' => 'service_id',
+            'name' => 'service_description',
+            'alias' => 'service_alias',
+            'is_locked' => 'service_locked',
+        ]);
+        $sqlTranslator->addNormalizer('is_locked', new BoolToEnumNormalizer());
+
+        $serviceTemplates = [];
+        $request = <<<'SQL'
+                SELECT service_id,
+                       service.cg_additive_inheritance,
+                       service.contact_additive_inheritance,
+                       service.command_command_id,
+                       service.command_command_id2,
+                       service.command_command_id_arg,
+                       service.command_command_id_arg2,
+                       service.timeperiod_tp_id,
+                       service.timeperiod_tp_id2,
+                       service_acknowledgement_timeout,
+                       service_active_checks_enabled,
+                       service_event_handler_enabled,
+                       service_flap_detection_enabled,
+                       service_check_freshness,
+                       service_locked,
+                       service_notifications_enabled,
+                       service_passive_checks_enabled,
+                       service_is_volatile,
+                       service_low_flap_threshold,
+                       service_high_flap_threshold,
+                       service_max_check_attempts,
+                       service_description,
+                       service_comment,
+                       service_alias,
+                       service_freshness_threshold,
+                       service_normal_check_interval,
+                       service_notification_interval,
+                       service_notification_options,
+                       service_recovery_notification_delay,
+                       service_retry_check_interval,
+                       service_template_model_stm_id,
+                       service_first_notification_delay,
+                       esi.esi_action_url,
+                       esi.esi_icon_image,
+                       esi.esi_icon_image_alt,
+                       esi.esi_notes,
+                       esi.esi_notes_url,
+                       esi.graph_id,
+                       GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                       GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_template_ids
+                FROM `:db`.service
+                LEFT JOIN `:db`.extended_service_information esi
+                    ON esi.service_service_id = service.service_id
+                LEFT JOIN `:db`.service_categories_relation scr
+                    ON scr.service_service_id = service.service_id
+                LEFT JOIN `:db`.service_categories severity
+                    ON severity.sc_id = scr.sc_id
+                    AND severity.level IS NOT NULL
+                LEFT JOIN `:db`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                LEFT JOIN `:db`.host
+                    ON host.host_id = hsr.host_host_id
+                    AND host.host_register = '0'
             SQL;
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
         $sqlConcatenator->appendWhere("service_register = '0'");
+        $sqlConcatenator->appendGroupBy('service.service_id');
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
         $sql = $sqlConcatenator->__toString();
         $statement = $this->db->prepare($this->translateDbName($sql));
@@ -184,6 +269,79 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     }
 
     /**
+     * @inheritDoc
+     */
+    public function exists(int $serviceTemplateId): bool
+    {
+        $request = $this->translateDbName(<<<'SQL'
+            SELECT 1
+            FROM `:db`.service
+            WHERE service_id = :id
+                AND service_register = '0'
+            SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByName(TrimmedString $serviceTemplateName): bool
+    {
+        $request = $this->translateDbName(<<<'SQL'
+            SELECT 1
+            FROM `:db`.service
+            WHERE service_description = :name
+                AND service_register = '0'
+            SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':name', (string) $serviceTemplateName);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findParents(int $serviceTemplateId): array
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                WITH RECURSIVE parents AS (
+                    SELECT * FROM `:db`.`service`
+                    WHERE `service_id` = :service_template_id
+                    UNION
+                    SELECT rel.* FROM `:db`.`service` AS rel, parents AS p
+                    WHERE rel.`service_id` = p.`service_template_model_stm_id`
+                )
+                SELECT `service_id` AS child_id, `service_template_model_stm_id` AS parent_id
+                FROM parents
+                WHERE `service_template_model_stm_id` IS NOT NULL
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':service_template_id', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $serviceTemplateInheritances = [];
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{child_id: int, parent_id: int} $result */
+            $serviceTemplateInheritances[] = new ServiceTemplateInheritance(
+                (int) $result['parent_id'],
+                (int) $result['child_id']
+            );
+        }
+
+        return $serviceTemplateInheritances;
+    }
+
+    /**
      * @param _ServiceTemplate $data
      *
      * @throws AssertionFailedException
@@ -200,8 +358,19 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                 $commandArguments = $result[1];
             }
 
+            foreach ($commandArguments as $index => $argument) {
+                $commandArguments[$index] = str_replace(['#BR#', '#T#', '#R#'], ["\n", "\t", "\r"], $argument);
+            }
+
             return $commandArguments;
         };
+
+        $hostTemplateIds = $data['host_template_ids'] !== null
+            ? array_map(
+                fn (mixed $hostTemplateId): int => (int) $hostTemplateId,
+                explode(',', $data['host_template_ids'])
+            )
+            : [];
 
         return new ServiceTemplate(
             (int) $data['service_id'],
@@ -210,9 +379,9 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             $extractCommandArgument($data['command_command_id_arg']),
             $extractCommandArgument($data['command_command_id_arg2']),
             $this->createNotificationType($data['service_notification_options']),
+            $hostTemplateIds,
             $data['contact_additive_inheritance'] === 1,
             $data['cg_additive_inheritance'] === 1,
-            $data['service_activate'] === '1',
             $data['service_locked'] === 1,
             $this->createYesNoDefault($data['service_active_checks_enabled']),
             $this->createYesNoDefault($data['service_passive_checks_enabled']),
@@ -221,7 +390,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             $this->createYesNoDefault($data['service_event_handler_enabled']),
             $this->createYesNoDefault($data['service_flap_detection_enabled']),
             $this->createYesNoDefault($data['service_notifications_enabled']),
-            $data['service_description'],
             $data['service_comment'],
             $data['esi_notes'],
             $data['esi_notes_url'],
@@ -234,7 +402,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             $data['timeperiod_tp_id2'],
             $data['timeperiod_tp_id'],
             $data['esi_icon_image'],
-            $data['severity_id'],
+            $data['severity_id'] !== null ? (int) $data['severity_id'] : null,
             $data['service_max_check_attempts'],
             $data['service_normal_check_interval'],
             $data['service_retry_check_interval'],
@@ -248,6 +416,11 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         );
     }
 
+    /**
+     * @param string $value
+     *
+     * @return YesNoDefault
+     */
     private function createYesNoDefault(string $value): YesNoDefault
     {
         return match ($value) {
@@ -271,7 +444,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         }
         $notifications = [];
         $types = explode(',', $notificationTypes);
-
         foreach (array_unique($types) as $type) {
             $notifications[] = match ($type) {
                 'w' => NotificationType::Warning,

@@ -1,17 +1,3 @@
-msgid ""
-msgstr ""
-"Project-Id-Version: Centreon web 2.x\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-23 10:23+0000\n"
-"PO-Revision-Date: 2017-03-19 19:45+0100\n"
-"Last-Translator: Laurent Pinsivy <lpinsivy@centreon.com>\n"
-"Language-Team: Centreon team\n"
-"Language: fr\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.7.7\n"
 
 #: centreon-web/broker_field_translation.php:2
 #: centreon-web/www/install/centreon_broker_translation.php:44
@@ -7139,14 +7125,8 @@ msgstr "Les 6 dernières heures"
 #: centreon-web/www/include/views/graphs/graphs.php:175
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:104
 #: centreon-web/www/include/eventLogs/viewLog.php:170
-msgid "Last 12 Hours"
+msgid "Last 12 hours"
 msgstr "Les 12 dernières heures"
-
-#: centreon-web/www/include/views/graphs/graphs.php:176
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:105
-#: centreon-web/www/include/eventLogs/viewLog.php:171
-msgid "Last 24 Hours"
-msgstr "Les 24 dernières heures"
 
 #: centreon-web/www/include/views/graphs/graphs.php:177
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:106
@@ -7165,15 +7145,8 @@ msgid "Last 4 Days"
 msgstr "Les 4 précédents jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:180
-msgid "Last 5 Days"
+msgid "Last 5 days"
 msgstr "Les 5 derniers jours"
-
-#: centreon-web/www/include/views/graphs/graphs.php:181
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:108
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:255
-#: centreon-web/www/include/eventLogs/viewLog.php:174
-msgid "Last 7 Days"
-msgstr "Les 7 précédents jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:182
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:109
@@ -7184,15 +7157,8 @@ msgstr "Les 14 précédents jours"
 #: centreon-web/www/include/views/graphs/graphs.php:183
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:110
 #: centreon-web/www/include/eventLogs/viewLog.php:176
-msgid "Last 28 Days"
-msgstr "Les 28 précédents jours"
-
-#: centreon-web/www/include/views/graphs/graphs.php:184
-#: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:111
-#: centreon-web/www/include/reporting/dashboard/common-Func.php:257
-#: centreon-web/www/include/eventLogs/viewLog.php:177
-msgid "Last 30 Days"
-msgstr "Les 30 précédents jours"
+msgid "Last 28 days"
+msgstr "Les 28 derniers jours"
 
 #: centreon-web/www/include/views/graphs/graphs.php:185
 #: centreon-web/www/include/views/graphTemplates/formGraphTemplate.php:112
@@ -11290,7 +11256,7 @@ msgstr "Voulez-vous vraiment débloquer cet utilisateur ?"
 
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:181
 msgid "The user(s) will be unblocked. Do you confirm the request?"
-msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l'action ?"
+msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l\\'action ?"
 
 #: centreon-web/www/include/configuration/configObject/contact/listContact.php:447
 msgid "Unblock"
@@ -15339,9 +15305,6 @@ msgstr "31 jours"
 msgid "Last day"
 msgstr "Dernier jour"
 
-msgid "Last 7 days"
-msgstr "Derniers 7 jours"
-
 msgid "Last 31 days"
 msgstr "Derniers 31 jours"
 
@@ -15554,6 +15517,152 @@ msgstr "par"
 
 msgid "Notification sent to"
 msgstr "Notification envoyée à"
+
+#: cloud notification configuration
+
+msgid "Notifications management"
+msgstr "Gestion des notifications"
+
+msgid "Welcome to the notifications interface"
+msgstr "Bienvenue dans l'interface de gestion des notifications"
+
+msgid "Create a notification"
+msgstr "Créer une notification"
+
+msgid "Channels"
+msgstr "Canaux"
+
+msgid "Select resources and events"
+msgstr "Sélectionner les ressources et les événements"
+
+msgid "Search host groups"
+msgstr "Rechercher les groupes d'hôtes"
+
+msgid "Select users"
+msgstr "Sélectionner les utilisateurs"
+
+msgid "Select time period / channels of notifications"
+msgstr "Sélectionner la période / les canaux de notifications"
+
+msgid "Notification duplicated"
+msgstr "Notification dupliquée"
+
+msgid "Failed to duplicate the notification"
+msgstr "Échec de la duplication de la notification"
+
+msgid "Please enter a name for the duplicated notification"
+msgstr "Veuillez entrer un nom pour la notification dupliquée"
+
+msgid "Delete notification?"
+msgstr "Supprimer la notification?"
+
+msgid "This action cannot be undone"
+msgstr "Cette action est irréversible"
+
+msgid "Collapse information panel"
+msgstr "Réduire le panneau d'informations"
+
+msgid "Expand information panel"
+msgstr "Agrandir le panneau d'informations"
+
+msgid "Type your text here"
+msgstr "Tapez votre texte ici"
+
+msgid "Active / Inactive"
+msgstr "Actif / Inactif"
+
+msgid "Edit name"
+msgstr "Modifier le nom"
+
+msgid "Notification name"
+msgstr "Nom de la notification"
+
+msgid "The notification was successfully updated"
+msgstr "La notification a été mise à jour avec succès"
+
+msgid "The notification was successfully added"
+msgstr "La notification a été ajoutée avec succès"
+
+msgid "Do you want to confirm the action ?"
+msgstr "Souhaitez-vous confirmer l'action ?"
+
+msgid "Confirm notification creation"
+msgstr "Confirmer la création de la notification"
+
+msgid "Confirm notification update"
+msgstr "Confirmer la mise à jour de la notification"
+
+msgid "Choose at least 1 resource"
+msgstr "Veuillez sélectionner au moins 1 ressource"
+
+msgid "Choose at least 1 service group"
+msgstr "Veuillez sélectionner au moins 1 groupe de services"
+
+msgid "Choose at least 1 user"
+msgstr "Veuillez sélectionner au moins 1 utilisateur"
+
+msgid "The message field should not be empty!"
+msgstr "Le champ Message ne doit pas être vide !"
+
+msgid "Close the panel"
+msgstr "Fermer le panneau"
+
+msgid "Email template for the notification message"
+msgstr "Modèle d'email pour le message de notification"
+
+msgid "Subject"
+msgstr "Sujet"
+
+msgid "Notification channels"
+msgstr "Canaux de notification"
+
+msgid "Host groups"
+msgstr "Groupes d'hôtes "
+
+msgid "Search service groups"
+msgstr "Rechercher des groupes de service"
+
+msgid "Do you want to quit the form without saving the changes?"
+msgstr "Souhaitez-vous quitter le formulaire sans enregistrer les modifications ?"
+
+msgid "Your form has unsaved changes"
+msgstr "Votre formulaire comporte des modifications non enregistrées"
+
+msgid "This name already exists"
+msgstr "Ce nom existe déjà"
+
+msgid "Notification deleted successfully"
+msgstr "La notification a été supprimée avec succès"
+
+msgid "The selected notifications have been deleted successfully"
+msgstr "Les notifications sélectionnées ont été supprimées avec succès"
+
+msgid "Failed to delete the notification"
+msgstr "La notification n'a pas pu être supprimée"
+
+msgid "Failed to delete the notifications"
+msgstr "Les notifications n'ont pas pu être supprimées"
+
+msgid "Failed to delete the selected notifications"
+msgstr "Échec de la suppression des notifications sélectionnées"
+
+msgid "Search contacts"
+msgstr "Rechercher des contacts"
+
+msgid "Search contact groups"
+msgstr "Rechercher des groupes de contacts"
+
+msgid "Select contacts and contact groups"
+msgstr "Sélectionner les contacts et les groupes de contacts"
+
+msgid "24h/24h - 7/7 days"
+msgstr "24h/24h - 7/7 jours"
+
+msgid "Include services for these hosts"
+msgstr "Inclure les services pour ces hôtes"
+
+msgid "Failed to delete notifications"
+msgstr "Échec de la suppression des notifications"
 
 #: api/platform
 msgid "Unable to convert in remote server, no Central to link provided"
@@ -17426,6 +17535,12 @@ msgstr "Vérifier les ressources sélectionnées même en dehors de la période 
 msgid "Forced check command sent ! Please refresh the listing to update the data."
 msgstr "Commande de vérification forcée envoyée ! Veuillez actualiser le tableau pour mettre à jour les données."
 
+msgid "Need help with search bar usage?"
+msgstr "Besoin d'aide pour l'utilisation de la barre de recherche?"
+
+msgid "Find explanations and examples"
+msgstr "Trouvez des explications et des exemples"
+
 msgid "Developed by"
 msgstr "Développé par"
 
@@ -17574,6 +17689,39 @@ msgstr "Erreur lors de la recherche de la catégorie d'hôtes #%d"
 msgid "Error while retrieving a host category"
 msgstr "Erreur lors de la récupération de la catégorie d'hôtes"
 
+msgid "You are not allowed to access dashboards"
+msgstr "Vous n'êtes pas autorisé à accéder aux tableaux de bord"
+
+msgid "Error while searching for dashboards"
+msgstr "Erreur lors de la recherche de tableaux de bord"
+
+msgid "Error while retrieving newly created dashboard"
+msgstr "Erreur durant la récupération d'un tableau de bord venant d'être créé"
+
+msgid "Error while adding a dashboard"
+msgstr "Erreur durant l'ajout d'un tableau de bord"
+
+msgid "You are not allowed to perform write operations on dashboards"
+msgstr "Vous n'êtes pas autorisé à faire des opérations d'écriture sur les tableaux de bord"
+
+msgid "You are not allowed to edit access rights on the dashboard #%d"
+msgstr "Vous n'êtes pas autorisé à éditer les droits d'accès du tableau de bord #%d"
+
+msgid "You cannot view access rights on the dashboard #%d"
+msgstr "Vous n'êtes pas autorisé à consulter les droits d'accès du tableau de bord #%d"
+
+msgid "Error while retrieving a dashboard"
+msgstr "Erreur durant la récupération d'un tableau de bord"
+
+msgid "Error while deleting a dashboard"
+msgstr "Erreur durant la suppression d'un tableau de bord"
+
+msgid "Error while updating a dashboard"
+msgstr "Erreur lors de la mise à jour d'un tableau de bord"
+
+msgid "Error while trying to update a widget which belongs to another dashboard"
+msgstr "Erreur lors d'une tentative de mise à jour d'un widget qui appartient à un autre tableau de bord"
+
 msgid "Error while searching for host templates"
 msgstr "Erreur lors de la recherche des modèles d'hôtes"
 
@@ -17591,3 +17739,411 @@ msgstr "Erreur lors de la recherche de modèles de services"
 
 msgid "[%s] (%s) was expected to be an instance of the class '%s'"
 msgstr "[%s] (%s) devait être une instance de la classe '%s'"
+
+msgid "The service template '%s' is locked and cannot be deleted"
+msgstr "Le modèle de service '%s' est verrouillé et ne peut pas être supprimé"
+
+msgid "You are not allowed to delete a service template"
+msgstr "Vous n'êtes pas autorisé à supprimer un modèle de service"
+
+msgid "Error while deleting the service template"
+msgstr "Erreur lors de la suppression du modèle de service"
+
+msgid "Error while deleting a host template"
+msgstr "Erreur lors de la suppression du modèle d'hôtes"
+
+msgid "Error while adding a host template"
+msgstr "Erreur lors de la création du modèle d'hôtes"
+
+msgid "You are not allowed to delete host templates"
+msgstr "Vous n'êtes pas autorisé à supprimer des modèles d'hôtes"
+
+msgid "You are not allowed to add host templates"
+msgstr "Vous n'êtes pas autorisé à créer des modèles d'hôtes"
+
+msgid "The %s with value '%d' does not exist"
+msgstr "Le champ %s avec la valeur '%d' n'existe pas"
+
+msgid "The name %s (original name: %s) already exists"
+msgstr "Le nom %s (nom original: %s) existe déjà"
+
+msgid "Error while retrieving a host template"
+msgstr "Error lors de la récupération d'un modèle d'hôtes"
+
+msgid "Host template #%d is locked (edition and deletion not allowed)"
+msgstr "Le modèle d'hôte #%d est verrouillé (édition et suppression interdites)"
+
+msgid "Edit dashboard"
+msgstr "Éditer le tableau de bord"
+
+msgid "Exit"
+msgstr "Quitter"
+
+msgid "Exit {{dashboardName}}"
+msgstr "Quitter {{dashboardName}}"
+
+msgid "Exit edition mode"
+msgstr "Quitter le mode édition"
+
+msgid "If you leave the edition mode, your changes will not be saved."
+msgstr "Si vous quittez le mode édition, vos changements ne seront pas sauvegardés."
+
+msgid "If you leave {{dashboardName}}, your changes will not be saved."
+msgstr "Si vous quittez {{dashboardName}}, vos changements ne seront pas sauvegardés."
+
+msgid "Your dashboard has been saved"
+msgstr "Votre tableau de bord a été sauvegardé"
+
+msgid "Unable to parse authorization url"
+msgstr "Impossible d'analyser l'URL d'autorisation"
+
+msgid "You are not allowed to list notifications configurations"
+msgstr "Vous n'êtes pas autorisé à lister les configurations de notifications"
+
+msgid "Notification #%d should have at least one user"
+msgstr "La notification #%d doit avoir au moins un utilisateur"
+
+msgid "You are not allowed to add a service template"
+msgstr "Vous n'êtes pas autorisé à ajouter un modèle de service"
+
+msgid "Error while adding the service template"
+msgstr "Erreur lors de l'ajout du modèle de service"
+
+msgid "Error while retrieving a service template"
+msgstr "Erreur lors de la récupération d'un modèle de service"
+
+msgid "The service template name '%s' already exists"
+msgstr "Le nom du modèle de service '%s' existe déjà"
+
+msgid "[%s] The value contains unauthorized characters: %s"
+msgstr "[%s] La valeur contient des caractères non autorisés : %s"
+
+msgid "Error while linking host categories to a host template"
+msgstr "Erreur lors de la liaison de catégories d'hôte à un modèle d'hôte"
+
+msgid "The %s does not exist with ID(s) '%s'"
+msgstr "Le champ %s n'existe pas avec le(s) ID(s) '%s'"
+
+msgid "Error while partially updating a host template"
+msgstr "Erreur lors de la modification partielle d'un modèle d'hôte"
+
+msgid "You are not allowed to perform write actions on host templates"
+msgstr "Vous n'êtes pas autorisé à effectuer des actions d'écriture sur les modèles d'hôte"
+
+msgid "Host template #%d not found"
+msgstr "Modèle d'hôte #%d introuvable"
+
+msgid "The contact ID #%d does not exist"
+msgstr "L'ID du contact #%d n'existe pas"
+
+msgid "Error while retrieving the new dashboard share"
+msgstr "Erreur durant la récupération d'un nouveau partage de tableau de bord"
+
+msgid "Error while adding the dashboard share"
+msgstr "Erreur durant l'ajout d'un partage de tableau de bord"
+
+msgid "Error while searching for the dashboard shares"
+msgstr "Erreur durant la recherche de partages de tableau de bord"
+
+msgid "Error while deleting the dashboard share"
+msgstr "Erreur durant la suppression d'un partage de tableau de bord"
+
+msgid "Error while updating the dashboard share"
+msgstr "Erreur durant la mise à jour d'un partage de tableau de bord"
+
+msgid "Circular inheritance not allowed"
+msgstr "Héritage circulaire non autorisé"
+
+msgid "You are not allowed to display the details of the notification"
+msgstr "Vous n'êtes pas autorisé à afficher les détails de la notification"
+
+msgid "You are not allowed to update the notification configuration"
+msgstr "Vous n'êtes pas autorisé à mettre à jour la configuration de la notification"
+
+msgid "You are not allowed to delete a notification configuration"
+msgstr "Vous n'êtes pas autorisé à supprimer une configuration de notification"
+
+msgid "Error while deleting a notification configuration"
+msgstr "Erreur lors de la suppression de la configuration de notification"
+
+msgid "You are not allowed to access commands"
+msgstr "Vous n'êtes pas autorisé à accéder aux commandes"
+
+msgid "Error while searching for commands"
+msgstr "Erreur lors de la recherche de commandes"
+
+msgid "You are not allowed to partially update a notification configuration"
+msgstr "Vous n'êtes pas autorisé à effectuer la modification partielle d'une configuration de notification"
+
+msgid "Error while partially updating a notification configuration"
+msgstr "Erreur lors de la modification partielle d'une configuration de notification"
+
+msgid "Error while updating a notification configuration"
+msgstr "Erreur lors de la mise à jour de la configuration d'une notification"
+
+msgid "Select a widget type"
+msgstr "Sélectionner un type de widget"
+
+msgid "No widget found"
+msgstr "Aucun widget trouvé"
+
+msgid "Delete a widget"
+msgstr "Supprimer un widget"
+
+msgid "Do you want to delete this widget?"
+msgstr "Voulez-vous supprimer ce widget ?"
+
+msgid "Widget library"
+msgstr "Bibliothèque de widgets"
+
+msgid "Please choose a widget to activate the preview"
+msgstr "Sélectionnez un type de widget pour activer l'aperçu"
+
+msgid "Edit widget"
+msgstr "Éditer le widget"
+
+msgid "Delete widget"
+msgstr "Supprimer le widget"
+
+msgid "Widget properties"
+msgstr "Propriétés du widget"
+
+msgid "Common properties"
+msgstr "Propriétés communes"
+
+msgid "Error while adding a host"
+msgstr "Erreur lors de la création d'un hôte"
+
+msgid "Error while linking host categories to a host"
+msgstr "Erreur lors de l'association de catégories d'hôte à un hôte"
+
+msgid "You are not allowed to add hosts"
+msgstr "Vous n'êtes pas autorisé à créer des hôtes"
+
+msgid "Host #%d not found"
+msgstr "Hôte #%d introuvable"
+
+msgid "Host name should not start with '_Module_'"
+msgstr "Le nom d'hôte ne doit pas commencer par '_Module_'"
+
+msgid "Error while retrieving a host"
+msgstr "Error lors de la récupération d'un hôte"
+
+msgid "You are not allowed to delete a service"
+msgstr "Vous n'êtes pas autorisé à supprimer un service"
+
+msgid "Error while deleting the service"
+msgstr "Erreur lors de la suppression du service"
+
+msgid "You are not allowed to list notification resources"
+msgstr "Vous n'êtes pas autorisé à afficher les ressources des notifications"
+
+msgid "Error while listing notification resources"
+msgstr "Erreur lors de l'affichage des ressources des notifications"
+
+msgid "Notifications will only be sent during this time period"
+msgstr "Les notifications ne seront envoyées que pendant cette période"
+
+msgid "Search Business Views"
+msgstr "Rechercher des Vues Métier"
+
+msgid "Business Views events"
+msgstr "Événements des Vues Métier"
+
+msgid "Host template required in service group association is not linked to service template"
+msgstr "Le modèle d'hôte requis dans l'association du groupe de services n'est pas lié au modèle de service"
+
+msgid "No data found"
+msgstr "Aucune donnée trouvée"
+
+msgid "Metrics dataset selection"
+msgstr "Sélection du jeu de données de métriques"
+
+msgid "Resource type"
+msgstr "Type de ressource"
+
+msgid "Select a resource"
+msgstr "Sélectionner une ressource"
+
+msgid "Please select a resource"
+msgstr "Veuillez sélectionner une ressource"
+
+msgid "Service name"
+msgstr "Nom du service"
+
+msgid "Please select a metric"
+msgstr "Veuillez sélectionner une métrique"
+
+msgid "Missing property in the metric information: %s"
+msgstr "Propriété manquante dans les informations de la métrique : %s"
+
+msgid "Metrics not found"
+msgstr "Métriques non trouvées"
+
+msgid "An error occured while retrieving metrics data"
+msgstr "Une erreur est survenue lors de la récupération des données de métriques"
+
+msgid "Invalid metric format"
+msgstr "Format de métrique invalide"
+
+msgid "Refresh interval"
+msgstr "Intervalle de rafraîchissement"
+
+msgid "Dashboard global interval (by default)"
+msgstr "Intervalle global du tableau de bord (par défaut)"
+
+msgid "Custom refresh interval"
+msgstr "Intervalle de rafraîchissement personnalisé"
+
+msgid "second"
+msgstr "seconde"
+
+msgid "Manual refresh"
+msgstr "Rafraîchissement manuel"
+
+msgid "Interval"
+msgstr "Intervalle"
+
+msgid "Threshold"
+msgstr "Seuil"
+
+msgid "Show thresholds"
+msgstr "Afficher les seuils"
+
+msgid "Warning threshold"
+msgstr "Seuil d'alerte"
+
+msgid "Critical threshold"
+msgstr "Seuil critique"
+
+msgid "Custom"
+msgstr "Personnalisé"
+
+msgid "Thresholds are automatically hidden if you select 2 metric units"
+msgstr "Les seuils sont automatiquement masqués si vous sélectionnez 2 unités de métrique"
+
+msgid "Show description"
+msgstr "Afficher la description"
+
+msgid "Open links in new tab"
+msgstr "Ouvrir les liens dans un nouvel onglet"
+
+msgid "By turning off this option, all links included in the widget will be opened in the same tab."
+msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
+
+msgid "Dataset selection"
+msgstr "Sélection du jeu de données"
+
+msgid "You have too many metrics, please filter more resources to optimize platform performance"
+msgstr "Vous avez trop de métriques, veuillez filtrer plus de ressources pour optimiser les performances de la plateforme"
+
+msgid "You can select a maximum of two metric units"
+msgstr "Vous pouvez sélectionner un maximum de deux unités de métrique"
+
+msgid "Add resource"
+msgstr "Ajouter une ressource"
+
+msgid "Add metric"
+msgstr "Ajouter une métrique"
+
+msgid "available"
+msgstr "disponible"
+
+msgid "Your widget has been modified successfully!"
+msgstr "Votre widget a été modifié avec succès !"
+
+msgid "Your widget has been created successfully!"
+msgstr "Votre widget a été créé avec succès !"
+
+msgid "Value settings"
+msgstr "Paramètres de valeur"
+
+msgid "By turning off this option, all the links included in the widget will be opened in the same tab."
+msgstr "En désactivant cette option, tous les liens inclus dans le widget seront ouverts dans le même onglet."
+
+msgid "Graph type"
+msgstr "Type de graphique"
+
+msgid "Value defined by the {{metric}} metric"
+msgstr "Valeur définie par la métrique {{metric}}"
+
+msgid "The {{module}} license will expire in {{expirationDate}} days"
+msgstr "La licence {{module}} expirera dans {{expirationDate}} jours"
+
+msgid "Last hour"
+msgstr "La dernière heure"
+
+msgid "Last 24 hours"
+msgstr "Les dernières 24 heures"
+
+msgid "Last 7 days"
+msgstr "Les 7 derniers jours"
+
+msgid "Last 30 days"
+msgstr "Les 30 derniers jours"
+
+msgid "Last 3 months"
+msgstr "Les 3 derniers mois"
+
+msgid "Last 12 months"
+msgstr "Les 12 derniers mois"
+
+msgid "Start"
+msgstr "Début"
+
+msgid "End"
+msgstr "Fin"
+
+msgid "Custom value"
+msgstr "Valeur personnalisée"
+
+msgid "You are not allowed to add a service"
+msgstr "Vous n'êtes pas autorisé à ajouter un service"
+
+msgid "Error while adding the service"
+msgstr "Erreur lors de l'ajout du service"
+
+msgid "Error while retrieving a service"
+msgstr "Erreur lors de la récupération d'un service"
+
+msgid "The check command cannot be null if the service template is null"
+msgstr "La commande de vérification ne peut être null si le modèle de service est null"
+
+msgid "'%s' does not exist with ID(s) '%s'"
+msgstr "'%s' n'existe pas avec le(s) ID(s) %s"
+
+msgid "'%s' service name already exists for host ID %d"
+msgstr "Le nom du service '%s' existe déjà pour l'ID d'hôte %d"
+
+msgid "Manage the organization's authentication tokens"
+msgstr "Gérer les jetons d'authentification de l'organisation"
+
+msgid "Display view:"
+msgstr "Afficher la vue :"
+
+msgid "View all resources"
+msgstr "Afficher toutes les ressources"
+
+msgid "View by host"
+msgstr "Afficher par hôte"
+
+msgid "View by service"
+msgstr "Afficher par service"
+
+msgid "Error while adding a token"
+msgstr "Erreur lors de l'ajout d'un token"
+
+msgid "You are not allowed to add tokens"
+msgstr "Vous n'êtes pas autorisé à ajouter des tokens"
+
+msgid "Error while retrieving a token"
+msgstr "Erreur lors de la récupération du token"
+
+msgid "The token name '%s' already exists"
+msgstr "Le nom de token '%s' existe déjà"
+
+msgid "The user with ID %d doesn't exist"
+msgstr "L'utilisateur avec l'ID %d n'existe pas"
+
+msgid "You are not allowed to add tokens linked to user with ID %d"
+msgstr "Vous n'êtes pas autorisé à créer des tokens liés à l'ID d'utilisateur %d"

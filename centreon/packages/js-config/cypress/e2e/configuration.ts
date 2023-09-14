@@ -5,7 +5,9 @@ import { execSync } from 'child_process';
 
 import { defineConfig } from 'cypress';
 
-import setupNodeEvents from './plugins';
+import esbuildPreprocessor from './esbuild-preprocessor';
+import plugins from './plugins';
+import tasks from './tasks';
 
 interface ConfigurationOptions {
   cypressFolder?: string;
@@ -22,9 +24,7 @@ export default ({
   dockerName,
   env
 }: ConfigurationOptions): Cypress.ConfigOptions => {
-  const resultsFolder = `${cypressFolder || 'cypress'}/results${
-    isDevelopment ? '/dev' : ''
-  }`;
+  const resultsFolder = `${cypressFolder || 'cypress'}/results`;
 
   const webImageVersion = execSync('git rev-parse --abbrev-ref HEAD')
     .toString('utf8')
@@ -35,12 +35,18 @@ export default ({
     defaultCommandTimeout: 6000,
     e2e: {
       excludeSpecPattern: ['*.js', '*.ts', '*.md'],
-      setupNodeEvents,
+      setupNodeEvents: async (on, config) => {
+        await esbuildPreprocessor(on, config);
+        tasks(on);
+
+        return plugins(on, config);
+      },
       specPattern
     },
     env: {
       ...env,
       OPENID_IMAGE_VERSION: '23.04',
+      WEB_IMAGE_OS: 'alma9',
       WEB_IMAGE_VERSION: webImageVersion,
       dockerName: dockerName || 'centreon-dev'
     },
@@ -57,6 +63,7 @@ export default ({
     retries: 0,
     screenshotsFolder: `${resultsFolder}/screenshots`,
     video: true,
+    videoCompression: isDevelopment ? 0 : 16,
     videosFolder: `${resultsFolder}/videos`
   });
 };

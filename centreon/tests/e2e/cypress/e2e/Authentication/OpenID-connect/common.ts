@@ -7,6 +7,7 @@ const oidcConfigValues = {
   clientSecret: 'IKbUBottl5eoyhf0I5Io2nuDsTA85D50',
   introspectionTokenEndpoint: '/token/introspect',
   loginAttrPath: 'preferred_username',
+  scopes: 'openid',
   tokenEndpoint: '/token'
 };
 
@@ -29,27 +30,38 @@ const removeContact = (): Cypress.Chainable => {
 };
 
 const configureOpenIDConnect = (): Cypress.Chainable => {
-  cy.getByLabel({ label: 'Base URL', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.baseUrl, { force: true });
-  cy.getByLabel({ label: 'Authorization endpoint', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.authEndpoint, { force: true });
-  cy.getByLabel({ label: 'Token endpoint', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.tokenEndpoint, { force: true });
-  cy.getByLabel({ label: 'Client ID', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.clientID, { force: true });
-  cy.getByLabel({ label: 'Client secret', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.clientSecret, { force: true });
-  cy.getByLabel({ label: 'Login attribute path', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.loginAttrPath, { force: true });
-  cy.getByLabel({ label: 'Introspection token endpoint', tag: 'input' })
-    .clear({ force: true })
-    .type(oidcConfigValues.introspectionTokenEndpoint, { force: true });
+  cy.getByLabel({ label: 'Base URL', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.baseUrl}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Authorization endpoint', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.authEndpoint}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Token endpoint', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.tokenEndpoint}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Client ID', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.clientID}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Client secret', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.clientSecret}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Scopes', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.scopes}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Login attribute path', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.loginAttrPath}`,
+    { force: true }
+  );
+  cy.getByLabel({ label: 'Introspection token endpoint', tag: 'input' }).type(
+    `{selectall}{backspace}${oidcConfigValues.introspectionTokenEndpoint}`,
+    { force: true }
+  );
   cy.getByLabel({
     label: 'Use basic authentication for token endpoint authentication',
     tag: 'input'
@@ -60,48 +72,8 @@ const configureOpenIDConnect = (): Cypress.Chainable => {
   });
 };
 
-const getUserContactId = (userName: string): Cypress.Chainable => {
-  const query = `SELECT contact_id FROM contact WHERE contact_alias = '${userName}';`;
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon -e "${query}"`;
-
-  return cy
-    .exec(command, { failOnNonZeroExit: true, log: true })
-    .then(({ code, stdout, stderr }) => {
-      if (!stderr && code === 0) {
-        const idUser = parseInt(stdout.split('\n')[1], 10);
-
-        return cy.wrap(idUser || '0');
-      }
-
-      return cy.log(`Can't execute command on database.`);
-    });
-};
-
-const getAccessGroupId = (accessGroupName: string): Cypress.Chainable => {
-  const query = `SELECT acl_group_id FROM acl_groups WHERE acl_group_name = '${accessGroupName}';`;
-  const command = `docker exec -i ${Cypress.env(
-    'dockerName'
-  )} mysql -ucentreon -pcentreon centreon <<< "${query}"`;
-
-  return cy
-    .exec(command, { failOnNonZeroExit: true, log: true })
-    .then(({ code, stdout, stderr }) => {
-      if (!stderr && code === 0) {
-        const accessGroupid = parseInt(stdout.split('\n')[1], 10);
-
-        return cy.wrap(accessGroupid || '0');
-      }
-
-      return cy.log(`Can't execute command on database.`);
-    });
-};
-
 export {
   removeContact,
   initializeOIDCUserAndGetLoginPage,
-  configureOpenIDConnect,
-  getUserContactId,
-  getAccessGroupId
+  configureOpenIDConnect
 };
